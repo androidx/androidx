@@ -25,27 +25,30 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Preconditions;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentFactory;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.test.core.app.ActivityScenario;
 
-
 /**
  * FragmentScenario provides API to start and drive a Fragment's lifecycle state for testing. It
  * works with arbitrary fragments and works consistently across different versions of the Android
  * framework.
+ * <p>
+ * FragmentScenario only supports {@link androidx.fragment.app.Fragment}. If you are using a
+ * deprecated fragment class such as {@link android.support.v4.app.Fragment} or
+ * {@link android.app.Fragment}, please update your code to {@link androidx.fragment.app.Fragment}.
  *
- * <p>FragmentScenario only supports {@link androidx.fragment.app.Fragment}. If you are using a
- * deprecated fragment class such as {@link android.support.v4.app.Fragment} or {@link
- * android.app.Fragment}, please update your code to {@link androidx.fragment.app.Fragment}.
+ * @param <F> The Fragment class being tested
  *
  * @see ActivityScenario a scenario API for Activity
  */
 public final class FragmentScenario<F extends Fragment> {
 
     private static final String FRAGMENT_TAG = "FragmentScenario_Fragment_Tag";
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Class<F> mFragmentClass;
     private final ActivityScenario<EmptyFragmentActivity> mActivityScenario;
 
@@ -56,7 +59,7 @@ public final class FragmentScenario<F extends Fragment> {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public static class EmptyFragmentActivity extends FragmentActivity {};
+    public static class EmptyFragmentActivity extends FragmentActivity {}
 
     private FragmentScenario(
             @NonNull Class<F> fragmentClass,
@@ -66,8 +69,8 @@ public final class FragmentScenario<F extends Fragment> {
     }
 
     /**
-     * Launches a Fragment hosted by a {@link EmptyFragmentActivity} and waits for it to become
-     * resumed state.
+     * Launches a Fragment hosted by an empty {@link FragmentActivity} and waits for it to reach
+     * the resumed state.
      *
      * @param fragmentClass a fragment class to instantiate
      */
@@ -78,10 +81,10 @@ public final class FragmentScenario<F extends Fragment> {
     }
 
     /**
-     * Launches a Fragment with given arguments hosted by a {@link EmptyFragmentActivity} and waits
-     * for it to become resumed state.
-     *
-     * <p>This method cannot be called from the main thread.
+     * Launches a Fragment with given arguments hosted by an empty {@link FragmentActivity} and
+     * waits for it to reach the resumed state.
+     * <p>
+     * This method cannot be called from the main thread.
      *
      * @param fragmentClass a fragment class to instantiate
      * @param fragmentArgs a bundle to passed into fragment
@@ -93,10 +96,10 @@ public final class FragmentScenario<F extends Fragment> {
     }
 
     /**
-     * Launches a Fragment with given arguments hosted by a {@link EmptyFragmentActivity} using
-     * given {@link FragmentFactory} and waits for it to become resumed state.
-     *
-     * <p>This method cannot be called from the main thread.
+     * Launches a Fragment with given arguments hosted by an empty {@link FragmentActivity} using
+     * the given {@link FragmentFactory} and waits for it to reach the resumed state.
+     * <p>
+     * This method cannot be called from the main thread.
      *
      * @param fragmentClass a fragment class to instantiate
      * @param fragmentArgs a bundle to passed into fragment
@@ -111,9 +114,9 @@ public final class FragmentScenario<F extends Fragment> {
 
     /**
      * Launches a Fragment in the Activity's root view container {@code android.R.id.content},
-     * hosted by a {@link EmptyFragmentActivity} and waits for it to become resumed state.
-     *
-     * <p>This method cannot be called from the main thread.
+     * hosted by an empty {@link FragmentActivity} and waits for it to reach the resumed state.
+     * <p>
+     * This method cannot be called from the main thread.
      *
      * @param fragmentClass a fragment class to instantiate
      */
@@ -125,10 +128,10 @@ public final class FragmentScenario<F extends Fragment> {
 
     /**
      * Launches a Fragment in the Activity's root view container {@code android.R.id.content}, with
-     * given arguments hosted by a {@link EmptyFragmentActivity} using given {@link FragmentFactory}
-     * and waits for it to become resumed state.
-     *
-     * <p>This method cannot be called from the main thread.
+     * given arguments hosted by an empty {@link FragmentActivity} using the given
+     * {@link FragmentFactory} and waits for it to reach the resumed state.
+     * <p>
+     * This method cannot be called from the main thread.
      *
      * @param fragmentClass a fragment class to instantiate
      * @param fragmentArgs a bundle to passed into fragment
@@ -141,10 +144,10 @@ public final class FragmentScenario<F extends Fragment> {
 
     /**
      * Launches a Fragment in the Activity's root view container {@code android.R.id.content}, with
-     * given arguments hosted by a {@link EmptyFragmentActivity} and waits for it to become resumed
-     * state.
-     *
-     * <p>This method cannot be called from the main thread.
+     * given arguments hosted by an empty {@link FragmentActivity} and waits for it to reach the
+     * resumed state.
+     * <p>
+     * This method cannot be called from the main thread.
      *
      * @param fragmentClass a fragment class to instantiate
      * @param fragmentArgs a bundle to passed into fragment
@@ -173,7 +176,7 @@ public final class FragmentScenario<F extends Fragment> {
                         }
                         Fragment fragment = activity.getSupportFragmentManager()
                                 .getFragmentFactory().instantiate(
-                                        fragmentClass.getClassLoader(),
+                                        Preconditions.checkNotNull(fragmentClass.getClassLoader()),
                                         fragmentClass.getName(),
                                         fragmentArgs);
                         fragment.setArguments(fragmentArgs);
@@ -188,14 +191,15 @@ public final class FragmentScenario<F extends Fragment> {
 
     /**
      * Moves Fragment state to a new state.
-     *
-     * <p>If a new state and current state are the same, it does nothing. It accepts {@link
-     * State.CREATED}, {@link State.STARTED}, {@link State.RESUMED}, and {@link State.DESTROYED}.
-     *
-     * <p>{@link State.DESTROYED} is the terminal state. You cannot move the state to other state
+     * <p>
+     * If a new state and current state are the same, this method does nothing. It accepts
+     * {@link State#CREATED}, {@link State#STARTED}, {@link State#RESUMED}, and
+     * {@link State#DESTROYED}.
+     * <p>
+     * {@link State#DESTROYED} is a terminal state. You cannot move to any other state
      * after the Fragment reaches that state.
-     *
-     * <p>This method cannot be called from the main thread.
+     * <p>
+     * This method cannot be called from the main thread.
      */
     @NonNull
     public FragmentScenario<F> moveToState(@NonNull State newState) {
@@ -236,11 +240,11 @@ public final class FragmentScenario<F extends Fragment> {
 
     /**
      * Recreates the host Activity.
-     *
-     * <p>After this method call, it is ensured that the Fragment state goes back to the same state
+     * <p>
+     * After this method call, it is ensured that the Fragment state goes back to the same state
      * as its previous state.
-     *
-     * <p>This method cannot be called from the main thread.
+     * <p>
+     * This method cannot be called from the main thread.
      */
     @NonNull
     public FragmentScenario<F> recreate() {
@@ -252,8 +256,8 @@ public final class FragmentScenario<F extends Fragment> {
      * FragmentAction interface should be implemented by any class whose instances are intended to
      * be executed by the main thread. A Fragment that is instrumented by the FragmentScenario is
      * passed to {@link FragmentAction#perform} method.
-     *
-     * <p>You should never keep the Fragment reference as it will lead to unpredictable behaviour.
+     * <p>
+     * You should never keep the Fragment reference as it will lead to unpredictable behaviour.
      * It should only be accessed in {@link FragmentAction#perform} scope.
      */
     public interface FragmentAction<F extends Fragment> {
@@ -267,14 +271,14 @@ public final class FragmentScenario<F extends Fragment> {
 
     /**
      * Runs a given {@code action} on the current Activity's main thread.
-     *
-     * <p>Note that you should never keep Fragment reference passed into your {@code action} because
-     * it can be recreated at anytime during state transitions.
-     *
-     * <p>Throwing an exception from {@code action} makes the host Activity to crash. You can
+     * <p>
+     * Note that you should never keep Fragment reference passed into your {@code action}
+     * because it can be recreated at anytime during state transitions.
+     * <p>
+     * Throwing an exception from {@code action} makes the host Activity crash. You can
      * inspect the exception in logcat outputs.
-     *
-     * <p>This method cannot be called from the main thread.
+     * <p>
+     * This method cannot be called from the main thread.
      */
     @NonNull
     public FragmentScenario<F> onFragment(@NonNull final FragmentAction<F> action) {
@@ -287,7 +291,7 @@ public final class FragmentScenario<F extends Fragment> {
                         checkNotNull(fragment,
                                 "The fragment has been removed from FragmentManager already.");
                         checkState(mFragmentClass.isInstance(fragment));
-                        action.perform(mFragmentClass.cast(fragment));
+                        action.perform(Preconditions.checkNotNull(mFragmentClass.cast(fragment)));
                     }
                 });
         return this;
