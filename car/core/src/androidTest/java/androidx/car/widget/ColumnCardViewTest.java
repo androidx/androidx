@@ -54,7 +54,7 @@ public final class ColumnCardViewTest {
     public void defaultCardWidthMatchesCalculation() {
         ColumnCardView card = mActivity.findViewById(R.id.default_width_column_card);
 
-        assertEquals(mCalculator.getColumnSpanWidth(mActivity.getResources().getInteger(
+        assertEquals(mCalculator.getSizeForColumnSpan(mActivity.getResources().getInteger(
                 R.integer.column_card_default_column_span)),
                 card.getWidth());
     }
@@ -63,7 +63,7 @@ public final class ColumnCardViewTest {
     public void customXmlColumnSpanMatchesCalculation() {
         ColumnCardView card = mActivity.findViewById(R.id.span_2_column_card);
 
-        assertEquals(mCalculator.getColumnSpanWidth(2), card.getWidth());
+        assertEquals(mCalculator.getSizeForColumnSpan(2), card.getWidth());
     }
 
     @UiThreadTest
@@ -79,7 +79,7 @@ public final class ColumnCardViewTest {
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
-                        assertEquals(mCalculator.getColumnSpanWidth(columnSpan), card.getWidth());
+                        assertEquals(mCalculator.getSizeForColumnSpan(columnSpan), card.getWidth());
                     }
                 });
     }
@@ -96,7 +96,7 @@ public final class ColumnCardViewTest {
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
-                        assertEquals(mCalculator.getColumnSpanWidth(original), card.getWidth());
+                        assertEquals(mCalculator.getSizeForColumnSpan(original), card.getWidth());
                     }
                 });
     }
