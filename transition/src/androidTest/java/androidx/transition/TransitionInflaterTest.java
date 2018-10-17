@@ -128,6 +128,7 @@ public class TransitionInflaterTest extends BaseTest {
         assertTrue(transition instanceof TransitionSet);
         TransitionSet set = (TransitionSet) transition;
         assertEquals(TransitionSet.ORDERING_SEQUENTIAL, set.getOrdering());
+        assertEquals(300, set.getDuration());
         assertEquals(2, set.getTransitionCount());
         assertTrue(set.getTransitionAt(0) instanceof ChangeBounds);
         assertTrue(set.getTransitionAt(1) instanceof Fade);
