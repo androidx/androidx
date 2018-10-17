@@ -19,6 +19,7 @@ package androidx.collection;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -84,6 +85,122 @@ public class SimpleArrayMapTest {
     public void putIfAbsentReturnsNullWhenAbsent() {
         SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
         assertNull(map.putIfAbsent("one", "2"));
+    }
+
+    @Test
+    public void replaceWhenAbsentDoesNotStore() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        assertNull(map.replace("one", "1"));
+        assertFalse(map.containsKey("one"));
+    }
+
+    @Test
+    public void replaceStoresAndReturnsOldValue() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertEquals("1", map.replace("one", "2"));
+        assertEquals("2", map.get("one"));
+    }
+
+    @Test
+    public void replaceStoresAndReturnsNullWhenMappedToNull() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", null);
+        assertNull(map.replace("one", "1"));
+        assertEquals("1", map.get("one"));
+    }
+
+    @Test
+    public void replaceValueKeyAbsent() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        assertFalse(map.replace("one", "1", "2"));
+        assertFalse(map.containsKey("one"));
+    }
+
+    @Test
+    public void replaceValueMismatchDoesNotReplace() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertFalse(map.replace("one", "2", "3"));
+        assertEquals("1", map.get("one"));
+    }
+
+    @Test
+    public void replaceValueMismatchNullDoesNotReplace() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertFalse(map.replace("one", null, "2"));
+        assertEquals("1", map.get("one"));
+    }
+
+    @Test
+    public void replaceValueMatchReplaces() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertTrue(map.replace("one", "1", "2"));
+        assertEquals("2",  map.get("one"));
+    }
+
+    @Test
+    public void replaceNullValueMismatchDoesNotReplace() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", null);
+        assertFalse(map.replace("one", "1", "2"));
+        assertNull(map.get("one"));
+    }
+
+    @Test
+    public void replaceNullValueMatchRemoves() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", null);
+        assertTrue(map.replace("one", null, "1"));
+        assertEquals("1", map.get("one"));
+    }
+
+    @Test
+    public void removeValueKeyAbsent() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        assertFalse(map.remove("one", "1"));
+    }
+
+    @Test
+    public void removeValueMismatchDoesNotRemove() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertFalse(map.remove("one", "2"));
+        assertTrue(map.containsKey("one"));
+    }
+
+    @Test
+    public void removeValueMismatchNullDoesNotRemove() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertFalse(map.remove("one", null));
+        assertTrue(map.containsKey("one"));
+    }
+
+    @Test
+    public void removeValueMatchRemoves() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", "1");
+        assertTrue(map.remove("one", "1"));
+        assertFalse(map.containsKey("one"));
+    }
+
+    @Test
+    public void removeNullValueMismatchDoesNotRemove() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", null);
+        assertFalse(map.remove("one", "2"));
+        assertTrue(map.containsKey("one"));
+    }
+
+    @Test
+    public void removeNullValueMatchRemoves() {
+        SimpleArrayMap<String, String> map = new SimpleArrayMap<>();
+        map.put("one", null);
+        assertTrue(map.remove("one", null));
+        assertFalse(map.containsKey("one"));
     }
 
     /**

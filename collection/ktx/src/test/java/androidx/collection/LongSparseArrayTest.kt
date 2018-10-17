@@ -89,17 +89,6 @@ class LongSparseArrayTest {
         assertTrue(array.isNotEmpty())
     }
 
-    @Test fun removeValue() {
-        val array = LongSparseArray<String>()
-        array.put(1L, "one")
-        assertFalse(array.remove(0L, "one"))
-        assertEquals(1, array.size())
-        assertFalse(array.remove(1L, "two"))
-        assertEquals(1, array.size())
-        assertTrue(array.remove(1L, "one"))
-        assertEquals(0, array.size())
-    }
-
     @Test fun forEach() {
         val array = LongSparseArray<String>()
         array.forEach { _, _ -> fail() }

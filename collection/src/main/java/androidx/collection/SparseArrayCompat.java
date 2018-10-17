@@ -147,6 +147,24 @@ public class SparseArrayCompat<E> implements Cloneable {
     }
 
     /**
+     * Remove an existing key from the array map only if it is currently mapped to {@code value}.
+     * @param key The key of the mapping to remove.
+     * @param value The value expected to be mapped to the key.
+     * @return Returns true if the mapping was removed.
+     */
+    public boolean remove(int key, Object value) {
+        int index = indexOfKey(key);
+        if (index >= 0) {
+            E mapValue = valueAt(index);
+            if (value == mapValue || (value != null && value.equals(mapValue))) {
+                removeAt(index);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Removes the mapping at the specified index.
      */
     public void removeAt(int index) {
@@ -167,6 +185,43 @@ public class SparseArrayCompat<E> implements Cloneable {
         for (int i = index; i < end; i++) {
             removeAt(i);
         }
+    }
+
+    /**
+     * Replace the mapping for {@code key} only if it is already mapped to a value.
+     * @param key The key of the mapping to replace.
+     * @param value The value to store for the given key.
+     * @return Returns the previous mapped value or null.
+     */
+    @Nullable
+    public E replace(int key, E value) {
+        int index = indexOfKey(key);
+        if (index >= 0) {
+            E oldValue = (E) mValues[index];
+            mValues[index] = value;
+            return oldValue;
+        }
+        return null;
+    }
+
+    /**
+     * Replace the mapping for {@code key} only if it is already mapped to a value.
+     *
+     * @param key The key of the mapping to replace.
+     * @param oldValue The value expected to be mapped to the key.
+     * @param newValue The value to store for the given key.
+     * @return Returns true if the value was replaced.
+     */
+    public boolean replace(int key, E oldValue, E newValue) {
+        int index = indexOfKey(key);
+        if (index >= 0) {
+            Object mapValue = mValues[index];
+            if (mapValue == oldValue || (oldValue != null && oldValue.equals(mapValue))) {
+                mValues[index] = newValue;
+                return true;
+            }
+        }
+        return false;
     }
 
     private void gc() {
