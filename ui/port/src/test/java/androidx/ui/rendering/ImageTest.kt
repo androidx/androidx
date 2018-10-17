@@ -16,18 +16,37 @@
 
 package androidx.ui.rendering
 
+import androidx.ui.async.Timer
 import androidx.ui.foundation.diagnostics.DiagnosticLevel
 import androidx.ui.matchers.EqualsIgnoringHashCodes
 import androidx.ui.matchers.HasGoodToStringDeep
 import androidx.ui.matchers.MoreOrLessEquals
 import androidx.ui.painting.BlendMode
 import androidx.ui.rendering.box.BoxConstraints
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.TestCoroutineContext
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertThat
+import org.junit.Before
 import org.junit.Test
 
 class ImageTest {
+
+    private lateinit var job: Job
+
+    @Before
+    fun setup() {
+        job = Job()
+        Timer.scope = CoroutineScope(TestCoroutineContext() + job)
+    }
+
+    @After
+    fun teardown() {
+        job.cancel()
+    }
 
     @Test
     fun `Image sizing`() {

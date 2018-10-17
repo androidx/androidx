@@ -17,3 +17,9 @@ dependencies {
     implementation(project(":ui-r4a"))
     api(KOTLIN_R4A_STDLIB)
 }
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+    }
+}

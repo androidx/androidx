@@ -35,7 +35,7 @@ typealias GestureLongPressCallback = () -> Unit
  */
 // TODO(Migration/shepshapard): Needs tests, which rely on some Mixin stuff.
 open class LongPressGestureRecognizer(
-    debugOwner: Any?
+    debugOwner: Any? = null
 ) : PrimaryPointerGestureRecognizer(
     deadline = kLongPressTimeout, debugOwner = debugOwner
 ) {
@@ -45,8 +45,8 @@ open class LongPressGestureRecognizer(
 
     override fun didExceedDeadline() {
         this.resolve(GestureDisposition.accepted)
-        if (onLongPress != null) {
-            invokeCallback("onLongPress", ::onLongPress)
+        onLongPress?.let {
+            invokeCallback("onLongPress", it)
         }
     }
 

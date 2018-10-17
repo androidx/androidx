@@ -16,6 +16,7 @@
 
 package androidx.ui.gestures.multitap_test
 
+import androidx.ui.async.Timer
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.flutter_test.TestPointer
 import androidx.ui.gestures.gesture_tester.ensureGestureBinding
@@ -23,9 +24,14 @@ import androidx.ui.gestures.gesture_tester.gestureArena
 import androidx.ui.gestures.gesture_tester.pointerRouter
 import androidx.ui.gestures.kLongPressTimeout
 import androidx.ui.gestures.multitap.MultiTapGestureRecognizer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.TestCoroutineContext
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
+import org.junit.After
 import org.junit.Assert.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -33,9 +39,22 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class MultiTapTest {
 
+    private lateinit var job: Job
+
+    @Before
+    fun setup() {
+        ensureGestureBinding()
+        job = Job()
+        Timer.scope = CoroutineScope(TestCoroutineContext() + job)
+    }
+
+    @After
+    fun teardown() {
+        job.cancel()
+    }
+
     @Test
     fun `Should recognize pan`() {
-        ensureGestureBinding()
         val tap = MultiTapGestureRecognizer(longTapDelay = kLongPressTimeout)
 
         val log: MutableList<String> = mutableListOf()
