@@ -15,11 +15,13 @@
   ~ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="androidx.work.integration.testapp">
 
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
 <application
+        android:name=".TestApplication"
         android:allowBackup="true"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
@@ -38,6 +40,10 @@
             <action android:name="android.intent.action.MAIN"/>
         </intent-filter>
     </activity>
+    <provider
+        android:name="androidx.work.impl.WorkManagerInitializer"
+        android:authorities="${applicationId}.workmanager-init"
+        tools:node="remove"/>
 </application>
 
 </manifest>
