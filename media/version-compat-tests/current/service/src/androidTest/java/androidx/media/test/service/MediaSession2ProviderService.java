@@ -31,9 +31,11 @@ import static androidx.media.test.lib.CommonConstants.KEY_PLAYER_STATE;
 import static androidx.media.test.lib.CommonConstants.KEY_PLAYLIST;
 import static androidx.media.test.lib.CommonConstants.KEY_SPEED;
 import static androidx.media.test.lib.CommonConstants.KEY_VOLUME_CONTROL_TYPE;
-import static androidx.media.test.lib.MediaSession2Constants.TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
+import static androidx.media.test.lib.MediaSession2Constants
+        .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
 import static androidx.media.test.lib.MediaSession2Constants.TEST_GET_SESSION_ACTIVITY;
-import static androidx.media.test.lib.MediaSession2Constants.TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST;
+import static androidx.media.test.lib.MediaSession2Constants
+        .TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -41,7 +43,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.support.mediacompat.testlib.IRemoteMediaSession2;
 import android.util.Log;
 
@@ -225,18 +226,18 @@ public class MediaSession2ProviderService extends Service {
         }
 
         @Override
-        public void sendCustomCommand(String sessionId, Bundle command, Bundle args)
+        public void broadcastCustomCommand(String sessionId, Bundle command, Bundle args)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            session2.sendCustomCommand(SessionCommand2.fromBundle(command), args);
+            session2.broadcastCustomCommand(SessionCommand2.fromBundle(command), args);
         }
 
         @Override
-        public void sendCustomCommand2(String sessionId, Bundle controller, Bundle command,
-                Bundle args, ResultReceiver receiver) throws RemoteException {
+        public void sendCustomCommand(String sessionId, Bundle controller, Bundle command,
+                Bundle args) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             ControllerInfo info = MediaTestUtils.getTestControllerInfo(session2);
-            session2.sendCustomCommand(info, SessionCommand2.fromBundle(command), args, receiver);
+            session2.sendCustomCommand(info, SessionCommand2.fromBundle(command), args);
         }
 
         @Override

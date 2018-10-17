@@ -24,7 +24,6 @@ import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -334,7 +333,7 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
         }
 
         @Override
-        final void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
+        final void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
@@ -349,7 +348,7 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
         }
 
         @Override
-        final void onCustomCommand(SessionCommand2 command, Bundle args, ResultReceiver receiver)
+        final void sendCustomCommand(int seq, SessionCommand2 command, Bundle args)
                 throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }

@@ -42,7 +42,6 @@ import static org.junit.Assert.assertNotEquals;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.ResultReceiver;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
@@ -550,19 +549,19 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         }
 
         @Override
-        public void onCustomCommand(MediaController2 controller, SessionCommand2 command,
-                Bundle args, ResultReceiver receiver) {
-            mCallbackProxy.onCustomCommand(controller, command, args, receiver);
+        public MediaController2.ControllerResult onCustomCommand(MediaController2 controller,
+                SessionCommand2 command, Bundle args) {
             synchronized (this) {
                 if (mOnCustomCommandRunnable != null) {
                     mOnCustomCommandRunnable.run();
                 }
             }
+            return mCallbackProxy.onCustomCommand(controller, command, args);
         }
 
         @Override
-        public void onCustomLayoutChanged(MediaController2 controller, List<CommandButton> layout) {
-            mCallbackProxy.onCustomLayoutChanged(controller, layout);
+        public int onSetCustomLayout(MediaController2 controller, List<CommandButton> layout) {
+            return mCallbackProxy.onSetCustomLayout(controller, layout);
         }
 
         @Override

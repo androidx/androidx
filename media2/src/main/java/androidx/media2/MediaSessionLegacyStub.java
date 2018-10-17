@@ -573,7 +573,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
+        void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
             // no-op.
         }
 
@@ -588,7 +588,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onCustomCommand(SessionCommand2 command, Bundle args, ResultReceiver receiver)
+        void sendCustomCommand(int seq, SessionCommand2 command, Bundle args)
                 throws RemoteException {
             // no-op
         }
@@ -710,7 +710,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onCustomLayoutChanged(List<CommandButton> layout) throws RemoteException {
+        void setCustomLayout(int seq, List<CommandButton> layout) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
@@ -726,7 +726,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onCustomCommand(SessionCommand2 command, Bundle args, ResultReceiver receiver)
+        void sendCustomCommand(int seq, SessionCommand2 command, Bundle args)
                 throws RemoteException {
             // no-op
         }

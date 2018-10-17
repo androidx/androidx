@@ -19,7 +19,10 @@ package androidx.media2;
 import static androidx.media2.MediaSession2.ControllerCb;
 import static androidx.media2.MediaSession2.ControllerInfo;
 import static androidx.media2.MediaSession2.SessionCallback;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_DISCONNECTED;
 import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_UNKNOWN_ERROR;
 import static androidx.media2.MediaUtils2.DIRECT_EXECUTOR;
 import static androidx.media2.SessionPlayer2.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer2.UNKNOWN_TIME;
@@ -38,7 +41,6 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.Token;
@@ -56,6 +58,8 @@ import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaController2.PlaybackInfo;
 import androidx.media2.MediaSession2.MediaSession2Impl;
+import androidx.media2.MediaSession2.SessionResult;
+import androidx.media2.SequencedFutureManager.SequencedFuture;
 import androidx.media2.SessionPlayer2.PlayerResult;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -329,6 +333,9 @@ class MediaSession2ImplBase implements MediaSession2Impl {
 
     @Override
     public boolean isConnected(ControllerInfo controller) {
+        if (controller == null) {
+            return false;
+        }
         if (controller.equals(mSessionLegacyStub.getControllersForAll())) {
             return true;
         }
@@ -337,7 +344,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public void setCustomLayout(@NonNull ControllerInfo controller,
+    public ListenableFuture<SessionResult> setCustomLayout(@NonNull ControllerInfo controller,
             @NonNull final List<MediaSession2.CommandButton> layout) {
         if (controller == null) {
             throw new IllegalArgumentException("controller shouldn't be null");
@@ -345,10 +352,10 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         if (layout == null) {
             throw new IllegalArgumentException("layout shouldn't be null");
         }
-        notifyToController(controller, new NotifyRunnable() {
+        return sendCommand(controller, new ControllerCommand() {
             @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onCustomLayoutChanged(layout);
+            public void run(int seq, ControllerCb controller) throws RemoteException {
+                controller.setCustomLayout(seq, layout);
             }
         });
     }
@@ -379,33 +386,33 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public void sendCustomCommand(@NonNull final SessionCommand2 command,
+    public void broadcastCustomCommand(@NonNull final SessionCommand2 command,
             @Nullable final Bundle args) {
         if (command == null) {
             throw new IllegalArgumentException("command shouldn't be null");
         }
-        notifyToAllControllers(new NotifyRunnable() {
+        broadcastCommand(new ControllerCommand() {
             @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onCustomCommand(command, args, null);
+            public void run(int seq, ControllerCb controller) throws RemoteException {
+                controller.sendCustomCommand(seq, command, args);
             }
         });
     }
 
     @Override
-    public void sendCustomCommand(@NonNull ControllerInfo controller,
-            @NonNull final SessionCommand2 command, @Nullable final Bundle args,
-            @Nullable final ResultReceiver receiver) {
+    public ListenableFuture<SessionResult> sendCustomCommand(
+            @NonNull ControllerInfo controller, @NonNull final SessionCommand2 command,
+            @Nullable final Bundle args) {
         if (controller == null) {
             throw new IllegalArgumentException("controller shouldn't be null");
         }
         if (command == null) {
             throw new IllegalArgumentException("command shouldn't be null");
         }
-        notifyToController(controller, new NotifyRunnable() {
+        return sendCommand(controller, new ControllerCommand() {
             @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onCustomCommand(command, args, receiver);
+            public void run(int seq, ControllerCb controller) throws RemoteException {
+                controller.sendCustomCommand(seq, command, args);
             }
         });
     }
@@ -1018,23 +1025,14 @@ class MediaSession2ImplBase implements MediaSession2Impl {
 
     void notifyToController(@NonNull final ControllerInfo controller,
             @NonNull NotifyRunnable runnable) {
-        if (controller == null) {
-            return;
-        }
         if (!isConnected(controller)) {
             // Do not send command to an unconnected controller.
             return;
         }
-
         try {
             runnable.run(controller.getControllerCb());
         } catch (DeadObjectException e) {
-            if (DEBUG) {
-                Log.d(TAG, controller.toString() + " is gone", e);
-            }
-            // Note: Only removing from MediaSession2Stub would be fine for now, because other
-            //       (legacy) stubs wouldn't throw DeadObjectException.
-            mSession2Stub.getConnectedControllersManager().removeController(controller);
+            onDeadObjectException(controller, e);
         } catch (RemoteException e) {
             // Currently it's TransactionTooLargeException or DeadSystemException.
             // We'd better to leave log for those cases because
@@ -1055,6 +1053,90 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         notifyToController(controller, runnable);
     }
 
+    private ListenableFuture<SessionResult> sendCommand(@NonNull ControllerInfo controller,
+            @NonNull ControllerCommand command) {
+        if (!isConnected(controller)) {
+            return SessionResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);
+        }
+        try {
+            final ListenableFuture<SessionResult> result;
+            final int seq;
+            final SequencedFutureManager manager = mSession2Stub.getConnectedControllersManager()
+                    .getSequencedFutureManager(controller);
+            if (manager != null) {
+                result = manager.createSequencedFuture();
+                seq = ((SequencedFuture<SessionResult>) result).getSequenceNumber();
+            } else {
+                // Can be null in two cases. Use the 0 as sequence number in both cases because
+                //     Case 1) Controller is from the legacy stub
+                //             -> Sequence number isn't needed, so 0 is OK
+                //     Case 2) Controller is removed after the connection check above
+                //             -> Call will fail below or ignored by the controller, so 0 is OK.
+                seq = 0;
+                result = SessionResult.createFutureWithResult(RESULT_CODE_SUCCESS);
+            }
+            command.run(seq, controller.getControllerCb());
+            return result;
+        } catch (DeadObjectException e) {
+            onDeadObjectException(controller, e);
+            return SessionResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);
+        } catch (RemoteException e) {
+            // Currently it's TransactionTooLargeException or DeadSystemException.
+            // We'd better to leave log for those cases because
+            //   - TransactionTooLargeException means that we may need to fix our code.
+            //     (e.g. add pagination or special way to deliver Bitmap)
+            //   - DeadSystemException means that errors around it can be ignored.
+            Log.w(TAG, "Exception in " + controller.toString(), e);
+            return SessionResult.createFutureWithResult(RESULT_CODE_UNKNOWN_ERROR);
+        }
+    }
+
+    private void broadcastCommand(@NonNull ControllerCommand command) {
+        List<ControllerInfo> controllers =
+                mSession2Stub.getConnectedControllersManager().getConnectedControllers();
+        controllers.add(mSessionLegacyStub.getControllersForAll());
+        for (int i = 0; i < controllers.size(); i++) {
+            ControllerInfo controller = controllers.get(i);
+            try {
+                final SequencedFutureManager manager = mSession2Stub
+                        .getConnectedControllersManager().getSequencedFutureManager(controller);
+                final int seq;
+                if (manager != null) {
+                    seq = manager.obtainNextSequenceNumber();
+                    // Can be null in two cases. Use the 0 as sequence number in both cases because
+                    //     Case 1) Controller is from the legacy stub
+                    //             -> Sequence number isn't needed, so 0 is OK
+                    //     Case 2) Controller is removed after the connection check above
+                    //             -> Call will fail below or ignored by the controller, so 0 is OK.
+                } else {
+                    seq = 0;
+                }
+                command.run(seq, controller.getControllerCb());
+            } catch (DeadObjectException e) {
+                onDeadObjectException(controller, e);
+            } catch (RemoteException e) {
+                // Currently it's TransactionTooLargeException or DeadSystemException.
+                // We'd better to leave log for those cases because
+                //   - TransactionTooLargeException means that we may need to fix our code.
+                //     (e.g. add pagination or special way to deliver Bitmap)
+                //   - DeadSystemException means that errors around it can be ignored.
+                Log.w(TAG, "Exception in " + controller.toString(), e);
+            }
+        }
+    }
+
+    /**
+     * Removes controller. Call this when DeadObjectException is happened with binder call.
+     */
+    private void onDeadObjectException(ControllerInfo controller, DeadObjectException e) {
+        if (DEBUG) {
+            Log.d(TAG, controller.toString() + " is gone", e);
+        }
+        // Note: Only removing from MediaSession2Stub and ignoring (legacy) stubs would be fine for
+        //       now. Because calls to the legacy stubs doesn't throw DeadObjectException.
+        mSession2Stub.getConnectedControllersManager().removeController(controller);
+    }
+
     ///////////////////////////////////////////////////
     // Inner classes
     ///////////////////////////////////////////////////
@@ -1066,6 +1148,11 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     @FunctionalInterface
     interface NotifyRunnable {
         void run(ControllerCb callback) throws RemoteException;
+    }
+
+    @FunctionalInterface
+    interface ControllerCommand {
+        void run(int seq, ControllerCb controller) throws RemoteException;
     }
 
     private static class SessionPlayerCallback extends SessionPlayer2.PlayerCallback {

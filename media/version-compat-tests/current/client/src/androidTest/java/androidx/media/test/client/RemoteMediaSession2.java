@@ -41,7 +41,6 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
 import android.support.mediacompat.testlib.IRemoteMediaSession2;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
@@ -222,20 +221,19 @@ public class RemoteMediaSession2 {
         }
     }
 
-    public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
+    public void broadcastCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
         try {
-            mBinder.sendCustomCommand(mSessionId, command.toBundle(), args);
+            mBinder.broadcastCustomCommand(mSessionId, command.toBundle(), args);
         } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call sendCustomCommand()");
+            Log.e(TAG, "Failed to call broadcastCustomCommand()");
         }
     }
 
     public void sendCustomCommand(@NonNull ControllerInfo controller,
-            @NonNull SessionCommand2 command, @Nullable Bundle args,
-            @Nullable ResultReceiver receiver) {
+            @NonNull SessionCommand2 command, @Nullable Bundle args) {
         try {
             // TODO: ControllerInfo should be handled.
-            mBinder.sendCustomCommand2(mSessionId, null, command.toBundle(), args, receiver);
+            mBinder.sendCustomCommand(mSessionId, null, command.toBundle(), args);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call sendCustomCommand2()");
         }

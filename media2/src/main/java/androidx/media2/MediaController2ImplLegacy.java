@@ -1067,8 +1067,8 @@ class MediaController2ImplLegacy implements MediaController2Impl {
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    mCallback.onCustomCommand(mInstance, new SessionCommand2(event, null), extras,
-                            null);
+                    // Ignore return because legacy session cannot get result back.
+                    mCallback.onCustomCommand(mInstance, new SessionCommand2(event, null), extras);
                 }
             });
         }
@@ -1199,7 +1199,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
                 public void run() {
                     mCallback.onCustomCommand(mInstance,
                             new SessionCommand2(SESSION_COMMAND_ON_EXTRA_CHANGED, null),
-                            extras, null);
+                            extras);
                 }
             });
         }
@@ -1221,7 +1221,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
                 public void run() {
                     mCallback.onCustomCommand(mInstance,
                             new SessionCommand2(SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED,
-                                    null), null, null);
+                                    null), null);
                 }
             });
         }

@@ -1110,12 +1110,16 @@ public class MediaController2 implements AutoCloseable {
          * <p>
          * Can be called before {@link #onConnected(MediaController2, SessionCommandGroup2)}
          * is called.
+         * <p>
+         * Default implementation returns {@link ControllerResult#RESULT_CODE_NOT_SUPPORTED}.
          *
          * @param controller the controller for this event
          * @param layout
          */
-        public void onCustomLayoutChanged(@NonNull MediaController2 controller,
-                @NonNull List<CommandButton> layout) { }
+        public @ControllerResult.ResultCode int onSetCustomLayout(
+                @NonNull MediaController2 controller, @NonNull List<CommandButton> layout) {
+            return ControllerResult.RESULT_CODE_NOT_SUPPORTED;
+        }
 
         /**
          * Called when the session has changed anything related with the {@link PlaybackInfo}.
@@ -1150,16 +1154,21 @@ public class MediaController2 implements AutoCloseable {
                 @NonNull SessionCommandGroup2 commands) { }
 
         /**
-         * Called when the session sent a custom command.
+         * Called when the session sent a custom command. Returns a {@link ControllerResult} for
+         * session to get notification back. If the {@code null} is returned,
+         * {@link ControllerResult#RESULT_CODE_UNKNOWN_ERROR} will be returned.
+         * <p>
+         * Default implementation returns {@link ControllerResult#RESULT_CODE_NOT_SUPPORTED}.
          *
          * @param controller the controller for this event
          * @param command
          * @param args
-         * @param receiver
+         * @return result of handling custom command
          */
-        public void onCustomCommand(@NonNull MediaController2 controller,
-                @NonNull SessionCommand2 command, @Nullable Bundle args,
-                @Nullable ResultReceiver receiver) { }
+        public @NonNull ControllerResult onCustomCommand(@NonNull MediaController2 controller,
+                @NonNull SessionCommand2 command, @Nullable Bundle args) {
+            return new ControllerResult(ControllerResult.RESULT_CODE_NOT_SUPPORTED);
+        }
 
         /**
          * Called when the player state is changed.
@@ -1423,7 +1432,7 @@ public class MediaController2 implements AutoCloseable {
      * Result class to be used with {@link ListenableFuture} for asynchronous calls.
      */
     @VersionedParcelize
-    public static class ControllerResult implements RemoteResult2 {
+    public static class ControllerResult implements RemoteResult2, VersionedParcelable {
         /**
          * Result code representing that the command is successfully completed.
          * <p>
@@ -1467,6 +1476,13 @@ public class MediaController2 implements AutoCloseable {
         @ParcelField(4)
         MediaItem2 mItem;
 
+        /**
+         * Constructor to be used by
+         * {@link ControllerCallback#onCustomCommand(MediaController2, SessionCommand2, Bundle)}.
+         *
+         * @param resultCode result code
+         * @param customCommandResult custom command result
+         */
         public ControllerResult(@ResultCode int resultCode, @Nullable Bundle customCommandResult) {
             this(resultCode, customCommandResult, null);
         }
@@ -1477,7 +1493,7 @@ public class MediaController2 implements AutoCloseable {
         }
 
         ControllerResult(@ResultCode int resultCode) {
-            this(resultCode, null);
+            this(resultCode, null, null);
         }
 
         ControllerResult(@ResultCode int resultCode, @Nullable Bundle customCommandResult,
