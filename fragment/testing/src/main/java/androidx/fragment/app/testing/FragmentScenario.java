@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app.test;
+package androidx.fragment.app.testing;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.core.util.Preconditions.checkNotNull;
