@@ -69,8 +69,8 @@ abstract class BaseCardActivity : FragmentActivity() {
         }
     }
 
-    public override fun onCreate(bundle: Bundle?) {
-        super.onCreate(bundle)
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_card_layout)
 
         viewPager = findViewById(R.id.view_pager)
