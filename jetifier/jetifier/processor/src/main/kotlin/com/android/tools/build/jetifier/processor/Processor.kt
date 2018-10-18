@@ -75,12 +75,11 @@ class Processor private constructor(
          * @param reversedMode Whether the processor should run in reversed mode
          * @param rewritingSupportLib Whether we are rewriting the support library itself
          * @param useFallbackIfTypeIsMissing Use fallback for types resolving instead of crashing
-         * @param versionsMap Versions map for dependencies rewriting
          * @param allowAmbiguousPackages Whether Jetifier should not crash when it attempts to
          * rewrite ambiguous package reference such as android.support.v4.
          * @param dataBindingVersion The versions to be used for data binding otherwise undefined.
          */
-        fun createProcessor(
+        fun createProcessor2(
             config: Config,
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
@@ -127,6 +126,37 @@ class Processor private constructor(
             }
 
             return Processor(context, transformers)
+        }
+
+        /**
+         * Creates a new instance of the [Processor].
+         *
+         * @param config Transformation configuration
+         * @param reversedMode Whether the processor should run in reversed mode
+         * @param rewritingSupportLib Whether we are rewriting the support library itself
+         * @param useFallbackIfTypeIsMissing Use fallback for types resolving instead of crashing
+         * @param versionSetName Versions map for dependencies rewriting
+         * @param dataBindingVersion The versions to be used for data binding otherwise undefined.
+         */
+        @Deprecated(message = "Legacy method that is missing 'allowAmbiguousPackages' attribute " +
+                "and 'versionSetName' attribute is not used anymore.",
+            replaceWith = ReplaceWith(expression = "Processor.createProcessor2"))
+        fun createProcessor(
+            config: Config,
+            reversedMode: Boolean = false,
+            rewritingSupportLib: Boolean = false,
+            useFallbackIfTypeIsMissing: Boolean = true,
+            versionSetName: String? = null,
+            dataBindingVersion: String? = null
+        ): Processor {
+            return createProcessor2(
+                config = config,
+                reversedMode = reversedMode,
+                rewritingSupportLib = rewritingSupportLib,
+                useFallbackIfTypeIsMissing = useFallbackIfTypeIsMissing,
+                allowAmbiguousPackages = false,
+                dataBindingVersion = dataBindingVersion
+            )
         }
     }
 
