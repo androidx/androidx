@@ -39,6 +39,10 @@ abstract class RenderProxyBoxMixin : RenderBox() {
 //    // extended directly.
 //    factory RenderProxyBoxMixin._() => null;
 
+    init {
+        markAsLayoutOnlyNode()
+    }
+
     override fun setupParentData(child: RenderObject) {
         // We don't actually use the offset argument in BoxParentData, so let's
         // avoid allocating it at all.

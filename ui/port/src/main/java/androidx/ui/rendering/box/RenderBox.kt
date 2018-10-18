@@ -5,6 +5,7 @@ import androidx.ui.assert
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
+import androidx.ui.engine.text.TextBaseline
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
@@ -21,7 +22,6 @@ import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.runtimeType
-import androidx.ui.engine.text.TextBaseline
 import androidx.ui.vectormath64.Matrix4
 
 /**
@@ -874,7 +874,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * of those functions, call [markNeedsLayout] instead to schedule a layout of
      * the box.
      */
-    var size: Size
+    override var size: Size
         get() {
             assert(hasSize, { "RenderBox was not laid out: ${toString()}" })
             assert {

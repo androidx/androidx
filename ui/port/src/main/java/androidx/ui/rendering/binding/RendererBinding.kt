@@ -30,6 +30,8 @@ interface RendererBinding : SchedulerBinding, ServicesBinding {
     val renderView: RenderView?
 
     val pipelineOwner: PipelineOwner?
+
+    var renderingDrawFrameEnabled: Boolean
 }
 
 open class RendererMixinsWrapper(
@@ -315,6 +317,9 @@ class RendererBindingImpl(
     //
     // When editing the above, also update widgets/binding.dart's copy.
     override fun drawFrame() {
+        if (!renderingDrawFrameEnabled) {
+            return
+        }
         assert(renderView != null)
         assert(pipelineOwner != null)
         pipelineOwner!!.flushLayout()
@@ -323,6 +328,11 @@ class RendererBindingImpl(
         renderView!!.compositeFrame() // this sends the bits to the GPU
         pipelineOwner!!.flushSemantics() // this also sends the semantics to the OS.
     }
+
+    /**
+     * Temporary switcher to be able to disable Flutter drawing logic when we want to use our own.
+     */
+    override var renderingDrawFrameEnabled: Boolean = true
 
     override fun performReassemble(): Deferred<Unit> {
         return performReassembleRenderer { super.performReassemble() }

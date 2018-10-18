@@ -68,7 +68,7 @@ class ConstrainedBox(
         assert(constraints.debugAssertIsValid())
     }
 
-    override fun createRenderObject(context: BuildContext): RenderObject? {
+    override fun createRenderObject(context: BuildContext): RenderObject {
         return RenderConstrainedBox(_additionalConstraints = constraints)
     }
 
