@@ -19,6 +19,7 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -40,8 +41,10 @@ import androidx.room.Index;
 import androidx.room.Insert;
 import androidx.room.PrimaryKey;
 import androidx.room.Query;
+import androidx.room.Relation;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.Transaction;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
@@ -123,6 +126,13 @@ public class DatabaseViewTest {
         public TeamDetail team;
     }
 
+    static class TeamWithMembers {
+        @Embedded
+        public TeamDetail teamDetail;
+        @Relation(parentColumn = "id", entityColumn = "teamId")
+        public List<EmployeeWithManager> members;
+    }
+
     @Entity(
             foreignKeys = {
                     @ForeignKey(
@@ -194,6 +204,10 @@ public class DatabaseViewTest {
 
         @Query("SELECT * FROM TeamDetail")
         LiveData<List<TeamDetail>> liveDetail();
+
+        @Transaction
+        @Query("SELECT * FROM TeamDetail WHERE id = :id")
+        TeamWithMembers withMembers(long id);
     }
 
     @Dao
@@ -343,5 +357,23 @@ public class DatabaseViewTest {
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
                 employee.removeObserver(observer));
+    }
+
+    @Test
+    @MediumTest
+    public void viewInRelation() {
+        final CompanyDatabase db = getDatabase();
+        db.department().insert(new Department(1L, "Shop"));
+        db.team().insert(new Team(1L, 1L, "Books"));
+        db.employee().insert(new Employee(1L, "CEO", null, 1L));
+        db.employee().insert(new Employee(2L, "John", 1L, 1L));
+
+        TeamWithMembers teamWithMembers = db.team().withMembers(1L);
+        assertThat(teamWithMembers.teamDetail.name, is(equalTo("Books")));
+        assertThat(teamWithMembers.teamDetail.departmentName, is(equalTo("Shop")));
+        assertThat(teamWithMembers.members, hasSize(2));
+        assertThat(teamWithMembers.members.get(0).name, is(equalTo("CEO")));
+        assertThat(teamWithMembers.members.get(1).name, is(equalTo("John")));
+        assertThat(teamWithMembers.members.get(1).manager.name, is(equalTo("CEO")));
     }
 }
