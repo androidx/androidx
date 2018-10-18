@@ -97,9 +97,21 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
         transformImage(ImageView.ScaleType.FIT_XY,
                 ImageView.ScaleType.CENTER_CROP,
                 new ColorDrawable(Color.WHITE),
+                false,
+                false,
                 true);
         assertNull(mStartMatrix);
         assertNull(mEndMatrix);
+    }
+
+    @Test
+    public void testNullAnimatorKeepsImagePadding() throws Throwable {
+        transformImage(ImageView.ScaleType.FIT_XY, ImageView.ScaleType.FIT_XY,
+                new ColorDrawable(Color.WHITE), true, true, false);
+        assertEquals(mImage.getBounds().width(), mImageView.getWidth()
+                - mImageView.getPaddingLeft() - mImageView.getPaddingRight());
+        assertEquals(mImage.getBounds().height(), mImageView.getHeight()
+                - mImageView.getPaddingTop() - mImageView.getPaddingBottom());
     }
 
     private Matrix centerMatrix() {
@@ -233,29 +245,36 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
 
     private void transformImage(final ImageView.ScaleType startScale,
             final ImageView.ScaleType endScale) throws Throwable {
-        transformImage(startScale, endScale, null, startScale == endScale);
+        transformImage(startScale, endScale, null, false, false, startScale == endScale);
     }
 
     private void transformImage(final ImageView.ScaleType startScale,
             final ImageView.ScaleType endScale,
-            @Nullable final Drawable image,
-            final boolean noAnimationExpected) throws Throwable {
-        final ImageView imageView = enterImageViewScene(startScale, image);
+            @Nullable final Drawable customImage,
+            final boolean applyPadding,
+            final boolean withChangingSize,
+            final boolean noMatrixChangeExpected) throws Throwable {
+        final ImageView imageView = enterImageViewScene(startScale, customImage, applyPadding);
         rule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 TransitionManager.beginDelayedTransition(mRoot, mChangeImageTransform);
+                if (withChangingSize) {
+                    imageView.getLayoutParams().height /= 2;
+                    imageView.requestLayout();
+                }
                 imageView.setScaleType(endScale);
             }
         });
         waitForStart();
-        verify(mListener, (noAnimationExpected) ? times(1) : never())
+        verify(mListener, (noMatrixChangeExpected) ? times(1) : never())
                 .onTransitionEnd(any(Transition.class));
         waitForEnd();
     }
 
     private ImageView enterImageViewScene(final ImageView.ScaleType scaleType,
-            @Nullable final Drawable image) throws Throwable {
+            @Nullable final Drawable customImage,
+            final boolean withPadding) throws Throwable {
         enterScene(R.layout.scene4);
         final ViewGroup container = rule.getActivity().findViewById(R.id.holder);
         final ImageView[] imageViews = new ImageView[1];
@@ -263,8 +282,8 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
             @Override
             public void run() {
                 mImageView = new ImageView(rule.getActivity());
-                if (image != null) {
-                    mImage = image;
+                if (customImage != null) {
+                    mImage = customImage;
                 } else {
                     mImage = ActivityCompat.getDrawable(rule.getActivity(),
                             android.R.drawable.ic_media_play);
@@ -279,6 +298,11 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
                 layoutParams.width = Math.round(size);
                 layoutParams.height = Math.round(size * 2);
                 mImageView.setLayoutParams(layoutParams);
+                if (withPadding) {
+                    int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8,
+                            metrics);
+                    mImageView.setPadding(padding, padding, padding, padding);
+                }
             }
         });
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();

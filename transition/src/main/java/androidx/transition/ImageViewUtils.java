@@ -19,6 +19,7 @@ package androidx.transition;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
 import android.widget.ImageView;
@@ -56,14 +57,26 @@ class ImageViewUtils {
         if (Build.VERSION.SDK_INT < 21) {
             view.setImageMatrix(matrix);
         } else {
-            fetchAnimateTransformMethod();
-            if (sAnimateTransformMethod != null) {
-                try {
-                    sAnimateTransformMethod.invoke(view, matrix);
-                } catch (IllegalAccessException e) {
-                    // Do nothing
-                } catch (InvocationTargetException e) {
-                    throw new RuntimeException(e.getCause());
+            if (matrix == null) {
+                // There is a bug in ImageView.animateTransform() prior to Android Q so paddings
+                // are ignored when matrix is null.
+                Drawable drawable = view.getDrawable();
+                if (drawable != null) {
+                    int vwidth = view.getWidth() - view.getPaddingLeft() - view.getPaddingRight();
+                    int vheight = view.getHeight() - view.getPaddingTop() - view.getPaddingBottom();
+                    drawable.setBounds(0, 0, vwidth, vheight);
+                    view.invalidate();
+                }
+            } else {
+                fetchAnimateTransformMethod();
+                if (sAnimateTransformMethod != null) {
+                    try {
+                        sAnimateTransformMethod.invoke(view, matrix);
+                    } catch (IllegalAccessException e) {
+                        // Do nothing
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException(e.getCause());
+                    }
                 }
             }
         }
