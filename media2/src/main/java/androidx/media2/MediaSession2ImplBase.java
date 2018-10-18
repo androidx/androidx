@@ -203,8 +203,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                 notifyPlayerUpdatedNotLocked(oldPlayer);
             }
             if (isPlaybackInfoChanged) {
-                // Currently hasPlaybackInfo is always true, but check this in case that we're
-                // adding PlaybackInfo#equals().
                 notifyPlaybackInfoChangedNotLocked(info);
             }
         }
