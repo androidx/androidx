@@ -40,7 +40,7 @@ import java.util.Comparator;
 public class SortedList<T> {
 
     /**
-     * Used by {@link #indexOf(Object)} when he item cannot be found in the list.
+     * Used by {@link #indexOf(Object)} when the item cannot be found in the list.
      */
     public static final int INVALID_POSITION = -1;
 
