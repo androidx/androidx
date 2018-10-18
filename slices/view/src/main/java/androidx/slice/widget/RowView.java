@@ -32,8 +32,10 @@ import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_BUTTON;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_SLIDER;
 import static androidx.slice.widget.EventInfo.ACTION_TYPE_TOGGLE;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_LIST;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
@@ -619,6 +621,12 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                 mRangeItem.fireAction(getContext(),
                         new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
                                 .putExtra(EXTRA_RANGE_VALUE, mRangeValue));
+                if (mObserver != null) {
+                    EventInfo info = new EventInfo(getMode(), ACTION_TYPE_SLIDER, ROW_TYPE_SLIDER,
+                            mRowIndex);
+                    info.state = mRangeValue;
+                    mObserver.onSliceAction(info, mRangeItem);
+                }
             } catch (CanceledException e) {
                 Log.e(TAG, "PendingIntent for slice cannot be sent", e);
             }
