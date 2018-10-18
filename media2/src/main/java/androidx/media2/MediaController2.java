@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaSession2.CommandButton;
@@ -1394,6 +1395,25 @@ public class MediaController2 implements AutoCloseable {
          */
         public int getCurrentVolume() {
             return mCurrentVolume;
+        }
+
+        @Override
+        public int hashCode() {
+            return ObjectsCompat.hash(
+                    mPlaybackType, mControlType, mMaxVolume, mCurrentVolume, mAudioAttrsCompat);
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (!(obj instanceof PlaybackInfo)) {
+                return false;
+            }
+            PlaybackInfo other = (PlaybackInfo) obj;
+            return mPlaybackType == other.mPlaybackType
+                    && mControlType == other.mControlType
+                    && mMaxVolume == other.mMaxVolume
+                    && mCurrentVolume == other.mCurrentVolume
+                    && ObjectsCompat.equals(mAudioAttrsCompat, other.mAudioAttrsCompat);
         }
 
         Bundle toBundle() {

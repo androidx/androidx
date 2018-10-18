@@ -1973,6 +1973,15 @@ public class XMediaPlayer extends SessionPlayer2 {
                         }
                     });
                     break;
+                case MediaPlayer2.CALL_COMPLETED_SET_AUDIO_ATTRIBUTES:
+                    final AudioAttributesCompat attr = mPlayer.getAudioAttributes();
+                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                        @Override
+                        public void callCallback(SessionPlayer2.PlayerCallback callback) {
+                            callback.onAudioAttributesChanged(XMediaPlayer.this, attr);
+                        }
+                    });
+                    break;
             }
         }
         if (what != MediaPlayer2.CALL_COMPLETED_PREPARE_DRM) {
