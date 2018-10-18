@@ -16,36 +16,17 @@
 
 package androidx.paging;
 
-import static java.lang.annotation.RetentionPolicy.SOURCE;
-
 import androidx.annotation.AnyThread;
-import androidx.annotation.IntDef;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import java.lang.annotation.Retention;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Callback {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ContiguousDataSource<K, V> mDataSource;
-
-    @Retention(SOURCE)
-    @IntDef({READY_TO_FETCH, FETCHING, DONE_FETCHING})
-    @interface FetchState {}
-
-    private static final int READY_TO_FETCH = 0;
-    private static final int FETCHING = 1;
-    private static final int DONE_FETCHING = 2;
-
-    @FetchState
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    int mPrependWorkerState = READY_TO_FETCH;
-    @FetchState
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    int mAppendWorkerState = READY_TO_FETCH;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mPrependItemsRequested = 0;
@@ -80,6 +61,8 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
             if (resultType == PageResult.INIT) {
                 mStorage.init(pageResult.leadingNulls, page, pageResult.trailingNulls,
                         pageResult.positionOffset, ContiguousPagedList.this);
+                // TODO: signal that this list is ready to be dispatched to observer
+
                 if (mLastLoad == LAST_LOAD_UNSPECIFIED) {
                     // Because the ContiguousPagedList wasn't initialized with a last load position,
                     // initialize it to the middle of the initial load
@@ -99,7 +82,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                     if (skipNewPage && !trimFromFront) {
                         // don't append this data, drop it
                         mAppendItemsRequested = 0;
-                        mAppendWorkerState = READY_TO_FETCH;
+                        mLoadStateManager.setState(LoadType.END, LoadState.IDLE, null);
                     } else {
                         mStorage.appendPage(page, ContiguousPagedList.this);
                     }
@@ -107,7 +90,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                     if (skipNewPage && trimFromFront) {
                         // don't append this data, drop it
                         mPrependItemsRequested = 0;
-                        mPrependWorkerState = READY_TO_FETCH;
+                        mLoadStateManager.setState(LoadType.START, LoadState.IDLE, null);
                     } else {
                         mStorage.prependPage(page, ContiguousPagedList.this);
                     }
@@ -116,25 +99,28 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 }
 
                 if (mShouldTrim) {
+                    // Try and trim, but only if the side being trimmed isn't actually fetching.
+                    // For simplicity (both of impl here, and contract w/ DataSource) we don't want
+                    // simultaneous fetches in same direction.
                     if (trimFromFront) {
-                        if (mPrependWorkerState != FETCHING) {
+                        if (mLoadStateManager.getStart() != LoadState.LOADING) {
                             if (mStorage.trimFromFront(
                                     mReplacePagesWithNulls,
                                     mConfig.maxSize,
                                     mRequiredRemainder,
                                     ContiguousPagedList.this)) {
                                 // trimmed from front, ensure we can fetch in that dir
-                                mPrependWorkerState = READY_TO_FETCH;
+                                mLoadStateManager.setState(LoadType.START, LoadState.IDLE, null);
                             }
                         }
                     } else {
-                        if (mAppendWorkerState != FETCHING) {
+                        if (mLoadStateManager.getEnd() != LoadState.LOADING) {
                             if (mStorage.trimFromEnd(
                                     mReplacePagesWithNulls,
                                     mConfig.maxSize,
                                     mRequiredRemainder,
                                     ContiguousPagedList.this)) {
-                                mAppendWorkerState = READY_TO_FETCH;
+                                mLoadStateManager.setState(LoadType.END, LoadState.IDLE, null);
                             }
                         }
                     }
@@ -152,7 +138,33 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 deferBoundaryCallbacks(deferEmpty, deferBegin, deferEnd);
             }
         }
+
+        @Override
+        public void onPageError(@PageResult.ResultType int resultType,
+                @NonNull Throwable error, boolean retryable) {
+            LoadState errorState = retryable ? LoadState.RETRYABLE_ERROR : LoadState.ERROR;
+
+            if (resultType == PageResult.PREPEND) {
+                mLoadStateManager.setState(LoadType.START, errorState, error);
+            } else if (resultType == PageResult.APPEND) {
+                mLoadStateManager.setState(LoadType.END, errorState, error);
+            } else {
+                // TODO: pass init signal through to *previous* list
+                throw new IllegalStateException("TODO");
+            }
+        }
     };
+
+    @Override
+    public void retry() {
+        super.retry();
+        if (mLoadStateManager.getStart() == LoadState.RETRYABLE_ERROR) {
+            schedulePrepend();
+        }
+        if (mLoadStateManager.getEnd() == LoadState.RETRYABLE_ERROR) {
+            scheduleAppend();
+        }
+    }
 
     static final int LAST_LOAD_UNSPECIFIED = -1;
 
@@ -162,7 +174,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
             @NonNull Executor backgroundThreadExecutor,
             @Nullable BoundaryCallback<V> boundaryCallback,
             @NonNull Config config,
-            final @Nullable K key,
+            @Nullable K key,
             int lastLoad) {
         super(new PagedStorage<V>(), mainThreadExecutor, backgroundThreadExecutor,
                 boundaryCallback, config);
@@ -251,22 +263,19 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
                 mStorage.getLeadingNullCount() + mStorage.getStorageCount());
 
         mPrependItemsRequested = Math.max(prependItems, mPrependItemsRequested);
-        if (mPrependItemsRequested > 0) {
+        if (mPrependItemsRequested > 0 && mLoadStateManager.getStart() == LoadState.IDLE) {
             schedulePrepend();
         }
 
         mAppendItemsRequested = Math.max(appendItems, mAppendItemsRequested);
-        if (mAppendItemsRequested > 0) {
+        if (mAppendItemsRequested > 0 && mLoadStateManager.getEnd() == LoadState.IDLE) {
             scheduleAppend();
         }
     }
 
     @MainThread
     private void schedulePrepend() {
-        if (mPrependWorkerState != READY_TO_FETCH) {
-            return;
-        }
-        mPrependWorkerState = FETCHING;
+        mLoadStateManager.setState(LoadType.START, LoadState.LOADING, null);
 
         final int position = mStorage.getLeadingNullCount() + mStorage.getPositionOffset();
 
@@ -290,10 +299,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
 
     @MainThread
     private void scheduleAppend() {
-        if (mAppendWorkerState != READY_TO_FETCH) {
-            return;
-        }
-        mAppendWorkerState = FETCHING;
+        mLoadStateManager.setState(LoadType.END, LoadState.LOADING, null);
 
         final int position = mStorage.getLeadingNullCount()
                 + mStorage.getStorageCount() - 1 + mStorage.getPositionOffset();
@@ -347,10 +353,11 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
     public void onPagePrepended(int leadingNulls, int changedCount, int addedCount) {
         // consider whether to post more work, now that a page is fully prepended
         mPrependItemsRequested = mPrependItemsRequested - changedCount - addedCount;
-        mPrependWorkerState = READY_TO_FETCH;
         if (mPrependItemsRequested > 0) {
             // not done prepending, keep going
             schedulePrepend();
+        } else {
+            mLoadStateManager.setState(LoadType.START, LoadState.IDLE, null);
         }
 
         // finally dispatch callbacks, after prepend may have already been scheduled
@@ -363,7 +370,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
     @MainThread
     @Override
     public void onEmptyPrepend() {
-        mPrependWorkerState = DONE_FETCHING;
+        mLoadStateManager.setState(LoadType.START, LoadState.DONE, null);
     }
 
     @MainThread
@@ -371,10 +378,11 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
     public void onPageAppended(int endPosition, int changedCount, int addedCount) {
         // consider whether to post more work, now that a page is fully appended
         mAppendItemsRequested = mAppendItemsRequested - changedCount - addedCount;
-        mAppendWorkerState = READY_TO_FETCH;
         if (mAppendItemsRequested > 0) {
             // not done appending, keep going
             scheduleAppend();
+        } else {
+            mLoadStateManager.setState(LoadType.END, LoadState.IDLE, null);
         }
 
         // finally dispatch callbacks, after append may have already been scheduled
@@ -385,7 +393,7 @@ class ContiguousPagedList<K, V> extends PagedList<V> implements PagedStorage.Cal
     @MainThread
     @Override
     public void onEmptyAppend() {
-        mAppendWorkerState = DONE_FETCHING;
+        mLoadStateManager.setState(LoadType.END, LoadState.DONE, null);
     }
 
     @MainThread

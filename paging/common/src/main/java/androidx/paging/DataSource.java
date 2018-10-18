@@ -17,6 +17,7 @@
 package androidx.paging;
 
 import androidx.annotation.AnyThread;
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
@@ -277,6 +278,8 @@ public abstract class DataSource<Key, Value> {
         // mSignalLock protects mPostExecutor, and mHasSignalled
         private final Object mSignalLock = new Object();
         private Executor mPostExecutor = null;
+
+        @GuardedBy("mSignalLock")
         private boolean mHasSignalled = false;
 
         LoadCallbackHelper(@NonNull DataSource dataSource, @PageResult.ResultType int resultType,
@@ -298,6 +301,7 @@ public abstract class DataSource<Key, Value> {
          *
          * @return true if DataSource was invalid, and invalid result dispatched
          */
+        @SuppressWarnings("BooleanMethodIsAlwaysInverted")
         boolean dispatchInvalidResultIfInvalid() {
             if (mDataSource.isInvalid()) {
                 dispatchResultToReceiver(PageResult.<T>getInvalidResult());
@@ -306,12 +310,21 @@ public abstract class DataSource<Key, Value> {
             return false;
         }
 
-        void dispatchResultToReceiver(final @NonNull PageResult<T> result) {
+        void dispatchResultToReceiver(@NonNull PageResult<T> result) {
+            dispatchToReceiver(result, null, false);
+        }
+
+        void dispatchErrorToReceiver(@NonNull Throwable error, boolean retryable) {
+            dispatchToReceiver(null, error, retryable);
+        }
+
+        private void dispatchToReceiver(final @Nullable PageResult<T> result,
+                final @Nullable Throwable error, final boolean retryable) {
             Executor executor;
             synchronized (mSignalLock) {
                 if (mHasSignalled) {
                     throw new IllegalStateException(
-                            "callback.onResult already called, cannot call again.");
+                            "callback.onResult/onError already called, cannot call again.");
                 }
                 mHasSignalled = true;
                 executor = mPostExecutor;
@@ -321,11 +334,21 @@ public abstract class DataSource<Key, Value> {
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        mReceiver.onPageResult(mResultType, result);
+                        dispatchOnCurrentThread(result, error, retryable);
                     }
                 });
             } else {
+                dispatchOnCurrentThread(result, error, retryable);
+            }
+        }
+
+        @SuppressWarnings("ConstantConditions")
+        void dispatchOnCurrentThread(@Nullable PageResult<T> result,
+                @Nullable Throwable error, boolean retryable) {
+            if (result != null) {
                 mReceiver.onPageResult(mResultType, result);
+            } else {
+                mReceiver.onPageError(mResultType, error, retryable);
             }
         }
     }
