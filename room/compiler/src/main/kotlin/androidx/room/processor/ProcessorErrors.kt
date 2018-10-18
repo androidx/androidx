@@ -353,6 +353,8 @@ object ProcessorErrors {
 
     val RELATION_NOT_COLLECTION = "Fields annotated with @Relation must be a List or Set."
 
+    val NOT_ENTITY_OR_VIEW = "The class must be either @Entity or @DatabaseView."
+
     fun relationCannotFindEntityField(
         entityName: String,
         columnName: String,
