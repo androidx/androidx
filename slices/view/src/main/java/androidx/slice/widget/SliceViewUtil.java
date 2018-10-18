@@ -115,9 +115,9 @@ public class SliceViewUtil {
         TypedArray ta = context.obtainStyledAttributes(new int[] {
                 attr
         });
-        @ColorInt int colorAccent = ta.getColor(0, 0);
+        @ColorInt int color = ta.getColor(0, 0);
         ta.recycle();
-        return colorAccent;
+        return color;
     }
 
     /**
