@@ -16,6 +16,7 @@
 
 package androidx.navigation.ui;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
@@ -38,8 +39,7 @@ public class AppBarConfiguration {
     @Nullable
     private final DrawerLayout mDrawerLayout;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    AppBarConfiguration(@NonNull Set<Integer> topLevelDestinations,
+    private AppBarConfiguration(@NonNull Set<Integer> topLevelDestinations,
             @Nullable DrawerLayout drawerLayout) {
         mTopLevelDestinations = topLevelDestinations;
         mDrawerLayout = drawerLayout;
@@ -132,6 +132,8 @@ public class AppBarConfiguration {
          *
          * @return a valid {@link AppBarConfiguration}
          */
+        @SuppressLint("SyntheticAccessor") /* new AppBarConfiguration() must be private to avoid
+                                              conflicting with the public AppBarConfiguration.kt */
         @NonNull
         public AppBarConfiguration build() {
             return new AppBarConfiguration(mTopLevelDestinations, mDrawerLayout);
