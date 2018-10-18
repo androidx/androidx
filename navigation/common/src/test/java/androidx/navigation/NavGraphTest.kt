@@ -19,13 +19,7 @@ package androidx.navigation
 import android.content.Context
 import android.support.annotation.IdRes
 import androidx.test.filters.SmallTest
-import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.anyOf
-import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNull
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,8 +76,8 @@ class NavGraphTest {
         val destination = createFirstDestination()
         val graph = createGraphWithDestination(destination)
 
-        assertEquals(graph, destination.parent)
-        assertEquals(destination, graph.findNode(FIRST_DESTINATION_ID))
+        assertThat(destination.parent).isEqualTo(graph)
+        assertThat(graph.findNode(FIRST_DESTINATION_ID)).isEqualTo(destination)
     }
 
     @Test
@@ -93,10 +87,10 @@ class NavGraphTest {
         val secondDestination = createSecondDestination()
         graph.addDestinations(Arrays.asList(destination, secondDestination))
 
-        assertEquals(graph, destination.parent)
-        assertEquals(destination, graph.findNode(FIRST_DESTINATION_ID))
-        assertEquals(graph, secondDestination.parent)
-        assertEquals(secondDestination, graph.findNode(SECOND_DESTINATION_ID))
+        assertThat(destination.parent).isEqualTo(graph)
+        assertThat(graph.findNode(FIRST_DESTINATION_ID)).isEqualTo(destination)
+        assertThat(secondDestination.parent).isEqualTo(graph)
+        assertThat(graph.findNode(SECOND_DESTINATION_ID)).isEqualTo(secondDestination)
     }
 
     @Test
@@ -105,10 +99,10 @@ class NavGraphTest {
         val secondDestination = createSecondDestination()
         val graph = createGraphWithDestinations(destination, secondDestination)
 
-        assertEquals(graph, destination.parent)
-        assertEquals(destination, graph.findNode(FIRST_DESTINATION_ID))
-        assertEquals(graph, secondDestination.parent)
-        assertEquals(secondDestination, graph.findNode(SECOND_DESTINATION_ID))
+        assertThat(destination.parent).isEqualTo(graph)
+        assertThat(graph.findNode(FIRST_DESTINATION_ID)).isEqualTo(destination)
+        assertThat(secondDestination.parent).isEqualTo(graph)
+        assertThat(graph.findNode(SECOND_DESTINATION_ID)).isEqualTo(secondDestination)
     }
 
     @Test
@@ -120,9 +114,9 @@ class NavGraphTest {
         replacementDestination.id = FIRST_DESTINATION_ID
         graph.addDestination(replacementDestination)
 
-        assertNull(destination.parent)
-        assertEquals(graph, replacementDestination.parent)
-        assertEquals(replacementDestination, graph.findNode(FIRST_DESTINATION_ID))
+        assertThat(destination.parent).isNull()
+        assertThat(replacementDestination.parent).isEqualTo(graph)
+        assertThat(graph.findNode(FIRST_DESTINATION_ID)).isEqualTo(replacementDestination)
     }
 
     @Test(expected = IllegalStateException::class)
@@ -142,9 +136,9 @@ class NavGraphTest {
         val graph = navGraphNavigator.createDestination()
         graph.addAll(other)
 
-        assertEquals(graph, destination.parent)
-        assertEquals(destination, graph.findNode(FIRST_DESTINATION_ID))
-        assertNull(other.findNode(FIRST_DESTINATION_ID))
+        assertThat(destination.parent).isEqualTo(graph)
+        assertThat(graph.findNode(FIRST_DESTINATION_ID)).isEqualTo(destination)
+        assertThat(other.findNode(FIRST_DESTINATION_ID)).isNull()
     }
 
     @Test
@@ -154,8 +148,8 @@ class NavGraphTest {
 
         graph.remove(destination)
 
-        assertNull(destination.parent)
-        assertNull(graph.findNode(FIRST_DESTINATION_ID))
+        assertThat(destination.parent).isNull()
+        assertThat(graph.findNode(FIRST_DESTINATION_ID)).isNull()
     }
 
     @Test
@@ -164,12 +158,8 @@ class NavGraphTest {
         val secondDestination = createSecondDestination()
         val graph = createGraphWithDestinations(destination, secondDestination)
 
-        val iterator = graph.iterator()
-        assertTrue(iterator.hasNext())
-        assertThat(iterator.next(), anyOf(`is`(destination), `is`(secondDestination)))
-        assertTrue(iterator.hasNext())
-        assertThat(iterator.next(), anyOf(`is`(destination), `is`(secondDestination)))
-        assertFalse(iterator.hasNext())
+        assertThat(graph.iterator().asSequence().asIterable())
+            .containsExactly(destination, secondDestination)
     }
 
     @Test(expected = NoSuchElementException::class)
@@ -190,8 +180,8 @@ class NavGraphTest {
         val iterator = graph.iterator()
         val value = iterator.next()
         iterator.remove()
-        assertNull(value.parent)
-        assertNull(graph.findNode(value.id))
+        assertThat(value.parent).isNull()
+        assertThat(graph.findNode(value.id)).isNull()
     }
 
     @Test
@@ -205,8 +195,8 @@ class NavGraphTest {
         iterator.remove()
         val value = iterator.next()
         iterator.remove()
-        assertNull(value.parent)
-        assertNull(graph.findNode(value.id))
+        assertThat(value.parent).isNull()
+        assertThat(graph.findNode(value.id)).isNull()
     }
 
     @Test(expected = IllegalStateException::class)
@@ -228,9 +218,9 @@ class NavGraphTest {
         val graph = createGraphWithDestinations(destination, secondDestination)
 
         graph.clear()
-        assertNull(destination.parent)
-        assertNull(graph.findNode(FIRST_DESTINATION_ID))
-        assertNull(secondDestination.parent)
-        assertNull(graph.findNode(SECOND_DESTINATION_ID))
+        assertThat(destination.parent).isNull()
+        assertThat(graph.findNode(FIRST_DESTINATION_ID)).isNull()
+        assertThat(secondDestination.parent).isNull()
+        assertThat(graph.findNode(SECOND_DESTINATION_ID)).isNull()
     }
 }

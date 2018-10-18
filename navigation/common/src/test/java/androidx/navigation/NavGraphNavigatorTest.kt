@@ -16,21 +16,17 @@
 
 package androidx.navigation
 
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.Mockito.verifyNoMoreInteractions
-
 import android.content.Context
 import android.support.annotation.IdRes
-
 import androidx.test.filters.SmallTest
-
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 
 @RunWith(JUnit4::class)
 @SmallTest
@@ -90,7 +86,9 @@ class NavGraphNavigatorTest {
     @Test
     fun popWithEmptyStack() {
         val success = navGraphNavigator.popBackStack()
-        assertFalse("popBackStack should return false on an empty stack", success)
+        assertWithMessage("popBackStack should return false on an empty stack")
+            .that(success)
+            .isFalse()
     }
 
     @Test
@@ -102,7 +100,9 @@ class NavGraphNavigatorTest {
                 graph.id,
                 Navigator.BACK_STACK_DESTINATION_ADDED)
         val success = navGraphNavigator.popBackStack()
-        assertTrue("popBackStack should return true", success)
+        assertWithMessage("popBackStack should return true")
+            .that(success)
+            .isTrue()
         verify(listener).onNavigatorNavigated(navGraphNavigator,
                 graph.id,
                 Navigator.BACK_STACK_DESTINATION_POPPED)
