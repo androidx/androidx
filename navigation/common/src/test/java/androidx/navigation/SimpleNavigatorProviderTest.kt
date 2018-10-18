@@ -18,7 +18,7 @@ package androidx.navigation
 
 import android.os.Bundle
 import androidx.test.filters.SmallTest
-import org.junit.Assert.assertEquals
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,7 +45,8 @@ class SimpleNavigatorProviderTest {
         val provider = SimpleNavigatorProvider()
         val navigator = NoNameNavigator()
         provider.addNavigator("name", navigator)
-        assertEquals(navigator, provider.getNavigator<NavDestination, NoNameNavigator>("name"))
+        assertThat(provider.getNavigator<NavDestination, NoNameNavigator>("name"))
+            .isEqualTo(navigator)
     }
 
     @Test
@@ -53,7 +54,9 @@ class SimpleNavigatorProviderTest {
         val provider = SimpleNavigatorProvider()
         val navigator = EmptyNavigator()
         provider.addNavigator("name", navigator)
-        assertEquals(navigator, provider.getNavigator<NavDestination, EmptyNavigator>("name"))
+
+        assertThat(provider.getNavigator<NavDestination, EmptyNavigator>("name"))
+            .isEqualTo(navigator)
         try {
             provider.getNavigator(EmptyNavigator::class.java)
             fail("getNavigator(Class) with an invalid name should cause an IllegalStateException")
@@ -81,7 +84,8 @@ class SimpleNavigatorProviderTest {
         val provider = SimpleNavigatorProvider()
         val navigator = EmptyNavigator()
         provider.addNavigator(navigator)
-        assertEquals(navigator, provider.getNavigator(EmptyNavigator::class.java))
+        assertThat(provider.getNavigator(EmptyNavigator::class.java))
+            .isEqualTo(navigator)
     }
 
     @Test
@@ -89,8 +93,8 @@ class SimpleNavigatorProviderTest {
         val provider = SimpleNavigatorProvider()
         val navigator = EmptyNavigator()
         provider.addNavigator(navigator)
-        assertEquals(navigator,
-                provider.getNavigator<NavDestination, EmptyNavigator>(EmptyNavigator.NAME))
+        assertThat(provider.getNavigator<NavDestination, EmptyNavigator>(EmptyNavigator.NAME))
+            .isEqualTo(navigator)
     }
 }
 

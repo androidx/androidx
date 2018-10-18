@@ -21,8 +21,7 @@ import android.support.annotation.IdRes
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -37,8 +36,9 @@ class NavDestinationTest {
     @Test
     fun navDestination() {
         val destination = provider.navDestination(DESTINATION_ID) { }
-        assertEquals("NavDestination should have id set",
-                DESTINATION_ID, destination.id)
+        assertWithMessage("NavDestination should have id set")
+            .that(destination.id)
+            .isEqualTo(DESTINATION_ID)
     }
 
     @Test
@@ -46,8 +46,9 @@ class NavDestinationTest {
         val destination = provider.navDestination(DESTINATION_ID) {
             label = LABEL
         }
-        assertEquals("NavDestination should have label set",
-                LABEL, destination.label)
+        assertWithMessage("NavDestination should have label set")
+            .that(destination.label)
+            .isEqualTo(LABEL)
     }
 
     @Test
@@ -56,8 +57,9 @@ class NavDestinationTest {
         val destination = provider.navDestination(DESTINATION_ID) {
             defaultArguments = arguments
         }
-        assertEquals("NavDestination should have default arguments set",
-                arguments, destination.defaultArguments)
+        assertWithMessage("NavDestination should have default arguments set")
+            .that(destination.defaultArguments)
+            .isEqualTo(arguments)
     }
 
     @Test
@@ -71,9 +73,12 @@ class NavDestinationTest {
             }
         }
         val action = destination.getAction(ACTION_ID)
-        assertNotNull("NavDestination should have action that was added", action)
-        assertEquals("NavAction should have NavOptions set",
-                DESTINATION_ID, action?.navOptions?.popUpTo)
+        assertWithMessage("NavDestination should have action that was added")
+            .that(action)
+            .isNotNull()
+        assertWithMessage("NavAction should have NavOptions set")
+            .that(action?.navOptions?.popUpTo)
+            .isEqualTo(DESTINATION_ID)
     }
 }
 

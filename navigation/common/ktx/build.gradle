@@ -37,8 +37,10 @@ dependencies {
     api(KOTLIN_STDLIB)
     testImplementation(JUNIT)
     testImplementation(TEST_RUNNER)
+    testImplementation(TRUTH)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(TRUTH)
 }
 
 supportLibrary {
