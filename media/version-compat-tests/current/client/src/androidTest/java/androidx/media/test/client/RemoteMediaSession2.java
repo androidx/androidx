@@ -367,6 +367,14 @@ public class RemoteMediaSession2 {
             }
         }
 
+        public void notifyAudioAttributesChanged(AudioAttributesCompat attrs) {
+            try {
+                mBinder.notifyAudioAttributesChanged(mSessionId, attrs.toBundle());
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call notifyAudioAttributesChanged()");
+            }
+        }
+
         public void setPlaylist(List<MediaItem2> playlist) {
             try {
                 mBinder.setPlaylist(

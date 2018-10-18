@@ -48,6 +48,7 @@ interface IRemoteMediaSession2 {
     void notifyPlayerStateChanged(String sessionId, int state);
     void notifyPlaybackSpeedChanged(String sessionId, float speed);
     void notifyCurrentMediaItemChanged(String sessionId, int index);
+    void notifyAudioAttributesChanged(String sessionId, in Bundle attrs);
 
     void setPlaylist(String sessionId, in List<Bundle> playlist);
     void setPlaylistWithDummyItem(String sessionId, in List<Bundle> playlist);
