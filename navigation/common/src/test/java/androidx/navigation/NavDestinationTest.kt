@@ -19,9 +19,7 @@ package androidx.navigation
 import android.content.Context
 import android.support.annotation.IdRes
 import androidx.test.filters.SmallTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertNull
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,8 +45,8 @@ class NavDestinationTest {
         val context = mock(Context::class.java)
         val clazz = NavDestination.parseClassFromName(context,
                 "java.lang.String", Any::class.java)
-        assertNotNull(clazz)
-        assertEquals(String::class.java.name, clazz.name)
+        assertThat(clazz).isNotNull()
+        assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
 
     @Test
@@ -68,8 +66,8 @@ class NavDestinationTest {
         val context = mock(Context::class.java)
         val clazz = NavDestination.parseClassFromName(context,
                 "java.lang.String", String::class.java)
-        assertNotNull(clazz)
-        assertEquals(String::class.java.name, clazz.name)
+        assertThat(clazz).isNotNull()
+        assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
 
     @Test
@@ -90,8 +88,8 @@ class NavDestinationTest {
         `when`(context.packageName).thenReturn("java.lang")
         val clazz = NavDestination.parseClassFromName(context,
                 ".String", Any::class.java)
-        assertNotNull(clazz)
-        assertEquals(String::class.java.name, clazz.name)
+        assertThat(clazz).isNotNull()
+        assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
 
     @Test
@@ -113,8 +111,8 @@ class NavDestinationTest {
         `when`(context.packageName).thenReturn("java.lang")
         val clazz = NavDestination.parseClassFromName(context,
                 ".String", String::class.java)
-        assertNotNull(clazz)
-        assertEquals(String::class.java.name, clazz.name)
+        assertThat(clazz).isNotNull()
+        assertThat(clazz.name).isEqualTo(String::class.java.name)
     }
 
     @Test
@@ -141,9 +139,8 @@ class NavDestinationTest {
         }
         destination.parent = parent
         val deepLinkIds = destination.buildDeepLinkIds()
-        assertEquals(2, deepLinkIds.size)
-        assertEquals(parentId, deepLinkIds[0])
-        assertEquals(DESTINATION_ID, deepLinkIds[1])
+        assertThat(deepLinkIds.size).isEqualTo(2)
+        assertThat(deepLinkIds).asList().containsExactly(parentId, DESTINATION_ID)
     }
 
     @Test
@@ -152,8 +149,8 @@ class NavDestinationTest {
         destination.putAction(ACTION_ID, DESTINATION_ID)
 
         val action = destination.getAction(ACTION_ID)
-        assertNotNull(action)
-        assertEquals(DESTINATION_ID, action?.destinationId)
+        assertThat(action).isNotNull()
+        assertThat(action?.destinationId).isEqualTo(DESTINATION_ID)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -168,7 +165,7 @@ class NavDestinationTest {
         val action = NavAction(DESTINATION_ID)
         destination.putAction(ACTION_ID, action)
 
-        assertEquals(action, destination.getAction(ACTION_ID))
+        assertThat(destination.getAction(ACTION_ID)).isEqualTo(action)
     }
 
     @Test
@@ -177,10 +174,10 @@ class NavDestinationTest {
         val action = NavAction(DESTINATION_ID)
         destination.putAction(ACTION_ID, action)
 
-        assertEquals(action, destination.getAction(ACTION_ID))
+        assertThat(destination.getAction(ACTION_ID)).isEqualTo(action)
 
         destination.removeAction(ACTION_ID)
 
-        assertNull(destination.getAction(ACTION_ID))
+        assertThat(destination.getAction(ACTION_ID)).isNull()
     }
 }

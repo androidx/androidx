@@ -20,7 +20,7 @@ import android.support.annotation.IdRes
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,8 +38,9 @@ class NavGraphBuilderTest {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
             navDestination(DESTINATION_ID) {}
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
     }
 
     @Test
@@ -49,8 +50,9 @@ class NavGraphBuilderTest {
                 id = DESTINATION_ID
             }
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
     }
 
     @Test
@@ -61,8 +63,9 @@ class NavGraphBuilderTest {
             }
             addDestination(destination)
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
     }
 
     @Test(expected = IllegalStateException::class)
@@ -80,8 +83,9 @@ class NavGraphBuilderTest {
                 navDestination(SECOND_DESTINATION_ID) {}
             }
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        assertWithMessage("Destination should be added to the graph")
+            .that(DESTINATION_ID in graph)
+            .isTrue()
     }
 }
 

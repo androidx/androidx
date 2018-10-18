@@ -18,9 +18,7 @@ package androidx.navigation
 
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -33,8 +31,9 @@ class NavOptionsTest {
         val navOptions = navOptions {
             launchSingleTop = true
         }
-        assertTrue("NavOptions should have launchSingleTop set",
-                navOptions.shouldLaunchSingleTop())
+        assertWithMessage("NavOptions should have launchSingleTop set")
+            .that(navOptions.shouldLaunchSingleTop())
+            .isTrue()
     }
 
     @Suppress("DEPRECATION")
@@ -43,8 +42,9 @@ class NavOptionsTest {
         val navOptions = navOptions {
             launchDocument = true
         }
-        assertTrue("NavOptions should have launchDocument set",
-                navOptions.shouldLaunchDocument())
+        assertWithMessage("NavOptions should have launchDocument set")
+            .that(navOptions.shouldLaunchDocument())
+            .isTrue()
     }
 
     @Suppress("DEPRECATION")
@@ -53,8 +53,9 @@ class NavOptionsTest {
         val navOptions = navOptions {
             clearTask = true
         }
-        assertTrue("NavOptions should have clearTask set",
-                navOptions.shouldClearTask())
+        assertWithMessage("NavOptions should have clearTask set")
+            .that(navOptions.shouldClearTask())
+            .isTrue()
     }
 
     @Test
@@ -62,10 +63,12 @@ class NavOptionsTest {
         val navOptions = navOptions {
             popUpTo = DESTINATION_ID
         }
-        assertEquals("NavOptions should have popUpTo destination id set",
-                DESTINATION_ID, navOptions.popUpTo)
-        assertFalse("NavOptions should have isPopUpToInclusive false by default",
-                navOptions.isPopUpToInclusive)
+        assertWithMessage("NavOptions should have popUpTo destination id set")
+            .that(navOptions.popUpTo)
+            .isEqualTo(DESTINATION_ID)
+        assertWithMessage("NavOptions should have isPopUpToInclusive false by default")
+            .that(navOptions.isPopUpToInclusive)
+            .isFalse()
     }
 
     @Test
@@ -75,10 +78,12 @@ class NavOptionsTest {
                 inclusive = true
             }
         }
-        assertEquals("NavOptions should have popUpTo destination id set",
-                DESTINATION_ID, navOptions.popUpTo)
-        assertTrue("NavOptions should have isPopUpToInclusive set",
-                navOptions.isPopUpToInclusive)
+        assertWithMessage("NavOptions should have popUpTo destination id set")
+            .that(navOptions.popUpTo)
+            .isEqualTo(DESTINATION_ID)
+        assertWithMessage("NavOptions should have isPopUpToInclusive set")
+            .that(navOptions.isPopUpToInclusive)
+            .isTrue()
     }
 
     @Test
@@ -91,14 +96,18 @@ class NavOptionsTest {
                 popExit = POP_EXIT_ANIM_ID
             }
         }
-        assertEquals("NavOptions should have enter animation set",
-                ENTER_ANIM_ID, navOptions.enterAnim)
-        assertEquals("NavOptions should have exit animation set",
-                EXIT_ANIM_ID, navOptions.exitAnim)
-        assertEquals("NavOptions should have pop enter animation set",
-                POP_ENTER_ANIM_ID, navOptions.popEnterAnim)
-        assertEquals("NavOptions should have pop exit animation set",
-                POP_EXIT_ANIM_ID, navOptions.popExitAnim)
+        assertWithMessage("NavOptions should have enter animation set")
+            .that(navOptions.enterAnim)
+            .isEqualTo(ENTER_ANIM_ID)
+        assertWithMessage("NavOptions should have exit animation set")
+            .that(navOptions.exitAnim)
+            .isEqualTo(EXIT_ANIM_ID)
+        assertWithMessage("NavOptions should have pop enter animation set")
+            .that(navOptions.popEnterAnim)
+            .isEqualTo(POP_ENTER_ANIM_ID)
+        assertWithMessage("NavOptions should have pop exit animation set")
+            .that(navOptions.popExitAnim)
+            .isEqualTo(POP_EXIT_ANIM_ID)
     }
 }
 

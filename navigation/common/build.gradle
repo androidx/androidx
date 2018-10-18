@@ -36,10 +36,12 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
+    testImplementation(TRUTH)
     testImplementation(KOTLIN_STDLIB)
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(TRUTH)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy)
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy)
     androidTestImplementation(KOTLIN_STDLIB)

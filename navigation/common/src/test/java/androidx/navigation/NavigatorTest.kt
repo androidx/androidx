@@ -17,8 +17,8 @@
 package androidx.navigation
 
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -35,23 +35,28 @@ class NavigatorTest {
         assertFalse("Navigators should start inactive", navigator.isActive)
 
         navigator.addOnNavigatorNavigatedListener(listener)
-        assertTrue("Navigators should be active after addOnNavigatorNavigatedListener",
-                navigator.isActive)
+        assertWithMessage("Navigators should be active after addOnNavigatorNavigatedListener")
+            .that(navigator.isActive)
+            .isTrue()
     }
 
     @Test
     fun onInactive() {
         val navigator = ActiveAwareNavigator()
         val listener = mock(Navigator.OnNavigatorNavigatedListener::class.java)
-        assertFalse("Navigators should start inactive", navigator.isActive)
+        assertWithMessage("Navigators should start inactive")
+            .that(navigator.isActive)
+            .isFalse()
 
         navigator.addOnNavigatorNavigatedListener(listener)
-        assertTrue("Navigators should be active after addOnNavigatorNavigatedListener",
-                navigator.isActive)
+        assertWithMessage("Navigators should be active after addOnNavigatorNavigatedListener")
+            .that(navigator.isActive)
+            .isTrue()
 
         navigator.removeOnNavigatorNavigatedListener(listener)
-        assertFalse("Navigators should be inactive after removeOnNavigatorNavigatedListener",
-                navigator.isActive)
+        assertWithMessage("Navigators should be inactive after removeOnNavigatorNavigatedListener")
+            .that(navigator.isActive)
+            .isFalse()
     }
 
     private class ActiveAwareNavigator : EmptyNavigator() {

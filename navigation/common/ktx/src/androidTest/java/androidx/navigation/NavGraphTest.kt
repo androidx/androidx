@@ -19,9 +19,7 @@ package androidx.navigation
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertSame
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -36,8 +34,9 @@ class NavGraphTest {
         val graph = NavGraph(navGraphNavigator)
         val destination = NavDestination(navigator).apply { id = DESTINATION_ID }
         graph += destination
-        assertSame("plusAssign destination should be retrieved with get", destination,
-                graph[DESTINATION_ID])
+        assertWithMessage("plusAssign destination should be retrieved with get")
+            .that(graph[DESTINATION_ID])
+            .isSameAs(destination)
     }
 
     @Test
@@ -45,11 +44,13 @@ class NavGraphTest {
         val graph = NavGraph(navGraphNavigator)
         val destination = NavDestination(navigator).apply { id = DESTINATION_ID }
         graph += destination
-        assertSame("plusAssign destination should be retrieved with get", destination,
-                graph[DESTINATION_ID])
+        assertWithMessage("plusAssign destination should be retrieved with get")
+            .that(graph[DESTINATION_ID])
+            .isSameAs(destination)
         graph -= destination
-        assertFalse("Destination should be removed after minusAssign",
-                DESTINATION_ID in graph)
+        assertWithMessage("Destination should be removed after minusAssign")
+            .that(graph)
+            .doesNotContain(DESTINATION_ID)
     }
 
     @Test
@@ -59,15 +60,19 @@ class NavGraphTest {
         other += NavDestination(navigator).apply { id = DESTINATION_ID }
         other += NavDestination(navigator).apply { id = SECOND_DESTINATION_ID }
         graph += other
-        assertTrue("NavGraph should have destination1 from other",
-                DESTINATION_ID in graph)
-        assertFalse("other nav graph should not have destination1",
-                DESTINATION_ID in other)
+        assertWithMessage("NavGraph should have destination1 from other")
+            .that(graph)
+            .contains(DESTINATION_ID)
+        assertWithMessage("other nav graph should not have destination1")
+            .that(other)
+            .doesNotContain(DESTINATION_ID)
 
-        assertTrue("NavGraph should have destination2 from other",
-                SECOND_DESTINATION_ID in graph)
-        assertFalse("other nav graph should not have destination2",
-                SECOND_DESTINATION_ID in other)
+        assertWithMessage("NavGraph should have destination2 from other")
+            .that(graph)
+            .contains(SECOND_DESTINATION_ID)
+        assertWithMessage("other nav graph should not have destination2")
+            .that(other)
+            .doesNotContain(SECOND_DESTINATION_ID)
     }
 
     @Test(expected = IllegalArgumentException::class)
