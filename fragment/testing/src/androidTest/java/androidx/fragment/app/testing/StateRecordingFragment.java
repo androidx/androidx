@@ -36,6 +36,7 @@ public class StateRecordingFragment extends Fragment {
 
     private int mNumOfCreation = 0;
     private State mCurrentState = State.INITIALIZED;
+    private boolean mIsViewAttachedToWindow = false;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -53,7 +54,19 @@ public class StateRecordingFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        return new View(inflater.getContext());
+        return new View(inflater.getContext()) {
+            @Override
+            protected void onAttachedToWindow() {
+                super.onAttachedToWindow();
+                mIsViewAttachedToWindow = true;
+            }
+
+            @Override
+            protected void onDetachedFromWindow() {
+                super.onDetachedFromWindow();
+                mIsViewAttachedToWindow = false;
+            }
+        };
     }
 
     @Override
@@ -99,5 +112,9 @@ public class StateRecordingFragment extends Fragment {
 
     public State getState() {
         return mCurrentState;
+    }
+
+    public boolean isViewAttachedToWindow() {
+        return mIsViewAttachedToWindow;
     }
 }
