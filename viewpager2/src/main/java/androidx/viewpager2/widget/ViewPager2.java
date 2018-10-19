@@ -18,7 +18,7 @@ package androidx.viewpager2.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import static java.lang.annotation.RetentionPolicy.CLASS;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -58,6 +58,23 @@ import java.lang.annotation.Retention;
  */
 @RestrictTo(LIBRARY_GROUP)
 public class ViewPager2 extends ViewGroup {
+    @Retention(SOURCE)
+    @IntDef({ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL})
+    public @interface Orientation {
+    }
+
+    public static final int ORIENTATION_HORIZONTAL = RecyclerView.HORIZONTAL;
+    public static final int ORIENTATION_VERTICAL = RecyclerView.VERTICAL;
+
+    @Retention(SOURCE)
+    @IntDef({SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING})
+    public @interface ScrollState {
+    }
+
+    public static final int SCROLL_STATE_IDLE = 0;
+    public static final int SCROLL_STATE_DRAGGING = 1;
+    public static final int SCROLL_STATE_SETTLING = 2;
+
     // reused in layout(...)
     private final Rect mTmpContainerRect = new Rect();
     private final Rect mTmpChildRect = new Rect();
@@ -172,7 +189,7 @@ public class ViewPager2 extends ViewGroup {
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ViewPager2);
         try {
             setOrientation(
-                    a.getInt(R.styleable.ViewPager2_android_orientation, Orientation.HORIZONTAL));
+                    a.getInt(R.styleable.ViewPager2_android_orientation, ORIENTATION_HORIZONTAL));
         } finally {
             a.recycle();
         }
@@ -360,13 +377,6 @@ public class ViewPager2 extends ViewGroup {
                 mTmpChildRect.bottom);
     }
 
-    @Retention(CLASS)
-    @IntDef({Orientation.HORIZONTAL, Orientation.VERTICAL})
-    public @interface Orientation {
-        int HORIZONTAL = RecyclerView.HORIZONTAL;
-        int VERTICAL = RecyclerView.VERTICAL;
-    }
-
     /**
      * @param orientation @{link {@link ViewPager2.Orientation}}
      */
@@ -481,14 +491,6 @@ public class ViewPager2 extends ViewGroup {
         public void run() {
             mRecyclerView.smoothScrollToPosition(mPosition);
         }
-    }
-
-    @Retention(CLASS)
-    @IntDef({ScrollState.IDLE, ScrollState.DRAGGING, ScrollState.SETTLING})
-    public @interface ScrollState {
-        int IDLE = 0;
-        int DRAGGING = 1;
-        int SETTLING = 2;
     }
 
     /**
