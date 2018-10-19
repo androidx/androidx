@@ -33,7 +33,9 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeListener;
 import java.lang.annotation.Retention;
 
 /**
- * Translates {@link RecyclerView.OnScrollListener} events to {@link OnPageChangeListener} events.
+ * Translates {@link RecyclerView.OnScrollListener} events to {@link OnPageChangeListener} events
+ * for {@link ViewPager2}. As part of this process, it keeps track of the current scroll position
+ * relative to the pages and exposes this position via ({@link #getRelativeScrollPosition()}.
  *
  * @hide
  */
@@ -209,9 +211,12 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         mAdapterState = smooth
                 ? AdapterState.IN_PROGRESS_SMOOTH_SCROLL
                 : AdapterState.IN_PROGRESS_IMMEDIATE_SCROLL;
+        boolean hasNewTarget = mTarget != target;
         mTarget = target;
         dispatchStateChanged(ViewPager2.ScrollState.SETTLING);
-        dispatchSelected(target);
+        if (hasNewTarget) {
+            dispatchSelected(target);
+        }
     }
 
     public void setOnPageChangeListener(OnPageChangeListener listener) {
