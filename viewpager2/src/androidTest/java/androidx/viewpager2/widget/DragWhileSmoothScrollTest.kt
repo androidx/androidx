@@ -21,11 +21,11 @@ import androidx.viewpager2.widget.DragWhileSmoothScrollTest.Event.OnPageScrollSt
 import androidx.viewpager2.widget.DragWhileSmoothScrollTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.DragWhileSmoothScrollTest.Event.OnPageSelectedEvent
 import androidx.viewpager2.widget.DragWhileSmoothScrollTest.TestConfig
-import androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL
-import androidx.viewpager2.widget.ViewPager2.Orientation.VERTICAL
-import androidx.viewpager2.widget.ViewPager2.ScrollState.DRAGGING
-import androidx.viewpager2.widget.ViewPager2.ScrollState.IDLE
-import androidx.viewpager2.widget.ViewPager2.ScrollState.SETTLING
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
@@ -87,8 +87,17 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
 
                 // then
                 listener.apply {
-                    assertThat(stateEvents.map { it.state },
-                        equalTo(listOf(SETTLING, DRAGGING, SETTLING, IDLE)))
+                    assertThat(
+                        stateEvents.map { it.state },
+                        equalTo(
+                            listOf(
+                                SCROLL_STATE_SETTLING,
+                                SCROLL_STATE_DRAGGING,
+                                SCROLL_STATE_SETTLING,
+                                SCROLL_STATE_IDLE
+                            )
+                        )
+                    )
 
                     val currentlyVisible = viewPager.currentCompletelyVisibleItem
                     if (currentlyVisible == targetPage) {
@@ -155,7 +164,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
 // region Test Suite creation
 
 private fun createTestSet(): List<TestConfig> {
-    return listOf(HORIZONTAL, VERTICAL).flatMap { orientation ->
+    return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
         listOf(true, false).flatMap { dragInOppositeDirection ->
             listOf(0.4f, 1.5f).flatMap { distanceToTarget ->
                 createTestSet(orientation, dragInOppositeDirection, distanceToTarget)

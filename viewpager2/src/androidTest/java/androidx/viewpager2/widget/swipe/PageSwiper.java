@@ -20,6 +20,7 @@ import static androidx.core.util.Preconditions.checkArgumentNonnegative;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
 
 import static org.hamcrest.CoreMatchers.allOf;
 
@@ -36,9 +37,9 @@ public class PageSwiper {
         mLastPageIx = checkArgumentNonnegative(totalPages - 1);
 
         // TODO: handle RTL
-        mActionPrevious = orientation == ViewPager2.Orientation.HORIZONTAL
+        mActionPrevious = orientation == ORIENTATION_HORIZONTAL
                 ? ViewActions.swipeRight() : ViewActions.swipeDown();
-        mActionNext = orientation == ViewPager2.Orientation.HORIZONTAL
+        mActionNext = orientation == ORIENTATION_HORIZONTAL
                 ? ViewActions.swipeLeft() : ViewActions.swipeUp();
     }
 

@@ -36,8 +36,8 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.FragmentActivityUtils
 import androidx.viewpager2.test.R
-import androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL
-import androidx.viewpager2.widget.ViewPager2.ScrollState.IDLE
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
 import androidx.viewpager2.widget.swipe.FragmentAdapter
 import androidx.viewpager2.widget.swipe.PageSwiper
 import androidx.viewpager2.widget.swipe.TestActivity
@@ -105,7 +105,7 @@ open class BaseTest {
                 GeneralSwipeAction(Swipe.SLOW, GeneralLocation.CENTER,
                     CoordinatesProvider { view ->
                         val coordinates = GeneralLocation.CENTER.calculateCoordinates(view)
-                        if (orientation == HORIZONTAL) {
+                        if (orientation == ORIENTATION_HORIZONTAL) {
                             coordinates[0] += offset
                         } else {
                             coordinates[1] += offset
@@ -127,7 +127,7 @@ open class BaseTest {
 
         addOnPageChangeListener(object : ViewPager2.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {
-                if (lastScrollFired && state == IDLE) {
+                if (lastScrollFired && state == SCROLL_STATE_IDLE) {
                     latch.countDown()
                 }
             }
@@ -180,7 +180,7 @@ open class BaseTest {
             }
 
             override fun onPageScrollStateChanged(state: Int) {
-                if (state == IDLE) {
+                if (state == SCROLL_STATE_IDLE) {
                     latch.countDown()
                     post { removeOnPageChangeListener(this) }
                 }
@@ -217,7 +217,7 @@ open class BaseTest {
 
     val ViewPager2.pageSize: Int
         get() {
-            return if (orientation == HORIZONTAL) {
+            return if (orientation == ORIENTATION_HORIZONTAL) {
                 measuredWidth - paddingLeft - paddingRight
             } else {
                 measuredHeight - paddingTop - paddingBottom
