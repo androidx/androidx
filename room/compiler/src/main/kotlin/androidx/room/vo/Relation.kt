@@ -23,18 +23,19 @@ import javax.lang.model.type.TypeMirror
  * Value object created from processing a @Relation annotation.
  */
 class Relation(
-        val entity: Entity,
-        // return type. e..g. String in @Relation List<String>
-        val pojoType: TypeMirror,
-        // field in Pojo that holds these relations (e.g. List<Pet> pets)
-        val field: Field,
-        // the parent field referenced for matching
-        val parentField: Field,
-        // the field referenced for querying. does not need to be in the response but the query
-        // we generate always has it in the response.
-        val entityField: Field,
-        // the projection for the query
-        val projection: List<String>) {
+    val entity: EntityOrView,
+    // return type. e..g. String in @Relation List<String>
+    val pojoType: TypeMirror,
+    // field in Pojo that holds these relations (e.g. List<Pet> pets)
+    val field: Field,
+    // the parent field referenced for matching
+    val parentField: Field,
+    // the field referenced for querying. does not need to be in the response but the query
+    // we generate always has it in the response.
+    val entityField: Field,
+    // the projection for the query
+    val projection: List<String>
+) {
 
     val pojoTypeName by lazy { pojoType.typeName() }
 

@@ -21,7 +21,6 @@ import androidx.room.Embedded
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
-import androidx.room.processor.ProcessorErrors.ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY
 import androidx.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
 import androidx.room.processor.ProcessorErrors.RELATION_NOT_COLLECTION
 import androidx.room.processor.ProcessorErrors.relationCannotFindEntityField
@@ -334,6 +333,18 @@ class PojoProcessorTest {
     }
 
     @Test
+    fun relation_view() {
+        singleRun(
+                """
+                int id;
+                @Relation(parentColumn = "id", entityColumn = "uid")
+                public List<UserSummary> user;
+                """, COMMON.USER_SUMMARY
+        ) { _ ->
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun relation_notCollection() {
         singleRun(
                 """
@@ -368,7 +379,7 @@ class PojoProcessorTest {
                 public List<NotAnEntity> user;
                 """, COMMON.NOT_AN_ENTITY
         ) { _ ->
-        }.failsToCompile().withErrorContaining(ENTITY_MUST_BE_ANNOTATED_WITH_ENTITY)
+        }.failsToCompile().withErrorContaining(ProcessorErrors.NOT_ENTITY_OR_VIEW)
     }
 
     @Test
