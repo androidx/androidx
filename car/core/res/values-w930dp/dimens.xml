@@ -16,7 +16,7 @@ limitations under the License.
 <resources>
     <!-- Framework -->
     <!-- Gutters -->
-    <dimen name="car_gutter_width">24dp</dimen>
+    <dimen name="car_gutter_size">24dp</dimen>
 
     <!-- Keylines -->
     <dimen name="car_keyline_1">32dp</dimen>
