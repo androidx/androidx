@@ -139,7 +139,7 @@ class Main {
         val isReversed = cmd.hasOption(OPTION_REVERSED.opt)
         val isStrict = cmd.hasOption(OPTION_STRICT.opt)
 
-        val processor = Processor.createProcessor(
+        val processor = Processor.createProcessor2(
             config = config,
             reversedMode = isReversed,
             rewritingSupportLib = rebuildTopOfTree,
