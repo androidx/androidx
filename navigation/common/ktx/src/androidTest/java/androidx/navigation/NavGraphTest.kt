@@ -19,7 +19,6 @@ package androidx.navigation
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
-import androidx.navigation.testing.TestNavigator
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
@@ -30,7 +29,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavGraphTest {
     private val navGraphNavigator = NavGraphNavigator(InstrumentationRegistry.getTargetContext())
-    private val navigator = TestNavigator()
+    private val navigator = NoOpNavigator()
 
     @Test
     fun plusAssign() {

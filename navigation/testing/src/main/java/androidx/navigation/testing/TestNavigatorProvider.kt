@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.navigation.testing;
+package androidx.navigation.testing
 
-import android.content.Context;
-import android.support.annotation.NonNull;
+import android.content.Context
 
-import androidx.navigation.NavGraphNavigator;
-import androidx.navigation.SimpleNavigatorProvider;
+import androidx.navigation.NavGraphNavigator
+import androidx.navigation.SimpleNavigatorProvider
 
 /**
  * Simple NavigatorProvider that only supports &lt;navigation&gt; and &lt;test&gt; navigation
  * elements.
  */
-public class TestNavigatorProvider extends SimpleNavigatorProvider {
+class TestNavigatorProvider(context: Context) : SimpleNavigatorProvider() {
 
-    public TestNavigatorProvider(@NonNull Context context) {
-        addNavigator(new NavGraphNavigator(context));
-        addNavigator(new TestNavigator());
+    init {
+        addNavigator(NavGraphNavigator(context))
+        addNavigator(TestNavigator())
     }
 }

@@ -36,7 +36,7 @@ class TestNavigatorTest {
         assertEquals("TestNavigator back stack size is 1 after navigate",
                 1,
                 testNavigator.backStack.size)
-        val (foundDestination, foundArgs) = testNavigator.backStack.last()
+        val (foundDestination, foundArgs) = testNavigator.current
         assertEquals("last() returns last destination navigated to",
                 destination, foundDestination)
         assertEquals("last() returns arguments Bundle",

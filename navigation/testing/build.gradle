@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,16 +21,22 @@ import androidx.build.SupportLibraryExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
+    }
     lintOptions {
         fatal("UnknownNullness")
     }
 }
 
 dependencies {
-    api(project(":navigation:navigation-common"))
+    api(project(":navigation:navigation-common-ktx"))
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
@@ -48,4 +54,6 @@ supportLibrary {
     inceptionYear = "2017"
     description = "Android Navigation-Testing"
     url = SupportLibraryExtension.ARCHITECTURE_URL
+    // TODO useMetalava = true
+    // A bug in type parameter bound resolution causes metalava to always fail on validating the API
 }

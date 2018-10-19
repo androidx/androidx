@@ -39,7 +39,7 @@ dependencies {
     testImplementation(TEST_RUNNER)
 
     androidTestImplementation(project(":navigation:navigation-runtime-ktx"))
-    androidTestImplementation(project(":navigation:navigation-testing-ktx"))
+    androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TRUTH)
