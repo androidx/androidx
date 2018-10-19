@@ -18,8 +18,7 @@ package androidx.navigation
 
 import android.support.annotation.IdRes
 import androidx.test.filters.SmallTest
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -37,15 +36,15 @@ class NavActionTest {
     fun createAction() {
         val action = NavAction(DESTINATION_ID)
 
-        assertEquals(DESTINATION_ID, action.destinationId)
+        assertThat(action.destinationId).isEqualTo(DESTINATION_ID)
     }
 
     @Test
     fun createActionWithNullNavOptions() {
         val action = NavAction(DESTINATION_ID, null)
 
-        assertEquals(DESTINATION_ID, action.destinationId)
-        assertNull(action.navOptions)
+        assertThat(action.destinationId).isEqualTo(DESTINATION_ID)
+        assertThat(action.navOptions).isNull()
     }
 
     @Test
@@ -54,6 +53,6 @@ class NavActionTest {
         val navOptions = NavOptions.Builder().build()
         action.navOptions = navOptions
 
-        assertEquals(navOptions, action.navOptions)
+        assertThat(action.navOptions).isEqualTo(navOptions)
     }
 }
