@@ -17,6 +17,7 @@
 package androidx.car.cluster.navigation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import android.os.Bundle;
 import android.os.Parcel;
@@ -161,6 +162,72 @@ public class NavigationStateTest {
         state.getSteps().add(new Step.Builder().build());
     }
 
+    /**
+     * Test a few equality conditions
+     */
+    @Test
+    public void equalityTest() {
+        // Testing empty nav state cases
+        assertEquals(new NavigationState(), new NavigationState.Builder().build());
+        assertEquals(new NavigationState(), new NavigationState.Builder()
+                .setServiceStatus(NavigationState.ServiceStatus.NORMAL).build());
+
+        Destination destination = new Destination.Builder().build();
+        Step step = new Step.Builder().build();
+        NavigationState navState = new NavigationState.Builder()
+                .addDestination(destination)
+                .addStep(step)
+                .setServiceStatus(NavigationState.ServiceStatus.NORMAL)
+                .build();
+
+        // Testing a few equality/inequality cases
+        assertEquals(navState, new NavigationState.Builder()
+                .addDestination(destination)
+                .addStep(step)
+                .setServiceStatus(NavigationState.ServiceStatus.NORMAL)
+                .build());
+        assertNotEquals(navState, new NavigationState.Builder()
+                .addStep(step)
+                .setServiceStatus(NavigationState.ServiceStatus.NORMAL)
+                .build());
+        assertNotEquals(navState, new NavigationState.Builder()
+                .addDestination(destination)
+                .addDestination(destination)
+                .addStep(step)
+                .setServiceStatus(NavigationState.ServiceStatus.NORMAL)
+                .build());
+        assertNotEquals(navState, new NavigationState.Builder()
+                .addDestination(destination)
+                .addStep(step)
+                .addStep(step)
+                .setServiceStatus(NavigationState.ServiceStatus.NORMAL)
+                .build());
+        assertNotEquals(navState, new NavigationState.Builder()
+                .addDestination(destination)
+                .addStep(step)
+                .setServiceStatus(NavigationState.ServiceStatus.REROUTING)
+                .build());
+        assertEquals(
+                new NavigationState.Builder().setCurrentSegment(new Segment()).build(),
+                new NavigationState.Builder().setCurrentSegment(new Segment()).build());
+        assertNotEquals(
+                new NavigationState.Builder().build(),
+                new NavigationState.Builder().setCurrentSegment(new Segment()).build());
+        assertNotEquals(
+                new NavigationState.Builder().setCurrentSegment(new Segment("TEST")).build(),
+                new NavigationState.Builder().setCurrentSegment(new Segment()).build());
+
+        // Testing hashcode
+        assertEquals(new NavigationState().hashCode(), new NavigationState.Builder()
+                .setServiceStatus(NavigationState.ServiceStatus.NORMAL).build().hashCode());
+        assertEquals(navState.hashCode(), new NavigationState.Builder()
+                .addDestination(destination)
+                .addStep(step)
+                .setServiceStatus(NavigationState.ServiceStatus.NORMAL)
+                .build()
+                .hashCode());
+    }
+
     private NavigationState createEmptyState() {
         return new NavigationState.Builder().build();
     }
@@ -203,6 +270,7 @@ public class NavigationStateTest {
                         .setLocation(new LatLng(37.4219999, -122.0840575))
                         .build())
                 .setCurrentSegment(new Segment("Main St."))
+                .setServiceStatus(NavigationState.ServiceStatus.NORMAL)
                 .build();
     }
 
