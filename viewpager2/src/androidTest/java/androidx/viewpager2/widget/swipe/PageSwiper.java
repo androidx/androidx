@@ -18,14 +18,13 @@ package androidx.viewpager2.widget.swipe;
 
 import static androidx.core.util.Preconditions.checkArgumentNonnegative;
 import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.CoreMatchers.allOf;
 
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.ViewActions;
-import androidx.viewpager2.test.R;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class PageSwiper {
@@ -73,15 +72,15 @@ public class PageSwiper {
         }
     }
 
-    private void swipeNext() {
+    public void swipeNext() {
         swipe(mActionNext);
     }
 
-    private void swipePrevious() {
+    public void swipePrevious() {
         swipe(mActionPrevious);
     }
 
     private void swipe(ViewAction swipeAction) {
-        onView(allOf(isDisplayed(), withId(R.id.text_view))).perform(swipeAction);
+        onView(allOf(isDisplayed(), isAssignableFrom(ViewPager2.class))).perform(swipeAction);
     }
 }
