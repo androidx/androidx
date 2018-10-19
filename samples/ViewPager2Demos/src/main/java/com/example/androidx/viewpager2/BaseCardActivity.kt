@@ -26,7 +26,8 @@ import android.widget.Spinner
 import android.widget.SpinnerAdapter
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.widget.ViewPager2
-import androidx.viewpager2.widget.ViewPager2.Orientation
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import com.example.androidx.viewpager2.cards.Card
 
 /**
@@ -44,11 +45,11 @@ abstract class BaseCardActivity : FragmentActivity() {
     private lateinit var scaleCheckBox: CheckBox
     private lateinit var gotoPage: Button
     private lateinit var orientationSelector: Spinner
-    private var orientation: Int = Orientation.HORIZONTAL
+    private var orientation: Int = ORIENTATION_HORIZONTAL
 
-    private val translateX get() = orientation == Orientation.VERTICAL &&
+    private val translateX get() = orientation == ORIENTATION_VERTICAL &&
             translateCheckBox.isChecked
-    private val translateY get() = orientation == Orientation.HORIZONTAL &&
+    private val translateY get() = orientation == ORIENTATION_HORIZONTAL &&
             translateCheckBox.isChecked
 
     private val mAnimator = ViewPager2.PageTransformer { page, position ->
@@ -96,8 +97,8 @@ abstract class BaseCardActivity : FragmentActivity() {
                 id: Long
             ) {
                 when (parent.selectedItem.toString()) {
-                    HORIZONTAL -> orientation = Orientation.HORIZONTAL
-                    VERTICAL -> orientation = Orientation.VERTICAL
+                    HORIZONTAL -> orientation = ORIENTATION_HORIZONTAL
+                    VERTICAL -> orientation = ORIENTATION_VERTICAL
                 }
                 viewPager.orientation = orientation
             }

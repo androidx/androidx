@@ -30,11 +30,11 @@ import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageScrollState
 import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageSelectedEvent
 import androidx.viewpager2.widget.ViewPager2.Orientation
-import androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL
-import androidx.viewpager2.widget.ViewPager2.Orientation.VERTICAL
-import androidx.viewpager2.widget.ViewPager2.ScrollState.DRAGGING
-import androidx.viewpager2.widget.ViewPager2.ScrollState.IDLE
-import androidx.viewpager2.widget.ViewPager2.ScrollState.SETTLING
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.allOf
@@ -123,12 +123,12 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_swipeBetweenPages_horizontal() {
-        test_swipeBetweenPages(HORIZONTAL)
+        test_swipeBetweenPages(ORIENTATION_HORIZONTAL)
     }
 
     @Test
     fun test_swipeBetweenPages_vertical() {
-        test_swipeBetweenPages(VERTICAL)
+        test_swipeBetweenPages(ORIENTATION_VERTICAL)
     }
 
     /*
@@ -189,12 +189,12 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_swipeBeyondEdgePages_horizontal() {
-        test_swipeBeyondEdgePages(HORIZONTAL)
+        test_swipeBeyondEdgePages(ORIENTATION_HORIZONTAL)
     }
 
     @Test
     fun test_swipeBeyondEdgePages_vertical() {
-        test_swipeBeyondEdgePages(VERTICAL)
+        test_swipeBeyondEdgePages(ORIENTATION_VERTICAL)
     }
 
     /*
@@ -246,12 +246,12 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_peekOnAdjacentPage_horizontal_next() {
-        test_peekOnAdjacentPage_next(HORIZONTAL)
+        test_peekOnAdjacentPage_next(ORIENTATION_HORIZONTAL)
     }
 
     @Test
     fun test_peekOnAdjacentPage_vertical_next() {
-        test_peekOnAdjacentPage_next(VERTICAL)
+        test_peekOnAdjacentPage_next(ORIENTATION_VERTICAL)
     }
 
     /*
@@ -308,12 +308,12 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_peekOnAdjacentPage_horizontal_previous() {
-        test_peekOnAdjacentPage_previous(HORIZONTAL)
+        test_peekOnAdjacentPage_previous(ORIENTATION_HORIZONTAL)
     }
 
     @Test
     fun test_peekOnAdjacentPage_vertical_previous() {
-        test_peekOnAdjacentPage_previous(VERTICAL)
+        test_peekOnAdjacentPage_previous(ORIENTATION_VERTICAL)
     }
 
     /*
@@ -385,12 +385,12 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_selectItemProgrammatically_smoothScroll_horizontal() {
-        test_selectItemProgrammatically_smoothScroll(HORIZONTAL)
+        test_selectItemProgrammatically_smoothScroll(ORIENTATION_HORIZONTAL)
     }
 
     @Test
     fun test_selectItemProgrammatically_smoothScroll_vertical() {
-        test_selectItemProgrammatically_smoothScroll(VERTICAL)
+        test_selectItemProgrammatically_smoothScroll(ORIENTATION_VERTICAL)
     }
 
     private fun test_multiplePageChanges(@Orientation orientation: Int) {
@@ -423,12 +423,12 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_multiplePageChanges_horizontal() {
-        test_multiplePageChanges(HORIZONTAL)
+        test_multiplePageChanges(ORIENTATION_HORIZONTAL)
     }
 
     @Test
     fun test_multiplePageChanges_vertical() {
-        test_multiplePageChanges(VERTICAL)
+        test_multiplePageChanges(ORIENTATION_VERTICAL)
     }
 
     /**
@@ -470,7 +470,10 @@ class PageChangeListenerTest : BaseTest() {
             // then
             listener.apply {
                 assertThat(selectEvents.map { it.position }, equalTo(listOf(targetPage)))
-                assertThat(stateEvents.map { it.state }, equalTo(listOf(SETTLING, IDLE)))
+                assertThat(
+                    stateEvents.map { it.state },
+                    equalTo(listOf(SCROLL_STATE_SETTLING, SCROLL_STATE_IDLE))
+                )
                 assertTargetReachedAfterMarker(targetPage, marker)
             }
         }
@@ -478,12 +481,12 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_noSmoothScroll_after_smoothScroll_horizontal() {
-        test_noSmoothScroll_after_smoothScroll(HORIZONTAL)
+        test_noSmoothScroll_after_smoothScroll(ORIENTATION_HORIZONTAL)
     }
 
     @Test
     fun test_noSmoothScroll_after_smoothScroll_vertical() {
-        test_noSmoothScroll_after_smoothScroll(VERTICAL)
+        test_noSmoothScroll_after_smoothScroll(ORIENTATION_VERTICAL)
     }
 
     /**
@@ -529,12 +532,12 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_configChangeDuringFarSmoothScroll_horizontal() {
-        test_configChangeDuringFarSmoothScroll(HORIZONTAL)
+        test_configChangeDuringFarSmoothScroll(ORIENTATION_HORIZONTAL)
     }
 
     @Test
     fun test_configChangeDuringFarSmoothScroll_vertical() {
-        test_configChangeDuringFarSmoothScroll(VERTICAL)
+        test_configChangeDuringFarSmoothScroll(ORIENTATION_VERTICAL)
     }
 
     /*
@@ -584,12 +587,12 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_selectItemProgrammatically_noSmoothScroll_horizontal() {
-        test_selectItemProgrammatically_noSmoothScroll(HORIZONTAL)
+        test_selectItemProgrammatically_noSmoothScroll(ORIENTATION_HORIZONTAL)
     }
 
     @Test
     fun test_selectItemProgrammatically_noSmoothScroll_vertical() {
-        test_selectItemProgrammatically_noSmoothScroll(VERTICAL)
+        test_selectItemProgrammatically_noSmoothScroll(ORIENTATION_VERTICAL)
     }
 
     /**
@@ -629,31 +632,31 @@ class PageChangeListenerTest : BaseTest() {
 
     @Test
     fun test_selectItemProgrammatically_noSmoothScroll_noListener_horizontal() {
-        test_selectItemProgrammatically_noListener(HORIZONTAL, false)
+        test_selectItemProgrammatically_noListener(ORIENTATION_HORIZONTAL, false)
     }
 
     @Test
     fun test_selectItemProgrammatically_noSmoothScroll_noListener_vertical() {
-        test_selectItemProgrammatically_noListener(VERTICAL, false)
+        test_selectItemProgrammatically_noListener(ORIENTATION_VERTICAL, false)
     }
 
     @Test
     fun test_selectItemProgrammatically_smoothScroll_noListener_horizontal() {
-        test_selectItemProgrammatically_noListener(HORIZONTAL, true)
+        test_selectItemProgrammatically_noListener(ORIENTATION_HORIZONTAL, true)
     }
 
     @Test
     fun test_selectItemProgrammatically_smoothScroll_noListener_vertical() {
-        test_selectItemProgrammatically_noListener(VERTICAL, true)
+        test_selectItemProgrammatically_noListener(ORIENTATION_VERTICAL, true)
     }
 
     @Test
     fun test_scrollStateValuesInSync() {
-        assertThat(ViewPager2.ScrollState.IDLE, allOf(equalTo(ViewPager.SCROLL_STATE_IDLE),
+        assertThat(ViewPager2.SCROLL_STATE_IDLE, allOf(equalTo(ViewPager.SCROLL_STATE_IDLE),
                 equalTo(RecyclerView.SCROLL_STATE_IDLE)))
-        assertThat(ViewPager2.ScrollState.DRAGGING, allOf(equalTo(ViewPager.SCROLL_STATE_DRAGGING),
+        assertThat(ViewPager2.SCROLL_STATE_DRAGGING, allOf(equalTo(ViewPager.SCROLL_STATE_DRAGGING),
                 equalTo(RecyclerView.SCROLL_STATE_DRAGGING)))
-        assertThat(ViewPager2.ScrollState.SETTLING, allOf(equalTo(ViewPager.SCROLL_STATE_SETTLING),
+        assertThat(ViewPager2.SCROLL_STATE_SETTLING, allOf(equalTo(ViewPager.SCROLL_STATE_SETTLING),
                 equalTo(RecyclerView.SCROLL_STATE_SETTLING)))
     }
 
@@ -721,9 +724,9 @@ class PageChangeListenerTest : BaseTest() {
         val lastIx get() = events.size - 1
         val firstScrolledIx get() = events.indexOfFirst { it is OnPageScrolledEvent }
         val lastScrolledIx get() = events.indexOfLast { it is OnPageScrolledEvent }
-        val settlingIx get() = events.indexOf(OnPageScrollStateChangedEvent(SETTLING))
-        val draggingIx get() = events.indexOf(OnPageScrollStateChangedEvent(DRAGGING))
-        val idleIx get() = events.indexOf(OnPageScrollStateChangedEvent(IDLE))
+        val settlingIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_SETTLING))
+        val draggingIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING))
+        val idleIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE))
         val pageSelectedIx: (page: Int) -> Int = { events.indexOf(OnPageSelectedEvent(it)) }
         val markIx: (id: Int) -> Int = { events.indexOf(MarkerEvent(it)) }
 
@@ -773,7 +776,10 @@ class PageChangeListenerTest : BaseTest() {
     private fun RecordingListener.assertTargetReachedAfterMarker(targetPage: Int, marker: Int) {
         val finalEvents = eventsAfter(marker)
         assertThat(finalEvents.get(0), equalTo(OnPageScrolledEvent(targetPage, 0f, 0) as Event))
-        assertThat(finalEvents.get(1), equalTo(OnPageScrollStateChangedEvent(IDLE) as Event))
+        assertThat(
+            finalEvents.get(1),
+            equalTo(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event)
+        )
     }
 
     private fun List<OnPageScrolledEvent>.assertOffsetSorted(sortOrder: SortOrder) {

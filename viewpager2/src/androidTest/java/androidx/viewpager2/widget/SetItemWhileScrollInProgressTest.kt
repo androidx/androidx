@@ -23,9 +23,9 @@ import androidx.viewpager2.widget.SetItemWhileScrollInProgressTest.Event.OnPageS
 import androidx.viewpager2.widget.SetItemWhileScrollInProgressTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.SetItemWhileScrollInProgressTest.Event.OnPageSelectedEvent
 import androidx.viewpager2.widget.SetItemWhileScrollInProgressTest.TestConfig
-import androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL
-import androidx.viewpager2.widget.ViewPager2.Orientation.VERTICAL
-import androidx.viewpager2.widget.ViewPager2.ScrollState.DRAGGING
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
 import org.hamcrest.CoreMatchers.anyOf
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
@@ -197,7 +197,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
                 as? OnPageScrollStateChangedEvent
         val lastScroll get() = events.findLast { it is OnPageScrolledEvent } as? OnPageScrolledEvent
         val lastSelect get() = events.findLast { it is OnPageSelectedEvent } as? OnPageSelectedEvent
-        val draggingIx get() = events.indexOf(OnPageScrollStateChangedEvent(DRAGGING))
+        val draggingIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING))
 
         override fun onPageScrolled(
             position: Int,
@@ -274,7 +274,10 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
 // region Test Suite creation
 
 private fun createTestSet(): List<TestConfig> {
-    return listOf(HORIZONTAL, VERTICAL).flatMap { orientation -> createTestSet(orientation) }
+    return listOf(
+        ORIENTATION_HORIZONTAL,
+        ORIENTATION_VERTICAL
+    ).flatMap { orientation -> createTestSet(orientation) }
 }
 
 private fun createTestSet(orientation: Int): List<TestConfig> {
