@@ -371,7 +371,7 @@ public abstract class LiveData<T> {
         return mActiveCount > 0;
     }
 
-    class LifecycleBoundObserver extends ObserverWrapper implements GenericLifecycleObserver {
+    class LifecycleBoundObserver extends ObserverWrapper implements LifecycleEventObserver {
         @NonNull
         final LifecycleOwner mOwner;
 

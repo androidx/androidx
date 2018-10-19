@@ -165,7 +165,7 @@ public class SynchronousActivityLifecycleTest {
         }
     }
 
-    private static class TestObserver implements GenericLifecycleObserver {
+    private static class TestObserver implements LifecycleEventObserver {
         private final LifecycleTestActivity mActivity;
         private final Event mExpectedEvent;
         boolean mEventReceived = false;

@@ -20,9 +20,9 @@ import androidx.lifecycle.ClassesInfoCache.CallbackInfo;
 import androidx.lifecycle.Lifecycle.Event;
 
 /**
- * An internal implementation of {@link GenericLifecycleObserver} that relies on reflection.
+ * An internal implementation of {@link LifecycleObserver} that relies on reflection.
  */
-class ReflectiveGenericLifecycleObserver implements GenericLifecycleObserver {
+class ReflectiveGenericLifecycleObserver implements LifecycleEventObserver {
     private final Object mWrapped;
     private final CallbackInfo mInfo;
 
