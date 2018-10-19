@@ -19,8 +19,8 @@ package androidx.viewpager2.widget
 import androidx.test.filters.LargeTest
 import androidx.viewpager2.widget.SwipeTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.Orientation
-import androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL
-import androidx.viewpager2.widget.ViewPager2.Orientation.VERTICAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.swipe.PageView
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -97,10 +97,10 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
 
 private fun createTestSet(): List<TestConfig> {
     return listOf(
-            fragmentAdapterProvider to HORIZONTAL,
-            fragmentAdapterProvider to VERTICAL,
-            viewAdapterProvider to HORIZONTAL,
-            viewAdapterProvider to VERTICAL)
+            fragmentAdapterProvider to ORIENTATION_HORIZONTAL,
+            fragmentAdapterProvider to ORIENTATION_VERTICAL,
+            viewAdapterProvider to ORIENTATION_HORIZONTAL,
+            viewAdapterProvider to ORIENTATION_VERTICAL)
             .flatMap { (activity, orientation) -> createTestSet(activity, orientation) }
 }
 

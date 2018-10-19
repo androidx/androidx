@@ -26,8 +26,8 @@ import androidx.viewpager2.widget.BaseTest.SortOrder.DESC
 import androidx.viewpager2.widget.PageTransformerTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.PageTransformerTest.Event.TransformPageEvent
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeListener
-import androidx.viewpager2.widget.ViewPager2.Orientation.HORIZONTAL
-import androidx.viewpager2.widget.ViewPager2.Orientation.VERTICAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
+import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.ViewPager2.PageTransformer
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
@@ -156,22 +156,22 @@ class PageTransformerTest : BaseTest() {
 
     @Test
     fun test_transformer_smoothScroll_horizontal() {
-        test_transformer(HORIZONTAL, smoothScroll, smoothScrollPages)
+        test_transformer(ORIENTATION_HORIZONTAL, smoothScroll, smoothScrollPages)
     }
 
     @Test
     fun test_transformer_smoothScroll_vertical() {
-        test_transformer(VERTICAL, smoothScroll, smoothScrollPages)
+        test_transformer(ORIENTATION_VERTICAL, smoothScroll, smoothScrollPages)
     }
 
     @Test
     fun test_transformer_swipe_horizontal() {
-        test_transformer(HORIZONTAL, swipe, swipePages)
+        test_transformer(ORIENTATION_HORIZONTAL, swipe, swipePages)
     }
 
     @Test
     fun test_transformer_swipe_vertical() {
-        test_transformer(VERTICAL, swipe, swipePages)
+        test_transformer(ORIENTATION_VERTICAL, swipe, swipePages)
     }
 
     private fun ViewPager2.addNewRecordingListener(): RecordingListener {
