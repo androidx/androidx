@@ -39,10 +39,11 @@ public class Preferences {
     private static final String KEY_LAST_CANCEL_ALL_TIME_MS = "last_cancel_all_time_ms";
     private static final String KEY_RESCHEDULE_NEEDED = "reschedule_needed";
 
+    private Context mContext;
     private SharedPreferences mSharedPreferences;
 
     public Preferences(@NonNull Context context) {
-        this(context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE));
+        mContext = context;
     }
 
     @VisibleForTesting
@@ -54,7 +55,7 @@ public class Preferences {
      * @return The last time (in milliseconds) a {@code cancelAll} method was called
      */
     public long getLastCancelAllTimeMillis() {
-        return mSharedPreferences.getLong(KEY_LAST_CANCEL_ALL_TIME_MS, 0L);
+        return getSharedPreferences().getLong(KEY_LAST_CANCEL_ALL_TIME_MS, 0L);
     }
 
     /**
@@ -62,7 +63,7 @@ public class Preferences {
      *         called
      */
     public LiveData<Long> getLastCancelAllTimeMillisLiveData() {
-        return new LastCancelAllLiveData(mSharedPreferences);
+        return new LastCancelAllLiveData(getSharedPreferences());
     }
 
     /**
@@ -71,7 +72,7 @@ public class Preferences {
      * @param timeMillis The time a {@code cancelAll} method was called (in milliseconds)
      */
     public void setLastCancelAllTimeMillis(long timeMillis) {
-        mSharedPreferences.edit().putLong(KEY_LAST_CANCEL_ALL_TIME_MS, timeMillis).apply();
+        getSharedPreferences().edit().putLong(KEY_LAST_CANCEL_ALL_TIME_MS, timeMillis).apply();
     }
 
     /**
@@ -80,14 +81,25 @@ public class Preferences {
     public boolean needsReschedule() {
         // This preference is being set by a Room Migration.
         // TODO Remove this before WorkManager 1.0 beta.
-        return mSharedPreferences.getBoolean(KEY_RESCHEDULE_NEEDED, false);
+        return getSharedPreferences().getBoolean(KEY_RESCHEDULE_NEEDED, false);
     }
 
     /**
      * Updates the key which indicates that we have rescheduled jobs.
      */
     public void setNeedsReschedule(boolean needsReschedule) {
-        mSharedPreferences.edit().putBoolean(KEY_RESCHEDULE_NEEDED, needsReschedule).apply();
+        getSharedPreferences().edit().putBoolean(KEY_RESCHEDULE_NEEDED, needsReschedule).apply();
+    }
+
+    private SharedPreferences getSharedPreferences() {
+        synchronized (Preferences.class) {
+            if (mSharedPreferences == null) {
+                mSharedPreferences = mContext.getSharedPreferences(
+                        PREFERENCES_FILE_NAME,
+                        Context.MODE_PRIVATE);
+            }
+            return mSharedPreferences;
+        }
     }
 
     /**
