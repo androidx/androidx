@@ -331,6 +331,29 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         assertEquals(currentVolume, info.getCurrentVolume());
     }
 
+    @Test
+    public void testOnPlaybackInfoChanged_byAudioAttributesChange() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AudioAttributesCompat attrs = new AudioAttributesCompat.Builder()
+                .setContentType(AudioAttributesCompat.CONTENT_TYPE_MUSIC)
+                .setUsage(AudioAttributesCompat.USAGE_MEDIA)
+                .build();
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+                    @Override
+                    public void onPlaybackInfoChanged(MediaController2 controller,
+                            PlaybackInfo info) {
+                        assertNotNull(info.getAudioAttributes());
+                        assertEquals(attrs, info.getAudioAttributes());
+                        latch.countDown();
+                    }
+                };
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.getMockPlayer().notifyAudioAttributesChanged(attrs);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
     /**
      * This also tests {@link MediaController2#getPlaylist()}.
      */

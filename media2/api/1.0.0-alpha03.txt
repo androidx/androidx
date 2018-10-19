@@ -531,6 +531,7 @@ package androidx.media2 {
 
   public static abstract class SessionPlayer2.PlayerCallback {
     ctor public SessionPlayer2.PlayerCallback();
+    method public void onAudioAttributesChanged(androidx.media2.SessionPlayer2, androidx.media.AudioAttributesCompat);
     method public void onBufferingStateChanged(androidx.media2.SessionPlayer2, androidx.media2.MediaItem2, int);
     method public void onCurrentMediaItemChanged(androidx.media2.SessionPlayer2, androidx.media2.MediaItem2);
     method public void onPlaybackCompleted(androidx.media2.SessionPlayer2);

@@ -360,6 +360,14 @@ public class MediaSession2ProviderService extends Service {
             }
         }
 
+        @Override
+        public void notifyAudioAttributesChanged(String sessionId, Bundle attrs)
+                throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            player.notifyAudioAttributesChanged(AudioAttributesCompat.fromBundle(attrs));
+        }
+
         ////////////////////////////////////////////////////////////////////////////////
         // MockPlaylistAgent methods
         ////////////////////////////////////////////////////////////////////////////////

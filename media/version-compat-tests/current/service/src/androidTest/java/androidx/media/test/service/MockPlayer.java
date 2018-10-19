@@ -243,6 +243,20 @@ public class MockPlayer extends SessionPlayer2 {
         }
     }
 
+    public void notifyAudioAttributesChanged(final AudioAttributesCompat attrs) {
+        Map<PlayerCallback, Executor> callbacks = getCallbacks();
+        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
+            final PlayerCallback callback = entry.getKey();
+            final Executor executor = entry.getValue();
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    callback.onAudioAttributesChanged(MockPlayer.this, attrs);
+                }
+            });
+        }
+    }
+
     @Override
     public ListenableFuture<PlayerResult> setAudioAttributes(AudioAttributesCompat attributes) {
         mAudioAttributes = attributes;

@@ -834,6 +834,17 @@ public abstract class SessionPlayer2 implements AutoCloseable {
          */
         public void onPlaybackCompleted(@NonNull SessionPlayer2 player) {
         }
+
+        /**
+         * Called when the player's current audio attributes are changed.
+         *
+         * @param player the player whose audio attributes are changed.
+         * @param attributes the new current audio attributes
+         * @see #getAudioAttributes()
+         */
+        public void onAudioAttributesChanged(@NonNull SessionPlayer2 player,
+                @Nullable AudioAttributesCompat attributes) {
+        }
     }
 
     /**

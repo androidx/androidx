@@ -168,7 +168,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         final boolean isPlaybackInfoChanged;
 
         final SessionPlayer2 oldPlayer;
-        final PlaybackInfo info = createPlaybackInfo(player);
+        final PlaybackInfo info = createPlaybackInfo(player, null);
 
         synchronized (mLock) {
             isPlaybackInfoChanged = !info.equals(mPlaybackInfo);
@@ -232,8 +232,10 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         }
     }
 
-    @NonNull PlaybackInfo createPlaybackInfo(@NonNull SessionPlayer2 player) {
-        final AudioAttributesCompat attrs = player.getAudioAttributes();
+    @NonNull PlaybackInfo createPlaybackInfo(@NonNull SessionPlayer2 player,
+            AudioAttributesCompat audioAttributes) {
+        final AudioAttributesCompat attrs = audioAttributes != null ? audioAttributes :
+                player.getAudioAttributes();
 
         if (!(player instanceof RemoteSessionPlayer2)) {
             int stream = getLegacyStreamType(attrs);
@@ -1193,21 +1195,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                             player.getCurrentPosition(), state);
                 }
             });
-            // Currently we don't have a listener to player's AudioAttributes changes.
-            // Therefore, MediaController2 can get wrong AudioAttributes from
-            // MediaController2.getPlaybackInfo(). As a remedy, we update the
-            // AudioAttributes whenever player's state is changed.
-            // TODO(jaewan): Add AudioAttributes changed listener.
-            PlaybackInfo newInfo = session.createPlaybackInfo(player);
-            PlaybackInfo oldInfo;
-            synchronized (session.mLock) {
-                oldInfo = session.mPlaybackInfo;
-                session.mPlaybackInfo = newInfo;
-            }
-            if (!ObjectsCompat.equals(
-                    newInfo.getAudioAttributes(), oldInfo.getAudioAttributes())) {
-                session.notifyPlaybackInfoChangedNotLocked(newInfo);
-            }
         }
 
         @Override
@@ -1294,6 +1281,24 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                     callback.onPlaybackCompleted();
                 }
             });
+        }
+
+        @Override
+        public void onAudioAttributesChanged(final SessionPlayer2 player,
+                final AudioAttributesCompat attributes) {
+            final MediaSession2ImplBase session = getSession();
+            if (session == null || session.getPlayer() != player || player == null) {
+                return;
+            }
+            PlaybackInfo newInfo = session.createPlaybackInfo(player, attributes);
+            PlaybackInfo oldInfo;
+            synchronized (session.mLock) {
+                oldInfo = session.mPlaybackInfo;
+                session.mPlaybackInfo = newInfo;
+            }
+            if (!ObjectsCompat.equals(newInfo, oldInfo)) {
+                session.notifyPlaybackInfoChangedNotLocked(newInfo);
+            }
         }
 
         private MediaSession2ImplBase getSession() {
