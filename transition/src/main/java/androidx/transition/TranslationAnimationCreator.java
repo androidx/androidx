@@ -23,6 +23,9 @@ import android.animation.PropertyValuesHolder;
 import android.animation.TimeInterpolator;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 /**
  * This class is used by Slide and Explode to create an animator that goes from the start
  * position to the end position. It takes into account the canceled position so that it
@@ -46,8 +49,10 @@ class TranslationAnimationCreator {
      * @return An animator that moves from (startX, startY) to (endX, endY) unless there was
      * a previous interruption, in which case it moves from the current position to (endX, endY).
      */
-    static Animator createAnimation(View view, TransitionValues values, int viewPosX, int viewPosY,
-            float startX, float startY, float endX, float endY, TimeInterpolator interpolator) {
+    @Nullable
+    static Animator createAnimation(@NonNull View view, @NonNull TransitionValues values,
+            int viewPosX, int viewPosY, float startX, float startY, float endX, float endY,
+            @Nullable TimeInterpolator interpolator, @NonNull Transition transition) {
         float terminalX = view.getTranslationX();
         float terminalY = view.getTranslationY();
         int[] startPosition = (int[]) values.view.getTag(R.id.transition_position);
@@ -70,13 +75,15 @@ class TranslationAnimationCreator {
 
         TransitionPositionListener listener = new TransitionPositionListener(view, values.view,
                 startPosX, startPosY, terminalX, terminalY);
+        transition.addListener(listener);
         anim.addListener(listener);
         AnimatorUtils.addPauseListener(anim, listener);
         anim.setInterpolator(interpolator);
         return anim;
     }
 
-    private static class TransitionPositionListener extends AnimatorListenerAdapter {
+    private static class TransitionPositionListener extends AnimatorListenerAdapter implements
+            Transition.TransitionListener {
 
         private final View mViewInHierarchy;
         private final View mMovingView;
@@ -113,12 +120,6 @@ class TranslationAnimationCreator {
         }
 
         @Override
-        public void onAnimationEnd(Animator animator) {
-            mMovingView.setTranslationX(mTerminalX);
-            mMovingView.setTranslationY(mTerminalY);
-        }
-
-        @Override
         public void onAnimationPause(Animator animator) {
             mPausedX = mMovingView.getTranslationX();
             mPausedY = mMovingView.getTranslationY();
@@ -130,6 +131,29 @@ class TranslationAnimationCreator {
         public void onAnimationResume(Animator animator) {
             mMovingView.setTranslationX(mPausedX);
             mMovingView.setTranslationY(mPausedY);
+        }
+
+        @Override
+        public void onTransitionStart(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionEnd(@NonNull Transition transition) {
+            mMovingView.setTranslationX(mTerminalX);
+            mMovingView.setTranslationY(mTerminalY);
+            transition.removeListener(this);
+        }
+
+        @Override
+        public void onTransitionCancel(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionPause(@NonNull Transition transition) {
+        }
+
+        @Override
+        public void onTransitionResume(@NonNull Transition transition) {
         }
     }
 
