@@ -28,28 +28,49 @@ import androidx.navigation.NavController
  * the destination changes (assuming there is a valid
  * [label][androidx.navigation.NavDestination.getLabel]).
  *
- * The Toolbar will automatically animate between a drawer icon (if `drawerLayout` is non-null)
- * and the Up button when transitioning between one of the `topLevelDestinations` and other
- * destinations in your graph.
+ * The start destination of your navigation graph is considered the only top level
+ * destination. On the start destination of your navigation graph, the Toolbar will show
+ * the drawer icon if the given `drawerLayout` is non null. On all other destinations,
+ * the Toolbar will show the Up button.
+ *
+ * This method will call [NavController.navigateUp] when the Navigation button is clicked.
+ *
+ * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
+ * @param navController The NavController whose navigation actions will be reflected
+ *                      in the title of the Toolbar.
+ * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button
+ */
+fun CollapsingToolbarLayout.setupWithNavController(
+    toolbar: Toolbar,
+    navController: NavController,
+    drawerLayout: DrawerLayout?
+) {
+    NavigationUI.setupWithNavController(this, toolbar, navController,
+        AppBarConfiguration(navController.graph, drawerLayout))
+}
+
+/**
+ * Sets up a [CollapsingToolbarLayout] and [Toolbar] for use with a [NavController].
+ *
+ * By calling this method, the title in the Toolbar will automatically be updated when
+ * the destination changes (assuming there is a valid
+ * [label][androidx.navigation.NavDestination.getLabel]).
+ *
+ * The [AppBarConfiguration] you provide controls how the Navigation button is
+ * displayed and what action is triggered when the Navigation button is tapped.
  *
  * This method will call [NavController.navigateUp] when the navigation icon is clicked.
  *
  * @param toolbar The Toolbar that should be kept in sync with changes to the NavController.
  * @param navController The NavController whose navigation actions will be reflected
  *                      in the title of the Toolbar.
- * @param drawerLayout The DrawerLayout that should be toggled from the home button
- * @param topLevelDestinations The set of destinations by id considered at the top level of your
- * information hierarchy. The Up button will not be displayed when on these destinations.
+ * @param configuration Additional configuration options for customizing the behavior of the
+ *                      Toolbar
  */
 fun CollapsingToolbarLayout.setupWithNavController(
     toolbar: Toolbar,
     navController: NavController,
-    drawerLayout: DrawerLayout? = null,
-    topLevelDestinations: Set<Int> = setOf(
-        NavigationUI.findStartDestination(navController.graph).id)
+    configuration: AppBarConfiguration = AppBarConfiguration(navController.graph)
 ) {
-    NavigationUI.setupWithNavController(this, toolbar, navController,
-            AppBarConfiguration.Builder(topLevelDestinations)
-                    .setDrawerLayout(drawerLayout)
-                    .build())
+    NavigationUI.setupWithNavController(this, toolbar, navController, configuration)
 }

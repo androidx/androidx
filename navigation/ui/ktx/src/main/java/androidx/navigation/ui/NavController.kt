@@ -28,7 +28,7 @@ import androidx.navigation.NavController
  */
 fun NavController.navigateUp(drawerLayout: DrawerLayout?): Boolean =
         NavigationUI.navigateUp(this,
-                AppBarConfiguration.Builder(graph).setDrawerLayout(drawerLayout).build())
+                AppBarConfiguration(graph, drawerLayout))
 
 /**
  * Handles the Up button by delegating its behavior to the given [NavController].

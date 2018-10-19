@@ -28,6 +28,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.navigation.ActivityNavigator
 import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 
@@ -44,8 +45,8 @@ class NavigationActivity : AppCompatActivity() {
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-        toolbar.setupWithNavController(navController, drawerLayout,
-                setOf(R.id.main, R.id.android))
+        toolbar.setupWithNavController(navController,
+            AppBarConfiguration(setOf(R.id.main, R.id.android), drawerLayout))
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         if (navigationView != null) {
