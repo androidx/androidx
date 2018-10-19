@@ -216,7 +216,7 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
             final Object exitTransition, final ArrayList<View> exitingViews,
             final Object sharedElementTransition, final ArrayList<View> sharedElementsIn) {
         final Transition overallTransition = (Transition) overallTransitionObj;
-        overallTransition.addListener(new Transition.TransitionListener() {
+        overallTransition.addListener(new TransitionListenerAdapter() {
             @Override
             public void onTransitionStart(@NonNull Transition transition) {
                 if (enterTransition != null) {
@@ -232,18 +232,7 @@ public class FragmentTransitionSupport extends FragmentTransitionImpl {
 
             @Override
             public void onTransitionEnd(@NonNull Transition transition) {
-            }
-
-            @Override
-            public void onTransitionCancel(@NonNull Transition transition) {
-            }
-
-            @Override
-            public void onTransitionPause(@NonNull Transition transition) {
-            }
-
-            @Override
-            public void onTransitionResume(@NonNull Transition transition) {
+                transition.removeListener(this);
             }
         });
     }
