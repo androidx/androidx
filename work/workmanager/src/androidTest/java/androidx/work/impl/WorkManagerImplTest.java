@@ -786,6 +786,44 @@ public class WorkManagerImplTest {
                 containsInAnyOrder(appendWork1.getStringId()));
     }
 
+
+    @Test
+    @SmallTest
+    public void testEnqueueUniqueWork_appendsExistingWorkOnAppend()
+            throws ExecutionException, InterruptedException {
+        // Not duplicating other enqueueUniqueWork with different work policies as they
+        // call the same underlying continuation which have tests. This test exists to ensure
+        // we delegate to the underlying continuation correctly.
+
+        final String uniqueName = "myname";
+
+        OneTimeWorkRequest originalWork =
+                new OneTimeWorkRequest.Builder(InfiniteTestWorker.class).build();
+        insertNamedWorks(uniqueName, originalWork);
+
+        List<String> workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(uniqueName);
+        assertThat(workSpecIds, containsInAnyOrder(originalWork.getStringId()));
+
+        OneTimeWorkRequest appendWork1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest appendWork2 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        mWorkManagerImpl.enqueueUniqueWork(uniqueName, APPEND, appendWork1, appendWork2).get();
+
+        workSpecIds = mDatabase.workNameDao().getWorkSpecIdsWithName(uniqueName);
+        assertThat(workSpecIds,
+                containsInAnyOrder(
+                        originalWork.getStringId(),
+                        appendWork1.getStringId(),
+                        appendWork2.getStringId()));
+
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        assertThat(workSpecDao.getWorkSpec(originalWork.getStringId()), is(not(nullValue())));
+        assertThat(workSpecDao.getState(appendWork1.getStringId()), is(BLOCKED));
+        assertThat(workSpecDao.getState(appendWork2.getStringId()), is(BLOCKED));
+
+        assertThat(mDatabase.dependencyDao().getDependentWorkIds(originalWork.getStringId()),
+                containsInAnyOrder(appendWork1.getStringId(), appendWork2.getStringId()));
+    }
+
     @Test
     @SmallTest
     public void testBeginUniqueWork_appendsExistingWorkToOnlyLeavesOnAppend()

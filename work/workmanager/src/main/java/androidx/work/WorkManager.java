@@ -242,7 +242,7 @@ public abstract class WorkManager {
      * should NOT be run, then the entire chain will be considered a no-op.
      *
      * @param uniqueWorkName A unique name which for this chain of work
-     * @param existingWorkPolicy An {@link ExistingWorkPolicy}
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}; see below for more information
      * @param work One or more {@link OneTimeWorkRequest} to enqueue. {@code REPLACE} ensures that
      *             if there is pending work labelled with {@code uniqueWorkName}, it will be
      *             cancelled and the new work will run. {@code KEEP} will run the new sequence of
@@ -257,13 +257,68 @@ public abstract class WorkManager {
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work);
 
+
+    /**
+     * This method allows you to enqueue {@code work} requests to a uniquely-named
+     * {@link WorkContinuation}, where only one continuation of a particular name can be active at
+     * a time. For example, you may only want one sync operation to be active. If there is one
+     * pending, you can choose to let it run or replace it with your new work.
+     *
+     * <p>
+     * The {@code uniqueWorkName} uniquely identifies this {@link WorkContinuation}.
+     * </p>
+     *
+     * @param uniqueWorkName A unique name which for this operation
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}; see below for more information
+     * @param work {@link OneTimeWorkRequest}s to enqueue. {@code REPLACE} ensures
+     *                     that if there is pending work labelled with {@code uniqueWorkName}, it
+     *                     will be cancelled and the new work will run. {@code KEEP} will run the
+     *                     new OneTimeWorkRequests only if there is no pending work labelled with
+     *                     {@code uniqueWorkName}. {@code APPEND} will append the
+     *                     OneTimeWorkRequests as leaf nodes labelled with {@code uniqueWorkName}.
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
+     */
+    public  @NonNull ListenableFuture<Void> enqueueUniqueWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull OneTimeWorkRequest...work) {
+        return enqueueUniqueWork(uniqueWorkName, existingWorkPolicy, Arrays.asList(work));
+    }
+
+    /**
+     * This method allows you to enqueue {@code work} requests to a uniquely-named
+     * {@link WorkContinuation}, where only one continuation of a particular name can be active at
+     * a time. For example, you may only want one sync operation to be active. If there is one
+     * pending, you can choose to let it run or replace it with your new work.
+     *
+     * <p>
+     * The {@code uniqueWorkName} uniquely identifies this {@link WorkContinuation}.
+     * </p>
+     *
+     * @param uniqueWorkName A unique name which for this operation
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}
+     * @param work {@link OneTimeWorkRequest}s to enqueue. {@code REPLACE} ensures
+     *                     that if there is pending work labelled with {@code uniqueWorkName}, it
+     *                     will be cancelled and the new work will run. {@code KEEP} will run the
+     *                     new OneTimeWorkRequests only if there is no pending work labelled with
+     *                     {@code uniqueWorkName}. {@code APPEND} will append the
+     *                     OneTimeWorkRequests as leaf nodes labelled with {@code uniqueWorkName}.
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
+     */
+    public abstract @NonNull ListenableFuture<Void> enqueueUniqueWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull List<OneTimeWorkRequest> work);
+
     /**
      * This method allows you to enqueue a uniquely-named {@link PeriodicWorkRequest}, where only
      * one PeriodicWorkRequest of a particular name can be active at a time.  For example, you may
      * only want one sync operation to be active.  If there is one pending, you can choose to let it
      * run or replace it with your new work.
      *
+     * <p>
      * The {@code uniqueWorkName} uniquely identifies this PeriodicWorkRequest.
+     * </p>
      *
      * @param uniqueWorkName A unique name which for this operation
      * @param existingPeriodicWorkPolicy An {@link ExistingPeriodicWorkPolicy}

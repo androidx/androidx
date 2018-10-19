@@ -230,6 +230,8 @@ package androidx.work {
     method public final com.google.common.util.concurrent.ListenableFuture<java.lang.Void> enqueue(androidx.work.WorkRequest...);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void> enqueue(java.util.List<? extends androidx.work.WorkRequest>);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void> enqueueUniquePeriodicWork(java.lang.String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<java.lang.Void> enqueueUniqueWork(java.lang.String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest...);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void> enqueueUniqueWork(java.lang.String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
     method public static androidx.work.WorkManager getInstance();
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long> getLastCancelAllTimeMillis();
     method public abstract android.arch.lifecycle.LiveData<java.lang.Long> getLastCancelAllTimeMillisLiveData();
