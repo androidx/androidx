@@ -84,6 +84,29 @@ public class ViewModelProviderTest {
         assertThat(viewModel, is(provider.get(ViewModel1.class)));
     }
 
+    @Test
+    public void testKeyedFactory() {
+        final ViewModelStore store = new ViewModelStore();
+        ViewModelStoreOwner owner = new ViewModelStoreOwner() {
+            @NonNull
+            @Override
+            public ViewModelStore getViewModelStore() {
+                return store;
+            }
+        };
+        ViewModelProvider.KeyedFactory keyed = new ViewModelProvider.KeyedFactory() {
+            @NonNull
+            @Override
+            public <T extends ViewModel> T create(@NonNull String key,
+                    @NonNull Class<T> modelClass) {
+                assertThat(key, is("customkey"));
+                return (T) new ViewModel1();
+            }
+        };
+        ViewModelProvider provider = new ViewModelProvider(owner, keyed);
+        provider.get("customkey", ViewModel1.class);
+    }
+
     public static class ViewModel1 extends ViewModel {
         boolean mCleared;
 
