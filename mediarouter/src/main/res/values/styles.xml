@@ -18,11 +18,13 @@
     <style name="Widget.MediaRouter.MediaRouteButton"
             parent="Widget.AppCompat.ActionButton">
         <item name="externalRouteEnabledDrawable">@drawable/mr_button_dark</item>
+        <item name="externalRouteEnabledDrawableStatic">@drawable/mr_button_dark_static</item>
     </style>
 
     <style name="Widget.MediaRouter.Light.MediaRouteButton"
             parent="Widget.AppCompat.Light.ActionButton">
         <item name="externalRouteEnabledDrawable">@drawable/mr_button_light</item>
+        <item name="externalRouteEnabledDrawableStatic">@drawable/mr_button_light_static</item>
     </style>
 
     <style name="TextAppearance.MediaRouter.Title" parent="TextAppearance.AppCompat.Title" />
