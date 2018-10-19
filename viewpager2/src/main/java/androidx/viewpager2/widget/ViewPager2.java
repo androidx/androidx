@@ -385,10 +385,17 @@ public class ViewPager2 extends ViewGroup {
      * @param smoothScroll True to smoothly scroll to the new item, false to transition immediately
      */
     public void setCurrentItem(int item, boolean smoothScroll) {
-        float previousItem = mCurrentItem;
-        if (previousItem == item) {
+        if (item == mCurrentItem && mScrollEventAdapter.isIdle()) {
+            // Already at the correct page
             return;
         }
+        if (item == mCurrentItem && smoothScroll) {
+            // Already scrolling to the correct page, but not yet there. Only handle instant scrolls
+            // because then we need to interrupt the current smooth scroll.
+            return;
+        }
+
+        float previousItem = mCurrentItem;
         mCurrentItem = item;
 
         if (!mScrollEventAdapter.isIdle()) {
