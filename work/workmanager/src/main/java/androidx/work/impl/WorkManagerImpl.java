@@ -311,6 +311,14 @@ public class WorkManagerImpl extends WorkManager {
         return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work);
     }
 
+    @NonNull
+    @Override
+    public ListenableFuture<Void> enqueueUniqueWork(@NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull List<OneTimeWorkRequest> work) {
+        return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work).enqueue();
+    }
+
     @Override
     public @NonNull ListenableFuture<Void> enqueueUniquePeriodicWork(
             @NonNull String uniqueWorkName,
