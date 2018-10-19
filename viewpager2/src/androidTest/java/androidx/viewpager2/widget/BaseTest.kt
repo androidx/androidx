@@ -19,6 +19,7 @@ package androidx.viewpager2.widget
 import android.os.Build
 import android.view.View
 import android.view.View.OVER_SCROLL_NEVER
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.CoordinatesProvider
@@ -28,6 +29,7 @@ import androidx.test.espresso.action.Press
 import androidx.test.espresso.action.Swipe
 import androidx.test.espresso.action.ViewActions.actionWithAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
@@ -97,17 +99,18 @@ open class BaseTest {
     }
 
     private fun peek(@ViewPager2.Orientation orientation: Int, offset: Float) {
-        onView(allOf(isDisplayed(), withId(R.id.text_view))).perform(actionWithAssertions(
+        onView(allOf(isDisplayed(), isAssignableFrom(ViewPager2::class.java)))
+            .perform(actionWithAssertions(
                 GeneralSwipeAction(Swipe.SLOW, GeneralLocation.CENTER,
-                        CoordinatesProvider { view ->
-                            val coordinates = GeneralLocation.CENTER.calculateCoordinates(view)
-                            if (orientation == HORIZONTAL) {
-                                coordinates[0] += offset
-                            } else {
-                                coordinates[1] += offset
-                            }
-                            coordinates
-                        }, Press.FINGER)))
+                    CoordinatesProvider { view ->
+                        val coordinates = GeneralLocation.CENTER.calculateCoordinates(view)
+                        if (orientation == HORIZONTAL) {
+                            coordinates[0] += offset
+                        } else {
+                            coordinates[1] += offset
+                        }
+                        coordinates
+                    }, Press.FINGER)))
     }
 
     /**
@@ -161,6 +164,31 @@ open class BaseTest {
         waitForRenderLatch.await(5, TimeUnit.SECONDS)
     }
 
+    fun ViewPager2.addWaitForIdleLatch(): CountDownLatch {
+        val latch = CountDownLatch(1)
+
+        addOnPageChangeListener(object : ViewPager2.OnPageChangeListener {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+            }
+
+            override fun onPageSelected(position: Int) {
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {
+                if (state == IDLE) {
+                    latch.countDown()
+                    post { removeOnPageChangeListener(this) }
+                }
+            }
+        })
+
+        return latch
+    }
+
     val ViewPager2.pageSize: Int
         get() {
             return if (orientation == HORIZONTAL) {
@@ -168,6 +196,13 @@ open class BaseTest {
             } else {
                 measuredHeight - paddingTop - paddingBottom
             }
+        }
+
+    val ViewPager2.currentCompletelyVisibleItem: Int
+        get() {
+            return ((getChildAt(0) as RecyclerView)
+                .layoutManager as LinearLayoutManager)
+                .findFirstCompletelyVisibleItemPosition()
         }
 
     /**
@@ -246,7 +281,7 @@ open class BaseTest {
      * @param b - inclusive
      */
     fun <T : Comparable<T>> isBetweenInInMinMax(a: T, b: T): Matcher<T> {
-        return allOf(greaterThanOrEqualTo<T>(minOf(a, b)), lessThanOrEqualTo<T>(maxOf(a, b)))
+        return isBetweenInIn(minOf(a, b), maxOf(a, b))
     }
 }
 
