@@ -123,7 +123,8 @@ public class WebViewRendererTest {
 
         // It should not be possible to get a renderer pre-O
         WebView webView = WebViewOnUiThread.createWebView();
-        Assert.assertNull(startAndGetRenderer(webView));
+        final WebViewRenderer renderer = startAndGetRenderer(webView).get();
+        Assert.assertNull(renderer);
 
         WebViewOnUiThread.destroy(webView);
     }
