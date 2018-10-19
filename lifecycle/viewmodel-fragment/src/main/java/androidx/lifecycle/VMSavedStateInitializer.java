@@ -44,7 +44,7 @@ class VMSavedStateInitializer implements Application.ActivityLifecycleCallbacks 
             fragmentActivity.getSupportFragmentManager()
                     .registerFragmentLifecycleCallbacks(new FragmentCallbacks(), true);
             // but it is too early - viewmodels aren't ready yet.
-            fragmentActivity.getLifecycle().addObserver(new GenericLifecycleObserver() {
+            fragmentActivity.getLifecycle().addObserver(new LifecycleEventObserver() {
                 @Override
                 public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
                     // next event is going to be created....

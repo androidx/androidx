@@ -16,15 +16,15 @@
 
 package androidx.lifecycle;
 
+import androidx.annotation.RestrictTo;
+
 /**
  * Class that can receive any lifecycle change and dispatch it to the receiver.
+ * @hide
+ *
+ * @deprecated and it is scheduled to be removed in lifecycle 3.0
  */
-public interface GenericLifecycleObserver extends LifecycleObserver {
-    /**
-     * Called when a state transition event happens.
-     *
-     * @param source The source of the event
-     * @param event The event
-     */
-    void onStateChanged(LifecycleOwner source, Lifecycle.Event event);
+@Deprecated
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public interface GenericLifecycleObserver extends LifecycleEventObserver {
 }

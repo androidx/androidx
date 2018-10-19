@@ -22,6 +22,13 @@ import androidx.annotation.NonNull;
  * Callback interface for listening to {@link LifecycleOwner} state changes.
  * <p>
  * If you use Java 8 language, <b>always</b> prefer it over annotations.
+ * <p>
+ * If a class implements both this interface and {@link LifecycleEventObserver}, then
+ * methods of {@code DefaultLifecycleObserver} will be called first, and then followed by the call
+ * of {@link LifecycleEventObserver#onStateChanged(LifecycleOwner, Lifecycle.Event)}
+ * <p>
+ * If a class implements this interface and in the same time uses {@link OnLifecycleEvent}, then
+ * annotations will be ignored.
  */
 @SuppressWarnings("unused")
 public interface DefaultLifecycleObserver extends FullLifecycleObserver {
