@@ -33,9 +33,7 @@ import org.hamcrest.Matchers.greaterThan
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
-import kotlin.math.abs
 import kotlin.math.max
 
 /**
@@ -112,34 +110,6 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
 
     private fun ViewPager2.addNewRecordingListener(): RecordingListener {
         return RecordingListener().also { addOnPageChangeListener(it) }
-    }
-
-    private fun ViewPager2.addWaitForDistanceToTarget(
-        target: Int,
-        distance: Float
-    ): CountDownLatch {
-        val latch = CountDownLatch(1)
-
-        addOnPageChangeListener(object : ViewPager2.OnPageChangeListener {
-            override fun onPageScrolled(
-                position: Int,
-                positionOffset: Float,
-                positionOffsetPixels: Int
-            ) {
-                if (abs(target - position - positionOffset) <= distance) {
-                    latch.countDown()
-                    post { removeOnPageChangeListener(this) }
-                }
-            }
-
-            override fun onPageSelected(position: Int) {
-            }
-
-            override fun onPageScrollStateChanged(state: Int) {
-            }
-        })
-
-        return latch
     }
 
     private sealed class Event {

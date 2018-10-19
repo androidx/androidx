@@ -51,6 +51,7 @@ import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.abs
 
 open class BaseTest {
     fun setUpTest(@ViewPager2.Orientation orientation: Int): Context {
@@ -183,6 +184,31 @@ open class BaseTest {
                     latch.countDown()
                     post { removeOnPageChangeListener(this) }
                 }
+            }
+        })
+
+        return latch
+    }
+
+    fun ViewPager2.addWaitForDistanceToTarget(target: Int, distance: Float): CountDownLatch {
+        val latch = CountDownLatch(1)
+
+        addOnPageChangeListener(object : ViewPager2.OnPageChangeListener {
+            override fun onPageScrolled(
+                position: Int,
+                positionOffset: Float,
+                positionOffsetPixels: Int
+            ) {
+                if (abs(target - position - positionOffset) <= distance) {
+                    latch.countDown()
+                    post { removeOnPageChangeListener(this) }
+                }
+            }
+
+            override fun onPageSelected(position: Int) {
+            }
+
+            override fun onPageScrollStateChanged(state: Int) {
             }
         })
 
