@@ -152,6 +152,7 @@ package androidx.car.cluster.navigation {
 
   public final class NavigationState implements androidx.versionedparcelable.VersionedParcelable {
     method public static androidx.car.cluster.navigation.NavigationState fromParcelable(android.os.Parcelable);
+    method public androidx.car.cluster.navigation.Segment getCurrentSegment();
     method public java.util.List<androidx.car.cluster.navigation.Destination> getDestinations();
     method public java.util.List<androidx.car.cluster.navigation.Step> getSteps();
     method public android.os.Parcelable toParcelable();
@@ -162,6 +163,12 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.NavigationState.Builder addDestination(androidx.car.cluster.navigation.Destination);
     method public androidx.car.cluster.navigation.NavigationState.Builder addStep(androidx.car.cluster.navigation.Step);
     method public androidx.car.cluster.navigation.NavigationState build();
+    method public androidx.car.cluster.navigation.NavigationState.Builder setCurrentSegment(androidx.car.cluster.navigation.Segment);
+  }
+
+  public class Segment implements androidx.versionedparcelable.VersionedParcelable {
+    ctor public Segment(java.lang.String);
+    method public java.lang.String getName();
   }
 
   public final class Step implements androidx.versionedparcelable.VersionedParcelable {

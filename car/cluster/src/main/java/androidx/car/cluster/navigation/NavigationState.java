@@ -50,6 +50,8 @@ public final class NavigationState implements VersionedParcelable {
     List<Step> mSteps;
     @ParcelField(2)
     List<Destination> mDestinations;
+    @ParcelField(3)
+    Segment mCurrentSegment;
 
     /**
      * Used by {@link VersionedParcelable}
@@ -64,9 +66,11 @@ public final class NavigationState implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    NavigationState(@NonNull List<Step> steps, @NonNull List<Destination> destinations) {
+    NavigationState(@NonNull List<Step> steps, @NonNull List<Destination> destinations,
+            @Nullable Segment currentSegment) {
         mSteps = Collections.unmodifiableList(new ArrayList<>(steps));
         mDestinations = Collections.unmodifiableList(new ArrayList<>(destinations));
+        mCurrentSegment = currentSegment;
     }
 
     /**
@@ -75,6 +79,7 @@ public final class NavigationState implements VersionedParcelable {
     public static final class Builder {
         List<Step> mSteps = new ArrayList<>();
         List<Destination> mDestinations = new ArrayList<>();
+        Segment mCurrentSegment;
 
         /**
          * Add a navigation step. Steps should be provided in order of execution. It is up to the
@@ -101,11 +106,20 @@ public final class NavigationState implements VersionedParcelable {
         }
 
         /**
+         * Sets the current segment being driven, or null if the segment being driven is unknown.
+         */
+        @NonNull
+        public Builder setCurrentSegment(@Nullable Segment segment) {
+            mCurrentSegment = segment;
+            return this;
+        }
+
+        /**
          * Returns a {@link NavigationState} built with the provided information.
          */
         @NonNull
         public NavigationState build() {
-            return new NavigationState(mSteps, mDestinations);
+            return new NavigationState(mSteps, mDestinations, mCurrentSegment);
         }
     }
 
@@ -127,6 +141,14 @@ public final class NavigationState implements VersionedParcelable {
         return Common.nonNullOrEmpty(mDestinations);
     }
 
+    /**
+     * Returns the current segment being driven, or null if the segment being driven is unknown.
+     */
+    @Nullable
+    public Segment getCurrentSegment() {
+        return mCurrentSegment;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -137,17 +159,19 @@ public final class NavigationState implements VersionedParcelable {
         }
         NavigationState that = (NavigationState) o;
         return Objects.equals(getSteps(), that.getSteps())
-                && Objects.equals(getDestinations(), that.getDestinations());
+                && Objects.equals(getDestinations(), that.getDestinations())
+                && Objects.equals(getCurrentSegment(), that.getCurrentSegment());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getSteps(), getDestinations());
+        return Objects.hash(getSteps(), getDestinations(), getCurrentSegment());
     }
 
     @Override
     public String toString() {
-        return String.format("{steps: %s, destinations: %s}", mSteps, mDestinations);
+        return String.format("{steps: %s, destinations: %s, segment: %s}", mSteps, mDestinations,
+                mCurrentSegment);
     }
 
     /**
