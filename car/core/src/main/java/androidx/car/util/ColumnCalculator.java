@@ -26,12 +26,17 @@ import androidx.annotation.Px;
 import androidx.car.R;
 
 /**
- * Utility class that calculates the size of the columns that will fit on the screen. A column's
+ * Utility class that calculates the width of the columns that will fit on the screen. A column's
  * width is determined by the size of the margins and gutters (space between the columns) that fit
  * on-screen.
  *
  * <p>Refer to the appropriate dimens and integers for the size of the margins and number of
  * columns.
+ *
+ * <p>The following is an example of the location and sizes of margins and gutters:
+ * <br><div align="center">
+ *     <img width="300px" src="resources/images/column-gutter-example.png">
+ * </div>
  */
 public class ColumnCalculator {
     private static final String TAG = "ColumnCalculator";
@@ -42,7 +47,7 @@ public class ColumnCalculator {
     private int mNumOfColumns;
     private int mNumOfGutters;
     private int mColumnWidth;
-    private int mGutterSize;
+    private int mGutterWidth;
 
     /**
      * Gets an instance of the {@link ColumnCalculator}. If this is the first time that this
@@ -68,12 +73,12 @@ public class ColumnCalculator {
     private ColumnCalculator(Context context) {
         Resources res = context.getResources();
         int marginSize = res.getDimensionPixelSize(R.dimen.car_margin);
-        mGutterSize = res.getDimensionPixelSize(R.dimen.car_gutter_size);
+        mGutterWidth = res.getDimensionPixelSize(R.dimen.car_gutter_width);
         mNumOfColumns = res.getInteger(R.integer.car_column_number);
 
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, String.format("marginSize: %d; numOfColumns: %d; gutterSize: %d",
-                    marginSize, mNumOfColumns, mGutterSize));
+                    marginSize, mNumOfColumns, mGutterWidth));
         }
 
         // The gutters appear between each column. As a result, the number of gutters is one less
@@ -82,7 +87,7 @@ public class ColumnCalculator {
 
         // Determine the spacing that is allowed to be filled by the columns by subtracting margins
         // on both size of the screen and the space taken up by the gutters.
-        int spaceForColumns = sScreenWidth - (2 * marginSize) - (mNumOfGutters * mGutterSize);
+        int spaceForColumns = sScreenWidth - (2 * marginSize) - (mNumOfGutters * mGutterWidth);
 
         mColumnWidth = spaceForColumns / mNumOfColumns;
 
@@ -96,7 +101,7 @@ public class ColumnCalculator {
      *
      * @return The total number of columns that fit on the screen.
      */
-    public int getNumOfColumns() {
+    public int getColumnCount() {
         return mNumOfColumns;
     }
 
@@ -117,30 +122,32 @@ public class ColumnCalculator {
      *
      * @return The number of gutters on screen.
      */
-    public int getNumOfGutters() {
+    public int getGutterCount() {
         return mNumOfGutters;
     }
 
     /**
-     * Returns the size of each gutter in pixels. A gutter is the space between each column.
+     * Returns the width of each gutter in pixels. A gutter is the space between each column.
      *
-     * @return The size of a single gutter in pixels.
+     * @return The width of a single gutter in pixels.
      */
     @Px
-    public int getGutterSize() {
-        return mGutterSize;
+    public int getGutterWidth() {
+        return mGutterWidth;
     }
 
     /**
-     * Returns the size in pixels for the given number of columns. This value takes into account
-     * the size of the gutter between the columns as well. For example, for a column span of four,
-     * the size returned is the sum of four columns and three gutters.
+     * Returns the width in pixels that the given number of columns will span over.
+     *
+     * <p>This value takes into account the size of the gutter between the columns as well. For
+     * example, for a column span of four, the size returned is the sum of four columns and three
+     * gutters.
      *
      * @return The size in pixels for a given column span.
      */
     @Px
-    public int getSizeForColumnSpan(int columnSpan) {
+    public int getColumnSpanWidth(int columnSpan) {
         int gutterSpan = columnSpan - 1;
-        return columnSpan * mColumnWidth + gutterSpan * mGutterSize;
+        return columnSpan * mColumnWidth + gutterSpan * mGutterWidth;
     }
 }
