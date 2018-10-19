@@ -16,37 +16,43 @@
 
 package androidx.lifecycle;
 
-class FullLifecycleObserverAdapter implements GenericLifecycleObserver {
+class FullLifecycleObserverAdapter implements LifecycleEventObserver {
 
-    private final FullLifecycleObserver mObserver;
+    private final FullLifecycleObserver mFullLifecycleObserver;
+    private final LifecycleEventObserver mLifecycleEventObserver;
 
-    FullLifecycleObserverAdapter(FullLifecycleObserver observer) {
-        mObserver = observer;
+    FullLifecycleObserverAdapter(FullLifecycleObserver fullLifecycleObserver,
+            LifecycleEventObserver lifecycleEventObserver) {
+        mFullLifecycleObserver = fullLifecycleObserver;
+        mLifecycleEventObserver = lifecycleEventObserver;
     }
 
     @Override
     public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
         switch (event) {
             case ON_CREATE:
-                mObserver.onCreate(source);
+                mFullLifecycleObserver.onCreate(source);
                 break;
             case ON_START:
-                mObserver.onStart(source);
+                mFullLifecycleObserver.onStart(source);
                 break;
             case ON_RESUME:
-                mObserver.onResume(source);
+                mFullLifecycleObserver.onResume(source);
                 break;
             case ON_PAUSE:
-                mObserver.onPause(source);
+                mFullLifecycleObserver.onPause(source);
                 break;
             case ON_STOP:
-                mObserver.onStop(source);
+                mFullLifecycleObserver.onStop(source);
                 break;
             case ON_DESTROY:
-                mObserver.onDestroy(source);
+                mFullLifecycleObserver.onDestroy(source);
                 break;
             case ON_ANY:
                 throw new IllegalArgumentException("ON_ANY must not been send by anybody");
+        }
+        if (mLifecycleEventObserver != null) {
+            mLifecycleEventObserver.onStateChanged(source, event);
         }
     }
 }

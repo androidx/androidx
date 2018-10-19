@@ -603,7 +603,7 @@ public class LiveDataTest {
 
         mLiveData.observe(mOwner3, mObserver3);
 
-        GenericLifecycleObserver lifecycleObserver = getGenericLifecycleObserver(mLifecycle3);
+        LifecycleEventObserver lifecycleObserver = getLiveDataInternalObserver(mLifecycle3);
 
         when(mLifecycle3.getCurrentState()).thenReturn(Lifecycle.State.STARTED);
         lifecycleObserver.onStateChanged(mOwner3, Lifecycle.Event.ON_START);
@@ -636,7 +636,7 @@ public class LiveDataTest {
 
         mLiveData.observe(mOwner3, mObserver3);
 
-        GenericLifecycleObserver lifecycleObserver = getGenericLifecycleObserver(mLifecycle3);
+        LifecycleEventObserver lifecycleObserver = getLiveDataInternalObserver(mLifecycle3);
 
         when(mLifecycle3.getCurrentState()).thenReturn(Lifecycle.State.STARTED);
         lifecycleObserver.onStateChanged(mOwner3, Lifecycle.Event.ON_START);
@@ -672,8 +672,8 @@ public class LiveDataTest {
         mLiveData.observe(mOwner3, mObserver3);
         mLiveData.observe(mOwner4, mObserver4);
 
-        GenericLifecycleObserver lifecycleObserver3 = getGenericLifecycleObserver(mLifecycle3);
-        GenericLifecycleObserver lifecycleObserver4 = getGenericLifecycleObserver(mLifecycle4);
+        LifecycleEventObserver lifecycleObserver3 = getLiveDataInternalObserver(mLifecycle3);
+        LifecycleEventObserver lifecycleObserver4 = getLiveDataInternalObserver(mLifecycle4);
 
         when(mLifecycle3.getCurrentState()).thenReturn(Lifecycle.State.STARTED);
         when(mLifecycle4.getCurrentState()).thenReturn(Lifecycle.State.STARTED);
@@ -710,8 +710,8 @@ public class LiveDataTest {
         mLiveData.observe(mOwner3, mObserver3);
         mLiveData.observe(mOwner4, mObserver4);
 
-        GenericLifecycleObserver lifecycleObserver3 = getGenericLifecycleObserver(mLifecycle3);
-        GenericLifecycleObserver lifecycleObserver4 = getGenericLifecycleObserver(mLifecycle4);
+        LifecycleEventObserver lifecycleObserver3 = getLiveDataInternalObserver(mLifecycle3);
+        LifecycleEventObserver lifecycleObserver4 = getLiveDataInternalObserver(mLifecycle4);
 
         when(mLifecycle3.getCurrentState()).thenReturn(Lifecycle.State.STARTED);
         when(mLifecycle4.getCurrentState()).thenReturn(Lifecycle.State.STARTED);
@@ -751,8 +751,8 @@ public class LiveDataTest {
         mLiveData.observe(mOwner3, mObserver3);
         mLiveData.observe(mOwner4, mObserver4);
 
-        GenericLifecycleObserver lifecycleObserver3 = getGenericLifecycleObserver(mLifecycle3);
-        GenericLifecycleObserver lifecycleObserver4 = getGenericLifecycleObserver(mLifecycle4);
+        LifecycleEventObserver lifecycleObserver3 = getLiveDataInternalObserver(mLifecycle3);
+        LifecycleEventObserver lifecycleObserver4 = getLiveDataInternalObserver(mLifecycle4);
 
         when(mLifecycle3.getCurrentState()).thenReturn(Lifecycle.State.STARTED);
         when(mLifecycle4.getCurrentState()).thenReturn(Lifecycle.State.STARTED);
@@ -811,9 +811,9 @@ public class LiveDataTest {
         verify(observer).onChanged("foo");
     }
 
-    private GenericLifecycleObserver getGenericLifecycleObserver(Lifecycle lifecycle) {
-        ArgumentCaptor<GenericLifecycleObserver> captor =
-                ArgumentCaptor.forClass(GenericLifecycleObserver.class);
+    private LifecycleEventObserver getLiveDataInternalObserver(Lifecycle lifecycle) {
+        ArgumentCaptor<LifecycleEventObserver> captor =
+                ArgumentCaptor.forClass(LifecycleEventObserver.class);
         verify(lifecycle).addObserver(captor.capture());
         return (captor.getValue());
     }
