@@ -364,6 +364,19 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
 
         OnLayoutListener mOnLayoutListener;
 
+        RecyclerView.OnScrollListener mSnapListener = new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    snapLatch.countDown();
+                    if (snapLatch.getCount() == 0L) {
+                        removeOnScrollListener(this);
+                    }
+                }
+            }
+        };
+
         RecyclerView.OnScrollListener mCallbackListener = new RecyclerView.OnScrollListener() {
 
             @Override
@@ -431,19 +444,10 @@ public class BaseLinearLayoutManagerTest extends BaseRecyclerViewInstrumentation
         }
 
         public void expectIdleState(int count) {
+            // Remove listener if it was still there
+            mRecyclerView.removeOnScrollListener(mSnapListener);
             snapLatch = new CountDownLatch(count);
-            mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                    super.onScrollStateChanged(recyclerView, newState);
-                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                        snapLatch.countDown();
-                        if (snapLatch.getCount() == 0L) {
-                            mRecyclerView.removeOnScrollListener(this);
-                        }
-                    }
-                }
-            });
+            mRecyclerView.addOnScrollListener(mSnapListener);
         }
 
         public void waitForSnap(int seconds) throws Throwable {
