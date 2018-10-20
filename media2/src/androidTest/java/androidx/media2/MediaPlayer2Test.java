@@ -2581,7 +2581,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testClearPendingCommands() throws Exception {
         final Monitor readRequested = new Monitor();
         final Monitor readAllowed = new Monitor();
