@@ -2,8 +2,9 @@ package androidx.ui.widgets.binding
 
 import androidx.ui.engine.window.AppLifecycleState
 import androidx.ui.engine.window.Locale
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 
 /**
  * Interface for classes that register with the Widgets layer binding.
@@ -59,7 +60,7 @@ import kotlinx.coroutines.experimental.async
  * To respond to other notifications, replace the [didChangeAppLifecycleState]
  * method above with other methods from this class.
  */
-abstract class WidgetsBindingObserver {
+abstract class WidgetsBindingObserver : CoroutineScope {
     /**
      * Called when the system tells the app to pop the current route.
      * For example, on Android, this is called when the user presses

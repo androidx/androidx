@@ -21,11 +21,14 @@ import androidx.ui.services.SystemNavigator
 import androidx.ui.widgets.framework.BuildOwner
 import androidx.ui.widgets.framework.Element
 import androidx.ui.widgets.framework.Widget
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.channels.consumeEach
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
+import androidx.ui.services.SystemNavigator.Companion.pop
 
 interface WidgetsBinding : RendererBinding, SchedulerBinding, ServicesBinding {
     fun attachRootWidget(app: Widget)
@@ -54,7 +57,7 @@ class WidgetsBindingImpl(
     // was initInstances
     init {
         buildOwner.onBuildScheduled = ::_handleBuildScheduled
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             window.onLocaleChanged.consumeEach { handleLocaleChanged() }
         }
 //        SystemChannels.navigation.setMethodCallHandler(_handleNavigationInvocation);
@@ -64,13 +67,13 @@ class WidgetsBindingImpl(
         // onMetricsChanged like in RenderingBindingImpl here as well and to lifecycle events
         // like in SchedulerBindingImpl as its impossible to override a method with the delegation
         // approach we are using for bindings.
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             window.onTextScaleFactorChanged.consumeEach { handleTextScaleFactorChanged() }
         }
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             window.onMetricsChanged.consumeEach { handleMetricsChanged() }
         }
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             SystemChannels.lifecycle.consumeEach { handleAppLifecycleStateChanged(it) }
         }
         // NOTE(Migration/Mihai): this was originally in RendererBinding
@@ -81,7 +84,7 @@ class WidgetsBindingImpl(
     init {
         registerSignalServiceExtension(
                 "debugDumpApp",
-                async {
+                GlobalScope.async {
                     debugDumpApp()
                     // TODO(migration/popam)
                     // debugPrintDone;
@@ -240,14 +243,14 @@ class WidgetsBindingImpl(
      * This method exposes the `popRoute` notification from
      * [SystemChannels.navigation].
      */
-    internal fun handlePopRoute(): Deferred<Unit> {
+    internal fun CoroutineScope.handlePopRoute(): Deferred<Unit> {
         return async {
             for (observer in _observers.toList()) {
                 if (observer.didPopRoute().await()) {
                     return@async
                 }
             }
-            SystemNavigator.pop()
+            pop()
         }
     }
 
@@ -264,7 +267,7 @@ class WidgetsBindingImpl(
      * [SystemChannels.navigation].
      */
     @CallSuper
-    internal fun handlePushRoute(route: String): Deferred<Unit> {
+    internal fun CoroutineScope.handlePushRoute(route: String): Deferred<Unit> {
         return async {
             for (observer in _observers.toList()) {
                 if (observer.didPushRoute(route).await()) {

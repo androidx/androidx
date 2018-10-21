@@ -10,8 +10,8 @@ plugins {
 dependencies {
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.activity:activity:1.0.0-alpha01"
-    api(KOTLIN_STDLIB)
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.20"
+    api(KOTLIN_R4A_STDLIB)
+    api(KOTLIN_R4A_COROUTINES)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
@@ -30,7 +30,12 @@ dependencies {
     androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
 }
 
-android {}
+android {
+    defaultConfig {
+        minSdkVersion 21
+        multiDexEnabled true
+    }
+}
 
 supportLibrary {
     name = "Androidx UI Framework port"

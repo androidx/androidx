@@ -16,11 +16,11 @@ import androidx.ui.rendering.view.ViewConfiguration
 import androidx.ui.scheduler.binding.SchedulerBinding
 import androidx.ui.services.ServicesBinding
 import androidx.ui.widgets.binding.WidgetsBinding
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.channels.consumeEach
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 
 interface RendererBinding : SchedulerBinding, ServicesBinding {
     fun drawFrame()
@@ -63,16 +63,16 @@ class RendererBindingImpl(
                 onSemanticsOwnerDisposed = { _handleSemanticsOwnerDisposed() }
         )
 
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             window.onMetricsChanged.consumeEach { handleMetricsChanged() }
         }
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             window.onTextScaleFactorChanged.consumeEach { handleTextScaleFactorChanged() }
         }
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             window.onSemanticsEnabledChanged.consumeEach { handleSemanticsEnabledChanged() }
         }
-        launch(Unconfined) {
+        launch(Dispatchers.Unconfined) {
             window.onSemanticsAction.consumeEach {
                 TODO("Migration/Andrey): needs SemanticsAction")
 //                handleSemanticsAction()

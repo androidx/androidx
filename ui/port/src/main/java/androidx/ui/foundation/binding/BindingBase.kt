@@ -5,9 +5,13 @@ import androidx.ui.developer.timeline.Timeline
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.requireMainThread
 import androidx.ui.runtimeType
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.runBlocking
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Signature for service extensions.
@@ -20,7 +24,7 @@ import kotlinx.coroutines.experimental.runBlocking
  */
 typealias ServiceExtensionCallback = (Map<String, String>) -> Deferred<Map<String, Any?>>
 
-interface BindingBase {
+interface BindingBase : CoroutineScope {
 
     val locked: Boolean
 
@@ -28,7 +32,7 @@ interface BindingBase {
 
     fun performReassemble(): Deferred<Unit>
 
-    fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit>
+    fun lockEvents(callback: CoroutineScope.() -> Deferred<Unit>): Deferred<Unit>
 
     /**
      * Registers a service extension method with the given name (full
@@ -91,6 +95,11 @@ interface BindingBase {
  */
 open class BindingBaseImpl : BindingBase {
 
+    lateinit var job: Job
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Unconfined + job // TODO: use Dispatchers.Main
+
     /**
      * Default abstract constructor for bindings.
      *
@@ -103,6 +112,8 @@ open class BindingBaseImpl : BindingBase {
         Timeline.startSync("BindingBase initialization")
 
 //        developer.postEvent('Flutter.FrameworkInitialization', <String, String>{});
+
+        job = Job()
 
         Timeline.finishSync()
     }
@@ -202,7 +213,7 @@ open class BindingBaseImpl : BindingBase {
      *
      * The [Future] returned by the `callback` argument is returned by [lockEvents].
      */
-    override fun lockEvents(callback: () -> Deferred<Unit>): Deferred<Unit> {
+    override fun lockEvents(callback: CoroutineScope.() -> Deferred<Unit>): Deferred<Unit> {
         // TODO(Migration/Andrey): Flutter's use of Deferred is not for multithreading.
         requireMainThread()
 
@@ -247,7 +258,7 @@ open class BindingBaseImpl : BindingBase {
      * to this method being called. This method itself should not be overridden.
      */
     override fun reassembleApplication(): Deferred<Unit> {
-        return lockEvents(::performReassemble)
+        return lockEvents { performReassemble() }
     }
 
     /**
@@ -467,5 +478,6 @@ open class BindingBaseImpl : BindingBase {
 // TODO(migration/popam)
 /** Terminate the Flutter application. */
 // Future<Null> _exitApplication() async {
+//    job.cancel()
 //    exit(0);
 // }

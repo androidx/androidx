@@ -18,11 +18,12 @@ import androidx.ui.scheduler.debugPrintScheduleFrameStacks
 import androidx.ui.services.ServicesBinding
 import androidx.ui.services.ServicesBindingImpl
 import androidx.ui.services.SystemChannels
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.channels.consumeEach
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.consumeEach
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToLong
 
@@ -71,13 +72,13 @@ class SchedulerBindingImpl(
 ) : SchedulerMixinsWrapper(base, services), SchedulerBinding {
 
     init { // was initInstances()
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             window.onBeginFrame.consumeEach { _handleBeginFrame(it) }
         }
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             window.onDrawFrame.consumeEach { _handleDrawFrame() }
         }
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             SystemChannels.lifecycle.consumeEach { handleAppLifecycleStateChanged(it) }
         }
     }
@@ -498,7 +499,7 @@ class SchedulerBindingImpl(
      * The phase that the scheduler is currently operating under.
      */
     override var schedulerPhase: SchedulerPhase = SchedulerPhase.idle
-    private set
+    // TODO(jsproch):   private set
 
     /**
      * Whether frames are currently being scheduled when [scheduleFrame] is called.
@@ -669,7 +670,7 @@ class SchedulerBindingImpl(
 
         // Lock events so touch events etc don't insert themselves until the
         // scheduled frame has finished.
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             lockEvents {
                 endOfFrame()
                 // TODO(Migration/Andrey): port Timeline

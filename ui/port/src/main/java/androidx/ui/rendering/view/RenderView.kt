@@ -53,7 +53,7 @@ class RenderView(
      * The current layout size of the view.
      */
     override var size: Size = Size.zero
-        private set
+    // TODO(jsproch):   private set
 
     /**
      * The constraints used for the root layout.

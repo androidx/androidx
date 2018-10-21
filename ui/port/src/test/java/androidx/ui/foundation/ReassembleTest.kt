@@ -17,8 +17,8 @@
 package androidx.ui.foundation
 
 import androidx.ui.foundation.binding.BindingBaseImpl
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith

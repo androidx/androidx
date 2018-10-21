@@ -17,8 +17,9 @@
 package androidx.ui.painting
 
 import android.graphics.Bitmap
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
@@ -56,7 +57,9 @@ class Image constructor(
      * Returns a future that completes with the binary image data or an error
      * if encoding fails.
      */
-    fun toByteData(format: ImageByteFormat = ImageByteFormat.rawRgba): Deferred<ByteBuffer> {
+    fun CoroutineScope.toByteData(
+        format: ImageByteFormat = ImageByteFormat.rawRgba
+    ): Deferred<ByteBuffer> {
         return async {
             when (format) {
                 // Bitmap is already in argb so in either rawRgba or rawUnmodified

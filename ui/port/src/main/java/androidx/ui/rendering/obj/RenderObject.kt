@@ -588,7 +588,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
         assert({
             debugCanParentUseSize = false
             true
-        }())
+        })
         owner?._nodesNeedingLayout?.add(this)
     }
 
@@ -679,7 +679,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
         assert({
             debugCanParentUseSize = parentUsesSize
             true
-        }())
+        })
         if (!_needsLayout && constraints == _constraints &&
                 relayoutBoundary == _relayoutBoundary) {
             val resultSize = size
@@ -695,7 +695,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                 debugDoingThisLayout = false
                 debugDoingThisResize = false
                 true
-            }())
+            })
             return resultSize
         }
         _constraints = constraints
@@ -709,22 +709,22 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                 debugPrint("Laying out ($message) $this")
             }
             true
-        }())
+        })
         if (sizedByParent) {
             assert({
                 debugDoingThisResize = true
                 true
-            }())
+            })
             try {
                 performResize()
                 assert({
                     debugAssertDoesMeetConstraints()
                     true
-                }())
+                })
             } catch (e: Exception) {
                 _debugReportException("performResize", e, e.stackTrace)
             }
-            assert({ debugDoingThisResize = false; true; }())
+            assert({ debugDoingThisResize = false; true; })
         }
         var debugPreviousActiveLayout: RenderObject? = null
         assert({
@@ -732,14 +732,14 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             debugPreviousActiveLayout = debugActiveLayout
             debugActiveLayout = this
             true
-        }())
+        })
         try {
             performLayout()
             markNeedsSemanticsUpdate()
             assert({
                 debugAssertDoesMeetConstraints()
                 true
-            }())
+            })
         } catch (e: Exception) {
             _debugReportException("performLayout", e, e.stackTrace)
         }
@@ -749,7 +749,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             debugDoingThisLayout = false
             _debugMutationsLocked = false
             true
-        }())
+        })
         _needsLayout = false
         markNeedsPaint()
         return resultSize
@@ -954,7 +954,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             assert({
                 result = _layer
                 true
-            }())
+            })
             return result
         }
 
@@ -1107,7 +1107,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                     if (debugPrintMarkNeedsPaintStacks)
                         debugPrintStack(label = "markNeedsPaint() called for $this")
                     true
-                }())
+                })
                 // If we always have our own layer, then we can just repaint
                 // ourselves without involving any other nodes.
                 assert(_layer != null)
@@ -1129,7 +1129,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                         debugPrintStack("markNeedsPaint() called for $this (root of render tree)")
                     }
                     true
-                }())
+                })
                 // If we're the root of the render tree (probably a RenderView),
                 // then we have to paint ourselves, since nobody else can paint
                 // us. We don't add ourselves to _nodesNeedingPaint in this
@@ -1216,7 +1216,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                         "disallowed.")
             }
             true
-        }())
+        })
         // If we still need layout, then that means that we were skipped in the
         // layout phase and therefore don't need painting. We might not know that
         // yet (that is, our layer might not have been detached yet), because the
@@ -1240,7 +1240,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                         "This usually indicates an error in the Flutter framework itself.")
             }
             true
-        }())
+        })
         var debugLastActivePaint: RenderObject? = null
         assert({
             debugDoingThisPaint = true
@@ -1248,7 +1248,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             debugActivePaint = this
             assert(!isRepaintBoundary || _layer != null)
             true
-        }())
+        })
         _needsPaint = false
         try {
             paint(context, offset)
@@ -1262,7 +1262,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             debugActivePaint = debugLastActivePaint
             debugDoingThisPaint = false
             true
-        }())
+        })
     }
 
     /**

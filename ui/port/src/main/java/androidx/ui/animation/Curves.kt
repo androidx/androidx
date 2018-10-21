@@ -54,7 +54,9 @@ abstract class Curve {
      */
     val flipped: Curve get() = FlippedCurve(this)
 
-    override fun toString() = "${{ runtimeType() }()}"
+    override fun toString(): String {
+        return runtimeType().toString()
+    }
 }
 
 /**

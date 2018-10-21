@@ -262,6 +262,7 @@ includeProject(":webview-support-interfaces", new File(externalRoot, "webview_su
 
 includeProject(":ui-port", "ui/port")
 includeProject(":ui-port-demos", new File(samplesRoot, "UiPortDemos"))
+includeProject(":ui-r4a", "ui-r4a")
 
 ///// CRANE END
 // fake project which is used for docs generation from prebuilts

@@ -6,7 +6,7 @@ import androidx.ui.core.Duration
 import androidx.ui.engine.geometry.Size
 import androidx.ui.semantics.SemanticsUpdate
 import androidx.ui.ui.pointer.PointerDataPacket
-import kotlinx.coroutines.experimental.channels.BroadcastChannel
+import kotlinx.coroutines.channels.BroadcastChannel
 
 /** Signature for [Window.onPointerDataPacket]. */
 typealias PointerDataPacketCallback = (PointerDataPacket) -> Unit

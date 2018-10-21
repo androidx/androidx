@@ -1,12 +1,13 @@
 package androidx.ui.services
 
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 
 // TODO(migration/popam)
 class SystemNavigator {
     companion object {
-        fun pop(): Deferred<Unit> {
+        fun CoroutineScope.pop(): Deferred<Unit> {
             return async { }
         }
     }

@@ -16,6 +16,7 @@
 
 package androidx.ui.rendering.flex
 
+import androidx.ui.assert
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
@@ -673,7 +674,7 @@ class RenderFlex(
                                     "must also specify which baseline to use using the" +
                                     " \"baseline\" argument.")
                         true
-                    }())
+                    })
                     TODO("migration/Mihai baselines")
 //                    val distance = child.getDistanceToBaseline(textBaseline, onlyReal = true);
 //                    if (distance != null)
@@ -848,7 +849,7 @@ class RenderFlex(
 //            paintOverflowIndicator(context, offset, Offset.zero & size, overflowChildRect,
 //                                   overflowHints: debugOverflowHints);
             true
-        }())
+        })
     }
 
     override fun describeApproximatePaintClip(child: RenderObject): Rect? =

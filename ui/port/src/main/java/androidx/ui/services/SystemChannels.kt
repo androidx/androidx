@@ -17,7 +17,7 @@
 package androidx.ui.services
 
 import androidx.ui.engine.window.AppLifecycleState
-import kotlinx.coroutines.experimental.channels.BroadcastChannel
+import kotlinx.coroutines.channels.BroadcastChannel
 
 /**
  * Platform channels used by the Flutter system.

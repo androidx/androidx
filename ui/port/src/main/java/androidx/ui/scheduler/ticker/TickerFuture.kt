@@ -18,8 +18,8 @@ package androidx.ui.scheduler.ticker
 
 import androidx.ui.VoidCallback
 import androidx.ui.foundation.diagnostics.describeIdentity
-import kotlinx.coroutines.experimental.CompletableDeferred
-import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Deferred
 
 /**
  * An object representing an ongoing [Ticker] sequence.

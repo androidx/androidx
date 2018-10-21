@@ -318,7 +318,7 @@ abstract class State<T : StatefulWidget>(
                 )
             }
             true
-        }())
+        })
         val result = fn()
         // TODO(Mihai/migration): currently result cannot be a deferred, leaving this commented
 //        assert({

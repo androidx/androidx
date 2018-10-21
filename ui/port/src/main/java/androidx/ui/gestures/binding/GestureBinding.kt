@@ -32,14 +32,15 @@ import androidx.ui.gestures.hit_test.HitTestTarget
 import androidx.ui.gestures.hit_test.HitTestable
 import androidx.ui.ui.pointer.PointerDataPacket
 import androidx.ui.gestures.events.PointerUpEvent
-import kotlinx.coroutines.experimental.Unconfined
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.launch
 import java.util.LinkedList
 import androidx.ui.gestures.arena.GestureArenaManager
 import androidx.ui.gestures.converter.PointerEventConverter
 import androidx.ui.gestures.events.PointerEvent
 import androidx.ui.gestures.pointer_router.PointerRouter
-import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.consumeEach
 
 open class GestureMixinsWrapper(
     base: BindingBase
@@ -55,7 +56,7 @@ class GestureBinding internal constructor(
 
     // was initInstances
     init {
-        launch(Unconfined) {
+        GlobalScope.launch(Dispatchers.Unconfined) {
             window.onPointerDataPacket.openSubscription().consumeEach {
                 _handlePointerDataPacket(it)
             }

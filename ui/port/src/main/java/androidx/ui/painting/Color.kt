@@ -258,7 +258,7 @@ class Color(colorValue: Int) {
      * A value of 0.0 means this color is fully transparent. A value of 1.0 means
      * this color is fully opaque.
      */
-    val opacity: Double = alpha / 0xFF.toDouble()
+    val opacity: Double = alpha.toDouble() / 0xFF.toDouble()
 
     /** The red channel of this color in an 8 bit value. */
     val red = (0x00ff0000 and value) shr 16
