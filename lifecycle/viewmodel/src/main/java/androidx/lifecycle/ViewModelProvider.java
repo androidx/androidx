@@ -20,7 +20,6 @@ import android.app.Application;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -54,14 +53,13 @@ public class ViewModelProvider {
 
     /**
      * Implementations of {@code Factory} interface are responsible to instantiate ViewModels.
-     *
-     * @hide
+     * <p>
+     * This is more advanced version of {@link Factory} that receives a key specified for requested
+     * {@link ViewModel}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface KeyedFactory {
         /**
          * Creates a new instance of the given {@code Class}.
-         * <p>
          *
          * @param key a key associated with the requested ViewModel
          * @param modelClass a {@code Class} whose instance is requested
@@ -101,9 +99,7 @@ public class ViewModelProvider {
     }
 
     /**
-     * @hide
-     *
-     * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
+`     * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
      * {@code Factory} and retain them in a store of the given {@code ViewModelStoreOwner}.
      *
      * @param owner   a {@code ViewModelStoreOwner} whose {@link ViewModelStore} will be used to
@@ -111,14 +107,11 @@ public class ViewModelProvider {
      * @param factory a {@code KeyedFactory} which will be used to instantiate
      *                new {@code ViewModels}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public ViewModelProvider(@NonNull ViewModelStoreOwner owner, @NonNull KeyedFactory factory) {
         this(owner.getViewModelStore(), factory);
     }
 
     /**
-     * @hide
-     *
      * Creates {@code ViewModelProvider}, which will create {@code ViewModels} via the given
      * {@code Factory} and retain them in the given {@code store}.
      *
@@ -126,7 +119,6 @@ public class ViewModelProvider {
      * @param factory factory a {@code Factory} which will be used to instantiate
      *                new {@code ViewModels}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public ViewModelProvider(@NonNull ViewModelStore store, @NonNull KeyedFactory factory) {
         mFactory = factory;
         mViewModelStore = store;

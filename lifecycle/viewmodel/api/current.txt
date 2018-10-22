@@ -13,6 +13,8 @@ package androidx.lifecycle {
   public class ViewModelProvider {
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.Factory);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.Factory);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.KeyedFactory);
+    ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.KeyedFactory);
     method public <T extends androidx.lifecycle.ViewModel> T get(java.lang.Class<T>);
     method public <T extends androidx.lifecycle.ViewModel> T get(java.lang.String, java.lang.Class<T>);
   }
@@ -24,6 +26,10 @@ package androidx.lifecycle {
 
   public static abstract interface ViewModelProvider.Factory {
     method public abstract <T extends androidx.lifecycle.ViewModel> T create(java.lang.Class<T>);
+  }
+
+  public static abstract interface ViewModelProvider.KeyedFactory {
+    method public abstract <T extends androidx.lifecycle.ViewModel> T create(java.lang.String, java.lang.Class<T>);
   }
 
   public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {
