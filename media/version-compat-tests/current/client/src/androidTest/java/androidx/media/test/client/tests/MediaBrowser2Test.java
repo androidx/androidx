@@ -86,7 +86,7 @@ public class MediaBrowser2Test extends MediaController2Test {
         @Override
         public void waitForConnect(boolean expect) throws InterruptedException {
             if (expect) {
-                assertTrue(connectLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                assertTrue(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             } else {
                 assertFalse(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             }
@@ -95,7 +95,7 @@ public class MediaBrowser2Test extends MediaController2Test {
         @Override
         public void waitForDisconnect(boolean expect) throws InterruptedException {
             if (expect) {
-                assertTrue(disconnectLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                assertTrue(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             } else {
                 assertFalse(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             }

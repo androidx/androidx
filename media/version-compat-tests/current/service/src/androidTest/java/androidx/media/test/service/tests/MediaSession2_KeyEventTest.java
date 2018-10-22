@@ -112,7 +112,7 @@ public class MediaSession2_KeyEventTest extends MediaSession2TestBase {
                 player.start();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @After

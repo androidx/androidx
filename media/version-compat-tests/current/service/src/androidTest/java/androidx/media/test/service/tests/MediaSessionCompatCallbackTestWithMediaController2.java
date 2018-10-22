@@ -127,7 +127,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
                         latch.countDown();
                     }
                 });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -330,7 +330,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
 
         final int targetVolume = 50;
         mController.setVolumeTo(targetVolume, 0 /* flags */);
-        assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(volumeProvider.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(volumeProvider.mSetVolumeToCalled);
         assertEquals(targetVolume, volumeProvider.mVolume);
     }
@@ -348,7 +348,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
 
         final int direction = AudioManager.ADJUST_RAISE;
         mController.adjustVolume(direction, 0 /* flags */);
-        assertTrue(volumeProvider.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(volumeProvider.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(volumeProvider.mAdjustVolumeCalled);
         assertEquals(direction, volumeProvider.mDirection);
     }
@@ -377,7 +377,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
                 ? originalVolume + 1 : originalVolume - 1;
 
         mController.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(WAIT_TIME_MS) {
+        new PollingCheck(TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
@@ -414,7 +414,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final int targetVolume = originalVolume + direction;
 
         mController.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(WAIT_TIME_MS) {
+        new PollingCheck(TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);

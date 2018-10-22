@@ -38,8 +38,7 @@ import java.util.concurrent.TimeUnit;
  * Utilities for tests.
  */
 public final class TestUtils {
-    private static final int WAIT_TIME_MS = 1000;
-    private static final int WAIT_SERVICE_TIME_MS = 5000;
+    private static final int TIMEOUT_MS = 1000;
 
     /**
      * Finds the session with id in this test package.
@@ -212,7 +211,7 @@ public final class TestUtils {
                         latch.countDown();
                     }
                 });
-                assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             }
         }
     }

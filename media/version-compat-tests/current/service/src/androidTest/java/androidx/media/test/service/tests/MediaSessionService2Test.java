@@ -113,7 +113,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
         controller1.close();
         controller2.close();
 
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -151,7 +151,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
         controller1.close();
         controller2.close();
 
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
