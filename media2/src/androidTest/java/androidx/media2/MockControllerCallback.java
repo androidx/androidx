@@ -71,7 +71,7 @@ public class MockControllerCallback extends MediaController2.ControllerCallback
     public void waitForConnect(boolean expect) throws InterruptedException {
         if (expect) {
             assertTrue(connectLatch.await(
-                    MediaSession2TestBase.WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                    MediaSession2TestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } else {
             assertFalse(connectLatch.await(
                     MediaSession2TestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -82,7 +82,7 @@ public class MockControllerCallback extends MediaController2.ControllerCallback
     public void waitForDisconnect(boolean expect) throws InterruptedException {
         if (expect) {
             assertTrue(disconnectLatch.await(
-                    MediaSession2TestBase.WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                    MediaSession2TestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } else {
             assertFalse(disconnectLatch.await(
                     MediaSession2TestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));

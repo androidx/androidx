@@ -91,7 +91,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
 //        assertEquals(SessionPlayer2.PLAYER_STATE_IDLE, controller.getPlayerState());
 //        controller.play();
 //
-//        assertTrue(player.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+//        assertTrue(player.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 //        assertTrue(player.mPlayCalled);
     }
 
@@ -310,7 +310,7 @@ public class MediaSessionManager_MediaSession2Test extends MediaSession2TestBase
 //        }
 //
 //        private boolean await() throws InterruptedException {
-//            return mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+//            return mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
 //        }
 //
 //        private boolean findToken(SessionToken2 token) {

@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 
 public class TestUtils {
 
-    public static final int WAIT_TIME_MS = 1000;
+    public static final int TIMEOUT_MS = 1000;
 
     /**
      * Compares contents of two bundles.
@@ -110,7 +110,7 @@ public class TestUtils {
                         latch.countDown();
                     }
                 });
-                assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             }
         }
     }

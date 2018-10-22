@@ -96,7 +96,7 @@ public class RemoteSessionPlayerTest extends MediaSession2TestBase {
         final int targetVolume = 50;
         mController2.setVolumeTo(targetVolume, 0 /* flags */);
 
-        assertTrue(remotePlayer.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(remotePlayer.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(remotePlayer.mSetVolumeToCalled);
         assertEquals(targetVolume, remotePlayer.mCurrentVolume, 0.001f);
     }
@@ -116,7 +116,7 @@ public class RemoteSessionPlayerTest extends MediaSession2TestBase {
         final int direction = AudioManager.ADJUST_RAISE;
         mController2.adjustVolume(direction, 0 /* flags */);
 
-        assertTrue(remotePlayer.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(remotePlayer.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(remotePlayer.mAdjustVolumeCalled);
         assertEquals(direction, remotePlayer.mDirection);
     }

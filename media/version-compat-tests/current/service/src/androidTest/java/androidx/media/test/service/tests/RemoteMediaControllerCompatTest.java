@@ -75,6 +75,6 @@ public class RemoteMediaControllerCompatTest extends MediaSession2TestBase {
         }, sHandler);
 
         mRemoteControllerCompat.getTransportControls().play();
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 }

@@ -95,7 +95,7 @@ public class MediaController2Test_copied extends MediaSession2TestBase {
 //
 //        // Test command from session service to controller.
 //        mSession.broadcastCustomCommand(testCommand, null);
-//        assertTrue(controllerLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+//        assertTrue(controllerLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 //    }
 
 
@@ -136,7 +136,7 @@ public class MediaController2Test_copied extends MediaSession2TestBase {
 //        mController = createController(MediaTestUtils.getServiceToken(mContext, id));
 //        mController.close();
 //        // Wait until close triggers onDestroy() of the session service.
-//        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+//        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 //        assertNull(TestServiceRegistry.getInstance().getServiceInstance());
 //        testNoInteraction();
 //

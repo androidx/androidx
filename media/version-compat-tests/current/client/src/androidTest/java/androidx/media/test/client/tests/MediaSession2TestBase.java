@@ -58,11 +58,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * {@link #prepareLooper} for details.
  */
 abstract class MediaSession2TestBase {
-    // Expected success
-    static final int WAIT_TIME_MS = 1000;
-
-    // Expected timeout
-    static final int TIMEOUT_MS = 500;
+    static final int TIMEOUT_MS = 1000;
 
     static SyncHandler sHandler;
     static Executor sHandlerExecutor;
@@ -289,7 +285,7 @@ abstract class MediaSession2TestBase {
         @Override
         public void waitForConnect(boolean expect) throws InterruptedException {
             if (expect) {
-                assertTrue(connectLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                assertTrue(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             } else {
                 assertFalse(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             }
@@ -298,7 +294,7 @@ abstract class MediaSession2TestBase {
         @Override
         public void waitForDisconnect(boolean expect) throws InterruptedException {
             if (expect) {
-                assertTrue(disconnectLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                assertTrue(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             } else {
                 assertFalse(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             }

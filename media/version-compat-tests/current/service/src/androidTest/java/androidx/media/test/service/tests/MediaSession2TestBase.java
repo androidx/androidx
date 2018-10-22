@@ -43,11 +43,7 @@ import java.util.concurrent.Executor;
  * {@link #prepareLooper} for details.
  */
 abstract class MediaSession2TestBase extends MediaTestBase {
-    // Expected success
-    static final int WAIT_TIME_MS = 1000;
-
-    // Expected timeout
-    static final int TIMEOUT_MS = 500;
+    static final int TIMEOUT_MS = 1000;
 
     static SyncHandler sHandler;
     static Executor sHandlerExecutor;
