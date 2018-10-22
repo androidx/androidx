@@ -230,13 +230,13 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                     params.add(element.simpleName)
                 }
                 TransactionMethod.CallType.DEFAULT_KOTLIN -> {
-                    append("$N.$N.$N(this, ")
+                    append("$N.$N.$N(this")
                     params.add(element.enclosingElement.simpleName)
                     params.add(JvmAbi.DEFAULT_IMPLS_CLASS_NAME)
                     params.add(element.simpleName)
                 }
             }
-            var first = true
+            var first = callType != TransactionMethod.CallType.DEFAULT_KOTLIN
             element.parameters.forEach {
                 if (first) {
                     first = false
