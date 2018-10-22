@@ -405,6 +405,7 @@ package androidx.recyclerview.widget {
     method public boolean isAnimating();
     method public boolean isComputingLayout();
     method public boolean isLayoutFrozen();
+    method public boolean isLayoutSuppressed();
     method public void offsetChildrenHorizontal(int);
     method public void offsetChildrenVertical(int);
     method public void onChildAttachedToWindow(android.view.View);
@@ -440,6 +441,7 @@ package androidx.recyclerview.widget {
     method public boolean startNestedScroll(int, int);
     method public void stopNestedScroll(int);
     method public void stopScroll();
+    method public void suppressLayout(boolean);
     method public void swapAdapter(androidx.recyclerview.widget.RecyclerView.Adapter, boolean);
     field public static final int HORIZONTAL = 0; // 0x0
     field public static final int INVALID_TYPE = -1; // 0xffffffff
