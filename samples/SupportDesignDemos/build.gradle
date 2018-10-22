@@ -16,6 +16,8 @@ dependencies {
     implementation(project(":recyclerview"))
     implementation(project(":appcompat"))
     implementation(project(":cardview"))
+    implementation(project(":coordinatorlayout"))
+    implementation(project(":swiperefreshlayout"))
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
 }
 
