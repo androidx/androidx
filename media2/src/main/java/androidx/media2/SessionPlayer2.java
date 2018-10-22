@@ -29,15 +29,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -279,7 +279,7 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final Map<PlayerCallback, Executor> mCallbacks = new HashMap<>();
+    private final List<Pair<PlayerCallback, Executor>> mCallbacks = new ArrayList<>();
 
     /**
      * Plays the playback.
@@ -674,11 +674,13 @@ public abstract class SessionPlayer2 implements AutoCloseable {
         }
 
         synchronized (mLock) {
-            if (mCallbacks.get(callback) != null) {
-                Log.w(TAG, "callback is already added. Ignoring.");
-                return;
+            for (Pair<PlayerCallback, Executor> pair : mCallbacks) {
+                if (pair.first == callback && pair.second != null) {
+                    Log.w(TAG, "callback is already added. Ignoring.");
+                    return;
+                }
             }
-            mCallbacks.put(callback, executor);
+            mCallbacks.add(new Pair<>(callback, executor));
         }
     }
 
@@ -693,7 +695,11 @@ public abstract class SessionPlayer2 implements AutoCloseable {
             throw new IllegalArgumentException("callback shouldn't be null");
         }
         synchronized (mLock) {
-            mCallbacks.remove(callback);
+            for (int i = mCallbacks.size() - 1; i >= 0; i--) {
+                if (mCallbacks.get(i).first == callback) {
+                    mCallbacks.remove(i);
+                }
+            }
         }
     }
 
@@ -702,12 +708,12 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      *
      * @return map of callbacks and its executors
      */
-    protected final @NonNull Map<PlayerCallback, Executor> getCallbacks() {
-        Map<PlayerCallback, Executor> map = new HashMap<>();
+    protected final @NonNull List<Pair<PlayerCallback, Executor>> getCallbacks() {
+        List<Pair<PlayerCallback, Executor>> list = new ArrayList<>();
         synchronized (mLock) {
-            map.putAll(mCallbacks);
+            list.addAll(mCallbacks);
         }
-        return map;
+        return list;
     }
 
     /**
