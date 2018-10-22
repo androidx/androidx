@@ -18,3 +18,8 @@
     public <init>(android.content.Context, android.util.AttributeSet, int, int);
     public <init>();
 }
+
+-keepclassmember class androidx.recyclerview.widget.RecyclerView {
+    public void suppressLayout(boolean);
+    public boolean isLayoutSuppressed();
+}
