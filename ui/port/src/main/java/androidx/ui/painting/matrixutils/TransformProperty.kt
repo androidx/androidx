@@ -38,13 +38,6 @@ class TransformProperty(
         defaultValue = defaultValue,
         level = level
 ) {
-
-    // The [showName] and [level] arguments must not be null.
-    init {
-        assert(showName != null)
-        assert(level != null)
-    }
-
     override fun valueToString(parentConfiguration: TextTreeConfiguration?): String {
         if (parentConfiguration != null && !parentConfiguration.lineBreakProperties) {
             // Format the value on a single line to be compatible with the parent's

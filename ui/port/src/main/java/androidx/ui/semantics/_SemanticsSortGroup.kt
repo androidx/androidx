@@ -22,10 +22,6 @@ internal data class _SemanticsSortGroup(
     val textDirection: TextDirection?
 
 ) : Comparable<_SemanticsSortGroup> {
-    init {
-        assert(startOffset != null)
-    }
-
     /** The nodes that are sorted among each other. */
     val nodes: MutableList<SemanticsNode> = mutableListOf()
 

@@ -23,7 +23,7 @@ class LabeledGlobalKey<T : State<StatefulWidget>>(
 ) : GlobalKey<T>() {
 
     override fun toString(): String {
-        val label = if (_debugLabel != null) " $_debugLabel" else ""
+        val label = " $_debugLabel"
         if (runtimeType().clazz == LabeledGlobalKey::class.java)
             return "[GlobalKey#${shortHash(this)}$label]"
         return "[${describeIdentity(this)}$label]"

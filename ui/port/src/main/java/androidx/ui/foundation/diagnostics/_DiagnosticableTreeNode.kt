@@ -11,7 +11,6 @@ class _DiagnosticableTreeNode(
         style = style) {
 
     override fun getChildren(): List<DiagnosticsNode> {
-        value ?: return emptyList()
         return value.debugDescribeChildren()
     }
 }

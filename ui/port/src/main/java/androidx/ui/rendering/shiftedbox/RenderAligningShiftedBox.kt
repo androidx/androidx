@@ -65,7 +65,6 @@ abstract class RenderAligningShiftedBox(
          * The new alignment must not be null.
          */
         set(value) {
-            assert(value != null)
             if (_alignment == value)
                 return
             _alignment = value

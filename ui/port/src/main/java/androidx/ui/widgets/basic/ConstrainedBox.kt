@@ -72,7 +72,7 @@ class ConstrainedBox(
         return RenderConstrainedBox(_additionalConstraints = constraints)
     }
 
-    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) {
+    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject) {
         (renderObject as RenderConstrainedBox).additionalConstraints = constraints
     }
 

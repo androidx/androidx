@@ -104,7 +104,7 @@ interface BuildContext {
      * usually has many render objects and therefore the distance to the nearest
      * render object is usually short.
      */
-    fun findRenderObject(): RenderObject
+    fun findRenderObject(): RenderObject?
 
     /**
      * The size of the [RenderBox] returned by [findRenderObject].

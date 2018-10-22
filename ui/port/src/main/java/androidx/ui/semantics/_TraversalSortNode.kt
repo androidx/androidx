@@ -26,13 +26,8 @@ internal data class _TraversalSortNode(
     val position: Int
 ) : Comparable<_TraversalSortNode> {
 
-    init {
-        assert(node != null)
-        assert(position != null)
-    }
-
     override fun compareTo(other: _TraversalSortNode): Int {
-        if (sortKey == null || other?.sortKey == null) {
+        if (sortKey == null || other.sortKey == null) {
             return position - other.position
         }
         return sortKey.compareTo(other.sortKey)

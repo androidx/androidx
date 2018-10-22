@@ -52,9 +52,6 @@ class Timeline {
             if (_isProduct) {
                 return
             }
-            if (name !is String) {
-                throw IllegalArgumentException("name must be a String")
-            }
             if (!_isDartStreamEnabled()) {
                 // Push a null onto the stack and return.
                 _stack.add(null)
@@ -96,9 +93,6 @@ class Timeline {
         fun instantSync(name: String, arguments: Map<*, *>? = null) {
             if (_isProduct) {
                 return
-            }
-            if (name !is String) {
-                throw IllegalArgumentException("name must be a String")
             }
             if (!_isDartStreamEnabled()) {
                 // Stream is disabled.

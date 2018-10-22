@@ -49,17 +49,17 @@ class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget)
     // repeatedly to remove children.
     private val _forgottenChildren = mutableSetOf<Element>()
 
-    override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {
+    override fun insertChildRenderObject(child: RenderObject, slot: Any?) {
         val elementSlot = slot as Element?
 
         val renderObject = this.renderObject
                 as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>
         assert(renderObject.debugValidateChild(child))
-        renderObject.insert(child!!, after = elementSlot?.retrieveRenderObject())
+        renderObject.insert(child, after = elementSlot?.retrieveRenderObject())
         assert(renderObject == this.renderObject)
     }
 
-    override fun moveChildRenderObject(child: RenderObject?, slot: Any?) {
+    override fun moveChildRenderObject(child: RenderObject, slot: Any?) {
         TODO("Remove once ContainerRenderObjectMixin is migrated")
 //        val renderObject = this.renderObject
 //            as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>;
@@ -68,7 +68,7 @@ class MultiChildRenderObjectElement(widget: MultiChildRenderObjectWidget)
 //        assert(renderObject == this.renderObject);
     }
 
-    override fun removeChildRenderObject(child: RenderObject?) {
+    override fun removeChildRenderObject(child: RenderObject) {
         TODO("Remove once ContainerRenderObjectMixin is migrated")
 //        val renderObject = this.renderObject
 //            as ContainerRenderObjectMixin<RenderObject, ContainerParentDataMixin<RenderObject>>

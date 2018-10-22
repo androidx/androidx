@@ -154,13 +154,6 @@ class RawImage(
     val matchTextDirection: Boolean = false
 ) : LeafRenderObjectWidget(key) {
 
-    init {
-        assert(scale != null)
-        assert(alignment != null)
-        assert(repeat != null)
-        assert(matchTextDirection != null)
-    }
-
     override fun createRenderObject(context: BuildContext): RenderImage {
         assert((!matchTextDirection && alignment is Alignment) ||
                 debugCheckHasDirectionality(context))
@@ -181,7 +174,7 @@ class RawImage(
         )
     }
 
-    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) {
+    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject) {
         (renderObject as RenderImage).let {
             it.image = image
             it.width = width

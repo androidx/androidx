@@ -7,7 +7,6 @@ abstract class ProxyElement(widget: ProxyWidget) : ComponentElement(widget) {
 
     override fun update(newWidget: Widget) {
         val oldWidget = widget
-        assert(widget != null)
         assert(widget != newWidget)
         super.update(newWidget)
         assert(widget == newWidget)

@@ -53,8 +53,6 @@ class ObjectFlagProperty<T : Any>(
 
     init {
         assert(ifPresent != null || ifNull != null)
-        assert(showName != null)
-        assert(level != null)
     }
 
     companion object {
@@ -72,9 +70,6 @@ class ObjectFlagProperty<T : Any>(
             level: DiagnosticLevel = DiagnosticLevel.info
         ): ObjectFlagProperty<T>
         {
-            assert(name != null)
-            assert(level != null)
-
             return ObjectFlagProperty(
                     name = name,
                     value = value,

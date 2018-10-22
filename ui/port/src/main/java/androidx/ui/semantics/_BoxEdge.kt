@@ -36,12 +36,6 @@ internal data class _BoxEdge(
     val node: SemanticsNode
 ) : Comparable<_BoxEdge> {
 
-    init {
-        assert(isLeadingEdge != null)
-        assert(offset != null)
-        assert(node != null)
-    }
-
     override fun compareTo(other: _BoxEdge): Int {
         return (offset - other.offset).sign.toInt()
     }

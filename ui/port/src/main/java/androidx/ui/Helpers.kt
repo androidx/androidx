@@ -27,8 +27,10 @@ fun Double.clamp(min: Double, max: Double) = Math.max(min, Math.min(max, this))
 
 fun Int.clamp(min: Int, max: Int) = Math.max(min, Math.min(max, this))
 
-// TODO(Migration/Filip): Start supporting size if needed
-fun Int.toRadixString(size: Int) = java.lang.Integer.toHexString(this)
+fun Int.toRadixString(size: Int): String {
+    val asLong = this.toLong() and 0xFFFFFFFF
+    return java.lang.Long.toString(asLong, size)
+}
 
 // This is our wrapper for Dart's type to reduce the amount of refactoring
 data class Type(val clazz: Class<out Any>) {

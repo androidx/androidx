@@ -14,13 +14,9 @@ open class DiagnosticableNode<T : Diagnosticable>(
         return value
     }
 
-    init {
-        assert(value != null)
-    }
-
     private val builder by lazy {
         val b = DiagnosticPropertiesBuilder()
-        value?.debugFillProperties(b)
+        value.debugFillProperties(b)
         return@lazy b
     }
 

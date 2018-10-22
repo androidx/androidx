@@ -69,13 +69,12 @@ data class Offset(override val dx: Double, override val dy: Double) : OffsetBase
          * an [AnimationController].
          */
         fun lerp(a: Offset, b: Offset, t: Double): Offset? {
-            assert(t != null)
-            if (a == null && b == null)
-                return null
-            if (a == null)
-                return b * t
-            if (b == null)
-                return a * (1.0 - t)
+//            if (a == null && b == null)
+//                return null
+//            if (a == null)
+//                return b * t
+//            if (b == null)
+//                return a * (1.0 - t)
             return Offset(lerpDouble(a.dx, b.dx, t), lerpDouble(a.dy, b.dy, t))
         }
     }
@@ -254,7 +253,7 @@ data class Offset(override val dx: Double, override val dy: Double) : OffsetBase
     // TODO(Migration/Filip): Original operator & could not be overriden in Kotlin
     infix fun and(other: Size): Rect = Rect.fromLTWH(dx, dy, other.width, other.height)
 
-    override fun toString() = "Offset(${dx?.toStringAsFixed(1)}, ${dy?.toStringAsFixed(1)})"
+    override fun toString() = "Offset(${dx.toStringAsFixed(1)}, ${dy.toStringAsFixed(1)})"
 
     // We need to manually override equals (and thus also hashCode) because the auto generated
     // equals was treating Offset(0.0, 0.0) != Offset(0.0, -0.0).

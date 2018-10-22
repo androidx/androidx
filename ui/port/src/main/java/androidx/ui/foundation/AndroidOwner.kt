@@ -414,7 +414,7 @@ private class ElementNodesGenerator(
      */
     private fun onElementVisited(element: Element) {
         if (element is RenderObjectElement) {
-            element.renderObject?.also { renderObject ->
+            element.renderObject.also { renderObject ->
                 renderObject.inComponentsMode = true
                 val newNode = renderObject.layoutNode
                 parentNode.add(newNode)

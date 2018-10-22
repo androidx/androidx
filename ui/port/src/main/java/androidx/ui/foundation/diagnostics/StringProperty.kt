@@ -34,13 +34,6 @@ class StringProperty(
         ifEmpty = ifEmpty,
         level = level
 ) {
-
-    init {
-        assert(showName != null)
-        assert(quoted != null)
-        assert(level != null)
-    }
-
     override fun toJsonMap(): Map<String, Any> {
         val json = super.toJsonMap().toMutableMap()
         json["quoted"] = quoted

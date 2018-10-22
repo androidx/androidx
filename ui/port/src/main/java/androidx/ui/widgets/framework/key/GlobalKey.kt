@@ -64,18 +64,15 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
             assert {
                 var duplicates: MutableMap<GlobalKey<*>, MutableSet<Element>>? = null
                 for (element in _debugIllFatedElements) {
-                if (element._debugLifecycleState != _ElementLifecycle.defunct) {
-                    assert(element != null)
-                    assert(element.widget != null)
-                    assert(element.widget.key != null)
-                    val key = element.widget.key
-                    assert(_registry.containsKey(key))
-                    duplicates = duplicates ?: mutableMapOf()
-                    val elements = duplicates.getOrPut(key as GlobalKey<*>, { mutableSetOf() })
-                    elements!!.add(element)
-                    elements!!.add(_registry[key]!!)
+                    if (element._debugLifecycleState != _ElementLifecycle.defunct) {
+                        assert(element.widget.key != null)
+                        val key = element.widget.key
+                        duplicates = mutableMapOf()
+                        val elements = duplicates.getOrPut(key as GlobalKey<*>, { mutableSetOf() })
+                        elements.add(element)
+                        elements.add(_registry[key]!!)
+                    }
                 }
-            }
                 _debugIllFatedElements.clear()
                 _debugReservations.clear()
                 if (duplicates != null) {
@@ -84,11 +81,14 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
                     for (key in duplicates.keys) {
                         val elements = duplicates[key]
                         buffer.append("The key $key was used by ${elements!!.size} widgets:")
-                        for (element in elements!!)
-                        buffer.append("- $element")
+                        for (element in elements) {
+                            buffer.append("- $element")
+                        }
                     }
-                    buffer.append("A GlobalKey can only be specified on one widget at a time" +
-                            " in the widget tree.")
+                    buffer.append(
+                        "A GlobalKey can only be specified on one widget at a time" +
+                                " in the widget tree."
+                    )
                     throw FlutterError(buffer.toString())
                 }
                 true
@@ -99,8 +99,6 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
     fun _register(element: Element) {
         assert {
             if (_registry.containsKey(this)) {
-                assert(element.widget != null)
-                assert(_registry[this]!!.widget != null)
                 assert(element.widget.runtimeType() != _registry[this]!!.widget.runtimeType())
                 _debugIllFatedElements.add(_registry[this]!!)
             }
@@ -112,8 +110,6 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
     fun _unregister(element: Element) {
         assert {
             if (_registry.containsKey(this) && _registry[this] != element) {
-                assert(element.widget != null)
-                assert(_registry[this]!!.widget != null)
                 assert(element.widget.runtimeType() != _registry[this]!!.widget.runtimeType())
             }
             true
@@ -126,7 +122,6 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
 
     fun _debugReserveFor(parent: Element) {
         assert {
-            assert(parent != null)
             if (_debugReservations.containsKey(this) && _debugReservations[this] != parent) {
                 // It's possible for an element to get built multiple times in one
                 // frame, in which case it'll reserve the same child's key multiple

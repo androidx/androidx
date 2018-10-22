@@ -62,7 +62,7 @@ class RenderObjectToWidgetAdapter<T : RenderObject>(
     override fun createRenderObject(context: BuildContext): RenderObjectWithChildMixin<T> =
             container
 
-    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) { }
+    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject) { }
 
     /**
      * Inflate this widget and actually set the resulting [RenderObject] as the

@@ -38,7 +38,7 @@ abstract class ContainerParentDataMixin<ChildType : RenderObject> : BoxParentDat
             val previousSiblingParentData =
                 previousSibling!!.parentData as ContainerParentDataMixin<ChildType>
             assert(previousSibling != this)
-            assert(previousSiblingParentData!!.nextSibling == this)
+            assert(previousSiblingParentData.nextSibling == this)
             previousSiblingParentData.nextSibling = nextSibling
         }
         if (nextSibling != null) {

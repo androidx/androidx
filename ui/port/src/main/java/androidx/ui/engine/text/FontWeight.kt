@@ -73,7 +73,6 @@ class FontWeight private constructor(val index: Int) {
         // an [AnimationController].
         // TODO(Migration/siyamed): I did not like the variable naming.
         fun lerp(a: FontWeight?, b: FontWeight?, t: Double): FontWeight {
-            assert(t != null)
             return values[lerpInt(
                 a?.index ?: normal.index,
                 b?.index ?: normal.index,

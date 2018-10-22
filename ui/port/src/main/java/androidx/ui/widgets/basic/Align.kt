@@ -74,7 +74,6 @@ open class Align(
 ) : SingleChildRenderObjectWidget(key = key, child = child) {
 
     init {
-        assert(alignment != null)
         assert(widthFactor == null || widthFactor >= 0.0)
         assert(heightFactor == null || heightFactor >= 0.0)
     }
@@ -88,13 +87,13 @@ open class Align(
         )
     }
 
-    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) {
+    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject) {
         renderObject as RenderPositionedBox
         renderObject.let {
             it.alignment = alignment
             it.widthFactor = widthFactor
             it.heightFactor = heightFactor
-            it.textDirection = Directionality.of(context!!)
+            it.textDirection = Directionality.of(context)
         }
     }
 

@@ -52,7 +52,7 @@ class AbsorbPointer(
         return RenderAbsorbPointer(absorbing = absorbing)
     }
 
-    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) {
+    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject) {
         (renderObject as RenderAbsorbPointer).absorbing = absorbing
     }
 }

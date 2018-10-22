@@ -289,8 +289,7 @@ abstract class State<T : StatefulWidget>(
      * whether the [mounted] property is true.
      */
     protected fun setState(fn: VoidCallback) {
-        assert(fn != null)
-        assert({
+        assert {
             if (_debugLifecycleState == _StateLifecycle.defunct) {
                 throw FlutterError(
                         "setState() called after dispose(): $this\n" +
@@ -318,7 +317,7 @@ abstract class State<T : StatefulWidget>(
                 )
             }
             true
-        })
+        }
         val result = fn()
         // TODO(Mihai/migration): currently result cannot be a deferred, leaving this commented
 //        assert({

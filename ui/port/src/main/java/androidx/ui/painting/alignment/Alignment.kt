@@ -64,12 +64,6 @@ class Alignment(
     val y: Double
 
 ) : AlignmentGeometry() {
-
-    init {
-        assert(x != null)
-        assert(y != null)
-    }
-
     companion object {
         /** The top left corner. */
         val topLeft = Alignment(-1.0, -1.0)
@@ -116,7 +110,6 @@ class Alignment(
          * an [AnimationController].
          */
         fun lerp(a: Alignment?, b: Alignment?, t: Double): Alignment? {
-            assert(t != null)
             if (a == null && b == null)
                 return null
             if (a == null)

@@ -30,7 +30,7 @@ class ParentDataElement<T : RenderObjectWidget>(widget: ParentDataWidget<T>)
             }
             if (ancestor != null && badAncestors.isEmpty())
                 true
-            throw FlutterError(
+            else throw FlutterError(
                     "Incorrect use of ParentDataWidget.\n" +
                             parentDataWidget.debugDescribeInvalidAncestorChain(
                                     description = "$this",
@@ -95,7 +95,6 @@ class ParentDataElement<T : RenderObjectWidget>(widget: ParentDataWidget<T>)
      */
     fun applyWidgetOutOfTurn(newWidget: ParentDataWidget<T>) {
         val parentWidget = widget as ParentDataWidget<T>
-        assert(newWidget != null)
         assert(newWidget.debugCanApplyOutOfTurn())
         assert(newWidget.child == parentWidget.child)
         _applyParentData(newWidget)

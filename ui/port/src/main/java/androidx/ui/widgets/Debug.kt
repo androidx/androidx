@@ -85,7 +85,6 @@ var debugHighlightDeprecatedWidgets: Boolean = false
 fun _firstNonUniqueKey(widgets: Iterable<Widget>): Key? {
     val keySet = mutableSetOf<Key>()
     for (widget in widgets) {
-        assert(widget != null)
         if (widget.key == null)
             continue
         if (!keySet.add(widget.key))
@@ -175,7 +174,7 @@ fun debugCheckHasDirectionality(context: BuildContext): Boolean {
  *
  * Does nothing when asserts are disabled.
  */
-fun debugWidgetBuilderValue(widget: Widget, built: Widget) {
+fun debugWidgetBuilderValue(widget: Widget, built: Widget?) {
     assert {
         if (built == null) {
             throw FlutterError(

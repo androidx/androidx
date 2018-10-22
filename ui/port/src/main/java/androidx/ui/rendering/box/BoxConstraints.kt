@@ -174,7 +174,6 @@ data class BoxConstraints(
          * an [AnimationController].
          */
         fun lerp(a: BoxConstraints?, b: BoxConstraints?, t: Double): BoxConstraints? {
-            assert(t != null)
             if (a == null && b == null)
                 return null
             if (a == null)
@@ -546,7 +545,7 @@ data class BoxConstraints(
                 if (affectedFieldsList.size > 1)
                     affectedFieldsList.add(
                             "and ${affectedFieldsList.removeAt(affectedFieldsList.lastIndex)}")
-                var whichFields = ""
+                val whichFields: String
                 if (affectedFieldsList.size > 2) {
                     whichFields = affectedFieldsList.joinToString(", ")
                 } else if (affectedFieldsList.size == 2) {

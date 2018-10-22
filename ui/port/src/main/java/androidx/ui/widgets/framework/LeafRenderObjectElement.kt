@@ -10,15 +10,15 @@ open class LeafRenderObjectElement(widget: LeafRenderObjectWidget) : RenderObjec
         assert(false)
     }
 
-    override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {
+    override fun insertChildRenderObject(child: RenderObject, slot: Any?) {
         assert(false)
     }
 
-    override fun moveChildRenderObject(child: RenderObject?, slot: Any?) {
+    override fun moveChildRenderObject(child: RenderObject, slot: Any?) {
         assert(false)
     }
 
-    override fun removeChildRenderObject(child: RenderObject?) {
+    override fun removeChildRenderObject(child: RenderObject) {
         assert(false)
     }
 

@@ -121,7 +121,6 @@ abstract class AlignmentGeometry {
          * an [AnimationController].
          */
         fun lerp(a: AlignmentGeometry?, b: AlignmentGeometry?, t: Double): AlignmentGeometry? {
-            assert(t != null)
             if (a == null && b == null)
                 return null
             if (a == null)

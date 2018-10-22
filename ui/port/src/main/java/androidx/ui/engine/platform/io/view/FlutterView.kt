@@ -190,7 +190,7 @@ class FlutterView(
             return super.onKeyDown(keyCode, event)
         }
 
-        if (event.getDeviceId() !== KeyCharacterMap.VIRTUAL_KEYBOARD) {
+        if (event.getDeviceId() != KeyCharacterMap.VIRTUAL_KEYBOARD) {
             if (mLastInputConnection != null && mImm!!.isAcceptingText()) {
                 mLastInputConnection!!.sendKeyEvent(event)
             }

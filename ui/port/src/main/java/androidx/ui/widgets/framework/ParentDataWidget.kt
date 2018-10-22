@@ -93,7 +93,7 @@ abstract class ParentDataWidget<T : RenderObjectWidget>(
         // TODO(Migration/Filip): Not possible + had to remove $T in strings
         // assert(T != dynamic);
         // assert(T != RenderObjectWidget);
-        var result: String? = null
+        var result: String
         if (!foundValidAncestor) {
             result = "${runtimeType()} widgets must be placed inside T widgets.\n" +
                     "$description has no T ancestor at all.\n"

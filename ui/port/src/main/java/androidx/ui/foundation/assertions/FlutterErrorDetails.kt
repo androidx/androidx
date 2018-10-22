@@ -123,7 +123,7 @@ open class FlutterErrorDetails(
                     }
                 }
             }
-            longMessage = longMessage ?: fullMessage
+            longMessage = if (longMessage.isEmpty()) fullMessage else longMessage
         } else if (exception is String) {
             longMessage = exception
         } else if (exception is Error || exception is Exception) {
@@ -155,17 +155,14 @@ open class FlutterErrorDetails(
         }
         buffer.appendln(exceptionAsString())
         if (informationCollector != null)
-            informationCollector!!(buffer)
+            informationCollector.invoke(buffer)
         if (stack != null) {
 
             var stackLines = stack.map { it.toString() }.asIterable()
-
-            if (stackFilter != null) {
-                stackLines = stackFilter!!(stackLines)
-            } else {
-                // TODO(Migration/Filip): This will not be that easy as it expects Dart stack lines
-                // stackLines = FlutterError.defaultStackFilter(stackLines);
-            }
+            stackLines = stackFilter?.invoke(stackLines) ?: stackLines
+            // TODO(Migration/Filip): This will not be that easy as it expects Dart stack lines
+            // this should be the result of the null part of ?: above
+            // stackLines = FlutterError.defaultStackFilter(stackLines);
             buffer.append(stackLines)
             buffer.append("\n")
         }

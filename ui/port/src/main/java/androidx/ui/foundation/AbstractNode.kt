@@ -138,7 +138,6 @@ abstract class AbstractNode : Comparable<AbstractNode> {
      */
     @CallSuper
     open fun adoptChild(child: AbstractNode) { // TODO(Migration/Filip): Removed covariant
-        assert(child != null)
         assert(child.parent == null)
         assert {
             var node: AbstractNode? = this
@@ -160,7 +159,6 @@ abstract class AbstractNode : Comparable<AbstractNode> {
      */
     @CallSuper
     protected open fun dropChild(child: AbstractNode) { // TODO(Migration/Filip): Removed covariant
-        assert(child != null)
         assert(child.parent == this)
         assert(child.attached == attached)
         child._parent = null

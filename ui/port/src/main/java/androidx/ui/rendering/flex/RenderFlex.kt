@@ -332,20 +332,17 @@ class RenderFlex(
             var maxFlexFractionSoFar = 0.0
             var child = firstChild
             while (child != null) {
-                // Smart cast doesn't work here.
-                val renderBoxChild = child as RenderBox
-
-                val flex = getFlex(renderBoxChild)
+                val flex = getFlex(child)
                 totalFlex += flex
                 if (flex > 0) {
-                    val flexFraction = childSize(renderBoxChild, extent) / getFlex(renderBoxChild)
+                    val flexFraction = childSize(child, extent) / getFlex(child)
                     maxFlexFractionSoFar = max(maxFlexFractionSoFar, flexFraction)
                 } else {
-                    inflexibleSpace += childSize(renderBoxChild, extent)
+                    inflexibleSpace += childSize(child, extent)
                 }
 
                 val childParentData =
-                    renderBoxChild.parentData as ContainerParentDataMixin<RenderBox>
+                    child.parentData as ContainerParentDataMixin<RenderBox>
                 child = childParentData.nextSibling
             }
             return maxFlexFractionSoFar * totalFlex + inflexibleSpace
@@ -363,23 +360,20 @@ class RenderFlex(
             var maxCrossSize = 0.0
             var child = firstChild
             while (child != null) {
-                // Smart cast doesn't work here.
-                val renderBoxChild = child as RenderBox
-
-                val flex = getFlex(renderBoxChild)
+                val flex = getFlex(child)
                 totalFlex += flex
                 val mainSize: Double
                 val crossSize: Double
                 if (flex == 0) {
                     when (_direction) {
                         Axis.HORIZONTAL -> {
-                            mainSize = renderBoxChild.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)
-                            crossSize = childSize(renderBoxChild, mainSize)
+                            mainSize = child.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)
+                            crossSize = childSize(child, mainSize)
                         }
                         Axis.VERTICAL -> {
-                            mainSize = renderBoxChild
+                            mainSize = child
                                 .getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)
-                            crossSize = childSize(renderBoxChild, mainSize)
+                            crossSize = childSize(child, mainSize)
                         }
                     }
                     inflexibleSpace += mainSize
@@ -387,7 +381,7 @@ class RenderFlex(
                 }
 
                 val childParentData =
-                    renderBoxChild.parentData as ContainerParentDataMixin<RenderBox>
+                    child.parentData as ContainerParentDataMixin<RenderBox>
                 child = childParentData.nextSibling
             }
 
@@ -398,7 +392,7 @@ class RenderFlex(
             child = firstChild
             while (child != null) {
                 // Smart cast doesn't work here.
-                val renderBoxChild = child as RenderBox
+                val renderBoxChild = child
 
                 val flex = getFlex(renderBoxChild)
                 if (flex > 0)
@@ -620,7 +614,6 @@ class RenderFlex(
                         }
                     }
 
-                    assert(minChildExtent != null)
                     val innerConstraints: BoxConstraints
                     if (crossAxisAlignment == CrossAxisAlignment.STRETCH) {
                         when (_direction) {

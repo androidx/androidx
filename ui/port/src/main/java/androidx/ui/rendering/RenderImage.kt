@@ -83,10 +83,6 @@ class RenderImage(
     private var _textDirection = textDirection
 
     init {
-        assert(scale != null)
-        assert(repeat != null)
-        assert(alignment != null)
-        assert(matchTextDirection != null)
         _updateColorFilter()
     }
 
@@ -156,7 +152,6 @@ class RenderImage(
     var scale: Double
         get() = _scale
         set(value) = run {
-            assert(value != null)
             if (value == _scale)
                 return
             _scale = value
@@ -227,7 +222,6 @@ class RenderImage(
     var alignment: AlignmentGeometry
         get() = _alignment
         set(value) = run {
-            assert(value != null)
             if (value == _alignment)
                 return
             _alignment = value
@@ -238,7 +232,6 @@ class RenderImage(
     var repeat: ImageRepeat
         get() = _repeat
         set(value) = run {
-            assert(value != null)
             if (value == _repeat)
                 return
             _repeat = value
@@ -282,7 +275,6 @@ class RenderImage(
     var matchTextDirection: Boolean
         get() = _matchTextDirection
         set(value) = run {
-            assert(value != null)
             if (value == _matchTextDirection)
                 return
             _matchTextDirection = value
@@ -299,7 +291,6 @@ class RenderImage(
     var textDirection: TextDirection?
         get() = _textDirection
         set(value) = run {
-            assert(value != null)
             if (_textDirection == value)
                 return
             _textDirection = value
@@ -367,7 +358,6 @@ class RenderImage(
         if (_image == null)
             return
         _resolve()
-        assert(size != null)
         assert(_resolvedAlignment != null)
         assert(_flipHorizontally != null)
 

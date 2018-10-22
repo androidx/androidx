@@ -107,10 +107,10 @@ data class RRect(
 
         val scaled = scaledRadiiRect()
 
-        var x = 0.0
-        var y = 0.0
-        var radiusX = 0.0
-        var radiusY = 0.0
+        val x: Double
+        val y: Double
+        val radiusX: Double
+        val radiusY: Double
         // check whether point is in one of the rounded corner areas
         // x, y -> translate to ellipse center
         if (point.dx < left + scaled.topLeftRadiusX &&
@@ -145,11 +145,11 @@ data class RRect(
             return true; // inside and not within the rounded corner area
         }
 
-        x /= radiusX
-        y /= radiusY
+        val newX = x / radiusX
+        val newY = y / radiusY
 
         // check if the point is inside the unit circle
-        return x * x + y * y <= 1.0
+        return newX * newX + newY * newY <= 1.0
     }
 
     // Kept this with a deprecated annotation to facilitate porting other code that uses
