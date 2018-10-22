@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     api(project(":vectordrawable"))
-    api(project(":legacy-support-core-ui"))
+    implementation(project(":interpolator"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
@@ -33,7 +33,7 @@ android {
 supportLibrary {
     name = "Android Support AnimatedVectorDrawable"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.VECTORDRAWABLE_ANIMATED
     mavenGroup = LibraryGroups.VECTORDRAWABLE
     inceptionYear = "2015"
     description = "Android Support AnimatedVectorDrawable"
