@@ -66,6 +66,7 @@ import androidx.loader.app.LoaderManager;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 
 /**
  * Static library support version of the framework's {@link android.app.Fragment}.
@@ -103,7 +104,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable Boolean mSavedUserVisibleHint;
 
     // Internal unique name for this fragment;
-    String mWho;
+    @NonNull
+    String mWho = UUID.randomUUID().toString();
 
     // Construction arguments;
     Bundle mArguments;
@@ -150,13 +152,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // Private fragment manager for child fragments inside of this one.
     FragmentManagerImpl mChildFragmentManager;
 
-    // For use when restoring fragment state and descendant fragments are retained.
-    // This state is set by FragmentState.instantiate and cleared in onCreate.
-    FragmentManagerNonConfig mChildNonConfig;
-
-    // ViewModelStore for storing ViewModels associated with this Fragment
-    ViewModelStore mViewModelStore;
-
     // If this Fragment is contained in another Fragment, this is that container.
     Fragment mParentFragment;
 
@@ -184,8 +179,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // configuration changes.
     boolean mRetainInstance;
 
-    // If set this fragment is being retained across the current config change.
-    boolean mRetaining;
+    // If set this fragment changed its mRetainInstance while it was detached
+    boolean mRetainInstanceChangedWhileDetached;
 
     // If set this fragment has menu items to contribute.
     boolean mHasMenu;
@@ -320,13 +315,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @NonNull
     @Override
     public ViewModelStore getViewModelStore() {
-        if (getContext() == null) {
+        if (mFragmentManager == null) {
             throw new IllegalStateException("Can't access ViewModels from detached fragment");
         }
-        if (mViewModelStore == null) {
-            mViewModelStore = new ViewModelStore();
-        }
-        return mViewModelStore;
+        return mFragmentManager.getViewModelStore(this);
     }
 
     /**
@@ -507,11 +499,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     public String toString() {
         StringBuilder sb = new StringBuilder(128);
         DebugUtils.buildShortClassTag(this, sb);
-        if (mWho != null) {
-            sb.append(" (");
-            sb.append(mWho);
-            sb.append(")");
-        }
+        sb.append(" (");
+        sb.append(mWho);
+        sb.append(")");
         if (mFragmentId != 0) {
             sb.append(" id=0x");
             sb.append(Integer.toHexString(mFragmentId));
@@ -549,8 +539,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * if {@link #isStateSaved()} would return true.</p>
      */
     public void setArguments(@Nullable Bundle args) {
-        if (mWho != null && isStateSaved()) {
-            throw new IllegalStateException("Fragment already active and state has been saved");
+        if (mFragmentManager != null && isStateSaved()) {
+            throw new IllegalStateException("Fragment already added and state has been saved");
         }
         mArguments = args;
     }
@@ -588,8 +578,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * @param state The state the fragment should be restored from.
      */
     public void setInitialSavedState(@Nullable SavedState state) {
-        if (mWho != null) {
-            throw new IllegalStateException("Fragment already active");
+        if (mFragmentManager != null) {
+            throw new IllegalStateException("Fragment already added");
         }
         mSavedFragmentState = state != null && state.mState != null
                 ? state.mState : null;
@@ -626,7 +616,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                         + this + " would create a target cycle");
             }
         }
-        mTarget = fragment;
+        if (fragment != null && fragment.mFragmentManager != null) {
+            // Just save the reference to the Fragment
+            mTargetWho = fragment.mWho;
+        } else {
+            // Save the Fragment itself, waiting until we're attached
+            mTarget = fragment;
+        }
         mTargetRequestCode = requestCode;
     }
 
@@ -635,7 +631,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     @Nullable
     final public Fragment getTargetFragment() {
-        return mTarget;
+        if (mTarget != null) {
+            // Ensure that any Fragment set with setTargetFragment is immediately
+            // available here
+            return mTarget;
+        } else if (mFragmentManager != null && mTargetWho != null) {
+            // Look up the target Fragment from the FragmentManager
+            return mFragmentManager.mActive.get(mTargetWho);
+        }
+        return null;
     }
 
     /**
@@ -948,6 +952,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     public void setRetainInstance(boolean retain) {
         mRetainInstance = retain;
+        if (mFragmentManager != null) {
+            if (retain) {
+                mFragmentManager.addRetainedFragment(this);
+            } else {
+                mFragmentManager.removeRetainedFragment(this);
+            }
+        } else {
+            mRetainInstanceChangedWhileDetached = true;
+        }
     }
 
     final public boolean getRetainInstance() {
@@ -1502,8 +1515,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 if (mChildFragmentManager == null) {
                     instantiateChildFragmentManager();
                 }
-                mChildFragmentManager.restoreAllState(p, mChildNonConfig);
-                mChildNonConfig = null;
+                mChildFragmentManager.restoreSaveState(p);
                 mChildFragmentManager.dispatchCreate();
             }
         }
@@ -1707,11 +1719,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @CallSuper
     public void onDestroy() {
         mCalled = true;
-        FragmentActivity activity = getActivity();
-        boolean isChangingConfigurations = activity != null && activity.isChangingConfigurations();
-        if (mViewModelStore != null && !isChangingConfigurations) {
-            mViewModelStore.clear();
-        }
     }
 
     /**
@@ -1721,7 +1728,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * internally manages, not things the application sets.
      */
     void initState() {
-        mWho = null;
+        mWho = UUID.randomUUID().toString();
         mAdded = false;
         mRemoving = false;
         mFromLayout = false;
@@ -1736,7 +1743,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         mTag = null;
         mHidden = false;
         mDetached = false;
-        mRetaining = false;
     }
 
     /**
@@ -2291,7 +2297,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 writer.print(" mMenuVisible="); writer.print(mMenuVisible);
                 writer.print(" mHasMenu="); writer.println(mHasMenu);
         writer.print(prefix); writer.print("mRetainInstance="); writer.print(mRetainInstance);
-                writer.print(" mRetaining="); writer.print(mRetaining);
                 writer.print(" mUserVisibleHint="); writer.println(mUserVisibleHint);
         if (mFragmentManager != null) {
             writer.print(prefix); writer.print("mFragmentManager=");
@@ -2316,8 +2321,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             writer.print(prefix); writer.print("mSavedViewState=");
                     writer.println(mSavedViewState);
         }
-        if (mTarget != null) {
-            writer.print(prefix); writer.print("mTarget="); writer.print(mTarget);
+        Fragment target = getTargetFragment();
+        if (target != null) {
+            writer.print(prefix); writer.print("mTarget="); writer.print(target);
                     writer.print(" mTargetRequestCode=");
                     writer.println(mTargetRequestCode);
         }
@@ -2693,13 +2699,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }
 
         // Destroy the child FragmentManager if we still have it here.
-        // We won't unless we're retaining our instance and if we do,
-        // our child FragmentManager instance state will have already been saved.
+        // This is normally done in performDestroy(), but is done here
+        // specifically if the Fragment is retained.
         if (mChildFragmentManager != null) {
-            if (!mRetaining) {
-                throw new IllegalStateException("Child FragmentManager of " + this + " was not "
-                        + " destroyed and this fragment is not retaining instance");
-            }
             mChildFragmentManager.dispatchDestroy();
             mChildFragmentManager = null;
         }
