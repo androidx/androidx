@@ -147,6 +147,7 @@ import java.util.List;
     private int mAuxEffectId;
     private float mAuxEffectSendLevel;
     private boolean mPrepared;
+    private boolean mNewlyPrepared;
     private boolean mRebuffering;
     private boolean mPendingSeek;
     private int mVideoWidth;
@@ -184,6 +185,7 @@ import java.util.List;
     }
 
     public void play() {
+        mNewlyPrepared = false;
         if (mPlayer.getPlaybackState() == Player.STATE_ENDED) {
             mPlayer.seekTo(0);
         }
@@ -191,6 +193,7 @@ import java.util.List;
     }
 
     public void pause() {
+        mNewlyPrepared = false;
         mPlayer.setPlayWhenReady(false);
     }
 
@@ -227,6 +230,12 @@ import java.util.List;
     }
 
     public @MediaPlayer2.MediaPlayer2State int getState() {
+        if (hasError()) {
+            return MediaPlayer2.PLAYER_STATE_ERROR;
+        }
+        if (mNewlyPrepared) {
+            return MediaPlayer2.PLAYER_STATE_PREPARED;
+        }
         int state = mPlayer.getPlaybackState();
         boolean playWhenReady = mPlayer.getPlayWhenReady();
         // TODO(b/80232248): Return PLAYER_STATE_PREPARED before playback when we have track
@@ -391,6 +400,7 @@ import java.util.List;
         mVideoWidth = 0;
         mVideoHeight = 0;
         mPrepared = false;
+        mNewlyPrepared = false;
         mRebuffering = false;
         mPendingSeek = false;
         mHasAudioAttributes = false;
@@ -502,6 +512,7 @@ import java.util.List;
         boolean seekComplete = mPendingSeek;
         if (prepareComplete) {
             mPrepared = true;
+            mNewlyPrepared = true;
             mMediaItemQueue.onPositionDiscontinuity(/* isPeriodTransition= */ false);
             // TODO(b/80232248): Trigger onInfo with MEDIA_INFO_PREPARED for any item in the data
             // source queue for which the duration is now known, even if this is not the initial
