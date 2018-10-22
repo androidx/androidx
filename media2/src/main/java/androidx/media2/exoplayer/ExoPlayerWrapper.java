@@ -264,10 +264,12 @@ import java.util.List;
     }
 
     public void setNextMediaItem(MediaItem2 mediaItem2) {
+        Preconditions.checkState(!mMediaItemQueue.isEmpty());
         mMediaItemQueue.setNextMediaItem2s(Collections.singletonList(mediaItem2));
     }
 
     public void setNextMediaItems(List<MediaItem2> mediaItem2s) {
+        Preconditions.checkState(!mMediaItemQueue.isEmpty());
         mMediaItemQueue.setNextMediaItem2s(Preconditions.checkNotNull(mediaItem2s));
     }
 
@@ -673,6 +675,10 @@ import java.util.List;
             while (!mMediaItemInfos.isEmpty()) {
                 mMediaItemInfos.remove().close();
             }
+        }
+
+        public boolean isEmpty() {
+            return mConcatenatingMediaSource.getSize() == 0;
         }
 
         public void setMediaItem2(MediaItem2 mediaItem2) {
