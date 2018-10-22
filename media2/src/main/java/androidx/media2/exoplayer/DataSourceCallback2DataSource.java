@@ -121,15 +121,11 @@ public final class DataSourceCallback2DataSource extends BaseDataSource {
     }
 
     @Override
-    public void close() throws IOException {
-        try {
-            mDataSourceCallback2.close();
-        } finally {
-            mUri = null;
-            if (mOpened) {
-                mOpened = false;
-                transferEnded();
-            }
+    public void close() {
+        mUri = null;
+        if (mOpened) {
+            mOpened = false;
+            transferEnded();
         }
     }
 }

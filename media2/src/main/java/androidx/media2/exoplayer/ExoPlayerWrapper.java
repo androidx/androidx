@@ -33,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.CallbackMediaItem2;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayer2;
@@ -635,12 +636,14 @@ import java.util.List;
         }
 
         public void close() {
-            if (mFileDescriptor != null) {
-                try {
+            try {
+                if (mFileDescriptor != null) {
                     FileDescriptorUtil.close(mFileDescriptor);
-                } catch (IOException e) {
-                    Log.e(TAG, "Error closing file descriptor for " + mMediaItem, e);
+                } else if (mMediaItem instanceof CallbackMediaItem2) {
+                    ((CallbackMediaItem2) mMediaItem).getDataSourceCallback2().close();
                 }
+            } catch (IOException e) {
+                Log.w(TAG, "Error closing media item " + mMediaItem, e);
             }
         }
     }

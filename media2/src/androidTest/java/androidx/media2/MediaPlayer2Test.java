@@ -2484,7 +2484,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testMedia2DataSourceIsClosedOnReset() throws Exception {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
