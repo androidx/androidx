@@ -502,7 +502,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void sendCustomCommand(final IMediaController2 caller, final int seq,
+    public void onCustomCommand(final IMediaController2 caller, final int seq,
             final ParcelImpl command, final Bundle args) {
         final SessionCommand2 sessionCommand = ParcelUtils.fromParcelable(command);
         onSessionCommand(caller, seq, sessionCommand, new CustomCommand() {
