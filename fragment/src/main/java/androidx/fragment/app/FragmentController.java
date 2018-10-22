@@ -35,6 +35,7 @@ import androidx.loader.app.LoaderManager;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -183,7 +184,9 @@ public class FragmentController {
     @Nullable
     public List<Fragment> retainNonConfig() {
         FragmentManagerNonConfig nonconf = mHost.mFragmentManager.retainNonConfig();
-        return nonconf != null ? nonconf.getFragments() : null;
+        return nonconf != null && nonconf.getFragments() != null
+                ? new ArrayList<>(nonconf.getFragments())
+                : null;
     }
 
     /**
