@@ -184,6 +184,9 @@ import java.util.List;
     }
 
     public void play() {
+        if (mPlayer.getPlaybackState() == Player.STATE_ENDED) {
+            mPlayer.seekTo(0);
+        }
         mPlayer.setPlayWhenReady(true);
     }
 

@@ -2069,7 +2069,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
      */
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testResumeAtEnd() throws Throwable {
         int testsRun = testResumeAtEnd(R.raw.loudsoftmp3)
                 + testResumeAtEnd(R.raw.loudsoftwav)
@@ -2109,8 +2109,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.play();
         // sleep long enough that we restart playback at least once, but no more
         Thread.sleep(10000);
-        assertTrue("MediaPlayer2 should still be playing",
-                mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
+        assertEquals("MediaPlayer2 should still be playing",
+                 MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
         mPlayer.reset();
         assertEquals("wrong number of repetitions", 1, mOnCompletionCalled.getNumSignal());
         return 1;
@@ -2118,7 +2118,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPositionAtEnd() throws Throwable {
         testPositionAtEnd(R.raw.test1m1shighstereo);
         testPositionAtEnd(R.raw.loudsoftmp3);
