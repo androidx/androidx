@@ -89,7 +89,7 @@ class VMSavedStateInitializer implements Application.ActivityLifecycleCallbacks 
     }
 
     @SuppressWarnings("WeakerAccess")
-    static void attach(BundlableSavedStateRegistry savedStateStore, ViewModelStoreOwner store) {
+    static void attach(BundleSavedStateRegistry savedStateStore, ViewModelStoreOwner store) {
         ViewModelStore viewModelStore = store.getViewModelStore();
         for (String key : viewModelStore.keys()) {
             ViewModel viewModel = viewModelStore.get(key);

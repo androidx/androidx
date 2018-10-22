@@ -23,9 +23,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * A class for managing saved state.
+ * An interface for plugging components that consumes and contributes to the saved state.
+ *
+ * @param <S> represents a class for saving a state, typically it is {@link Bundle}
  */
-public interface SavedStateRegistry {
+public interface SavedStateRegistry<S> {
     /**
      * Consumes saved state previously supplied by {@link SavedStateProvider} registered
      * via {@link #registerSavedStateProvider(String, SavedStateProvider)}
@@ -42,11 +44,11 @@ public interface SavedStateRegistry {
      * that a saved state can be safely consumed.
      *
      * @param key a key with which {@link SavedStateProvider} was previously registered.
-     * @return {@code Bundle} with the previously saved state or {@code null}
+     * @return {@code S} with the previously saved state or {@code null}
      */
     @MainThread
     @Nullable
-    Bundle consumeRestoredStateForKey(@NonNull String key);
+    S consumeRestoredStateForKey(@NonNull String key);
 
     /**
      * Returns if a state was restored and can be safely consumed
@@ -59,8 +61,10 @@ public interface SavedStateRegistry {
 
     /**
      * This interface marks a component that contributes to saved state.
+     *
+     * @param <S> represents a class for saving a state, typically it is {@link Bundle}
      */
-    interface SavedStateProvider {
+    interface SavedStateProvider<S> {
         /**
          * Called to retrieve a state from a component before being killed
          * so later the state can be received from {@link #consumeRestoredStateForKey(String)}
@@ -68,7 +72,7 @@ public interface SavedStateRegistry {
          * @return Bundle with your saved state.
          */
         @NonNull
-        Bundle saveState();
+        S saveState();
     }
 
     /**
@@ -87,7 +91,7 @@ public interface SavedStateRegistry {
      */
     @MainThread
     void registerSavedStateProvider(@NonNull String key,
-            @NonNull SavedStateProvider savedStateProvider);
+            @NonNull SavedStateProvider<S> savedStateProvider);
 
     /**
      * Unregisters a component previously registered by the given {@code key}

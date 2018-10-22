@@ -27,7 +27,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.util.Function;
-import androidx.lifecycle.BundlableSavedStateRegistry;
+import androidx.lifecycle.BundleSavedStateRegistry;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
@@ -62,7 +62,7 @@ public class SavedStateRegistriesTest {
         return Arrays.asList(FRAGMENT_MODE, ACTIVITY_MODE);
     }
 
-    private BundlableSavedStateRegistry testedSavedStateRegistry(
+    private BundleSavedStateRegistry testedSavedStateRegistry(
             SavedStateActivity currentActivity) {
         if (FRAGMENT_MODE.equals(mode)) {
             return SavedStateRegistries.of(currentActivity.getFragment());
@@ -100,7 +100,7 @@ public class SavedStateRegistriesTest {
                 Lifecycle.State currentState = testedLifecycleOwner(activity)
                         .getLifecycle().getCurrentState();
                 assertThat(currentState.isAtLeast(Lifecycle.State.CREATED), is(true));
-                BundlableSavedStateRegistry store = testedSavedStateRegistry(activity);
+                BundleSavedStateRegistry store = testedSavedStateRegistry(activity);
                 assertThat(store.consumeRestoredStateForKey(CALLBACK_KEY), nullValue());
                 testedSavedStateRegistry(activity)
                         .registerSavedStateProvider(CALLBACK_KEY, new DefaultProvider());
@@ -146,9 +146,9 @@ public class SavedStateRegistriesTest {
         SavedStateActivity activity = initializeSavedState();
 
         SavedStateActivity.duringOnCreate(FRAGMENT_MODE.equals(mode),
-                new Function<BundlableSavedStateRegistry, Void>() {
+                new Function<BundleSavedStateRegistry, Void>() {
                     @Override
-                    public Void apply(BundlableSavedStateRegistry store) {
+                    public Void apply(BundleSavedStateRegistry store) {
                         checkDefaultSavedState(store);
                         return null;
                     }
@@ -156,7 +156,7 @@ public class SavedStateRegistriesTest {
         recreateActivity(activity, mActivityRule);
     }
 
-    private static class DefaultProvider implements SavedStateRegistry.SavedStateProvider {
+    private static class DefaultProvider implements SavedStateRegistry.SavedStateProvider<Bundle> {
         @NonNull
         @Override
         public Bundle saveState() {
@@ -166,7 +166,7 @@ public class SavedStateRegistriesTest {
         }
     }
 
-    private static void checkDefaultSavedState(BundlableSavedStateRegistry store) {
+    private static void checkDefaultSavedState(BundleSavedStateRegistry store) {
         Bundle savedState = store.consumeRestoredStateForKey(CALLBACK_KEY);
         assertThat(savedState, notNullValue());
         //noinspection ConstantConditions
