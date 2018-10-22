@@ -47,7 +47,7 @@ oneway interface IMediaController2 {
     void onConnected(IMediaSession2 sessionBinder, in ParcelImpl commandGroup, int playerState,
         in ParcelImpl currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,
         long bufferedPositionMs, in ParcelImpl playbackInfo, int repeatMode, int shuffleMode,
-        in List<ParcelImpl> playlist, in PendingIntent sessionActivity) = 12;
+        in ParcelImplListSlice listSlice, in PendingIntent sessionActivity) = 12;
     void onDisconnected() = 13;
 
     void onSetCustomLayout(int seq, in List<ParcelImpl> commandButtonlist) = 14;

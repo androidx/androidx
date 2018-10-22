@@ -117,19 +117,11 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        if (listSlice == null) {
-            Log.w(TAG, "onPlaylistChanged(): Ignoring null listSlice from " + controller);
+        List<MediaItem2> playlist =
+                MediaUtils2.convertParcelImplListSliceToMediaItem2List(listSlice);
+        if (playlist == null) {
+            Log.w(TAG, "onPlaylistChanged(): Ignoring null playlist from " + controller);
             return;
-        }
-        List<ParcelImpl> parcelList = listSlice.getList();
-        List<MediaItem2> playlist = new ArrayList<>();
-        for (ParcelImpl parcelImpl : parcelList) {
-            MediaItem2 item = ParcelUtils.fromParcelable(parcelImpl);
-            if (item == null) {
-                Log.w(TAG, "onPlaylistChanged(): Ignoring null item in playlist");
-            } else {
-                playlist.add(item);
-            }
         }
         MediaMetadata2 metadata = MediaMetadata2.fromBundle(metadataBundle);
         controller.notifyPlaylistChanges(playlist, metadata);
@@ -233,7 +225,7 @@ class MediaController2Stub extends IMediaController2.Stub {
     public void onConnected(IMediaSession2 sessionBinder, ParcelImpl commandGroup, int playerState,
             ParcelImpl currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,
             long bufferedPositionMs, ParcelImpl playbackInfo, int shuffleMode, int repeatMode,
-            List<ParcelImpl> playlistParcel, PendingIntent sessionActivity) {
+            ParcelImplListSlice listSlice, PendingIntent sessionActivity) {
         final MediaController2ImplBase controller = mController.get();
         if (controller == null) {
             if (DEBUG) {
@@ -241,16 +233,8 @@ class MediaController2Stub extends IMediaController2.Stub {
             }
             return;
         }
-        List<MediaItem2> itemList = null;
-        if (playlistParcel != null) {
-            itemList = new ArrayList<>();
-            for (int i = 0; i < playlistParcel.size(); i++) {
-                MediaItem2 item = ParcelUtils.fromParcelable(playlistParcel.get(i));
-                if (item != null) {
-                    itemList.add(item);
-                }
-            }
-        }
+        List<MediaItem2> itemList =
+                MediaUtils2.convertParcelImplListSliceToMediaItem2List(listSlice);
         controller.onConnectedNotLocked(sessionBinder,
                 (SessionCommandGroup2) ParcelUtils.fromParcelable(commandGroup), playerState,
                 (MediaItem2) ParcelUtils.fromParcelable(currentItem),

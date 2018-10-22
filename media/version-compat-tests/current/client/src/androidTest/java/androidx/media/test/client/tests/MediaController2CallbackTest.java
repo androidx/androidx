@@ -182,6 +182,35 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     }
 
     @Test
+    @LargeTest
+    public void testConnection_withLongPlaylist() throws InterruptedException {
+        prepareLooper();
+        final int playlistSize = 5000;
+        mRemoteSession2.getMockPlayer().createAndSetDummyPlaylist(playlistSize);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        MediaController2 controller = new MediaController2(mContext, mRemoteSession2.getToken(),
+                sHandlerExecutor, new MediaController2.ControllerCallback() {
+                    @Override
+                    public void onConnected(MediaController2 controller,
+                            SessionCommandGroup2 allowedCommands) {
+                        super.onConnected(controller, allowedCommands);
+                        latch.countDown();
+                    }
+                });
+        assertNotNull(controller);
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
+
+        // After connection, getPlaylist() should return the playlist which is set to the player.
+        List<MediaItem2> playlist = controller.getPlaylist();
+        assertNotNull(playlist);
+        assertEquals(playlistSize, playlist.size());
+        for (int i = 0; i < playlist.size(); i++) {
+            assertEquals(TestUtils.getMediaIdInDummyList(i), playlist.get(i).getMediaId());
+        }
+    }
+
+    @Test
     public void testControllerCallback_sessionUpdatePlayer() throws InterruptedException {
         prepareLooper();
         final int testState = SessionPlayer2.PLAYER_STATE_PLAYING;

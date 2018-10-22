@@ -316,8 +316,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             allowedCommands.hasCommand(
                                     SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST)
                                     ? mSessionImpl.getPlaylist() : null;
-                    final List<ParcelImpl> playlistParcel =
-                            MediaUtils2.convertMediaItem2ListToParcelImplList(playlist);
+                    final ParcelImplListSlice playlistSlice =
+                            MediaUtils2.convertMediaItem2ListToParcelImplListSlice(playlist);
 
                     // Double check if session is still there, because close() can be called in
                     // another thread.
@@ -329,7 +329,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                 (ParcelImpl) ParcelUtils.toParcelable(allowedCommands),
                                 playerState, currentItem, positionEventTimeMs, positionMs,
                                 playbackSpeed, bufferedPositionMs, playbackInfo, repeatMode,
-                                shuffleMode, playlistParcel, sessionActivity);
+                                shuffleMode, playlistSlice, sessionActivity);
                     } catch (RemoteException e) {
                         // Controller may be died prematurely.
                     }
@@ -1130,8 +1130,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
                 mIControllerCallback.onPlaylistChanged(
-                        playlist == null ? null : new ParcelImplListSlice(
-                                MediaUtils2.convertMediaItem2ListToParcelImplList(playlist)),
+                        MediaUtils2.convertMediaItem2ListToParcelImplListSlice(playlist),
                         metadata == null ? null : metadata.toBundle());
             } else if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
