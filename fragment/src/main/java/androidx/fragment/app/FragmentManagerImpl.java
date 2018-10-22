@@ -58,6 +58,7 @@ import androidx.core.util.LogWriter;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.ViewModelStore;
+import androidx.lifecycle.ViewModelStoreOwner;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -138,7 +139,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     // Postponed transactions.
     ArrayList<StartEnterTransitionListener> mPostponedTransactions;
 
-    private FragmentManagerViewModel mNonConfig = new FragmentManagerViewModel();
+    private FragmentManagerViewModel mNonConfig;
 
     Runnable mExecCommit = new Runnable() {
         @Override
@@ -2214,7 +2215,16 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         return true;
     }
 
+    /**
+     * @deprecated Ideally, all {@link androidx.fragment.app.FragmentHostCallback} instances
+     * implement ViewModelStoreOwner and we can remove this method entirely.
+     */
+    @Deprecated
     FragmentManagerNonConfig retainNonConfig() {
+        if (mHost instanceof ViewModelStoreOwner) {
+            throwException(new IllegalStateException("You cannot use retainNonConfig when your "
+                    + "FragmentHostCallback implements ViewModelStoreOwner."));
+        }
         return mNonConfig.getSnapshot();
     }
 
@@ -2381,6 +2391,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     void restoreAllState(Parcelable state, FragmentManagerNonConfig nonConfig) {
+        if (mHost instanceof ViewModelStoreOwner) {
+            throwException(new IllegalStateException("You must use restoreSaveState when your "
+                    + "FragmentHostCallback implements ViewModelStoreOwner"));
+        }
         mNonConfig.restoreFromSnapshot(nonConfig);
         restoreSaveState(state);
     }
@@ -2503,6 +2517,11 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         mParent = parent;
         if (parent != null) {
             mNonConfig = parent.mFragmentManager.getChildNonConfig(parent);
+        } else if (host instanceof ViewModelStoreOwner) {
+            ViewModelStore viewModelStore = ((ViewModelStoreOwner) host).getViewModelStore();
+            mNonConfig = FragmentManagerViewModel.getInstance(viewModelStore);
+        } else {
+            mNonConfig = new FragmentManagerViewModel(false);
         }
     }
 
