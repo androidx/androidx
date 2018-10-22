@@ -35,8 +35,10 @@ import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 import javax.tools.Diagnostic
 
-fun collectAndVerifyInput(processingEnv: ProcessingEnvironment,
-                          roundEnv: RoundEnvironment): InputModel {
+fun collectAndVerifyInput(
+    processingEnv: ProcessingEnvironment,
+    roundEnv: RoundEnvironment
+): InputModel {
     val validator = Validator(processingEnv)
     val worldCollector = ObserversCollector(processingEnv)
     val roots = roundEnv.getElementsAnnotatedWith(OnLifecycleEvent::class.java).map { elem ->
@@ -92,8 +94,10 @@ class ObserversCollector(processingEnv: ProcessingEnvironment) {
                 ?.filter { executable -> isSyntheticMethod(executable) }
     }
 
-    private fun createObserverInfo(typeElement: TypeElement,
-                                   parents: List<LifecycleObserverInfo>): LifecycleObserverInfo? {
+    private fun createObserverInfo(
+        typeElement: TypeElement,
+        parents: List<LifecycleObserverInfo>
+    ): LifecycleObserverInfo? {
         if (!validator.validateClass(typeElement)) {
             return null
         }
@@ -117,8 +121,11 @@ class Validator(val processingEnv: ProcessingEnvironment) {
         processingEnv.messager.printMessage(Diagnostic.Kind.ERROR, msg, elem)
     }
 
-    fun validateParam(param: VariableElement,
-                      expectedType: Class<*>, errorMsg: String): Boolean {
+    fun validateParam(
+        param: VariableElement,
+        expectedType: Class<*>,
+        errorMsg: String
+    ): Boolean {
         if (!MoreTypes.isTypeOf(expectedType, param.asType())) {
             printErrorMessage(errorMsg, param)
             return false
