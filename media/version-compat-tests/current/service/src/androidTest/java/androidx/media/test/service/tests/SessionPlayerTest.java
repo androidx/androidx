@@ -102,7 +102,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     public void testPlayByController() {
         mController2.play();
         try {
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }
@@ -120,7 +120,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     public void testPauseByController() {
         mController2.pause();
         try {
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }
@@ -138,7 +138,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     public void testPrepareByController() {
         mController2.prefetch();
         try {
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }
@@ -159,7 +159,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
         final long seekPosition = 12125L;
         mController2.seekTo(seekPosition);
         try {
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }

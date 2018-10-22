@@ -315,7 +315,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                     latch.countDown();
                 }
             });
-            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } finally {
             if (mSession != null) {
                 sessionHandler.postAndSync(new Runnable() {

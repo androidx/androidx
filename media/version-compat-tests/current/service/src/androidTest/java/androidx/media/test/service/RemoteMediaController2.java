@@ -18,7 +18,7 @@ package androidx.media.test.service;
 
 import static androidx.media.test.lib.CommonConstants.ACTION_MEDIA_CONTROLLER2;
 import static androidx.media.test.lib.CommonConstants.MEDIA_CONTROLLER2_PROVIDER_SERVICE;
-import static androidx.media.test.lib.TestUtils.WAIT_TIME_MS;
+import static androidx.media.test.lib.TestUtils.TIMEOUT_MS;
 
 import static junit.framework.TestCase.fail;
 
@@ -397,7 +397,7 @@ public class RemoteMediaController2 {
 
         if (bound) {
             try {
-                mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+                mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
             } catch (InterruptedException ex) {
                 Log.e(TAG, "InterruptedException while waiting for onServiceConnected.", ex);
             }

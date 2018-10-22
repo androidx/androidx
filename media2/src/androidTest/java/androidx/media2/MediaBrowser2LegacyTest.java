@@ -177,7 +177,7 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.getLibraryRoot(testExtra);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -203,7 +203,7 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.getItem(testMediaId);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -227,7 +227,7 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.getItem(testMediaId);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -261,7 +261,7 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.getChildren(testParentId, testPage, testPageSize, null);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -301,7 +301,7 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.getChildren(testParentId, testPage, testPageSize, null);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -339,7 +339,7 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.getChildren(testParentId, testPage, testPageSize, testExtra);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -372,7 +372,7 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.getChildren(testParentId, testPage, testPageSize, null);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -431,7 +431,7 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.search(testQuery, testExtra);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -474,7 +474,7 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.search(testQuery, null);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     /**
@@ -525,17 +525,17 @@ public class MediaBrowser2LegacyTest extends MediaSession2TestBase {
             }
         });
         browser.subscribe(testParentId, testExtras);
-        assertTrue(subscribeLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(subscribeLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         MockMediaBrowserServiceCompat.getInstance().notifyChildrenChanged(testParentId);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         browser.unsubscribe(testParentId);
         // Unsubscribe takes some time. Wait for some time.
-        Thread.sleep(WAIT_TIME_MS);
+        Thread.sleep(TIMEOUT_MS);
         MockMediaBrowserServiceCompat.getInstance().notifyChildrenChanged(testParentId);
         // This shouldn't trigger browser's onChildrenChanged().
         // Wait for some time. Exception will be thrown in the callback if error happens.
-        Thread.sleep(WAIT_TIME_MS);
+        Thread.sleep(TIMEOUT_MS);
     }
 
     private static MediaItem createMediaItem(String mediaId) {

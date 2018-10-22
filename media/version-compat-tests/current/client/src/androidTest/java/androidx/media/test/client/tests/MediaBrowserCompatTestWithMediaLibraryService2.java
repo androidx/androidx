@@ -116,7 +116,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 latch.countDown();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -138,7 +138,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 fail();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -167,7 +167,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 fail();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -210,7 +210,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 fail();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -228,7 +228,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 latch.countDown();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -251,7 +251,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 fail();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -290,7 +290,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 latch.countDown();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -312,7 +312,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 latch.countDown();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -337,7 +337,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 fail();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Ignore("TODO: Move this test to MediaLibrarySessionLegacyCallbackTest.")
@@ -597,7 +597,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
 //                TestServiceRegistry.getInstance().getServiceInstance().getSession();
 //        librarySession.notifyChildrenChanged(testSubscribedParentId, testList.size(), null);
 //        librarySession.notifyChildrenChanged(testUnsubscribedParentId, testList.size(), null);
-//        assertFalse(onChildrenLoadedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+//        assertFalse(onChildrenLoadedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.
@@ -618,7 +618,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
                 latch.countDown();
             }
         });
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     // TODO: Add test for onCustomCommand() in MediaLibrarySessionLegacyCallbackTest.

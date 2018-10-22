@@ -136,7 +136,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         prepareLooper();
         mController.getTransportControls().play();
         try {
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }
@@ -148,7 +148,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         prepareLooper();
         mController.getTransportControls().pause();
         try {
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }
@@ -167,7 +167,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
 
         mController.getTransportControls().stop();
         try {
-            assertTrue(player.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(player.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }
@@ -181,7 +181,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         prepareLooper();
         mController.getTransportControls().prepare();
         try {
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }
@@ -194,7 +194,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final long seekPosition = 12125L;
         mController.getTransportControls().seekTo(seekPosition);
         try {
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } catch (InterruptedException e) {
             fail(e.getMessage());
         }
@@ -211,7 +211,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         mPlayer.mPlaylist = playlist;
         mPlayer.notifyPlaylistChanged();
         // Wait some time for setting the playlist.
-        Thread.sleep(WAIT_TIME_MS);
+        Thread.sleep(TIMEOUT_MS);
 
         // Prepare an item to add.
         final String mediaId = "media_id";
@@ -234,7 +234,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         mPlayer.mPlaylist = playlist;
         mPlayer.notifyPlaylistChanged();
         // Wait some time for setting the playlist.
-        Thread.sleep(WAIT_TIME_MS);
+        Thread.sleep(TIMEOUT_MS);
 
         // Prepare an item to add.
         final int testIndex = 0;
@@ -259,7 +259,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         mPlayer.mPlaylist = playlist;
         mPlayer.notifyPlaylistChanged();
         // Wait some time for setting the playlist.
-        Thread.sleep(WAIT_TIME_MS);
+        Thread.sleep(TIMEOUT_MS);
 
         // Select an item to remove.
         final int targetIndex = 3;
@@ -299,7 +299,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         mPlayer.mPlaylist = playlist;
         mPlayer.notifyPlaylistChanged();
         // Wait some time for setting the playlist.
-        Thread.sleep(WAIT_TIME_MS);
+        Thread.sleep(TIMEOUT_MS);
 
         // Get Queue from local MediaControllerCompat.
         List<QueueItem> queue = mSession.getSessionCompat().getController().getQueue();
@@ -346,7 +346,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
 
         final int targetVolume = 50;
         mController.setVolumeTo(targetVolume, 0 /* flags */);
-        assertTrue(remotePlayer.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(remotePlayer.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(remotePlayer.mSetVolumeToCalled);
         assertEquals(targetVolume, (int) remotePlayer.mCurrentVolume);
     }
@@ -364,7 +364,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
 
         final int direction = AudioManager.ADJUST_RAISE;
         mController.adjustVolume(direction, 0 /* flags */);
-        assertTrue(remotePlayer.mLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(remotePlayer.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(remotePlayer.mAdjustVolumeCalled);
         assertEquals(direction, remotePlayer.mDirection);
     }
@@ -398,7 +398,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
                 ? originalVolume + 1 : originalVolume - 1;
 
         mController.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(WAIT_TIME_MS) {
+        new PollingCheck(TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
@@ -439,7 +439,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final int targetVolume = originalVolume + direction;
 
         mController.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
-        new PollingCheck(WAIT_TIME_MS) {
+        new PollingCheck(TIMEOUT_MS) {
             @Override
             protected boolean check() {
                 return targetVolume == mAudioManager.getStreamVolume(stream);
@@ -484,7 +484,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final RemoteMediaControllerCompat controller = new RemoteMediaControllerCompat(
                 mContext, mSession.getSessionCompat().getSessionToken(), true);
         controller.sendCommand(testCommand, testArgs, null);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -510,7 +510,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         RemoteMediaControllerCompat controller = new RemoteMediaControllerCompat(
                 mContext, mSession.getSessionCompat().getSessionToken(), true);
         controller.getTransportControls().play();
-        assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -791,15 +791,15 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
                 mContext, mSession.getSessionCompat().getSessionToken(), true);
 
         controller.getTransportControls().pause();
-        assertTrue(latchForPause.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latchForPause.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mPlayer.mPauseCalled);
         assertEquals(1, commands.size());
         assertEquals(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE,
                 (long) commands.get(0).getCommandCode());
 
         controller.getTransportControls().play();
-        assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
         assertFalse(mPlayer.mPauseCalled);
         assertEquals(2, commands.size());
@@ -866,7 +866,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
                     latch.countDown();
                 }
             });
-            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } finally {
             if (mSession != null) {
                 sessionHandler.postAndSync(new Runnable() {
@@ -908,6 +908,6 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
 
     void testSessionCallbackIsNotCalled() throws InterruptedException {
         mController.getTransportControls().play();
-        assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 }
