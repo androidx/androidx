@@ -125,7 +125,7 @@ public class StrictFragment extends Fragment {
     public void onStart() {
         super.onStart();
         mCalledOnStart = true;
-        checkState("onStart", ACTIVITY_CREATED);
+        checkState("onStart", CREATED, ACTIVITY_CREATED);
         mState = STARTED;
         onStateChanged(ACTIVITY_CREATED);
     }

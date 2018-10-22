@@ -338,6 +338,22 @@ public class FragmentLifecycleTest {
 
         // Configure fragments.
 
+        // This retained fragment will be added, then removed. After being removed, it
+        // should no longer be retained by the FragmentManager
+        final StateSaveFragment removedFragment = new StateSaveFragment("Removed",
+                "UnsavedRemoved");
+        removedFragment.setRetainInstance(true);
+        fm1.beginTransaction().add(removedFragment, "tag:removed").commitNow();
+        fm1.beginTransaction().remove(removedFragment).commitNow();
+
+        // This retained fragment will be added, then detached. After being detached, it
+        // should continue to be retained by the FragmentManager
+        final StateSaveFragment detachedFragment = new StateSaveFragment("Detached",
+                "UnsavedDetached");
+        removedFragment.setRetainInstance(true);
+        fm1.beginTransaction().add(detachedFragment, "tag:detached").commitNow();
+        fm1.beginTransaction().detach(detachedFragment).commitNow();
+
         // Grandparent fragment will not retain instance
         final StateSaveFragment grandparentFragment = new StateSaveFragment("Grandparent",
                 "UnsavedGrandparent");
@@ -398,6 +414,15 @@ public class FragmentLifecycleTest {
         fc2.dispatchCreate();
 
         // Confirm that the restored fragments are available and in the expected states
+        final StateSaveFragment restoredRemovedFragment = (StateSaveFragment)
+                fm2.findFragmentByTag("tag:removed");
+        assertNull(restoredRemovedFragment);
+        assertTrue("Removed Fragment should be destroyed", removedFragment.mCalledOnDestroy);
+
+        final StateSaveFragment restoredDetachedFragment = (StateSaveFragment)
+                fm2.findFragmentByTag("tag:detached");
+        assertNotNull(restoredDetachedFragment);
+
         final StateSaveFragment restoredGrandparent = (StateSaveFragment) fm2.findFragmentByTag(
                 "tag:grandparent");
         assertNotNull("grandparent fragment not restored", restoredGrandparent);
@@ -449,6 +474,87 @@ public class FragmentLifecycleTest {
         assertTrue("grandparent not destroyed", restoredGrandparent.mCalledOnDestroy);
         assertTrue("parent not destroyed", restoredParent.mCalledOnDestroy);
         assertTrue("child not destroyed", restoredChild.mCalledOnDestroy);
+    }
+
+    @Test
+    @UiThreadTest
+    public void restoreRetainedInstanceFragmentWithTransparentActivityConfigChange() {
+        // Create a new FragmentManager in isolation, add a retained instance Fragment,
+        // then mimic the following scenario:
+        // 1. Activity A adds retained Fragment F
+        // 2. Activity A starts translucent Activity B
+        // 3. Activity B start opaque Activity C
+        // 4. Rotate phone
+        // 5. Finish Activity C
+        // 6. Finish Activity B
+
+        final FragmentController fc1 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm1 = fc1.getSupportFragmentManager();
+
+        fc1.attachHost(null);
+        fc1.dispatchCreate();
+
+        // Add the retained Fragment
+        final StateSaveFragment retainedFragment = new StateSaveFragment("Retained",
+                "UnsavedRetained");
+        retainedFragment.setRetainInstance(true);
+        fm1.beginTransaction().add(retainedFragment, "tag:retained").commitNow();
+
+        // Move the activity to resumed
+        fc1.dispatchActivityCreated();
+        fc1.noteStateNotSaved();
+        fc1.execPendingActions();
+        fc1.dispatchStart();
+        fc1.dispatchResume();
+        fc1.execPendingActions();
+
+        // Launch the transparent activity on top
+        fc1.dispatchPause();
+
+        // Launch the opaque activity on top
+        final Parcelable savedState = fc1.saveAllState();
+        fc1.dispatchStop();
+
+        // Finish the opaque activity, making our Activity visible i.e., started
+        fc1.noteStateNotSaved();
+        fc1.execPendingActions();
+        fc1.dispatchStart();
+
+        // Finish the transparent activity, causing a config change
+        fc1.dispatchStop();
+        final FragmentManagerNonConfig nonconf = fc1.retainNestedNonConfig();
+        fc1.dispatchDestroy();
+
+        // Create the new controller and restore state
+        final FragmentController fc2 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm2 = fc2.getSupportFragmentManager();
+
+        fc2.attachHost(null);
+        fc2.restoreAllState(savedState, nonconf);
+        fc2.dispatchCreate();
+
+        final StateSaveFragment restoredFragment = (StateSaveFragment) fm2
+                .findFragmentByTag("tag:retained");
+        assertNotNull("retained fragment not restored", restoredFragment);
+        assertEquals("The retained Fragment shouldn't be recreated",
+                retainedFragment, restoredFragment);
+
+        fc2.dispatchActivityCreated();
+        fc2.noteStateNotSaved();
+        fc2.execPendingActions();
+        fc2.dispatchStart();
+        fc2.dispatchResume();
+        fc2.execPendingActions();
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.dispatchPause();
+        fc2.saveAllState();
+        fc2.dispatchStop();
+        fc2.dispatchDestroy();
     }
 
     @Test
@@ -971,8 +1077,11 @@ public class FragmentLifecycleTest {
         FragmentTestUtil.resume(mActivityRule, fc, null);
         FragmentManager fm = fc.getSupportFragmentManager();
 
+        Fragment backStackRetainedFragment = new StrictFragment();
+        backStackRetainedFragment.setRetainInstance(true);
         Fragment fragment1 = new StrictFragment();
         fm.beginTransaction()
+                .add(backStackRetainedFragment, "backStack")
                 .add(fragment1, "1")
                 .setPrimaryNavigationFragment(fragment1)
                 .addToBackStack(null)
@@ -983,6 +1092,7 @@ public class FragmentLifecycleTest {
         fragment2.setTargetFragment(fragment1, 0);
         Fragment fragment3 = new StrictFragment();
         fm.beginTransaction()
+                .remove(backStackRetainedFragment)
                 .remove(fragment1)
                 .add(fragment2, "2")
                 .add(fragment3, "3")
@@ -1006,6 +1116,11 @@ public class FragmentLifecycleTest {
             }
         }
         assertTrue(foundFragment2);
+        fc.getSupportFragmentManager().popBackStackImmediate();
+        Fragment foundBackStackRetainedFragment = fc.getSupportFragmentManager()
+                .findFragmentByTag("backStack");
+        assertEquals("Retained Fragment on the back stack was not retained",
+                backStackRetainedFragment, foundBackStackRetainedFragment);
     }
 
     /**
