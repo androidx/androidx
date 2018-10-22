@@ -197,7 +197,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
             }
         };
         mSession.updatePlayer(remotePlayer);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         info = controller.getPlaybackInfo();
         assertNotNull(info);
@@ -429,14 +429,14 @@ public class MediaSession2Test extends MediaSession2TestBase {
         });
         MediaController2 controller = createController(mSession.getToken());
         controller.pause();
-        assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mPlayer.mPauseCalled);
         assertEquals(1, callback.commands.size());
         assertEquals(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE,
                 (long) callback.commands.get(0).getCommandCode());
 
         controller.play();
-        assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mPlayCalled);
         assertFalse(mPlayer.mPauseCalled);
         assertEquals(2, callback.commands.size());
@@ -478,7 +478,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
                 }).build()) {
             MediaController2 controller = createController(session.getToken());
             controller.close();
-            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 
@@ -523,7 +523,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
             };
             MediaController2 controller = createController(session.getToken(), true, callback);
             session.setCustomLayout(mTestControllerInfo, customLayout);
-            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 
@@ -558,7 +558,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertNotNull(controllerInfo);
 
         mSession.setAllowedCommands(controllerInfo, commands);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -589,7 +589,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertNotNull(controllerInfo);
         // TODO(jaewan): Test receivers as well.
         mSession.sendCustomCommand(controllerInfo, testCommand, testArgs);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -607,7 +607,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
         final MediaController2 controller = createController(mSession.getToken(), true, callback);
         ControllerInfo controllerInfo = getTestControllerInfo();
         mSession.notifyRoutesInfoChanged(controllerInfo, null);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     private ControllerInfo getTestControllerInfo() {

@@ -157,7 +157,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(createCommandGroupWithout(commandCode));
         runnable.run(createRemoteController2(mSession.getToken()));
 
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnCommandRequestCalled);
     }
 
@@ -342,7 +342,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(
                 createCommandGroupWithout(COMMAND_CODE_SESSION_FAST_FORWARD));
         createRemoteController2(mSession.getToken()).fastForward();
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnFastForwardCalled);
     }
 
@@ -359,7 +359,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(
                 createCommandGroupWithout(COMMAND_CODE_SESSION_REWIND));
         createRemoteController2(mSession.getToken()).rewind();
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnRewindCalled);
     }
 
@@ -379,7 +379,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(
                 createCommandGroupWithout(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID));
         createRemoteController2(mSession.getToken()).playFromMediaId(mediaId, null);
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnPlayFromMediaIdCalled);
     }
 
@@ -399,7 +399,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(
                 createCommandGroupWithout(COMMAND_CODE_SESSION_PLAY_FROM_URI));
         createRemoteController2(mSession.getToken()).playFromUri(uri, null);
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnPlayFromUriCalled);
     }
 
@@ -419,7 +419,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(
                 createCommandGroupWithout(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH));
         createRemoteController2(mSession.getToken()).playFromSearch(query, null);
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnPlayFromSearchCalled);
     }
 
@@ -439,7 +439,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(
                 createCommandGroupWithout(COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID));
         createRemoteController2(mSession.getToken()).prefetchFromMediaId(mediaId, null);
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnPrepareFromMediaIdCalled);
     }
 
@@ -459,7 +459,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(
                 createCommandGroupWithout(COMMAND_CODE_SESSION_PREFETCH_FROM_URI));
         createRemoteController2(mSession.getToken()).prefetchFromUri(uri, null);
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnPrepareFromUriCalled);
     }
 
@@ -479,7 +479,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(
                 createCommandGroupWithout(COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH));
         createRemoteController2(mSession.getToken()).prefetchFromSearch(query, null);
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnPrepareFromSearchCalled);
     }
 
@@ -500,7 +500,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         createSessionWithAllowedActions(
                 createCommandGroupWithout(COMMAND_CODE_SESSION_SET_RATING));
         createRemoteController2(mSession.getToken()).setRating(mediaId, rating);
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertFalse(mCallback.mOnSetRatingCalled);
     }
 
@@ -522,10 +522,10 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         // Change allowed commands.
         mSession.setAllowedCommands(getTestControllerInfo(),
                 createCommandGroupWithout(COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH));
-        Thread.sleep(WAIT_TIME_MS);
+        Thread.sleep(TIMEOUT_MS);
 
         controller.prefetchFromSearch(query, null);
-        assertFalse(mCallback.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     private ControllerInfo getTestControllerInfo() {

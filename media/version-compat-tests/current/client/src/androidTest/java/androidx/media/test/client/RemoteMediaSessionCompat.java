@@ -22,7 +22,7 @@ import static androidx.media.test.lib.CommonConstants.KEY_PLAYBACK_STATE_COMPAT;
 import static androidx.media.test.lib.CommonConstants.KEY_QUEUE;
 import static androidx.media.test.lib.CommonConstants.KEY_SESSION_COMPAT_TOKEN;
 import static androidx.media.test.lib.CommonConstants.MEDIA_SESSION_COMPAT_PROVIDER_SERVICE;
-import static androidx.media.test.lib.TestUtils.WAIT_TIME_MS;
+import static androidx.media.test.lib.TestUtils.TIMEOUT_MS;
 
 import static junit.framework.TestCase.fail;
 
@@ -226,7 +226,7 @@ public class RemoteMediaSessionCompat {
 
         if (bound) {
             try {
-                mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+                mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS);
             } catch (InterruptedException ex) {
                 Log.e(TAG, "InterruptedException while waiting for onServiceConnected.", ex);
             }

@@ -95,14 +95,14 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             mController2 = createRemoteController2(session.getToken());
 
             mController2.pause();
-            assertFalse(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertFalse(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             assertFalse(mPlayer.mPauseCalled);
             assertEquals(1, callback.commands.size());
             assertEquals(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE,
                     (long) callback.commands.get(0).getCommandCode());
 
             mController2.play();
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             assertTrue(mPlayer.mPlayCalled);
             assertFalse(mPlayer.mPauseCalled);
             assertEquals(2, callback.commands.size());
@@ -140,7 +140,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             mController2 = createRemoteController2(session.getToken());
 
             mController2.setPlaylist(list, null);
-            assertTrue(mPlayer.mCountDownLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
             List<MediaItem2> playerList = mPlayer.getPlaylist();
             assertEquals(convertedList.size(), playerList.size());
@@ -188,7 +188,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .build()) {
             mController2 = createRemoteController2(session.getToken());
             mController2.sendCustomCommand(testCommand, testArgs);
-            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 
@@ -521,7 +521,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 }).build()) {
             mController2 = createRemoteController2(
                     session.getToken(), false /* waitForConnection */);
-            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 
@@ -542,7 +542,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 }).build()) {
             mController2 = createRemoteController2(session.getToken());
             mController2.close();
-            assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 

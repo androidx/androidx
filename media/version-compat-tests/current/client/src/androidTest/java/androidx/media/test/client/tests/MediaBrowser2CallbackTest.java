@@ -146,7 +146,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         MediaBrowser2 browser =
                 (MediaBrowser2) createController(token, true, callback);
         browser.getLibraryRoot(param);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -168,7 +168,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
         MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
         browser.getItem(mediaId);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -189,7 +189,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
         MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
         browser.getItem(mediaId);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -230,7 +230,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
         MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
         browser.getChildren(parentId, page, pageSize, extras);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -252,7 +252,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
         MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
         browser.getChildren(parentId, 1, 1, null);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -273,7 +273,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
         MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
         browser.getChildren(parentId, 1, 1, null);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -325,11 +325,11 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
         MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
         browser.search(query, extras);
-        assertTrue(latchForSearch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latchForSearch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         // Get the search result.
         browser.getSearchResult(query, page, pageSize, extras);
-        assertTrue(latchForGetSearchResult.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latchForGetSearchResult.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -356,7 +356,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
         browser.search(query, extras);
         assertTrue(latch.await(
-                MediaBrowser2Constants.SEARCH_TIME_IN_MS + WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                MediaBrowser2Constants.SEARCH_TIME_IN_MS + TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -381,7 +381,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
         MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
         browser.search(query, extras);
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -409,7 +409,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
 
         // The MediaLibrarySession in MockMediaLibraryService2 is supposed to call
         // notifyChildrenChanged() in its callback onSubscribe().
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -437,7 +437,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
 
         // The MediaLibrarySession in MockMediaLibraryService2 is supposed to call
         // notifyChildrenChanged(ControllerInfo) in its callback onSubscribe().
-        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -465,7 +465,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         // The MediaLibrarySession in MockMediaLibraryService2 is supposed to call
         // notifyChildrenChanged() in its callback onSubscribe(), but with a different media ID.
         // Therefore, onChildrenChanged() should not be called.
-        assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test
@@ -494,7 +494,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         // notifyChildrenChanged(ControllerInfo) in its callback onSubscribe(),
         // but with a different media ID.
         // Therefore, onChildrenChanged() should not be called.
-        assertFalse(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     public static class TestBrowserCallback extends BrowserCallback
@@ -527,7 +527,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         @Override
         public void waitForConnect(boolean expect) throws InterruptedException {
             if (expect) {
-                assertTrue(connectLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                assertTrue(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             } else {
                 assertFalse(connectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             }
@@ -536,7 +536,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         @Override
         public void waitForDisconnect(boolean expect) throws InterruptedException {
             if (expect) {
-                assertTrue(disconnectLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+                assertTrue(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             } else {
                 assertFalse(disconnectLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             }
