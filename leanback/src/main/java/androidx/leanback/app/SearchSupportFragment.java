@@ -27,10 +27,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.CompletionInfo;
-import android.widget.FrameLayout;
 
 import androidx.fragment.app.Fragment;
 import androidx.leanback.R;
+import androidx.leanback.widget.BrowseFrameLayout;
 import androidx.leanback.widget.ObjectAdapter;
 import androidx.leanback.widget.ObjectAdapter.DataObserver;
 import androidx.leanback.widget.OnItemViewClickedListener;
@@ -148,7 +148,6 @@ public class SearchSupportFragment extends Fragment {
             if ((mStatus & QUERY_COMPLETE) != 0) {
                 updateFocus();
             }
-            updateSearchBarNextFocusId();
         }
     };
 
@@ -183,7 +182,6 @@ public class SearchSupportFragment extends Fragment {
                 }
                 executePendingQuery();
             }
-            updateSearchBarNextFocusId();
 
             if (DEBUG) {
                 Log.v(TAG, "mAutoStartRecognition " + mAutoStartRecognition
@@ -293,7 +291,7 @@ public class SearchSupportFragment extends Fragment {
                              Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.lb_search_fragment, container, false);
 
-        FrameLayout searchFrame = (FrameLayout) root.findViewById(R.id.lb_search_frame);
+        BrowseFrameLayout searchFrame = root.findViewById(R.id.lb_search_frame);
         mSearchBar = (SearchBar) searchFrame.findViewById(R.id.lb_search_bar);
         mSearchBar.setSearchBarListener(new SearchBar.SearchBarListener() {
             @Override
@@ -360,14 +358,25 @@ public class SearchSupportFragment extends Fragment {
         if (null != mProvider) {
             onSetSearchResultProvider();
         }
+        // See b/26894680, use a custom focus search listener to support navigate up/down.
+        searchFrame.setOnFocusSearchListener(new BrowseFrameLayout.OnFocusSearchListener() {
+            @Override
+            public View onFocusSearch(View focused, int direction) {
+                if (mRowsSupportFragment != null && mRowsSupportFragment.getView() != null
+                        && mRowsSupportFragment.getView().hasFocus()) {
+                    if (direction == View.FOCUS_UP) {
+                        return mSearchBar.findViewById(R.id.lb_search_bar_speech_orb);
+                    }
+                } else if (mSearchBar.hasFocus() && direction == View.FOCUS_DOWN) {
+                    if (mRowsSupportFragment.getView() != null
+                            && mResultAdapter != null && mResultAdapter.size() > 0) {
+                        return mRowsSupportFragment.getView();
+                    }
+                }
+                return null;
+            }
+        });
         return root;
-    }
-
-    private void resultsAvailable() {
-        if ((mStatus & QUERY_COMPLETE) != 0) {
-            focusOnResults();
-        }
-        updateSearchBarNextFocusId();
     }
 
     @Override
@@ -382,9 +391,6 @@ public class SearchSupportFragment extends Fragment {
         list.setWindowAlignmentOffset(mContainerListAlignTop);
         list.setWindowAlignmentOffsetPercent(VerticalGridView.WINDOW_ALIGN_OFFSET_PERCENT_DISABLED);
         list.setWindowAlignment(VerticalGridView.WINDOW_ALIGN_NO_EDGE);
-        // VerticalGridView should not be focusable (see b/26894680 for details).
-        list.setFocusable(false);
-        list.setFocusableInTouchMode(false);
     }
 
     @Override
@@ -679,16 +685,6 @@ public class SearchSupportFragment extends Fragment {
         int position = mRowsSupportFragment != null ? mRowsSupportFragment.getSelectedPosition() : -1;
         mSearchBar.setVisibility(position <=0 || mResultAdapter == null
                 || mResultAdapter.size() == 0 ? View.VISIBLE : View.GONE);
-    }
-
-    void updateSearchBarNextFocusId() {
-        if (mSearchBar == null || mResultAdapter == null) {
-            return;
-        }
-        final int viewId = (mResultAdapter.size() == 0 || mRowsSupportFragment == null
-                || mRowsSupportFragment.getVerticalGridView() == null)
-                        ? 0 : mRowsSupportFragment.getVerticalGridView().getId();
-        mSearchBar.setNextFocusDownId(viewId);
     }
 
     void updateFocus() {
