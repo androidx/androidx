@@ -145,7 +145,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         return commands;
     }
 
-    private void testOnCommandRequest(int commandCode, PermissionTestRunnable runnable)
+    private void testOnCommandRequest(int commandCode, PermissionTestTask runnable)
             throws InterruptedException {
         createSessionWithAllowedActions(createCommandGroupWith(commandCode));
         runnable.run(createRemoteController2(mSession.getToken()));
@@ -164,7 +164,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     @Test
     public void testPlay() throws InterruptedException {
         prepareLooper();
-        testOnCommandRequest(COMMAND_CODE_PLAYER_PLAY, new PermissionTestRunnable() {
+        testOnCommandRequest(COMMAND_CODE_PLAYER_PLAY, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController2 controller) {
                 controller.play();
@@ -175,7 +175,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     @Test
     public void testPause() throws InterruptedException {
         prepareLooper();
-        testOnCommandRequest(COMMAND_CODE_PLAYER_PAUSE, new PermissionTestRunnable() {
+        testOnCommandRequest(COMMAND_CODE_PLAYER_PAUSE, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController2 controller) {
                 controller.pause();
@@ -187,7 +187,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     public void testSeekTo() throws InterruptedException {
         prepareLooper();
         final long position = 10;
-        testOnCommandRequest(COMMAND_CODE_PLAYER_SEEK_TO, new PermissionTestRunnable() {
+        testOnCommandRequest(COMMAND_CODE_PLAYER_SEEK_TO, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController2 controller) {
                 controller.seekTo(position);
@@ -199,7 +199,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     public void testSkipToNext() throws InterruptedException {
         prepareLooper();
         testOnCommandRequest(COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
-                new PermissionTestRunnable() {
+                new PermissionTestTask() {
                     @Override
                     public void run(RemoteMediaController2 controller) {
                         controller.skipToNextItem();
@@ -211,7 +211,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     public void testSkipToPrevious() throws InterruptedException {
         prepareLooper();
         testOnCommandRequest(COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
-                new PermissionTestRunnable() {
+                new PermissionTestTask() {
                     @Override
                     public void run(RemoteMediaController2 controller) {
                         controller.skipToPreviousItem();
@@ -225,7 +225,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         final MediaItem2 testItem = MediaTestUtils.createMediaItemWithMetadata();
         testOnCommandRequest(
                 COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
-                new PermissionTestRunnable() {
+                new PermissionTestTask() {
                     @Override
                     public void run(RemoteMediaController2 controller) {
                         controller.skipToPlaylistItem(testItem);
@@ -237,7 +237,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     public void testSetPlaylist() throws InterruptedException {
         prepareLooper();
         final List<MediaItem2> list = MediaTestUtils.createPlaylist(2);
-        testOnCommandRequest(COMMAND_CODE_PLAYER_SET_PLAYLIST, new PermissionTestRunnable() {
+        testOnCommandRequest(COMMAND_CODE_PLAYER_SET_PLAYLIST, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController2 controller) {
                 controller.setPlaylist(list, null);
@@ -249,7 +249,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     public void testSetMediaItem() throws InterruptedException {
         prepareLooper();
         final MediaItem2 item = MediaTestUtils.createMediaItemWithMetadata();
-        testOnCommandRequest(COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, new PermissionTestRunnable() {
+        testOnCommandRequest(COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController2 controller) {
                 controller.setMediaItem(item);
@@ -261,7 +261,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     public void testUpdatePlaylistMetadata() throws InterruptedException {
         prepareLooper();
         testOnCommandRequest(COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
-                new PermissionTestRunnable() {
+                new PermissionTestTask() {
                     @Override
                     public void run(RemoteMediaController2 controller) {
                         controller.updatePlaylistMetadata(null);
@@ -273,7 +273,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     public void testAddPlaylistItem() throws InterruptedException {
         prepareLooper();
         final MediaItem2 testItem = MediaTestUtils.createMediaItemWithMetadata();
-        testOnCommandRequest(COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM, new PermissionTestRunnable() {
+        testOnCommandRequest(COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController2 controller) {
                 controller.addPlaylistItem(0, testItem);
@@ -286,7 +286,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         prepareLooper();
         final MediaItem2 testItem = MediaTestUtils.createMediaItemWithMetadata();
         testOnCommandRequest(COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
-                new PermissionTestRunnable() {
+                new PermissionTestTask() {
                     @Override
                     public void run(RemoteMediaController2 controller) {
                         controller.removePlaylistItem(testItem);
@@ -299,7 +299,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         prepareLooper();
         final MediaItem2 testItem = MediaTestUtils.createMediaItemWithMetadata();
         testOnCommandRequest(COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
-                new PermissionTestRunnable() {
+                new PermissionTestTask() {
                     @Override
                     public void run(RemoteMediaController2 controller) {
                         controller.replacePlaylistItem(0, testItem);
@@ -310,7 +310,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     @Test
     public void testSetVolume() throws InterruptedException {
         prepareLooper();
-        testOnCommandRequest(COMMAND_CODE_VOLUME_SET_VOLUME, new PermissionTestRunnable() {
+        testOnCommandRequest(COMMAND_CODE_VOLUME_SET_VOLUME, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController2 controller) {
                 controller.setVolumeTo(0, 0);
@@ -321,7 +321,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     @Test
     public void testAdjustVolume() throws InterruptedException {
         prepareLooper();
-        testOnCommandRequest(COMMAND_CODE_VOLUME_ADJUST_VOLUME, new PermissionTestRunnable() {
+        testOnCommandRequest(COMMAND_CODE_VOLUME_ADJUST_VOLUME, new PermissionTestTask() {
             @Override
             public void run(RemoteMediaController2 controller) {
                 controller.adjustVolume(0, 0);
@@ -541,7 +541,7 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     }
 
     @FunctionalInterface
-    private interface PermissionTestRunnable {
+    private interface PermissionTestTask {
         void run(@NonNull RemoteMediaController2 controller);
     }
 
