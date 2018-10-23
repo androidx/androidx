@@ -337,10 +337,10 @@ package androidx.car.widget {
     method public int getPage(int);
     method public androidx.recyclerview.widget.RecyclerView getRecyclerView();
     method public int getRowsPerPage();
-    method public boolean getShowScrollBarThumb();
     method public void hideAlphaJump();
     method public boolean isAtEnd();
     method public boolean isAtStart();
+    method public boolean isScrollbarThumbEnabled();
     method public void onLayout(boolean, int, int, int, int);
     method public void onRestoreInstanceState(android.os.Parcelable);
     method public android.os.Parcelable onSaveInstanceState();
@@ -364,7 +364,7 @@ package androidx.car.widget {
     method public void setOnScrollListener(androidx.car.widget.PagedListView.OnScrollListener);
     method public void setScrollBarContainerWidth(int);
     method public void setScrollBarTopMargin(int);
-    method public void setShowScrollBarThumb(boolean);
+    method public void setScrollbarThumbEnabled(boolean);
     method public void setUpButtonIcon(android.graphics.drawable.Drawable);
     method public void snapToPosition(int);
     field public static final int DEFAULT_MAX_CLICKS = 6; // 0x6
@@ -405,9 +405,9 @@ package androidx.car.widget {
     ctor public PagedScrollBarView(android.content.Context, android.util.AttributeSet);
     ctor public PagedScrollBarView(android.content.Context, android.util.AttributeSet, int);
     ctor public PagedScrollBarView(android.content.Context, android.util.AttributeSet, int, int);
-    method public boolean getShowScrollBarThumb();
     method public boolean isDownEnabled();
     method public boolean isDownPressed();
+    method public boolean isScrollbarThumbEnabled();
     method public boolean isUpPressed();
     method public void onLayout(boolean, int, int, int, int);
     method public void setButtonRippleBackground(int);
@@ -417,7 +417,7 @@ package androidx.car.widget {
     method public void setPaginationListener(androidx.car.widget.PagedScrollBarView.PaginationListener);
     method public void setParameters(int, int, int, boolean);
     method public void setScrollbarThumbColor(int);
-    method public void setShowScrollBarThumb(boolean);
+    method public void setScrollbarThumbEnabled(boolean);
     method public void setUpButtonIcon(android.graphics.drawable.Drawable);
     method public void setUpEnabled(boolean);
   }

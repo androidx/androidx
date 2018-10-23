@@ -359,7 +359,7 @@ public final class PagedListViewTest {
     public void testScrollBarThumbIsHidden() {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
-        mPagedListView.setShowScrollBarThumb(false);
+        mPagedListView.setScrollbarThumbEnabled(false);
         onView(withId(R.id.scrollbar_thumb)).check(matches(not(isDisplayed())));
     }
 
