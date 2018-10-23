@@ -2304,6 +2304,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @SuppressWarnings("BanParcelableUsage")
     public static class SavedState implements Parcelable {
 
         int mAnchorPosition;

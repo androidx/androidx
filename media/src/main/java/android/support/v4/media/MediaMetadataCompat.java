@@ -39,6 +39,7 @@ import java.util.Set;
 /**
  * Contains metadata about an item, such as the title, artist, etc.
  */
+@SuppressWarnings("BanParcelableUsage")
 public final class MediaMetadataCompat implements Parcelable {
     private static final String TAG = "MediaMetadata";
 

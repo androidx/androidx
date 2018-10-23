@@ -34,6 +34,7 @@ import androidx.annotation.RestrictTo;
  * created using the Builder or retrieved from existing metadata using
  * {@link MediaMetadataCompat#getDescription()}.
  */
+@SuppressWarnings("BanParcelableUsage")
 public final class MediaDescriptionCompat implements Parcelable {
     /**
      * Used as a long extra field to indicate the bluetooth folder type of the media item as

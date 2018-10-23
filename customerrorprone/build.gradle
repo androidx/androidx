@@ -1,0 +1,15 @@
+import static androidx.build.dependencies.DependenciesKt.*
+
+
+apply plugin:'java'
+
+dependencies {
+
+  implementation project(':annotation')
+
+  compileOnly 'com.google.errorprone:error_prone_core:2.3.1'
+  compileOnly 'com.google.errorprone:error_prone_annotation:2.3.1'
+
+  compileOnly         'com.google.auto.service:auto-service:1.0-rc4'
+  annotationProcessor 'com.google.auto.service:auto-service:1.0-rc4'
+}
