@@ -38,6 +38,7 @@ import java.lang.annotation.RetentionPolicy;
  * be defined as "unrated"), both of which are defined when the rating instance is constructed
  * through one of the factory methods.
  */
+@SuppressWarnings("BanParcelableUsage")
 public final class RatingCompat implements Parcelable {
     private final static String TAG = "Rating";
 

@@ -448,6 +448,7 @@ public final class MediaBrowserCompat {
      * MediaItems are application dependent so we cannot guarantee that they contain the
      * right values.
      */
+    @SuppressWarnings("BanParcelableUsage")
     public static class MediaItem implements Parcelable {
         private final int mFlags;
         private final MediaDescriptionCompat mDescription;

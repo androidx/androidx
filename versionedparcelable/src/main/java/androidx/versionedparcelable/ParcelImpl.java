@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressWarnings("BanParcelableUsage")
 public class ParcelImpl implements Parcelable {
 
     private final VersionedParcelable mParcel;

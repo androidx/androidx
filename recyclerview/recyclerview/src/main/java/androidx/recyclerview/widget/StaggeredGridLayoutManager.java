@@ -3071,6 +3071,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
         /**
          * We keep information about full span items because they may create gaps in the UI.
          */
+        @SuppressWarnings("BanParcelableUsage")
         static class FullSpanItem implements Parcelable {
 
             int mPosition;
@@ -3146,6 +3147,7 @@ public class StaggeredGridLayoutManager extends RecyclerView.LayoutManager imple
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @SuppressWarnings("BanParcelableUsage")
     public static class SavedState implements Parcelable {
 
         int mAnchorPosition;
