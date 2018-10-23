@@ -101,7 +101,7 @@ public final class DataSourceCallback2DataSource extends BaseDataSource {
         int bytesToRead = mBytesRemaining == C.LENGTH_UNSET
                 ? readLength : (int) Math.min(mBytesRemaining, readLength);
         int bytesRead = mDataSourceCallback2.readAt(mOffset, buffer, offset, bytesToRead);
-        if (bytesRead == -1) {
+        if (bytesRead < 0) {
             if (mBytesRemaining != C.LENGTH_UNSET) {
                 throw new EOFException();
             }
