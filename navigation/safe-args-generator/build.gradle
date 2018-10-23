@@ -54,7 +54,7 @@ tasks.findByName("test").doFirst {
     it.classpath = files(classpath.minus(androidJar).plus(androidJar))
 }
 
-tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarDebug")
+tasks.findByName("compileKotlin").dependsOn(":navigation:navigation-common:jarMinDepVersionsDebug")
 
 supportLibrary {
     name = 'Android Navigation TypeSafe Arguments Generator'
