@@ -19,6 +19,8 @@ package androidx.media2;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE;
 
+import static androidx.media2.MediaUtils2.TRANSACTION_SIZE_LIMIT_IN_BYTES;
+
 import android.content.Context;
 import android.os.BadParcelableException;
 import android.os.Bundle;
@@ -176,7 +178,9 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
                             List<MediaItem2> children = mLibrarySessionImpl.getCallback()
                                     .onGetChildren(mLibrarySessionImpl.getInstance(), controller,
                                             parentId, page, pageSize, options);
-                            result.sendResult(MediaUtils2.convertToMediaItemList(children));
+                            result.sendResult(MediaUtils2.truncateListBySize(
+                                    MediaUtils2.convertToMediaItemList(children),
+                                    TRANSACTION_SIZE_LIMIT_IN_BYTES));
                             return;
                         }
                         // Cannot distinguish onLoadChildren() why it's called either by
@@ -191,7 +195,9 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
                         .onGetChildren(mLibrarySessionImpl.getInstance(), controller, parentId,
                                 0 /* page */, Integer.MAX_VALUE /* pageSize*/,
                                 null /* extras */);
-                result.sendResult(MediaUtils2.convertToMediaItemList(children));
+                result.sendResult(MediaUtils2.truncateListBySize(
+                        MediaUtils2.convertToMediaItemList(children),
+                        TRANSACTION_SIZE_LIMIT_IN_BYTES));
             }
         });
     }

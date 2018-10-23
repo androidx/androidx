@@ -19,6 +19,7 @@ package androidx.media2;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_TITLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
 import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaUtils2.TRANSACTION_SIZE_LIMIT_IN_BYTES;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
@@ -26,7 +27,6 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
@@ -52,7 +52,6 @@ import androidx.media2.MediaSession2.SessionResult;
 import androidx.media2.SessionCommand2.CommandCode;
 import androidx.media2.SessionPlayer2.PlayerResult;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -779,26 +778,14 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
             if (Build.VERSION.SDK_INT < 21) {
                 // In order to avoid TransactionTooLargeException for below API 21,
                 // we need to cut the list so that it doesn't exceed the binder transaction limit.
-                final int transactionSizeLimitInKb = 256 * 1024; // 256KB
-                List<QueueItem> queueItemList = new ArrayList<>();
-                Parcel parcel = Parcel.obtain();
-                for (int i = 0; i < playlist.size(); i++) {
-                    // Calculate the size.
-                    QueueItem queueItem = MediaUtils2.convertToQueueItem(playlist.get(i));
-                    parcel.writeParcelable(queueItem, 0);
-                    if (parcel.dataSize() < transactionSizeLimitInKb) {
-                        queueItemList.add(queueItem);
-                    } else {
-                        // For list of MediaItem2s which only have 8-character media ID,
-                        // and with 256KB transaction limit, we can send about 1300 QueueItems to
-                        // MediaControllerCompat.
-                        Log.i(TAG, "Sending " + queueItemList.size() + " items out of "
-                                + playlist.size());
-                        break;
-                    }
+                List<QueueItem> queueItemList = MediaUtils2.convertToQueueItemList(playlist);
+                List<QueueItem> truncatedList = MediaUtils2.truncateListBySize(
+                        queueItemList, TRANSACTION_SIZE_LIMIT_IN_BYTES);
+                if (truncatedList.size() != playlist.size()) {
+                    Log.i(TAG, "Sending " + truncatedList.size() + " items out of "
+                            + playlist.size());
                 }
-                parcel.recycle();
-                mSessionImpl.getSessionCompat().setQueue(queueItemList);
+                mSessionImpl.getSessionCompat().setQueue(truncatedList);
             } else {
                 // Framework MediaSession#setQueue() uses ParceledListSlice,
                 // which means we can safely send long lists.

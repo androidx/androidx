@@ -373,7 +373,7 @@ class MediaController2Stub extends IMediaController2.Stub {
 
     @Override
     public void onGetChildrenDone(final String parentId, final int page, final int pageSize,
-            final List<ParcelImpl> itemList, final Bundle extras) throws RuntimeException {
+            final ParcelImplListSlice listSlice, final Bundle extras) throws RuntimeException {
         if (parentId == null) {
             Log.w(TAG, "onGetChildrenDone(): Ignoring null parentId");
             return;
@@ -393,7 +393,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             @Override
             public void run() {
                 browser.getCallback().onGetChildrenDone(browser, parentId, page, pageSize,
-                        MediaUtils2.convertParcelImplListToMediaItem2List(itemList), extras);
+                        MediaUtils2.convertParcelImplListSliceToMediaItem2List(listSlice), extras);
             }
         });
     }

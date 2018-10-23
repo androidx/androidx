@@ -1183,8 +1183,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onGetChildrenDone(String parentId, int page, int pageSize, List<MediaItem2> result,
                 Bundle extras) throws RemoteException {
-            List<ParcelImpl> parcelList = MediaUtils2.convertMediaItem2ListToParcelImplList(result);
-            mIControllerCallback.onGetChildrenDone(parentId, page, pageSize, parcelList, extras);
+            ParcelImplListSlice listSlice =
+                    MediaUtils2.convertMediaItem2ListToParcelImplListSlice(result);
+            mIControllerCallback.onGetChildrenDone(parentId, page, pageSize, listSlice, extras);
         }
 
         @Override

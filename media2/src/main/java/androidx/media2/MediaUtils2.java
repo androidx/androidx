@@ -30,6 +30,8 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -59,6 +61,7 @@ import java.util.concurrent.Executor;
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class MediaUtils2 {
     public static final String TAG = "MediaUtils2";
+    public static final int TRANSACTION_SIZE_LIMIT_IN_BYTES = 256 * 1024; // 256KB
 
     // Stub BrowserRoot for accepting any connection here.
     public static final BrowserRoot sDefaultBrowserRoot =
@@ -287,6 +290,32 @@ public class MediaUtils2 {
             }
         }
         return playlist;
+    }
+
+    /**
+     * Return a list which consists of first {@code N} items of the given list with the same order.
+     * {@code N} is determined as the maximum number of items whose total parcelled size is less
+     * than {@param sizeLimitInBytes}.
+     */
+    public static <T extends Parcelable> List<T> truncateListBySize(final List<T> list,
+            final int sizeLimitInBytes) {
+        if (list == null) {
+            return null;
+        }
+        List<T> result = new ArrayList<>();
+        Parcel parcel = Parcel.obtain();
+        for (int i = 0; i < list.size(); i++) {
+            // Calculate the size.
+            T item = list.get(i);
+            parcel.writeParcelable(item, 0);
+            if (parcel.dataSize() < sizeLimitInBytes) {
+                result.add(item);
+            } else {
+                break;
+            }
+        }
+        parcel.recycle();
+        return result;
     }
 
     /**

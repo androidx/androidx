@@ -21,9 +21,11 @@ import static androidx.media.test.lib.MediaBrowser2Constants.CHILDREN_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION;
 import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.GET_CHILDREN_RESULT;
+import static androidx.media.test.lib.MediaBrowser2Constants.LONG_LIST_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.MEDIA_ID_GET_ITEM;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID_ERROR;
+import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID_LONG_LIST;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID_NO_CHILDREN;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_ID;
@@ -51,6 +53,7 @@ import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
 
 import androidx.media.test.lib.TestUtils;
 import androidx.media2.MediaLibraryService2;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Ignore;
@@ -168,6 +171,36 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
             }
         });
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    @LargeTest
+    public void testGetChildren_withLongList() throws InterruptedException {
+        prepareLooper();
+        final String testParentId = PARENT_ID_LONG_LIST;
+
+        connectAndWait();
+        final CountDownLatch latch = new CountDownLatch(1);
+        mBrowserCompat.subscribe(testParentId, new SubscriptionCallback() {
+            @Override
+            public void onChildrenLoaded(String parentId, List<MediaItem> children) {
+                assertEquals(testParentId, parentId);
+                assertNotNull(children);
+                assertTrue(children.size() < LONG_LIST_COUNT);
+
+                // Compare the given results with originals.
+                for (int i = 0; i < children.size(); i++) {
+                    assertEquals(TestUtils.getMediaIdInDummyList(i), children.get(i).getMediaId());
+                }
+                latch.countDown();
+            }
+
+            @Override
+            public void onChildrenLoaded(String parentId, List<MediaItem> children, Bundle option) {
+                fail();
+            }
+        });
+        assertTrue(latch.await(3, TimeUnit.SECONDS));
     }
 
     @Test
