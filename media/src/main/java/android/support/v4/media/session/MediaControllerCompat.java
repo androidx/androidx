@@ -56,8 +56,8 @@ import androidx.versionedparcelable.VersionedParcelable;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Allows an app to interact with an ongoing media session. Media buttons and
@@ -234,7 +234,9 @@ public final class MediaControllerCompat {
     private final MediaSessionCompat.Token mToken;
     // This set is used to keep references to registered callbacks to prevent them being GCed,
     // since we only keep weak references for callbacks in this class and its inner classes.
-    private final HashSet<Callback> mRegisteredCallbacks = new HashSet<>();
+    // It is actually a map not a set. Ignore the values and treat the keys as a set.
+    private final ConcurrentHashMap<Callback, Boolean> mRegisteredCallbacks =
+            new ConcurrentHashMap<>();
 
     /**
      * Creates a media controller from a session.
@@ -600,12 +602,15 @@ public final class MediaControllerCompat {
         if (callback == null) {
             throw new IllegalArgumentException("callback must not be null");
         }
+        if (mRegisteredCallbacks.putIfAbsent(callback, true) != null) {
+            Log.w(TAG, "the callback has already been registered");
+            return;
+        }
         if (handler == null) {
             handler = new Handler();
         }
         callback.setHandler(handler);
         mImpl.registerCallback(callback, handler);
-        mRegisteredCallbacks.add(callback);
     }
 
     /**
@@ -618,8 +623,11 @@ public final class MediaControllerCompat {
         if (callback == null) {
             throw new IllegalArgumentException("callback must not be null");
         }
+        if (mRegisteredCallbacks.remove(callback) == null) {
+            Log.w(TAG, "the callback has never been registered");
+            return;
+        }
         try {
-            mRegisteredCallbacks.remove(callback);
             mImpl.unregisterCallback(callback);
         } finally {
             callback.setHandler(null);

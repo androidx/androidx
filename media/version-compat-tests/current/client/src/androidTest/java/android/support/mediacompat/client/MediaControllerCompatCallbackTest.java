@@ -98,6 +98,8 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Test {@link MediaControllerCompat.Callback}.
@@ -712,6 +714,49 @@ public class MediaControllerCompatCallbackTest {
         }
     }
 
+    @Test
+    @SmallTest
+    public void testRegisterCallbackTwice() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(2);
+
+        MediaControllerMultipleCallback callback = new MediaControllerMultipleCallback(latch);
+        mController.registerCallback(callback, mHandler);
+        mController.registerCallback(callback, mHandler); // it must be ignored
+
+        callMediaSessionMethod(SET_EXTRAS, new Bundle(), getContext());
+        assertFalse(latch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(1, latch.getCount());
+    }
+
+    @Test
+    @SmallTest
+    public void testUnregisterCallbackTwice() throws InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+
+        MediaControllerMultipleCallback callback = new MediaControllerMultipleCallback(latch);
+        mController.registerCallback(callback, mHandler);
+        mController.unregisterCallback(callback);
+        mController.unregisterCallback(callback); // it must be ignored
+
+        callMediaSessionMethod(SET_EXTRAS, new Bundle(), getContext());
+        assertFalse(latch.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    @SmallTest
+    public void testUnregisterUnknownCallback() throws InterruptedException {
+        CountDownLatch latch1 = new CountDownLatch(1);
+        CountDownLatch latch2 = new CountDownLatch(1);
+        MediaControllerMultipleCallback callback1 = new MediaControllerMultipleCallback(latch1);
+        MediaControllerMultipleCallback callback2 = new MediaControllerMultipleCallback(latch2);
+        mController.registerCallback(callback1, mHandler);
+        mController.unregisterCallback(callback2); // it must be ignored
+
+        callMediaSessionMethod(SET_EXTRAS, new Bundle(), getContext());
+        assertTrue(latch1.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+        assertFalse(latch2.await(TIME_OUT_MS, TimeUnit.MILLISECONDS));
+    }
+
     private void assertQueueEquals(List<QueueItem> expected, List<QueueItem> observed) {
         if (expected == null || observed == null) {
             assertTrue(expected == observed);
@@ -873,6 +918,19 @@ public class MediaControllerCompatCallbackTest {
                 mShuffleMode = shuffleMode;
                 mWaitLock.notify();
             }
+        }
+    }
+
+    private class MediaControllerMultipleCallback extends MediaControllerCompat.Callback {
+        private CountDownLatch mLatch;
+
+        MediaControllerMultipleCallback(CountDownLatch latch) {
+            mLatch = latch;
+        }
+
+        @Override
+        public void onExtrasChanged(Bundle extras) {
+            mLatch.countDown();
         }
     }
 
