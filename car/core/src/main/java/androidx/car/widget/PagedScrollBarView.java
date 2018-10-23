@@ -116,7 +116,7 @@ public class PagedScrollBarView extends ViewGroup {
                 defStyleAttrs, defStyleRes);
 
         mShowScrollBarThumb = a.getBoolean(R.styleable.PagedScrollBarView_showScrollBarThumb, true);
-        setShowScrollBarThumb(mShowScrollBarThumb);
+        setScrollbarThumbEnabled(mShowScrollBarThumb);
         Drawable upButtonIcon = a.getDrawable(R.styleable.PagedScrollBarView_upButtonIcon);
         if (upButtonIcon != null) {
             setUpButtonIcon(upButtonIcon);
@@ -182,7 +182,7 @@ public class PagedScrollBarView extends ViewGroup {
     }
 
     /** Returns {@code true} if the scroll bar thumb is visible */
-    public boolean getShowScrollBarThumb() {
+    public boolean isScrollbarThumbEnabled() {
         return mShowScrollBarThumb;
     }
     /**
@@ -190,7 +190,7 @@ public class PagedScrollBarView extends ViewGroup {
      *
      * @param show {@code true} if the scroll bar thumb is visible.
      */
-    public void setShowScrollBarThumb(boolean show) {
+    public void setScrollbarThumbEnabled(boolean show) {
         mShowScrollBarThumb = show;
         mScrollThumb.setVisibility(mShowScrollBarThumb ? View.VISIBLE : View.GONE);
     }

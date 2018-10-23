@@ -468,15 +468,15 @@ public class PagedListView extends FrameLayout {
      *
      * @param show Whether to show the scrollbar thumb or not.
      */
-    public void setShowScrollBarThumb(boolean show) {
-        mScrollBarView.setShowScrollBarThumb(show);
+    public void setScrollbarThumbEnabled(boolean show) {
+        mScrollBarView.setScrollbarThumbEnabled(show);
     }
 
     /**
      * Returns {@code true} if the scroll bar thumb is visible
      */
-    public boolean getShowScrollBarThumb() {
-        return mScrollBarView.getShowScrollBarThumb();
+    public boolean isScrollbarThumbEnabled() {
+        return mScrollBarView.isScrollbarThumbEnabled();
     }
 
     /**
