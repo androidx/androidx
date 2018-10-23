@@ -1,8 +1,12 @@
 package androidx.activity {
 
-  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.lifecycle.LifecycleOwner {
+  public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.lifecycle.LifecycleOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
+    method public deprecated java.lang.Object getLastCustomNonConfigurationInstance();
     method public androidx.lifecycle.Lifecycle getLifecycle();
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method public deprecated java.lang.Object onRetainCustomNonConfigurationInstance();
+    method public final java.lang.Object onRetainNonConfigurationInstance();
   }
 
 }

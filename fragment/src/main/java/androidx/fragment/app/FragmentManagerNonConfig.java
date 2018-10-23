@@ -31,9 +31,14 @@ import java.util.Map;
  *
  * <p>Apps should treat objects of this type as opaque, returned by
  * and passed to the state save and restore process for fragments in
- * {@link FragmentController#retainNonConfig()} and
+ * {@link FragmentController#retainNestedNonConfig()} and
  * {@link FragmentController#restoreAllState(Parcelable, FragmentManagerNonConfig)}.</p>
+ *
+ * @deprecated Have your {@link FragmentHostCallback} implement
+ * {@link androidx.lifecycle.ViewModelStoreOwner} to automatically retain the Fragment's
+ * non configuration state.
  */
+@Deprecated
 public class FragmentManagerNonConfig {
     private final @Nullable Collection<Fragment> mFragments;
     private final @Nullable Map<String, FragmentManagerNonConfig> mChildNonConfigs;

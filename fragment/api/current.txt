@@ -150,18 +150,15 @@ package androidx.fragment.app {
     field public static final android.os.Parcelable.Creator<androidx.fragment.app.Fragment.SavedState> CREATOR;
   }
 
-  public class FragmentActivity extends androidx.activity.ComponentActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator androidx.lifecycle.ViewModelStoreOwner {
+  public class FragmentActivity extends androidx.activity.ComponentActivity implements androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator {
     ctor public FragmentActivity();
-    method public java.lang.Object getLastCustomNonConfigurationInstance();
     method public androidx.fragment.app.FragmentManager getSupportFragmentManager();
     method public deprecated androidx.loader.app.LoaderManager getSupportLoaderManager();
-    method public androidx.lifecycle.ViewModelStore getViewModelStore();
+    method public android.content.Context getThemedContext();
     method public void onAttachFragment(androidx.fragment.app.Fragment);
     method public void onMultiWindowModeChanged(boolean);
     method public void onPictureInPictureModeChanged(boolean);
     method protected void onResumeFragments();
-    method public java.lang.Object onRetainCustomNonConfigurationInstance();
-    method public final java.lang.Object onRetainNonConfigurationInstance();
     method public void setEnterSharedElementCallback(androidx.core.app.SharedElementCallback);
     method public void setExitSharedElementCallback(androidx.core.app.SharedElementCallback);
     method public void startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int);
@@ -217,10 +214,11 @@ package androidx.fragment.app {
     method public android.view.View onCreateView(android.view.View, java.lang.String, android.content.Context, android.util.AttributeSet);
     method public deprecated void reportLoaderStart();
     method public deprecated void restoreAllState(android.os.Parcelable, java.util.List<androidx.fragment.app.Fragment>);
-    method public void restoreAllState(android.os.Parcelable, androidx.fragment.app.FragmentManagerNonConfig);
+    method public deprecated void restoreAllState(android.os.Parcelable, androidx.fragment.app.FragmentManagerNonConfig);
     method public deprecated void restoreLoaderNonConfig(androidx.collection.SimpleArrayMap<java.lang.String, androidx.loader.app.LoaderManager>);
+    method public void restoreSaveState(android.os.Parcelable);
     method public deprecated androidx.collection.SimpleArrayMap<java.lang.String, androidx.loader.app.LoaderManager> retainLoaderNonConfig();
-    method public androidx.fragment.app.FragmentManagerNonConfig retainNestedNonConfig();
+    method public deprecated androidx.fragment.app.FragmentManagerNonConfig retainNestedNonConfig();
     method public deprecated java.util.List<androidx.fragment.app.Fragment> retainNonConfig();
     method public android.os.Parcelable saveAllState();
   }
@@ -312,7 +310,7 @@ package androidx.fragment.app {
     method public abstract void onBackStackChanged();
   }
 
-  public class FragmentManagerNonConfig {
+  public deprecated class FragmentManagerNonConfig {
   }
 
   public abstract class FragmentPagerAdapter extends androidx.viewpager.widget.PagerAdapter {

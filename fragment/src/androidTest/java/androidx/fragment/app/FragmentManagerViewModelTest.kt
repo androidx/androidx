@@ -16,6 +16,7 @@
 
 package androidx.fragment.app
 
+import androidx.lifecycle.ViewModelStore
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -32,7 +33,7 @@ class FragmentManagerViewModelTest {
 
     @Before
     fun setup() {
-        viewModel = FragmentManagerViewModel()
+        viewModel = FragmentManagerViewModel(false)
     }
 
     @Test
@@ -134,5 +135,28 @@ class FragmentManagerViewModelTest {
         // after the restoreFromSnapshot, allowing destruction of the
         // retained Fragment
         assertThat(viewModel.shouldDestroy(fragment)).isTrue()
+    }
+
+    @Test
+    fun testShouldDestroyWithAutomaticSave() {
+        val autoSaveViewModel = FragmentManagerViewModel(true)
+        val fragment = mock(Fragment::class.java)
+        autoSaveViewModel.addRetainedFragment(fragment)
+
+        // If the Fragment is being reaped while the ViewModel is not cleared,
+        // the developer has specifically removed this Fragment
+        assertThat(autoSaveViewModel.shouldDestroy(fragment)).isFalse()
+
+        autoSaveViewModel.onCleared()
+
+        // After being cleared, the Fragment should be destroyed
+        assertThat(viewModel.shouldDestroy(fragment)).isTrue()
+    }
+
+    @Test
+    fun testGetInstance() {
+        val viewModeStore = ViewModelStore()
+        val viewModel = FragmentManagerViewModel.getInstance(viewModeStore)
+        assertThat(FragmentManagerViewModel.getInstance(viewModeStore)).isSameAs(viewModel)
     }
 }
