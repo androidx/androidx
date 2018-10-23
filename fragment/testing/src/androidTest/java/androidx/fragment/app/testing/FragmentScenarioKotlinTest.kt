@@ -29,7 +29,7 @@ import org.junit.runner.RunWith
 class FragmentScenarioKotlinTest {
     @Test
     fun testFragmentLifecycle_withFragmentScenario() {
-        val scenario = FragmentScenario.launchInContainer(StateRecordingFragment::class.java)
+        val scenario = launchFragmentInContainer<StateRecordingFragment>()
         scenario.onFragment {
             assertThat(it.numberOfRecreations).isEqualTo(0)
             assertThat(it.state).isEqualTo(State.RESUMED)
@@ -55,5 +55,13 @@ class FragmentScenarioKotlinTest {
         }
 
         scenario.moveToState(State.DESTROYED)
+    }
+
+    @Test
+    fun testlaunch_withFragmentScenario() {
+        val scenario = launchFragment<StateRecordingFragment>()
+        scenario.onFragment {
+            assertThat(it.state).isEqualTo(State.RESUMED)
+        }
     }
 }

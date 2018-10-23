@@ -24,14 +24,20 @@ plugins {
 }
 
 android {
+    buildTypes {
+        debug {
+            testCoverageEnabled = false // Breaks Kotlin compiler.
+        }
+    }
     lintOptions {
         fatal("UnknownNullness")
     }
 }
 
 dependencies {
-    api(project(":fragment"))
+    api(project(":fragment-ktx"))
     api(TEST_CORE)
+    api(KOTLIN_STDLIB)
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)

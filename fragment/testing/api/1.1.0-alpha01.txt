@@ -17,5 +17,9 @@ package androidx.fragment.app.testing {
     method public void perform(F);
   }
 
+  public final class FragmentScenarioKt {
+    ctor public FragmentScenarioKt();
+  }
+
 }
 
