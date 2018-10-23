@@ -9,6 +9,7 @@ plugins {
 dependencies {
     api(project(":appcompat"))
     api(project(":cardview"))
+    api(project(":coordinatorlayout"))
     api(project(":annotation"))
     api(project(":recyclerview"))
     api(project(":gridlayout"))

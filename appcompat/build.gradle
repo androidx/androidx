@@ -15,6 +15,7 @@ dependencies {
     api(project(":fragment"))
     api(project(":vectordrawable"))
     api(project(":vectordrawable-animated"))
+    api(project(":drawerlayout"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
