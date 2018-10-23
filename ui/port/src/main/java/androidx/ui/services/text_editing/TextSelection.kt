@@ -1,4 +1,4 @@
-package androidx.ui.text
+package androidx.ui.services.text_editing
 
 import androidx.ui.engine.text.TextAffinity
 

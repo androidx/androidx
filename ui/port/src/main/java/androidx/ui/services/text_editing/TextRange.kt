@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.text
+package androidx.ui.services.text_editing
 
 /**
  * A range of characters in a string of text.

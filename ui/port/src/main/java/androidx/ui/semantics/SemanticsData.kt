@@ -5,7 +5,7 @@ import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
 import androidx.ui.runtimeType
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.text.TextSelection
+import androidx.ui.services.text_editing.TextSelection
 import androidx.ui.vectormath64.Matrix4
 
 /**

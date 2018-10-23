@@ -29,7 +29,7 @@ import androidx.ui.painting.matrixutils.isIdentity
 import androidx.ui.painting.matrixutils.matrixEquals
 import androidx.ui.runtimeType
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.text.TextSelection
+import androidx.ui.services.text_editing.TextSelection
 import androidx.ui.toStringAsFixed
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.Vector3
