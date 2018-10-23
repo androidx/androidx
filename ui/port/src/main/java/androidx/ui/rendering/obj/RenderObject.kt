@@ -1438,7 +1438,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * }
      * ```
      */
-    protected open fun describeSemanticsConfiguration(config: SemanticsConfiguration) {
+    internal open fun describeSemanticsConfiguration(config: SemanticsConfiguration) {
         // Nothing to do by default.
     }
 

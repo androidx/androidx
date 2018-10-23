@@ -21,12 +21,14 @@ import androidx.ui.gestures.arena.GestureArenaManager
 import androidx.ui.gestures.binding.GestureBinding
 import androidx.ui.gestures.pointer_router.PointerRouter
 import com.nhaarman.mockitokotlin2.mock
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.TestCoroutineContext
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 
 internal fun ensureGestureBinding() {
-    GestureBinding.initInstance(Window(), mock(), mock())
+    GestureBinding.initInstance(Window(), mock(), mock(), CoroutineScope(TestCoroutineContext()))
     assertThat(GestureBinding.instance, `is`(notNullValue()))
 }
 

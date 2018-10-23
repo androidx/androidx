@@ -87,7 +87,6 @@ abstract class Timer {
          *
          */
         fun create(duration: Duration, callback: () -> Unit): Timer {
-
             val job = scope.launch {
                 delay(duration.inMilliseconds)
                 callback()

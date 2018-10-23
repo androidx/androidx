@@ -19,7 +19,10 @@ package androidx.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_UP
 import android.view.ViewGroup
 import androidx.ui.compositing.Scene
 import androidx.ui.core.Duration
@@ -38,6 +41,7 @@ import androidx.ui.widgets.binding.WidgetsFlutterBinding
 import androidx.ui.widgets.binding.runApp
 import androidx.ui.widgets.framework.Widget
 import androidx.ui.widgets.view.ViewHost
+import kotlinx.coroutines.runBlocking
 
 @SuppressLint("ViewConstructor")
 class CraneView(
@@ -84,16 +88,25 @@ class CraneView(
         val change =
             when (event.actionMasked) {
                 ACTION_DOWN -> PointerChange.down
-                else -> PointerChange.up
+                ACTION_MOVE -> PointerChange.move
+                ACTION_UP -> PointerChange.up
+                ACTION_CANCEL -> PointerChange.cancel
+                else -> null
             }
-        pointerDataPacket.data.add(PointerData(
-            timeStamp = Duration.create(milliseconds = event.eventTime),
-            change = change,
-            physicalX = event.x.toDouble(),
-            physicalY = event.y.toDouble()
-        ))
 
-        window.onPointerDataPacket.offer(pointerDataPacket)
+        change?.let {
+            pointerDataPacket.data.add(
+                PointerData(
+                    timeStamp = Duration.create(milliseconds = event.eventTime),
+                    change = it,
+                    physicalX = event.x.toDouble(),
+                    physicalY = event.y.toDouble()
+                )
+            )
+            runBlocking {
+                window.onPointerDataPacket.send(pointerDataPacket)
+            }
+        }
 
         return true
     }

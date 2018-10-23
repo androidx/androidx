@@ -9,6 +9,11 @@ import androidx.ui.engine.text.TextBaseline
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.gestures.events.PointerCancelEvent
+import androidx.ui.gestures.events.PointerDownEvent
+import androidx.ui.gestures.events.PointerEvent
+import androidx.ui.gestures.events.PointerUpEvent
+import androidx.ui.gestures.hit_test.HitTestEntry
 import androidx.ui.gestures.hit_test.HitTestResult
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -1386,7 +1391,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
 //    ///
 //    /// Used by [hitTest]. If you override [hitTest] and do not call this
 //    /// function, then you don't need to implement this function.
-    protected open fun hitTestChildren(result: HitTestResult, position: Offset? = null): Boolean {
+    protected open fun hitTestChildren(result: HitTestResult, position: Offset): Boolean {
         return false
     }
 
@@ -1503,38 +1508,39 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
 //        super.handleEvent(event, entry);
 //    }
 
-    var _debugActivePointers = 0
+    private var debugActivePointers = 0
 
-    // TODO(Migration/xbhatnag): Needs PointerEvent
-//    /// Implements the [debugPaintPointersEnabled] debugging feature.
-//    ///
-//    /// [RenderBox] subclasses that implement [handleEvent] should call
-//    /// [debugHandleEvent] from their [handleEvent] method, as follows:
-//    ///
-//    /// ```dart
-//    /// @override
-//    /// void handleEvent(PointerEvent event, HitTestEntry entry) {
-//    ///   assert(debugHandleEvent(event, entry));
-//    ///   // ... handle the event ...
-//    /// }
-//    /// ```
-//    ///
-//    /// If you call this for a [PointerDownEvent], make sure you also call it for
-//    /// the corresponding [PointerUpEvent] or [PointerCancelEvent].
-//    bool debugHandleEvent(PointerEvent event, HitTestEntry entry) {
-//        assert(() {
-//            if (debugPaintPointersEnabled) {
-//                if (event is PointerDownEvent) {
-//                    _debugActivePointers += 1;
-//                } else if (event is PointerUpEvent || event is PointerCancelEvent) {
-//                    _debugActivePointers -= 1;
-//                }
-//                markNeedsPaint();
-//            }
-//            return true;
-//        }());
-//        return true;
-//    }
+    /**
+     * Implements the [debugPaintPointersEnabled] debugging feature.
+     *
+     * [RenderBox] subclasses that implement [handleEvent] should call
+     * [debugHandleEvent] from their [handleEvent] method, as follows:
+     *
+     * ```dart
+     * @override
+     * void handleEvent(PointerEvent event, HitTestEntry entry) {
+     *   assert(debugHandleEvent(event, entry));
+     *   // ... handle the event ...
+     * }
+     * ```
+     *
+     * If you call this for a [PointerDownEvent], make sure you also call it for
+     * the corresponding [PointerUpEvent] or [PointerCancelEvent].
+     */
+    fun debugHandleEvent(event: PointerEvent, entry: HitTestEntry): Boolean {
+        assert {
+            if (debugPaintPointersEnabled) {
+                if (event is PointerDownEvent) {
+                    debugActivePointers += 1
+                } else if (event is PointerUpEvent || event is PointerCancelEvent) {
+                    debugActivePointers -= 1
+                }
+                markNeedsPaint()
+            }
+            true
+        }
+        return true
+    }
 
     override fun debugPaint(context: PaintingContext, offset: Offset) {
         assert {
@@ -1612,7 +1618,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      */
     protected fun debugPaintPointers(context: PaintingContext, offset: Offset) {
         assert {
-            if (_debugActivePointers > 0) {
+            if (debugActivePointers > 0) {
                 val paint = Paint().apply {
                     // new Color(0x00BBBB | ((0x04000000 * depth) & 0xFF000000));
                     color = Color(0x00BBBB or ((0x04000000 * depth) and 0xFF000000.toInt()))

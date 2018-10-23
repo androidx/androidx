@@ -55,7 +55,7 @@ abstract class PrimaryPointerGestureRecognizer(
     /** The global location at which the primary pointer contacted the screen. */
     var initialPosition: Offset? = null
 
-    var _timer: Timer? = null
+    private var timer: Timer? = null
 
     override fun addPointer(event: PointerDownEvent) {
         startTrackingPointer(event.pointer)
@@ -64,7 +64,7 @@ abstract class PrimaryPointerGestureRecognizer(
             primaryPointer = event.pointer
             initialPosition = event.position
             if (deadline != null)
-                _timer = Timer.create(deadline, ::didExceedDeadline)
+                timer = Timer.create(deadline, ::didExceedDeadline)
         }
     }
 
@@ -113,11 +113,8 @@ abstract class PrimaryPointerGestureRecognizer(
     }
 
     private fun _stopTimer() {
-        val timer = _timer
-        if (timer != null) {
-            timer.cancel()
-            _timer = null
-        }
+        timer?.cancel()
+        timer = null
     }
 
     private fun _getDistance(event: PointerEvent): Double {

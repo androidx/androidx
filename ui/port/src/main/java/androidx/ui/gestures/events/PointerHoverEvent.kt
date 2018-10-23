@@ -53,6 +53,7 @@ class PointerHoverEvent(
     position = position,
     delta = delta,
     buttons = buttons,
+    down = false,
     obscured = obscured,
     pressureMin = pressureMin,
     pressureMax = pressureMax,

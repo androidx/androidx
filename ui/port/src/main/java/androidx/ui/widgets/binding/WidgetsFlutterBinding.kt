@@ -6,6 +6,8 @@ import androidx.ui.gestures.binding.GestureBinding
 import androidx.ui.rendering.binding.RendererBindingImpl
 import androidx.ui.scheduler.binding.SchedulerBindingImpl
 import androidx.ui.services.ServicesBindingImpl
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 
 /**
  * A concrete binding for applications based on the Widgets framework.
@@ -16,7 +18,10 @@ class WidgetsFlutterBinding {
 
     companion object {
 
-        fun create(window: Window): WidgetsBinding {
+        fun create(
+            window: Window,
+            scope: CoroutineScope = CoroutineScope(Dispatchers.Main)
+        ): WidgetsBinding {
 
             val base = BindingBaseImpl()
 
@@ -36,7 +41,8 @@ class WidgetsFlutterBinding {
                 GestureBinding.initInstance(
                     window,
                     base,
-                    rendererBinding
+                    rendererBinding,
+                    scope
                 ),
                 rendererBinding
             )
