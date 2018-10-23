@@ -71,11 +71,11 @@ public final class Destination implements VersionedParcelable {
      * Builder for creating a {@link Destination}
      */
     public static final class Builder {
-        String mTitle;
-        String mAddress;
-        Distance mDistance;
-        Time mEta;
-        LatLng mLatLng;
+        private String mTitle;
+        private String mAddress;
+        private Distance mDistance;
+        private Time mEta;
+        private LatLng mLatLng;
 
         /**
          * Sets the destination title (formatted for the current user's locale), or empty if there

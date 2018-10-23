@@ -31,7 +31,6 @@ import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -87,8 +86,8 @@ public final class NavigationState implements VersionedParcelable {
             @NonNull List<Destination> destinations,
             @Nullable Segment currentSegment,
             @NonNull EnumWrapper<ServiceStatus> serviceStatus) {
-        mSteps = Collections.unmodifiableList(new ArrayList<>(steps));
-        mDestinations = Collections.unmodifiableList(new ArrayList<>(destinations));
+        mSteps = new ArrayList<>(steps);
+        mDestinations = new ArrayList<>(destinations);
         mCurrentSegment = currentSegment;
         mServiceStatus = Preconditions.checkNotNull(serviceStatus);
     }
@@ -97,10 +96,10 @@ public final class NavigationState implements VersionedParcelable {
      * Builder for creating a {@link NavigationState}
      */
     public static final class Builder {
-        List<Step> mSteps = new ArrayList<>();
-        List<Destination> mDestinations = new ArrayList<>();
-        Segment mCurrentSegment;
-        EnumWrapper<ServiceStatus> mServiceStatus = new EnumWrapper<>();
+        private List<Step> mSteps = new ArrayList<>();
+        private List<Destination> mDestinations = new ArrayList<>();
+        private Segment mCurrentSegment;
+        private EnumWrapper<ServiceStatus> mServiceStatus = new EnumWrapper<>();
 
         /**
          * Add a navigation step. Steps should be provided in order of execution. It is up to the
@@ -168,7 +167,7 @@ public final class NavigationState implements VersionedParcelable {
      */
     @NonNull
     public List<Step> getSteps() {
-        return Common.nonNullOrEmpty(mSteps);
+        return Common.immutableOrEmpty(mSteps);
     }
 
     /**
@@ -177,7 +176,7 @@ public final class NavigationState implements VersionedParcelable {
      */
     @NonNull
     public List<Destination> getDestinations() {
-        return Common.nonNullOrEmpty(mDestinations);
+        return Common.immutableOrEmpty(mDestinations);
     }
 
     /**
