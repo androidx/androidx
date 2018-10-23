@@ -400,7 +400,7 @@ public class DialogFragment extends Fragment
      */
     @NonNull
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        return new Dialog(requireActivity(), getTheme());
+        return new Dialog(requireContext(), getTheme());
     }
 
     @Override
