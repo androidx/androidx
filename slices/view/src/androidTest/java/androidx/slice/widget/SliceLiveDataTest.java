@@ -84,20 +84,22 @@ public class SliceLiveDataTest {
                         new Slice.Builder(Uri.parse("content://test/something/other")).build(),
                         null)
                 .build();
-    private LiveData<Slice> mLiveData;
+    private SliceLiveData.CachedSliceLiveData mLiveData;
     private ArgumentCaptor<Slice> mSlice;
 
     @Before
     public void setUp() throws InterruptedException {
         InputStream input = createInput(mBaseSlice);
 
-        mLiveData = SliceLiveData.fromStream(mContext, mManager, input, mErrorListener, false);
+        mLiveData = SliceLiveData.fromStream(mContext, mManager, input, mErrorListener);
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
                 mLiveData.observeForever(mObserver);
             }
         });
+        waitForAsync();
+        // The second one executes the loading initial slice code.
         waitForAsync();
         mInstrumentation.waitForIdleSync();
     }
@@ -264,7 +266,8 @@ public class SliceLiveDataTest {
     @Test
     public void testInvalidInput() throws PendingIntent.CanceledException, InterruptedException {
         mLiveData = SliceLiveData.fromStream(mContext, mManager,
-                new ByteArrayInputStream(new byte[0]), mErrorListener, false);
+                new ByteArrayInputStream(new byte[0]), mErrorListener);
+        mLiveData.parseStream();
         waitForAsync();
         mInstrumentation.waitForIdleSync();
         verify(mErrorListener).onSliceError(

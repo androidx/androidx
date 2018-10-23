@@ -34,7 +34,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
@@ -61,7 +60,7 @@ import java.util.concurrent.CountDownLatch;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 19)
-public class SliceLiveDataBlockingTest {
+public class CachedSliceLiveDataTest {
 
     private static final Uri URI = Uri.parse("content://test/something");
     private static final Intent INTENT_ONE = new Intent("intent1");
@@ -82,7 +81,7 @@ public class SliceLiveDataBlockingTest {
                         new Slice.Builder(Uri.parse("content://test/something/other")).build(),
                         null)
                 .build();
-    private LiveData<Slice> mLiveData;
+    private SliceLiveData.CachedSliceLiveData mLiveData;
     private ArgumentCaptor<Slice> mSlice;
 
     @Before
@@ -92,9 +91,9 @@ public class SliceLiveDataBlockingTest {
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mLiveData = SliceLiveData.fromStream(mContext, mManager, input, mErrorListener,
-                        true);
+                mLiveData = SliceLiveData.fromStream(mContext, mManager, input, mErrorListener);
                 mLiveData.observeForever(mObserver);
+                mLiveData.parseStream();
             }
         });
     }
@@ -115,6 +114,26 @@ public class SliceLiveDataBlockingTest {
     public void testOnlyCache() throws InterruptedException {
         verify(mManager, never()).bindSlice(any(Uri.class));
         verify(mManager, never()).registerSliceCallback(any(Uri.class),
+                any(SliceCallback.class));
+        verify(mObserver, times(1)).onChanged(any(Slice.class));
+        verify(mErrorListener, never()).onSliceError(anyInt(), any(Throwable.class));
+    }
+
+    @Test
+    public void testGoLive() throws PendingIntent.CanceledException, InterruptedException {
+        when(mManager.bindSlice(URI)).thenReturn(mBaseSlice);
+
+        ArgumentCaptor<Slice> s = ArgumentCaptor.forClass(Slice.class);
+        verify(mObserver, times(1)).onChanged(s.capture());
+        clearInvocations(mObserver);
+
+        mLiveData.goLive();
+
+        waitForAsync();
+        mInstrumentation.waitForIdleSync();
+
+        verify(mManager).bindSlice(any(Uri.class));
+        verify(mManager).registerSliceCallback(any(Uri.class),
                 any(SliceCallback.class));
         verify(mObserver, times(1)).onChanged(any(Slice.class));
         verify(mErrorListener, never()).onSliceError(anyInt(), any(Throwable.class));
@@ -264,7 +283,8 @@ public class SliceLiveDataBlockingTest {
             @Override
             public void run() {
                 mLiveData = SliceLiveData.fromStream(mContext, mManager,
-                        new ByteArrayInputStream(new byte[0]), mErrorListener, true);
+                        new ByteArrayInputStream(new byte[0]), mErrorListener);
+                mLiveData.parseStream();
             }
         });
         verify(mErrorListener).onSliceError(
