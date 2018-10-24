@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * The basic object that performs work.  Worker classes are instantiated at runtime by the
  * {@link WorkerFactory} specified in the {@link Configuration}.  The {@link #startWork()} method
- * is called on the background thread.  In case the work is preempted and later restarted for any
+ * is called on the main thread.  In case the work is preempted and later restarted for any
  * reason, a new instance of {@link ListenableWorker} is created. This means that
  * {@code startWork} is called exactly once per {@link ListenableWorker} instance.
  */
