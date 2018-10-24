@@ -80,14 +80,15 @@ oneway interface IMediaSession2 {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // library service specific
     //////////////////////////////////////////////////////////////////////////////////////////////
-    void getLibraryRoot(IMediaController2 caller, in Bundle rootHints) = 33;
-    void getItem(IMediaController2 caller, String mediaId) = 34;
-    void getChildren(IMediaController2 caller, String parentId, int page, int pageSize,
-            in Bundle extras) = 35;
-    void search(IMediaController2 caller, String query, in Bundle extras) = 36;
-    void getSearchResult(IMediaController2 caller, String query, int page, int pageSize,
-            in Bundle extras) = 37;
-    void subscribe(IMediaController2 caller, String parentId, in Bundle extras) = 38;
-    void unsubscribe(IMediaController2 caller, String parentId) = 39;
+    void getLibraryRoot(IMediaController2 caller, int seq, in ParcelImpl libraryParams) = 33;
+    void getItem(IMediaController2 caller, int seq, String mediaId) = 34;
+    void getChildren(IMediaController2 caller, int seq, String parentId, int page, int pageSize,
+            in ParcelImpl libraryParams) = 35;
+    void search(IMediaController2 caller, int seq, String query, in ParcelImpl libraryParams) = 36;
+    void getSearchResult(IMediaController2 caller, int seq, String query, int page, int pageSize,
+            in ParcelImpl libraryParams) = 37;
+    void subscribe(IMediaController2 caller, int seq, String parentId,
+            in ParcelImpl libraryParams) = 38;
+    void unsubscribe(IMediaController2 caller, int seq, String parentId) = 39;
     // Next Id : 42
 }

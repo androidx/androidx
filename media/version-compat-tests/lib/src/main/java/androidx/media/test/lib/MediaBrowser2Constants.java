@@ -65,8 +65,11 @@ public class MediaBrowser2Constants {
     public static final String CUSTOM_ACTION = "customAction";
     public static final Bundle CUSTOM_ACTION_EXTRAS = new Bundle();
 
+    public static final String CUSTOM_ACTION_ASSERT_PARAMS = "assertParams";
+
     static {
         ROOT_EXTRAS.putString(ROOT_ID, ROOT_ID);
+
         CUSTOM_ACTION_EXTRAS.putString(CUSTOM_ACTION, CUSTOM_ACTION);
 
         GET_CHILDREN_RESULT.clear();

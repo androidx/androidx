@@ -18,6 +18,9 @@ package androidx.media.test.service.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
+import static androidx.media.test.service.MediaTestUtils.assertLibraryParamsWithBundle;
+import static androidx.media.test.service.MediaTestUtils.createLibraryParams;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -31,11 +34,11 @@ import android.support.v4.media.MediaDescriptionCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaBrowserServiceCompat.Result;
-import androidx.media.test.lib.TestUtils;
 import androidx.media.test.service.MockMediaBrowserServiceCompat;
 import androidx.media.test.service.MockMediaBrowserServiceCompat.Proxy;
 import androidx.media.test.service.RemoteMediaBrowser2;
 import androidx.media2.MediaBrowser2;
+import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.SessionToken2;
 import androidx.test.filters.SmallTest;
 
@@ -73,8 +76,10 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
     public void testOnGetRootCalledByGetLibraryRoot() throws InterruptedException {
         prepareLooper();
         final String testMediaId = "testOnGetRootCalledByGetLibraryRoot";
-        final Bundle testExtra = new Bundle();
-        testExtra.putString(testMediaId, testMediaId);
+        final Bundle testExtras = new Bundle();
+        testExtras.putString(testMediaId, testMediaId);
+        final LibraryParams testParams = new LibraryParams.Builder()
+                .setSuggested(true).setExtras(testExtras).build();
 
         final CountDownLatch latch = new CountDownLatch(1);
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
@@ -83,15 +88,17 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
                     Bundle rootHints) {
                 assertEquals(CLIENT_PACKAGE_NAME, clientPackageName);
                 if (rootHints.keySet().contains(testMediaId)) {
+                    assertLibraryParamsWithBundle(testParams, rootHints);
                     // This should happen because getLibraryRoot() is called with testExtras.
                     latch.countDown();
                 }
-                return new BrowserRoot("rootId", new Bundle());
+                // For other random connection requests.
+                return new BrowserRoot("rootId", null);
             }
         });
 
         RemoteMediaBrowser2 browser = new RemoteMediaBrowser2(mContext, mToken, true);
-        browser.getLibraryRoot(testExtra);
+        browser.getLibraryRoot(testParams);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -171,21 +178,20 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
     public void testOnLoadChildrenCalledBySubscribe() throws InterruptedException {
         prepareLooper();
         final String testParentId = "testOnLoadChildrenCalledBySubscribe";
-        final Bundle testExtras = new Bundle();
-        testExtras.putString(testParentId, testParentId);
+        final LibraryParams testParams = createLibraryParams();
         final CountDownLatch subscribeLatch = new CountDownLatch(1);
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
             @Override
             public void onLoadChildren(String parentId, Result<List<MediaItem>> result,
                     Bundle option) {
                 assertEquals(testParentId, parentId);
-                assertTrue(TestUtils.equals(testExtras, option));
+                assertLibraryParamsWithBundle(testParams, option);
                 result.sendResult(null);
                 subscribeLatch.countDown();
             }
         });
         RemoteMediaBrowser2 browser = new RemoteMediaBrowser2(mContext, mToken, true);
-        browser.subscribe(testParentId, testExtras);
+        browser.subscribe(testParentId, testParams);
         assertTrue(subscribeLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -195,8 +201,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
-        final Bundle testExtra = new Bundle();
-        testExtra.putString(testQuery, testQuery);
+        final LibraryParams testParams = createLibraryParams();
         final List<MediaItem> testFullSearchResult = createMediaItems(
                 (testPage + 1) * testPageSize + 3);
 
@@ -205,14 +210,14 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
             @Override
             public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result) {
                 assertEquals(testQuery, query);
-                assertEquals(testQuery, extras.getString(testQuery));
+                assertLibraryParamsWithBundle(testParams, extras);
                 result.sendResult(testFullSearchResult);
                 latch.countDown();
             }
         });
 
         RemoteMediaBrowser2 browser = new RemoteMediaBrowser2(mContext, mToken, true);
-        browser.search(testQuery, testExtra);
+        browser.search(testQuery, testParams);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -222,15 +227,14 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
-        final Bundle testExtra = new Bundle();
-        testExtra.putString(testQuery, testQuery);
+        final LibraryParams testParams = createLibraryParams();
 
         final CountDownLatch latch = new CountDownLatch(1);
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
             @Override
             public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result) {
                 assertEquals(testQuery, query);
-                assertEquals(testQuery, extras.getString(testQuery));
+                assertLibraryParamsWithBundle(testParams, extras);
                 assertEquals(testPage, extras.getInt(MediaBrowserCompat.EXTRA_PAGE));
                 assertEquals(testPageSize, extras.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE));
                 result.sendResult(null);
@@ -239,7 +243,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
         });
 
         RemoteMediaBrowser2 browser = new RemoteMediaBrowser2(mContext, mToken, true);
-        browser.getSearchResult(testQuery, testPage, testPageSize, testExtra);
+        browser.getSearchResult(testQuery, testPage, testPageSize, testParams);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 

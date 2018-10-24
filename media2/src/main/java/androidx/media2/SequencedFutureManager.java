@@ -21,6 +21,8 @@ import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.concurrent.futures.AbstractResolvableFuture;
 
@@ -33,25 +35,15 @@ import java.util.List;
  * Manages {@link SequencedFuture} that contains sequence number to be shared across the process.
  */
 @TargetApi(Build.VERSION_CODES.P)
-class SequencedFutureManager<T> implements AutoCloseable {
+class SequencedFutureManager implements AutoCloseable {
     private static final boolean DEBUG = false;
     private static final String TAG = "SequencedFutureManager";
     private final Object mLock = new Object();
-    private final T mResultWhenClosed;
 
     @GuardedBy("mLock")
     private int mNextSequenceNumber;
     @GuardedBy("mLock")
     private ArrayMap<Integer, SequencedFuture> mSeqToFutureMap = new ArrayMap<>();
-
-    /**
-     * Constructor with the value to be used for pending result when closed.
-     *
-     * @param resultWhenClosed
-     */
-    SequencedFutureManager(T resultWhenClosed) {
-        mResultWhenClosed = resultWhenClosed;
-    }
 
     /**
      * Obtains next sequence number without creating future. Used for methods with no return
@@ -71,12 +63,14 @@ class SequencedFutureManager<T> implements AutoCloseable {
      *
      * @return AbstractFuture with sequence number
      */
-    public SequencedFuture<T> createSequencedFuture() {
+    // TODO: Find better way to get closed result -- result has completion time, and it should be
+    //       set when the manager is closed, not now.
+    public <T> SequencedFuture<T> createSequencedFuture(T resultWhenClosed) {
         final SequencedFuture<T> result;
         final int seq;
         synchronized (mLock) {
             seq = obtainNextSequenceNumber();
-            result = SequencedFuture.create(seq);
+            result = SequencedFuture.create(seq, resultWhenClosed);
             mSeqToFutureMap.put(seq, result);
         }
         return result;
@@ -89,11 +83,18 @@ class SequencedFutureManager<T> implements AutoCloseable {
      * @param seq sequence number to find future
      * @param result result to set
      */
-    public void setFutureResult(int seq, T result) {
+    public <T> void setFutureResult(int seq, T result) {
         synchronized (mLock) {
             SequencedFuture future = mSeqToFutureMap.remove(seq);
             if (future != null) {
-                future.set(result);
+                if (result == null
+                        || future.getResultWhenClosed().getClass() == result.getClass()) {
+                    future.set(result);
+                } else {
+                    Log.w(TAG, "Type mismatch, expected "
+                            + future.getResultWhenClosed().getClass()
+                            + ", but was " + result.getClass());
+                }
             } else {
                 if (DEBUG) {
                     // Note: May not be an error if the caller doesn't return ListenableFuture
@@ -113,24 +114,25 @@ class SequencedFutureManager<T> implements AutoCloseable {
             mSeqToFutureMap.clear();
         }
         for (SequencedFuture result: pendingResults) {
-            result.set(mResultWhenClosed);
+            result.set(result.getResultWhenClosed());
         }
     }
 
     static final class SequencedFuture<T> extends AbstractResolvableFuture<T> {
         private final int mSequenceNumber;
+        private final T mResultWhenClosed;
 
         /**
          * Creates a new {@code ResolvableFuture} that can be completed or cancelled by a later
          * method call.
          */
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        static <T> SequencedFuture<T> create(int seq) {
-            return new SequencedFuture<T>(seq);
+        static <T> SequencedFuture<T> create(int seq, @NonNull T resultWhenClosed) {
+            return new SequencedFuture<T>(seq, resultWhenClosed);
         }
 
         @Override
-        public boolean set(T value) {
+        public boolean set(@Nullable T value) {
             return super.set(value);
         }
 
@@ -138,8 +140,13 @@ class SequencedFutureManager<T> implements AutoCloseable {
             return mSequenceNumber;
         }
 
-        private SequencedFuture(int seq) {
+        public @NonNull T getResultWhenClosed() {
+            return mResultWhenClosed;
+        }
+
+        private SequencedFuture(int seq, @NonNull T resultWhenClosed) {
             mSequenceNumber = seq;
+            mResultWhenClosed = resultWhenClosed;
         }
     }
 }

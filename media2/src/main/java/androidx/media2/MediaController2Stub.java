@@ -21,8 +21,11 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.media2.MediaBrowser2.BrowserResult;
 import androidx.media2.MediaController2.ControllerResult;
 import androidx.media2.MediaController2.PlaybackInfo;
+import androidx.media2.MediaLibraryService2.LibraryParams;
+import androidx.media2.MediaLibraryService2.LibraryResult;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.SessionResult;
 import androidx.media2.SessionPlayer2.BuffState;
@@ -56,6 +59,18 @@ class MediaController2Stub extends IMediaController2.Stub {
         }
         SessionResult result = ParcelUtils.fromParcelable(sessionResult);
         mSequencedFutureManager.setFutureResult(seq, ControllerResult.from(result));
+    }
+
+    @Override
+    public void onLibraryResult(int seq, ParcelImpl libraryResult) {
+        try {
+            final MediaBrowser2 browser = getBrowser();
+        } catch (IllegalStateException e) {
+            Log.w(TAG, "Don't fail silently here. Highly likely a bug");
+            return;
+        }
+        LibraryResult result = ParcelUtils.fromParcelable(libraryResult);
+        mSequencedFutureManager.setFutureResult(seq, BrowserResult.from(result));
     }
 
     @Override
@@ -328,83 +343,8 @@ class MediaController2Stub extends IMediaController2.Stub {
     // MediaBrowser specific
     ////////////////////////////////////////////////////////////////////////////////////////////
     @Override
-    public void onGetLibraryRootDone(final Bundle rootHints, final String rootMediaId,
-            final Bundle rootExtra) throws RuntimeException {
-        final MediaBrowser2 browser;
-        try {
-            browser = getBrowser();
-        } catch (IllegalStateException e) {
-            Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-            return;
-        }
-        if (browser == null) {
-            return;
-        }
-        browser.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                browser.getCallback().onGetLibraryRootDone(
-                        browser, rootHints, rootMediaId, rootExtra);
-            }
-        });
-    }
-
-    @Override
-    public void onGetItemDone(final String mediaId, final ParcelImpl item)
-            throws RuntimeException {
-        if (mediaId == null) {
-            Log.w(TAG, "onGetItemDone(): Ignoring null mediaId");
-            return;
-        }
-        final MediaBrowser2 browser;
-        try {
-            browser = getBrowser();
-        } catch (IllegalStateException e) {
-            Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-            return;
-        }
-        if (browser == null) {
-            return;
-        }
-        browser.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                browser.getCallback().onGetItemDone(
-                        browser, mediaId, (MediaItem2) ParcelUtils.fromParcelable(item));
-            }
-        });
-    }
-
-    @Override
-    public void onGetChildrenDone(final String parentId, final int page, final int pageSize,
-            final ParcelImplListSlice listSlice, final Bundle extras) throws RuntimeException {
-        if (parentId == null) {
-            Log.w(TAG, "onGetChildrenDone(): Ignoring null parentId");
-            return;
-        }
-        final MediaBrowser2 browser;
-        try {
-            browser = getBrowser();
-        } catch (IllegalStateException e) {
-            Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-            return;
-        }
-        if (browser == null) {
-            return;
-        }
-
-        browser.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                browser.getCallback().onGetChildrenDone(browser, parentId, page, pageSize,
-                        MediaUtils2.convertParcelImplListSliceToMediaItem2List(listSlice), extras);
-            }
-        });
-    }
-
-    @Override
-    public void onSearchResultChanged(final String query, final int itemCount, final Bundle extras)
-            throws RuntimeException {
+    public void onSearchResultChanged(final String query, final int itemCount,
+            final ParcelImpl libraryParams) throws RuntimeException {
         if (TextUtils.isEmpty(query)) {
             Log.w(TAG, "onSearchResultChanged(): Ignoring empty query");
             return;
@@ -422,41 +362,15 @@ class MediaController2Stub extends IMediaController2.Stub {
         browser.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                browser.getCallback().onSearchResultChanged(browser, query, itemCount, extras);
+                browser.getCallback().onSearchResultChanged(browser, query, itemCount,
+                        (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
             }
         });
     }
 
     @Override
-    public void onGetSearchResultDone(final String query, final int page, final int pageSize,
-            final ParcelImplListSlice listSlice, final Bundle extras) throws RuntimeException {
-        if (TextUtils.isEmpty(query)) {
-            Log.w(TAG, "onGetSearchResultDone(): Ignoring empty query");
-            return;
-        }
-        final MediaBrowser2 browser;
-        try {
-            browser = getBrowser();
-        } catch (IllegalStateException e) {
-            Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-            return;
-        }
-        if (browser == null) {
-            // TODO(jaewan): Revisit here. Could be a bug
-            return;
-        }
-
-        browser.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                browser.getCallback().onGetSearchResultDone(browser, query, page, pageSize,
-                        MediaUtils2.convertParcelImplListSliceToMediaItem2List(listSlice), extras);
-            }
-        });
-    }
-
-    @Override
-    public void onChildrenChanged(final String parentId, final int itemCount, final Bundle extras) {
+    public void onChildrenChanged(final String parentId, final int itemCount,
+            final ParcelImpl libraryParams) {
         if (parentId == null) {
             Log.w(TAG, "onChildrenChanged(): Ignoring null parentId");
             return;
@@ -474,7 +388,8 @@ class MediaController2Stub extends IMediaController2.Stub {
         browser.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
-                browser.getCallback().onChildrenChanged(browser, parentId, itemCount, extras);
+                browser.getCallback().onChildrenChanged(browser, parentId, itemCount,
+                        (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
             }
         });
     }

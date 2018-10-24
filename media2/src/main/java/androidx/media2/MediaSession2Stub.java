@@ -42,6 +42,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.MediaSessionManager;
 import androidx.media2.MediaController2.PlaybackInfo;
+import androidx.media2.MediaLibraryService2.LibraryParams;
+import androidx.media2.MediaLibraryService2.LibraryResult;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.MediaSession2.CommandButton;
@@ -70,7 +72,6 @@ import java.util.concurrent.TimeUnit;
  * subclassing and it's generated stub class is an abstract class.
  */
 class MediaSession2Stub extends IMediaSession2.Stub {
-
     private static final String TAG = "MediaSession2Stub";
     private static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
     private static final boolean THROW_EXCEPTION_FOR_NULL_RESULT = true;
@@ -135,6 +136,22 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             @NonNull PlayerResult result) {
         try {
             controller.getControllerCb().onPlayerResult(seq, result);
+        } catch (RemoteException e) {
+            Log.w(TAG, "Exception in " + controller.toString(), e);
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void sendLibraryResult(@NonNull ControllerInfo controller, int seq,
+            int resultCode) {
+        sendLibraryResult(controller, seq, new LibraryResult(resultCode));
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void sendLibraryResult(@NonNull ControllerInfo controller, int seq,
+            @NonNull LibraryResult result) {
+        try {
+            controller.getControllerCb().onLibraryResult(seq, result);
         } catch (RemoteException e) {
             Log.w(TAG, "Exception in " + controller.toString(), e);
         }
@@ -247,6 +264,27 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             sendSessionResult(controller, seq, (Integer) result);
                         } else if (result instanceof SessionResult) {
                             sendSessionResult(controller, seq, (SessionResult) result);
+                        } else if (DEBUG) {
+                            throw new RuntimeException("Unexpected return type " + result
+                                    + ". Fix bug");
+                        }
+                    } else if (task instanceof LibrarySessionCallbackTask) {
+                        final Object result = ((LibrarySessionCallbackTask) task).run(controller);
+                        if (result == null) {
+                            if (THROW_EXCEPTION_FOR_NULL_RESULT) {
+                                throw new RuntimeException("LibrarySessionCallback has returned"
+                                        + " null, commandCode=" + commandCode);
+                            } else {
+                                sendLibraryResult(controller, seq,
+                                        LibraryResult.RESULT_CODE_UNKNOWN_ERROR);
+                            }
+                        } else if (result instanceof Integer) {
+                            sendLibraryResult(controller, seq, (Integer) result);
+                        } else if (result instanceof LibraryResult) {
+                            sendLibraryResult(controller, seq, (LibraryResult) result);
+                        } else if (DEBUG) {
+                            throw new RuntimeException("Unexpected return type " + result
+                                    + ". Fix bug");
                         }
                     } else if (DEBUG) {
                         throw new RuntimeException("Unknown task " + task + ". Fix bug");
@@ -263,12 +301,12 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         });
     }
 
-    private void dispatchLibrarySessionTask(@NonNull IMediaController2 caller,
-            @CommandCode final int commandCode, final @NonNull SessionTask task) {
+    private void dispatchLibrarySessionTask(@NonNull IMediaController2 caller, int seq,
+            @CommandCode final int commandCode, final @NonNull LibrarySessionCallbackTask task) {
         if (!(mSessionImpl instanceof MediaLibrarySessionImpl)) {
             throw new RuntimeException("MediaSession2 cannot handle MediaLibrarySession command");
         }
-        dispatchSessionTaskInternal(caller, -1, null, commandCode, task);
+        dispatchSessionTaskInternal(caller, seq, null, commandCode, task);
     }
 
     void connect(final IMediaController2 caller, final String callingPackage, final int pid,
@@ -372,7 +410,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    @Nullable MediaItem2 convertMediaItem2OnExecutor(ControllerInfo controller,
+    @Nullable
+    MediaItem2 convertMediaItem2OnExecutor(ControllerInfo controller,
             @NonNull ParcelImpl itemParcelImpl) {
         if (itemParcelImpl == null) {
             return null;
@@ -533,7 +572,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 if (result == null) {
                     if (THROW_EXCEPTION_FOR_NULL_RESULT) {
                         throw new RuntimeException("SessionCallback#onCustomCommand has returned"
-                                        + " null, command=" + sessionCommand);
+                                + " null, command=" + sessionCommand);
                     } else {
                         result = new SessionResult(RESULT_CODE_UNKNOWN_ERROR);
                     }
@@ -912,136 +951,139 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void getLibraryRoot(final IMediaController2 caller, final Bundle rootHints)
-            throws RuntimeException {
-        dispatchLibrarySessionTask(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
-                new SessionCallbackTask<Boolean>() {
+    public void getLibraryRoot(final IMediaController2 caller, int seq,
+            final ParcelImpl libraryParams) throws RuntimeException {
+        dispatchLibrarySessionTask(caller, seq,
+                SessionCommand2.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
+                new LibrarySessionCallbackTask<LibraryResult>() {
                     @Override
-                    public Boolean run(ControllerInfo controller) {
-                        getLibrarySession().onGetLibraryRootOnExecutor(controller, rootHints);
-                        return true;
+                    public LibraryResult run(ControllerInfo controller) {
+                        return getLibrarySession().onGetLibraryRootOnExecutor(controller,
+                                (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
                     }
                 });
     }
 
     @Override
-    public void getItem(final IMediaController2 caller, final String mediaId)
+    public void getItem(final IMediaController2 caller, int seq, final String mediaId)
             throws RuntimeException {
-        dispatchLibrarySessionTask(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_ITEM,
-                new SessionCallbackTask<Boolean>() {
+        dispatchLibrarySessionTask(caller, seq, SessionCommand2.COMMAND_CODE_LIBRARY_GET_ITEM,
+                new LibrarySessionCallbackTask<LibraryResult>() {
                     @Override
-                    public Boolean run(ControllerInfo controller) {
+                    public LibraryResult run(ControllerInfo controller) {
                         if (mediaId == null) {
                             Log.w(TAG, "getItem(): Ignoring null mediaId from " + controller);
-                            return false;
+                            return new LibraryResult(RESULT_CODE_BAD_VALUE);
                         }
-                        getLibrarySession().onGetItemOnExecutor(controller, mediaId);
-                        return true;
+                        return getLibrarySession().onGetItemOnExecutor(controller, mediaId);
                     }
                 });
     }
 
     @Override
-    public void getChildren(final IMediaController2 caller, final String parentId,
-            final int page, final int pageSize, final Bundle extras) throws RuntimeException {
-        dispatchLibrarySessionTask(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_CHILDREN,
-                new SessionCallbackTask<Boolean>() {
+    public void getChildren(final IMediaController2 caller, int seq, final String parentId,
+            final int page, final int pageSize, final ParcelImpl libraryParams)
+            throws RuntimeException {
+        dispatchLibrarySessionTask(caller, seq, SessionCommand2.COMMAND_CODE_LIBRARY_GET_CHILDREN,
+                new LibrarySessionCallbackTask<LibraryResult>() {
                     @Override
-                    public Boolean run(ControllerInfo controller) {
+                    public LibraryResult run(ControllerInfo controller) {
                         if (parentId == null) {
                             Log.w(TAG, "getChildren(): Ignoring null parentId from " + controller);
-                            return false;
+                            return new LibraryResult(LibraryResult.RESULT_CODE_BAD_VALUE);
                         }
                         if (page < 0) {
                             Log.w(TAG, "getChildren(): Ignoring negative page from " + controller);
-                            return false;
+                            return new LibraryResult(LibraryResult.RESULT_CODE_BAD_VALUE);
                         }
                         if (pageSize < 1) {
                             Log.w(TAG, "getChildren(): Ignoring pageSize less than 1 from "
                                     + controller);
-                            return false;
+                            return new LibraryResult(LibraryResult.RESULT_CODE_BAD_VALUE);
                         }
-                        getLibrarySession().onGetChildrenOnExecutor(controller, parentId, page,
-                                pageSize, extras);
-                        return true;
+                        return getLibrarySession().onGetChildrenOnExecutor(controller, parentId,
+                                page, pageSize,
+                                (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
                     }
                 });
     }
 
     @Override
-    public void search(IMediaController2 caller, final String query, final Bundle extras) {
-        dispatchLibrarySessionTask(caller, SessionCommand2.COMMAND_CODE_LIBRARY_SEARCH,
-                new SessionCallbackTask<Boolean>() {
+    public void search(IMediaController2 caller, int seq, final String query,
+            final ParcelImpl libraryParams) {
+        dispatchLibrarySessionTask(caller, seq, SessionCommand2.COMMAND_CODE_LIBRARY_SEARCH,
+                new LibrarySessionCallbackTask<Integer>() {
                     @Override
-                    public Boolean run(ControllerInfo controller) {
+                    public Integer run(ControllerInfo controller) {
                         if (TextUtils.isEmpty(query)) {
                             Log.w(TAG, "search(): Ignoring empty query from " + controller);
-                            return false;
+                            return LibraryResult.RESULT_CODE_BAD_VALUE;
                         }
-                        getLibrarySession().onSearchOnExecutor(controller, query, extras);
-                        return true;
+                        return getLibrarySession().onSearchOnExecutor(controller, query,
+                                (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
                     }
                 });
     }
 
     @Override
-    public void getSearchResult(final IMediaController2 caller, final String query,
-            final int page, final int pageSize, final Bundle extras) {
-        dispatchLibrarySessionTask(caller, SessionCommand2.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT,
-                new SessionCallbackTask<Boolean>() {
+    public void getSearchResult(final IMediaController2 caller, int seq, final String query,
+            final int page, final int pageSize, final ParcelImpl libraryParams) {
+        dispatchLibrarySessionTask(caller, seq,
+                SessionCommand2.COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT,
+                new LibrarySessionCallbackTask<LibraryResult>() {
                     @Override
-                    public Boolean run(ControllerInfo controller) {
+                    public LibraryResult run(ControllerInfo controller) {
                         if (TextUtils.isEmpty(query)) {
                             Log.w(TAG, "getSearchResult(): Ignoring empty query from "
                                     + controller);
-                            return false;
+                            return new LibraryResult(LibraryResult.RESULT_CODE_BAD_VALUE);
                         }
                         if (page < 0) {
                             Log.w(TAG, "getSearchResult(): Ignoring negative page from "
                                     + controller);
-                            return false;
+                            return new LibraryResult(LibraryResult.RESULT_CODE_BAD_VALUE);
                         }
                         if (pageSize < 1) {
                             Log.w(TAG, "getSearchResult(): Ignoring pageSize less than 1 from "
                                     + controller);
-                            return false;
+                            return new LibraryResult(LibraryResult.RESULT_CODE_BAD_VALUE);
                         }
-                        getLibrarySession().onGetSearchResultOnExecutor(controller,
-                                query, page, pageSize, extras);
-                        return true;
+                        return getLibrarySession().onGetSearchResultOnExecutor(controller,
+                                query, page, pageSize,
+                                (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
                     }
                 });
     }
 
     @Override
-    public void subscribe(final IMediaController2 caller, final String parentId,
-            final Bundle option) {
-        dispatchLibrarySessionTask(caller, SessionCommand2.COMMAND_CODE_LIBRARY_SUBSCRIBE,
-                new SessionCallbackTask<Boolean>() {
+    public void subscribe(final IMediaController2 caller, int seq, final String parentId,
+            final ParcelImpl libraryParams) {
+        dispatchLibrarySessionTask(caller, seq, SessionCommand2.COMMAND_CODE_LIBRARY_SUBSCRIBE,
+                new LibrarySessionCallbackTask<Integer>() {
                     @Override
-                    public Boolean run(ControllerInfo controller) {
+                    public Integer run(ControllerInfo controller) {
                         if (parentId == null) {
                             Log.w(TAG, "subscribe(): Ignoring null parentId from " + controller);
-                            return false;
+                            return LibraryResult.RESULT_CODE_BAD_VALUE;
                         }
-                        getLibrarySession().onSubscribeOnExecutor(controller, parentId, option);
-                        return true;
+                        return getLibrarySession().onSubscribeOnExecutor(
+                                controller, parentId,
+                                (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
                     }
                 });
     }
 
     @Override
-    public void unsubscribe(final IMediaController2 caller, final String parentId) {
-        dispatchLibrarySessionTask(caller, SessionCommand2.COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
-                new SessionCallbackTask<Boolean>() {
+    public void unsubscribe(final IMediaController2 caller, int seq, final String parentId) {
+        dispatchLibrarySessionTask(caller, seq, SessionCommand2.COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
+                new LibrarySessionCallbackTask<Integer>() {
                     @Override
-                    public Boolean run(ControllerInfo controller) {
+                    public Integer run(ControllerInfo controller) {
                         if (parentId == null) {
                             Log.w(TAG, "unsubscribe(): Ignoring null parentId from " + controller);
-                            return false;
+                            return LibraryResult.RESULT_CODE_BAD_VALUE;
                         }
-                        getLibrarySession().onUnsubscribeOnExecutor(controller, parentId);
-                        return true;
+                        return getLibrarySession().onUnsubscribeOnExecutor(controller, parentId);
                     }
                 });
     }
@@ -1063,6 +1105,10 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         T run(ControllerInfo controller) throws RemoteException;
     }
 
+    private interface LibrarySessionCallbackTask<T> extends SessionTask {
+        T run(ControllerInfo controller) throws RemoteException;
+    }
+
     final class Controller2Cb extends ControllerCb {
         // TODO: Drop 'Callback' from the name.
         private final IMediaController2 mIControllerCallback;
@@ -1071,7 +1117,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             mIControllerCallback = callback;
         }
 
-        @NonNull IBinder getCallbackBinder() {
+        @NonNull
+        IBinder getCallbackBinder() {
             return mIControllerCallback.asBinder();
         }
 
@@ -1086,6 +1133,15 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 result = new SessionResult(RESULT_CODE_UNKNOWN_ERROR, null);
             }
             mIControllerCallback.onSessionResult(seq,
+                    (ParcelImpl) ParcelUtils.toParcelable(result));
+        }
+
+        @Override
+        void onLibraryResult(int seq, LibraryResult result) throws RemoteException {
+            if (result == null) {
+                result = new LibraryResult(LibraryResult.RESULT_CODE_UNKNOWN_ERROR);
+            }
+            mIControllerCallback.onLibraryResult(seq,
                     (ParcelImpl) ParcelUtils.toParcelable(result));
         }
 
@@ -1192,43 +1248,17 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         }
 
         @Override
-        void onGetLibraryRootDone(Bundle rootHints, String rootMediaId, Bundle rootExtra)
+        void onChildrenChanged(String parentId, int itemCount, LibraryParams params)
                 throws RemoteException {
-            mIControllerCallback.onGetLibraryRootDone(rootHints, rootMediaId, rootExtra);
+            mIControllerCallback.onChildrenChanged(parentId, itemCount,
+                    (ParcelImpl) ParcelUtils.toParcelable(params));
         }
 
         @Override
-        void onChildrenChanged(String parentId, int itemCount, Bundle extras)
+        void onSearchResultChanged(String query, int itemCount, LibraryParams params)
                 throws RemoteException {
-            mIControllerCallback.onChildrenChanged(parentId, itemCount, extras);
-        }
-
-        @Override
-        void onGetChildrenDone(String parentId, int page, int pageSize, List<MediaItem2> result,
-                Bundle extras) throws RemoteException {
-            ParcelImplListSlice listSlice =
-                    MediaUtils2.convertMediaItem2ListToParcelImplListSlice(result);
-            mIControllerCallback.onGetChildrenDone(parentId, page, pageSize, listSlice, extras);
-        }
-
-        @Override
-        void onGetItemDone(String mediaId, MediaItem2 result) throws RemoteException {
-            mIControllerCallback.onGetItemDone(mediaId,
-                    (ParcelImpl) ParcelUtils.toParcelable(result));
-        }
-
-        @Override
-        void onSearchResultChanged(String query, int itemCount, Bundle extras)
-                throws RemoteException {
-            mIControllerCallback.onSearchResultChanged(query, itemCount, extras);
-        }
-
-        @Override
-        void onGetSearchResultDone(String query, int page, int pageSize, List<MediaItem2> result,
-                Bundle extras) throws RemoteException {
-            ParcelImplListSlice listSlice =
-                    MediaUtils2.convertMediaItem2ListToParcelImplListSlice(result);
-            mIControllerCallback.onGetSearchResultDone(query, page, pageSize, listSlice, extras);
+            mIControllerCallback.onSearchResultChanged(query, itemCount,
+                    (ParcelImpl) ParcelUtils.toParcelable(params));
         }
 
         @Override
