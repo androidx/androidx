@@ -2663,7 +2663,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testDataSourceStartEnd() throws Exception {
         final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start1 = 6000;
@@ -2678,6 +2678,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         final int resid2 = R.raw.testvideo;
         final long start2 = 3000;
         final long end2 = 5000;
+        final int expectedDuration2 = 11047;
         AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2);
         MediaItem2 item2 = new FileMediaItem2.Builder(
                 afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
@@ -2729,6 +2730,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.reset();
         mOnCompletionCalled.waitForSignal();
         assertTrue(Math.abs(mPlayer.getCurrentPosition() - end2) < PLAYBACK_COMPLETE_TOLERANCE_MS);
+
+        assertEquals(expectedDuration2, mPlayer.getDuration());
 
         afd1.close();
         afd2.close();
@@ -2809,7 +2812,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPreservePlaybackProperties() throws Exception {
         final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start1 = 6000;
