@@ -44,5 +44,5 @@ android {
             manifest.srcFile "AndroidManifest.xml"
         }
     }
-    flavorDimensions("library-group")
+    flavorDimensions "library-group"
 }
