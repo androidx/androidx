@@ -51,6 +51,7 @@ interface IRemoteMediaSession2 {
     void notifyAudioAttributesChanged(String sessionId, in Bundle attrs);
 
     void setPlaylist(String sessionId, in List<Bundle> playlist);
+    void createAndSetDummyPlaylist(String sessionId, int size);
     void setPlaylistWithDummyItem(String sessionId, in List<Bundle> playlist);
     void setPlaylistMetadata(String sessionId, in Bundle metadata);
     void setShuffleMode(String sessionId, int shuffleMode);

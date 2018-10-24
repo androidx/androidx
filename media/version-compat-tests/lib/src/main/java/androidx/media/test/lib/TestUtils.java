@@ -91,6 +91,14 @@ public class TestUtils {
     }
 
     /**
+     * When testing with any dummy lists, get the expected media ID of index {@param index}.
+     */
+    public static String getMediaIdInDummyList(int index) {
+        // Set the media as the index with leading zeros.
+        return String.format("%08d", index);
+    }
+
+    /**
      * Handler that always waits until the Runnable finishes.
      */
     public static class SyncHandler extends Handler {

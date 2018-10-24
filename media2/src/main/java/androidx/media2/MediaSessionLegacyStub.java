@@ -19,11 +19,13 @@ package androidx.media2;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_TITLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
 import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaUtils2.TRANSACTION_SIZE_LIMIT_IN_BYTES;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.RemoteException;
@@ -31,6 +33,7 @@ import android.os.ResultReceiver;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -772,7 +775,23 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onPlaylistChanged(List<MediaItem2> playlist, MediaMetadata2 metadata)
                 throws RemoteException {
-            mSessionImpl.getSessionCompat().setQueue(MediaUtils2.convertToQueueItemList(playlist));
+            if (Build.VERSION.SDK_INT < 21) {
+                // In order to avoid TransactionTooLargeException for below API 21,
+                // we need to cut the list so that it doesn't exceed the binder transaction limit.
+                List<QueueItem> queueItemList = MediaUtils2.convertToQueueItemList(playlist);
+                List<QueueItem> truncatedList = MediaUtils2.truncateListBySize(
+                        queueItemList, TRANSACTION_SIZE_LIMIT_IN_BYTES);
+                if (truncatedList.size() != playlist.size()) {
+                    Log.i(TAG, "Sending " + truncatedList.size() + " items out of "
+                            + playlist.size());
+                }
+                mSessionImpl.getSessionCompat().setQueue(truncatedList);
+            } else {
+                // Framework MediaSession#setQueue() uses ParceledListSlice,
+                // which means we can safely send long lists.
+                mSessionImpl.getSessionCompat().setQueue(
+                        MediaUtils2.convertToQueueItemList(playlist));
+            }
             onPlaylistMetadataChanged(metadata);
         }
 

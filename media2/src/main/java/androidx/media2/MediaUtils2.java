@@ -30,6 +30,8 @@ import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -59,6 +61,7 @@ import java.util.concurrent.Executor;
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class MediaUtils2 {
     public static final String TAG = "MediaUtils2";
+    public static final int TRANSACTION_SIZE_LIMIT_IN_BYTES = 256 * 1024; // 256KB
 
     // Stub BrowserRoot for accepting any connection here.
     public static final BrowserRoot sDefaultBrowserRoot =
@@ -231,6 +234,9 @@ public class MediaUtils2 {
      * Convert a {@link MediaItem2} to a {@link QueueItem}.
      */
     public static QueueItem convertToQueueItem(MediaItem2 item) {
+        if (item == null) {
+            return null;
+        }
         MediaDescriptionCompat description = (item.getMetadata() == null)
                 ? new MediaDescriptionCompat.Builder().setMediaId(item.getMediaId()).build()
                 : convertToMediaMetadataCompat(item.getMetadata()).getDescription();
@@ -246,9 +252,26 @@ public class MediaUtils2 {
         }
         List<QueueItem> result = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
-            result.add(convertToQueueItem(items.get(i)));
+            QueueItem queueItem = convertToQueueItem(items.get(i));
+            if (queueItem != null) {
+                result.add(queueItem);
+            }
         }
         return result;
+    }
+
+    /**
+     * Convert a {@link ParcelImplListSlice} to a list of {@link MediaItem2}.
+     *
+     * TODO: Remove below convertParcelImplListToMediaItem2List() when all media list-related calls
+     * use ParcelImplListSlice.
+     */
+    public static List<MediaItem2> convertParcelImplListSliceToMediaItem2List(
+            ParcelImplListSlice listSlice) {
+        if (listSlice == null) {
+            return null;
+        }
+        return convertParcelImplListToMediaItem2List(listSlice.getList());
     }
 
     /**
@@ -267,6 +290,32 @@ public class MediaUtils2 {
             }
         }
         return playlist;
+    }
+
+    /**
+     * Return a list which consists of first {@code N} items of the given list with the same order.
+     * {@code N} is determined as the maximum number of items whose total parcelled size is less
+     * than {@param sizeLimitInBytes}.
+     */
+    public static <T extends Parcelable> List<T> truncateListBySize(final List<T> list,
+            final int sizeLimitInBytes) {
+        if (list == null) {
+            return null;
+        }
+        List<T> result = new ArrayList<>();
+        Parcel parcel = Parcel.obtain();
+        for (int i = 0; i < list.size(); i++) {
+            // Calculate the size.
+            T item = list.get(i);
+            parcel.writeParcelable(item, 0);
+            if (parcel.dataSize() < sizeLimitInBytes) {
+                result.add(item);
+            } else {
+                break;
+            }
+        }
+        parcel.recycle();
+        return result;
     }
 
     /**
@@ -464,6 +513,20 @@ public class MediaUtils2 {
             parcelImplList.add((ParcelImpl) ParcelUtils.toParcelable(commandButton));
         }
         return parcelImplList;
+    }
+
+    /**
+     * Convert a list of {@link MediaItem2} to a list of {@link ParcelImplListSlice}.
+     *
+     * TODO: Remove below convertMediaItem2ListToParcelImplList() when all media list-related calls
+     * use ParcelImplListSlice.
+     */
+    public static ParcelImplListSlice convertMediaItem2ListToParcelImplListSlice(
+            List<MediaItem2> playlist) {
+        if (playlist == null) {
+            return null;
+        }
+        return new ParcelImplListSlice(convertMediaItem2ListToParcelImplList(playlist));
     }
 
     /**
