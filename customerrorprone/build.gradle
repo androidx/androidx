@@ -5,7 +5,7 @@ apply plugin:'java'
 
 dependencies {
 
-  implementation project(':annotation')
+  implementation "androidx.annotation:annotation:1.0.0"
 
   compileOnly 'com.google.errorprone:error_prone_core:2.3.1'
   compileOnly 'com.google.errorprone:error_prone_annotation:2.3.1'
