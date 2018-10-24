@@ -31,7 +31,7 @@ dependencies {
 
 // Used by testCompile in room-compiler
 android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
+    def name = variant.name
     def suffix = name.capitalize()
     def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
         dependsOn variant.javaCompile
