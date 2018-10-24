@@ -365,30 +365,6 @@ public class NavController {
     }
 
     /**
-     * Sets the {@link NavGraph navigation graph} as specified in the application manifest.
-     *
-     * <p>Applications may declare a graph resource in their manifest instead of declaring
-     * or passing this data to each host or controller:</p>
-     *
-     * <pre class="prettyprint">
-     *     <meta-data android:name="android.nav.graph" android:resource="@xml/my_nav_graph" />
-     * </pre>
-     *
-     * <p>The inflated graph can be retrieved via {@link #getGraph()}. Calling this will have no
-     * effect if there is no metadata graph specified.</p>
-     *
-     * @see NavInflater#METADATA_KEY_GRAPH
-     * @see NavInflater#inflateMetadataGraph()
-     * @see #getGraph
-     */
-    public void setMetadataGraph() {
-        NavGraph metadataGraph = getNavInflater().inflateMetadataGraph();
-        if (metadataGraph != null) {
-            setGraph(metadataGraph);
-        }
-    }
-
-    /**
      * Returns the {@link NavInflater inflater} for this controller.
      *
      * @return inflater for loading navigation resources
@@ -604,7 +580,6 @@ public class NavController {
      *
      * @see #setGraph(int)
      * @see #setGraph(NavGraph)
-     * @see #setMetadataGraph()
      * @throws IllegalStateException if called before <code>setGraph()</code>.
      */
     @NonNull
