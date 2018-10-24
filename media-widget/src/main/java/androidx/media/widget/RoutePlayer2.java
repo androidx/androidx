@@ -32,6 +32,7 @@ import android.util.Log;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
+import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
@@ -51,7 +52,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
@@ -89,12 +89,11 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
                             RESULT_CODE_SUCCESS, getCurrentMediaItem()));
                 }
                 mPendingVolumeResult.clear();
-                Map<PlayerCallback, Executor> callbacks = getCallbacks();
-                for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-                    final SessionPlayer2.PlayerCallback callback = entry.getKey();
-                    if (callback instanceof RemoteSessionPlayer2.Callback) {
-                        final Executor executor = entry.getValue();
-                        executor.execute(new Runnable() {
+                List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+                for (Pair<PlayerCallback, Executor> pair : callbacks) {
+                    if (pair.first instanceof RemoteSessionPlayer2.Callback) {
+                        final RemoteSessionPlayer2.PlayerCallback callback = pair.first;
+                        pair.second.execute(new Runnable() {
                             @Override
                             public void run() {
                                 ((RemoteSessionPlayer2.Callback) callback)
@@ -119,11 +118,10 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
             mPosition = itemStatus.getContentPosition();
             mCurrentPlayerState = convertPlaybackStateToPlayerState(itemStatus.getPlaybackState());
 
-            Map<PlayerCallback, Executor> callbacks = getCallbacks();
-            for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-                final PlayerCallback callback = entry.getKey();
-                final Executor executor = entry.getValue();
-                executor.execute(new Runnable() {
+            List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+            for (Pair<PlayerCallback, Executor> pair : callbacks) {
+                final PlayerCallback callback = pair.first;
+                pair.second.execute(new Runnable() {
                     @Override
                     public void run() {
                         callback.onPlayerStateChanged(RoutePlayer2.this, mCurrentPlayerState);
@@ -225,11 +223,10 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
                         Log.v(TAG, "seekTo(long) is called, but session is not active.");
                     }
                     if (itemStatus != null) {
-                        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-                        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-                            final PlayerCallback callback = entry.getKey();
-                            final Executor executor = entry.getValue();
-                            executor.execute(new Runnable() {
+                        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+                        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+                            final PlayerCallback callback = pair.first;
+                            pair.second.execute(new Runnable() {
                                 @Override
                                 public void run() {
                                     callback.onSeekCompleted(RoutePlayer2.this,
