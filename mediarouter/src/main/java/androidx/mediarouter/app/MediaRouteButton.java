@@ -165,7 +165,7 @@ public class MediaRouteButton extends View {
                 setRemoteIndicatorDrawableInternal(remoteIndicatorStaticState.newDrawable());
             } else {
                 mRemoteIndicatorLoader = new RemoteIndicatorLoader(remoteIndicatorStaticResId);
-                mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
             }
         }
 
@@ -484,7 +484,7 @@ public class MediaRouteButton extends View {
             }
             mRemoteIndicatorLoader = new RemoteIndicatorLoader(mRemoteIndicatorResIdToLoad);
             mRemoteIndicatorResIdToLoad = 0;
-            mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            mRemoteIndicatorLoader.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
         }
     }
 
@@ -640,12 +640,26 @@ public class MediaRouteButton extends View {
 
         @Override
         protected Drawable doInBackground(Void... params) {
-            return getContext().getResources().getDrawable(mResId);
+            Drawable.ConstantState remoteIndicatorState = sRemoteIndicatorCache.get(mResId);
+            if (remoteIndicatorState == null) {
+                return getContext().getResources().getDrawable(mResId);
+            } else {
+                return null;
+            }
         }
 
         @Override
         protected void onPostExecute(Drawable remoteIndicator) {
-            cacheAndReset(remoteIndicator);
+            if (remoteIndicator != null) {
+                cacheAndReset(remoteIndicator);
+            } else {
+                Drawable.ConstantState remoteIndicatorState = sRemoteIndicatorCache.get(mResId);
+                if (remoteIndicatorState != null) {
+                    remoteIndicator = remoteIndicatorState.newDrawable();
+                }
+                mRemoteIndicatorLoader = null;
+            }
+
             setRemoteIndicatorDrawableInternal(remoteIndicator);
         }
 
