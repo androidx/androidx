@@ -458,8 +458,8 @@ public class XMediaPlayerDrmTest {
     }
 
     private void preparePlayerAndDrm_V0_syncDrmSetup() throws Exception {
-        Log.v(TAG, "preparePlayerAndDrm_V0: calling prefetch()");
-        ListenableFuture<PlayerResult> future = mPlayer.prefetch();
+        Log.v(TAG, "preparePlayerAndDrm_V0: calling prepare()");
+        ListenableFuture<PlayerResult> future = mPlayer.prepare();
         assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         DrmInfo drmInfo = mPlayer.getDrmInfo();
@@ -493,8 +493,8 @@ public class XMediaPlayerDrmTest {
             }
         });
 
-        Log.v(TAG, "preparePlayerAndDrm_V1: calling prefetch()");
-        ListenableFuture<PlayerResult> future = mPlayer.prefetch();
+        Log.v(TAG, "preparePlayerAndDrm_V1: calling prepare()");
+        ListenableFuture<PlayerResult> future = mPlayer.prepare();
         assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         mOnDrmInfoCalled.waitForSignal();
@@ -528,8 +528,8 @@ public class XMediaPlayerDrmTest {
             }
         });
 
-        Log.v(TAG, "preparePlayerAndDrm_V2: calling prefetch()");
-        ListenableFuture<PlayerResult> future = mPlayer.prefetch();
+        Log.v(TAG, "preparePlayerAndDrm_V2: calling prepare()");
+        ListenableFuture<PlayerResult> future = mPlayer.prepare();
         assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         DrmInfo drmInfo = mPlayer.getDrmInfo();
@@ -609,8 +609,8 @@ public class XMediaPlayerDrmTest {
             }
         });
 
-        Log.v(TAG, "preparePlayerAndDrm_V3: calling prefetch()");
-        ListenableFuture<PlayerResult> future = mPlayer.prefetch();
+        Log.v(TAG, "preparePlayerAndDrm_V3: calling prepare()");
+        ListenableFuture<PlayerResult> future = mPlayer.prepare();
         assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         // Unlike v3, onDrmPrepared is not synced to onPrepared b/c of its own thread handler
@@ -647,8 +647,8 @@ public class XMediaPlayerDrmTest {
                 mPlayer.setMediaItem(
                         new UriMediaItem2.Builder(mContext, file).build());
 
-                Log.v(TAG, "playLoadedVideo: prefetch()");
-                ListenableFuture<PlayerResult> future = mPlayer.prefetch();
+                Log.v(TAG, "playLoadedVideo: prepare()");
+                ListenableFuture<PlayerResult> future = mPlayer.prepare();
                 assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
                 // but preparing the DRM every time with proper key request type

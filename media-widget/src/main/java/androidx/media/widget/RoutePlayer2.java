@@ -184,7 +184,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> prefetch() {
+    public ListenableFuture<PlayerResult> prepare() {
         return createResult();
     }
 
