@@ -33,6 +33,8 @@ import android.app.Instrumentation;
 import android.graphics.Rect;
 import android.os.Looper;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -885,6 +887,8 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             TextView itemView = new TextView(parent.getContext());
             itemView.setFocusableInTouchMode(true);
             itemView.setFocusable(true);
+            itemView.setGravity(Gravity.CENTER);
+            itemView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 32f);
             return new TestViewHolder(itemView);
         }
 
@@ -894,6 +898,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             assertEquals(position, holder.getAdapterPosition());
             final Item item = mItems.get(position);
             ((TextView) (holder.itemView)).setText(item.mText + "(" + item.mId + ")");
+            holder.itemView.setBackgroundColor(position % 2 == 0 ? 0xFFFF0000 : 0xFF0000FF);
             holder.mBoundItem = item;
             if (mLayoutParams != null) {
                 holder.itemView.setLayoutParams(new RecyclerView.LayoutParams(mLayoutParams));
