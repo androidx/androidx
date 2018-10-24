@@ -32,6 +32,7 @@ import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_ID;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY_EMPTY_RESULT;
+import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY_LONG_LIST;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY_TAKES_TIME;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_RESULT;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_RESULT_COUNT;
@@ -193,6 +194,8 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
             if (SEARCH_QUERY.equals(query)) {
                 mSession.notifySearchResultChanged(controllerInfo, query, SEARCH_RESULT_COUNT,
                         extras);
+            } else if (SEARCH_QUERY_LONG_LIST.equals(query)) {
+                mSession.notifySearchResultChanged(controllerInfo, query, LONG_LIST_COUNT, extras);
             } else if (SEARCH_QUERY_TAKES_TIME.equals(query)) {
                 // Searching takes some time. Notify after 5 seconds.
                 Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
@@ -214,6 +217,15 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                 Bundle extras) {
             if (SEARCH_QUERY.equals(query)) {
                 return getPaginatedResult(SEARCH_RESULT, page, pageSize);
+            } else if (SEARCH_QUERY_LONG_LIST.equals(query)) {
+                List<MediaItem2> list = new ArrayList<>(LONG_LIST_COUNT);
+                MediaItem2.Builder builder = new MediaItem2.Builder(0);
+                for (int i = 0; i < LONG_LIST_COUNT; i++) {
+                    list.add(builder
+                            .setMediaId(TestUtils.getMediaIdInDummyList(i))
+                            .build());
+                }
+                return list;
             } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
                 return new ArrayList<>();
             } else {

@@ -32,6 +32,7 @@ import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_ID;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY_EMPTY_RESULT;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY_ERROR;
+import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY_LONG_LIST;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_RESULT;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_RESULT_COUNT;
 
@@ -324,6 +325,37 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
             }
         });
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    @LargeTest
+    public void testSearch_withLongList() throws InterruptedException {
+        prepareLooper();
+        final String testQuery = SEARCH_QUERY_LONG_LIST;
+        final int page = 0;
+        final int pageSize = Integer.MAX_VALUE;
+        final Bundle testExtras = new Bundle();
+        testExtras.putString(testQuery, testQuery);
+        testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE, page);
+        testExtras.putInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, pageSize);
+
+        connectAndWait();
+        final CountDownLatch latch = new CountDownLatch(1);
+        mBrowserCompat.search(testQuery, testExtras, new SearchCallback() {
+            @Override
+            public void onSearchResult(String query, Bundle extras, List<MediaItem> items) {
+                assertEquals(testQuery, query);
+                assertTrue(TestUtils.equals(testExtras, extras));
+
+                assertNotNull(items);
+                assertTrue(items.size() < LONG_LIST_COUNT);
+                for (int i = 0; i < items.size(); i++) {
+                    assertEquals(TestUtils.getMediaIdInDummyList(i), items.get(i).getMediaId());
+                }
+                latch.countDown();
+            }
+        });
+        assertTrue(latch.await(3, TimeUnit.SECONDS));
     }
 
     @Test

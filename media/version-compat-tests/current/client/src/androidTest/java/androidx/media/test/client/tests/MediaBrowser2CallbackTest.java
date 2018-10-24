@@ -370,6 +370,56 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
 
     @Test
     @LargeTest
+    public void testSearchCallbacks_withLongList() throws InterruptedException {
+        prepareLooper();
+        final String query = MediaBrowser2Constants.SEARCH_QUERY_LONG_LIST;
+        final int page = 0;
+        final int pageSize = Integer.MAX_VALUE;
+        final Bundle extras = new Bundle();
+        extras.putString(TAG, TAG);
+
+        final CountDownLatch latchForSearch = new CountDownLatch(1);
+        final CountDownLatch latchForGetSearchResult = new CountDownLatch(1);
+        final BrowserCallback callback = new BrowserCallback() {
+            @Override
+            public void onSearchResultChanged(MediaBrowser2 browser,
+                    String queryOut, int itemCount, Bundle extrasOut) {
+                assertEquals(query, queryOut);
+                assertTrue(TestUtils.equals(extras, extrasOut));
+                assertEquals(MediaBrowser2Constants.LONG_LIST_COUNT, itemCount);
+                latchForSearch.countDown();
+            }
+
+            @Override
+            public void onGetSearchResultDone(MediaBrowser2 browser, String queryOut,
+                    int pageOut, int pageSizeOut, List<MediaItem2> result, Bundle extrasOut) {
+                assertEquals(query, queryOut);
+                assertEquals(page, pageOut);
+                assertEquals(pageSize, pageSizeOut);
+                assertTrue(TestUtils.equals(extras, extrasOut));
+
+                assertNotNull(result);
+                assertEquals(LONG_LIST_COUNT, result.size());
+                for (int i = 0; i < result.size(); i++) {
+                    assertEquals(TestUtils.getMediaIdInDummyList(i), result.get(i).getMediaId());
+                }
+                latchForGetSearchResult.countDown();
+            }
+        };
+
+        // Request the search.
+        final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
+        MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
+        browser.search(query, extras);
+        assertTrue(latchForSearch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
+        // Get the search result.
+        browser.getSearchResult(query, page, pageSize, extras);
+        assertTrue(latchForGetSearchResult.await(10, TimeUnit.SECONDS));
+    }
+
+    @Test
+    @LargeTest
     public void testOnSearchResultChanged_searchTakesTime() throws InterruptedException {
         prepareLooper();
         final String query = MediaBrowser2Constants.SEARCH_QUERY_TAKES_TIME;

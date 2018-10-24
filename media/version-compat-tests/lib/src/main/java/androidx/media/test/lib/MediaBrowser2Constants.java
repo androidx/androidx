@@ -42,6 +42,7 @@ public class MediaBrowser2Constants {
     public static final int LONG_LIST_COUNT = 5000;
 
     public static final String SEARCH_QUERY = "search_query";
+    public static final String SEARCH_QUERY_LONG_LIST = "search_query_long_list";
     public static final String SEARCH_QUERY_TAKES_TIME = "search_query_takes_time";
     public static final int SEARCH_TIME_IN_MS = 5000;
     public static final String SEARCH_QUERY_EMPTY_RESULT = "search_query_empty_result";
