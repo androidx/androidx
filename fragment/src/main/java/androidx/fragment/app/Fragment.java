@@ -236,7 +236,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     // track it separately.
     boolean mIsCreated;
 
-    LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+    final LifecycleRegistry mLifecycleRegistry;
 
     // These are initialized in performCreateView and unavailable outside of the
     // onCreateView/onDestroyView lifecycle
@@ -400,8 +400,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * attributes from a layout resource, although note this happens when the fragment is attached.
      */
     public Fragment() {
+        mLifecycleRegistry = new LifecycleRegistry(this);
         if (Build.VERSION.SDK_INT >= 19) {
-            getLifecycle().addObserver(new GenericLifecycleObserver() {
+            mLifecycleRegistry.addObserver(new GenericLifecycleObserver() {
                 @Override
                 public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
                     if (event == Lifecycle.Event.ON_STOP) {
