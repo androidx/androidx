@@ -926,11 +926,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         p.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-                if (src.getDSD().getStartPosition() != 0) {
+                if (src.getPlayer().getDuration() >= 0) {
+                    // Seeks to the start position. We call seek operation even when the start
+                    // position is 0 in order to show the preview.
                     src.getPlayer().seekTo((int) src.getDSD().getStartPosition(),
                             MediaPlayer.SEEK_CLOSEST);
-                    // PREPARED notification will be sent when seek is done.
+                    // In this case, PREPARED notification will be sent when seek is done.
                 } else {
+                    // The content is not seekable. e.g. live contents.
                     preparedListener.onPrepared(mp);
                 }
             }
@@ -1006,8 +1009,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         p.setOnSeekCompleteListener(new MediaPlayer.OnSeekCompleteListener() {
             @Override
             public void onSeekComplete(MediaPlayer mp) {
-                if (src.mMp2State == PLAYER_STATE_IDLE
-                        && src.getDSD().getStartPosition() != 0) {
+                if (src.mMp2State == PLAYER_STATE_IDLE) {
                     // This seek request was for handling start position. Notify client that it's
                     // ready to start playback.
                     preparedListener.onPrepared(mp);
