@@ -425,7 +425,7 @@ class MediaController2Stub extends IMediaController2.Stub {
 
     @Override
     public void onGetSearchResultDone(final String query, final int page, final int pageSize,
-            final List<ParcelImpl> itemList, final Bundle extras) throws RuntimeException {
+            final ParcelImplListSlice listSlice, final Bundle extras) throws RuntimeException {
         if (TextUtils.isEmpty(query)) {
             Log.w(TAG, "onGetSearchResultDone(): Ignoring empty query");
             return;
@@ -446,7 +446,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             @Override
             public void run() {
                 browser.getCallback().onGetSearchResultDone(browser, query, page, pageSize,
-                        MediaUtils2.convertParcelImplListToMediaItem2List(itemList), extras);
+                        MediaUtils2.convertParcelImplListSliceToMediaItem2List(listSlice), extras);
             }
         });
     }
