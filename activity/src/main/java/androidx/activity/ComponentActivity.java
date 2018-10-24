@@ -16,7 +16,10 @@
 
 package androidx.activity;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.view.View;
+import android.view.Window;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
@@ -58,6 +61,20 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             new CopyOnWriteArrayList<>();
 
     public ComponentActivity() {
+        if (Build.VERSION.SDK_INT >= 19) {
+            getLifecycle().addObserver(new GenericLifecycleObserver() {
+                @Override
+                public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        Window window = getWindow();
+                        final View decor = window != null ? window.peekDecorView() : null;
+                        if (decor != null) {
+                            decor.cancelPendingInputEvents();
+                        }
+                    }
+                }
+            });
+        }
         getLifecycle().addObserver(new GenericLifecycleObserver() {
             @Override
             public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
