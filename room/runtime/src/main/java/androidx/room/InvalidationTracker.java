@@ -392,8 +392,8 @@ public class InvalidationTracker {
                     // This transaction has to be on the underlying DB rather than the RoomDatabase
                     // in order to avoid a recursive loop after endTransaction.
                     SupportSQLiteDatabase db = mDatabase.getOpenHelper().getWritableDatabase();
+                    db.beginTransaction();
                     try {
-                        db.beginTransaction();
                         hasUpdatedTable = checkUpdatedTable();
                         db.setTransactionSuccessful();
                     } finally {
@@ -507,8 +507,8 @@ public class InvalidationTracker {
                         return;
                     }
                     final int limit = tablesToSync.length;
+                    database.beginTransaction();
                     try {
-                        database.beginTransaction();
                         for (int tableId = 0; tableId < limit; tableId++) {
                             switch (tablesToSync[tableId]) {
                                 case ObservedTableTracker.ADD:
