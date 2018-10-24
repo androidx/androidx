@@ -16,13 +16,13 @@
 
 package androidx.media2;
 
+import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
@@ -170,11 +170,10 @@ public class MockPlayer extends SessionPlayer2 {
     public void notifyPlayerStateChanged(final int state) {
         mLastPlayerState = state;
 
-        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-            final PlayerCallback callback = entry.getKey();
-            final Executor executor = entry.getValue();
-            executor.execute(new Runnable() {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     callback.onPlayerStateChanged(MockPlayer.this, state);
@@ -184,11 +183,10 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     public void notifyCurrentMediaItemChanged(final MediaItem2 item) {
-        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-            final PlayerCallback callback = entry.getKey();
-            final Executor executor = entry.getValue();
-            executor.execute(new Runnable() {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     callback.onCurrentMediaItemChanged(MockPlayer.this, item);
@@ -199,11 +197,10 @@ public class MockPlayer extends SessionPlayer2 {
 
     public void notifyBufferingStateChanged(final MediaItem2 item,
             final @BuffState int buffState) {
-        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-            final PlayerCallback callback = entry.getKey();
-            final Executor executor = entry.getValue();
-            executor.execute(new Runnable() {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     callback.onBufferingStateChanged(MockPlayer.this, item, buffState);
@@ -213,11 +210,10 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     public void notifyPlaybackSpeedChanged(final float speed) {
-        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-            final PlayerCallback callback = entry.getKey();
-            final Executor executor = entry.getValue();
-            executor.execute(new Runnable() {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     callback.onPlaybackSpeedChanged(MockPlayer.this, speed);
@@ -227,11 +223,10 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     public void notifySeekCompleted(final long position) {
-        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-            final PlayerCallback callback = entry.getKey();
-            final Executor executor = entry.getValue();
-            executor.execute(new Runnable() {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     callback.onSeekCompleted(MockPlayer.this, position);
@@ -382,11 +377,10 @@ public class MockPlayer extends SessionPlayer2 {
 
     public void notifyShuffleModeChanged() {
         final int shuffleMode = mShuffleMode;
-        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-            final PlayerCallback callback = entry.getKey();
-            final Executor executor = entry.getValue();
-            executor.execute(new Runnable() {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     callback.onShuffleModeChanged(MockPlayer.this, shuffleMode);
@@ -397,11 +391,10 @@ public class MockPlayer extends SessionPlayer2 {
 
     public void notifyRepeatModeChanged() {
         final int repeatMode = mRepeatMode;
-        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-            final PlayerCallback callback = entry.getKey();
-            final Executor executor = entry.getValue();
-            executor.execute(new Runnable() {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     callback.onRepeatModeChanged(MockPlayer.this, repeatMode);
@@ -413,11 +406,10 @@ public class MockPlayer extends SessionPlayer2 {
     public void notifyPlaylistChanged() {
         final List<MediaItem2> list = mPlaylist;
         final MediaMetadata2 metadata = mMetadata;
-        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-            final PlayerCallback callback = entry.getKey();
-            final Executor executor = entry.getValue();
-            executor.execute(new Runnable() {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     callback.onPlaylistChanged(MockPlayer.this, list, metadata);
@@ -428,11 +420,10 @@ public class MockPlayer extends SessionPlayer2 {
 
     public void notifyPlaylistMetadataChanged() {
         final MediaMetadata2 metadata = mMetadata;
-        Map<PlayerCallback, Executor> callbacks = getCallbacks();
-        for (Map.Entry<PlayerCallback, Executor> entry : callbacks.entrySet()) {
-            final PlayerCallback callback = entry.getKey();
-            final Executor executor = entry.getValue();
-            executor.execute(new Runnable() {
+        List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<PlayerCallback, Executor> pair : callbacks) {
+            final PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     callback.onPlaylistMetadataChanged(MockPlayer.this, metadata);

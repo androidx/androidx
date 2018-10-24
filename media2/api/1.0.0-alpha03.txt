@@ -483,7 +483,7 @@ package androidx.media2 {
     method public abstract androidx.media.AudioAttributesCompat getAudioAttributes();
     method public abstract long getBufferedPosition();
     method public abstract int getBufferingState();
-    method protected final java.util.Map<androidx.media2.SessionPlayer2.PlayerCallback, java.util.concurrent.Executor> getCallbacks();
+    method protected final java.util.List<androidx.core.util.Pair<androidx.media2.SessionPlayer2.PlayerCallback, java.util.concurrent.Executor>> getCallbacks();
     method public abstract androidx.media2.MediaItem2 getCurrentMediaItem();
     method public abstract long getCurrentPosition();
     method public abstract long getDuration();
