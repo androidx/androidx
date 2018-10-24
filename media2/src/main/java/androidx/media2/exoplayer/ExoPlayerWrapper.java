@@ -17,6 +17,7 @@
 package androidx.media2.exoplayer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media2.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -40,6 +41,7 @@ import androidx.media2.PlaybackParams2;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.DefaultLoadControl;
 import androidx.media2.exoplayer.external.DefaultRenderersFactory;
+import androidx.media2.exoplayer.external.ExoPlaybackException;
 import androidx.media2.exoplayer.external.ExoPlayerFactory;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.exoplayer.external.Renderer;
@@ -119,6 +121,9 @@ import java.util.List;
 
         /** Called when playback of the item list has ended. */
         void onPlaybackEnded(MediaItem2 mediaItem2);
+
+        /** Called when the player encounters an error. */
+        void onError(MediaItem2 mediaItem2, int what);
 
     }
 
@@ -439,6 +444,11 @@ import java.util.List;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void handlePlayerError(ExoPlaybackException exception) {
+        mListener.onError(getCurrentMediaItem(), ExoPlayerUtils.getError(exception));
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleAudioSessionId(int audioSessionId) {
         mAudioSessionId = audioSessionId;
     }
@@ -499,6 +509,11 @@ import java.util.List;
         @Override
         public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
             handlePositionDiscontinuity(reason);
+        }
+
+        @Override
+        public void onPlayerError(ExoPlaybackException error) {
+            handlePlayerError(error);
         }
 
         // VideoListener implementation.
@@ -634,18 +649,20 @@ import java.util.List;
 
             List<MediaSource> mediaSources = new ArrayList<>(mediaItem2s.size());
             for (MediaItem2 mediaItem2 : mediaItem2s) {
+                if (mediaItem2 == null) {
+                    mListener.onError(/* mediaItem2= */ null, MEDIA_ERROR_UNKNOWN);
+                    return;
+                }
                 final DataSource.Factory dataSourceFactory;
                 MediaItemInfo mediaItemInfo;
                 if (mediaItem2 instanceof FileMediaItem2) {
                     FileMediaItem2 fileMediaItem2 = (FileMediaItem2) mediaItem2;
                     FileDescriptor fileDescriptor;
                     try {
-                        fileDescriptor =
-                                FileDescriptorUtil.dup(fileMediaItem2.getFileDescriptor());
+                        fileDescriptor = FileDescriptorUtil.dup(fileMediaItem2.getFileDescriptor());
                     } catch (IOException e) {
-                        // TODO(b/68398926): Surface as a source error.
-                        Log.e(TAG, "Error duping file descriptor", e);
-                        throw new IllegalStateException(e);
+                        mListener.onError(mediaItem2, MEDIA_ERROR_UNKNOWN);
+                        return;
                     }
                     long offset = fileMediaItem2.getFileDescriptorOffset();
                     long length = fileMediaItem2.getFileDescriptorLength();

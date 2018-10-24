@@ -713,6 +713,25 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
         notifyOnInfo(mediaItem2, MEDIA_INFO_DATA_SOURCE_LIST_END);
     }
 
+    @Override
+    public void onError(final MediaItem2 mediaItem2, final int what) {
+        synchronized (mTaskLock) {
+            if (mCurrentTask != null
+                    && mCurrentTask.mNeedToWaitForEventToComplete) {
+                mCurrentTask.sendCompleteNotification(CALL_STATUS_ERROR_UNKNOWN);
+                mCurrentTask = null;
+                processPendingTask();
+            }
+        }
+        notifyMediaPlayer2Event(new Mp2EventNotifier() {
+            @Override
+            public void notify(EventCallback cb) {
+                // TODO(b/80232248): Clarify required values of what vs extra.
+                cb.onError(ExoPlayerMediaPlayer2Impl.this, mediaItem2, what, /* extra= */ 0);
+            }
+        });
+    }
+
     // Internal functionality.
 
     private void notifyOnInfo(MediaItem2 mediaItem2, int what) {

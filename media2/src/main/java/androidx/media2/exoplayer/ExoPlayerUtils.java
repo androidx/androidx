@@ -17,6 +17,10 @@
 package androidx.media2.exoplayer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.media2.MediaPlayer2.MEDIA_ERROR_IO;
+import static androidx.media2.MediaPlayer2.MEDIA_ERROR_MALFORMED;
+import static androidx.media2.MediaPlayer2.MEDIA_ERROR_TIMED_OUT;
+import static androidx.media2.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
@@ -38,7 +42,9 @@ import androidx.media2.PlaybackParams2;
 import androidx.media2.UriMediaItem2;
 import androidx.media2.common.TrackInfoImpl;
 import androidx.media2.exoplayer.external.C;
+import androidx.media2.exoplayer.external.ExoPlaybackException;
 import androidx.media2.exoplayer.external.Format;
+import androidx.media2.exoplayer.external.ParserException;
 import androidx.media2.exoplayer.external.PlaybackParameters;
 import androidx.media2.exoplayer.external.SeekParameters;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
@@ -49,9 +55,12 @@ import androidx.media2.exoplayer.external.source.TrackGroup;
 import androidx.media2.exoplayer.external.source.TrackGroupArray;
 import androidx.media2.exoplayer.external.source.hls.HlsMediaSource;
 import androidx.media2.exoplayer.external.upstream.DataSource;
+import androidx.media2.exoplayer.external.upstream.HttpDataSource;
 import androidx.media2.exoplayer.external.util.MimeTypes;
 import androidx.media2.exoplayer.external.util.Util;
 
+import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,6 +146,25 @@ import java.util.List;
             default:
                 throw new IllegalArgumentException();
         }
+    }
+
+    /** Returns the MEDIA_ERROR_* constant for an ExoPlayer player exception. */
+    public static int getError(ExoPlaybackException exception) {
+        // ExoPlayer seeks to read moov so we don't need to notify
+        // MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK.
+        if (exception.type == ExoPlaybackException.TYPE_SOURCE) {
+            IOException sourceException = exception.getSourceException();
+            if (sourceException instanceof ParserException) {
+                return MEDIA_ERROR_MALFORMED;
+            } else {
+                if (sourceException instanceof HttpDataSource.HttpDataSourceException
+                        && sourceException.getCause() instanceof SocketTimeoutException) {
+                    return MEDIA_ERROR_TIMED_OUT;
+                }
+                return MEDIA_ERROR_IO;
+            }
+        }
+        return MEDIA_ERROR_UNKNOWN;
     }
 
     /** Returns the track info list corresponding to an ExoPlayer track group array. */
