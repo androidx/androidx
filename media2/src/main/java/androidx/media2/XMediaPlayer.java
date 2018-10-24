@@ -1764,9 +1764,10 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void notifySessionPlayerCallback(final SessionPlayerCallbackNotifier notifier) {
-        Map<SessionPlayer2.PlayerCallback, Executor> map = getCallbacks();
-        for (final SessionPlayer2.PlayerCallback callback : map.keySet()) {
-            map.get(callback).execute(new Runnable() {
+        List<Pair<SessionPlayer2.PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<SessionPlayer2.PlayerCallback, Executor> pair : callbacks) {
+            final SessionPlayer2.PlayerCallback callback = pair.first;
+            pair.second.execute(new Runnable() {
                 @Override
                 public void run() {
                     notifier.callCallback(callback);
@@ -1777,13 +1778,14 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void notifyXMediaPlayerCallback(final XMediaPlayerCallbackNotifier notifier) {
-        Map<SessionPlayer2.PlayerCallback, Executor> map = getCallbacks();
-        for (final SessionPlayer2.PlayerCallback callback : map.keySet()) {
-            if (callback instanceof PlayerCallback) {
-                map.get(callback).execute(new Runnable() {
+        List<Pair<SessionPlayer2.PlayerCallback, Executor>> callbacks = getCallbacks();
+        for (Pair<SessionPlayer2.PlayerCallback, Executor> pair : callbacks) {
+            if (pair.first instanceof PlayerCallback) {
+                final PlayerCallback callback = (PlayerCallback) pair.first;
+                pair.second.execute(new Runnable() {
                     @Override
                     public void run() {
-                        notifier.callCallback((PlayerCallback) callback);
+                        notifier.callCallback(callback);
                     }
                 });
             }
