@@ -138,6 +138,7 @@ final class BackStackState implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeIntArray(mOps);
+        dest.writeStringList(mFragmentWhos);
         dest.writeInt(mTransition);
         dest.writeInt(mTransitionStyle);
         dest.writeString(mName);
