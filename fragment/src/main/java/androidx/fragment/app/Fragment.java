@@ -27,6 +27,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.Parcel;
@@ -54,6 +55,7 @@ import androidx.annotation.StringRes;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.util.DebugUtils;
 import androidx.core.view.LayoutInflaterCompat;
+import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
@@ -398,6 +400,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * attributes from a layout resource, although note this happens when the fragment is attached.
      */
     public Fragment() {
+        if (Build.VERSION.SDK_INT >= 19) {
+            getLifecycle().addObserver(new GenericLifecycleObserver() {
+                @Override
+                public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+                    if (event == Lifecycle.Event.ON_STOP) {
+                        if (mView != null) {
+                            mView.cancelPendingInputEvents();
+                        }
+                    }
+                }
+            });
+        }
     }
 
     /**
