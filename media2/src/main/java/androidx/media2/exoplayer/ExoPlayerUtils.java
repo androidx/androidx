@@ -48,6 +48,9 @@ import androidx.media2.exoplayer.external.ParserException;
 import androidx.media2.exoplayer.external.PlaybackParameters;
 import androidx.media2.exoplayer.external.SeekParameters;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
+import androidx.media2.exoplayer.external.extractor.DefaultExtractorsFactory;
+import androidx.media2.exoplayer.external.extractor.ExtractorsFactory;
+import androidx.media2.exoplayer.external.extractor.ts.AdtsExtractor;
 import androidx.media2.exoplayer.external.mediacodec.MediaFormatUtil;
 import androidx.media2.exoplayer.external.source.ExtractorMediaSource;
 import androidx.media2.exoplayer.external.source.MediaSource;
@@ -74,6 +77,9 @@ import java.util.List;
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class ExoPlayerUtils {
 
+    private static final ExtractorsFactory sExtractorsFactory = new DefaultExtractorsFactory()
+            .setAdtsExtractorFlags(AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
+
     /**
      * Returns an ExoPlayer media source for the given media item. The given {@link MediaItem2} is
      * set as the tag of the source.
@@ -88,11 +94,13 @@ import java.util.List;
                         .createMediaSource(uri);
             } else {
                 return new ExtractorMediaSource.Factory(dataSourceFactory)
+                        .setExtractorsFactory(sExtractorsFactory)
                         .setTag(mediaItem2)
                         .createMediaSource(uri);
             }
         } else if (mediaItem2 instanceof FileMediaItem2) {
             return new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .setExtractorsFactory(sExtractorsFactory)
                     .setTag(mediaItem2)
                     .createMediaSource(Uri.EMPTY);
         } else if (mediaItem2 instanceof CallbackMediaItem2) {
@@ -100,6 +108,7 @@ import java.util.List;
             dataSourceFactory = DataSourceCallback2DataSource.getFactory(
                     callbackMediaItem2.getDataSourceCallback2());
             return new ExtractorMediaSource.Factory(dataSourceFactory)
+                    .setExtractorsFactory(sExtractorsFactory)
                     .setTag(mediaItem2)
                     .createMediaSource(Uri.EMPTY);
         } else {
