@@ -8,8 +8,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
-    api(project(":activity"))
+    api "androidx.annotation:annotation:1.0.0"
+    api "androidx.activity:activity:1.0.0-alpha01"
     api(KOTLIN_STDLIB)
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.20"
     testImplementation(JUNIT)
@@ -27,9 +27,7 @@ dependencies {
     androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
-    androidTestImplementation project(':internal-testutils'), {
-        exclude group: 'androidx.core', module: 'core'
-    }
+    androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
 }
 
 android {}

@@ -26,13 +26,13 @@ def includeProject(name, filePath) {
     project(name).projectDir = file
 }
 
+/*
 
 /////////////////////////////
 //
 // Libraries
 //
 /////////////////////////////
-
 includeProject(":activity", "activity")
 includeProject(":annotation", "annotations")
 includeProject(":animation", "animation")
@@ -58,7 +58,9 @@ includeProject(":coordinatorlayout", "coordinatorlayout")
 includeProject(":core", "core")
 includeProject(":core-ktx", "core/ktx")
 includeProject(":cursoradapter", "cursoradapter")
+*/
 includeProject(":customerrorprone", "customerrorprone")
+/*
 includeProject(":customview", "customview")
 includeProject(":documentfile", "documentfile")
 includeProject(":drawerlayout", "drawerlayout")
@@ -180,6 +182,7 @@ includeProject(":work:work-firebase", "work/workmanager-firebase")
 includeProject(":work:work-testing", "work/workmanager-testing")
 includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp")
 
+
 /////////////////////////////
 //
 // Legacy
@@ -189,14 +192,14 @@ includeProject(":work:integration-tests:testapp", "work/integration-tests/testap
 includeProject(":legacy-support-core-ui", "legacy/core-ui")
 includeProject(":legacy-support-core-utils", "legacy/core-utils")
 
+*/
 /////////////////////////////
 //
 // Samples
 //
 /////////////////////////////
-
 File samplesRoot = new File(rootDir, "samples")
-
+/*
 // Note: don't add new samples/ apps. Instead, Create
 // <module>/integration-tests/testapp in the "Libraries" section above.
 includeProject(":support-animation-demos", new File(samplesRoot, "SupportAnimationDemos"))
@@ -218,8 +221,6 @@ includeProject(":support-v4-demos", new File(samplesRoot, "Support4Demos"))
 includeProject(":support-v7-demos", new File(samplesRoot, "Support7Demos"))
 includeProject(":support-wear-demos", new File(samplesRoot, "SupportWearDemos"))
 includeProject(":viewpager2-demos", new File(samplesRoot, "ViewPager2Demos"))
-includeProject(":ui-port-demos", new File(samplesRoot, "UiPortDemos"))
-
 /////////////////////////////
 //
 // Testing libraries
@@ -240,6 +241,7 @@ includeProject(":support-media-compat-test-client-previous", "media/version-comp
 includeProject(":support-media-compat-test-service", "media/version-compat-tests/current/service")
 includeProject(":support-media-compat-test-service-previous", "media/version-compat-tests/previous/service")
 includeProject(":support-media-compat-test-lib", "media/version-compat-tests/lib")
+*/
 
 /////////////////////////////
 //
@@ -250,17 +252,19 @@ includeProject(":support-media-compat-test-lib", "media/version-compat-tests/lib
 apply(from: "include-composite-deps.gradle")
 File externalRoot = new File(rootDir, "../../external")
 
+/*
 includeProject(":noto-emoji-compat", new File(externalRoot, "noto-fonts/emoji-compat"))
 includeProject(":webview-support-interfaces", new File(externalRoot, "webview_support_interfaces"))
-
+*/
 ///// CRANE START
 
 includeProject(":ui-port", "ui/port")
+includeProject(":ui-port-demos", new File(samplesRoot, "UiPortDemos"))
 
 ///// CRANE END
-
 // fake project which is used for docs generation from prebuilts
 // we need real android project to generate R.java, aidl etc files that mentioned in sources
+/*
 if (!startParameter.projectProperties.containsKey('android.injected.invoked.from.ide')) {
     // we don't need it in ide, so we don't configure it there
     includeProject(":docs-fake", "docs-fake")
@@ -269,4 +273,4 @@ if (!startParameter.projectProperties.containsKey('android.injected.invoked.from
 // dumb test project that has a test for each size to ensure that at least one test is run
 // for each size and test runner is happy when there is nothing to test.
 includeProject(":dumb-tests", "dumb-tests")
-
+*/
