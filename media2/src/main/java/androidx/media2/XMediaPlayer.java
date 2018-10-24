@@ -1296,8 +1296,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @param msec the offset in milliseconds from the start to seek to.
      * When seeking to the given time position, there is no guarantee that the media item
      * has a frame located at the position. When this happens, a frame nearby will be rendered.
-     * If msec is negative, time position zero will be used.
-     * If msec is larger than duration, duration will be used.
+     * The value should be in the range of start and end positions defined in {@link MediaItem2}.
      * @param mode the mode indicating where exactly to seek to.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
