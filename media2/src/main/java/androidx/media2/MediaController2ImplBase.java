@@ -554,7 +554,7 @@ class MediaController2ImplBase implements MediaController2Impl {
         return sendCommand(command, new SessionCommand() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.sendCustomCommand(mControllerStub, seq,
+                iSession2.onCustomCommand(mControllerStub, seq,
                         (ParcelImpl) ParcelUtils.toParcelable(command), args);
             }
         });

@@ -43,7 +43,7 @@ oneway interface IMediaSession2 {
     void fastForward(IMediaController2 caller, int seq) = 8;
     void rewind(IMediaController2 caller, int seq) = 9;
     void seekTo(IMediaController2 caller, int seq, long pos) = 10;
-    void sendCustomCommand(IMediaController2 caller, int seq, in ParcelImpl sessionCommand2,
+    void onCustomCommand(IMediaController2 caller, int seq, in ParcelImpl sessionCommand2,
             in Bundle args) = 11;
     void prefetchFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 12;
     void prefetchFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 13;
