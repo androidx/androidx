@@ -243,8 +243,6 @@ public class NavHostFragment extends Fragment implements NavHost {
                     : null;
             if (graphId != 0) {
                 mNavController.setGraph(graphId, startDestinationArgs);
-            } else {
-                mNavController.setMetadataGraph();
             }
         }
     }
