@@ -262,34 +262,21 @@ public class MediaUtils2 {
 
     /**
      * Convert a {@link ParcelImplListSlice} to a list of {@link MediaItem2}.
-     *
-     * TODO: Remove below convertParcelImplListToMediaItem2List() when all media list-related calls
-     * use ParcelImplListSlice.
      */
     public static List<MediaItem2> convertParcelImplListSliceToMediaItem2List(
             ParcelImplListSlice listSlice) {
         if (listSlice == null) {
             return null;
         }
-        return convertParcelImplListToMediaItem2List(listSlice.getList());
-    }
-
-    /**
-     * Convert a list of {@link ParcelImpl} to a list of {@link MediaItem2}.
-     */
-    public static List<MediaItem2> convertParcelImplListToMediaItem2List(
-            List<ParcelImpl> itemParcelImplList) {
-        if (itemParcelImplList == null) {
-            return null;
-        }
-        List<MediaItem2> playlist = new ArrayList<>();
-        for (int i = 0; i < itemParcelImplList.size(); i++) {
-            final ParcelImpl itemParcelImpl = itemParcelImplList.get(i);
+        List<ParcelImpl> parcelImplList = listSlice.getList();
+        List<MediaItem2> mediaItem2List = new ArrayList<>();
+        for (int i = 0; i < parcelImplList.size(); i++) {
+            final ParcelImpl itemParcelImpl = parcelImplList.get(i);
             if (itemParcelImpl != null) {
-                playlist.add((MediaItem2) ParcelUtils.fromParcelable(itemParcelImpl));
+                mediaItem2List.add((MediaItem2) ParcelUtils.fromParcelable(itemParcelImpl));
             }
         }
-        return playlist;
+        return mediaItem2List;
     }
 
     /**
@@ -517,35 +504,21 @@ public class MediaUtils2 {
 
     /**
      * Convert a list of {@link MediaItem2} to a list of {@link ParcelImplListSlice}.
-     *
-     * TODO: Remove below convertMediaItem2ListToParcelImplList() when all media list-related calls
-     * use ParcelImplListSlice.
      */
     public static ParcelImplListSlice convertMediaItem2ListToParcelImplListSlice(
-            List<MediaItem2> playlist) {
-        if (playlist == null) {
-            return null;
-        }
-        return new ParcelImplListSlice(convertMediaItem2ListToParcelImplList(playlist));
-    }
-
-    /**
-     * Convert a list of {@link MediaItem2} to a list of {@link ParcelImpl}.
-     */
-    public static List<ParcelImpl> convertMediaItem2ListToParcelImplList(
-            List<MediaItem2> playlist) {
-        if (playlist == null) {
+            List<MediaItem2> mediaItem2List) {
+        if (mediaItem2List == null) {
             return null;
         }
         List<ParcelImpl> itemParcelableList = new ArrayList<>();
-        for (int i = 0; i < playlist.size(); i++) {
-            final MediaItem2 item = playlist.get(i);
+        for (int i = 0; i < mediaItem2List.size(); i++) {
+            final MediaItem2 item = mediaItem2List.get(i);
             if (item != null) {
                 final ParcelImpl itemParcelImpl = (ParcelImpl) ParcelUtils.toParcelable(item);
                 itemParcelableList.add(itemParcelImpl);
             }
         }
-        return itemParcelableList;
+        return new ParcelImplListSlice(itemParcelableList);
     }
 
     /**
