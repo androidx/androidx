@@ -554,8 +554,9 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
                             request.mResult.sendResult(null);
                             return;
                         }
-                        request.mResult
-                                .sendResult(MediaUtils2.convertToMediaItemList(searchResult));
+                        request.mResult.sendResult(MediaUtils2.truncateListBySize(
+                                MediaUtils2.convertToMediaItemList(searchResult),
+                                TRANSACTION_SIZE_LIMIT_IN_BYTES));
                     }
                 }
             });

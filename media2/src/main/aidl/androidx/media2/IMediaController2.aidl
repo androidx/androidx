@@ -65,7 +65,7 @@ oneway interface IMediaController2 {
     void onGetChildrenDone(String parentId, int page, int pageSize, in ParcelImplListSlice
         listSlice, in Bundle extras) = 20;
     void onSearchResultChanged(String query, int itemCount, in Bundle extras) = 21;
-    void onGetSearchResultDone(String query, int page, int pageSize, in List<ParcelImpl> itemList,
-        in Bundle extras) = 22;
+    void onGetSearchResultDone(String query, int page, int pageSize, in ParcelImplListSlice
+        listSlice, in Bundle extras) = 22;
     // Next Id : 25
 }
