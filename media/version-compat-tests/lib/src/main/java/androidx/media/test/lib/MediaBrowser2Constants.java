@@ -32,11 +32,14 @@ public class MediaBrowser2Constants {
     public static final String MEDIA_ID_GET_ITEM = "media_id_get_item";
 
     public static final String PARENT_ID = "parent_id";
+    public static final String PARENT_ID_LONG_LIST = "parent_id_long_list";
     public static final String PARENT_ID_NO_CHILDREN = "parent_id_no_children";
     public static final String PARENT_ID_ERROR = "parent_id_error";
 
     public static final List<String> GET_CHILDREN_RESULT = new ArrayList<>();
     public static final int CHILDREN_COUNT = 100;
+
+    public static final int LONG_LIST_COUNT = 5000;
 
     public static final String SEARCH_QUERY = "search_query";
     public static final String SEARCH_QUERY_TAKES_TIME = "search_query_takes_time";

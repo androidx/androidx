@@ -20,6 +20,7 @@ import android.app.PendingIntent;
 import android.os.Bundle;
 
 import androidx.media2.IMediaSession2;
+import androidx.media2.ParcelImplListSlice;
 import androidx.versionedparcelable.ParcelImpl;
 
 /**
@@ -34,7 +35,7 @@ oneway interface IMediaController2 {
     void onPlayerStateChanged(long eventTimeMs, long positionMs, int state) = 1;
     void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed) = 2;
     void onBufferingStateChanged(in ParcelImpl item, int state, long bufferedPositionMs) = 3;
-    void onPlaylistChanged(in List<ParcelImpl> playlist, in Bundle metadata) = 4;
+    void onPlaylistChanged(in ParcelImplListSlice listSlice, in Bundle metadata) = 4;
     void onPlaylistMetadataChanged(in Bundle metadata) = 5;
     void onPlaybackInfoChanged(in ParcelImpl playbackInfo) = 6;
     void onRepeatModeChanged(int repeatMode) = 7;
@@ -46,7 +47,7 @@ oneway interface IMediaController2 {
     void onConnected(IMediaSession2 sessionBinder, in ParcelImpl commandGroup, int playerState,
         in ParcelImpl currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,
         long bufferedPositionMs, in ParcelImpl playbackInfo, int repeatMode, int shuffleMode,
-        in List<ParcelImpl> playlist, in PendingIntent sessionActivity) = 12;
+        in ParcelImplListSlice listSlice, in PendingIntent sessionActivity) = 12;
     void onDisconnected() = 13;
 
     void onSetCustomLayout(int seq, in List<ParcelImpl> commandButtonlist) = 14;
@@ -61,8 +62,8 @@ oneway interface IMediaController2 {
     void onGetLibraryRootDone(in Bundle rootHints, String rootMediaId, in Bundle rootExtra) = 17;
     void onGetItemDone(String mediaId, in ParcelImpl item) = 18;
     void onChildrenChanged(String parentId, int itemCount, in Bundle extras) = 19;
-    void onGetChildrenDone(String parentId, int page, int pageSize, in List<ParcelImpl> itemList,
-        in Bundle extras) = 20;
+    void onGetChildrenDone(String parentId, int page, int pageSize, in ParcelImplListSlice
+        listSlice, in Bundle extras) = 20;
     void onSearchResultChanged(String query, int itemCount, in Bundle extras) = 21;
     void onGetSearchResultDone(String query, int page, int pageSize, in List<ParcelImpl> itemList,
         in Bundle extras) = 22;
