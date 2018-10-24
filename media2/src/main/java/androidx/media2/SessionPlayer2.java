@@ -312,7 +312,8 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      * This may be the asynchronous call depending on the implementation. Wait with returned
      * {@link ListenableFuture} or callback for the completion.
      *
-     * @param position the new playback position expressed in ms.
+     * @param position the new playback position in ms. The value should be in the range of start
+     * and end positions defined in {@link MediaItem2}.
      */
     public abstract @NonNull ListenableFuture<PlayerResult> seekTo(long position);
 
