@@ -40,6 +40,8 @@ buildscript {
 
         // AGP only declares a compileOnly dependency on Jacoco. This forces an explicit version.
         classpath Jacoco.CORE_DEPENDENCY
+
+        classpath build_libs.dokka_gradle
     }
 }
 
