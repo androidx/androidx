@@ -184,6 +184,9 @@ interface BooksDao {
         addPublishers(newPublisher)
     }
 
+    @Transaction
+    fun getDefaultBook() = getBook("DEFAULT_ID")
+
     @Query("SELECT * FROM Publisher")
     fun getPublishers(): List<Publisher>
 }
