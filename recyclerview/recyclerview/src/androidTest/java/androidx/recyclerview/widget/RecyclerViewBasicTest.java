@@ -695,6 +695,7 @@ public class RecyclerViewBasicTest {
         }
     }
 
+    @SuppressWarnings("BanParcelableUsage")
     static class LayoutManagerSavedState implements Parcelable {
 
         String mUuid;

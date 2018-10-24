@@ -68,6 +68,7 @@ public class JobIntentServiceTest {
         mContext = InstrumentationRegistry.getContext();
     }
 
+    @SuppressWarnings("BanParcelableUsage")
     public static final class TestIntentItem implements Parcelable {
         public static final int FLAG_WAIT = 1 << 0;
         public static final int FLAG_STOPPED_AFTER_WAIT = 1 << 1;

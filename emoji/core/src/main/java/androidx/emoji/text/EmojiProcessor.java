@@ -450,6 +450,7 @@ final class EmojiProcessor {
      *
      * @return {@code true} if the OS can render emoji, {@code false} otherwise
      */
+    @SuppressWarnings("BanUnlistedSDKVersionComparison")
     private boolean hasGlyph(final CharSequence charSequence, int start, final int end,
             final EmojiMetadata metadata) {
         // For pre M devices, heuristic in PaintCompat can result in false positives. we are

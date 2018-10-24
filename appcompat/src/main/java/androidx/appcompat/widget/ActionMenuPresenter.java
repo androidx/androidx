@@ -601,6 +601,7 @@ class ActionMenuPresenter extends BaseMenuPresenter
         menuView.initialize(mMenu);
     }
 
+    @SuppressWarnings("BanParcelableUsage")
     private static class SavedState implements Parcelable {
         public int openSubMenuId;
 

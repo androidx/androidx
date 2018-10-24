@@ -22,6 +22,7 @@ import android.os.Parcelable;
  * Convenience class for passing information about the audio configuration of a
  * {@link MediaSessionCompat}.
  */
+@SuppressWarnings("BanParcelableUsage")
 public class ParcelableVolumeInfo implements Parcelable {
     public int volumeType;
     public int audioStream;

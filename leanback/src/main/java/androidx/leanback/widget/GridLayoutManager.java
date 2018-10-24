@@ -3596,6 +3596,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
+    @SuppressWarnings("BanParcelableUsage")
     final static class SavedState implements Parcelable {
 
         int index; // index inside adapter of the current view
