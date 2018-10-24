@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import android.os.Build;
 
+import androidx.media.test.lib.TestUtils;
 import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.RemoteMediaController2;
@@ -216,7 +217,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
     public void testSetPlaylistByControllerWithLongPlaylist() throws InterruptedException {
         final int listSize = 5000;
         // Make client app to generate a long list, and call setPlaylist() with it.
-        mController2.setPlaylistWithSize(listSize, null /* metadata */);
+        mController2.createAndSetDummyPlaylist(listSize, null /* metadata */);
         assertTrue(mPlayer.mCountDownLatch.await(10, TimeUnit.SECONDS));
 
         assertTrue(mPlayer.mSetPlaylistCalled);
@@ -226,7 +227,7 @@ public class SessionPlayerTest extends MediaSession2TestBase {
         assertEquals(listSize, mPlayer.mPlaylist.size());
         for (int i = 0; i < listSize; i++) {
             // Each item's media ID will be same as its index.
-            assertEquals(Integer.toString(i), mPlayer.mPlaylist.get(i).getMediaId());
+            assertEquals(TestUtils.getMediaIdInDummyList(i), mPlayer.mPlaylist.get(i).getMediaId());
         }
     }
 

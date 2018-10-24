@@ -27,6 +27,7 @@ import android.os.RemoteException;
 import android.support.mediacompat.testlib.IRemoteMediaController2;
 import android.util.Log;
 
+import androidx.media.test.lib.TestUtils;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media2.MediaBrowser2;
 import androidx.media2.MediaController2;
@@ -181,14 +182,14 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void setPlaylistWithSize(String controllerId, int size, Bundle metadata)
+        public void createAndSetDummyPlaylist(String controllerId, int size, Bundle metadata)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
             List<MediaItem2> list = new ArrayList<>();
             MediaItem2.Builder builder = new MediaItem2.Builder(0 /* flags */);
             for (int i = 0; i < size; i++) {
                 // Make media ID of each item same with its index.
-                list.add(builder.setMediaId(Integer.toString(i)).build());
+                list.add(builder.setMediaId(TestUtils.getMediaIdInDummyList(i)).build());
             }
             controller2.setPlaylist(list, MediaMetadata2.fromBundle(metadata));
         }

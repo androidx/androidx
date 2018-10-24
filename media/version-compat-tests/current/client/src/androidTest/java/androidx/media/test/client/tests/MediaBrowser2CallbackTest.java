@@ -17,6 +17,7 @@
 package androidx.media.test.client.tests;
 
 import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
+import static androidx.media.test.lib.MediaBrowser2Constants.LONG_LIST_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_EXTRAS;
@@ -231,6 +232,41 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
         browser.getChildren(parentId, page, pageSize, extras);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    @LargeTest
+    public void testOnGetChildrenDone_withLongList() throws InterruptedException {
+        prepareLooper();
+        final String parentId = MediaBrowser2Constants.PARENT_ID_LONG_LIST;
+        final int page = 0;
+        final int pageSize = Integer.MAX_VALUE;
+        final Bundle extras = new Bundle();
+        extras.putString(TAG, TAG);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final BrowserCallback callback = new BrowserCallback() {
+            @Override
+            public void onGetChildrenDone(MediaBrowser2 browser, String parentIdOut, int pageOut,
+                    int pageSizeOut, List<MediaItem2> result, Bundle extrasOut) {
+                assertEquals(parentId, parentIdOut);
+                assertEquals(page, pageOut);
+                assertEquals(pageSize, pageSizeOut);
+                assertTrue(TestUtils.equals(extras, extrasOut));
+
+                assertNotNull(result);
+                assertEquals(LONG_LIST_COUNT, result.size());
+                for (int i = 0; i < result.size(); i++) {
+                    assertEquals(TestUtils.getMediaIdInDummyList(i), result.get(i).getMediaId());
+                }
+                latch.countDown();
+            }
+        };
+
+        final SessionToken2 token = new SessionToken2(mContext, MOCK_MEDIA_LIBRARY_SERVICE);
+        MediaBrowser2 browser = (MediaBrowser2) createController(token, true, callback);
+        browser.getChildren(parentId, page, pageSize, extras);
+        assertTrue(latch.await(10, TimeUnit.SECONDS));
     }
 
     @Test

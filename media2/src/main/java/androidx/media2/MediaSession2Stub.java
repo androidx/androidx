@@ -316,8 +316,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                             allowedCommands.hasCommand(
                                     SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST)
                                     ? mSessionImpl.getPlaylist() : null;
-                    final List<ParcelImpl> playlistParcel =
-                            MediaUtils2.convertMediaItem2ListToParcelImplList(playlist);
+                    final ParcelImplListSlice playlistSlice =
+                            MediaUtils2.convertMediaItem2ListToParcelImplListSlice(playlist);
 
                     // Double check if session is still there, because close() can be called in
                     // another thread.
@@ -329,7 +329,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                 (ParcelImpl) ParcelUtils.toParcelable(allowedCommands),
                                 playerState, currentItem, positionEventTimeMs, positionMs,
                                 playbackSpeed, bufferedPositionMs, playbackInfo, repeatMode,
-                                shuffleMode, playlistParcel, sessionActivity);
+                                shuffleMode, playlistSlice, sessionActivity);
                     } catch (RemoteException e) {
                         // Controller may be died prematurely.
                     }
@@ -669,7 +669,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new PlayerCommand() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
-                        if (listSlice == null || listSlice.getList() == null) {
+                        if (listSlice == null) {
                             Log.w(TAG, "setPlaylist(): Ignoring null playlist from " + controller);
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
@@ -1130,7 +1130,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
                 mIControllerCallback.onPlaylistChanged(
-                        MediaUtils2.convertMediaItem2ListToParcelImplList(playlist),
+                        MediaUtils2.convertMediaItem2ListToParcelImplListSlice(playlist),
                         metadata == null ? null : metadata.toBundle());
             } else if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
@@ -1183,8 +1183,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onGetChildrenDone(String parentId, int page, int pageSize, List<MediaItem2> result,
                 Bundle extras) throws RemoteException {
-            List<ParcelImpl> parcelList = MediaUtils2.convertMediaItem2ListToParcelImplList(result);
-            mIControllerCallback.onGetChildrenDone(parentId, page, pageSize, parcelList, extras);
+            ParcelImplListSlice listSlice =
+                    MediaUtils2.convertMediaItem2ListToParcelImplListSlice(result);
+            mIControllerCallback.onGetChildrenDone(parentId, page, pageSize, listSlice, extras);
         }
 
         @Override

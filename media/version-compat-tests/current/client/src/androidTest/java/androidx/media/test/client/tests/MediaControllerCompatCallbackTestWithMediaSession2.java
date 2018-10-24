@@ -32,6 +32,7 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSession2;
+import androidx.media.test.lib.TestUtils;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
@@ -462,6 +463,43 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         assertEquals(playlist.size(), queue.size());
         for (int i = 0; i < playlist.size(); i++) {
             assertEquals(playlist.get(i).getMediaId(), queue.get(i).getDescription().getMediaId());
+        }
+        assertEquals(playlistTitle, controllerCallback.mTitle);
+    }
+
+    @Test
+    public void testPlaylistAndPlaylistMetadataChange_longList() throws Exception {
+        prepareLooper();
+        final String playlistTitle = "playlistTitle";
+        MediaMetadata2 playlistMetadata = new MediaMetadata2.Builder()
+                .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, playlistTitle).build();
+
+        final MediaControllerCallback controllerCallback = new MediaControllerCallback();
+        controllerCallback.reset(2);
+        mControllerCompat.registerCallback(controllerCallback, sHandler);
+
+        final int listSize = 5000;
+        mSession.getMockPlayer().createAndSetDummyPlaylist(listSize);
+        mSession.getMockPlayer().setPlaylistMetadata(playlistMetadata);
+        mSession.getMockPlayer().notifyPlaylistChanged();
+
+        assertTrue(controllerCallback.await(TimeUnit.SECONDS.toMillis(3)));
+        assertTrue(controllerCallback.mOnQueueChangedCalled);
+        assertTrue(controllerCallback.mOnQueueTitleChangedCalled);
+
+        List<QueueItem> queue = mControllerCompat.getQueue();
+        assertNotNull(queue);
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertEquals(listSize, queue.size());
+        } else {
+            // Below API 21, only the initial part of the playlist is sent to the
+            // MediaControllerCompat when the list is too long.
+            assertTrue(queue.size() < listSize);
+        }
+        for (int i = 0; i < queue.size(); i++) {
+            assertEquals(TestUtils.getMediaIdInDummyList(i),
+                    queue.get(i).getDescription().getMediaId());
         }
         assertEquals(playlistTitle, controllerCallback.mTitle);
     }

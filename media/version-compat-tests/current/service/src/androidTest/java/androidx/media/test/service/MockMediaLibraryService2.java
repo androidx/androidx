@@ -21,11 +21,13 @@ import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE
 import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION;
 import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.GET_CHILDREN_RESULT;
+import static androidx.media.test.lib.MediaBrowser2Constants.LONG_LIST_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.MEDIA_ID_GET_ITEM;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID_ERROR;
+import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID_LONG_LIST;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.ROOT_ID;
 import static androidx.media.test.lib.MediaBrowser2Constants.SEARCH_QUERY;
@@ -51,6 +53,7 @@ import android.os.Bundle;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import androidx.media.test.lib.TestUtils;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaLibraryService2;
@@ -168,6 +171,15 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                 ControllerInfo controller, String parentId, int page, int pageSize, Bundle extras) {
             if (PARENT_ID.equals(parentId)) {
                 return getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize);
+            } else if (PARENT_ID_LONG_LIST.equals(parentId)) {
+                List<MediaItem2> list = new ArrayList<>(LONG_LIST_COUNT);
+                MediaItem2.Builder builder = new MediaItem2.Builder(0);
+                for (int i = 0; i < LONG_LIST_COUNT; i++) {
+                    list.add(builder
+                            .setMediaId(TestUtils.getMediaIdInDummyList(i))
+                            .build());
+                }
+                return list;
             } else if (PARENT_ID_ERROR.equals(parentId)) {
                 return null;
             }

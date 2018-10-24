@@ -48,6 +48,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
+import androidx.media.test.lib.TestUtils;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
@@ -381,6 +382,20 @@ public class RemoteMediaSession2 {
                         mSessionId, MediaTestUtils.mediaItem2ListToBundleList(playlist));
             } catch (RemoteException ex) {
                 Log.e(TAG, "Failed to call setPlaylist()");
+            }
+        }
+
+        /**
+         * Service app will automatically create a playlist of size {@param size},
+         * and sets the list to the player.
+         *
+         * Each item's media ID will be {@link TestUtils#getMediaIdInDummyList(int)}.
+         */
+        public void createAndSetDummyPlaylist(int size) {
+            try {
+                mBinder.createAndSetDummyPlaylist(mSessionId, size);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call createAndSetDummyPlaylist()");
             }
         }
 

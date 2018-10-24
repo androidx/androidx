@@ -352,6 +352,39 @@ public class MediaController2Test extends MediaSession2TestBase {
         TestUtils.assertMetadataEquals(testMetadata, controller.getPlaylistMetadata());
     }
 
+    /**
+     * This also tests {@link ControllerCallback#onPlaylistChanged(
+     * MediaController2, List, MediaMetadata2)}.
+     */
+    @Test
+    @LargeTest
+    public void testGetPlaylist_withLongPlaylist() throws InterruptedException {
+        prepareLooper();
+        final List<MediaItem2> testList = TestUtils.createPlaylist(5000);
+        final MediaMetadata2 testMetadata = TestUtils.createMetadata();
+        final AtomicReference<List<MediaItem2>> listFromCallback = new AtomicReference<>();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onPlaylistChanged(MediaController2 controller,
+                    List<MediaItem2> playlist, MediaMetadata2 metadata) {
+                assertNotNull(playlist);
+                TestUtils.assertMediaItemListEquals(testList, playlist);
+                TestUtils.assertMetadataEquals(testMetadata, metadata);
+                listFromCallback.set(playlist);
+                latch.countDown();
+            }
+        };
+        MediaController2 controller = createController(mSession.getToken(), true, callback);
+        mPlayer.mPlaylist = testList;
+        mPlayer.mMetadata = testMetadata;
+        mPlayer.notifyPlaylistChanged();
+        assertTrue(latch.await(3, TimeUnit.SECONDS));
+        // Ensures object equality
+        assertEquals(listFromCallback.get(), controller.getPlaylist());
+        TestUtils.assertMetadataEquals(testMetadata, controller.getPlaylistMetadata());
+    }
+
     @Test
     public void testUpdatePlaylistMetadata() throws InterruptedException {
         prepareLooper();

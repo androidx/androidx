@@ -35,6 +35,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.media.test.lib.TestUtils;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
@@ -150,17 +151,16 @@ public class RemoteMediaController2 {
 
     /**
      * Client app will automatically create a playlist of size {@param size},
-     * and call setPlaylist() with the list. Each item's media ID will be its index.
+     * and call MediaController2#setPlaylist() with the list.
      *
-     * Note: This is introduced for testing large data transaction. It can prevent test helper
-     *       classes from sending/receiving large data between them.
+     * Each item's media ID will be {@link TestUtils#getMediaIdInDummyList(int)}.
      */
-    public void setPlaylistWithSize(int size, @Nullable MediaMetadata2 metadata) {
+    public void createAndSetDummyPlaylist(int size, @Nullable MediaMetadata2 metadata) {
         try {
-            mBinder.setPlaylistWithSize(mControllerId, size,
+            mBinder.createAndSetDummyPlaylist(mControllerId, size,
                     metadata == null ? null : metadata.toBundle());
         } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call setPlaylistWithSize()");
+            Log.e(TAG, "Failed to call createAndSetDummyPlaylist()");
         }
     }
 
