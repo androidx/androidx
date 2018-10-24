@@ -243,22 +243,22 @@ class MediaController2ImplBase implements MediaController2Impl {
     }
 
     @FunctionalInterface
-    private interface SessionCommand {
+    private interface RemoteSessionTask {
         void run(IMediaSession2 iSession2, int seq) throws RemoteException;
     }
 
-    private ListenableFuture<ControllerResult> sendCommand(int commandCode,
-            SessionCommand command) {
-        return sendCommandInternal(commandCode, null, command);
+    private ListenableFuture<ControllerResult> dispatchRemoteSessionTask(int commandCode,
+            RemoteSessionTask task) {
+        return dispatchRemoteSessionTaskInternal(commandCode, null, task);
     }
 
-    private ListenableFuture<ControllerResult> sendCommand(SessionCommand2 sessionCommand,
-            SessionCommand command) {
-        return sendCommandInternal(COMMAND_CODE_CUSTOM, sessionCommand, command);
+    private ListenableFuture<ControllerResult> dispatchRemoteSessionTask(
+            SessionCommand2 sessionCommand, RemoteSessionTask task) {
+        return dispatchRemoteSessionTaskInternal(COMMAND_CODE_CUSTOM, sessionCommand, task);
     }
 
-    private ListenableFuture<ControllerResult> sendCommandInternal(int commandCode,
-            SessionCommand2 sessionCommand, SessionCommand command) {
+    private ListenableFuture<ControllerResult> dispatchRemoteSessionTaskInternal(int commandCode,
+            SessionCommand2 sessionCommand, RemoteSessionTask task) {
         final IMediaSession2 iSession2 = sessionCommand != null
                 ? getSessionInterfaceIfAble(sessionCommand)
                 : getSessionInterfaceIfAble(commandCode);
@@ -266,7 +266,7 @@ class MediaController2ImplBase implements MediaController2Impl {
             final SequencedFuture<ControllerResult> result =
                     mSequencedFutureManager.createSequencedFuture();
             try {
-                command.run(iSession2, result.getSequenceNumber());
+                task.run(iSession2, result.getSequenceNumber());
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
                 result.set(new ControllerResult(RESULT_CODE_DISCONNECTED));
@@ -282,7 +282,7 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> play() {
-        return sendCommand(COMMAND_CODE_PLAYER_PLAY, new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_PLAY, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.play(mControllerStub, seq);
@@ -292,7 +292,7 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> pause() {
-        return sendCommand(COMMAND_CODE_PLAYER_PAUSE, new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_PAUSE, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.pause(mControllerStub, seq);
@@ -302,7 +302,7 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> prefetch() {
-        return sendCommand(COMMAND_CODE_PLAYER_PREFETCH, new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_PREFETCH, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.prefetch(mControllerStub, seq);
@@ -312,17 +312,18 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> fastForward() {
-        return sendCommand(COMMAND_CODE_SESSION_FAST_FORWARD, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.fastForward(mControllerStub, seq);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_FAST_FORWARD,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.fastForward(mControllerStub, seq);
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> rewind() {
-        return sendCommand(COMMAND_CODE_SESSION_REWIND, new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_REWIND, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.rewind(mControllerStub, seq);
@@ -335,7 +336,7 @@ class MediaController2ImplBase implements MediaController2Impl {
         if (pos < 0) {
             throw new IllegalArgumentException("position shouldn't be negative");
         }
-        return sendCommand(COMMAND_CODE_PLAYER_SEEK_TO, new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SEEK_TO, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.seekTo(mControllerStub, seq, pos);
@@ -358,73 +359,79 @@ class MediaController2ImplBase implements MediaController2Impl {
     @Override
     public ListenableFuture<ControllerResult> playFromMediaId(final @NonNull String mediaId,
             final @Nullable Bundle extras) {
-        return sendCommand(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.playFromMediaId(mControllerStub, seq, mediaId, extras);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.playFromMediaId(mControllerStub, seq, mediaId, extras);
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> playFromSearch(final @NonNull String query,
             final @Nullable Bundle extras) {
-        return sendCommand(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.playFromSearch(mControllerStub, seq, query, extras);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.playFromSearch(mControllerStub, seq, query, extras);
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> playFromUri(final @NonNull Uri uri,
             final @NonNull Bundle extras) {
-        return sendCommand(COMMAND_CODE_SESSION_PLAY_FROM_URI, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.playFromUri(mControllerStub, seq, uri, extras);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PLAY_FROM_URI,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.playFromUri(mControllerStub, seq, uri, extras);
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> prefetchFromMediaId(final @NonNull String mediaId,
             final @Nullable Bundle extras) {
-        return sendCommand(COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.prefetchFromMediaId(mControllerStub, seq, mediaId, extras);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.prefetchFromMediaId(mControllerStub, seq, mediaId, extras);
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> prefetchFromSearch(final @NonNull String query,
             final @Nullable Bundle extras) {
-        return sendCommand(COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.prefetchFromSearch(mControllerStub, seq, query, extras);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.prefetchFromSearch(mControllerStub, seq, query, extras);
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> prefetchFromUri(final @NonNull Uri uri,
             final @Nullable Bundle extras) {
-        return sendCommand(COMMAND_CODE_SESSION_PREFETCH_FROM_URI, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.prefetchFromUri(mControllerStub, seq, uri, extras);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREFETCH_FROM_URI,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.prefetchFromUri(mControllerStub, seq, uri, extras);
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> setVolumeTo(final int value,
             final @VolumeFlags int flags) {
-        return sendCommand(COMMAND_CODE_VOLUME_SET_VOLUME, new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_VOLUME_SET_VOLUME, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.setVolumeTo(mControllerStub, seq, value, flags);
@@ -435,12 +442,13 @@ class MediaController2ImplBase implements MediaController2Impl {
     @Override
     public ListenableFuture<ControllerResult> adjustVolume(final @VolumeDirection int direction,
             final @VolumeFlags int flags) {
-        return sendCommand(COMMAND_CODE_VOLUME_ADJUST_VOLUME, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.adjustVolume(mControllerStub, seq, direction, flags);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_VOLUME_ADJUST_VOLUME,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.adjustVolume(mControllerStub, seq, direction, flags);
+                    }
+                });
     }
 
     @Override
@@ -499,7 +507,7 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> setPlaybackSpeed(final float speed) {
-        return sendCommand(COMMAND_CODE_PLAYER_SET_SPEED, new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_SPEED, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.setPlaybackSpeed(mControllerStub, seq, speed);
@@ -539,7 +547,7 @@ class MediaController2ImplBase implements MediaController2Impl {
     @Override
     public ListenableFuture<ControllerResult> setRating(final @NonNull String mediaId,
             final @NonNull Rating2 rating) {
-        return sendCommand(COMMAND_CODE_SESSION_SET_RATING, new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_SET_RATING, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.setRating(mControllerStub, seq, mediaId,
@@ -551,7 +559,7 @@ class MediaController2ImplBase implements MediaController2Impl {
     @Override
     public ListenableFuture<ControllerResult> sendCustomCommand(
             final @NonNull SessionCommand2 command, final @Nullable Bundle args) {
-        return sendCommand(command, new SessionCommand() {
+        return dispatchRemoteSessionTask(command, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.onCustomCommand(mControllerStub, seq,
@@ -570,7 +578,7 @@ class MediaController2ImplBase implements MediaController2Impl {
     @Override
     public ListenableFuture<ControllerResult> setPlaylist(final @NonNull List<MediaItem2> list,
             final @Nullable MediaMetadata2 metadata) {
-        return sendCommand(COMMAND_CODE_PLAYER_SET_PLAYLIST, new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_PLAYLIST, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.setPlaylist(mControllerStub, seq,
@@ -582,25 +590,27 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> setMediaItem(final MediaItem2 item) {
-        return sendCommand(COMMAND_CODE_PLAYER_SET_MEDIA_ITEM, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.setMediaItem(mControllerStub, seq,
-                        (ParcelImpl) ParcelUtils.toParcelable(item));
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.setMediaItem(mControllerStub, seq,
+                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> updatePlaylistMetadata(
             final @Nullable MediaMetadata2 metadata) {
-        return sendCommand(COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.updatePlaylistMetadata(mControllerStub, seq,
-                        (metadata == null) ? null : metadata.toBundle());
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.updatePlaylistMetadata(mControllerStub, seq,
+                                (metadata == null) ? null : metadata.toBundle());
+                    }
+                });
     }
 
     @Override
@@ -613,36 +623,39 @@ class MediaController2ImplBase implements MediaController2Impl {
     @Override
     public ListenableFuture<ControllerResult> addPlaylistItem(final int index,
             final @NonNull MediaItem2 item) {
-        return sendCommand(COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.addPlaylistItem(mControllerStub, seq, index,
-                        (ParcelImpl) ParcelUtils.toParcelable(item));
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.addPlaylistItem(mControllerStub, seq, index,
+                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> removePlaylistItem(final @NonNull MediaItem2 item) {
-        return sendCommand(COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.removePlaylistItem(mControllerStub, seq,
-                        (ParcelImpl) ParcelUtils.toParcelable(item));
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.removePlaylistItem(mControllerStub, seq,
+                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> replacePlaylistItem(final int index,
-                final @NonNull MediaItem2 item) {
-        return sendCommand(COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.replacePlaylistItem(mControllerStub, seq, index,
-                        (ParcelImpl) ParcelUtils.toParcelable(item));
-            }
-        });
+            final @NonNull MediaItem2 item) {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.replacePlaylistItem(mControllerStub, seq, index,
+                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                    }
+                });
     }
 
     @Override
@@ -654,8 +667,8 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> skipToPreviousItem() {
-        return sendCommand(COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
-                new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
+                new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.skipToPreviousItem(mControllerStub, seq);
@@ -665,8 +678,8 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> skipToNextItem() {
-        return sendCommand(COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
-                new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM,
+                new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.skipToNextItem(mControllerStub, seq);
@@ -676,13 +689,14 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> skipToPlaylistItem(final @NonNull MediaItem2 item) {
-        return sendCommand(COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.skipToPlaylistItem(mControllerStub, seq,
-                        (ParcelImpl) ParcelUtils.toParcelable(item));
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.skipToPlaylistItem(mControllerStub, seq,
+                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                    }
+                });
     }
 
     @Override
@@ -694,12 +708,13 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> setRepeatMode(final int repeatMode) {
-        return sendCommand(COMMAND_CODE_PLAYER_SET_REPEAT_MODE, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.setRepeatMode(mControllerStub, seq, repeatMode);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_REPEAT_MODE,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.setRepeatMode(mControllerStub, seq, repeatMode);
+                    }
+                });
     }
 
     @Override
@@ -711,28 +726,30 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> setShuffleMode(final int shuffleMode) {
-        return sendCommand(COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.setShuffleMode(mControllerStub, seq, shuffleMode);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.setShuffleMode(mControllerStub, seq, shuffleMode);
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> subscribeRoutesInfo() {
-        return sendCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.subscribeRoutesInfo(mControllerStub, seq);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.subscribeRoutesInfo(mControllerStub, seq);
+                    }
+                });
     }
 
     @Override
     public ListenableFuture<ControllerResult> unsubscribeRoutesInfo() {
-        return sendCommand(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
-                new SessionCommand() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
+                new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.unsubscribeRoutesInfo(mControllerStub, seq);
@@ -742,12 +759,13 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> selectRoute(final @NonNull Bundle route) {
-        return sendCommand(COMMAND_CODE_SESSION_SELECT_ROUTE, new SessionCommand() {
-            @Override
-            public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.selectRoute(mControllerStub, seq, route);
-            }
-        });
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_SELECT_ROUTE,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.selectRoute(mControllerStub, seq, route);
+                    }
+                });
     }
 
     @Override
