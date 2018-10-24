@@ -58,7 +58,7 @@ class TextStyleTest {
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val textBaseline = TextBaseline.alphabetic
-        val fontFamily = "sans-serif"
+        val fontFamily = FontFallback()
         val fontSize = 1.0
         val letterSpacing = 2.0
         val wordSpacing = 3.0

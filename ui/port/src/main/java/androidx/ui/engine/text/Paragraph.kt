@@ -1,8 +1,8 @@
 package androidx.ui.engine.text
 
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.text.platform.ParagraphAndroid
 import androidx.ui.painting.Canvas
-import kotlin.math.floor
 
 /**
  * A paragraph of text.
@@ -28,24 +28,24 @@ class Paragraph internal constructor(
     val paragraphStyle: ParagraphStyle,
     val textStyles: List<ParagraphBuilder.TextStyleIndex>
 ) {
-    // TODO(Migration/siyamed): width having -1 but others having 0 as default value is counter
-    // intuitive
+    private var needsLayout = true
+    private val paragraphImpl: ParagraphAndroid
 
     /**
      * The amount of horizontal space this paragraph occupies.
      *
      * Valid only after [layout] has been called.
      */
-    var width: Double = -1.0
-        private set
+    val width: Double
+        get() = paragraphImpl.width
 
     /**
      * The amount of vertical space this paragraph occupies.
      *
      * Valid only after [layout] has been called.
      */
-    var height: Double = 0.0
-        private set
+    val height: Double
+        get() = paragraphImpl.height
 
     /**
      * The minimum width that this paragraph could be without failing to paint
@@ -53,8 +53,8 @@ class Paragraph internal constructor(
      *
      * Valid only after [layout] has been called.
      */
-    var minIntrinsicWidth: Double = 0.0
-        private set
+    val minIntrinsicWidth
+        get() = paragraphImpl.minIntrinsicWidth
 
     /**
      * Returns the smallest width beyond which increasing the width never
@@ -62,22 +62,22 @@ class Paragraph internal constructor(
      *
      * Valid only after [layout] has been called.
      */
-    var maxIntrinsicWidth: Double = 0.0
-        private set
+    val maxIntrinsicWidth: Double
+        get() = paragraphImpl.maxIntrinsicWidth
 
     /**
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
      */
-    var alphabeticBaseline: Double = 0.0
-        private set
+    val alphabeticBaseline: Double
+        get() = paragraphImpl.alphabeticBaseline
 
     /**
      * The distance from the top of the paragraph to the ideographic
      * baseline of the first line, in logical pixels.
      */
-    var ideographicBaseline: Double = 0.0
-        private set
+    val ideographicBaseline: Double
+        get() = paragraphImpl.ideographicBaseline
 
     /**
      * True if there is more vertical content, but the text was truncated, either
@@ -88,18 +88,12 @@ class Paragraph internal constructor(
      * See the discussion of the `maxLines` and `ellipsis` arguments at [new
      * ParagraphStyle].
      */
-    var didExceedMaxLines: Boolean = false
-        private set
+    val didExceedMaxLines: Boolean
+        get() = paragraphImpl.didExceedMaxLines
 
-    private var needsLayout = true
-
-    // void Paragraph::SetText(std::vector<uint16_t> text, StyledRuns runs) {
-    //    needs_layout_ = true;
-    //    if (text.size() == 0)
-    //        return;
-    //    text_ = std::move(text);
-    //    runs_ = std::move(runs);
-    // }
+    init {
+        paragraphImpl = ParagraphAndroid(text, paragraphStyle, textStyles)
+    }
 
     // void Paragraph::SetFontCollection(
     // std::shared_ptr<FontCollection> font_collection) {
@@ -121,12 +115,11 @@ class Paragraph internal constructor(
     }
 
     private fun _layout(width: Double, force: Boolean = false) {
-        this.width = width
-        if (!this.needsLayout && this.width == width && !force) {
-            return
-        }
+        // TODO(migration/siyamed) the comparison should be floor(width) since it is
+        // floored in paragraphImpl, or the comparison should be moved to there.
+        if (!needsLayout && this.width == width && !force) return
         needsLayout = false
-        this.width = floor(width)
+        paragraphImpl.layout(width, force)
     }
 
     /** Returns a list of text boxes that enclose the given text range. */
@@ -150,17 +143,7 @@ class Paragraph internal constructor(
 
     /** Returns the text position closest to the given offset. */
     fun getPositionForOffset(offset: Offset): TextPosition {
-        var encoded: List<Int> = _getPositionForOffset(offset.dx, offset.dy)
-        return TextPosition(
-            offset = encoded.get(0),
-            affinity = TextAffinity.values().get(encoded.get(1))
-        )
-    }
-
-    private fun _getPositionForOffset(dx: Double, dy: Double): List<Int> {
-        TODO()
-        // ParagraphImplTxt::getPositionForOffset(double dx, double dy)
-        // native 'Paragraph_getPositionForOffset';
+        return paragraphImpl.getPositionForOffset(offset)
     }
 
     /**
