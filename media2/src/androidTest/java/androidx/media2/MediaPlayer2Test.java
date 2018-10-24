@@ -2690,6 +2690,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.setNextMediaItem(item2);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
+        final Monitor seekDone = new Monitor();
+        final int[] seekResults = new int[1];
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
             public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
@@ -2706,6 +2708,9 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
                 if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
                     assertTrue(status == MediaPlayer2.CALL_STATUS_NO_ERROR);
                     mOnPlayCalled.signal();
+                } else if (what == MediaPlayer2.CALL_COMPLETED_SEEK_TO) {
+                    seekResults[0] = status;
+                    seekDone.signal();
                 }
             }
         };
@@ -2730,6 +2735,15 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnCompletionCalled.reset();
         mOnCompletionCalled.waitForSignal();
         assertTrue(Math.abs(mPlayer.getCurrentPosition() - end2) < PLAYBACK_COMPLETE_TOLERANCE_MS);
+
+        seekDone.reset();
+        mPlayer.seekTo(start2 - 1000);
+        seekDone.waitForSignal();
+        assertEquals(MediaPlayer2.CALL_STATUS_BAD_VALUE, seekResults[0]);
+
+        mPlayer.seekTo(end2 + 1000);
+        seekDone.waitForSignal();
+        assertEquals(MediaPlayer2.CALL_STATUS_BAD_VALUE, seekResults[0]);
 
         assertEquals(expectedDuration2, mPlayer.getDuration());
 
