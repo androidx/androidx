@@ -51,7 +51,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewModelStore viewModelStore;
     }
 
-    private LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+    private final LifecycleRegistry mLifecycleRegistry;
 
     // Lazily recreated from NonConfigurationInstances by getViewModelStore()
     private ViewModelStore mViewModelStore;
@@ -61,8 +61,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             new CopyOnWriteArrayList<>();
 
     public ComponentActivity() {
+        mLifecycleRegistry = new LifecycleRegistry(this);
         if (Build.VERSION.SDK_INT >= 19) {
-            getLifecycle().addObserver(new GenericLifecycleObserver() {
+            mLifecycleRegistry.addObserver(new GenericLifecycleObserver() {
                 @Override
                 public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
                     if (event == Lifecycle.Event.ON_STOP) {
@@ -75,7 +76,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             });
         }
-        getLifecycle().addObserver(new GenericLifecycleObserver() {
+        mLifecycleRegistry.addObserver(new GenericLifecycleObserver() {
             @Override
             public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
                 if (event == Lifecycle.Event.ON_DESTROY) {
