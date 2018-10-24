@@ -51,7 +51,6 @@ oneway interface IMediaController2 {
 
     void onSetCustomLayout(int seq, in List<ParcelImpl> commandButtonlist) = 14;
     void onAllowedCommandsChanged(in ParcelImpl commandGroup) = 15;
-
     void onCustomCommand(int seq, in ParcelImpl command, in Bundle args) = 16;
 
     void onSessionResult(int seq, in ParcelImpl sessionResult) = 24;
