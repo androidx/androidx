@@ -23,7 +23,6 @@ import android.os.Handler;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.util.DebugUtils;
 import androidx.loader.app.LoaderManager;
 
 import java.io.FileDescriptor;
@@ -525,15 +524,25 @@ public class Loader<D> {
     @NonNull
     public String dataToString(@Nullable D data) {
         StringBuilder sb = new StringBuilder(64);
-        DebugUtils.buildShortClassTag(data, sb);
-        sb.append("}");
+        if (data == null) {
+            sb.append("null");
+        } else {
+            Class cls = data.getClass();
+            sb.append(cls.getSimpleName());
+            sb.append("{");
+            sb.append(Integer.toHexString(System.identityHashCode(cls)));
+            sb.append("}");
+        }
         return sb.toString();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(64);
-        DebugUtils.buildShortClassTag(this, sb);
+        Class cls = getClass();
+        sb.append(cls.getSimpleName());
+        sb.append("{");
+        sb.append(Integer.toHexString(System.identityHashCode(cls)));
         sb.append(" id=");
         sb.append(mId);
         sb.append("}");
