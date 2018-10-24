@@ -78,7 +78,7 @@ import java.util.List;
      * Returns an ExoPlayer media source for the given media item. The given {@link MediaItem2} is
      * set as the tag of the source.
      */
-    public static MediaSource createMediaSource(
+    public static MediaSource createUnclippedMediaSource(
             DataSource.Factory dataSourceFactory, MediaItem2 mediaItem2) {
         if (mediaItem2 instanceof UriMediaItem2) {
             Uri uri = ((UriMediaItem2) mediaItem2).getUri();
@@ -103,7 +103,7 @@ import java.util.List;
                     .setTag(mediaItem2)
                     .createMediaSource(Uri.EMPTY);
         } else {
-            throw new UnsupportedOperationException();
+            throw new IllegalStateException();
         }
     }
 
