@@ -107,16 +107,16 @@ public final class SliceLiveData {
      */
     public static @NonNull LiveData<Slice> fromStream(@NonNull Context context,
             @NonNull InputStream input, OnErrorListener listener) {
-        return fromStream(context, SliceViewManager.getInstance(context), input, listener, false);
+        return fromStream(context, SliceViewManager.getInstance(context), input, listener);
     }
 
     /**
-     * Version of {@link #fromStream} that blocks until initial slice loading
-     * is complete.
+     * Same as {@link #fromStream(Context, InputStream, OnErrorListener)} except returns
+     * as type {@link CachedSliceLiveData}.
      */
-    public static @NonNull LiveData<Slice> fromStreamBlocking(@NonNull Context context,
+    public static @NonNull CachedSliceLiveData fromCachedSlice(@NonNull Context context,
             @NonNull InputStream input, OnErrorListener listener) {
-        return fromStream(context, SliceViewManager.getInstance(context), input, listener, true);
+        return fromStream(context, SliceViewManager.getInstance(context), input, listener);
     }
 
     /**
@@ -125,16 +125,20 @@ public final class SliceLiveData {
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
-    public static LiveData<Slice> fromStream(@NonNull Context context,
-            SliceViewManager manager, @NonNull InputStream input, OnErrorListener listener,
-            boolean blocking) {
-        return new CachedLiveDataImpl(context, manager, input, listener, blocking);
+    public static CachedSliceLiveData fromStream(@NonNull Context context,
+            SliceViewManager manager, @NonNull InputStream input, OnErrorListener listener) {
+        return new CachedSliceLiveData(context, manager, input, listener);
     }
 
-    private static class CachedLiveDataImpl extends LiveData<Slice> {
+    /**
+     * Implementation of {@link LiveData}<Slice> that provides controls over how
+     * cached vs live slices work.
+     */
+    public static class CachedSliceLiveData extends LiveData<Slice> {
         final SliceViewManager mSliceViewManager;
         private final OnErrorListener mListener;
         final Context mContext;
+        private InputStream mInput;
         Uri mUri;
         private boolean mActive;
         List<Uri> mPendingUri = new ArrayList<>();
@@ -143,29 +147,58 @@ public final class SliceLiveData {
         List<Context> mPendingContext = new ArrayList<>();
         List<Intent> mPendingIntent = new ArrayList<>();
         private boolean mSliceCallbackRegistered;
+        private boolean mInitialSliceLoaded;
 
-        CachedLiveDataImpl(final Context context, final SliceViewManager manager,
-                final InputStream input, final OnErrorListener listener, boolean blocking) {
+        CachedSliceLiveData(final Context context, final SliceViewManager manager,
+                final InputStream input, final OnErrorListener listener) {
             super();
             mContext = context;
             mSliceViewManager = manager;
             mUri = null;
             mListener = listener;
-            if (blocking) {
-                loadInitialSlice(input);
-            } else {
-                AsyncTask.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        loadInitialSlice(input);
-                    }
-                });
-            }
+            mInput = input;
         }
 
-        protected void loadInitialSlice(InputStream input) {
+        /**
+         * Generally the InputStream are parsed asynchronously once the
+         * LiveData goes into the active state. When this is called, regardless of
+         * state, the slice will be read from the input stream and then the input
+         * stream's reference will be released when finished.
+         * <p>
+         * Calling parseStream() multiple times or after the stream has already
+         * been parsed asynchronously will have no effect.
+         */
+        public void parseStream() {
+            loadInitialSlice();
+        }
+
+        /**
+         * Moves this CachedSliceLiveData into a "live" state, causing the providing
+         * app to start up and provide an up to date version of the slice. After
+         * calling this method the slice will always be pinned as long as this
+         * LiveData is in the active state.
+         * <p>
+         * If the slice has already received a click or goLive() has already been
+         * called, then this method will have no effect.
+         * <p>
+         * Once goLive() has been called, there is no way to reverse it, this LiveData
+         * will then behave the same way as one created using {@link #fromUri(Context, Uri)}.
+         */
+        public void goLive() {
+            // Go live with no click.
+            goLive(null, null, null);
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        protected synchronized void loadInitialSlice() {
+            if (mInitialSliceLoaded) {
+                return;
+            }
             try {
-                Slice s = SliceUtils.parseSlice(mContext, input, "UTF-8",
+                Slice s = SliceUtils.parseSlice(mContext, mInput, "UTF-8",
                         new SliceUtils.SliceActionListener() {
                             @Override
                             public void onSliceAction(Uri actionUri, Context context,
@@ -183,13 +216,17 @@ public final class SliceLiveData {
             } catch (Exception e) {
                 mListener.onSliceError(OnErrorListener.ERROR_INVALID_INPUT, e);
             }
+            mInput = null;
+            mInitialSliceLoaded = true;
         }
 
         void goLive(Uri actionUri, Context context, Intent intent) {
             mLive = true;
-            mPendingUri.add(actionUri);
-            mPendingContext.add(context);
-            mPendingIntent.add(intent);
+            if (actionUri != null) {
+                mPendingUri.add(actionUri);
+                mPendingContext.add(context);
+                mPendingIntent.add(intent);
+            }
             if (mActive && !mSliceCallbackRegistered) {
                 AsyncTask.execute(mUpdateSlice);
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
@@ -200,6 +237,14 @@ public final class SliceLiveData {
         @Override
         protected void onActive() {
             mActive = true;
+            if (!mInitialSliceLoaded) {
+                AsyncTask.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        loadInitialSlice();
+                    }
+                });
+            }
             if (mLive && !mSliceCallbackRegistered) {
                 AsyncTask.execute(mUpdateSlice);
                 mSliceViewManager.registerSliceCallback(mUri, mSliceCallback);
@@ -227,6 +272,10 @@ public final class SliceLiveData {
             }
         }
 
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
         protected void updateSlice() {
             try {
                 Slice s = mSliceViewManager.bindSlice(mUri);

@@ -108,10 +108,15 @@ package androidx.slice.widget {
   }
 
   public final class SliceLiveData {
+    method public static androidx.slice.widget.SliceLiveData.CachedSliceLiveData fromCachedSlice(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromIntent(android.content.Context, android.content.Intent);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromStream(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener);
-    method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromStreamBlocking(android.content.Context, java.io.InputStream, androidx.slice.widget.SliceLiveData.OnErrorListener);
     method public static androidx.lifecycle.LiveData<androidx.slice.Slice> fromUri(android.content.Context, android.net.Uri);
+  }
+
+  public static class SliceLiveData.CachedSliceLiveData extends androidx.lifecycle.LiveData {
+    method public void goLive();
+    method public void parseStream();
   }
 
   public static abstract interface SliceLiveData.OnErrorListener {
