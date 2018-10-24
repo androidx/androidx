@@ -709,6 +709,18 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
+    public void onMediaTimeDiscontinuity(
+            final MediaItem2 mediaItem2, final MediaTimestamp2 mediaTimestamp2) {
+        notifyMediaPlayer2Event(new Mp2EventNotifier() {
+            @Override
+            public void notify(EventCallback cb) {
+                cb.onMediaTimeDiscontinuity(
+                        ExoPlayerMediaPlayer2Impl.this, mediaItem2, mediaTimestamp2);
+            }
+        });
+    }
+
+    @Override
     public void onPlaybackEnded(MediaItem2 mediaItem2) {
         notifyOnInfo(mediaItem2, MEDIA_INFO_DATA_SOURCE_LIST_END);
     }

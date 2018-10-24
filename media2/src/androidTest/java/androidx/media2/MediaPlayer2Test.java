@@ -129,7 +129,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlayAudioFromDataURI() throws Exception {
         final int mp3Duration = 34909;
         final int tolerance = 70;
@@ -240,7 +240,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlayAudio() throws Exception {
         final int resid = R.raw.testmp3_2;
         final int mp3Duration = 34909;
@@ -920,7 +920,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSkipToNext() throws Exception {
         testSetNextDataSources(true, true);
     }
@@ -1062,7 +1062,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSetNextDataSourceBeforeSetDataSource() throws Exception {
         final MediaItem2 item1 = createDataSourceDesc(
                 R.raw.video_480x360_mp4_h264_1000kbps_30fps_aac_stereo_128kbps_44100hz);
@@ -1998,7 +1998,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testMediaTimeDiscontinuity() throws Exception {
         if (!checkLoadResource(
                 R.raw.bbb_s1_320x240_mp4_h264_mp2_800kbps_30fps_aac_lc_5ch_240kbps_44100hz)) {
@@ -2038,7 +2038,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         // Timestamp needs to be reported when seeking is done.
         mOnSeekCompleteCalled.reset();
         mOnMediaTimeDiscontinuityCalled.reset();
-        mPlayer.seekTo(3000);
+        mPlayer.seekTo(3000, MediaPlayer2.SEEK_NEXT_SYNC);
         mOnSeekCompleteCalled.waitForSignal();
         do {
             assertTrue(mOnMediaTimeDiscontinuityCalled.waitForSignal(1000));
@@ -2069,7 +2069,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
      */
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testResumeAtEnd() throws Throwable {
         int testsRun = testResumeAtEnd(R.raw.loudsoftmp3)
                 + testResumeAtEnd(R.raw.loudsoftwav)
@@ -2109,8 +2109,8 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mPlayer.play();
         // sleep long enough that we restart playback at least once, but no more
         Thread.sleep(10000);
-        assertTrue("MediaPlayer2 should still be playing",
-                mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
+        assertEquals("MediaPlayer2 should still be playing",
+                 MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
         mPlayer.reset();
         assertEquals("wrong number of repetitions", 1, mOnCompletionCalled.getNumSignal());
         return 1;
@@ -2118,7 +2118,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPositionAtEnd() throws Throwable {
         testPositionAtEnd(R.raw.test1m1shighstereo);
         testPositionAtEnd(R.raw.loudsoftmp3);
@@ -2257,7 +2257,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlayerStates() throws Throwable {
         final int mp4Duration = 8484;
 
@@ -2484,7 +2484,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testMedia2DataSourceIsClosedOnReset() throws Exception {
         MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
             @Override
@@ -2507,7 +2507,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlaybackFailsIfMedia2DataSourceThrows() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         /* FIXME: check the codec exists.
@@ -2544,7 +2544,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlaybackFailsIfMedia2DataSourceReturnsAnError() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         /* FIXME: check the codec exists.
