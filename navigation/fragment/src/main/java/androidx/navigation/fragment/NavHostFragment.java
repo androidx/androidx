@@ -122,6 +122,7 @@ public class NavHostFragment extends Fragment implements NavHost {
     private NavController mNavController;
 
     // State that will be saved and restored
+    private int mGraphId;
     private boolean mDefaultNavHost;
 
     /**
@@ -186,7 +187,10 @@ public class NavHostFragment extends Fragment implements NavHost {
      * The existing graph will be replaced.
      *
      * @param graphResId resource id of the navigation graph to inflate
+     * @deprecated Call {@link #getNavController()} followed by {@link NavController#setGraph(int)}
+     * or construct your NavHostFragment using {@link NavHostFragment#create(int)}.
      */
+    @Deprecated
     public void setGraph(@NavigationRes int graphResId) {
         if (mNavController == null) {
             Bundle args = getArguments();
@@ -235,7 +239,12 @@ public class NavHostFragment extends Fragment implements NavHost {
         if (navState != null) {
             // Navigation controller state overrides arguments
             mNavController.restoreState(navState);
+        }
+        if (mGraphId != 0) {
+            // Set from onInflate()
+            mNavController.setGraph(mGraphId);
         } else {
+            // See if it was set by NavHostFragment.create()
             final Bundle args = getArguments();
             final int graphId = args != null ? args.getInt(KEY_GRAPH_ID) : 0;
             final Bundle startDestinationArgs = args != null
@@ -298,7 +307,7 @@ public class NavHostFragment extends Fragment implements NavHost {
         final boolean defaultHost = a.getBoolean(R.styleable.NavHostFragment_defaultNavHost, false);
 
         if (graphId != 0) {
-            setGraph(graphId);
+            mGraphId = graphId;
         }
         if (defaultHost) {
             mDefaultNavHost = true;
