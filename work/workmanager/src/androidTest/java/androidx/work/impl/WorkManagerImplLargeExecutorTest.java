@@ -179,6 +179,8 @@ public class WorkManagerImplLargeExecutorTest {
      */
     private static class TrackingScheduler extends GreedyScheduler {
 
+        private static final Object sLock = new Object();
+
         private Set<String> mScheduledWorkSpecIds;
 
         TrackingScheduler(Context context, WorkManagerImpl workManagerImpl) {
@@ -187,19 +189,23 @@ public class WorkManagerImplLargeExecutorTest {
         }
 
         @Override
-        public synchronized void schedule(WorkSpec... workSpecs) {
-            for (WorkSpec workSpec : workSpecs) {
-                assertThat(mScheduledWorkSpecIds.contains(workSpec.id), is(false));
-                mScheduledWorkSpecIds.add(workSpec.id);
-                assertThat(mScheduledWorkSpecIds.size() <= TEST_SCHEDULER_LIMIT, is(true));
+        public void schedule(WorkSpec... workSpecs) {
+            synchronized (sLock) {
+                for (WorkSpec workSpec : workSpecs) {
+                    assertThat(mScheduledWorkSpecIds.contains(workSpec.id), is(false));
+                    mScheduledWorkSpecIds.add(workSpec.id);
+                    assertThat(mScheduledWorkSpecIds.size() <= TEST_SCHEDULER_LIMIT, is(true));
+                }
             }
             super.schedule(workSpecs);
         }
 
         @Override
-        public synchronized void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-            assertThat(mScheduledWorkSpecIds.contains(workSpecId), is(true));
-            mScheduledWorkSpecIds.remove(workSpecId);
+        public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
+            synchronized (sLock) {
+                assertThat(mScheduledWorkSpecIds.contains(workSpecId), is(true));
+                mScheduledWorkSpecIds.remove(workSpecId);
+            }
             super.onExecuted(workSpecId, needsReschedule);
         }
     }

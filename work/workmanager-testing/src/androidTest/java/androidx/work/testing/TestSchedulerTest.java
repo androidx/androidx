@@ -32,6 +32,7 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.WorkStatus;
+import androidx.work.impl.WorkManagerImpl;
 import androidx.work.testing.workers.CountingTestWorker;
 import androidx.work.testing.workers.TestWorker;
 
@@ -39,6 +40,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -61,9 +63,10 @@ public class TestSchedulerTest {
             throws InterruptedException, ExecutionException {
 
         WorkRequest request = createWorkRequest();
-        WorkManager workManager = WorkManager.getInstance();
-        workManager.enqueue(request).get();
-        WorkStatus status = workManager.getStatusById(request.getId()).get();
+        // TestWorkManagerImpl is a subtype of WorkManagerImpl.
+        WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
+        workManagerImpl.enqueueInternal(Collections.singletonList(request)).get();
+        WorkStatus status = workManagerImpl.getStatusById(request.getId()).get();
         assertThat(status.getState().isFinished(), is(true));
     }
 

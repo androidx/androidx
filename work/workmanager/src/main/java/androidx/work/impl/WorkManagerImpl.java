@@ -279,8 +279,10 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> enqueue(
+    @NonNull
+    public ListenableFuture<Void> enqueueInternal(
             @NonNull List<? extends WorkRequest> workRequests) {
+
         // This error is not being propagated as part of the ListenableFuture, as we want the
         // app to crash during development. Having no workRequests is always a developer error.
         if (workRequests.isEmpty()) {
@@ -313,14 +315,15 @@ public class WorkManagerImpl extends WorkManager {
 
     @NonNull
     @Override
-    public ListenableFuture<Void> enqueueUniqueWork(@NonNull String uniqueWorkName,
+    public ListenableFuture<Void> enqueueUniqueWorkInternal(@NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work) {
         return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work).enqueue();
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> enqueueUniquePeriodicWork(
+    @NonNull
+    public ListenableFuture<Void> enqueueUniquePeriodicWorkInternal(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork) {
@@ -350,28 +353,29 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> cancelWorkById(@NonNull UUID id) {
+    public @NonNull ListenableFuture<Void> cancelWorkByIdInternal(@NonNull UUID id) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forId(id, this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> cancelAllWorkByTag(@NonNull final String tag) {
+    public @NonNull ListenableFuture<Void> cancelAllWorkByTagInternal(@NonNull final String tag) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forTag(tag, this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> cancelUniqueWork(@NonNull String uniqueWorkName) {
+    @NonNull
+    public ListenableFuture<Void> cancelUniqueWorkInternal(@NonNull String uniqueWorkName) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forName(uniqueWorkName, this, true);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> cancelAllWork() {
+    public @NonNull ListenableFuture<Void> cancelAllWorkInternal() {
         CancelWorkRunnable runnable = CancelWorkRunnable.forAll(this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
@@ -401,7 +405,7 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> pruneWork() {
+    public @NonNull ListenableFuture<Void> pruneWorkInternal() {
         PruneWorkRunnable runnable = new PruneWorkRunnable(this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
         return runnable.getFuture();
