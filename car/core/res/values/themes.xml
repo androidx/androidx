@@ -75,7 +75,7 @@ limitations under the License.
         <item name="seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="switchStyle">@style/Widget.Car.Switch</item>
         <item name="checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
-        <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation</item>
+        <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation.Light</item>
         <item name="toolbarStyle">@style/Widget.Car.Toolbar.Light</item>
     </style>
 

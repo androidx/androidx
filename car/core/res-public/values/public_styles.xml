@@ -54,6 +54,7 @@
     <public type="style" name="Widget.Car.Toolbar" />
     <public type="style" name="Widget.Car.Toolbar.Light" />
     <public type="style" name="Widget.Car.Toolbar.Button.Navigation" />
+    <public type="style" name="Widget.Car.Toolbar.Button.Navigation.Light" />
     <public type="style" name="Widget.Car.ActionButton" />
     <public type="style" name="Widget.Car.ActionButton.Light" />
     <public type="style" name="Widget.Car.DrawerArrowToggle" />
