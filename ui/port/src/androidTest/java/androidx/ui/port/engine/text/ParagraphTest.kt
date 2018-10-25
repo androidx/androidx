@@ -17,19 +17,23 @@ package androidx.ui.port.engine.text
 
 import android.app.Instrumentation
 import android.graphics.Typeface
+import android.text.TextPaint
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.Paragraph
 import androidx.ui.engine.text.ParagraphConstraints
 import androidx.ui.engine.text.ParagraphStyle
+import androidx.ui.engine.text.platform.StaticLayoutFactory
+import androidx.ui.port.bitmap
+import androidx.ui.port.matchers.equalToBitmap
 import org.hamcrest.Matchers.equalTo
-import org.hamcrest.Matchers.notNullValue
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import kotlin.math.ceil
 
 @RunWith(JUnit4::class)
 @SmallTest
@@ -41,7 +45,6 @@ class ParagraphTest {
     fun setup() {
         instrumentation = InstrumentationRegistry.getInstrumentation()
         val font = Typeface.createFromAsset(instrumentation.context.assets, "sample_font.ttf")!!
-        assertThat(font, notNullValue())
         fontFallback = FontFallback(font)
     }
 
@@ -181,5 +184,35 @@ class ParagraphTest {
         }
     }
 
+    @Test
+    fun draw_with_newline_and_line_break_default_values() {
+        val fontSize = 50.0
+        for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
+            val paragraph = Paragraph(
+                text = StringBuilder(text),
+                textStyles = listOf(),
+                paragraphStyle = ParagraphStyle(
+                    fontFamily = fontFallback,
+                    fontSize = fontSize
+                )
+            )
+
+            // 2 chars width
+            paragraph.layout(ParagraphConstraints(width = 2 * fontSize))
+
+            val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+            textPaint.textSize = fontSize.toFloat()
+            textPaint.typeface = fontFallback.typeface
+
+            val staticLayout = StaticLayoutFactory.create(
+                textPaint = textPaint,
+                charSequence = text,
+                width = ceil(paragraph.width).toInt(),
+                ellipsizeWidth = ceil(paragraph.width).toInt()
+            )
+
+            assertThat(paragraph.bitmap(), equalToBitmap(staticLayout.bitmap()))
+        }
+    }
     // TODO(migration/siyamed) add getPositionForOffset test
 }
