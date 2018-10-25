@@ -738,7 +738,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
         notifyMediaPlayer2Event(new Mp2EventNotifier() {
             @Override
             public void notify(EventCallback cb) {
-                // TODO(b/80232248): Clarify required values of what vs extra.
                 cb.onError(ExoPlayerMediaPlayer2Impl.this, mediaItem2, what, /* extra= */ 0);
             }
         });
