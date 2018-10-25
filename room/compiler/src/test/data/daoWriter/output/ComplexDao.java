@@ -31,7 +31,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public boolean transactionMethod(int i, String s, long l) {
+    public boolean transactionMethod(final int i, final String s, final long l) {
         __db.beginTransaction();
         try {
             boolean _result = super.transactionMethod(i, s, l);
@@ -43,7 +43,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public List<ComplexDao.FullName> fullNames(int id) {
+    public List<ComplexDao.FullName> fullNames(final int id) {
         final String _sql = "SELECT name || lastName as fullName, uid as id FROM user where uid = ?";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
@@ -68,7 +68,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public User getById(int id) {
+    public User getById(final int id) {
         final String _sql = "SELECT * FROM user where uid = ?";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
@@ -99,7 +99,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public User findByName(String name, String lastName) {
+    public User findByName(final String name, final String lastName) {
         final String _sql = "SELECT * FROM user where name LIKE ? AND lastName LIKE ?";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 2);
         int _argIndex = 1;
@@ -140,7 +140,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public List<User> loadAllByIds(int... ids) {
+    public List<User> loadAllByIds(final int... ids) {
         StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT * FROM user where uid IN (");
         final int _inputSize = ids.length;
@@ -180,7 +180,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    int getAge(int id) {
+    int getAge(final int id) {
         final String _sql = "SELECT ageColumn FROM user where uid = ?";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
@@ -201,7 +201,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public int[] getAllAges(int... ids) {
+    public int[] getAllAges(final int... ids) {
         StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
         final int _inputSize = ids.length;
@@ -233,7 +233,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public List<Integer> getAllAgesAsList(List<Integer> ids) {
+    public List<Integer> getAllAgesAsList(final List<Integer> ids) {
         StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
         final int _inputSize = ids.size();
@@ -271,7 +271,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public LiveData<User> getByIdLive(int id) {
+    public LiveData<User> getByIdLive(final int id) {
         final String _sql = "SELECT * FROM user where uid = ?";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
         int _argIndex = 1;
@@ -322,7 +322,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public LiveData<List<User>> loadUsersByIdsLive(int... ids) {
+    public LiveData<List<User>> loadUsersByIdsLive(final int... ids) {
         StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT * FROM user where uid IN (");
         final int _inputSize = ids.length;
@@ -382,7 +382,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     }
 
     @Override
-    public List<Integer> getAllAgesAsList(List<Integer> ids1, int[] ids2, int... ids3) {
+    public List<Integer> getAllAgesAsList(final List<Integer> ids1, final int[] ids2, final int... ids3) {
         StringBuilder _stringBuilder = StringUtil.newStringBuilder();
         _stringBuilder.append("SELECT ageColumn FROM user where uid IN(");
         final int _inputSize = ids1.size();
