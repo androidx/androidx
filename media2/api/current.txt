@@ -509,7 +509,7 @@ package androidx.media2 {
     method public abstract int getShuffleMode();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> pause();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> play();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> prefetch();
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> prepare();
     method public final void registerPlayerCallback(java.util.concurrent.Executor, androidx.media2.SessionPlayer2.PlayerCallback);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> removePlaylistItem(androidx.media2.MediaItem2);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> replacePlaylistItem(int, androidx.media2.MediaItem2);
@@ -663,7 +663,7 @@ package androidx.media2 {
     method public int getVideoWidth();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! pause();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! play();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! prefetch();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! prepare();
     method public androidx.concurrent.futures.ResolvableFuture<androidx.media2.XMediaPlayer.DrmResult>! prepareDrm(java.util.UUID);
     method public byte[]! provideDrmKeyResponse(byte[]?, byte[]) throws android.media.DeniedByServerException, androidx.media2.XMediaPlayer.NoDrmSchemeException;
     method public void releaseDrm() throws androidx.media2.XMediaPlayer.NoDrmSchemeException;
@@ -684,7 +684,6 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setPlaybackSpeed(float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setPlayerVolume(float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2?);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setPreviewEnabled(boolean);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setRepeatMode(int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setShuffleMode(int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setSurface(android.view.Surface!);
@@ -693,7 +692,6 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! skipToPreviousPlaylistItem();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! updatePlaylistMetadata(androidx.media2.MediaMetadata2!);
     field public static final int MEDIA_INFO_AUDIO_NOT_PLAYING = 804; // 0x324
-    field public static final int MEDIA_INFO_AUDIO_RENDERING_START = 4; // 0x4
     field public static final int MEDIA_INFO_BAD_INTERLEAVING = 800; // 0x320
     field public static final int MEDIA_INFO_BUFFERING_UPDATE = 704; // 0x2c0
     field public static final int MEDIA_INFO_NOT_SEEKABLE = 801; // 0x321
@@ -703,7 +701,6 @@ package androidx.media2 {
     field public static final int MEDIA_INFO_VIDEO_TRACK_LAGGING = 700; // 0x2bc
     field public static final int PLAYER_ERROR_IO = -1004; // 0xfffffc14
     field public static final int PLAYER_ERROR_MALFORMED = -1007; // 0xfffffc11
-    field public static final int PLAYER_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK = 200; // 0xc8
     field public static final int PLAYER_ERROR_TIMED_OUT = -110; // 0xffffff92
     field public static final int PLAYER_ERROR_UNKNOWN = 1; // 0x1
     field public static final int PLAYER_ERROR_UNSUPPORTED = -1010; // 0xfffffc0e
