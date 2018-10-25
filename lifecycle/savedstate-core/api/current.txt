@@ -1,28 +1,29 @@
+// Signature format: 2.0
 package androidx.lifecycle {
 
-  public abstract interface SavedState {
-    method public abstract android.os.Bundle consumeRestoredStateForKey(java.lang.String);
-    method public abstract boolean isRestored();
-    method public abstract void registerSaveStateCallback(java.lang.String, androidx.lifecycle.SavedState.Callback);
-    method public abstract void unregisterSaveStateCallback(java.lang.String);
+  public interface SavedState {
+    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
+    method @MainThread public boolean isRestored();
+    method @MainThread public void registerSaveStateCallback(String, androidx.lifecycle.SavedState.Callback);
+    method @MainThread public void unregisterSaveStateCallback(String);
   }
 
-  public static abstract interface SavedState.Callback {
-    method public abstract android.os.Bundle saveState();
+  public static interface SavedState.Callback {
+    method public android.os.Bundle saveState();
   }
 
-  public abstract interface SavedStateOwner {
-    method public abstract androidx.lifecycle.SavedState getSavedState();
+  public interface SavedStateOwner {
+    method public androidx.lifecycle.SavedState getSavedState();
   }
 
   public class SavedStateRegistry implements androidx.lifecycle.SavedState {
     ctor public SavedStateRegistry();
-    method public android.os.Bundle consumeRestoredStateForKey(java.lang.String);
-    method public boolean isRestored();
-    method public void performRestore(android.os.Bundle);
-    method public void performSave(android.os.Bundle);
-    method public void registerSaveStateCallback(java.lang.String, androidx.lifecycle.SavedState.Callback);
-    method public void unregisterSaveStateCallback(java.lang.String);
+    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
+    method @MainThread public boolean isRestored();
+    method @MainThread public void performRestore(android.os.Bundle?);
+    method @MainThread public void performSave(android.os.Bundle);
+    method @MainThread public void registerSaveStateCallback(String, androidx.lifecycle.SavedState.Callback);
+    method @MainThread public void unregisterSaveStateCallback(String);
   }
 
 }
