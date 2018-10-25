@@ -43,9 +43,9 @@ fun <Key, Value> PagedList(
     initialKey: Key? = null
 ): PagedList<Value> {
     return PagedList.Builder(dataSource, config)
-            .setNotifyExecutor(notifyExecutor)
-            .setFetchExecutor(fetchExecutor)
-            .setBoundaryCallback(boundaryCallback)
-            .setInitialKey(initialKey)
-            .build()
+        .setNotifyExecutor(notifyExecutor)
+        .setFetchExecutor(fetchExecutor)
+        .setBoundaryCallback(boundaryCallback)
+        .setInitialKey(initialKey)
+        .build()
 }

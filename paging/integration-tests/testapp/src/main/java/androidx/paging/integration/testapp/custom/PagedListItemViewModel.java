@@ -43,7 +43,8 @@ public class PagedListItemViewModel extends ViewModel {
     };
 
     private LiveData<PagedList<Item>> mLivePagedList =
-            new LivePagedListBuilder<>(mFactory, 20).build();
+            new LivePagedListBuilder<>(mFactory, 10)
+                    .build();
 
     void invalidateList() {
         synchronized (mDataSourceLock) {
