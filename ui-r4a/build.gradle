@@ -12,9 +12,14 @@ dependencies {
     api "androidx.activity:activity:1.0.0-alpha01"
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
+    implementation project(':ui-core')
+    implementation project(':ui-port')
 }
 
 android {
+    defaultConfig {
+        minSdkVersion 21
+    }
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         kotlinOptions {
             useIR = true
