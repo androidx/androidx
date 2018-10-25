@@ -1025,29 +1025,32 @@ public abstract class MediaPlayer2 {
     @RestrictTo(LIBRARY_GROUP)
     public @interface MediaPlayer2State {}
 
-    /* Do not change these values without updating their counterparts
-     * in include/media/mediaplayer2.h!
-     */
     /** Unspecified media player error.
      * @see EventCallback#onError
      */
     public static final int MEDIA_ERROR_UNKNOWN = 1;
 
-    /** The video is streamed and its container is not valid for progressive
-     * playback i.e the video's index (e.g moov atom) is not at the start of the
-     * file.
+    /**
+     * File or network related operation errors.
      * @see EventCallback#onError
      */
-    public static final int MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK = 200;
-
-    /** File or network related operation errors. */
     public static final int MEDIA_ERROR_IO = -1004;
-    /** Bitstream is not conforming to the related coding standard or file spec. */
+
+    /**
+     * Bitstream is not conforming to the related coding standard or file spec.
+     * @see EventCallback#onError
+     */
     public static final int MEDIA_ERROR_MALFORMED = -1007;
-    /** Bitstream is conforming to the related coding standard or file spec, but
-     * the media framework does not support the feature. */
+    /**
+     * Bitstream is conforming to the related coding standard or file spec, but
+     * the media framework does not support the feature.
+     * @see EventCallback#onError
+     */
     public static final int MEDIA_ERROR_UNSUPPORTED = -1010;
-    /** Some operation takes too long to complete, usually more than 3-5 seconds. */
+    /**
+     * Some operation takes too long to complete, usually more than 3-5 seconds.
+     * @see EventCallback#onError
+     */
     public static final int MEDIA_ERROR_TIMED_OUT = -110;
 
     /** Unspecified low-level system error. This value originated from UNKNOWN_ERROR in
@@ -1063,7 +1066,6 @@ public abstract class MediaPlayer2 {
      */
     @IntDef(flag = false, /*prefix = "MEDIA_ERROR",*/ value = {
             MEDIA_ERROR_UNKNOWN,
-            MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
             MEDIA_ERROR_IO,
             MEDIA_ERROR_MALFORMED,
             MEDIA_ERROR_UNSUPPORTED,

@@ -469,9 +469,6 @@ public class XMediaPlayer extends SessionPlayer2 {
 
         sErrorCodeMap = new ArrayMap<>();
         sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_UNKNOWN, PLAYER_ERROR_UNKNOWN);
-        sErrorCodeMap.put(
-                MediaPlayer2.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
-                PLAYER_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK);
         sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_IO, PLAYER_ERROR_IO);
         sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_MALFORMED, PLAYER_ERROR_MALFORMED);
         sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_UNSUPPORTED, PLAYER_ERROR_UNSUPPORTED);
