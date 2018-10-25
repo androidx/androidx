@@ -17,6 +17,7 @@ package android.support.v4.media.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.media.session.PlaybackState;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -549,7 +550,7 @@ public final class PlaybackStateCompat implements Parcelable {
     final long mActiveItemId;
     final Bundle mExtras;
 
-    private Object mStateObj;
+    private PlaybackState mStateFwk;
 
     PlaybackStateCompat(int state, long position, long bufferedPosition,
             float rate, long actions, int errorCode, CharSequence errorMessage, long updateTime,
@@ -797,34 +798,35 @@ public final class PlaybackStateCompat implements Parcelable {
      */
     public static PlaybackStateCompat fromPlaybackState(Object stateObj) {
         if (stateObj != null && Build.VERSION.SDK_INT >= 21) {
-            List<Object> customActionObjs = PlaybackStateCompatApi21.getCustomActions(stateObj);
+            PlaybackState stateFwk = (PlaybackState) stateObj;
+            List<PlaybackState.CustomAction> customActionFwks = stateFwk.getCustomActions();
             List<PlaybackStateCompat.CustomAction> customActions = null;
-            if (customActionObjs != null) {
-                customActions = new ArrayList<>(customActionObjs.size());
-                for (Object customActionObj : customActionObjs) {
-                    customActions.add(CustomAction.fromCustomAction(customActionObj));
+            if (customActionFwks != null) {
+                customActions = new ArrayList<>(customActionFwks.size());
+                for (Object customActionFwk : customActionFwks) {
+                    customActions.add(CustomAction.fromCustomAction(customActionFwk));
                 }
             }
             Bundle extras;
             if (Build.VERSION.SDK_INT >= 22) {
-                extras = PlaybackStateCompatApi22.getExtras(stateObj);
+                extras = stateFwk.getExtras();
             } else {
                 extras = null;
             }
-            PlaybackStateCompat state = new PlaybackStateCompat(
-                    PlaybackStateCompatApi21.getState(stateObj),
-                    PlaybackStateCompatApi21.getPosition(stateObj),
-                    PlaybackStateCompatApi21.getBufferedPosition(stateObj),
-                    PlaybackStateCompatApi21.getPlaybackSpeed(stateObj),
-                    PlaybackStateCompatApi21.getActions(stateObj),
+            PlaybackStateCompat stateCompat = new PlaybackStateCompat(
+                    stateFwk.getState(),
+                    stateFwk.getPosition(),
+                    stateFwk.getBufferedPosition(),
+                    stateFwk.getPlaybackSpeed(),
+                    stateFwk.getActions(),
                     ERROR_CODE_UNKNOWN_ERROR,
-                    PlaybackStateCompatApi21.getErrorMessage(stateObj),
-                    PlaybackStateCompatApi21.getLastPositionUpdateTime(stateObj),
+                    stateFwk.getErrorMessage(),
+                    stateFwk.getLastPositionUpdateTime(),
                     customActions,
-                    PlaybackStateCompatApi21.getActiveQueueItemId(stateObj),
+                    stateFwk.getActiveQueueItemId(),
                     extras);
-            state.mStateObj = stateObj;
-            return state;
+            stateCompat.mStateFwk = stateFwk;
+            return stateCompat;
         } else {
             return null;
         }
@@ -839,27 +841,23 @@ public final class PlaybackStateCompat implements Parcelable {
      * @return An equivalent {@link android.media.session.PlaybackState} object, or null if none.
      */
     public Object getPlaybackState() {
-        if (mStateObj == null && Build.VERSION.SDK_INT >= 21) {
-            List<Object> customActions = null;
-            if (mCustomActions != null) {
-                customActions = new ArrayList<>(mCustomActions.size());
-                for (PlaybackStateCompat.CustomAction customAction : mCustomActions) {
-                    customActions.add(customAction.getCustomAction());
-                }
+        if (mStateFwk == null && Build.VERSION.SDK_INT >= 21) {
+            PlaybackState.Builder builder = new PlaybackState.Builder();
+            builder.setState(mState, mPosition, mSpeed, mUpdateTime);
+            builder.setBufferedPosition(mBufferedPosition);
+            builder.setActions(mActions);
+            builder.setErrorMessage(mErrorMessage);
+            for (PlaybackStateCompat.CustomAction customAction : mCustomActions) {
+                builder.addCustomAction(
+                        (PlaybackState.CustomAction) customAction.getCustomAction());
             }
+            builder.setActiveQueueItemId(mActiveItemId);
             if (Build.VERSION.SDK_INT >= 22) {
-                mStateObj = PlaybackStateCompatApi22.newInstance(mState, mPosition,
-                        mBufferedPosition,
-                        mSpeed, mActions, mErrorMessage, mUpdateTime,
-                        customActions, mActiveItemId, mExtras);
-            } else {
-                //noinspection AndroidLintNewApi - NewApi lint fails to handle nested checks.
-                mStateObj = PlaybackStateCompatApi21.newInstance(mState, mPosition,
-                        mBufferedPosition, mSpeed, mActions, mErrorMessage, mUpdateTime,
-                        customActions, mActiveItemId);
+                builder.setExtras(mExtras);
             }
+            mStateFwk = builder.build();
         }
-        return mStateObj;
+        return mStateFwk;
     }
 
     public static final Parcelable.Creator<PlaybackStateCompat> CREATOR =
@@ -887,7 +885,7 @@ public final class PlaybackStateCompat implements Parcelable {
         private final int mIcon;
         private final Bundle mExtras;
 
-        private Object mCustomActionObj;
+        private PlaybackState.CustomAction mCustomActionFwk;
 
         /**
          * Use {@link PlaybackStateCompat.CustomAction.Builder#build()}.
@@ -935,13 +933,16 @@ public final class PlaybackStateCompat implements Parcelable {
                 return null;
             }
 
-            PlaybackStateCompat.CustomAction customAction = new PlaybackStateCompat.CustomAction(
-                    PlaybackStateCompatApi21.CustomAction.getAction(customActionObj),
-                    PlaybackStateCompatApi21.CustomAction.getName(customActionObj),
-                    PlaybackStateCompatApi21.CustomAction.getIcon(customActionObj),
-                    PlaybackStateCompatApi21.CustomAction.getExtras(customActionObj));
-            customAction.mCustomActionObj = customActionObj;
-            return customAction;
+            PlaybackState.CustomAction customActionFwk =
+                    (PlaybackState.CustomAction) customActionObj;
+            PlaybackStateCompat.CustomAction customActionCompat =
+                    new PlaybackStateCompat.CustomAction(
+                            customActionFwk.getAction(),
+                            customActionFwk.getName(),
+                            customActionFwk.getIcon(),
+                            customActionFwk.getExtras());
+            customActionCompat.mCustomActionFwk = customActionFwk;
+            return customActionCompat;
         }
 
         /**
@@ -955,13 +956,14 @@ public final class PlaybackStateCompat implements Parcelable {
          * or null if none.
          */
         public Object getCustomAction() {
-            if (mCustomActionObj != null || Build.VERSION.SDK_INT < 21) {
-                return mCustomActionObj;
+            if (mCustomActionFwk != null || Build.VERSION.SDK_INT < 21) {
+                return mCustomActionFwk;
             }
 
-            mCustomActionObj = PlaybackStateCompatApi21.CustomAction.newInstance(mAction,
-                    mName, mIcon, mExtras);
-            return mCustomActionObj;
+            PlaybackState.CustomAction.Builder builder = new PlaybackState.CustomAction.Builder(
+                    mAction, mName, mIcon);
+            builder.setExtras(mExtras);
+            return builder.build();
         }
 
         public static final Parcelable.Creator<PlaybackStateCompat.CustomAction> CREATOR
