@@ -1,3 +1,4 @@
+// Signature format: 2.0
 package androidx.print {
 
   public final class PrintHelper {
@@ -5,10 +6,10 @@ package androidx.print {
     method public int getColorMode();
     method public int getOrientation();
     method public int getScaleMode();
-    method public void printBitmap(java.lang.String, android.graphics.Bitmap);
-    method public void printBitmap(java.lang.String, android.graphics.Bitmap, androidx.print.PrintHelper.OnPrintFinishCallback);
-    method public void printBitmap(java.lang.String, android.net.Uri) throws java.io.FileNotFoundException;
-    method public void printBitmap(java.lang.String, android.net.Uri, androidx.print.PrintHelper.OnPrintFinishCallback) throws java.io.FileNotFoundException;
+    method public void printBitmap(String, android.graphics.Bitmap);
+    method public void printBitmap(String, android.graphics.Bitmap, androidx.print.PrintHelper.OnPrintFinishCallback?);
+    method public void printBitmap(String, android.net.Uri) throws java.io.FileNotFoundException;
+    method public void printBitmap(String, android.net.Uri, androidx.print.PrintHelper.OnPrintFinishCallback?) throws java.io.FileNotFoundException;
     method public void setColorMode(int);
     method public void setOrientation(int);
     method public void setScaleMode(int);
@@ -21,8 +22,8 @@ package androidx.print {
     field public static final int SCALE_MODE_FIT = 1; // 0x1
   }
 
-  public static abstract interface PrintHelper.OnPrintFinishCallback {
-    method public abstract void onFinish();
+  public static interface PrintHelper.OnPrintFinishCallback {
+    method public void onFinish();
   }
 
 }

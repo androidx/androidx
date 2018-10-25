@@ -1,8 +1,9 @@
+// Signature format: 2.0
 package androidx.sqlite.db.framework {
 
   public final class FrameworkSQLiteOpenHelperFactory implements androidx.sqlite.db.SupportSQLiteOpenHelper.Factory {
     ctor public FrameworkSQLiteOpenHelperFactory();
-    method public androidx.sqlite.db.SupportSQLiteOpenHelper create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration);
+    method public androidx.sqlite.db.SupportSQLiteOpenHelper! create(androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration!);
   }
 
 }

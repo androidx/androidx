@@ -1,3 +1,4 @@
+// Signature format: 2.0
 package androidx.emoji.bundled {
 
   public class BundledEmojiCompatConfig extends androidx.emoji.text.EmojiCompat.Config {

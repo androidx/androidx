@@ -1,3 +1,4 @@
+// Signature format: 2.0
 package androidx.lifecycle {
 
   public class AndroidViewModel extends androidx.lifecycle.ViewModel {
@@ -15,8 +16,8 @@ package androidx.lifecycle {
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.Factory);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStoreOwner, androidx.lifecycle.ViewModelProvider.KeyedFactory);
     ctor public ViewModelProvider(androidx.lifecycle.ViewModelStore, androidx.lifecycle.ViewModelProvider.KeyedFactory);
-    method public <T extends androidx.lifecycle.ViewModel> T get(java.lang.Class<T>);
-    method public <T extends androidx.lifecycle.ViewModel> T get(java.lang.String, java.lang.Class<T>);
+    method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(Class<T>);
+    method @MainThread public <T extends androidx.lifecycle.ViewModel> T get(String, Class<T>);
   }
 
   public static class ViewModelProvider.AndroidViewModelFactory extends androidx.lifecycle.ViewModelProvider.NewInstanceFactory {
@@ -24,17 +25,17 @@ package androidx.lifecycle {
     method public static androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory getInstance(android.app.Application);
   }
 
-  public static abstract interface ViewModelProvider.Factory {
-    method public abstract <T extends androidx.lifecycle.ViewModel> T create(java.lang.Class<T>);
+  public static interface ViewModelProvider.Factory {
+    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T>);
   }
 
-  public static abstract interface ViewModelProvider.KeyedFactory {
-    method public abstract <T extends androidx.lifecycle.ViewModel> T create(java.lang.String, java.lang.Class<T>);
+  public static interface ViewModelProvider.KeyedFactory {
+    method public <T extends androidx.lifecycle.ViewModel> T create(String, Class<T>);
   }
 
   public static class ViewModelProvider.NewInstanceFactory implements androidx.lifecycle.ViewModelProvider.Factory {
     ctor public ViewModelProvider.NewInstanceFactory();
-    method public <T extends androidx.lifecycle.ViewModel> T create(java.lang.Class<T>);
+    method public <T extends androidx.lifecycle.ViewModel> T create(Class<T>);
   }
 
   public class ViewModelStore {
@@ -42,8 +43,8 @@ package androidx.lifecycle {
     method public final void clear();
   }
 
-  public abstract interface ViewModelStoreOwner {
-    method public abstract androidx.lifecycle.ViewModelStore getViewModelStore();
+  public interface ViewModelStoreOwner {
+    method public androidx.lifecycle.ViewModelStore getViewModelStore();
   }
 
 }
