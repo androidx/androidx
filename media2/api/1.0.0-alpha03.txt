@@ -1,3 +1,4 @@
+// Signature format: 2.0
 package androidx.media2 {
 
   public class CallbackMediaItem2 extends androidx.media2.MediaItem2 {
@@ -6,13 +7,17 @@ package androidx.media2 {
 
   public static final class CallbackMediaItem2.Builder {
     ctor public CallbackMediaItem2.Builder(androidx.media2.DataSourceCallback2);
-    method public androidx.media2.CallbackMediaItem2 build();
+    method public androidx.media2.CallbackMediaItem2! build();
+    method public androidx.media2.CallbackMediaItem2.Builder! setEndPosition(long);
+    method public androidx.media2.CallbackMediaItem2.Builder! setMediaId(String!);
+    method public androidx.media2.CallbackMediaItem2.Builder! setMetadata(androidx.media2.MediaMetadata2!);
+    method public androidx.media2.CallbackMediaItem2.Builder! setStartPosition(long);
   }
 
   public abstract class DataSourceCallback2 implements java.io.Closeable {
     ctor public DataSourceCallback2();
     method public abstract long getSize() throws java.io.IOException;
-    method public abstract int readAt(long, byte[], int, int) throws java.io.IOException;
+    method public abstract int readAt(long, byte[]!, int, int) throws java.io.IOException;
   }
 
   public class FileMediaItem2 extends androidx.media2.MediaItem2 {
@@ -25,7 +30,11 @@ package androidx.media2 {
   public static final class FileMediaItem2.Builder {
     ctor public FileMediaItem2.Builder(java.io.FileDescriptor);
     ctor public FileMediaItem2.Builder(java.io.FileDescriptor, long, long);
-    method public androidx.media2.FileMediaItem2 build();
+    method public androidx.media2.FileMediaItem2! build();
+    method public androidx.media2.FileMediaItem2.Builder! setEndPosition(long);
+    method public androidx.media2.FileMediaItem2.Builder! setMediaId(String!);
+    method public androidx.media2.FileMediaItem2.Builder! setMetadata(androidx.media2.MediaMetadata2!);
+    method public androidx.media2.FileMediaItem2.Builder! setStartPosition(long);
   }
 
   public final class HeartRating2 implements androidx.media2.Rating2 {
@@ -37,82 +46,82 @@ package androidx.media2 {
 
   public class MediaBrowser2 extends androidx.media2.MediaController2 {
     ctor public MediaBrowser2(android.content.Context, androidx.media2.SessionToken2, java.util.concurrent.Executor, androidx.media2.MediaBrowser2.BrowserCallback);
-    method public void getChildren(java.lang.String, int, int, android.os.Bundle);
-    method public void getItem(java.lang.String);
-    method public void getLibraryRoot(android.os.Bundle);
-    method public void getSearchResult(java.lang.String, int, int, android.os.Bundle);
-    method public void search(java.lang.String, android.os.Bundle);
-    method public void subscribe(java.lang.String, android.os.Bundle);
-    method public void unsubscribe(java.lang.String);
+    method public void getChildren(String, int, int, android.os.Bundle?);
+    method public void getItem(String);
+    method public void getLibraryRoot(android.os.Bundle?);
+    method public void getSearchResult(String, int, int, android.os.Bundle?);
+    method public void search(String, android.os.Bundle?);
+    method public void subscribe(String, android.os.Bundle?);
+    method public void unsubscribe(String);
   }
 
   public static class MediaBrowser2.BrowserCallback extends androidx.media2.MediaController2.ControllerCallback {
     ctor public MediaBrowser2.BrowserCallback();
-    method public void onChildrenChanged(androidx.media2.MediaBrowser2, java.lang.String, int, android.os.Bundle);
-    method public void onGetChildrenDone(androidx.media2.MediaBrowser2, java.lang.String, int, int, java.util.List<androidx.media2.MediaItem2>, android.os.Bundle);
-    method public void onGetItemDone(androidx.media2.MediaBrowser2, java.lang.String, androidx.media2.MediaItem2);
-    method public void onGetLibraryRootDone(androidx.media2.MediaBrowser2, android.os.Bundle, java.lang.String, android.os.Bundle);
-    method public void onGetSearchResultDone(androidx.media2.MediaBrowser2, java.lang.String, int, int, java.util.List<androidx.media2.MediaItem2>, android.os.Bundle);
-    method public void onSearchResultChanged(androidx.media2.MediaBrowser2, java.lang.String, int, android.os.Bundle);
+    method public void onChildrenChanged(androidx.media2.MediaBrowser2, String, int, android.os.Bundle?);
+    method public void onGetChildrenDone(androidx.media2.MediaBrowser2, String, int, int, java.util.List<androidx.media2.MediaItem2>?, android.os.Bundle?);
+    method public void onGetItemDone(androidx.media2.MediaBrowser2, String, androidx.media2.MediaItem2?);
+    method public void onGetLibraryRootDone(androidx.media2.MediaBrowser2, android.os.Bundle?, String?, android.os.Bundle?);
+    method public void onGetSearchResultDone(androidx.media2.MediaBrowser2, String, int, int, java.util.List<androidx.media2.MediaItem2>?, android.os.Bundle?);
+    method public void onSearchResultChanged(androidx.media2.MediaBrowser2, String, int, android.os.Bundle?);
   }
 
   public class MediaController2 implements java.lang.AutoCloseable {
     ctor public MediaController2(android.content.Context, androidx.media2.SessionToken2, java.util.concurrent.Executor, androidx.media2.MediaController2.ControllerCallback);
     ctor public MediaController2(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token, java.util.concurrent.Executor, androidx.media2.MediaController2.ControllerCallback);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> addPlaylistItem(int, androidx.media2.MediaItem2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> adjustVolume(int, int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! addPlaylistItem(int, androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! adjustVolume(int, int);
     method public void close();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> fastForward();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! fastForward();
     method public long getBufferedPosition();
     method public int getBufferingState();
-    method public androidx.media2.SessionToken2 getConnectedSessionToken();
-    method public androidx.media2.MediaItem2 getCurrentMediaItem();
+    method public androidx.media2.SessionToken2? getConnectedSessionToken();
+    method public androidx.media2.MediaItem2! getCurrentMediaItem();
     method public long getCurrentPosition();
     method public long getDuration();
-    method public androidx.media2.MediaController2.PlaybackInfo getPlaybackInfo();
+    method public androidx.media2.MediaController2.PlaybackInfo? getPlaybackInfo();
     method public float getPlaybackSpeed();
     method public int getPlayerState();
-    method public java.util.List<androidx.media2.MediaItem2> getPlaylist();
-    method public androidx.media2.MediaMetadata2 getPlaylistMetadata();
+    method public java.util.List<androidx.media2.MediaItem2>? getPlaylist();
+    method public androidx.media2.MediaMetadata2? getPlaylistMetadata();
     method public int getRepeatMode();
-    method public android.app.PendingIntent getSessionActivity();
+    method public android.app.PendingIntent? getSessionActivity();
     method public int getShuffleMode();
     method public boolean isConnected();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> pause();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> play();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> prefetch();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> removePlaylistItem(androidx.media2.MediaItem2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> replacePlaylistItem(int, androidx.media2.MediaItem2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> rewind();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> seekTo(long);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! pause();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! play();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! prefetch();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! removePlaylistItem(androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! replacePlaylistItem(int, androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! rewind();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! seekTo(long);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle?);
     method public void setMediaItem(androidx.media2.MediaItem2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setPlaybackSpeed(float);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setRating(java.lang.String, androidx.media2.Rating2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setRepeatMode(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setShuffleMode(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> setVolumeTo(int, int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> skipToNextPlaylistItem();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> skipToPlaylistItem(androidx.media2.MediaItem2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> skipToPreviousPlaylistItem();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> updatePlaylistMetadata(androidx.media2.MediaMetadata2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setPlaybackSpeed(float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2?);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setRating(String, androidx.media2.Rating2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setRepeatMode(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setShuffleMode(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setVolumeTo(int, int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! skipToNextPlaylistItem();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! skipToPlaylistItem(androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! skipToPreviousPlaylistItem();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! updatePlaylistMetadata(androidx.media2.MediaMetadata2?);
   }
 
-  public static abstract class MediaController2.ControllerCallback {
+  public abstract static class MediaController2.ControllerCallback {
     ctor public MediaController2.ControllerCallback();
     method public void onAllowedCommandsChanged(androidx.media2.MediaController2, androidx.media2.SessionCommandGroup2);
     method public void onBufferingStateChanged(androidx.media2.MediaController2, androidx.media2.MediaItem2, int);
     method public void onConnected(androidx.media2.MediaController2, androidx.media2.SessionCommandGroup2);
-    method public void onCurrentMediaItemChanged(androidx.media2.MediaController2, androidx.media2.MediaItem2);
-    method public androidx.media2.MediaController2.ControllerResult onCustomCommand(androidx.media2.MediaController2, androidx.media2.SessionCommand2, android.os.Bundle);
+    method public void onCurrentMediaItemChanged(androidx.media2.MediaController2, androidx.media2.MediaItem2?);
+    method public androidx.media2.MediaController2.ControllerResult onCustomCommand(androidx.media2.MediaController2, androidx.media2.SessionCommand2, android.os.Bundle?);
     method public void onDisconnected(androidx.media2.MediaController2);
     method public void onPlaybackCompleted(androidx.media2.MediaController2);
     method public void onPlaybackInfoChanged(androidx.media2.MediaController2, androidx.media2.MediaController2.PlaybackInfo);
     method public void onPlaybackSpeedChanged(androidx.media2.MediaController2, float);
     method public void onPlayerStateChanged(androidx.media2.MediaController2, int);
-    method public void onPlaylistChanged(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
-    method public void onPlaylistMetadataChanged(androidx.media2.MediaController2, androidx.media2.MediaMetadata2);
+    method public void onPlaylistChanged(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2?);
+    method public void onPlaylistMetadataChanged(androidx.media2.MediaController2, androidx.media2.MediaMetadata2?);
     method public void onRepeatModeChanged(androidx.media2.MediaController2, int);
     method public void onSeekCompleted(androidx.media2.MediaController2, long);
     method public int onSetCustomLayout(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaSession2.CommandButton>);
@@ -120,10 +129,10 @@ package androidx.media2 {
   }
 
   public static class MediaController2.ControllerResult implements androidx.versionedparcelable.VersionedParcelable {
-    ctor public MediaController2.ControllerResult(int, android.os.Bundle);
+    ctor public MediaController2.ControllerResult(int, android.os.Bundle?);
     method public long getCompletionTime();
-    method public android.os.Bundle getCustomCommandResult();
-    method public androidx.media2.MediaItem2 getMediaItem();
+    method public android.os.Bundle? getCustomCommandResult();
+    method public androidx.media2.MediaItem2? getMediaItem();
     method public int getResultCode();
     field public static final int RESULT_CODE_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
     field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
@@ -144,7 +153,7 @@ package androidx.media2 {
   }
 
   public static final class MediaController2.PlaybackInfo implements androidx.versionedparcelable.VersionedParcelable {
-    method public androidx.media.AudioAttributesCompat getAudioAttributes();
+    method public androidx.media.AudioAttributesCompat! getAudioAttributes();
     method public int getControlType();
     method public int getCurrentVolume();
     method public int getMaxVolume();
@@ -156,12 +165,12 @@ package androidx.media2 {
   public class MediaItem2 implements androidx.versionedparcelable.VersionedParcelable {
     method public long getEndPosition();
     method public int getFlags();
-    method public java.lang.String getMediaId();
-    method public androidx.media2.MediaMetadata2 getMetadata();
+    method public String? getMediaId();
+    method public androidx.media2.MediaMetadata2? getMetadata();
     method public long getStartPosition();
     method public boolean isBrowsable();
     method public boolean isPlayable();
-    method public void setMetadata(androidx.media2.MediaMetadata2);
+    method public void setMetadata(androidx.media2.MediaMetadata2?);
     field public static final int FLAG_BROWSABLE = 1; // 0x1
     field public static final int FLAG_PLAYABLE = 2; // 0x2
     field public static final long POSITION_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
@@ -169,58 +178,63 @@ package androidx.media2 {
 
   public static class MediaItem2.Builder {
     ctor public MediaItem2.Builder(int);
+    method public androidx.media2.MediaItem2! build();
+    method public androidx.media2.MediaItem2.BuilderBase! setEndPosition(long);
+    method public androidx.media2.MediaItem2.BuilderBase! setMediaId(String!);
+    method public androidx.media2.MediaItem2.BuilderBase! setMetadata(androidx.media2.MediaMetadata2!);
+    method public androidx.media2.MediaItem2.BuilderBase! setStartPosition(long);
   }
 
   public abstract class MediaLibraryService2 extends androidx.media2.MediaSessionService2 {
     ctor public MediaLibraryService2();
     method public abstract androidx.media2.MediaLibraryService2.MediaLibrarySession onGetSession();
-    field public static final java.lang.String SERVICE_INTERFACE = "android.media.MediaLibraryService2";
+    field public static final String SERVICE_INTERFACE = "android.media.MediaLibraryService2";
   }
 
   public static final class MediaLibraryService2.LibraryRoot {
-    ctor public MediaLibraryService2.LibraryRoot(java.lang.String, android.os.Bundle);
-    method public android.os.Bundle getExtras();
-    method public java.lang.String getRootId();
-    field public static final java.lang.String EXTRA_OFFLINE = "android.media.extra.OFFLINE";
-    field public static final java.lang.String EXTRA_RECENT = "android.media.extra.RECENT";
-    field public static final java.lang.String EXTRA_SUGGESTED = "android.media.extra.SUGGESTED";
+    ctor public MediaLibraryService2.LibraryRoot(String, android.os.Bundle?);
+    method public android.os.Bundle! getExtras();
+    method public String! getRootId();
+    field public static final String EXTRA_OFFLINE = "android.media.extra.OFFLINE";
+    field public static final String EXTRA_RECENT = "android.media.extra.RECENT";
+    field public static final String EXTRA_SUGGESTED = "android.media.extra.SUGGESTED";
   }
 
   public static final class MediaLibraryService2.MediaLibrarySession extends androidx.media2.MediaSession2 {
-    method public void notifyChildrenChanged(androidx.media2.MediaSession2.ControllerInfo, java.lang.String, int, android.os.Bundle);
-    method public void notifyChildrenChanged(java.lang.String, int, android.os.Bundle);
-    method public void notifySearchResultChanged(androidx.media2.MediaSession2.ControllerInfo, java.lang.String, int, android.os.Bundle);
+    method public void notifyChildrenChanged(androidx.media2.MediaSession2.ControllerInfo, String, int, android.os.Bundle?);
+    method public void notifyChildrenChanged(String, int, android.os.Bundle?);
+    method public void notifySearchResultChanged(androidx.media2.MediaSession2.ControllerInfo, String, int, android.os.Bundle?);
   }
 
   public static final class MediaLibraryService2.MediaLibrarySession.Builder {
     ctor public MediaLibraryService2.MediaLibrarySession.Builder(androidx.media2.MediaLibraryService2, androidx.media2.SessionPlayer2, java.util.concurrent.Executor, androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback);
     method public androidx.media2.MediaLibraryService2.MediaLibrarySession build();
-    method public androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder setId(java.lang.String);
-    method public androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder setSessionActivity(android.app.PendingIntent);
+    method public androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder setId(String);
+    method public androidx.media2.MediaLibraryService2.MediaLibrarySession.Builder setSessionActivity(android.app.PendingIntent?);
   }
 
   public static class MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback extends androidx.media2.MediaSession2.SessionCallback {
     ctor public MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback();
-    method public java.util.List<androidx.media2.MediaItem2> onGetChildren(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, int, int, android.os.Bundle);
-    method public androidx.media2.MediaItem2 onGetItem(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, java.lang.String);
-    method public androidx.media2.MediaLibraryService2.LibraryRoot onGetLibraryRoot(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, android.os.Bundle);
-    method public java.util.List<androidx.media2.MediaItem2> onGetSearchResult(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, int, int, android.os.Bundle);
-    method public void onSearch(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
-    method public void onSubscribe(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, android.os.Bundle);
-    method public void onUnsubscribe(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, java.lang.String);
+    method public java.util.List<androidx.media2.MediaItem2>? onGetChildren(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, int, int, android.os.Bundle?);
+    method public androidx.media2.MediaItem2? onGetItem(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String);
+    method public androidx.media2.MediaLibraryService2.LibraryRoot? onGetLibraryRoot(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, android.os.Bundle?);
+    method public java.util.List<androidx.media2.MediaItem2>? onGetSearchResult(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, int, int, android.os.Bundle?);
+    method public void onSearch(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, android.os.Bundle?);
+    method public void onSubscribe(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, android.os.Bundle?);
+    method public void onUnsubscribe(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String);
   }
 
   public final class MediaMetadata2 implements androidx.versionedparcelable.VersionedParcelable {
-    method public boolean containsKey(java.lang.String);
-    method public static androidx.media2.MediaMetadata2 fromBundle(android.os.Bundle);
-    method public android.graphics.Bitmap getBitmap(java.lang.String);
-    method public android.os.Bundle getExtras();
-    method public float getFloat(java.lang.String);
-    method public long getLong(java.lang.String);
-    method public java.lang.String getMediaId();
-    method public androidx.media2.Rating2 getRating(java.lang.String);
-    method public java.lang.String getString(java.lang.String);
-    method public java.lang.CharSequence getText(java.lang.String);
+    method public boolean containsKey(String);
+    method public static androidx.media2.MediaMetadata2 fromBundle(android.os.Bundle?);
+    method public android.graphics.Bitmap? getBitmap(String);
+    method public android.os.Bundle? getExtras();
+    method public float getFloat(String);
+    method public long getLong(String);
+    method public String? getMediaId();
+    method public androidx.media2.Rating2? getRating(String);
+    method public String? getString(String);
+    method public CharSequence? getText(String);
     method public java.util.Set<java.lang.String> keySet();
     method public int size();
     method public android.os.Bundle toBundle();
@@ -231,38 +245,38 @@ package androidx.media2 {
     field public static final long BT_FOLDER_TYPE_PLAYLISTS = 5L; // 0x5L
     field public static final long BT_FOLDER_TYPE_TITLES = 1L; // 0x1L
     field public static final long BT_FOLDER_TYPE_YEARS = 6L; // 0x6L
-    field public static final java.lang.String METADATA_KEY_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
-    field public static final java.lang.String METADATA_KEY_ALBUM = "android.media.metadata.ALBUM";
-    field public static final java.lang.String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
-    field public static final java.lang.String METADATA_KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
-    field public static final java.lang.String METADATA_KEY_ALBUM_ART_URI = "android.media.metadata.ALBUM_ART_URI";
-    field public static final java.lang.String METADATA_KEY_ART = "android.media.metadata.ART";
-    field public static final java.lang.String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
-    field public static final java.lang.String METADATA_KEY_ART_URI = "android.media.metadata.ART_URI";
-    field public static final java.lang.String METADATA_KEY_AUTHOR = "android.media.metadata.AUTHOR";
-    field public static final java.lang.String METADATA_KEY_BT_FOLDER_TYPE = "android.media.metadata.BT_FOLDER_TYPE";
-    field public static final java.lang.String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
-    field public static final java.lang.String METADATA_KEY_COMPOSER = "android.media.metadata.COMPOSER";
-    field public static final java.lang.String METADATA_KEY_DATE = "android.media.metadata.DATE";
-    field public static final java.lang.String METADATA_KEY_DISC_NUMBER = "android.media.metadata.DISC_NUMBER";
-    field public static final java.lang.String METADATA_KEY_DISPLAY_DESCRIPTION = "android.media.metadata.DISPLAY_DESCRIPTION";
-    field public static final java.lang.String METADATA_KEY_DISPLAY_ICON = "android.media.metadata.DISPLAY_ICON";
-    field public static final java.lang.String METADATA_KEY_DISPLAY_ICON_URI = "android.media.metadata.DISPLAY_ICON_URI";
-    field public static final java.lang.String METADATA_KEY_DISPLAY_SUBTITLE = "android.media.metadata.DISPLAY_SUBTITLE";
-    field public static final java.lang.String METADATA_KEY_DISPLAY_TITLE = "android.media.metadata.DISPLAY_TITLE";
-    field public static final java.lang.String METADATA_KEY_DOWNLOAD_STATUS = "android.media.metadata.DOWNLOAD_STATUS";
-    field public static final java.lang.String METADATA_KEY_DURATION = "android.media.metadata.DURATION";
-    field public static final java.lang.String METADATA_KEY_EXTRAS = "android.media.metadata.EXTRAS";
-    field public static final java.lang.String METADATA_KEY_GENRE = "android.media.metadata.GENRE";
-    field public static final java.lang.String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
-    field public static final java.lang.String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
-    field public static final java.lang.String METADATA_KEY_NUM_TRACKS = "android.media.metadata.NUM_TRACKS";
-    field public static final java.lang.String METADATA_KEY_RATING = "android.media.metadata.RATING";
-    field public static final java.lang.String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
-    field public static final java.lang.String METADATA_KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
-    field public static final java.lang.String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
-    field public static final java.lang.String METADATA_KEY_WRITER = "android.media.metadata.WRITER";
-    field public static final java.lang.String METADATA_KEY_YEAR = "android.media.metadata.YEAR";
+    field public static final String METADATA_KEY_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
+    field public static final String METADATA_KEY_ALBUM = "android.media.metadata.ALBUM";
+    field public static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
+    field public static final String METADATA_KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
+    field public static final String METADATA_KEY_ALBUM_ART_URI = "android.media.metadata.ALBUM_ART_URI";
+    field public static final String METADATA_KEY_ART = "android.media.metadata.ART";
+    field public static final String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
+    field public static final String METADATA_KEY_ART_URI = "android.media.metadata.ART_URI";
+    field public static final String METADATA_KEY_AUTHOR = "android.media.metadata.AUTHOR";
+    field public static final String METADATA_KEY_BT_FOLDER_TYPE = "android.media.metadata.BT_FOLDER_TYPE";
+    field public static final String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
+    field public static final String METADATA_KEY_COMPOSER = "android.media.metadata.COMPOSER";
+    field public static final String METADATA_KEY_DATE = "android.media.metadata.DATE";
+    field public static final String METADATA_KEY_DISC_NUMBER = "android.media.metadata.DISC_NUMBER";
+    field public static final String METADATA_KEY_DISPLAY_DESCRIPTION = "android.media.metadata.DISPLAY_DESCRIPTION";
+    field public static final String METADATA_KEY_DISPLAY_ICON = "android.media.metadata.DISPLAY_ICON";
+    field public static final String METADATA_KEY_DISPLAY_ICON_URI = "android.media.metadata.DISPLAY_ICON_URI";
+    field public static final String METADATA_KEY_DISPLAY_SUBTITLE = "android.media.metadata.DISPLAY_SUBTITLE";
+    field public static final String METADATA_KEY_DISPLAY_TITLE = "android.media.metadata.DISPLAY_TITLE";
+    field public static final String METADATA_KEY_DOWNLOAD_STATUS = "android.media.metadata.DOWNLOAD_STATUS";
+    field public static final String METADATA_KEY_DURATION = "android.media.metadata.DURATION";
+    field public static final String METADATA_KEY_EXTRAS = "android.media.metadata.EXTRAS";
+    field public static final String METADATA_KEY_GENRE = "android.media.metadata.GENRE";
+    field public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
+    field public static final String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
+    field public static final String METADATA_KEY_NUM_TRACKS = "android.media.metadata.NUM_TRACKS";
+    field public static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
+    field public static final String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
+    field public static final String METADATA_KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
+    field public static final String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
+    field public static final String METADATA_KEY_WRITER = "android.media.metadata.WRITER";
+    field public static final String METADATA_KEY_YEAR = "android.media.metadata.YEAR";
     field public static final long STATUS_DOWNLOADED = 2L; // 0x2L
     field public static final long STATUS_DOWNLOADING = 1L; // 0x1L
     field public static final long STATUS_NOT_DOWNLOADED = 0L; // 0x0L
@@ -272,23 +286,23 @@ package androidx.media2 {
     ctor public MediaMetadata2.Builder();
     ctor public MediaMetadata2.Builder(androidx.media2.MediaMetadata2);
     method public androidx.media2.MediaMetadata2 build();
-    method public androidx.media2.MediaMetadata2.Builder putBitmap(java.lang.String, android.graphics.Bitmap);
-    method public androidx.media2.MediaMetadata2.Builder putFloat(java.lang.String, float);
-    method public androidx.media2.MediaMetadata2.Builder putLong(java.lang.String, long);
-    method public androidx.media2.MediaMetadata2.Builder putRating(java.lang.String, androidx.media2.Rating2);
-    method public androidx.media2.MediaMetadata2.Builder putString(java.lang.String, java.lang.String);
-    method public androidx.media2.MediaMetadata2.Builder putText(java.lang.String, java.lang.CharSequence);
-    method public androidx.media2.MediaMetadata2.Builder setExtras(android.os.Bundle);
+    method public androidx.media2.MediaMetadata2.Builder putBitmap(String, android.graphics.Bitmap?);
+    method public androidx.media2.MediaMetadata2.Builder putFloat(String, float);
+    method public androidx.media2.MediaMetadata2.Builder putLong(String, long);
+    method public androidx.media2.MediaMetadata2.Builder putRating(String, androidx.media2.Rating2?);
+    method public androidx.media2.MediaMetadata2.Builder putString(String, String?);
+    method public androidx.media2.MediaMetadata2.Builder putText(String, CharSequence?);
+    method public androidx.media2.MediaMetadata2.Builder! setExtras(android.os.Bundle?);
   }
 
   public class MediaSession2 implements java.lang.AutoCloseable {
-    method public void broadcastCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle);
+    method public void broadcastCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle?);
     method public void close();
     method public java.util.List<androidx.media2.MediaSession2.ControllerInfo> getConnectedControllers();
-    method public java.lang.String getId();
+    method public String getId();
     method public androidx.media2.SessionPlayer2 getPlayer();
     method public androidx.media2.SessionToken2 getToken();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaSession2.SessionResult> sendCustomCommand(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaSession2.SessionResult> sendCustomCommand(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle?);
     method public void setAllowedCommands(androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommandGroup2);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaSession2.SessionResult> setCustomLayout(androidx.media2.MediaSession2.ControllerInfo, java.util.List<androidx.media2.MediaSession2.CommandButton>);
     method public void updatePlayer(androidx.media2.SessionPlayer2);
@@ -297,15 +311,15 @@ package androidx.media2 {
   public static final class MediaSession2.Builder {
     ctor public MediaSession2.Builder(android.content.Context, androidx.media2.SessionPlayer2);
     method public androidx.media2.MediaSession2 build();
-    method public androidx.media2.MediaSession2.Builder setId(java.lang.String);
-    method public androidx.media2.MediaSession2.Builder setSessionActivity(android.app.PendingIntent);
+    method public androidx.media2.MediaSession2.Builder setId(String);
+    method public androidx.media2.MediaSession2.Builder setSessionActivity(android.app.PendingIntent?);
     method public androidx.media2.MediaSession2.Builder setSessionCallback(java.util.concurrent.Executor, androidx.media2.MediaSession2.SessionCallback);
   }
 
   public static final class MediaSession2.CommandButton implements androidx.versionedparcelable.VersionedParcelable {
-    method public androidx.media2.SessionCommand2 getCommand();
-    method public java.lang.String getDisplayName();
-    method public android.os.Bundle getExtras();
+    method public androidx.media2.SessionCommand2? getCommand();
+    method public String? getDisplayName();
+    method public android.os.Bundle? getExtras();
     method public int getIconResId();
     method public boolean isEnabled();
   }
@@ -313,34 +327,34 @@ package androidx.media2 {
   public static final class MediaSession2.CommandButton.Builder {
     ctor public MediaSession2.CommandButton.Builder();
     method public androidx.media2.MediaSession2.CommandButton build();
-    method public androidx.media2.MediaSession2.CommandButton.Builder setCommand(androidx.media2.SessionCommand2);
-    method public androidx.media2.MediaSession2.CommandButton.Builder setDisplayName(java.lang.String);
+    method public androidx.media2.MediaSession2.CommandButton.Builder setCommand(androidx.media2.SessionCommand2?);
+    method public androidx.media2.MediaSession2.CommandButton.Builder setDisplayName(String?);
     method public androidx.media2.MediaSession2.CommandButton.Builder setEnabled(boolean);
-    method public androidx.media2.MediaSession2.CommandButton.Builder setExtras(android.os.Bundle);
+    method public androidx.media2.MediaSession2.CommandButton.Builder setExtras(android.os.Bundle?);
     method public androidx.media2.MediaSession2.CommandButton.Builder setIconResId(int);
   }
 
   public static final class MediaSession2.ControllerInfo {
-    method public java.lang.String getPackageName();
+    method public String getPackageName();
     method public int getUid();
   }
 
-  public static abstract class MediaSession2.SessionCallback {
+  public abstract static class MediaSession2.SessionCallback {
     ctor public MediaSession2.SessionCallback();
     method public int onCommandRequest(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2);
-    method public androidx.media2.SessionCommandGroup2 onConnect(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public androidx.media2.MediaItem2 onCreateMediaItem(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.MediaItem2);
-    method public androidx.media2.MediaSession2.SessionResult onCustomCommand(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle);
+    method public androidx.media2.SessionCommandGroup2? onConnect(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
+    method public androidx.media2.MediaItem2? onCreateMediaItem(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.MediaItem2);
+    method public androidx.media2.MediaSession2.SessionResult onCustomCommand(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.SessionCommand2, android.os.Bundle?);
     method public void onDisconnected(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public int onFastForward(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public int onRewind(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
-    method public int onSetRating(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, java.lang.String, androidx.media2.Rating2);
+    method public int onSetRating(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, String, androidx.media2.Rating2);
   }
 
   public static class MediaSession2.SessionResult implements androidx.versionedparcelable.VersionedParcelable {
-    ctor public MediaSession2.SessionResult(int, android.os.Bundle);
+    ctor public MediaSession2.SessionResult(int, android.os.Bundle?);
     method public long getCompletionTime();
-    method public android.os.Bundle getCustomCommandResult();
+    method public android.os.Bundle? getCustomCommandResult();
     method public int getResultCode();
     field public static final int RESULT_CODE_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
     field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
@@ -360,7 +374,7 @@ package androidx.media2 {
     field public static final int RESULT_CODE_UNKNOWN_ERROR = -1; // 0xffffffff
   }
 
-  public final class MediaSessionManager2 {
+  @RequiresApi(28) public final class MediaSessionManager2 {
     method public static androidx.media2.MediaSessionManager2 getInstance(android.content.Context);
     method public java.util.Set<androidx.media2.SessionToken2> getSessionServiceTokens();
   }
@@ -369,11 +383,11 @@ package androidx.media2 {
     ctor public MediaSessionService2();
     method public final void addSession(androidx.media2.MediaSession2);
     method public final java.util.List<androidx.media2.MediaSession2> getSessions();
-    method public android.os.IBinder onBind(android.content.Intent);
+    method @CallSuper public android.os.IBinder? onBind(android.content.Intent!);
     method public abstract androidx.media2.MediaSession2 onGetSession();
-    method public androidx.media2.MediaSessionService2.MediaNotification onUpdateNotification(androidx.media2.MediaSession2);
+    method public androidx.media2.MediaSessionService2.MediaNotification? onUpdateNotification(androidx.media2.MediaSession2);
     method public final void removeSession(androidx.media2.MediaSession2);
-    field public static final java.lang.String SERVICE_INTERFACE = "android.media.MediaSessionService2";
+    field public static final String SERVICE_INTERFACE = "android.media.MediaSessionService2";
   }
 
   public static class MediaSessionService2.MediaNotification {
@@ -386,7 +400,7 @@ package androidx.media2 {
     method public long getAnchorMediaTimeUs();
     method public long getAnchorSystemNanoTime();
     method public float getMediaClockRate();
-    field public static final androidx.media2.MediaTimestamp2 TIMESTAMP_UNKNOWN;
+    field public static final androidx.media2.MediaTimestamp2! TIMESTAMP_UNKNOWN;
   }
 
   public final class PercentageRating2 implements androidx.media2.Rating2 {
@@ -397,9 +411,9 @@ package androidx.media2 {
   }
 
   public final class PlaybackParams2 {
-    method public java.lang.Integer getAudioFallbackMode();
-    method public java.lang.Float getPitch();
-    method public java.lang.Float getSpeed();
+    method public Integer! getAudioFallbackMode();
+    method public Float! getPitch();
+    method public Float! getSpeed();
     field public static final int AUDIO_FALLBACK_MODE_DEFAULT = 0; // 0x0
     field public static final int AUDIO_FALLBACK_MODE_FAIL = 2; // 0x2
     field public static final int AUDIO_FALLBACK_MODE_MUTE = 1; // 0x1
@@ -407,22 +421,22 @@ package androidx.media2 {
 
   public static final class PlaybackParams2.Builder {
     ctor public PlaybackParams2.Builder();
-    method public androidx.media2.PlaybackParams2 build();
-    method public androidx.media2.PlaybackParams2.Builder setAudioFallbackMode(int);
-    method public androidx.media2.PlaybackParams2.Builder setPitch(float);
-    method public androidx.media2.PlaybackParams2.Builder setSpeed(float);
+    method public androidx.media2.PlaybackParams2! build();
+    method public androidx.media2.PlaybackParams2.Builder! setAudioFallbackMode(int);
+    method public androidx.media2.PlaybackParams2.Builder! setPitch(float);
+    method public androidx.media2.PlaybackParams2.Builder! setSpeed(float);
   }
 
-  public abstract interface Rating2 implements androidx.versionedparcelable.VersionedParcelable {
-    method public abstract boolean isRated();
+  public interface Rating2 extends androidx.versionedparcelable.VersionedParcelable {
+    method public boolean isRated();
   }
 
   public final class SessionCommand2 implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionCommand2(int);
-    ctor public SessionCommand2(java.lang.String, android.os.Bundle);
+    ctor public SessionCommand2(String, android.os.Bundle?);
     method public int getCommandCode();
-    method public java.lang.String getCustomCommand();
-    method public android.os.Bundle getExtras();
+    method public String? getCustomCommand();
+    method public android.os.Bundle? getExtras();
     field public static final int COMMAND_CODE_CUSTOM = 0; // 0x0
     field public static final int COMMAND_CODE_LIBRARY_GET_CHILDREN = 50003; // 0xc353
     field public static final int COMMAND_CODE_LIBRARY_GET_ITEM = 50004; // 0xc354
@@ -460,7 +474,7 @@ package androidx.media2 {
 
   public final class SessionCommandGroup2 implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionCommandGroup2();
-    ctor public SessionCommandGroup2(java.util.Collection<androidx.media2.SessionCommand2>);
+    ctor public SessionCommandGroup2(java.util.Collection<androidx.media2.SessionCommand2>?);
     method public java.util.Set<androidx.media2.SessionCommand2> getCommands();
     method public boolean hasCommand(androidx.media2.SessionCommand2);
     method public boolean hasCommand(int);
@@ -468,9 +482,9 @@ package androidx.media2 {
 
   public static final class SessionCommandGroup2.Builder {
     ctor public SessionCommandGroup2.Builder();
-    ctor public SessionCommandGroup2.Builder(androidx.media2.SessionCommandGroup2);
+    ctor public SessionCommandGroup2.Builder(androidx.media2.SessionCommandGroup2!);
     method public androidx.media2.SessionCommandGroup2.Builder addAllPredefinedCommands(int);
-    method public androidx.media2.SessionCommandGroup2.Builder addCommand(androidx.media2.SessionCommand2);
+    method public androidx.media2.SessionCommandGroup2.Builder addCommand(androidx.media2.SessionCommand2!);
     method public androidx.media2.SessionCommandGroup2.Builder addCommand(int);
     method public androidx.media2.SessionCommandGroup2 build();
     method public androidx.media2.SessionCommandGroup2.Builder removeCommand(androidx.media2.SessionCommand2);
@@ -480,17 +494,17 @@ package androidx.media2 {
   public abstract class SessionPlayer2 implements java.lang.AutoCloseable {
     ctor public SessionPlayer2();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> addPlaylistItem(int, androidx.media2.MediaItem2);
-    method public abstract androidx.media.AudioAttributesCompat getAudioAttributes();
+    method public abstract androidx.media.AudioAttributesCompat? getAudioAttributes();
     method public abstract long getBufferedPosition();
     method public abstract int getBufferingState();
-    method protected final java.util.List<androidx.core.util.Pair<androidx.media2.SessionPlayer2.PlayerCallback, java.util.concurrent.Executor>> getCallbacks();
-    method public abstract androidx.media2.MediaItem2 getCurrentMediaItem();
+    method protected final java.util.List<androidx.core.util.Pair<androidx.media2.SessionPlayer2.PlayerCallback,java.util.concurrent.Executor>> getCallbacks();
+    method public abstract androidx.media2.MediaItem2? getCurrentMediaItem();
     method public abstract long getCurrentPosition();
     method public abstract long getDuration();
     method public abstract float getPlaybackSpeed();
     method public abstract int getPlayerState();
-    method public abstract java.util.List<androidx.media2.MediaItem2> getPlaylist();
-    method public abstract androidx.media2.MediaMetadata2 getPlaylistMetadata();
+    method public abstract java.util.List<androidx.media2.MediaItem2>? getPlaylist();
+    method public abstract androidx.media2.MediaMetadata2? getPlaylistMetadata();
     method public abstract int getRepeatMode();
     method public abstract int getShuffleMode();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> pause();
@@ -503,14 +517,14 @@ package androidx.media2 {
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setAudioAttributes(androidx.media.AudioAttributesCompat);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setMediaItem(androidx.media2.MediaItem2);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setPlaybackSpeed(float);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2?);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setRepeatMode(int);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setShuffleMode(int);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> skipToNextPlaylistItem();
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> skipToPlaylistItem(androidx.media2.MediaItem2);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> skipToPreviousPlaylistItem();
     method public final void unregisterPlayerCallback(androidx.media2.SessionPlayer2.PlayerCallback);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> updatePlaylistMetadata(androidx.media2.MediaMetadata2);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> updatePlaylistMetadata(androidx.media2.MediaMetadata2?);
     field public static final int BUFFERING_STATE_BUFFERING_AND_PLAYABLE = 1; // 0x1
     field public static final int BUFFERING_STATE_BUFFERING_AND_STARVED = 2; // 0x2
     field public static final int BUFFERING_STATE_BUFFERING_COMPLETE = 3; // 0x3
@@ -529,25 +543,25 @@ package androidx.media2 {
     field public static final long UNKNOWN_TIME = -1L; // 0xffffffffffffffffL
   }
 
-  public static abstract class SessionPlayer2.PlayerCallback {
+  public abstract static class SessionPlayer2.PlayerCallback {
     ctor public SessionPlayer2.PlayerCallback();
-    method public void onAudioAttributesChanged(androidx.media2.SessionPlayer2, androidx.media.AudioAttributesCompat);
-    method public void onBufferingStateChanged(androidx.media2.SessionPlayer2, androidx.media2.MediaItem2, int);
+    method public void onAudioAttributesChanged(androidx.media2.SessionPlayer2, androidx.media.AudioAttributesCompat?);
+    method public void onBufferingStateChanged(androidx.media2.SessionPlayer2, androidx.media2.MediaItem2?, int);
     method public void onCurrentMediaItemChanged(androidx.media2.SessionPlayer2, androidx.media2.MediaItem2);
     method public void onPlaybackCompleted(androidx.media2.SessionPlayer2);
     method public void onPlaybackSpeedChanged(androidx.media2.SessionPlayer2, float);
     method public void onPlayerStateChanged(androidx.media2.SessionPlayer2, int);
-    method public void onPlaylistChanged(androidx.media2.SessionPlayer2, java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
-    method public void onPlaylistMetadataChanged(androidx.media2.SessionPlayer2, androidx.media2.MediaMetadata2);
+    method public void onPlaylistChanged(androidx.media2.SessionPlayer2, java.util.List<androidx.media2.MediaItem2>!, androidx.media2.MediaMetadata2?);
+    method public void onPlaylistMetadataChanged(androidx.media2.SessionPlayer2, androidx.media2.MediaMetadata2?);
     method public void onRepeatModeChanged(androidx.media2.SessionPlayer2, int);
     method public void onSeekCompleted(androidx.media2.SessionPlayer2, long);
     method public void onShuffleModeChanged(androidx.media2.SessionPlayer2, int);
   }
 
   public static class SessionPlayer2.PlayerResult {
-    ctor public SessionPlayer2.PlayerResult(int, androidx.media2.MediaItem2);
+    ctor public SessionPlayer2.PlayerResult(int, androidx.media2.MediaItem2?);
     method public long getCompletionTime();
-    method public androidx.media2.MediaItem2 getMediaItem();
+    method public androidx.media2.MediaItem2? getMediaItem();
     method public int getResultCode();
     field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
     field public static final int RESULT_CODE_INVALID_STATE = -2; // 0xfffffffe
@@ -561,8 +575,8 @@ package androidx.media2 {
 
   public final class SessionToken2 implements androidx.versionedparcelable.VersionedParcelable {
     ctor public SessionToken2(android.content.Context, android.content.ComponentName);
-    method public java.lang.String getPackageName();
-    method public java.lang.String getServiceName();
+    method public String getPackageName();
+    method public String? getServiceName();
     method public int getType();
     method public int getUid();
     field public static final int TYPE_LIBRARY_SERVICE = 2; // 0x2
@@ -571,8 +585,8 @@ package androidx.media2 {
   }
 
   public final class StarRating2 implements androidx.media2.Rating2 {
-    ctor public StarRating2(int);
-    ctor public StarRating2(int, float);
+    ctor public StarRating2(@IntRange(from=1) int);
+    ctor public StarRating2(@IntRange(from=1) int, float);
     method public int getMaxStars();
     method public float getStarRating();
     method public boolean isRated();
@@ -583,9 +597,9 @@ package androidx.media2 {
     method public long getDurationUs();
     method public long getStartTimeUs();
     method public int getTrackIndex();
-    field public static final java.lang.String MIMETYPE_TEXT_CEA_608 = "text/cea-608";
-    field public static final java.lang.String MIMETYPE_TEXT_CEA_708 = "text/cea-708";
-    field public static final java.lang.String MIMETYPE_TEXT_VTT = "text/vtt";
+    field public static final String MIMETYPE_TEXT_CEA_608 = "text/cea-608";
+    field public static final String MIMETYPE_TEXT_CEA_708 = "text/cea-708";
+    field public static final String MIMETYPE_TEXT_VTT = "text/vtt";
   }
 
   public final class ThumbRating2 implements androidx.media2.Rating2 {
@@ -596,84 +610,88 @@ package androidx.media2 {
   }
 
   public class TimedMetaData2 {
-    method public byte[] getMetaData();
+    method public byte[]! getMetaData();
     method public long getTimestamp();
   }
 
   public class UriMediaItem2 extends androidx.media2.MediaItem2 {
     method public android.net.Uri getUri();
     method public android.content.Context getUriContext();
-    method public java.util.List<java.net.HttpCookie> getUriCookies();
-    method public java.util.Map<java.lang.String, java.lang.String> getUriHeaders();
+    method public java.util.List<java.net.HttpCookie>? getUriCookies();
+    method public java.util.Map<java.lang.String,java.lang.String>? getUriHeaders();
   }
 
   public static final class UriMediaItem2.Builder {
     ctor public UriMediaItem2.Builder(android.content.Context, android.net.Uri);
-    ctor public UriMediaItem2.Builder(android.content.Context, android.net.Uri, java.util.Map<java.lang.String, java.lang.String>, java.util.List<java.net.HttpCookie>);
-    method public androidx.media2.UriMediaItem2 build();
+    ctor public UriMediaItem2.Builder(android.content.Context, android.net.Uri, java.util.Map<java.lang.String,java.lang.String>?, java.util.List<java.net.HttpCookie>?);
+    method public androidx.media2.UriMediaItem2! build();
+    method public androidx.media2.UriMediaItem2.Builder! setEndPosition(long);
+    method public androidx.media2.UriMediaItem2.Builder! setMediaId(String!);
+    method public androidx.media2.UriMediaItem2.Builder! setMetadata(androidx.media2.MediaMetadata2!);
+    method public androidx.media2.UriMediaItem2.Builder! setStartPosition(long);
   }
 
   public class XMediaPlayer extends androidx.media2.SessionPlayer2 {
-    ctor public XMediaPlayer(android.content.Context);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> addPlaylistItem(int, androidx.media2.MediaItem2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> attachAuxEffect(int);
+    ctor public XMediaPlayer(android.content.Context!);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! addPlaylistItem(int, androidx.media2.MediaItem2!);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! attachAuxEffect(int);
     method public void close() throws java.lang.Exception;
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> deselectTrack(int);
-    method public androidx.media.AudioAttributesCompat getAudioAttributes();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! deselectTrack(int);
+    method public androidx.media.AudioAttributesCompat! getAudioAttributes();
     method public int getAudioSessionId();
     method public long getBufferedPosition();
     method public int getBufferingState();
-    method public androidx.media2.MediaItem2 getCurrentMediaItem();
+    method public androidx.media2.MediaItem2! getCurrentMediaItem();
     method public long getCurrentPosition();
-    method public androidx.media2.XMediaPlayer.DrmInfo getDrmInfo();
-    method public android.media.MediaDrm.KeyRequest getDrmKeyRequest(byte[], byte[], java.lang.String, int, java.util.Map<java.lang.String, java.lang.String>) throws androidx.media2.XMediaPlayer.NoDrmSchemeException;
-    method public java.lang.String getDrmPropertyString(java.lang.String) throws androidx.media2.XMediaPlayer.NoDrmSchemeException;
+    method public androidx.media2.XMediaPlayer.DrmInfo! getDrmInfo();
+    method public android.media.MediaDrm.KeyRequest getDrmKeyRequest(byte[]?, byte[]?, String?, int, java.util.Map<java.lang.String,java.lang.String>?) throws androidx.media2.XMediaPlayer.NoDrmSchemeException;
+    method public String getDrmPropertyString(String) throws androidx.media2.XMediaPlayer.NoDrmSchemeException;
     method public long getDuration();
     method public float getMaxPlayerVolume();
-    method public androidx.media2.PlaybackParams2 getPlaybackParams();
+    method public androidx.media2.PlaybackParams2! getPlaybackParams();
     method public float getPlaybackSpeed();
     method public int getPlayerState();
     method public float getPlayerVolume();
-    method public java.util.List<androidx.media2.MediaItem2> getPlaylist();
-    method public androidx.media2.MediaMetadata2 getPlaylistMetadata();
+    method public java.util.List<androidx.media2.MediaItem2>! getPlaylist();
+    method public androidx.media2.MediaMetadata2! getPlaylistMetadata();
     method public int getRepeatMode();
     method public int getSelectedTrack(int);
     method public int getShuffleMode();
-    method public androidx.media2.MediaTimestamp2 getTimestamp();
-    method public java.util.List<androidx.media2.XMediaPlayer.TrackInfo> getTrackInfo();
+    method public androidx.media2.MediaTimestamp2? getTimestamp();
+    method public java.util.List<androidx.media2.XMediaPlayer.TrackInfo>! getTrackInfo();
     method public int getVideoHeight();
     method public int getVideoWidth();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> pause();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> play();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> prefetch();
-    method public androidx.concurrent.futures.ResolvableFuture<androidx.media2.XMediaPlayer.DrmResult> prepareDrm(java.util.UUID);
-    method public byte[] provideDrmKeyResponse(byte[], byte[]) throws android.media.DeniedByServerException, androidx.media2.XMediaPlayer.NoDrmSchemeException;
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! pause();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! play();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! prefetch();
+    method public androidx.concurrent.futures.ResolvableFuture<androidx.media2.XMediaPlayer.DrmResult>! prepareDrm(java.util.UUID);
+    method public byte[]! provideDrmKeyResponse(byte[]?, byte[]) throws android.media.DeniedByServerException, androidx.media2.XMediaPlayer.NoDrmSchemeException;
     method public void releaseDrm() throws androidx.media2.XMediaPlayer.NoDrmSchemeException;
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> removePlaylistItem(androidx.media2.MediaItem2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> replacePlaylistItem(int, androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! removePlaylistItem(androidx.media2.MediaItem2!);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! replacePlaylistItem(int, androidx.media2.MediaItem2!);
     method public void reset();
     method public void restoreDrmKeys(byte[]) throws androidx.media2.XMediaPlayer.NoDrmSchemeException;
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> seekTo(long);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> seekTo(long, int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> selectTrack(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setAudioAttributes(androidx.media.AudioAttributesCompat);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setAudioSessionId(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setAuxEffectSendLevel(float);
-    method public void setDrmPropertyString(java.lang.String, java.lang.String) throws androidx.media2.XMediaPlayer.NoDrmSchemeException;
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setMediaItem(androidx.media2.MediaItem2);
-    method public void setOnDrmConfigHelper(androidx.media2.XMediaPlayer.OnDrmConfigHelper);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setPlaybackParams(androidx.media2.PlaybackParams2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setPlaybackSpeed(float);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setPlayerVolume(float);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setPreviewEnabled(boolean);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setRepeatMode(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setShuffleMode(int);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> setSurface(android.view.Surface);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> skipToNextPlaylistItem();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> skipToPlaylistItem(androidx.media2.MediaItem2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> skipToPreviousPlaylistItem();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> updatePlaylistMetadata(androidx.media2.MediaMetadata2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! seekTo(long);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! seekTo(long, int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! selectTrack(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setAudioAttributes(androidx.media.AudioAttributesCompat!);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setAudioSessionId(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setAuxEffectSendLevel(float);
+    method public void setDrmPropertyString(String, String) throws androidx.media2.XMediaPlayer.NoDrmSchemeException;
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setMediaItem(androidx.media2.MediaItem2);
+    method public void setOnDrmConfigHelper(androidx.media2.XMediaPlayer.OnDrmConfigHelper!);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setPlaybackParams(androidx.media2.PlaybackParams2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setPlaybackSpeed(float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setPlayerVolume(float);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2?);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setPreviewEnabled(boolean);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setRepeatMode(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setShuffleMode(int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! setSurface(android.view.Surface!);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! skipToNextPlaylistItem();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! skipToPlaylistItem(androidx.media2.MediaItem2!);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! skipToPreviousPlaylistItem();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult>! updatePlaylistMetadata(androidx.media2.MediaMetadata2!);
     field public static final int MEDIA_INFO_AUDIO_NOT_PLAYING = 804; // 0x324
     field public static final int MEDIA_INFO_AUDIO_RENDERING_START = 4; // 0x4
     field public static final int MEDIA_INFO_BAD_INTERLEAVING = 800; // 0x320
@@ -696,12 +714,12 @@ package androidx.media2 {
   }
 
   public static final class XMediaPlayer.DrmInfo {
-    method public java.util.Map<java.util.UUID, byte[]> getPssh();
-    method public java.util.List<java.util.UUID> getSupportedSchemes();
+    method public java.util.Map<java.util.UUID,byte[]>! getPssh();
+    method public java.util.List<java.util.UUID>! getSupportedSchemes();
   }
 
   public static class XMediaPlayer.DrmResult extends androidx.media2.SessionPlayer2.PlayerResult {
-    ctor public XMediaPlayer.DrmResult(int, androidx.media2.MediaItem2);
+    ctor public XMediaPlayer.DrmResult(int, androidx.media2.MediaItem2?);
     field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
     field public static final int RESULT_CODE_INVALID_STATE = -2; // 0xfffffffe
     field public static final int RESULT_CODE_IO_ERROR = -5; // 0xfffffffb
@@ -718,27 +736,27 @@ package androidx.media2 {
   }
 
   public static class XMediaPlayer.NoDrmSchemeException extends android.media.MediaDrmException {
-    ctor public XMediaPlayer.NoDrmSchemeException(java.lang.String);
+    ctor public XMediaPlayer.NoDrmSchemeException(String!);
   }
 
-  public static abstract interface XMediaPlayer.OnDrmConfigHelper {
-    method public abstract void onDrmConfig(androidx.media2.XMediaPlayer, androidx.media2.MediaItem2);
+  public static interface XMediaPlayer.OnDrmConfigHelper {
+    method public void onDrmConfig(androidx.media2.XMediaPlayer!, androidx.media2.MediaItem2!);
   }
 
-  public static abstract class XMediaPlayer.PlayerCallback extends androidx.media2.SessionPlayer2.PlayerCallback {
+  public abstract static class XMediaPlayer.PlayerCallback extends androidx.media2.SessionPlayer2.PlayerCallback {
     ctor public XMediaPlayer.PlayerCallback();
-    method public void onDrmInfo(androidx.media2.XMediaPlayer, androidx.media2.MediaItem2, androidx.media2.XMediaPlayer.DrmInfo);
-    method public void onError(androidx.media2.XMediaPlayer, androidx.media2.MediaItem2, int, int);
-    method public void onInfo(androidx.media2.XMediaPlayer, androidx.media2.MediaItem2, int, int);
-    method public void onMediaTimeDiscontinuity(androidx.media2.XMediaPlayer, androidx.media2.MediaItem2, androidx.media2.MediaTimestamp2);
-    method public void onSubtitleData(androidx.media2.XMediaPlayer, androidx.media2.MediaItem2, androidx.media2.SubtitleData2);
-    method public void onTimedMetaDataAvailable(androidx.media2.XMediaPlayer, androidx.media2.MediaItem2, androidx.media2.TimedMetaData2);
-    method public void onVideoSizeChanged(androidx.media2.XMediaPlayer, androidx.media2.MediaItem2, int, int);
+    method public void onDrmInfo(androidx.media2.XMediaPlayer!, androidx.media2.MediaItem2!, androidx.media2.XMediaPlayer.DrmInfo!);
+    method public void onError(androidx.media2.XMediaPlayer!, androidx.media2.MediaItem2!, int, int);
+    method public void onInfo(androidx.media2.XMediaPlayer!, androidx.media2.MediaItem2!, int, int);
+    method public void onMediaTimeDiscontinuity(androidx.media2.XMediaPlayer!, androidx.media2.MediaItem2!, androidx.media2.MediaTimestamp2!);
+    method public void onSubtitleData(androidx.media2.XMediaPlayer!, androidx.media2.MediaItem2!, androidx.media2.SubtitleData2);
+    method public void onTimedMetaDataAvailable(androidx.media2.XMediaPlayer!, androidx.media2.MediaItem2!, androidx.media2.TimedMetaData2!);
+    method public void onVideoSizeChanged(androidx.media2.XMediaPlayer!, androidx.media2.MediaItem2!, int, int);
   }
 
   public static final class XMediaPlayer.TrackInfo {
-    method public android.media.MediaFormat getFormat();
-    method public java.lang.String getLanguage();
+    method public android.media.MediaFormat! getFormat();
+    method public String! getLanguage();
     method public int getTrackType();
     field public static final int MEDIA_TRACK_TYPE_AUDIO = 2; // 0x2
     field public static final int MEDIA_TRACK_TYPE_METADATA = 5; // 0x5
