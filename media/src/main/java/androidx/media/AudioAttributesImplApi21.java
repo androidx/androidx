@@ -171,6 +171,9 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     //////////////////////////////////////////////////////////////////////
     // Other public methods
 
+    /**
+     * Create AudioAttributesImpl from Bundle
+     */
     public static AudioAttributesImpl fromBundle(Bundle bundle) {
         if (bundle == null) {
             return null;
