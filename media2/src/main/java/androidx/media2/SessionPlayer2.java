@@ -62,8 +62,8 @@ import java.util.concurrent.Executor;
  *         {@link #setPlaylist(List, MediaMetadata2)}. Check returned {@link ListenableFuture} for
  *         potential error.
  *         <p>
- *         Calling {@link #prefetch()} transfers this object to {@link #PLAYER_STATE_PAUSED}. Note
- *         that {@link #prefetch()} is asynchronous, so wait for the returned
+ *         Calling {@link #prepare()} transfers this object to {@link #PLAYER_STATE_PAUSED}. Note
+ *         that {@link #prepare()} is asynchronous, so wait for the returned
  *         {@link ListenableFuture} or
  *         {@link PlayerCallback#onPlayerStateChanged(SessionPlayer2, int)}.
  *
@@ -133,7 +133,7 @@ import java.util.concurrent.Executor;
  * <tr><th>Method Name</th> <th>Invalid States</th></tr>
  * <tr><td>setMediaItem</td> <td>{Paused, Playing}</td></tr>
  * <tr><td>setPlaylist</td> <td>{Paused, Playing}</td></tr>
- * <tr><td>prefetch</td> <td>{Paused, Playing}</td></tr>
+ * <tr><td>prepare</td> <td>{Paused, Playing}</td></tr>
  * <tr><td>play</td> <td>{Idle}</td></tr>
  * <tr><td>pause</td> <td>{Idle}</td></tr>
  * <tr><td>seekTo</td> <td>{Idle}</td></tr>
@@ -298,13 +298,13 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     public abstract @NonNull ListenableFuture<PlayerResult> pause();
 
     /**
-     * Prefetches the media items for playback. During this time, the player may allocate resources
+     * Prepares the media items for playback. During this time, the player may allocate resources
      * required to play, such as audio and video decoders.
      * <p>
      * This may be the asynchronous call depending on the implementation. Wait with returned
      * {@link ListenableFuture} or callback for the completion.
      */
-    public abstract @NonNull ListenableFuture<PlayerResult> prefetch();
+    public abstract @NonNull ListenableFuture<PlayerResult> prepare();
 
     /**
      * Seeks to the specified position. Moves the playback head to the specified position.

@@ -47,7 +47,7 @@ import java.util.concurrent.Executor;
  * <p>
  * <pre class="prettyprint">
  * XMediaPlayer mp = new XMediaPlayer(context);
- * // prefetch the player with a valid media item.
+ * // prepare the player with a valid media item.
  * &hellip;
  *
  * final TrackInfo[] trackInfos = mp.getTrackInfo();

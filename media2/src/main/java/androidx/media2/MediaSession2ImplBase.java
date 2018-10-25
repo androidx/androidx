@@ -425,7 +425,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                 if (player.getPlayerState() != PLAYER_STATE_IDLE) {
                     return player.play();
                 }
-                final ListenableFuture<PlayerResult> prepareFuture = player.prefetch();
+                final ListenableFuture<PlayerResult> prepareFuture = player.prepare();
                 final ListenableFuture<PlayerResult> playFuture = player.play();
                 if (prepareFuture == null || playFuture == null) {
                     // Let dispatchPlayerTask() handle such cases.
@@ -452,7 +452,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
-                return player.prefetch();
+                return player.prepare();
             }
         });
     }
