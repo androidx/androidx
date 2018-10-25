@@ -159,8 +159,6 @@ import java.util.List;
 
     /** Returns the MEDIA_ERROR_* constant for an ExoPlayer player exception. */
     public static int getError(ExoPlaybackException exception) {
-        // ExoPlayer seeks to read moov so we don't need to notify
-        // MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK.
         if (exception.type == ExoPlaybackException.TYPE_SOURCE) {
             IOException sourceException = exception.getSourceException();
             if (sourceException instanceof ParserException) {

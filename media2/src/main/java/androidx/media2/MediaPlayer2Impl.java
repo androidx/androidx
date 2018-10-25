@@ -86,7 +86,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sInfoEventMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static ArrayMap<Integer, Integer> sErrorEventMap;
+    static ArrayMap<Integer, Integer> sErrorEventExtraMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sStateMap;
 
@@ -109,15 +109,11 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 MediaPlayer.MEDIA_INFO_UNSUPPORTED_SUBTITLE, MEDIA_INFO_UNSUPPORTED_SUBTITLE);
         sInfoEventMap.put(MediaPlayer.MEDIA_INFO_SUBTITLE_TIMED_OUT, MEDIA_INFO_SUBTITLE_TIMED_OUT);
 
-        sErrorEventMap = new ArrayMap<>();
-        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_UNKNOWN, MEDIA_ERROR_UNKNOWN);
-        sErrorEventMap.put(
-                MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK,
-                MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK);
-        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_IO, MEDIA_ERROR_IO);
-        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_MALFORMED, MEDIA_ERROR_MALFORMED);
-        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_UNSUPPORTED, MEDIA_ERROR_UNSUPPORTED);
-        sErrorEventMap.put(MediaPlayer.MEDIA_ERROR_TIMED_OUT, MEDIA_ERROR_TIMED_OUT);
+        sErrorEventExtraMap = new ArrayMap<>();
+        sErrorEventExtraMap.put(MediaPlayer.MEDIA_ERROR_IO, MEDIA_ERROR_IO);
+        sErrorEventExtraMap.put(MediaPlayer.MEDIA_ERROR_MALFORMED, MEDIA_ERROR_MALFORMED);
+        sErrorEventExtraMap.put(MediaPlayer.MEDIA_ERROR_UNSUPPORTED, MEDIA_ERROR_UNSUPPORTED);
+        sErrorEventExtraMap.put(MediaPlayer.MEDIA_ERROR_TIMED_OUT, MEDIA_ERROR_TIMED_OUT);
 
         sStateMap = new ArrayMap<>();
         sStateMap.put(PLAYER_STATE_IDLE, SessionPlayer2.PLAYER_STATE_IDLE);
@@ -996,11 +992,13 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                         processPendingTask_l();
                     }
                 }
+                final int w  = (what == MediaPlayer.MEDIA_ERROR_UNKNOWN)
+                        ? sErrorEventExtraMap.getOrDefault(extra, MEDIA_ERROR_UNKNOWN)
+                        : MEDIA_ERROR_UNKNOWN;
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
                     @Override
                     public void notify(EventCallback cb) {
-                        int w = sErrorEventMap.getOrDefault(what, MEDIA_ERROR_UNKNOWN);
-                        cb.onError(MediaPlayer2Impl.this, src.getDSD(), w, extra);
+                        cb.onError(MediaPlayer2Impl.this, src.getDSD(), w, 0);
                     }
                 });
                 return true;
