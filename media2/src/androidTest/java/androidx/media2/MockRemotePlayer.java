@@ -83,7 +83,7 @@ public class MockRemotePlayer extends RemoteSessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> prefetch() {
+    public ListenableFuture<PlayerResult> prepare() {
         return null;
     }
 

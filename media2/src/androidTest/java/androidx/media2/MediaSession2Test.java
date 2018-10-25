@@ -225,7 +225,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testPrepare() throws Exception {
         prepareLooper();
-        mSession.getPlayer().prefetch();
+        mSession.getPlayer().prepare();
         assertTrue(mPlayer.mPrepareCalled);
     }
 
