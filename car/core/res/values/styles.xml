@@ -231,9 +231,15 @@ limitations under the License.
     <!-- The styling for the navigation button in action bar. -->
     <style name="Widget.Car.Toolbar.Button.Navigation"
            parent="Widget.AppCompat.Toolbar.Button.Navigation">
-        <item name="android:background">@drawable/car_card_ripple_background</item>
+        <item name="android:background">@drawable/car_button_ripple_background</item>
         <item name="android:scaleType">center</item>
         <item name="android:tint">@color/car_tint</item>
+    </style>
+
+    <!-- The styling for the navigation button in action bar that is fixed to a light color. -->
+    <style name="Widget.Car.Toolbar.Button.Navigation.Light">
+        <item name="android:background">@drawable/car_button_ripple_background_light</item>
+        <item name="android:tint">@color/car_tint_light</item>
     </style>
 
     <!-- A styling for action buttons within a toolbar. -->
