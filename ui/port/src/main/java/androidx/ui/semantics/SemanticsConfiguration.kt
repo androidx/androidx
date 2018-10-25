@@ -2,7 +2,7 @@ package androidx.ui.semantics
 
 import androidx.ui.VoidCallback
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.text.TextSelection
+import androidx.ui.services.text_editing.TextSelection
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
