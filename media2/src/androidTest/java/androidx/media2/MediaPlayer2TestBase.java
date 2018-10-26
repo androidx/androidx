@@ -107,7 +107,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
     protected MediaPlayer2 createMediaPlayer2(Context context, Uri uri,
             SurfaceHolder holder) {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        int s = am.generateAudioSessionId();
+        int s = Build.VERSION.SDK_INT >= 21 ? am.generateAudioSessionId() : 0;
         return createMediaPlayer2(context, uri, holder, null, s > 0 ? s : 0);
     }
 
@@ -156,7 +156,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
 
     protected MediaPlayer2 createMediaPlayer2(Context context, int resid) {
         AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        int s = am.generateAudioSessionId();
+        int s = Build.VERSION.SDK_INT >= 21 ? am.generateAudioSessionId() : 0;
         return createMediaPlayer2(context, resid, null, s > 0 ? s : 0);
     }
 
