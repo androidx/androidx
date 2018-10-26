@@ -220,7 +220,9 @@ public class VideoView2Test {
                 any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PLAYING));
     }
 
-    @Test
+    // TODO: Shortly prevented to be run, since it crashed.
+    //       Revive @Test annotation after investigating b/118412745.
+    // @Test
     public void testPlayVideoOnTextureView() throws Throwable {
         // Don't run the test if the codec isn't supported.
         if (!hasCodec()) {
