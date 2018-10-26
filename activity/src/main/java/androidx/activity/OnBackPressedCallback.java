@@ -16,7 +16,6 @@
 
 package androidx.activity;
 
-import androidx.annotation.MainThread;
 import androidx.lifecycle.LifecycleOwner;
 
 /**
@@ -33,6 +32,5 @@ public interface OnBackPressedCallback {
      * @return True if you handled the {@link ComponentActivity#onBackPressed()} event. No
      * further {@link OnBackPressedCallback} instances will be called if you return true.
      */
-    @MainThread
     boolean handleOnBackPressed();
 }
