@@ -108,9 +108,6 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
     @Override
     public ListenableFuture<BrowserResult> subscribe(@NonNull String parentId,
             @Nullable LibraryParams params) {
-        if (parentId == null) {
-            throw new IllegalArgumentException("parentId shouldn't be null");
-        }
         MediaBrowserCompat browser = getBrowserCompat();
         if (browser == null) {
             return BrowserResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);
@@ -132,9 +129,6 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
 
     @Override
     public ListenableFuture<BrowserResult> unsubscribe(@NonNull String parentId) {
-        if (parentId == null) {
-            throw new IllegalArgumentException("parentId shouldn't be null");
-        }
         MediaBrowserCompat browser = getBrowserCompat();
         if (browser == null) {
             return BrowserResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);
@@ -158,15 +152,6 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
     @Override
     public ListenableFuture<BrowserResult> getChildren(@NonNull String parentId, int page,
             int pageSize, @Nullable LibraryParams params) {
-        if (parentId == null) {
-            throw new IllegalArgumentException("parentId shouldn't be null");
-        }
-        if (page < 0) {
-            throw new IllegalArgumentException("page shouldn't be negative");
-        }
-        if (pageSize < 1) {
-            throw new IllegalArgumentException("pageSize shouldn't be less than 1");
-        }
         MediaBrowserCompat browser = getBrowserCompat();
         if (browser == null) {
             return BrowserResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);

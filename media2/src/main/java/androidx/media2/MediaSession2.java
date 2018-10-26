@@ -166,6 +166,9 @@ public class MediaSession2 implements AutoCloseable {
      * @param player a player that handles actual media playback in your app
      */
     public void updatePlayer(@NonNull SessionPlayer2 player) {
+        if (player == null) {
+            throw new IllegalArgumentException("player shouldn't be null");
+        }
         mImpl.updatePlayer(player);
     }
 
@@ -264,6 +267,12 @@ public class MediaSession2 implements AutoCloseable {
      */
     public @NonNull ListenableFuture<SessionResult> setCustomLayout(
             @NonNull ControllerInfo controller, @NonNull List<CommandButton> layout) {
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (layout == null) {
+            throw new IllegalArgumentException("layout shouldn't be null");
+        }
         return mImpl.setCustomLayout(controller, layout);
     }
 
@@ -280,6 +289,12 @@ public class MediaSession2 implements AutoCloseable {
      */
     public void setAllowedCommands(@NonNull ControllerInfo controller,
             @NonNull SessionCommandGroup2 commands) {
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (commands == null) {
+            throw new IllegalArgumentException("commands shouldn't be null");
+        }
         mImpl.setAllowedCommands(controller, commands);
     }
 
@@ -294,6 +309,9 @@ public class MediaSession2 implements AutoCloseable {
      * @see #sendCustomCommand(ControllerInfo, SessionCommand2, Bundle)
      */
     public void broadcastCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
         mImpl.broadcastCustomCommand(command, args);
     }
 
@@ -307,6 +325,12 @@ public class MediaSession2 implements AutoCloseable {
     public @NonNull ListenableFuture<SessionResult> sendCustomCommand(
             @NonNull ControllerInfo controller, @NonNull SessionCommand2 command,
             @Nullable Bundle args) {
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
+        if (command == null) {
+            throw new IllegalArgumentException("command shouldn't be null");
+        }
         return mImpl.sendCustomCommand(controller, command, args);
     }
 
@@ -338,6 +362,9 @@ public class MediaSession2 implements AutoCloseable {
     @RestrictTo(LIBRARY_GROUP)
     public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
             @Nullable List<Bundle> routes) {
+        if (controller == null) {
+            throw new IllegalArgumentException("controller shouldn't be null");
+        }
         mImpl.notifyRoutesInfoChanged(controller, routes);
     }
 
