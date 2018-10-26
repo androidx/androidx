@@ -162,10 +162,20 @@ public abstract class WorkManager {
      * Enqueues one or more items for background processing.
      *
      * @param workRequests One or more {@link WorkRequest} to enqueue
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
      */
-    public final @NonNull ListenableFuture<Void> enqueue(@NonNull WorkRequest... workRequests) {
-        return enqueue(Arrays.asList(workRequests));
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public final void enqueue(@NonNull WorkRequest... workRequests) {
+        enqueueInternal(Arrays.asList(workRequests));
+    }
+
+    /**
+     * Enqueues one or more items for background processing.
+     *
+     * @param requests One or more {@link WorkRequest} to enqueue
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void enqueue(@NonNull List<? extends WorkRequest> requests) {
+        enqueueInternal(requests);
     }
 
     /**
@@ -173,8 +183,11 @@ public abstract class WorkManager {
      *
      * @param requests One or more {@link WorkRequest} to enqueue
      * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
+     * @hide
      */
-    public abstract @NonNull ListenableFuture<Void> enqueue(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public abstract ListenableFuture<Void> enqueueInternal(
             @NonNull List<? extends WorkRequest> requests);
 
     /**
@@ -276,13 +289,40 @@ public abstract class WorkManager {
      *                     new OneTimeWorkRequests only if there is no pending work labelled with
      *                     {@code uniqueWorkName}. {@code APPEND} will append the
      *                     OneTimeWorkRequests as leaf nodes labelled with {@code uniqueWorkName}.
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
      */
-    public  @NonNull ListenableFuture<Void> enqueueUniqueWork(
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void enqueueUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull OneTimeWorkRequest...work) {
-        return enqueueUniqueWork(uniqueWorkName, existingWorkPolicy, Arrays.asList(work));
+        enqueueUniqueWorkInternal(uniqueWorkName, existingWorkPolicy, Arrays.asList(work));
+    }
+
+    /**
+     * This method allows you to enqueue {@code work} requests to a uniquely-named
+     * {@link WorkContinuation}, where only one continuation of a particular name can be active at
+     * a time. For example, you may only want one sync operation to be active. If there is one
+     * pending, you can choose to let it run or replace it with your new work.
+     *
+     * <p>
+     * The {@code uniqueWorkName} uniquely identifies this {@link WorkContinuation}.
+     * </p>
+     *
+     * @param uniqueWorkName A unique name which for this operation
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}
+     * @param work {@link OneTimeWorkRequest}s to enqueue. {@code REPLACE} ensures
+     *                     that if there is pending work labelled with {@code uniqueWorkName}, it
+     *                     will be cancelled and the new work will run. {@code KEEP} will run the
+     *                     new OneTimeWorkRequests only if there is no pending work labelled with
+     *                     {@code uniqueWorkName}. {@code APPEND} will append the
+     *                     OneTimeWorkRequests as leaf nodes labelled with {@code uniqueWorkName}.
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void enqueueUniqueWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull List<OneTimeWorkRequest> work) {
+        enqueueUniqueWorkInternal(uniqueWorkName, existingWorkPolicy, work);
     }
 
     /**
@@ -304,8 +344,11 @@ public abstract class WorkManager {
      *                     {@code uniqueWorkName}. {@code APPEND} will append the
      *                     OneTimeWorkRequests as leaf nodes labelled with {@code uniqueWorkName}.
      * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
+     * @hide
      */
-    public abstract @NonNull ListenableFuture<Void> enqueueUniqueWork(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public abstract ListenableFuture<Void> enqueueUniqueWorkInternal(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work);
@@ -327,9 +370,38 @@ public abstract class WorkManager {
      *                     cancelled and the new work will run. {@code KEEP} will run the new
      *                     PeriodicWorkRequest only if there is no pending work labelled with
      *                     {@code uniqueWorkName}.
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
      */
-    public abstract @NonNull ListenableFuture<Void> enqueueUniquePeriodicWork(
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void enqueueUniquePeriodicWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
+            @NonNull PeriodicWorkRequest periodicWork) {
+        enqueueUniquePeriodicWorkInternal(uniqueWorkName, existingPeriodicWorkPolicy, periodicWork);
+    }
+
+    /**
+     * This method allows you to enqueue a uniquely-named {@link PeriodicWorkRequest}, where only
+     * one PeriodicWorkRequest of a particular name can be active at a time.  For example, you may
+     * only want one sync operation to be active.  If there is one pending, you can choose to let it
+     * run or replace it with your new work.
+     *
+     * <p>
+     * The {@code uniqueWorkName} uniquely identifies this PeriodicWorkRequest.
+     * </p>
+     *
+     * @param uniqueWorkName A unique name which for this operation
+     * @param existingPeriodicWorkPolicy An {@link ExistingPeriodicWorkPolicy}
+     * @param periodicWork A {@link PeriodicWorkRequest} to enqueue. {@code REPLACE} ensures that if
+     *                     there is pending work labelled with {@code uniqueWorkName}, it will be
+     *                     cancelled and the new work will run. {@code KEEP} will run the new
+     *                     PeriodicWorkRequest only if there is no pending work labelled with
+     *                     {@code uniqueWorkName}.
+     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public abstract ListenableFuture<Void> enqueueUniquePeriodicWorkInternal(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork);
@@ -339,10 +411,34 @@ public abstract class WorkManager {
      * policy and work that is already executing may continue to run.
      *
      * @param id The id of the work
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void cancelWorkById(@NonNull UUID id) {
+        cancelWorkByIdInternal(id);
+    }
+
+    /**
+     * Cancels work with the given id if it isn't finished.  Note that cancellation is a best-effort
+     * policy and work that is already executing may continue to run.
+     *
+     * @param id The id of the work
      * @return A {@link ListenableFuture} that completes when the cancelWorkById operation is
      * completed
+     * @hide
      */
-    public abstract @NonNull ListenableFuture<Void> cancelWorkById(@NonNull UUID id);
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract @NonNull ListenableFuture<Void> cancelWorkByIdInternal(@NonNull UUID id);
+
+    /**
+     * Cancels all unfinished work with the given tag.  Note that cancellation is a best-effort
+     * policy and work that is already executing may continue to run.
+     *
+     * @param tag The tag used to identify the work
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void cancelAllWorkByTag(@NonNull String tag) {
+        cancelAllWorkByTagInternal(tag);
+    }
 
     /**
      * Cancels all unfinished work with the given tag.  Note that cancellation is a best-effort
@@ -351,8 +447,21 @@ public abstract class WorkManager {
      * @param tag The tag used to identify the work
      * @return A {@link ListenableFuture} that completes when the cancelAllWorkByTag operation is
      * completed
+     * @hide
      */
-    public abstract @NonNull ListenableFuture<Void> cancelAllWorkByTag(@NonNull String tag);
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract @NonNull ListenableFuture<Void> cancelAllWorkByTagInternal(@NonNull String tag);
+
+    /**
+     * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
+     * a best-effort policy and work that is already executing may continue to run.
+     *
+     * @param uniqueWorkName The unique name used to identify the chain of wor
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void cancelUniqueWork(@NonNull String uniqueWorkName) {
+        cancelUniqueWorkInternal(uniqueWorkName);
+    }
 
     /**
      * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
@@ -361,9 +470,21 @@ public abstract class WorkManager {
      * @param uniqueWorkName The unique name used to identify the chain of work
      * @return A {@link ListenableFuture} that completes when the cancelUniqueWork operation is
      * completed
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract @NonNull
-            ListenableFuture<Void> cancelUniqueWork(@NonNull String uniqueWorkName);
+            ListenableFuture<Void> cancelUniqueWorkInternal(@NonNull String uniqueWorkName);
+
+    /**
+     * Cancels all unfinished work.  <b>Use this method with extreme caution!</b>  By invoking it,
+     * you will potentially affect other modules or libraries in your codebase.  It is strongly
+     * recommended that you use one of the other cancellation methods at your disposal.
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void cancelAllWork() {
+        cancelAllWorkInternal();
+    }
 
     /**
      * Cancels all unfinished work.  <b>Use this method with extreme caution!</b>  By invoking it,
@@ -372,8 +493,26 @@ public abstract class WorkManager {
      *
      * @return A {@link ListenableFuture} that completes when the cancelAllWork operation is
      * completed
+     * @hide
      */
-    public abstract @NonNull ListenableFuture<Void> cancelAllWork();
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract @NonNull ListenableFuture<Void> cancelAllWorkInternal();
+
+    /**
+     * Prunes all eligible finished work from the internal database.  Eligible work must be finished
+     * ({@link State#SUCCEEDED}, {@link State#FAILED}, or {@link State#CANCELLED}), with zero
+     * unfinished dependents.
+     * <p>
+     * <b>Use this method with caution</b>; by invoking it, you (and any modules and libraries in
+     * your codebase) will no longer be able to observe the {@link WorkStatus} of the pruned work.
+     * You do not normally need to call this method - WorkManager takes care to auto-prune its work
+     * after a sane period of time.  This method also ignores the
+     * {@link OneTimeWorkRequest.Builder#keepResultsForAtLeast(long, TimeUnit)} policy.
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    public void pruneWork() {
+        pruneWorkInternal();
+    }
 
     /**
      * Prunes all eligible finished work from the internal database.  Eligible work must be finished
@@ -388,8 +527,10 @@ public abstract class WorkManager {
      *
      * @return A {@link ListenableFuture} that completes when the pruneWork operation is
      * completed
+     * @hide
      */
-    public abstract @NonNull ListenableFuture<Void> pruneWork();
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract @NonNull ListenableFuture<Void> pruneWorkInternal();
 
     /**
      * Gets a {@link LiveData} of the last time all work was cancelled.  This method is intended for
