@@ -45,7 +45,7 @@
     <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"Repetir"</string>
     <string name="mcv2_play_button_desc" msgid="2034430009829871366">"Reproduzir"</string>
     <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"Colocar em pausa"</string>
-    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"Multimédia anterior"</string>
+    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"Conteúdo multimédia anterior"</string>
     <string name="mcv2_next_button_desc" msgid="3605996804603066851">"Multimédia seguinte"</string>
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"Retroceder 10 segundos"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"Avançar 30 segundos"</string>

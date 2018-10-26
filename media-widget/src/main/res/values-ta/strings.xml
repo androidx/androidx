@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"<xliff:g id="WAIT_TIME">%1$d</xliff:g> விநாடிகளில் விளம்பரத்தைத் தவிர்க்கலாம்"</string>
-    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"விளம்பரம் முடிய · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> உள்ளது"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"விளம்பரம் · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> மீதமுள்ளது"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"விளம்பரதாரர் இணையதளம்"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"ஆஃப்"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"ஆடியோ டிராக்"</string>
@@ -34,21 +34,21 @@
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"கலைஞர் பெயர் தெரியவில்லை"</string>
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"நீங்கள் கோரிய வீடியோவை இயக்க இயலவில்லை"</string>
     <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"சரி"</string>
-    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"பின்செல்"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"பின்செல்லும்"</string>
     <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"முந்தைய பட்டன்களின் பட்டியலுக்குச் செல்லும்"</string>
     <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"மேலும் பட்டன்களைக் காட்டும்"</string>
     <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"வீடியோவின் இயக்கம்"</string>
     <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"அமைப்புகள்"</string>
     <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"வீடியோ தரத்தைத் தேர்வுசெய்யும் பட்டன்"</string>
-    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"வசனம் ஆனில் உள்ளது. மறைப்பதற்குக் கிளிக் செய்யவும்."</string>
-    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"வசனம் ஆஃபில் உள்ளது. காட்டுவதற்குக் கிளிக் செய்யவும்."</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"வசனம் இயக்கப்பட்டுள்ளது. மறைப்பதற்குக் கிளிக் செய்யவும்."</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"வசனம் முடக்கப்பட்டுள்ளது. காட்டுவதற்குக் கிளிக் செய்யவும்."</string>
     <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"மீண்டும் இயக்கும்"</string>
     <string name="mcv2_play_button_desc" msgid="2034430009829871366">"இயக்கும் பட்டன்"</string>
     <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"இடைநிறுத்தும் பட்டன்"</string>
     <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"முந்தைய மீடியா"</string>
     <string name="mcv2_next_button_desc" msgid="3605996804603066851">"அடுத்த மீடியா"</string>
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 வினாடிகள் பின்செல்லும்"</string>
-    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 விநாடிகள் முன்னனுப்பு"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 விநாடிகள் முன்செல்"</string>
     <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Launch Link"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"முழுத்திரை"</string>
 </resources>

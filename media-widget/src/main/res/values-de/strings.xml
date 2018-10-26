@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Du kannst die Anzeige in <xliff:g id="WAIT_TIME">%1$d</xliff:g> überspringen"</string>
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"Du kannst die Anzeige in <xliff:g id="WAIT_TIME">%1$d</xliff:g> Sekunden überspringen"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"Anzeige · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> verbleibend"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"Zum Werbetreibenden"</string>
     <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"Aus"</string>
