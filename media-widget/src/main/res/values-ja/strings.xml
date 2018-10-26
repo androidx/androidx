@@ -20,7 +20,7 @@
     <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"広告は <xliff:g id="WAIT_TIME">%1$d</xliff:g> 秒後にスキップできます"</string>
     <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"広告 · 残り時間: <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
     <string name="MediaControlView2_ad_text" msgid="649968140965666991">"広告主のウェブサイトにアクセス"</string>
-    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"オフ"</string>
+    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"OFF"</string>
     <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"音声トラック"</string>
     <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"なし"</string>
     <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"自動"</string>
@@ -40,8 +40,8 @@
     <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"再生中です"</string>
     <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"設定"</string>
     <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"動画の画質を選択"</string>
-    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"字幕はオンです。非表示にするにはクリックしてください。"</string>
-    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"字幕はオフです。表示するにはクリックしてください。"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"字幕は ON です。非表示にするにはクリックしてください。"</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"字幕は OFF です。表示するにはクリックしてください。"</string>
     <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"リプレイ"</string>
     <string name="mcv2_play_button_desc" msgid="2034430009829871366">"再生"</string>
     <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"一時停止"</string>
