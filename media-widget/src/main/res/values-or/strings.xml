@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  ~ Copyright 2018 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"ଆପଣ ଏହି ବିଜ୍ଞାପନକୁ <xliff:g id="WAIT_TIME">%1$d</xliff:g>ସେ.ରେ ଛାଡ଼ିଦେଇପାରିବେ"</string>
+    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"· <xliff:g id="REMAINING_TIME">%1$s</xliff:g>ଟି ବିଜ୍ଞାପନ ବଳକା ଅଛି"</string>
+    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"ବିଜ୍ଞାପକଙ୍କ ନିକଟକୁ ଯାଆନ୍ତୁ"</string>
+    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"ଅଫ୍"</string>
+    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"ଅଡିଓ ଟ୍ରାକ୍"</string>
+    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"କିଛିନାହିଁ"</string>
+    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"ସ୍ୱଚାଳିତ"</string>
+    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"ପ୍ଲେବ୍ୟାକ୍‌ର ବେଗ"</string>
+    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"ସାଧାରଣ"</string>
+    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
+    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"ଟ୍ରାକ୍ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"ଟ୍ରାକ୍ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"ଟ୍ରାକ୍ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"ଗୀତ ଶୀର୍ଷକ ଅଜଣା ଅଟେ"</string>
+    <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"ଅଜଣା କଳାକାର"</string>
+    <string name="mcv2_playback_error_text" msgid="8679540579604773521">"ଆପଣ ଅନୁରୋଧ କରିଥିବା ଆଇଟମ୍ ଚଲାଇହେବ ନାହିଁ"</string>
+    <string name="mcv2_error_dialog_button" msgid="4729185181004825701">"ଠିକ୍ ଅଛି"</string>
+    <string name="mcv2_back_button_desc" msgid="3840841379369664026">"ପଛକୁ"</string>
+    <string name="mcv2_overflow_left_button_desc" msgid="725682068946773136">"ପୂର୍ବବର୍ତ୍ତୀ ବଟନ୍ ତାଲିକାକୁ ଫେରିଯାଆନ୍ତୁ"</string>
+    <string name="mcv2_overflow_right_button_desc" msgid="5401011338060374430">"ଅଧିକ ବଟନ୍ ଦେଖନ୍ତୁ"</string>
+    <string name="mcv2_seek_bar_desc" msgid="9175754636904349811">"ପ୍ଲେବ୍ୟାକ୍ ପ୍ରଗତି"</string>
+    <string name="mcv2_settings_button_desc" msgid="4675082771216562040">"ସେଟିଙ୍ଗ"</string>
+    <string name="mcv2_video_quality_button_desc" msgid="107848339014314942">"ଭିଡିଓ କ୍ୱାଲିଟୀ ଚୟନ"</string>
+    <string name="mcv2_cc_is_on" msgid="2833324927553141685">"ସବ୍‌ଟାଇଟଲ୍ ଅନ୍ ଅଛି। ତାହାକୁ ଲୁଚାଇବା ପାଇଁ କ୍ଲିକ୍ କରନ୍ତୁ।"</string>
+    <string name="mcv2_cc_is_off" msgid="7400772738891461543">"ସବ୍‌ଟାଇଟଲ୍ ବନ୍ଦ ଅଛି। ତାହାକୁ ଦେଖାଇବା ପାଇଁ କ୍ଲିକ୍ କରନ୍ତୁ।"</string>
+    <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"ପୁଣିଥରେ ଚଲାନ୍ତୁ"</string>
+    <string name="mcv2_play_button_desc" msgid="2034430009829871366">"ଚଲାନ୍ତୁ"</string>
+    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"ପଜ୍ କରନ୍ତୁ"</string>
+    <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"ପୂର୍ବବର୍ତ୍ତୀ ମିଡିଆ"</string>
+    <string name="mcv2_next_button_desc" msgid="3605996804603066851">"ପରବର୍ତ୍ତୀ ମିଡିଆ"</string>
+    <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 ସେକେଣ୍ଡ ପୂର୍ବକୁ ଯାଆନ୍ତୁ"</string>
+    <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 ସେକେଣ୍ଡ ଆଗକୁ ଯାଆନ୍ତୁ"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"ଆରମ୍ଭ କରିବା ଲିଙ୍କ୍"</string>
+    <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"ପୂର୍ଣ୍ଣ ସ୍କ୍ରୀନ୍‍"</string>
+</resources>
