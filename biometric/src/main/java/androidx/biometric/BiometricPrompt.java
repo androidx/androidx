@@ -28,6 +28,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.OnLifecycleEvent;
@@ -329,8 +330,7 @@ public class BiometricPrompt implements BiometricConstants {
                                 mAuthenticationCallback.onAuthenticationError(
                                         ERROR_NEGATIVE_BUTTON,
                                         errorText);
-                                mFragmentActivity.getSupportFragmentManager().beginTransaction()
-                                        .remove(mBiometricFragment).commit();
+                                mBiometricFragment.cleanup();
                             } else {
                                 CharSequence errorText =
                                         mFingerprintDialogFragment.getNegativeButtonText();
@@ -389,6 +389,7 @@ public class BiometricPrompt implements BiometricConstants {
                                 FINGERPRINT_HELPER_FRAGMENT_TAG);
 
                 if (DEBUG) Log.v(TAG, "FingerprintDialogFragment: " + mFingerprintDialogFragment);
+                if (DEBUG) Log.v(TAG, "FingerprintHelperFragment: " + mFingerprintHelperFragment);
                 if (mFingerprintDialogFragment != null && mFingerprintHelperFragment != null) {
                     mFingerprintDialogFragment.setNegativeButtonListener(mNegativeButtonListener);
                     mFingerprintHelperFragment.setCallback(mExecutor, mAuthenticationCallback);
@@ -462,35 +463,52 @@ public class BiometricPrompt implements BiometricConstants {
 
     private void authenticateInternal(@NonNull PromptInfo info, @Nullable CryptoObject crypto) {
         final Bundle bundle = info.getBundle();
+        final FragmentManager fragmentManager = mFragmentActivity.getSupportFragmentManager();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            // Create the fragment that wraps BiometricPrompt once.
             if (mBiometricFragment == null) {
-                // Create the fragment that wraps BiometricPrompt
                 mBiometricFragment = BiometricFragment.newInstance(bundle);
                 mBiometricFragment.setCallbacks(mExecutor, mNegativeButtonListener,
                         mAuthenticationCallback);
             }
+            // Set the crypto object.
             mBiometricFragment.setCryptoObject(crypto);
-            mFragmentActivity.getSupportFragmentManager().beginTransaction()
-                    .add(mBiometricFragment, BIOMETRIC_FRAGMENT_TAG).commit();
+
+            if (fragmentManager.findFragmentByTag(BIOMETRIC_FRAGMENT_TAG) == null) {
+                // If the fragment hasn't been added before, add it. It will also start the
+                // authentication.
+                fragmentManager.beginTransaction().add(mBiometricFragment, BIOMETRIC_FRAGMENT_TAG)
+                        .commit();
+            } else {
+                // If it's been added before, just re-attach it.
+                fragmentManager.beginTransaction().attach(mBiometricFragment).commit();
+            }
         } else {
             // Create the UI
             if (mFingerprintDialogFragment == null) {
                 mFingerprintDialogFragment = FingerprintDialogFragment.newInstance(bundle);
                 mFingerprintDialogFragment.setNegativeButtonListener(mNegativeButtonListener);
             }
-            mFingerprintDialogFragment.show(mFragmentActivity.getSupportFragmentManager(),
-                    DIALOG_FRAGMENT_TAG);
+            mFingerprintDialogFragment.show(fragmentManager, DIALOG_FRAGMENT_TAG);
 
             // Create the connection to FingerprintManager
             if (mFingerprintHelperFragment == null) {
                 mFingerprintHelperFragment = FingerprintHelperFragment.newInstance();
                 mFingerprintHelperFragment.setCallback(mExecutor, mAuthenticationCallback);
-                mFingerprintHelperFragment.setHandler(mFingerprintDialogFragment.getHandler());
             }
+            mFingerprintHelperFragment.setHandler(mFingerprintDialogFragment.getHandler());
             mFingerprintHelperFragment.setCryptoObject(crypto);
-            mFragmentActivity.getSupportFragmentManager().beginTransaction()
-                    .add(mFingerprintHelperFragment, FINGERPRINT_HELPER_FRAGMENT_TAG).commit();
+
+            if (fragmentManager.findFragmentByTag(FINGERPRINT_HELPER_FRAGMENT_TAG) == null) {
+                // If the fragment hasn't been added before, add it. It will also start the
+                // authentication.
+                fragmentManager.beginTransaction()
+                        .add(mFingerprintHelperFragment, FINGERPRINT_HELPER_FRAGMENT_TAG).commit();
+            } else {
+                // If it's been added before, just re-attach it.
+                fragmentManager.beginTransaction().attach(mFingerprintHelperFragment).commit();
+            }
         }
     }
 

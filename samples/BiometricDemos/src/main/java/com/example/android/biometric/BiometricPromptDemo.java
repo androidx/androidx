@@ -25,6 +25,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyPermanentlyInvalidatedException;
 import android.security.keystore.KeyProperties;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -94,6 +95,7 @@ public class BiometricPromptDemo extends FragmentActivity {
         @Override
         public void onAuthenticationError(int err, @NonNull CharSequence message) {
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+            Log.v(TAG, "Error " + err + ": " + message);
             mNumberFailedAttempts = 0;
         }
 
