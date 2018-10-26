@@ -48,7 +48,6 @@ import androidx.concurrent.futures.AbstractResolvableFuture;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.SessionPlayer2.PlayerResult;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -2045,7 +2044,7 @@ public class XMediaPlayer extends SessionPlayer2 {
                     break;
                 case MediaPlayer2.MEDIA_INFO_BUFFERING_UPDATE:
                     if (extra /* percent */ >= 100) {
-                        setBufferingState(item, BUFFERING_STATE_BUFFERING_COMPLETE);
+                        setBufferingState(item, BUFFERING_STATE_COMPLETE);
                     }
                     break;
                 case MediaPlayer2.MEDIA_INFO_DATA_SOURCE_LIST_END:
