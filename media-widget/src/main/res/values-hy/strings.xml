@@ -44,11 +44,11 @@
     <string name="mcv2_cc_is_off" msgid="7400772738891461543">"Ենթագրերն անջատված են: Սեղմեք՝ ցուցադրելու համար:"</string>
     <string name="mcv2_replay_button_desc" msgid="5757721145658648745">"Կրկնել"</string>
     <string name="mcv2_play_button_desc" msgid="2034430009829871366">"Նվագարկել"</string>
-    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"Ընդհատել"</string>
+    <string name="mcv2_pause_button_desc" msgid="2793415992812537478">"Դադար"</string>
     <string name="mcv2_previous_button_desc" msgid="4205311679318925158">"Նախորդ մեդիա ֆայլը"</string>
     <string name="mcv2_next_button_desc" msgid="3605996804603066851">"Հաջորդ մեդիա ֆայլը"</string>
     <string name="mcv2_rewind_button_desc" msgid="6515357295855971772">"10 վայրկյանով հետ գնալ"</string>
     <string name="mcv2_ffwd_button_desc" msgid="5666063447193984401">"30 վայրկյանով առաջ գնալ"</string>
-    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Գործարկման հղում"</string>
+    <string name="mcv2_launch_button_desc" msgid="5169287275900160563">"Բացել հղումը"</string>
     <string name="mcv2_full_screen_button_desc" msgid="4283494133433525143">"Լիաէկրան"</string>
 </resources>
