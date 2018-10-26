@@ -1707,7 +1707,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             } catch (Exception e) {
                 MediaItem2 item = src.getDSD();
                 setMp2State(src.getPlayer(), PLAYER_STATE_ERROR);
-                return new DataSourceError(item, MEDIA_ERROR_UNKNOWN, MEDIA_ERROR_UNSUPPORTED);
+                return new DataSourceError(item, MEDIA_ERROR_UNKNOWN, 0);
             }
 
         }
