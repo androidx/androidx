@@ -499,8 +499,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public PersistableBundle getMetrics() {
         if (Build.VERSION.SDK_INT < 21) {
-            // TODO(b/80232248): Check what to do for pre-Android L builds.
-            throw new UnsupportedOperationException();
+            return null;
         }
         return runPlayerCallableBlocking(new Callable<PersistableBundle>() {
             @Override
