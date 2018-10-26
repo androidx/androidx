@@ -40,7 +40,6 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
@@ -158,9 +157,9 @@ public class MediaUtils2 {
     /**
      * Convert a {@link QueueItem} to a {@link MediaItem2}.
      */
-    public static MediaItem2 convertToMediaItem2(@NonNull QueueItem item) {
+    public static MediaItem2 convertToMediaItem2(QueueItem item) {
         if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
+            return null;
         }
         // descriptionCompat cannot be null
         MediaDescriptionCompat descriptionCompat = item.getDescription();
@@ -224,7 +223,10 @@ public class MediaUtils2 {
         }
         List<MediaItem2> result = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
-            result.add(convertToMediaItem2(items.get(i)));
+            MediaItem2 item = convertToMediaItem2(items.get(i));
+            if (item != null) {
+                result.add(item);
+            }
         }
         return result;
     }
@@ -544,10 +546,13 @@ public class MediaUtils2 {
     }
 
     /**
-     * Convert a {@link PlaybackStateCompat.State} into {@link SessionPlayer2.PlayerState}.
+     * Convert a {@link PlaybackStateCompat} into {@link SessionPlayer2.PlayerState}.
      */
-    public static int convertToPlayerState(int playbackStateCompatState) {
-        switch (playbackStateCompatState) {
+    public static int convertToPlayerState(PlaybackStateCompat state) {
+        if (state == null) {
+            return SessionPlayer2.PLAYER_STATE_IDLE;
+        }
+        switch (state.getState()) {
             case PlaybackStateCompat.STATE_ERROR:
                 return SessionPlayer2.PLAYER_STATE_ERROR;
             case PlaybackStateCompat.STATE_NONE:

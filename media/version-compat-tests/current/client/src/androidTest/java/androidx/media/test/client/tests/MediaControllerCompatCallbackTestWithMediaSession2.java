@@ -158,7 +158,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         assertTrue(controllerCallback.await(TIMEOUT_MS));
         assertTrue(controllerCallback.mOnPlaybackStateChangedCalled);
         assertEquals(testState,
-                MediaUtils2.convertToPlayerState(controllerCallback.mPlaybackState.getState()));
+                MediaUtils2.convertToPlayerState(controllerCallback.mPlaybackState));
         assertEquals(testBufferingPosition,
                 controllerCallback.mPlaybackState.getBufferedPosition());
         assertEquals(testSpeed, controllerCallback.mPlaybackState.getPlaybackSpeed(), 0.0f);
@@ -352,7 +352,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         assertTrue(controllerCallback.mOnSessionReadyCalled);
         assertTrue(controllerCallback.mOnPlaybackStateChangedCalled);
         assertEquals(targetState,
-                MediaUtils2.convertToPlayerState(controllerCallback.mPlaybackState.getState()));
+                MediaUtils2.convertToPlayerState(controllerCallback.mPlaybackState));
     }
 
     @Test
