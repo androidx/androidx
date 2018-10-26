@@ -20,6 +20,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.RestrictTo;
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
@@ -53,6 +56,7 @@ public class FingerprintHelperFragment extends Fragment {
     Handler mHandler;
 
     // Set once and retained.
+    private boolean mShowing;
     private BiometricPrompt.CryptoObject mCryptoObject;
 
     // Created once and retained.
@@ -157,22 +161,31 @@ public class FingerprintHelperFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         mContext = getContext();
-        mCancellationSignal = new CancellationSignal();
 
-        FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(mContext);
-        if (handlePreAuthenticationErrors(fingerprintManagerCompat)) {
-            mHandler.obtainMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG).sendToTarget();
-            cleanup();
-            return;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        if (!mShowing) {
+            mCancellationSignal = new CancellationSignal();
+            mCanceledFrom = USER_CANCELED_FROM_NONE;
+            FingerprintManagerCompat fingerprintManagerCompat = FingerprintManagerCompat.from(
+                    mContext);
+            if (handlePreAuthenticationErrors(fingerprintManagerCompat)) {
+                mHandler.obtainMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG).sendToTarget();
+                cleanup();
+            } else {
+                fingerprintManagerCompat.authenticate(
+                        wrapCryptoObject(mCryptoObject),
+                        0 /* flags */,
+                        mCancellationSignal,
+                        mAuthenticationCallback,
+                        null /* handler */);
+                mShowing = true;
+            }
         }
-
-        mCanceledFrom = USER_CANCELED_FROM_NONE;
-        fingerprintManagerCompat.authenticate(
-                wrapCryptoObject(mCryptoObject),
-                0 /* flags */,
-                mCancellationSignal,
-                mAuthenticationCallback,
-                null /* handler */);
+        return super.onCreateView(inflater, container, savedInstanceState);
     }
 
     /**
@@ -212,8 +225,10 @@ public class FingerprintHelperFragment extends Fragment {
      * Remove the fragment so that resources can be freed.
      */
     void cleanup() {
+        mShowing = false;
         if (getActivity() != null) {
-            getActivity().getSupportFragmentManager().beginTransaction().remove(this).commit();
+            getActivity().getSupportFragmentManager().beginTransaction().detach(this)
+                    .commitAllowingStateLoss();
         }
     }
 
