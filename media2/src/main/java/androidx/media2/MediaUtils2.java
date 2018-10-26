@@ -145,10 +145,9 @@ public class MediaUtils2 {
      * @return The newly created media item.
      */
     public static MediaItem2 convertToMediaItem2(MediaItem item) {
-        if (item == null || item.getMediaId() == null) {
+        if (item == null) {
             return null;
         }
-
         MediaMetadata2 metadata2 = convertToMediaMetadata2(item.getDescription());
         return new MediaItem2.Builder(item.getFlags())
                 .setMediaId(item.getMediaId())
@@ -185,7 +184,7 @@ public class MediaUtils2 {
      */
     public static MediaItem2 convertToMediaItem2(MediaMetadataCompat metadataCompat) {
         MediaMetadata2 metadata2 = convertToMediaMetadata2(metadataCompat);
-        if (metadata2 == null || metadata2.getMediaId() == null) {
+        if (metadata2 == null) {
             return null;
         }
         return new MediaItem2.Builder(FLAG_PLAYABLE).setMetadata(metadata2).build();
@@ -196,7 +195,7 @@ public class MediaUtils2 {
      */
     public static MediaItem2 convertToMediaItem2(MediaDescriptionCompat descriptionCompat) {
         MediaMetadata2 metadata2 = convertToMediaMetadata2(descriptionCompat);
-        if (metadata2 == null || metadata2.getMediaId() == null) {
+        if (metadata2 == null) {
             return null;
         }
         return new MediaItem2.Builder(FLAG_PLAYABLE).setMetadata(metadata2).build();
