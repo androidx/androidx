@@ -1465,9 +1465,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
     private MediaItem2 createMediaItem(int key) throws Exception {
         AssetFileDescriptor afd = mResources.openRawResourceFd(R.raw.testvideo);
         return new FileMediaItem2.Builder(
-                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
-                .setMediaId("TEST_MEDIA_" + key)
-                .build();
+                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build();
     }
 
     private List<MediaItem2> createPlaylist(int size) throws Exception {

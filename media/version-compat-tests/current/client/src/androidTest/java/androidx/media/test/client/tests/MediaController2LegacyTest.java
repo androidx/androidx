@@ -226,9 +226,8 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     public void testControllerCallbackBufferingCompleted() throws Exception {
         prepareLooper();
         final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(1);
-        final List<QueueItem> testQueue = MediaUtils2.convertToQueueItemList(testPlaylist);
         final MediaMetadataCompat metadata = MediaUtils2.convertToMediaMetadataCompat(
-                testQueue.get(0).getDescription());
+                testPlaylist.get(0).getMetadata());
 
         final int testBufferingState = SessionPlayer2.BUFFERING_STATE_COMPLETE;
         final long testBufferingPosition = 500;
@@ -266,9 +265,8 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     public void testControllerCallbackBufferingStarved() throws Exception {
         prepareLooper();
         final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(1);
-        final List<QueueItem> testQueue = MediaUtils2.convertToQueueItemList(testPlaylist);
         final MediaMetadataCompat metadata = MediaUtils2.convertToMediaMetadataCompat(
-                testQueue.get(0).getDescription());
+                testPlaylist.get(0).getMetadata());
 
         final int testBufferingState = SessionPlayer2.BUFFERING_STATE_BUFFERING_AND_STARVED;
         final long testBufferingPosition = 0;

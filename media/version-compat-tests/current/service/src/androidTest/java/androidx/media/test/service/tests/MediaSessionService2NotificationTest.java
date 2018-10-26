@@ -102,14 +102,14 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
         Bitmap albumArt = BitmapFactory.decodeResource(mContext.getResources(),
                 android.support.mediacompat.service.R.drawable.big_buck_bunny);
         MediaMetadata2 metadata = new MediaMetadata2.Builder()
-                        .putText(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
-                        .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, "Test Song Name")
-                        .putText(MediaMetadata2.METADATA_KEY_ARTIST, "Test Artist Name")
-                        .putBitmap(MediaMetadata2.METADATA_KEY_ALBUM_ART, albumArt)
-                        .build();
-        mPlayer.mCurrentMediaItem = new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
+                .putText(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
+                .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, "Test Song Name")
+                .putText(MediaMetadata2.METADATA_KEY_ARTIST, "Test Artist Name")
+                .putBitmap(MediaMetadata2.METADATA_KEY_ALBUM_ART, albumArt)
+                .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
+                .build();
+        mPlayer.mCurrentMediaItem = new MediaItem2.Builder()
                         .setMetadata(metadata)
-                        .setMediaId(mediaId)
                         .build();
 
         // Notification should be shown. Clicking play/pause button will change the player state.

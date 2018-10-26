@@ -16,7 +16,11 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaItem2.FLAG_PLAYABLE;
+import static android.support.v4.media.MediaDescriptionCompat.EXTRA_BT_FOLDER_TYPE;
+
+import static androidx.media2.MediaMetadata2.BROWSABLE_TYPE_MIXED;
+import static androidx.media2.MediaMetadata2.BROWSABLE_TYPE_NONE;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_BROWSABLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_DESCRIPTION;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_ICON;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_ICON_URI;
@@ -24,6 +28,7 @@ import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_SUBTITLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_DISPLAY_TITLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_MEDIA_ID;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_MEDIA_URI;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_PLAYABLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
 
 import android.annotation.SuppressLint;
@@ -88,8 +93,8 @@ public class MediaUtils2 {
         if (item2 == null) {
             return null;
         }
+        int flags = 0;
         MediaDescriptionCompat descCompat;
-
         MediaMetadata2 metadata = item2.getMetadata();
         if (metadata == null) {
             descCompat = new MediaDescriptionCompat.Builder()
@@ -121,8 +126,14 @@ public class MediaUtils2 {
             }
 
             descCompat = builder.build();
+
+            boolean browsable = metadata.containsKey(METADATA_KEY_BROWSABLE)
+                    && metadata.getLong(METADATA_KEY_BROWSABLE) != BROWSABLE_TYPE_NONE;
+            boolean playable = metadata.getLong(METADATA_KEY_PLAYABLE) != 0;
+            flags = (browsable ? MediaItem.FLAG_BROWSABLE : 0)
+                    | (playable ? MediaItem.FLAG_PLAYABLE : 0);
         }
-        return new MediaItem(descCompat, item2.getFlags());
+        return new MediaItem(descCompat, flags);
     }
 
     /**
@@ -149,9 +160,9 @@ public class MediaUtils2 {
         if (item == null) {
             return null;
         }
-        MediaMetadata2 metadata2 = convertToMediaMetadata2(item.getDescription());
-        return new MediaItem2.Builder(item.getFlags())
-                .setMediaId(item.getMediaId())
+        MediaMetadata2 metadata2 = convertToMediaMetadata2(item.getDescription(),
+                item.isBrowsable(), item.isPlayable());
+        return new MediaItem2.Builder()
                 .setMetadata(metadata2)
                 .build();
     }
@@ -165,8 +176,8 @@ public class MediaUtils2 {
         }
         // descriptionCompat cannot be null
         MediaDescriptionCompat descriptionCompat = item.getDescription();
-        MediaMetadata2 metadata2 = convertToMediaMetadata2(descriptionCompat);
-        return new MediaItem2.Builder(FLAG_PLAYABLE)
+        MediaMetadata2 metadata2 = convertToMediaMetadata2(descriptionCompat, false, true);
+        return new MediaItem2.Builder()
                 .setMetadata(metadata2)
                 .setUuid(createUuidByQueueIdAndMediaId(item.getQueueId(),
                         descriptionCompat.getMediaId()))
@@ -181,25 +192,28 @@ public class MediaUtils2 {
     }
 
     /**
-     * Convert a {@link MediaMetadataCompat} to a {@link MediaItem2}.
+     * Convert a {@link MediaMetadataCompat} from the {@link MediaControllerCompat#getMetadata()}
+     * to a {@link MediaItem2}.
      */
     public static MediaItem2 convertToMediaItem2(MediaMetadataCompat metadataCompat) {
-        MediaMetadata2 metadata2 = convertToMediaMetadata2(metadataCompat);
-        if (metadata2 == null) {
+        if (metadataCompat == null) {
             return null;
         }
-        return new MediaItem2.Builder(FLAG_PLAYABLE).setMetadata(metadata2).build();
+        // Item is from the MediaControllerCompat, so forcefully set the playable.
+        MediaMetadata2 metadata2 = new MediaMetadata2.Builder(metadataCompat.getBundle())
+                .putLong(METADATA_KEY_PLAYABLE, 1).build();
+        return new MediaItem2.Builder().setMetadata(metadata2).build();
     }
 
     /**
      * Convert a {@link MediaDescriptionCompat} to a {@link MediaItem2}.
      */
     public static MediaItem2 convertToMediaItem2(MediaDescriptionCompat descriptionCompat) {
-        MediaMetadata2 metadata2 = convertToMediaMetadata2(descriptionCompat);
+        MediaMetadata2 metadata2 = convertToMediaMetadata2(descriptionCompat, false, true);
         if (metadata2 == null) {
             return null;
         }
-        return new MediaItem2.Builder(FLAG_PLAYABLE).setMetadata(metadata2).build();
+        return new MediaItem2.Builder().setMetadata(metadata2).build();
     }
 
     /**
@@ -312,9 +326,13 @@ public class MediaUtils2 {
      * Creates a {@link MediaMetadata2} from the {@link MediaDescriptionCompat}.
      *
      * @param descCompat A {@link MediaDescriptionCompat} object.
-     * @return The newly created {@link MediaMetadata2} object.
+     * @param browsable {@code true} if it's from {@link MediaItem} with browable flag.
+     * @param playable {@code true} if it's from {@link MediaItem} with playable flag, or from
+     *                 {@link QueueItem}.
+     * @return
      */
-    public static MediaMetadata2 convertToMediaMetadata2(MediaDescriptionCompat descCompat) {
+    private static MediaMetadata2 convertToMediaMetadata2(MediaDescriptionCompat descCompat,
+            boolean browsable, boolean playable) {
         if (descCompat == null) {
             return null;
         }
@@ -349,7 +367,7 @@ public class MediaUtils2 {
 
         Bundle bundle = descCompat.getExtras();
         if (bundle != null) {
-            metadata2Builder.setExtras(descCompat.getExtras());
+            metadata2Builder.setExtras(bundle);
         }
 
         Uri mediaUri = descCompat.getMediaUri();
@@ -357,20 +375,18 @@ public class MediaUtils2 {
             metadata2Builder.putText(METADATA_KEY_MEDIA_URI, mediaUri.toString());
         }
 
-        return metadata2Builder.build();
-    }
-
-    /**
-     * Creates a {@link MediaMetadata2} from the {@link MediaMetadataCompat}.
-     *
-     * @param metadataCompat A {@link MediaMetadataCompat} object.
-     * @return The newly created {@link MediaMetadata2} object.
-     */
-    public static MediaMetadata2 convertToMediaMetadata2(MediaMetadataCompat metadataCompat) {
-        if (metadataCompat == null) {
-            return null;
+        if (bundle != null && bundle.containsKey(EXTRA_BT_FOLDER_TYPE)) {
+            metadata2Builder.putLong(METADATA_KEY_BROWSABLE,
+                    bundle.getLong(EXTRA_BT_FOLDER_TYPE));
+        } else if (browsable) {
+            metadata2Builder.putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_MIXED);
         }
-        return new MediaMetadata2(metadataCompat.getBundle());
+
+        if (playable) {
+            metadata2Builder.putLong(METADATA_KEY_PLAYABLE, 1);
+        }
+
+        return metadata2Builder.build();
     }
 
     /**
@@ -410,14 +426,6 @@ public class MediaUtils2 {
             }
         }
         return builder.build();
-    }
-
-    /**
-     * Creates a {@link MediaMetadataCompat} from the {@link MediaDescriptionCompat}.
-     */
-    public static MediaMetadataCompat convertToMediaMetadataCompat(
-            MediaDescriptionCompat description) {
-        return convertToMediaMetadataCompat(convertToMediaMetadata2(description));
     }
 
     /**

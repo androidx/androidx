@@ -16,7 +16,6 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Bitmap;
@@ -29,6 +28,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 import androidx.collection.ArrayMap;
+import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
@@ -39,12 +39,77 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Set;
 
 /**
- * Contains metadata about an item, such as the title, artist, etc.
+ * Contains metadata about an item, such as the title, artist, etc. This is optional, but you'd
+ * better to provide this as much as possible when you're using media widget and/or session APIs.
+ * <p>
+ * The media widget components build its UI based on the metadata here. For an example,
+ * {@link androidx.media.widget.MediaControlView2} will show title from the metadata.
+ * <p>
+ * The {@link MediaLibrarySession} would require some metadata values when it provides
+ * {@link MediaItem2}s to {@link MediaBrowser2}.
+ * <p>
+ * Topics covered here:
+ * <ol>
+ * <li><a href="#MediaId">Media ID</a>
+ * <li><a href="#Browsable">Browsable type</a>
+ * <li><a href="#Playable">Playable</a>
+ * <li><a href="#Duration">Duration</a>
+ * <li><a href="#UserRating">User rating</a>
+ * </ol>
+ * <a name="MediaId"></a>
+ * <h3>{@link MediaMetadata2#METADATA_KEY_MEDIA_ID Media ID}</h3>
+ * <p>
+ * If set, the media ID must be the persistent key for the underlying media contents, so
+ * {@link MediaController2} and {@link MediaBrowser2} can store the information and reuse it later.
+ * Some APIs requires a media ID (e.g. {@link MediaController2#setRating}, so you'd better specify
+ * one.
+ * <p>
+ * Typical example of using media ID is the URI of the contents, but use it with the caution because
+ * the metadata is shared across the process in plain text.
+ * <p>
+ * The {@link MediaLibrarySession} would require it for the library root, so {@link MediaBrowser2}
+ * can call subsequent {@link MediaBrowser2#getChildren} with the ID.
+ * <p>
+ * <a name="Browsable"></a>
+ * <h3>{@link MediaMetadata2#METADATA_KEY_BROWSABLE Browsable type}</h3>
+ * <p>
+ * Browsable defines whether the media item has children and type of children if any. With this,
+ * {@link MediaBrowser2} can know whether the subsequent {@link MediaBrowser2#getChildren} would
+ * successfuly run.
+ * <p>
+ * The {@link MediaLibrarySession} would require the explicit browable type for the the media items
+ * returned by the
+ * {@link androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback}.
+ * <p>
+ * <a name="Playable"></a>
+ * <h3>{@link MediaMetadata2#METADATA_KEY_PLAYABLE Playable type}</h3>
+ * <p>
+ * Playable defines whether the media item can be played or not. It may be possible for a playlist
+ * to contain a media item which isn't playable in order to show a disabled media item.
+ * <p>
+ * The {@link MediaLibrarySession} would require the explicit playable value for the the media items
+ * returned by the
+ * {@link androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback}.
+ * <p>
+ * <a name="Duration"></a>
+ * <li><a href="#Duration">{@link MediaMetadata2#METADATA_KEY_DURATION Duration}</a>
+ * The duration is the length of the contents. The {@link MediaController2} can only get the
+ * duration through the metadata. This tells when would the playback ends, and also tells about the
+ * allowed range of {@link MediaController2#seekTo(long)}.
+ * <p>
+ * If it's not set by developer, {@link MediaSession2} would update the duration in the metadata
+ * with the {@link SessionPlayer2#getDuration()}.
+ * <p>
+ * <a name="UserRating"></a>
+ * <li><a href="#UserRating">{@link MediaMetadata2#METADATA_KEY_USER_RATING User rating}</a>
+ * <p>
+ * Prefer to have unrated user rating instead of {@code null}, so {@link MediaController2} can know
+ * the possible user rating type for calling {@link MediaController2#setRating(String, Rating2)}.
  */
 // New version of MediaMetadata with following changes
 //   - Don't implement Parcelable for updatable support.
 //   - Also support MediaDescription features. MediaDescription is deprecated instead because
-//     it was insufficient for controller to display media contents.
+//     it was insufficient for controller to display media contents. (e.g. duration is missing)
 @VersionedParcelize
 public final class MediaMetadata2 implements VersionedParcelable {
     private static final String TAG = "MediaMetadata2";
@@ -252,10 +317,12 @@ public final class MediaMetadata2 implements VersionedParcelable {
 
     /**
      * The metadata key for a {@link Rating2} typed value to retrieve the information about the
-     * user's rating for the media.
+     * user's rating for the media. Prefer to have unrated user rating instead of {@code null}, so
+     * {@link MediaController2} can know the possible user rating type.
      *
      * @see Builder#putRating(String, Rating2)
      * @see #getRating(String)
+     * @see <a href="#UserRating">User rating</a>
      */
     public static final String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
 
@@ -340,14 +407,14 @@ public final class MediaMetadata2 implements VersionedParcelable {
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
      * information about the media ID of the content. This value is specific to the
-     * service providing the content. If used, this should be a persistent
-     * unique key for the underlying content. This ID is used by {@link MediaController2} and
-     * {@link MediaBrowser2}.
+     * service providing the content. If used, this should be a persistent key for the underlying
+     * content. This ID is used by {@link MediaController2} and {@link MediaBrowser2}.
      *
      * @see Builder#putText(String, CharSequence)
      * @see Builder#putString(String, String)
      * @see #getText(String)
      * @see #getString(String)
+     * @see <a href="#MediaID">Media ID</a>
      */
     public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
 
@@ -390,66 +457,102 @@ public final class MediaMetadata2 implements VersionedParcelable {
             "android.media.metadata.RADIO_PROGRAM_NAME";
 
     /**
-     * The metadata key for a {@link Long} typed value to retrieve the information about the
-     * bluetooth folder type of the media specified in the section 6.10.2.2 of the Bluetooth
-     * AVRCP 1.5. It should be one of the following:
+     * The metadata key for a {@link Long} typed value to retrieve the information about the type
+     * of browsable. It should be one of the following:
      * <ul>
-     * <li>{@link #BT_FOLDER_TYPE_MIXED}</li>
-     * <li>{@link #BT_FOLDER_TYPE_TITLES}</li>
-     * <li>{@link #BT_FOLDER_TYPE_ALBUMS}</li>
-     * <li>{@link #BT_FOLDER_TYPE_ARTISTS}</li>
-     * <li>{@link #BT_FOLDER_TYPE_GENRES}</li>
-     * <li>{@link #BT_FOLDER_TYPE_PLAYLISTS}</li>
-     * <li>{@link #BT_FOLDER_TYPE_YEARS}</li>
+     * <li>{@link #BROWSABLE_TYPE_NONE}</li>
+     * <li>{@link #BROWSABLE_TYPE_MIXED}</li>
+     * <li>{@link #BROWSABLE_TYPE_TITLES}</li>
+     * <li>{@link #BROWSABLE_TYPE_ALBUMS}</li>
+     * <li>{@link #BROWSABLE_TYPE_ARTISTS}</li>
+     * <li>{@link #BROWSABLE_TYPE_GENRES}</li>
+     * <li>{@link #BROWSABLE_TYPE_PLAYLISTS}</li>
+     * <li>{@link #BROWSABLE_TYPE_YEARS}</li>
      * </ul>
+     * <p>
+     * The values other than {@link #BROWSABLE_TYPE_NONE} mean that the media item has children.[
+     * <p>
+     * This matches with the bluetooth folder type of the media specified in the section 6.10.2.2 of
+     * the Bluetooth AVRCP 1.5.
      *
      * @see Builder#putLong(String, long)
      * @see #getLong(String)
+     * @see <a href="#Browsable">Browsable</a>
      */
-    public static final String METADATA_KEY_BT_FOLDER_TYPE =
+    public static final String METADATA_KEY_BROWSABLE =
             "android.media.metadata.BT_FOLDER_TYPE";
 
     /**
-     * The type of folder that is unknown or contains media elements of mixed types as specified in
-     * the section 6.10.2.2 of the Bluetooth AVRCP 1.5.
+     * The type of browsable for non-browsable media item.
      */
-    public static final long BT_FOLDER_TYPE_MIXED = 0;
+    public static final long BROWSABLE_TYPE_NONE = -1;
 
     /**
-     * The type of folder that contains media elements only as specified in the section 6.10.2.2 of
+     * The type of browsable that is unknown or contains media items of mixed types.
+     * <p>
+     * This value matches with the folder type 'Mixed' as specified in the section 6.10.2.2 of the
+     * Bluetooth AVRCP 1.5.
+     */
+    public static final long BROWSABLE_TYPE_MIXED = 0;
+
+    /**
+     * The type of browsable that only contains playable media items.
+     * <p>
+     * This value matches with the folder type 'Titles' as specified in the section 6.10.2.2 of the
+     * Bluetooth AVRCP 1.5.
+     */
+    public static final long BROWSABLE_TYPE_TITLES = 1;
+
+    /**
+     * The type of browsable that contains browsable items categorized by album.
+     * <p>
+     * This value matches with the folder type 'Albums' as specified in the section 6.10.2.2 of the
+     * Bluetooth AVRCP 1.5.
+     */
+    public static final long BROWSABLE_TYPE_ALBUMS = 2;
+
+    /**
+     * The type of browsable that contains browsable items categorized by artist.
+     * <p>
+     * This value matches with the folder type 'Artists' as specified in the section 6.10.2.2 of the
+     * Bluetooth AVRCP 1.5.
+     */
+    public static final long BROWSABLE_TYPE_ARTISTS = 3;
+
+    /**
+     * The type of browsable that contains browsable items categorized by genre.
+     * <p>
+     * This value matches with the folder type 'Genres' as specified in the section 6.10.2.2 of the
+     * Bluetooth AVRCP 1.5.
+     */
+    public static final long BROWSABLE_TYPE_GENRES = 4;
+
+    /**
+     * The type of browsable that contains browsable items categorized by playlist.
+     * <p>
+     * This value matches with the folder type 'Playlists' as specified in the section 6.10.2.2 of
      * the Bluetooth AVRCP 1.5.
      */
-    public static final long BT_FOLDER_TYPE_TITLES = 1;
+    public static final long BROWSABLE_TYPE_PLAYLISTS = 5;
 
     /**
-     * The type of folder that contains folders categorized by album as specified in the section
-     * 6.10.2.2 of the Bluetooth AVRCP 1.5.
+     * The type of browsable that contains browsable items categorized by year.
+     * <p>
+     * This value matches with the folder type 'Years' as specified in the section 6.10.2.2 of the
+     * Bluetooth AVRCP 1.5.
      */
-    public static final long BT_FOLDER_TYPE_ALBUMS = 2;
+    public static final long BROWSABLE_TYPE_YEARS = 6;
 
     /**
-     * The type of folder that contains folders categorized by artist as specified in the section
-     * 6.10.2.2 of the Bluetooth AVRCP 1.5.
+     * The metadata key for a {@link Long} typed value to retrieve the information about whether
+     * the media is playable. A value of 0 indicates it is not a playable item.
+     * A value of 1 or non-zero indicates it is playable.
+     *
+     * @see Builder#putLong(String, long)
+     * @see #getLong(String)
+     * @see <a href="#Playable">Playable</a>
      */
-    public static final long BT_FOLDER_TYPE_ARTISTS = 3;
-
-    /**
-     * The type of folder that contains folders categorized by genre as specified in the section
-     * 6.10.2.2 of the Bluetooth AVRCP 1.5.
-     */
-    public static final long BT_FOLDER_TYPE_GENRES = 4;
-
-    /**
-     * The type of folder that contains folders categorized by playlist as specified in the section
-     * 6.10.2.2 of the Bluetooth AVRCP 1.5.
-     */
-    public static final long BT_FOLDER_TYPE_PLAYLISTS = 5;
-
-    /**
-     * The type of folder that contains folders categorized by year as specified in the section
-     * 6.10.2.2 of the Bluetooth AVRCP 1.5.
-     */
-    public static final long BT_FOLDER_TYPE_YEARS = 6;
+    public static final String METADATA_KEY_PLAYABLE = "android.media.metadata.playable";
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about whether
@@ -508,29 +611,6 @@ public final class MediaMetadata2 implements VersionedParcelable {
     /**
      * @hide
      */
-    // TODO(jaewan): Unhide this, and revisit documentation of putLong()
-    @RestrictTo(LIBRARY)
-    public static final String METADATA_KEY_FLAGS = "android.media.metadata.FLAGS";
-
-    /**
-     * Flag: Indicates that the item has children of its own.
-     * @hide
-     */
-    // TODO(jaewan): Unhide this
-    @RestrictTo(LIBRARY)
-    public static final int FLAG_BROWSABLE = 1 << 0;
-
-    /**
-     * Flag: Indicates that the item is playable.
-     * @hide
-     */
-    // TODO(jaewan): Unhide this
-    @RestrictTo(LIBRARY)
-    public static final int FLAG_PLAYABLE = 1 << 1;
-
-    /**
-     * @hide
-     */
     @RestrictTo(LIBRARY_GROUP)
     @StringDef({METADATA_KEY_TITLE, METADATA_KEY_ARTIST, METADATA_KEY_ALBUM, METADATA_KEY_AUTHOR,
             METADATA_KEY_WRITER, METADATA_KEY_COMPOSER, METADATA_KEY_COMPILATION,
@@ -546,8 +626,8 @@ public final class MediaMetadata2 implements VersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP)
     @StringDef({METADATA_KEY_DURATION, METADATA_KEY_YEAR, METADATA_KEY_TRACK_NUMBER,
-            METADATA_KEY_NUM_TRACKS, METADATA_KEY_DISC_NUMBER, METADATA_KEY_BT_FOLDER_TYPE,
-            METADATA_KEY_ADVERTISEMENT, METADATA_KEY_DOWNLOAD_STATUS, METADATA_KEY_FLAGS})
+            METADATA_KEY_NUM_TRACKS, METADATA_KEY_DISC_NUMBER, METADATA_KEY_BROWSABLE,
+            METADATA_KEY_PLAYABLE, METADATA_KEY_ADVERTISEMENT, METADATA_KEY_DOWNLOAD_STATUS})
     @Retention(RetentionPolicy.SOURCE)
     public @interface LongKey {}
 
@@ -614,10 +694,10 @@ public final class MediaMetadata2 implements VersionedParcelable {
         METADATA_KEYS_TYPE.put(METADATA_KEY_MEDIA_URI, METADATA_TYPE_TEXT);
         METADATA_KEYS_TYPE.put(METADATA_KEY_RADIO_FREQUENCY, METADATA_TYPE_FLOAT);
         METADATA_KEYS_TYPE.put(METADATA_KEY_RADIO_PROGRAM_NAME, METADATA_TYPE_TEXT);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_BT_FOLDER_TYPE, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_BROWSABLE, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_PLAYABLE, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_ADVERTISEMENT, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_DOWNLOAD_STATUS, METADATA_TYPE_LONG);
-        METADATA_KEYS_TYPE.put(METADATA_KEY_FLAGS, METADATA_TYPE_LONG);
     }
 
     private static final @MediaMetadata2.TextKey
@@ -897,6 +977,15 @@ public final class MediaMetadata2 implements VersionedParcelable {
         }
 
         /**
+         * Only for the backward compatibility.
+         *
+         * @param bundle
+         */
+        Builder(Bundle bundle) {
+            mBundle = new Bundle(bundle);
+        }
+
+        /**
          * Put a CharSequence value into the metadata. Custom keys may be used,
          * but if the METADATA_KEYs defined in this class are used they may only
          * be one of the following:
@@ -994,7 +1083,8 @@ public final class MediaMetadata2 implements VersionedParcelable {
          * <li>{@link #METADATA_KEY_NUM_TRACKS}</li>
          * <li>{@link #METADATA_KEY_DISC_NUMBER}</li>
          * <li>{@link #METADATA_KEY_YEAR}</li>
-         * <li>{@link #METADATA_KEY_BT_FOLDER_TYPE}</li>
+         * <li>{@link #METADATA_KEY_BROWSABLE}</li>
+         * <li>{@link #METADATA_KEY_PLAYABLE}</li>
          * <li>{@link #METADATA_KEY_ADVERTISEMENT}</li>
          * <li>{@link #METADATA_KEY_DOWNLOAD_STATUS}</li>
          * </ul>
