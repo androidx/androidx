@@ -99,20 +99,21 @@ import java.util.concurrent.Executor;
  * Here are best practices when implementing/using SessionPlayer2:
  *
  * <ul>
- * <li>Use <a href="#callback">callbacks</a> to respond to state changes and errors.
+ * <li>When updating UI, you should respond to {@link PlayerCallback} invocations instead of
+ * {@link PlayerResult} objects since the player can be controlled by others.
  * <li>When a SessionPlayer2 object is no longer being used, call {@link #close()} as soon as
  * possible to release the resources used by the internal player engine associated with the
  * SessionPlayer2. Failure to call {@link #close()} may cause subsequent instances of SessionPlayer2
  * objects to fallback to software implementations or fail altogether. You cannot use SessionPlayer2
  * after you call {@link #close()}. There is no way to bring it back to any other state.
- * <li> The current playback position can be retrieved with a call to {@link #getCurrentPosition()},
+ * <li>The current playback position can be retrieved with a call to {@link #getCurrentPosition()},
  * which is helpful for applications such as a Music player that need to keep track of the playback
  * progress.
- * <li> The playback position can be adjusted with a call to {@link #seekTo(long)}. Although the
+ * <li>The playback position can be adjusted with a call to {@link #seekTo(long)}. Although the
  * asynchronous {@link #seekTo} call returns right away, the actual seek operation may take a
  * while to finish, especially for audio/video being streamed. Wait for the return value or
  * {@link PlayerCallback#onSeekCompleted(SessionPlayer2, long)}.
- * <li> You can call {@link #seekTo(long)} from the {@link #PLAYER_STATE_PAUSED}. In these cases, if
+ * <li>You can call {@link #seekTo(long)} from the {@link #PLAYER_STATE_PAUSED}. In these cases, if
  * you are playing a video stream and the requested position is valid, one video frame may be
  * displayed.
  * </ul>
