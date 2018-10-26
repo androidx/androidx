@@ -82,7 +82,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void enqueue(@NonNull WorkRequest... workRequests)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.enqueue(workRequests).get();
+        mWorkManagerImpl.enqueueInternal(Arrays.asList(workRequests)).get();
     }
 
     /**
@@ -97,7 +97,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void enqueue(@NonNull List<? extends WorkRequest> requests)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.enqueue(requests).get();
+        mWorkManagerImpl.enqueueInternal(requests).get();
     }
 
     /**
@@ -130,8 +130,8 @@ public final class WorkManagerSync {
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull OneTimeWorkRequest...work)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.enqueueUniqueWork(uniqueWorkName, existingWorkPolicy, Arrays.asList(work))
-                .get();
+        mWorkManagerImpl.enqueueUniqueWorkInternal(
+                uniqueWorkName, existingWorkPolicy, Arrays.asList(work)).get();
     }
 
     /**
@@ -164,7 +164,7 @@ public final class WorkManagerSync {
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.enqueueUniqueWork(uniqueWorkName, existingWorkPolicy, work).get();
+        mWorkManagerImpl.enqueueUniqueWorkInternal(uniqueWorkName, existingWorkPolicy, work).get();
     }
 
     /**
@@ -196,7 +196,7 @@ public final class WorkManagerSync {
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.enqueueUniquePeriodicWork(
+        mWorkManagerImpl.enqueueUniquePeriodicWorkInternal(
                 uniqueWorkName, existingPeriodicWorkPolicy, periodicWork).get();
     }
 
@@ -212,7 +212,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void cancelWorkById(@NonNull UUID id)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.cancelWorkById(id).get();
+        mWorkManagerImpl.cancelWorkByIdInternal(id).get();
     }
 
     /**
@@ -227,7 +227,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void cancelAllWorkByTag(@NonNull String tag)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.cancelAllWorkByTag(tag).get();
+        mWorkManagerImpl.cancelAllWorkByTagInternal(tag).get();
     }
 
     /**
@@ -242,7 +242,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void cancelUniqueWork(@NonNull String uniqueWorkName)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.cancelUniqueWork(uniqueWorkName).get();
+        mWorkManagerImpl.cancelUniqueWorkInternal(uniqueWorkName).get();
     }
 
     /**
@@ -255,7 +255,7 @@ public final class WorkManagerSync {
      */
     @WorkerThread
     public void cancelAllWork() throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.cancelAllWork().get();
+        mWorkManagerImpl.cancelAllWorkInternal().get();
     }
 
     /**
@@ -275,6 +275,6 @@ public final class WorkManagerSync {
      */
     @WorkerThread
     public void pruneWork() throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.pruneWork().get();
+        mWorkManagerImpl.pruneWorkInternal().get();
     }
 }
