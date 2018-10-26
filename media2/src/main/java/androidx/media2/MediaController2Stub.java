@@ -104,8 +104,12 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        controller.notifyBufferingStateChanged((MediaItem2) ParcelUtils.fromParcelable(item), state,
-                bufferedPositionMs);
+        MediaItem2 item2 = (item == null) ? null : (MediaItem2) ParcelUtils.fromParcelable(item);
+        if (item2 == null) {
+            Log.w(TAG, "onBufferingStateChanged(): Ignoring null item");
+            return;
+        }
+        controller.notifyBufferingStateChanged(item2, state, bufferedPositionMs);
     }
 
     @Override
@@ -120,7 +124,7 @@ class MediaController2Stub extends IMediaController2.Stub {
         List<MediaItem2> playlist =
                 MediaUtils2.convertParcelImplListSliceToMediaItem2List(listSlice);
         if (playlist == null) {
-            Log.w(TAG, "onPlaylistChanged(): Ignoring null playlist from " + controller);
+            Log.w(TAG, "onPlaylistChanged(): Ignoring null playlist");
             return;
         }
         MediaMetadata2 metadata = MediaMetadata2.fromBundle(metadataBundle);
