@@ -40,6 +40,7 @@ class MetaInfTransformer internal constructor(
         val FILES_TO_IGNORE = setOf(
             "androidx.car_car-cluster.version",
             "androidx.car_car-moderator.version",
+            "androidx.activity_activity-ktx.version",
             "androidx.dynamicanimation_dynamicanimation-ktx.version"
         )
     }
