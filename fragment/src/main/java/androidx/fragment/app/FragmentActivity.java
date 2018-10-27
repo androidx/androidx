@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
@@ -36,6 +35,7 @@ import android.view.View;
 import android.view.Window;
 
 import androidx.activity.ComponentActivity;
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -107,6 +107,22 @@ public class FragmentActivity extends ComponentActivity implements
     // for startActivityForResult calls where a result has not yet been delivered.
     SparseArrayCompat<String> mPendingFragmentActivityResults;
 
+    public FragmentActivity() {
+        super();
+        // Route onBackPressed() callbacks to the FragmentManager
+        addOnBackPressedCallback(new OnBackPressedCallback() {
+            @Override
+            public boolean handleOnBackPressed() {
+                FragmentManager fragmentManager = mFragments.getSupportFragmentManager();
+                if (fragmentManager.isStateSaved()) {
+                    // Cannot pop after state is saved
+                    return false;
+                }
+                return fragmentManager.popBackStackImmediate();
+            }
+        });
+    }
+
     // ------------------------------------------------------------------------
     // HOOKS INTO ACTIVITY
     // ------------------------------------------------------------------------
@@ -144,26 +160,6 @@ public class FragmentActivity extends ComponentActivity implements
         }
 
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    /**
-     * Take care of popping the fragment back stack or finishing the activity
-     * as appropriate.
-     */
-    @Override
-    public void onBackPressed() {
-        FragmentManager fragmentManager = mFragments.getSupportFragmentManager();
-        final boolean isStateSaved = fragmentManager.isStateSaved();
-        if (isStateSaved && Build.VERSION.SDK_INT <= Build.VERSION_CODES.N_MR1) {
-            // Older versions will throw an exception from the framework
-            // FragmentManager.popBackStackImmediate(), so we'll just
-            // return here. The Activity is likely already on its way out
-            // since the fragmentManager has already been saved.
-            return;
-        }
-        if (isStateSaved || !fragmentManager.popBackStackImmediate()) {
-            super.onBackPressed();
-        }
     }
 
     /**
