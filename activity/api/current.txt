@@ -14,7 +14,7 @@ package androidx.activity {
   }
 
   public interface OnBackPressedCallback {
-    method @MainThread public boolean handleOnBackPressed();
+    method public boolean handleOnBackPressed();
   }
 
 }
