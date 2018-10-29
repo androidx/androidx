@@ -89,6 +89,7 @@ abstract class ConstraintProxy extends BroadcastReceiver {
 
         Intent updateProxyIntent =
                 ConstraintProxyUpdateReceiver.newConstraintProxyUpdateIntent(
+                        context,
                         batteryNotLowProxyEnabled,
                         batteryChargingProxyEnabled,
                         storageNotLowProxyEnabled,
