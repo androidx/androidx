@@ -50,6 +50,7 @@ import androidx.textclassifier.widget.ToolbarController;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -613,25 +614,47 @@ public final class TextLinks {
                             .setReferenceTime(getTextLinkSpanData().getReferenceTime())
                             .setDefaultLocales(getLocales(textView))
                             .build();
-            final TextClassifier classifier = getTextLinkSpanData().getTextClassifier();
             // TODO: Truncate the text.
-            sWorkerExecutor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    final TextClassification textClassification = classifier.classifyText(request);
-                    sMainThreadExecutor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (textView.getText() != spanned) {
-                                Log.d(LOG_TAG, "Text has changed from the classified text. "
-                                        + "Ignoring.");
-                                return;
-                            }
-                            onTextClassificationResult(textView, textClassification);
+            sWorkerExecutor.execute(new ClassifyTextRunnable(textView, this, request, spanned));
+        }
+
+        private static class ClassifyTextRunnable implements Runnable {
+            private WeakReference<TextView> mTextView;
+            private DefaultTextLinkSpan mTextLinkSpan;
+            private TextClassification.Request mRequest;
+            private Spanned mClassifiedSpan;
+
+            private ClassifyTextRunnable(
+                    TextView textView,
+                    DefaultTextLinkSpan textLinkSpan,
+                    TextClassification.Request request, Spanned classifiedSpan) {
+                mTextView = new WeakReference<>(textView);
+                mTextLinkSpan = textLinkSpan;
+                mRequest = request;
+                mClassifiedSpan = classifiedSpan;
+            }
+
+            @Override
+            public void run() {
+                final TextClassifier classifier =
+                        mTextLinkSpan.getTextLinkSpanData().getTextClassifier();
+                final TextClassification textClassification = classifier.classifyText(mRequest);
+                sMainThreadExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        TextView textView = mTextView.get();
+                        if (textView == null) {
+                            return;
                         }
-                    });
-                }
-            });
+                        if (textView.getText() != mClassifiedSpan) {
+                            Log.d(LOG_TAG, "Text has changed from the classified text. "
+                                    + "Ignoring.");
+                            return;
+                        }
+                        mTextLinkSpan.onTextClassificationResult(textView, textClassification);
+                    }
+                });
+            }
         }
 
         /**
