@@ -359,6 +359,10 @@ public final class RemoteInput {
             // preserving old results.
             Bundle existingTextResults =
                     androidx.core.app.RemoteInput.getResultsFromIntent(intent);
+
+            // We also need to preserve the results source, as it is also cleared.
+            int resultsSource = getResultsSource(intent);
+
             if (existingTextResults == null) {
                 existingTextResults = results;
             } else {
@@ -377,6 +381,9 @@ public final class RemoteInput {
                     RemoteInput.addDataResultToIntent(input, intent, existingDataResults);
                 }
             }
+
+            // Now restore the results source.
+            setResultsSource(intent, resultsSource);
         } else if (Build.VERSION.SDK_INT >= 16) {
             Intent clipDataIntent = getClipDataIntentFromIntent(intent);
             if (clipDataIntent == null) {
