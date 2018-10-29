@@ -396,7 +396,6 @@ public class WebViewClientCompatTest {
         @Override
         public void onLoadResource(WebView view, String url) {
             super.onLoadResource(view, url);
-            Assert.assertTrue(mOnPageStartedCalled);
             mOnLoadResourceCalled = true;
         }
 
