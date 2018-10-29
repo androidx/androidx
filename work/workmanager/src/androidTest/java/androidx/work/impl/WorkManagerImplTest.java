@@ -225,7 +225,7 @@ public class WorkManagerImplTest {
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest work3 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
 
-        mWorkManagerImpl.beginWith(work1, work2, work3)
+        mWorkManagerImpl.beginWith(Arrays.asList(work1, work2, work3))
                 .enqueue()
                 .get();
 
@@ -246,8 +246,8 @@ public class WorkManagerImplTest {
         OneTimeWorkRequest work3a = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest work3b = new OneTimeWorkRequest.Builder(TestWorker.class).build();
 
-        mWorkManagerImpl.beginWith(work1a, work1b).then(work2)
-                .then(work3a, work3b)
+        mWorkManagerImpl.beginWith(Arrays.asList(work1a, work1b)).then(work2)
+                .then(Arrays.asList(work3a, work3b))
                 .enqueue()
                 .get();
 

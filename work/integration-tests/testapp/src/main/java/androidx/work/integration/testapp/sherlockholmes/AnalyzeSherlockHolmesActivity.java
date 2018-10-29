@@ -33,6 +33,7 @@ import androidx.work.integration.testapp.R;
 import androidx.work.integration.testapp.db.TestDatabase;
 import androidx.work.integration.testapp.db.WordCount;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -85,11 +86,11 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
 
         workManager
                 .beginWith(startupWork)
-                .then(TextMappingWorker.create("advs.txt").build(),
+                .then(Arrays.asList(TextMappingWorker.create("advs.txt").build(),
                         TextMappingWorker.create("case.txt").build(),
                         TextMappingWorker.create("lstb.txt").build(),
                         TextMappingWorker.create("mems.txt").build(),
-                        TextMappingWorker.create("retn.txt").build())
+                        TextMappingWorker.create("retn.txt").build()))
                 .then(textReducingWork)
                 .enqueue();
 

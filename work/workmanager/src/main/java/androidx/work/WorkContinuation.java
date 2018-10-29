@@ -23,6 +23,7 @@ import android.support.annotation.RestrictTo;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -38,8 +39,8 @@ public abstract class WorkContinuation {
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
      *         {@link OneTimeWorkRequest}
      */
-    public final @NonNull WorkContinuation then(@NonNull OneTimeWorkRequest... work) {
-        return then(Arrays.asList(work));
+    public final @NonNull WorkContinuation then(@NonNull OneTimeWorkRequest work) {
+        return then(Collections.singletonList(work));
     }
 
     /**
