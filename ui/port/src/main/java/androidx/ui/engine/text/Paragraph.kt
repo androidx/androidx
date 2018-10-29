@@ -176,9 +176,8 @@ class Paragraph internal constructor(
     // Redirecting the paint function in this way solves some dependency problems
     // in the C++ code. If we straighten out the C++ dependencies, we can remove
     // this indirection.
-    fun _paint(canvas: Canvas, x: Double, y: Double) {
-        // native 'Paragraph_paint';
-        TODO()
+    fun paint(canvas: Canvas, x: Double, y: Double) {
+        paragraphImpl.paint(canvas, x, y)
     }
 }
 

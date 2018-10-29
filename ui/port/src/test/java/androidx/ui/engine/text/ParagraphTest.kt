@@ -15,6 +15,8 @@
  */
 package androidx.ui.engine.text
 
+import androidx.ui.engine.geometry.Offset
+import com.nhaarman.mockitokotlin2.mock
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Test
@@ -72,6 +74,20 @@ class ParagraphTest {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
         assertThat(paragraph.didExceedMaxLines, equalTo(false))
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `paint throws exception if layout is not called`() {
+        val paragraphStyle = createParagraphStyle()
+        val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
+        paragraph.paint(mock(), 0.0, 0.0)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun `getPositionForOffset throws exception if layout is not called`() {
+        val paragraphStyle = createParagraphStyle()
+        val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
+        paragraph.getPositionForOffset(Offset(0.0, 0.0))
     }
 
     private fun createParagraphStyle(): ParagraphStyle {

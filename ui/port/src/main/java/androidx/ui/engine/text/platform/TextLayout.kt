@@ -15,6 +15,7 @@
  */
 package androidx.ui.engine.text.platform
 
+import android.graphics.Canvas
 import android.os.Build
 import android.text.BoringLayout
 import android.text.Layout
@@ -55,33 +56,43 @@ private const val TEXT_DIRECTION_LOCALE = 5
 private val DEFAULT_LINESPACING_MULTIPLIER = 1.0f
 private val DEFAULT_LINESPACING_EXTRA = 0.0f
 
-@IntDef(ALIGN_NORMAL,
+@IntDef(
+    ALIGN_NORMAL,
     ALIGN_CENTER,
     ALIGN_OPPOSITE,
     ALIGN_LEFT,
-    ALIGN_RIGHT)
+    ALIGN_RIGHT
+)
 internal annotation class TextLayoutAlignment
 
-@IntDef(JUSTIFICATION_MODE_NONE,
-    JUSTIFICATION_MODE_INTER_WORD)
+@IntDef(
+    JUSTIFICATION_MODE_NONE,
+    JUSTIFICATION_MODE_INTER_WORD
+)
 internal annotation class JustificationMode
 
-@IntDef(BREAK_STRATEGY_SIMPLE,
+@IntDef(
+    BREAK_STRATEGY_SIMPLE,
     BREAK_STRATEGY_HIGH_QUALITY,
-    BREAK_STRATEGY_BALANCED)
+    BREAK_STRATEGY_BALANCED
+)
 internal annotation class BreakStrategy
 
-@IntDef(HYPHENATION_FREQUENCY_NORMAL,
+@IntDef(
+    HYPHENATION_FREQUENCY_NORMAL,
     HYPHENATION_FREQUENCY_FULL,
-    HYPHENATION_FREQUENCY_NONE)
+    HYPHENATION_FREQUENCY_NONE
+)
 internal annotation class HyphenationFrequency
 
-@IntDef(TEXT_DIRECTION_LTR,
+@IntDef(
+    TEXT_DIRECTION_LTR,
     TEXT_DIRECTION_RTL,
     TEXT_DIRECTION_FIRST_STRONG_LTR,
     TEXT_DIRECTION_FIRST_STRONG_RTL,
     TEXT_DIRECTION_ANY_RTL_LTR,
-    TEXT_DIRECTION_LOCALE)
+    TEXT_DIRECTION_LOCALE
+)
 internal annotation class TextDirection
 
 internal class TextLayout constructor(
@@ -119,7 +130,7 @@ internal class TextLayout constructor(
         val ellipsizeWidth = finalWidth
 
         layout = if (boringMetrics != null && maxIntrinsicWidth <= width) {
-            createBoringLayout(
+            BoringLayoutFactory.create(
                 textPaint = textPaint,
                 charSequence = charSequence,
                 width = finalWidth,
@@ -130,7 +141,7 @@ internal class TextLayout constructor(
                 ellipsizeWidth = ellipsizeWidth
             )
         } else {
-            createStaticLayout(
+            StaticLayoutFactory.create(
                 textPaint = textPaint,
                 charSequence = charSequence,
                 width = finalWidth,
@@ -153,141 +164,154 @@ internal class TextLayout constructor(
         }
     }
 
-    private fun createBoringLayout(
-        textPaint: TextPaint,
-        charSequence: CharSequence,
-        width: Int = 0,
-        @TextLayoutAlignment alignment: Int,
-        metrics: BoringLayout.Metrics,
-        includePadding: Boolean = false,
-        ellipsize: TextUtils.TruncateAt?,
-        ellipsizeWidth: Int = 0
-    ): Layout {
-        val frameworkAlignment = TextAlignmentAdapter.get(alignment)
-        return if (ellipsize == null) {
-            BoringLayout(
-                charSequence,
-                textPaint,
-                width,
-                frameworkAlignment,
-                DEFAULT_LINESPACING_MULTIPLIER,
-                DEFAULT_LINESPACING_EXTRA,
-                metrics,
-                includePadding
-            )
-        } else {
-            BoringLayout(
-                charSequence,
-                textPaint,
-                width,
-                frameworkAlignment,
-                DEFAULT_LINESPACING_MULTIPLIER,
-                DEFAULT_LINESPACING_EXTRA,
-                metrics,
-                includePadding,
-                ellipsize,
-                ellipsizeWidth
-            )
-        }
+    fun paint(canvas: Canvas) {
+        layout.draw(canvas)
     }
+}
 
-    @Suppress("DEPRECATION")
-    private fun createStaticLayout(
-        textPaint: TextPaint,
-        charSequence: CharSequence,
-        width: Int = 0,
-        @TextLayoutAlignment alignment: Int,
-        ellipsize: TextUtils.TruncateAt?,
-        ellipsizeWidth: Int,
-        start: Int = 0,
-        end: Int = charSequence.length,
-        @TextDirection textDirectionHeuristic: Int,
-        lineSpacingMultiplier: Double,
-        lineSpacingExtra: Double,
-        includePadding: Boolean,
-        maxLines: Int,
-        @BreakStrategy breakStrategy: Int,
-        @HyphenationFrequency hyphenationFrequency: Int,
-        @JustificationMode justificationMode: Int,
-        leftIndents: IntArray?,
-        rightIndents: IntArray?
-    ): Layout {
-
-        val frameworkAlignment = TextAlignmentAdapter.get(alignment)
-
-        return if (Build.VERSION.SDK_INT >= 23) {
-            // TODO(Migration/siyamed): textDirectionHeuristic was added in 18 but no constructor
-            // for that before 23, this is a little trouble
-            val frameworkTextDirectionHeuristic = getTextDirectionHeuristic(textDirectionHeuristic)
-            val builder = StaticLayout.Builder.obtain(
-                charSequence,
-                start,
-                end,
-                textPaint,
-                width)
-                .setAlignment(frameworkAlignment)
-                .setTextDirection(frameworkTextDirectionHeuristic)
-                .setLineSpacing(lineSpacingExtra.toFloat(), lineSpacingMultiplier.toFloat())
-                .setBreakStrategy(breakStrategy)
-                .setHyphenationFrequency(hyphenationFrequency)
-                .setIncludePad(includePadding)
-                .setMaxLines(maxLines)
-                .setEllipsize(ellipsize)
-                .setIndents(leftIndents, rightIndents)
-
-            if (Build.VERSION.SDK_INT >= 26) {
-                builder.setJustificationMode(justificationMode)
-            }
-            // if (Build.VERSION.SDK_INT >= 28) {
-            // TODO(Migration/siyamed): last line spacing is required for editable text, otherwise
-            // we will need tricks
-            // builder.setAddLastLineLineSpacing(builder.mAddLastLineLineSpacing);
-            // builder.setUseLineSpacingFromFallbacks(true);
-            // }
-
-            builder.build()
-        } else {
-            if (ellipsize != null) {
-                StaticLayout(
+internal class BoringLayoutFactory {
+    companion object {
+        fun create(
+            textPaint: TextPaint,
+            charSequence: CharSequence,
+            width: Int = 0,
+            @TextLayoutAlignment alignment: Int,
+            metrics: BoringLayout.Metrics,
+            includePadding: Boolean = false,
+            ellipsize: TextUtils.TruncateAt?,
+            ellipsizeWidth: Int = 0
+        ): Layout {
+            val frameworkAlignment = TextAlignmentAdapter.get(alignment)
+            return if (ellipsize == null) {
+                BoringLayout(
                     charSequence,
-                    start,
-                    end,
                     textPaint,
                     width,
                     frameworkAlignment,
-                    lineSpacingMultiplier.toFloat(),
-                    lineSpacingExtra.toFloat(),
+                    DEFAULT_LINESPACING_MULTIPLIER,
+                    DEFAULT_LINESPACING_EXTRA,
+                    metrics,
+                    includePadding
+                )
+            } else {
+                BoringLayout(
+                    charSequence,
+                    textPaint,
+                    width,
+                    frameworkAlignment,
+                    DEFAULT_LINESPACING_MULTIPLIER,
+                    DEFAULT_LINESPACING_EXTRA,
+                    metrics,
                     includePadding,
                     ellipsize,
                     ellipsizeWidth
                 )
-            } else {
-                StaticLayout(
+            }
+        }
+    }
+}
+
+internal class StaticLayoutFactory {
+    companion object {
+        fun create(
+            textPaint: TextPaint,
+            charSequence: CharSequence,
+            width: Int = 0,
+            @TextLayoutAlignment alignment: Int = ALIGN_NORMAL,
+            ellipsize: TextUtils.TruncateAt? = null,
+            ellipsizeWidth: Int = 0,
+            start: Int = 0,
+            end: Int = charSequence.length,
+            @TextDirection textDirectionHeuristic: Int = TEXT_DIRECTION_FIRST_STRONG_LTR,
+            lineSpacingMultiplier: Double = 1.0,
+            lineSpacingExtra: Double = 0.0,
+            includePadding: Boolean = true,
+            maxLines: Int = Int.MAX_VALUE,
+            @BreakStrategy breakStrategy: Int = BREAK_STRATEGY_SIMPLE,
+            @HyphenationFrequency hyphenationFrequency: Int = HYPHENATION_FREQUENCY_NONE,
+            @JustificationMode justificationMode: Int = JUSTIFICATION_MODE_NONE,
+            leftIndents: IntArray? = null,
+            rightIndents: IntArray? = null
+        ): Layout {
+
+            val frameworkAlignment = TextAlignmentAdapter.get(alignment)
+
+            return if (Build.VERSION.SDK_INT >= 23) {
+                // TODO(Migration/siyamed): textDirectionHeuristic was added in 18 but no
+                // constructor for that before 23, this is a little trouble
+                val frameworkTextDirectionHeuristic =
+                    getTextDirectionHeuristic(textDirectionHeuristic)
+                val builder = StaticLayout.Builder.obtain(
                     charSequence,
                     start,
                     end,
                     textPaint,
-                    width,
-                    frameworkAlignment,
-                    lineSpacingMultiplier.toFloat(),
-                    lineSpacingExtra.toFloat(),
-                    includePadding
+                    width
                 )
+                    .setAlignment(frameworkAlignment)
+                    .setTextDirection(frameworkTextDirectionHeuristic)
+                    .setLineSpacing(lineSpacingExtra.toFloat(), lineSpacingMultiplier.toFloat())
+                    .setBreakStrategy(breakStrategy)
+                    .setHyphenationFrequency(hyphenationFrequency)
+                    .setIncludePad(includePadding)
+                    .setMaxLines(maxLines)
+                    .setEllipsize(ellipsize)
+                    .setIndents(leftIndents, rightIndents)
+
+                if (Build.VERSION.SDK_INT >= 26) {
+                    builder.setJustificationMode(justificationMode)
+                }
+                // if (Build.VERSION.SDK_INT >= 28) {
+                // TODO(Migration/siyamed): last line spacing is required for editable text,
+                // otherwise we will need tricks
+                // builder.setAddLastLineLineSpacing(builder.mAddLastLineLineSpacing);
+                // builder.setUseLineSpacingFromFallbacks(true);
+                // }
+
+                builder.build()
+            } else {
+                if (ellipsize != null) {
+                    StaticLayout(
+                        charSequence,
+                        start,
+                        end,
+                        textPaint,
+                        width,
+                        frameworkAlignment,
+                        lineSpacingMultiplier.toFloat(),
+                        lineSpacingExtra.toFloat(),
+                        includePadding,
+                        ellipsize,
+                        ellipsizeWidth
+                    )
+                } else {
+                    StaticLayout(
+                        charSequence,
+                        start,
+                        end,
+                        textPaint,
+                        width,
+                        frameworkAlignment,
+                        lineSpacingMultiplier.toFloat(),
+                        lineSpacingExtra.toFloat(),
+                        includePadding
+                    )
+                }
             }
         }
-    }
 
-    @RequiresApi(api = 18)
-    fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: Int):
-        TextDirectionHeuristic {
-        return when (textDirectionHeuristic) {
-            TEXT_DIRECTION_LTR -> TextDirectionHeuristics.LTR
-            TEXT_DIRECTION_LOCALE -> TextDirectionHeuristics.LOCALE
-            TEXT_DIRECTION_RTL -> TextDirectionHeuristics.RTL
-            TEXT_DIRECTION_FIRST_STRONG_RTL -> TextDirectionHeuristics.FIRSTSTRONG_RTL
-            TEXT_DIRECTION_ANY_RTL_LTR -> TextDirectionHeuristics.ANYRTL_LTR
-            TEXT_DIRECTION_FIRST_STRONG_LTR -> TextDirectionHeuristics.FIRSTSTRONG_LTR
-            else -> TextDirectionHeuristics.FIRSTSTRONG_LTR
+        @RequiresApi(api = 18)
+        fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: Int):
+                TextDirectionHeuristic {
+            return when (textDirectionHeuristic) {
+                TEXT_DIRECTION_LTR -> TextDirectionHeuristics.LTR
+                TEXT_DIRECTION_LOCALE -> TextDirectionHeuristics.LOCALE
+                TEXT_DIRECTION_RTL -> TextDirectionHeuristics.RTL
+                TEXT_DIRECTION_FIRST_STRONG_RTL -> TextDirectionHeuristics.FIRSTSTRONG_RTL
+                TEXT_DIRECTION_ANY_RTL_LTR -> TextDirectionHeuristics.ANYRTL_LTR
+                TEXT_DIRECTION_FIRST_STRONG_LTR -> TextDirectionHeuristics.FIRSTSTRONG_LTR
+                else -> TextDirectionHeuristics.FIRSTSTRONG_LTR
+            }
         }
     }
 }

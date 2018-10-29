@@ -21,6 +21,7 @@ import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextPosition
+import androidx.ui.painting.Canvas
 import kotlin.math.floor
 
 internal class ParagraphAndroid constructor(
@@ -35,29 +36,29 @@ internal class ParagraphAndroid constructor(
 
     // TODO(Migration/siyamed): width having -1 but others having 0 as default value is counter
     // intuitive
-    internal var width: Double = -1.0
+    var width: Double = -1.0
         get() = layout?.let { field } ?: -1.0
 
-    internal val height: Double
+    val height: Double
         get() = layout?.let { it.layout.height.toDouble() } ?: 0.0
 
     // TODO(Migration/siyamed): we do not have this concept. they limit to the max word size.
     // it didn't make sense to me. I believe we might be able to do it. if we can use
     // wordbreaker.
-    internal val minIntrinsicWidth: Double
+    val minIntrinsicWidth: Double
         get() = 0.0
 
-    internal val maxIntrinsicWidth: Double
+    val maxIntrinsicWidth: Double
         get() = layout?.let { it.maxIntrinsicWidth } ?: 0.0
 
-    internal val alphabeticBaseline: Double
+    val alphabeticBaseline: Double
         get() = layout?.let { it.layout.getLineBaseline(0).toDouble() } ?: Double.MAX_VALUE
 
     // TODO(Migration/siyamed):  (metrics.fUnderlinePosition - metrics.fAscent) * style.height;
-    internal val ideographicBaseline: Double
+    val ideographicBaseline: Double
         get() = Double.MAX_VALUE
 
-    internal val didExceedMaxLines: Boolean
+    val didExceedMaxLines: Boolean
         get() = false
 
     fun layout(width: Double, force: Boolean = false) {
@@ -74,7 +75,7 @@ internal class ParagraphAndroid constructor(
         this.width = floorWidth
     }
 
-    internal fun getPositionForOffset(offset: Offset): TextPosition {
+    fun getPositionForOffset(offset: Offset): TextPosition {
         val tmpLayout = layout ?: throw IllegalStateException("getPositionForOffset cannot be " +
                 "called before layout() is called")
 
@@ -84,5 +85,13 @@ internal class ParagraphAndroid constructor(
             // TODO(Migration/siyamed): we provide a default value
             affinity = TextAffinity.upstream
         )
+    }
+
+    fun paint(canvas: Canvas, x: Double, y: Double) {
+        val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
+                "called before layout() is called")
+        canvas.translate(x, y)
+        tmpLayout.paint(canvas.toFrameworkCanvas())
+        canvas.translate(-x, -y)
     }
 }
