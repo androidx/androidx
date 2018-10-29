@@ -101,5 +101,9 @@ class PageResult<T> {
     abstract static class Receiver<T> {
         @MainThread
         public abstract void onPageResult(@ResultType int type, @NonNull PageResult<T> pageResult);
+
+        @MainThread
+        public abstract void onPageError(@ResultType int type,
+                @NonNull Throwable error, boolean retryable);
     }
 }
