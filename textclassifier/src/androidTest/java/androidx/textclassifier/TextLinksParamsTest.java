@@ -60,7 +60,7 @@ public class TextLinksParamsTest {
         }
     }
 
-    private static class CustomTextLinkSpan extends TextLinks.TextLinkSpan {
+    private static class CustomTextLinkSpan extends TextLinks.DefaultTextLinkSpan {
         CustomTextLinkSpan(@Nullable TextLinks.TextLinkSpanData textLinkSpanData) {
             super(textLinkSpanData);
         }
