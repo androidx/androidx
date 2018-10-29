@@ -23,6 +23,7 @@ import android.app.PendingIntent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.MovementMethod;
 import android.text.style.ClickableSpan;
@@ -31,12 +32,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.app.RemoteActionCompat;
 import androidx.core.os.LocaleListCompat;
@@ -480,13 +483,8 @@ public final class TextLinks {
     }
 
     /**
-     * A function to create spans from TextLinks.
-     *
-     * Hidden until we convinced we want it to be part of the public API.
-     *
-     * @hide
+     * A factory to create spans from TextLinks.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public interface SpanFactory {
 
         /** Creates a span from a text link. */
@@ -543,18 +541,54 @@ public final class TextLinks {
 
     /**
      * A ClickableSpan for a TextLink.
+     * <p>
+     * You can implement the {@link #onClick(View)} function to specify the on click behavior of
+     * the span.
      */
-    public static class TextLinkSpan extends ClickableSpan {
-
-        @NonNull
-        private final TextLinkSpanData mTextLinkSpanData;
+    public abstract static class TextLinkSpan extends ClickableSpan {
+        private TextLinkSpanData mTextLinkSpanData;
 
         public TextLinkSpan(@NonNull TextLinkSpanData textLinkSpanData) {
             mTextLinkSpanData = Preconditions.checkNotNull(textLinkSpanData);
         }
 
+        /**
+         * Returns the data that is relevant to this span.
+         */
+        @NonNull
+        public final TextLinkSpanData getTextLinkSpanData() {
+            return mTextLinkSpanData;
+        }
+    }
+
+    /**
+     * The default implementation of {@link TextLinkSpan}.
+     * <p>
+     * When this span is clicked, text classifier will be used to classify the text in the span and
+     * suggest possible actions. The suggested actions will be presented to users eventually.
+     * You can change the way how the suggested actions are presented to user by overriding
+     * {@link #onTextClassificationResult(TextView, TextClassification)}.
+     */
+    public static class DefaultTextLinkSpan extends TextLinkSpan {
+
+        /**
+         * Constructs a DefaultTextLinkSpan.
+         *
+         * @param textLinkSpanData The data object that contains data of this span, like the text
+         *                         link.
+         */
+        public DefaultTextLinkSpan(@NonNull TextLinkSpanData textLinkSpanData) {
+            super(textLinkSpanData);
+        }
+
+        /**
+         * Performs the click action associated with this span.
+         * <p>
+         * Subclass implementations should always call through to the superclass implementation.
+         */
         @Override
-        public void onClick(View widget) {
+        @CallSuper
+        public void onClick(@NonNull View widget) {
             if (!(widget instanceof TextView)) {
                 return;
             }
@@ -576,38 +610,63 @@ public final class TextLinks {
 
             final TextClassification.Request request =
                     new TextClassification.Request.Builder(text, start, end)
-                            .setReferenceTime(mTextLinkSpanData.getReferenceTime())
+                            .setReferenceTime(getTextLinkSpanData().getReferenceTime())
                             .setDefaultLocales(getLocales(textView))
                             .build();
-            final TextClassifier classifier = mTextLinkSpanData.getTextClassifier();
+            final TextClassifier classifier = getTextLinkSpanData().getTextClassifier();
             // TODO: Truncate the text.
             sWorkerExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    final List<RemoteActionCompat> actions =
-                            classifier.classifyText(request).getActions();
+                    final TextClassification textClassification = classifier.classifyText(request);
                     sMainThreadExecutor.execute(new Runnable() {
                         @Override
                         public void run() {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                ToolbarController.getInstance(textView).show(actions, start, end);
+                            if (textView.getText() != spanned) {
+                                Log.d(LOG_TAG, "Text has changed from the classified text. "
+                                        + "Ignoring.");
                                 return;
                             }
-
-                            if (!actions.isEmpty()) {
-                                try {
-                                    actions.get(0).getActionIntent().send();
-                                } catch (PendingIntent.CanceledException e) {
-                                    Log.e(LOG_TAG, "Error handling TextLinkSpan click", e);
-                                }
-                                return;
-                            }
-
-                            Log.d(LOG_TAG, "Cannot trigger link. No actions found.");
+                            onTextClassificationResult(textView, textClassification);
                         }
                     });
                 }
             });
+        }
+
+        /**
+         * Invoked when the classification of the text of this span is available.
+         * <p>
+         * When user clicks on this span, text classifier will be used to classify the text of
+         * this span. Once text classifier has the result, this callback will be invoked. If the
+         * text in the textview is changed during the text classification, this won't be invoked.
+         * <p>
+         * You can change the way how the suggested actions are presented to user by overriding
+         * this function.
+         *
+         * @param textView the textview that this span is attached to
+         * @param textClassification the text classification result of the text in this span.
+         */
+        @UiThread
+        public void onTextClassificationResult(
+                @NonNull TextView textView, @NonNull TextClassification textClassification) {
+            List<RemoteActionCompat> actions = textClassification.getActions();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                final Spanned spanned = SpannableString.valueOf(textView.getText());
+                final int start = spanned.getSpanStart(this);
+                final int end = spanned.getSpanEnd(this);
+                ToolbarController.getInstance(textView).show(actions, start, end);
+                return;
+            }
+
+            if (!actions.isEmpty()) {
+                try {
+                    actions.get(0).getActionIntent().send();
+                } catch (PendingIntent.CanceledException e) {
+                    Log.e(LOG_TAG, "Error handling TextLinkSpan click", e);
+                }
+                return;
+            }
         }
 
         private LocaleListCompat getLocales(TextView textView) {
@@ -617,11 +676,6 @@ public final class TextLinks {
                 return LocaleListCompat.create(textView.getTextLocale());
             }
             return LocaleListCompat.create(Locale.getDefault());
-        }
-
-        @NonNull
-        public final TextLinkSpanData getTextLinkSpanData() {
-            return mTextLinkSpanData;
         }
     }
 
