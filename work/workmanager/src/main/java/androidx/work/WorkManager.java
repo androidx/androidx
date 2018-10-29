@@ -26,6 +26,7 @@ import androidx.work.impl.WorkManagerImpl;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -83,9 +84,9 @@ import java.util.concurrent.TimeUnit;
  * WorkRequest request3 = new OneTimeWorkRequest.Builder(BazWorker.class).build();
  * workManager.beginWith(request1, request2).then(request3).enqueue();}</pre>
  *
- * Each call to {@link #beginWith(OneTimeWorkRequest...)} or {@link #beginWith(List)} returns a
+ * Each call to {@link #beginWith(OneTimeWorkRequest)} or {@link #beginWith(List)} returns a
  * {@link WorkContinuation} upon which you can call
- * {@link WorkContinuation#then(OneTimeWorkRequest...)} or {@link WorkContinuation#then(List)} to
+ * {@link WorkContinuation#then(OneTimeWorkRequest)} or {@link WorkContinuation#then(List)} to
  * chain further work.  This allows for creation of complex chains of work.  For example, to create
  * a chain like this:
  *
@@ -161,11 +162,11 @@ public abstract class WorkManager {
     /**
      * Enqueues one or more items for background processing.
      *
-     * @param workRequests One or more {@link WorkRequest} to enqueue
+     * @param workRequest One or more {@link WorkRequest} to enqueue
      */
     @SuppressWarnings("FutureReturnValueIgnored")
-    public final void enqueue(@NonNull WorkRequest... workRequests) {
-        enqueueInternal(Arrays.asList(workRequests));
+    public final void enqueue(@NonNull WorkRequest workRequest) {
+        enqueueInternal(Collections.singletonList(workRequest));
     }
 
     /**
@@ -198,8 +199,8 @@ public abstract class WorkManager {
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
      *         {@link OneTimeWorkRequest}
      */
-    public final @NonNull WorkContinuation beginWith(@NonNull OneTimeWorkRequest...work) {
-        return beginWith(Arrays.asList(work));
+    public final @NonNull WorkContinuation beginWith(@NonNull OneTimeWorkRequest work) {
+        return beginWith(Collections.singletonList(work));
     }
 
     /**

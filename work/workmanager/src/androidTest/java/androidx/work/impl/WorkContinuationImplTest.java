@@ -167,7 +167,8 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl continuation =
                 new WorkContinuationImpl(mWorkManagerImpl, createTestWorkerList());
         WorkContinuationImpl chain = (WorkContinuationImpl) (
-                continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
+                continuation.then(createTestWorker())
+                        .then(Arrays.asList(createTestWorker(), createTestWorker())));
         chain.enqueue().get();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
@@ -180,7 +181,8 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl continuation =
                 new WorkContinuationImpl(mWorkManagerImpl, createTestWorkerList());
         WorkContinuationImpl chain = (WorkContinuationImpl) (
-                continuation.then(createTestWorker()).then(createTestWorker(), createTestWorker()));
+                continuation.then(createTestWorker())
+                        .then(Arrays.asList(createTestWorker(), createTestWorker())));
         chain.enqueue().get();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
