@@ -16,15 +16,14 @@
 
 package androidx.slice.core;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+import java.lang.annotation.Retention;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
-import java.lang.annotation.Retention;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
  * Temporary class to contain hint constants for slices to be used.
@@ -63,6 +62,19 @@ public class SliceHints {
      * Hint indicating that this slice was parsed from a serialized format.
      */
     public static final String HINT_CACHED = "cached";
+
+    /**
+     * Hint indicating that this slice represents a selection. The options will be included as
+     * sub-slices.
+     */
+    public static final String HINT_SELECTION = "selection";
+
+    /**
+     * Subtype indicating that this slice represents the key passed back to the application when the
+     * user selects this option. The grandparent of this slice must have {@link #HINT_SELECTION}.
+     * Expected to be an item of format {@link androidx.slice.SliceItem@FORMAT_STRING}.
+     */
+    public static final String SUBTYPE_SELECTION_OPTION_KEY = "selection_option_key";
 
     @IntDef({
             LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, UNKNOWN_IMAGE
