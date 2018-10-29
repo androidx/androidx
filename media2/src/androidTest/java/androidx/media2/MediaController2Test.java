@@ -214,7 +214,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testGettersAfterConnected() throws InterruptedException {
         prepareLooper();
         final int state = SessionPlayer2.PLAYER_STATE_PLAYING;
-        final int bufferingState = SessionPlayer2.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int bufferingState = SessionPlayer2.BUFFERING_STATE_COMPLETE;
         final long position = 150000;
         final long bufferedPosition = 900000;
         final float speed = 0.5f;

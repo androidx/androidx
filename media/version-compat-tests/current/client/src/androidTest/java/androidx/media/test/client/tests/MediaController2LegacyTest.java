@@ -105,7 +105,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         mController.setTimeDiff(timeDiff);
 
         assertEquals(SessionPlayer2.PLAYER_STATE_PLAYING, mController.getPlayerState());
-        assertEquals(SessionPlayer2.BUFFERING_STATE_BUFFERING_COMPLETE,
+        assertEquals(SessionPlayer2.BUFFERING_STATE_COMPLETE,
                 mController.getBufferingState());
         assertEquals(bufferedPosition, mController.getBufferedPosition());
         assertEquals(speed, mController.getPlaybackSpeed(), 0.0f);
@@ -230,7 +230,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         final MediaMetadataCompat metadata = MediaUtils2.convertToMediaMetadataCompat(
                 testQueue.get(0).getDescription());
 
-        final int testBufferingState = SessionPlayer2.BUFFERING_STATE_BUFFERING_COMPLETE;
+        final int testBufferingState = SessionPlayer2.BUFFERING_STATE_COMPLETE;
         final long testBufferingPosition = 500;
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {

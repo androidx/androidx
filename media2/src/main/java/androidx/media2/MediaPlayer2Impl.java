@@ -1042,7 +1042,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             public void onBufferingUpdate(MediaPlayer mp, final int percent) {
                 if (percent >= 100) {
                     mPlayer.setBufferingState(
-                            mp, SessionPlayer2.BUFFERING_STATE_BUFFERING_COMPLETE);
+                            mp, SessionPlayer2.BUFFERING_STATE_COMPLETE);
                 }
                 src.mBufferedPercentage.set(percent);
                 notifyMediaPlayer2Event(new Mp2EventNotifier() {
