@@ -61,7 +61,6 @@ import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
-import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -810,8 +809,8 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
     /**
      * Test potential deadlock for calls between controller and session.
      */
-    @FlakyTest(bugId = 112290836)
     @Test
+    @LargeTest
     public void testDeadlock() throws InterruptedException {
         prepareLooper();
         sHandler.postAndSync(new Runnable() {
@@ -866,7 +865,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
                     latch.countDown();
                 }
             });
-            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+            assertTrue(latch.await(3, TimeUnit.SECONDS));
         } finally {
             if (mSession != null) {
                 sessionHandler.postAndSync(new Runnable() {
