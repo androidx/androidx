@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app
+package androidx.activity
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
@@ -23,11 +23,11 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import kotlin.reflect.KClass
 
 /**
- * Returns a [Lazy] delegate to access FragmentActivity's viewmodel, if [factory] is specified
+ * Returns a [Lazy] delegate to access the ComponentActivity's ViewModel, if [factory] is specified
  * it will be used to create [ViewModel] first time.
  *
  * ```
- * class MyFragmentActivity : FragmentActivity() {
+ * class MyComponentActivity : ComponentActivity() {
  *     val viewmodel: MyViewModel by viewmodels()
  * }
  * ```
@@ -36,16 +36,16 @@ import kotlin.reflect.KClass
  * and access prior to that will result in IllegalArgumentException.
  */
 @MainThread
-inline fun <reified VM : ViewModel> FragmentActivity.viewModels(
+inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
     factory: ViewModelProvider.Factory? = null
 ): Lazy<VM> = ActivityViewModelLazy(this, VM::class, factory)
 
 /**
- * An implementation of [Lazy] used by [FragmentActivity.viewModels] tied to the given [activity],
+ * An implementation of [Lazy] used by [ComponentActivity.viewModels] tied to the given [activity],
  * [viewModelClass], [factory]
  */
 class ActivityViewModelLazy<VM : ViewModel>(
-    private val activity: FragmentActivity,
+    private val activity: ComponentActivity,
     private val viewModelClass: KClass<VM>,
     private val factory: ViewModelProvider.Factory?
 ) : Lazy<VM> {

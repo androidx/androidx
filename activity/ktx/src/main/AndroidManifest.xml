@@ -13,11 +13,4 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.fragment.ktx">
-    <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
-    <application>
-        <activity android:name="androidx.fragment.app.TestActivity"/>
-        <activity android:name="androidx.fragment.app.FragmentViewModelLazyTest$TestActivity"/>
-    </application>
-</manifest>
+<manifest package="androidx.activity.ktx"/>
