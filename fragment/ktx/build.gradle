@@ -33,6 +33,9 @@ android {
 
 dependencies {
     api(project(":fragment"))
+    api(project(":activity-ktx")) {
+        because 'Mirror fragment dependency graph for -ktx artifacts'
+    }
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)
