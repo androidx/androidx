@@ -65,6 +65,16 @@ class WrapperPositionalDataSource<A, B> extends PositionalDataSource<B> {
             public void onResult(@NonNull List<A> data, int position) {
                 callback.onResult(convert(mListFunction, data), position);
             }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                callback.onError(error);
+            }
+
+            @Override
+            public void onRetryableError(@NonNull Throwable error) {
+                callback.onRetryableError(error);
+            }
         });
     }
 
@@ -75,6 +85,16 @@ class WrapperPositionalDataSource<A, B> extends PositionalDataSource<B> {
             @Override
             public void onResult(@NonNull List<A> data) {
                 callback.onResult(convert(mListFunction, data));
+            }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                callback.onError(error);
+            }
+
+            @Override
+            public void onRetryableError(@NonNull Throwable error) {
+                callback.onRetryableError(error);
             }
         });
     }

@@ -69,6 +69,16 @@ class WrapperPageKeyedDataSource<K, A, B> extends PageKeyedDataSource<K, B> {
                     @Nullable K nextPageKey) {
                 callback.onResult(convert(mListFunction, data), previousPageKey, nextPageKey);
             }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                callback.onError(error);
+            }
+
+            @Override
+            public void onRetryableError(@NonNull Throwable error) {
+                callback.onRetryableError(error);
+            }
         });
     }
 
@@ -80,6 +90,16 @@ class WrapperPageKeyedDataSource<K, A, B> extends PageKeyedDataSource<K, B> {
             public void onResult(@NonNull List<A> data, @Nullable K adjacentPageKey) {
                 callback.onResult(convert(mListFunction, data), adjacentPageKey);
             }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                callback.onError(error);
+            }
+
+            @Override
+            public void onRetryableError(@NonNull Throwable error) {
+                callback.onRetryableError(error);
+            }
         });
     }
 
@@ -90,6 +110,16 @@ class WrapperPageKeyedDataSource<K, A, B> extends PageKeyedDataSource<K, B> {
             @Override
             public void onResult(@NonNull List<A> data, @Nullable K adjacentPageKey) {
                 callback.onResult(convert(mListFunction, data), adjacentPageKey);
+            }
+
+            @Override
+            public void onError(@NonNull Throwable error) {
+                callback.onError(error);
+            }
+
+            @Override
+            public void onRetryableError(@NonNull Throwable error) {
+                callback.onRetryableError(error);
             }
         });
     }
