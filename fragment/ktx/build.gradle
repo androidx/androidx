@@ -41,6 +41,7 @@ dependencies {
     androidTestImplementation(TRUTH)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
+    androidTestImplementation(GUAVA_LISTENABLE_FUTURE_AVOID_CONFLICT)
 }
 
 supportLibrary {
