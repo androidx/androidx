@@ -103,7 +103,7 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
     @SuppressWarnings("WeakerAccess")
     public static class LoadRangeParams {
         /**
-         * Start position of data to load.
+         * START position of data to load.
          * <p>
          * Returned data must start at this position.
          */
@@ -173,6 +173,34 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          *                 pass {@code N}.
          */
         public abstract void onResult(@NonNull List<T> data, int position);
+
+        /**
+         * Called to report a non-retryable error from a DataSource.
+         * <p>
+         * Call this method to report a non-retryable error from
+         * {@link #loadInitial(LoadInitialParams, LoadInitialCallback)}.
+         *
+         * @param error The error that occurred during loading.
+         */
+        public void onError(@NonNull Throwable error) {
+            // TODO: remove default implementation in 3.0
+            throw new IllegalStateException(
+                    "You must implement onError if implementing your own load callback");
+        }
+
+        /**
+         * Called to report a retryable error from a DataSource.
+         * <p>
+         * Call this method to report a retryable error from
+         * {@link #loadInitial(LoadInitialParams, LoadInitialCallback)}.
+         *
+         * @param error The error that occurred during loading.
+         */
+        public void onRetryableError(@NonNull Throwable error) {
+            // TODO: remove default implementation in 3.0
+            throw new IllegalStateException(
+                    "You must implement onRetryableError if implementing your own load callback");
+        }
     }
 
     /**
@@ -195,6 +223,34 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
          *             unless at end of list.
          */
         public abstract void onResult(@NonNull List<T> data);
+
+        /**
+         * Called to report a non-retryable error from a DataSource.
+         * <p>
+         * Call this method to report a non-retryable error from
+         * {@link #loadRange(LoadRangeParams, LoadRangeCallback)}.
+         *
+         * @param error The error that occurred during loading.
+         */
+        public void onError(@NonNull Throwable error) {
+            // TODO: remove default implementation in 3.0
+            throw new IllegalStateException(
+                    "You must implement onError if implementing your own load callback");
+        }
+
+        /**
+         * Called to report a retryable error from a DataSource.
+         * <p>
+         * Call this method to report a retryable error from
+         * {@link #loadRange(LoadRangeParams, LoadRangeCallback)}.
+         *
+         * @param error The error that occurred during loading.
+         */
+        public void onRetryableError(@NonNull Throwable error) {
+            // TODO: remove default implementation in 3.0
+            throw new IllegalStateException(
+                    "You must implement onRetryableError if implementing your own load callback");
+        }
     }
 
     static class LoadInitialCallbackImpl<T> extends LoadInitialCallback<T> {
@@ -253,6 +309,16 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
                 mCallbackHelper.dispatchResultToReceiver(new PageResult<>(data, position));
             }
         }
+
+        @Override
+        public void onError(@NonNull Throwable error) {
+            mCallbackHelper.dispatchErrorToReceiver(error, false);
+        }
+
+        @Override
+        public void onRetryableError(@NonNull Throwable error) {
+            mCallbackHelper.dispatchErrorToReceiver(error, true);
+        }
     }
 
     static class LoadRangeCallbackImpl<T> extends LoadRangeCallback<T> {
@@ -272,6 +338,16 @@ public abstract class PositionalDataSource<T> extends DataSource<Integer, T> {
                 mCallbackHelper.dispatchResultToReceiver(new PageResult<>(
                         data, 0, 0, mPositionOffset));
             }
+        }
+
+        @Override
+        public void onError(@NonNull Throwable error) {
+            mCallbackHelper.dispatchErrorToReceiver(error, false);
+        }
+
+        @Override
+        public void onRetryableError(@NonNull Throwable error) {
+            mCallbackHelper.dispatchErrorToReceiver(error, true);
         }
     }
 

@@ -29,12 +29,14 @@ import org.mockito.Mockito.verifyNoMoreInteractions
 @RunWith(JUnit4::class)
 class PositionalDataSourceTest {
     private fun computeInitialLoadPos(
-            requestedStartPosition: Int,
-            requestedLoadSize: Int,
-            pageSize: Int,
-            totalCount: Int): Int {
+        requestedStartPosition: Int,
+        requestedLoadSize: Int,
+        pageSize: Int,
+        totalCount: Int
+    ): Int {
         val params = PositionalDataSource.LoadInitialParams(
-                requestedStartPosition, requestedLoadSize, pageSize, true)
+            requestedStartPosition, requestedLoadSize, pageSize, true
+        )
         return PositionalDataSource.computeInitialLoadPosition(params, totalCount)
     }
 
@@ -113,13 +115,15 @@ class PositionalDataSourceTest {
     }
 
     private fun performLoadInitial(
-            enablePlaceholders: Boolean = true,
-            invalidateDataSource: Boolean = false,
-            callbackInvoker: (callback: PositionalDataSource.LoadInitialCallback<String>) -> Unit) {
+        enablePlaceholders: Boolean = true,
+        invalidateDataSource: Boolean = false,
+        callbackInvoker: (callback: PositionalDataSource.LoadInitialCallback<String>) -> Unit
+    ) {
         val dataSource = object : PositionalDataSource<String>() {
             override fun loadInitial(
-                    params: LoadInitialParams,
-                    callback: LoadInitialCallback<String>) {
+                params: LoadInitialParams,
+                callback: LoadInitialCallback<String>
+            ) {
                 if (invalidateDataSource) {
                     // invalidate data source so it's invalid when onResult() called
                     invalidate()
@@ -154,7 +158,7 @@ class PositionalDataSourceTest {
     @Test(expected = IllegalArgumentException::class)
     fun initialLoadCallbackNotPageSizeMultiple() = performLoadInitial {
         // Positional LoadInitialCallback can't accept result that's not a multiple of page size
-        val elevenLetterList = List(11) { "" + 'a' + it }
+        val elevenLetterList = List(11) { index -> "" + ('a' + index) }
         it.onResult(elevenLetterList, 0, 12)
     }
 
@@ -245,6 +249,14 @@ class PositionalDataSourceTest {
                 override fun onResult(data: List<A>, position: Int) {
                     callback.onResult(convert(data), position)
                 }
+
+                override fun onError(error: Throwable) {
+                    callback.onError(error)
+                }
+
+                override fun onRetryableError(error: Throwable) {
+                    callback.onRetryableError(error)
+                }
             })
         }
 
@@ -252,6 +264,14 @@ class PositionalDataSourceTest {
             source.loadRange(params, object : LoadRangeCallback<A>() {
                 override fun onResult(data: List<A>) {
                     callback.onResult(convert(data))
+                }
+
+                override fun onError(error: Throwable) {
+                    callback.onError(error)
+                }
+
+                override fun onRetryableError(error: Throwable) {
+                    callback.onRetryableError(error)
                 }
             })
         }
@@ -266,8 +286,54 @@ class PositionalDataSourceTest {
         }
     }
 
+    class ListDataSource<T>(val list: List<T>) : PositionalDataSource<T>() {
+        private var error = false
+
+        override fun loadInitial(
+            params: PositionalDataSource.LoadInitialParams,
+            callback: PositionalDataSource.LoadInitialCallback<T>
+        ) {
+            if (error) {
+                callback.onError(ERROR)
+                error = false
+                return
+            }
+            val totalCount = list.size
+
+            val position = PositionalDataSource.computeInitialLoadPosition(params, totalCount)
+            val loadSize = PositionalDataSource.computeInitialLoadSize(params, position, totalCount)
+
+            // for simplicity, we could return everything immediately,
+            // but we tile here since it's expected behavior
+            val sublist = list.subList(position, position + loadSize)
+            callback.onResult(sublist, position, totalCount)
+        }
+
+        override fun loadRange(
+            params: PositionalDataSource.LoadRangeParams,
+            callback: PositionalDataSource.LoadRangeCallback<T>
+        ) {
+            if (error) {
+                callback.onError(ERROR)
+                error = false
+                return
+            }
+            callback.onResult(
+                list.subList(
+                    params.startPosition,
+                    params.startPosition + params.loadSize
+                )
+            )
+        }
+
+        fun enqueueError() {
+            error = true
+        }
+    }
+
     private fun verifyWrappedDataSource(
-            createWrapper: (PositionalDataSource<Int>) -> PositionalDataSource<String>) {
+        createWrapper: (PositionalDataSource<Int>) -> PositionalDataSource<String>
+    ) {
         val orig = ListDataSource(listOf(0, 5, 4, 8, 12))
         val wrapper = createWrapper(orig)
 
@@ -275,19 +341,25 @@ class PositionalDataSourceTest {
         @Suppress("UNCHECKED_CAST")
         val loadInitialCallback = mock(PositionalDataSource.LoadInitialCallback::class.java)
                 as PositionalDataSource.LoadInitialCallback<String>
-
-        wrapper.loadInitial(PositionalDataSource.LoadInitialParams(0, 2, 1, true),
-                loadInitialCallback)
+        val initParams = PositionalDataSource.LoadInitialParams(0, 2, 1, true)
+        wrapper.loadInitial(initParams, loadInitialCallback)
         verify(loadInitialCallback).onResult(listOf("0", "5"), 0, 5)
+        // load initial - error
+        orig.enqueueError()
+        wrapper.loadInitial(initParams, loadInitialCallback)
+        verify(loadInitialCallback).onError(ERROR)
         verifyNoMoreInteractions(loadInitialCallback)
 
         // load range
         @Suppress("UNCHECKED_CAST")
         val loadRangeCallback = mock(PositionalDataSource.LoadRangeCallback::class.java)
                 as PositionalDataSource.LoadRangeCallback<String>
-
         wrapper.loadRange(PositionalDataSource.LoadRangeParams(2, 3), loadRangeCallback)
         verify(loadRangeCallback).onResult(listOf("4", "8", "12"))
+        // load range - error
+        orig.enqueueError()
+        wrapper.loadRange(PositionalDataSource.LoadRangeParams(2, 3), loadRangeCallback)
+        verify(loadRangeCallback).onError(ERROR)
         verifyNoMoreInteractions(loadRangeCallback)
 
         // check invalidation behavior
@@ -308,13 +380,13 @@ class PositionalDataSourceTest {
     }
 
     @Test
-    fun testListConverterWrappedDataSource() = verifyWrappedDataSource {
-        it.mapByPage { it.map { it.toString() } }
+    fun testListConverterWrappedDataSource() = verifyWrappedDataSource { dataSource ->
+        dataSource.mapByPage { page -> page.map { it.toString() } }
     }
 
     @Test
-    fun testItemConverterWrappedDataSource() = verifyWrappedDataSource {
-        it.map { it.toString() }
+    fun testItemConverterWrappedDataSource() = verifyWrappedDataSource { dataSource ->
+        dataSource.map { it.toString() }
     }
 
     @Test
@@ -351,5 +423,9 @@ class PositionalDataSourceTest {
 
         wrapper.invalidate()
         assertTrue(orig.isInvalid)
+    }
+
+    companion object {
+        private val ERROR = Exception()
     }
 }
