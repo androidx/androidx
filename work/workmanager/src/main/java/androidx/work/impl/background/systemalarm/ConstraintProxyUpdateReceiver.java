@@ -17,6 +17,7 @@
 package androidx.work.impl.background.systemalarm;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
@@ -54,12 +55,17 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
      * enabled.
      */
     public static Intent newConstraintProxyUpdateIntent(
+            Context context,
             boolean batteryNotLowProxyEnabled,
             boolean batteryChargingProxyEnabled,
             boolean storageNotLowProxyEnabled,
             boolean networkStateProxyEnabled) {
 
         Intent intent = new Intent(ACTION);
+        // Specify the component name as this is a targeted broadcast to
+        // ConstraintProxyUpdateReceiver
+        ComponentName name = new ComponentName(context, ConstraintProxyUpdateReceiver.class);
+        intent.setComponent(name);
         intent.putExtra(KEY_BATTERY_NOT_LOW_PROXY_ENABLED, batteryNotLowProxyEnabled)
                 .putExtra(KEY_BATTERY_CHARGING_PROXY_ENABLED, batteryChargingProxyEnabled)
                 .putExtra(KEY_STORAGE_NOT_LOW_PROXY_ENABLED, storageNotLowProxyEnabled)
