@@ -527,7 +527,7 @@ package androidx.media2 {
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer2.PlayerResult> updatePlaylistMetadata(androidx.media2.MediaMetadata2?);
     field public static final int BUFFERING_STATE_BUFFERING_AND_PLAYABLE = 1; // 0x1
     field public static final int BUFFERING_STATE_BUFFERING_AND_STARVED = 2; // 0x2
-    field public static final int BUFFERING_STATE_BUFFERING_COMPLETE = 3; // 0x3
+    field public static final int BUFFERING_STATE_COMPLETE = 3; // 0x3
     field public static final int BUFFERING_STATE_UNKNOWN = 0; // 0x0
     field public static final int PLAYER_STATE_ERROR = 3; // 0x3
     field public static final int PLAYER_STATE_IDLE = 0; // 0x0

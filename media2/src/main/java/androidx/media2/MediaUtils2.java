@@ -582,7 +582,7 @@ public class MediaUtils2 {
             case PlaybackStateCompat.STATE_BUFFERING:
                 return SessionPlayer2.BUFFERING_STATE_BUFFERING_AND_STARVED;
             case PlaybackStateCompat.STATE_PLAYING:
-                return SessionPlayer2.BUFFERING_STATE_BUFFERING_COMPLETE;
+                return SessionPlayer2.BUFFERING_STATE_COMPLETE;
             default:
                 return SessionPlayer2.BUFFERING_STATE_UNKNOWN;
         }

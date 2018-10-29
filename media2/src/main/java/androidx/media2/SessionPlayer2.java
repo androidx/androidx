@@ -168,7 +168,7 @@ public abstract class SessionPlayer2 implements AutoCloseable {
             BUFFERING_STATE_UNKNOWN,
             BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
             BUFFERING_STATE_BUFFERING_AND_STARVED,
-            BUFFERING_STATE_BUFFERING_COMPLETE})
+            BUFFERING_STATE_COMPLETE})
     @Retention(RetentionPolicy.SOURCE)
     public @interface BuffState {
     }
@@ -215,7 +215,7 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      * Buffering state indicating the player is done buffering, and the remainder of the content is
      * available for playback.
      */
-    public static final int BUFFERING_STATE_BUFFERING_COMPLETE = 3;
+    public static final int BUFFERING_STATE_COMPLETE = 3;
 
     /**
      * @hide
