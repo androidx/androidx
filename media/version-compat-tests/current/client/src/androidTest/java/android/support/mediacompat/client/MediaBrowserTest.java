@@ -332,7 +332,7 @@ public class MediaBrowserTest {
     @Test
     @MediumTest
     @FlakyTest(bugId = 115820189)
-    @SdkSuppress(minSdkVersion = 24)
+    @SdkSuppress(minSdkVersion = 26)
     public void testSubscribeWithOptions() throws Exception {
         connectMediaBrowserService();
         final int pageSize = 3;
@@ -481,7 +481,7 @@ public class MediaBrowserTest {
     @Test
     @MediumTest
     @FlakyTest(bugId = 74093976)
-    @SdkSuppress(minSdkVersion = 24)
+    @SdkSuppress(minSdkVersion = 26)
     public void testUnsubscribeWithSubscriptionCallbackForMultipleSubscriptions() throws Exception {
         connectMediaBrowserService();
         final List<StubSubscriptionCallback> subscriptionCallbacks = new ArrayList<>();
