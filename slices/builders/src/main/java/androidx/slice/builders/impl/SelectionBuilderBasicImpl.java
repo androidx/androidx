@@ -29,13 +29,17 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
 public class SelectionBuilderBasicImpl extends SelectionBuilderImpl {
-    public SelectionBuilderBasicImpl(Slice.Builder parentSliceBuilder,
+    public SelectionBuilderBasicImpl(Slice.Builder sliceBuilder,
                                      SelectionBuilder selectionBuilder) {
-        super(parentSliceBuilder, selectionBuilder);
+        super(sliceBuilder, selectionBuilder);
     }
 
     @Override
-    public void apply(SelectionBuilder selectionBuilder, Slice.Builder sliceBuilder) {
+    public void apply(Slice.Builder sliceBuilder) {
+        final SelectionBuilder selectionBuilder = getSelectionBuilder();
+
+        selectionBuilder.check();
+
         selectionBuilder.getPrimaryAction().setPrimaryAction(sliceBuilder);
     }
 }
