@@ -33,6 +33,7 @@ import androidx.work.integration.testapp.R;
 import androidx.work.integration.testapp.db.Image;
 import androidx.work.integration.testapp.db.TestDatabase;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -100,8 +101,8 @@ public class ImageProcessingActivity extends AppCompatActivity {
                 processingWork[i] = ImageProcessingWorker.createWork(uriString);
             }
             WorkManager.getInstance()
-                    .beginWith(setupWork)
-                    .then(processingWork)
+                    .beginWith(Arrays.asList(setupWork))
+                    .then(Arrays.asList(processingWork))
                     .enqueue();
         } else if (requestCode == IMAGE_REQUEST_CODE && resultCode == RESULT_OK
                 && data.getData() != null) {
