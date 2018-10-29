@@ -97,13 +97,12 @@ open class Size(val width: Double, val height: Double) : OffsetBase {
          * an [AnimationController].
          */
         fun lerp(a: Size, b: Size, t: Double): Size? {
-            assert(t != null)
-            if (a == null && b == null)
-                return null
-            if (a == null)
-                return b * t
-            if (b == null)
-                return a * (1.0 - t)
+//            if (a == null && b == null)
+//                return null
+//            if (a == null)
+//                return b * t
+//            if (b == null)
+//                return a * (1.0 - t)
             return Size(lerpDouble(a.width, b.width, t), lerpDouble(a.height, b.height, t))
         }
     }
@@ -297,7 +296,7 @@ open class Size(val width: Double, val height: Double) : OffsetBase {
      */
     fun getFlipped() = Size(height, width)
 
-    override fun toString() = "Size(${width?.toStringAsFixed(1)}, ${height?.toStringAsFixed(1)})"
+    override fun toString() = "Size(${width.toStringAsFixed(1)}, ${height.toStringAsFixed(1)})"
 
     // TODO(Migration/Andrey): Can't use data class because of _DebugSize class extending this one.
     override fun equals(other: Any?): Boolean {

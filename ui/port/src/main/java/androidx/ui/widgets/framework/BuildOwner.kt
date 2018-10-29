@@ -61,7 +61,6 @@ class BuildOwner(
      * when [WidgetsBinding.drawFrame] calls [buildScope].
      */
     fun scheduleBuildFor(element: Element) {
-        assert(element != null)
         assert(element.owner == this)
         assert {
             if (debugPrintScheduleBuildForStacks)
@@ -103,7 +102,7 @@ class BuildOwner(
             _dirtyElementsNeedsResorting = true
             return
         }
-        if (!_scheduledFlushDirtyElements && onBuildScheduled != null) {
+        if (!_scheduledFlushDirtyElements) {
             _scheduledFlushDirtyElements = true
             onBuildScheduled()
         }
@@ -137,7 +136,6 @@ class BuildOwner(
      * not call [State.setState].
      */
     fun lockState(callback: () -> Unit) {
-        assert(callback != null)
         assert(_debugStateLockLevel >= 0)
         assert {
             _debugStateLockLevel += 1
@@ -185,7 +183,6 @@ class BuildOwner(
         if (callback == null && _dirtyElements.isEmpty())
             return
         var rebuildHappened = false
-        assert(context != null)
         assert(_debugStateLockLevel >= 0)
         assert(!debugBuilding)
         assert {
@@ -227,7 +224,6 @@ class BuildOwner(
             var dirtyCount = _dirtyElements.size
             var index = 0
             while (index < dirtyCount) {
-                assert(_dirtyElements[index] != null)
                 assert(_dirtyElements[index]._inDirtyList)
                 assert(!_dirtyElements[index]._active ||
                         _dirtyElements[index]._debugIsInScope(context))

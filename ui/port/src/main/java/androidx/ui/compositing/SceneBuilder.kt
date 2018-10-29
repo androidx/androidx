@@ -34,8 +34,6 @@ class SceneBuilder {
      */
     // TODO(Migration/Andrey): Changed type from Float64List to Matrix4
     fun pushTransform(matrix4: Matrix4) {
-        if (matrix4 == null)
-            throw IllegalArgumentException("matrix4 argument cannot be null")
         // TODO(Migration/Andrey): it's Matrix4, so don't need this check
 //        if (matrix4.length != 16)
 //            throw new ArgumentError('"matrix4" must have 16 entries.');
@@ -300,7 +298,6 @@ class SceneBuilder {
         width: Double = 0.0,
         height: Double = 0.0
     ) {
-        assert(offset != null) { "Offset argument was null" }
         _addTexture(offset.dx, offset.dy, width, height, textureId)
     }
 

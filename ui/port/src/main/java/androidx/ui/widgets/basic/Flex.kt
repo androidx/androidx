@@ -207,11 +207,9 @@ open class Flex(
 
     private val _needTextDirection: Boolean
         get() {
-            assert(direction != null)
             return when (direction) {
                 Axis.HORIZONTAL -> true
                 Axis.VERTICAL -> {
-                    assert(crossAxisAlignment != null)
                     crossAxisAlignment == CrossAxisAlignment.START ||
                             crossAxisAlignment == CrossAxisAlignment.END
                 }
@@ -251,8 +249,8 @@ open class Flex(
         )
     }
 
-    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) {
-        renderObject?.let {
+    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject) {
+        renderObject.let {
             it as RenderFlex
             it.direction = direction
             it.mainAxisAlignment = mainAxisAlignment

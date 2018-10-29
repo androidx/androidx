@@ -75,8 +75,6 @@ class FlagProperty(
         level = level
 ) {
     init {
-        assert(showName != null)
-        assert(level != null)
         assert(ifTrue != null || ifFalse != null)
     }
 

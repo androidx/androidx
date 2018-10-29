@@ -41,7 +41,7 @@ class SingleChildRenderObjectElement(
         _child = updateChild(_child, singleChildWidget.child!!, null)
     }
 
-    override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {
+    override fun insertChildRenderObject(child: RenderObject, slot: Any?) {
         val renderObject = this.renderObject as RenderObjectWithChildMixin<RenderObject>
         assert(slot == null)
         assert(renderObject.debugValidateChild(child))
@@ -49,11 +49,11 @@ class SingleChildRenderObjectElement(
         assert(renderObject == this.renderObject)
     }
 
-    override fun moveChildRenderObject(child: RenderObject?, slot: Any?) {
+    override fun moveChildRenderObject(child: RenderObject, slot: Any?) {
         assert(false)
     }
 
-    override fun removeChildRenderObject(child: RenderObject?) {
+    override fun removeChildRenderObject(child: RenderObject) {
         val renderObject = this.renderObject as RenderObjectWithChildMixin<RenderObject>
         assert(renderObject.child == child)
         renderObject.child = null

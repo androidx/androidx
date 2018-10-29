@@ -120,7 +120,7 @@ class RenderObjectToWidgetElement<T : RenderObject>(
 //    @override
 //    RenderObjectWithChildMixin<T> get renderObject => super.renderObject;
 
-    override fun insertChildRenderObject(child: RenderObject?, slot: Any?) {
+    override fun insertChildRenderObject(child: RenderObject, slot: Any?) {
         val objectWithMixin = renderObject as RenderObjectWithChildMixin<T>
 
         assert(slot == _rootChildSlot)
@@ -128,11 +128,11 @@ class RenderObjectToWidgetElement<T : RenderObject>(
         objectWithMixin.child = child as T?
     }
 
-    override fun moveChildRenderObject(child: RenderObject?, slot: Any?) {
+    override fun moveChildRenderObject(child: RenderObject, slot: Any?) {
         assert(false)
     }
 
-    override fun removeChildRenderObject(child: RenderObject?) {
+    override fun removeChildRenderObject(child: RenderObject) {
         val objectWithMixin = renderObject as RenderObjectWithChildMixin<*>
 
         assert(objectWithMixin.child == child)

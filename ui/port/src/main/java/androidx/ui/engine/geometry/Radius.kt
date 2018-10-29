@@ -116,15 +116,15 @@ data class Radius(
      * an [AnimationController].
      */
     fun lerp(a: Radius, b: Radius, t: Double): Radius? {
-        assert(t != null)
-        if (a == null && b == null)
-            return null
-        if (a == null)
-            return elliptical(b.x * t, b.y * t)
-        if (b == null) {
-            val k: Double = 1.0 - t
-            return elliptical(a.x * k, a.y * k)
-        }
+//        assert(t != null)
+//        if (a == null && b == null)
+//            return null
+//        if (a == null)
+//            return elliptical(b.x * t, b.y * t)
+//        if (b == null) {
+//            val k: Double = 1.0 - t
+//            return elliptical(a.x * k, a.y * k)
+//        }
         return elliptical(lerpDouble(a.x, b.x, t), lerpDouble(a.y, b.y, t))
     }
 

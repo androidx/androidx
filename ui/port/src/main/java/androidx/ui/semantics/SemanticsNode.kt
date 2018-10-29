@@ -111,8 +111,8 @@ private fun _childrenInDefaultOrder(
     verticalGroups.sort()
 
     val result: MutableList<SemanticsNode> = mutableListOf()
-    for (group in verticalGroups) {
-        val sortedGroupNodes = group.sortedWithinVerticalGroup()
+    for (verticalGroup in verticalGroups) {
+        val sortedGroupNodes = verticalGroup.sortedWithinVerticalGroup()
         result.addAll(sortedGroupNodes)
     }
     return result
@@ -209,7 +209,6 @@ class SemanticsNode internal constructor(
     /** The bounding box for this node in its coordinate system. */
     var rect: Rect = Rect.zero
         set(value) {
-            assert(value != null)
             if (field != value) {
                 field = value
                 _markDirty()
@@ -274,7 +273,6 @@ class SemanticsNode internal constructor(
     /** Whether this node merges its semantic information into an ancestor node. */
     var isMergedIntoParent: Boolean = false
         set(value) {
-            assert(value != null)
             if (field == value)
                 return
             field = value
@@ -370,7 +368,7 @@ class SemanticsNode internal constructor(
             for (child in it)
                 child._dead = true
         }
-        newChildren?.let {
+        newChildren.let {
             for (child in it) {
                 assert(!child.isInvisible) {
                     "Child $child is invisible and should not be added as a child of $this."
@@ -391,7 +389,7 @@ class SemanticsNode internal constructor(
                 }
             }
         }
-        newChildren?.let {
+        newChildren.let {
             for (child in it) {
                 if (child.parent != this) {
                     // we're rebuilding the tree from the bottom up, so it's possible
@@ -409,7 +407,6 @@ class SemanticsNode internal constructor(
         }
         if (!sawChange) {
             _children?.let {
-                assert(newChildren != null)
                 assert(newChildren.size == it.size)
                 // Did the order change?
                 for (i in 0 until it.size) {
@@ -505,7 +502,6 @@ class SemanticsNode internal constructor(
         owner._nodes.remove(id)
         owner._detachedNodes.add(this)
         super.detach()
-        assert(owner == null)
         _children?.let {
             for (child in it) {
                 // The list of children may be stale and may contain nodes that have
@@ -733,7 +729,7 @@ class SemanticsNode internal constructor(
         scrollExtentMax = sourceConfig.scrollExtentMax
         scrollExtentMin = sourceConfig.scrollExtentMin
         mergeAllDescendantsIntoThisNode = sourceConfig.isMergingSemanticsOfDescendants
-        _replaceChildren(childrenInInversePaintOrder ?: listOf<SemanticsNode>())
+        _replaceChildren(childrenInInversePaintOrder)
 
         assert(
             !_canPerformAction(
@@ -804,27 +800,21 @@ class SemanticsNode internal constructor(
                 scrollPosition = scrollPosition ?: node.scrollPosition
                 scrollExtentMax = scrollExtentMax ?: node.scrollExtentMax
                 scrollExtentMin = scrollExtentMin ?: node.scrollExtentMin
-                if (value == "" || value == null) {
+                if (value.isEmpty()) {
                     value = node.value
                 }
-                if (increasedValue == "" || increasedValue == null) {
+                if (increasedValue.isEmpty()) {
                     increasedValue = node.increasedValue
                 }
-                if (decreasedValue == "" || decreasedValue == null) {
+                if (decreasedValue.isEmpty()) {
                     decreasedValue = node.decreasedValue
                 }
                 node.tags?.let {
-                    var localMergedTags = mergedTags
-                    if (localMergedTags == null) {
-                        localMergedTags = mutableSetOf()
-                        mergedTags = localMergedTags
-                    }
+                    val localMergedTags = mergedTags
                     localMergedTags.addAll(it)
                 }
-                if (node._customSemanticsActions != null) {
-                    for (action in _customSemanticsActions.keys)
-                        customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action))
-                }
+                for (action in _customSemanticsActions.keys)
+                    customSemanticsActionIds.add(CustomSemanticsAction.getIdentifier(action))
                 node.hintOverrides?.onTapHint?.let {
                     val action = CustomSemanticsAction.overridingAction(
                         hint = it,
@@ -905,7 +895,7 @@ class SemanticsNode internal constructor(
             }
         }
         var customSemanticsActionIds: Int32List? = null
-        if (data.customSemanticsActionIds?.isNotEmpty()) {
+        if (data.customSemanticsActionIds.isNotEmpty()) {
             customSemanticsActionIds = Int32List(data.customSemanticsActionIds.size)
             for (i in 0 until data.customSemanticsActionIds.size) {
                 customSemanticsActionIds[i] = data.customSemanticsActionIds[i]
@@ -1038,7 +1028,7 @@ class SemanticsNode internal constructor(
 //        TODO()
         var hideOwner = true
         if (_dirty) {
-            val inDirtyNodes = owner != null && owner._dirtyNodes.contains(this)
+            val inDirtyNodes = owner._dirtyNodes.contains(this)
             properties.add(
                 FlagProperty(
                     "inDirtyNodes",
@@ -1199,7 +1189,6 @@ class SemanticsNode internal constructor(
         childOrder: DebugSemanticsDumpOrder = DebugSemanticsDumpOrder.traversalOrder
     ): String {
         TODO("Not implemented")
-        assert(childOrder != null)
 //    return toDiagnosticsNode(childOrder: childOrder).toStringDeep(prefixLineOne: prefixLineOne, prefixOtherLines: prefixOtherLines, minLevel: minLevel);
     }
 
@@ -1245,7 +1234,6 @@ class SemanticsNode internal constructor(
 
     /** Returns the list of direct children of this node in the specified order. */
     fun debugListChildrenInOrder(childOrder: DebugSemanticsDumpOrder): List<SemanticsNode> {
-        assert(childOrder != null)
         val localChildren = _children ?: return listOf()
 
         return when (childOrder) {

@@ -87,7 +87,6 @@ internal fun layout(
     alignment: Alignment = Alignment.center,
     phase: EnginePhase = EnginePhase.layout
 ) {
-    assert(box != null); // If you want to just repump the last box, call pumpFrame().
     assert(box.parent == null); // We stick the box in another, so you can't reuse it easily, sorry.
 
     var resultBox = box
@@ -107,7 +106,6 @@ internal fun layout(
 }
 
 internal fun pumpFrame(phase: EnginePhase = EnginePhase.layout) {
-    assert(renderer != null)
     assert(renderer.renderView != null)
     assert(renderer.renderView!!.child != null); // call layout() first!
     renderer.phase = phase

@@ -566,7 +566,6 @@ class Canvas {
      * [PictureRecorder].
      */
     fun drawPicture(picture: Picture) {
-        assert(picture != null) // picture is checked on the engine side
         _drawPicture(picture.frameworkPicture)
     }
 

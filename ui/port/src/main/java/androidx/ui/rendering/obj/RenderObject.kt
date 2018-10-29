@@ -313,7 +313,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * Only valid when asserts are enabled. In release builds, always returns
      * null.
      */
-    var debugCanParentUseSize = false
+    var debugCanParentUseSize: Boolean? = false
         private set
 
     private var _debugMutationsLocked = false
@@ -1334,7 +1334,6 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
         var renderer: RenderObject? = this
         val renderers = mutableListOf<RenderObject>()
         while (renderer != checkedAncestor && renderer != null) {
-            assert(renderer != null); // Failed to find ancestor in parent chain.
             renderer = renderer.parent as RenderObject
             renderers.add(renderer)
         }
@@ -1821,7 +1820,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                 defaultValue = null,
                 level = DiagnosticLevel.debug))
         properties.add(DiagnosticsProperty.create("parentData", parentData,
-                tooltip = if (debugCanParentUseSize) "can use size" else null,
+                tooltip = if (debugCanParentUseSize ?: false) "can use size" else null,
                 missingIfNull = true))
         properties.add(DiagnosticsProperty.create("constraints",
                 constraints,

@@ -318,7 +318,6 @@ class PaintingContext(
     ) {
         assert(!childLayer.attached)
         assert(childLayer.parent == null)
-        assert(painter != null)
         _stopRecordingIfNeeded()
         _appendLayer(childLayer)
         val childContext = PaintingContext(childLayer, childPaintBounds ?: estimatedBounds)

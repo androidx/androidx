@@ -116,7 +116,6 @@ class SchedulerBindingImpl(
      * This method exposes notifications from [SystemChannels.lifecycle].
      */
     private fun handleAppLifecycleStateChanged(state: AppLifecycleState) {
-        assert(state != null)
         lifecycleState = state
         when (state) {
             AppLifecycleState.RESUMED, AppLifecycleState.INACTIVE -> setFramesEnabledState(true)
@@ -933,7 +932,6 @@ class SchedulerBindingImpl(
         timeStamp: Duration,
         callbackStack: Any? = null/*StackTrace*/
     ) {
-        assert(callback != null)
         assert(_FrameCallbackEntry.debugCurrentCallbackStack == null)
         assert { _FrameCallbackEntry.debugCurrentCallbackStack = callbackStack; true; }
         try {

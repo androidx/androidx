@@ -64,11 +64,6 @@ class AlignmentDirectional(
 
 ) : AlignmentGeometry() {
 
-    init {
-        assert(start != null)
-        assert(y != null)
-    }
-
     override val _x: Double = 0.0
 
     override val _start: Double = start
@@ -140,7 +135,6 @@ class AlignmentDirectional(
             b: AlignmentDirectional?,
             t: Double
         ): AlignmentDirectional? {
-            assert(t != null)
             if (a == null && b == null)
                 return null
             if (a == null)

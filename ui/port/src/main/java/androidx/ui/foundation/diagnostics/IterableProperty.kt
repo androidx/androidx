@@ -39,12 +39,6 @@ class IterableProperty<T>(
         level = level
 ) {
 
-    init {
-        assert(style != null)
-        assert(showName != null)
-        assert(level != null)
-    }
-
     override fun valueToString(parentConfiguration: TextTreeConfiguration?): String {
         val v = getValue()
         if (v == null)

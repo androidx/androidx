@@ -38,7 +38,7 @@ abstract class RenderObjectWidget(key: Key?) : Widget(key) {
      * [SingleChildRenderObjectElement.update].
      */
     // TODO(Migration/Filip): Removed covariant keyword for renderObject
-    internal open fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) { }
+    internal open fun updateRenderObject(context: BuildContext, renderObject: RenderObject) { }
 
     /**
      * A render object previously associated with this widget has been removed

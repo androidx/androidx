@@ -104,7 +104,6 @@ class SemanticsConfiguration {
      * `action`.
      */
     fun _addAction(action: SemanticsAction, handler: _SemanticsActionHandler) {
-        assert(handler != null)
         _actions[action] = handler
         _actionsAsBits = _actionsAsBits or action.index
         hasBeenAnnotated = true
@@ -119,7 +118,6 @@ class SemanticsConfiguration {
      */
     // TODO(Migration/ryanmentley): Should be private, but is internal to avoid a synthetic accessor
     internal fun _addArgumentlessAction(action: SemanticsAction, handler: VoidCallback) {
-        assert(handler != null)
         _addAction(action) { args: Any? ->
             assert(args == null)
             handler()
@@ -366,7 +364,6 @@ class SemanticsConfiguration {
             assert(value != null)
             _addAction(SemanticsAction.moveCursorForwardByCharacter) { args: Any? ->
                 val extentSelection = args as Boolean
-                assert(extentSelection != null)
                 value!!(extentSelection)
             }
             field = value
@@ -386,7 +383,6 @@ class SemanticsConfiguration {
             assert(value != null)
             _addAction(SemanticsAction.moveCursorBackwardByCharacter) { args: Any? ->
                 val extentSelection = args as Boolean
-                assert(extentSelection != null)
                 value!!(extentSelection)
             }
             field = value
@@ -406,11 +402,7 @@ class SemanticsConfiguration {
             assert(value != null)
             _addAction(SemanticsAction.setSelection) { args: Any? ->
                 val selection = args as Map<String, Int>
-                assert(
-                    selection != null &&
-                            selection["base"] != null &&
-                            selection["extent"] != null
-                )
+                assert(selection["base"] != null && selection["extent"] != null)
                 value!!(
                     TextSelection(
                         baseOffset = selection["base"]!!,
@@ -936,13 +928,13 @@ class SemanticsConfiguration {
      * same [SemanticsNode] without losing any semantics information.
      */
     fun isCompatibleWith(other: SemanticsConfiguration): Boolean {
-        if (other == null || !other.hasBeenAnnotated || !hasBeenAnnotated)
+        if (!other.hasBeenAnnotated || !hasBeenAnnotated)
             return true
         if (_actionsAsBits and other._actionsAsBits != 0)
             return false
         if ((_flags and other._flags) != 0)
             return false
-        if (value != null && value.isNotEmpty() && other.value != null && other.value.isNotEmpty())
+        if (value.isNotEmpty() && other.value.isNotEmpty())
             return false
         return true
     }

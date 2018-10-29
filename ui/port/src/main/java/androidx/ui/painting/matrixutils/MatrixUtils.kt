@@ -90,7 +90,6 @@ fun matrixEquals(a: Matrix4?, b: Matrix4?): Boolean {
     if (b == null) {
         return a.isIdentity()
     }
-    assert(a != null && b != null)
     val astorage = a.m4storage
     val bstorage = b.m4storage
     return astorage.subList(0, 16) == bstorage.subList(0, 16)
@@ -167,7 +166,6 @@ fun _max4(a: Double, b: Double, c: Double, d: Double): Double {
  * 0.0 before computing its bounding rect.
  */
 fun inverseTransformRect(transform: Matrix4, rect: Rect): Rect {
-    assert(rect != null)
     assert(transform.determinant != 0.0)
     if (transform.isIdentity())
         return rect
@@ -215,10 +213,7 @@ fun createCylindricalProjectionTransform(
     perspective: Double = 0.001,
     orientation: Axis = Axis.VERTICAL
 ): Matrix4 {
-    assert(radius != null)
-    assert(angle != null)
     assert(perspective >= 0 && perspective <= 1.0)
-    assert(orientation != null)
 
     // Pre-multiplied matrix of a projection matrix and a view matrix.
     //
@@ -261,8 +256,8 @@ fun createCylindricalProjectionTransform(
  * If the argument is null, returns a list with the single string "null".
  */
 fun debugDescribeTransform(transform: Matrix4): List<String> {
-    if (transform == null)
-        return listOf("null")
+//    if (transform == null)
+//        return listOf("null")
     val matrix = transform.toString().split('\n').toMutableList()
     matrix.removeAt(matrix.size - 1)
     return matrix

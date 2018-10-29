@@ -1011,7 +1011,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
                     }
                 }
             }
-            result = _DebugSize(value, this, debugCanParentUseSize)
+            result = _DebugSize(value, this, debugCanParentUseSize!!)
             true
         }
         return result
@@ -1403,7 +1403,6 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * child's [parentData] in the [BoxParentData.offset] field.
      */
     override fun applyPaintTransform(child: RenderObject, transform: Matrix4) {
-        assert(child != null)
         assert(child.parent == this)
         assert {
             if (child.parentData !is BoxParentData) {

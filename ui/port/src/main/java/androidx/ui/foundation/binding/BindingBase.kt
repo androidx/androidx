@@ -219,11 +219,8 @@ open class BindingBaseImpl : BindingBase {
 
         Timeline.startSync("Lock events")
 
-        assert(callback != null)
         _lockCount += 1
         val future = callback()
-        assert(future != null, { "The lockEvents() callback returned null;" +
-                "it should return a Future<Null> that completes when the lock is to expire." })
         future.invokeOnCompletion {
             // TODO(Migration/Andrey): Flutter's use of Deferred is not for multithreading.
             requireMainThread()
@@ -290,8 +287,6 @@ open class BindingBaseImpl : BindingBase {
         name: String,
         callback: Deferred<Unit>
     ) {
-        assert(name != null)
-        assert(callback != null)
         registerServiceExtension(
                 name,
                 { parameters: Map<String, String> ->
@@ -413,8 +408,6 @@ open class BindingBaseImpl : BindingBase {
         name: String,
         callback: ServiceExtensionCallback
     ) {
-        assert(name != null)
-        assert(callback != null)
         val methodName = "ext.flutter.$name"
         // TODO(migration/popam): translate this
 //        developer.registerExtension(methodName, (String method, Map<String, String> parameters) async {

@@ -182,7 +182,6 @@ abstract class DiagnosticsNode(
         minLevel: DiagnosticLevel = DiagnosticLevel.info
     ): String {
         assert(getStyle() != null)
-        assert(minLevel != null)
         if (getStyle() == DiagnosticsTreeStyle.singleLine)
             return toStringDeep(parentConfiguration = parentConfiguration, minLevel = minLevel)
 
@@ -265,7 +264,6 @@ abstract class DiagnosticsNode(
         parentConfiguration: TextTreeConfiguration? = null,
         minLevel: DiagnosticLevel = DiagnosticLevel.debug
     ): String {
-        assert(minLevel != null)
         var prefixOtherLines2 = prefixOtherLines ?: prefixLineOne
 
         val children = getChildren()
@@ -279,7 +277,7 @@ abstract class DiagnosticsNode(
         )
 
         val description = toDescription(parentConfiguration = parentConfiguration)
-        if (description == null || description.isEmpty()) {
+        if (description.isEmpty()) {
             if (getShowName() && name != null)
                 builder.write(name)
         } else {
@@ -387,7 +385,6 @@ abstract class DiagnosticsNode(
             }
 
             children.forEachIndexed { i, child ->
-                assert(child != null)
                 val childConfig = _childTextConfiguration(child, config)!!
                 if (i == children.size - 1) {
                     val lastChildPrefixLineOne = "$prefixChildren" +

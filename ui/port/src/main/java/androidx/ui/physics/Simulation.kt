@@ -59,13 +59,13 @@ abstract class Simulation(
 ) {
 
     /** The position of the object in the simulation at the given time. */
-    abstract fun x(time: Double): Double
+    abstract fun x(timeInSeconds: Double): Double
 
     /** The velocity of the object in the simulation at the given time. */
-    abstract fun dx(time: Double): Double
+    abstract fun dx(timeInSeconds: Double): Double
 
     /** Whether the simulation is "done" at the given time. */
-    abstract fun isDone(time: Double): Boolean
+    abstract fun isDone(timeInSeconds: Double): Boolean
 
     override fun toString() = runtimeType().toString()
 }

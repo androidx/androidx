@@ -175,7 +175,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
      * TODO(migration/Mihai): this was renamed from "getRenderObject" to avoid JVM naming
      *                        conflict with the renderObject property in RenderObjectElement
      */
-    fun retrieveRenderObject(): RenderObject {
+    fun retrieveRenderObject(): RenderObject? {
 
         var result: RenderObject? = null
 
@@ -189,7 +189,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         visit(this)
 
         // TODO(Migration/Filip): Forcing non null might be to brave :)
-        return result!!
+        return result
     }
 
     // This is used to verify that Element objects move through life in an
@@ -240,13 +240,14 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         assert {
             if (owner == null || !owner!!._debugStateLocked)
                 true
-            throw FlutterError(
+            else
+                throw FlutterError(
                     "visitChildElements() called during build.\n" +
-                    "The BuildContext.visitChildElements() method can\'t be called during " +
-                    "build because the child list is still being updated at that point, " +
-                    "so the children might not be constructed yet, or might be old children " +
-                    "that are going to be replaced."
-            )
+                            "The BuildContext.visitChildElements() method can\'t be called " +
+                            "during build because the child list is still being updated at that " +
+                            "point, so the children might not be constructed yet, or might be " +
+                            "old children that are going to be replaced."
+                )
         }
         visitChildren(visitor)
     }
@@ -286,17 +287,17 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
      */
     protected fun updateChild(child: Element?, newWidget: Widget, newSlot: Any?): Element {
         assert {
-            if (newWidget != null && newWidget.key is GlobalKey<*>) {
+            if (newWidget.key is GlobalKey<*>) {
                 val key = newWidget.key
                 key._debugReserveFor(this)
             }
             true
         }
-        if (newWidget == null) {
-            if (child != null)
-                deactivateChild(child)
-            null
-        }
+//        if (newWidget == null) {
+//            if (child != null)
+//                deactivateChild(child)
+//            return null
+//        }
         if (child != null) {
             if (child.widget == newWidget) {
                 if (child.slot != newSlot)
@@ -334,7 +335,6 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
     @CallSuper
     open fun mount(parent: Element?, newSlot: Any?) {
         assert(_debugLifecycleState == _ElementLifecycle.initial)
-        assert(widget != null)
         assert(_parent == null)
         assert(parent == null || parent._debugLifecycleState == _ElementLifecycle.active)
         assert(slot == null)
@@ -371,10 +371,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         // This code is hot when hot reloading, so we try to
         // only call _AssertionError._evaluateAssertion once.
         assert(_debugLifecycleState == _ElementLifecycle.active &&
-                widget != null &&
-                newWidget != null &&
                 newWidget != widget &&
-                depth != null &&
                 _active &&
                 Widget.canUpdate(widget, newWidget))
         widget = newWidget
@@ -389,7 +386,6 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
      */
     protected fun updateSlotForChild(child: Element, newSlot: Any?) {
         assert(_debugLifecycleState == _ElementLifecycle.active)
-        assert(child != null)
         assert(child._parent == this)
         fun visit(element: Element) {
             element._updateSlot(newSlot)
@@ -401,10 +397,8 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
 
     open fun _updateSlot(newSlot: Any?) {
         assert(_debugLifecycleState == _ElementLifecycle.active)
-        assert(widget != null)
         assert(_parent != null)
         assert(_parent!!._debugLifecycleState == _ElementLifecycle.active)
-        assert(depth != null)
         slot = newSlot
     }
 
@@ -517,7 +511,6 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
      * will be in the "active" lifecycle state.
      */
     protected fun inflateWidget(newWidget: Widget, newSlot: Any?): Element {
-        assert(newWidget != null)
         val key = newWidget.key
         if (key is GlobalKey<*>) {
             val newChild = _retakeInactiveElement(key, newWidget)
@@ -565,7 +558,6 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
      * [forgetChild] to cause the old parent to update its child model.
      */
     protected fun deactivateChild(child: Element) {
-        assert(child != null)
         assert(child._parent == this)
         child._parent = null
         child.detachRenderObject()
@@ -618,9 +610,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
     @CallSuper
     open fun activate() {
         assert(_debugLifecycleState == _ElementLifecycle.inactive)
-        assert(widget != null)
         assert(owner != null)
-        assert(depth != null)
         assert(!_active)
         val hadDependencies = (_dependencies != null && _dependencies!!.isNotEmpty()) ||
                 _hadUnsatisfiedDependencies
@@ -654,8 +644,6 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
     @CallSuper
     open fun deactivate() {
         assert(_debugLifecycleState == _ElementLifecycle.active)
-        assert(widget != null)
-        assert(depth != null)
         assert(_active)
         if (_dependencies != null && _dependencies!!.isNotEmpty()) {
             for (dependency in _dependencies!!)
@@ -698,8 +686,6 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
     @CallSuper
     open fun unmount() {
         assert(_debugLifecycleState == _ElementLifecycle.inactive)
-        assert(widget != null)
-        assert(depth != null)
         assert(!_active)
         if (widget.key is GlobalKey<*>) {
             val key = widget.key as GlobalKey<*>
@@ -708,7 +694,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         assert { _debugLifecycleState = _ElementLifecycle.defunct; true; }
     }
 
-    override fun findRenderObject(): RenderObject = retrieveRenderObject()
+    override fun findRenderObject(): RenderObject? = retrieveRenderObject()
 
     override val size: Size?
         get() = run {
@@ -755,7 +741,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
                                 "  ${renderObject.toStringShallow(joiner = "\n  ")}"
                     )
                 }
-                val box = renderObject as RenderBox
+                val box = renderObject
                 if (!box.hasSize) {
                     throw FlutterError(
                         "Cannot get size from a render object that has not been through layout.\n" +
@@ -827,7 +813,6 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         val ancestor: InheritedElement? =
                 if (_inheritedWidgets == null) null else _inheritedWidgets!![targetType]
         if (ancestor != null) {
-            assert(ancestor is InheritedElement)
             _dependencies = _dependencies ?: mutableSetOf<InheritedElement>()
             _dependencies!!.add(ancestor)
             ancestor._dependents.add(this)
@@ -971,7 +956,7 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
 
     /** A short, textual description of this element. */
     override fun toStringShort(): String {
-        return if (widget != null) "${widget.toStringShort()}" else "[${runtimeType()}]"
+        return "${widget.toStringShort()}"
     }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
@@ -979,27 +964,21 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
         properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.dense
         properties.add(ObjectFlagProperty<Int>("depth", depth, ifNull = "no depth"))
         properties.add(ObjectFlagProperty<Widget>("widget", widget, ifNull = "no widget"))
-        if (widget != null) {
-            properties.add(DiagnosticsProperty.create(
-                    "key",
-                    widget?.key,
-                    showName = false,
-                    defaultValue = null,
-                    level = DiagnosticLevel.hidden
-            ))
-            widget.debugFillProperties(properties)
-        }
+        properties.add(DiagnosticsProperty.create(
+                "key",
+                widget.key,
+                showName = false,
+                defaultValue = null,
+                level = DiagnosticLevel.hidden
+        ))
+        widget.debugFillProperties(properties)
         properties.add(FlagProperty("dirty", value = dirty, ifTrue = "dirty"))
     }
 
     override fun debugDescribeChildren(): List<DiagnosticsNode> {
         val children = mutableListOf<DiagnosticsNode>()
         visitChildren { child ->
-            if (child != null) {
-                children.add(child.toDiagnosticsNode())
-            } else {
-                children.add(DiagnosticsNode.message("<null child>"))
-            }
+            children.add(child.toDiagnosticsNode())
         }
         return children
     }
@@ -1044,32 +1023,37 @@ abstract class Element(override var widget: Widget) : DiagnosticableTree, BuildC
             if (owner!!.debugBuilding) {
                 assert(owner!!._debugCurrentBuildTarget != null)
                 assert(owner!!._debugStateLocked)
-                if (_debugIsInScope(owner!!._debugCurrentBuildTarget))
-                    true
-                if (!_debugAllowIgnoredCallsToMarkNeedsBuild) {
-                    throw FlutterError(
+                if (_debugIsInScope(owner!!._debugCurrentBuildTarget)) {
+                    // will return true
+                } else {
+                    if (!_debugAllowIgnoredCallsToMarkNeedsBuild) {
+                        throw FlutterError(
                             "setState() or markNeedsBuild() called during build.\n" +
-                            "This ${widget.runtimeType()} widget cannot be marked as needing to" +
-                            " build because the framework is already in the process of building " +
-                            "widgets. A widget can be marked as needing to be built during " +
-                            "the build phase only if one of its ancestors is currently building. " +
-                            "This exception is allowed because the framework builds parent " +
-                            "widgets before children, which means a dirty descendant " +
-                            "will always be built. Otherwise, the framework might not visit this " +
-                            "widget during this build phase.\n" +
-                            "The widget on which setState() or markNeedsBuild() was called was:\n" +
-                            "  $this\n" +
-                            if (owner!!._debugCurrentBuildTarget == null) {
-                                ""
-                            } else {
-                                "The widget which was currently being built when the offending" +
-                                " call was made was:\n  ${owner!!._debugCurrentBuildTarget}"
-                            }
-                    )
+                                    "This ${widget.runtimeType()} widget cannot be marked as " +
+                                    "needing to build because the framework is already in the " +
+                                    "process of building widgets. A widget can be marked as " +
+                                    "needing to be built during the build phase only if one of " +
+                                    "its ancestors is currently building. This exception is " +
+                                    "allowed because the framework builds parent widgets before " +
+                                    "children, which means a dirty descendant will always be " +
+                                    "built. Otherwise, the framework might not visit this " +
+                                    "widget during this build phase.\n" +
+                                    "The widget on which setState() or markNeedsBuild() was " +
+                                    "called was:\n" +
+                                    "  $this\n" +
+                                    if (owner!!._debugCurrentBuildTarget == null) {
+                                        ""
+                                    } else {
+                                        "The widget which was currently being built when the " +
+                                                "offending call was made was:\n  " +
+                                                "${owner!!._debugCurrentBuildTarget}"
+                                    }
+                        )
+                    }
+                    // can only get here if we're not in scope, but ignored calls are allowed, and our
+                    // call would somehow be ignored (since we're already dirty)
+                    assert(dirty)
                 }
-                // can only get here if we're not in scope, but ignored calls are allowed, and our
-                // call would somehow be ignored (since we're already dirty)
-                assert(dirty)
             } else if (owner!!._debugStateLocked) {
                 assert(!_debugAllowIgnoredCallsToMarkNeedsBuild)
                 throw FlutterError(

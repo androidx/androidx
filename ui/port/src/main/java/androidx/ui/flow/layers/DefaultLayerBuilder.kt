@@ -29,18 +29,18 @@ class DefaultLayerBuilder : LayerBuilder() {
         val kGiantRect: Rect = Rect.fromLTRB(-1E9, -1E9, 1E9, 1E9)
     }
 
-    override fun PushTransform(sk_matrix: SkMatrix) {
-        val inverse_sk_matrix: SkMatrix? = sk_matrix.invert()
+    override fun PushTransform(matrix: SkMatrix) {
+        val inverse_sk_matrix: SkMatrix? = matrix.invert()
         val cullRect: Rect?
         // Perspective projections don't produce rectangles that are useful for
         // culling for some reason.
-        if (!sk_matrix.hasPerspective() && inverse_sk_matrix != null) {
+        if (!matrix.hasPerspective() && inverse_sk_matrix != null) {
             cullRect = inverse_sk_matrix.mapRect(cull_rects_.peek())
         } else {
             cullRect = kGiantRect
         }
         val layer = TransformLayer()
-        layer.transform = sk_matrix
+        layer.transform = matrix
         PushLayer(layer, cullRect)
     }
 
@@ -223,8 +223,6 @@ class DefaultLayerBuilder : LayerBuilder() {
     }
 
     private fun PushLayer(layer: ContainerLayer, cullRect: Rect) {
-        assert(layer != null) // FML_DCHECK(layer)
-
         cull_rects_.push(cullRect)
 
         if (root_layer_ == null) {

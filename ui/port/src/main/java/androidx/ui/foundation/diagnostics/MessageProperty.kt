@@ -60,10 +60,4 @@ class MessageProperty(
 ) : DiagnosticsProperty<Void>(
         name, null,
         description = message,
-        level = level) {
-    init {
-        assert(name != null)
-        assert(message != null)
-        assert(level != null)
-    }
-}
+        level = level)

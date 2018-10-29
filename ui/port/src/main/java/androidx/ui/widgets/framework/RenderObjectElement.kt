@@ -180,7 +180,7 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
     // RenderObjectWidget get widget => super.widget;
 
     /** The underlying [RenderObject] for this element. */
-    var renderObject: RenderObject? = null
+    lateinit var renderObject: RenderObject
         private set
 
     var _ancestorRenderObjectElement: RenderObjectElement? = null
@@ -229,7 +229,7 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
 
     fun _debugUpdateRenderObjectOwner() {
         assert {
-            renderObject!!.debugCreator = _DebugCreator(this)
+            renderObject.debugCreator = _DebugCreator(this)
             true
         }
     }
@@ -263,8 +263,6 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
         newWidgets: List<Widget>,
         forgottenChildren: Set<Element>? = null
     ): List<Element> {
-        assert(oldChildren != null)
-        assert(newWidgets != null)
 
         fun replaceWithNullIfForgotten(child: Element): Element? {
             return if (forgottenChildren != null && forgottenChildren.contains(child)) {
@@ -407,7 +405,7 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
             assert(Widget.canUpdate(oldChild.widget, newWidget))
             val newChild = updateChild(oldChild, newWidget, previousChild)
             assert(newChild._debugLifecycleState == _ElementLifecycle.active)
-            assert(oldChild == newChild || oldChild == null ||
+            assert(oldChild == newChild ||
                     oldChild._debugLifecycleState != _ElementLifecycle.active)
             newChildren[newChildrenTop] = newChild
             previousChild = newChild
@@ -417,7 +415,7 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
 
         // Clean up any of the remaining middle nodes from the old list.
         if (haveOldChildren && oldKeyedChildren!!.isNotEmpty()) {
-            for (oldChild in oldKeyedChildren!!.values) {
+            for (oldChild in oldKeyedChildren.values) {
                 if (forgottenChildren == null || !forgottenChildren.contains(oldChild))
                     deactivateChild(oldChild)
             }
@@ -428,14 +426,14 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
 
     override fun deactivate() {
         super.deactivate()
-        assert(!renderObject!!.attached,
+        assert(!renderObject.attached,
                 { "A RenderObject was still attached when attempting to deactivate its " +
                 "RenderObjectElement: $renderObject')" })
     }
 
     override fun unmount() {
         super.unmount()
-        assert(!renderObject!!.attached,
+        assert(!renderObject.attached,
                 { "A RenderObject was still attached when attempting to unmount its " +
                 "RenderObjectElement: $renderObject" })
         (widget as RenderObjectWidget).didUnmountRenderObject(renderObject)
@@ -478,7 +476,7 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
      * element has a list of children, the previous sibling is a convenient value
      * for the slot.
      */
-    protected abstract fun insertChildRenderObject(child: RenderObject?, slot: Any?)
+    protected abstract fun insertChildRenderObject(child: RenderObject, slot: Any?)
 
     /**
      * Move the given child to the given slot.
@@ -490,14 +488,14 @@ abstract class RenderObjectElement(widget: Widget) : Element(widget) {
      * element has a list of children, the previous sibling is a convenient value
      * for the slot.
      */
-    protected abstract fun moveChildRenderObject(child: RenderObject?, slot: Any?)
+    protected abstract fun moveChildRenderObject(child: RenderObject, slot: Any?)
 
     /**
      * Remove the given child from [renderObject].
      *
      * The given child is guaranteed to have [renderObject] as its parent.
      */
-    protected abstract fun removeChildRenderObject(child: RenderObject?)
+    protected abstract fun removeChildRenderObject(child: RenderObject)
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)

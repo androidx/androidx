@@ -177,7 +177,7 @@ class FlutterActivityDelegate(
 //    }
 
     private fun isDebuggable(): Boolean {
-        return activity.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE !== 0
+        return activity.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0
     }
 
     private fun onPause() {
@@ -278,7 +278,6 @@ class FlutterActivityDelegate(
             args.add("--verbose-logging")
         }
         if (!args.isEmpty()) {
-            val argsArray = arrayOfNulls<String>(args.size)
             return args.toTypedArray()
         }
         return null

@@ -48,7 +48,6 @@ class RenderConstrainedBox(
 ) : RenderProxyBox(child) {
 
     init {
-        assert(_additionalConstraints != null)
         assert(_additionalConstraints.debugAssertIsValid())
     }
 
@@ -58,7 +57,6 @@ class RenderConstrainedBox(
             return _additionalConstraints
         }
         set(value) {
-            assert(value != null)
             assert(value.debugAssertIsValid())
             if (_additionalConstraints == value)
                 return

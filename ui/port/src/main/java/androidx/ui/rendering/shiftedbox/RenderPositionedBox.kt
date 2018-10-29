@@ -128,7 +128,7 @@ class RenderPositionedBox(
     override fun debugPaintSize(context: PaintingContext, offset: Offset) {
         super.debugPaintSize(context, offset)
         assert {
-            var paint: Paint? = null
+            var paint: Paint?
             if (child != null && !child!!.size.isEmpty()) {
                 paint = Paint().let {
                     it.style = PaintingStyle.stroke

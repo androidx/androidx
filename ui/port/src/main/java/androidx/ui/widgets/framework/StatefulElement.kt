@@ -37,7 +37,6 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
         val s = state!!
         assert(s._element == null)
         s._element = this
-        assert(s.widget == null)
         s.widget = widget
         assert(s._debugLifecycleState == _StateLifecycle.created)
     }
@@ -127,11 +126,11 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
         assert {
             if (state!!._debugLifecycleState == _StateLifecycle.defunct)
                 true
-            throw FlutterError(
-                    "${state!!.runtimeType()}.dispose failed to call super.dispose.\n" +
-                    "dispose() implementations must always call their superclass dispose()" +
-                    " method, to ensure that all the resources used by the widget are fully" +
-                    " released."
+            else throw FlutterError(
+                "${state!!.runtimeType()}.dispose failed to call super.dispose.\n" +
+                        "dispose() implementations must always call their superclass dispose()" +
+                        " method, to ensure that all the resources used by the widget are fully" +
+                        " released."
             )
         }
         state!!._element = null

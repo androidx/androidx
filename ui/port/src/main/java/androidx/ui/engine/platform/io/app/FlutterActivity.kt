@@ -55,8 +55,8 @@ open class FlutterActivity
         return false
     }
 
-    override fun hasPlugin(key: String): Boolean {
-        return pluginRegistry.hasPlugin(key)
+    override fun hasPlugin(pluginKey: String): Boolean {
+        return pluginRegistry.hasPlugin(pluginKey)
     }
 
     override fun <T> valuePublishedByPlugin(pluginKey: String): T {

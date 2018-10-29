@@ -288,7 +288,6 @@ abstract class ContainerRenderObjectMixin<
 
     /** The previous child before the given child in the child list. */
     fun childBefore(child: ChildType): ChildType? {
-        assert(child != null)
         assert(child.parent == this)
         val childParentData = child.parentData as ParentDataType
         return childParentData.previousSibling
@@ -296,7 +295,6 @@ abstract class ContainerRenderObjectMixin<
 
     /** The next child after the given child in the child list. */
     fun childAfter(child: ChildType): ChildType? {
-        assert(child != null)
         assert(child.parent == this)
         val childParentData = child.parentData as ParentDataType
         return childParentData.nextSibling

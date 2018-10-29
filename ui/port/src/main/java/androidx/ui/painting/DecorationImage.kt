@@ -109,11 +109,6 @@ fun paintImage(
     repeat: ImageRepeat = ImageRepeat.noRepeat,
     flipHorizontally: Boolean = false
 ) {
-    assert(canvas != null)
-    assert(image != null)
-    assert(alignment != null)
-    assert(repeat != null)
-    assert(flipHorizontally != null)
     if (rect.isEmpty())
         return
     var outputSize = rect.getSize()
@@ -171,10 +166,10 @@ fun paintImage(
     if (resolvedRepeat != ImageRepeat.noRepeat)
         canvas.clipRect(rect)
     if (flipHorizontally) {
-        val dx = -(rect.left + rect.width / 2.0)
-        canvas.translate(-dx, 0.0)
+        val dx2 = -(rect.left + rect.width / 2.0)
+        canvas.translate(-dx2, 0.0)
         canvas.scale(-1.0, 1.0)
-        canvas.translate(dx, 0.0)
+        canvas.translate(dx2, 0.0)
     }
     if (centerSlice == null) {
         val sourceRect = alignment.inscribe(fittedSizes.source, Offset.zero.and(inputSize))

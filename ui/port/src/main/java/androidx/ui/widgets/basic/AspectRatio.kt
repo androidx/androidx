@@ -75,7 +75,7 @@ class AspectRatio(
         return RenderAspectRatio(aspectRatio = aspectRatio)
     }
 
-    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) {
+    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject) {
         (renderObject as RenderAspectRatio).aspectRatio = aspectRatio
     }
 

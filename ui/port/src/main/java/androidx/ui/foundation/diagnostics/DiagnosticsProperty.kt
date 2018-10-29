@@ -66,11 +66,6 @@ open class DiagnosticsProperty<T : Any> protected constructor(
     private val _defaultLevel: DiagnosticLevel = level
 
     init {
-        assert(showName != null)
-        assert(showSeparator != null)
-        assert(style != null)
-        assert(level != null)
-
         // TODO(Filip): Type erasure prevents this:
         // assert(defaultValue == kNoDefaultValue || defaultValue is T)
 

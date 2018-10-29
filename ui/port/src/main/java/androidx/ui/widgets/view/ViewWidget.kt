@@ -53,7 +53,7 @@ abstract class ViewWidget<T>(key: Key) : LeafRenderObjectWidget(key) where T : V
         return ViewRenderObject(view)
     }
 
-    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject?) {
+    override fun updateRenderObject(context: BuildContext, renderObject: RenderObject) {
         (renderObject as ViewRenderObject).view = view
     }
 }

@@ -101,7 +101,6 @@ data class Rect(
          * an [AnimationController].
          */
         fun lerp(a: Rect?, b: Rect?, t: Double): Rect? {
-            assert(t != null)
             if (a == null && b == null)
                 return null
             if (a == null)

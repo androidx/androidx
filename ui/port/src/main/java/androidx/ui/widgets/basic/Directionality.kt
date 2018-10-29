@@ -44,10 +44,6 @@ class Directionality(
     child: Widget
 ) : InheritedWidget(key = key, child = child) {
 
-    init {
-        assert(child != null)
-    }
-
     companion object {
         /**
          * The text direction from the closest instance of this class that encloses

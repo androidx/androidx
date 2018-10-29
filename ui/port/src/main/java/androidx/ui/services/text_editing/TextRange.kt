@@ -44,8 +44,8 @@ open class TextRange(
 ) {
 
     init {
-        assert(start != null && start >= -1)
-        assert(end != null && end >= -1)
+        assert(start >= -1)
+        assert(end >= -1)
     }
 
     companion object {
@@ -55,7 +55,7 @@ open class TextRange(
          * The [offset] argument must be non-null and greater than or equal to -1.
          */
         fun collapsed(offset: Int): TextRange {
-            assert(offset != null && offset >= -1)
+            assert(offset >= -1)
             return TextRange(
                 start = offset,
                 end = offset

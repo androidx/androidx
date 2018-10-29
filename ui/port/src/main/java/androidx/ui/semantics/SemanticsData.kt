@@ -145,13 +145,6 @@ data class SemanticsData(
 ) : Diagnosticable {
 
     init {
-        assert(flags != null)
-        assert(actions != null)
-        assert(label != null)
-        assert(value != null)
-        assert(decreasedValue != null)
-        assert(increasedValue != null)
-        assert(hint != null)
         assert(label == "" || textDirection != null) {
             "A SemanticsData object with label $label had a null textDirection."
         }
@@ -167,7 +160,6 @@ data class SemanticsData(
         assert(increasedValue == "" || textDirection != null) {
             "A SemanticsData object with increasedValue $increasedValue had a null textDirection."
         }
-        assert(rect != null)
     }
 
     override fun toStringShort(): String {

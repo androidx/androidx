@@ -53,8 +53,6 @@ class TransformLayer(
     }
 
     override fun applyTransform(child: Layer, transform: Matrix4) {
-        assert(child != null)
-        assert(transform != null)
         transform *= _lastEffectiveTransform!!
     }
 

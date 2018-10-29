@@ -349,7 +349,6 @@ class Path {
      * The `points` argument is interpreted as offsets from the origin.
      */
     fun addPolygon(points: List<Offset>, close: Boolean) {
-        assert(points != null)
         // TODO(Migration/njawad) implement with sequence of "lineTo" calls
         TODO()
     }
@@ -419,14 +418,13 @@ class Path {
     }
 
     fun extendWithPath(path: Path, offset: Offset, matrix: Matrix4) {
-        assert(path != null) // path is checked on the engine side
         assert(_offsetIsValid(offset))
-        if (matrix != null) {
+//        if (matrix != null) {
             assert(_matrixIsValid(matrix))
             _extendWithPathAndMatrix(path, offset.dx, offset.dy, matrix)
-        } else {
-            _extendWithPath(path, offset.dx, offset.dy)
-        }
+//        } else {
+//            _extendWithPath(path, offset.dx, offset.dy)
+//        }
     }
 
     private fun _extendWithPath(path: Path, dx: Double, dy: Double) {
@@ -623,9 +621,6 @@ class Path {
 //    }
 
     private fun _offsetIsValid(offset: Offset): Boolean {
-        assert(offset != null) {
-            "Offset argument was null."
-        }
         assert(Double.NaN != offset.dx && Double.NaN != offset.dy) {
             "Offset argument contained a NaN value."
         }
@@ -633,9 +628,6 @@ class Path {
     }
 
     private fun _rectIsValid(rect: Rect): Boolean {
-        assert(rect != null) {
-            "Rect argument was null."
-        }
         assert(Double.NaN != rect.left) {
             "Rect.left is NaN"
         }
@@ -652,9 +644,6 @@ class Path {
     }
 
     private fun _matrixIsValid(matrix: Matrix4): Boolean {
-        assert(matrix != null) {
-            "Matrix argument was null."
-        }
         return true
     }
 }

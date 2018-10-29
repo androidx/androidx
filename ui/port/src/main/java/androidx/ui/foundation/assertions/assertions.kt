@@ -23,7 +23,8 @@ typealias FlutterExceptionHandler = (FlutterErrorDetails) -> Unit
  * The `label` argument, if present, will be printed before the stack.
  */
 fun debugPrintStack(label: String, maxFrames: Int? = null) {
-    if (label != null)
+//    if (label != null)
+    if (label.isNotEmpty())
         debugPrint(label)
     var lines = Thread.currentThread().getStackTrace().toString().trimEnd().split("\n")
     if (maxFrames != null)
