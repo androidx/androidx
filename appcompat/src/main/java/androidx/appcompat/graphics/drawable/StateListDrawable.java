@@ -391,7 +391,7 @@ class StateListDrawable extends DrawableContainer {
     }
 
     @Override
-    protected void setConstantState(@NonNull DrawableContainerState state) {
+    void setConstantState(@NonNull DrawableContainerState state) {
         super.setConstantState(state);
         if (state instanceof StateListState) {
             mStateListState = (StateListState) state;

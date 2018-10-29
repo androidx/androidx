@@ -348,7 +348,6 @@ package androidx.appcompat.graphics.drawable {
     method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat? create(android.content.Context, @DrawableRes int, android.content.res.Resources.Theme?);
     method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat! createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
     method public void inflate(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
-    method protected void setConstantState(androidx.appcompat.graphics.drawable.DrawableContainer.DrawableContainerState);
   }
 
   public class DrawerArrowDrawable extends android.graphics.drawable.Drawable {

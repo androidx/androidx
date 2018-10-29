@@ -715,7 +715,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
     }
 
     @Override
-    protected void setConstantState(@NonNull DrawableContainerState state) {
+    void setConstantState(@NonNull DrawableContainerState state) {
         super.setConstantState(state);
         if (state instanceof AnimatedStateListState) {
             mState = (AnimatedStateListState) state;
