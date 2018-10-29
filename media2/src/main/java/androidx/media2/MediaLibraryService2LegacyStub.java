@@ -30,6 +30,7 @@ import android.os.RemoteException;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.session.MediaSessionCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -118,6 +119,10 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     @Override
     public void onSubscribe(final String id, final Bundle option) {
         final ControllerInfo controller = getCurrentController();
+        if (TextUtils.isEmpty(id)) {
+            Log.w(TAG, "onSubscribe(): Ignoring empty id from " + controller);
+            return;
+        }
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
@@ -143,6 +148,10 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     @Override
     public void onUnsubscribe(final String id) {
         final ControllerInfo controller = getCurrentController();
+        if (TextUtils.isEmpty(id)) {
+            Log.w(TAG, "onUnsubscribe(): Ignoring empty id from " + controller);
+            return;
+        }
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
@@ -168,8 +177,13 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     @Override
     public void onLoadChildren(final String parentId, final Result<List<MediaItem>> result,
             final Bundle options) {
-        result.detach();
         final ControllerInfo controller = getCurrentController();
+        if (TextUtils.isEmpty(parentId)) {
+            Log.w(TAG, "onLoadChildren(): Ignoring empty parentId from " + controller);
+            result.sendError(null);
+            return;
+        }
+        result.detach();
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
@@ -231,8 +245,13 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
 
     @Override
     public void onLoadItem(final String itemId, final Result<MediaItem> result) {
-        result.detach();
         final ControllerInfo controller = getCurrentController();
+        if (TextUtils.isEmpty(itemId)) {
+            Log.w(TAG, "Ignoring empty itemId from " + controller);
+            result.sendError(null);
+            return;
+        }
+        result.detach();
         mLibrarySessionImpl.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
@@ -260,6 +279,11 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
     public void onSearch(final String query, final Bundle extras,
             final Result<List<MediaItem>> result) {
         final ControllerInfo controller = getCurrentController();
+        if (TextUtils.isEmpty(query)) {
+            Log.w(TAG, "Ignoring empty query from " + controller);
+            result.sendError(null);
+            return;
+        }
         if (!(controller.getControllerCb() instanceof BrowserLegacyCb)) {
             if (DEBUG) {
                 throw new IllegalStateException("Callback hasn't registered. Must be a bug.");
