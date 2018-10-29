@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.fragment.app
+package androidx.activity
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -36,7 +36,7 @@ class ActivityViewModelLazyTest {
         assertThat(activity.factoryVM.prop).isEqualTo("activity")
     }
 
-    class TestActivity : FragmentActivity() {
+    class TestActivity : ComponentActivity() {
         val vm: TestViewModel by viewModels()
         val factoryVM: TestFactorizedViewModel by viewModels(VMFactory("activity"))
     }
