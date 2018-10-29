@@ -28,36 +28,23 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
-public abstract class SelectionBuilderImpl {
-    private final Slice.Builder mParentSliceBuilder;
+public abstract class SelectionBuilderImpl extends TemplateBuilderImpl {
     private final SelectionBuilder mSelectionBuilder;
 
-    public SelectionBuilderImpl(Slice.Builder parentSliceBuilder,
+    public SelectionBuilderImpl(Slice.Builder sliceBuilder,
                                 SelectionBuilder selectionBuilder) {
-        mParentSliceBuilder = parentSliceBuilder;
+        super(sliceBuilder, null);
         mSelectionBuilder = selectionBuilder;
     }
 
     /**
-     * Builds a {@link Slice} representing the selection passed in the constructor.
-     *
-     * The slice will be built as a sub-slice of the slice being built by the {@link Slice.Builder}
-     * passed to the constructor.
-     *
-     * @return the constructed slice
+     * Applies the selection returned by {@link #getSelectionBuilder()} to sliceBuilder.
+     * @param sliceBuilder the {@link Slice.Builder} into which the selection will be built
      */
-    public final Slice build() {
-        mSelectionBuilder.check();
-        final Slice.Builder sliceBuilder = new Slice.Builder(mParentSliceBuilder);
-        apply(mSelectionBuilder, sliceBuilder);
-        return sliceBuilder.build();
-    }
+    @Override
+    public abstract void apply(Slice.Builder sliceBuilder);
 
-    /**
-     * Applies the information in selectionBuilder to the {@link Slice} being built in sliceBuilder.
-     *
-     * @param selectionBuilder the {@link SelectionBuilder} that contains the selection.
-     * @param sliceBuilder the {@link Slice.Builder} into which the {@link Slice} will be built.
-     */
-    protected abstract void apply(SelectionBuilder selectionBuilder, Slice.Builder sliceBuilder);
+    protected SelectionBuilder getSelectionBuilder() {
+        return mSelectionBuilder;
+    }
 }
