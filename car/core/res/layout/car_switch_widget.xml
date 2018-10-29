@@ -21,4 +21,7 @@
     android:id="@android:id/switch_widget"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:focusable="false"
+    android:clickable="false"
+    android:background="@null"
     style="@style/Widget.Car.Switch"/>
