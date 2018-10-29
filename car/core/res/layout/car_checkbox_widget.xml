@@ -22,4 +22,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:button="@drawable/car_checkbox"
+    android:focusable="false"
+    android:clickable="false"
     android:background="?android:attr/listChoiceIndicatorMultiple" />
