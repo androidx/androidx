@@ -19,10 +19,12 @@ package androidx.work;
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL;
 
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
+import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_1;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_4;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -214,7 +216,7 @@ public class WorkDatabaseMigrationTest {
                 VALIDATE_DROPPED_TABLES,
                 MIGRATION_3_4);
 
-        Cursor cursor = database.query("SELECT * from workspec");
+        Cursor cursor = database.query("SELECT * FROM workspec");
         assertThat(cursor.getCount(), is(2));
         cursor.moveToFirst();
         assertThat(cursor.getString(cursor.getColumnIndex("id")),
@@ -231,6 +233,25 @@ public class WorkDatabaseMigrationTest {
             assertThat(cursor.getLong(cursor.getColumnIndex("schedule_requested_at")),
                     is(WorkSpec.SCHEDULE_NOT_REQUESTED_YET));
         }
+        database.close();
+    }
+
+    @Test
+    @MediumTest
+    public void testMigrationVersion4To5() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_4);
+
+        assertThat(checkExists(database, "ReplacementDependency"), is(false));
+        database.close();
+
+        database = mMigrationTestHelper.runMigrationsAndValidate(
+                TEST_DATABASE,
+                VERSION_5,
+                VALIDATE_DROPPED_TABLES,
+                MIGRATION_4_5);
+
+        assertThat(checkExists(database, "ReplacementDependency"), is(true));
         database.close();
     }
 
