@@ -651,6 +651,11 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
+    public void onMetadataChanged(MediaItem2 mediaItem2) {
+        notifyOnInfo(mediaItem2, MEDIA_INFO_METADATA_UPDATE);
+    }
+
+    @Override
     public void onSeekCompleted(long positionMs) {
         synchronized (mTaskLock) {
             if (mCurrentTask != null
