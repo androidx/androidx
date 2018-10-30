@@ -19,6 +19,7 @@ package androidx.media.test.service;
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
 import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION;
+import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION_ASSERT_PARAMS;
 import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.GET_CHILDREN_RESULT;
 import static androidx.media.test.lib.MediaBrowser2Constants.LONG_LIST_COUNT;
@@ -45,7 +46,11 @@ import static androidx.media.test.lib.MediaBrowser2Constants
         .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
 import static androidx.media.test.lib.MediaBrowser2Constants
         .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
-import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media.test.service.MediaTestUtils.assertLibraryParamsEquals;
+import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_BAD_VALUE;
+import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaMetadata2.FLAG_BROWSABLE;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_MEDIA_ID;
 
 import android.app.Service;
 import android.content.Context;
@@ -54,6 +59,7 @@ import android.os.Bundle;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
 import androidx.media.test.lib.TestUtils;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media2.MediaItem2;
@@ -64,6 +70,7 @@ import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
+import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,8 +83,21 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
      * ID of the session that this service will create.
      */
     public static final String ID = "TestLibrary";
+    public static final MediaItem2 ROOT_ITEM = new MediaItem2.Builder(FLAG_BROWSABLE)
+            .setMetadata(new MediaMetadata2.Builder()
+                    .putString(METADATA_KEY_MEDIA_ID, ROOT_ID)
+                    .build()).build();
+    public static final LibraryParams ROOT_PARAMS = new LibraryParams.Builder()
+            .setExtras(ROOT_EXTRAS).build();
+    private static final LibraryParams NOTIFY_CHILDREN_CHANGED_PARAMS = new LibraryParams.Builder()
+            .setExtras(NOTIFY_CHILDREN_CHANGED_EXTRAS).build();
 
     private static final String TAG = "MockMediaLibrarySvc2";
+
+    @GuardedBy("MockMediaLibraryService2.class")
+    private static boolean sAssertLibraryParams;
+    @GuardedBy("MockMediaLibraryService2.class")
+    private static LibraryParams sExpectedParams;
 
     MediaLibrarySession mSession;
     SyncHandler mHandler;
@@ -95,6 +115,10 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        synchronized (MockMediaLibraryService2.class) {
+            sAssertLibraryParams = false;
+            sExpectedParams = null;
+        }
         if (Build.VERSION.SDK_INT >= 18) {
             mHandler.getLooper().quitSafely();
         } else {
@@ -138,6 +162,13 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         super.attachBaseContext(base);
     }
 
+    public static void setAssertLibraryParams(LibraryParams expectedParams) {
+        synchronized (MockMediaLibraryService2.class) {
+            sAssertLibraryParams = true;
+            sExpectedParams = expectedParams;
+        }
+    }
+
     private class TestLibrarySessionCallback extends MediaLibrarySessionCallback {
 
         @Override
@@ -148,30 +179,35 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
             }
             SessionCommandGroup2 group = super.onConnect(session, controller);
             group.addCommand(new SessionCommand2(CUSTOM_ACTION, null));
+            group.addCommand(new SessionCommand2(CUSTOM_ACTION_ASSERT_PARAMS, null));
             return group;
         }
 
         @Override
-        public LibraryRoot onGetLibraryRoot(MediaLibrarySession session, ControllerInfo controller,
-                Bundle rootHints) {
-            return new LibraryRoot(ROOT_ID, ROOT_EXTRAS);
+        public LibraryResult onGetLibraryRoot(MediaLibrarySession session,
+                ControllerInfo controller, LibraryParams params) {
+            assertLibraryParams(params);
+            return new LibraryResult(RESULT_CODE_SUCCESS, ROOT_ITEM, ROOT_PARAMS);
         }
 
         @Override
-        public MediaItem2 onGetItem(MediaLibrarySession session, ControllerInfo controller,
+        public LibraryResult onGetItem(MediaLibrarySession session, ControllerInfo controller,
                 String mediaId) {
             if (MEDIA_ID_GET_ITEM.equals(mediaId)) {
-                return createMediaItem(mediaId);
+                return new LibraryResult(RESULT_CODE_SUCCESS, createMediaItem(mediaId), null);
             } else {
-                return null;
+                return new LibraryResult(RESULT_CODE_BAD_VALUE);
             }
         }
 
         @Override
-        public List<MediaItem2> onGetChildren(MediaLibrarySession session,
-                ControllerInfo controller, String parentId, int page, int pageSize, Bundle extras) {
+        public LibraryResult onGetChildren(MediaLibrarySession session,
+                ControllerInfo controller, String parentId, int page, int pageSize,
+                LibraryParams params) {
+            assertLibraryParams(params);
             if (PARENT_ID.equals(parentId)) {
-                return getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize);
+                return new LibraryResult(RESULT_CODE_SUCCESS,
+                        getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize), null);
             } else if (PARENT_ID_LONG_LIST.equals(parentId)) {
                 List<MediaItem2> list = new ArrayList<>(LONG_LIST_COUNT);
                 MediaItem2.Builder builder = new MediaItem2.Builder(0);
@@ -180,43 +216,48 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                             .setMediaId(TestUtils.getMediaIdInDummyList(i))
                             .build());
                 }
-                return list;
+                return new LibraryResult(RESULT_CODE_SUCCESS, list, null);
             } else if (PARENT_ID_ERROR.equals(parentId)) {
-                return null;
+                return new LibraryResult(RESULT_CODE_BAD_VALUE);
             }
             // Includes the case of PARENT_ID_NO_CHILDREN.
-            return new ArrayList<>();
+            return new LibraryResult(RESULT_CODE_SUCCESS, new ArrayList<MediaItem2>(), null);
         }
 
         @Override
-        public void onSearch(MediaLibrarySession session, final ControllerInfo controllerInfo,
-                final String query, final Bundle extras) {
+        public int onSearch(MediaLibrarySession session,
+                final ControllerInfo controllerInfo, final String query,
+                final LibraryParams params) {
+            assertLibraryParams(params);
             if (SEARCH_QUERY.equals(query)) {
                 mSession.notifySearchResultChanged(controllerInfo, query, SEARCH_RESULT_COUNT,
-                        extras);
+                        params);
             } else if (SEARCH_QUERY_LONG_LIST.equals(query)) {
-                mSession.notifySearchResultChanged(controllerInfo, query, LONG_LIST_COUNT, extras);
+                mSession.notifySearchResultChanged(controllerInfo, query, LONG_LIST_COUNT, params);
             } else if (SEARCH_QUERY_TAKES_TIME.equals(query)) {
                 // Searching takes some time. Notify after 5 seconds.
                 Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
                     @Override
                     public void run() {
                         mSession.notifySearchResultChanged(
-                                controllerInfo, query, SEARCH_RESULT_COUNT, extras);
+                                controllerInfo, query, SEARCH_RESULT_COUNT, params);
                     }
                 }, SEARCH_TIME_IN_MS, TimeUnit.MILLISECONDS);
             } else {
                 // SEARCH_QUERY_EMPTY_RESULT and SEARCH_QUERY_ERROR will be handled here.
-                mSession.notifySearchResultChanged(controllerInfo, query, 0, extras);
+                mSession.notifySearchResultChanged(controllerInfo, query, 0, params);
             }
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public List<MediaItem2> onGetSearchResult(MediaLibrarySession session,
+        public LibraryResult onGetSearchResult(MediaLibrarySession session,
                 ControllerInfo controllerInfo, String query, int page, int pageSize,
-                Bundle extras) {
+                LibraryParams params) {
+            assertLibraryParams(params);
             if (SEARCH_QUERY.equals(query)) {
-                return getPaginatedResult(SEARCH_RESULT, page, pageSize);
+                return new LibraryResult(RESULT_CODE_SUCCESS,
+                        getPaginatedResult(SEARCH_RESULT, page, pageSize), null);
             } else if (SEARCH_QUERY_LONG_LIST.equals(query)) {
                 List<MediaItem2> list = new ArrayList<>(LONG_LIST_COUNT);
                 MediaItem2.Builder builder = new MediaItem2.Builder(0);
@@ -225,56 +266,73 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                             .setMediaId(TestUtils.getMediaIdInDummyList(i))
                             .build());
                 }
-                return list;
+                return new LibraryResult(RESULT_CODE_SUCCESS, list, null);
             } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
-                return new ArrayList<>();
+                return new LibraryResult(RESULT_CODE_SUCCESS, new ArrayList<MediaItem2>(), null);
             } else {
                 // SEARCH_QUERY_ERROR will be handled here.
-                return null;
+                return new LibraryResult(RESULT_CODE_BAD_VALUE);
             }
         }
 
         @Override
-        public void onSubscribe(MediaLibrarySession session,
-                ControllerInfo controller, String parentId, Bundle extras) {
+        public int onSubscribe(MediaLibrarySession session,
+                ControllerInfo controller, String parentId, LibraryParams params) {
+            assertLibraryParams(params);
             final String unsubscribedId = "unsubscribedId";
             switch (parentId) {
                 case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL:
                     mSession.notifyChildrenChanged(
                             parentId,
                             NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
-                            NOTIFY_CHILDREN_CHANGED_EXTRAS);
-                    break;
+                            NOTIFY_CHILDREN_CHANGED_PARAMS);
+                    return RESULT_CODE_SUCCESS;
                 case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE:
                     mSession.notifyChildrenChanged(
                             MediaTestUtils.getTestControllerInfo(mSession),
                             parentId,
                             NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
-                            NOTIFY_CHILDREN_CHANGED_EXTRAS);
-                    break;
+                            NOTIFY_CHILDREN_CHANGED_PARAMS);
+                    return RESULT_CODE_SUCCESS;
                 case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID:
                     mSession.notifyChildrenChanged(
                             unsubscribedId,
                             NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
-                            NOTIFY_CHILDREN_CHANGED_EXTRAS);
-                    break;
+                            NOTIFY_CHILDREN_CHANGED_PARAMS);
+                    return RESULT_CODE_SUCCESS;
                 case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID:
                     mSession.notifyChildrenChanged(
                             MediaTestUtils.getTestControllerInfo(mSession),
                             unsubscribedId,
                             NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
-                            NOTIFY_CHILDREN_CHANGED_EXTRAS);
-                    break;
+                            NOTIFY_CHILDREN_CHANGED_PARAMS);
+                    return RESULT_CODE_SUCCESS;
             }
+            return RESULT_CODE_BAD_VALUE;
         }
 
         @Override
         public MediaSession2.SessionResult onCustomCommand(MediaSession2 session,
                 ControllerInfo controller, SessionCommand2 customCommand, Bundle args) {
-            if (CUSTOM_ACTION.equals(customCommand.getCustomCommand())) {
-                return new MediaSession2.SessionResult(RESULT_CODE_SUCCESS, CUSTOM_ACTION_EXTRAS);
+            switch (customCommand.getCustomCommand()) {
+                case CUSTOM_ACTION:
+                    return new MediaSession2.SessionResult(
+                            RESULT_CODE_SUCCESS, CUSTOM_ACTION_EXTRAS);
+                case CUSTOM_ACTION_ASSERT_PARAMS:
+                    LibraryParams params = ParcelUtils.getVersionedParcelable(args,
+                            CUSTOM_ACTION_ASSERT_PARAMS);
+                    setAssertLibraryParams(params);
+                    return new MediaSession2.SessionResult(RESULT_CODE_SUCCESS, null);
             }
-            return new MediaSession2.SessionResult(RESULT_CODE_SUCCESS, null);
+            return new MediaSession2.SessionResult(RESULT_CODE_BAD_VALUE, null);
+        }
+
+        private void assertLibraryParams(LibraryParams params) {
+            synchronized (MockMediaLibraryService2.class) {
+                if (sAssertLibraryParams) {
+                    assertLibraryParamsEquals(sExpectedParams, params);
+                }
+            }
         }
     }
 

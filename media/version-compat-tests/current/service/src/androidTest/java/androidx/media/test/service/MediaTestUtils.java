@@ -18,12 +18,18 @@ package androidx.media.test.service;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 
+import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
+import androidx.media.test.lib.TestUtils;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
+import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.CommandButton;
@@ -165,5 +171,32 @@ public final class MediaTestUtils {
         }
         Log.e(TAG, "Test controller was not found in connected controllers. session=" + session2);
         return null;
+    }
+
+    public static LibraryParams createLibraryParams() {
+        String callingTestName = Thread.currentThread().getStackTrace()[3].getMethodName();
+
+        Bundle extras = new Bundle();
+        extras.putString(callingTestName, callingTestName);
+        return new LibraryParams.Builder().setExtras(extras).build();
+    }
+
+    public static void assertLibraryParamsEquals(LibraryParams a, LibraryParams b) {
+        if (a == null || b == null) {
+            assertEquals(a, b);
+        } else {
+            assertTrue(TestUtils.equals(a.getExtras(), b.getExtras()));
+        }
+    }
+
+    public static void assertLibraryParamsWithBundle(LibraryParams a, Bundle b) {
+        if (a == null || b == null) {
+            assertEquals(a, b);
+        } else {
+            assertEquals(a.isRecent(), b.getBoolean(BrowserRoot.EXTRA_RECENT));
+            assertEquals(a.isOffline(), b.getBoolean(BrowserRoot.EXTRA_OFFLINE));
+            assertEquals(a.isSuggested(), b.getBoolean(BrowserRoot.EXTRA_SUGGESTED));
+            assertTrue(TestUtils.contains(b, a.getExtras()));
+        }
     }
 }

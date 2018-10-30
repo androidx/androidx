@@ -21,6 +21,7 @@ import static androidx.media2.MediaSession2.ControllerInfo;
 import static androidx.media2.MediaSession2.SessionCallback;
 import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_DISCONNECTED;
 import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SKIPPED;
 import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_UNKNOWN_ERROR;
 import static androidx.media2.MediaUtils2.DIRECT_EXECUTOR;
@@ -80,6 +81,8 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     // When the framework becomes able to check the uniqueness, this logic should be removed.
     @GuardedBy("MediaSession2ImplBase.class")
     private static final List<String> SESSION_ID_LIST = new ArrayList<>();
+
+    private static final SessionResult RESULT_WHEN_CLOSED = new SessionResult(RESULT_CODE_SKIPPED);
 
     private final Context mContext;
     private final HandlerThread mHandlerThread;
@@ -1064,7 +1067,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                     mSession2Stub.getConnectedControllersManager()
                             .getSequencedFutureManager(controller);
             if (manager != null) {
-                future = manager.createSequencedFuture();
+                future = manager.createSequencedFuture(RESULT_WHEN_CLOSED);
                 seq = ((SequencedFuture<SessionResult>) future).getSequenceNumber();
             } else {
                 // Can be null in two cases. Use the 0 as sequence number in both cases because

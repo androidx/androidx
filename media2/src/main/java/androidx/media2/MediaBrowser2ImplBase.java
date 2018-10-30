@@ -16,6 +16,9 @@
 
 package androidx.media2;
 
+import static androidx.media2.MediaBrowser2.BrowserResult.RESULT_CODE_DISCONNECTED;
+import static androidx.media2.MediaBrowser2.BrowserResult.RESULT_CODE_PERMISSION_DENIED;
+import static androidx.media2.MediaBrowser2.BrowserResult.RESULT_CODE_SKIPPED;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_LIBRARY_GET_CHILDREN;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_LIBRARY_GET_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT;
@@ -25,11 +28,17 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_LIBRARY_SUBSCRIBE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_LIBRARY_UNSUBSCRIBE;
 
 import android.content.Context;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.media2.MediaBrowser2.BrowserCallback;
+import androidx.media2.MediaBrowser2.BrowserResult;
+import androidx.media2.MediaLibraryService2.LibraryParams;
+import androidx.media2.SequencedFutureManager.SequencedFuture;
+import androidx.versionedparcelable.ParcelImpl;
+import androidx.versionedparcelable.ParcelUtils;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
@@ -38,6 +47,9 @@ import java.util.concurrent.Executor;
  */
 class MediaBrowser2ImplBase extends MediaController2ImplBase implements
         MediaBrowser2.MediaBrowser2Impl {
+    private static final BrowserResult RESULT_WHEN_CLOSED =
+            new BrowserResult(RESULT_CODE_SKIPPED);
+
     MediaBrowser2ImplBase(Context context, MediaController2 instance, SessionToken2 token,
             Executor executor, BrowserCallback callback) {
         super(context, instance, token, executor, callback);
@@ -49,91 +61,113 @@ class MediaBrowser2ImplBase extends MediaController2ImplBase implements
     }
 
     @Override
-    public void getLibraryRoot(Bundle rootHints) {
-        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
-                COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT);
-        if (iSession2 != null) {
-            try {
-                iSession2.getLibraryRoot(mControllerStub, rootHints);
-            } catch (RemoteException e) {
-                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-            }
-        }
+    public ListenableFuture<BrowserResult> getLibraryRoot(final LibraryParams params) {
+        return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
+                new RemoteLibrarySessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.getLibraryRoot(mControllerStub, seq,
+                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                    }
+                });
     }
 
     @Override
-    public void subscribe(String parentId, Bundle extras) {
-        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_LIBRARY_SUBSCRIBE);
-        if (iSession2 != null) {
-            try {
-                iSession2.subscribe(mControllerStub, parentId, extras);
-            } catch (RemoteException e) {
-                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-            }
-        }
+    public ListenableFuture<BrowserResult> subscribe(final String parentId,
+            final LibraryParams params) {
+        return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_SUBSCRIBE,
+                new RemoteLibrarySessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.subscribe(mControllerStub, seq, parentId,
+                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                    }
+                });
     }
 
     @Override
-    public void unsubscribe(String parentId) {
-        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
-                COMMAND_CODE_LIBRARY_UNSUBSCRIBE);
-        if (iSession2 != null) {
-            try {
-                iSession2.unsubscribe(mControllerStub, parentId);
-            } catch (RemoteException e) {
-                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-            }
-        }
+    public ListenableFuture<BrowserResult> unsubscribe(final String parentId) {
+        return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
+                new RemoteLibrarySessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.unsubscribe(mControllerStub, seq, parentId);
+                    }
+                });
     }
 
     @Override
-    public void getChildren(String parentId, int page, int pageSize, Bundle extras) {
-        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
-                COMMAND_CODE_LIBRARY_GET_CHILDREN);
-        if (iSession2 != null) {
-            try {
-                iSession2.getChildren(mControllerStub, parentId, page, pageSize, extras);
-            } catch (RemoteException e) {
-                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-            }
-        }
+    public ListenableFuture<BrowserResult> getChildren(final String parentId, final int page,
+            final int pageSize, final LibraryParams params) {
+        return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_GET_CHILDREN,
+                new RemoteLibrarySessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.getChildren(mControllerStub, seq, parentId, page, pageSize,
+                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                    }
+                });
     }
 
     @Override
-    public void getItem(String mediaId) {
-        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_LIBRARY_GET_ITEM);
-        if (iSession2 != null) {
-            try {
-                iSession2.getItem(mControllerStub, mediaId);
-            } catch (RemoteException e) {
-                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-            }
-        }
+    public ListenableFuture<BrowserResult> getItem(final String mediaId) {
+        return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_GET_ITEM,
+                new RemoteLibrarySessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.getItem(mControllerStub, seq, mediaId);
+                    }
+                });
     }
 
     @Override
-    public void search(String query, Bundle extras) {
-        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(COMMAND_CODE_LIBRARY_SEARCH);
-        if (iSession2 != null) {
-            try {
-                iSession2.search(mControllerStub, query, extras);
-            } catch (RemoteException e) {
-                Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-            }
-        }
+    public ListenableFuture<BrowserResult> search(final String query, final LibraryParams params) {
+        return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_SEARCH,
+                new RemoteLibrarySessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.search(mControllerStub, seq, query,
+                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                    }
+                });
     }
 
     @Override
-    public void getSearchResult(String query, int page, int pageSize,
-            Bundle extras) {
-        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(
-                COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT);
+    public ListenableFuture<BrowserResult> getSearchResult(final String query, final int page,
+            final int pageSize, final LibraryParams params) {
+        return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT,
+                new RemoteLibrarySessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.getSearchResult(mControllerStub, seq, query, page, pageSize,
+                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                    }
+                });
+    }
+
+    @FunctionalInterface
+    private interface RemoteLibrarySessionTask {
+        void run(IMediaSession2 iSession2, int seq) throws RemoteException;
+    }
+
+    private ListenableFuture<BrowserResult> dispatchRemoteLibrarySessionTask(int commandCode,
+            RemoteLibrarySessionTask task) {
+        final IMediaSession2 iSession2 = getSessionInterfaceIfAble(commandCode);
         if (iSession2 != null) {
+            final SequencedFuture<BrowserResult> result =
+                    mSequencedFutureManager.createSequencedFuture(RESULT_WHEN_CLOSED);
             try {
-                iSession2.getSearchResult(mControllerStub, query, page, pageSize, extras);
+                task.run(iSession2, result.getSequenceNumber());
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
+                result.set(new BrowserResult(RESULT_CODE_DISCONNECTED));
             }
+            return result;
+        } else {
+            // Don't create Future with SequencedFutureManager.
+            // Otherwise session would receive discontinued sequence number, and it would make
+            // future work item 'keeping call sequence when session execute commands' impossible.
+            return BrowserResult.createFutureWithResult(RESULT_CODE_PERMISSION_DENIED);
         }
     }
 }

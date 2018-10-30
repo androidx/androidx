@@ -16,6 +16,13 @@
 
 package androidx.media2;
 
+import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_BAD_VALUE;
+import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaMetadata2.FLAG_BROWSABLE;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_MEDIA_ID;
+import static androidx.media2.TestUtils.assertLibraryParamsEquals;
+
 import static org.junit.Assert.assertEquals;
 
 import android.content.ComponentName;
@@ -46,8 +53,9 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
      */
     public static final String ID = "TestLibrary";
 
-    public static final String ROOT_ID = "rootId";
-    public static final Bundle EXTRAS = new Bundle();
+    public static final MediaItem2 ROOT_ITEM;
+    public static final Bundle ROOT_PARAMS_EXTRA;
+    public static final LibraryParams ROOT_PARAMS;
 
     public static final String MEDIA_ID_GET_ITEM = "media_id_get_item";
 
@@ -66,13 +74,21 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     public static final List<MediaItem2> SEARCH_RESULT = new ArrayList<>();
     public static final int SEARCH_RESULT_COUNT = 50;
 
+    static {
+        ROOT_ITEM = new MediaItem2.Builder(FLAG_BROWSABLE)
+                .setMetadata(new MediaMetadata2.Builder()
+                        .putString(METADATA_KEY_MEDIA_ID, "rootId").build()).build();
+        ROOT_PARAMS_EXTRA = new Bundle();
+        ROOT_PARAMS_EXTRA.putString(ID, ID);
+        ROOT_PARAMS = new LibraryParams.Builder().setExtras(ROOT_PARAMS_EXTRA).build();
+    }
+
     private static final String TAG = "MockMediaLibrarySvc2";
 
-    static {
-        EXTRAS.putString(ROOT_ID, ROOT_ID);
-    }
     @GuardedBy("MockMediaLibraryService2.class")
     private static SessionToken2 sToken;
+    @GuardedBy("MockMediaLibraryService2.class")
+    private static LibraryParams sExpectedParams;
 
     private MediaLibrarySession mSession;
 
@@ -129,6 +145,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        setAssertLibraryParams(null);
         TestServiceRegistry.getInstance().cleanUp();
     }
 
@@ -143,72 +160,93 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         }
     }
 
+    public static void setAssertLibraryParams(LibraryParams params) {
+        synchronized (MockMediaLibraryService2.class) {
+            sExpectedParams = params;
+        }
+    }
+
     private class TestLibrarySessionCallback extends MediaLibrarySessionCallback {
         private String mLastQuery;
 
         @Override
-        public LibraryRoot onGetLibraryRoot(MediaLibrarySession session, ControllerInfo controller,
-                Bundle rootHints) {
-            return new LibraryRoot(ROOT_ID, EXTRAS);
+        public LibraryResult onGetLibraryRoot(MediaLibrarySession session,
+                ControllerInfo controller, LibraryParams params) {
+            assertLibraryParams(params);
+            return new LibraryResult(RESULT_CODE_SUCCESS, ROOT_ITEM, ROOT_PARAMS);
         }
 
         @Override
-        public MediaItem2 onGetItem(MediaLibrarySession session, ControllerInfo controller,
+        public LibraryResult onGetItem(MediaLibrarySession session, ControllerInfo controller,
                 String mediaId) {
             if (MEDIA_ID_GET_ITEM.equals(mediaId)) {
-                return createMediaItem(mediaId);
+                return new LibraryResult(RESULT_CODE_SUCCESS, createMediaItem(mediaId), null);
             } else {
-                return null;
+                return new LibraryResult(RESULT_CODE_BAD_VALUE);
             }
         }
 
         @Override
-        public List<MediaItem2> onGetChildren(MediaLibrarySession session,
-                ControllerInfo controller, String parentId, int page, int pageSize, Bundle extras) {
+        public LibraryResult onGetChildren(MediaLibrarySession session,
+                ControllerInfo controller, String parentId, int page, int pageSize,
+                LibraryParams params) {
+            assertLibraryParams(params);
             if (PARENT_ID.equals(parentId)) {
-                return getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize);
+                return new LibraryResult(RESULT_CODE_SUCCESS,
+                        getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize), null);
             } else if (PARENT_ID_ERROR.equals(parentId)) {
-                return null;
+                return new LibraryResult(RESULT_CODE_BAD_VALUE);
             }
             // Includes the case of PARENT_ID_NO_CHILDREN.
-            return new ArrayList<>();
+            return new LibraryResult(RESULT_CODE_SUCCESS, new ArrayList<MediaItem2>(), null);
         }
 
         @Override
-        public void onSearch(MediaLibrarySession session, final ControllerInfo controllerInfo,
-                final String query, final Bundle extras) {
+        public int onSearch(MediaLibrarySession session,
+                final ControllerInfo controllerInfo, final String query,
+                final LibraryParams params) {
+            assertLibraryParams(params);
             mLastQuery = query;
             if (SEARCH_QUERY.equals(query)) {
                 mSession.notifySearchResultChanged(controllerInfo, query, SEARCH_RESULT_COUNT,
-                        extras);
+                        params);
             } else if (SEARCH_QUERY_TAKES_TIME.equals(query)) {
                 // Searching takes some time. Notify after 5 seconds.
                 Executors.newSingleThreadScheduledExecutor().schedule(new Runnable() {
                     @Override
                     public void run() {
                         mSession.notifySearchResultChanged(
-                                controllerInfo, query, SEARCH_RESULT_COUNT, extras);
+                                controllerInfo, query, SEARCH_RESULT_COUNT, params);
                     }
                 }, SEARCH_TIME_IN_MS, TimeUnit.MILLISECONDS);
             } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
-                mSession.notifySearchResultChanged(controllerInfo, query, 0, extras);
+                mSession.notifySearchResultChanged(controllerInfo, query, 0, params);
             } else {
-                // TODO: For the error case, how should we notify the browser?
+                return RESULT_CODE_BAD_VALUE;
             }
+            return RESULT_CODE_SUCCESS;
         }
 
         @Override
-        public List<MediaItem2> onGetSearchResult(MediaLibrarySession session,
+        public LibraryResult onGetSearchResult(MediaLibrarySession session,
                 ControllerInfo controllerInfo, String query, int page, int pageSize,
-                Bundle extras) {
+                LibraryParams params) {
+            assertLibraryParams(params);
             if (!TextUtils.equals(mLastQuery, query)) {
                 // Ensure whether onSearch() has called before
-                return null;
+                return new LibraryResult(RESULT_CODE_INVALID_STATE);
             }
             if (SEARCH_QUERY.equals(query) || SEARCH_QUERY_TAKES_TIME.equals(query)) {
-                return getPaginatedResult(SEARCH_RESULT, page, pageSize);
+                return new LibraryResult(RESULT_CODE_SUCCESS,
+                        getPaginatedResult(SEARCH_RESULT, page, pageSize), null);
             } else {
-                return null;
+                return new LibraryResult(RESULT_CODE_BAD_VALUE);
+            }
+        }
+
+        private void assertLibraryParams(LibraryParams params) {
+            synchronized (MockMediaLibraryService2.class) {
+                assertLibraryParamsEquals(sExpectedParams, params);
             }
         }
     }
@@ -236,11 +274,10 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     }
 
     private MediaItem2 createMediaItem(String mediaId) {
-        Context context = MockMediaLibraryService2.this;
         return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
                 .setMediaId(mediaId)
                 .setMetadata(new MediaMetadata2.Builder()
-                                .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
+                                .putString(METADATA_KEY_MEDIA_ID, mediaId)
                                 .build())
                 .build();
     }
