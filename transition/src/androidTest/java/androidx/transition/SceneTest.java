@@ -31,7 +31,7 @@ import androidx.transition.test.R;
 import org.junit.Test;
 
 @MediumTest
-public class SceneTest extends BaseTest {
+public class SceneTest extends BaseTransitionTest {
 
     @Test
     public void testGetSceneRoot() {
@@ -123,6 +123,13 @@ public class SceneTest extends BaseTest {
         assertThat("getSceneForLayout should return the same instance for subsequent calls",
                 Scene.getSceneForLayout(root, R.layout.support_scene0, activity),
                 is(sameInstance(scene)));
+    }
+
+    @Test
+    public void testGetCurrentScene() throws Throwable {
+        Scene scene = Scene.getSceneForLayout(mRoot, R.layout.support_scene0, rule.getActivity());
+        enterScene(scene);
+        assertThat(Scene.getCurrentScene(mRoot), is(scene));
     }
 
 }

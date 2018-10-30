@@ -98,6 +98,7 @@ package androidx.transition {
     ctor public Scene(android.view.ViewGroup, android.view.View);
     method public void enter();
     method public void exit();
+    method public static androidx.transition.Scene? getCurrentScene(android.view.View);
     method public static androidx.transition.Scene getSceneForLayout(android.view.ViewGroup, @LayoutRes int, android.content.Context);
     method public android.view.ViewGroup getSceneRoot();
     method public void setEnterAction(Runnable?);
