@@ -349,6 +349,10 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "onSearchResultChanged(): Ignoring empty query");
             return;
         }
+        if (itemCount < 0) {
+            Log.w(TAG, "onSearchResultChanged(): Ignoring negative itemCount: " + itemCount);
+            return;
+        }
         final MediaBrowser2 browser;
         try {
             browser = getBrowser();
@@ -373,6 +377,10 @@ class MediaController2Stub extends IMediaController2.Stub {
             final ParcelImpl libraryParams) {
         if (parentId == null) {
             Log.w(TAG, "onChildrenChanged(): Ignoring null parentId");
+            return;
+        }
+        if (itemCount < 0) {
+            Log.w(TAG, "onChildrenChanged(): Ignoring negative itemCount: " + itemCount);
             return;
         }
         final MediaBrowser2 browser;

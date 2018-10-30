@@ -68,7 +68,7 @@ public final class StarRating2 implements Rating2 {
         if (maxStars <= 0) {
             throw new IllegalArgumentException("maxStars should be a positive integer");
         } else if (starRating < 0.0f || starRating > maxStars) {
-            throw new IllegalArgumentException("starRating is out of range [0, maxStars)");
+            throw new IllegalArgumentException("starRating is out of range [0, maxStars]");
         }
         mMaxStars = maxStars;
         mStarRating = starRating;

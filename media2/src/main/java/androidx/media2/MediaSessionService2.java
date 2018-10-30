@@ -164,6 +164,12 @@ public abstract class MediaSessionService2 extends Service {
      * @see #removeSession(MediaSession2)
      */
     public final void addSession(@NonNull MediaSession2 session) {
+        if (session == null) {
+            throw new IllegalArgumentException("session shouldn't be null");
+        }
+        if (session.isClosed()) {
+            throw new IllegalArgumentException("session is already closed");
+        }
         mImpl.addSession(session);
     }
 
@@ -174,6 +180,9 @@ public abstract class MediaSessionService2 extends Service {
      * @see #addSession(MediaSession2)
      */
     public final void removeSession(@NonNull MediaSession2 session) {
+        if (session == null) {
+            throw new IllegalArgumentException("session shouldn't be null");
+        }
         mImpl.removeSession(session);
     }
 
@@ -193,6 +202,9 @@ public abstract class MediaSessionService2 extends Service {
      * @return a {@link MediaNotification}. Can be {@code null}.
      */
     public @Nullable MediaNotification onUpdateNotification(@NonNull MediaSession2 session) {
+        if (session == null) {
+            throw new IllegalArgumentException("session shouldn't be null");
+        }
         return mImpl.onUpdateNotification(session);
     }
 

@@ -27,8 +27,10 @@ import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -325,7 +327,17 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          * @param params library params
          */
         public void notifyChildrenChanged(@NonNull ControllerInfo controller,
-                @NonNull String parentId, int itemCount, @Nullable LibraryParams params) {
+                @NonNull String parentId, @IntRange(from = 0) int itemCount,
+                @Nullable LibraryParams params) {
+            if (controller == null) {
+                throw new IllegalArgumentException("controller shouldn't be null");
+            }
+            if (TextUtils.isEmpty(parentId)) {
+                throw new IllegalArgumentException("parentId shouldn't be empty");
+            }
+            if (itemCount < 0) {
+                throw new IllegalArgumentException("itemCount shouldn't be negative");
+            }
             getImpl().notifyChildrenChanged(controller, parentId, itemCount, params);
         }
 
@@ -340,6 +352,12 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
         // This is for the backward compatibility.
         public void notifyChildrenChanged(@NonNull String parentId, int itemCount,
                 @Nullable LibraryParams params) {
+            if (TextUtils.isEmpty(parentId)) {
+                throw new IllegalArgumentException("parentId shouldn't be empty");
+            }
+            if (itemCount < 0) {
+                throw new IllegalArgumentException("itemCount shouldn't be negative");
+            }
             getImpl().notifyChildrenChanged(parentId, itemCount, params);
         }
 
@@ -352,7 +370,17 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          * @param params library params
          */
         public void notifySearchResultChanged(@NonNull ControllerInfo controller,
-                @NonNull String query, int itemCount, @Nullable LibraryParams params) {
+                @NonNull String query, @IntRange(from = 0) int itemCount,
+                @Nullable LibraryParams params) {
+            if (controller == null) {
+                throw new IllegalArgumentException("controller shouldn't be null");
+            }
+            if (TextUtils.isEmpty(query)) {
+                throw new IllegalArgumentException("query shouldn't be empty");
+            }
+            if (itemCount < 0) {
+                throw new IllegalArgumentException("itemCount shouldn't be negative");
+            }
             getImpl().notifySearchResultChanged(controller, query, itemCount, params);
         }
 

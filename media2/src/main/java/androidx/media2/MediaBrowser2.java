@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.SystemClock;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
@@ -139,6 +140,9 @@ public class MediaBrowser2 extends MediaController2 {
      */
     public ListenableFuture<BrowserResult> subscribe(@NonNull String parentId,
             @Nullable LibraryParams params) {
+        if (TextUtils.isEmpty(parentId)) {
+            throw new IllegalArgumentException("parentId shouldn't be empty");
+        }
         if (isConnected()) {
             return getImpl().subscribe(parentId, params);
         }
@@ -155,6 +159,9 @@ public class MediaBrowser2 extends MediaController2 {
      * @param parentId parent id
      */
     public ListenableFuture<BrowserResult> unsubscribe(@NonNull String parentId) {
+        if (TextUtils.isEmpty(parentId)) {
+            throw new IllegalArgumentException("parentId shouldn't be empty");
+        }
         if (isConnected()) {
             return getImpl().unsubscribe(parentId);
         }
@@ -176,6 +183,15 @@ public class MediaBrowser2 extends MediaController2 {
     public ListenableFuture<BrowserResult> getChildren(@NonNull String parentId,
             @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
             @Nullable LibraryParams params) {
+        if (TextUtils.isEmpty(parentId)) {
+            throw new IllegalArgumentException("parentId shouldn't be empty");
+        }
+        if (page < 0) {
+            throw new IllegalArgumentException("page shouldn't be negative");
+        }
+        if (pageSize < 1) {
+            throw new IllegalArgumentException("pageSize shouldn't be less than 1");
+        }
         if (isConnected()) {
             return getImpl().getChildren(parentId, page, pageSize, params);
         }
@@ -192,6 +208,9 @@ public class MediaBrowser2 extends MediaController2 {
      * @see BrowserResult#getMediaItems()
      */
     public ListenableFuture<BrowserResult> getItem(@NonNull final String mediaId) {
+        if (TextUtils.isEmpty(mediaId)) {
+            throw new IllegalArgumentException("mediaId shouldn't be empty");
+        }
         if (isConnected()) {
             return getImpl().getItem(mediaId);
         }
@@ -213,6 +232,9 @@ public class MediaBrowser2 extends MediaController2 {
      */
     public ListenableFuture<BrowserResult> search(@NonNull String query,
             @Nullable LibraryParams params) {
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
         if (isConnected()) {
             return getImpl().search(query, params);
         }
@@ -234,6 +256,15 @@ public class MediaBrowser2 extends MediaController2 {
     public ListenableFuture<BrowserResult> getSearchResult(final @NonNull String query,
             @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
             final @Nullable LibraryParams params) {
+        if (TextUtils.isEmpty(query)) {
+            throw new IllegalArgumentException("query shouldn't be empty");
+        }
+        if (page < 0) {
+            throw new IllegalArgumentException("page shouldn't be negative");
+        }
+        if (pageSize < 1) {
+            throw new IllegalArgumentException("pageSize shouldn't be less than 1");
+        }
         if (isConnected()) {
             return getImpl().getSearchResult(query, page, pageSize, params);
         }
