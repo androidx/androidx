@@ -71,6 +71,7 @@ import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionToken2;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -434,6 +435,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
     }
 
     @Test
+    @FlakyTest(bugId = 118671770)
     public void testOnChildrenChanged_notCalledWhenNotSubscribed() throws Exception {
         // This test uses MediaLibrarySession.notifyChildrenChanged().
         prepareLooper();
