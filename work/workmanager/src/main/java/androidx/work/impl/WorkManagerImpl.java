@@ -117,7 +117,9 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
-     * Initializes the singleton instance of {@link WorkManagerImpl}.
+     * Initializes the singleton instance of {@link WorkManagerImpl}.  You should only do this if
+     * you want to use a custom {@link Configuration} object and have disabled
+     * WorkManagerInitializer.
      *
      * @param context A {@link Context} object for configuration purposes. Internally, this class
      *                will call {@link Context#getApplicationContext()}, so you may safely pass in
@@ -129,6 +131,14 @@ public class WorkManagerImpl extends WorkManager {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void initialize(@NonNull Context context, @NonNull Configuration configuration) {
         synchronized (sLock) {
+            if (sDelegatedInstance != null && sDefaultInstance != null) {
+                throw new IllegalStateException("WorkManager is already initialized.  Did you "
+                        + "try to initialize it manually without disabling "
+                        + "WorkManagerInitializer? See "
+                        + "WorkManager#initialize(Context, Configuration) or the class level"
+                        + "Javadoc for more information.");
+            }
+
             if (sDelegatedInstance == null) {
                 context = context.getApplicationContext();
                 if (sDefaultInstance == null) {

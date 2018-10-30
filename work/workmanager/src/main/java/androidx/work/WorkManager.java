@@ -113,6 +113,12 @@ import java.util.concurrent.TimeUnit;
  * (see {@link WorkRequest.Builder#addTag(String)}), and chains of work can be given a
  * uniquely-identifiable name (see
  * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest...)}).
+ *
+ * <p>
+ * <b>Manually initializing WorkManager</b>
+ * <p>
+ * You can manually initialize WorkManager and provide a custom {@link Configuration} for it.
+ * Please see {@link #initialize(Context, Configuration)}.
  */
 public abstract class WorkManager {
 
@@ -143,11 +149,13 @@ public abstract class WorkManager {
      * {@link Configuration}.  By default, this method should not be called because WorkManager is
      * automatically initialized.  To initialize WorkManager yourself, please follow these steps:
      * <p><ul>
-     * <li>Disable {@code androidx.work.impl.WorkManagerInitializer} in your manifest
-     * <li>In {@code Application#onCreate} or a {@code ContentProvider}, call this method before
-     * calling {@link WorkManager#getInstance()}
+     * <li>Disable {@code androidx.work.impl.WorkManagerInitializer} in your manifest.
+     * <li>Invoke this method in {@code Application#onCreate} or a {@code ContentProvider}. Note
+     * that this method <b>must</b> be invoked in one of these two places or you risk getting a
+     * {@code NullPointerException} in {@link #getInstance()}.
      * </ul></p>
-     * This method has no effect if WorkManager is already initialized.
+     * <p>
+     * This method throws an exception if it is called multiple times.
      *
      * @param context A {@link Context} object for configuration purposes. Internally, this class
      *                will call {@link Context#getApplicationContext()}, so you may safely pass in
