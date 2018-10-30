@@ -2468,13 +2468,20 @@ public final class MediaRouter {
             // the order of their descriptors.
             int targetIndex = 0;
             boolean selectedRouteDescriptorChanged = false;
-            if (providerDescriptor != null && providerDescriptor.isValid()) {
+            if (providerDescriptor != null && (providerDescriptor.isValid()
+                    || providerDescriptor == mSystemProvider.getDescriptor())) {
                 final List<MediaRouteDescriptor> routeDescriptors = providerDescriptor.getRoutes();
                 // Updating route group's contents requires all member routes' information.
                 // Add the groups to the lists and update them later.
                 List<Pair<RouteInfo, MediaRouteDescriptor>> addedGroups = new ArrayList<>();
                 List<Pair<RouteInfo, MediaRouteDescriptor>> updatedGroups = new ArrayList<>();
                 for (MediaRouteDescriptor routeDescriptor : routeDescriptors) {
+                    // SystemMediaRouteProvider may have invalid routes
+                    if (routeDescriptor == null || !routeDescriptor.isValid()) {
+                        Log.w(TAG, "Ignoring invalid system route descriptor: "
+                                + routeDescriptor);
+                        continue;
+                    }
                     final String id = routeDescriptor.getId();
                     final int sourceIndex = provider.findRouteIndexByDescriptorId(id);
                     boolean isGroup = !(routeDescriptor.getGroupMemberIds().isEmpty());
