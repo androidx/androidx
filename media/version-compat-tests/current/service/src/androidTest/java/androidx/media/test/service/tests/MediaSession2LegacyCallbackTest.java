@@ -113,6 +113,12 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
                         }
                         return null;
                     }
+
+                    @Override
+                    public MediaItem2 onCreateMediaItem(MediaSession2 session,
+                            ControllerInfo controller, String mediaId) {
+                        return MediaTestUtils.createMediaItem(mediaId);
+                    }
                 })
                 .setSessionActivity(mIntent)
                 .setId(TAG).build();

@@ -38,6 +38,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -711,25 +712,22 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Sets the playlist. All {@link MediaItem2}s in the list shouldn't be {@code null}.
-     * <p>
-     * Even when the playlist is successfully set, use the playlist returned from
-     * {@link #getPlaylist()} for playlist APIs such as {@link #skipToPlaylistItem(MediaItem2)}.
-     * Otherwise the session in the remote process can't distinguish between media items.
+     * Sets the playlist with the list of media IDs. All media IDs in the list shouldn't be empty.
      *
-     * @param list playlist
+     * @param list list of media id. Shouldn't contain an empty id.
      * @param metadata metadata of the playlist
      * @see #getPlaylist()
      * @see ControllerCallback#onPlaylistChanged
+     * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
-    public ListenableFuture<ControllerResult> setPlaylist(@NonNull List<MediaItem2> list,
+    public ListenableFuture<ControllerResult> setPlaylist(@NonNull List<String> list,
             @Nullable MediaMetadata2 metadata) {
         if (list == null) {
             throw new IllegalArgumentException("list shouldn't be null");
         }
-        for (MediaItem2 item : list) {
-            if (item == null) {
-                throw new IllegalArgumentException("item shouldn't be null in the list");
+        for (int i = 0; i < list.size(); i++) {
+            if (TextUtils.isEmpty(list.get(i))) {
+                throw new IllegalArgumentException("list shouldn't contain empty id, index=" + i);
             }
         }
         if (isConnected()) {
@@ -741,14 +739,15 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Sets a {@link MediaItem2} for playback.
      *
-     * @param item the descriptor of media item you want to play
+     * @param mediaId the descriptor of media item you want to play
+     * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
-    public ListenableFuture<ControllerResult> setMediaItem(@NonNull MediaItem2 item) {
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
+    public ListenableFuture<ControllerResult> setMediaItem(@NonNull String mediaId) {
+        if (TextUtils.isEmpty(mediaId)) {
+            throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
         if (isConnected()) {
-            return getImpl().setMediaItem(item);
+            getImpl().setMediaItem(mediaId);
         }
         return createDisconnectedFuture();
     }
@@ -779,65 +778,67 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Adds the media item to the playlist at position index. Index equals or greater than
-     * the current playlist size (e.g. {@link Integer#MAX_VALUE}) will add the item at the end of
-     * the playlist.
+     * Adds the media item to the playlist at the index with the media ID. Index equals or greater
+     * than the current playlist size (e.g. {@link Integer#MAX_VALUE}) will add the item at the end
+     * of the playlist.
      * <p>
      * This will not change the currently playing media item.
      * If index is less than or equal to the current index of the playlist,
      * the current index of the playlist will be incremented correspondingly.
      *
      * @param index the index you want to add
-     * @param item the media item you want to add
+     * @param mediaId the media ID of the new item
+     * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
-    public ListenableFuture<ControllerResult> addPlaylistItem(int index, @NonNull MediaItem2 item) {
+    public ListenableFuture<ControllerResult> addPlaylistItem(@IntRange(from = 0) int index,
+            @NonNull String mediaId) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
         }
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
+        if (TextUtils.isEmpty(mediaId)) {
+            throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
         if (isConnected()) {
-            return getImpl().addPlaylistItem(index, item);
+            return getImpl().addPlaylistItem(index, mediaId);
         }
         return createDisconnectedFuture();
     }
 
     /**
      * Removes the media item at index in the playlist.
-     *<p>
+     * <p>
      * If the item is the currently playing item of the playlist, current playback
      * will be stopped and playback moves to next source in the list.
      *
-     * @param item the media item you want to add
+     * @param index the media item you want to add
      */
-    public ListenableFuture<ControllerResult> removePlaylistItem(@NonNull MediaItem2 item) {
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
+    public ListenableFuture<ControllerResult> removePlaylistItem(@IntRange(from = 0) int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
         }
         if (isConnected()) {
-            return getImpl().removePlaylistItem(item);
+            return getImpl().removePlaylistItem(index);
         }
         return createDisconnectedFuture();
     }
 
     /**
-     * Replace the media item at index in the playlist. This can be also used to update metadata of
-     * an item.
+     * Replaces the media item at index in the playlist with the media ID.
      *
      * @param index the index of the item to replace
-     * @param item the new item
+     * @param mediaId the media ID of the new item
+     * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
-    public ListenableFuture<ControllerResult> replacePlaylistItem(int index,
-            @NonNull MediaItem2 item) {
+    public ListenableFuture<ControllerResult> replacePlaylistItem(@IntRange(from = 0) int index,
+            @NonNull String mediaId) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
         }
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
+        if (TextUtils.isEmpty(mediaId)) {
+            throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
         if (isConnected()) {
-            return getImpl().replacePlaylistItem(index, item);
+            return getImpl().replacePlaylistItem(index, mediaId);
         }
         return createDisconnectedFuture();
     }
@@ -877,18 +878,18 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Skips to the item in the playlist.
+     * Skips to the item in the playlist at the index.
      * <p>
      * This calls {@link SessionPlayer2#skipToPlaylistItem(MediaItem2)}.
      *
-     * @param item The item in the playlist you want to play
+     * @param index The item in the playlist you want to play
      */
-    public ListenableFuture<ControllerResult> skipToPlaylistItem(@NonNull MediaItem2 item) {
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
+    public ListenableFuture<ControllerResult> skipToPlaylistItem(@IntRange(from = 0) int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
         }
         if (isConnected()) {
-            return getImpl().skipToPlaylistItem(item);
+            return getImpl().skipToPlaylistItem(index);
         }
         return createDisconnectedFuture();
     }
@@ -1058,20 +1059,20 @@ public class MediaController2 implements AutoCloseable {
         ListenableFuture<ControllerResult> sendCustomCommand(@NonNull SessionCommand2 command,
                 @Nullable Bundle args);
         @Nullable List<MediaItem2> getPlaylist();
-        ListenableFuture<ControllerResult> setPlaylist(@NonNull List<MediaItem2> list,
+        ListenableFuture<ControllerResult> setPlaylist(@NonNull List<String> list,
                 @Nullable MediaMetadata2 metadata);
-        ListenableFuture<ControllerResult> setMediaItem(@NonNull MediaItem2 item);
+        ListenableFuture<ControllerResult> setMediaItem(@NonNull String mediaId);
         ListenableFuture<ControllerResult> updatePlaylistMetadata(
                 @Nullable MediaMetadata2 metadata);
         @Nullable MediaMetadata2 getPlaylistMetadata();
-        ListenableFuture<ControllerResult> addPlaylistItem(int index, @NonNull MediaItem2 item);
-        ListenableFuture<ControllerResult> removePlaylistItem(@NonNull MediaItem2 item);
+        ListenableFuture<ControllerResult> addPlaylistItem(int index, @NonNull String mediaId);
+        ListenableFuture<ControllerResult> removePlaylistItem(@NonNull int index);
         ListenableFuture<ControllerResult> replacePlaylistItem(int index,
-                @NonNull MediaItem2 item);
+                @NonNull String mediaId);
         MediaItem2 getCurrentMediaItem();
         ListenableFuture<ControllerResult> skipToPreviousItem();
         ListenableFuture<ControllerResult> skipToNextItem();
-        ListenableFuture<ControllerResult> skipToPlaylistItem(@NonNull MediaItem2 item);
+        ListenableFuture<ControllerResult> skipToPlaylistItem(@NonNull int index);
         @RepeatMode int getRepeatMode();
         ListenableFuture<ControllerResult> setRepeatMode(@RepeatMode int repeatMode);
         @ShuffleMode int getShuffleMode();

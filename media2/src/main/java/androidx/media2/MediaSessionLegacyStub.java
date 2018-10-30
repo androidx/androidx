@@ -290,7 +290,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     }
 
     @Override
-    public void onSkipToQueueItem(final long id) {
+    public void onSkipToQueueItem(final long queueId) {
         dispatchSessionTask(SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new SessionTask() {
                     @Override
@@ -299,13 +299,9 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                         if (playlist == null) {
                             return;
                         }
-                        for (int i = 0; i < playlist.size(); i++) {
-                            MediaItem2 item = playlist.get(i);
-                            if (item != null && item.getUuid().getMostSignificantBits() == id) {
-                                mSessionImpl.skipToPlaylistItem(item);
-                                break;
-                            }
-                        }
+                        // Use queueId as an index as we've published {@link QueueItem} as so.
+                        // see: {@link MediaUtils2#convertToQueueItemList}.
+                        mSessionImpl.skipToPlaylistItem((int) queueId);
                     }
                 });
     }
@@ -393,18 +389,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onAddQueueItem(final MediaDescriptionCompat description) {
-        if (description == null) {
-            return;
-        }
-        dispatchSessionTask(SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
-                new SessionTask() {
-                    @Override
-                    public void run(ControllerInfo controller) throws RemoteException {
-                        // Add the item at the end of the playlist.
-                        mSessionImpl.addPlaylistItem(Integer.MAX_VALUE,
-                                MediaUtils2.convertToMediaItem2(description));
-                    }
-                });
+        onAddQueueItem(description, Integer.MAX_VALUE);
     }
 
     @Override
@@ -416,8 +401,14 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionTask() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.addPlaylistItem(index,
-                                MediaUtils2.convertToMediaItem2(description));
+                        String mediaId = description.getMediaId();
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "onAddQueueItem(): Media ID shouldn't be null");
+                            return;
+                        }
+                        MediaItem2 newItem = mSessionImpl.getCallback().onCreateMediaItem(
+                                mSessionImpl.getInstance(), controller, mediaId);
+                        mSessionImpl.addPlaylistItem(index, newItem);
                     }
                 });
     }
@@ -431,17 +422,34 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 new SessionTask() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        // Note: Here we cannot simply call
-                        // removePlaylistItem(MediaUtils2.convertToMediaItem2(description)),
-                        // because the result of the method will have different UUID.
+                        String mediaId = description.getMediaId();
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "onRemoveQueueItem(): Media ID shouldn't be null");
+                            return;
+                        }
                         List<MediaItem2> playlist = mSessionImpl.getPlaylist();
                         for (int i = 0; i < playlist.size(); i++) {
                             MediaItem2 item = playlist.get(i);
-                            if (TextUtils.equals(item.getMediaId(), description.getMediaId())) {
-                                mSessionImpl.removePlaylistItem(item);
+                            if (TextUtils.equals(item.getMediaId(), mediaId)) {
+                                mSessionImpl.removePlaylistItem(i);
                                 return;
                             }
                         }
+                    }
+                });
+    }
+
+    @Override
+    public void onRemoveQueueItemAt(final int index) {
+        dispatchSessionTask(SessionCommand2.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
+                new SessionTask() {
+                    @Override
+                    public void run(ControllerInfo controller) throws RemoteException {
+                        if (index < 0) {
+                            Log.w(TAG, "onRemoveQueueItem(): index shouldn't be negative");
+                            return;
+                        }
+                        mSessionImpl.removePlaylistItem(index);
                     }
                 });
     }

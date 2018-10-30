@@ -117,17 +117,6 @@ public final class MediaTestUtils {
         return result;
     }
 
-    public static List<MediaItem2> playlistFromParcelableList(List<Parcelable> parcelables) {
-        if (parcelables == null) {
-            return null;
-        }
-        List<MediaItem2> result = new ArrayList<>();
-        for (Parcelable item : parcelables) {
-            result.add(MediaItem2.fromBundle((Bundle) item));
-        }
-        return result;
-    }
-
     public static List<Bundle> mediaItem2ListToBundleList(List<MediaItem2> list) {
         if (list == null) {
             return null;
@@ -135,17 +124,6 @@ public final class MediaTestUtils {
         List<Bundle> result = new ArrayList<>();
         for (MediaItem2 item : list) {
             result.add(item.toBundle());
-        }
-        return result;
-    }
-
-    public static List<MediaItem2> mediaItem2ListFromBundleList(List<Bundle> list) {
-        if (list == null) {
-            return null;
-        }
-        List<MediaItem2> result = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            result.add(MediaItem2.fromBundle(list.get(i)));
         }
         return result;
     }
@@ -193,6 +171,18 @@ public final class MediaTestUtils {
             int relativeIndex = originalIndex - fromIndex;
             assertMediaItemWithId(fullIdList.get(originalIndex),
                     paginatedList.get(relativeIndex));
+        }
+    }
+
+    public static void assertMediaItemsWithId(MediaItem2 a, MediaItem2 b) {
+        assertEquals(a.getMetadata().getString(MediaMetadata2.METADATA_KEY_MEDIA_ID),
+                b.getMetadata().getString(MediaMetadata2.METADATA_KEY_MEDIA_ID));
+    }
+
+    public static void assertMediaItemListsWithId(List<MediaItem2> a, List<MediaItem2> b) {
+        assertEquals(a.size(), b.size());
+        for (int i = 0; i < a.size(); i++) {
+            assertMediaItemsWithId(a.get(i), b.get(i));
         }
     }
 }

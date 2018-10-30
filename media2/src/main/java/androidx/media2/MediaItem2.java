@@ -20,9 +20,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Bundle;
-import android.os.ParcelUuid;
 import android.text.TextUtils;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -34,7 +34,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
 /**
@@ -72,21 +71,19 @@ public class MediaItem2 implements VersionedParcelable {
     public static final long POSITION_UNKNOWN = LONG_MAX;
 
     private static final String KEY_METADATA = "android.media.mediaitem2.metadata";
-    private static final String KEY_UUID = "android.media.mediaitem2.uuid";
 
     @ParcelField(1)
-    ParcelUuid mParcelUuid;
-    @ParcelField(2)
     MediaMetadata2 mMetadata;
-    @ParcelField(3)
+    @ParcelField(2)
     long mStartPositionMs = 0;
-    @ParcelField(4)
+    @ParcelField(3)
     long mEndPositionMs = POSITION_UNKNOWN;
 
     @NonParcelField
-    private final List<Pair<OnMetadataChangedListener, Executor>> mListeners = new ArrayList<>();
-    @NonParcelField
     private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    @NonParcelField
+    private final List<Pair<OnMetadataChangedListener, Executor>> mListeners = new ArrayList<>();
 
     /**
      * Used for VersionedParcelable
@@ -101,12 +98,11 @@ public class MediaItem2 implements VersionedParcelable {
     //       MediaItem2.
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaItem2(BuilderBase builder) {
-        this(builder.mUuid, builder.mMetadata, builder.mStartPositionMs, builder.mEndPositionMs);
+        this(builder.mMetadata, builder.mStartPositionMs, builder.mEndPositionMs);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    MediaItem2(@Nullable UUID uuid, @Nullable MediaMetadata2 metadata, long startPositionMs,
-            long endPositionMs) {
+    MediaItem2(@Nullable MediaMetadata2 metadata, long startPositionMs, long endPositionMs) {
         if (startPositionMs > endPositionMs) {
             throw new IllegalStateException("Illegal start/end position: "
                     + startPositionMs + " : " + endPositionMs);
@@ -119,9 +115,7 @@ public class MediaItem2 implements VersionedParcelable {
                         + " duration in the metdata, endPositionMs=" + endPositionMs
                         + ", durationMs=" + durationMs);
             }
-
         }
-        mParcelUuid = new ParcelUuid((uuid != null) ? uuid : UUID.randomUUID());
         mMetadata = metadata;
         mStartPositionMs = startPositionMs;
         mEndPositionMs = endPositionMs;
@@ -139,7 +133,6 @@ public class MediaItem2 implements VersionedParcelable {
         if (mMetadata != null) {
             bundle.putBundle(KEY_METADATA, mMetadata.toBundle());
         }
-        bundle.putParcelable(KEY_UUID, mParcelUuid);
         return bundle;
     }
 
@@ -155,28 +148,10 @@ public class MediaItem2 implements VersionedParcelable {
         if (bundle == null) {
             return null;
         }
-        final ParcelUuid parcelUuid = bundle.getParcelable(KEY_UUID);
-        return fromBundle(bundle, parcelUuid);
-    }
-
-    /**
-     * Create a MediaItem2 from the {@link Bundle} with the specified {@link UUID} string.
-     * <p>
-     * {@link UUID} string can be null if it want to generate new one.
-     *
-     * @param bundle The bundle which was published by {@link MediaItem2#toBundle()}.
-     * @param parcelUuid A {@link ParcelUuid} string to override. Can be {@link null} for override.
-     * @return The newly created MediaItem2
-     */
-    static MediaItem2 fromBundle(@NonNull Bundle bundle, @Nullable ParcelUuid parcelUuid) {
-        if (bundle == null) {
-            return null;
-        }
-        final UUID uuid = (parcelUuid != null) ? parcelUuid.getUuid() : null;
         final Bundle metadataBundle = bundle.getBundle(KEY_METADATA);
         final MediaMetadata2 metadata = metadataBundle != null
                 ? MediaMetadata2.fromBundle(metadataBundle) : null;
-        return new MediaItem2(uuid, metadata, 0, 0);
+        return new MediaItem2(metadata, 0, 0);
     }
 
     @Override
@@ -256,24 +231,6 @@ public class MediaItem2 implements VersionedParcelable {
         return mMetadata != null ? mMetadata.getString(MediaMetadata2.METADATA_KEY_MEDIA_ID) : null;
     }
 
-    @Override
-    public int hashCode() {
-        return mParcelUuid.hashCode();
-    }
-
-    @Override
-    public boolean equals(@Nullable Object obj) {
-        if (!(obj instanceof MediaItem2)) {
-            return false;
-        }
-        MediaItem2 other = (MediaItem2) obj;
-        return mParcelUuid.equals(other.mParcelUuid);
-    }
-
-    UUID getUuid() {
-        return mParcelUuid.getUuid();
-    }
-
     void addOnMetadataChangedListener(Executor executor, OnMetadataChangedListener listener) {
         synchronized (mLock) {
             for (Pair<OnMetadataChangedListener, Executor> pair : mListeners) {
@@ -306,8 +263,6 @@ public class MediaItem2 implements VersionedParcelable {
     public static class BuilderBase<T extends BuilderBase> {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         MediaMetadata2 mMetadata;
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
-        UUID mUuid;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         long mStartPositionMs = 0;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -351,11 +306,6 @@ public class MediaItem2 implements VersionedParcelable {
                 position = POSITION_UNKNOWN;
             }
             mEndPositionMs = position;
-            return (T) this;
-        }
-
-        T setUuid(UUID uuid) {
-            mUuid = uuid;
             return (T) this;
         }
 

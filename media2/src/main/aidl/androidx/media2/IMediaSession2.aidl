@@ -57,16 +57,14 @@ oneway interface IMediaSession2 {
     void setRating(IMediaController2 caller, int seq, String mediaId, in ParcelImpl rating2) = 20;
     void setPlaybackSpeed(IMediaController2 caller, int seq, float speed) = 21;
 
-    void setPlaylist(IMediaController2 caller, int seq, in ParcelImplListSlice listSlice,
+    void setPlaylist(IMediaController2 caller, int seq, in List<String> list,
             in Bundle metadata) = 22;
-    void setMediaItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 23;
+    void setMediaItem(IMediaController2 caller, int seq, String mediaId) = 23;
     void updatePlaylistMetadata(IMediaController2 caller, int seq, in Bundle metadata) = 24;
-    void addPlaylistItem(IMediaController2 caller, int seq, int index,
-            in ParcelImpl mediaItem) = 25;
-    void removePlaylistItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 26;
-    void replacePlaylistItem(IMediaController2 caller, int seq, int index,
-            in ParcelImpl mediaItem) = 27;
-    void skipToPlaylistItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 28;
+    void addPlaylistItem(IMediaController2 caller, int seq, int index, String mediaId) = 25;
+    void removePlaylistItem(IMediaController2 caller, int seq, int index) = 26;
+    void replacePlaylistItem(IMediaController2 caller, int seq, int index, String mediaId) = 27;
+    void skipToPlaylistItem(IMediaController2 caller, int seq, int index) = 28;
     void skipToPreviousItem(IMediaController2 caller, int seq) = 29;
     void skipToNextItem(IMediaController2 caller, int seq) = 30;
     void setRepeatMode(IMediaController2 caller, int seq, int repeatMode) = 31;

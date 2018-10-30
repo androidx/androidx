@@ -101,14 +101,14 @@ public final class TestUtils {
     }
 
     /**
-     * Create a playlist for testing purpose
+     * Create a list of media items for testing purpose
      * <p>
      * Caller's method name will be used for prefix of each media item's media id.
      *
      * @param size list size
-     * @return the newly created playlist
+     * @return the newly created media item list
      */
-    public static List<MediaItem2> createPlaylist(int size) {
+    public static List<MediaItem2> createMediaItems(int size) {
         final List<MediaItem2> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[3].getMethodName();
         for (int i = 0; i < size; i++) {
@@ -118,6 +118,23 @@ public final class TestUtils {
                                     caller + "_item_" + (size + 1)).build())
                     .build();
             list.add(item);
+        }
+        return list;
+    }
+
+    /**
+     * Create a list of media ids for testing purpose
+     * <p>
+     * Caller's method name will be used for prefix of media id.
+     *
+     * @param size list size
+     * @return the newly created ids
+     */
+    public static List<String> createMediaIds(int size) {
+        final List<String> list = new ArrayList<>();
+        String caller = Thread.currentThread().getStackTrace()[3].getMethodName();
+        for (int i = 0; i < size; i++) {
+            list.add(caller + "_item_" + (size + 1));
         }
         return list;
     }
@@ -158,14 +175,12 @@ public final class TestUtils {
     }
 
     /**
-     * Create a bundle for testing purpose.
+     * Create a {@link MediaItem2} with the id.
      *
-     * @return the newly created bundle.
+     * @return the newly created media item.
      */
-    public static Bundle createTestBundle() {
-        Bundle bundle = new Bundle();
-        bundle.putString("test_key", "test_value");
-        return bundle;
+    public static MediaItem2 createMediaItem(String mediaId) {
+        return new MediaItem2.Builder().setMetadata(createMetadata(mediaId, 0)).build();
     }
 
     public static LibraryParams createLibraryParams() {
