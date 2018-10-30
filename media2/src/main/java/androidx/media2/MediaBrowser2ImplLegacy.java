@@ -28,6 +28,8 @@ import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaBrowserCompat.ItemCallback;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
 import android.support.v4.media.MediaBrowserCompat.SubscriptionCallback;
+import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -49,6 +51,8 @@ import java.util.concurrent.Executor;
  * Implementation of MediaBrowser2 with the {@link MediaBrowserCompat} for legacy support.
  */
 class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements MediaBrowser2Impl {
+    private static final String TAG = "MB2ImplLegacy";
+
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final HashMap<LibraryParams, MediaBrowserCompat> mBrowserCompats = new HashMap<>();
@@ -108,9 +112,6 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
     @Override
     public ListenableFuture<BrowserResult> subscribe(@NonNull String parentId,
             @Nullable LibraryParams params) {
-        if (parentId == null) {
-            throw new IllegalArgumentException("parentId shouldn't be null");
-        }
         MediaBrowserCompat browser = getBrowserCompat();
         if (browser == null) {
             return BrowserResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);
@@ -132,9 +133,6 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
 
     @Override
     public ListenableFuture<BrowserResult> unsubscribe(@NonNull String parentId) {
-        if (parentId == null) {
-            throw new IllegalArgumentException("parentId shouldn't be null");
-        }
         MediaBrowserCompat browser = getBrowserCompat();
         if (browser == null) {
             return BrowserResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);
@@ -158,15 +156,6 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
     @Override
     public ListenableFuture<BrowserResult> getChildren(@NonNull String parentId, int page,
             int pageSize, @Nullable LibraryParams params) {
-        if (parentId == null) {
-            throw new IllegalArgumentException("parentId shouldn't be null");
-        }
-        if (page < 0) {
-            throw new IllegalArgumentException("page shouldn't be negative");
-        }
-        if (pageSize < 1) {
-            throw new IllegalArgumentException("pageSize shouldn't be less than 1");
-        }
         MediaBrowserCompat browser = getBrowserCompat();
         if (browser == null) {
             return BrowserResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);
@@ -389,6 +378,10 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
         @Override
         public void onChildrenLoaded(final String parentId, List<MediaItem> children,
                 final Bundle options) {
+            if (TextUtils.isEmpty(parentId)) {
+                Log.w(TAG, "SubscribeCallback.onChildrenLoaded(): Ignoring empty parentId");
+                return;
+            }
             final MediaBrowserCompat browser = getBrowserCompat();
             if (browser == null) {
                 // Browser is closed.
@@ -442,6 +435,10 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
         @Override
         public void onChildrenLoaded(final String parentId, List<MediaItem> children,
                 Bundle options) {
+            if (TextUtils.isEmpty(parentId)) {
+                Log.w(TAG, "GetChildrenCallback.onChildrenLoaded(): Ignoring empty parentId");
+                return;
+            }
             MediaBrowserCompat browser = getBrowserCompat();
             if (browser == null) {
                 mFuture.set(new BrowserResult(RESULT_CODE_DISCONNECTED));

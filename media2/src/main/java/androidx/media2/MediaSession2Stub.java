@@ -971,8 +971,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new LibrarySessionCallbackTask<LibraryResult>() {
                     @Override
                     public LibraryResult run(ControllerInfo controller) {
-                        if (mediaId == null) {
-                            Log.w(TAG, "getItem(): Ignoring null mediaId from " + controller);
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "getItem(): Ignoring empty mediaId from " + controller);
                             return new LibraryResult(RESULT_CODE_BAD_VALUE);
                         }
                         return getLibrarySession().onGetItemOnExecutor(controller, mediaId);
@@ -988,8 +988,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new LibrarySessionCallbackTask<LibraryResult>() {
                     @Override
                     public LibraryResult run(ControllerInfo controller) {
-                        if (parentId == null) {
-                            Log.w(TAG, "getChildren(): Ignoring null parentId from " + controller);
+                        if (TextUtils.isEmpty(parentId)) {
+                            Log.w(TAG, "getChildren(): Ignoring empty parentId from " + controller);
                             return new LibraryResult(LibraryResult.RESULT_CODE_BAD_VALUE);
                         }
                         if (page < 0) {
@@ -1062,8 +1062,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new LibrarySessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(ControllerInfo controller) {
-                        if (parentId == null) {
-                            Log.w(TAG, "subscribe(): Ignoring null parentId from " + controller);
+                        if (TextUtils.isEmpty(parentId)) {
+                            Log.w(TAG, "subscribe(): Ignoring empty parentId from " + controller);
                             return LibraryResult.RESULT_CODE_BAD_VALUE;
                         }
                         return getLibrarySession().onSubscribeOnExecutor(

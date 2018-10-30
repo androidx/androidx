@@ -107,12 +107,6 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
 
     @Override
     public void addSession(final MediaSession2 session) {
-        if (session == null) {
-            throw new IllegalArgumentException("session shouldn't be null");
-        }
-        if (session.isClosed()) {
-            throw new IllegalArgumentException("session is already closed");
-        }
         final MediaSession2 old;
         synchronized (mLock) {
             old = mSessions.get(session.getId());
@@ -137,9 +131,6 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
 
     @Override
     public void removeSession(MediaSession2 session) {
-        if (session == null) {
-            throw new IllegalArgumentException("session shouldn't be null");
-        }
         synchronized (mLock) {
             mSessions.remove(session.getId());
         }
@@ -150,7 +141,6 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
         if (intent == null || intent.getAction() == null) {
             return START_STICKY;
         }
-
         switch (intent.getAction()) {
             case Intent.ACTION_MEDIA_BUTTON: {
                 final MediaSessionService2 instance = getInstance();
