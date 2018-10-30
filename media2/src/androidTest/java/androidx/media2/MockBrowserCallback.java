@@ -25,6 +25,7 @@ import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.media2.MediaBrowser2.BrowserCallback;
 import androidx.media2.MediaController2.ControllerCallback;
+import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2TestBase.TestControllerCallbackInterface;
 
@@ -166,60 +167,22 @@ public class MockBrowserCallback extends BrowserCallback
     }
 
     @Override
-    public void onGetLibraryRootDone(MediaBrowser2 browser, Bundle rootHints,
-            String rootMediaId, Bundle rootExtra) {
-        super.onGetLibraryRootDone(browser, rootHints, rootMediaId, rootExtra);
-        if (mCallbackProxy instanceof BrowserCallback) {
-            ((BrowserCallback) mCallbackProxy)
-                    .onGetLibraryRootDone(browser, rootHints, rootMediaId, rootExtra);
-        }
-    }
-
-    @Override
-    public void onGetItemDone(MediaBrowser2 browser, String mediaId, MediaItem2 result) {
-        super.onGetItemDone(browser, mediaId, result);
-        if (mCallbackProxy instanceof BrowserCallback) {
-            ((BrowserCallback) mCallbackProxy).onGetItemDone(browser, mediaId, result);
-        }
-    }
-
-    @Override
-    public void onGetChildrenDone(MediaBrowser2 browser, String parentId, int page,
-            int pageSize, List<MediaItem2> result, Bundle extras) {
-        super.onGetChildrenDone(browser, parentId, page, pageSize, result, extras);
-        if (mCallbackProxy instanceof BrowserCallback) {
-            ((BrowserCallback) mCallbackProxy)
-                    .onGetChildrenDone(browser, parentId, page, pageSize, result, extras);
-        }
-    }
-
-    @Override
     public void onSearchResultChanged(MediaBrowser2 browser, String query, int itemCount,
-            Bundle extras) {
-        super.onSearchResultChanged(browser, query, itemCount, extras);
+            LibraryParams params) {
+        super.onSearchResultChanged(browser, query, itemCount, params);
         if (mCallbackProxy instanceof BrowserCallback) {
             ((BrowserCallback) mCallbackProxy)
-                    .onSearchResultChanged(browser, query, itemCount, extras);
-        }
-    }
-
-    @Override
-    public void onGetSearchResultDone(MediaBrowser2 browser, String query, int page,
-            int pageSize, List<MediaItem2> result, Bundle extras) {
-        super.onGetSearchResultDone(browser, query, page, pageSize, result, extras);
-        if (mCallbackProxy instanceof BrowserCallback) {
-            ((BrowserCallback) mCallbackProxy)
-                    .onGetSearchResultDone(browser, query, page, pageSize, result, extras);
+                    .onSearchResultChanged(browser, query, itemCount, params);
         }
     }
 
     @Override
     public void onChildrenChanged(MediaBrowser2 browser, String parentId, int itemCount,
-            Bundle extras) {
-        super.onChildrenChanged(browser, parentId, itemCount, extras);
+            LibraryParams params) {
+        super.onChildrenChanged(browser, parentId, itemCount, params);
         if (mCallbackProxy instanceof BrowserCallback) {
             ((BrowserCallback) mCallbackProxy)
-                    .onChildrenChanged(browser, parentId, itemCount, extras);
+                    .onChildrenChanged(browser, parentId, itemCount, params);
         }
     }
 

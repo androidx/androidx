@@ -27,6 +27,7 @@ import static androidx.media2.MediaMetadata2.METADATA_KEY_MEDIA_URI;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
+import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
@@ -649,5 +651,46 @@ public class MediaUtils2 {
             return RatingCompat.RATING_PERCENTAGE;
         }
         return RatingCompat.RATING_NONE;
+    }
+
+    /**
+     * Converts the rootHints, option, and extra to the {@link LibraryParams}.
+     *
+     * @param legacyBundle
+     * @return new LibraryParams
+     */
+    public static LibraryParams convertToLibraryParams(Context context, Bundle legacyBundle) {
+        if (legacyBundle == null) {
+            return null;
+        }
+        try {
+            legacyBundle.setClassLoader(context.getClassLoader());
+            return new LibraryParams.Builder().setExtras(legacyBundle)
+                    .setRecent(legacyBundle.getBoolean(BrowserRoot.EXTRA_RECENT))
+                    .setOffline(legacyBundle.getBoolean(BrowserRoot.EXTRA_OFFLINE))
+                    .setSuggested(legacyBundle.getBoolean(BrowserRoot.EXTRA_SUGGESTED))
+                    .build();
+        } catch (Exception e) {
+            // Failure when unpacking the legacy bundle.
+            return new LibraryParams.Builder().setExtras(legacyBundle).build();
+        }
+    }
+
+    /**
+     * Converts {@link LibraryParams} to the root hints.
+     *
+     * @param params
+     * @return new root hints
+     */
+    public static Bundle convertToRootHints(LibraryParams params) {
+        if (params == null) {
+            return null;
+        }
+        Bundle rootHints = (params.getExtras() == null)
+                ? new Bundle() : new Bundle(params.getExtras());
+        rootHints.putBoolean(BrowserRoot.EXTRA_RECENT, params.isRecent());
+        rootHints.putBoolean(BrowserRoot.EXTRA_OFFLINE, params.isOffline());
+        rootHints.putBoolean(BrowserRoot.EXTRA_SUGGESTED, params.isSuggested());
+        return rootHints;
     }
 }

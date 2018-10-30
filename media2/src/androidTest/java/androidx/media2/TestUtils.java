@@ -17,6 +17,7 @@
 package androidx.media2;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -27,6 +28,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.core.util.ObjectsCompat;
+import androidx.media2.MediaLibraryService2.LibraryParams;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -153,6 +155,14 @@ public final class TestUtils {
         return bundle;
     }
 
+    public static LibraryParams createLibraryParams() {
+        String callingTestName = Thread.currentThread().getStackTrace()[3].getMethodName();
+
+        Bundle extras = new Bundle();
+        extras.putString(callingTestName, callingTestName);
+        return new LibraryParams.Builder().setExtras(extras).build();
+    }
+
     /**
      * Asserts if two lists equals
      *
@@ -183,11 +193,48 @@ public final class TestUtils {
         }
     }
 
+    public static void assertPaginatedListEquals(List<MediaItem2> fullList, int page, int pageSize,
+            List<MediaItem2> paginatedList) {
+        int fromIndex = page * pageSize;
+        int toIndex = Math.min((page + 1) * pageSize, fullList.size());
+        // Compare the given results with originals.
+        for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
+            int relativeIndex = originalIndex - fromIndex;
+            assertMediaItemEquals(fullList.get(originalIndex), paginatedList.get(relativeIndex));
+        }
+    }
+
     public static void assertMetadataEquals(MediaMetadata2 a, MediaMetadata2 b) {
         if (a == null || b == null) {
             assertEquals(a, b);
         } else {
             assertTrue(TestUtils.equals(a.toBundle(), b.toBundle()));
+        }
+    }
+
+    public static void assertMediaItemWithId(String expectedId, MediaItem2 item) {
+        assertNotNull(item);
+        assertNotNull(item.getMetadata());
+        assertEquals(expectedId, item.getMetadata().getString(
+                MediaMetadata2.METADATA_KEY_MEDIA_ID));
+    }
+
+    public static void assertMediaItemEquals(MediaItem2 a, MediaItem2 b) {
+        if (a == null || b == null) {
+            assertEquals(a, b);
+        } else {
+            assertMetadataEquals(a.getMetadata(), b.getMetadata());
+        }
+    }
+
+    public static void assertLibraryParamsEquals(LibraryParams a, LibraryParams b) {
+        if (a == null || b == null) {
+            assertEquals(a, b);
+        } else {
+            assertEquals(a.isSuggested(), b.isSuggested());
+            assertEquals(a.isOffline(), b.isOffline());
+            assertEquals(a.isRecent(), b.isRecent());
+            assertTrue(TestUtils.equals(a.getExtras(), b.getExtras()));
         }
     }
 

@@ -63,13 +63,13 @@ interface IRemoteMediaController2 {
     void close(String controllerId);
 
     // MediaBrowser2 methods
-    void getLibraryRoot(String controllerId, in Bundle extras);
-    void subscribe(String controllerId, String parentId, in Bundle extras);
+    void getLibraryRoot(String controllerId, in ParcelImpl libraryParams);
+    void subscribe(String controllerId, String parentId, in ParcelImpl libraryParams);
     void unsubscribe(String controllerId, String parentId);
     void getChildren(String controllerId, String parentId, int page, int pageSize,
-            in Bundle extras);
+            in ParcelImpl libraryParams);
     void getItem(String controllerId, String mediaId);
-    void search(String controllerId, String query, in Bundle extras);
+    void search(String controllerId, String query, in ParcelImpl libraryParams);
     void getSearchResult(String controllerId, String query, int page, int pageSize,
-            in Bundle extras);
+            in ParcelImpl libraryParams);
 }

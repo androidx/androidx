@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.util.ObjectsCompat;
+import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.SessionCallback;
 import androidx.versionedparcelable.ParcelField;
@@ -501,14 +502,14 @@ public final class SessionCommand2 implements VersionedParcelable {
     static final ArrayMap<Integer, Range> VERSION_LIBRARY_COMMANDS_MAP = new ArrayMap<>();
 
     /**
-     * Command code for {@link MediaBrowser2#getLibraryRoot(Bundle)}.
+     * Command code for {@link MediaBrowser2#getLibraryRoot(LibraryParams)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
     public static final int COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT = 50000;
 
     /**
-     * Command code for {@link MediaBrowser2#subscribe(String, Bundle)}.
+     * Command code for {@link MediaBrowser2#subscribe(String, LibraryParams)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
@@ -522,7 +523,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_LIBRARY_UNSUBSCRIBE = 50002;
 
     /**
-     * Command code for {@link MediaBrowser2#getChildren(String, int, int, Bundle)}.
+     * Command code for {@link MediaBrowser2#getChildren(String, int, int, LibraryParams)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
@@ -536,14 +537,14 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_LIBRARY_GET_ITEM = 50004;
 
     /**
-     * Command code for {@link MediaBrowser2#search(String, Bundle)}.
+     * Command code for {@link MediaBrowser2#search(String, LibraryParams)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
     public static final int COMMAND_CODE_LIBRARY_SEARCH = 50005;
 
     /**
-     * Command code for {@link MediaBrowser2#getSearchResult(String, int, int, Bundle)}.
+     * Command code for {@link MediaBrowser2#getSearchResult(String, int, int, LibraryParams)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */

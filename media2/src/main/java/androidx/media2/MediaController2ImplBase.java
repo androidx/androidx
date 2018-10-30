@@ -92,6 +92,8 @@ import java.util.concurrent.Executor;
 
 class MediaController2ImplBase implements MediaController2Impl {
     private static final boolean THROW_EXCEPTION_FOR_NULL_RESULT = true;
+    private static final ControllerResult RESULT_WHEN_CLOSED =
+            new ControllerResult(RESULT_CODE_SKIPPED);
 
     static final String TAG = "MC2ImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -107,7 +109,7 @@ class MediaController2ImplBase implements MediaController2Impl {
     final ControllerCallback mCallback;
     private final Executor mCallbackExecutor;
     private final IBinder.DeathRecipient mDeathRecipient;
-    private final SequencedFutureManager mSequencedFutureManager;
+    final SequencedFutureManager mSequencedFutureManager;
     final MediaController2Stub mControllerStub;
 
     @GuardedBy("mLock")
@@ -166,8 +168,7 @@ class MediaController2ImplBase implements MediaController2Impl {
             throw new IllegalArgumentException("executor shouldn't be null");
         }
         mContext = context;
-        mSequencedFutureManager = new SequencedFutureManager(
-                new ControllerResult(RESULT_CODE_SKIPPED));
+        mSequencedFutureManager = new SequencedFutureManager();
         mControllerStub = new MediaController2Stub(this, mSequencedFutureManager);
         mToken = token;
         mCallback = callback;
@@ -264,7 +265,7 @@ class MediaController2ImplBase implements MediaController2Impl {
                 : getSessionInterfaceIfAble(commandCode);
         if (iSession2 != null) {
             final SequencedFuture<ControllerResult> result =
-                    mSequencedFutureManager.createSequencedFuture();
+                    mSequencedFutureManager.createSequencedFuture(RESULT_WHEN_CLOSED);
             try {
                 task.run(iSession2, result.getSequenceNumber());
             } catch (RemoteException e) {

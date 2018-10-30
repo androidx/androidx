@@ -16,16 +16,19 @@
 
 package androidx.media.test.service.tests;
 
+import static androidx.media.test.service.MediaTestUtils.assertLibraryParamsEquals;
+import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUCCESS;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Build;
-import android.os.Bundle;
 
-import androidx.media.test.lib.TestUtils;
+import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockMediaLibraryService2;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.RemoteMediaBrowser2;
+import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaSession2;
 import androidx.test.filters.SdkSuppress;
@@ -71,18 +74,19 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
     public void testOnSubscribe() throws InterruptedException {
         prepareLooper();
         final String testParentId = "testSubscribeId";
-        final Bundle testExtras = TestUtils.createTestBundle();
+        final LibraryParams testParams = MediaTestUtils.createLibraryParams();
 
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaLibrarySession.MediaLibrarySessionCallback sessionCallback =
                 new MediaLibrarySession.MediaLibrarySessionCallback() {
                     @Override
-                    public void onSubscribe(MediaLibrarySession session,
+                    public int onSubscribe(MediaLibrarySession session,
                             MediaSession2.ControllerInfo controller, String parentId,
-                            Bundle extras) {
+                            LibraryParams params) {
                         assertEquals(testParentId, parentId);
-                        assertTrue(TestUtils.equals(testExtras, extras));
+                        assertLibraryParamsEquals(testParams, params);
                         latch.countDown();
+                        return RESULT_CODE_SUCCESS;
                     }
         };
 
@@ -94,7 +98,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
                 .setId("testOnSubscribe")
                 .build()) {
             mBrowser2 = createRemoteBrowser2(session.getToken());
-            mBrowser2.subscribe(testParentId, testExtras);
+            mBrowser2.subscribe(testParentId, testParams);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -108,10 +112,11 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
         final MediaLibrarySession.MediaLibrarySessionCallback sessionCallback =
                 new MediaLibrarySession.MediaLibrarySessionCallback() {
                     @Override
-                    public void onUnsubscribe(MediaLibrarySession session,
+                    public int onUnsubscribe(MediaLibrarySession session,
                             MediaSession2.ControllerInfo controller, String parentId) {
                         assertEquals(testParentId, parentId);
                         latch.countDown();
+                        return RESULT_CODE_SUCCESS;
                     }
                 };
 
