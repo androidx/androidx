@@ -1,0 +1,96 @@
+#!/bin/bash
+set -e
+
+# This is a wrapper script that runs the specific version of Android Studio that is recommended for developing in this repository.
+# (This serves a similar purpose to gradlew)
+
+
+function getStudioUrl() {
+  osName="$1"
+  buildNumber="5056338"
+  studioUrl="https://dl.google.com/dl/android/studio/ide-zips/3.2.1.0/android-studio-ide-181.${buildNumber}-${osName}.zip"
+  echo "${studioUrl}"
+}
+
+acceptsLicenseAgreement="$1"
+scriptDir="$(cd $(dirname $0) && pwd)"
+tempDir="${scriptDir}/studio"
+function getOsName() {
+  unameOutput="$(uname)"
+  osName=""
+  if [ "${unameOutput}" == "Linux" ]; then
+    osName="linux"
+  else
+    osName="mac"
+  fi
+  echo "${osName}"
+}
+osName="$(getOsName)"
+studioUrl="$(getStudioUrl $osName)"
+studioDestName="$(basename ${studioUrl})"
+studioZipPath="${tempDir}/${studioDestName}"
+studioUnzippedPath="$(echo ${studioZipPath} | sed 's/\.zip$//')"
+
+function downloadFile() {
+  fromUrl="$1"
+  destPath="$2"
+  tempPath="${destPath}.tmp"
+  echo "Downloading ${fromUrl} to ${destPath}"
+  curl "${fromUrl}" > "${tempPath}"
+  mv "${tempPath}" "${destPath}"
+}
+
+function checkLicenseAgreement() {
+  # TODO: Is there a more official way to check that the user accepts the license?
+  if [ "${acceptsLicenseAgreement}" != "-y" ]; then
+    echo "Do you accept the license agreement at ${studioUnzippedPath}/android-studio/LICENSE.txt ?"
+    echo "If you do, then rerun this script with a '-y' argument"
+    exit 1
+  fi
+}
+
+function updateStudio() {
+  # skip if already up-to-date
+  if stat "${studioZipPath}" >/dev/null 2>/dev/null; then
+    # already up-to-date
+    return
+  fi
+
+  mkdir -p "${tempDir}"
+  downloadFile "${studioUrl}" "${studioZipPath}"
+  echo
+
+  echo "Removing previous installations"
+  ls "${tempDir}" | grep -v "^${studioDestName}\$" | sed "s|^|${tempDir}/|" | xargs rm -rf
+
+  echo "Unzipping"
+  unzip "${studioZipPath}" -d "${studioUnzippedPath}"
+}
+
+function runStudioLinux() {
+  studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
+  echo "$studioPath &"
+  "${studioPath}" &
+}
+
+function runStudioMac() {
+  studioPath="${studioUnzippedPath}/Android Studio.app"
+  echo "open ${studioPath}"
+  open "${studioPath}"
+}
+
+function runStudio() {
+  if [ "${unameOutput}" == "Linux" ]; then
+    runStudioLinux
+  else
+    runStudioMac
+  fi
+}
+
+function main() {
+  updateStudio
+  checkLicenseAgreement
+  runStudio
+}
+
+main
