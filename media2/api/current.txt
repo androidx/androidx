@@ -250,9 +250,9 @@ package androidx.media2 {
   }
 
   public static final class MediaLibraryService2.MediaLibrarySession extends androidx.media2.MediaSession2 {
-    method public void notifyChildrenChanged(androidx.media2.MediaSession2.ControllerInfo, String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public void notifyChildrenChanged(androidx.media2.MediaSession2.ControllerInfo, String, @IntRange(from=0) int, androidx.media2.MediaLibraryService2.LibraryParams?);
     method public void notifyChildrenChanged(String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
-    method public void notifySearchResultChanged(androidx.media2.MediaSession2.ControllerInfo, String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public void notifySearchResultChanged(androidx.media2.MediaSession2.ControllerInfo, String, @IntRange(from=0) int, androidx.media2.MediaLibraryService2.LibraryParams?);
   }
 
   public static final class MediaLibraryService2.MediaLibrarySession.Builder {
