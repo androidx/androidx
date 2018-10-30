@@ -136,7 +136,7 @@ public class ViewModelsWithStateFactories {
 
 
     static class FragmentVmFactory extends SavedStateVMFactory {
-        FragmentVmFactory(Application app, SavedStateRegistry savedStateStore,
+        FragmentVmFactory(Application app, BundlableSavedStateRegistry savedStateStore,
                 ViewModelWithStateFactory factory, Bundle initialArgs) {
             super(savedStateStore, initialArgs, factory);
             VMSavedStateInitializer.initializeIfNeeded(app);

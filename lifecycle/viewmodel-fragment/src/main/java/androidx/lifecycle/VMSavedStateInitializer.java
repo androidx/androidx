@@ -89,14 +89,14 @@ class VMSavedStateInitializer implements Application.ActivityLifecycleCallbacks 
     }
 
     @SuppressWarnings("WeakerAccess")
-    static void attach(SavedStateRegistry savedStateStore, ViewModelStoreOwner store) {
+    static void attach(BundlableSavedStateRegistry savedStateStore, ViewModelStoreOwner store) {
         ViewModelStore viewModelStore = store.getViewModelStore();
         for (String key : viewModelStore.keys()) {
             ViewModel viewModel = viewModelStore.get(key);
             SavedStateHandle handle = viewModel
                     .getTag(SavedStateVMFactory.TAG_SAVED_STATE_HANDLE);
             if (handle != null) {
-                savedStateStore.registerSaveStateCallback(key, handle.savedStateComponent());
+                savedStateStore.registerSavedStateProvider(key, handle.savedStateComponent());
             }
         }
     }

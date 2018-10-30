@@ -45,7 +45,7 @@ public class SavedStateHandle {
         return mHolder.savedStateAccessor();
     }
 
-    SavedState.Callback savedStateComponent() {
+    SavedStateRegistry.SavedStateProvider savedStateComponent() {
         return mHolder;
     }
 
