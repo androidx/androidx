@@ -230,7 +230,7 @@ package androidx.transition {
     method public void captureEndValues(androidx.transition.TransitionValues);
     method public void captureStartValues(androidx.transition.TransitionValues);
     method public int getOrdering();
-    method public androidx.transition.Transition! getTransitionAt(int);
+    method public androidx.transition.Transition? getTransitionAt(int);
     method public int getTransitionCount();
     method public androidx.transition.TransitionSet removeListener(androidx.transition.Transition.TransitionListener);
     method public androidx.transition.TransitionSet removeTarget(@IdRes int);
