@@ -916,7 +916,7 @@ public class RecyclerViewFocusRecoveryTest extends BaseRecyclerViewInstrumentati
         }
 
         protected String getText(Item item) {
-            return item.mText + "(" + item.mId + ")";
+            return item.getDisplayText();
         }
 
         abstract void setFocusable(boolean focusable);
