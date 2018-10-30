@@ -42,7 +42,7 @@ public class SavedStateHolderFragmentController {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class SavedStateHolderFragment extends Fragment {
 
-        private SavedStateRegistry mRegistry;
+        private BundlableSavedStateRegistry mRegistry;
 
         @SuppressWarnings({"WeakerAccess", "unused"})
         public SavedStateHolderFragment() {
@@ -50,7 +50,7 @@ public class SavedStateHolderFragmentController {
 
         @SuppressLint("ValidFragment")
         @SuppressWarnings("WeakerAccess")
-        SavedStateHolderFragment(SavedStateRegistry registry) {
+        SavedStateHolderFragment(BundlableSavedStateRegistry registry) {
             mRegistry = registry;
         }
 
@@ -62,14 +62,14 @@ public class SavedStateHolderFragmentController {
                         getParentFragment() != null ? getParentFragment() : getActivity());
             }
             if (mRegistry == null) {
-                mRegistry = new SavedStateRegistry();
+                mRegistry = new BundlableSavedStateRegistry();
             }
             if (!mRegistry.isRestored()) {
                 mRegistry.performRestore(savedInstanceState);
             }
         }
 
-        SavedStateRegistry getSavedStateStore() {
+        BundlableSavedStateRegistry getSavedStateStore() {
             return mRegistry;
         }
 
@@ -90,7 +90,7 @@ public class SavedStateHolderFragmentController {
     static final String HOLDER_TAG = "androidx.lifecycle.SavedStateHolderFragment";
 
     @SuppressWarnings("WeakerAccess")
-    Map<LifecycleOwner, SavedStateRegistry> mNotCommittedStores = new HashMap<>();
+    Map<LifecycleOwner, BundlableSavedStateRegistry> mNotCommittedStores = new HashMap<>();
 
     @SuppressWarnings("WeakerAccess")
     static SavedStateHolderFragment findHolderFragment(FragmentManager manager) {
@@ -106,10 +106,10 @@ public class SavedStateHolderFragmentController {
         return (SavedStateHolderFragment) fragmentByTag;
     }
 
-    private SavedStateRegistry createHolderFragment(final FragmentManagerCall fragmentManager,
-            LifecycleOwner owner) {
+    private BundlableSavedStateRegistry createHolderFragment(
+            final FragmentManagerCall fragmentManager, LifecycleOwner owner) {
 
-        final SavedStateRegistry registry = new SavedStateRegistry();
+        final BundlableSavedStateRegistry registry = new BundlableSavedStateRegistry();
 
         if (fragmentManager.call() != null) {
             registry.performRestore(null);
@@ -138,7 +138,7 @@ public class SavedStateHolderFragmentController {
                 }
                 if (event == Lifecycle.Event.ON_DESTROY) {
                     source.getLifecycle().removeObserver(this);
-                    SavedStateRegistry notCommitted = mNotCommittedStores.remove(source);
+                    BundlableSavedStateRegistry notCommitted = mNotCommittedStores.remove(source);
                     if (notCommitted != null) {
                         Log.e(LOG_TAG, "Failed to save a SavedStateComponents for " + source);
                     }
@@ -148,7 +148,7 @@ public class SavedStateHolderFragmentController {
         return registry;
     }
 
-    private SavedStateRegistry savedStateRegistry(FragmentManagerCall fragmentManager,
+    private BundlableSavedStateRegistry savedStateRegistry(FragmentManagerCall fragmentManager,
             LifecycleOwner owner) {
         FragmentManager fm = fragmentManager.call();
         if (fm != null) {
@@ -157,7 +157,7 @@ public class SavedStateHolderFragmentController {
                 return holder.getSavedStateStore();
             }
         }
-        SavedStateRegistry store = mNotCommittedStores.get(owner);
+        BundlableSavedStateRegistry store = mNotCommittedStores.get(owner);
         if (store != null) {
             return store;
         }
@@ -165,11 +165,11 @@ public class SavedStateHolderFragmentController {
         return createHolderFragment(fragmentManager, owner);
     }
 
-    static SavedStateRegistry savedStateRegistry(FragmentActivity activity) {
+    static BundlableSavedStateRegistry savedStateRegistry(FragmentActivity activity) {
         return sHolderFragmentManager.savedStateRegistry(fragmentManager(activity), activity);
     }
 
-    static SavedStateRegistry savedStateRegistry(Fragment parentFragment) {
+    static BundlableSavedStateRegistry savedStateRegistry(Fragment parentFragment) {
         return sHolderFragmentManager.savedStateRegistry(fragmentManager(parentFragment),
                 parentFragment);
     }

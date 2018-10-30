@@ -24,10 +24,10 @@ abstract class SavedStateVMFactory implements ViewModelProvider.KeyedFactory {
     static final String TAG_SAVED_STATE_HANDLE = "androidx.lifecycle.savedstate.vm.tag";
 
     private final ViewModelWithStateFactory mWrappedFactory;
-    private final SavedStateRegistry mSavedStateStore;
+    private final BundlableSavedStateRegistry mSavedStateStore;
     private final Bundle mInitialArgs;
 
-    SavedStateVMFactory(SavedStateRegistry savedStateStore, Bundle initialArgs,
+    SavedStateVMFactory(BundlableSavedStateRegistry savedStateStore, Bundle initialArgs,
             ViewModelWithStateFactory factory) {
         mWrappedFactory = factory;
         mSavedStateStore = savedStateStore;
@@ -39,7 +39,7 @@ abstract class SavedStateVMFactory implements ViewModelProvider.KeyedFactory {
     public <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
         Bundle savedState = mSavedStateStore.consumeRestoredStateForKey(key);
         SavedStateHandle handle = new SavedStateHandle(mInitialArgs, savedState);
-        mSavedStateStore.registerSaveStateCallback(key, handle.savedStateComponent());
+        mSavedStateStore.registerSavedStateProvider(key, handle.savedStateComponent());
         T viewmodel = mWrappedFactory.create(key, modelClass, handle);
         viewmodel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE, handle);
         return viewmodel;

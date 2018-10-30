@@ -1,29 +1,29 @@
 // Signature format: 2.0
 package androidx.lifecycle {
 
-  public interface SavedState {
-    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
-    method @MainThread public boolean isRestored();
-    method @MainThread public void registerSaveStateCallback(String, androidx.lifecycle.SavedState.Callback);
-    method @MainThread public void unregisterSaveStateCallback(String);
-  }
-
-  public static interface SavedState.Callback {
-    method public android.os.Bundle saveState();
-  }
-
-  public interface SavedStateOwner {
-    method public androidx.lifecycle.SavedState getSavedState();
-  }
-
-  public class SavedStateRegistry implements androidx.lifecycle.SavedState {
-    ctor public SavedStateRegistry();
+  public final class BundlableSavedStateRegistry implements androidx.lifecycle.SavedStateRegistry {
+    ctor public BundlableSavedStateRegistry();
     method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
     method @MainThread public boolean isRestored();
     method @MainThread public void performRestore(android.os.Bundle?);
     method @MainThread public void performSave(android.os.Bundle);
-    method @MainThread public void registerSaveStateCallback(String, androidx.lifecycle.SavedState.Callback);
-    method @MainThread public void unregisterSaveStateCallback(String);
+    method @MainThread public void registerSavedStateProvider(String, androidx.lifecycle.SavedStateRegistry.SavedStateProvider);
+    method @MainThread public void unregisterSavedStateProvider(String);
+  }
+
+  public interface SavedStateRegistry {
+    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
+    method @MainThread public boolean isRestored();
+    method @MainThread public void registerSavedStateProvider(String, androidx.lifecycle.SavedStateRegistry.SavedStateProvider);
+    method @MainThread public void unregisterSavedStateProvider(String);
+  }
+
+  public static interface SavedStateRegistry.SavedStateProvider {
+    method public android.os.Bundle saveState();
+  }
+
+  public interface SavedStateRegistryOwner {
+    method public androidx.lifecycle.SavedStateRegistry getSavedState();
   }
 
 }

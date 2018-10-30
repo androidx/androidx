@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-class SavedStateAccessorHolder implements SavedState.Callback {
+class SavedStateAccessorHolder implements SavedStateRegistry.SavedStateProvider {
     private static final String VALUES = "values";
     private static final String KEYS = "keys";
 

@@ -23,29 +23,29 @@ import androidx.annotation.Nullable;
 import androidx.arch.core.util.Function;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.BundlableSavedStateRegistry;
 import androidx.lifecycle.SavedStateRegistries;
-import androidx.lifecycle.SavedStateRegistry;
 
 public class SavedStateActivity extends FragmentActivity {
     private static final String TAG = "fragment";
 
-    private static Function<SavedStateRegistry, Void> sOnCreateRunnable;
+    private static Function<BundlableSavedStateRegistry, Void> sOnCreateRunnable;
     private static boolean sInFragment;
 
     public static void duringOnCreate(boolean inFragment,
-            Function<SavedStateRegistry, Void> f) {
+            Function<BundlableSavedStateRegistry, Void> f) {
         sInFragment = inFragment;
         sOnCreateRunnable = f;
     }
 
-    private static void shotOnCreateRunnable(SavedStateRegistry store) {
+    private static void shotOnCreateRunnable(BundlableSavedStateRegistry store) {
         if (sOnCreateRunnable != null) {
             sOnCreateRunnable.apply(store);
             sOnCreateRunnable = null;
         }
     }
 
-    private SavedStateRegistry mSavedStateStore;
+    private BundlableSavedStateRegistry mSavedStateStore;
 
     public SavedStateActivity() {
         if (!sInFragment && sOnCreateRunnable != null) {
@@ -70,7 +70,7 @@ public class SavedStateActivity extends FragmentActivity {
     }
 
     public static class FragmentWithRunnable extends Fragment {
-        private SavedStateRegistry mSavedStateStore;
+        private BundlableSavedStateRegistry mSavedStateStore;
         @SuppressWarnings("WeakerAccess")
         public FragmentWithRunnable() {
             if (sInFragment && sOnCreateRunnable != null) {
