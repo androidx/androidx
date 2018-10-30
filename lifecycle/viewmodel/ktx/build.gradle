@@ -57,9 +57,3 @@ supportLibrary {
     description = "Kotlin extensions for 'viewmodel' artifact"
     useMetalava = true
 }
-
-kotlin {
-    experimental {
-        coroutines "enable"
-    }
-}
