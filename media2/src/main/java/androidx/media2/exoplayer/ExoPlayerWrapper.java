@@ -64,6 +64,7 @@ import androidx.media2.exoplayer.external.source.MediaSource;
 import androidx.media2.exoplayer.external.source.TrackGroup;
 import androidx.media2.exoplayer.external.source.TrackGroupArray;
 import androidx.media2.exoplayer.external.trackselection.DefaultTrackSelector;
+import androidx.media2.exoplayer.external.trackselection.TrackSelectionArray;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.upstream.DefaultDataSourceFactory;
 import androidx.media2.exoplayer.external.util.MimeTypes;
@@ -97,6 +98,9 @@ import java.util.List;
 
         /** Called when the player is prepared. */
         void onPrepared(MediaItem2 mediaItem2);
+
+        /** Called when metadata (e.g., the set of available tracks) changes. */
+        void onMetadataChanged(MediaItem2 mediaItem2);
 
         /** Called when a seek request has completed. */
         void onSeekCompleted(long positionMs);
@@ -473,6 +477,11 @@ import java.util.List;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void handleTracksChanged() {
+        mListener.onMetadataChanged(getCurrentMediaItem());
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleSeekProcessed() {
         mPendingSeek = true;
         if (mPlayer.getPlaybackState() == Player.STATE_READY) {
@@ -545,6 +554,12 @@ import java.util.List;
         @Override
         public void onPlayerStateChanged(boolean playWhenReady, int state) {
             handlePlayerStateChanged(playWhenReady, state);
+        }
+
+        @Override
+        public void onTracksChanged(
+                TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+            handleTracksChanged();
         }
 
         @Override

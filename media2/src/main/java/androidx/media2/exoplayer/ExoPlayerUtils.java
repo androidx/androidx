@@ -22,9 +22,13 @@ import static androidx.media2.MediaPlayer2.MEDIA_ERROR_MALFORMED;
 import static androidx.media2.MediaPlayer2.MEDIA_ERROR_TIMED_OUT;
 import static androidx.media2.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_AUDIO;
+import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_METADATA;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
+import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
+import static androidx.media2.SubtitleData2.MIMETYPE_TEXT_CEA_608;
+import static androidx.media2.SubtitleData2.MIMETYPE_TEXT_CEA_708;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -180,6 +184,9 @@ import java.util.List;
         for (int i = 0; i < trackGroupArray.length; i++) {
             TrackGroup trackGroup = trackGroupArray.get(i);
             Format format = trackGroup.getFormat(0);
+            if (!shouldExposeTrack(format)) {
+                continue;
+            }
             MediaFormat mediaFormat = getMediaFormat(format);
             String mimeType = format.sampleMimeType;
             int trackType = getTrackType(mimeType);
@@ -189,39 +196,108 @@ import java.util.List;
         return trackInfos;
     }
 
+    /** Returns the ExoPlayer track index for the given track index. */
+    public static int getExoPlayerTrackIndex(int trackIndex, TrackGroupArray trackGroupArray) {
+        for (int exoPlayerTrackIndex = 0;
+                exoPlayerTrackIndex < trackGroupArray.length;
+                exoPlayerTrackIndex++) {
+            if (!shouldExposeTrack(trackGroupArray.get(exoPlayerTrackIndex).getFormat(0))) {
+                continue;
+            }
+            if (trackIndex-- == 0) {
+                return exoPlayerTrackIndex;
+            }
+        }
+        return -1;
+    }
+
+    /** Returns the ExoPlayer track type for the given MediaPlayer2 track type. */
+    public static int getExoPlayerTrackType(int trackType) {
+        switch (trackType) {
+            case MEDIA_TRACK_TYPE_AUDIO:
+                return C.TRACK_TYPE_AUDIO;
+            case MEDIA_TRACK_TYPE_VIDEO:
+                return C.TRACK_TYPE_VIDEO;
+            case MEDIA_TRACK_TYPE_SUBTITLE:
+                return C.TRACK_TYPE_TEXT;
+            case MEDIA_TRACK_TYPE_METADATA:
+                return C.TRACK_TYPE_METADATA;
+            case MEDIA_TRACK_TYPE_UNKNOWN:
+            case MEDIA_TRACK_TYPE_TIMEDTEXT:
+            default:
+                return C.TRACK_TYPE_UNKNOWN;
+        }
+    }
+
     /** Returns the track type corresponding to the given MIME type. */
     private static int getTrackType(String mimeType) {
-        return MimeTypes.isAudio(mimeType) ? MEDIA_TRACK_TYPE_AUDIO
-                : MimeTypes.isVideo(mimeType) ? MEDIA_TRACK_TYPE_VIDEO
-                        : MimeTypes.isText(mimeType) ? MEDIA_TRACK_TYPE_SUBTITLE
-                                : MEDIA_TRACK_TYPE_UNKNOWN;
+        return getTrackType(MimeTypes.getTrackType(mimeType));
+    }
+
+    /** Returns the track type corresponding to the given ExoPlayer track type. */
+    private static int getTrackType(int exoPlayerTrackType) {
+        switch (exoPlayerTrackType) {
+            case C.TRACK_TYPE_AUDIO:
+                return MEDIA_TRACK_TYPE_AUDIO;
+            case C.TRACK_TYPE_VIDEO:
+                return MEDIA_TRACK_TYPE_VIDEO;
+            case C.TRACK_TYPE_TEXT:
+                return MEDIA_TRACK_TYPE_SUBTITLE;
+            case C.TRACK_TYPE_METADATA:
+                return MEDIA_TRACK_TYPE_METADATA;
+            case C.TRACK_TYPE_NONE:
+            case C.TRACK_TYPE_CAMERA_MOTION:
+            case C.TRACK_TYPE_DEFAULT:
+            case C.TRACK_TYPE_UNKNOWN:
+            default:
+                return MEDIA_TRACK_TYPE_UNKNOWN;
+        }
+    }
+
+    private static boolean shouldExposeTrack(Format format) {
+        // TODO(b/80232248): Filter out tracks that ExoPlayer exposes but MediaPlayer doesn't.
+        return true;
     }
 
     /** Returns the media format corresponding to an ExoPlayer format. */
     @SuppressLint("InlinedApi")
     private static MediaFormat getMediaFormat(Format format) {
-        String mimeType = format.sampleMimeType;
         MediaFormat mediaFormat = new MediaFormat();
-        // Set format parameters that should always be set.
+        String mimeType = format.sampleMimeType;
         mediaFormat.setString(MediaFormat.KEY_MIME, mimeType);
-        if (MimeTypes.isAudio(mimeType)) {
+        int trackType = MimeTypes.getTrackType(mimeType);
+        if (trackType == C.TRACK_TYPE_AUDIO) {
             mediaFormat.setInteger(MediaFormat.KEY_CHANNEL_COUNT, format.channelCount);
             mediaFormat.setInteger(MediaFormat.KEY_SAMPLE_RATE, format.sampleRate);
-            MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
-        } else if (MimeTypes.isVideo(mimeType)) {
-            mediaFormat.setString(MediaFormat.KEY_MIME, format.sampleMimeType);
-            mediaFormat.setInteger(MediaFormat.KEY_WIDTH, format.width);
-            mediaFormat.setInteger(MediaFormat.KEY_HEIGHT, format.height);
-            MediaFormatUtil.setCsdBuffers(mediaFormat, format.initializationData);
-            // Set format parameters that may be unset.
+            if (format.language != null) {
+                mediaFormat.setString(MediaFormat.KEY_LANGUAGE, format.language);
+            }
+        } else if (trackType == C.TRACK_TYPE_VIDEO) {
+            MediaFormatUtil.maybeSetInteger(mediaFormat, MediaFormat.KEY_WIDTH, format.width);
+            MediaFormatUtil.maybeSetInteger(mediaFormat, MediaFormat.KEY_HEIGHT, format.height);
             MediaFormatUtil.maybeSetFloat(
                     mediaFormat, MediaFormat.KEY_FRAME_RATE, format.frameRate);
             MediaFormatUtil.maybeSetInteger(
                     mediaFormat, MediaFormat.KEY_ROTATION, format.rotationDegrees);
             MediaFormatUtil.maybeSetColorInfo(mediaFormat, format.colorInfo);
-        } else {
-            // TODO(b/111150876): Configure timed text/subtitle formats.
-            mediaFormat.setInteger(MediaFormat.KEY_LANGUAGE, format.channelCount);
+        } else if (trackType == C.TRACK_TYPE_TEXT) {
+            boolean isAutoselect = format.selectionFlags == C.SELECTION_FLAG_AUTOSELECT;
+            boolean isDefault = format.selectionFlags == C.SELECTION_FLAG_DEFAULT;
+            boolean isForced = format.selectionFlags == C.SELECTION_FLAG_FORCED;
+            mediaFormat.setInteger(MediaFormat.KEY_IS_AUTOSELECT, isAutoselect ? 1 : 0);
+            mediaFormat.setInteger(MediaFormat.KEY_IS_DEFAULT, isDefault ? 1 : 0);
+            mediaFormat.setInteger(MediaFormat.KEY_IS_FORCED_SUBTITLE, isForced ? 1 : 0);
+            if (format.language == null) {
+                mediaFormat.setString(MediaFormat.KEY_LANGUAGE, C.LANGUAGE_UNDETERMINED);
+            } else {
+                mediaFormat.setString(MediaFormat.KEY_LANGUAGE, format.language);
+            }
+            // MediaPlayer2 uses text/* instead of application/* MIME types.
+            if (MimeTypes.APPLICATION_CEA608.equals(mimeType)) {
+                mediaFormat.setString(MediaFormat.KEY_MIME, MIMETYPE_TEXT_CEA_608);
+            } else if (MimeTypes.APPLICATION_CEA708.equals(mimeType)) {
+                mediaFormat.setString(MediaFormat.KEY_MIME, MIMETYPE_TEXT_CEA_708);
+            }
         }
         return mediaFormat;
     }
