@@ -66,6 +66,7 @@ import androidx.slice.builders.ListBuilder.HeaderBuilder;
 import androidx.slice.builders.ListBuilder.InputRangeBuilder;
 import androidx.slice.builders.ListBuilder.RangeBuilder;
 import androidx.slice.builders.ListBuilder.RowBuilder;
+import androidx.slice.builders.SelectionBuilder;
 import androidx.slice.builders.SliceAction;
 import androidx.slice.core.SliceQuery;
 
@@ -220,6 +221,12 @@ public class ListBuilderV1Impl extends TemplateBuilderImpl implements ListBuilde
         RangeBuilderImpl impl = new RangeBuilderImpl(createChildBuilder(), builder);
         checkRow(true, impl.hasText());
         getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);
+    }
+
+    @Override
+    public void addSelection(SelectionBuilder builder) {
+        SelectionBuilderImpl impl = new SelectionBuilderV1Impl(createChildBuilder(), builder);
+        getBuilder().addSubSlice(impl.build());
     }
 
     /**

@@ -457,6 +457,15 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
+     * Add a selection row to the list builder.
+     */
+    @NonNull
+    public ListBuilder addSelection(@NonNull SelectionBuilder selectionBuilder) {
+        mImpl.addSelection(selectionBuilder);
+        return this;
+    }
+
+    /**
      * Builder to construct a range row which can be added to a {@link ListBuilder}.
      * <p>
      * A range row supports displaying a horizontal progress indicator.

@@ -29,6 +29,7 @@ import androidx.slice.builders.ListBuilder.HeaderBuilder;
 import androidx.slice.builders.ListBuilder.InputRangeBuilder;
 import androidx.slice.builders.ListBuilder.RangeBuilder;
 import androidx.slice.builders.ListBuilder.RowBuilder;
+import androidx.slice.builders.SelectionBuilder;
 import androidx.slice.builders.SliceAction;
 
 import java.time.Duration;
@@ -73,6 +74,11 @@ public interface ListBuilder {
      * Add a range row to the list builder.
      */
     void addRange(RangeBuilder builder);
+
+    /**
+     * Add a selection row to the list builder.
+     */
+    void addSelection(SelectionBuilder builder);
 
     /**
      * If all content in a slice cannot be shown, the row added here will be displayed where the
