@@ -18,11 +18,6 @@
 
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
     android:color="?android:attr/colorControlHighlight">
-    <item>
-        <shape>
-            <solid android:color="?android:attr/colorPrimary"/>
-        </shape>
-    </item>
     <item
         android:width="@dimen/car_spinner_dropdown_arrow_size"
         android:height="@dimen/car_spinner_dropdown_arrow_size"
