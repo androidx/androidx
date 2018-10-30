@@ -30,6 +30,18 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".PagedListViewShrinkActivity"
+                  android:windowSoftInputMode="adjustResize"
+                  android:label="@string/paged_list_view_shrink_title"
+                  android:parentActivityName=".SupportCarDemoActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.SAMPLE_CODE" />
+            </intent-filter>
+            <meta-data android:name="android.support.PARENT_ACTIVITY"
+                       android:value=".SupportCarDemoActivity" />
+        </activity>
+
         <activity android:name=".PagedListViewActivity"
                   android:label="@string/paged_list_view_title"
                   android:parentActivityName=".SupportCarDemoActivity" >
