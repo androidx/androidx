@@ -17,6 +17,7 @@
 <transitionSet xmlns:android="http://schemas.android.com/apk/res/android"
                android:transitionOrdering="sequential"
                android:duration="300">
+    <arcMotion/>
     <changeBounds/>
     <fade/>
 </transitionSet>
