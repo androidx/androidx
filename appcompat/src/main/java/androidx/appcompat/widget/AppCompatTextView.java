@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
@@ -39,6 +40,7 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.graphics.TypefaceCompat;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.core.widget.AutoSizeableTextView;
@@ -565,5 +567,15 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
                 top != 0 ? AppCompatResources.getDrawable(context, top) : null,
                 end != 0 ? AppCompatResources.getDrawable(context, end) : null,
                 bottom != 0 ? AppCompatResources.getDrawable(context, bottom) : null);
+    }
+
+    @Override
+    public void setTypeface(@Nullable Typeface tf, int style) {
+        Typeface finalTypeface = null;
+        if (tf != null && style > 0) {
+            finalTypeface = TypefaceCompat.create(getContext(), tf, style);
+        }
+
+        super.setTypeface(finalTypeface != null ? finalTypeface : tf, style);
     }
 }
