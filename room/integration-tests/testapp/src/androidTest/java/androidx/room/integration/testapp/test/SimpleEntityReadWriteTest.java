@@ -46,6 +46,7 @@ import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.Product;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
+import androidx.room.integration.testapp.vo.UserSummary;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -626,6 +627,16 @@ public class SimpleEntityReadWriteTest {
         List<User> monday = mUserDao.findUsersByWorkDays(toSet(Day.MONDAY));
         assertThat(monday, is(Arrays.asList(user1, user2)));
 
+    }
+
+    @Test
+    public void subquery() {
+        User user = TestUtil.createUser(3);
+        user.setName("john");
+        mUserDao.insert(user);
+        List<UserSummary> users = mUserDao.getNames();
+        assertThat(users, hasSize(1));
+        assertThat(users.get(0).getName(), is(equalTo("john")));
     }
 
     private Set<Day> toSet(Day... days) {
