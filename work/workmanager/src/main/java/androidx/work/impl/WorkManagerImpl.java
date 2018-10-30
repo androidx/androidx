@@ -31,6 +31,7 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.Operation;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.R;
 import androidx.work.WorkContinuation;
@@ -280,7 +281,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> enqueueInternal(
+    public Operation enqueueInternal(
             @NonNull List<? extends WorkRequest> workRequests) {
 
         // This error is not being propagated as part of the ListenableFuture, as we want the
@@ -315,7 +316,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @NonNull
     @Override
-    public ListenableFuture<Void> enqueueUniqueWorkInternal(@NonNull String uniqueWorkName,
+    public Operation enqueueUniqueWorkInternal(@NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work) {
         return new WorkContinuationImpl(this, uniqueWorkName, existingWorkPolicy, work).enqueue();
@@ -323,7 +324,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     @NonNull
-    public ListenableFuture<Void> enqueueUniquePeriodicWorkInternal(
+    public Operation enqueueUniquePeriodicWorkInternal(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork) {

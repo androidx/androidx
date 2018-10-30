@@ -164,7 +164,6 @@ public abstract class WorkManager {
      *
      * @param workRequest One or more {@link WorkRequest} to enqueue
      */
-    @SuppressWarnings("FutureReturnValueIgnored")
     public final void enqueue(@NonNull WorkRequest workRequest) {
         enqueueInternal(Collections.singletonList(workRequest));
     }
@@ -174,7 +173,6 @@ public abstract class WorkManager {
      *
      * @param requests One or more {@link WorkRequest} to enqueue
      */
-    @SuppressWarnings("FutureReturnValueIgnored")
     public void enqueue(@NonNull List<? extends WorkRequest> requests) {
         enqueueInternal(requests);
     }
@@ -183,13 +181,12 @@ public abstract class WorkManager {
      * Enqueues one or more items for background processing.
      *
      * @param requests One or more {@link WorkRequest} to enqueue
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
+     * @return An {@link Operation} that can be used to determine when the enqueue has completed
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public abstract ListenableFuture<Void> enqueueInternal(
-            @NonNull List<? extends WorkRequest> requests);
+    public abstract Operation enqueueInternal(@NonNull List<? extends WorkRequest> requests);
 
     /**
      * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
@@ -318,7 +315,6 @@ public abstract class WorkManager {
      *                     {@code uniqueWorkName}. {@code APPEND} will append the
      *                     OneTimeWorkRequests as leaf nodes labelled with {@code uniqueWorkName}.
      */
-    @SuppressWarnings("FutureReturnValueIgnored")
     public void enqueueUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
@@ -344,12 +340,12 @@ public abstract class WorkManager {
      *                     new OneTimeWorkRequests only if there is no pending work labelled with
      *                     {@code uniqueWorkName}. {@code APPEND} will append the
      *                     OneTimeWorkRequests as leaf nodes labelled with {@code uniqueWorkName}.
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
+     * @return An {@link Operation} that can be used to determine when the enqueue has completed
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public abstract ListenableFuture<Void> enqueueUniqueWorkInternal(
+    public abstract Operation enqueueUniqueWorkInternal(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work);
@@ -372,7 +368,6 @@ public abstract class WorkManager {
      *                     PeriodicWorkRequest only if there is no pending work labelled with
      *                     {@code uniqueWorkName}.
      */
-    @SuppressWarnings("FutureReturnValueIgnored")
     public void enqueueUniquePeriodicWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
@@ -397,12 +392,12 @@ public abstract class WorkManager {
      *                     cancelled and the new work will run. {@code KEEP} will run the new
      *                     PeriodicWorkRequest only if there is no pending work labelled with
      *                     {@code uniqueWorkName}.
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
+     * @return An {@link Operation} that can be used to determine when the enqueue has completed
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
-    public abstract ListenableFuture<Void> enqueueUniquePeriodicWorkInternal(
+    public abstract Operation enqueueUniquePeriodicWorkInternal(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork);
