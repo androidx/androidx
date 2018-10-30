@@ -31,6 +31,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder);
     method public androidx.slice.builders.ListBuilder addRange(androidx.slice.builders.ListBuilder.RangeBuilder);
     method public androidx.slice.builders.ListBuilder addRow(androidx.slice.builders.ListBuilder.RowBuilder);
+    method public androidx.slice.builders.ListBuilder addSelection(androidx.slice.builders.SelectionBuilder);
     method public androidx.slice.builders.ListBuilder setAccentColor(@ColorInt int);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
     method public androidx.slice.builders.ListBuilder setIsError(boolean);

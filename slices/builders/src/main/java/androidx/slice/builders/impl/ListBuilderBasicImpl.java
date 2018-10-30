@@ -44,6 +44,7 @@ import androidx.slice.builders.ListBuilder.HeaderBuilder;
 import androidx.slice.builders.ListBuilder.InputRangeBuilder;
 import androidx.slice.builders.ListBuilder.RangeBuilder;
 import androidx.slice.builders.ListBuilder.RowBuilder;
+import androidx.slice.builders.SelectionBuilder;
 import androidx.slice.builders.SliceAction;
 
 import java.time.Duration;
@@ -160,6 +161,19 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
 
     @Override
     public void addRange(RangeBuilder builder) {
+        if (mTitle == null && builder.getTitle() != null) {
+            mTitle = builder.getTitle();
+        }
+        if (mSubtitle == null && builder.getSubtitle() != null) {
+            mSubtitle = builder.getSubtitle();
+        }
+        if (mSliceAction == null && builder.getPrimaryAction() != null) {
+            mSliceAction = builder.getPrimaryAction();
+        }
+    }
+
+    @Override
+    public void addSelection(SelectionBuilder builder) {
         if (mTitle == null && builder.getTitle() != null) {
             mTitle = builder.getTitle();
         }
