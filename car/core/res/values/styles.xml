@@ -210,6 +210,21 @@ limitations under the License.
         <item name="navigationIcon">@drawable/ic_nav_arrow_back</item>
     </style>
 
+    <!-- The styling for the default action bar. -->
+    <style name="Widget.Car.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">
+        <item name="titleTextStyle">@style/TextAppearance.Car.Body1</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.Car.Body3</item>
+    </style>
+
+    <!-- The styling for the default action bar that has a dark background. -->
+    <style name="Widget.Car.ActionBar.Dark">
+        <item name="background">@android:color/black</item>
+        <item name="backgroundStacked">@android:color/black</item>
+        <item name="backgroundSplit">@android:color/black</item>
+        <item name="titleTextStyle">@style/TextAppearance.Car.Body1.Light</item>
+        <item name="subtitleTextStyle">@style/TextAppearance.Car.Body3.Light</item>
+    </style>
+
     <!-- ================ -->
     <!-- CarToolbar Style -->
     <!-- ================ -->

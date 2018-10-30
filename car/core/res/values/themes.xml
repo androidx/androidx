@@ -21,7 +21,7 @@ limitations under the License.
 
     <!-- Base style for the Car that will have dark colors for card backgrounds and light color for
          text. The colors will not change for night mode. -->
-    <style name="Theme.Car.NoActionBar" parent="Theme.AppCompat.NoActionBar">
+    <style name="Theme.Car" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="android:alertDialogTheme">@style/Theme.Car.Dark.Dialog.Alert</item>
         <item name="android:colorAccent">@color/car_accent_light</item>
         <item name="android:colorForeground">@color/car_body2_light</item>
@@ -55,6 +55,7 @@ limitations under the License.
         <item name="android:spinnerItemStyle">@style/CarSpinnerItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/CarSpinnerItem</item>
         <item name="actionBarItemBackground">@drawable/car_card_ripple_background</item>
+        <item name="actionBarStyle">@style/Widget.Car.ActionBar.Dark</item>
         <item name="actionBarSize">@dimen/car_app_bar_height</item>
         <item name="actionButtonStyle">@style/Widget.Car.ActionButton.Light</item>
         <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>
@@ -84,6 +85,12 @@ limitations under the License.
         <item name="checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
         <item name="toolbarNavigationButtonStyle">@style/Widget.Car.Toolbar.Button.Navigation.Light</item>
         <item name="toolbarStyle">@style/Widget.Car.Toolbar.Light</item>
+    </style>
+
+    <!-- Base style for the car that removes the action bar. -->
+    <style name="Theme.Car.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <!-- Light theme for the Car. This theme has light colors for card backgrounds and dark
