@@ -283,6 +283,9 @@ public interface WorkSpecDao {
             + "state=" + WorkTypeConverters.StateIds.ENQUEUED
             // We only want WorkSpecs which have not been previously scheduled.
             + " AND schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+            // We only want WorkSpecs that aren't waiting on a previously REPLACEd worker that is
+            // still running.
+            + " AND (SELECT COUNT(*)=0 FROM replacementdependency WHERE work_spec_id=id)"
             + " LIMIT "
                 + "(SELECT MAX(:schedulerLimit" + "-COUNT(*), 0) FROM workspec WHERE"
                     + " schedule_requested_at<>" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
