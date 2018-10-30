@@ -23,11 +23,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":core"))
-    api(project(":collection"))
-    api(project(":fragment"))
-    api(project(":appcompat"))
-    api(project(":recyclerview"))
+    api("androidx.core:core:1.1.0-alpha01")
+    api("androidx.collection:collection:1.0.0")
+    api("androidx.fragment:fragment:1.1.0-alpha01")
+    api("androidx.appcompat:appcompat:1.0.0")
+    api("androidx.recyclerview:recyclerview:1.0.0")
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
