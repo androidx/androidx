@@ -115,7 +115,7 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! rewind();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! seekTo(long);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle?);
-    method public void setMediaItem(androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setMediaItem(androidx.media2.MediaItem2);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setPlaybackSpeed(float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setRating(String, androidx.media2.Rating2);
@@ -250,9 +250,9 @@ package androidx.media2 {
   }
 
   public static final class MediaLibraryService2.MediaLibrarySession extends androidx.media2.MediaSession2 {
-    method public void notifyChildrenChanged(androidx.media2.MediaSession2.ControllerInfo, String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public void notifyChildrenChanged(androidx.media2.MediaSession2.ControllerInfo, String, @IntRange(from=0) int, androidx.media2.MediaLibraryService2.LibraryParams?);
     method public void notifyChildrenChanged(String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
-    method public void notifySearchResultChanged(androidx.media2.MediaSession2.ControllerInfo, String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public void notifySearchResultChanged(androidx.media2.MediaSession2.ControllerInfo, String, @IntRange(from=0) int, androidx.media2.MediaLibraryService2.LibraryParams?);
   }
 
   public static final class MediaLibraryService2.MediaLibrarySession.Builder {
