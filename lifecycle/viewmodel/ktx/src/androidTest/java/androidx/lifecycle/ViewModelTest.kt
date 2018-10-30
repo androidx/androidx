@@ -18,8 +18,8 @@ package androidx.lifecycle
 
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
