@@ -16,9 +16,11 @@
 
 package androidx.media2;
 
+import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_UNKNOWN_ERROR;
+
 import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaSessionCompat.Token;
 import android.text.TextUtils;
@@ -27,13 +29,15 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
-import androidx.media2.MediaLibraryService2.LibraryRoot;
+import androidx.media2.MediaLibraryService2.LibraryParams;
+import androidx.media2.MediaLibraryService2.LibraryResult;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.SessionCallback;
+import androidx.versionedparcelable.ParcelImpl;
 
 import java.util.HashSet;
 import java.util.List;
@@ -41,6 +45,8 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements MediaLibrarySessionImpl {
+    private static final boolean THROW_EXCEPTION_FOR_INVALID_RETURN = true;
+
     @GuardedBy("mLock")
     private final ArrayMap<ControllerCb, Set<String>> mSubscriptions = new ArrayMap<>();
 
@@ -94,7 +100,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
 
     @Override
     public void notifyChildrenChanged(final String parentId, final int itemCount,
-            final Bundle extras) {
+            final LibraryParams params) {
         if (TextUtils.isEmpty(parentId)) {
             throw new IllegalArgumentException("query shouldn't be empty");
         }
@@ -106,7 +112,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
             @Override
             public void run(ControllerCb callback) throws RemoteException {
                 if (isSubscribed(callback, parentId)) {
-                    callback.onChildrenChanged(parentId, itemCount, extras);
+                    callback.onChildrenChanged(parentId, itemCount, params);
                 }
             }
         });
@@ -114,7 +120,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
 
     @Override
     public void notifyChildrenChanged(final ControllerInfo controller, final String parentId,
-            final int itemCount, final Bundle extras) {
+            final int itemCount, final LibraryParams params) {
         if (controller == null) {
             throw new IllegalArgumentException("controller shouldn't be null");
         }
@@ -135,14 +141,14 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
                     }
                     return;
                 }
-                callback.onChildrenChanged(parentId, itemCount, extras);
+                callback.onChildrenChanged(parentId, itemCount, params);
             }
         });
     }
 
     @Override
     public void notifySearchResultChanged(ControllerInfo controller, final String query,
-            final int itemCount, final Bundle extras) {
+            final int itemCount, final LibraryParams params) {
         if (controller == null) {
             throw new IllegalArgumentException("controller shouldn't be null");
         }
@@ -152,68 +158,91 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
         dispatchRemoteControllerCallbackTask(controller, new RemoteControllerCallbackTask() {
             @Override
             public void run(ControllerCb callback) throws RemoteException {
-                callback.onSearchResultChanged(query, itemCount, extras);
+                callback.onSearchResultChanged(query, itemCount, params);
             }
         });
     }
 
+    private LibraryResult ensureNonNullResult(LibraryResult returnedResult) {
+        if (returnedResult == null) {
+            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
+                throw new RuntimeException("LibraryResult shouldn't be null");
+            }
+            return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+        }
+        return returnedResult;
+    }
+
+    private LibraryResult ensureNonNullResultWithValidList(LibraryResult returnedResult,
+            int pageSize) {
+        returnedResult = ensureNonNullResult(returnedResult);
+        if (returnedResult.getResultCode() == RESULT_CODE_SUCCESS) {
+            if (returnedResult.getMediaItems() == null) {
+                if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
+                    throw new RuntimeException("List shouldn't be null for the success");
+                }
+                return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+            }
+            if (returnedResult.getMediaItems().size() > pageSize) {
+                if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
+                    throw new RuntimeException("List shouldn't contain items more than pageSize"
+                            + ", size=" + returnedResult.getMediaItems().size()
+                            + ", pageSize" + pageSize);
+                }
+                return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+            }
+        }
+        return returnedResult;
+    }
+
+    private LibraryResult ensureNonNullResultWithValidItem(LibraryResult returnedResult) {
+        returnedResult = ensureNonNullResult(returnedResult);
+        if (returnedResult.getResultCode() == RESULT_CODE_SUCCESS) {
+            if (returnedResult.getMediaItem() == null) {
+                if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
+                    throw new RuntimeException("Item shouldn't be null for the success");
+                }
+                return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+            }
+        }
+        return returnedResult;
+    }
     /**
-     * Called by {@link MediaSession2Stub#getLibraryRoot(IMediaController2, Bundle)}.
+     * Called by {@link MediaSession2Stub#getLibraryRoot(IMediaController2, int, ParcelImpl)}.
      *
      * @param controller
-     * @param rootHints
+     * @param params
      */
     @Override
-    public void onGetLibraryRootOnExecutor(ControllerInfo controller, final Bundle rootHints) {
-        final LibraryRoot root = getCallback().onGetLibraryRoot(
-                getInstance(), controller, rootHints);
-        dispatchRemoteControllerCallbackTask(controller, new RemoteControllerCallbackTask() {
-            @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onGetLibraryRootDone(rootHints,
-                        root == null ? null : root.getRootId(),
-                        root == null ? null : root.getExtras());
-            }
-        });
+    public LibraryResult onGetLibraryRootOnExecutor(ControllerInfo controller,
+            final LibraryParams params) {
+        LibraryResult result = getCallback().onGetLibraryRoot(getInstance(), controller, params);
+        return ensureNonNullResultWithValidItem(result);
     }
 
     /**
-     * Called by {@link MediaSession2Stub#getItem(IMediaController2, String)}.
+     * Called by {@link MediaSession2Stub#getItem(IMediaController2, int, String)}.
      *
      * @param controller
      * @param mediaId
      */
     @Override
-    public void onGetItemOnExecutor(ControllerInfo controller, final String mediaId) {
-        final MediaItem2 result = getCallback().onGetItem(getInstance(), controller, mediaId);
-        dispatchRemoteControllerCallbackTask(controller, new RemoteControllerCallbackTask() {
-            @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onGetItemDone(mediaId, result);
-            }
-        });
+    public LibraryResult onGetItemOnExecutor(ControllerInfo controller, final String mediaId) {
+        LibraryResult result = getCallback().onGetItem(getInstance(), controller, mediaId);
+        return ensureNonNullResultWithValidItem(result);
     }
 
     @Override
-    public void onGetChildrenOnExecutor(ControllerInfo controller, final String parentId,
-            final int page, final int pageSize, final Bundle extras) {
-        final List<MediaItem2> result = getCallback().onGetChildren(getInstance(),
-                controller, parentId, page, pageSize, extras);
-        if (result != null && result.size() > pageSize) {
-            throw new IllegalArgumentException("onGetChildren() shouldn't return media items "
-                    + "more than pageSize. result.size()=" + result.size() + " pageSize="
-                    + pageSize);
-        }
-        dispatchRemoteControllerCallbackTask(controller, new RemoteControllerCallbackTask() {
-            @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onGetChildrenDone(parentId, page, pageSize, result, extras);
-            }
-        });
+    public LibraryResult onGetChildrenOnExecutor(ControllerInfo controller, final String parentId,
+            final int page, final int pageSize, final LibraryParams params) {
+        LibraryResult result = getCallback().onGetChildren(getInstance(),
+                controller, parentId, page, pageSize, params);
+        return ensureNonNullResultWithValidList(result, pageSize);
     }
 
     @Override
-    public void onSubscribeOnExecutor(ControllerInfo controller, String parentId, Bundle option) {
+    public int onSubscribeOnExecutor(ControllerInfo controller, String parentId,
+            LibraryParams params) {
         synchronized (mLock) {
             Set<String> subscription = mSubscriptions.get(controller.getControllerCb());
             if (subscription == null) {
@@ -224,38 +253,37 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
         }
         // Call callbacks after adding it to the subscription list because library session may want
         // to call notifyChildrenChanged() in the callback.
-        getCallback().onSubscribe(getInstance(), controller, parentId, option);
+        int resultCode = getCallback().onSubscribe(getInstance(), controller, parentId, params);
+
+        // When error happens, remove from the subscription list.
+        if (resultCode != RESULT_CODE_SUCCESS) {
+            synchronized (mLock) {
+                mSubscriptions.remove(controller.getControllerCb());
+            }
+        }
+        return resultCode;
     }
 
     @Override
-    public void onUnsubscribeOnExecutor(ControllerInfo controller, String parentId) {
-        getCallback().onUnsubscribe(getInstance(), controller, parentId);
+    public int onUnsubscribeOnExecutor(ControllerInfo controller, String parentId) {
+        int resultCode = getCallback().onUnsubscribe(getInstance(), controller, parentId);
         synchronized (mLock) {
             mSubscriptions.remove(controller.getControllerCb());
         }
+        return resultCode;
     }
 
     @Override
-    public void onSearchOnExecutor(ControllerInfo controller, String query, Bundle extras) {
-        getCallback().onSearch(getInstance(), controller, query, extras);
+    public int onSearchOnExecutor(ControllerInfo controller, String query, LibraryParams params) {
+        return getCallback().onSearch(getInstance(), controller, query, params);
     }
 
     @Override
-    public void onGetSearchResultOnExecutor(ControllerInfo controller, final String query,
-            final int page, final int pageSize, final Bundle extras) {
-        final List<MediaItem2> result = getCallback().onGetSearchResult(getInstance(),
-                controller, query, page, pageSize, extras);
-        if (result != null && result.size() > pageSize) {
-            throw new IllegalArgumentException("onGetSearchResult() shouldn't return media "
-                    + "items more than pageSize. result.size()=" + result.size() + " pageSize="
-                    + pageSize);
-        }
-        dispatchRemoteControllerCallbackTask(controller, new RemoteControllerCallbackTask() {
-            @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onGetSearchResultDone(query, page, pageSize, result, extras);
-            }
-        });
+    public LibraryResult onGetSearchResultOnExecutor(ControllerInfo controller, final String query,
+            final int page, final int pageSize, final LibraryParams params) {
+        LibraryResult result = getCallback().onGetSearchResult(getInstance(),
+                controller, query, page, pageSize, params);
+        return ensureNonNullResultWithValidList(result, pageSize);
     }
 
     @Override

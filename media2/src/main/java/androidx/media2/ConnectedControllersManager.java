@@ -16,8 +16,6 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaSession2.SessionResult.RESULT_CODE_SKIPPED;
-
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -66,8 +64,7 @@ class ConnectedControllersManager<T> {
         }
         synchronized (mLock) {
             mAllowedCommandGroupMap.put(controller, commands);
-            mControllerToSequencedFutureManager.put(controller, new SequencedFutureManager(
-                    new MediaSession2.SessionResult(RESULT_CODE_SKIPPED)));
+            mControllerToSequencedFutureManager.put(controller, new SequencedFutureManager());
             mControllers.put(key, controller);
             mKeys.put(controller, key);
         }

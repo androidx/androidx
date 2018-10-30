@@ -55,17 +55,12 @@ oneway interface IMediaController2 {
     void onCustomCommand(int seq, in ParcelImpl command, in Bundle args) = 16;
 
     void onSessionResult(int seq, in ParcelImpl sessionResult) = 24;
+    void onLibraryResult(int seq, in ParcelImpl libraryResult) = 25;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Browser sepcific
     //////////////////////////////////////////////////////////////////////////////////////////////
-    void onGetLibraryRootDone(in Bundle rootHints, String rootMediaId, in Bundle rootExtra) = 17;
-    void onGetItemDone(String mediaId, in ParcelImpl item) = 18;
-    void onChildrenChanged(String parentId, int itemCount, in Bundle extras) = 19;
-    void onGetChildrenDone(String parentId, int page, int pageSize, in ParcelImplListSlice
-        listSlice, in Bundle extras) = 20;
-    void onSearchResultChanged(String query, int itemCount, in Bundle extras) = 21;
-    void onGetSearchResultDone(String query, int page, int pageSize, in ParcelImplListSlice
-        listSlice, in Bundle extras) = 22;
-    // Next Id : 25
+    void onChildrenChanged(String parentId, int itemCount, in ParcelImpl libraryParams) = 19;
+    void onSearchResultChanged(String query, int itemCount, in ParcelImpl libraryParams) = 21;
+    // Next Id : 26
 }
