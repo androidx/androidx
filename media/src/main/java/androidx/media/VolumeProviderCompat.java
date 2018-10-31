@@ -18,6 +18,7 @@ package androidx.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.media.VolumeProvider;
 import android.os.Build;
 import android.support.v4.media.session.MediaSessionCompat;
 
@@ -68,7 +69,7 @@ public abstract class VolumeProviderCompat {
     private int mCurrentVolume;
     private Callback mCallback;
 
-    private Object mVolumeProviderObj;
+    private VolumeProvider mVolumeProviderFwk;
 
     /**
      * Create a new volume provider for handling volume events. You must specify
@@ -121,9 +122,9 @@ public abstract class VolumeProviderCompat {
      */
     public final void setCurrentVolume(int currentVolume) {
         mCurrentVolume = currentVolume;
-        Object volumeProviderObj = getVolumeProvider();
-        if (volumeProviderObj != null && Build.VERSION.SDK_INT >= 21) {
-            VolumeProviderCompatApi21.setCurrentVolume(volumeProviderObj, currentVolume);
+        if (Build.VERSION.SDK_INT >= 21) {
+            VolumeProvider volumeProviderFwk = (VolumeProvider) getVolumeProvider();
+            volumeProviderFwk.setCurrentVolume(currentVolume);
         }
         if (mCallback != null) {
             mCallback.onVolumeChanged(this);
@@ -165,23 +166,20 @@ public abstract class VolumeProviderCompat {
      * @return An equivalent {@link android.media.VolumeProvider} object, or null if none.
      */
     public Object getVolumeProvider() {
-        if (mVolumeProviderObj == null && Build.VERSION.SDK_INT >= 21) {
-            mVolumeProviderObj = VolumeProviderCompatApi21.createVolumeProvider(
-                    mControlType, mMaxVolume, mCurrentVolume,
-                    new VolumeProviderCompatApi21.Delegate() {
+        if (mVolumeProviderFwk == null && Build.VERSION.SDK_INT >= 21) {
+            mVolumeProviderFwk = new VolumeProvider(mControlType, mMaxVolume, mCurrentVolume) {
+                @Override
+                public void onSetVolumeTo(int volume) {
+                    VolumeProviderCompat.this.onSetVolumeTo(volume);
+                }
 
-                        @Override
-                        public void onSetVolumeTo(int volume) {
-                            VolumeProviderCompat.this.onSetVolumeTo(volume);
-                        }
-
-                        @Override
-                        public void onAdjustVolume(int direction) {
-                            VolumeProviderCompat.this.onAdjustVolume(direction);
-                        }
-                    });
+                @Override
+                public void onAdjustVolume(int direction) {
+                    VolumeProviderCompat.this.onAdjustVolume(direction);
+                }
+            };
         }
-        return mVolumeProviderObj;
+        return mVolumeProviderFwk;
     }
 
     /**
