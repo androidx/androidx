@@ -46,7 +46,7 @@ dependencies {
 supportLibrary {
     name = "Android Preferences KTX"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.PREFERENCE_KTX
     mavenGroup = LibraryGroups.PREFERENCE
     inceptionYear = "2018"
     description = "Kotlin extensions for preferences"
