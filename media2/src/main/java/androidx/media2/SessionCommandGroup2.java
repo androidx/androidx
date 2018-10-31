@@ -196,7 +196,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
          * {@link SessionCommandGroup2} object.
          * @param commandGroup
          */
-        public Builder(SessionCommandGroup2 commandGroup) {
+        public Builder(@NonNull SessionCommandGroup2 commandGroup) {
             mCommands = commandGroup.getCommands();
         }
 
@@ -205,7 +205,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
          *
          * @param command A command to add. Shouldn't be {@code null}.
          */
-        public @NonNull Builder addCommand(SessionCommand2 command) {
+        public @NonNull Builder addCommand(@NonNull SessionCommand2 command) {
             if (command == null) {
                 throw new IllegalArgumentException("command shouldn't be null");
             }

@@ -573,7 +573,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param recent {@code true} for recent items. {@code false} otherwise.
              * @return this builder
              */
-            public Builder setRecent(boolean recent) {
+            public @NonNull Builder setRecent(boolean recent) {
                 mRecent = recent;
                 return this;
             }
@@ -588,7 +588,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param offline {@code true} for offline items. {@code false} otherwise.
              * @return this builder
              */
-            public Builder setOffline(boolean offline) {
+            public @NonNull Builder setOffline(boolean offline) {
                 mOffline = offline;
                 return this;
             }
@@ -604,7 +604,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param suggested {@code true} for suggested items. {@code false} otherwise
              * @return this builder
              */
-            public Builder setSuggested(boolean suggested) {
+            public @NonNull Builder setSuggested(boolean suggested) {
                 mSuggested = suggested;
                 return this;
             }
@@ -615,7 +615,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @param extras The extras or null.
              * @return this builder
              */
-            public Builder setExtras(@Nullable Bundle extras) {
+            public @NonNull Builder setExtras(@Nullable Bundle extras) {
                 mBundle = extras;
                 return this;
             }
@@ -625,7 +625,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              *
              * @return new LibraryParams
              */
-            public LibraryParams build() {
+            public @NonNull LibraryParams build() {
                 return new LibraryParams(mBundle, mRecent, mOffline, mSuggested);
             }
         }

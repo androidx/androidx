@@ -122,6 +122,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @param params library params getting root
      * @see BrowserResult#getMediaItem()
      */
+    @NonNull
     public ListenableFuture<BrowserResult> getLibraryRoot(@Nullable final LibraryParams params) {
         if (isConnected()) {
             return getImpl().getLibraryRoot(params);
@@ -138,7 +139,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @param parentId parent id
      * @param params library params
      */
-    public ListenableFuture<BrowserResult> subscribe(@NonNull String parentId,
+    public @NonNull ListenableFuture<BrowserResult> subscribe(@NonNull String parentId,
             @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(parentId)) {
             throw new IllegalArgumentException("parentId shouldn't be empty");
@@ -158,7 +159,7 @@ public class MediaBrowser2 extends MediaController2 {
      *
      * @param parentId parent id
      */
-    public ListenableFuture<BrowserResult> unsubscribe(@NonNull String parentId) {
+    public @NonNull ListenableFuture<BrowserResult> unsubscribe(@NonNull String parentId) {
         if (TextUtils.isEmpty(parentId)) {
             throw new IllegalArgumentException("parentId shouldn't be empty");
         }
@@ -180,7 +181,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @param params library params
      * @see BrowserResult#getMediaItems()
      */
-    public ListenableFuture<BrowserResult> getChildren(@NonNull String parentId,
+    public @NonNull ListenableFuture<BrowserResult> getChildren(@NonNull String parentId,
             @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
             @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(parentId)) {
@@ -207,7 +208,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @param mediaId media id for specifying the item
      * @see BrowserResult#getMediaItems()
      */
-    public ListenableFuture<BrowserResult> getItem(@NonNull final String mediaId) {
+    public @NonNull ListenableFuture<BrowserResult> getItem(@NonNull final String mediaId) {
         if (TextUtils.isEmpty(mediaId)) {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
@@ -230,7 +231,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @see BrowserCallback#getSearchResult(String, int, int, LibraryParams)
      * @see #getSearchResult(String, int, int, LibraryParams)
      */
-    public ListenableFuture<BrowserResult> search(@NonNull String query,
+    public @NonNull ListenableFuture<BrowserResult> search(@NonNull String query,
             @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
@@ -253,7 +254,7 @@ public class MediaBrowser2 extends MediaController2 {
      * @param params library params
      * @see BrowserResult#getMediaItems()
      */
-    public ListenableFuture<BrowserResult> getSearchResult(final @NonNull String query,
+    public @NonNull ListenableFuture<BrowserResult> getSearchResult(final @NonNull String query,
             @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
             final @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(query)) {
@@ -438,7 +439,7 @@ public class MediaBrowser2 extends MediaController2 {
          *
          * @return library params.
          */
-        public LibraryParams getLibraryParams() {
+        public @Nullable LibraryParams getLibraryParams() {
             return mParams;
         }
 

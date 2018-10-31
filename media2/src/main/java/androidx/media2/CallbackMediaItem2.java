@@ -78,7 +78,7 @@ public class CallbackMediaItem2 extends MediaItem2 {
          * @return A new CallbackMediaItem2 with values supplied by the Builder.
          */
         @Override
-        public CallbackMediaItem2 build() {
+        public @NonNull CallbackMediaItem2 build() {
             return new CallbackMediaItem2(this);
         }
     }
