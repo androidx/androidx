@@ -20,7 +20,6 @@ import static androidx.media2.MediaBrowser2.BrowserResult.RESULT_CODE_BAD_VALUE;
 import static androidx.media2.MediaBrowser2.BrowserResult.RESULT_CODE_DISCONNECTED;
 import static androidx.media2.MediaBrowser2.BrowserResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.MediaBrowser2.BrowserResult.RESULT_CODE_UNKNOWN_ERROR;
-import static androidx.media2.MediaItem2.FLAG_BROWSABLE;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -313,9 +312,10 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
         // TODO: Query again with getMediaItem() to get real media item.
         MediaMetadata2 metadata = new MediaMetadata2.Builder()
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, browser.getRoot())
+                .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE, MediaMetadata2.BROWSABLE_TYPE_MIXED)
                 .setExtras(browser.getExtras())
                 .build();
-        return new MediaItem2.Builder(FLAG_BROWSABLE).setMetadata(metadata).build();
+        return new MediaItem2.Builder().setMetadata(metadata).build();
     }
 
     private class GetLibraryRootCallback extends MediaBrowserCompat.ConnectionCallback {

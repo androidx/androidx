@@ -79,15 +79,16 @@ public final class MediaTestUtils {
         final List<MediaItem2> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
         for (int i = 0; i < size; i++) {
-            list.add(new FileMediaItem2.Builder(new FileDescriptor())
-                    .setMediaId(caller + "_item_" + (size + 1))
-                    .build());
+            list.add(createMediaItem(caller + "_item_" + (size + 1)));
         }
         return list;
     }
 
     public static MediaItem2 createMediaItem(String id) {
-        return new FileMediaItem2.Builder(new FileDescriptor()).setMediaId(id).build();
+        return new FileMediaItem2.Builder(new FileDescriptor())
+                .setMetadata(new MediaMetadata2.Builder()
+                        .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, id).build())
+                .build();
     }
 
     /**
@@ -138,7 +139,6 @@ public final class MediaTestUtils {
                 MediaItem2 item = MediaItem2.fromBundle((Bundle) itemBundle);
                 result.add(new FileMediaItem2.Builder(new FileDescriptor())
                         .setMetadata(item.getMetadata())
-                        .setMediaId(item.getMediaId())
                         .build());
             }
         } else {

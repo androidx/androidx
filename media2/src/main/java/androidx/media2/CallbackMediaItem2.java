@@ -70,7 +70,6 @@ public class CallbackMediaItem2 extends MediaItem2 {
          * @param dsc2 the DataSourceCallback2 for the media you want to play
          */
         public Builder(@NonNull DataSourceCallback2 dsc2) {
-            super(FLAG_PLAYABLE);
             Preconditions.checkNotNull(dsc2);
             mDataSourceCallback2 = dsc2;
         }

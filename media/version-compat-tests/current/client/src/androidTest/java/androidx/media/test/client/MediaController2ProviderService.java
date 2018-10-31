@@ -183,16 +183,20 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void createAndSetDummyPlaylist(String controllerId, int size, Bundle metadata)
+        public void createAndSetDummyPlaylist(String controllerId, int size, Bundle listMetadata)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
             List<MediaItem2> list = new ArrayList<>();
-            MediaItem2.Builder builder = new MediaItem2.Builder(0 /* flags */);
+            MediaItem2.Builder builder = new MediaItem2.Builder();
             for (int i = 0; i < size; i++) {
                 // Make media ID of each item same with its index.
-                list.add(builder.setMediaId(TestUtils.getMediaIdInDummyList(i)).build());
+                MediaMetadata2 metadata = new MediaMetadata2.Builder()
+                        .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
+                                TestUtils.getMediaIdInDummyList(i))
+                        .build();
+                list.add(builder.setMetadata(metadata).build());
             }
-            controller2.setPlaylist(list, MediaMetadata2.fromBundle(metadata));
+            controller2.setPlaylist(list, MediaMetadata2.fromBundle(listMetadata));
         }
 
         @Override
