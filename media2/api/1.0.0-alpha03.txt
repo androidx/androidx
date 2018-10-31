@@ -115,7 +115,7 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! rewind();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! seekTo(long);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle?);
-    method public void setMediaItem(androidx.media2.MediaItem2);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setMediaItem(androidx.media2.MediaItem2);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setPlaybackSpeed(float);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setPlaylist(java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setRating(String, androidx.media2.Rating2);
