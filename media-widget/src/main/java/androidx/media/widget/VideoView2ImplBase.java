@@ -1089,7 +1089,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         MediaMetadata2 metadata = extractMetadata();
                         if (metadata != null) {
                             mMediaItem.setMetadata(metadata);
-                            mMediaSession.getPlayer().replacePlaylistItem(0, mMediaItem);
                         }
                     }
 
