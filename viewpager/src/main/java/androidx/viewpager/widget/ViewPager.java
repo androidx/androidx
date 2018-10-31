@@ -191,6 +191,9 @@ public class ViewPager extends ViewGroup {
     private int mDefaultGutterSize;
     private int mGutterSize;
     private int mTouchSlop;
+
+    private boolean mDragInGutterEnabled = true;
+
     /**
      * Position of the last motion event.
      */
@@ -1994,7 +1997,26 @@ public class ViewPager extends ViewGroup {
         }
     }
 
+    /**
+     * @return Whether dragging in the gutter (left and right edges) of the ViewPager is enabled.
+     */
+    public boolean isDragInGutterEnabled() {
+        return mDragInGutterEnabled;
+    }
+
+    /**
+     * Set whether ViewPager should consume drag events if they are within the gutter
+     * (left and right edges) of the ViewPager. The default value {@code false}.
+     * @param enabled true if ViewPager should allow drag in gutter, false otherwise
+     */
+    public void setDragInGutterEnabled(boolean enabled) {
+        mDragInGutterEnabled = enabled;
+    }
+
     private boolean isGutterDrag(float x, float dx) {
+        if (mDragInGutterEnabled) {
+            return false;
+        }
         return (x < mGutterSize && dx > 0) || (x > getWidth() - mGutterSize && dx < 0);
     }
 
