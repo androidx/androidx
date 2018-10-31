@@ -24,7 +24,7 @@ android {
 supportLibrary {
     name = "Android Support TV Provider"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.TVPROVIDER
     mavenGroup = LibraryGroups.TVPROVIDER
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"

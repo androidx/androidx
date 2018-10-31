@@ -18,7 +18,7 @@ android {
 supportLibrary {
     name = "Android Support CardView v7"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.CARDVIEW
     mavenGroup = LibraryGroups.CARDVIEW
     inceptionYear = "2011"
     description = "Android Support CardView v7"
