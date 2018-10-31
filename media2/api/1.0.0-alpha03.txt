@@ -9,7 +9,6 @@ package androidx.media2 {
     ctor public CallbackMediaItem2.Builder(androidx.media2.DataSourceCallback2);
     method public androidx.media2.CallbackMediaItem2! build();
     method public androidx.media2.CallbackMediaItem2.Builder! setEndPosition(long);
-    method public androidx.media2.CallbackMediaItem2.Builder! setMediaId(String!);
     method public androidx.media2.CallbackMediaItem2.Builder! setMetadata(androidx.media2.MediaMetadata2!);
     method public androidx.media2.CallbackMediaItem2.Builder! setStartPosition(long);
   }
@@ -32,7 +31,6 @@ package androidx.media2 {
     ctor public FileMediaItem2.Builder(java.io.FileDescriptor, long, long);
     method public androidx.media2.FileMediaItem2! build();
     method public androidx.media2.FileMediaItem2.Builder! setEndPosition(long);
-    method public androidx.media2.FileMediaItem2.Builder! setMediaId(String!);
     method public androidx.media2.FileMediaItem2.Builder! setMetadata(androidx.media2.MediaMetadata2!);
     method public androidx.media2.FileMediaItem2.Builder! setStartPosition(long);
   }
@@ -184,23 +182,16 @@ package androidx.media2 {
 
   public class MediaItem2 implements androidx.versionedparcelable.VersionedParcelable {
     method public long getEndPosition();
-    method public int getFlags();
-    method public String? getMediaId();
     method public androidx.media2.MediaMetadata2? getMetadata();
     method public long getStartPosition();
-    method public boolean isBrowsable();
-    method public boolean isPlayable();
     method public void setMetadata(androidx.media2.MediaMetadata2?);
-    field public static final int FLAG_BROWSABLE = 1; // 0x1
-    field public static final int FLAG_PLAYABLE = 2; // 0x2
     field public static final long POSITION_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
   }
 
   public static class MediaItem2.Builder {
-    ctor public MediaItem2.Builder(int);
+    ctor public MediaItem2.Builder();
     method public androidx.media2.MediaItem2! build();
     method public androidx.media2.MediaItem2.BuilderBase! setEndPosition(long);
-    method public androidx.media2.MediaItem2.BuilderBase! setMediaId(String!);
     method public androidx.media2.MediaItem2.BuilderBase! setMetadata(androidx.media2.MediaMetadata2!);
     method public androidx.media2.MediaItem2.BuilderBase! setStartPosition(long);
   }
@@ -287,13 +278,14 @@ package androidx.media2 {
     method public java.util.Set<java.lang.String> keySet();
     method public int size();
     method public android.os.Bundle toBundle();
-    field public static final long BT_FOLDER_TYPE_ALBUMS = 2L; // 0x2L
-    field public static final long BT_FOLDER_TYPE_ARTISTS = 3L; // 0x3L
-    field public static final long BT_FOLDER_TYPE_GENRES = 4L; // 0x4L
-    field public static final long BT_FOLDER_TYPE_MIXED = 0L; // 0x0L
-    field public static final long BT_FOLDER_TYPE_PLAYLISTS = 5L; // 0x5L
-    field public static final long BT_FOLDER_TYPE_TITLES = 1L; // 0x1L
-    field public static final long BT_FOLDER_TYPE_YEARS = 6L; // 0x6L
+    field public static final long BROWSABLE_TYPE_ALBUMS = 2L; // 0x2L
+    field public static final long BROWSABLE_TYPE_ARTISTS = 3L; // 0x3L
+    field public static final long BROWSABLE_TYPE_GENRES = 4L; // 0x4L
+    field public static final long BROWSABLE_TYPE_MIXED = 0L; // 0x0L
+    field public static final long BROWSABLE_TYPE_NONE = -1L; // 0xffffffffffffffffL
+    field public static final long BROWSABLE_TYPE_PLAYLISTS = 5L; // 0x5L
+    field public static final long BROWSABLE_TYPE_TITLES = 1L; // 0x1L
+    field public static final long BROWSABLE_TYPE_YEARS = 6L; // 0x6L
     field public static final String METADATA_KEY_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
     field public static final String METADATA_KEY_ALBUM = "android.media.metadata.ALBUM";
     field public static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
@@ -303,7 +295,7 @@ package androidx.media2 {
     field public static final String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
     field public static final String METADATA_KEY_ART_URI = "android.media.metadata.ART_URI";
     field public static final String METADATA_KEY_AUTHOR = "android.media.metadata.AUTHOR";
-    field public static final String METADATA_KEY_BT_FOLDER_TYPE = "android.media.metadata.BT_FOLDER_TYPE";
+    field public static final String METADATA_KEY_BROWSABLE = "android.media.metadata.BT_FOLDER_TYPE";
     field public static final String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
     field public static final String METADATA_KEY_COMPOSER = "android.media.metadata.COMPOSER";
     field public static final String METADATA_KEY_DATE = "android.media.metadata.DATE";
@@ -320,6 +312,7 @@ package androidx.media2 {
     field public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
     field public static final String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
     field public static final String METADATA_KEY_NUM_TRACKS = "android.media.metadata.NUM_TRACKS";
+    field public static final String METADATA_KEY_PLAYABLE = "android.media.metadata.playable";
     field public static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
     field public static final String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
     field public static final String METADATA_KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
@@ -675,7 +668,6 @@ package androidx.media2 {
     ctor public UriMediaItem2.Builder(android.content.Context, android.net.Uri, java.util.Map<java.lang.String,java.lang.String>?, java.util.List<java.net.HttpCookie>?);
     method public androidx.media2.UriMediaItem2! build();
     method public androidx.media2.UriMediaItem2.Builder! setEndPosition(long);
-    method public androidx.media2.UriMediaItem2.Builder! setMediaId(String!);
     method public androidx.media2.UriMediaItem2.Builder! setMetadata(androidx.media2.MediaMetadata2!);
     method public androidx.media2.UriMediaItem2.Builder! setStartPosition(long);
   }

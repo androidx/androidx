@@ -73,7 +73,9 @@ public final class MediaTestUtils {
         String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
         for (int i = 0; i < size; i++) {
             list.add(new FileMediaItem2.Builder(new FileDescriptor())
-                    .setMediaId(caller + "_item_" + (size + 1))
+                    .setMetadata(new MediaMetadata2.Builder()
+                            .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
+                                    caller + "_item_" + (size + 1)).build())
                     .build());
         }
         return list;

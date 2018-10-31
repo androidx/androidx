@@ -19,7 +19,8 @@ package androidx.media2;
 import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_BAD_VALUE;
 import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_INVALID_STATE;
 import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUCCESS;
-import static androidx.media2.MediaMetadata2.FLAG_BROWSABLE;
+import static androidx.media2.MediaMetadata2.BROWSABLE_TYPE_MIXED;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_BROWSABLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_MEDIA_ID;
 import static androidx.media2.TestUtils.assertLibraryParamsEquals;
 
@@ -75,9 +76,10 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     public static final int SEARCH_RESULT_COUNT = 50;
 
     static {
-        ROOT_ITEM = new MediaItem2.Builder(FLAG_BROWSABLE)
+        ROOT_ITEM = new MediaItem2.Builder()
                 .setMetadata(new MediaMetadata2.Builder()
-                        .putString(METADATA_KEY_MEDIA_ID, "rootId").build()).build();
+                        .putString(METADATA_KEY_MEDIA_ID, "rootId")
+                        .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_MIXED).build()).build();
         ROOT_PARAMS_EXTRA = new Bundle();
         ROOT_PARAMS_EXTRA.putString(ID, ID);
         ROOT_PARAMS = new LibraryParams.Builder().setExtras(ROOT_PARAMS_EXTRA).build();
@@ -274,10 +276,12 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     }
 
     private MediaItem2 createMediaItem(String mediaId) {
-        return new MediaItem2.Builder(MediaItem2.FLAG_PLAYABLE)
-                .setMediaId(mediaId)
-                .setMetadata(new MediaMetadata2.Builder()
-                                .putString(METADATA_KEY_MEDIA_ID, mediaId)
+        return new MediaItem2.Builder()
+                .setMetadata(
+                        new MediaMetadata2.Builder()
+                                .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
+                                .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE,
+                                        MediaMetadata2.BROWSABLE_TYPE_MIXED)
                                 .build())
                 .build();
     }

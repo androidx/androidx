@@ -113,7 +113,9 @@ public final class TestUtils {
         String caller = Thread.currentThread().getStackTrace()[3].getMethodName();
         for (int i = 0; i < size; i++) {
             MediaItem2 item = new FileMediaItem2.Builder(new FileDescriptor())
-                    .setMediaId(caller + "_item_" + (size + 1))
+                    .setMetadata(new MediaMetadata2.Builder()
+                            .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
+                                    caller + "_item_" + (size + 1)).build())
                     .build();
             list.add(item);
         }
@@ -196,7 +198,6 @@ public final class TestUtils {
             }
 
             assertEquals(aItem.getMediaId(), bItem.getMediaId());
-            assertEquals(aItem.getFlags(), bItem.getFlags());
             TestUtils.assertMetadataEquals(aItem.getMetadata(), bItem.getMetadata());
 
             // Note: Here it does not check whether MediaItem2 are equal,

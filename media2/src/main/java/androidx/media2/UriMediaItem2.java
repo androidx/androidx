@@ -153,7 +153,6 @@ public class UriMediaItem2 extends MediaItem2 {
          */
         public Builder(@NonNull Context context, @NonNull Uri uri,
                 @Nullable Map<String, String> headers, @Nullable List<HttpCookie> cookies) {
-            super(FLAG_PLAYABLE);
             Preconditions.checkNotNull(context, "context cannot be null");
             Preconditions.checkNotNull(uri, "uri cannot be null");
             mUri = uri;
