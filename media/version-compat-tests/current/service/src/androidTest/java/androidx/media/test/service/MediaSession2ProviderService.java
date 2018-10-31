@@ -393,8 +393,10 @@ public class MediaSession2ProviderService extends Service {
 
             List<MediaItem2> list = new ArrayList<>();
             for (int i = 0; i < size; i++) {
-                list.add(new MediaItem2.Builder(0)
-                        .setMediaId(TestUtils.getMediaIdInDummyList(i))
+                list.add(new MediaItem2.Builder()
+                        .setMetadata(new MediaMetadata2.Builder()
+                                .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
+                                        TestUtils.getMediaIdInDummyList(i)).build())
                         .build());
             }
             player.mPlaylist = list;
@@ -411,7 +413,6 @@ public class MediaSession2ProviderService extends Service {
                 MediaItem2 item = MediaItem2.fromBundle(bundle);
                 list.add(new FileMediaItem2.Builder(new FileDescriptor())
                         .setMetadata(item.getMetadata())
-                        .setMediaId(item.getMediaId())
                         .build());
             }
             player.mPlaylist = list;

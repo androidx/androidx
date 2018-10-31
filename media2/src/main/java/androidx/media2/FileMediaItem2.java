@@ -109,7 +109,6 @@ public class FileMediaItem2 extends MediaItem2 {
          * @param fd the FileDescriptor for the file you want to play
          */
         public Builder(@NonNull FileDescriptor fd) {
-            super(FLAG_PLAYABLE);
             Preconditions.checkNotNull(fd);
             mFD = fd;
             mFDOffset = 0;
@@ -129,7 +128,6 @@ public class FileMediaItem2 extends MediaItem2 {
          * @param length the length in bytes of the data to be played
          */
         public Builder(@NonNull FileDescriptor fd, long offset, long length) {
-            super(FLAG_PLAYABLE);
             Preconditions.checkNotNull(fd);
             if (offset < 0) {
                 offset = 0;
