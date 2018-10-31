@@ -261,14 +261,19 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     public void addOnBackPressedCallback(@NonNull LifecycleOwner owner,
             @NonNull OnBackPressedCallback onBackPressedCallback) {
-        if (owner.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
+        // Use mLifecycleRegistry directly rather than getLifecycle() for this
+        // to avoid implications where the Activity has overridden getLifecycle()
+        Lifecycle lifecycle = owner == this
+                ? mLifecycleRegistry
+                : owner.getLifecycle();
+        if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) {
             // Already destroyed, nothing to do
             return;
         }
         // Add new callbacks to the front of the list so that
         // the most recently added callbacks get priority
         mOnBackPressedCallbacks.add(0, new LifecycleAwareOnBackPressedCallback(
-                owner.getLifecycle(), onBackPressedCallback));
+                lifecycle, onBackPressedCallback));
     }
 
     /**
