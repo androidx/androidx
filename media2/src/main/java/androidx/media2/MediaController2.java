@@ -734,13 +734,14 @@ public class MediaController2 implements AutoCloseable {
      *
      * @param item the descriptor of media item you want to play
      */
-    public void setMediaItem(@NonNull MediaItem2 item) {
+    public ListenableFuture<ControllerResult> setMediaItem(@NonNull MediaItem2 item) {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
         }
         if (isConnected()) {
-            getImpl().setMediaItem(item);
+            return getImpl().setMediaItem(item);
         }
+        return createDisconnectedFuture();
     }
 
     /**
@@ -1050,7 +1051,7 @@ public class MediaController2 implements AutoCloseable {
         @Nullable List<MediaItem2> getPlaylist();
         ListenableFuture<ControllerResult> setPlaylist(@NonNull List<MediaItem2> list,
                 @Nullable MediaMetadata2 metadata);
-        ListenableFuture<ControllerResult>  setMediaItem(@NonNull MediaItem2 item);
+        ListenableFuture<ControllerResult> setMediaItem(@NonNull MediaItem2 item);
         ListenableFuture<ControllerResult> updatePlaylistMetadata(
                 @Nullable MediaMetadata2 metadata);
         @Nullable MediaMetadata2 getPlaylistMetadata();
