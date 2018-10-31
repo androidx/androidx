@@ -18,6 +18,7 @@ package androidx.work;
 
 import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
 
+import android.content.Context;
 import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
@@ -31,7 +32,12 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
- * Configuration for {@link WorkManager}.
+ * The Configuration object used to initialize {@link WorkManager}.  This class contains various
+ * arguments used to setup WorkManager.  For example, it is possible to customize the
+ * {@link Executor} used by {@link Worker}s here.
+ * <p>
+ * To set a custom Configuration for WorkManager, see
+ * {@link WorkManager#initialize(Context, Configuration)}.
  */
 public final class Configuration {
 
@@ -176,6 +182,11 @@ public final class Configuration {
         /**
          * Specifies the range of {@link android.app.job.JobInfo} IDs that can be used by
          * {@link WorkManager}. {@link WorkManager} needs a range of at least {@code 1000} IDs.
+         * <p>
+         * JobScheduler uses integers as identifiers for jobs, and WorkManager delegates to
+         * JobScheduler on certain API levels.  In order to not clash job codes used in the rest of
+         * your app, you can use this method to tell WorkManager the valid range of job IDs that it
+         * can use.
          *
          * @param minJobSchedulerId The first valid {@link android.app.job.JobInfo} ID inclusive.
          * @param maxJobSchedulerId The last valid {@link android.app.job.JobInfo} ID inclusive.
