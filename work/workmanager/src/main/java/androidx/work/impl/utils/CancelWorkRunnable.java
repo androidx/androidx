@@ -24,7 +24,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
+import androidx.work.Operation;
 import androidx.work.State;
+import androidx.work.impl.OperationImpl;
 import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.Schedulers;
@@ -32,9 +34,6 @@ import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.DependencyDao;
 import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.utils.futures.SettableFuture;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 import java.util.UUID;
@@ -47,22 +46,22 @@ import java.util.UUID;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class CancelWorkRunnable implements Runnable {
 
-    private final SettableFuture<Void> mFuture = SettableFuture.create();
+    private final OperationImpl mOperation = new OperationImpl();
 
     /**
-     * @return A {@link ListenableFuture} that completes when the cancel operation is completed
+     * @return The {@link Operation} that encapsulates the state of the {@link CancelWorkRunnable}.
      */
-    public ListenableFuture<Void> getFuture() {
-        return mFuture;
+    public Operation getOperation() {
+        return mOperation;
     }
 
     @Override
     public void run() {
         try {
             runInternal();
-            mFuture.set(null);
+            mOperation.setState(Operation.SUCCESS);
         } catch (Throwable throwable) {
-            mFuture.setException(throwable);
+            mOperation.setState(new Operation.State.FAILURE(throwable));
         }
     }
 
