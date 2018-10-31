@@ -18,6 +18,7 @@ package android.support.v4.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Bitmap;
+import android.media.MediaDescription;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -185,7 +186,7 @@ public final class MediaDescriptionCompat implements Parcelable {
     /**
      * A cached copy of the equivalent framework object.
      */
-    private Object mDescriptionObj;
+    private MediaDescription mDescriptionFwk;
 
     MediaDescriptionCompat(String mediaId, CharSequence title, CharSequence subtitle,
             CharSequence description, Bitmap icon, Uri iconUri, Bundle extras, Uri mediaUri) {
@@ -308,7 +309,7 @@ public final class MediaDescriptionCompat implements Parcelable {
             dest.writeBundle(mExtras);
             dest.writeParcelable(mMediaUri, flags);
         } else {
-            MediaDescriptionCompatApi21.writeToParcel(getMediaDescription(), dest, flags);
+            ((MediaDescription) getMediaDescription()).writeToParcel(dest, flags);
         }
     }
 
@@ -329,16 +330,16 @@ public final class MediaDescriptionCompat implements Parcelable {
      *         null if none.
      */
     public Object getMediaDescription() {
-        if (mDescriptionObj != null || Build.VERSION.SDK_INT < 21) {
-            return mDescriptionObj;
+        if (mDescriptionFwk != null || Build.VERSION.SDK_INT < 21) {
+            return mDescriptionFwk;
         }
-        Object bob = MediaDescriptionCompatApi21.Builder.newInstance();
-        MediaDescriptionCompatApi21.Builder.setMediaId(bob, mMediaId);
-        MediaDescriptionCompatApi21.Builder.setTitle(bob, mTitle);
-        MediaDescriptionCompatApi21.Builder.setSubtitle(bob, mSubtitle);
-        MediaDescriptionCompatApi21.Builder.setDescription(bob, mDescription);
-        MediaDescriptionCompatApi21.Builder.setIconBitmap(bob, mIcon);
-        MediaDescriptionCompatApi21.Builder.setIconUri(bob, mIconUri);
+        MediaDescription.Builder bob = new MediaDescription.Builder();
+        bob.setMediaId(mMediaId);
+        bob.setTitle(mTitle);
+        bob.setSubtitle(mSubtitle);
+        bob.setDescription(mDescription);
+        bob.setIconBitmap(mIcon);
+        bob.setIconUri(mIconUri);
         // Media URI was not added until API 23, so add it to the Bundle of extras to
         // ensure the data is not lost - this ensures that
         // fromMediaDescription(getMediaDescription(mediaDescriptionCompat)) returns
@@ -351,13 +352,13 @@ public final class MediaDescriptionCompat implements Parcelable {
             }
             extras.putParcelable(DESCRIPTION_KEY_MEDIA_URI, mMediaUri);
         }
-        MediaDescriptionCompatApi21.Builder.setExtras(bob, extras);
+        bob.setExtras(extras);
         if (Build.VERSION.SDK_INT >= 23) {
-            MediaDescriptionCompatApi23.Builder.setMediaUri(bob, mMediaUri);
+            bob.setMediaUri(mMediaUri);
         }
-        mDescriptionObj = MediaDescriptionCompatApi21.Builder.build(bob);
+        mDescriptionFwk = bob.build();
 
-        return mDescriptionObj;
+        return mDescriptionFwk;
     }
 
     /**
@@ -375,13 +376,14 @@ public final class MediaDescriptionCompat implements Parcelable {
     public static MediaDescriptionCompat fromMediaDescription(Object descriptionObj) {
         if (descriptionObj != null && Build.VERSION.SDK_INT >= 21) {
             Builder bob = new Builder();
-            bob.setMediaId(MediaDescriptionCompatApi21.getMediaId(descriptionObj));
-            bob.setTitle(MediaDescriptionCompatApi21.getTitle(descriptionObj));
-            bob.setSubtitle(MediaDescriptionCompatApi21.getSubtitle(descriptionObj));
-            bob.setDescription(MediaDescriptionCompatApi21.getDescription(descriptionObj));
-            bob.setIconBitmap(MediaDescriptionCompatApi21.getIconBitmap(descriptionObj));
-            bob.setIconUri(MediaDescriptionCompatApi21.getIconUri(descriptionObj));
-            Bundle extras = MediaDescriptionCompatApi21.getExtras(descriptionObj);
+            MediaDescription description = (MediaDescription) descriptionObj;
+            bob.setMediaId(description.getMediaId());
+            bob.setTitle(description.getTitle());
+            bob.setSubtitle(description.getSubtitle());
+            bob.setDescription(description.getDescription());
+            bob.setIconBitmap(description.getIconBitmap());
+            bob.setIconUri(description.getIconUri());
+            Bundle extras = description.getExtras();
             Uri mediaUri = null;
             if (extras != null) {
                 MediaSessionCompat.ensureClassLoader(extras);
@@ -405,10 +407,10 @@ public final class MediaDescriptionCompat implements Parcelable {
             if (mediaUri != null) {
                 bob.setMediaUri(mediaUri);
             } else if (Build.VERSION.SDK_INT >= 23) {
-                bob.setMediaUri(MediaDescriptionCompatApi23.getMediaUri(descriptionObj));
+                bob.setMediaUri(description.getMediaUri());
             }
             MediaDescriptionCompat descriptionCompat = bob.build();
-            descriptionCompat.mDescriptionObj = descriptionObj;
+            descriptionCompat.mDescriptionFwk = description;
 
             return descriptionCompat;
         } else {
@@ -423,7 +425,7 @@ public final class MediaDescriptionCompat implements Parcelable {
                     if (Build.VERSION.SDK_INT < 21) {
                         return new MediaDescriptionCompat(in);
                     } else {
-                        return fromMediaDescription(MediaDescriptionCompatApi21.fromParcel(in));
+                        return fromMediaDescription(MediaDescription.CREATOR.createFromParcel(in));
                     }
                 }
 
