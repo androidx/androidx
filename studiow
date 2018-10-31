@@ -80,10 +80,10 @@ function runStudioMac() {
 }
 
 function runStudio() {
-  if [ "${unameOutput}" == "Linux" ]; then
-    runStudioLinux
-  else
+  if [ "${osName}" == "mac" ]; then
     runStudioMac
+  else
+    runStudioLinux
   fi
 }
 
