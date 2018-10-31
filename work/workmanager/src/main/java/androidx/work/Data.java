@@ -41,10 +41,16 @@ import java.util.Map;
 
 public final class Data {
 
+    /**
+     * An empty Data object with no elements.
+     */
     public static final Data EMPTY = new Data.Builder().build();
-    public static final int MAX_DATA_BYTES = 10 * 1024;    // 10KB
 
-    private static final String TAG = "Data";
+    /**
+     * The maximum number of bytes for Data when it is serialized (converted to a byte array).
+     * Please see the class-level Javadoc for more information.
+     */
+    public static final int MAX_DATA_BYTES = 10 * 1024;    // 10KB
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     Map<String, Object> mValues;
@@ -56,7 +62,7 @@ public final class Data {
         mValues = new HashMap<>(other.mValues);
     }
 
-    Data(Map<String, ?> values) {
+    Data(@NonNull Map<String, ?> values) {
         mValues = new HashMap<>(values);
     }
 
@@ -282,9 +288,11 @@ public final class Data {
     }
 
     /**
-     * @return The number of arguments
+     * @return The number of elements in this Data object.
+     * @hide
      */
     @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public int size() {
         return mValues.size();
     }
@@ -395,7 +403,7 @@ public final class Data {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static Boolean[] convertPrimitiveBooleanArray(boolean[] value) {
+    static @NonNull Boolean[] convertPrimitiveBooleanArray(@NonNull boolean[] value) {
         Boolean[] returnValue = new Boolean[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];
@@ -404,7 +412,7 @@ public final class Data {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static Integer[] convertPrimitiveIntArray(int[] value) {
+    static @NonNull Integer[] convertPrimitiveIntArray(@NonNull int[] value) {
         Integer[] returnValue = new Integer[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];
@@ -413,7 +421,7 @@ public final class Data {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static Long[] convertPrimitiveLongArray(long[] value) {
+    static @NonNull Long[] convertPrimitiveLongArray(@NonNull long[] value) {
         Long[] returnValue = new Long[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];
@@ -422,7 +430,7 @@ public final class Data {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static Float[] convertPrimitiveFloatArray(float[] value) {
+    static @NonNull Float[] convertPrimitiveFloatArray(@NonNull float[] value) {
         Float[] returnValue = new Float[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];
@@ -431,7 +439,7 @@ public final class Data {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static Double[] convertPrimitiveDoubleArray(double[] value) {
+    static @NonNull Double[] convertPrimitiveDoubleArray(@NonNull double[] value) {
         Double[] returnValue = new Double[value.length];
         for (int i = 0; i < value.length; ++i) {
             returnValue[i] = value[i];
@@ -465,7 +473,7 @@ public final class Data {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public @NonNull Builder putBooleanArray(@NonNull String key, boolean[] value) {
+        public @NonNull Builder putBooleanArray(@NonNull String key, @NonNull boolean[] value) {
             mValues.put(key, convertPrimitiveBooleanArray(value));
             return this;
         }
@@ -489,7 +497,7 @@ public final class Data {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public @NonNull Builder putIntArray(@NonNull String key, int[] value) {
+        public @NonNull Builder putIntArray(@NonNull String key, @NonNull int[] value) {
             mValues.put(key, convertPrimitiveIntArray(value));
             return this;
         }
@@ -513,7 +521,7 @@ public final class Data {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public @NonNull Builder putLongArray(@NonNull String key, long[] value) {
+        public @NonNull Builder putLongArray(@NonNull String key, @NonNull long[] value) {
             mValues.put(key, convertPrimitiveLongArray(value));
             return this;
         }
@@ -537,7 +545,7 @@ public final class Data {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public @NonNull Builder putFloatArray(String key, float[] value) {
+        public @NonNull Builder putFloatArray(@NonNull String key, @NonNull float[] value) {
             mValues.put(key, convertPrimitiveFloatArray(value));
             return this;
         }
@@ -561,7 +569,7 @@ public final class Data {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public @NonNull Builder putDoubleArray(@NonNull String key, double[] value) {
+        public @NonNull Builder putDoubleArray(@NonNull String key, @NonNull double[] value) {
             mValues.put(key, convertPrimitiveDoubleArray(value));
             return this;
         }
@@ -573,7 +581,7 @@ public final class Data {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public @NonNull Builder putString(@NonNull String key, String value) {
+        public @NonNull Builder putString(@NonNull String key, @Nullable String value) {
             mValues.put(key, value);
             return this;
         }
@@ -585,7 +593,7 @@ public final class Data {
          * @param value The value for this argument
          * @return The {@link Builder}
          */
-        public @NonNull Builder putStringArray(@NonNull String key, String[] value) {
+        public @NonNull Builder putStringArray(@NonNull String key, @NonNull String[] value) {
             mValues.put(key, value);
             return this;
         }
