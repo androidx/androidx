@@ -30,7 +30,7 @@ lintOptions {
 
 dependencies {
     compile(SUPPORT_ANNOTATIONS)
-    compile(project(":arch:core-common"))
+    compile("androidx.arch.core:core-common:2.0.0")
 
     testCompile(JUNIT)
     testCompile(MOCKITO_CORE)
