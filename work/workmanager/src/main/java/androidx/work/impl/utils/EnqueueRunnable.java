@@ -97,6 +97,9 @@ public class EnqueueRunnable implements Runnable {
         }
     }
 
+    /**
+     * @return The {@link Operation} that encapsulates the state of the {@link EnqueueRunnable}.
+     */
     public Operation getOperation() {
         return mOperation;
     }
