@@ -1,6 +1,8 @@
 package androidx.ui.services.text_editing
 
 import androidx.ui.engine.text.TextAffinity
+import androidx.ui.engine.text.TextPosition
+import androidx.ui.runtimeType
 
 // import 'dart:ui' show hashValues, TextAffinity, TextPosition;
 //
@@ -49,53 +51,64 @@ data class TextSelection(
     start = if (baseOffset < extentOffset) baseOffset else extentOffset,
     end = if (baseOffset < extentOffset) extentOffset else baseOffset
 ) {
-    // TODO(Migration/ryanmentley): Migrate to data class
-//
-//  /// Creates a collapsed selection at the given offset.
-//  ///
-//  /// A collapsed selection starts and ends at the same offset, which means it
-//  /// contains zero characters but instead serves as an insertion point in the
-//  /// text.
-//  ///
-//  /// The [offset] argument must not be null.
-//  const TextSelection.collapsed({
-//    @required int offset,
-//    this.affinity = TextAffinity.downstream
-//  }) : baseOffset = offset, extentOffset = offset, isDirectional = false, super.collapsed(offset);
-//
-//  /// Creates a collapsed selection at the given text position.
-//  ///
-//  /// A collapsed selection starts and ends at the same offset, which means it
-//  /// contains zero characters but instead serves as an insertion point in the
-//  /// text.
-//  TextSelection.fromPosition(TextPosition position)
-//    : baseOffset = position.offset,
-//      extentOffset = position.offset,
-//      affinity = position.affinity,
-//      isDirectional = false,
-//      super.collapsed(position.offset);
-//
+    companion object {
+        /**
+         * Creates a collapsed selection at the given offset.
+         *
+         * A collapsed selection starts and ends at the same offset, which means it
+         * contains zero characters but instead serves as an insertion point in the
+         * text.
+         *
+         * The [offset] argument must not be null.
+         */
+        fun collapsed(
+            offset: Int,
+            affinity: TextAffinity = TextAffinity.downstream
+        ): TextSelection {
+            return TextSelection(
+                baseOffset = offset,
+                extentOffset = offset,
+                affinity = affinity,
+                isDirectional = false)
+        }
 
-//
-//  /// The position at which the selection originates.
-//  ///
-//  /// Might be larger than, smaller than, or equal to extent.
-//  TextPosition get base => new TextPosition(offset: baseOffset, affinity: affinity);
-//
-//  /// The position at which the selection terminates.
-//  ///
-//  /// When the user uses the arrow keys to adjust the selection, this is the
-//  /// value that changes. Similarly, if the current theme paints a caret on one
-//  /// side of the selection, this is the location at which to paint the caret.
-//  ///
-//  /// Might be larger than, smaller than, or equal to base.
-//  TextPosition get extent => new TextPosition(offset: extentOffset, affinity: affinity);
-//
-//  @override
-//  String toString() {
-//    return '$runtimeType(baseOffset: $baseOffset, extentOffset: $extentOffset, affinity: $affinity, isDirectional: $isDirectional)';
-//  }
-//
+        /**
+         * Creates a collapsed selection at the given text position.
+         *
+         * A collapsed selection starts and ends at the same offset, which means it
+         * contains zero characters but instead serves as an insertion point in the
+         * text.
+         */
+        fun fromPosition(position: TextPosition): TextSelection {
+            return collapsed(offset = position.offset, affinity = position.affinity)
+        }
+    }
+
+    /**
+     * The position at which the selection originates.
+     *
+     * Might be larger than, smaller than, or equal to extent.
+     */
+    val base: TextPosition
+            get() = TextPosition(offset = baseOffset, affinity = affinity)
+
+    /**
+     * The position at which the selection terminates.
+     *
+     * When the user uses the arrow keys to adjust the selection, this is the
+     * value that changes. Similarly, if the current theme paints a caret on one
+     * side of the selection, this is the location at which to paint the caret.
+     *
+     * Might be larger than, smaller than, or equal to base.
+     */
+    val extent: TextPosition
+            get() = TextPosition(offset = extentOffset, affinity = affinity)
+
+    override fun toString(): String {
+        return "${runtimeType()}(baseOffset: $baseOffset, extentOffset: $extentOffset," +
+                " affinity: $affinity, isDirectional: $isDirectional)"
+    }
+//  TODO(Migration/haoyuchang): Remove unused functions after we make sure they are unnecessary
 //  @override
 //  bool operator ==(dynamic other) {
 //    if (identical(this, other))
