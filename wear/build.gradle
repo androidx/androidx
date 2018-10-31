@@ -38,7 +38,7 @@ android {
 supportLibrary {
     name = "Android Wear Support UI"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.WEAR
     mavenGroup = LibraryGroups.WEAR
     inceptionYear = "2016"
     description = "Android Wear Support UI"

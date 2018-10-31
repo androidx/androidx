@@ -32,7 +32,7 @@ dependencies {
 supportLibrary {
     name = "Android Support Animation Testing"
     publish = false
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.ANIMATION_TESTING
     mavenGroup = LibraryGroups.ANIMATION
     inceptionYear = "2018"
     description = "This library provides functionalities for testing animations for API 14 and above."

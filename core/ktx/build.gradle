@@ -30,7 +30,7 @@ dependencies {
 supportLibrary {
     name = "Core Kotlin Extensions"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.CORE_KTX
     mavenGroup = LibraryGroups.CORE
     inceptionYear = "2018"
     description = "Kotlin extensions for 'core' artifact"
