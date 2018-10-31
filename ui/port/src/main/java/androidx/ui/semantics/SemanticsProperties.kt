@@ -471,20 +471,7 @@ class SemanticsProperties(
      * menu, and VoiceOver users on iOS can trigger this action with a standard
      * gesture or menu option.
      */
-    val onDismiss: VoidCallback? = null,
-    /**
-     * A map from each supported [CustomSemanticsAction] to a provided handler.
-     *
-     * The handler associated with each custom action is called whenever a
-     * semantics event of type [SemanticsEvent.customEvent] is received. The
-     * provided argument will be an identifier used to retrieve an instance of
-     * a custom action which can then retrieve the correct handler from this map.
-     *
-     * See also:
-     *
-     *   * [CustomSemanticsAction], for an explanation of custom actions.
-     */
-    val customSemanticsActions: Map<CustomSemanticsAction, VoidCallback>? = null
+    val onDismiss: VoidCallback? = null
 ) : DiagnosticableTree {
 //
 //  @override

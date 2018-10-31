@@ -13,7 +13,7 @@ import androidx.ui.describeEnum
  *  * [DiagnosticsProperty] which documents named parameters common to all
  *    [DiagnosticsProperty]
  */
-class EnumProperty<T : Any>(
+class EnumProperty<T : Enum<*>>(
     name: String,
     value: T?,
     defaultValue: Any? = kNoDefaultValue,

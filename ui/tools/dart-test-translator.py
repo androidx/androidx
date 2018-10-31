@@ -22,9 +22,11 @@ def whitespace_handler(line):
 # Handles statements generally of the form expect(...)
 # ===================================================================
 EXPECTATION = re.compile(r"expect\((?P<actual>.+), (?P<expected>[^,]+)\);")
-EQUALS_MATCHER = re.compile(r"equals\((?P<value>.+)\)")
+TEST_MATCHER_FORMAT = r"{matcher_name}\((?P<value>.+)\)"
+EQUALS_MATCHER = re.compile(TEST_MATCHER_FORMAT.format(matcher_name='equals'))
+SAME_MATCHER = re.compile(TEST_MATCHER_FORMAT.format(matcher_name='same'))
 
-def expecation_handler(line):
+def expectation_handler(line):
   match = EXPECTATION.fullmatch(line.strip())
   if match:
     expected = match.group('expected')
@@ -33,12 +35,15 @@ def expecation_handler(line):
     if expected == 'isNull':
       return (True, 'assertThat({actual}).isNull'.format(actual=actual))
     elif expected == 'isTrue':
-      return (True, 'assertThat({actual}).isTrue'.format(actual=actual))
+      return (True, 'assertThat({actual}).isTrue()'.format(actual=actual))
     elif expected == 'isFalse':
-      return (True, 'assertThat({actual}).isFalse'.format(actual=actual))
+      return (True, 'assertThat({actual}).isFalse()'.format(actual=actual))
     elif EQUALS_MATCHER.fullmatch(expected):
       expected_value = EQUALS_MATCHER.fullmatch(expected).group('value')
       return (True, 'assertThat({expected}).isEqualTo({actual})'.format(expected=expected_value, actual=actual))
+    elif SAME_MATCHER.fullmatch(expected):
+      expected_value = SAME_MATCHER.fullmatch(expected).group('value')
+      return (True, 'assertThat({expected}).isSameAs({actual})'.format(expected=expected_value, actual=actual))
     else:
       return (True, 'assertThat({expected}).isEqualTo({actual})'.format(expected=expected, actual=actual))
   return NO_MATCH
@@ -74,9 +79,30 @@ def test_or_group_handler(line):
   return NO_MATCH
 
 # ===================================================================
+# Multiline string handler
+#
+# Handles string literals split across multiple lines.
+# Adds an unnecessary "+" to the last one, because it only sees one
+# line at a time.
+# ===================================================================
+MULTILINE_STRING = re.compile(r"'(?P<contents>[^']+)'$")
+
+def multiline_string_handler(line):
+  match = MULTILINE_STRING.fullmatch(line.strip())
+  if match:
+    contents = match.group('contents')
+    return (True, '"{contents}\" +'.format(contents=contents))
+
+  return NO_MATCH
+
+# ===================================================================
 # Register all handlers here:
 # ===================================================================
-HANDLERS = [expecation_handler, whitespace_handler, test_or_group_handler]
+HANDLERS = [expectation_handler,
+            whitespace_handler,
+            test_or_group_handler,
+            multiline_string_handler,
+            ]
 
 # ===================================================================
 # Global stuff

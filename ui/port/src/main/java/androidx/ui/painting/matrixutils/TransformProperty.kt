@@ -27,7 +27,7 @@ import androidx.ui.vectormath64.Matrix4
  */
 class TransformProperty(
     name: String,
-    private val value: Matrix4,
+    private val value: Matrix4?,
     showName: Boolean = true,
     defaultValue: Any? = kNoDefaultValue,
     level: DiagnosticLevel = DiagnosticLevel.info
@@ -43,7 +43,10 @@ class TransformProperty(
             // Format the value on a single line to be compatible with the parent's
             // style.
             val rows = listOf(
-                    value.getRow(0),
+                // TODO(Migration/ryanmentley): value seems nullable (see the uses of
+                // TransformProperty - e.g., in SemanticsData), but the Flutter source
+                // doesn't seem to handle that case in this method.  Determine what to do here.
+                    value!!.getRow(0),
                     value.getRow(1),
                     value.getRow(2),
                     value.getRow(3)

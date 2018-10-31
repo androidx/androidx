@@ -288,15 +288,13 @@ class PipelineOwner(
      * maintaining the semantics tree.
      */
     fun ensureSemantics(listener: VoidCallback? = null): SemanticsHandle {
-        TODO()
-//        _outstandingSemanticsHandle += 1;
-//        if (_outstandingSemanticsHandle == 1) {
-//            assert(semanticsOwner == null);
-//            semanticsOwner = SemanticsOwner();
-//            if (onSemanticsOwnerCreated != null)
-//                onSemanticsOwnerCreated();
-//        }
-//        return SemanticsHandle(this, listener);
+        _outstandingSemanticsHandle += 1
+        if (_outstandingSemanticsHandle == 1) {
+            assert(semanticsOwner == null)
+            semanticsOwner = SemanticsOwner()
+            onSemanticsOwnerCreated?.invoke()
+        }
+        return SemanticsHandle(this, listener)
     }
 
     fun _didDisposeSemanticsHandle() {
@@ -329,23 +327,22 @@ class PipelineOwner(
      */
     fun flushSemantics() {
         // TODO(Migration/Andrey): Mocking it for a hello world
-//        if (semanticsOwner == null)
-//            return;
-//        profile { Timeline.startSync("Semantics") }
-//        assert(semanticsOwner != null);
-//        assert { _debugDoingSemantics = true; true; };
-//        try {
-//            val nodesToProcess = _nodesNeedingSemantics.sorted().toList()
-//            _nodesNeedingSemantics.clear();
-//            for (node in nodesToProcess) {
-//                if (node._needsSemanticsUpdate && node.owner == this)
-//                    node._updateSemantics();
-//            }
-//            _semanticsOwner.sendSemanticsUpdate();
-//        } finally {
-//            assert(_nodesNeedingSemantics.isEmpty());
-//            assert { _debugDoingSemantics = false; true; };
-//            profile { Timeline.finishSync() }
-//        }
+        val semanticsOwner = semanticsOwner ?: return
+        profile { Timeline.startSync("Semantics") }
+        assert(semanticsOwner != null)
+        assert { _debugDoingSemantics = true; true; }
+        try {
+            val nodesToProcess = _nodesNeedingSemantics.sorted().toList()
+            _nodesNeedingSemantics.clear()
+            for (node in nodesToProcess) {
+                if (node.needsSemanticsUpdate && node.owner == this)
+                    node.updateSemantics()
+            }
+            semanticsOwner.sendSemanticsUpdate()
+        } finally {
+            assert(_nodesNeedingSemantics.isEmpty())
+            assert { _debugDoingSemantics = false; true; }
+            profile { Timeline.finishSync() }
+        }
     }
 }

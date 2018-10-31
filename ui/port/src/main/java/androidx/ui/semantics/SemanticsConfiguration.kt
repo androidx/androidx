@@ -86,6 +86,12 @@ class SemanticsConfiguration {
     var hasBeenAnnotated: Boolean = false
 
     /**
+     * Disables enforcement of assertions in property setters.  Used for copy operations.
+     * Should be private except for synthetic accessor
+     */
+    internal var doNotEnforceAssertionsInPropertySetters = false
+
+    /**
      * The actions (with associated action handlers) that this configuration
      * would like to contribute to the semantics tree.
      *
@@ -163,9 +169,21 @@ class SemanticsConfiguration {
         }
 
         override fun setValue(thisRef: SemanticsConfiguration, property: KProperty<*>, value: T) {
-            assert(value != null)
+            assert(thisRef.doNotEnforceAssertionsInPropertySetters || value != null)
             this.value = value
             thisRef.hasBeenAnnotated = true
+        }
+    }
+
+    // TODO(Migration/ryanmentley): Is there a better way to handle this?
+    // The Flutter code just uses backing properties and sets them directly.  It'd be nice to avoid
+    // that, but this solution is pretty awkward.
+    private fun doNotEnforceAssertionsInPropertySetters(operation: () -> Unit) {
+        doNotEnforceAssertionsInPropertySetters = true
+        try {
+            operation()
+        } finally {
+            doNotEnforceAssertionsInPropertySetters = false
         }
     }
 
@@ -361,7 +379,7 @@ class SemanticsConfiguration {
      */
     var onMoveCursorForwardByCharacter: MoveCursorHandler? = null
         set(value) {
-            assert(value != null)
+            assert(doNotEnforceAssertionsInPropertySetters || value != null)
             _addAction(SemanticsAction.moveCursorForwardByCharacter) { args: Any? ->
                 val extentSelection = args as Boolean
                 value!!(extentSelection)
@@ -380,7 +398,7 @@ class SemanticsConfiguration {
      */
     var onMoveCursorBackwardByCharacter: MoveCursorHandler? = null
         set(value) {
-            assert(value != null)
+            assert(doNotEnforceAssertionsInPropertySetters || value != null)
             _addAction(SemanticsAction.moveCursorBackwardByCharacter) { args: Any? ->
                 val extentSelection = args as Boolean
                 value!!(extentSelection)
@@ -399,7 +417,7 @@ class SemanticsConfiguration {
      */
     var onSetSelection: SetSelectionHandler? = null
         set(value) {
-            assert(value != null)
+            assert(doNotEnforceAssertionsInPropertySetters || value != null)
             _addAction(SemanticsAction.setSelection) { args: Any? ->
                 val selection = args as Map<String, Int>
                 assert(selection["base"] != null && selection["extent"] != null)
@@ -494,34 +512,14 @@ class SemanticsConfiguration {
      */
     var isMergingSemanticsOfDescendants: Boolean = false
         set(value) {
-            assert(isSemanticBoundary)
+            // TODO(Migration/ryanmentley): Changed this, confirm it's correct
+            if (value) {
+                assert(isSemanticBoundary)
+            }
+
             field = value
             hasBeenAnnotated = true
         }
-
-    /**
-     * The handlers for each supported [CustomSemanticsAction].
-     *
-     * Whenever a custom accessibility action is added to a node, the action
-     * [SemanticAction.customAction] is automatically added. A handler is
-     * created which uses the passed argument to lookup the custom action
-     * handler from this map and invoke it, if present.
-     */
-    var customSemanticsActions: MutableMap<CustomSemanticsAction, VoidCallback> = mutableMapOf()
-        set(value) {
-            hasBeenAnnotated = true
-            _actionsAsBits = _actionsAsBits or SemanticsAction.customAction.index
-            field = value
-            _actions[SemanticsAction.customAction] = ::_onCustomSemanticsAction
-        }
-
-    //
-    private fun _onCustomSemanticsAction(args: Any?) {
-        // TODO(Migration/ryanmentley): This casting is not remotely type-safe - can we do better?
-        val action: CustomSemanticsAction? = CustomSemanticsAction.getAction(args as Int) ?: return
-        val callback: VoidCallback = customSemanticsActions[action] ?: return
-        callback()
-    }
 
     /**
      * A textual description of the owning [RenderObrject].
@@ -927,8 +925,8 @@ class SemanticsConfiguration {
      * Two configurations are said to be compatible if they can be added to the
      * same [SemanticsNode] without losing any semantics information.
      */
-    fun isCompatibleWith(other: SemanticsConfiguration): Boolean {
-        if (!other.hasBeenAnnotated || !hasBeenAnnotated)
+    fun isCompatibleWith(other: SemanticsConfiguration?): Boolean {
+        if (other == null || !other.hasBeenAnnotated || !hasBeenAnnotated)
             return true
         if (_actionsAsBits and other._actionsAsBits != 0)
             return false
@@ -956,22 +954,25 @@ class SemanticsConfiguration {
             return
 
         _actions.putAll(other._actions)
-        customSemanticsActions.putAll(other.customSemanticsActions)
         _actionsAsBits = _actionsAsBits or other._actionsAsBits
         _flags = _flags or other._flags
-        textSelection = textSelection ?: other.textSelection
-        scrollPosition = scrollPosition ?: other.scrollPosition
-        scrollExtentMax = scrollExtentMax ?: other.scrollExtentMax
-        scrollExtentMin = scrollExtentMin ?: other.scrollExtentMin
-        hintOverrides = hintOverrides ?: other.hintOverrides
 
-        textDirection = textDirection ?: other.textDirection
-        sortKey = sortKey ?: other.sortKey
+        doNotEnforceAssertionsInPropertySetters {
+            textSelection = textSelection ?: other.textSelection
+            scrollPosition = scrollPosition ?: other.scrollPosition
+            scrollExtentMax = scrollExtentMax ?: other.scrollExtentMax
+            scrollExtentMin = scrollExtentMin ?: other.scrollExtentMin
+            hintOverrides = hintOverrides ?: other.hintOverrides
+
+            textDirection = textDirection ?: other.textDirection
+            sortKey = sortKey ?: other.sortKey
+        }
+
         label = _concatStrings(
             thisString = label,
-            thisTextDirection = textDirection!!,
+            thisTextDirection = textDirection,
             otherString = other.label,
-            otherTextDirection = other.textDirection!!
+            otherTextDirection = other.textDirection
         )
         if (decreasedValue.isNullOrEmpty()) {
             decreasedValue = other.decreasedValue
@@ -985,9 +986,9 @@ class SemanticsConfiguration {
 
         hint = _concatStrings(
             thisString = hint,
-            thisTextDirection = textDirection!!,
+            thisTextDirection = textDirection,
             otherString = other.hint,
-            otherTextDirection = other.textDirection!!
+            otherTextDirection = other.textDirection
         )
 
         hasBeenAnnotated = hasBeenAnnotated or other.hasBeenAnnotated
@@ -996,29 +997,31 @@ class SemanticsConfiguration {
     /** Returns an exact copy of this configuration. */
     fun copy(): SemanticsConfiguration {
         val copy = SemanticsConfiguration()
-        copy.isSemanticBoundary = isSemanticBoundary
-        copy.explicitChildNodes = explicitChildNodes
-        copy.isBlockingSemanticsOfPreviouslyPaintedNodes =
-                isBlockingSemanticsOfPreviouslyPaintedNodes
-        copy.hasBeenAnnotated = hasBeenAnnotated
-        copy.isMergingSemanticsOfDescendants = isMergingSemanticsOfDescendants
-        copy.textDirection = textDirection
-        copy.sortKey = sortKey
-        copy.label = label
-        copy.increasedValue = increasedValue
-        copy.value = value
-        copy.decreasedValue = decreasedValue
-        copy.hint = hint
-        copy.hintOverrides = hintOverrides
-        copy._flags = _flags
-        copy.tagsForChildren = tagsForChildren
-        copy.textSelection = textSelection
-        copy.scrollPosition = scrollPosition
-        copy.scrollExtentMax = scrollExtentMax
-        copy.scrollExtentMin = scrollExtentMin
-        copy._actionsAsBits = _actionsAsBits
-        copy._actions.putAll(_actions)
-        copy.customSemanticsActions.putAll(customSemanticsActions)
+        copy.doNotEnforceAssertionsInPropertySetters {
+            copy.isSemanticBoundary = isSemanticBoundary
+            copy.explicitChildNodes = explicitChildNodes
+            copy.isBlockingSemanticsOfPreviouslyPaintedNodes =
+                    isBlockingSemanticsOfPreviouslyPaintedNodes
+            copy.isMergingSemanticsOfDescendants = isMergingSemanticsOfDescendants
+            copy.textDirection = textDirection
+            copy.sortKey = sortKey
+            copy.label = label
+            copy.increasedValue = increasedValue
+            copy.value = value
+            copy.decreasedValue = decreasedValue
+            copy.hint = hint
+            copy.hintOverrides = hintOverrides
+            copy._flags = _flags
+            copy.tagsForChildren = tagsForChildren
+            copy.textSelection = textSelection
+            copy.scrollPosition = scrollPosition
+            copy.scrollExtentMax = scrollExtentMax
+            copy.scrollExtentMin = scrollExtentMin
+            copy._actionsAsBits = _actionsAsBits
+            copy._actions.putAll(_actions)
+            // Do this last so it's not overwritten by setting the other properties
+            copy.hasBeenAnnotated = hasBeenAnnotated
+        }
         return copy
     }
 }

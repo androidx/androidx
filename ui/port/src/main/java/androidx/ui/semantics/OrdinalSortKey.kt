@@ -1,5 +1,8 @@
 package androidx.ui.semantics
 
+import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+import androidx.ui.foundation.diagnostics.DoubleProperty
+
 /**
  * A [SemanticsSortKey] that sorts simply based on the `Double` value it is
  * given.
@@ -16,7 +19,7 @@ package androidx.ui.semantics
  *
  *  * [SemanticsSortOrder] which manages a list of sort keys.
  */
-class OrdinalSortKey(
+open class OrdinalSortKey(
     /**
      * Determines the placement of this key in a sequence of keys that defines
      * the order in which this node is traversed by the platform's accessibility
@@ -25,34 +28,25 @@ class OrdinalSortKey(
      * Lower values will be traversed first.
      */
     val order: Double,
-    name: String
+    name: String? = null
 ) : SemanticsSortKey(name) {
-    override fun compareTo(other: SemanticsSortKey): Int {
-        TODO("not implemented")
+
+    init {
+        assert(order != null)
+        assert(order != Double.NaN)
+        assert(order > Double.NEGATIVE_INFINITY)
+        assert(order < Double.POSITIVE_INFINITY)
     }
-//  /// Creates a semantics sort key that uses a [Double] as its key value.
-//  ///
-//  /// The [order] must be a finite number.
-//  const OrdinalSortKey(
-//    this.order, {
-//    String name,
-//  }) : assert(order != null),
-//       assert(order != Double.nan),
-//       assert(order > Double.negativeInfinity),
-//       assert(order < Double.infinity),
-//       super(name: name);
-//
-//
-//  @override
-//  int doCompare(OrdinalSortKey other) {
-//    if (other.order == null || order == null || other.order == order)
-//      return 0;
-//    return order.compareTo(other.order);
-//  }
-//
-//  @override
-//  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//    super.debugFillProperties(properties);
-//    properties.add(new DoubleProperty('order', order, defaultValue: null));
-//  }
+
+    override fun doCompare(other: SemanticsSortKey): Int {
+        other as OrdinalSortKey // guaranteed by super.compareTo
+        if (other.order == null || order == null || other.order == order)
+            return 0
+        return order.compareTo(other.order)
+    }
+
+    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
+        super.debugFillProperties(properties)
+        properties.add(DoubleProperty.create("order", order, defaultValue = null))
+    }
 }

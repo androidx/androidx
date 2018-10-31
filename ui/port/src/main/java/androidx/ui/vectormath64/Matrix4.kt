@@ -28,16 +28,17 @@ data class Matrix4(
 ) {
     constructor(right: Vector3, up: Vector3, forward: Vector3, position: Vector3 = Vector3()) :
             this(Vector4(right), Vector4(up), Vector4(forward), Vector4(position, 1.0))
+
     constructor(m: Matrix4) : this(m.x.copy(), m.y.copy(), m.z.copy(), m.w.copy())
 
     companion object {
         fun of(vararg a: Double): Matrix4 {
             require(a.size >= 16)
             return Matrix4(
-                    Vector4(a[0], a[4], a[8], a[12]),
-                    Vector4(a[1], a[5], a[9], a[13]),
-                    Vector4(a[2], a[6], a[10], a[14]),
-                    Vector4(a[3], a[7], a[11], a[15])
+                Vector4(a[0], a[4], a[8], a[12]),
+                Vector4(a[1], a[5], a[9], a[13]),
+                Vector4(a[2], a[6], a[10], a[14]),
+                Vector4(a[3], a[7], a[11], a[15])
             )
         }
 
@@ -45,12 +46,16 @@ data class Matrix4(
 
         fun identity() = Matrix4()
 
+        fun diagonal3(scale: Vector3): Matrix4 {
+            return diagonal3Values(x = scale.x, y = scale.y, z = scale.z)
+        }
+
         fun diagonal3Values(x: Double, y: Double, z: Double): Matrix4 {
             return Matrix4(
-                    Vector4(x, 0.0, 0.0, 0.0),
-                    Vector4(0.0, y, 0.0, 0.0),
-                    Vector4(0.0, 0.0, z, 0.0),
-                    Vector4(0.0, 0.0, 0.0, 1.0)
+                Vector4(x, 0.0, 0.0, 0.0),
+                Vector4(0.0, y, 0.0, 0.0),
+                Vector4(0.0, 0.0, z, 0.0),
+                Vector4(0.0, 0.0, 0.0, 1.0)
             )
         }
 
@@ -71,8 +76,13 @@ data class Matrix4(
             rotateZ(radians)
         }
 
+        // / Translation matrix.
+        fun translation(translation: Vector3) = Matrix4.identity().apply {
+            setTranslationRaw(x = translation.x, y = translation.y, z = translation.z)
+        }
+
         fun translationValues(x: Double, y: Double, z: Double) =
-                Matrix4.identity().apply { setTranslationRaw(x, y, z) }
+            Matrix4.identity().apply { setTranslationRaw(x, y, z) }
     }
 
     inline val m4storage: List<Double>
@@ -113,7 +123,8 @@ data class Matrix4(
                 z.y <= -1.0f -> Vector3(degrees(-HALF_PI), 0.0, degrees(atan2(x.z, y.z)))
                 z.y >= 1.0f -> Vector3(degrees(HALF_PI), 0.0, degrees(atan2(-x.z, -y.z)))
                 else -> Vector3(
-                        degrees(-asin(z.y)), degrees(-atan2(z.x, z.z)), degrees(atan2(x.y, y.y)))
+                    degrees(-asin(z.y)), degrees(-atan2(z.x, z.z)), degrees(atan2(x.y, y.y))
+                )
             }
         }
 
@@ -127,6 +138,7 @@ data class Matrix4(
         3 -> w
         else -> throw IllegalArgumentException("column must be in 0..3")
     }
+
     operator fun get(column: Int, row: Int) = get(column)[row]
 
     operator fun get(column: MatrixColumn) = when (column) {
@@ -135,6 +147,7 @@ data class Matrix4(
         MatrixColumn.Z -> z
         MatrixColumn.W -> w
     }
+
     operator fun get(column: MatrixColumn, row: Int) = get(column)[row]
 
     fun getRow(row: Int): Vector4 {
@@ -144,6 +157,7 @@ data class Matrix4(
     operator fun set(column: Int, v: Vector4) {
         this[column].xyzw = v
     }
+
     operator fun set(column: Int, row: Int, v: Double) {
         this[column][row] = v
     }
@@ -155,6 +169,7 @@ data class Matrix4(
         ++z
         ++w
     }
+
     operator fun dec() = Matrix4(this).apply {
         --x
         --y
@@ -170,10 +185,10 @@ data class Matrix4(
     operator fun times(m: Matrix4): Matrix4 {
         val t = transpose(this)
         return Matrix4(
-                Vector4(dot(t.x, m.x), dot(t.y, m.x), dot(t.z, m.x), dot(t.w, m.x)),
-                Vector4(dot(t.x, m.y), dot(t.y, m.y), dot(t.z, m.y), dot(t.w, m.y)),
-                Vector4(dot(t.x, m.z), dot(t.y, m.z), dot(t.z, m.z), dot(t.w, m.z)),
-                Vector4(dot(t.x, m.w), dot(t.y, m.w), dot(t.z, m.w), dot(t.w, m.w))
+            Vector4(dot(t.x, m.x), dot(t.y, m.x), dot(t.z, m.x), dot(t.w, m.x)),
+            Vector4(dot(t.x, m.y), dot(t.y, m.y), dot(t.z, m.y), dot(t.w, m.y)),
+            Vector4(dot(t.x, m.z), dot(t.y, m.z), dot(t.z, m.z), dot(t.w, m.z)),
+            Vector4(dot(t.x, m.w), dot(t.y, m.w), dot(t.z, m.w), dot(t.w, m.w))
         )
     }
 
@@ -202,10 +217,10 @@ data class Matrix4(
     }
 
     fun toDoubleArray() = doubleArrayOf(
-            x.x, y.x, z.x, w.x,
-            x.y, y.y, z.y, w.y,
-            x.z, y.z, z.z, w.z,
-            x.w, y.w, z.w, w.w
+        x.x, y.x, z.x, w.x,
+        x.y, y.y, z.y, w.y,
+        x.z, y.z, z.z, w.z,
+        x.w, y.w, z.w, w.w
     )
 
     override fun toString(): String {
@@ -249,24 +264,24 @@ data class Matrix4(
 
     /** Returns the determinant of this matrix. */
     val determinant: Double
-    get() {
-        val det2_01_01 = m4storage[0] * m4storage[5] - m4storage[1] * m4storage[4]
-        val det2_01_02 = m4storage[0] * m4storage[6] - m4storage[2] * m4storage[4]
-        val det2_01_03 = m4storage[0] * m4storage[7] - m4storage[3] * m4storage[4]
-        val det2_01_12 = m4storage[1] * m4storage[6] - m4storage[2] * m4storage[5]
-        val det2_01_13 = m4storage[1] * m4storage[7] - m4storage[3] * m4storage[5]
-        val det2_01_23 = m4storage[2] * m4storage[7] - m4storage[3] * m4storage[6]
-        val det3_201_012 = m4storage[8] * det2_01_12 - m4storage[9] * det2_01_02 +
-                m4storage[10] * det2_01_01
-        val det3_201_013 = m4storage[8] * det2_01_13 - m4storage[9] * det2_01_03 +
-                m4storage[11] * det2_01_01
-        val det3_201_023 = m4storage[8] * det2_01_23 - m4storage[10] * det2_01_03 +
-                m4storage[11] * det2_01_02
-        val det3_201_123 = m4storage[9] * det2_01_23 - m4storage[10] * det2_01_13 +
-                m4storage[11] * det2_01_12
-        return -det3_201_123 * m4storage[12] + det3_201_023 * m4storage[13] -
-                det3_201_013 * m4storage[14] + det3_201_012 * m4storage[15].toDouble()
-    }
+        get() {
+            val det2_01_01 = m4storage[0] * m4storage[5] - m4storage[1] * m4storage[4]
+            val det2_01_02 = m4storage[0] * m4storage[6] - m4storage[2] * m4storage[4]
+            val det2_01_03 = m4storage[0] * m4storage[7] - m4storage[3] * m4storage[4]
+            val det2_01_12 = m4storage[1] * m4storage[6] - m4storage[2] * m4storage[5]
+            val det2_01_13 = m4storage[1] * m4storage[7] - m4storage[3] * m4storage[5]
+            val det2_01_23 = m4storage[2] * m4storage[7] - m4storage[3] * m4storage[6]
+            val det3_201_012 = m4storage[8] * det2_01_12 - m4storage[9] * det2_01_02 +
+                    m4storage[10] * det2_01_01
+            val det3_201_013 = m4storage[8] * det2_01_13 - m4storage[9] * det2_01_03 +
+                    m4storage[11] * det2_01_01
+            val det3_201_023 = m4storage[8] * det2_01_23 - m4storage[10] * det2_01_03 +
+                    m4storage[11] * det2_01_02
+            val det3_201_123 = m4storage[9] * det2_01_23 - m4storage[10] * det2_01_13 +
+                    m4storage[11] * det2_01_12
+            return -det3_201_123 * m4storage[12] + det3_201_023 * m4storage[13] -
+                    det3_201_013 * m4storage[14] + det3_201_012 * m4storage[15].toDouble()
+        }
 
     /** Invert [this]. */
     fun invert() = copyInverse(this)
@@ -303,7 +318,7 @@ data class Matrix4(
         val b10 = a21 * a33 - a23 * a31
         val b11 = a22 * a33 - a23 * a32
         val det =
-                (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06)
+            (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06)
         if (det == 0.0) {
             setFrom(arg)
             return 0.0

@@ -290,4 +290,6 @@ data class Vector4(
         z = storage[2]
         w = storage[3]
     }
+
+    override fun toString() = "$x,$y,$z,$w"
 }

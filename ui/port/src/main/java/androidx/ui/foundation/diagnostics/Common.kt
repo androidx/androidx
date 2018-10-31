@@ -1,5 +1,7 @@
 package androidx.ui.foundation.diagnostics
 
+import androidx.ui.toRadixString
+
 class _NoDefaultValue
 
 /** Marker object indicating that a [DiagnosticsNode] has no default value. */
@@ -10,9 +12,9 @@ val kNoDefaultValue: _NoDefaultValue = _NoDefaultValue()
  * [Object.hashCode]'s 20 least-significant bits.
  */
 fun shortHash(obj: Any): String {
-    // TODO(Filip): Fix this
-    // return obj.hashCode().toUnsigned(20).toRadixString(16).padLeft(5, '0')
-    return obj.hashCode().toString()
+    return (obj.hashCode() and 0xFFFFF) // 20 least-significant bits
+        .toRadixString(16)
+        .padStart(5, '0')
 }
 
 /**

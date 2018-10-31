@@ -12,10 +12,10 @@ internal class _SemanticsDiagnosticableNode(
 ) : DiagnosticableNode<SemanticsNode>(name = name, value = value, style = style) {
 
     override fun getChildren(): List<DiagnosticsNode> {
-        TODO("Not implemented")
-//    if (value != null)
-//      return value.debugDescribeChildren(childOrder: childOrder);
-//
-//    return const <DiagnosticsNode>[];
+        value?.let {
+            return value.debugDescribeChildren(childOrder = childOrder)
+        }
+
+        return emptyList()
     }
 }

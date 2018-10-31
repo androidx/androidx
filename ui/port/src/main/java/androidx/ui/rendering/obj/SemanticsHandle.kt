@@ -25,14 +25,13 @@ import androidx.ui.assert
 class SemanticsHandle(
     private var owner: PipelineOwner?,
     /** The callback that will be notified when the semantics tree updates. */
-    private val listener: VoidCallback
+    private val listener: VoidCallback?
 ) {
 
     init {
         assert(owner != null)
-        TODO()
-//        if (listener != null)
-//            owner!!.semanticsOwner.addListener(listener);
+        if (listener != null)
+            owner!!.semanticsOwner!!.addListener(listener)
     }
 
     /**
