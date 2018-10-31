@@ -145,6 +145,17 @@ public final class TestUtils {
     }
 
     /**
+     * Create a media metadata for testing purpose.
+     *
+     * @return the newly created media item
+     */
+    public static MediaMetadata2 createMetadata(String mediaId, long duration) {
+        return new MediaMetadata2.Builder()
+                .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
+                .putLong(MediaMetadata2.METADATA_KEY_DURATION, duration).build();
+    }
+
+    /**
      * Create a bundle for testing purpose.
      *
      * @return the newly created bundle.
