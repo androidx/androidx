@@ -27,6 +27,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A TaskExecutor that has a real thread for main thread operations and can wait for execution etc.
@@ -42,15 +43,15 @@ public class TaskExecutorWithFakeMainThread extends TaskExecutor {
     private ExecutorService mIOService;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    Thread mMainThread;
+    private AtomicReference<Thread> mMainThread = new AtomicReference<>();
     private final int mIOThreadCount;
 
     private ExecutorService mMainThreadService =
             Executors.newSingleThreadExecutor(new ThreadFactory() {
                 @Override
                 public Thread newThread(@NonNull final Runnable r) {
-                    mMainThread = new LoggingThread(r);
-                    return mMainThread;
+                    mMainThread.compareAndSet(null, new LoggingThread(r));
+                    return mMainThread.get();
                 }
             });
 
@@ -80,7 +81,7 @@ public class TaskExecutorWithFakeMainThread extends TaskExecutor {
 
     @Override
     public boolean isMainThread() {
-        return Thread.currentThread() == mMainThread;
+        return Thread.currentThread() == mMainThread.get();
     }
 
     List<Throwable> getErrors() {

@@ -25,12 +25,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.annotation.Nullable;
-import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule;
 import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.room.InvalidationTrackerTrojan;
@@ -61,11 +57,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tests invalidation tracking.
@@ -81,8 +76,8 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         final LiveData<User> userLiveData = mUserDao.liveUserById(5);
         final TestLifecycleOwner testOwner = new TestLifecycleOwner();
         testOwner.handleEvent(Lifecycle.Event.ON_CREATE);
-        final TestObserver<User> observer = new TestObserver<>();
-        observe(userLiveData, testOwner, observer);
+        final TestObserver<User> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(userLiveData, testOwner, observer);
         assertThat(observer.hasValue(), is(false));
         observer.reset();
 
@@ -119,8 +114,8 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         final LiveData<List<User>> userLiveData = mUserDao.liveUsersListByName("frida");
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
-        final TestObserver<List<User>> observer = new TestObserver<>();
-        observe(userLiveData, lifecycleOwner, observer);
+        final TestObserver<List<User>> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(userLiveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(Collections.<User>emptyList()));
 
         observer.reset();
@@ -177,10 +172,10 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
 
-        final TestObserver<AvgWeightByAge> observer = new TestObserver<>();
+        final TestObserver<AvgWeightByAge> observer = new MyTestObserver<>();
         LiveData<AvgWeightByAge> liveData = mUserDao.maxWeightByAgeGroup();
 
-        observe(liveData, lifecycleOwner, observer);
+        TestUtil.observeOnMainThread(liveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(nullValue()));
 
         observer.reset();
@@ -205,10 +200,10 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
 
-        final TestObserver<PetWithUser> observer = new TestObserver<>();
+        final TestObserver<PetWithUser> observer = new MyTestObserver<>();
         LiveData<PetWithUser> liveData = mPetDao.petWithUserLiveData(3);
 
-        observe(liveData, lifecycleOwner, observer);
+        TestUtil.observeOnMainThread(liveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(nullValue()));
 
         observer.reset();
@@ -222,10 +217,10 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     @Test
     public void withRelation() throws ExecutionException, InterruptedException, TimeoutException {
         final LiveData<UserAndAllPets> liveData = mUserPetDao.liveUserWithPets(3);
-        final TestObserver<UserAndAllPets> observer = new TestObserver<>();
+        final TestObserver<UserAndAllPets> observer = new MyTestObserver<>();
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
-        observe(liveData, lifecycleOwner, observer);
+        TestUtil.observeOnMainThread(liveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(nullValue()));
 
         observer.reset();
@@ -258,8 +253,8 @@ public class LiveDataQueryTest extends TestDatabaseTest {
 
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
-        final TestObserver<PetsToys> observer = new TestObserver<>();
-        observe(liveData, lifecycleOwner, observer);
+        final TestObserver<PetsToys> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(liveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(expected));
 
         observer.reset();
@@ -278,8 +273,8 @@ public class LiveDataQueryTest extends TestDatabaseTest {
 
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
-        final TestObserver<List<String>> observer = new TestObserver<>();
-        observe(actual, lifecycleOwner, observer);
+        final TestObserver<List<String>> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(actual, lifecycleOwner, observer);
         assertThat(observer.get(), is(expected));
 
         observer.reset();
@@ -305,7 +300,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         assertThat(observer.get(), is(expected));
 
         actual = mWithClauseDao.getUsersWithFactorialIdsLiveData(3);
-        observe(actual, lifecycleOwner, observer);
+        TestUtil.observeOnMainThread(actual, lifecycleOwner, observer);
         expected.add("Six");
         assertThat(observer.get(), is(expected));
     }
@@ -320,10 +315,10 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
 
-        final TestObserver<List<Mail>> observer = new TestObserver<>();
+        final TestObserver<List<Mail>> observer = new MyTestObserver<>();
         LiveData<List<Mail>> liveData = mailDao.getLiveDataMail();
 
-        observe(liveData, lifecycleOwner, observer);
+        TestUtil.observeOnMainThread(liveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(Collections.emptyList()));
 
         observer.reset();
@@ -337,17 +332,17 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     @Test
     public void handleGc() throws ExecutionException, InterruptedException, TimeoutException {
         LiveData<User> liveData = mUserDao.liveUserById(3);
-        final TestObserver<User> observer = new TestObserver<>();
+        final TestObserver<User> observer = new MyTestObserver<>();
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
-        observe(liveData, lifecycleOwner, observer);
+        TestUtil.observeOnMainThread(liveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(nullValue()));
         observer.reset();
         final User user = TestUtil.createUser(3);
         mUserDao.insert(user);
         assertThat(observer.get(), is(notNullValue()));
         observer.reset();
-        forceGc();
+        TestUtil.forceGc();
         String name = UUID.randomUUID().toString();
         mUserDao.updateById(3, name);
         assertThat(observer.get().getName(), is(name));
@@ -362,12 +357,47 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         WeakReference<LiveData> weakLiveData = new WeakReference<LiveData>(liveData);
         //noinspection UnusedAssignment
         liveData = null;
-        forceGc();
+        TestUtil.forceGc();
         mUserDao.updateById(3, "Bar");
-        forceGc();
+        TestUtil.forceGc();
         assertThat(InvalidationTrackerTrojan.countObservers(mDatabase.getInvalidationTracker()),
                 is(0));
         assertThat(weakLiveData.get(), nullValue());
+    }
+
+    @Test
+    public void handleGcWithObserveForever() throws TimeoutException, InterruptedException {
+        final AtomicReference<User> referenced = new AtomicReference<>();
+        Observer<User> observer = referenced::set;
+        AtomicReference<WeakReference<LiveData<User>>> liveDataReference = new AtomicReference<>();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> {
+                    LiveData<User> userLiveData = mUserDao.liveUserById(3);
+                    userLiveData.observeForever(observer);
+                    liveDataReference.set(new WeakReference<>(userLiveData));
+                });
+        User v1 = TestUtil.createUser(3);
+        mUserDao.insert(v1);
+        drain();
+        assertThat(referenced.get(), is(v1));
+        TestUtil.forceGc();
+        User v2 = TestUtil.createUser(3);
+        v2.setName("handle gc");
+        mUserDao.insertOrReplace(v2);
+        drain();
+        assertThat(referenced.get(), is(v2));
+        assertThat(liveDataReference.get().get(), notNullValue());
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(
+                () -> liveDataReference.get().get().removeObserver(observer));
+        drain();
+        TestUtil.forceGc();
+        drain();
+        User v3 = TestUtil.createUser(3);
+        v3.setName("handle gc, get rid of LiveData");
+        mUserDao.insertOrReplace(v3);
+        drain();
+        assertThat(referenced.get(), is(v2));
+        assertThat(liveDataReference.get().get(), is(nullValue()));
     }
 
     @Test
@@ -378,8 +408,8 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         LiveData<Boolean> adminLiveData = mUserDao.isAdminLiveData(3);
         final TestLifecycleOwner lifecycleOwner = new TestLifecycleOwner();
         lifecycleOwner.handleEvent(Lifecycle.Event.ON_START);
-        final TestObserver<Boolean> observer = new TestObserver<>();
-        observe(adminLiveData, lifecycleOwner, observer);
+        final TestObserver<Boolean> observer = new MyTestObserver<>();
+        TestUtil.observeOnMainThread(adminLiveData, lifecycleOwner, observer);
         assertThat(observer.get(), is(nullValue()));
         mUserDao.insert(user);
         assertThat(observer.get(), is(false));
@@ -388,73 +418,15 @@ public class LiveDataQueryTest extends TestDatabaseTest {
         assertThat(observer.get(), is(true));
     }
 
-    private void observe(final LiveData liveData, final LifecycleOwner provider,
-            final Observer observer) throws ExecutionException, InterruptedException {
-        FutureTask<Void> futureTask = new FutureTask<>(new Callable<Void>() {
-            @Override
-            public Void call() throws Exception {
-                //noinspection unchecked
-                liveData.observe(provider, observer);
-                return null;
-            }
-        });
-        ArchTaskExecutor.getInstance().executeOnMainThread(futureTask);
-        futureTask.get();
-    }
-
     private void drain() throws TimeoutException, InterruptedException {
         mExecutorRule.drainTasks(1, TimeUnit.MINUTES);
     }
 
-    private static void forceGc() {
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-        Runtime.getRuntime().gc();
-        Runtime.getRuntime().runFinalization();
-    }
-
-    static class TestLifecycleOwner implements LifecycleOwner {
-
-        private LifecycleRegistry mLifecycle;
-
-        TestLifecycleOwner() {
-            mLifecycle = new LifecycleRegistry(this);
-        }
+    private class MyTestObserver<T> extends TestObserver<T> {
 
         @Override
-        public Lifecycle getLifecycle() {
-            return mLifecycle;
-        }
-
-        void handleEvent(Lifecycle.Event event) {
-            mLifecycle.handleLifecycleEvent(event);
-        }
-    }
-
-    private class TestObserver<T> implements Observer<T> {
-        private T mLastData;
-        private boolean mHasValue = false;
-
-        void reset() {
-            mHasValue = false;
-            mLastData = null;
-        }
-
-        @Override
-        public void onChanged(@Nullable T o) {
-            mLastData = o;
-            mHasValue = true;
-        }
-
-        boolean hasValue() throws TimeoutException, InterruptedException {
-            drain();
-            return mHasValue;
-        }
-
-        T get() throws InterruptedException, TimeoutException {
-            drain();
-            assertThat(hasValue(), is(true));
-            return mLastData;
+        protected void drain() throws TimeoutException, InterruptedException {
+            LiveDataQueryTest.this.drain();
         }
     }
 }
