@@ -87,8 +87,6 @@ import androidx.work.WorkStatus;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
-import androidx.work.impl.model.ReplacementDependency;
-import androidx.work.impl.model.ReplacementDependencyDao;
 import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
@@ -1478,24 +1476,6 @@ public class WorkManagerImplTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         assertThat(workSpecDao.getWorkSpec(work1.getStringId()), is(nullValue()));
         assertThat(workSpecDao.getWorkSpec(work2.getStringId()), is(not(nullValue())));
-    }
-
-    @Test
-    @SmallTest
-    public void testGenerateCleanupCallback_clearsReplacementDependencies() {
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        insertWorkSpecAndTags(work);
-
-        ReplacementDependencyDao dao = mDatabase.replacementDependencyDao();
-        dao.insertReplacementDependency(new ReplacementDependency(work.getStringId(), "id2"));
-
-        assertThat(dao.hasBlockingReplacementDependencies(work.getStringId()), is(true));
-
-        SupportSQLiteOpenHelper openHelper = mDatabase.getOpenHelper();
-        SupportSQLiteDatabase db = openHelper.getWritableDatabase();
-        WorkDatabase.generateCleanupCallback().onOpen(db);
-
-        assertThat(dao.hasBlockingReplacementDependencies(work.getStringId()), is(false));
     }
 
     @Test

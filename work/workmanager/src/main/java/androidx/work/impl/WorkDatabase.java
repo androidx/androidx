@@ -17,7 +17,6 @@
 package androidx.work.impl;
 
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
-import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES;
@@ -36,8 +35,6 @@ import android.support.annotation.RestrictTo;
 import androidx.work.Data;
 import androidx.work.impl.model.Dependency;
 import androidx.work.impl.model.DependencyDao;
-import androidx.work.impl.model.ReplacementDependency;
-import androidx.work.impl.model.ReplacementDependencyDao;
 import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.SystemIdInfoDao;
 import androidx.work.impl.model.WorkName;
@@ -61,19 +58,16 @@ import java.util.concurrent.TimeUnit;
         WorkSpec.class,
         WorkTag.class,
         SystemIdInfo.class,
-        WorkName.class,
-        ReplacementDependency.class},
-        version = 5)
+        WorkName.class},
+        version = 4)
 @TypeConverters(value = {Data.class, WorkTypeConverters.class})
 public abstract class WorkDatabase extends RoomDatabase {
 
     private static final String DB_NAME = "androidx.work.workdb";
-    private static final String CLEANUP_WORKSPEC_SQL = "UPDATE workspec "
+    private static final String CLEANUP_SQL = "UPDATE workspec "
             + "SET state=" + ENQUEUED + ","
             + " schedule_requested_at=" + WorkSpec.SCHEDULE_NOT_REQUESTED_YET
             + " WHERE state=" + RUNNING;
-    private static final String CLEANUP_REPLACEMENT_DEPENDENCY_SQL =
-            "DELETE FROM ReplacementDependency";
 
     // Delete rows in the workspec table that...
     private static final String PRUNE_SQL_FORMAT_PREFIX = "DELETE FROM workspec WHERE "
@@ -112,7 +106,6 @@ public abstract class WorkDatabase extends RoomDatabase {
                 .addMigrations(
                         new WorkDatabaseMigrations.WorkMigration(context, VERSION_2, VERSION_3))
                 .addMigrations(MIGRATION_3_4)
-                .addMigrations(MIGRATION_4_5)
                 .fallbackToDestructiveMigration()
                 .build();
     }
@@ -124,8 +117,7 @@ public abstract class WorkDatabase extends RoomDatabase {
                 super.onOpen(db);
                 db.beginTransaction();
                 try {
-                    db.execSQL(CLEANUP_WORKSPEC_SQL);
-                    db.execSQL(CLEANUP_REPLACEMENT_DEPENDENCY_SQL);
+                    db.execSQL(CLEANUP_SQL);
 
                     // Prune everything that is completed, has an expired retention time, and has no
                     // active dependents:
@@ -172,9 +164,4 @@ public abstract class WorkDatabase extends RoomDatabase {
      * @return The Data Access Object for {@link WorkName}s.
      */
     public abstract WorkNameDao workNameDao();
-
-    /**
-     * @return The Data Access Object for {@link ReplacementDependency}s.
-     */
-    public abstract ReplacementDependencyDao replacementDependencyDao();
 }
