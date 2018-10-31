@@ -75,7 +75,6 @@ import androidx.media2.SessionPlayer2.ShuffleMode;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
@@ -595,7 +594,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return null;
             }
-            return mPlaylist;
+            return (mPlaylist == null || mPlaylist.size() == 0) ? null : mPlaylist;
         }
     }
 
@@ -877,8 +876,15 @@ class MediaController2ImplLegacy implements MediaController2Impl {
             mRepeatMode = mControllerCompat.getRepeatMode();
             mShuffleMode = mControllerCompat.getShuffleMode();
 
-            mPlaylist = MediaUtils2.convertQueueItemListToMediaItem2List(
-                    mControllerCompat.getQueue());
+            mQueue = MediaUtils2.removeNullElements(mControllerCompat.getQueue());
+            if (mQueue == null || mQueue.size() == 0) {
+                // MediaSessionCompat can set queue as null or empty. However, SessionPlayer2 should
+                // not set playlist as null or empty. Therefore, we treat them as the same.
+                mQueue = null;
+                mPlaylist = null;
+            } else {
+                mPlaylist = MediaUtils2.convertQueueItemListToMediaItem2List(mQueue);
+            }
             mPlaylistMetadata = MediaUtils2.convertToMediaMetadata2(
                     mControllerCompat.getQueueTitle());
 
@@ -1168,12 +1174,15 @@ class MediaController2ImplLegacy implements MediaController2Impl {
             final List<MediaItem2> playlist;
             final MediaMetadata2 playlistMetadata;
             synchronized (mLock) {
-                mQueue = queue;
-                mPlaylist = MediaUtils2.convertQueueItemListToMediaItem2List(queue);
-                if (mPlaylist == null) {
-                    // MediaSessionCompat can set queue as null. However, SessionPlayer2 should not
-                    // set playlist as null. Therefore, we treat a null queue as an empty playlist.
-                    mPlaylist = new ArrayList<>();
+                mQueue = MediaUtils2.removeNullElements(queue);
+                if (mQueue == null || mQueue.size() == 0) {
+                    // MediaSessionCompat can set queue as null or empty. However, SessionPlayer2
+                    // should not set playlist as null or empty. Therefore, we treat them as the
+                    // same.
+                    mQueue = null;
+                    mPlaylist = null;
+                } else {
+                    mPlaylist = MediaUtils2.convertQueueItemListToMediaItem2List(mQueue);
                 }
                 playlist = mPlaylist;
                 playlistMetadata = mPlaylistMetadata;

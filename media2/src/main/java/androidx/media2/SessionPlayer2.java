@@ -401,7 +401,8 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
     /**
      * Sets a list of {@link MediaItem2} with metadata. Ensure uniqueness of each {@link MediaItem2}
-     * in the playlist so the session can uniquely identity individual items.
+     * in the playlist so the session can uniquely identity individual items. All
+     * {@link MediaItem2}s shouldn't be {@code null} as well.
      * <p>
      * This may be the asynchronous call depending on the implementation. Wait with returned
      * {@link ListenableFuture} or callback for the completion.

@@ -140,7 +140,7 @@ package androidx.media2 {
     method public void onPlaybackInfoChanged(androidx.media2.MediaController2, androidx.media2.MediaController2.PlaybackInfo);
     method public void onPlaybackSpeedChanged(androidx.media2.MediaController2, float);
     method public void onPlayerStateChanged(androidx.media2.MediaController2, int);
-    method public void onPlaylistChanged(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2?);
+    method public void onPlaylistChanged(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaItem2>?, androidx.media2.MediaMetadata2?);
     method public void onPlaylistMetadataChanged(androidx.media2.MediaController2, androidx.media2.MediaMetadata2?);
     method public void onRepeatModeChanged(androidx.media2.MediaController2, int);
     method public void onSeekCompleted(androidx.media2.MediaController2, long);
@@ -250,9 +250,9 @@ package androidx.media2 {
   }
 
   public static final class MediaLibraryService2.MediaLibrarySession extends androidx.media2.MediaSession2 {
-    method public void notifyChildrenChanged(androidx.media2.MediaSession2.ControllerInfo, String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public void notifyChildrenChanged(androidx.media2.MediaSession2.ControllerInfo, String, @IntRange(from=0) int, androidx.media2.MediaLibraryService2.LibraryParams?);
     method public void notifyChildrenChanged(String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
-    method public void notifySearchResultChanged(androidx.media2.MediaSession2.ControllerInfo, String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public void notifySearchResultChanged(androidx.media2.MediaSession2.ControllerInfo, String, @IntRange(from=0) int, androidx.media2.MediaLibraryService2.LibraryParams?);
   }
 
   public static final class MediaLibraryService2.MediaLibrarySession.Builder {

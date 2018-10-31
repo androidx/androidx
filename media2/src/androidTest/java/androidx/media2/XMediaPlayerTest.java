@@ -1287,6 +1287,20 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
     @SmallTest
     public void testSetPlaylist() throws Exception {
         List<MediaItem2> playlist = createPlaylist(10);
+        try {
+            mPlayer.setPlaylist(null, null);
+            fail();
+        } catch (Exception e) {
+            // pass-through
+        }
+        try {
+            List<MediaItem2> list = new ArrayList<>();
+            list.add(null);
+            mPlayer.setPlaylist(list, null);
+            fail();
+        } catch (Exception e) {
+            // pass-through
+        }
         ListenableFuture<PlayerResult> future = mPlayer.setPlaylist(playlist, null);
         PlayerResult result = future.get();
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());

@@ -51,6 +51,7 @@ import androidx.media2.MediaSession2.ControllerCb;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaSession2.MediaSession2Impl;
 import androidx.media2.MediaSession2.SessionResult;
+import androidx.media2.MediaSession2ImplBase.PlayerTask;
 import androidx.media2.SessionCommand2.CommandCode;
 import androidx.media2.SessionPlayer2.PlayerResult;
 import androidx.versionedparcelable.ParcelImpl;
@@ -296,6 +297,16 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     //     (e.g. add pagination or special way to deliver Bitmap)
                     //   - DeadSystemException means that errors around it can be ignored.
                     Log.w(TAG, "Exception in " + controller.toString(), e);
+                } catch (Exception e) {
+                    // Any random exception may be happen inside of the session player / callback.
+                    if (task instanceof PlayerTask) {
+                        sendPlayerResult(controller, seq,
+                                new PlayerResult(PlayerResult.RESULT_CODE_UNKNOWN_ERROR, null));
+                    } else if (task instanceof SessionCallbackTask) {
+                        sendSessionResult(controller, seq, SessionResult.RESULT_CODE_UNKNOWN_ERROR);
+                    } else if (task instanceof LibrarySessionCallbackTask) {
+                        sendLibraryResult(controller, seq, LibraryResult.RESULT_CODE_UNKNOWN_ERROR);
+                    }
                 }
             }
         });
