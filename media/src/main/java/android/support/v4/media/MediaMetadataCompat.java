@@ -18,6 +18,7 @@ package android.support.v4.media;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Bitmap;
+import android.media.MediaMetadata;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -367,7 +368,7 @@ public final class MediaMetadataCompat implements Parcelable {
     };
 
     final Bundle mBundle;
-    private Object mMetadataObj;
+    private MediaMetadata mMetadataFwk;
     private MediaDescriptionCompat mDescription;
 
     MediaMetadataCompat(Bundle bundle) {
@@ -611,11 +612,11 @@ public final class MediaMetadataCompat implements Parcelable {
     public static MediaMetadataCompat fromMediaMetadata(Object metadataObj) {
         if (metadataObj != null && Build.VERSION.SDK_INT >= 21) {
             Parcel p = Parcel.obtain();
-            MediaMetadataCompatApi21.writeToParcel(metadataObj, p, 0);
+            ((MediaMetadata) metadataObj).writeToParcel(p, 0);
             p.setDataPosition(0);
             MediaMetadataCompat metadata = MediaMetadataCompat.CREATOR.createFromParcel(p);
             p.recycle();
-            metadata.mMetadataObj = metadataObj;
+            metadata.mMetadataFwk = (MediaMetadata) metadataObj;
             return metadata;
         } else {
             return null;
@@ -633,14 +634,14 @@ public final class MediaMetadataCompat implements Parcelable {
      *         if none.
      */
     public Object getMediaMetadata() {
-        if (mMetadataObj == null && Build.VERSION.SDK_INT >= 21) {
+        if (mMetadataFwk == null && Build.VERSION.SDK_INT >= 21) {
             Parcel p = Parcel.obtain();
             writeToParcel(p, 0);
             p.setDataPosition(0);
-            mMetadataObj = MediaMetadataCompatApi21.createFromParcel(p);
+            mMetadataFwk = MediaMetadata.CREATOR.createFromParcel(p);
             p.recycle();
         }
-        return mMetadataObj;
+        return mMetadataFwk;
     }
 
     public static final Parcelable.Creator<MediaMetadataCompat> CREATOR =
