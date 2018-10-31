@@ -78,7 +78,6 @@ package androidx.work {
     method public long[]? getLongArray(String);
     method public String? getString(String);
     method public String[]? getStringArray(String);
-    method @VisibleForTesting public int size();
     field public static final androidx.work.Data! EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800
   }
@@ -89,17 +88,17 @@ package androidx.work {
     method public androidx.work.Data.Builder putAll(androidx.work.Data);
     method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String,java.lang.Object>);
     method public androidx.work.Data.Builder putBoolean(String, boolean);
-    method public androidx.work.Data.Builder putBooleanArray(String, boolean[]!);
+    method public androidx.work.Data.Builder putBooleanArray(String, boolean[]);
     method public androidx.work.Data.Builder putDouble(String, double);
-    method public androidx.work.Data.Builder putDoubleArray(String, double[]!);
+    method public androidx.work.Data.Builder putDoubleArray(String, double[]);
     method public androidx.work.Data.Builder putFloat(String, float);
-    method public androidx.work.Data.Builder putFloatArray(String!, float[]!);
+    method public androidx.work.Data.Builder putFloatArray(String, float[]);
     method public androidx.work.Data.Builder putInt(String, int);
-    method public androidx.work.Data.Builder putIntArray(String, int[]!);
+    method public androidx.work.Data.Builder putIntArray(String, int[]);
     method public androidx.work.Data.Builder putLong(String, long);
-    method public androidx.work.Data.Builder putLongArray(String, long[]!);
-    method public androidx.work.Data.Builder putString(String, String!);
-    method public androidx.work.Data.Builder putStringArray(String, String[]!);
+    method public androidx.work.Data.Builder putLongArray(String, long[]);
+    method public androidx.work.Data.Builder putString(String, String?);
+    method public androidx.work.Data.Builder putStringArray(String, String[]);
   }
 
   public enum ExistingPeriodicWorkPolicy {
@@ -231,15 +230,15 @@ package androidx.work {
     method public abstract androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
     method public final androidx.work.WorkContinuation beginWith(androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.WorkContinuation beginWith(java.util.List<androidx.work.OneTimeWorkRequest>);
-    method public void cancelAllWork();
-    method public void cancelAllWorkByTag(String);
-    method public void cancelUniqueWork(String);
-    method public void cancelWorkById(java.util.UUID);
-    method public final void enqueue(androidx.work.WorkRequest);
-    method public void enqueue(java.util.List<? extends androidx.work.WorkRequest>);
-    method public void enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
-    method public void enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest...);
-    method public void enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
+    method public abstract androidx.work.Operation cancelAllWork();
+    method public abstract androidx.work.Operation cancelAllWorkByTag(String);
+    method public abstract androidx.work.Operation cancelUniqueWork(String);
+    method public abstract androidx.work.Operation cancelWorkById(java.util.UUID);
+    method public final androidx.work.Operation enqueue(androidx.work.WorkRequest);
+    method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest>);
+    method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
+    method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest...);
+    method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
     method public static androidx.work.WorkManager getInstance();
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long> getLastCancelAllTimeMillis();
     method public abstract android.arch.lifecycle.LiveData<java.lang.Long> getLastCancelAllTimeMillisLiveData();
@@ -250,7 +249,7 @@ package androidx.work {
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkStatus>> getStatusesForUniqueWork(String);
     method public abstract android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkStatus>> getStatusesForUniqueWorkLiveData(String);
     method public static void initialize(android.content.Context, androidx.work.Configuration);
-    method public void pruneWork();
+    method public abstract androidx.work.Operation pruneWork();
   }
 
   public abstract class WorkRequest {
