@@ -37,8 +37,10 @@ import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Logger;
+import androidx.work.Operation;
 import androidx.work.State;
 import androidx.work.WorkRequest;
+import androidx.work.impl.OperationImpl;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkDatabase;
@@ -50,10 +52,7 @@ import androidx.work.impl.model.WorkName;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
-import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,11 +69,11 @@ public class EnqueueRunnable implements Runnable {
     private static final String TAG = "EnqueueRunnable";
 
     private final WorkContinuationImpl mWorkContinuation;
-    private final SettableFuture<Void> mFuture;
+    private final OperationImpl mOperation;
 
     public EnqueueRunnable(@NonNull WorkContinuationImpl workContinuation) {
         mWorkContinuation = workContinuation;
-        mFuture = SettableFuture.create();
+        mOperation = new OperationImpl();
     }
 
     @Override
@@ -92,14 +91,14 @@ public class EnqueueRunnable implements Runnable {
                 PackageManagerHelper.setComponentEnabled(context, RescheduleReceiver.class, true);
                 scheduleWorkInBackground();
             }
-            mFuture.set(null);
+            mOperation.setState(Operation.SUCCESS);
         } catch (Throwable exception) {
-            mFuture.setException(exception);
+            mOperation.setState(new Operation.State.FAILURE(exception));
         }
     }
 
-    public ListenableFuture<Void> getFuture() {
-        return mFuture;
+    public Operation getOperation() {
+        return mOperation;
     }
 
     /**
