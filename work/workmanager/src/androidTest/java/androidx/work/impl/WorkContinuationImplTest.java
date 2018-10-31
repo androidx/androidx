@@ -157,7 +157,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl continuation = new WorkContinuationImpl(mWorkManagerImpl,
                 createTestWorkerList());
         assertThat(continuation.isEnqueued(), is(false));
-        continuation.enqueue().get();
+        continuation.enqueue().getResult().get();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
     }
@@ -169,7 +169,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker())
                         .then(Arrays.asList(createTestWorker(), createTestWorker())));
-        chain.enqueue().get();
+        chain.enqueue().getResult().get();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
     }
@@ -183,11 +183,11 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl chain = (WorkContinuationImpl) (
                 continuation.then(createTestWorker())
                         .then(Arrays.asList(createTestWorker(), createTestWorker())));
-        chain.enqueue().get();
+        chain.enqueue().getResult().get();
         verifyEnqueued(continuation);
         verifyScheduled(mScheduler, continuation);
         WorkContinuationImpl spy = spy(chain);
-        spy.enqueue().get();
+        spy.enqueue().getResult().get();
         // Verify no more calls to markEnqueued().
         verify(spy, times(0)).markEnqueued();
     }
@@ -239,7 +239,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 third, fourth);
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.combine(
                 firstDependent, secondDependent);
-        dependent.enqueue().get();
+        dependent.enqueue().getResult().get();
         verifyEnqueued(dependent);
         verifyScheduled(mScheduler, dependent);
     }
@@ -260,7 +260,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
                 first, third);
         WorkContinuationImpl dependent = (WorkContinuationImpl) WorkContinuation.combine(
                 firstDependent, secondDependent);
-        dependent.enqueue().get();
+        dependent.enqueue().getResult().get();
         verifyEnqueued(dependent);
         verifyScheduled(mScheduler, dependent);
     }
@@ -299,7 +299,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuationImpl dependentContinuation =
                 (WorkContinuationImpl) WorkContinuation.combine(
                         firstContinuation, secondContinuation);
-        dependentContinuation.enqueue().get();
+        dependentContinuation.enqueue().getResult().get();
 
         String joinId = null;
         for (String id : dependentContinuation.getAllIds()) {
@@ -505,7 +505,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuation secondChain = mWorkManagerImpl.beginWith(cWork);
         WorkContinuation combined = WorkContinuation.combine(dWork, firstChain, secondChain);
 
-        combined.enqueue().get();
+        combined.enqueue().getResult().get();
         List<WorkStatus> statuses = combined.getStatuses().get();
         assertThat(statuses, is(notNullValue()));
         List<UUID> ids = new ArrayList<>(statuses.size());

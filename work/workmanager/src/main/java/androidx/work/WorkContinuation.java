@@ -74,9 +74,9 @@ public abstract class WorkContinuation {
     /**
      * Enqueues the instance of {@link WorkContinuation} on the background thread.
      *
-     * @return A {@link ListenableFuture} that completes when the enqueue operation is completed
+     * @return An {@link Operation} that can be used to determine when the enqueue has completed
      */
-    public abstract @NonNull ListenableFuture<Void> enqueue();
+    public abstract @NonNull Operation enqueue();
 
     /**
      * Combines multiple {@link WorkContinuation}s to allow for complex chaining.
