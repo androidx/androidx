@@ -16,13 +16,23 @@
 
 package androidx.transition;
 
+import android.annotation.SuppressLint;
 import android.graphics.Matrix;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 class ViewUtilsBase {
+
+    private static final String TAG = "ViewUtilsBase";
+
+    private static Method sSetFrameMethod;
+    private static boolean sSetFrameFetched;
 
     private float[] mMatrixValues;
 
@@ -123,10 +133,30 @@ class ViewUtilsBase {
     }
 
     public void setLeftTopRightBottom(View v, int left, int top, int right, int bottom) {
-        v.setLeft(left);
-        v.setTop(top);
-        v.setRight(right);
-        v.setBottom(bottom);
+        fetchSetFrame();
+        if (sSetFrameMethod != null) {
+            try {
+                sSetFrameMethod.invoke(v, left, top, right, bottom);
+            } catch (IllegalAccessException e) {
+                // Do nothing
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e.getCause());
+            }
+        }
+    }
+
+    @SuppressLint("PrivateApi")
+    private void fetchSetFrame() {
+        if (!sSetFrameFetched) {
+            try {
+                sSetFrameMethod = View.class.getDeclaredMethod("setFrame",
+                        int.class, int.class, int.class, int.class);
+                sSetFrameMethod.setAccessible(true);
+            } catch (NoSuchMethodException e) {
+                Log.i(TAG, "Failed to retrieve setFrame method", e);
+            }
+            sSetFrameFetched = true;
+        }
     }
 
 }
