@@ -48,8 +48,7 @@ class MediaInterface2 {
     interface SessionPlaylistControl {
         List<MediaItem2> getPlaylist();
         MediaMetadata2 getPlaylistMetadata();
-        ListenableFuture<PlayerResult> setPlaylist(List<MediaItem2> list,
-                MediaMetadata2 metadata);
+        ListenableFuture<PlayerResult> setPlaylist(List<MediaItem2> list, MediaMetadata2 metadata);
         ListenableFuture<PlayerResult> setMediaItem(MediaItem2 item);
         ListenableFuture<PlayerResult> updatePlaylistMetadata(MediaMetadata2 metadata);
 
@@ -69,9 +68,6 @@ class MediaInterface2 {
     }
 
     // Common interface for session2 and controller2
-    // TODO: consider to add fastForward, rewind.
     interface SessionPlayer extends SessionPlaybackControl, SessionPlaylistControl {
-        ListenableFuture<PlayerResult> skipForward();
-        ListenableFuture<PlayerResult> skipBackward();
     }
 }

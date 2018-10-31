@@ -295,6 +295,18 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
+        public void skipForward(String controllerId) throws RemoteException {
+            MediaController2 controller2 = mMediaController2Map.get(controllerId);
+            controller2.skipForward();
+        }
+
+        @Override
+        public void skipBackward(String controllerId) throws RemoteException {
+            MediaController2 controller2 = mMediaController2Map.get(controllerId);
+            controller2.skipBackward();
+        }
+
+        @Override
         public void playFromMediaId(String controllerId, String mediaId, Bundle extras)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);

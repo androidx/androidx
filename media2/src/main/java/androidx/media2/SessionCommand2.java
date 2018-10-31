@@ -403,13 +403,27 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_SESSION_REWIND = 40001;
 
     /**
+     * Command code for {@link MediaController2#skipForward()}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_1}.
+     */
+    public static final int COMMAND_CODE_SESSION_SKIP_FORWARD = 40002;
+
+    /**
+     * Command code for {@link MediaController2#skipBackward()}.
+     * <p>
+     * Code version is {@link #COMMAND_VERSION_1}.
+     */
+    public static final int COMMAND_CODE_SESSION_SKIP_BACKWARD = 40003;
+
+    /**
      * Command code for {@link MediaController2#playFromMediaId(String, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40002;
+    public static final int COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID = 40004;
 
     /**
      * Command code for {@link MediaController2#playFromSearch(String, Bundle)}.
@@ -418,7 +432,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40003;
+    public static final int COMMAND_CODE_SESSION_PLAY_FROM_SEARCH = 40005;
 
     /**
      * Command code for {@link MediaController2#playFromUri(Uri, Bundle)}.
@@ -427,7 +441,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40004;
+    public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40006;
 
     /**
      * Command code for {@link MediaController2#prefetchFromMediaId(String, Bundle)}.
@@ -436,7 +450,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID = 40005;
+    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID = 40007;
 
     /**
      * Command code for {@link MediaController2#prefetchFromSearch(String, Bundle)}.
@@ -445,7 +459,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH = 40006;
+    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH = 40008;
 
     /**
      * Command code for {@link MediaController2#prefetchFromUri(Uri, Bundle)}.
@@ -454,14 +468,14 @@ public final class SessionCommand2 implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_URI = 40007;
+    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_URI = 40009;
 
     /**
      * Command code for {@link MediaController2#setRating(String, Rating2)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-    public static final int COMMAND_CODE_SESSION_SET_RATING = 40008;
+    public static final int COMMAND_CODE_SESSION_SET_RATING = 40010;
 
     /**
      * Command code for {@link MediaController2#subscribeRoutesInfo()}
@@ -470,7 +484,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO = 40009;
+    public static final int COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO = 40011;
 
     /**
      * Command code for {@link MediaController2#unsubscribeRoutesInfo()}
@@ -479,7 +493,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO = 40010;
+    public static final int COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO = 40012;
 
     /**
      * Command code for {@link MediaController2#selectRoute(Bundle)}}
@@ -488,7 +502,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_SELECT_ROUTE = 40011;
+    public static final int COMMAND_CODE_SESSION_SELECT_ROUTE = 40013;
 
     static {
         VERSION_SESSION_COMMANDS_MAP.put(COMMAND_VERSION_1,

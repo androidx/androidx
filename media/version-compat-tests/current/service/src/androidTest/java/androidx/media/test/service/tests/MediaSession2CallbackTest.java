@@ -235,6 +235,48 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     }
 
     @Test
+    public void testOnSkipForward() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
+            @Override
+            public int onSkipForward(MediaSession2 session, ControllerInfo controller) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                latch.countDown();
+                return RESULT_CODE_SUCCESS;
+            }
+        };
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnSkipForward").build()) {
+            mController2 = createRemoteController2(session.getToken());
+            mController2.skipForward();
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void testOnSkipBackward() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
+            @Override
+            public int onSkipBackward(MediaSession2 session, ControllerInfo controller) {
+                assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
+                latch.countDown();
+                return RESULT_CODE_SUCCESS;
+            }
+        };
+        try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnSkipBackward").build()) {
+            mController2 = createRemoteController2(session.getToken());
+            mController2.skipBackward();
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
     public void testOnPlayFromSearch() throws InterruptedException {
         prepareLooper();
         final String testQuery = "random query";

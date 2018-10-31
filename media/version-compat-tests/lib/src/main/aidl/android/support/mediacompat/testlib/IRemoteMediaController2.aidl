@@ -50,6 +50,8 @@ interface IRemoteMediaController2 {
     void sendCustomCommand(String controllerId, in Bundle command, in Bundle args);
     void fastForward(String controllerId);
     void rewind(String controllerId);
+    void skipForward(String controllerId);
+    void skipBackward(String controllerId);
     void playFromMediaId(String controllerId, String mediaId, in Bundle extras);
     void playFromSearch(String controllerId, String query, in Bundle extras);
     void playFromUri(String controllerId, in Uri uri, in Bundle extras);
