@@ -55,6 +55,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.browse.MediaBrowser;
+import android.media.session.MediaSession;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -293,22 +295,20 @@ public abstract class MediaBrowserServiceCompat extends Service {
     }
 
     @RequiresApi(21)
-    class MediaBrowserServiceImplApi21 implements MediaBrowserServiceImpl,
-            MediaBrowserServiceCompatApi21.ServiceCompatProxy {
+    class MediaBrowserServiceImplApi21 implements MediaBrowserServiceImpl {
         final List<Bundle> mRootExtrasList = new ArrayList<>();
-        Object mServiceObj;
+        MediaBrowserService mServiceFwk;
         Messenger mMessenger;
 
         @Override
         public void onCreate() {
-            mServiceObj = MediaBrowserServiceCompatApi21.createService(
-                    MediaBrowserServiceCompat.this, this);
-            MediaBrowserServiceCompatApi21.onCreate(mServiceObj);
+            mServiceFwk = new MediaBrowserServiceApi21(MediaBrowserServiceCompat.this);
+            mServiceFwk.onCreate();
         }
 
         @Override
         public IBinder onBind(Intent intent) {
-            return MediaBrowserServiceCompatApi21.onBind(mServiceObj, intent);
+            return mServiceFwk.onBind(intent);
         }
 
         @Override
@@ -326,7 +326,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                         }
                         mRootExtrasList.clear();
                     }
-                    MediaBrowserServiceCompatApi21.setSessionToken(mServiceObj, token.getToken());
+                    mServiceFwk.setSessionToken((MediaSession.Token) token.getToken());
                 }
             });
         }
@@ -344,8 +344,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             notifyChildrenChangedForCompat(remoteUserInfo, parentId, options);
         }
 
-        @Override
-        public MediaBrowserServiceCompatApi21.BrowserRoot onGetRoot(
+        public BrowserRoot onGetRoot(
                 String clientPackageName, int clientUid, Bundle rootHints) {
             Bundle rootExtras = null;
             if (rootHints != null && rootHints.getInt(EXTRA_CLIENT_VERSION, 0) != 0) {
@@ -377,39 +376,37 @@ public abstract class MediaBrowserServiceCompat extends Service {
             } else if (root.getExtras() != null) {
                 rootExtras.putAll(root.getExtras());
             }
-            return new MediaBrowserServiceCompatApi21.BrowserRoot(
-                    root.getRootId(), rootExtras);
+            return new BrowserRoot(root.getRootId(), rootExtras);
         }
 
-        @Override
         public void onLoadChildren(String parentId,
-                final MediaBrowserServiceCompatApi21.ResultWrapper<List<Parcel>> resultWrapper) {
-            final Result<List<MediaBrowserCompat.MediaItem>> result
-                    = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
-                @Override
-                void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
-                    List<Parcel> parcelList = null;
-                    if (list != null) {
-                        parcelList = new ArrayList<>();
-                        for (MediaBrowserCompat.MediaItem item : list) {
-                            Parcel parcel = Parcel.obtain();
-                            item.writeToParcel(parcel, 0);
-                            parcelList.add(parcel);
+                final ResultWrapper<List<Parcel>> resultWrapper) {
+            final Result<List<MediaBrowserCompat.MediaItem>> result =
+                    new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
+                        @Override
+                        void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
+                            List<Parcel> parcelList = null;
+                            if (list != null) {
+                                parcelList = new ArrayList<>();
+                                for (MediaBrowserCompat.MediaItem item : list) {
+                                    Parcel parcel = Parcel.obtain();
+                                    item.writeToParcel(parcel, 0);
+                                    parcelList.add(parcel);
+                                }
+                            }
+                            resultWrapper.sendResult(parcelList);
                         }
-                    }
-                    resultWrapper.sendResult(parcelList);
-                }
 
-                @Override
-                public void detach() {
-                    resultWrapper.detach();
-                }
-            };
+                        @Override
+                        public void detach() {
+                            resultWrapper.detach();
+                        }
+                    };
             MediaBrowserServiceCompat.this.onLoadChildren(parentId, result);
         }
 
         void notifyChildrenChangedForFramework(final String parentId, final Bundle options) {
-            MediaBrowserServiceCompatApi21.notifyChildrenChanged(mServiceObj, parentId);
+            mServiceFwk.notifyChildrenChanged(parentId);
         }
 
         void notifyChildrenChangedForCompat(final String parentId, final Bundle options) {
@@ -473,85 +470,114 @@ public abstract class MediaBrowserServiceCompat extends Service {
             }
             return mCurConnection.browserInfo;
         }
+
+        class MediaBrowserServiceApi21 extends MediaBrowserService {
+            MediaBrowserServiceApi21(Context context) {
+                attachBaseContext(context);
+            }
+
+            @Override
+            public MediaBrowserService.BrowserRoot onGetRoot(String clientPackageName,
+                    int clientUid, Bundle rootHints) {
+                MediaSessionCompat.ensureClassLoader(rootHints);
+                MediaBrowserServiceCompat.BrowserRoot browserRootCompat =
+                        MediaBrowserServiceImplApi21.this.onGetRoot(clientPackageName, clientUid,
+                                rootHints == null ? null : new Bundle(rootHints));
+                return browserRootCompat == null ? null : new MediaBrowserService.BrowserRoot(
+                        browserRootCompat.mRootId, browserRootCompat.mExtras);
+            }
+
+            @Override
+            public void onLoadChildren(String parentId,
+                    Result<List<MediaBrowser.MediaItem>> result) {
+                MediaBrowserServiceImplApi21.this.onLoadChildren(parentId,
+                        new ResultWrapper<List<Parcel>>(result));
+            }
+        }
     }
 
     @RequiresApi(23)
-    class MediaBrowserServiceImplApi23 extends MediaBrowserServiceImplApi21 implements
-            MediaBrowserServiceCompatApi23.ServiceCompatProxy {
+    class MediaBrowserServiceImplApi23 extends MediaBrowserServiceImplApi21 {
         @Override
         public void onCreate() {
-            mServiceObj = MediaBrowserServiceCompatApi23.createService(
-                    MediaBrowserServiceCompat.this, this);
-            MediaBrowserServiceCompatApi21.onCreate(mServiceObj);
+            mServiceFwk = new MediaBrowserServiceApi23(MediaBrowserServiceCompat.this);
+            mServiceFwk.onCreate();
         }
 
-        @Override
-        public void onLoadItem(String itemId,
-                final MediaBrowserServiceCompatApi21.ResultWrapper<Parcel> resultWrapper) {
-            final Result<MediaBrowserCompat.MediaItem> result
-                    = new Result<MediaBrowserCompat.MediaItem>(itemId) {
-                @Override
-                void onResultSent(MediaBrowserCompat.MediaItem item) {
-                    if (item == null) {
-                        resultWrapper.sendResult(null);
-                    } else {
-                        Parcel parcelItem = Parcel.obtain();
-                        item.writeToParcel(parcelItem, 0);
-                        resultWrapper.sendResult(parcelItem);
-                    }
-                }
+        public void onLoadItem(String itemId, final ResultWrapper<Parcel> resultWrapper) {
+            final Result<MediaBrowserCompat.MediaItem> result =
+                    new Result<MediaBrowserCompat.MediaItem>(itemId) {
+                        @Override
+                        void onResultSent(MediaBrowserCompat.MediaItem item) {
+                            if (item == null) {
+                                resultWrapper.sendResult(null);
+                            } else {
+                                Parcel parcelItem = Parcel.obtain();
+                                item.writeToParcel(parcelItem, 0);
+                                resultWrapper.sendResult(parcelItem);
+                            }
+                        }
 
-                @Override
-                public void detach() {
-                    resultWrapper.detach();
-                }
-            };
+                        @Override
+                        public void detach() {
+                            resultWrapper.detach();
+                        }
+                    };
             MediaBrowserServiceCompat.this.onLoadItem(itemId, result);
+        }
+
+        class MediaBrowserServiceApi23 extends MediaBrowserServiceApi21 {
+            MediaBrowserServiceApi23(Context context) {
+                super(context);
+            }
+
+            @Override
+            public void onLoadItem(String itemId, Result<MediaBrowser.MediaItem> result) {
+                MediaBrowserServiceImplApi23.this.onLoadItem(itemId,
+                        new ResultWrapper<Parcel>(result));
+            }
         }
     }
 
     @RequiresApi(26)
-    class MediaBrowserServiceImplApi26 extends MediaBrowserServiceImplApi23 implements
-            MediaBrowserServiceCompatApi26.ServiceCompatProxy {
+    class MediaBrowserServiceImplApi26 extends MediaBrowserServiceImplApi23 {
         @Override
         public void onCreate() {
-            mServiceObj = MediaBrowserServiceCompatApi26.createService(
-                    MediaBrowserServiceCompat.this, this);
-            MediaBrowserServiceCompatApi21.onCreate(mServiceObj);
+            mServiceFwk = new MediaBrowserServiceApi26(MediaBrowserServiceCompat.this);
+            mServiceFwk.onCreate();
         }
 
-        @Override
         public void onLoadChildren(String parentId,
-                final MediaBrowserServiceCompatApi26.ResultWrapper resultWrapper,
+                final ResultWrapper<List<Parcel>> resultWrapper,
                 final Bundle options) {
-            final Result<List<MediaBrowserCompat.MediaItem>> result
-                    = new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
-                @Override
-                void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
-                    if (list == null) {
-                        resultWrapper.sendResult(null);
-                        return;
-                    }
-                    if ((getFlags() & RESULT_FLAG_OPTION_NOT_HANDLED) != 0) {
-                        // If onLoadChildren(options) is not overridden, the list we get here is not
-                        // paginated. Therefore, we need to manually cut the list. In other words,
-                        // we need to apply options here.
-                        list = applyOptions(list, options);
-                    }
-                    List<Parcel> parcelList = new ArrayList<>();
-                    for (MediaBrowserCompat.MediaItem item : list) {
-                        Parcel parcel = Parcel.obtain();
-                        item.writeToParcel(parcel, 0);
-                        parcelList.add(parcel);
-                    }
-                    resultWrapper.sendResult(parcelList);
-                }
+            final Result<List<MediaBrowserCompat.MediaItem>> result =
+                    new Result<List<MediaBrowserCompat.MediaItem>>(parentId) {
+                        @Override
+                        void onResultSent(List<MediaBrowserCompat.MediaItem> list) {
+                            if (list == null) {
+                                resultWrapper.sendResult(null);
+                                return;
+                            }
+                            if ((getFlags() & RESULT_FLAG_OPTION_NOT_HANDLED) != 0) {
+                                // If onLoadChildren(options) is not overridden, the list we get
+                                // here is not paginated. Therefore, we need to manually cut
+                                // the list. In other words, we need to apply options here.
+                                list = applyOptions(list, options);
+                            }
+                            List<Parcel> parcelList = new ArrayList<>();
+                            for (MediaBrowserCompat.MediaItem item : list) {
+                                Parcel parcel = Parcel.obtain();
+                                item.writeToParcel(parcel, 0);
+                                parcelList.add(parcel);
+                            }
+                            resultWrapper.sendResult(parcelList);
+                        }
 
-                @Override
-                public void detach() {
-                    resultWrapper.detach();
-                }
-            };
+                        @Override
+                        public void detach() {
+                            resultWrapper.detach();
+                        }
+                    };
             MediaBrowserServiceCompat.this.onLoadChildren(parentId, result, options);
         }
 
@@ -562,16 +588,29 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 return mCurConnection.rootHints == null ? null
                         : new Bundle(mCurConnection.rootHints);
             }
-            return MediaBrowserServiceCompatApi26.getBrowserRootHints(mServiceObj);
+            return mServiceFwk.getBrowserRootHints();
         }
 
         @Override
         void notifyChildrenChangedForFramework(final String parentId, final Bundle options) {
             if (options != null) {
-                MediaBrowserServiceCompatApi26.notifyChildrenChanged(mServiceObj, parentId,
-                        options);
+                mServiceFwk.notifyChildrenChanged(parentId, options);
             } else {
                 super.notifyChildrenChangedForFramework(parentId, options);
+            }
+        }
+
+        class MediaBrowserServiceApi26 extends MediaBrowserServiceApi23 {
+            MediaBrowserServiceApi26(Context context) {
+                super(context);
+            }
+
+            @Override
+            public void onLoadChildren(String parentId, Result<List<MediaBrowser.MediaItem>> result,
+                    Bundle options) {
+                MediaSessionCompat.ensureClassLoader(options);
+                MediaBrowserServiceImplApi26.this.onLoadChildren(parentId,
+                        new ResultWrapper<List<Parcel>>(result), options);
             }
         }
     }
@@ -584,9 +623,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
             if (mCurConnection != null) {
                 return mCurConnection.browserInfo;
             }
-            android.media.session.MediaSessionManager.RemoteUserInfo userInfoObj =
-                    ((MediaBrowserService) mServiceObj).getCurrentBrowserInfo();
-            return new RemoteUserInfo(userInfoObj);
+            android.media.session.MediaSessionManager.RemoteUserInfo userInfoFwk =
+                    mServiceFwk.getCurrentBrowserInfo();
+            return new RemoteUserInfo(userInfoFwk);
         }
     }
 
@@ -1155,6 +1194,46 @@ public abstract class MediaBrowserServiceCompat extends Service {
             msg.arg1 = SERVICE_VERSION_CURRENT;
             msg.setData(data);
             mCallbacks.send(msg);
+        }
+    }
+
+    @RequiresApi(21)
+    static class ResultWrapper<T> {
+        MediaBrowserService.Result mResultFwk;
+
+        ResultWrapper(MediaBrowserService.Result result) {
+            mResultFwk = result;
+        }
+
+        public void sendResult(T result) {
+            if (result instanceof List) {
+                mResultFwk.sendResult(parcelListToItemList((List<Parcel>) result));
+            } else if (result instanceof Parcel) {
+                Parcel parcel = (Parcel) result;
+                parcel.setDataPosition(0);
+                mResultFwk.sendResult(MediaBrowser.MediaItem.CREATOR.createFromParcel(parcel));
+                parcel.recycle();
+            } else {
+                // The result is null or an invalid instance.
+                mResultFwk.sendResult(null);
+            }
+        }
+
+        public void detach() {
+            mResultFwk.detach();
+        }
+
+        List<MediaBrowser.MediaItem> parcelListToItemList(List<Parcel> parcelList) {
+            if (parcelList == null) {
+                return null;
+            }
+            List<MediaBrowser.MediaItem> items = new ArrayList<>();
+            for (Parcel parcel : parcelList) {
+                parcel.setDataPosition(0);
+                items.add(MediaBrowser.MediaItem.CREATOR.createFromParcel(parcel));
+                parcel.recycle();
+            }
+            return items;
         }
     }
 
