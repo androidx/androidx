@@ -75,6 +75,39 @@ public class CursorUtil {
         return matrixCursor;
     }
 
+    /**
+     * Patches {@link Cursor#getColumnIndex(String)} to work around issues on older devices.
+     * If the column is not found, it retries with the specified name surrounded by backticks.
+     *
+     * @param c    The cursor.
+     * @param name The name of the target column.
+     * @return The index of the column, or -1 if not found.
+     */
+    public static int getColumnIndex(@NonNull Cursor c, @NonNull String name) {
+        final int index = c.getColumnIndex(name);
+        if (index >= 0) {
+            return index;
+        }
+        return c.getColumnIndex("`" + name + "`");
+    }
+
+    /**
+     * Patches {@link Cursor#getColumnIndexOrThrow(String)} to work around issues on older devices.
+     * If the column is not found, it retries with the specified name surrounded by backticks.
+     *
+     * @param c    The cursor.
+     * @param name The name of the target column.
+     * @return The index of the column.
+     * @throws IllegalArgumentException if the column does not exist.
+     */
+    public static int getColumnIndexOrThrow(@NonNull Cursor c, @NonNull String name) {
+        final int index = c.getColumnIndex(name);
+        if (index >= 0) {
+            return index;
+        }
+        return c.getColumnIndexOrThrow("`" + name + "`");
+    }
+
     private CursorUtil() {
     }
 }

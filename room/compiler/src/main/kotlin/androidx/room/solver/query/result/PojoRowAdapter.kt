@@ -17,6 +17,7 @@
 package androidx.room.solver.query.result
 
 import androidx.room.ext.L
+import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.processor.Context
@@ -118,8 +119,9 @@ class PojoRowAdapter(
             } else {
                 "getColumnIndexOrThrow"
             }
-            scope.builder().addStatement("final $T $L = $L.$L($S)",
-                    TypeName.INT, indexVar, cursorVarName, indexMethod, it.columnName)
+            scope.builder().addStatement("final $T $L = $T.$L($L, $S)",
+                TypeName.INT, indexVar, RoomTypeNames.CURSOR_UTIL, indexMethod, cursorVarName,
+                it.columnName)
             FieldWithIndex(field = it, indexVar = indexVar, alwaysExists = info != null)
         }
         if (relationCollectors.isNotEmpty()) {

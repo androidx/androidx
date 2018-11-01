@@ -33,6 +33,7 @@ import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.Day;
 import androidx.room.integration.testapp.vo.NameAndLastName;
 import androidx.room.integration.testapp.vo.User;
+import androidx.room.integration.testapp.vo.UserSummary;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
 import org.reactivestreams.Publisher;
@@ -248,4 +249,8 @@ public abstract class UserDao {
             + "OR mName LIKE '%' || 'video' || '%' "
             + "OR mName LIKE '%' || 'games' || '%' ")
     public abstract List<User> getUserWithCoolNames();
+
+    // The subquery is intentional (b/118398616)
+    @Query("SELECT `mId`, `mName` FROM (SELECT * FROM User)")
+    public abstract List<UserSummary> getNames();
 }
