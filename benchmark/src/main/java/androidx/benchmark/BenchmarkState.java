@@ -25,7 +25,7 @@ import android.os.Debug;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import java.io.File;
 import java.text.NumberFormat;
@@ -69,7 +69,8 @@ public final class BenchmarkState {
     private static final int REPEAT_COUNT = 5;
 
     static {
-        ApplicationInfo appInfo = InstrumentationRegistry.getTargetContext().getApplicationInfo();
+        ApplicationInfo appInfo = InstrumentationRegistry.getInstrumentation().getTargetContext()
+                .getApplicationInfo();
         IS_DEBUGGABLE = (appInfo.flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
 
         StringBuilder sb = new StringBuilder();
@@ -141,7 +142,9 @@ public final class BenchmarkState {
     private void beginBenchmark() {
         if (ENABLE_PROFILING && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             // TODO: support data dir for old platforms
-            File f = new File(InstrumentationRegistry.getContext().getDataDir(), "benchprof");
+            File f = new File(
+                    InstrumentationRegistry.getInstrumentation().getContext().getDataDir(),
+                    "benchprof");
             Log.d(TAG, "Tracing to: " + f.getAbsolutePath());
             Debug.startMethodTracingSampling(f.getAbsolutePath(), 16 * 1024 * 1024, 100);
         }
