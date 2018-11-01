@@ -185,7 +185,7 @@ public abstract class WorkRequest {
          * WorkManager when there are no pending dependent jobs.
          *
          * When the results of a work are pruned, it becomes impossible to query for its
-         * {@link WorkStatus}.
+         * {@link WorkInfo}.
          *
          * Specifying a long duration here may adversely affect performance in terms of app storage
          * and database query time.
@@ -206,7 +206,7 @@ public abstract class WorkRequest {
          * WorkManager when there are no pending dependent jobs.
          *
          * When the results of a work are pruned, it becomes impossible to query for its
-         * {@link WorkStatus}.
+         * {@link WorkInfo}.
          *
          * Specifying a long duration here may adversely affect performance in terms of app storage
          * and database query time.
@@ -241,13 +241,13 @@ public abstract class WorkRequest {
         /**
          * Set the initial state for this work.  Used in testing only.
          *
-         * @param state The {@link State} to set
+         * @param state The {@link WorkInfo.State} to set
          * @return The current {@link Builder}
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @VisibleForTesting
-        public final @NonNull B setInitialState(@NonNull State state) {
+        public final @NonNull B setInitialState(@NonNull WorkInfo.State state) {
             mWorkSpec.state = state;
             return getThis();
         }

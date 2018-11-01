@@ -28,8 +28,8 @@ import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Operation;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
-import androidx.work.WorkStatus;
 import androidx.work.impl.utils.EnqueueRunnable;
 import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.workers.CombineContinuationsWorker;
@@ -161,14 +161,14 @@ public class WorkContinuationImpl extends WorkContinuation {
     }
 
     @Override
-    public @NonNull LiveData<List<WorkStatus>> getStatusesLiveData() {
-        return mWorkManagerImpl.getStatusesById(mAllIds);
+    public @NonNull LiveData<List<WorkInfo>> getWorkInfosLiveData() {
+        return mWorkManagerImpl.getWorkInfosById(mAllIds);
     }
 
     @NonNull
     @Override
-    public ListenableFuture<List<WorkStatus>> getStatuses() {
-        StatusRunnable<List<WorkStatus>> runnable =
+    public ListenableFuture<List<WorkInfo>> getWorkInfos() {
+        StatusRunnable<List<WorkInfo>> runnable =
                 StatusRunnable.forStringIds(mWorkManagerImpl, mAllIds);
 
         mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(runnable);

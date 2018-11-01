@@ -29,9 +29,9 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
-import androidx.work.WorkStatus;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.testing.workers.CountingTestWorker;
 import androidx.work.testing.workers.TestWorker;
@@ -66,7 +66,7 @@ public class TestSchedulerTest {
         // TestWorkManagerImpl is a subtype of WorkManagerImpl.
         WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
         workManagerImpl.enqueue(Collections.singletonList(request)).getResult().get();
-        WorkStatus status = workManagerImpl.getStatusById(request.getId()).get();
+        WorkInfo status = workManagerImpl.getWorkInfoById(request.getId()).get();
         assertThat(status.getState().isFinished(), is(true));
     }
 
@@ -80,9 +80,9 @@ public class TestSchedulerTest {
         WorkContinuation continuation = workManager.beginWith(request)
                 .then(dependentRequest);
         continuation.enqueue().getResult().get();
-        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
-        WorkStatus dependentStatus = workManager
-                .getStatusById(dependentRequest.getId()).get();
+        WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
+        WorkInfo dependentStatus = workManager
+                .getWorkInfoById(dependentRequest.getId()).get();
 
         assertThat(requestStatus.getState().isFinished(), is(true));
         assertThat(dependentStatus.getState().isFinished(), is(true));
@@ -95,7 +95,7 @@ public class TestSchedulerTest {
         OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
-        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
+        WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(false));
     }
 
@@ -106,10 +106,10 @@ public class TestSchedulerTest {
         OneTimeWorkRequest request = createWorkRequestWithNetworkConstraints();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
-        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
+        WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(false));
         mTestDriver.setAllConstraintsMet(request.getId());
-        requestStatus = workManager.getStatusById(request.getId()).get();
+        requestStatus = workManager.getWorkInfoById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(true));
     }
 
@@ -120,7 +120,7 @@ public class TestSchedulerTest {
         OneTimeWorkRequest request = createWorkRequestWithInitialDelay();
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
-        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
+        WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(false));
     }
 
@@ -132,7 +132,7 @@ public class TestSchedulerTest {
         WorkManager workManager = WorkManager.getInstance();
         workManager.enqueue(request);
         mTestDriver.setInitialDelayMet(request.getId());
-        WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
+        WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
         assertThat(requestStatus.getState().isFinished(), is(true));
     }
 
@@ -155,7 +155,7 @@ public class TestSchedulerTest {
         for (int i = 0; i < 5; ++i) {
             mTestDriver.setPeriodDelayMet(request.getId());
             assertThat(CountingTestWorker.COUNT.get(), is(i + 2));
-            WorkStatus requestStatus = workManager.getStatusById(request.getId()).get();
+            WorkInfo requestStatus = workManager.getWorkInfoById(request.getId()).get();
             assertThat(requestStatus.getState().isFinished(), is(false));
         }
     }

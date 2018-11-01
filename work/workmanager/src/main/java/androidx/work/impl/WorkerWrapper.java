@@ -16,11 +16,11 @@
 
 package androidx.work.impl;
 
-import static androidx.work.State.CANCELLED;
-import static androidx.work.State.ENQUEUED;
-import static androidx.work.State.FAILED;
-import static androidx.work.State.RUNNING;
-import static androidx.work.State.SUCCEEDED;
+import static androidx.work.WorkInfo.State.CANCELLED;
+import static androidx.work.WorkInfo.State.ENQUEUED;
+import static androidx.work.WorkInfo.State.FAILED;
+import static androidx.work.WorkInfo.State.RUNNING;
+import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
 import android.content.Context;
@@ -37,7 +37,7 @@ import androidx.work.InputMerger;
 import androidx.work.ListenableWorker;
 import androidx.work.ListenableWorker.Result;
 import androidx.work.Logger;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
@@ -264,7 +264,7 @@ public class WorkerWrapper implements Runnable {
         if (!tryCheckForInterruptionAndResolve()) {
             try {
                 mWorkDatabase.beginTransaction();
-                State state = mWorkSpecDao.getState(mWorkSpecId);
+                WorkInfo.State state = mWorkSpecDao.getState(mWorkSpecId);
                 if (state == null) {
                     // state can be null here with a REPLACE on beginUniqueWork().
                     // Treat it as a failure, and rescheduleAndResolve() will
@@ -323,7 +323,7 @@ public class WorkerWrapper implements Runnable {
     }
 
     private void resolveIncorrectStatus() {
-        State status = mWorkSpecDao.getState(mWorkSpecId);
+        WorkInfo.State status = mWorkSpecDao.getState(mWorkSpecId);
         if (status == RUNNING) {
             Logger.debug(TAG, String.format("Status for %s is RUNNING;"
                     + "not doing any work and rescheduling for later execution", mWorkSpecId));
@@ -338,7 +338,7 @@ public class WorkerWrapper implements Runnable {
     private boolean tryCheckForInterruptionAndResolve() {
         if (mInterrupted) {
             Logger.info(TAG, String.format("Work interrupted for %s", mWorkDescription));
-            State currentState = mWorkSpecDao.getState(mWorkSpecId);
+            WorkInfo.State currentState = mWorkSpecDao.getState(mWorkSpecId);
             if (currentState == null) {
                 // This can happen because of a beginUniqueWork(..., REPLACE, ...).  Notify the
                 // listeners so we can clean up any wake locks, etc.
@@ -408,7 +408,7 @@ public class WorkerWrapper implements Runnable {
         boolean setToRunning = false;
         mWorkDatabase.beginTransaction();
         try {
-            State currentState = mWorkSpecDao.getState(mWorkSpecId);
+            WorkInfo.State currentState = mWorkSpecDao.getState(mWorkSpecId);
             if (currentState == ENQUEUED) {
                 mWorkSpecDao.setState(RUNNING, mWorkSpecId);
                 mWorkSpecDao.incrementWorkSpecRunAttemptCount(mWorkSpecId);

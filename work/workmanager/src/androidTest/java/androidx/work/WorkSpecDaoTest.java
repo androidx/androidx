@@ -16,9 +16,9 @@
 
 package androidx.work;
 
-import static androidx.work.State.BLOCKED;
-import static androidx.work.State.FAILED;
-import static androidx.work.State.SUCCEEDED;
+import static androidx.work.WorkInfo.State.BLOCKED;
+import static androidx.work.WorkInfo.State.FAILED;
+import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.Scheduler.MAX_SCHEDULER_LIMIT;
 
 import static org.hamcrest.CoreMatchers.equalTo;

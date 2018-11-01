@@ -54,22 +54,22 @@ public abstract class WorkContinuation {
     public abstract @NonNull WorkContinuation then(@NonNull List<OneTimeWorkRequest> work);
 
     /**
-     * Returns a {@link LiveData} list of {@link WorkStatus} that provides information about work,
+     * Returns a {@link LiveData} list of {@link WorkInfo} that provides information about work,
      * their progress, and any resulting output.  If state or outputs of any of the jobs in this
      * chain changes, any attached {@link android.arch.lifecycle.Observer}s will trigger.
      *
-     * @return A {@link LiveData} containing a list of {@link WorkStatus}es
+     * @return A {@link LiveData} containing a list of {@link WorkInfo}es
      */
-    public abstract @NonNull LiveData<List<WorkStatus>> getStatusesLiveData();
+    public abstract @NonNull LiveData<List<WorkInfo>> getWorkInfosLiveData();
 
     /**
-     * Returns a {@link ListenableFuture} of a {@link List} of {@link WorkStatus} that provides
+     * Returns a {@link ListenableFuture} of a {@link List} of {@link WorkInfo} that provides
      * information about work, their progress, and any resulting output in the
      * {@link WorkContinuation}.
      *
-     * @return A {@link  ListenableFuture} of a {@link List} of {@link WorkStatus}es
+     * @return A {@link  ListenableFuture} of a {@link List} of {@link WorkInfo}es
      */
-    public abstract @NonNull ListenableFuture<List<WorkStatus>> getStatuses();
+    public abstract @NonNull ListenableFuture<List<WorkInfo>> getWorkInfos();
 
     /**
      * Enqueues the instance of {@link WorkContinuation} on the background thread.

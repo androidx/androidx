@@ -19,14 +19,14 @@ package androidx.work.impl.utils;
 import android.support.annotation.RestrictTo;
 
 import androidx.work.Logger;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
 
 /**
- * A {@link Runnable} that can stop work and set the {@link State} to {@link State#ENQUEUED} if it's
- * in {@link State#RUNNING}.
+ * A {@link Runnable} that can stop work and set the {@link WorkInfo.State} to
+ * {@link WorkInfo.State#ENQUEUED} if it's in {@link WorkInfo.State#RUNNING}.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -48,8 +48,8 @@ public class StopWorkRunnable implements Runnable {
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
         workDatabase.beginTransaction();
         try {
-            if (workSpecDao.getState(mWorkSpecId) == State.RUNNING) {
-                workSpecDao.setState(State.ENQUEUED, mWorkSpecId);
+            if (workSpecDao.getState(mWorkSpecId) == WorkInfo.State.RUNNING) {
+                workSpecDao.setState(WorkInfo.State.ENQUEUED, mWorkSpecId);
             }
             boolean isStopped = mWorkManagerImpl.getProcessor().stopWork(mWorkSpecId);
             Logger.debug(

@@ -30,7 +30,7 @@ import java.util.UUID;
  * {@link State#FAILED}).
  */
 
-public final class WorkStatus {
+public final class WorkInfo {
 
     private @NonNull UUID mId;
     private @NonNull State mState;
@@ -41,7 +41,7 @@ public final class WorkStatus {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public WorkStatus(
+    public WorkInfo(
             @NonNull UUID id,
             @NonNull State state,
             @NonNull Data outputData,
@@ -73,7 +73,7 @@ public final class WorkStatus {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        WorkStatus that = (WorkStatus) o;
+        WorkInfo that = (WorkInfo) o;
 
         if (mId != null ? !mId.equals(that.mId) : that.mId != null) return false;
         if (mState != that.mState) return false;
@@ -95,11 +95,58 @@ public final class WorkStatus {
 
     @Override
     public String toString() {
-        return "WorkStatus{"
+        return "WorkInfo{"
                 +   "mId='" + mId + '\''
                 +   ", mState=" + mState
                 +   ", mOutputData=" + mOutputData
                 +   ", mTags=" + mTags
                 + '}';
+    }
+
+    /**
+     * The current state of a unit of work.
+     */
+    public enum State {
+
+        /**
+         * The state for work that is enqueued (hasn't completed and isn't running)
+         */
+        ENQUEUED,
+
+        /**
+         * The state for work that is currently being executed
+         */
+        RUNNING,
+
+        /**
+         * The state for work that has completed successfully
+         */
+        SUCCEEDED,
+
+        /**
+         * The state for work that has completed in a failure state
+         */
+        FAILED,
+
+        /**
+         * The state for work that is currently blocked because its prerequisites haven't finished
+         * successfully
+         */
+        BLOCKED,
+
+        /**
+         * The state for work that has been cancelled and will not execute
+         */
+        CANCELLED;
+
+        /**
+         * Returns {@code true} if this State is considered finished.
+         *
+         * @return {@code true} for {@link #SUCCEEDED}, {@link #FAILED}, and
+         * {@link #CANCELLED} states
+         */
+        public boolean isFinished() {
+            return (this == SUCCEEDED || this == FAILED || this == CANCELLED);
+        }
     }
 }

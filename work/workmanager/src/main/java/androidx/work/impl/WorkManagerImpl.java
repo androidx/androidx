@@ -35,9 +35,9 @@ import androidx.work.Operation;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.R;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
-import androidx.work.WorkStatus;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemjob.SystemJobScheduler;
@@ -423,77 +423,77 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public @NonNull LiveData<WorkStatus> getStatusByIdLiveData(@NonNull UUID id) {
+    public @NonNull LiveData<WorkInfo> getWorkInfoByIdLiveData(@NonNull UUID id) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
-        LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
+        LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
                 dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id.toString()));
         return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData,
-                new Function<List<WorkSpec.WorkStatusPojo>, WorkStatus>() {
+                new Function<List<WorkSpec.WorkInfoPojo>, WorkInfo>() {
                     @Override
-                    public WorkStatus apply(List<WorkSpec.WorkStatusPojo> input) {
-                        WorkStatus workStatus = null;
+                    public WorkInfo apply(List<WorkSpec.WorkInfoPojo> input) {
+                        WorkInfo workInfo = null;
                         if (input != null && input.size() > 0) {
-                            workStatus = input.get(0).toWorkStatus();
+                            workInfo = input.get(0).toWorkInfo();
                         }
-                        return workStatus;
+                        return workInfo;
                     }
                 },
                 mWorkTaskExecutor);
     }
 
     @Override
-    public @NonNull ListenableFuture<WorkStatus> getStatusById(@NonNull UUID id) {
-        StatusRunnable<WorkStatus> runnable = StatusRunnable.forUUID(this, id);
+    public @NonNull ListenableFuture<WorkInfo> getWorkInfoById(@NonNull UUID id) {
+        StatusRunnable<WorkInfo> runnable = StatusRunnable.forUUID(this, id);
         mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
         return runnable.getFuture();
     }
 
     @Override
-    public @NonNull LiveData<List<WorkStatus>> getStatusesByTagLiveData(@NonNull String tag) {
+    public @NonNull LiveData<List<WorkInfo>> getWorkInfosByTagLiveData(@NonNull String tag) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
+        LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForTag(tag);
         return LiveDataUtils.dedupedMappedLiveDataFor(
                 inputLiveData,
-                WorkSpec.WORK_STATUS_MAPPER,
+                WorkSpec.WORK_INFO_MAPPER,
                 mWorkTaskExecutor);
     }
 
     @Override
-    public @NonNull ListenableFuture<List<WorkStatus>> getStatusesByTag(@NonNull String tag) {
-        StatusRunnable<List<WorkStatus>> runnable = StatusRunnable.forTag(this, tag);
+    public @NonNull ListenableFuture<List<WorkInfo>> getWorkInfosByTag(@NonNull String tag) {
+        StatusRunnable<List<WorkInfo>> runnable = StatusRunnable.forTag(this, tag);
         mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
         return runnable.getFuture();
     }
 
     @Override
-    public @NonNull LiveData<List<WorkStatus>> getStatusesForUniqueWorkLiveData(
-            @NonNull String name) {
+    @NonNull
+    public LiveData<List<WorkInfo>> getWorkInfosForUniqueWorkLiveData(@NonNull String name) {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
-        LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
+        LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForName(name);
         return LiveDataUtils.dedupedMappedLiveDataFor(
                 inputLiveData,
-                WorkSpec.WORK_STATUS_MAPPER,
+                WorkSpec.WORK_INFO_MAPPER,
                 mWorkTaskExecutor);
     }
 
     @Override
-    public @NonNull ListenableFuture<List<WorkStatus>> getStatusesForUniqueWork(
-            @NonNull String name) {
-        StatusRunnable<List<WorkStatus>> runnable =
+    @NonNull
+    public ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(@NonNull String name) {
+        StatusRunnable<List<WorkInfo>> runnable =
                 StatusRunnable.forUniqueWork(this, name);
         mWorkTaskExecutor.getBackgroundExecutor().execute(runnable);
         return runnable.getFuture();
     }
 
-    LiveData<List<WorkStatus>> getStatusesById(@NonNull List<String> workSpecIds) {
+    LiveData<List<WorkInfo>> getWorkInfosById(@NonNull List<String> workSpecIds) {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
-        LiveData<List<WorkSpec.WorkStatusPojo>> inputLiveData =
+        LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
                 dao.getWorkStatusPojoLiveDataForIds(workSpecIds);
         return LiveDataUtils.dedupedMappedLiveDataFor(
                 inputLiveData,
-                WorkSpec.WORK_STATUS_MAPPER,
+                WorkSpec.WORK_INFO_MAPPER,
                 mWorkTaskExecutor);
     }
 
