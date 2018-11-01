@@ -749,6 +749,11 @@ public class XMediaPlayer extends SessionPlayer2 {
         if (playlist == null || playlist.isEmpty()) {
             throw new IllegalArgumentException("playlist shouldn't be null or empty");
         }
+        for (MediaItem2 item : playlist) {
+            if (item == null) {
+                throw new IllegalArgumentException("playlist shouldn't contain null item");
+            }
+        }
         MediaItem2 curItem;
         MediaItem2 nextItem;
         synchronized (mPlaylistLock) {

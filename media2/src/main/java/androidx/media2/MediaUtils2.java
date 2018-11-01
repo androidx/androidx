@@ -46,6 +46,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
@@ -700,5 +701,24 @@ public class MediaUtils2 {
         rootHints.putBoolean(BrowserRoot.EXTRA_OFFLINE, params.isOffline());
         rootHints.putBoolean(BrowserRoot.EXTRA_SUGGESTED, params.isSuggested());
         return rootHints;
+    }
+
+    /**
+     * Trims (i.e. removes null elements) the list and return it.
+     *
+     * @param list
+     * @return
+     */
+    public static <T> List<T> removeNullElements(@Nullable List<T> list) {
+        if (list == null) {
+            return null;
+        }
+        List<T> trimedList = new ArrayList<>();
+        for (T item : list) {
+            if (item != null) {
+                trimedList.add(item);
+            }
+        }
+        return trimedList;
     }
 }
