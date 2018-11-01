@@ -15,6 +15,7 @@
  */
 package androidx.ui.engine.text
 
+import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import org.hamcrest.CoreMatchers.`is`
@@ -23,7 +24,6 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 
 @RunWith(JUnit4::class)
 class TextStyleTest {
@@ -78,7 +78,7 @@ class TextStyleTest {
         val letterSpacing = 2.0
         val wordSpacing = 3.0
         val height = 4.0
-        val locale = Locale.ENGLISH
+        val locale = Locale("en")
         val background = Paint()
 
         val textStyle = TextStyle(

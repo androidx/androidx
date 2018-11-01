@@ -41,8 +41,16 @@ data class Locale(
     val _countryCode: String? = null
 ) {
 
-    // TODO(Migration/siyamed): I saw this class, and I feel like it  might be too limited.
-    // I think we might want to wrap system locale, or yuse system locale.
+    // TODO(Migration/siyamed): this class is far far far too much very limited.
+    // we might want to wrap system locale, or use system locale.
+    // The package is also not good, Locale should be somewhere else not under window.
+    // nona@ we need at least
+    // * ISO 15924 script tag. This is required for sr-Latn/sr-Cyrl support.
+    // * Variant. This is required for hyphenation for German, de-1996/de-1901
+    // * Unicode extensions: This is required Arabic/Latin digits selection.
+    // Also, this needs to be a list of locale, otherwise
+    // * locale list based font fallback doesn't work.
+    // * resource fallback may not work well.
 
     /**
      * The primary language subtag for the locale.

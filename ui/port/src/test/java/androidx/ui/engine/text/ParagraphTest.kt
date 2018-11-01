@@ -16,13 +16,13 @@
 package androidx.ui.engine.text
 
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.window.Locale
 import com.nhaarman.mockitokotlin2.mock
 import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 
 @RunWith(JUnit4::class)
 class ParagraphTest {
@@ -100,7 +100,7 @@ class ParagraphTest {
         val fontSize = 1.0
         val lineHeight = 2.0
         val ellipsis = "dot dot"
-        val locale = Locale.ENGLISH
+        val locale = Locale("en")
 
         return ParagraphStyle(
             textAlign = textAlign,

@@ -22,6 +22,7 @@ import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.Canvas
+import java.util.Locale
 import kotlin.math.floor
 
 internal class ParagraphAndroid constructor(
@@ -30,7 +31,8 @@ internal class ParagraphAndroid constructor(
     val textStyles: List<ParagraphBuilder.TextStyleIndex>
 ) {
 
-    private val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+    /** increased visibility for testing **/
+    internal val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
 
     private var layout: TextLayout? = null
 
@@ -64,12 +66,21 @@ internal class ParagraphAndroid constructor(
     fun layout(width: Double, force: Boolean = false) {
         val floorWidth = floor(width)
 
-        if (paragraphStyle.fontSize != null) {
-            textPaint.textSize = paragraphStyle.fontSize.toFloat()
+        paragraphStyle.fontSize?.let {
+            textPaint.textSize = it.toFloat()
         }
-        if (paragraphStyle.fontFamily?.typeface != null) {
-            textPaint.typeface = paragraphStyle.fontFamily.typeface
+
+        paragraphStyle.fontFamily?.typeface?.let {
+            textPaint.typeface = it
         }
+
+        paragraphStyle.locale?.let {
+            textPaint.textLocale = Locale(
+                it.languageCode,
+                it.countryCode ?: ""
+            )
+        }
+
         val charSequence = text.toString() as CharSequence
         layout = TextLayout(charSequence = charSequence, width = floorWidth, textPaint = textPaint)
         this.width = floorWidth

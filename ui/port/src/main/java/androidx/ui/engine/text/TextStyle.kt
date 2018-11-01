@@ -15,9 +15,9 @@
  */
 package androidx.ui.engine.text
 
+import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import java.util.Locale
 
 /**
  * An opaque object that determines the size, position, and rendering of text.

@@ -16,6 +16,7 @@
 package androidx.ui.port.engine.text
 
 import android.app.Instrumentation
+import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.TextPaint
 import androidx.test.InstrumentationRegistry
@@ -28,9 +29,11 @@ import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.text.platform.StaticLayoutFactory
+import androidx.ui.engine.window.Locale
 import androidx.ui.port.bitmap
 import androidx.ui.port.matchers.equalToBitmap
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.not
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -161,7 +164,7 @@ class ParagraphTest {
             // 2 chars width
             paragraph.layout(ParagraphConstraints(width = 2 * fontSize))
 
-            val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+            val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
             textPaint.textSize = fontSize.toFloat()
             textPaint.typeface = fontFallback.typeface
 
@@ -297,6 +300,108 @@ class ParagraphTest {
         offset = Offset(fontSize / 2, -1 * fontSize)
         position = paragraph.getPositionForOffset(offset)
         assertThat(position, equalTo(TextPosition(0, TextAffinity.upstream)))
+    }
+
+    @Test
+    fun locale_withCJK_shouldNotDrawSame() {
+        val text = "\u82B1"
+        val fontSize = 10.0
+        val locales = arrayOf(
+            // duplicate ja is on purpose
+            Locale(_languageCode = "ja"),
+            Locale(_languageCode = "ja"),
+            Locale(_languageCode = "zh", _countryCode = "CN"),
+            Locale(_languageCode = "zh", _countryCode = "TW")
+        )
+
+        val bitmaps = locales.map { locale ->
+            val paragraph = Paragraph(
+                text = StringBuilder(text),
+                textStyles = listOf(),
+                paragraphStyle = ParagraphStyle(
+                    fontSize = fontSize,
+                    locale = locale
+                )
+            )
+
+            // just have 10x font size to have a bitmap
+            paragraph.layout(ParagraphConstraints(width = fontSize * 10))
+
+            paragraph.bitmap()
+        }
+
+        assertThat(bitmaps[0], equalToBitmap(bitmaps[1]))
+        assertThat(bitmaps[1], not(equalToBitmap(bitmaps[2])))
+        assertThat(bitmaps[1], not(equalToBitmap(bitmaps[3])))
+        assertThat(bitmaps[2], not(equalToBitmap(bitmaps[3])))
+    }
+
+    @Test
+    fun locale_isDefaultLocaleIfNotProvided() {
+        val text = "abc"
+        val paragraph = Paragraph(
+            text = StringBuilder(text),
+            textStyles = listOf(),
+            paragraphStyle = ParagraphStyle()
+        )
+
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+
+        assertThat(
+            paragraph.paragraphImpl.textPaint.textLocale.toLanguageTag(),
+            equalTo(java.util.Locale.getDefault().toLanguageTag())
+        )
+    }
+
+    @Test
+    fun locale_isSetOnThePaint_enUS() {
+        val locale = Locale(_languageCode = "en", _countryCode = "US")
+        val text = "abc"
+        val paragraph = Paragraph(
+            text = StringBuilder(text),
+            textStyles = listOf(),
+            paragraphStyle = ParagraphStyle(
+                locale = locale
+            )
+        )
+
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+
+        assertThat(paragraph.paragraphImpl.textPaint.textLocale.toLanguageTag(), equalTo("en-US"))
+    }
+
+    @Test
+    fun locale_isSetOnThePaint_jpJP() {
+        val locale = Locale(_languageCode = "ja", _countryCode = "JP")
+        val text = "abc"
+        val paragraph = Paragraph(
+            text = StringBuilder(text),
+            textStyles = listOf(),
+            paragraphStyle = ParagraphStyle(
+                locale = locale
+            )
+        )
+
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+
+        assertThat(paragraph.paragraphImpl.textPaint.textLocale.toLanguageTag(), equalTo("ja-JP"))
+    }
+
+    @Test
+    fun locale_noCountryCode_isSetOnThePaint() {
+        val locale = Locale(_languageCode = "ja")
+        val text = "abc"
+        val paragraph = Paragraph(
+            text = StringBuilder(text),
+            textStyles = listOf(),
+            paragraphStyle = ParagraphStyle(
+                locale = locale
+            )
+        )
+
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+
+        assertThat(paragraph.paragraphImpl.textPaint.textLocale.toLanguageTag(), equalTo("ja"))
     }
 
     // TODO(migration/siyamed) add test

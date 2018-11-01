@@ -15,6 +15,7 @@
  */
 package androidx.ui.engine.text
 
+import androidx.ui.engine.window.Locale
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
@@ -23,7 +24,6 @@ import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.util.Locale
 
 @RunWith(JUnit4::class)
 class ParagraphStyleTest {
@@ -62,7 +62,7 @@ class ParagraphStyleTest {
         val fontSize = 1.0
         val lineHeight = 2.0
         val ellipsis = "dot dot"
-        val locale = Locale.ENGLISH
+        val locale = Locale("en")
 
         val paragraphStyle = ParagraphStyle(
             textAlign = textAlign,
@@ -125,7 +125,7 @@ class ParagraphStyleTest {
         val fontSize = 1.0
         val lineHeight = 2.0
         val ellipsis = "dot dot"
-        val locale = Locale.ENGLISH
+        val locale = Locale("en")
 
         val paragraphStyle = ParagraphStyle(
             textAlign = textAlign,

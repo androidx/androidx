@@ -15,7 +15,7 @@
  */
 package androidx.ui.engine.text
 
-import java.util.Locale
+import androidx.ui.engine.window.Locale
 
 /**
  * An opaque object that determines the configuration used by

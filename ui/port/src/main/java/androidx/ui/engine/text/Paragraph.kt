@@ -44,7 +44,8 @@ class Paragraph internal constructor(
     val textStyles: List<ParagraphBuilder.TextStyleIndex>
 ) {
     private var needsLayout = true
-    private val paragraphImpl: ParagraphAndroid
+    /** increased visibility for testing **/
+    internal val paragraphImpl: ParagraphAndroid
 
     /**
      * The amount of horizontal space this paragraph occupies.
