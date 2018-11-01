@@ -140,7 +140,7 @@ package androidx.media2 {
     method public void onPlaybackInfoChanged(androidx.media2.MediaController2, androidx.media2.MediaController2.PlaybackInfo);
     method public void onPlaybackSpeedChanged(androidx.media2.MediaController2, float);
     method public void onPlayerStateChanged(androidx.media2.MediaController2, int);
-    method public void onPlaylistChanged(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaItem2>, androidx.media2.MediaMetadata2?);
+    method public void onPlaylistChanged(androidx.media2.MediaController2, java.util.List<androidx.media2.MediaItem2>?, androidx.media2.MediaMetadata2?);
     method public void onPlaylistMetadataChanged(androidx.media2.MediaController2, androidx.media2.MediaMetadata2?);
     method public void onRepeatModeChanged(androidx.media2.MediaController2, int);
     method public void onSeekCompleted(androidx.media2.MediaController2, long);
