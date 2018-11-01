@@ -1534,7 +1534,6 @@ public class MediaController2Test extends MediaSession2TestBase {
 
     @Test
     public void testSetMetadataForCurrentMediaItem() throws InterruptedException {
-        // TODO: Add test for changing metadata in a playlist
         final CountDownLatch latch = new CountDownLatch(2);
         final long duration = 1000L;
         final MediaItem2 item = TestUtils.createMediaItemWithMetadata();
@@ -1564,6 +1563,39 @@ public class MediaController2Test extends MediaSession2TestBase {
         mPlayer.notifyCurrentMediaItemChanged(item);
         assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         item.setMetadata(TestUtils.createMetadata(item.getMediaId(), duration));
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testSetMetadataForMediaItemInPlaylist() throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(2);
+        final long duration = 1000L;
+        final List<MediaItem2> list = TestUtils.createPlaylist(2);
+        final MediaMetadata2 oldMetadata = list.get(1).getMetadata();
+        final MediaMetadata2 newMetadata = TestUtils.createMetadata(oldMetadata.getMediaId(),
+                duration);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onPlaylistChanged(@NonNull MediaController2 controller,
+                    @NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
+                switch ((int) latch.getCount()) {
+                    case 2:
+                        assertFalse(oldMetadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION));
+                        break;
+                    case 1:
+                        assertTrue(list.get(1).getMetadata().containsKey(
+                                MediaMetadata2.METADATA_KEY_DURATION));
+                        assertEquals(duration, list.get(1).getMetadata().getLong(
+                                MediaMetadata2.METADATA_KEY_DURATION));
+                }
+                latch.countDown();
+            }
+        };
+        MediaController2 controller = createController(mSession.getToken(), true, callback);
+        mPlayer.setPlaylist(list, null);
+        mPlayer.notifyPlaylistChanged();
+        assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        list.get(1).setMetadata(newMetadata);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
