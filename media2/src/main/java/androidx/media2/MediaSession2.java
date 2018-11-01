@@ -335,22 +335,6 @@ public class MediaSession2 implements AutoCloseable {
     }
 
     /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void skipForward() {
-        mImpl.skipForward();
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void skipBackward() {
-        mImpl.skipBackward();
-    }
-
-    /**
      * Notify routes information to a connected controller
      *
      * @param controller controller information
@@ -707,7 +691,9 @@ public class MediaSession2 implements AutoCloseable {
         }
 
         /**
-         * Called when a controller called {@link MediaController2#fastForward()}
+         * Called when a controller called {@link MediaController2#fastForward()}.
+         * <p>
+         * It's recommended to increase the playback speed when this method is called.
          *
          * @param session the session for this event
          * @param controller controller information
@@ -719,13 +705,45 @@ public class MediaSession2 implements AutoCloseable {
         }
 
         /**
-         * Called when a controller called {@link MediaController2#rewind()}
+         * Called when a controller called {@link MediaController2#rewind()}.
+         * <p>
+         * It's recommended to decrease the playback speed when this method is called.
          *
          * @param session the session for this event
          * @param controller controller information
          * @see SessionCommand2#COMMAND_CODE_SESSION_REWIND
          */
         public @ResultCode int onRewind(@NonNull MediaSession2 session,
+                @NonNull ControllerInfo controller) {
+            return RESULT_CODE_NOT_SUPPORTED;
+        }
+
+        /**
+         * Called when a controller called {@link MediaController2#skipForward()}.
+         * <p>
+         * It's recommended to seek forward within the current media item when this method
+         * is called.
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @see SessionCommand2#COMMAND_CODE_SESSION_SKIP_FORWARD
+         */
+        public @ResultCode int onSkipForward(@NonNull MediaSession2 session,
+                @NonNull ControllerInfo controller) {
+            return RESULT_CODE_NOT_SUPPORTED;
+        }
+
+        /**
+         * Called when a controller called {@link MediaController2#skipBackward()}.
+         * <p>
+         * It's recommended to seek backward within the current media item when this method
+         * is called.
+         *
+         * @param session the session for this event
+         * @param controller controller information
+         * @see SessionCommand2#COMMAND_CODE_SESSION_SKIP_BACKWARD
+         */
+        public @ResultCode int onSkipBackward(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller) {
             return RESULT_CODE_NOT_SUPPORTED;
         }

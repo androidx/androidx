@@ -550,6 +550,30 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
+    public void skipForward(IMediaController2 caller, int seq) {
+        dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_SKIP_FORWARD,
+                new SessionCallbackTask<Integer>() {
+                    @Override
+                    public Integer run(ControllerInfo controller) {
+                        return mSessionImpl.getCallback().onSkipForward(
+                                mSessionImpl.getInstance(), controller);
+                    }
+                });
+    }
+
+    @Override
+    public void skipBackward(IMediaController2 caller, int seq) {
+        dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_SKIP_BACKWARD,
+                new SessionCallbackTask<Integer>() {
+                    @Override
+                    public Integer run(ControllerInfo controller) {
+                        return mSessionImpl.getCallback().onSkipBackward(
+                                mSessionImpl.getInstance(), controller);
+                    }
+                });
+    }
+
+    @Override
     public void seekTo(IMediaController2 caller, int seq, final long pos) throws RuntimeException {
         dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO,
                 new SessionPlayerTask() {
