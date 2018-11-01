@@ -82,8 +82,6 @@ import androidx.versionedparcelable.VersionedParcelable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -538,38 +536,7 @@ public class MediaSessionCompat {
 
     private MediaSessionCompat(Context context, MediaSessionImpl impl) {
         mImpl = impl;
-        if (android.os.Build.VERSION.SDK_INT >= 21
-                && !hasCallbackMediaSession((MediaSession) impl.getMediaSession())) {
-            // Set default callback to respond to controllers' extra binder requests.
-            setCallback(new Callback() {});
-        }
         mController = new MediaControllerCompat(context, this);
-    }
-
-    @RequiresApi(21)
-    private static boolean hasCallbackMediaSession(MediaSession session) {
-        Field callbackField = null;
-        try {
-            callbackField = session.getClass().getDeclaredField("mCallback");
-            if (callbackField != null) {
-                callbackField.setAccessible(true);
-                return callbackField.get(session) != null;
-            }
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.w(TAG, "Failed to get mCallback object.");
-        }
-        return false;
-    }
-
-    @RequiresApi(24)
-    private static String getCallingPackageMediaSession(MediaSession session) {
-        try {
-            Method getCallingPackageMethod = session.getClass().getMethod("getCallingPackage");
-            return (String) getCallingPackageMethod.invoke(session);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            Log.e(TAG, "Cannot execute MediaSession.getCallingPackage()", e);
-        }
-        return null;
     }
 
     /**
@@ -964,7 +931,13 @@ public class MediaSessionCompat {
      * Creates an instance from a framework {@link android.media.session.MediaSession} object.
      * <p>
      * This method is only supported on API 21+. On API 20 and below, it returns null.
-     * </p>
+     * <p>
+     * Note: A {@link MediaSessionCompat} object returned from this method may not provide the full
+     * functionality of {@link MediaSessionCompat} until setting a new
+     * {@link MediaSessionCompat.Callback}. To avoid this, when both a {@link MediaSessionCompat}
+     * and a framework {@link android.media.session.MediaSession} are needed, it is recommended
+     * to create a {@link MediaSessionCompat} first and get the framework session through
+     * {@link #getMediaSession()}.
      *
      * @param context The context to use to create the session.
      * @param mediaSession A {@link android.media.session.MediaSession} object.
@@ -3736,7 +3709,14 @@ public class MediaSessionCompat {
             if (android.os.Build.VERSION.SDK_INT < 24) {
                 return null;
             } else {
-                return getCallingPackageMediaSession(mSessionFwk);
+                try {
+                    Method getCallingPackageMethod = mSessionFwk.getClass().getMethod(
+                            "getCallingPackage");
+                    return (String) getCallingPackageMethod.invoke(mSessionFwk);
+                } catch (Exception e) {
+                    Log.e(TAG, "Cannot execute MediaSession.getCallingPackage()", e);
+                }
+                return null;
             }
         }
 
