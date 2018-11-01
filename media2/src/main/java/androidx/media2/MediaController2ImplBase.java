@@ -48,6 +48,8 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SKIP_BACKWARD;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SKIP_FORWARD;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
@@ -333,6 +335,28 @@ class MediaController2ImplBase implements MediaController2Impl {
     }
 
     @Override
+    public ListenableFuture<ControllerResult> skipForward() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_SKIP_FORWARD,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.skipForward(mControllerStub, seq);
+                    }
+                });
+    }
+
+    @Override
+    public ListenableFuture<ControllerResult> skipBackward() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_SKIP_BACKWARD,
+                new RemoteSessionTask() {
+                    @Override
+                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
+                        iSession2.skipBackward(mControllerStub, seq);
+                    }
+                });
+    }
+
+    @Override
     public ListenableFuture<ControllerResult> seekTo(final long pos) {
         if (pos < 0) {
             throw new IllegalArgumentException("position shouldn't be negative");
@@ -343,18 +367,6 @@ class MediaController2ImplBase implements MediaController2Impl {
                 iSession2.seekTo(mControllerStub, seq, pos);
             }
         });
-    }
-
-    @Override
-    public ListenableFuture<ControllerResult> skipForward() {
-        // To match with KEYCODE_MEDIA_SKIP_FORWARD
-        return null;
-    }
-
-    @Override
-    public ListenableFuture<ControllerResult> skipBackward() {
-        // To match with KEYCODE_MEDIA_SKIP_BACKWARD
-        return null;
     }
 
     @Override

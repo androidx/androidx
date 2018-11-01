@@ -42,53 +42,55 @@ oneway interface IMediaSession2 {
     void prefetch(IMediaController2 caller, int seq) = 7;
     void fastForward(IMediaController2 caller, int seq) = 8;
     void rewind(IMediaController2 caller, int seq) = 9;
-    void seekTo(IMediaController2 caller, int seq, long pos) = 10;
+    void skipForward(IMediaController2 caller, int seq) = 10;
+    void skipBackward(IMediaController2 caller, int seq) = 11;
+    void seekTo(IMediaController2 caller, int seq, long pos) = 12;
     void onCustomCommand(IMediaController2 caller, int seq, in ParcelImpl sessionCommand2,
-            in Bundle args) = 11;
-    void prefetchFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 12;
-    void prefetchFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 13;
+            in Bundle args) = 13;
+    void prefetchFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 14;
+    void prefetchFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 15;
     void prefetchFromMediaId(IMediaController2 caller, int seq, String mediaId,
-            in Bundle extras) = 14;
-    void playFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 15;
-    void playFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 16;
-    void playFromMediaId(IMediaController2 caller, int seq, String mediaId, in Bundle extras) = 17;
-    void setRating(IMediaController2 caller, int seq, String mediaId, in ParcelImpl rating2) = 18;
-    void setPlaybackSpeed(IMediaController2 caller, int seq, float speed) = 19;
+            in Bundle extras) = 16;
+    void playFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 17;
+    void playFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 18;
+    void playFromMediaId(IMediaController2 caller, int seq, String mediaId, in Bundle extras) = 19;
+    void setRating(IMediaController2 caller, int seq, String mediaId, in ParcelImpl rating2) = 20;
+    void setPlaybackSpeed(IMediaController2 caller, int seq, float speed) = 21;
 
     void setPlaylist(IMediaController2 caller, int seq, in ParcelImplListSlice listSlice,
-            in Bundle metadata) = 20;
-    void setMediaItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 40;
-    void updatePlaylistMetadata(IMediaController2 caller, int seq, in Bundle metadata) = 21;
+            in Bundle metadata) = 22;
+    void setMediaItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 23;
+    void updatePlaylistMetadata(IMediaController2 caller, int seq, in Bundle metadata) = 24;
     void addPlaylistItem(IMediaController2 caller, int seq, int index,
-            in ParcelImpl mediaItem) = 22;
-    void removePlaylistItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 23;
+            in ParcelImpl mediaItem) = 25;
+    void removePlaylistItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 26;
     void replacePlaylistItem(IMediaController2 caller, int seq, int index,
-            in ParcelImpl mediaItem) = 24;
-    void skipToPlaylistItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 25;
-    void skipToPreviousItem(IMediaController2 caller, int seq) = 26;
-    void skipToNextItem(IMediaController2 caller, int seq) = 27;
-    void setRepeatMode(IMediaController2 caller, int seq, int repeatMode) = 28;
-    void setShuffleMode(IMediaController2 caller, int seq, int shuffleMode) = 29;
+            in ParcelImpl mediaItem) = 27;
+    void skipToPlaylistItem(IMediaController2 caller, int seq, in ParcelImpl mediaItem) = 28;
+    void skipToPreviousItem(IMediaController2 caller, int seq) = 29;
+    void skipToNextItem(IMediaController2 caller, int seq) = 30;
+    void setRepeatMode(IMediaController2 caller, int seq, int repeatMode) = 31;
+    void setShuffleMode(IMediaController2 caller, int seq, int shuffleMode) = 32;
 
-    void subscribeRoutesInfo(IMediaController2 caller, int seq) = 30;
-    void unsubscribeRoutesInfo(IMediaController2 caller, int seq) = 31;
-    void selectRoute(IMediaController2 caller, int seq, in Bundle route) = 32;
+    void subscribeRoutesInfo(IMediaController2 caller, int seq) = 33;
+    void unsubscribeRoutesInfo(IMediaController2 caller, int seq) = 34;
+    void selectRoute(IMediaController2 caller, int seq, in Bundle route) = 35;
 
     void onControllerResult(IMediaController2 caller, int seq,
-            in ParcelImpl controllerResult) = 41;
+            in ParcelImpl controllerResult) = 46;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // library service specific
     //////////////////////////////////////////////////////////////////////////////////////////////
-    void getLibraryRoot(IMediaController2 caller, int seq, in ParcelImpl libraryParams) = 33;
-    void getItem(IMediaController2 caller, int seq, String mediaId) = 34;
+    void getLibraryRoot(IMediaController2 caller, int seq, in ParcelImpl libraryParams) = 37;
+    void getItem(IMediaController2 caller, int seq, String mediaId) = 38;
     void getChildren(IMediaController2 caller, int seq, String parentId, int page, int pageSize,
-            in ParcelImpl libraryParams) = 35;
-    void search(IMediaController2 caller, int seq, String query, in ParcelImpl libraryParams) = 36;
+            in ParcelImpl libraryParams) = 39;
+    void search(IMediaController2 caller, int seq, String query, in ParcelImpl libraryParams) = 40;
     void getSearchResult(IMediaController2 caller, int seq, String query, int page, int pageSize,
-            in ParcelImpl libraryParams) = 37;
+            in ParcelImpl libraryParams) = 41;
     void subscribe(IMediaController2 caller, int seq, String parentId,
-            in ParcelImpl libraryParams) = 38;
-    void unsubscribe(IMediaController2 caller, int seq, String parentId) = 39;
-    // Next Id : 42
+            in ParcelImpl libraryParams) = 42;
+    void unsubscribe(IMediaController2 caller, int seq, String parentId) = 43;
+    // Next Id : 44
 }

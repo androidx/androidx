@@ -285,6 +285,22 @@ public class RemoteMediaController2 {
         }
     }
 
+    public void skipForward() {
+        try {
+            mBinder.skipForward(mControllerId);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call skipForward()");
+        }
+    }
+
+    public void skipBackward() {
+        try {
+            mBinder.skipBackward(mControllerId);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call skipBackward()");
+        }
+    }
+
     public void playFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
         try {
             mBinder.playFromMediaId(mControllerId, mediaId, extras);

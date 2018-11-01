@@ -89,7 +89,7 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! addPlaylistItem(int, androidx.media2.MediaItem2);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! adjustVolume(int, int);
     method public void close();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! fastForward();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> fastForward();
     method public long getBufferedPosition();
     method public int getBufferingState();
     method public androidx.media2.SessionToken2? getConnectedSessionToken();
@@ -110,7 +110,7 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! prefetch();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! removePlaylistItem(androidx.media2.MediaItem2);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! replacePlaylistItem(int, androidx.media2.MediaItem2);
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! rewind();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> rewind();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! seekTo(long);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! sendCustomCommand(androidx.media2.SessionCommand2, android.os.Bundle?);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setMediaItem(androidx.media2.MediaItem2);
@@ -120,6 +120,8 @@ package androidx.media2 {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setRepeatMode(int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setShuffleMode(int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! setVolumeTo(int, int);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> skipBackward();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> skipForward();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! skipToNextPlaylistItem();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! skipToPlaylistItem(androidx.media2.MediaItem2);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! skipToPreviousPlaylistItem();
@@ -391,6 +393,8 @@ package androidx.media2 {
     method public int onFastForward(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public int onRewind(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
     method public int onSetRating(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo, String, androidx.media2.Rating2);
+    method public int onSkipBackward(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
+    method public int onSkipForward(androidx.media2.MediaSession2, androidx.media2.MediaSession2.ControllerInfo);
   }
 
   public static class MediaSession2.SessionResult implements androidx.versionedparcelable.VersionedParcelable {
@@ -508,7 +512,9 @@ package androidx.media2 {
     field public static final int COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA = 10017; // 0x2721
     field public static final int COMMAND_CODE_SESSION_FAST_FORWARD = 40000; // 0x9c40
     field public static final int COMMAND_CODE_SESSION_REWIND = 40001; // 0x9c41
-    field public static final int COMMAND_CODE_SESSION_SET_RATING = 40008; // 0x9c48
+    field public static final int COMMAND_CODE_SESSION_SET_RATING = 40010; // 0x9c4a
+    field public static final int COMMAND_CODE_SESSION_SKIP_BACKWARD = 40003; // 0x9c43
+    field public static final int COMMAND_CODE_SESSION_SKIP_FORWARD = 40002; // 0x9c42
     field public static final int COMMAND_CODE_VOLUME_ADJUST_VOLUME = 30001; // 0x7531
     field public static final int COMMAND_CODE_VOLUME_SET_VOLUME = 30000; // 0x7530
     field public static final int COMMAND_VERSION_1 = 1; // 0x1
