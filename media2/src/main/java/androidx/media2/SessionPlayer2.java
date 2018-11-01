@@ -43,14 +43,38 @@ import java.util.concurrent.Executor;
 /**
  * Base interface for all media players that want media session.
  * <p>
- * Methods here may be the asynchronous calls depending on the implementation. Wait with returned
- * {@link ListenableFuture} or callback for the completion.
+ * APIs that return {@link ListenableFuture} should be the asynchronous calls and shouldn't block
+ * the calling thread. This guarantees the APIs are safe to be called on the main thread.
  *
  * <p>Topics covered here are:
  * <ol>
+ * <li><a href="#BestPractices">Best practices</a>
  * <li><a href="#PlayerStates">Player states</a>
- * <li><a href="#Invalid_States">Invalid method calls</a>
+ * <li><a href="#InvalidStates">Invalid method calls</a>
  * </ol>
+ *
+ * <h3 id="BestPractices">Best practices</h3>
+ *
+ * Here are best practices when implementing/using SessionPlayer2:
+ *
+ * <ul>
+ * <li>When updating UI, you should respond to {@link PlayerCallback} invocations instead of
+ * {@link PlayerResult} objects since the player can be controlled by others.
+ * <li>When a SessionPlayer2 object is no longer being used, call {@link #close()} as soon as
+ * possible to release the resources used by the internal player engine associated with the
+ * SessionPlayer2. For example, if a player uses hardware decoder, other player instances may
+ * fallback to software decoders or fail to play. You cannot use SessionPlayer2 instance after
+ * you call {@link #close()}. There is no way to reuse the instance.
+ * <li>The current playback position can be retrieved with a call to {@link #getCurrentPosition()},
+ * which is helpful for applications such as a music player that need to keep track of the playback
+ * progress.
+ * <li>The playback position can be adjusted with a call to {@link #seekTo(long)}. Although the
+ * asynchronous {@link #seekTo} call returns right away, the actual seek operation may take a
+ * while to finish, especially for audio/video being streamed.
+ * <li>You can call {@link #seekTo(long)} from the {@link #PLAYER_STATE_PAUSED}. In these cases, if
+ * you are playing a video stream and the requested position is valid, one video frame may be
+ * displayed.
+ * </ul>
  *
  * <h3 id="PlayerStates">Player states</h3>
  * The playback control of audio/video files is managed as a state machine. The SessionPlayer2
@@ -62,10 +86,7 @@ import java.util.concurrent.Executor;
  *         {@link #setPlaylist(List, MediaMetadata2)}. Check returned {@link ListenableFuture} for
  *         potential error.
  *         <p>
- *         Calling {@link #prepare()} transfers this object to {@link #PLAYER_STATE_PAUSED}. Note
- *         that {@link #prepare()} is asynchronous, so wait for the returned
- *         {@link ListenableFuture} or
- *         {@link PlayerCallback#onPlayerStateChanged(SessionPlayer2, int)}.
+ *         Calling {@link #prepare()} transfers this object to {@link #PLAYER_STATE_PAUSED}.
  *
  *     <li>{@link #PLAYER_STATE_PAUSED}: State when the audio/video playback is paused.
  *         <p>
@@ -91,34 +112,12 @@ import java.util.concurrent.Executor;
  *         In general, playback might fail due to various reasons such as unsupported audio/video
  *         format, poorly interleaved audio/video, resolution too high, streaming timeout, and
  *         others. In addition, due to programming errors, a playback control operation might be
- *         performed from an <a href="#invalid_state">invalid state</a>. In these cases the player
+ *         performed from an <a href="#InvalidStates">invalid state</a>. In these cases the player
  *         may transition to this state.
  * </ol>
  * <p>
  *
- * Here are best practices when implementing/using SessionPlayer2:
- *
- * <ul>
- * <li>When updating UI, you should respond to {@link PlayerCallback} invocations instead of
- * {@link PlayerResult} objects since the player can be controlled by others.
- * <li>When a SessionPlayer2 object is no longer being used, call {@link #close()} as soon as
- * possible to release the resources used by the internal player engine associated with the
- * SessionPlayer2. Failure to call {@link #close()} may cause subsequent instances of SessionPlayer2
- * objects to fallback to software implementations or fail altogether. You cannot use SessionPlayer2
- * after you call {@link #close()}. There is no way to bring it back to any other state.
- * <li>The current playback position can be retrieved with a call to {@link #getCurrentPosition()},
- * which is helpful for applications such as a Music player that need to keep track of the playback
- * progress.
- * <li>The playback position can be adjusted with a call to {@link #seekTo(long)}. Although the
- * asynchronous {@link #seekTo} call returns right away, the actual seek operation may take a
- * while to finish, especially for audio/video being streamed. Wait for the return value or
- * {@link PlayerCallback#onSeekCompleted(SessionPlayer2, long)}.
- * <li>You can call {@link #seekTo(long)} from the {@link #PLAYER_STATE_PAUSED}. In these cases, if
- * you are playing a video stream and the requested position is valid, one video frame may be
- * displayed.
- * </ul>
- *
- * <h3 id="Invalid_States">Invalid method calls</h3>
+ * <h3 id="InvalidStates">Invalid method calls</h3>
  * The only method you safely call from the {@link #PLAYER_STATE_ERROR} is {@link #close()}.
  * Any other methods might throw an exception or return meaningless data.
  * <p>
@@ -284,34 +283,22 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
     /**
      * Plays the playback.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      */
     public abstract @NonNull ListenableFuture<PlayerResult> play();
 
     /**
      * Pauses playback.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      */
     public abstract @NonNull ListenableFuture<PlayerResult> pause();
 
     /**
      * Prepares the media items for playback. During this time, the player may allocate resources
      * required to play, such as audio and video decoders.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      */
     public abstract @NonNull ListenableFuture<PlayerResult> prepare();
 
     /**
      * Seeks to the specified position. Moves the playback head to the specified position.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      *
      * @param position the new playback position in ms. The value should be in the range of start
      * and end positions defined in {@link MediaItem2}.
@@ -323,9 +310,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      * <p>
      * After changing the playback speed, it is recommended to query the actual speed supported
      * by the player, see {@link #getPlaybackSpeed()}.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      *
      * @param playbackSpeed playback speed
      */
@@ -336,9 +320,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      * <p>
      * You must call this method in {@link #PLAYER_STATE_IDLE} in order for the audio attributes to
      * become effective thereafter.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      *
      * @param attributes non-null <code>AudioAttributes</code>.
      */
@@ -347,9 +328,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
     /**
      * Gets the current player state.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      *
      * @return the current player state
      * @see PlayerCallback#onPlayerStateChanged(SessionPlayer2, int)
@@ -403,9 +381,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      * Sets a list of {@link MediaItem2} with metadata. Ensure uniqueness of each {@link MediaItem2}
      * in the playlist so the session can uniquely identity individual items.
      * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
-     * <p>
      * It's recommended to fill {@link MediaMetadata2} in each {@link MediaItem2} especially for the
      * duration information with the key {@link MediaMetadata2#METADATA_KEY_DURATION}. Without the
      * duration information in the metadata, session will do extra work to get the duration and send
@@ -432,9 +407,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     /**
      * Sets a {@link MediaItem2} for playback.
      * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
-     * <p>
      * It's recommended to fill {@link MediaMetadata2} in each {@link MediaItem2} especially for the
      * duration information with the key {@link MediaMetadata2#METADATA_KEY_DURATION}. Without the
      * duration information in the metadata, session will do extra work to get the duration and send
@@ -456,9 +428,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      * the current playlist size (e.g. {@link Integer#MAX_VALUE}) will add the item at the end of
      * the playlist.
      * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
-     * <p>
      * The implementation may not change the currently playing media item.
      * If index is less than or equal to the current index of the playlist,
      * the current index of the playlist will be increased correspondingly.
@@ -477,9 +446,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     /**
      * Removes the media item from the playlist
      * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
-     * <p>
      * The implementation may not change the currently playing media item even when it's removed.
      * <p>
      * The implementation must notify registered callbacks with
@@ -497,9 +463,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
      * Replaces the media item at index in the playlist. This can be also used to update metadata of
      * an item.
      * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
-     * <p>
      * The implementation must notify registered callbacks with
      * {@link PlayerCallback#onPlaylistChanged(SessionPlayer2, List, MediaMetadata2)} when it's
      * completed.
@@ -514,9 +477,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     /**
      * Skips to the previous item in the playlist.
      * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
-     * <p>
      * The implementation must notify registered callbacks with
      * {@link PlayerCallback#onCurrentMediaItemChanged(SessionPlayer2, MediaItem2)} when it's
      * completed.
@@ -528,9 +488,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     /**
      * Skips to the next item in the playlist.
      * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
-     * <p>
      * The implementation must notify registered callbacks with
      * {@link PlayerCallback#onCurrentMediaItemChanged(SessionPlayer2, MediaItem2)} when it's
      * completed.
@@ -541,9 +498,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
     /**
      * Skips to the the media item.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      * <p>
      * The implementation must notify registered callbacks with
      * {@link PlayerCallback#onCurrentMediaItemChanged(SessionPlayer2, MediaItem2)} when it's
@@ -558,9 +512,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
     /**
      * Updates the playlist metadata while keeping the playlist as-is.
      * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
-     * <p>
      * The implementation must notify registered callbacks with
      * {@link PlayerCallback#onPlaylistMetadataChanged(SessionPlayer2, MediaMetadata2)} when it's
      * completed.
@@ -573,9 +524,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
     /**
      * Sets the repeat mode.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      * <p>
      * The implementation must notify registered callbacks with
      * {@link PlayerCallback#onRepeatModeChanged(SessionPlayer2, int)} when it's completed.
@@ -592,9 +540,6 @@ public abstract class SessionPlayer2 implements AutoCloseable {
 
     /**
      * Sets the shuffle mode.
-     * <p>
-     * This may be the asynchronous call depending on the implementation. Wait with returned
-     * {@link ListenableFuture} or callback for the completion.
      * <p>
      * The implementation must notify registered callbacks with
      * {@link PlayerCallback#onShuffleModeChanged(SessionPlayer2, int)} when it's completed.
