@@ -27,6 +27,7 @@ package androidx.loader.content {
   public abstract class AsyncTaskLoader<D> extends androidx.loader.content.Loader<D> {
     ctor public AsyncTaskLoader(android.content.Context);
     method public void cancelLoadInBackground();
+    method protected java.util.concurrent.Executor getExecutor();
     method public boolean isLoadInBackgroundCanceled();
     method public abstract D? loadInBackground();
     method public void onCanceled(D?);
