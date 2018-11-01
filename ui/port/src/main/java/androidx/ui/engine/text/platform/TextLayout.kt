@@ -114,6 +114,7 @@ internal class TextLayout constructor(
 ) {
     val maxIntrinsicWidth: Double
     val layout: Layout
+    val didExceedMaxLines: Boolean
 
     init {
         val boringMetrics = BoringLayout.isBoring(charSequence, textPaint, null /* metrics */)
@@ -161,6 +162,21 @@ internal class TextLayout constructor(
                 leftIndents = leftIndents,
                 rightIndents = rightIndents
             )
+        }
+
+        didExceedMaxLines = if (Build.VERSION.SDK_INT in 23..25) {
+            /* In API 23 to 25, the layout.lineCount will be set to maxLines when there are more
+               actual text lines in the layout.
+               So in those versions, we first check if maxLines equals layout.lineCount. If true,
+               we check whether the offset of the last character in Layout is the last character
+               in string. */
+            if (maxLines != layout.lineCount) {
+                false
+            } else {
+                layout.getLineEnd(layout.lineCount - 1) != charSequence.length
+            }
+        } else {
+            layout.lineCount > maxLines
         }
     }
 

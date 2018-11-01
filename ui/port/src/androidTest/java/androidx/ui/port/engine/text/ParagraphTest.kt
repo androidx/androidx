@@ -58,7 +58,7 @@ class ParagraphTest {
     fun empty_string() {
         val fontSize = 50.0
         val text = StringBuilder("")
-        val paragraph = simpleParagraph(text, fontSize)
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
         paragraph.layout(ParagraphConstraints(width = 100.0))
 
@@ -77,7 +77,7 @@ class ParagraphTest {
     fun single_line_default_values() {
         val fontSize = 50.0
         for (text in arrayOf("xyz", "\u05D0\u05D1\u05D2")) {
-            val paragraph = simpleParagraph(text, fontSize)
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
             // width greater than text width - 150
             paragraph.layout(ParagraphConstraints(width = 200.0))
@@ -96,7 +96,7 @@ class ParagraphTest {
     fun line_break_default_values() {
         val fontSize = 50.0
         for (text in arrayOf("abcdef", "\u05D0\u05D1\u05D2\u05D3\u05D4\u05D5")) {
-            val paragraph = simpleParagraph(text, fontSize)
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
             // 3 chars width
             paragraph.layout(ParagraphConstraints(width = 3 * fontSize))
@@ -117,7 +117,7 @@ class ParagraphTest {
     fun newline_default_values() {
         val fontSize = 50.0
         for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
-            val paragraph = simpleParagraph(text, fontSize)
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
             // 3 chars width
             paragraph.layout(ParagraphConstraints(width = 3 * fontSize))
@@ -138,7 +138,7 @@ class ParagraphTest {
     fun newline_and_line_break_default_values() {
         val fontSize = 50.0
         for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
-            val paragraph = simpleParagraph(text, fontSize)
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
             // 2 chars width
             paragraph.layout(ParagraphConstraints(width = 2 * fontSize))
@@ -159,7 +159,7 @@ class ParagraphTest {
     fun draw_with_newline_and_line_break_default_values() {
         val fontSize = 50.0
         for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
-            val paragraph = simpleParagraph(text, fontSize)
+            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
             // 2 chars width
             paragraph.layout(ParagraphConstraints(width = 2 * fontSize))
@@ -183,7 +183,7 @@ class ParagraphTest {
     fun getPositionForOffset_ltr() {
         val text = "abc"
         val fontSize = 50.0
-        val paragraph = simpleParagraph(text, fontSize)
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
         // test positions that are 1, fontSize+1, 2fontSize+1 which maps to chars 0, 1, 2 ...
@@ -202,7 +202,7 @@ class ParagraphTest {
     fun getPositionForOffset_rtl() {
         val text = "\u05D0\u05D1\u05D2"
         val fontSize = 50.0
-        val paragraph = simpleParagraph(text, fontSize)
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
 
@@ -224,7 +224,7 @@ class ParagraphTest {
         val secondLine = "def"
         val text = firstLine + secondLine
         val fontSize = 50.0
-        val paragraph = simpleParagraph(text, fontSize)
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
         paragraph.layout(ParagraphConstraints(width = firstLine.length * fontSize))
 
@@ -247,7 +247,7 @@ class ParagraphTest {
         val secondLine = "\u05D3\u05D4\u05D5"
         val text = firstLine + secondLine
         val fontSize = 50.0
-        val paragraph = simpleParagraph(text, fontSize)
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
 
@@ -268,7 +268,7 @@ class ParagraphTest {
     fun getPositionForOffset_ltr_width_outOfBounds() {
         val text = "abc"
         val fontSize = 50.0
-        val paragraph = simpleParagraph(text, fontSize)
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
 
@@ -287,7 +287,7 @@ class ParagraphTest {
     fun getPositionForOffset_ltr_height_outOfBounds() {
         val text = "abc"
         val fontSize = 50.0
-        val paragraph = simpleParagraph(text, fontSize)
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize)
 
         paragraph.layout(ParagraphConstraints(width = text.length * fontSize))
 
@@ -404,18 +404,88 @@ class ParagraphTest {
         assertThat(paragraph.paragraphImpl.textPaint.textLocale.toLanguageTag(), equalTo("ja"))
     }
 
+    @Test
+    fun didExceedMaxLines_withMaxLinesSmallerThanTextLines_returnsTrue() {
+        val text = "aaa\naa"
+        val maxLines = text.lines().size - 1
+        val paragraph = simpleParagraph(text = text, maxLines = maxLines)
+
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+        assertThat(paragraph.didExceedMaxLines, equalTo(true))
+    }
+
+    @Test
+    fun didExceedMaxLines_withMaxLinesEqualToTextLines_returnsFalse() {
+        val text = "aaa\naa"
+        val maxLines = text.lines().size
+        val paragraph = simpleParagraph(text = text, maxLines = maxLines)
+
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+        assertThat(paragraph.didExceedMaxLines, equalTo(false))
+    }
+
+    @Test
+    fun didExceedMaxLines_withMaxLinesGreaterThanTextLines_returnsFalse() {
+        val text = "aaa\naa"
+        val maxLines = text.lines().size + 1
+        val paragraph = simpleParagraph(text = text, maxLines = maxLines)
+
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+        assertThat(paragraph.didExceedMaxLines, equalTo(false))
+    }
+
+    @Test
+    fun didExceedMaxLines_withMaxLinesSmallerThanTextLines_withLineWrap_returnsTrue() {
+        val text = "aa"
+        val fontSize = 50.0
+        val maxLines = 1
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize, maxLines = maxLines)
+
+        // One line can only contain 1 character
+        paragraph.layout(ParagraphConstraints(width = fontSize))
+        assertThat(paragraph.didExceedMaxLines, equalTo(true))
+    }
+
+    @Test
+    fun didExceedMaxLines_withMaxLinesEqualToTextLines_withLineWrap_returnsFalse() {
+        val text = "a"
+        val fontSize = 50.0
+        val maxLines = text.lines().size
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize, maxLines = maxLines)
+
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+        assertThat(paragraph.didExceedMaxLines, equalTo(false))
+    }
+
+    @Test
+    fun didExceedMaxLines_withMaxLinesGreaterThanTextLines_withLineWrap_returnsFalse() {
+        val text = "aa"
+        val maxLines = 3
+        val fontSize = 50.0
+        val paragraph = simpleParagraph(text = text, fontSize = fontSize, maxLines = maxLines)
+
+        // One line can only contain 1 character
+        paragraph.layout(ParagraphConstraints(width = fontSize))
+        assertThat(paragraph.didExceedMaxLines, equalTo(false))
+    }
+
     // TODO(migration/siyamed) add test
     @Test
     fun getWordBoundary() {
     }
 
-    fun simpleParagraph(text: CharSequence, fontSize: Double): Paragraph {
+    fun simpleParagraph(
+        text: CharSequence = "",
+        fontSize: Double? = null,
+        maxLines: Int? = null
+    ): Paragraph {
         return Paragraph(
             text = StringBuilder(text),
             textStyles = listOf(),
             paragraphStyle = ParagraphStyle(
                 fontFamily = fontFallback,
-                fontSize = fontSize
+                fontSize = fontSize,
+                maxLines = maxLines
             )
         )
     }
