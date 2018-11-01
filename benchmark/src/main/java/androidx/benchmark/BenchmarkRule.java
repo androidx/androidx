@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
