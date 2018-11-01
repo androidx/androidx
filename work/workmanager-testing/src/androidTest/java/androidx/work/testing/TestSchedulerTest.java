@@ -65,7 +65,7 @@ public class TestSchedulerTest {
         WorkRequest request = createWorkRequest();
         // TestWorkManagerImpl is a subtype of WorkManagerImpl.
         WorkManagerImpl workManagerImpl = WorkManagerImpl.getInstance();
-        workManagerImpl.enqueueInternal(Collections.singletonList(request)).getResult().get();
+        workManagerImpl.enqueue(Collections.singletonList(request)).getResult().get();
         WorkStatus status = workManagerImpl.getStatusById(request.getId()).get();
         assertThat(status.getState().isFinished(), is(true));
     }

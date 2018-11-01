@@ -141,7 +141,7 @@ public class FirebaseJobServiceTest {
 
         JobParameters mockParams = createMockJobParameters(work.getStringId());
         assertThat(mFirebaseJobService.onStartJob(mockParams), is(true));
-        WorkManagerImpl.getInstance().cancelWorkByIdInternal(work.getId()).getResult().get();
+        WorkManagerImpl.getInstance().cancelWorkById(work.getId()).getResult().get();
         assertThat(mFirebaseJobService.onStopJob(mockParams), is(false));
     }
 
