@@ -34,7 +34,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -112,10 +112,10 @@ public class FirebaseJobServiceTest {
         Thread.sleep(5000L);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getState(work.getStringId()), is(State.RUNNING));
+        assertThat(workSpecDao.getState(work.getStringId()), is(WorkInfo.State.RUNNING));
 
         mFirebaseJobService.onStopJob(mockParams);
-        assertThat(workSpecDao.getState(work.getStringId()), is(State.ENQUEUED));
+        assertThat(workSpecDao.getState(work.getStringId()), is(WorkInfo.State.ENQUEUED));
     }
 
     @Test

@@ -41,11 +41,10 @@ import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.State;
 import androidx.work.TestLifecycleOwner;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
-import androidx.work.WorkStatus;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.SynchronousExecutor;
@@ -277,10 +276,10 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         final String stringTag = "mystring";
 
         OneTimeWorkRequest firstWork = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setInitialState(State.SUCCEEDED)
+                .setInitialState(WorkInfo.State.SUCCEEDED)
                 .build();
         OneTimeWorkRequest secondWork = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setInitialState(State.SUCCEEDED)
+                .setInitialState(WorkInfo.State.SUCCEEDED)
                 .build();
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
@@ -328,7 +327,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         assertThat(joinId, is(not(nullValue())));
         WorkSpec joinWorkSpec = mDatabase.workSpecDao().getWorkSpec(joinId);
         assertThat(joinWorkSpec, is(not(nullValue())));
-        assertThat(joinWorkSpec.state, is(State.SUCCEEDED));
+        assertThat(joinWorkSpec.state, is(WorkInfo.State.SUCCEEDED));
 
         Data output = joinWorkSpec.output;
         int[] intArray = output.getIntArray(intTag);
@@ -497,7 +496,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
     @Test
     @SmallTest
-    public void testGetStatusesSync() throws ExecutionException, InterruptedException {
+    public void testGetWorkInfosSync() throws ExecutionException, InterruptedException {
         OneTimeWorkRequest aWork = createTestWorker(); // A
         OneTimeWorkRequest bWork = createTestWorker(); // B
         OneTimeWorkRequest cWork = createTestWorker(); // C
@@ -508,10 +507,10 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         WorkContinuation combined = WorkContinuation.combine(dWork, firstChain, secondChain);
 
         combined.enqueue().getResult().get();
-        List<WorkStatus> statuses = combined.getStatuses().get();
+        List<WorkInfo> statuses = combined.getWorkInfos().get();
         assertThat(statuses, is(notNullValue()));
         List<UUID> ids = new ArrayList<>(statuses.size());
-        for (WorkStatus status : statuses) {
+        for (WorkInfo status : statuses) {
             ids.add(status.getId());
         }
         assertThat(ids, containsInAnyOrder(

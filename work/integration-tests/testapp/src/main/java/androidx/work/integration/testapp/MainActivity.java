@@ -38,8 +38,8 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import androidx.work.WorkStatus;
 import androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity;
 import androidx.work.integration.testapp.sherlockholmes.AnalyzeSherlockHolmesActivity;
 
@@ -220,17 +220,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 WorkManager workManager = WorkManager.getInstance();
-                workManager.getStatusesForUniqueWorkLiveData(REPLACE_COMPLETED_WORK)
-                        .observe(MainActivity.this, new Observer<List<WorkStatus>>() {
+                workManager.getWorkInfosForUniqueWorkLiveData(REPLACE_COMPLETED_WORK)
+                        .observe(MainActivity.this, new Observer<List<WorkInfo>>() {
                             private int mCount;
 
                             @Override
-                            public void onChanged(@Nullable List<WorkStatus> workStatuses) {
-                                if (workStatuses == null) {
+                            public void onChanged(@Nullable List<WorkInfo> workInfos) {
+                                if (workInfos == null) {
                                     return;
                                 }
-                                if (!workStatuses.isEmpty()) {
-                                    WorkStatus status = workStatuses.get(0);
+                                if (!workInfos.isEmpty()) {
+                                    WorkInfo status = workInfos.get(0);
                                     if (status.getState().isFinished()) {
                                         if (mCount < NUM_WORKERS) {
                                             // Enqueue another worker.
