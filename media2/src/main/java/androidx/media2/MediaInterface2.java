@@ -28,7 +28,7 @@ class MediaInterface2 {
 
     // TODO: relocate methods among different interfaces and classes.
     interface SessionPlaybackControl {
-        ListenableFuture<PlayerResult> prefetch();
+        ListenableFuture<PlayerResult> prepare();
         ListenableFuture<PlayerResult> play();
         ListenableFuture<PlayerResult> pause();
 

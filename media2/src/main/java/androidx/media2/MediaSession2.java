@@ -437,7 +437,7 @@ public class MediaSession2 implements AutoCloseable {
          * @see SessionCommand2#COMMAND_CODE_PLAYER_PAUSE
          * @see SessionCommand2#COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM
-         * @see SessionCommand2#COMMAND_CODE_PLAYER_PREFETCH
+         * @see SessionCommand2#COMMAND_CODE_PLAYER_PREPARE
          * @see SessionCommand2#COMMAND_CODE_PLAYER_SEEK_TO
          * @see SessionCommand2#COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM
          * @see SessionCommand2#COMMAND_CODE_PLAYER_SET_SHUFFLE_MODE
@@ -603,14 +603,14 @@ public class MediaSession2 implements AutoCloseable {
         }
 
         /**
-         * Called when a controller requested to prefetch for playing a specific mediaId through
-         * {@link MediaController2#prefetchFromMediaId(String, Bundle)}.
+         * Called when a controller requested to prepare for playing a specific mediaId through
+         * {@link MediaController2#prepareFromMediaId(String, Bundle)}.
          * <p>
-         * During the prefetch, a session should not hold audio focus in order to allow
+         * During the prepare, a session should not hold audio focus in order to allow
          * other sessions play seamlessly. The state of playback should be updated to
-         * {@link SessionPlayer2#PLAYER_STATE_PAUSED} after the prefetch is done.
+         * {@link SessionPlayer2#PLAYER_STATE_PAUSED} after the prepare is done.
          * <p>
-         * The playback of the prefetched content should start in the later calls of
+         * The playback of the prepareed content should start in the later calls of
          * {@link SessionPlayer2#play()}.
          * <p>
          * Override {@link #onPlayFromMediaId} to handle requests for starting
@@ -618,30 +618,30 @@ public class MediaSession2 implements AutoCloseable {
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param mediaId media id to prefetch
+         * @param mediaId media id to prepare
          * @param extras optional extra bundle
-         * @see SessionCommand2#COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID
+         * @see SessionCommand2#COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public @ResultCode int onPrefetchFromMediaId(@NonNull MediaSession2 session,
+        public @ResultCode int onPrepareFromMediaId(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId,
                 @Nullable Bundle extras) {
             return RESULT_CODE_NOT_SUPPORTED;
         }
 
         /**
-         * Called when a controller requested to prefetch playback from a search query through
-         * {@link MediaController2#prefetchFromSearch(String, Bundle)}.
+         * Called when a controller requested to prepare playback from a search query through
+         * {@link MediaController2#prepareFromSearch(String, Bundle)}.
          * <p>
-         * An empty query indicates that the app may prefetch any music. The implementation should
+         * An empty query indicates that the app may prepare any music. The implementation should
          * attempt to make a smart choice about what to play.
          * <p>
-         * During the prefetch, a session should not hold audio focus in order to allow
+         * During the prepare, a session should not hold audio focus in order to allow
          * other sessions play seamlessly. The state of playback should be updated to
-         * {@link SessionPlayer2#PLAYER_STATE_PAUSED} after the prefetch is done.
+         * {@link SessionPlayer2#PLAYER_STATE_PAUSED} after the prepare is done.
          * <p>
-         * The playback of the prefetched content should start in the later calls of
+         * The playback of the prepareed content should start in the later calls of
          * {@link SessionPlayer2#play()}.
          * <p>
          * Override {@link #onPlayFromSearch} to handle requests for starting playback without
@@ -651,25 +651,25 @@ public class MediaSession2 implements AutoCloseable {
          * @param controller controller information
          * @param query query string. Can be empty to indicate any suggested media
          * @param extras optional extra bundle
-         * @see SessionCommand2#COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH
+         * @see SessionCommand2#COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public @ResultCode int onPrefetchFromSearch(@NonNull MediaSession2 session,
+        public @ResultCode int onPrepareFromSearch(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull String query,
                 @Nullable Bundle extras) {
             return RESULT_CODE_NOT_SUPPORTED;
         }
 
         /**
-         * Called when a controller requested to prefetch a specific media item represented by a URI
-         * through {@link MediaController2#prefetchFromUri(Uri, Bundle)}.
+         * Called when a controller requested to prepare a specific media item represented by a URI
+         * through {@link MediaController2#prepareFromUri(Uri, Bundle)}.
          * <p>
-         * During the prefetch, a session should not hold audio focus in order to allow
+         * During the prepare, a session should not hold audio focus in order to allow
          * other sessions play seamlessly. The state of playback should be updated to
-         * {@link SessionPlayer2#PLAYER_STATE_PAUSED} after the prefetch is done.
+         * {@link SessionPlayer2#PLAYER_STATE_PAUSED} after the prepare is done.
          * <p>
-         * The playback of the prefetched content should start in the later calls of
+         * The playback of the prepareed content should start in the later calls of
          * {@link SessionPlayer2#play()}.
          * <p>
          * Override {@link #onPlayFromUri} to handle requests for starting playback without
@@ -679,11 +679,11 @@ public class MediaSession2 implements AutoCloseable {
          * @param controller controller information
          * @param uri uri
          * @param extras optional extra bundle
-         * @see SessionCommand2#COMMAND_CODE_SESSION_PREFETCH_FROM_URI
+         * @see SessionCommand2#COMMAND_CODE_SESSION_PREPARE_FROM_URI
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP)
-        public @ResultCode int onPrefetchFromUri(@NonNull MediaSession2 session,
+        public @ResultCode int onPrepareFromUri(@NonNull MediaSession2 session,
                 @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) {
             return RESULT_CODE_NOT_SUPPORTED;
         }
