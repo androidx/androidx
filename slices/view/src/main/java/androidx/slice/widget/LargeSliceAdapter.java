@@ -265,20 +265,17 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     }
 
     private View inflateForType(int viewType) {
-        View v = new RowView(mContext);
         switch (viewType) {
             case TYPE_GRID:
-                v = LayoutInflater.from(mContext).inflate(R.layout.abc_slice_grid, null);
-                break;
+                return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_grid, null);
             case TYPE_MESSAGE:
-                v = LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message, null);
-                break;
+                return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message, null);
             case TYPE_MESSAGE_LOCAL:
-                v = LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message_local,
+                return LayoutInflater.from(mContext).inflate(R.layout.abc_slice_message_local,
                         null);
-                break;
+            default:
+                return new RowView(mContext);
         }
-        return v;
     }
 
     protected static class SliceWrapper {
