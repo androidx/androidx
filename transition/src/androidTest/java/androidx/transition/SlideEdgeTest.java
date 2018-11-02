@@ -34,9 +34,9 @@ import android.view.Gravity;
 import android.view.View;
 
 import androidx.core.util.Pair;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 
@@ -99,7 +99,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
                     redSquare.setVisibility(View.INVISIBLE);
                 }
             });
-            verify(listener, timeout(1000)).onTransitionStart(any(Transition.class));
+            verify(listener, timeout(3000)).onTransitionStart(any(Transition.class));
             assertEquals(View.VISIBLE, redSquare.getVisibility());
 
             float redStartX = redSquare.getTranslationX();
@@ -171,7 +171,7 @@ public class SlideEdgeTest extends BaseTransitionTest {
                 }
             });
 
-            verify(listener, timeout(1000)).onTransitionStart(any(Transition.class));
+            verify(listener, timeout(3000)).onTransitionStart(any(Transition.class));
             assertEquals(View.VISIBLE, redSquare.getVisibility());
 
             final float redStartX = redSquare.getTranslationX();
