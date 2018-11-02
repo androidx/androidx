@@ -704,7 +704,7 @@ public class MediaUtils2 {
     }
 
     /**
-     * Trims (i.e. removes null elements) the list and return it.
+     * Removes all null elements from the list and returns it.
      *
      * @param list
      * @return
@@ -713,12 +713,12 @@ public class MediaUtils2 {
         if (list == null) {
             return null;
         }
-        List<T> trimedList = new ArrayList<>();
+        List<T> newList = new ArrayList<>();
         for (T item : list) {
             if (item != null) {
-                trimedList.add(item);
+                newList.add(item);
             }
         }
-        return trimedList;
+        return newList;
     }
 }
