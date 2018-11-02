@@ -91,6 +91,15 @@ public final class MediaTestUtils {
                 .build();
     }
 
+    public static List<String> createMediaIds(int size) {
+        final List<String> list = new ArrayList<>();
+        String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
+        for (int i = 0; i < size; i++) {
+            list.add(caller + "_item_" + (size + 1));
+        }
+        return list;
+    }
+
     /**
      * Create a media item with the metadata for testing purpose.
      *
@@ -114,17 +123,6 @@ public final class MediaTestUtils {
         String mediaId = Thread.currentThread().getStackTrace()[1].getMethodName();
         return new MediaMetadata2.Builder()
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId).build();
-    }
-
-    public static List<Bundle> playlistToBundleList(List<MediaItem2> playlist) {
-        if (playlist == null) {
-            return null;
-        }
-        List<Bundle> result = new ArrayList<>();
-        for (int i = 0; i < playlist.size(); i++) {
-            result.add(playlist.get(i).toBundle());
-        }
-        return result;
     }
 
     public static List<MediaItem2> playlistFromParcelableList(List<Parcelable> parcelables,

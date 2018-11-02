@@ -267,7 +267,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(bufferedPosition, controller.getBufferedPosition());
         assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
         assertEquals(position + (long) (speed * timeDiff), controller.getCurrentPosition());
-        assertEquals(currentMediaItem, controller.getCurrentMediaItem());
+        MediaTestUtils.assertMediaItemsWithId(currentMediaItem, controller.getCurrentMediaItem());
     }
 
     @Test

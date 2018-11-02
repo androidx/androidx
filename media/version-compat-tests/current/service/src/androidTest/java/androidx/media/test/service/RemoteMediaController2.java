@@ -37,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.test.lib.TestUtils;
 import androidx.media2.MediaController2;
-import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
@@ -140,9 +139,9 @@ public class RemoteMediaController2 {
         }
     }
 
-    public void setPlaylist(@NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
+    public void setPlaylist(@NonNull List<String> list, @Nullable MediaMetadata2 metadata) {
         try {
-            mBinder.setPlaylist(mControllerId, MediaTestUtils.playlistToBundleList(list),
+            mBinder.setPlaylist(mControllerId, list,
                     metadata == null ? null : metadata.toBundle());
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call setPlaylist()");
@@ -164,9 +163,9 @@ public class RemoteMediaController2 {
         }
     }
 
-    public void setMediaItem(@NonNull MediaItem2 item) {
+    public void setMediaItem(@NonNull String mediaId) {
         try {
-            mBinder.setMediaItem(mControllerId, item.toBundle());
+            mBinder.setMediaItem(mControllerId, mediaId);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call setMediaItem()");
         }
@@ -181,25 +180,25 @@ public class RemoteMediaController2 {
         }
     }
 
-    public void addPlaylistItem(int index, @NonNull MediaItem2 item) {
+    public void addPlaylistItem(int index, @NonNull String mediaId) {
         try {
-            mBinder.addPlaylistItem(mControllerId, index, item.toBundle());
+            mBinder.addPlaylistItem(mControllerId, index, mediaId);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call addPlaylistItem()");
         }
     }
 
-    public void removePlaylistItem(@NonNull MediaItem2 item) {
+    public void removePlaylistItem(int index) {
         try {
-            mBinder.removePlaylistItem(mControllerId, item.toBundle());
+            mBinder.removePlaylistItem(mControllerId, index);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call removePlaylistItem()");
         }
     }
 
-    public void replacePlaylistItem(int index, @NonNull MediaItem2 item) {
+    public void replacePlaylistItem(int index, @NonNull String media) {
         try {
-            mBinder.replacePlaylistItem(mControllerId, index, item.toBundle());
+            mBinder.replacePlaylistItem(mControllerId, index, media);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call replacePlaylistItem()");
         }
@@ -221,9 +220,9 @@ public class RemoteMediaController2 {
         }
     }
 
-    public void skipToPlaylistItem(@NonNull MediaItem2 item) {
+    public void skipToPlaylistItem(int index) {
         try {
-            mBinder.skipToPlaylistItem(mControllerId, item.toBundle());
+            mBinder.skipToPlaylistItem(mControllerId, index);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call skipToPlaylistItem()");
         }

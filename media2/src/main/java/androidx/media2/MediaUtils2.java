@@ -45,6 +45,7 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -58,7 +59,6 @@ import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
 /**
@@ -180,16 +180,7 @@ public class MediaUtils2 {
         MediaMetadata2 metadata2 = convertToMediaMetadata2(descriptionCompat, false, true);
         return new MediaItem2.Builder()
                 .setMetadata(metadata2)
-                .setUuid(createUuidByQueueIdAndMediaId(item.getQueueId(),
-                        descriptionCompat.getMediaId()))
                 .build();
-    }
-
-    /**
-     * Create a {@link UUID} with queue id and media id.
-     */
-    public static UUID createUuidByQueueIdAndMediaId(long queueId, String mediaId) {
-        return new UUID(queueId, (mediaId == null) ? 0 : mediaId.hashCode());
     }
 
     /**
@@ -249,20 +240,18 @@ public class MediaUtils2 {
     }
 
     /**
-     * Convert a {@link MediaItem2} to a {@link QueueItem}.
+     * Creates {@link MediaDescriptionCompat} with the id
      */
-    public static QueueItem convertToQueueItem(MediaItem2 item) {
-        if (item == null) {
+    public static MediaDescriptionCompat createMediaDescriptionCompat(String mediaId) {
+        if (TextUtils.isEmpty(mediaId)) {
             return null;
         }
-        MediaDescriptionCompat description = (item.getMetadata() == null)
-                ? new MediaDescriptionCompat.Builder().setMediaId(item.getMediaId()).build()
-                : convertToMediaMetadataCompat(item.getMetadata()).getDescription();
-        return new QueueItem(description, item.getUuid().getMostSignificantBits());
+        return new MediaDescriptionCompat.Builder().setMediaId(mediaId).build();
     }
 
     /**
-     * Convert a list of {@link MediaItem2} to a list of {@link QueueItem}.
+     * Convert a list of {@link MediaItem2} to a list of {@link QueueItem}. The index of the item
+     * would be used as the queue ID to match the behavior of {@link MediaController2}.
      */
     public static List<QueueItem> convertToQueueItemList(List<MediaItem2> items) {
         if (items == null) {
@@ -270,10 +259,11 @@ public class MediaUtils2 {
         }
         List<QueueItem> result = new ArrayList<>();
         for (int i = 0; i < items.size(); i++) {
-            QueueItem queueItem = convertToQueueItem(items.get(i));
-            if (queueItem != null) {
-                result.add(queueItem);
-            }
+            MediaItem2 item = items.get(i);
+            MediaDescriptionCompat description = (item.getMetadata() == null)
+                    ? new MediaDescriptionCompat.Builder().setMediaId(item.getMediaId()).build()
+                    : convertToMediaMetadataCompat(item.getMetadata()).getDescription();
+            result.add(new QueueItem(description, i));
         }
         return result;
     }

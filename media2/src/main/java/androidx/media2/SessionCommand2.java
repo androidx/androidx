@@ -210,7 +210,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_SET_PLAYLIST = 10006;
 
     /**
-     * Command code for {@link MediaController2#skipToPlaylistItem(MediaItem2)}.
+     * Command code for {@link MediaController2#skipToPlaylistItem(int)}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
      * through the
@@ -274,7 +274,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA = 10012;
 
     /**
-     * Command code for {@link MediaController2#addPlaylistItem(int, MediaItem2)}.
+     * Command code for {@link MediaController2#addPlaylistItem(int, String)}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
      * through the
@@ -285,7 +285,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM = 10013;
 
     /**
-     * Command code for {@link MediaController2#addPlaylistItem(int, MediaItem2)}.
+     * Command code for {@link MediaController2#addPlaylistItem(int, String)}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
      * through the
@@ -296,7 +296,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM = 10014;
 
     /**
-     * Command code for {@link MediaController2#replacePlaylistItem(int, MediaItem2)}.
+     * Command code for {@link MediaController2#replacePlaylistItem(int, String)}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
      * through the
@@ -326,7 +326,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA = 10017;
 
     /**
-     * Command code for {@link MediaController2#setMediaItem(MediaItem2)}.
+     * Command code for {@link MediaController2#setMediaItem(String)}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
      * through the
