@@ -655,11 +655,20 @@ public final class MediaMetadata2 implements VersionedParcelable {
     @Retention(RetentionPolicy.SOURCE)
     public @interface FloatKey {}
 
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @StringDef({METADATA_KEY_EXTRAS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface BundleKey {}
+
     static final int METADATA_TYPE_LONG = 0;
     static final int METADATA_TYPE_TEXT = 1;
     static final int METADATA_TYPE_BITMAP = 2;
     static final int METADATA_TYPE_RATING = 3;
     static final int METADATA_TYPE_FLOAT = 4;
+    static final int METADATA_TYPE_BUNDLE = 5;
     static final ArrayMap<String, Integer> METADATA_KEYS_TYPE;
 
     static {
@@ -698,6 +707,7 @@ public final class MediaMetadata2 implements VersionedParcelable {
         METADATA_KEYS_TYPE.put(METADATA_KEY_PLAYABLE, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_ADVERTISEMENT, METADATA_TYPE_LONG);
         METADATA_KEYS_TYPE.put(METADATA_KEY_DOWNLOAD_STATUS, METADATA_TYPE_LONG);
+        METADATA_KEYS_TYPE.put(METADATA_KEY_EXTRAS, METADATA_TYPE_BUNDLE);
     }
 
     private static final @MediaMetadata2.TextKey
