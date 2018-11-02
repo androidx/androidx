@@ -98,7 +98,7 @@ class MediaController2ImplBase implements MediaController2Impl {
             new ControllerResult(RESULT_CODE_SKIPPED);
 
     static final String TAG = "MC2ImplBase";
-    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final MediaController2 mInstance;

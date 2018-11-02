@@ -19,6 +19,7 @@ package androidx.media.test.service;
 import static org.junit.Assert.fail;
 
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.media.test.lib.TestUtils.SyncHandler;
@@ -35,6 +36,9 @@ import java.util.List;
  * It only support only one service at a time.
  */
 public class TestServiceRegistry {
+    private static final String TAG = "TestServiceRegistry";
+    private static final boolean DEBUG = true;
+
     @GuardedBy("TestServiceRegistry.class")
     private static TestServiceRegistry sInstance;
     @GuardedBy("TestServiceRegistry.class")
@@ -113,6 +117,18 @@ public class TestServiceRegistry {
                 fail("Previous service instance is still running. Clean up manually to ensure"
                         + " previously running service doesn't break current test");
             }
+            if (DEBUG) {
+                Log.d(TAG, "setServiceInstance(): service=" + service);
+                if (service != null) {
+                    Log.d(TAG, "setServiceInstance(): service=" + service + ", session size="
+                            + service.getSessions().size());
+                    for (MediaSession2 session : service.getSessions()) {
+                        Log.d(TAG, "   session id=" + session.getId());
+                    }
+                } else {
+                    Log.d(TAG, "setServiceInstance, service=" + service);
+                }
+            }
             mService = service;
             if (mSessionServiceCallback != null) {
                 mSessionServiceCallback.onCreated();
@@ -129,6 +145,13 @@ public class TestServiceRegistry {
     public void cleanUp() {
         synchronized (TestServiceRegistry.class) {
             if (mService != null) {
+                if (DEBUG) {
+                    Log.d(TAG, "cleanUp(): service=" + mService + ", session size="
+                            + mService.getSessions().size());
+                    for (MediaSession2 session : mService.getSessions()) {
+                        Log.d(TAG, "   session id=" + session.getId());
+                    }
+                }
                 // TODO(jaewan): Remove this, and override SessionService#onDestroy() to do this
                 List<MediaSession2> sessions = mService.getSessions();
                 for (int i = 0; i < sessions.size(); i++) {
@@ -139,6 +162,8 @@ public class TestServiceRegistry {
                 // So stopSelf() isn't really needed, but just for sure.
                 mService.stopSelf();
                 mService = null;
+            } else if (DEBUG) {
+                Log.d(TAG, "cleanUp(): service=" + mService);
             }
             if (mHandler != null) {
                 mHandler.removeCallbacksAndMessages(null);
