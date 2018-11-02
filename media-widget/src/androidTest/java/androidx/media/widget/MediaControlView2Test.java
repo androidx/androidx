@@ -216,32 +216,34 @@ public class MediaControlView2Test {
             return;
         }
 
-        final CountDownLatch latchForPausedState = new CountDownLatch(1);
-        final CountDownLatch latchForRew = new CountDownLatch(2);
+        final CountDownLatch latchForFfwd = new CountDownLatch(1);
+        final CountDownLatch latchForRew = new CountDownLatch(1);
         final MediaController2 controller =
                 createController(new MediaController2.ControllerCallback() {
+                    long mExpectedPosition;
+                    final long mDelta = 1000L;
                     @Override
                     public void onPlayerStateChanged(@NonNull MediaController2 controller,
                             int state) {
                         if (state == SessionPlayer2.PLAYER_STATE_PAUSED) {
-                            controller.seekTo(FFWD_MS);
-                            latchForPausedState.countDown();
+                            mExpectedPosition = FFWD_MS;
+                            controller.seekTo(mExpectedPosition);
                         }
                     }
                     @Override
                     public void onSeekCompleted(@NonNull MediaController2 controller,
                             long position) {
-                        switch ((int) latchForRew.getCount()) {
-                            case 2:
-                                if (position == FFWD_MS) {
-                                    latchForRew.countDown();
-                                }
-                                break;
-                            case 1:
-                                if (position == FFWD_MS - REW_MS) {
-                                    latchForRew.countDown();
-                                }
+                        assertTrue(equalsSeekPosition(mExpectedPosition, position, mDelta));
+                        if (mExpectedPosition == FFWD_MS) {
+                            mExpectedPosition = position - REW_MS;
+                            latchForFfwd.countDown();
+                        } else {
+                            latchForRew.countDown();
                         }
+                    }
+
+                    private boolean equalsSeekPosition(long expected, long actual, long delta) {
+                        return (actual < expected + delta) && (actual > expected - delta);
                     }
                 });
         mActivityRule.runOnUiThread(new Runnable() {
@@ -250,7 +252,7 @@ public class MediaControlView2Test {
                 mVideoView.setMediaItem2(mFileSchemeMediaItem);
             }
         });
-        assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latchForFfwd.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(withId(R.id.rew)).perform(click());
         assertTrue(latchForRew.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
