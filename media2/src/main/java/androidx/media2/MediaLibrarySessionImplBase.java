@@ -184,6 +184,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
         }
         return returnedResult;
     }
+
     /**
      * Called by {@link MediaSession2Stub#getLibraryRoot(IMediaController2, int, ParcelImpl)}.
      *

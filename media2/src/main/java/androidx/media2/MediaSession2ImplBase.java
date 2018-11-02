@@ -16,6 +16,7 @@
 
 package androidx.media2;
 
+import static androidx.media2.BaseResult2.RESULT_CODE_BAD_VALUE;
 import static androidx.media2.MediaSession2.ControllerCb;
 import static androidx.media2.MediaSession2.ControllerInfo;
 import static androidx.media2.MediaSession2.SessionCallback;
@@ -574,14 +575,18 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> skipToPlaylistItem(final @NonNull MediaItem2 item) {
+    public ListenableFuture<PlayerResult> skipToPlaylistItem(final int index) {
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
-                if (item == null) {
-                    throw new IllegalArgumentException("item shouldn't be null");
+                if (index < 0) {
+                    throw new IllegalArgumentException("index shouldn't be negative");
                 }
-                return player.skipToPlaylistItem(item);
+                final List<MediaItem2> list = player.getPlaylist();
+                if (index >= list.size()) {
+                    return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
+                }
+                return player.skipToPlaylistItem(list.get(index));
             }
         });
     }
@@ -634,14 +639,18 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> removePlaylistItem(final @NonNull MediaItem2 item) {
+    public ListenableFuture<PlayerResult> removePlaylistItem(final int index) {
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {
-                if (item == null) {
-                    throw new IllegalArgumentException("item shouldn't be null");
+                if (index < 0) {
+                    throw new IllegalArgumentException("index shouldn't be negative");
                 }
-                return player.removePlaylistItem(item);
+                final List<MediaItem2> list = player.getPlaylist();
+                if (index >= list.size()) {
+                    return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
+                }
+                return player.removePlaylistItem(list.get(index));
             }
         });
     }

@@ -231,7 +231,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     public void onPlaylistChanged(MediaController2 controller,
                             List<MediaItem2> list, MediaMetadata2 metadata) {
                         assertEquals(mController, controller);
-                        assertEquals(testPlaylist, list);
+                        MediaTestUtils.assertMediaItemListsWithId(testPlaylist, list);
                         assertNull(metadata);
                         latch.countDown();
                     }

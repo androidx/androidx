@@ -423,22 +423,21 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @Nullable
     MediaItem2 convertMediaItem2OnExecutor(ControllerInfo controller,
-            @NonNull ParcelImpl itemParcelImpl) {
-        if (itemParcelImpl == null) {
-            return null;
-        }
-        MediaItem2 item = ParcelUtils.fromParcelable(itemParcelImpl);
-        if (item == null) {
-            Log.w(TAG, "Couldn't convert incoming parcelable to MediaItem2 ");
+            @NonNull String mediaId) {
+        if (TextUtils.isEmpty(mediaId)) {
+            Log.w(TAG, "Media ID shouldn't be null");
             return null;
         }
         MediaItem2 newItem = mSessionImpl.getCallback().onCreateMediaItem(
-                mSessionImpl.getInstance(), controller, item);
+                mSessionImpl.getInstance(), controller, mediaId);
         if (newItem == null) {
-            Log.w(TAG, "onCreateMediaItem(" + newItem + ") returned null");
-            return null;
+            Log.w(TAG, "onCreateMediaItem(mediaId=" + mediaId + ") returned null. Ignoring");
+        } else if (newItem.getMetadata() == null
+                || !TextUtils.equals(mediaId,
+                        newItem.getMetadata().getString(MediaMetadata2.METADATA_KEY_MEDIA_ID))) {
+            throw new RuntimeException("onCreateMediaItem(mediaId=" + mediaId + "): media ID in the"
+                    + " returned media item should match");
         }
-        newItem.mParcelUuid = item.mParcelUuid;
         return newItem;
     }
 
@@ -758,17 +757,16 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void setPlaylist(final IMediaController2 caller, int seq,
-            final ParcelImplListSlice listSlice, final Bundle metadata) {
+    public void setPlaylist(final IMediaController2 caller, int seq, final List<String> playlist,
+            final Bundle metadata) {
         dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SET_PLAYLIST,
                 new SessionPlayerTask() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
-                        if (listSlice == null) {
+                        if (playlist == null) {
                             Log.w(TAG, "setPlaylist(): Ignoring null playlist from " + controller);
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
-                        List<ParcelImpl> playlist = listSlice.getList();
                         List<MediaItem2> list = new ArrayList<>();
                         for (int i = 0; i < playlist.size(); i++) {
                             MediaItem2 item = convertMediaItem2OnExecutor(controller,
@@ -783,16 +781,16 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void setMediaItem(final IMediaController2 caller, int seq, final ParcelImpl mediaItem) {
+    public void setMediaItem(final IMediaController2 caller, int seq, final String mediaId) {
         dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
                 new SessionPlayerTask() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
-                        if (mediaItem == null) {
-                            Log.w(TAG, "setMediaItem(): Ignoring null item from " + controller);
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "setMediaItem(): Ignoring empty mediaId from " + controller);
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
-                        MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaItem);
+                        MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaId);
                         if (item == null) {
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
@@ -816,16 +814,17 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void addPlaylistItem(IMediaController2 caller, int seq, final int index,
-            final ParcelImpl mediaItem) {
+            final String mediaId) {
         dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
                 new SessionPlayerTask() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
-                        if (mediaItem == null) {
-                            Log.w(TAG, "addPlaylistItem(): Ignoring null item from " + controller);
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "addPlaylistItem(): Ignoring empty mediaId from "
+                                    + controller);
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
-                        MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaItem);
+                        MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaId);
                         if (item == null) {
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
@@ -835,31 +834,29 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void removePlaylistItem(IMediaController2 caller, int seq, final ParcelImpl mediaItem) {
+    public void removePlaylistItem(IMediaController2 caller, int seq, final int index) {
         dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new SessionPlayerTask() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
-                        MediaItem2 item = ParcelUtils.fromParcelable(mediaItem);
-                        // Note: MediaItem2 has hidden UUID to identify it across the processes.
-                        return mSessionImpl.removePlaylistItem(item);
+                        return mSessionImpl.removePlaylistItem(index);
                     }
                 });
     }
 
     @Override
     public void replacePlaylistItem(IMediaController2 caller, int seq, final int index,
-            final ParcelImpl mediaItem) {
+            final String mediaId) {
         dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
                 new SessionPlayerTask() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
-                        if (mediaItem == null) {
-                            Log.w(TAG, "replacePlaylistItem(): Ignoring null item from "
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "replacePlaylistItem(): Ignoring empty mediaId from "
                                     + controller);
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
-                        MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaItem);
+                        MediaItem2 item = convertMediaItem2OnExecutor(controller, mediaId);
                         if (item == null) {
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
@@ -869,19 +866,17 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void skipToPlaylistItem(IMediaController2 caller, int seq, final ParcelImpl mediaItem) {
+    public void skipToPlaylistItem(IMediaController2 caller, int seq, final int index) {
         dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new SessionPlayerTask() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
-                        if (mediaItem == null) {
-                            Log.w(TAG, "skipToPlaylistItem(): Ignoring null mediaItem from "
+                        if (index < 0) {
+                            Log.w(TAG, "skipToPlaylistItem(): Ignoring negative index from "
                                     + controller);
                             return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                         }
-                        // Note: MediaItem2 has hidden UUID to identify it across the processes.
-                        return mSessionImpl.skipToPlaylistItem(
-                                (MediaItem2) ParcelUtils.fromParcelable(mediaItem));
+                        return mSessionImpl.skipToPlaylistItem(index);
                     }
                 });
     }

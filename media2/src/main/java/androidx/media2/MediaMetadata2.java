@@ -915,6 +915,11 @@ public final class MediaMetadata2 implements VersionedParcelable {
         return mBundle;
     }
 
+    @Override
+    public String toString() {
+        return mBundle.toString();
+    }
+
     /**
      * Creates the {@link MediaMetadata2} from the bundle that previously returned by
      * {@link #toBundle()}.

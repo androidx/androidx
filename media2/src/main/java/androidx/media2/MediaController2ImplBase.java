@@ -589,26 +589,24 @@ class MediaController2ImplBase implements MediaController2Impl {
     }
 
     @Override
-    public ListenableFuture<ControllerResult> setPlaylist(final @NonNull List<MediaItem2> list,
+    public ListenableFuture<ControllerResult> setPlaylist(final @NonNull List<String> list,
             final @Nullable MediaMetadata2 metadata) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_PLAYLIST, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.setPlaylist(mControllerStub, seq,
-                        MediaUtils2.convertMediaItem2ListToParcelImplListSlice(list),
+                iSession2.setPlaylist(mControllerStub, seq, list,
                         (metadata == null) ? null : metadata.toBundle());
             }
         });
     }
 
     @Override
-    public ListenableFuture<ControllerResult> setMediaItem(final MediaItem2 item) {
+    public ListenableFuture<ControllerResult> setMediaItem(final String mediaId) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SET_MEDIA_ITEM,
                 new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.setMediaItem(mControllerStub, seq,
-                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                        iSession2.setMediaItem(mControllerStub, seq, mediaId);
                     }
                 });
     }
@@ -635,38 +633,35 @@ class MediaController2ImplBase implements MediaController2Impl {
 
     @Override
     public ListenableFuture<ControllerResult> addPlaylistItem(final int index,
-            final @NonNull MediaItem2 item) {
+            final @NonNull String mediaId) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM,
                 new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.addPlaylistItem(mControllerStub, seq, index,
-                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                        iSession2.addPlaylistItem(mControllerStub, seq, index, mediaId);
                     }
                 });
     }
 
     @Override
-    public ListenableFuture<ControllerResult> removePlaylistItem(final @NonNull MediaItem2 item) {
+    public ListenableFuture<ControllerResult> removePlaylistItem(final @NonNull int index) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM,
                 new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.removePlaylistItem(mControllerStub, seq,
-                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                        iSession2.removePlaylistItem(mControllerStub, seq, index);
                     }
                 });
     }
 
     @Override
     public ListenableFuture<ControllerResult> replacePlaylistItem(final int index,
-            final @NonNull MediaItem2 item) {
+            final @NonNull String mediaId) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM,
                 new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.replacePlaylistItem(mControllerStub, seq, index,
-                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                        iSession2.replacePlaylistItem(mControllerStub, seq, index, mediaId);
                     }
                 });
     }
@@ -701,13 +696,12 @@ class MediaController2ImplBase implements MediaController2Impl {
     }
 
     @Override
-    public ListenableFuture<ControllerResult> skipToPlaylistItem(final @NonNull MediaItem2 item) {
+    public ListenableFuture<ControllerResult> skipToPlaylistItem(final @NonNull int index) {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SKIP_TO_PLAYLIST_ITEM,
                 new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.skipToPlaylistItem(mControllerStub, seq,
-                                (ParcelImpl) ParcelUtils.toParcelable(item));
+                        iSession2.skipToPlaylistItem(mControllerStub, seq, index);
                     }
                 });
     }

@@ -410,7 +410,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
     public void testSubscribe() throws InterruptedException {
 //        prepareLooper();
 //        final String testParentId = "testSubscribeId";
-//        final List<MediaItem2> testList = TestUtils.createPlaylist(3);
+//        final List<MediaItem2> testList = TestUtils.createMediaItems(3);
 //
 //        final CountDownLatch latch = new CountDownLatch(1);
 //        final MediaLibrarySessionCallback callback = new MediaLibrarySessionCallback() {
@@ -458,7 +458,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
 //        final String testParentId = "testSubscribe_withExtras";
 //        final Bundle testExtras = new Bundle();
 //        testExtras.putString(testParentId, testParentId);
-//        final List<MediaItem2> testList = TestUtils.createPlaylist(3);
+//        final List<MediaItem2> testList = TestUtils.createMediaItems(3);
 //
 //        final CountDownLatch latch = new CountDownLatch(1);
 //        final MediaLibrarySessionCallback callback = new MediaLibrarySessionCallback() {
@@ -508,7 +508,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
     public void testSubscribe_withPagination() throws InterruptedException {
 //        prepareLooper();
 //        final String testParentId = "testSubscribe_pagination_ID";
-//        final List<MediaItem2> testList = TestUtils.createPlaylist(3);
+//        final List<MediaItem2> testList = TestUtils.createMediaItems(3);
 //        final int testPage = 2;
 //        final int testPageSize = 3;
 //        final Bundle testExtras = new Bundle();
@@ -619,7 +619,7 @@ public class MediaBrowserCompatTestWithMediaLibraryService2 extends
 //        final String testUnsubscribedParentId = "testNotifyChildrenChanged22";
 //        final Bundle testExtras = new Bundle();
 //        testExtras.putString(testSubscribedParentId, testSubscribedParentId);
-//        final List<MediaItem2> testList = TestUtils.createPlaylist(3);
+//        final List<MediaItem2> testList = TestUtils.createMediaItems(3);
 //
 //        final CountDownLatch subscribeLatch = new CountDownLatch(1);
 //        final MediaLibrarySessionCallback callback = new MediaLibrarySessionCallback() {

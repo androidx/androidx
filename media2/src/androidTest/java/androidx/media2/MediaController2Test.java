@@ -104,6 +104,12 @@ public class MediaController2Test extends MediaSession2TestBase {
                         }
                         return null;
                     }
+
+                    @Override
+                    public MediaItem2 onCreateMediaItem(MediaSession2 session,
+                            ControllerInfo controller, String mediaId) {
+                        return TestUtils.createMediaItem(mediaId);
+                    }
                 })
                 .setSessionActivity(mIntent)
                 .setId(TAG).build();
@@ -242,7 +248,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testUpdatePlayer() throws InterruptedException {
         prepareLooper();
         final int testState = SessionPlayer2.PLAYER_STATE_PLAYING;
-        final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
+        final List<MediaItem2> testPlaylist = TestUtils.createMediaItems(3);
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING).build();
         final CountDownLatch latch = new CountDownLatch(3);
@@ -295,7 +301,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testSetPlaylist() throws InterruptedException {
         prepareLooper();
-        final List<MediaItem2> list = TestUtils.createPlaylist(2);
+        final List<String> list = TestUtils.createMediaIds(2);
         mController.setPlaylist(list, null /* Metadata */);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
@@ -306,7 +312,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(list.size(), mPlayer.mPlaylist.size());
         for (int i = 0; i < list.size(); i++) {
             // MediaController2.setPlaylist does not ensure the equality of the items.
-            assertEquals(list.get(i).getMediaId(), mPlayer.mPlaylist.get(i).getMediaId());
+            assertEquals(list.get(i), mPlayer.mPlaylist.get(i).getMediaId());
         }
     }
 
@@ -314,7 +320,8 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testSetMediaItem() throws InterruptedException {
         prepareLooper();
         final MediaItem2 item = TestUtils.createMediaItemWithMetadata();
-        mController.setMediaItem(item);
+        mController.setMediaItem(item.getMetadata()
+                .getString(MediaMetadata2.METADATA_KEY_MEDIA_ID));
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertNull(mPlayer.mMetadata);
@@ -328,7 +335,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testGetPlaylist() throws InterruptedException {
         prepareLooper();
-        final List<MediaItem2> testList = TestUtils.createPlaylist(2);
+        final List<MediaItem2> testList = TestUtils.createMediaItems(2);
         final MediaMetadata2 testMetadata = TestUtils.createMetadata();
         final AtomicReference<List<MediaItem2>> listFromCallback = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -361,7 +368,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @LargeTest
     public void testGetPlaylist_withLongPlaylist() throws InterruptedException {
         prepareLooper();
-        final List<MediaItem2> testList = TestUtils.createPlaylist(5000);
+        final List<MediaItem2> testList = TestUtils.createMediaItems(5000);
         final MediaMetadata2 testMetadata = TestUtils.createMetadata();
         final AtomicReference<List<MediaItem2>> listFromCallback = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -475,7 +482,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testControllerCallback_onPlaylistMetadataChanged() throws InterruptedException {
         prepareLooper();
         final MediaItem2 item = TestUtils.createMediaItemWithMetadata();
-        final List<MediaItem2> list = TestUtils.createPlaylist(2);
+        final List<MediaItem2> list = TestUtils.createMediaItems(2);
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
@@ -543,7 +550,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testControllerCallback_onBufferingStateChanged() throws InterruptedException {
         prepareLooper();
-        final List<MediaItem2> testPlaylist = TestUtils.createPlaylist(3);
+        final List<MediaItem2> testPlaylist = TestUtils.createMediaItems(3);
         final MediaItem2 testItem = testPlaylist.get(0);
         final int testBufferingState = SessionPlayer2.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
@@ -603,7 +610,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testControllerCallback_onCurrentMediaItemChanged() throws InterruptedException {
         prepareLooper();
         final int listSize = 5;
-        final List<MediaItem2> list = TestUtils.createPlaylist(listSize);
+        final List<MediaItem2> list = TestUtils.createMediaItems(listSize);
         mPlayer.setPlaylist(list, null);
 
         final MediaItem2 currentItem = list.get(3);
@@ -641,27 +648,26 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testAddPlaylistItem() throws InterruptedException {
         prepareLooper();
         final int testIndex = 12;
-        final MediaItem2 testMediaItem = TestUtils.createMediaItemWithMetadata();
-        mController.addPlaylistItem(testIndex, testMediaItem);
+        final String testId = "testAddPlaylistItem";
+        mController.addPlaylistItem(testIndex, testId);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mPlayer.mAddPlaylistItemCalled);
         assertEquals(testIndex, mPlayer.mIndex);
-        // MediaController2.addPlaylistItem does not ensure the equality of the items.
-        assertEquals(testMediaItem.getMediaId(), mPlayer.mItem.getMediaId());
+        assertEquals(testId, mPlayer.mItem.getMediaId());
     }
 
     @Test
     public void testRemovePlaylistItem() throws InterruptedException {
         prepareLooper();
-        mPlayer.mPlaylist = TestUtils.createPlaylist(2);
+        mPlayer.mPlaylist = TestUtils.createMediaItems(2);
 
         // Recreate controller for sending removePlaylistItem.
         // It's easier to ensure that MediaController2.getPlaylist() returns the playlist from the
-        // agent.
+        // player.
         MediaController2 controller = createController(mSession.getToken());
         MediaItem2 targetItem = controller.getPlaylist().get(0);
-        controller.removePlaylistItem(targetItem);
+        controller.removePlaylistItem(0);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mPlayer.mRemovePlaylistItemCalled);
@@ -672,13 +678,13 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testReplacePlaylistItem() throws InterruptedException {
         prepareLooper();
         final int testIndex = 12;
-        final MediaItem2 testMediaItem = TestUtils.createMediaItemWithMetadata();
-        mController.replacePlaylistItem(testIndex, testMediaItem);
+        final String testId = "testAddPlaylistItem";
+        mController.replacePlaylistItem(testIndex, testId);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mPlayer.mReplacePlaylistItemCalled);
         // MediaController2.replacePlaylistItem does not ensure the equality of the items.
-        assertEquals(testMediaItem.getMediaId(), mPlayer.mItem.getMediaId());
+        assertEquals(testId, mPlayer.mItem.getMediaId());
     }
 
     @Test
@@ -700,13 +706,15 @@ public class MediaController2Test extends MediaSession2TestBase {
     @Test
     public void testSkipToPlaylistItem() throws InterruptedException {
         prepareLooper();
+        List<MediaItem2> playlist = TestUtils.createMediaItems(2);
+        mPlayer.mPlaylist = playlist;
+
         MediaController2 controller = createController(mSession.getToken());
-        MediaItem2 targetItem = TestUtils.createMediaItemWithMetadata();
-        controller.skipToPlaylistItem(targetItem);
+        controller.skipToPlaylistItem(1);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mPlayer.mSkipToPlaylistItemCalled);
-        assertEquals(targetItem, mPlayer.mItem);
+        assertEquals(playlist.get(1), mPlayer.mItem);
     }
 
     /**
@@ -1570,7 +1578,7 @@ public class MediaController2Test extends MediaSession2TestBase {
     public void testSetMetadataForMediaItemInPlaylist() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(2);
         final long duration = 1000L;
-        final List<MediaItem2> list = TestUtils.createPlaylist(2);
+        final List<MediaItem2> list = TestUtils.createMediaItems(2);
         final MediaMetadata2 oldMetadata = list.get(1).getMetadata();
         final MediaMetadata2 newMetadata = TestUtils.createMetadata(oldMetadata.getMediaId(),
                 duration);

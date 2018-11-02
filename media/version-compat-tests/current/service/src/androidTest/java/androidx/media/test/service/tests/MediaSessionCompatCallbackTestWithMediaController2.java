@@ -181,21 +181,20 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         prepareLooper();
         final List<MediaItem2> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils2.convertToQueueItemList(testList);
-        final MediaItem2 testMediaItem2ToAdd = MediaTestUtils.createMediaItemWithMetadata();
+        final String testMediaId = "testAddPlaylistItem";
 
         mSession.setQueue(testQueue);
         mSession.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
         createControllerAndWaitConnection();
 
         final int testIndex = 1;
-        mController.addPlaylistItem(testIndex, testMediaItem2ToAdd);
+        mController.addPlaylistItem(testIndex, testMediaId);
         assertTrue(mSessionCallback.await(TIMEOUT_MS));
         assertTrue(mSessionCallback.mOnAddQueueItemAtCalled);
 
         assertEquals(testIndex, mSessionCallback.mQueueIndex);
         assertNotNull(mSessionCallback.mQueueDescriptionForAdd);
-        assertEquals(testMediaItem2ToAdd.getMediaId(),
-                mSessionCallback.mQueueDescriptionForAdd.getMediaId());
+        assertEquals(testMediaId, mSessionCallback.mQueueDescriptionForAdd.getMediaId());
     }
 
     @Test
@@ -209,7 +208,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         createControllerAndWaitConnection();
 
         final MediaItem2 itemToRemove = testList.get(1);
-        mController.removePlaylistItem(itemToRemove);
+        mController.removePlaylistItem(1);
         assertTrue(mSessionCallback.await(TIMEOUT_MS));
         assertTrue(mSessionCallback.mOnRemoveQueueItemCalled);
 
@@ -225,14 +224,14 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         // replace = remove + add
         final List<MediaItem2> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils2.convertToQueueItemList(testList);
-        final MediaItem2 testMediaItem2ToReplace = MediaTestUtils.createMediaItemWithMetadata();
+        final String testMediaId = "testReplacePlaylistItem";
 
         mSession.setQueue(testQueue);
         mSession.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
         createControllerAndWaitConnection();
 
         mSessionCallback.reset(2);
-        mController.replacePlaylistItem(1, testMediaItem2ToReplace);
+        mController.replacePlaylistItem(testReplaceIndex, testMediaId);
         assertTrue(mSessionCallback.await(TIMEOUT_MS));
         assertTrue(mSessionCallback.mOnRemoveQueueItemCalled);
         assertTrue(mSessionCallback.mOnAddQueueItemAtCalled);
@@ -242,8 +241,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
                 mSessionCallback.mQueueDescriptionForRemove.getMediaId());
 
         assertNotNull(mSessionCallback.mQueueDescriptionForAdd);
-        assertEquals(testMediaItem2ToReplace.getMediaId(),
-                mSessionCallback.mQueueDescriptionForAdd.getMediaId());
+        assertEquals(testMediaId, mSessionCallback.mQueueDescriptionForAdd.getMediaId());
     }
 
     @Test
@@ -271,20 +269,21 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     //@Test see: b/110738672
     public void testSkipToPlaylistItem() throws Exception {
         prepareLooper();
+
+        final int testSkipToIndex = 1;
+        // replace = remove + add
+        final List<MediaItem2> testList = MediaTestUtils.createPlaylist(2);
+        final List<QueueItem> testQueue = MediaUtils2.convertToQueueItemList(testList);
+
+        mSession.setQueue(testQueue);
+        mSession.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
         createControllerAndWaitConnection();
-        mSessionCallback.reset(1);
 
-        final long queueItemId = 1;
-        final QueueItem queueItem = new QueueItem(
-                MediaUtils2.convertToMediaMetadataCompat(MediaTestUtils.createMetadata())
-                        .getDescription(),
-                queueItemId);
-        final MediaItem2 mediaItem2 = MediaUtils2.convertToMediaItem2(queueItem);
-
-        mController.skipToPlaylistItem(mediaItem2);
+        mSessionCallback.reset(2);
+        mController.skipToPlaylistItem(testSkipToIndex);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSkipToQueueItemCalled);
-        assertEquals(queueItemId, mSessionCallback.mQueueItemId);
+        assertEquals(testQueue.get(testSkipToIndex).getQueueId(), mSessionCallback.mQueueItemId);
     }
 
     @Test
