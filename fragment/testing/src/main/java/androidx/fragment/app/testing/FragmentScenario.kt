@@ -36,6 +36,29 @@ inline fun <reified F : Fragment> launchFragment(
 ) = FragmentScenario.launch(F::class.java, fragmentArgs, factory)
 
 /**
+ * Launches a Fragment with given arguments hosted by an empty [FragmentActivity] using
+ * [instantiate] to create the Fragment and waits for it to reach a resumed state.
+ *
+ * This method cannot be called from the main thread.
+ *
+ * @param fragmentArgs a bundle to passed into fragment
+ * @param instantiate method which will be used to instantiate the Fragment.
+ */
+inline fun <reified F : Fragment> launchFragment(
+    fragmentArgs: Bundle? = null,
+    crossinline instantiate: (args: Bundle?) -> F
+) = FragmentScenario.launch(F::class.java, fragmentArgs, object : FragmentFactory() {
+    override fun instantiate(
+        classLoader: ClassLoader,
+        className: String,
+        args: Bundle?
+    ) = when (className) {
+        F::class.java.name -> instantiate(args)
+        else -> super.instantiate(classLoader, className, args)
+    }
+})
+
+/**
  * Launches a Fragment in the Activity's root view container `android.R.id.content`, with
  * given arguments hosted by an empty [FragmentActivity] and waits for it to reach a
  * resumed state.
@@ -49,3 +72,30 @@ inline fun <reified F : Fragment> launchFragmentInContainer(
     fragmentArgs: Bundle? = null,
     factory: FragmentFactory? = null
 ) = FragmentScenario.launchInContainer(F::class.java, fragmentArgs, factory)
+
+/**
+ * Launches a Fragment in the Activity's root view container `android.R.id.content`, with
+ * given arguments hosted by an empty [FragmentActivity] using
+ * [instantiate] to create the Fragment and waits for it to reach a
+ * resumed state.
+ *
+ * This method cannot be called from the main thread.
+ *
+ * @param fragmentArgs a bundle to passed into fragment
+ * @param instantiate method which will be used to instantiate the Fragment. This is a
+ * simplification of the [FragmentFactory] interface for cases where only a single class
+ * needs a custom constructor called.
+ */
+inline fun <reified F : Fragment> launchFragmentInContainer(
+    fragmentArgs: Bundle? = null,
+    crossinline instantiate: (args: Bundle?) -> F
+) = FragmentScenario.launchInContainer(F::class.java, fragmentArgs, object : FragmentFactory() {
+    override fun instantiate(
+        classLoader: ClassLoader,
+        className: String,
+        args: Bundle?
+    ) = when (className) {
+        F::class.java.name -> instantiate(args)
+        else -> super.instantiate(classLoader, className, args)
+    }
+})
