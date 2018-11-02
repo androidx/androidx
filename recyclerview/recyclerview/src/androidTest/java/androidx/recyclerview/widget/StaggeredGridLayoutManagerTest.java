@@ -357,7 +357,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                         Item item = mItems.get(position);
                         holder.mBoundItem = item;
                         ((EditText) ((FrameLayout) holder.itemView).getChildAt(0)).setText(
-                                item.mText + " (" + item.mId + ")");
+                                item.getDisplayText());
                         // Good to have colors for debugging
                         StateListDrawable stl = new StateListDrawable();
                         stl.addState(new int[]{android.R.attr.state_focused},
