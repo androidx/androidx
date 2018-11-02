@@ -25,7 +25,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import androidx.work.Logger;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -211,7 +211,7 @@ public class CommandHandler implements ExecutionListener {
                         "Skipping scheduling " + workSpecId + " because it's no longer in "
                         + "the DB");
                 return;
-            } else if (workSpec.state != State.ENQUEUED) {
+            } else if (workSpec.state != WorkInfo.State.ENQUEUED) {
                 Logger.warning(TAG,
                         "Skipping scheduling " + workSpecId + " because it is no longer "
                         + "enqueued");

@@ -44,7 +44,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -184,7 +184,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
     @SdkSuppress(minSdkVersion = 23)
     public void testSystemJobScheduler_ignoresUnenqueuedWork() {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setInitialState(State.CANCELLED)
+                .setInitialState(WorkInfo.State.CANCELLED)
                 .build();
         WorkSpec workSpec = getWorkSpec(work);
         // Don't use addToWorkSpecDao and put it in the database mock.

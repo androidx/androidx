@@ -18,12 +18,12 @@ package androidx.work.impl.model;
 
 import static androidx.work.BackoffPolicy.EXPONENTIAL;
 import static androidx.work.BackoffPolicy.LINEAR;
-import static androidx.work.State.BLOCKED;
-import static androidx.work.State.CANCELLED;
-import static androidx.work.State.ENQUEUED;
-import static androidx.work.State.FAILED;
-import static androidx.work.State.RUNNING;
-import static androidx.work.State.SUCCEEDED;
+import static androidx.work.WorkInfo.State.BLOCKED;
+import static androidx.work.WorkInfo.State.CANCELLED;
+import static androidx.work.WorkInfo.State.ENQUEUED;
+import static androidx.work.WorkInfo.State.FAILED;
+import static androidx.work.WorkInfo.State.RUNNING;
+import static androidx.work.WorkInfo.State.SUCCEEDED;
 
 import android.arch.persistence.room.TypeConverter;
 import android.net.Uri;
@@ -31,7 +31,7 @@ import android.net.Uri;
 import androidx.work.BackoffPolicy;
 import androidx.work.ContentUriTriggers;
 import androidx.work.NetworkType;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -46,7 +46,7 @@ import java.io.ObjectOutputStream;
 public class WorkTypeConverters {
 
     /**
-     * Integer identifiers that map to {@link State}.
+     * Integer identifiers that map to {@link WorkInfo.State}.
      */
     public interface StateIds {
         int ENQUEUED = 0;
@@ -85,7 +85,7 @@ public class WorkTypeConverters {
      * @return The associated int constant
      */
     @TypeConverter
-    public static int stateToInt(State state) {
+    public static int stateToInt(WorkInfo.State state) {
         switch (state) {
             case ENQUEUED:
                 return StateIds.ENQUEUED;
@@ -118,7 +118,7 @@ public class WorkTypeConverters {
      * @return The associated State enum value
      */
     @TypeConverter
-    public static State intToState(int value) {
+    public static WorkInfo.State intToState(int value) {
         switch (value) {
             case StateIds.ENQUEUED:
                 return ENQUEUED;

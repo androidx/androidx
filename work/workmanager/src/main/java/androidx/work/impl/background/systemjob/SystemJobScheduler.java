@@ -26,7 +26,7 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 
 import androidx.work.Logger;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -92,7 +92,7 @@ public class SystemJobScheduler implements Scheduler {
                             "Skipping scheduling " + workSpec.id
                                     + " because it's no longer in the DB");
                     continue;
-                } else if (currentDbWorkSpec.state != State.ENQUEUED) {
+                } else if (currentDbWorkSpec.state != WorkInfo.State.ENQUEUED) {
                     Logger.warning(
                             TAG,
                             "Skipping scheduling " + workSpec.id

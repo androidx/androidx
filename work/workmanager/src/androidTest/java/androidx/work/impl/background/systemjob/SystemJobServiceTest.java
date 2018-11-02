@@ -44,7 +44,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
 import androidx.work.WorkRequest;
 import androidx.work.Worker;
@@ -153,12 +153,12 @@ public class SystemJobServiceTest extends WorkManagerTest {
         Thread.sleep(5000L);
 
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
-        assertThat(workSpecDao.getState(work.getStringId()), is(State.RUNNING));
+        assertThat(workSpecDao.getState(work.getStringId()), is(WorkInfo.State.RUNNING));
 
         mSystemJobServiceSpy.onStopJob(mockParams);
         // TODO(rahulrav): Figure out why this test is flaky.
         Thread.sleep(5000L);
-        assertThat(workSpecDao.getState(work.getStringId()), is(State.ENQUEUED));
+        assertThat(workSpecDao.getState(work.getStringId()), is(WorkInfo.State.ENQUEUED));
     }
 
     @Test

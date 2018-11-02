@@ -202,16 +202,6 @@ package androidx.work {
     ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker>, java.time.Duration, java.time.Duration);
   }
 
-  public enum State {
-    method public boolean isFinished();
-    enum_constant public static final androidx.work.State BLOCKED;
-    enum_constant public static final androidx.work.State CANCELLED;
-    enum_constant public static final androidx.work.State ENQUEUED;
-    enum_constant public static final androidx.work.State FAILED;
-    enum_constant public static final androidx.work.State RUNNING;
-    enum_constant public static final androidx.work.State SUCCEEDED;
-  }
-
   public abstract class WorkContinuation {
     ctor public WorkContinuation();
     method public static androidx.work.WorkContinuation combine(androidx.work.WorkContinuation...);
@@ -219,10 +209,27 @@ package androidx.work {
     method public static androidx.work.WorkContinuation combine(androidx.work.OneTimeWorkRequest, androidx.work.WorkContinuation...);
     method public static androidx.work.WorkContinuation combine(androidx.work.OneTimeWorkRequest, java.util.List<androidx.work.WorkContinuation>);
     method public abstract androidx.work.Operation enqueue();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkStatus>> getStatuses();
-    method public abstract android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkStatus>> getStatusesLiveData();
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfos();
+    method public abstract android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosLiveData();
     method public final androidx.work.WorkContinuation then(androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.WorkContinuation then(java.util.List<androidx.work.OneTimeWorkRequest>);
+  }
+
+  public final class WorkInfo {
+    method public java.util.UUID getId();
+    method public androidx.work.Data getOutputData();
+    method public androidx.work.WorkInfo.State getState();
+    method public java.util.Set<java.lang.String> getTags();
+  }
+
+  public static enum WorkInfo.State {
+    method public boolean isFinished();
+    enum_constant public static final androidx.work.WorkInfo.State BLOCKED;
+    enum_constant public static final androidx.work.WorkInfo.State CANCELLED;
+    enum_constant public static final androidx.work.WorkInfo.State ENQUEUED;
+    enum_constant public static final androidx.work.WorkInfo.State FAILED;
+    enum_constant public static final androidx.work.WorkInfo.State RUNNING;
+    enum_constant public static final androidx.work.WorkInfo.State SUCCEEDED;
   }
 
   public abstract class WorkManager {
@@ -242,12 +249,12 @@ package androidx.work {
     method public static androidx.work.WorkManager getInstance();
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long> getLastCancelAllTimeMillis();
     method public abstract android.arch.lifecycle.LiveData<java.lang.Long> getLastCancelAllTimeMillisLiveData();
-    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkStatus> getStatusById(java.util.UUID);
-    method public abstract android.arch.lifecycle.LiveData<androidx.work.WorkStatus> getStatusByIdLiveData(java.util.UUID);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkStatus>> getStatusesByTag(String);
-    method public abstract android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkStatus>> getStatusesByTagLiveData(String);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkStatus>> getStatusesForUniqueWork(String);
-    method public abstract android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkStatus>> getStatusesForUniqueWorkLiveData(String);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.WorkInfo> getWorkInfoById(java.util.UUID);
+    method public abstract android.arch.lifecycle.LiveData<androidx.work.WorkInfo> getWorkInfoByIdLiveData(java.util.UUID);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfosByTag(String);
+    method public abstract android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosByTagLiveData(String);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkInfo>> getWorkInfosForUniqueWork(String);
+    method public abstract android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkInfo>> getWorkInfosForUniqueWorkLiveData(String);
     method public static void initialize(android.content.Context, androidx.work.Configuration);
     method public abstract androidx.work.Operation pruneWork();
   }
@@ -267,13 +274,6 @@ package androidx.work {
     method public final B setBackoffCriteria(androidx.work.BackoffPolicy, long, java.util.concurrent.TimeUnit);
     method public final B setConstraints(androidx.work.Constraints);
     method public final B setInputData(androidx.work.Data);
-  }
-
-  public final class WorkStatus {
-    method public java.util.UUID getId();
-    method public androidx.work.Data getOutputData();
-    method public androidx.work.State getState();
-    method public java.util.Set<java.lang.String> getTags();
   }
 
   public abstract class Worker extends androidx.work.ListenableWorker {

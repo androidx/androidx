@@ -18,7 +18,7 @@ package androidx.work.impl.model;
 
 import static androidx.work.PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS;
 import static androidx.work.PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS;
-import static androidx.work.State.ENQUEUED;
+import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkRequest.MAX_BACKOFF_MILLIS;
 import static androidx.work.WorkRequest.MIN_BACKOFF_MILLIS;
 
@@ -36,9 +36,8 @@ import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.Logger;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
-import androidx.work.WorkStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,7 +63,7 @@ public class WorkSpec {
 
     @ColumnInfo(name = "state")
     @NonNull
-    public State state = ENQUEUED;
+    public WorkInfo.State state = ENQUEUED;
 
     @ColumnInfo(name = "worker_class_name")
     @NonNull
@@ -326,7 +325,7 @@ public class WorkSpec {
         public String id;
 
         @ColumnInfo(name = "state")
-        public State state;
+        public WorkInfo.State state;
 
         @Override
         public boolean equals(Object o) {
@@ -350,13 +349,13 @@ public class WorkSpec {
     /**
      * A POJO containing the ID, state, output, and tags of a WorkSpec.
      */
-    public static class WorkStatusPojo {
+    public static class WorkInfoPojo {
 
         @ColumnInfo(name = "id")
         public String id;
 
         @ColumnInfo(name = "state")
-        public State state;
+        public WorkInfo.State state;
 
         @ColumnInfo(name = "output")
         public Data output;
@@ -369,12 +368,12 @@ public class WorkSpec {
         public List<String> tags;
 
         /**
-         * Converts this POJO to a {@link WorkStatus}.
+         * Converts this POJO to a {@link WorkInfo}.
          *
-         * @return The {@link WorkStatus} represented by this POJO
+         * @return The {@link WorkInfo} represented by this POJO
          */
-        public WorkStatus toWorkStatus() {
-            return new WorkStatus(UUID.fromString(id), state, output, tags);
+        public WorkInfo toWorkInfo() {
+            return new WorkInfo(UUID.fromString(id), state, output, tags);
         }
 
         @Override
@@ -382,7 +381,7 @@ public class WorkSpec {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
 
-            WorkStatusPojo that = (WorkStatusPojo) o;
+            WorkInfoPojo that = (WorkInfoPojo) o;
 
             if (id != null ? !id.equals(that.id) : that.id != null) return false;
             if (state != that.state) return false;
@@ -400,16 +399,16 @@ public class WorkSpec {
         }
     }
 
-    public static final Function<List<WorkStatusPojo>, List<WorkStatus>> WORK_STATUS_MAPPER =
-            new Function<List<WorkStatusPojo>, List<WorkStatus>>() {
+    public static final Function<List<WorkInfoPojo>, List<WorkInfo>> WORK_INFO_MAPPER =
+            new Function<List<WorkInfoPojo>, List<WorkInfo>>() {
                 @Override
-                public List<WorkStatus> apply(List<WorkStatusPojo> input) {
+                public List<WorkInfo> apply(List<WorkInfoPojo> input) {
                     if (input == null) {
                         return null;
                     }
-                    List<WorkStatus> output = new ArrayList<>(input.size());
-                    for (WorkStatusPojo in : input) {
-                        output.add(in.toWorkStatus());
+                    List<WorkInfo> output = new ArrayList<>(input.size());
+                    for (WorkInfoPojo in : input) {
+                        output.add(in.toWorkInfo());
                     }
                     return output;
                 }
