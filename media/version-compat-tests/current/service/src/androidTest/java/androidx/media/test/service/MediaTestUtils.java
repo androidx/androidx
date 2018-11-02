@@ -87,7 +87,11 @@ public final class MediaTestUtils {
     public static MediaItem2 createMediaItem(String id) {
         return new FileMediaItem2.Builder(new FileDescriptor())
                 .setMetadata(new MediaMetadata2.Builder()
-                        .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, id).build())
+                        .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, id)
+                        .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE,
+                                MediaMetadata2.BROWSABLE_TYPE_NONE)
+                        .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
+                        .build())
                 .build();
     }
 
@@ -122,7 +126,10 @@ public final class MediaTestUtils {
     public static MediaMetadata2 createMetadata() {
         String mediaId = Thread.currentThread().getStackTrace()[1].getMethodName();
         return new MediaMetadata2.Builder()
-                .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId).build();
+                .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
+                .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE, MediaMetadata2.BROWSABLE_TYPE_NONE)
+                .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
+                .build();
     }
 
     public static List<MediaItem2> playlistFromParcelableList(List<Parcelable> parcelables,
