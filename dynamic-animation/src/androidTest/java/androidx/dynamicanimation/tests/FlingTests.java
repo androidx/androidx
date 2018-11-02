@@ -102,7 +102,7 @@ public class FlingTests {
     }
 
     /**
-     * Test that spring animation can work with a single property without an object.
+     * Test that fling animation can work with a single property without an object.
      */
     @Test
     public void testFloatValueHolder() {

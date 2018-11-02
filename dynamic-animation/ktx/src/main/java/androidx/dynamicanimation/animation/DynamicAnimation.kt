@@ -16,28 +16,26 @@
 
 package androidx.dynamicanimation.animation
 
-import android.view.View
-
 /**
- * Creates [FlingAnimation] for view.
+ * Creates [FlingAnimation] for object.
  *
- * @param property View property to be animated.
+ * @param property object's property to be animated.
  * @return [FlingAnimation]
  */
-inline fun <K : View> K.flingAnimationOf(property: FloatPropertyCompat<K>): FlingAnimation {
+inline fun <K> K.flingAnimationOf(property: FloatPropertyCompat<K>): FlingAnimation {
     return FlingAnimation(this, property)
 }
 
 /**
- * Creates [SpringAnimation] for view.
+ * Creates [SpringAnimation] for object.
  * If finalPosition is not [Float.NaN] then create [SpringAnimation] with
  * [SpringForce.mFinalPosition].
  *
- * @param property View property to be animated.
+ * @param property object's property to be animated.
  * @param finalPosition [SpringForce.mFinalPosition] Final position of spring.
  * @return [SpringAnimation]
  */
-inline fun <K : View> K.springAnimationOf(
+inline fun <K> K.springAnimationOf(
     property: FloatPropertyCompat<K>,
     finalPosition: Float = Float.NaN
 ): SpringAnimation {
