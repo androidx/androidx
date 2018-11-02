@@ -76,7 +76,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
 
     static final String TAG = "MS2ImplBase";
-    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
 
     // Note: This checks the uniqueness of a session ID only in single process.
     // When the framework becomes able to check the uniqueness, this logic should be removed.
@@ -280,6 +280,9 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         synchronized (mLock) {
             if (isClosed()) {
                 return;
+            }
+            if (DEBUG) {
+                Log.d(TAG, "Closing session, id=" + getId() + ", token=" + getToken());
             }
             synchronized (MediaSession2ImplBase.class) {
                 SESSION_ID_LIST.remove(mSessionId);
