@@ -71,15 +71,21 @@ import java.util.Locale
  * * `locale`: The locale used to select region-specific glyphs.
  */
 data class ParagraphStyle constructor(
+    // TODO(Migration/siyamed): pass to TextLayout
     val textAlign: TextAlign? = null,
+    // TODO(Migration/siyamed): pass to TextLayout
     val textDirection: TextDirection? = null,
+    // TODO(Migration/siyamed): pass to TextLayout
     val fontWeight: FontWeight? = null,
+    // TODO(Migration/siyamed): pass to TextLayout
     val fontStyle: FontStyle? = null,
     val maxLines: Int? = null,
     // TODO(Migration/siyamed): fontFamily was String
     val fontFamily: FontFallback? = null,
     val fontSize: Double? = null,
+    // TODO(Migration/siyamed): pass to TextLayout
     val lineHeight: Double? = null,
+    // TODO(Migration/siyamed): pass to TextLayout
     val ellipsis: String? = null,
     val locale: Locale? = null
 ) {
