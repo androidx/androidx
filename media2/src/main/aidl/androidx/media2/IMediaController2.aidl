@@ -35,8 +35,8 @@ oneway interface IMediaController2 {
     void onPlayerStateChanged(long eventTimeMs, long positionMs, int state) = 1;
     void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed) = 2;
     void onBufferingStateChanged(in ParcelImpl item, int state, long bufferedPositionMs) = 3;
-    void onPlaylistChanged(in ParcelImplListSlice listSlice, in Bundle metadata) = 4;
-    void onPlaylistMetadataChanged(in Bundle metadata) = 5;
+    void onPlaylistChanged(in ParcelImplListSlice listSlice, in ParcelImpl metadata) = 4;
+    void onPlaylistMetadataChanged(in ParcelImpl metadata) = 5;
     void onPlaybackInfoChanged(in ParcelImpl playbackInfo) = 6;
     void onRepeatModeChanged(int repeatMode) = 7;
     void onShuffleModeChanged(int shuffleMode) = 8;

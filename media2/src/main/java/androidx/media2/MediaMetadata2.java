@@ -916,8 +916,9 @@ public final class MediaMetadata2 implements VersionedParcelable {
     }
 
     /**
-     * Gets the bundle backing the metadata object. This is available to support
-     * backwards compatibility. Apps should not modify the bundle directly.
+     * Gets the bundle backing the metadata object. This is available to support backwards
+     * compatibility. Apps shouldn't modify the bundle directly, nor share the metadata across the
+     * process with the bundle here.
      *
      * @return The Bundle backing this metadata.
      */
