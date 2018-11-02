@@ -44,7 +44,6 @@ import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayer2;
 import androidx.media2.PlaybackParams2;
 import androidx.media2.UriMediaItem2;
-import androidx.media2.common.TrackInfoImpl;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.ExoPlaybackException;
 import androidx.media2.exoplayer.external.Format;
@@ -58,8 +57,6 @@ import androidx.media2.exoplayer.external.extractor.ts.AdtsExtractor;
 import androidx.media2.exoplayer.external.mediacodec.MediaFormatUtil;
 import androidx.media2.exoplayer.external.source.ExtractorMediaSource;
 import androidx.media2.exoplayer.external.source.MediaSource;
-import androidx.media2.exoplayer.external.source.TrackGroup;
-import androidx.media2.exoplayer.external.source.TrackGroupArray;
 import androidx.media2.exoplayer.external.source.hls.HlsMediaSource;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.upstream.HttpDataSource;
@@ -68,8 +65,6 @@ import androidx.media2.exoplayer.external.util.Util;
 
 import java.io.IOException;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Utility methods for translating between the MediaPlayer2 and ExoPlayer APIs.
@@ -178,39 +173,6 @@ import java.util.List;
         return MEDIA_ERROR_UNKNOWN;
     }
 
-    /** Returns the track info list corresponding to an ExoPlayer track group array. */
-    public static List<MediaPlayer2.TrackInfo> getTrackInfo(TrackGroupArray trackGroupArray) {
-        ArrayList<MediaPlayer2.TrackInfo> trackInfos = new ArrayList<>();
-        for (int i = 0; i < trackGroupArray.length; i++) {
-            TrackGroup trackGroup = trackGroupArray.get(i);
-            Format format = trackGroup.getFormat(0);
-            if (!shouldExposeTrack(format)) {
-                continue;
-            }
-            MediaFormat mediaFormat = getMediaFormat(format);
-            String mimeType = format.sampleMimeType;
-            int trackType = getTrackType(mimeType);
-            trackInfos.add(new TrackInfoImpl(trackType, mediaFormat));
-        }
-        // Note: the list returned by MediaPlayer2Impl is modifiable so we do the same here.
-        return trackInfos;
-    }
-
-    /** Returns the ExoPlayer track index for the given track index. */
-    public static int getExoPlayerTrackIndex(int trackIndex, TrackGroupArray trackGroupArray) {
-        for (int exoPlayerTrackIndex = 0;
-                exoPlayerTrackIndex < trackGroupArray.length;
-                exoPlayerTrackIndex++) {
-            if (!shouldExposeTrack(trackGroupArray.get(exoPlayerTrackIndex).getFormat(0))) {
-                continue;
-            }
-            if (trackIndex-- == 0) {
-                return exoPlayerTrackIndex;
-            }
-        }
-        return -1;
-    }
-
     /** Returns the ExoPlayer track type for the given MediaPlayer2 track type. */
     public static int getExoPlayerTrackType(int trackType) {
         switch (trackType) {
@@ -223,19 +185,14 @@ import java.util.List;
             case MEDIA_TRACK_TYPE_METADATA:
                 return C.TRACK_TYPE_METADATA;
             case MEDIA_TRACK_TYPE_UNKNOWN:
-            case MEDIA_TRACK_TYPE_TIMEDTEXT:
+            case MEDIA_TRACK_TYPE_TIMEDTEXT: // Unexpected
             default:
                 return C.TRACK_TYPE_UNKNOWN;
         }
     }
 
-    /** Returns the track type corresponding to the given MIME type. */
-    private static int getTrackType(String mimeType) {
-        return getTrackType(MimeTypes.getTrackType(mimeType));
-    }
-
     /** Returns the track type corresponding to the given ExoPlayer track type. */
-    private static int getTrackType(int exoPlayerTrackType) {
+    public static int getTrackType(int exoPlayerTrackType) {
         switch (exoPlayerTrackType) {
             case C.TRACK_TYPE_AUDIO:
                 return MEDIA_TRACK_TYPE_AUDIO;
@@ -254,14 +211,9 @@ import java.util.List;
         }
     }
 
-    private static boolean shouldExposeTrack(Format format) {
-        // TODO(b/80232248): Filter out tracks that ExoPlayer exposes but MediaPlayer doesn't.
-        return true;
-    }
-
     /** Returns the media format corresponding to an ExoPlayer format. */
     @SuppressLint("InlinedApi")
-    private static MediaFormat getMediaFormat(Format format) {
+    public static MediaFormat getMediaFormat(Format format) {
         MediaFormat mediaFormat = new MediaFormat();
         String mimeType = format.sampleMimeType;
         mediaFormat.setString(MediaFormat.KEY_MIME, mimeType);

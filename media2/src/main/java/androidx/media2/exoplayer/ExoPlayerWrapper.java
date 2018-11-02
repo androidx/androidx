@@ -18,12 +18,12 @@ package androidx.media2.exoplayer;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media2.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
+import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -39,31 +39,24 @@ import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaTimestamp2;
 import androidx.media2.PlaybackParams2;
+import androidx.media2.SubtitleData2;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.DefaultLoadControl;
-import androidx.media2.exoplayer.external.DefaultRenderersFactory;
 import androidx.media2.exoplayer.external.ExoPlaybackException;
 import androidx.media2.exoplayer.external.ExoPlayerFactory;
 import androidx.media2.exoplayer.external.Player;
-import androidx.media2.exoplayer.external.Renderer;
 import androidx.media2.exoplayer.external.SimpleExoPlayer;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
 import androidx.media2.exoplayer.external.audio.AudioCapabilities;
 import androidx.media2.exoplayer.external.audio.AudioListener;
 import androidx.media2.exoplayer.external.audio.AudioProcessor;
-import androidx.media2.exoplayer.external.audio.AudioRendererEventListener;
 import androidx.media2.exoplayer.external.audio.AuxEffectInfo;
 import androidx.media2.exoplayer.external.audio.DefaultAudioSink;
-import androidx.media2.exoplayer.external.audio.MediaCodecAudioRenderer;
-import androidx.media2.exoplayer.external.drm.DrmSessionManager;
-import androidx.media2.exoplayer.external.drm.FrameworkMediaCrypto;
-import androidx.media2.exoplayer.external.mediacodec.MediaCodecSelector;
 import androidx.media2.exoplayer.external.source.ClippingMediaSource;
 import androidx.media2.exoplayer.external.source.ConcatenatingMediaSource;
 import androidx.media2.exoplayer.external.source.MediaSource;
 import androidx.media2.exoplayer.external.source.TrackGroup;
 import androidx.media2.exoplayer.external.source.TrackGroupArray;
-import androidx.media2.exoplayer.external.trackselection.DefaultTrackSelector;
 import androidx.media2.exoplayer.external.trackselection.TrackSelectionArray;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.upstream.DefaultDataSourceFactory;
@@ -117,6 +110,9 @@ import java.util.List;
         /** Called when the video size of the specified media item has changed. */
         void onVideoSizeChanged(MediaItem2 mediaItem2, int width, int height);
 
+        /** Called when subtitle data is handled. */
+        void onSubtitleData2(MediaItem2 mediaItem2, SubtitleData2 subtitleData2);
+
         /** Called when playback transitions to the next media item. */
         void onMediaItem2StartedAsNext(MediaItem2 mediaItem2);
 
@@ -145,6 +141,7 @@ import java.util.List;
 
     private SimpleExoPlayer mPlayer;
     private DefaultAudioSink mAudioSink;
+    private TrackSelector mTrackSelector;
     private MediaItemQueue mMediaItemQueue;
 
     private boolean mHasAudioAttributes;
@@ -349,7 +346,19 @@ import java.util.List;
     }
 
     public List<MediaPlayer2.TrackInfo> getTrackInfo() {
-        return ExoPlayerUtils.getTrackInfo(mPlayer.getCurrentTrackGroups());
+        return mTrackSelector.getTrackInfos();
+    }
+
+    public int getSelectedTrack(int trackType) {
+        return mTrackSelector.getSelectedTrack(trackType);
+    }
+
+    public void selectTrack(int index) {
+        mTrackSelector.selectTrack(index);
+    }
+
+    public void deselectTrack(int index) {
+        mTrackSelector.deselectTrack(index);
     }
 
     @TargetApi(21)
@@ -395,17 +404,19 @@ import java.util.List;
             mPlayer.release();
             mMediaItemQueue.clear();
         }
+        ComponentListener listener = new ComponentListener();
         mAudioSink = new DefaultAudioSink(
                 AudioCapabilities.getCapabilities(mContext), new AudioProcessor[0]);
+        TextRenderer textRenderer = new TextRenderer(listener);
+        mTrackSelector = new TrackSelector(textRenderer);
         mPlayer = ExoPlayerFactory.newSimpleInstance(
                 mContext,
-                new AudioSinkRenderersFactory(mContext, mAudioSink),
-                new DefaultTrackSelector(),
+                new RenderersFactory(mContext, mAudioSink, textRenderer),
+                mTrackSelector.getPlayerTrackSelector(),
                 new DefaultLoadControl(),
                 /* drmSessionManager= */ null,
                 mLooper);
         mMediaItemQueue = new MediaItemQueue(mContext, mPlayer, mListener);
-        ComponentListener listener = new ComponentListener();
         mPlayer.addListener(listener);
         mPlayer.addVideoListener(listener);
         mVideoWidth = 0;
@@ -477,8 +488,19 @@ import java.util.List;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void handleTracksChanged() {
-        mListener.onMetadataChanged(getCurrentMediaItem());
+    void handleTextRendererChannelAvailable(int type, int channel) {
+        mTrackSelector.handleTextRendererChannelAvailable(type, channel);
+        if (mTrackSelector.hasPendingMetadataUpdate()) {
+            mListener.onMetadataChanged(getCurrentMediaItem());
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void handlePlayerTracksChanged() {
+        mTrackSelector.handlePlayerTracksChanged(mPlayer);
+        if (mTrackSelector.hasPendingMetadataUpdate()) {
+            mListener.onMetadataChanged(getCurrentMediaItem());
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -505,6 +527,13 @@ import java.util.List;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handleAudioSessionId(int audioSessionId) {
         mAudioSessionId = audioSessionId;
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void handleSubtitleData2(byte[] data, long timeUs) {
+        int trackIndex = mTrackSelector.getSelectedTrack(MEDIA_TRACK_TYPE_SUBTITLE);
+        mListener.onSubtitleData2(getCurrentMediaItem(),
+                new SubtitleData2(trackIndex, timeUs, /* durationUs= */ 0L, data));
     }
 
     private void maybeUpdateTimerForPlaying() {
@@ -547,7 +576,7 @@ import java.util.List;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final class ComponentListener extends Player.DefaultEventListener
-            implements VideoListener, AudioListener {
+            implements VideoListener, AudioListener, TextRenderer.Output {
 
         // DefaultEventListener implementation.
 
@@ -559,7 +588,7 @@ import java.util.List;
         @Override
         public void onTracksChanged(
                 TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-            handleTracksChanged();
+            handlePlayerTracksChanged();
         }
 
         @Override
@@ -609,32 +638,16 @@ import java.util.List;
         @Override
         public void onVolumeChanged(float volume) {}
 
-    }
+        // TextRenderer.Output implementation.
 
-    // TODO(b/80232248): Upstream a setter for the audio session ID then remove this.
-    private static final class AudioSinkRenderersFactory extends DefaultRenderersFactory {
-
-        private final DefaultAudioSink mAudioSink;
-
-        AudioSinkRenderersFactory(Context context, DefaultAudioSink audioSink) {
-            super(context);
-            mAudioSink = audioSink;
+        @Override
+        public void onCcData(byte[] data, long timeUs) {
+            handleSubtitleData2(data, timeUs);
         }
 
         @Override
-        protected void buildAudioRenderers(Context context,
-                @Nullable DrmSessionManager<FrameworkMediaCrypto> drmSessionManager,
-                AudioProcessor[] audioProcessors, Handler eventHandler,
-                AudioRendererEventListener eventListener, int extensionRendererMode,
-                ArrayList<Renderer> out) {
-            out.add(new MediaCodecAudioRenderer(
-                    context,
-                    MediaCodecSelector.DEFAULT,
-                    drmSessionManager,
-                    /* playClearSamplesWithoutKeys= */ false,
-                    eventHandler,
-                    eventListener,
-                    mAudioSink));
+        public void onChannelAvailable(int type, int channel) {
+            handleTextRendererChannelAvailable(type, channel);
         }
 
     }

@@ -17,6 +17,7 @@ package androidx.media2;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -466,6 +467,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         }
     }
 
+    // The pre-Pie implementation of MediaPlayer2 does not support MIDI playback.
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
@@ -1760,7 +1762,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         Vector<Integer> subtitleTrackIndex = new Vector<>();
         for (int i = 0; i < trackInfos.size(); ++i) {
-            assertTrue(trackInfos.get(i) != null);
+            assertNotNull(trackInfos.get(i));
             if (trackInfos.get(i).getTrackType()
                     == MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 subtitleTrackIndex.add(i);
@@ -1788,7 +1790,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testDeselectTrackForSubtitleTracks() throws Throwable {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
@@ -1840,7 +1842,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPlayCalled.reset();
         mPlayer.play();
         mOnPlayCalled.waitForSignal();
-        assertTrue(mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
+        assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
 
         // Closed caption tracks are in-band.
         // So, those tracks will be found after processing a number of frames.
@@ -1867,14 +1869,14 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         // Deselecting unselected track: expected error status
         mCallStatus = MediaPlayer2.CALL_STATUS_NO_ERROR;
         deselectSubtitleTrack(0);
-        assertTrue(mCallStatus != MediaPlayer2.CALL_STATUS_NO_ERROR);
+        assertNotEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, mCallStatus);
 
         mPlayer.reset();
     }
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testChangeSubtitleTrack() throws Throwable {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
@@ -1901,7 +1903,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             @Override
             public void onSubtitleData(
                     MediaPlayer2 mp, MediaItem2 item, SubtitleData2 data) {
-                if (data != null && data.getData() != null) {
+                if (data != null) {
                     mOnSubtitleDataCalled.signal();
                 }
             }
@@ -1919,7 +1921,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPlayCalled.reset();
         mPlayer.play();
         mOnPlayCalled.waitForSignal();
-        assertTrue(mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
+        assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
 
         // Closed caption tracks are in-band.
         // So, those tracks will be found after processing a number of frames.
@@ -1943,7 +1945,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
     @Test
     @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetTrackInfoForVideoWithSubtitleTracks() throws Throwable {
         if (!checkLoadResource(R.raw.testvideo_with_2_subtitle_tracks)) {
             return; // skip;
@@ -1980,7 +1982,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         mOnPlayCalled.reset();
         mPlayer.play();
         mOnPlayCalled.waitForSignal();
-        assertTrue(mPlayer.getState() == MediaPlayer2.PLAYER_STATE_PLAYING);
+        assertEquals(MediaPlayer2.PLAYER_STATE_PLAYING, mPlayer.getState());
 
         // The media metadata will be changed while playing since closed caption tracks are in-band
         // and those tracks will be found after processing a number of frames. These tracks will be
