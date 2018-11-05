@@ -133,6 +133,31 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
+    public void testBuilder_copyConstructor() {
+        String longLabel = "Test long label";
+        ComponentName activity = new ComponentName("Package name", "Class name");
+        String disabledMessage = "Test disabled message";
+        Set<String> categories = new HashSet<>();
+        categories.add("cat1");
+        categories.add("cat2");
+        ShortcutInfoCompat compat = mBuilder
+                .setActivity(activity)
+                .setCategories(categories)
+                .setDisabledMessage(disabledMessage)
+                .setLongLabel(longLabel)
+                .build();
+
+        ShortcutInfoCompat copyCompat = new ShortcutInfoCompat.Builder(compat).build();
+        assertEquals(TEST_SHORTCUT_ID, copyCompat.getId());
+        assertEquals(TEST_SHORTCUT_SHORT_LABEL, copyCompat.getShortLabel());
+        assertEquals(mAction, copyCompat.getIntent());
+        assertEquals(longLabel, copyCompat.getLongLabel());
+        assertEquals(disabledMessage, copyCompat.getDisabledMessage());
+        assertEquals(activity, copyCompat.getActivity());
+        assertEquals(categories, copyCompat.getCategories());
+    }
+
+    @Test
     public void testBuilder_getters() {
         String longLabel = "Test long label";
         ComponentName activity = new ComponentName("Package name", "Class name");
