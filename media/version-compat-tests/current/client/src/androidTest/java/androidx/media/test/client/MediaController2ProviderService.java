@@ -31,7 +31,6 @@ import androidx.media.test.lib.TestUtils;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 import androidx.media2.MediaBrowser2;
 import androidx.media2.MediaController2;
-import androidx.media2.MediaItem2;
 import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.Rating2;
@@ -174,35 +173,28 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void setPlaylist(String controllerId, List<Bundle> list, Bundle metadata)
+        public void setPlaylist(String controllerId, List<String> list, Bundle metadata)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.setPlaylist(
-                    MediaTestUtils.mediaItem2ListFromBundleList(list),
-                    MediaMetadata2.fromBundle(metadata));
+            controller2.setPlaylist(list, MediaMetadata2.fromBundle(metadata));
         }
 
         @Override
         public void createAndSetDummyPlaylist(String controllerId, int size, Bundle listMetadata)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            List<MediaItem2> list = new ArrayList<>();
-            MediaItem2.Builder builder = new MediaItem2.Builder();
+            List<String> list = new ArrayList<>();
             for (int i = 0; i < size; i++) {
                 // Make media ID of each item same with its index.
-                MediaMetadata2 metadata = new MediaMetadata2.Builder()
-                        .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
-                                TestUtils.getMediaIdInDummyList(i))
-                        .build();
-                list.add(builder.setMetadata(metadata).build());
+                list.add(TestUtils.getMediaIdInDummyList(i));
             }
             controller2.setPlaylist(list, MediaMetadata2.fromBundle(listMetadata));
         }
 
         @Override
-        public void setMediaItem(String controllerId, Bundle item) throws RemoteException {
+        public void setMediaItem(String controllerId, String mediaId) throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.setMediaItem(MediaItem2.fromBundle(item));
+            controller2.setMediaItem(mediaId);
         }
 
         @Override
@@ -213,23 +205,23 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void addPlaylistItem(String controllerId, int index, Bundle item)
+        public void addPlaylistItem(String controllerId, int index, String mediaId)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.addPlaylistItem(index, MediaItem2.fromBundle(item));
+            controller2.addPlaylistItem(index, mediaId);
         }
 
         @Override
-        public void removePlaylistItem(String controllerId, Bundle item) throws RemoteException {
+        public void removePlaylistItem(String controllerId, int index) throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.removePlaylistItem(MediaItem2.fromBundle(item));
+            controller2.removePlaylistItem(index);
         }
 
         @Override
-        public void replacePlaylistItem(String controllerId, int index, Bundle item)
+        public void replacePlaylistItem(String controllerId, int index, String mediaId)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.replacePlaylistItem(index, MediaItem2.fromBundle(item));
+            controller2.replacePlaylistItem(index, mediaId);
         }
 
         @Override
@@ -245,9 +237,9 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void skipToPlaylistItem(String controllerId, Bundle item) throws RemoteException {
+        public void skipToPlaylistItem(String controllerId, int index) throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.skipToPlaylistItem(MediaItem2.fromBundle(item));
+            controller2.skipToPlaylistItem(index);
         }
 
         @Override

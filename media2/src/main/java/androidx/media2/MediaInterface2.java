@@ -53,12 +53,12 @@ class MediaInterface2 {
         ListenableFuture<PlayerResult> updatePlaylistMetadata(MediaMetadata2 metadata);
 
         MediaItem2 getCurrentMediaItem();
-        ListenableFuture<PlayerResult> skipToPlaylistItem(MediaItem2 item);
+        ListenableFuture<PlayerResult> skipToPlaylistItem(int index);
         ListenableFuture<PlayerResult> skipToPreviousItem();
         ListenableFuture<PlayerResult> skipToNextItem();
 
         ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem2 item);
-        ListenableFuture<PlayerResult> removePlaylistItem(MediaItem2 item);
+        ListenableFuture<PlayerResult> removePlaylistItem(int index);
         ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem2 item);
 
         int getRepeatMode();

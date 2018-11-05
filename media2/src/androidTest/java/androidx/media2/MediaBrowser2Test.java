@@ -357,7 +357,7 @@ public class MediaBrowser2Test extends MediaController2Test {
                     LibraryParams params) {
                 // This wouldn't be called at all.
                 return new LibraryResult(RESULT_CODE_SUCCESS,
-                        TestUtils.createPlaylist(testChildrenCount), null);
+                        TestUtils.createMediaItems(testChildrenCount), null);
             }
         };
         final CountDownLatch latch = new CountDownLatch(1);
@@ -410,7 +410,7 @@ public class MediaBrowser2Test extends MediaController2Test {
                     ControllerInfo controller, String parentId, int page, int pageSize,
                     LibraryParams params) {
                 return new LibraryResult(RESULT_CODE_SUCCESS,
-                        TestUtils.createPlaylist(testChildrenCount), null);
+                        TestUtils.createMediaItems(testChildrenCount), null);
             }
         };
         final BrowserCallback controllerCallbackProxy = new BrowserCallback() {
@@ -460,7 +460,7 @@ public class MediaBrowser2Test extends MediaController2Test {
                     ControllerInfo controller, String parentId, int page, int pageSize,
                     LibraryParams params) {
                 return new LibraryResult(RESULT_CODE_SUCCESS,
-                        TestUtils.createPlaylist(testChildrenCount), null);
+                        TestUtils.createMediaItems(testChildrenCount), null);
             }
         };
         final CountDownLatch latch = new CountDownLatch(1);
@@ -515,7 +515,7 @@ public class MediaBrowser2Test extends MediaController2Test {
                     ControllerInfo controller, String parentId, int page, int pageSize,
                     LibraryParams params) {
                 return new LibraryResult(RESULT_CODE_SUCCESS,
-                        TestUtils.createPlaylist(testChildrenCount), null);
+                        TestUtils.createMediaItems(testChildrenCount), null);
             }
         };
         final BrowserCallback controllerCallbackProxy = new BrowserCallback() {

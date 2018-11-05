@@ -333,7 +333,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testSetPlaylist() {
         prepareLooper();
-        final List<MediaItem2> list = TestUtils.createPlaylist(2);
+        final List<MediaItem2> list = TestUtils.createMediaItems(2);
         mSession.getPlayer().setPlaylist(list, null);
         assertTrue(mPlayer.mSetPlaylistCalled);
         assertSame(list, mPlayer.mPlaylist);
@@ -343,7 +343,7 @@ public class MediaSession2Test extends MediaSession2TestBase {
     @Test
     public void testGetPlaylist() {
         prepareLooper();
-        final List<MediaItem2> list = TestUtils.createPlaylist(2);
+        final List<MediaItem2> list = TestUtils.createMediaItems(2);
         mPlayer.mPlaylist = list;
         assertEquals(list, mSession.getPlayer().getPlaylist());
     }

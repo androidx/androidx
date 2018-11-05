@@ -461,20 +461,18 @@ public class MediaSession2 implements AutoCloseable {
          * Called when a controller has sent a command with a {@link MediaItem2} to add a new media
          * item to this session. Being specific, this will be called for following APIs.
          * <ol>
-         * <li>{@link MediaController2#addPlaylistItem(int, MediaItem2)}
-         * <li>{@link MediaController2#replacePlaylistItem(int, MediaItem2)}
+         * <li>{@link MediaController2#addPlaylistItem(int, String)}
+         * <li>{@link MediaController2#replacePlaylistItem(int, String)}
          * <li>{@link MediaController2#setPlaylist(List, MediaMetadata2)}
-         * <li>{@link MediaController2#setMediaItem(MediaItem2)}
+         * <li>{@link MediaController2#setMediaItem(String)}
          * </ol>
-         * Override this to translate incoming media items to be understood by your player. It's
-         * highly recommended to create and return a new media item here. Otherwise session player
-         * may reject the command.
+         * Override this to translate incoming {@code mediaId} to a {@link MediaItem2} to be
+         * understood by your player. For example, a player may only understand
+         * {@link FileMediaItem2}, {@link UriMediaItem2}, and {@link CallbackMediaItem2}. Check the
+         * documentation of the player that you're using.
          * <p>
-         * For example, a player may only understand {@link FileMediaItem2}, {@link UriMediaItem2},
-         * and {@link CallbackMediaItem2} while the media item from the controller would be
-         * sanitized not to contain subclass information. In that case you need to override this
-         * method to create a media item for player from given media item.
-         * <p>
+         * If the given media ID is valid, you should return the media item with the given media ID.
+         * If the ID doesn't match, an {@link RuntimeException} will be thrown.
          * You may return {@code null} if the given item is invalid. Here's the behavior when it
          * happens.
          * <table border="0" cellspacing="0" cellpadding="0">
@@ -490,17 +488,17 @@ public class MediaSession2 implements AutoCloseable {
          * This will be called on the same thread where {@link #onCommandRequest} and commands with
          * the media controller will be executed.
          * <p>
-         * Default implementation simply returns the media item from the controller although the
-         * player may ignore or throw an exception.
+         * Default implementation returns the {@code null}.
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param item incoming media item from the controller
-         * @return translated media item for player. Can be {@code null} to ignore
+         * @param mediaId incoming media item from the controller
+         * @return translated media item for player with the mediaId. Can be {@code null} to ignore.
+         * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
          */
         public @Nullable MediaItem2 onCreateMediaItem(@NonNull MediaSession2 session,
-                @NonNull ControllerInfo controller, @NonNull MediaItem2 item) {
-            return item;
+                @NonNull ControllerInfo controller, @NonNull String mediaId) {
+            return null;
         }
 
         /**

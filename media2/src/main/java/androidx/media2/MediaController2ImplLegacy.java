@@ -20,6 +20,7 @@ import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
 import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS;
 
+import static androidx.media2.BaseResult2.RESULT_CODE_BAD_VALUE;
 import static androidx.media2.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media2.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
 import static androidx.media2.MediaConstants2.ARGUMENT_PACKAGE_NAME;
@@ -55,6 +56,7 @@ import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -76,7 +78,6 @@ import androidx.media2.SessionPlayer2.ShuffleMode;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
 // TODO: Find better way to return listenable future.
@@ -149,7 +150,7 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     int mCurrentMediaItemIndex;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    MediaItem2 mSkipToPlaylistItem;
+    int mSkipToPlaylistIndex = -1;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mBufferedPosition;
@@ -599,13 +600,13 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     }
 
     @Override
-    public ListenableFuture<ControllerResult> setPlaylist(@NonNull List<MediaItem2> list,
+    public ListenableFuture<ControllerResult> setPlaylist(@NonNull List<String> list,
             @Nullable MediaMetadata2 metadata) {
         return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
     }
 
     @Override
-    public ListenableFuture<ControllerResult> setMediaItem(MediaItem2 item) {
+    public ListenableFuture<ControllerResult> setMediaItem(String mediaId) {
         return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
     }
 
@@ -627,45 +628,46 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     }
 
     @Override
-    public ListenableFuture<ControllerResult> addPlaylistItem(int index, @NonNull MediaItem2 item) {
+    public ListenableFuture<ControllerResult> addPlaylistItem(int index, @NonNull String mediaId) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return createFutureWithResult(RESULT_CODE_DISCONNECTED);
             }
             mControllerCompat.addQueueItem(
-                    MediaUtils2.convertToMediaMetadataCompat(item.getMetadata()).getDescription(),
-                    index);
+                    MediaUtils2.createMediaDescriptionCompat(mediaId), index);
         }
         return createFutureWithResult(RESULT_CODE_SUCCESS);
     }
 
     @Override
-    public ListenableFuture<ControllerResult> removePlaylistItem(@NonNull MediaItem2 item) {
+    public ListenableFuture<ControllerResult> removePlaylistItem(@NonNull int index) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return createFutureWithResult(RESULT_CODE_DISCONNECTED);
             }
-            mControllerCompat.removeQueueItem(
-                    MediaUtils2.convertToQueueItem(item).getDescription());
+            if (mQueue == null || index < 0 || index >= mQueue.size()) {
+                return createFutureWithResult(RESULT_CODE_BAD_VALUE);
+            }
+            mControllerCompat.removeQueueItem(mQueue.get(index).getDescription());
         }
         return createFutureWithResult(RESULT_CODE_SUCCESS);
     }
 
     @Override
     public ListenableFuture<ControllerResult> replacePlaylistItem(int index,
-            @NonNull MediaItem2 item) {
+            @NonNull String mediaId) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return createFutureWithResult(RESULT_CODE_DISCONNECTED);
             }
-            if (mPlaylist == null || mPlaylist.size() <= index) {
+            if (mPlaylist == null || index < 0 || mPlaylist.size() <= index) {
                 return createFutureWithResult(RESULT_CODE_DISCONNECTED);
             }
-            removePlaylistItem(mPlaylist.get(index));
-            addPlaylistItem(index, item);
+            removePlaylistItem(index);
+            addPlaylistItem(index, mediaId);
         }
         return createFutureWithResult(RESULT_CODE_SUCCESS);
     }
@@ -706,15 +708,15 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     }
 
     @Override
-    public ListenableFuture<ControllerResult> skipToPlaylistItem(@NonNull MediaItem2 item) {
+    public ListenableFuture<ControllerResult> skipToPlaylistItem(@NonNull int index) {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return createFutureWithResult(RESULT_CODE_DISCONNECTED);
             }
-            mSkipToPlaylistItem = item;
+            mSkipToPlaylistIndex = index;
             mControllerCompat.getTransportControls().skipToQueueItem(
-                    MediaUtils2.convertToQueueItem(item).getQueueId());
+                    mQueue.get(index).getQueueId());
         }
         return createFutureWithResult(RESULT_CODE_SUCCESS);
     }
@@ -977,27 +979,26 @@ class MediaController2ImplLegacy implements MediaController2Impl {
             return;
         }
 
-        if (mPlaylist == null) {
+        if (mQueue == null) {
             mCurrentMediaItemIndex = -1;
             mCurrentMediaItem = MediaUtils2.convertToMediaItem2(metadata);
             return;
         }
 
-        String mediaId = metadata.getString(METADATA_KEY_MEDIA_ID);
         if (mPlaybackStateCompat != null) {
-            // If playback state is updated before, compare UUID using queue id and media id.
-            UUID uuid = MediaUtils2.createUuidByQueueIdAndMediaId(
-                    mPlaybackStateCompat.getActiveQueueItemId(), mediaId);
-            for (int i = 0; i < mPlaylist.size(); ++i) {
-                MediaItem2 item = mPlaylist.get(i);
-                if (item != null && uuid.equals(item.getUuid())) {
-                    mCurrentMediaItem = item;
+            // If playback state is updated before, compare use queue id and media id.
+            long queueId = mPlaybackStateCompat.getActiveQueueItemId();
+            for (int i = 0; i < mQueue.size(); ++i) {
+                QueueItem item = mQueue.get(i);
+                if (item.getQueueId() == queueId) {
+                    mCurrentMediaItem = MediaUtils2.convertToMediaItem2(metadata);
                     mCurrentMediaItemIndex = i;
                     return;
                 }
             }
         }
 
+        String mediaId = metadata.getString(METADATA_KEY_MEDIA_ID);
         if (mediaId == null) {
             mCurrentMediaItemIndex = -1;
             mCurrentMediaItem = MediaUtils2.convertToMediaItem2(metadata);
@@ -1006,21 +1007,22 @@ class MediaController2ImplLegacy implements MediaController2Impl {
 
         // Need to find the media item in the playlist using mediaId.
         // Note that there can be multiple media items with the same media id.
-        if (mSkipToPlaylistItem != null && mediaId.equals(mSkipToPlaylistItem.getMediaId())) {
+        if (mSkipToPlaylistIndex >= 0 && mSkipToPlaylistIndex < mQueue.size()
+                && TextUtils.equals(mediaId,
+                        mQueue.get(mSkipToPlaylistIndex).getDescription().getMediaId())) {
             // metadata changed after skipToPlaylistIItem() was called.
-            mCurrentMediaItem = mSkipToPlaylistItem;
-            mCurrentMediaItemIndex = mPlaylist.indexOf(mSkipToPlaylistItem);
-            mSkipToPlaylistItem = null;
+            mCurrentMediaItem = MediaUtils2.convertToMediaItem2(metadata);
+            mCurrentMediaItemIndex = mSkipToPlaylistIndex;
+            mSkipToPlaylistIndex = -1;
             return;
         }
 
-        MediaItem2 item;
         // Find mediaId from the playlist.
-        for (int i = 0; i < mPlaylist.size(); ++i) {
-            item = mPlaylist.get(i);
-            if (item != null && mediaId.equals(item.getMediaId())) {
+        for (int i = 0; i < mQueue.size(); ++i) {
+            QueueItem item = mQueue.get(i);
+            if (TextUtils.equals(mediaId, item.getDescription().getMediaId())) {
                 mCurrentMediaItemIndex = i;
-                mCurrentMediaItem = item;
+                mCurrentMediaItem = MediaUtils2.convertToMediaItem2(metadata);
                 return;
             }
         }

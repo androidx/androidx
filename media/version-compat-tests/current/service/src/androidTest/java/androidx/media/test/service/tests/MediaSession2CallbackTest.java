@@ -36,6 +36,7 @@ import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.RemoteMediaController2;
 import androidx.media2.MediaItem2;
+import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.Rating2;
@@ -117,15 +118,15 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         mPlayer = new MockPlayer(1);
 
-        final List<MediaItem2> list = MediaTestUtils.createPlaylist(3);
+        final List<String> list = MediaTestUtils.createMediaIds(3);
         final List<MediaItem2> convertedList = MediaTestUtils.createPlaylist(list.size());
 
         final MockOnCommandCallback callback = new MockOnCommandCallback() {
             @Override
             public MediaItem2 onCreateMediaItem(MediaSession2 session,
-                    ControllerInfo controller, MediaItem2 item) {
+                    ControllerInfo controller, String mediaId) {
                 for (int i = 0; i < list.size(); i++) {
-                    if (Objects.equals(item, list.get(i))) {
+                    if (Objects.equals(mediaId, list.get(i))) {
                         return convertedList.get(i);
                     }
                 }
@@ -145,7 +146,11 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
             List<MediaItem2> playerList = mPlayer.getPlaylist();
             assertEquals(convertedList.size(), playerList.size());
             for (int i = 0; i < playerList.size(); i++) {
-                assertEquals(convertedList.get(i), playerList.get(i));
+                String expected = convertedList.get(i).getMetadata().getString(
+                        MediaMetadata2.METADATA_KEY_MEDIA_ID);
+                String actual = playerList.get(i).getMetadata().getString(
+                        MediaMetadata2.METADATA_KEY_MEDIA_ID);
+                assertEquals(expected, actual);
             }
         }
     }
