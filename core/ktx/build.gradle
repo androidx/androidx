@@ -25,6 +25,7 @@ dependencies {
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(TRUTH)
     androidTestImplementation(project(":internal-testutils-ktx"))
+    androidTestImplementation(GUAVA_LISTENABLE_FUTURE_AVOID_CONFLICT)
 }
 
 supportLibrary {
