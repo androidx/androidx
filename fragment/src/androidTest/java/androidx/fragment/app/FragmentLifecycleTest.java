@@ -17,6 +17,8 @@
 
 package androidx.fragment.app;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -1023,6 +1025,201 @@ public class FragmentLifecycleTest {
         fc2.saveAllState();
         fc2.dispatchStop();
         fc2.dispatchDestroy();
+    }
+
+    /**
+     * Test the availability of getTargetFragment() when the target fragment is
+     * not retained and the referrer fragment is not retained.
+     */
+    @Test
+    @UiThreadTest
+    public void targetFragmentNonRetainedNonRetained() {
+        final FragmentController fc = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm = fc.getSupportFragmentManager();
+
+        fc.attachHost(null);
+        fc.dispatchCreate();
+        fc.dispatchActivityCreated();
+        fc.noteStateNotSaved();
+        fc.execPendingActions();
+        fc.dispatchStart();
+        fc.dispatchResume();
+        fc.execPendingActions();
+
+        final Fragment target = new TargetFragment();
+        final Fragment referrer = new ReferrerFragment();
+        referrer.setTargetFragment(target, 0);
+
+        assertWithMessage("Target Fragment should be accessible before being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow();
+
+        assertWithMessage("Target Fragment should be accessible after being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        fm.beginTransaction()
+                .remove(referrer)
+                .commitNow();
+
+        assertWithMessage("Target Fragment should be accessible after being removed")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        fc.dispatchPause();
+        fc.dispatchStop();
+        fc.dispatchDestroy();
+    }
+
+    /**
+     * Test the availability of getTargetFragment() when the target fragment is
+     * retained and the referrer fragment is not retained.
+     */
+    @Test
+    @UiThreadTest
+    public void targetFragmentRetainedNonRetained() {
+        final FragmentController fc = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm = fc.getSupportFragmentManager();
+
+        fc.attachHost(null);
+        fc.dispatchCreate();
+        fc.dispatchActivityCreated();
+        fc.noteStateNotSaved();
+        fc.execPendingActions();
+        fc.dispatchStart();
+        fc.dispatchResume();
+        fc.execPendingActions();
+
+        final Fragment target = new TargetFragment();
+        target.setRetainInstance(true);
+        final Fragment referrer = new ReferrerFragment();
+        referrer.setTargetFragment(target, 0);
+
+        assertWithMessage("Target Fragment should be accessible before being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow();
+
+        assertWithMessage("Target Fragment should be accessible after being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        fm.beginTransaction()
+                .remove(referrer)
+                .commitNow();
+
+        assertWithMessage("Target Fragment should be accessible after being removed")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        fc.dispatchPause();
+        fc.dispatchStop();
+        fc.dispatchDestroy();
+    }
+
+    /**
+     * Test the availability of getTargetFragment() when the target fragment is
+     * not retained and the referrer fragment is retained.
+     */
+    @Test
+    @UiThreadTest
+    public void targetFragmentNonRetainedRetained() {
+        final FragmentController fc = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm = fc.getSupportFragmentManager();
+
+        fc.attachHost(null);
+        fc.dispatchCreate();
+        fc.dispatchActivityCreated();
+        fc.noteStateNotSaved();
+        fc.execPendingActions();
+        fc.dispatchStart();
+        fc.dispatchResume();
+        fc.execPendingActions();
+
+        final Fragment target = new TargetFragment();
+        final Fragment referrer = new ReferrerFragment();
+        referrer.setTargetFragment(target, 0);
+        referrer.setRetainInstance(true);
+
+        assertWithMessage("Target Fragment should be accessible before being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow();
+
+        assertWithMessage("Target Fragment should be accessible after being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        // Save the state
+        fc.dispatchPause();
+        fc.saveAllState();
+        fc.retainNestedNonConfig();
+        fc.dispatchStop();
+        fc.dispatchDestroy();
+
+
+        assertWithMessage("Target Fragment should be null after target Fragment destruction")
+                .that(referrer.getTargetFragment())
+                .isNull();
+    }
+
+    /**
+     * Test the availability of getTargetFragment() when the target fragment is
+     * retained and the referrer fragment is also retained.
+     */
+    @Test
+    @UiThreadTest
+    public void targetFragmentRetainedRetained() {
+        final FragmentController fc = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm = fc.getSupportFragmentManager();
+
+        fc.attachHost(null);
+        fc.dispatchCreate();
+        fc.dispatchActivityCreated();
+        fc.noteStateNotSaved();
+        fc.execPendingActions();
+        fc.dispatchStart();
+        fc.dispatchResume();
+        fc.execPendingActions();
+
+        final Fragment target = new TargetFragment();
+        target.setRetainInstance(true);
+        final Fragment referrer = new ReferrerFragment();
+        referrer.setRetainInstance(true);
+        referrer.setTargetFragment(target, 0);
+
+        assertWithMessage("Target Fragment should be accessible before being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow();
+
+        assertWithMessage("Target Fragment should be accessible after being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        // Save the state
+        fc.dispatchPause();
+        fc.saveAllState();
+        fc.retainNestedNonConfig();
+        fc.dispatchStop();
+        fc.dispatchDestroy();
+
+        assertWithMessage("Target Fragment should be accessible after FragmentManager destruction")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
     }
 
     @Test

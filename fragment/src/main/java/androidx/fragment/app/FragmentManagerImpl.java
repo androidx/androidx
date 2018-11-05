@@ -1039,6 +1039,15 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                                     f.mHost = null;
                                     f.mParentFragment = null;
                                     f.mFragmentManager = null;
+                                    if (f.mTargetWho != null) {
+                                        Fragment target = mActive.get(f.mTargetWho);
+                                        if (target != null && target.getRetainInstance()) {
+                                            // Only keep references to other retained Fragments
+                                            // to avoid developers accessing Fragments that
+                                            // are never coming back
+                                            f.mTarget = target;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -1338,6 +1347,11 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         mActive.put(f.mWho, null);
         removeRetainedFragment(f);
 
+        if (f.mTargetWho != null) {
+            // Restore the target Fragment so that it can be accessed
+            // even after the Fragment is removed.
+            f.mTarget = mActive.get(f.mTargetWho);
+        }
         f.initState();
     }
 
