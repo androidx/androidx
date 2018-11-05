@@ -17,11 +17,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 
-import static androidx.build.dependencies.DependenciesKt.JUNIT
-import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
-import static androidx.build.dependencies.DependenciesKt.TEST_RULES
-import static androidx.build.dependencies.DependenciesKt.TEST_RUNNER
-import static androidx.build.dependencies.DependenciesKt.TRUTH
+import static androidx.build.dependencies.DependenciesKt.*
 
 plugins {
     id("SupportAndroidLibraryPlugin")
@@ -46,6 +42,7 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(TRUTH)
+    androidTestImplementation(GUAVA_LISTENABLE_FUTURE_AVOID_CONFLICT)
 }
 
 supportLibrary {

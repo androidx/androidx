@@ -31,6 +31,7 @@ dependencies {
     androidTestImplementation project(':internal-testutils'), {
         exclude group: 'androidx.fragment', module: 'fragment'
     }
+    androidTestImplementation(GUAVA_LISTENABLE_FUTURE_AVOID_CONFLICT)
 }
 
 supportLibrary {
