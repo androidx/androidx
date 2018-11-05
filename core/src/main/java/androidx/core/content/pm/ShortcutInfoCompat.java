@@ -35,6 +35,7 @@ import androidx.core.app.Person;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -269,6 +270,30 @@ public class ShortcutInfoCompat {
             mInfo = new ShortcutInfoCompat();
             mInfo.mContext = context;
             mInfo.mId = id;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public Builder(@NonNull ShortcutInfoCompat shortcutInfo) {
+            mInfo = new ShortcutInfoCompat();
+            mInfo.mContext = shortcutInfo.mContext;
+            mInfo.mId = shortcutInfo.mId;
+            mInfo.mIntents = Arrays.copyOf(shortcutInfo.mIntents, shortcutInfo.mIntents.length);
+            mInfo.mActivity = shortcutInfo.mActivity;
+            mInfo.mLabel = shortcutInfo.mLabel;
+            mInfo.mLongLabel = shortcutInfo.mLongLabel;
+            mInfo.mDisabledMessage = shortcutInfo.mDisabledMessage;
+            mInfo.mIcon = shortcutInfo.mIcon;
+            mInfo.mIsAlwaysBadged = shortcutInfo.mIsAlwaysBadged;
+            mInfo.mIsLongLived = shortcutInfo.mIsLongLived;
+            if (shortcutInfo.mPersons != null) {
+                mInfo.mPersons = Arrays.copyOf(shortcutInfo.mPersons, shortcutInfo.mPersons.length);
+            }
+            if (shortcutInfo.mCategories != null) {
+                mInfo.mCategories = new HashSet<>(shortcutInfo.mCategories);
+            }
         }
 
         /**
