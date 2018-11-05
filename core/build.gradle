@@ -11,6 +11,8 @@ dependencies {
     api("androidx.collection:collection:1.0.0")
     api(ARCH_LIFECYCLE_RUNTIME, libs.exclude_annotations_transitive)
     api project(':versionedparcelable')
+    api(GUAVA_LISTENABLE_FUTURE)
+    implementation(project(":concurrent:concurrent-futures"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
