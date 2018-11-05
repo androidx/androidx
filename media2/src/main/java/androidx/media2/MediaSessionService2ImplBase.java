@@ -239,6 +239,11 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
                             }
                             return;
                         }
+                        if (DEBUG) {
+                            Log.d(TAG, "Handling incoming connection request from the controller"
+                                    + ", controller=" + packageName);
+
+                        }
                         final MediaSession2 session;
                         try {
                             session = service.onGetSession();
