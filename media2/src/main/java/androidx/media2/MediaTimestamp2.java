@@ -40,7 +40,7 @@ import androidx.annotation.RestrictTo;
  * When the anchor frame is a just-rendered one, the media time stands for
  * current position of the playback or recording.
  *
- * @see XMediaPlayer#getTimestamp
+ * @see MediaPlayer#getTimestamp
  */
 public final class MediaTimestamp2 {
     /**

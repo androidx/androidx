@@ -43,10 +43,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Base class for {@link XMediaPlayer} tests.
+ * Base class for {@link MediaPlayer} tests.
  */
-abstract class XMediaPlayerTestBase extends MediaTestBase {
-    private static final String TAG = "XMediaPlayerTest";
+abstract class MediaPlayerTestBase extends MediaTestBase {
+    private static final String TAG = "MediaPlayerTest";
 
     @Rule
     public ActivityTestRule<MediaStubActivity> mActivityRule =
@@ -56,7 +56,7 @@ abstract class XMediaPlayerTestBase extends MediaTestBase {
     Resources mResources;
     ExecutorService mExecutor;
 
-    XMediaPlayer mPlayer;
+    MediaPlayer mPlayer;
     MediaStubActivity mActivity;
     Instrumentation mInstrumentation;
 
@@ -75,11 +75,11 @@ abstract class XMediaPlayerTestBase extends MediaTestBase {
         try {
             mActivityRule.runOnUiThread(new Runnable() {
                 public void run() {
-                    mPlayer = new XMediaPlayer(mActivity);
+                    mPlayer = new MediaPlayer(mActivity);
                 }
             });
         } catch (Throwable e) {
-            Log.e(TAG, "Failed to instantiate XMediaPlayer", e);
+            Log.e(TAG, "Failed to instantiate MediaPlayer", e);
             fail(e.getMessage());
         }
         mContext = mActivityRule.getActivity();

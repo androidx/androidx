@@ -19,7 +19,7 @@ package androidx.media.widget;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.media2.XMediaPlayer;
+import androidx.media2.MediaPlayer;
 
 interface VideoViewInterface {
     /**
@@ -29,10 +29,10 @@ interface VideoViewInterface {
      * @return true if the surface is successfully assigned, false if not. It will fail to assign
      *         if any of MediaPlayer or surface is unavailable.
      */
-    boolean assignSurfaceToMediaPlayer(XMediaPlayer mp);
+    boolean assignSurfaceToMediaPlayer(MediaPlayer mp);
     void setSurfaceListener(SurfaceListener l);
     int getViewType();
-    void setMediaPlayer(XMediaPlayer mp);
+    void setMediaPlayer(MediaPlayer mp);
 
     /**
      * Takes over oldView. It means that the MediaPlayer will start rendering on this view.

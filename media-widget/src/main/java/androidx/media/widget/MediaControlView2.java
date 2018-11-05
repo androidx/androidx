@@ -67,13 +67,13 @@ import androidx.core.content.ContextCompat;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayer;
 import androidx.media2.MediaSession2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
 import androidx.media2.SessionToken2;
 import androidx.media2.UriMediaItem2;
-import androidx.media2.XMediaPlayer;
 import androidx.mediarouter.app.MediaRouteButton;
 import androidx.mediarouter.media.MediaRouteSelector;
 
@@ -85,7 +85,7 @@ import java.util.Locale;
 import java.util.concurrent.Executor;
 
 /**
- * A View that contains the controls for {@link XMediaPlayer}.
+ * A View that contains the controls for {@link MediaPlayer}.
  * It provides a wide range of buttons that serve the following functions: play/pause,
  * rewind/fast-forward, skip to next/previous, select subtitle track, enter/exit full screen mode,
  * adjust video quality, select audio track, and adjust playback speed.

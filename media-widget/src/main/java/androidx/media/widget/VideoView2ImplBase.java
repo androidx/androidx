@@ -51,6 +51,7 @@ import androidx.media.AudioAttributesCompat;
 import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaPlayer;
 import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaSession2;
 import androidx.media2.RemoteSessionPlayer2;
@@ -60,7 +61,6 @@ import androidx.media2.SessionPlayer2;
 import androidx.media2.SessionToken2;
 import androidx.media2.SubtitleData2;
 import androidx.media2.UriMediaItem2;
-import androidx.media2.XMediaPlayer;
 import androidx.media2.subtitle.Cea708CaptionRenderer;
 import androidx.media2.subtitle.ClosedCaptionRenderer;
 import androidx.media2.subtitle.SubtitleController;
@@ -760,7 +760,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     // TODO: move this method inside callback to make sure it runs inside the callback thread.
     Bundle extractTrackInfoData() {
-        List<XMediaPlayer.TrackInfo> trackInfos = mMediaPlayer.getTrackInfo();
+        List<MediaPlayer.TrackInfo> trackInfos = mMediaPlayer.getTrackInfo();
         mVideoTrackIndices = new ArrayList<>();
         mAudioTrackIndices = new ArrayList<>();
         mSubtitleTracks = new SparseArray<>();
@@ -956,11 +956,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mCurrentMusicView = newMusicView;
     }
 
-    XMediaPlayer.PlayerCallback mMediaPlayerCallback =
-            new XMediaPlayer.PlayerCallback() {
+    MediaPlayer.PlayerCallback mMediaPlayerCallback =
+            new MediaPlayer.PlayerCallback() {
                 @Override
                 public void onVideoSizeChanged(
-                        XMediaPlayer mp, MediaItem2 dsd, int width, int height) {
+                        MediaPlayer mp, MediaItem2 dsd, int width, int height) {
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): size: " + width + "/" + height);
                     }
@@ -983,7 +983,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 @Override
                 public void onInfo(
-                        XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
+                        MediaPlayer mp, MediaItem2 dsd, int what, int extra) {
                     if (DEBUG) {
                         Log.d(TAG, "onInfo()");
                     }
@@ -1005,7 +1005,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 @Override
                 public void onError(
-                        XMediaPlayer mp, MediaItem2 dsd, int frameworkErr, int implErr) {
+                        MediaPlayer mp, MediaItem2 dsd, int frameworkErr, int implErr) {
                     if (DEBUG) {
                         Log.d(TAG, "Error: " + frameworkErr + "," + implErr);
                     }
@@ -1023,7 +1023,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
                 @Override
                 public void onSubtitleData(
-                        XMediaPlayer mp, MediaItem2 dsd, SubtitleData2 data) {
+                        MediaPlayer mp, MediaItem2 dsd, SubtitleData2 data) {
                     if (DEBUG) {
                         Log.d(TAG, "onSubtitleData(): getTrackIndex: " + data.getTrackIndex()
                                 + ", getCurrentPosition: " + mp.getCurrentPosition()
@@ -1132,7 +1132,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                 }
 
-                private void onCompletion(XMediaPlayer mp, MediaItem2 dsd) {
+                private void onCompletion(MediaPlayer mp, MediaItem2 dsd) {
                     mCurrentState = STATE_PLAYBACK_COMPLETED;
                     mTargetState = STATE_PLAYBACK_COMPLETED;
                 }

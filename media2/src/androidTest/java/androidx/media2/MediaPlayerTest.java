@@ -63,8 +63,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-public class XMediaPlayerTest extends XMediaPlayerTestBase {
-    private static final String LOG_TAG = "XMediaPlayerTest";
+public class MediaPlayerTest extends MediaPlayerTestBase {
+    private static final String LOG_TAG = "MediaPlayerTest";
 
     private static final int SLEEP_TIME = 1000;
     private static final int WAIT_TIME_MS = 300;
@@ -137,10 +137,10 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         ListenableFuture<PlayerResult> future = mPlayer.prepare();
         assertEquals(RESULT_CODE_SUCCESS, future.get().getResultCode());
 
-        assertFalse(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertFalse(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
         future = mPlayer.play();
         assertEquals(RESULT_CODE_SUCCESS, future.get().getResultCode());
-        assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
         assertEquals(mp3Duration, mPlayer.getDuration(), tolerance);
         long pos = mPlayer.getCurrentPosition();
@@ -153,13 +153,13 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         future = mPlayer.pause();
         assertEquals(RESULT_CODE_SUCCESS, future.get().getResultCode());
-        assertFalse(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertFalse(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
         future = mPlayer.play();
         assertEquals(RESULT_CODE_SUCCESS, future.get().getResultCode());
-        assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
         // waiting to complete
-        while (mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING) {
+        while (mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING) {
             Thread.sleep(SLEEP_TIME);
         }
     }
@@ -178,9 +178,9 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         final TestUtils.Monitor onVideoSizeChangedCalled = new TestUtils.Monitor();
         final TestUtils.Monitor onVideoRenderingStartCalled = new TestUtils.Monitor();
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onVideoSizeChanged(XMediaPlayer mp, MediaItem2 dsd, int w, int h) {
+            public void onVideoSizeChanged(MediaPlayer mp, MediaItem2 dsd, int w, int h) {
                 if (w == 0 && h == 0) {
                     // A size of 0x0 can be sent initially one time when using NuPlayer.
                     assertFalse(onVideoSizeChangedCalled.isSignalled());
@@ -192,13 +192,13 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
             }
 
             @Override
-            public void onError(XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
+            public void onError(MediaPlayer mp, MediaItem2 dsd, int what, int extra) {
                 fail("Media player had error " + what + " playing video");
             }
 
             @Override
-            public void onInfo(XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
-                if (what == XMediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+            public void onInfo(MediaPlayer mp, MediaItem2 dsd, int what, int extra) {
+                if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
                     onVideoRenderingStartCalled.signal();
                 }
             }
@@ -214,7 +214,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         mPlayer.setPlayerVolume(volume);
 
         // waiting to complete
-        while (mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING) {
+        while (mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING) {
             Thread.sleep(SLEEP_TIME);
         }
 
@@ -266,34 +266,34 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         final int tolerance = 70;
 
         mPlayer.setSurface(mActivity.getSurfaceHolder2().getSurface());
-        assertEquals(XMediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
-        assertEquals(XMediaPlayer.UNKNOWN_TIME, mPlayer.getDuration());
+        assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.UNKNOWN_TIME, mPlayer.getDuration());
 
         ListenableFuture<PlayerResult> future = mPlayer.prepare();
         assertEquals(RESULT_CODE_SUCCESS, future.get().getResultCode());
 
-        assertEquals(XMediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
         assertEquals(expectedDuration, mPlayer.getDuration(), tolerance);
     }
 
     @Test
     @SmallTest
     public void testGetCurrentPosition() throws Exception {
-        assertEquals(XMediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
-        assertEquals(XMediaPlayer.UNKNOWN_TIME, mPlayer.getCurrentPosition());
+        assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.UNKNOWN_TIME, mPlayer.getCurrentPosition());
     }
 
     @Test
     @SmallTest
     public void testGetBufferedPosition() throws Exception {
-        assertEquals(XMediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
-        assertEquals(XMediaPlayer.UNKNOWN_TIME, mPlayer.getBufferedPosition());
+        assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.UNKNOWN_TIME, mPlayer.getBufferedPosition());
     }
 
     @Test
     @SmallTest
     public void testGetPlaybackSpeed() throws Exception {
-        assertEquals(XMediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
         try {
             mPlayer.getPlaybackSpeed();
         } catch (Exception e) {
@@ -334,7 +334,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
             PlaybackParams2 pbp = mPlayer.getPlaybackParams();
             assertEquals(playbackRate, pbp.getSpeed(), FLOAT_TOLERANCE);
             assertTrue("The player should still be playing",
-                    mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+                    mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
             long playedMediaDurationMs = mPlayer.getCurrentPosition();
             int diff = Math.abs((int) (playedMediaDurationMs / playbackRate) - playTime);
@@ -478,7 +478,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
     private void readSubtitleTracks() throws Exception {
         mSubtitleTrackIndex.clear();
-        List<XMediaPlayer.TrackInfo> trackInfos = mPlayer.getTrackInfo();
+        List<MediaPlayer.TrackInfo> trackInfos = mPlayer.getTrackInfo();
         if (trackInfos == null || trackInfos.size() == 0) {
             return;
         }
@@ -520,16 +520,16 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         mInstrumentation.waitForIdleSync();
 
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onInfo(XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer mp, MediaItem2 dsd, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
                     mOnInfoCalled.signal();
                 }
             }
 
             @Override
-            public void onSubtitleData(XMediaPlayer mp, MediaItem2 dsd, SubtitleData2 data) {
+            public void onSubtitleData(MediaPlayer mp, MediaItem2 dsd, SubtitleData2 data) {
                 if (data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
@@ -539,7 +539,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
         mPlayer.prepare();
         mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
         // Closed caption tracks are in-band.
         // So, those tracks will be found after processing a number of frames.
@@ -575,9 +575,9 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
             fail();
         }
 
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onInfo(XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer mp, MediaItem2 dsd, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
                     mOnInfoCalled.signal();
                 }
@@ -585,7 +585,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
             @Override
             public void onSubtitleData(
-                    XMediaPlayer mp, MediaItem2 dsd, SubtitleData2 data) {
+                    MediaPlayer mp, MediaItem2 dsd, SubtitleData2 data) {
                 if (data != null && data.getData() != null) {
                     mOnSubtitleDataCalled.signal();
                 }
@@ -595,7 +595,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
         mPlayer.prepare();
         mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
         // Closed caption tracks are in-band.
         // So, those tracks will be found after processing a number of frames.
@@ -624,9 +624,9 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
             fail();
         }
 
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onInfo(XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
+            public void onInfo(MediaPlayer mp, MediaItem2 dsd, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_METADATA_UPDATE) {
                     mOnInfoCalled.signal();
                 }
@@ -636,7 +636,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
         mPlayer.prepare();
         mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
         // The media metadata will be changed while playing since closed caption tracks are in-band
         // and those tracks will be found after processing a number of frames. These tracks will be
@@ -661,10 +661,10 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         }
 
         final BlockingDeque<MediaTimestamp2> timestamps = new LinkedBlockingDeque<>();
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onMediaTimeDiscontinuity(
-                    XMediaPlayer mp, MediaItem2 dsd, MediaTimestamp2 timestamp) {
+                    MediaPlayer mp, MediaItem2 dsd, MediaTimestamp2 timestamp) {
                 timestamps.add(timestamp);
                 mOnMediaTimeDiscontinuityCalled.signal();
             }
@@ -719,15 +719,15 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
         mPlayer.prepare();
         mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
         // Test pause and restart.
         mPlayer.pause();
         Thread.sleep(SLEEP_TIME);
-        assertFalse(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertFalse(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
         mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
         // Test reset.
         mPlayer.reset();
@@ -735,12 +735,12 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
 
         mPlayer.prepare();
         mPlayer.play().get();
-        assertTrue(mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING);
+        assertTrue(mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING);
 
         // Test seek. Note: the seek position is cached and returned as the
         // current position so there's no point in comparing them.
         mPlayer.seekTo(duration - SLEEP_TIME, MediaPlayer2.SEEK_PREVIOUS_SYNC);
-        while (mPlayer.getPlayerState() == XMediaPlayer.PLAYER_STATE_PLAYING) {
+        while (mPlayer.getPlayerState() == MediaPlayer.PLAYER_STATE_PLAYING) {
             Thread.sleep(SLEEP_TIME);
         }
     }
@@ -772,10 +772,10 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
     public void testPlaybackFailsIfMedia2DataSourceThrows() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
 
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onError(
-                    XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
+                    MediaPlayer mp, MediaItem2 dsd, int what, int extra) {
                 mOnErrorCalled.signal();
             }
         };
@@ -802,10 +802,10 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
                 TestDataSourceCallback2.fromAssetFd(mResources.openRawResourceFd(resid));
         mPlayer.setMediaItem(new CallbackMediaItem2.Builder(dataSource).build());
 
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onError(
-                    XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
+                    MediaPlayer mp, MediaItem2 dsd, int what, int extra) {
                 mOnErrorCalled.signal();
             }
         };
@@ -821,7 +821,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
     @Test
     @LargeTest
     public void testPreservePlaybackProperties() throws Exception {
-        /* TODO: enable this test once XMediaPlayer has playlist implementation.
+        /* TODO: enable this test once MediaPlayer has playlist implementation.
         final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start1 = 6000;
         final long end1 = 7000;
@@ -846,7 +846,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         mPlayer.setNextMediaItem(dsd2);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onInfo(MediaPlayer2 mp, MediaItem2 dsd, int what, int extra) {
                 if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
@@ -936,9 +936,9 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
             }
         };
 
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onError(XMediaPlayer mp, MediaItem2 dsd, int what, int extra) {
+            public void onError(MediaPlayer mp, MediaItem2 dsd, int what, int extra) {
                 mOnErrorCalled.signal();
             }
         };
@@ -971,33 +971,33 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         ListenableFuture<PlayerResult> future;
-        assertEquals(XMediaPlayer.BUFFERING_STATE_UNKNOWN, mPlayer.getBufferingState());
-        assertEquals(XMediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.BUFFERING_STATE_UNKNOWN, mPlayer.getBufferingState());
+        assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
 
         future = mPlayer.prepare();
         assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
 
-        assertEquals(XMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
+        assertEquals(MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
                 mPlayer.getBufferingState());
-        assertEquals(XMediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
 
         future = mPlayer.play();
         assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
 
-        assertEquals(XMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
+        assertEquals(MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
                 mPlayer.getBufferingState());
-        assertEquals(XMediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.PLAYER_STATE_PLAYING, mPlayer.getPlayerState());
 
         future = mPlayer.pause();
         assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
 
-        assertEquals(XMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
+        assertEquals(MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE,
                 mPlayer.getBufferingState());
-        assertEquals(XMediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.PLAYER_STATE_PAUSED, mPlayer.getPlayerState());
 
         mPlayer.reset();
-        assertEquals(XMediaPlayer.BUFFERING_STATE_UNKNOWN, mPlayer.getBufferingState());
-        assertEquals(XMediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.BUFFERING_STATE_UNKNOWN, mPlayer.getBufferingState());
+        assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
     }
 
     @Test
@@ -1017,7 +1017,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         final TestUtils.Monitor onPlaybackSpeedChanged = new TestUtils.Monitor();
         final AtomicReference<Float> playbackSpeed = new AtomicReference<>();
 
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onPlayerStateChanged(SessionPlayer2 player, int state) {
                 playerState.set(state);
@@ -1050,16 +1050,16 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         future = mPlayer.prepare();
         do {
             assertTrue(onBufferingStateChangedCalled.waitForSignal(1000));
-        } while (bufferingState.get() != XMediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED);
+        } while (bufferingState.get() != MediaPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED);
 
         assertEquals(MediaPlayer2.CALL_STATUS_NO_ERROR, future.get().getResultCode());
 
         do {
             assertTrue(onPlayerStateChangedCalled.waitForSignal(1000));
-        } while (playerState.get() != XMediaPlayer.PLAYER_STATE_PAUSED);
+        } while (playerState.get() != MediaPlayer.PLAYER_STATE_PAUSED);
         do {
             assertTrue(onBufferingStateChangedCalled.waitForSignal(1000));
-        } while (bufferingState.get() != XMediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
+        } while (bufferingState.get() != MediaPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE);
 
         onSeekCompleteCalled.reset();
         mPlayer.seekTo(mp4Duration >> 1);
@@ -1072,7 +1072,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         } while (Math.abs(playbackSpeed.get() - 0.5f) > FLOAT_TOLERANCE);
 
         mPlayer.reset();
-        assertEquals(XMediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
+        assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
 
         mPlayer.unregisterPlayerCallback(callback);
     }
@@ -1138,9 +1138,9 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
                 mTestSource.close();
             }
         };
-        XMediaPlayer.PlayerCallback ecb = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback ecb = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onError(XMediaPlayer mp, MediaItem2 item, int what, int extra) {
+            public void onError(MediaPlayer mp, MediaItem2 item, int what, int extra) {
                 mOnErrorCalled.signal();
             }
         };
@@ -1175,7 +1175,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
     @SmallTest
     public void testSetAndGetShuflleMode() throws Exception {
         final TestUtils.Monitor onShuffleModeChangedMonitor = new TestUtils.Monitor();
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onShuffleModeChanged(SessionPlayer2 player, int shuffleMode) {
                 mPlayerCbArg1 = player;
@@ -1231,7 +1231,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
     @SmallTest
     public void testSetAndGetRepeatMode() throws Exception {
         final TestUtils.Monitor onRepeatModeChangedMonitor = new TestUtils.Monitor();
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onRepeatModeChanged(SessionPlayer2 player, int repeatMode) {
                 mPlayerCbArg1 = player;
@@ -1443,7 +1443,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         MediaItem2 item = createMediaItem(100);
 
         final TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onCurrentMediaItemChanged(SessionPlayer2 player, MediaItem2 item) {
                 onCurrentMediaItemChangedMonitor.signal();
@@ -1463,7 +1463,7 @@ public class XMediaPlayerTest extends XMediaPlayerTestBase {
         List<MediaItem2> playlist = createPlaylist(listSize);
 
         final TestUtils.Monitor onCurrentMediaItemChangedMonitor = new TestUtils.Monitor();
-        XMediaPlayer.PlayerCallback callback = new XMediaPlayer.PlayerCallback() {
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
             public void onCurrentMediaItemChanged(SessionPlayer2 player, MediaItem2 item) {
                 onCurrentMediaItemChangedMonitor.signal();
