@@ -149,8 +149,9 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              * @see LibraryParams
              */
             public @NonNull LibraryResult onGetChildren(@NonNull MediaLibrarySession session,
-                    @NonNull ControllerInfo controller, @NonNull String parentId, int page,
-                    int pageSize, @Nullable LibraryParams params) {
+                    @NonNull ControllerInfo controller, @NonNull String parentId,
+                    @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
+                    @Nullable LibraryParams params) {
                 return new LibraryResult(RESULT_CODE_NOT_SUPPORTED);
             }
 
@@ -245,7 +246,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              */
             public @NonNull LibraryResult onGetSearchResult(
                     @NonNull MediaLibrarySession session, @NonNull ControllerInfo controller,
-                    @NonNull String query, int page, int pageSize, @Nullable LibraryParams params) {
+                    @NonNull String query, @IntRange(from = 0) int page,
+                    @IntRange(from = 1) int pageSize, @Nullable LibraryParams params) {
                 return new LibraryResult(RESULT_CODE_NOT_SUPPORTED);
             }
         }

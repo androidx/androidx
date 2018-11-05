@@ -55,8 +55,8 @@ package androidx.media2 {
 
   public static class MediaBrowser2.BrowserCallback extends androidx.media2.MediaController2.ControllerCallback {
     ctor public MediaBrowser2.BrowserCallback();
-    method public void onChildrenChanged(androidx.media2.MediaBrowser2, String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
-    method public void onSearchResultChanged(androidx.media2.MediaBrowser2, String, int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public void onChildrenChanged(androidx.media2.MediaBrowser2, String, @IntRange(from=0) int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public void onSearchResultChanged(androidx.media2.MediaBrowser2, String, @IntRange(from=0) int, androidx.media2.MediaLibraryService2.LibraryParams?);
   }
 
   public static class MediaBrowser2.BrowserResult extends androidx.versionedparcelable.CustomVersionedParcelable {
@@ -257,10 +257,10 @@ package androidx.media2 {
 
   public static class MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback extends androidx.media2.MediaSession2.SessionCallback {
     ctor public MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback();
-    method public androidx.media2.MediaLibraryService2.LibraryResult onGetChildren(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, int, int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public androidx.media2.MediaLibraryService2.LibraryResult onGetChildren(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, @IntRange(from=0) int, @IntRange(from=1) int, androidx.media2.MediaLibraryService2.LibraryParams?);
     method public androidx.media2.MediaLibraryService2.LibraryResult onGetItem(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String);
     method public androidx.media2.MediaLibraryService2.LibraryResult onGetLibraryRoot(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, androidx.media2.MediaLibraryService2.LibraryParams?);
-    method public androidx.media2.MediaLibraryService2.LibraryResult onGetSearchResult(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, int, int, androidx.media2.MediaLibraryService2.LibraryParams?);
+    method public androidx.media2.MediaLibraryService2.LibraryResult onGetSearchResult(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, @IntRange(from=0) int, @IntRange(from=1) int, androidx.media2.MediaLibraryService2.LibraryParams?);
     method public int onSearch(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, androidx.media2.MediaLibraryService2.LibraryParams?);
     method public int onSubscribe(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String, androidx.media2.MediaLibraryService2.LibraryParams?);
     method public int onUnsubscribe(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String);
