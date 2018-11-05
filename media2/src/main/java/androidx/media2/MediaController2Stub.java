@@ -396,6 +396,8 @@ class MediaController2Stub extends IMediaController2.Stub {
         browser.getCallbackExecutor().execute(new Runnable() {
             @Override
             public void run() {
+                // TODO (b/118472216): Find all ParcelUtils.fromParcelable usages, and null check
+                // before calling it.
                 browser.getCallback().onChildrenChanged(browser, parentId, itemCount,
                         (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
             }
