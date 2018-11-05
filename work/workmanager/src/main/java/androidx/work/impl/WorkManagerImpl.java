@@ -364,32 +364,32 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> cancelWorkByIdInternal(@NonNull UUID id) {
+    public @NonNull Operation cancelWorkByIdInternal(@NonNull UUID id) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forId(id, this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
-        return runnable.getFuture();
+        return runnable.getOperation();
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> cancelAllWorkByTagInternal(@NonNull final String tag) {
+    public @NonNull Operation cancelAllWorkByTagInternal(@NonNull final String tag) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forTag(tag, this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
-        return runnable.getFuture();
+        return runnable.getOperation();
     }
 
     @Override
     @NonNull
-    public ListenableFuture<Void> cancelUniqueWorkInternal(@NonNull String uniqueWorkName) {
+    public Operation cancelUniqueWorkInternal(@NonNull String uniqueWorkName) {
         CancelWorkRunnable runnable = CancelWorkRunnable.forName(uniqueWorkName, this, true);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
-        return runnable.getFuture();
+        return runnable.getOperation();
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> cancelAllWorkInternal() {
+    public @NonNull Operation cancelAllWorkInternal() {
         CancelWorkRunnable runnable = CancelWorkRunnable.forAll(this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
-        return runnable.getFuture();
+        return runnable.getOperation();
     }
 
     @Override
@@ -416,10 +416,10 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     @Override
-    public @NonNull ListenableFuture<Void> pruneWorkInternal() {
+    public @NonNull Operation pruneWorkInternal() {
         PruneWorkRunnable runnable = new PruneWorkRunnable(this);
         mWorkTaskExecutor.executeOnBackgroundThread(runnable);
-        return runnable.getFuture();
+        return runnable.getOperation();
     }
 
     @Override

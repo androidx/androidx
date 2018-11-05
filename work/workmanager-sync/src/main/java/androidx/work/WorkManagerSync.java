@@ -216,7 +216,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void cancelWorkById(@NonNull UUID id)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.cancelWorkByIdInternal(id).get();
+        mWorkManagerImpl.cancelWorkByIdInternal(id).getResult().get();
     }
 
     /**
@@ -231,7 +231,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void cancelAllWorkByTag(@NonNull String tag)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.cancelAllWorkByTagInternal(tag).get();
+        mWorkManagerImpl.cancelAllWorkByTagInternal(tag).getResult().get();
     }
 
     /**
@@ -246,7 +246,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void cancelUniqueWork(@NonNull String uniqueWorkName)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.cancelUniqueWorkInternal(uniqueWorkName).get();
+        mWorkManagerImpl.cancelUniqueWorkInternal(uniqueWorkName).getResult().get();
     }
 
     /**
@@ -259,7 +259,7 @@ public final class WorkManagerSync {
      */
     @WorkerThread
     public void cancelAllWork() throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.cancelAllWorkInternal().get();
+        mWorkManagerImpl.cancelAllWorkInternal().getResult().get();
     }
 
     /**
@@ -279,6 +279,6 @@ public final class WorkManagerSync {
      */
     @WorkerThread
     public void pruneWork() throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.pruneWorkInternal().get();
+        mWorkManagerImpl.pruneWorkInternal().getResult().get();
     }
 }

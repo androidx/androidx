@@ -18,12 +18,11 @@ package androidx.work.impl.utils;
 
 import android.support.annotation.RestrictTo;
 
+import androidx.work.Operation;
+import androidx.work.impl.OperationImpl;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
-import androidx.work.impl.utils.futures.SettableFuture;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * A Runnable that prunes work in the background.  Pruned work meets the following criteria:
@@ -36,16 +35,20 @@ import com.google.common.util.concurrent.ListenableFuture;
 public class PruneWorkRunnable implements Runnable {
 
     private final WorkManagerImpl mWorkManagerImpl;
-    private final SettableFuture<Void> mFuture;
+    private final OperationImpl mOperation;
 
     public PruneWorkRunnable(WorkManagerImpl workManagerImpl) {
         mWorkManagerImpl = workManagerImpl;
-        mFuture = SettableFuture.create();
+        mOperation = new OperationImpl();
     }
 
-    public ListenableFuture<Void> getFuture() {
-        return mFuture;
+    /**
+     * @return The {@link Operation} that encapsulates the state of the {@link PruneWorkRunnable}.
+     */
+    public Operation getOperation() {
+        return mOperation;
     }
+
 
     @Override
     public void run() {
@@ -53,9 +56,9 @@ public class PruneWorkRunnable implements Runnable {
             WorkDatabase workDatabase = mWorkManagerImpl.getWorkDatabase();
             WorkSpecDao workSpecDao = workDatabase.workSpecDao();
             workSpecDao.pruneFinishedWorkWithZeroDependentsIgnoringKeepForAtLeast();
-            mFuture.set(null);
+            mOperation.setState(Operation.SUCCESS);
         } catch (Throwable exception) {
-            mFuture.setException(exception);
+            mOperation.setState(new Operation.State.FAILURE(exception));
         }
     }
 }

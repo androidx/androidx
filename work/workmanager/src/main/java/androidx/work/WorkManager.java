@@ -426,12 +426,12 @@ public abstract class WorkManager {
      * policy and work that is already executing may continue to run.
      *
      * @param id The id of the work
-     * @return A {@link ListenableFuture} that completes when the cancelWorkById operation is
+     * @return An {@link Operation} that can be used to determine when the cancelWorkById has
      * completed
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract @NonNull ListenableFuture<Void> cancelWorkByIdInternal(@NonNull UUID id);
+    public abstract @NonNull Operation cancelWorkByIdInternal(@NonNull UUID id);
 
     /**
      * Cancels all unfinished work with the given tag.  Note that cancellation is a best-effort
@@ -449,12 +449,12 @@ public abstract class WorkManager {
      * policy and work that is already executing may continue to run.
      *
      * @param tag The tag used to identify the work
-     * @return A {@link ListenableFuture} that completes when the cancelAllWorkByTag operation is
+     * @return An {@link Operation} that can be used to determine when the cancelAllWorkByTag has
      * completed
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract @NonNull ListenableFuture<Void> cancelAllWorkByTagInternal(@NonNull String tag);
+    public abstract @NonNull Operation cancelAllWorkByTagInternal(@NonNull String tag);
 
     /**
      * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
@@ -472,13 +472,12 @@ public abstract class WorkManager {
      * a best-effort policy and work that is already executing may continue to run.
      *
      * @param uniqueWorkName The unique name used to identify the chain of work
-     * @return A {@link ListenableFuture} that completes when the cancelUniqueWork operation is
+     * @return An {@link Operation} that can be used to determine when the cancelUniqueWork has
      * completed
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract @NonNull
-            ListenableFuture<Void> cancelUniqueWorkInternal(@NonNull String uniqueWorkName);
+    public abstract @NonNull Operation cancelUniqueWorkInternal(@NonNull String uniqueWorkName);
 
     /**
      * Cancels all unfinished work.  <b>Use this method with extreme caution!</b>  By invoking it,
@@ -495,12 +494,12 @@ public abstract class WorkManager {
      * you will potentially affect other modules or libraries in your codebase.  It is strongly
      * recommended that you use one of the other cancellation methods at your disposal.
      *
-     * @return A {@link ListenableFuture} that completes when the cancelAllWork operation is
+     * @return An {@link Operation} that can be used to determine when the cancelAllWork has
      * completed
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract @NonNull ListenableFuture<Void> cancelAllWorkInternal();
+    public abstract @NonNull Operation cancelAllWorkInternal();
 
     /**
      * Prunes all eligible finished work from the internal database.  Eligible work must be finished
@@ -529,12 +528,12 @@ public abstract class WorkManager {
      * after a sane period of time.  This method also ignores the
      * {@link OneTimeWorkRequest.Builder#keepResultsForAtLeast(long, TimeUnit)} policy.
      *
-     * @return A {@link ListenableFuture} that completes when the pruneWork operation is
+     * @return An {@link Operation} that can be used to determine when the pruneWork has
      * completed
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract @NonNull ListenableFuture<Void> pruneWorkInternal();
+    public abstract @NonNull Operation pruneWorkInternal();
 
     /**
      * Gets a {@link LiveData} of the last time all work was cancelled.  This method is intended for
