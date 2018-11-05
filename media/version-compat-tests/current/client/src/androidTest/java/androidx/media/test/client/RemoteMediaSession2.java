@@ -169,7 +169,7 @@ public class RemoteMediaSession2 {
             bundle.putBundle(KEY_MEDIA_ITEM, currentItem.toBundle());
         }
         if (metadata != null) {
-            bundle.putBundle(KEY_METADATA, metadata.toBundle());
+            ParcelUtils.putVersionedParcelable(bundle, KEY_METADATA, metadata);
         }
         return bundle;
     }

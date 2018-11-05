@@ -142,7 +142,7 @@ public class RemoteMediaController2 {
     public void setPlaylist(@NonNull List<String> list, @Nullable MediaMetadata2 metadata) {
         try {
             mBinder.setPlaylist(mControllerId, list,
-                    metadata == null ? null : metadata.toBundle());
+                    (ParcelImpl) ParcelUtils.toParcelable(metadata));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call setPlaylist()");
         }
@@ -157,7 +157,7 @@ public class RemoteMediaController2 {
     public void createAndSetDummyPlaylist(int size, @Nullable MediaMetadata2 metadata) {
         try {
             mBinder.createAndSetDummyPlaylist(mControllerId, size,
-                    metadata == null ? null : metadata.toBundle());
+                    (ParcelImpl) ParcelUtils.toParcelable(metadata));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call createAndSetDummyPlaylist()");
         }
@@ -174,7 +174,7 @@ public class RemoteMediaController2 {
     public void updatePlaylistMetadata(@Nullable MediaMetadata2 metadata) {
         try {
             mBinder.updatePlaylistMetadata(mControllerId,
-                    metadata == null ? null : metadata.toBundle());
+                    (ParcelImpl) ParcelUtils.toParcelable(metadata));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call updatePlaylistMetadata()");
         }

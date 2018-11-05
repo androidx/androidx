@@ -58,9 +58,9 @@ oneway interface IMediaSession2 {
     void setPlaybackSpeed(IMediaController2 caller, int seq, float speed) = 21;
 
     void setPlaylist(IMediaController2 caller, int seq, in List<String> list,
-            in Bundle metadata) = 22;
+            in ParcelImpl metadata) = 22;
     void setMediaItem(IMediaController2 caller, int seq, String mediaId) = 23;
-    void updatePlaylistMetadata(IMediaController2 caller, int seq, in Bundle metadata) = 24;
+    void updatePlaylistMetadata(IMediaController2 caller, int seq, in ParcelImpl metadata) = 24;
     void addPlaylistItem(IMediaController2 caller, int seq, int index, String mediaId) = 25;
     void removePlaylistItem(IMediaController2 caller, int seq, int index) = 26;
     void replacePlaylistItem(IMediaController2 caller, int seq, int index, String mediaId) = 27;
