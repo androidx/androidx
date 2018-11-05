@@ -597,6 +597,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @Override
     public void onCustomCommand(final IMediaController2 caller, final int seq,
             final ParcelImpl command, final Bundle args) {
+        // TODO (b/118472216): Return if the command is null.
         final SessionCommand2 sessionCommand = ParcelUtils.fromParcelable(command);
         dispatchSessionTask(caller, seq, sessionCommand, new SessionCallbackTask<SessionResult>() {
             @Override
@@ -736,7 +737,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                         }
                         if (rating2 == null) {
                             Log.w(TAG,
-                                    "setRating(): Ignoring null ratingBundle from " + controller);
+                                    "setRating(): Ignoring null rating from " + controller);
                             return RESULT_CODE_BAD_VALUE;
                         }
                         return mSessionImpl.getCallback().onSetRating(
@@ -956,6 +957,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     @Override
     public void selectRoute(IMediaController2 caller, int seq, final Bundle route) {
         if (MediaUtils2.isUnparcelableBundle(route)) {
+            // TODO (b/118472216): Prevent app crash from illegal binder call.
             throw new RuntimeException("Unexpected route bundle: " + route);
         }
         dispatchSessionTask(caller, seq,
