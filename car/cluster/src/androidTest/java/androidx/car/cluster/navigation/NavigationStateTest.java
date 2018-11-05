@@ -16,6 +16,8 @@
 
 package androidx.car.cluster.navigation;
 
+import static androidx.car.cluster.navigation.utils.Assertions.assertImmutable;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
@@ -145,28 +147,19 @@ public class NavigationStateTest {
     }
 
     /**
-     * Tests that {@link NavigationState#mDestinations} is immutable.
+     * Tests that {@link NavigationState} is immutable.
      */
-    @Test(expected = UnsupportedOperationException.class)
-    public void immutableDestionationsLists() {
-        NavigationState state = createEmptyState();
-        state.getDestinations().add(new Destination.Builder().build());
-    }
-
-    /**
-     * Tests that {@link NavigationState#mSteps} is immutable.
-     */
-    @Test(expected = UnsupportedOperationException.class)
-    public void immutableStepsLists() {
-        NavigationState state = createEmptyState();
-        state.getSteps().add(new Step.Builder().build());
+    @Test
+    public void immutability() {
+        assertImmutable(createEmptyState().getDestinations());
+        assertImmutable(createEmptyState().getSteps());
     }
 
     /**
      * Test a few equality conditions
      */
     @Test
-    public void equalityTest() {
+    public void equality() {
         // Testing empty nav state cases
         assertEquals(new NavigationState(), new NavigationState.Builder().build());
         assertEquals(new NavigationState(), new NavigationState.Builder()
@@ -234,36 +227,7 @@ public class NavigationStateTest {
 
     private NavigationState createSampleState() {
         return new NavigationState.Builder()
-                .addStep(new Step.Builder()
-                        .setManeuver(new Maneuver.Builder()
-                                .setType(Maneuver.Type.DEPART).build())
-                        .setDistance(new Distance(10, "10", Distance.Unit.METERS))
-                        .addLane(new Lane.Builder()
-                                .addDirection(new LaneDirection.Builder()
-                                        .setShape(LaneDirection.Shape.NORMAL_LEFT)
-                                        .setHighlighted(true)
-                                        .build())
-                                .addDirection(new LaneDirection.Builder()
-                                        .setShape(LaneDirection.Shape.STRAIGHT)
-                                        .setHighlighted(true)
-                                        .build())
-                                .build())
-                        .addLane(new Lane.Builder()
-                                .addDirection(new LaneDirection.Builder()
-                                        .setShape(LaneDirection.Shape.SHARP_LEFT)
-                                        .build())
-                                .addDirection(new LaneDirection.Builder()
-                                        .setShape(LaneDirection.Shape.NORMAL_LEFT)
-                                        .build())
-                                .build())
-                        .build())
-                .addStep(new Step.Builder()
-                        .setManeuver(new Maneuver.Builder()
-                                .setType(Maneuver.Type.ROUNDABOUT_EXIT)
-                                .setRoundaboutExitNumber(2)
-                                .build())
-                        .setDistance(new Distance(15, "15", Distance.Unit.METERS))
-                        .build())
+                .addStep(StepTest.createSampleStep())
                 .addDestination(new Destination.Builder()
                         .setTitle("Home")
                         .setDistance(new Distance(1230, "1.2", Distance.Unit.KILOMETERS))

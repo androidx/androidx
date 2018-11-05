@@ -108,8 +108,8 @@ public final class LaneDirection implements VersionedParcelable {
      * Builder for creating a {@link LaneDirection}
      */
     public static final class Builder {
-        EnumWrapper<Shape> mShape;
-        boolean mHighlighted;
+        private EnumWrapper<Shape> mShape;
+        private boolean mHighlighted;
 
         /**
          * Sets the {@link Shape} of this lane direction, and any fallback values that could be used

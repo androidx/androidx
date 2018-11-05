@@ -16,11 +16,17 @@
 
 package androidx.car.cluster.navigation;
 
+import static androidx.car.cluster.navigation.utils.Assertions.assertImmutable;
+
+import static org.junit.Assert.assertEquals;
+
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
 
 /**
  * Tests for {@link Lane} serialization
@@ -31,9 +37,34 @@ public class LaneTest {
     /**
      * Tests that lists returned by {@link Lane} are immutable.
      */
-    @Test(expected = UnsupportedOperationException.class)
-    public void immutableLists() {
-        Lane lane = new Lane.Builder().build();
-        lane.getDirections().add(new LaneDirection.Builder().build());
+    @Test
+    public void immutability() {
+        assertImmutable(new Lane.Builder().build().getDirections());
+        assertImmutable(new Lane().getDirections());
+    }
+
+    /**
+     * Tests that even if we receive a null list of {@link LaneDirection}s, we return an empty list
+     * to the consumers.
+     */
+    @Test
+    public void nullability_directionsListIsNeverNull() {
+        assertEquals(new ArrayList<>(), new Lane().getDirections());
+    }
+
+    /**
+     * Returns a sample {@link Lane} for testing.
+     */
+    public static Lane createSampleLane() {
+        return new Lane.Builder()
+                .addDirection(new LaneDirection.Builder()
+                        .setShape(LaneDirection.Shape.NORMAL_LEFT)
+                        .setHighlighted(true)
+                        .build())
+                .addDirection(new LaneDirection.Builder()
+                        .setShape(LaneDirection.Shape.STRAIGHT)
+                        .setHighlighted(true)
+                        .build())
+                .build();
     }
 }
