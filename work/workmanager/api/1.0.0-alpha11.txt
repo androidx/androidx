@@ -167,6 +167,25 @@ package androidx.work {
     method public androidx.work.OneTimeWorkRequest.Builder setInputMerger(Class<? extends androidx.work.InputMerger>);
   }
 
+  public interface Operation {
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.work.Operation.State.SUCCESS> getResult();
+    method public android.arch.lifecycle.LiveData<androidx.work.Operation.State> getState();
+  }
+
+  public abstract static class Operation.State {
+  }
+
+  public static final class Operation.State.FAILURE extends androidx.work.Operation.State {
+    ctor public Operation.State.FAILURE(Throwable);
+    method public Throwable getException();
+  }
+
+  public static final class Operation.State.IN_PROGRESS extends androidx.work.Operation.State {
+  }
+
+  public static final class Operation.State.SUCCESS extends androidx.work.Operation.State {
+  }
+
   public final class OverwritingInputMerger extends androidx.work.InputMerger {
     ctor public OverwritingInputMerger();
     method public androidx.work.Data merge(java.util.List<androidx.work.Data>);
@@ -200,7 +219,7 @@ package androidx.work {
     method public static androidx.work.WorkContinuation combine(java.util.List<androidx.work.WorkContinuation>);
     method public static androidx.work.WorkContinuation combine(androidx.work.OneTimeWorkRequest, androidx.work.WorkContinuation...);
     method public static androidx.work.WorkContinuation combine(androidx.work.OneTimeWorkRequest, java.util.List<androidx.work.WorkContinuation>);
-    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void> enqueue();
+    method public abstract androidx.work.Operation enqueue();
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.util.List<androidx.work.WorkStatus>> getStatuses();
     method public abstract android.arch.lifecycle.LiveData<java.util.List<androidx.work.WorkStatus>> getStatusesLiveData();
     method public final androidx.work.WorkContinuation then(androidx.work.OneTimeWorkRequest);

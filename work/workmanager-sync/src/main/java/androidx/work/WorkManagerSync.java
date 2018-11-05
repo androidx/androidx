@@ -82,7 +82,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void enqueue(@NonNull WorkRequest... workRequests)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.enqueueInternal(Arrays.asList(workRequests)).get();
+        mWorkManagerImpl.enqueueInternal(Arrays.asList(workRequests)).getResult().get();
     }
 
     /**
@@ -97,7 +97,7 @@ public final class WorkManagerSync {
     @WorkerThread
     public void enqueue(@NonNull List<? extends WorkRequest> requests)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.enqueueInternal(requests).get();
+        mWorkManagerImpl.enqueueInternal(requests).getResult().get();
     }
 
     /**
@@ -131,7 +131,7 @@ public final class WorkManagerSync {
             @NonNull OneTimeWorkRequest...work)
             throws InterruptedException, ExecutionException {
         mWorkManagerImpl.enqueueUniqueWorkInternal(
-                uniqueWorkName, existingWorkPolicy, Arrays.asList(work)).get();
+                uniqueWorkName, existingWorkPolicy, Arrays.asList(work)).getResult().get();
     }
 
     /**
@@ -164,7 +164,9 @@ public final class WorkManagerSync {
             @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<OneTimeWorkRequest> work)
             throws InterruptedException, ExecutionException {
-        mWorkManagerImpl.enqueueUniqueWorkInternal(uniqueWorkName, existingWorkPolicy, work).get();
+        mWorkManagerImpl.enqueueUniqueWorkInternal(uniqueWorkName, existingWorkPolicy, work)
+                .getResult()
+                .get();
     }
 
     /**
@@ -197,7 +199,9 @@ public final class WorkManagerSync {
             @NonNull PeriodicWorkRequest periodicWork)
             throws InterruptedException, ExecutionException {
         mWorkManagerImpl.enqueueUniquePeriodicWorkInternal(
-                uniqueWorkName, existingPeriodicWorkPolicy, periodicWork).get();
+                uniqueWorkName, existingPeriodicWorkPolicy, periodicWork)
+                .getResult()
+                .get();
     }
 
     /**
