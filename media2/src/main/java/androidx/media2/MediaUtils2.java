@@ -56,6 +56,7 @@ import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
+import androidx.versionedparcelable.VersionedParcelable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -282,7 +283,7 @@ public class MediaUtils2 {
         for (int i = 0; i < parcelImplList.size(); i++) {
             final ParcelImpl itemParcelImpl = parcelImplList.get(i);
             if (itemParcelImpl != null) {
-                mediaItem2List.add((MediaItem2) ParcelUtils.fromParcelable(itemParcelImpl));
+                mediaItem2List.add((MediaItem2) fromParcelable(itemParcelImpl));
             }
         }
         return mediaItem2List;
@@ -503,7 +504,7 @@ public class MediaUtils2 {
         List<ParcelImpl> parcelImplList = new ArrayList<>();
         for (int i = 0; i < commandButtonList.size(); i++) {
             final CommandButton commandButton = commandButtonList.get(i);
-            parcelImplList.add((ParcelImpl) ParcelUtils.toParcelable(commandButton));
+            parcelImplList.add(toParcelable(commandButton));
         }
         return parcelImplList;
     }
@@ -520,7 +521,7 @@ public class MediaUtils2 {
         for (int i = 0; i < mediaItem2List.size(); i++) {
             final MediaItem2 item = mediaItem2List.get(i);
             if (item != null) {
-                final ParcelImpl itemParcelImpl = (ParcelImpl) ParcelUtils.toParcelable(item);
+                final ParcelImpl itemParcelImpl = toParcelable(item);
                 itemParcelableList.add(itemParcelImpl);
             }
         }
@@ -714,5 +715,50 @@ public class MediaUtils2 {
             }
         }
         return newList;
+    }
+
+    /**
+     * Media2 version of {@link ParcelUtils#toParcelable(VersionedParcelable)}.
+     * <p>
+     * This sanitizes {@link MediaItem2}'s subclass information.
+     *
+     * @param item
+     * @return
+     */
+    public static ParcelImpl toParcelable(VersionedParcelable item) {
+        if (item instanceof MediaItem2) {
+            return new MediaItemParcelImpl((MediaItem2) item);
+        }
+        return (ParcelImpl) ParcelUtils.toParcelable(item);
+    }
+
+    /**
+     * Media2 version of {@link ParcelUtils#fromParcelable(Parcelable)}.
+     */
+    @SuppressWarnings("TypeParameterUnusedInFormals")
+    public static <T extends VersionedParcelable> T fromParcelable(ParcelImpl p) {
+        return ParcelUtils.<T>fromParcelable(p);
+    }
+
+    private static class MediaItemParcelImpl extends ParcelImpl {
+        private final MediaItem2 mItem;
+
+        MediaItemParcelImpl(MediaItem2 item) {
+            // Up-cast (possibly MediaItem2's subclass object) item to MediaItem2 for the
+            // writeToParcel(). The copied media item will be only used when it's sent across the
+            // process.
+            super(new MediaItem2(item));
+
+            // Keeps the original copy for local binder to send the original item.
+            // When local binder is used (i.e. binder call happens in a single process),
+            // writeToParcel() wouldn't happen for the Parcelable object and the same object will
+            // be sent through the binder call.
+            mItem = item;
+        }
+
+        @Override
+        public MediaItem2 getVersionedParcel() {
+            return mItem;
+        }
     }
 }

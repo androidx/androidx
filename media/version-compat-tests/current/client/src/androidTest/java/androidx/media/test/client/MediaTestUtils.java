@@ -61,14 +61,14 @@ public final class MediaTestUtils {
 //    }
 
     /**
-     * Create a playlist for testing purpose
+     * Create a list of {@link FileMediaItem2} for testing purpose.
      * <p>
      * Caller's method name will be used for prefix of each media item's media id.
      *
      * @param size list size
      * @return the newly created playlist
      */
-    public static List<MediaItem2> createPlaylist(int size) {
+    public static List<MediaItem2> createFileMediaItems(int size) {
         final List<MediaItem2> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
         for (int i = 0; i < size; i++) {
@@ -87,7 +87,7 @@ public final class MediaTestUtils {
      * @return the newly created media item
      * @see #createMetadata()
      */
-    public static MediaItem2 createMediaItemWithMetadata() {
+    public static MediaItem2 createFileMediaItemWithMetadata() {
         return new FileMediaItem2.Builder(new FileDescriptor())
                 .setMetadata(createMetadata())
                 .build();
@@ -136,53 +136,68 @@ public final class MediaTestUtils {
         return new LibraryParams.Builder().setExtras(extras).build();
     }
 
-    public static void assertLibraryParamsEquals(LibraryParams a, LibraryParams b) {
+    // Note: It's not assertEquals() to avoid issue with the static import of JUnit's assertEquals.
+    // Otherwise, this API hides the statically imported JUnit's assertEquals and compile will fail.
+    public static void assertEqualLibraryParams(LibraryParams a, LibraryParams b) {
         if (a == null || b == null) {
             assertEquals(a, b);
         } else {
+            assertEquals(a.isRecent(), b.isRecent());
+            assertEquals(a.isOffline(), b.isOffline());
+            assertEquals(a.isSuggested(), b.isSuggested());
             assertTrue(TestUtils.equals(a.getExtras(), b.getExtras()));
         }
     }
 
-    public static void assertLibraryParamsWithBundle(LibraryParams a, Bundle b) {
-        if (a == null || b == null) {
-            assertEquals(a, b);
+    public static void assertEqualLibraryParams(LibraryParams params, Bundle rootExtras) {
+        if (params == null || rootExtras == null) {
+            assertEquals(params, rootExtras);
         } else {
-            assertEquals(a.isRecent(), b.getBoolean(BrowserRoot.EXTRA_RECENT));
-            assertEquals(a.isOffline(), b.getBoolean(BrowserRoot.EXTRA_OFFLINE));
-            assertEquals(a.isSuggested(), b.getBoolean(BrowserRoot.EXTRA_SUGGESTED));
-            assertTrue(TestUtils.contains(b, a.getExtras()));
+            assertEquals(params.isRecent(), rootExtras.getBoolean(BrowserRoot.EXTRA_RECENT));
+            assertEquals(params.isOffline(), rootExtras.getBoolean(BrowserRoot.EXTRA_OFFLINE));
+            assertEquals(params.isSuggested(), rootExtras.getBoolean(BrowserRoot.EXTRA_SUGGESTED));
+            assertTrue(TestUtils.contains(rootExtras, params.getExtras()));
         }
     }
 
-    public static void assertMediaItemWithId(String expectedId, MediaItem2 item) {
+    public static void assertMediaItemHasId(MediaItem2 item, String expectedId) {
         assertNotNull(item);
         assertNotNull(item.getMetadata());
         assertEquals(expectedId, item.getMetadata().getString(
                 MediaMetadata2.METADATA_KEY_MEDIA_ID));
     }
 
-    public static void assertPaginatedListWithIds(List<String> fullIdList, int page, int pageSize,
-            List<MediaItem2> paginatedList) {
+    public static void assertPaginatedListHasIds(List<MediaItem2> paginatedList,
+            List<String> fullIdList, int page, int pageSize) {
         int fromIndex = page * pageSize;
         int toIndex = Math.min((page + 1) * pageSize, fullIdList.size());
         // Compare the given results with originals.
         for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
             int relativeIndex = originalIndex - fromIndex;
-            assertMediaItemWithId(fullIdList.get(originalIndex),
-                    paginatedList.get(relativeIndex));
+            assertMediaItemHasId(paginatedList.get(relativeIndex), fullIdList.get(originalIndex)
+            );
         }
     }
 
-    public static void assertMediaItemsWithId(MediaItem2 a, MediaItem2 b) {
+    public static void assertEqualMediaIds(MediaItem2 a, MediaItem2 b) {
         assertEquals(a.getMetadata().getString(MediaMetadata2.METADATA_KEY_MEDIA_ID),
                 b.getMetadata().getString(MediaMetadata2.METADATA_KEY_MEDIA_ID));
     }
 
-    public static void assertMediaItemListsWithId(List<MediaItem2> a, List<MediaItem2> b) {
+    public static void assertEqualMediaIds(List<MediaItem2> a, List<MediaItem2> b) {
         assertEquals(a.size(), b.size());
         for (int i = 0; i < a.size(); i++) {
-            assertMediaItemsWithId(a.get(i), b.get(i));
+            assertEqualMediaIds(a.get(i), b.get(i));
         }
+    }
+
+    public static void assertNotMediaItemSubclass(List<MediaItem2> list) {
+        for (MediaItem2 item : list) {
+            assertNotMediaItemSubclass(item);
+        }
+    }
+
+    public static void assertNotMediaItemSubclass(MediaItem2 item) {
+        assertEquals(MediaItem2.class, item.getClass());
     }
 }

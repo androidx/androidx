@@ -24,9 +24,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media2.MediaBrowser2;
 import androidx.media2.MediaLibraryService2.LibraryParams;
+import androidx.media2.MediaUtils2;
 import androidx.media2.SessionToken2;
-import androidx.versionedparcelable.ParcelImpl;
-import androidx.versionedparcelable.ParcelUtils;
 
 /**
  * Represents remote {@link MediaBrowser2} the client app's MediaController2Service.
@@ -51,8 +50,7 @@ public class RemoteMediaBrowser2 extends RemoteMediaController2 {
 
     public void getLibraryRoot(@Nullable LibraryParams params) {
         try {
-            mBinder.getLibraryRoot(mControllerId,
-                    (ParcelImpl) ParcelUtils.toParcelable(params));
+            mBinder.getLibraryRoot(mControllerId, MediaUtils2.toParcelable(params));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call getLibraryRoot()");
         }
@@ -60,8 +58,7 @@ public class RemoteMediaBrowser2 extends RemoteMediaController2 {
 
     public void subscribe(@NonNull String parentId, @Nullable LibraryParams params) {
         try {
-            mBinder.subscribe(mControllerId, parentId,
-                    (ParcelImpl) ParcelUtils.toParcelable(params));
+            mBinder.subscribe(mControllerId, parentId, MediaUtils2.toParcelable(params));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call subscribe()");
         }
@@ -79,7 +76,7 @@ public class RemoteMediaBrowser2 extends RemoteMediaController2 {
             @Nullable LibraryParams params) {
         try {
             mBinder.getChildren(mControllerId, parentId, page, pageSize,
-                    (ParcelImpl) ParcelUtils.toParcelable(params));
+                    MediaUtils2.toParcelable(params));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call getChildren()");
         }
@@ -95,7 +92,7 @@ public class RemoteMediaBrowser2 extends RemoteMediaController2 {
 
     public void search(@NonNull String query, @Nullable LibraryParams params) {
         try {
-            mBinder.search(mControllerId, query, (ParcelImpl) ParcelUtils.toParcelable(params));
+            mBinder.search(mControllerId, query, MediaUtils2.toParcelable(params));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call search()");
         }
@@ -105,7 +102,7 @@ public class RemoteMediaBrowser2 extends RemoteMediaController2 {
             @Nullable LibraryParams params) {
         try {
             mBinder.getSearchResult(mControllerId, query, page, pageSize,
-                    (ParcelImpl) ParcelUtils.toParcelable(params));
+                    MediaUtils2.toParcelable(params));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call getSearchResult()");
         }
@@ -125,7 +122,7 @@ public class RemoteMediaBrowser2 extends RemoteMediaController2 {
     void create(SessionToken2 token, boolean waitForConnection) {
         try {
             mBinder.create(true /* isBrowser */, mControllerId,
-                    (ParcelImpl) ParcelUtils.toParcelable(token), waitForConnection);
+                    MediaUtils2.toParcelable(token), waitForConnection);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to create default browser with given token.");
         }

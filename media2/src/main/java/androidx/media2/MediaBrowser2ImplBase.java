@@ -35,8 +35,6 @@ import androidx.media2.MediaBrowser2.BrowserCallback;
 import androidx.media2.MediaBrowser2.BrowserResult;
 import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.SequencedFutureManager.SequencedFuture;
-import androidx.versionedparcelable.ParcelImpl;
-import androidx.versionedparcelable.ParcelUtils;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -67,7 +65,7 @@ class MediaBrowser2ImplBase extends MediaController2ImplBase implements
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.getLibraryRoot(mControllerStub, seq,
-                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                                MediaUtils2.toParcelable(params));
                     }
                 });
     }
@@ -80,7 +78,7 @@ class MediaBrowser2ImplBase extends MediaController2ImplBase implements
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.subscribe(mControllerStub, seq, parentId,
-                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                                MediaUtils2.toParcelable(params));
                     }
                 });
     }
@@ -104,7 +102,7 @@ class MediaBrowser2ImplBase extends MediaController2ImplBase implements
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.getChildren(mControllerStub, seq, parentId, page, pageSize,
-                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                                MediaUtils2.toParcelable(params));
                     }
                 });
     }
@@ -127,7 +125,7 @@ class MediaBrowser2ImplBase extends MediaController2ImplBase implements
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.search(mControllerStub, seq, query,
-                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                                MediaUtils2.toParcelable(params));
                     }
                 });
     }
@@ -140,7 +138,7 @@ class MediaBrowser2ImplBase extends MediaController2ImplBase implements
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.getSearchResult(mControllerStub, seq, query, page, pageSize,
-                                (ParcelImpl) ParcelUtils.toParcelable(params));
+                                MediaUtils2.toParcelable(params));
                     }
                 });
     }
