@@ -28,7 +28,7 @@ import android.arch.persistence.room.Transaction;
 import android.support.annotation.NonNull;
 
 import androidx.work.Data;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 
 import java.util.List;
 
@@ -94,7 +94,7 @@ public interface WorkSpecDao {
      * @return The number of rows that were updated
      */
     @Query("UPDATE workspec SET state=:state WHERE id IN (:ids)")
-    int setState(State state, String... ids);
+    int setState(WorkInfo.State state, String... ids);
 
     /**
      * Updates the output of a {@link WorkSpec}.
@@ -139,85 +139,85 @@ public interface WorkSpecDao {
      * @return The state of the {@link WorkSpec}
      */
     @Query("SELECT state FROM workspec WHERE id=:id")
-    State getState(String id);
+    WorkInfo.State getState(String id);
 
     /**
-     * For a {@link WorkSpec} identifier, retrieves its {@link WorkSpec.WorkStatusPojo}.
+     * For a {@link WorkSpec} identifier, retrieves its {@link WorkSpec.WorkInfoPojo}.
      *
      * @param id The identifier of the {@link WorkSpec}
-     * @return A list of {@link WorkSpec.WorkStatusPojo}
+     * @return A list of {@link WorkSpec.WorkInfoPojo}
      */
     @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id=:id")
-    WorkSpec.WorkStatusPojo getWorkStatusPojoForId(String id);
+    WorkSpec.WorkInfoPojo getWorkStatusPojoForId(String id);
 
     /**
      * For a list of {@link WorkSpec} identifiers, retrieves a {@link List} of their
-     * {@link WorkSpec.WorkStatusPojo}.
+     * {@link WorkSpec.WorkInfoPojo}.
      *
      * @param ids The identifier of the {@link WorkSpec}s
-     * @return A {@link List} of {@link WorkSpec.WorkStatusPojo}
+     * @return A {@link List} of {@link WorkSpec.WorkInfoPojo}
      */
     @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN (:ids)")
-    List<WorkSpec.WorkStatusPojo> getWorkStatusPojoForIds(List<String> ids);
+    List<WorkSpec.WorkInfoPojo> getWorkStatusPojoForIds(List<String> ids);
 
     /**
      * For a list of {@link WorkSpec} identifiers, retrieves a {@link LiveData} list of their
-     * {@link WorkSpec.WorkStatusPojo}.
+     * {@link WorkSpec.WorkInfoPojo}.
      *
      * @param ids The identifier of the {@link WorkSpec}s
-     * @return A {@link LiveData} list of {@link WorkSpec.WorkStatusPojo}
+     * @return A {@link LiveData} list of {@link WorkSpec.WorkInfoPojo}
      */
     @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN (:ids)")
-    LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForIds(List<String> ids);
+    LiveData<List<WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForIds(List<String> ids);
 
     /**
-     * Retrieves a list of {@link WorkSpec.WorkStatusPojo} for all work with a given tag.
+     * Retrieves a list of {@link WorkSpec.WorkInfoPojo} for all work with a given tag.
      *
      * @param tag The tag for the {@link WorkSpec}s
-     * @return A list of {@link WorkSpec.WorkStatusPojo}
+     * @return A list of {@link WorkSpec.WorkInfoPojo}
      */
     @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    List<WorkSpec.WorkStatusPojo> getWorkStatusPojoForTag(String tag);
+    List<WorkSpec.WorkInfoPojo> getWorkStatusPojoForTag(String tag);
 
     /**
-     * Retrieves a {@link LiveData} list of {@link WorkSpec.WorkStatusPojo} for all work with a
+     * Retrieves a {@link LiveData} list of {@link WorkSpec.WorkInfoPojo} for all work with a
      * given tag.
      *
      * @param tag The tag for the {@link WorkSpec}s
-     * @return A {@link LiveData} list of {@link WorkSpec.WorkStatusPojo}
+     * @return A {@link LiveData} list of {@link WorkSpec.WorkInfoPojo}
      */
     @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM worktag WHERE tag=:tag)")
-    LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForTag(String tag);
+    LiveData<List<WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForTag(String tag);
 
     /**
-     * Retrieves a list of {@link WorkSpec.WorkStatusPojo} for all work with a given name.
+     * Retrieves a list of {@link WorkSpec.WorkInfoPojo} for all work with a given name.
      *
      * @param name The name of the {@link WorkSpec}s
-     * @return A list of {@link WorkSpec.WorkStatusPojo}
+     * @return A list of {@link WorkSpec.WorkInfoPojo}
      */
     @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM workname WHERE name=:name)")
-    List<WorkSpec.WorkStatusPojo> getWorkStatusPojoForName(String name);
+    List<WorkSpec.WorkInfoPojo> getWorkStatusPojoForName(String name);
 
     /**
-     * Retrieves a {@link LiveData} list of {@link WorkSpec.WorkStatusPojo} for all work with a
+     * Retrieves a {@link LiveData} list of {@link WorkSpec.WorkInfoPojo} for all work with a
      * given name.
      *
      * @param name The name for the {@link WorkSpec}s
-     * @return A {@link LiveData} list of {@link WorkSpec.WorkStatusPojo}
+     * @return A {@link LiveData} list of {@link WorkSpec.WorkInfoPojo}
      */
     @Transaction
     @Query("SELECT id, state, output FROM workspec WHERE id IN "
             + "(SELECT work_spec_id FROM workname WHERE name=:name)")
-    LiveData<List<WorkSpec.WorkStatusPojo>> getWorkStatusPojoLiveDataForName(String name);
+    LiveData<List<WorkSpec.WorkInfoPojo>> getWorkStatusPojoLiveDataForName(String name);
 
     /**
      * Gets all inputs coming from prerequisites for a particular {@link WorkSpec}.  These are

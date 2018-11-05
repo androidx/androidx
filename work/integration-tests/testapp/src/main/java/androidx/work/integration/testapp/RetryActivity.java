@@ -33,8 +33,8 @@ import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import androidx.work.WorkStatus;
 import androidx.work.WorkerParameters;
 
 import java.util.List;
@@ -65,14 +65,14 @@ public class RetryActivity extends AppCompatActivity {
             }
         });
 
-        WorkManager.getInstance().getStatusesByTagLiveData("test")
-                .observe(this, new Observer<List<WorkStatus>>() {
+        WorkManager.getInstance().getWorkInfosByTagLiveData("test")
+                .observe(this, new Observer<List<WorkInfo>>() {
                     @Override
-                    public void onChanged(@Nullable List<WorkStatus> workStatuses) {
+                    public void onChanged(@Nullable List<WorkInfo> workInfos) {
                         String text = "";
-                        for (WorkStatus workStatus : workStatuses) {
-                            text = text + "id: " + workStatus.getId().toString().substring(0, 4)
-                                    + " (" + workStatus.getState() + ")\n";
+                        for (WorkInfo workInfo : workInfos) {
+                            text = text + "id: " + workInfo.getId().toString().substring(0, 4)
+                                    + " (" + workInfo.getState() + ")\n";
                         }
 
                         if (text.equals("")) {

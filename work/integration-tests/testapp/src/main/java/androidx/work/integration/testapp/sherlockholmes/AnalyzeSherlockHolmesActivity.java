@@ -16,8 +16,8 @@
 
 package androidx.work.integration.testapp.sherlockholmes;
 
-import static androidx.work.State.FAILED;
-import static androidx.work.State.SUCCEEDED;
+import static androidx.work.WorkInfo.State.FAILED;
+import static androidx.work.WorkInfo.State.SUCCEEDED;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -94,7 +94,7 @@ public class AnalyzeSherlockHolmesActivity extends AppCompatActivity {
                 .then(textReducingWork)
                 .enqueue();
 
-        workManager.getStatusByIdLiveData(textReducingWork.getId()).observe(
+        workManager.getWorkInfoByIdLiveData(textReducingWork.getId()).observe(
                 this,
                 status -> {
                     boolean loading = (status != null

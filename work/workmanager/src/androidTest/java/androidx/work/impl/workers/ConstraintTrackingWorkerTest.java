@@ -38,7 +38,7 @@ import androidx.work.Data;
 import androidx.work.DatabaseTest;
 import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.WorkerFactory;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.Scheduler;
@@ -134,7 +134,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
-        assertThat(workSpec.state, is(State.SUCCEEDED));
+        assertThat(workSpec.state, is(WorkInfo.State.SUCCEEDED));
         Data output = workSpec.output;
         assertThat(output.getBoolean(TEST_ARGUMENT_NAME, false), is(true));
     }
@@ -151,7 +151,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         mWorkTaskExecutor.getBackgroundExecutor().execute(mWorkerWrapper);
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
-        assertThat(workSpec.state, is(State.ENQUEUED));
+        assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
     }
 
     @Test
@@ -174,7 +174,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
-        assertThat(workSpec.state, is(State.ENQUEUED));
+        assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
         Thread.sleep(TEST_TIMEOUT_IN_MS);
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(mWork.getStringId());
-        assertThat(workSpec.state, is(State.ENQUEUED));
+        assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
     }
 
     @Test

@@ -18,12 +18,12 @@ package androidx.work.impl.utils;
 
 import static androidx.work.ExistingWorkPolicy.APPEND;
 import static androidx.work.ExistingWorkPolicy.KEEP;
-import static androidx.work.State.BLOCKED;
-import static androidx.work.State.CANCELLED;
-import static androidx.work.State.ENQUEUED;
-import static androidx.work.State.FAILED;
-import static androidx.work.State.RUNNING;
-import static androidx.work.State.SUCCEEDED;
+import static androidx.work.WorkInfo.State.BLOCKED;
+import static androidx.work.WorkInfo.State.CANCELLED;
+import static androidx.work.WorkInfo.State.ENQUEUED;
+import static androidx.work.WorkInfo.State.FAILED;
+import static androidx.work.WorkInfo.State.RUNNING;
+import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.workers.ConstraintTrackingWorker.ARGUMENT_CLASS_NAME;
 
 import android.content.Context;
@@ -38,7 +38,7 @@ import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.Logger;
 import androidx.work.Operation;
-import androidx.work.State;
+import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
 import androidx.work.impl.OperationImpl;
 import androidx.work.impl.Schedulers;
@@ -201,7 +201,7 @@ public class EnqueueRunnable implements Runnable {
                     return false;
                 }
 
-                State prerequisiteState = prerequisiteWorkSpec.state;
+                WorkInfo.State prerequisiteState = prerequisiteWorkSpec.state;
                 hasCompletedAllPrerequisites &= (prerequisiteState == SUCCEEDED);
                 if (prerequisiteState == FAILED) {
                     hasFailedPrerequisites = true;
