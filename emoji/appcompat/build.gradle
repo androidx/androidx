@@ -29,7 +29,7 @@ dependencies {
 supportLibrary {
     name = "Android Emoji AppCompat"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.EMOJI
     mavenGroup = LibraryGroups.EMOJI
     inceptionYear = "2017"
     description = "EmojiCompat Widgets for AppCompat integration"

@@ -23,7 +23,7 @@ android {
 supportLibrary {
     name = "Android Percent Support Library"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.PERCENTLAYOUT
     mavenGroup = LibraryGroups.PERCENTLAYOUT
     inceptionYear = "2015"
     description = "Android Percent Support Library"

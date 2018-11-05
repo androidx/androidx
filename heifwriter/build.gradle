@@ -23,7 +23,7 @@ dependencies {
 supportLibrary {
     name = "Android Support HeifWriter"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.HEIFWRITER
     mavenGroup = LibraryGroups.HEIFWRITER
     inceptionYear = "2018"
     description = "Android Support HeifWriter for writing HEIF still images"

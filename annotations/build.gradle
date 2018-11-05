@@ -53,7 +53,7 @@ artifacts {
 supportLibrary {
     name = "Android Support Library Annotations"
     publish = true
-    mavenVersion = LibraryVersions.SUPPORT_LIBRARY
+    mavenVersion = LibraryVersions.ANNOTATION
     mavenGroup = LibraryGroups.ANNOTATION
     inceptionYear = "2013"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs."
