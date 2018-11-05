@@ -18,7 +18,9 @@ package androidx.mediarouter.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.Application;
 import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -2132,6 +2134,7 @@ public final class MediaRouter {
                 }
             }
         };
+        private ForegroundChecker mForegroundChecker;
 
         GlobalMediaRouter(Context applicationContext) {
             mApplicationContext = applicationContext;
@@ -2144,6 +2147,10 @@ public final class MediaRouter {
             // the framework media router.  This one is special and receives
             // synchronization messages from the media router.
             mSystemProvider = SystemMediaRouteProvider.obtain(applicationContext, this);
+
+            mForegroundChecker = new ForegroundChecker();
+            Application app = (Application) mApplicationContext;
+            app.registerActivityLifecycleCallbacks(mForegroundChecker);
         }
 
         public void start() {
@@ -2341,6 +2348,7 @@ public final class MediaRouter {
             // Combine all of the callback selectors and active scan flags.
             boolean discover = false;
             boolean activeScan = false;
+
             MediaRouteSelector.Builder builder = new MediaRouteSelector.Builder();
             for (int i = mRouters.size(); --i >= 0; ) {
                 MediaRouter router = mRouters.get(i).get();
@@ -2365,6 +2373,10 @@ public final class MediaRouter {
                         }
                     }
                 }
+            }
+            // When the app is in background, remove discovery request
+            if (!activeScan && !mForegroundChecker.isForeground()) {
+                discover = false;
             }
             MediaRouteSelector selector = discover ? builder.build() : MediaRouteSelector.EMPTY;
 
@@ -3243,6 +3255,64 @@ public final class MediaRouter {
                     }
                 }
             }
+        }
+
+        private static final class ForegroundChecker
+                implements Application.ActivityLifecycleCallbacks {
+            // Use the same delay in ProcessLifecycleOwner
+            public static final long DELAY_MS = 700;
+            private final Handler mHandler = new Handler();
+            // Assume we are in foreground if we have no further information
+            private boolean mIsForeground = true;
+            private boolean mIsStopped = false;
+            private Runnable mChecker = new Runnable() {
+                @Override
+                public void run() {
+                    if (mIsForeground && mIsStopped) {
+                        mIsForeground = false;
+                        sGlobal.updateDiscoveryRequest();
+                    }
+                }
+            };
+
+            public boolean isForeground() {
+                return mIsForeground;
+            }
+
+            @Override
+            public void onActivityCreated(Activity activity, Bundle savedInstanceState) { }
+
+            @Override
+            public void onActivityStarted(Activity activity) {
+                mIsStopped = false;
+                boolean wasBackground = !mIsForeground;
+                mIsForeground = true;
+
+                mHandler.removeCallbacks(mChecker);
+                if (wasBackground) {
+                    sGlobal.updateDiscoveryRequest();
+                }
+            }
+
+            @Override
+            public void onActivityResumed(Activity activity) { }
+
+            @Override
+            public void onActivityPaused(Activity activity) { }
+
+            @Override
+            public void onActivityStopped(Activity activity) {
+                mIsStopped = true;
+                // By checking if onActivityStarted is not called after DELAY_MS
+                // we can note that the app goes to background
+                mHandler.postDelayed(mChecker, DELAY_MS);
+            }
+
+            @Override
+            public void onActivitySaveInstanceState(Activity activity, Bundle outState) { }
+
+            @Override
+            public void onActivityDestroyed(Activity activity) { }
         }
     }
 }
