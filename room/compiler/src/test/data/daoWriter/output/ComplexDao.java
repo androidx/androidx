@@ -7,6 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.InvalidationTracker.Observer;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import java.lang.Integer;
@@ -49,8 +50,8 @@ public final class ComplexDao_Impl extends ComplexDao {
         _statement.bindLong(_argIndex, id);
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
-            final int _cursorIndexOfFullName = _cursor.getColumnIndexOrThrow("fullName");
-            final int _cursorIndexOfId = _cursor.getColumnIndexOrThrow("id");
+            final int _cursorIndexOfFullName = CursorUtil.getColumnIndexOrThrow(_cursor, "fullName");
+            final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
             final List<ComplexDao.FullName> _result = new ArrayList<ComplexDao.FullName>(_cursor.getCount());
             while(_cursor.moveToNext()) {
                 final ComplexDao.FullName _item;
@@ -74,10 +75,10 @@ public final class ComplexDao_Impl extends ComplexDao {
         _statement.bindLong(_argIndex, id);
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
-            final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
-            final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
-            final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
-            final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
+            final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+            final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
+            final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
             final User _result;
             if(_cursor.moveToFirst()) {
                 _result = new User();
@@ -115,10 +116,10 @@ public final class ComplexDao_Impl extends ComplexDao {
         }
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
-            final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
-            final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
-            final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
-            final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
+            final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+            final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
+            final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
             final User _result;
             if(_cursor.moveToFirst()) {
                 _result = new User();
@@ -155,10 +156,10 @@ public final class ComplexDao_Impl extends ComplexDao {
         }
         final Cursor _cursor = DBUtil.query(__db, _statement, false);
         try {
-            final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
-            final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
-            final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
-            final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
+            final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+            final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
+            final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
             final List<User> _result = new ArrayList<User>(_cursor.getCount());
             while(_cursor.moveToNext()) {
                 final User _item_1;
@@ -291,10 +292,10 @@ public final class ComplexDao_Impl extends ComplexDao {
                 }
                 final Cursor _cursor = DBUtil.query(__db, _statement, false);
                 try {
-                    final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
-                    final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
-                    final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
-                    final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
+                    final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
+                    final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+                    final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
+                    final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
                     final User _result;
                     if(_cursor.moveToFirst()) {
                         _result = new User();
@@ -351,10 +352,10 @@ public final class ComplexDao_Impl extends ComplexDao {
                 }
                 final Cursor _cursor = DBUtil.query(__db, _statement, false);
                 try {
-                    final int _cursorIndexOfUid = _cursor.getColumnIndexOrThrow("uid");
-                    final int _cursorIndexOfName = _cursor.getColumnIndexOrThrow("name");
-                    final int _cursorIndexOfLastName = _cursor.getColumnIndexOrThrow("lastName");
-                    final int _cursorIndexOfAge = _cursor.getColumnIndexOrThrow("ageColumn");
+                    final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
+                    final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+                    final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
+                    final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
                     final List<User> _result = new ArrayList<User>(_cursor.getCount());
                     while(_cursor.moveToNext()) {
                         final User _item_1;
