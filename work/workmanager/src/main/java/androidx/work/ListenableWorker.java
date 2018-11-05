@@ -26,6 +26,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
+import androidx.work.impl.utils.taskexecutor.TaskExecutor;
+
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
@@ -261,6 +263,14 @@ public abstract class ListenableWorker {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Executor getBackgroundExecutor() {
         return mWorkerParams.getBackgroundExecutor();
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull TaskExecutor getTaskExecutor() {
+        return mWorkerParams.getTaskExecutor();
     }
 
     /**

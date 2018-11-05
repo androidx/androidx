@@ -1,0 +1,14 @@
+// Signature format: 2.0
+package androidx.work.coroutines {
+
+  public abstract class CoroutineWorker extends androidx.work.ListenableWorker {
+    ctor public CoroutineWorker(android.content.Context appContext, androidx.work.WorkerParameters params);
+    method public abstract Object? doWork(kotlin.coroutines.experimental.Continuation<? super androidx.work.ListenableWorker.Payload> p);
+    method public kotlinx.coroutines.CoroutineDispatcher getCoroutineContext();
+    method public final void onStopped(boolean cancelled);
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> startWork();
+    property public kotlinx.coroutines.CoroutineDispatcher coroutineContext;
+  }
+
+}
+
