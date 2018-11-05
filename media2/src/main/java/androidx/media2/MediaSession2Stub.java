@@ -758,7 +758,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void setPlaylist(final IMediaController2 caller, int seq, final List<String> playlist,
-            final Bundle metadata) {
+            final ParcelImpl metadata) {
         dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_SET_PLAYLIST,
                 new SessionPlayerTask() {
                     @Override
@@ -775,7 +775,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                                 list.add(item);
                             }
                         }
-                        return mSessionImpl.setPlaylist(list, MediaMetadata2.fromBundle(metadata));
+                        return mSessionImpl.setPlaylist(list,
+                                (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
                     }
                 });
     }
@@ -801,13 +802,13 @@ class MediaSession2Stub extends IMediaSession2.Stub {
 
     @Override
     public void updatePlaylistMetadata(final IMediaController2 caller, int seq,
-            final Bundle metadata) {
+            final ParcelImpl metadata) {
         dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_UPDATE_LIST_METADATA,
                 new SessionPlayerTask() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
                         return mSessionImpl.updatePlaylistMetadata(
-                                MediaMetadata2.fromBundle(metadata));
+                                (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
                     }
                 });
     }
@@ -1240,10 +1241,11 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
                 mIControllerCallback.onPlaylistChanged(
                         MediaUtils2.convertMediaItem2ListToParcelImplListSlice(playlist),
-                        metadata == null ? null : metadata.toBundle());
+                        (ParcelImpl) ParcelUtils.toParcelable(metadata));
             } else if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
-                mIControllerCallback.onPlaylistMetadataChanged(metadata.toBundle());
+                mIControllerCallback.onPlaylistMetadataChanged(
+                        (ParcelImpl) ParcelUtils.toParcelable(metadata));
             }
         }
 
@@ -1253,7 +1255,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     getCallbackBinder());
             if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
-                mIControllerCallback.onPlaylistMetadataChanged(metadata.toBundle());
+                mIControllerCallback.onPlaylistMetadataChanged(
+                        (ParcelImpl) ParcelUtils.toParcelable(metadata));
             }
         }
 

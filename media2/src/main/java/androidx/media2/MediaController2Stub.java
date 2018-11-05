@@ -128,7 +128,7 @@ class MediaController2Stub extends IMediaController2.Stub {
     }
 
     @Override
-    public void onPlaylistChanged(ParcelImplListSlice listSlice, Bundle metadataBundle) {
+    public void onPlaylistChanged(ParcelImplListSlice listSlice, ParcelImpl metadata) {
         final MediaController2ImplBase controller;
         try {
             controller = getController();
@@ -142,12 +142,12 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "onPlaylistChanged(): Ignoring null playlist");
             return;
         }
-        MediaMetadata2 metadata = MediaMetadata2.fromBundle(metadataBundle);
-        controller.notifyPlaylistChanges(playlist, metadata);
+        controller.notifyPlaylistChanges(playlist,
+                (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
     }
 
     @Override
-    public void onPlaylistMetadataChanged(Bundle metadataBundle) throws RuntimeException {
+    public void onPlaylistMetadataChanged(ParcelImpl metadata) throws RuntimeException {
         final MediaController2ImplBase controller;
         try {
             controller = getController();
@@ -155,8 +155,8 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        MediaMetadata2 metadata = MediaMetadata2.fromBundle(metadataBundle);
-        controller.notifyPlaylistMetadataChanges(metadata);
+        controller.notifyPlaylistMetadataChanges(
+                (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
     }
 
     @Override
