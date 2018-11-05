@@ -173,14 +173,14 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void setPlaylist(String controllerId, List<String> list, Bundle metadata)
+        public void setPlaylist(String controllerId, List<String> list, ParcelImpl metadata)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.setPlaylist(list, MediaMetadata2.fromBundle(metadata));
+            controller2.setPlaylist(list, (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
         }
 
         @Override
-        public void createAndSetDummyPlaylist(String controllerId, int size, Bundle listMetadata)
+        public void createAndSetDummyPlaylist(String controllerId, int size, ParcelImpl metadata)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
             List<String> list = new ArrayList<>();
@@ -188,7 +188,7 @@ public class MediaController2ProviderService extends Service {
                 // Make media ID of each item same with its index.
                 list.add(TestUtils.getMediaIdInDummyList(i));
             }
-            controller2.setPlaylist(list, MediaMetadata2.fromBundle(listMetadata));
+            controller2.setPlaylist(list, (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
         }
 
         @Override
@@ -198,10 +198,11 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void updatePlaylistMetadata(String controllerId, Bundle metadata)
+        public void updatePlaylistMetadata(String controllerId, ParcelImpl metadata)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.updatePlaylistMetadata(MediaMetadata2.fromBundle(metadata));
+            controller2.updatePlaylistMetadata(
+                    (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
         }
 
         @Override

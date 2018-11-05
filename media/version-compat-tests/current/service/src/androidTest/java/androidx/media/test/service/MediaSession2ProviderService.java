@@ -216,8 +216,7 @@ public class MediaSession2ProviderService extends Service {
                         config.getParcelableArrayList(KEY_PLAYLIST), false /* createItem */);
                 localPlayer.mCurrentMediaItem = MediaItem2.fromBundle(
                         config.getBundle(KEY_MEDIA_ITEM));
-                localPlayer.mMetadata = MediaMetadata2.fromBundle(
-                        config.getBundle(KEY_METADATA));
+                localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config, KEY_METADATA);
                 player = localPlayer;
             }
             player.setAudioAttributes(

@@ -33,10 +33,10 @@ interface IRemoteMediaController2 {
     void prefetch(String controllerId);
     void seekTo(String controllerId, long pos);
     void setPlaybackSpeed(String controllerId, float speed);
-    void setPlaylist(String controllerId, in List<String> list, in Bundle metadata);
-    void createAndSetDummyPlaylist(String controllerId, int size, in Bundle metadata);
+    void setPlaylist(String controllerId, in List<String> list, in ParcelImpl metadata);
+    void createAndSetDummyPlaylist(String controllerId, int size, in ParcelImpl metadata);
     void setMediaItem(String controllerId, in String mediaId);
-    void updatePlaylistMetadata(String controllerId, in Bundle metadata);
+    void updatePlaylistMetadata(String controllerId, in ParcelImpl metadata);
     void addPlaylistItem(String controllerId, int index, String mediaId);
     void removePlaylistItem(String controllerId, int index);
     void replacePlaylistItem(String controllerId, int index, String mediaId);

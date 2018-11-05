@@ -19,6 +19,8 @@ package androidx.media.test.service.tests;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+import static org.junit.Assert.fail;
+
 import android.os.Build;
 import android.os.Bundle;
 
@@ -40,22 +42,35 @@ import org.junit.runner.RunWith;
 public class MediaMetadata2Test {
     @Test
     public void testBuilder() {
-        final Bundle extras = new Bundle();
-        extras.putString("MediaMetadata2Test", "testBuilder");
         final String title = "title";
         final long discNumber = 10;
         final Rating2 rating = new ThumbRating2(true);
 
         Builder builder = new Builder();
-        builder.setExtras(extras);
         builder.putString(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, title);
         builder.putLong(MediaMetadata2.METADATA_KEY_DISC_NUMBER, discNumber);
         builder.putRating(MediaMetadata2.METADATA_KEY_USER_RATING, rating);
 
         MediaMetadata2 metadata = builder.build();
-        assertTrue(TestUtils.equals(extras, metadata.getExtras()));
         assertEquals(title, metadata.getString(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE));
         assertEquals(discNumber, metadata.getLong(MediaMetadata2.METADATA_KEY_DISC_NUMBER));
         assertEquals(rating, metadata.getRating(MediaMetadata2.METADATA_KEY_USER_RATING));
+    }
+
+    @Test
+    public void testSetExtra() {
+        final Bundle extras = new Bundle();
+        extras.putString("MediaMetadata2Test", "testBuilder");
+
+        Builder builder = new Builder();
+        try {
+            builder.putLong(MediaMetadata2.METADATA_KEY_EXTRAS, 1);
+            fail();
+        } catch (IllegalArgumentException e) {
+            // expected
+        }
+        builder.setExtras(extras);
+        MediaMetadata2 metadata = builder.build();
+        assertTrue(TestUtils.equals(extras, metadata.getExtras()));
     }
 }

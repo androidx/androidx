@@ -595,7 +595,7 @@ class MediaController2ImplBase implements MediaController2Impl {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.setPlaylist(mControllerStub, seq, list,
-                        (metadata == null) ? null : metadata.toBundle());
+                        (ParcelImpl) ParcelUtils.toParcelable(metadata));
             }
         });
     }
@@ -619,7 +619,7 @@ class MediaController2ImplBase implements MediaController2Impl {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.updatePlaylistMetadata(mControllerStub, seq,
-                                (metadata == null) ? null : metadata.toBundle());
+                                (ParcelImpl) ParcelUtils.toParcelable(metadata));
                     }
                 });
     }
