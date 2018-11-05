@@ -81,6 +81,9 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
             return null;
         }
         final ControllerInfo controller = getCurrentController();
+        if (controller == null) {
+            return null;
+        }
         if (getConnectedControllersManager().isAllowedCommand(controller,
                 SessionCommand2.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT)) {
             // Call callbacks directly instead of execute on the executor. Here's the reason.
