@@ -58,6 +58,7 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
+import androidx.core.os.BuildCompat;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.util.Preconditions;
 
@@ -879,13 +880,13 @@ public final class TextViewCompat {
     public static void setPrecomputedText(@NonNull TextView textView,
                                           @NonNull PrecomputedTextCompat precomputed) {
 
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (BuildCompat.isAtLeastQ()) {
             // Framework can not understand PrecomptedTextCompat. Pass underlying PrecomputedText.
             // Parameter check is also done by framework.
             textView.setText(precomputed.getPrecomputedText());
         } else {
             PrecomputedTextCompat.Params param = TextViewCompat.getTextMetricsParams(textView);
-            if (!param.equals(precomputed.getParams())) {
+            if (!param.equalsWithoutTextDirection(precomputed.getParams())) {
                 throw new IllegalArgumentException("Given text can not be applied to TextView.");
             }
             textView.setText(precomputed);
