@@ -239,7 +239,7 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
          *
          * @param version command version
          * @see SessionCommand2#COMMAND_VERSION_1
-         * @see MediaSession2.SessionCallback#onConnect
+         * @see MediaSession2.SessionCallback#onConnect(MediaSession2, MediaSession2.ControllerInfo)
          */
         public @NonNull Builder addAllPredefinedCommands(@CommandVersion int version) {
             if (version != COMMAND_VERSION_1) {

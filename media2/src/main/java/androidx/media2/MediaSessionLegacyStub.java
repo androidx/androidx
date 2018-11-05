@@ -403,7 +403,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                     public void run(ControllerInfo controller) throws RemoteException {
                         String mediaId = description.getMediaId();
                         if (TextUtils.isEmpty(mediaId)) {
-                            Log.w(TAG, "onAddQueueItem(): Media ID shouldn't be null");
+                            Log.w(TAG, "onAddQueueItem(): Media ID shouldn't be empty");
                             return;
                         }
                         MediaItem2 newItem = mSessionImpl.getCallback().onCreateMediaItem(
@@ -522,7 +522,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void handleTaskOnExecutor(@Nullable final ControllerInfo controller,
+    void handleTaskOnExecutor(@NonNull final ControllerInfo controller,
             @Nullable final SessionCommand2 sessionCommand, @CommandCode final int commandCode,
             @NonNull final SessionTask task) {
         SessionCommand2 command;
