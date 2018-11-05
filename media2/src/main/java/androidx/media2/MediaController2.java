@@ -711,7 +711,7 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Sets the playlist.
+     * Sets the playlist. All {@link MediaItem2}s in the list shouldn't be {@code null}.
      * <p>
      * Even when the playlist is successfully set, use the playlist returned from
      * {@link #getPlaylist()} for playlist APIs such as {@link #skipToPlaylistItem(MediaItem2)}.
@@ -726,6 +726,11 @@ public class MediaController2 implements AutoCloseable {
             @Nullable MediaMetadata2 metadata) {
         if (list == null) {
             throw new IllegalArgumentException("list shouldn't be null");
+        }
+        for (MediaItem2 item : list) {
+            if (item == null) {
+                throw new IllegalArgumentException("item shouldn't be null in the list");
+            }
         }
         if (isConnected()) {
             return getImpl().setPlaylist(list, metadata);
@@ -1235,7 +1240,7 @@ public class MediaController2 implements AutoCloseable {
          * @param metadata new metadata
          */
         public void onPlaylistChanged(@NonNull MediaController2 controller,
-                @NonNull List<MediaItem2> list, @Nullable MediaMetadata2 metadata) { }
+                @Nullable List<MediaItem2> list, @Nullable MediaMetadata2 metadata) { }
 
         /**
          * Called when a playlist metadata is changed.
