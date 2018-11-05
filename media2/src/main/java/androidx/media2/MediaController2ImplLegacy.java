@@ -323,6 +323,18 @@ class MediaController2ImplLegacy implements MediaController2Impl {
     }
 
     @Override
+    public ListenableFuture<ControllerResult> skipForward() {
+        // Unsupported action
+        return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
+    }
+
+    @Override
+    public ListenableFuture<ControllerResult> skipBackward() {
+        // Unsupported action
+        return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
+    }
+
+    @Override
     public ListenableFuture<ControllerResult> seekTo(long pos) {
         synchronized (mLock) {
             if (!mConnected) {
@@ -332,18 +344,6 @@ class MediaController2ImplLegacy implements MediaController2Impl {
             mControllerCompat.getTransportControls().seekTo(pos);
         }
         return createFutureWithResult(RESULT_CODE_SUCCESS);
-    }
-
-    @Override
-    public ListenableFuture<ControllerResult> skipForward() {
-        // To match with KEYCODE_MEDIA_SKIP_FORWARD
-        return null;
-    }
-
-    @Override
-    public ListenableFuture<ControllerResult> skipBackward() {
-        // To match with KEYCODE_MEDIA_SKIP_BACKWARD
-        return null;
     }
 
     @Override

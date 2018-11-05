@@ -40,6 +40,8 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_URI;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SKIP_BACKWARD;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SKIP_FORWARD;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME;
 
@@ -364,6 +366,40 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
     }
 
     @Test
+    public void testSkipForward() throws InterruptedException {
+        prepareLooper();
+        createSessionWithAllowedActions(
+                createCommandGroupWith(COMMAND_CODE_SESSION_SKIP_FORWARD));
+        createRemoteController2(mSession.getToken()).skipForward();
+
+        assertTrue(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(mCallback.mOnSkipForwardCalled);
+
+        createSessionWithAllowedActions(
+                createCommandGroupWithout(COMMAND_CODE_SESSION_SKIP_FORWARD));
+        createRemoteController2(mSession.getToken()).skipForward();
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mOnSkipForwardCalled);
+    }
+
+    @Test
+    public void testSkipBackward() throws InterruptedException {
+        prepareLooper();
+        createSessionWithAllowedActions(
+                createCommandGroupWith(COMMAND_CODE_SESSION_SKIP_BACKWARD));
+        createRemoteController2(mSession.getToken()).skipBackward();
+
+        assertTrue(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(mCallback.mOnSkipBackwardCalled);
+
+        createSessionWithAllowedActions(
+                createCommandGroupWithout(COMMAND_CODE_SESSION_SKIP_BACKWARD));
+        createRemoteController2(mSession.getToken()).skipBackward();
+        assertFalse(mCallback.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertFalse(mCallback.mOnSkipBackwardCalled);
+    }
+
+    @Test
     public void testPlayFromMediaId() throws InterruptedException {
         prepareLooper();
         final String mediaId = "testPlayFromMediaId";
@@ -564,6 +600,8 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         public boolean mOnPrepareFromUriCalled;
         public boolean mOnFastForwardCalled;
         public boolean mOnRewindCalled;
+        public boolean mOnSkipForwardCalled;
+        public boolean mOnSkipBackwardCalled;
         public boolean mOnSetRatingCalled;
 
 
@@ -614,6 +652,22 @@ public class MediaSession2_PermissionTest extends MediaSession2TestBase {
         public int onRewind(MediaSession2 session, ControllerInfo controller) {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnRewindCalled = true;
+            mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
+        }
+
+        @Override
+        public int onSkipForward(MediaSession2 session, ControllerInfo controller) {
+            assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
+            mOnSkipForwardCalled = true;
+            mCountDownLatch.countDown();
+            return RESULT_CODE_SUCCESS;
+        }
+
+        @Override
+        public int onSkipBackward(MediaSession2 session, ControllerInfo controller) {
+            assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
+            mOnSkipBackwardCalled = true;
             mCountDownLatch.countDown();
             return RESULT_CODE_SUCCESS;
         }

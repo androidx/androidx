@@ -445,18 +445,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> skipForward() {
-        // To match with KEYCODE_MEDIA_SKIP_FORWARD
-        return null;
-    }
-
-    @Override
-    public ListenableFuture<PlayerResult> skipBackward() {
-        // To match with KEYCODE_MEDIA_SKIP_BACKWARD
-        return null;
-    }
-
-    @Override
     public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
             @Nullable final List<Bundle> routes) {
         dispatchRemoteControllerCallbackTask(controller, new RemoteControllerCallbackTask() {

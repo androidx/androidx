@@ -297,10 +297,11 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Start fast forwarding. If playback is already fast forwarding this
-     * may increase the rate.
+     * Requests session to increase the playback speed.
+     *
+     * @see MediaSession2.SessionCallback#onFastForward(MediaSession2, ControllerInfo)
      */
-    public ListenableFuture<ControllerResult> fastForward() {
+    public @NonNull ListenableFuture<ControllerResult> fastForward() {
         if (isConnected()) {
             return getImpl().fastForward();
         }
@@ -308,12 +309,39 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Start rewinding. If playback is already rewinding this may increase
-     * the rate.
+     * Requests session to decrease the playback speed.
+     *
+     * @see MediaSession2.SessionCallback#onRewind(MediaSession2, ControllerInfo)
      */
-    public ListenableFuture<ControllerResult> rewind() {
+    public @NonNull ListenableFuture<ControllerResult> rewind() {
         if (isConnected()) {
             return getImpl().rewind();
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
+     * Requests session to skip backward within the current media item.
+     *
+     * @see MediaSession2.SessionCallback#onSkipForward(MediaSession2, ControllerInfo)
+     */
+    public @NonNull ListenableFuture<ControllerResult> skipForward() {
+        // To match with KEYCODE_MEDIA_SKIP_FORWARD
+        if (isConnected()) {
+            return getImpl().skipForward();
+        }
+        return createDisconnectedFuture();
+    }
+
+    /**
+     * Requests session to skip forward within the current media item.
+     *
+     * @see MediaSession2.SessionCallback#onSkipBackward(MediaSession2, ControllerInfo)
+     */
+    public @NonNull ListenableFuture<ControllerResult> skipBackward() {
+        // To match with KEYCODE_MEDIA_SKIP_BACKWARD
+        if (isConnected()) {
+            return getImpl().skipBackward();
         }
         return createDisconnectedFuture();
     }
@@ -326,30 +354,6 @@ public class MediaController2 implements AutoCloseable {
     public ListenableFuture<ControllerResult> seekTo(long pos) {
         if (isConnected()) {
             return getImpl().seekTo(pos);
-        }
-        return createDisconnectedFuture();
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> skipForward() {
-        // To match with KEYCODE_MEDIA_SKIP_FORWARD
-        if (isConnected()) {
-            return getImpl().skipForward();
-        }
-        return createDisconnectedFuture();
-    }
-
-    /**
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> skipBackward() {
-        // To match with KEYCODE_MEDIA_SKIP_BACKWARD
-        if (isConnected()) {
-            return getImpl().skipBackward();
         }
         return createDisconnectedFuture();
     }
