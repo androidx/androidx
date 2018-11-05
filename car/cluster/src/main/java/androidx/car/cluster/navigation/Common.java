@@ -48,14 +48,14 @@ final class Common {
     }
 
     /**
-     * Returns the given list, or an empty one if the list is null, or if any of its elements
-     * is null. The returned list should not be mutated.
+     * Returns an immutable view of the given list, or an empty one if the list is null, or if any
+     * of its elements is null.
      */
     @NonNull
-    public static <T> List<T> nonNullOrEmpty(@Nullable List<T> list) {
+    public static <T> List<T> immutableOrEmpty(@Nullable List<T> list) {
         if (list == null || list.stream().anyMatch(Objects::isNull)) {
             return Collections.emptyList();
         }
-        return list;
+        return Collections.unmodifiableList(list);
     }
 }

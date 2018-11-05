@@ -35,7 +35,7 @@ public class SegmentTest {
      * Test a few equality conditions
      */
     @Test
-    public void equalityTests() {
+    public void equality() {
         assertEquals(new Segment(), new Segment(""));
         assertEquals(new Segment("foo"), new Segment("foo"));
         assertNotEquals(new Segment("foo"), new Segment("bar"));
@@ -48,7 +48,7 @@ public class SegmentTest {
      * Test null on {@link Segment} constructor
      */
     @Test(expected = NullPointerException.class)
-    public void nullHandlingTests() {
+    public void nullability() {
         new Segment(null);
     }
 }

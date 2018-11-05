@@ -30,62 +30,64 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Configuration of a single lane of a road at a particular point in the navigation. It describes
- * all possible directions the driver could go from this lane, and indicates which directions the
- * driver could take to stay in the navigation route.
+ * Immutable sequence of graphic elements (e.g.: text, images) to be displayed one after another in
+ * the same way as a {@link CharSequence} would. Elements in this sequence are represented by
+ * {@link RichTextElement} instances.
  */
 @VersionedParcelize
-public final class Lane implements VersionedParcelable {
+public class RichText implements VersionedParcelable {
     @ParcelField(1)
-    List<LaneDirection> mDirections;
+    List<RichTextElement> mElements;
 
     /**
      * Used by {@link VersionedParcelable}
-     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    Lane() {
+    RichText() {
     }
 
     /**
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    Lane(@NonNull List<LaneDirection> directions) {
-        mDirections = new ArrayList<>(directions);
+    RichText(@NonNull List<RichTextElement> elements) {
+        mElements = new ArrayList<>(elements);
     }
 
     /**
-     * Builder for creating a {@link Lane}
+     * Builder for creating a {@link RichText}
      */
     public static final class Builder {
-        private List<LaneDirection> mDirections = new ArrayList<>();
+        private List<RichTextElement> mElements = new ArrayList<>();
 
         /**
-         * Add a possible direction a driver can take from this lane.
+         * Adds a graphic element to the rich text sequence.
+         *
+         * @param element a graphic element to add to the sequence.
+         * @return this object for chaining
          */
         @NonNull
-        public Builder addDirection(@NonNull LaneDirection direction) {
-            mDirections.add(Preconditions.checkNotNull(direction));
+        public Builder addElement(@NonNull RichTextElement element) {
+            mElements.add(Preconditions.checkNotNull(element));
             return this;
         }
 
         /**
-         * Returns a {@link Lane} built with the provided information.
+         * Returns a {@link RichText} built with the provided information.
          */
         @NonNull
-        public Lane build() {
-            return new Lane(mDirections);
+        public RichText build() {
+            return new RichText(mElements);
         }
     }
 
     /**
-     * Returns an unmodifiable list of possible directions a driver can take from this lane.
+     * Returns the sequence of graphic elements
      */
     @NonNull
-    public List<LaneDirection> getDirections() {
-        return Common.immutableOrEmpty(mDirections);
+    List<RichTextElement> getElements() {
+        return Common.immutableOrEmpty(mElements);
     }
 
     @Override
@@ -96,17 +98,17 @@ public final class Lane implements VersionedParcelable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Lane lane = (Lane) o;
-        return Objects.equals(getDirections(), lane.getDirections());
+        RichText richText = (RichText) o;
+        return Objects.equals(getElements(), richText.getElements());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getDirections());
+        return Objects.hash(getElements());
     }
 
     @Override
     public String toString() {
-        return String.format("{direction: %s}", mDirections);
+        return String.format("{elements: %s}", mElements);
     }
 }
