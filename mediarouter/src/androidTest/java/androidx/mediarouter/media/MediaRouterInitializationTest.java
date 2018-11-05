@@ -22,7 +22,9 @@ import static androidx.test.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
+import android.os.Build;
 
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -37,6 +39,7 @@ public class MediaRouterInitializationTest {
     /**
      * This test checks weather MediaRouter is initialized well if an empty route exists
      */
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     @SmallTest
     public void testEmptyUserRoute() throws Exception {
