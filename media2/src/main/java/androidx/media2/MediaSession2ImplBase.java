@@ -91,7 +91,8 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     private final MediaSessionCompat mSessionCompat;
     private final MediaSession2Stub mSession2Stub;
     private final MediaSessionLegacyStub mSessionLegacyStub;
-    private final Executor mCallbackExecutor;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Executor mCallbackExecutor;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SessionCallback mCallback;
     private final String mSessionId;
