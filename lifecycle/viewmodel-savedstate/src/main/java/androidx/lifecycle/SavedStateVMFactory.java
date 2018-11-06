@@ -24,10 +24,10 @@ abstract class SavedStateVMFactory implements ViewModelProvider.KeyedFactory {
     static final String TAG_SAVED_STATE_HANDLE = "androidx.lifecycle.savedstate.vm.tag";
 
     private final ViewModelWithStateFactory mWrappedFactory;
-    private final BundlableSavedStateRegistry mSavedStateStore;
+    private final SavedStateRegistry<Bundle> mSavedStateStore;
     private final Bundle mInitialArgs;
 
-    SavedStateVMFactory(BundlableSavedStateRegistry savedStateStore, Bundle initialArgs,
+    SavedStateVMFactory(SavedStateRegistry<Bundle> savedStateStore, Bundle initialArgs,
             ViewModelWithStateFactory factory) {
         mWrappedFactory = factory;
         mSavedStateStore = savedStateStore;
