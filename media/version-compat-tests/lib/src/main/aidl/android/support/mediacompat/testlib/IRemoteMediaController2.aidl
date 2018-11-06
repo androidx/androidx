@@ -30,7 +30,7 @@ interface IRemoteMediaController2 {
     ParcelImpl getConnectedSessionToken(String controllerId);
     void play(String controllerId);
     void pause(String controllerId);
-    void prefetch(String controllerId);
+    void prepare(String controllerId);
     void seekTo(String controllerId, long pos);
     void setPlaybackSpeed(String controllerId, float speed);
     void setPlaylist(String controllerId, in List<String> list, in ParcelImpl metadata);
@@ -55,9 +55,9 @@ interface IRemoteMediaController2 {
     void playFromMediaId(String controllerId, String mediaId, in Bundle extras);
     void playFromSearch(String controllerId, String query, in Bundle extras);
     void playFromUri(String controllerId, in Uri uri, in Bundle extras);
-    void prefetchFromMediaId(String controllerId, String mediaId, in Bundle extras);
-    void prefetchFromSearch(String controllerId, String query, in Bundle extras);
-    void prefetchFromUri(String controllerId, in Uri uri, in Bundle extras);
+    void prepareFromMediaId(String controllerId, String mediaId, in Bundle extras);
+    void prepareFromSearch(String controllerId, String query, in Bundle extras);
+    void prepareFromUri(String controllerId, in Uri uri, in Bundle extras);
     void setRating(String controllerId, String mediaId, in ParcelImpl rating);
     void subscribeRoutesInfo(String controllerId);
     void unsubscribeRoutesInfo(String controllerId);

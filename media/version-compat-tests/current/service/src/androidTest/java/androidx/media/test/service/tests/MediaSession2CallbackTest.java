@@ -371,7 +371,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
-            public int onPrefetchFromSearch(MediaSession2 session, ControllerInfo controller,
+            public int onPrepareFromSearch(MediaSession2 session, ControllerInfo controller,
                     String query, Bundle extras) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(testQuery, query);
@@ -385,7 +385,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setId("testOnPrepareFromSearch").build()) {
             mController2 = createRemoteController2(session.getToken());
 
-            mController2.prefetchFromSearch(testQuery, testExtras);
+            mController2.prepareFromSearch(testQuery, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -398,7 +398,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
-            public int onPrefetchFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
+            public int onPrepareFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
                     Bundle extras) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(testUri, uri);
@@ -412,7 +412,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setId("testOnPrepareFromUri").build()) {
             mController2 = createRemoteController2(session.getToken());
 
-            mController2.prefetchFromUri(testUri, testExtras);
+            mController2.prepareFromUri(testUri, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -425,7 +425,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaSession2.SessionCallback callback = new MediaSession2.SessionCallback() {
             @Override
-            public int onPrefetchFromMediaId(MediaSession2 session, ControllerInfo controller,
+            public int onPrepareFromMediaId(MediaSession2 session, ControllerInfo controller,
                     String mediaId, Bundle extras) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(testMediaId, mediaId);
@@ -439,7 +439,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setId("testOnPrepareFromMediaId").build()) {
             mController2 = createRemoteController2(session.getToken());
 
-            mController2.prefetchFromMediaId(testMediaId, testExtras);
+            mController2.prepareFromMediaId(testMediaId, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }

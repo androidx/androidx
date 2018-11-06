@@ -39,7 +39,7 @@ oneway interface IMediaSession2 {
 
     void play(IMediaController2 caller, int seq) = 4;
     void pause(IMediaController2 caller, int seq) = 5;
-    void prefetch(IMediaController2 caller, int seq) = 7;
+    void prepare(IMediaController2 caller, int seq) = 7;
     void fastForward(IMediaController2 caller, int seq) = 8;
     void rewind(IMediaController2 caller, int seq) = 9;
     void skipForward(IMediaController2 caller, int seq) = 10;
@@ -47,9 +47,9 @@ oneway interface IMediaSession2 {
     void seekTo(IMediaController2 caller, int seq, long pos) = 12;
     void onCustomCommand(IMediaController2 caller, int seq, in ParcelImpl sessionCommand2,
             in Bundle args) = 13;
-    void prefetchFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 14;
-    void prefetchFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 15;
-    void prefetchFromMediaId(IMediaController2 caller, int seq, String mediaId,
+    void prepareFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 14;
+    void prepareFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 15;
+    void prepareFromMediaId(IMediaController2 caller, int seq, String mediaId,
             in Bundle extras) = 16;
     void playFromUri(IMediaController2 caller, int seq, in Uri uri, in Bundle extras) = 17;
     void playFromSearch(IMediaController2 caller, int seq, String query, in Bundle extras) = 18;

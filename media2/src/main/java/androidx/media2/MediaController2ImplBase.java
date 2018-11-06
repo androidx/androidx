@@ -25,7 +25,7 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_PAUSE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_PLAY;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_PREFETCH;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_PREPARE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO;
@@ -42,9 +42,9 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_URI;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
+import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
@@ -304,11 +304,11 @@ class MediaController2ImplBase implements MediaController2Impl {
     }
 
     @Override
-    public ListenableFuture<ControllerResult> prefetch() {
-        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_PREFETCH, new RemoteSessionTask() {
+    public ListenableFuture<ControllerResult> prepare() {
+        return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_PREPARE, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.prefetch(mControllerStub, seq);
+                iSession2.prepare(mControllerStub, seq);
             }
         });
     }
@@ -406,37 +406,37 @@ class MediaController2ImplBase implements MediaController2Impl {
     }
 
     @Override
-    public ListenableFuture<ControllerResult> prefetchFromMediaId(final @NonNull String mediaId,
+    public ListenableFuture<ControllerResult> prepareFromMediaId(final @NonNull String mediaId,
             final @Nullable Bundle extras) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID,
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
                 new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.prefetchFromMediaId(mControllerStub, seq, mediaId, extras);
+                        iSession2.prepareFromMediaId(mControllerStub, seq, mediaId, extras);
                     }
                 });
     }
 
     @Override
-    public ListenableFuture<ControllerResult> prefetchFromSearch(final @NonNull String query,
+    public ListenableFuture<ControllerResult> prepareFromSearch(final @NonNull String query,
             final @Nullable Bundle extras) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH,
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
                 new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.prefetchFromSearch(mControllerStub, seq, query, extras);
+                        iSession2.prepareFromSearch(mControllerStub, seq, query, extras);
                     }
                 });
     }
 
     @Override
-    public ListenableFuture<ControllerResult> prefetchFromUri(final @NonNull Uri uri,
+    public ListenableFuture<ControllerResult> prepareFromUri(final @NonNull Uri uri,
             final @Nullable Bundle extras) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREFETCH_FROM_URI,
+        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_PREPARE_FROM_URI,
                 new RemoteSessionTask() {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.prefetchFromUri(mControllerStub, seq, uri, extras);
+                        iSession2.prepareFromUri(mControllerStub, seq, uri, extras);
                     }
                 });
     }

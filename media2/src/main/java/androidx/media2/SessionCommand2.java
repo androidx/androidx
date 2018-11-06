@@ -81,7 +81,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     @IntDef({COMMAND_CODE_CUSTOM,
             COMMAND_CODE_PLAYER_PLAY,
             COMMAND_CODE_PLAYER_PAUSE,
-            COMMAND_CODE_PLAYER_PREFETCH,
+            COMMAND_CODE_PLAYER_PREPARE,
             COMMAND_CODE_PLAYER_SEEK_TO,
             COMMAND_CODE_PLAYER_SET_SPEED,
             COMMAND_CODE_PLAYER_GET_PLAYLIST,
@@ -107,9 +107,9 @@ public final class SessionCommand2 implements VersionedParcelable {
             COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
             COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
             COMMAND_CODE_SESSION_PLAY_FROM_URI,
-            COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID,
-            COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH,
-            COMMAND_CODE_SESSION_PREFETCH_FROM_URI,
+            COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
+            COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
+            COMMAND_CODE_SESSION_PREPARE_FROM_URI,
             COMMAND_CODE_SESSION_SET_RATING,
             COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO,
             COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
@@ -160,7 +160,7 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_PAUSE = 10001;
 
     /**
-     * Command code for {@link MediaController2#prefetch()}.
+     * Command code for {@link MediaController2#prepare()}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
      * through the {@link SessionCallback#onCommandRequest(MediaSession2, ControllerInfo,
@@ -168,7 +168,7 @@ public final class SessionCommand2 implements VersionedParcelable {
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      */
-    public static final int COMMAND_CODE_PLAYER_PREFETCH = 10002;
+    public static final int COMMAND_CODE_PLAYER_PREPARE = 10002;
 
     /**
      * Command code for {@link MediaController2#seekTo(long)}.
@@ -446,31 +446,31 @@ public final class SessionCommand2 implements VersionedParcelable {
     public static final int COMMAND_CODE_SESSION_PLAY_FROM_URI = 40006;
 
     /**
-     * Command code for {@link MediaController2#prefetchFromMediaId(String, Bundle)}.
+     * Command code for {@link MediaController2#prepareFromMediaId(String, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID = 40007;
+    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID = 40007;
 
     /**
-     * Command code for {@link MediaController2#prefetchFromSearch(String, Bundle)}.
+     * Command code for {@link MediaController2#prepareFromSearch(String, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH = 40008;
+    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH = 40008;
 
     /**
-     * Command code for {@link MediaController2#prefetchFromUri(Uri, Bundle)}.
+     * Command code for {@link MediaController2#prepareFromUri(Uri, Bundle)}.
      * <p>
      * Code version is {@link #COMMAND_VERSION_1}.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_PREFETCH_FROM_URI = 40009;
+    public static final int COMMAND_CODE_SESSION_PREPARE_FROM_URI = 40009;
 
     /**
      * Command code for {@link MediaController2#setRating(String, Rating2)}.
