@@ -37,6 +37,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
+import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_VALUE;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -71,7 +72,6 @@ public class RowContent extends SliceContent {
     private ArrayList<SliceAction> mToggleItems = new ArrayList<>();
     private SliceItem mRange;
     private SliceItem mSelection;
-    private ArrayList<SliceItem> mSelectionOptions = new ArrayList<>();
     private boolean mIsHeader;
     private int mLineCount = 0;
     private boolean mShowTitleItems;
@@ -215,6 +215,7 @@ public class RowContent extends SliceContent {
                 || mSubtitleItem != null
                 || mEndItems.size() > 0
                 || mRange != null
+                || mSelection != null
                 || isDefaultSeeMore());
     }
 
@@ -433,7 +434,8 @@ public class RowContent extends SliceContent {
         // needs to be here, but better safe than sorry.
         if (item.hasAnyHints(HINT_KEYWORDS, HINT_TTL, HINT_LAST_UPDATED, HINT_HORIZONTAL)
                 || SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())
-                || SUBTYPE_SELECTION_OPTION_KEY.equals(item.getSubType())) {
+                || SUBTYPE_SELECTION_OPTION_KEY.equals(item.getSubType())
+                || SUBTYPE_SELECTION_OPTION_VALUE.equals(item.getSubType())) {
             return false;
         }
         final String itemFormat = item.getFormat();

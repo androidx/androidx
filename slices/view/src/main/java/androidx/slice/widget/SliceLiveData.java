@@ -78,7 +78,8 @@ public final class SliceLiveData {
      */
     @RestrictTo(LIBRARY)
     public static final Set<SliceSpec> SUPPORTED_SPECS = new ArraySet<>(
-            Arrays.asList(SliceSpecs.BASIC, SliceSpecs.LIST, OLD_BASIC, OLD_LIST));
+            Arrays.asList(SliceSpecs.BASIC, SliceSpecs.LIST, SliceSpecs.LIST_V2, OLD_BASIC,
+                    OLD_LIST));
 
     /**
      * Produces a {@link LiveData} that tracks a Slice for a given Uri. To use
