@@ -284,15 +284,15 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Requests that the player prefetch the media items for playback. In other words, other
-     * sessions can continue to play during the prefetch of this session. This method can be used
-     * to speed up the start of the playback. Once the prefetch is done, the player will change
+     * Requests that the player prepare the media items for playback. In other words, other
+     * sessions can continue to play during the prepare of this session. This method can be used
+     * to speed up the start of the playback. Once the prepare is done, the player will change
      * its playback state to {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play}
      * can be called to start playback.
      */
-    public ListenableFuture<ControllerResult> prefetch() {
+    public ListenableFuture<ControllerResult> prepare() {
         if (isConnected()) {
-            return getImpl().prefetch();
+            return getImpl().prepare();
         }
         return createDisconnectedFuture();
     }
@@ -419,12 +419,12 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Requests that the player prefetch a media item with the media id for playback.
+     * Requests that the player prepare a media item with the media id for playback.
      * In other words, other sessions can continue to play during the preparation of this session.
      * This method can be used to speed up the start of the playback.
-     * Once the prefetch is done, the session will change its playback state to
+     * Once the prepare is done, the session will change its playback state to
      * {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called to start
-     * playback. If the prefetch is not needed, {@link #playFromMediaId} can be directly called
+     * playback. If the prepare is not needed, {@link #playFromMediaId} can be directly called
      * without this method.
      *
      * @param mediaId The id of the requested media.
@@ -433,24 +433,24 @@ public class MediaController2 implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> prefetchFromMediaId(@NonNull String mediaId,
+    public ListenableFuture<ControllerResult> prepareFromMediaId(@NonNull String mediaId,
             @Nullable Bundle extras) {
         if (mediaId == null) {
             throw new IllegalArgumentException("mediaId shouldn't be null");
         }
         if (isConnected()) {
-            return getImpl().prefetchFromMediaId(mediaId, extras);
+            return getImpl().prepareFromMediaId(mediaId, extras);
         }
         return createDisconnectedFuture();
     }
 
     /**
-     * Requests that the player prefetch a media item with the specific search query for playback.
+     * Requests that the player prepare a media item with the specific search query for playback.
      * In other words, other sessions can continue to play during the preparation of this session.
      * This method can be used to speed up the start of the playback.
-     * Once the prefetch is done, the session will change its playback state to
+     * Once the prepare is done, the session will change its playback state to
      * {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called to start
-     * playback. If the prefetch is not needed, {@link #playFromSearch} can be directly called
+     * playback. If the prepare is not needed, {@link #playFromSearch} can be directly called
      * without this method.
      *
      * @param query The search query. Should not be an empty string.
@@ -458,24 +458,24 @@ public class MediaController2 implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> prefetchFromSearch(@NonNull String query,
+    public ListenableFuture<ControllerResult> prepareFromSearch(@NonNull String query,
             @Nullable Bundle extras) {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
         }
         if (isConnected()) {
-            return getImpl().prefetchFromSearch(query, extras);
+            return getImpl().prepareFromSearch(query, extras);
         }
         return createDisconnectedFuture();
     }
 
     /**
-     * Requests that the player prefetch a media item with the specific {@link Uri} for playback.
+     * Requests that the player prepare a media item with the specific {@link Uri} for playback.
      * In other words, other sessions can continue to play during the preparation of this session.
      * This method can be used to speed up the start of the playback.
-     * Once the prefetch is done, the session will change its playback state to
+     * Once the prepare is done, the session will change its playback state to
      * {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play} can be called to start
-     * playback. If the prefetch is not needed, {@link #playFromUri} can be directly called
+     * playback. If the prepare is not needed, {@link #playFromUri} can be directly called
      * without this method.
      *
      * @param uri The URI of the requested media.
@@ -484,13 +484,13 @@ public class MediaController2 implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> prefetchFromUri(@NonNull Uri uri,
+    public ListenableFuture<ControllerResult> prepareFromUri(@NonNull Uri uri,
             @Nullable Bundle extras) {
         if (uri == null) {
             throw new IllegalArgumentException("uri shouldn't be null");
         }
         if (isConnected()) {
-            return getImpl().prefetchFromUri(uri, extras);
+            return getImpl().prepareFromUri(uri, extras);
         }
         return createDisconnectedFuture();
     }
@@ -1025,7 +1025,7 @@ public class MediaController2 implements AutoCloseable {
         boolean isConnected();
         ListenableFuture<ControllerResult> play();
         ListenableFuture<ControllerResult> pause();
-        ListenableFuture<ControllerResult> prefetch();
+        ListenableFuture<ControllerResult> prepare();
         ListenableFuture<ControllerResult> fastForward();
         ListenableFuture<ControllerResult> rewind();
         ListenableFuture<ControllerResult> seekTo(long pos);
@@ -1036,11 +1036,11 @@ public class MediaController2 implements AutoCloseable {
         ListenableFuture<ControllerResult> playFromSearch(@NonNull String query,
                 @Nullable Bundle extras);
         ListenableFuture<ControllerResult> playFromUri(@NonNull Uri uri, @Nullable Bundle extras);
-        ListenableFuture<ControllerResult> prefetchFromMediaId(@NonNull String mediaId,
+        ListenableFuture<ControllerResult> prepareFromMediaId(@NonNull String mediaId,
                 @Nullable Bundle extras);
-        ListenableFuture<ControllerResult> prefetchFromSearch(@NonNull String query,
+        ListenableFuture<ControllerResult> prepareFromSearch(@NonNull String query,
                 @Nullable Bundle extras);
-        ListenableFuture<ControllerResult> prefetchFromUri(@NonNull Uri uri,
+        ListenableFuture<ControllerResult> prepareFromUri(@NonNull Uri uri,
                 @Nullable Bundle extras);
         ListenableFuture<ControllerResult> setVolumeTo(int value, @VolumeFlags int flags);
         ListenableFuture<ControllerResult> adjustVolume(@VolumeDirection int direction,

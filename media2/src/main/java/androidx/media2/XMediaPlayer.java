@@ -230,11 +230,11 @@ public class XMediaPlayer extends SessionPlayer2 {
     public static final int MEDIA_INFO_MEDIA_ITEM_REPEAT = 7;
 
     /**
-     * The player just finished prefetching a media item for playback.
+     * The player just finished prepareing a media item for playback.
      * @see #prepare()
      * @see PlayerCallback#onInfo
      */
-    public static final int MEDIA_INFO_PREFETCHED = 100;
+    public static final int MEDIA_INFO_PREPAREED = 100;
 
     /**
      * The video is too complex for the decoder: it can't decode frames fast
@@ -360,7 +360,7 @@ public class XMediaPlayer extends SessionPlayer2 {
             MEDIA_INFO_MEDIA_ITEM_END,
             MEDIA_INFO_MEDIA_ITEM_LIST_END,
             MEDIA_INFO_MEDIA_ITEM_REPEAT,
-            MEDIA_INFO_PREFETCHED,
+            MEDIA_INFO_PREPAREED,
             MEDIA_INFO_VIDEO_TRACK_LAGGING,
             MEDIA_INFO_BUFFERING_START,
             MEDIA_INFO_BUFFERING_END,

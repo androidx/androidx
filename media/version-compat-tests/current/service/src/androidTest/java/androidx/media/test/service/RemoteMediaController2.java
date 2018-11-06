@@ -115,11 +115,11 @@ public class RemoteMediaController2 {
         }
     }
 
-    public void prefetch() {
+    public void prepare() {
         try {
-            mBinder.prefetch(mControllerId);
+            mBinder.prepare(mControllerId);
         } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call prefetch()");
+            Log.e(TAG, "Failed to call prepare()");
         }
     }
 
@@ -324,27 +324,27 @@ public class RemoteMediaController2 {
         }
     }
 
-    public void prefetchFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
+    public void prepareFromMediaId(@NonNull String mediaId, @Nullable Bundle extras) {
         try {
-            mBinder.prefetchFromMediaId(mControllerId, mediaId, extras);
+            mBinder.prepareFromMediaId(mControllerId, mediaId, extras);
         } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call prefetchFromMediaId()");
+            Log.e(TAG, "Failed to call prepareFromMediaId()");
         }
     }
 
-    public void prefetchFromSearch(@NonNull String query, @Nullable Bundle extras) {
+    public void prepareFromSearch(@NonNull String query, @Nullable Bundle extras) {
         try {
-            mBinder.prefetchFromSearch(mControllerId, query, extras);
+            mBinder.prepareFromSearch(mControllerId, query, extras);
         } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call prefetchFromSearch()");
+            Log.e(TAG, "Failed to call prepareFromSearch()");
         }
     }
 
-    public void prefetchFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
+    public void prepareFromUri(@NonNull Uri uri, @Nullable Bundle extras) {
         try {
-            mBinder.prefetchFromUri(mControllerId, uri, extras);
+            mBinder.prepareFromUri(mControllerId, uri, extras);
         } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call prefetchFromUri()");
+            Log.e(TAG, "Failed to call prepareFromUri()");
         }
     }
 

@@ -107,7 +107,7 @@ package androidx.media2 {
     method public boolean isConnected();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! pause();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! play();
-    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! prefetch();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! prepare();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! removePlaylistItem(@IntRange(from=0) int);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult>! replacePlaylistItem(@IntRange(from=0) int, String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.MediaController2.ControllerResult> rewind();
@@ -497,7 +497,7 @@ package androidx.media2 {
     field public static final int COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA = 10012; // 0x271c
     field public static final int COMMAND_CODE_PLAYER_PAUSE = 10001; // 0x2711
     field public static final int COMMAND_CODE_PLAYER_PLAY = 10000; // 0x2710
-    field public static final int COMMAND_CODE_PLAYER_PREFETCH = 10002; // 0x2712
+    field public static final int COMMAND_CODE_PLAYER_PREPARE = 10002; // 0x2712
     field public static final int COMMAND_CODE_PLAYER_REMOVE_PLAYLIST_ITEM = 10014; // 0x271e
     field public static final int COMMAND_CODE_PLAYER_REPLACE_PLAYLIST_ITEM = 10015; // 0x271f
     field public static final int COMMAND_CODE_PLAYER_SEEK_TO = 10003; // 0x2713
@@ -742,7 +742,7 @@ package androidx.media2 {
     field public static final int MEDIA_INFO_BAD_INTERLEAVING = 800; // 0x320
     field public static final int MEDIA_INFO_BUFFERING_UPDATE = 704; // 0x2c0
     field public static final int MEDIA_INFO_NOT_SEEKABLE = 801; // 0x321
-    field public static final int MEDIA_INFO_PREFETCHED = 100; // 0x64
+    field public static final int MEDIA_INFO_PREPAREED = 100; // 0x64
     field public static final int MEDIA_INFO_VIDEO_NOT_PLAYING = 805; // 0x325
     field public static final int MEDIA_INFO_VIDEO_RENDERING_START = 3; // 0x3
     field public static final int MEDIA_INFO_VIDEO_TRACK_LAGGING = 700; // 0x2bc
