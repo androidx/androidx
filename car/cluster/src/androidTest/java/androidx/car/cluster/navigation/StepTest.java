@@ -17,7 +17,6 @@
 package androidx.car.cluster.navigation;
 
 import static androidx.car.cluster.navigation.utils.Assertions.assertImmutable;
-import static androidx.car.cluster.navigation.utils.Assertions.assertThrows;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -27,8 +26,6 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.ArrayList;
 
 /**
  * Tests for {@link Step} serialization
@@ -94,26 +91,6 @@ public class StepTest {
     @Test(expected = NullPointerException.class)
     public void builder_lanesCantBeNull() {
         new Step.Builder().addLane(null);
-    }
-
-    /**
-     * Lane configuration metadata and image must be both provided, or not provided at all.
-     */
-    @Test
-    public void builder_lanesMetadataAndImageMustBeBothProvided() {
-        assertThrows(IllegalArgumentException.class, () ->
-                new Step.Builder().addLane(LaneTest.createSampleLane()).build());
-        assertThrows(IllegalArgumentException.class, () ->
-                new Step.Builder().setLanesImage(ImageReferenceTest.createSampleImage()).build());
-    }
-
-    /**
-     * Tests that even if we receive a null list of {@link Lane}s, we return an empty list to the
-     * consumers.
-     */
-    @Test
-    public void nullability_lanesIsNeverNull() {
-        assertEquals(new ArrayList<>(), new Step().getLanes());
     }
 
     /**
