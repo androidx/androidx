@@ -63,10 +63,6 @@ public final class Step implements VersionedParcelable {
     @RestrictTo(LIBRARY_GROUP)
     Step(@Nullable Distance distance, @Nullable Maneuver maneuver, @NonNull List<Lane> lanes,
             @Nullable ImageReference lanesImage, @Nullable RichText cue) {
-        Preconditions.checkArgument((lanes != null && !lanes.isEmpty() && lanesImage != null)
-                || ((lanes == null || lanes.isEmpty()) && lanesImage == null), "Lanes "
-                + "configuration metadata and image must be both provided, or not provided at "
-                + "all.");
         mDistance = distance;
         mManeuver = maneuver;
         mLanes = new ArrayList<>(lanes);
@@ -111,8 +107,10 @@ public final class Step implements VersionedParcelable {
         /**
          * Adds a road lane configuration to this step. Lanes should be added from left to right.
          * <p>
-         * If {@link Lane} metadata is provided, then a lane configuration image must also be
-         * provided.
+         * If lanes configuration information is available, producers should provide both image (see
+         * {@link #setLanesImage(ImageReference)}) and metadata (through this method) for maximum
+         * interoperability, as some consumers might use images while others might use metadata, or
+         * both.
          *
          * @return this object for chaining
          */
@@ -137,8 +135,10 @@ public final class Step implements VersionedParcelable {
          * Lane configuration images are expected to be displayed in a canvas with fixed height and
          * variable width.
          * <p>
-         * If lane configuration image is provided, then {@link Lane} metadata must also be
-         * provided.
+         * If lanes configuration information is available, producers should provide both metadata
+         * (see {@link #addLane(Lane)}) and image (through this method) for maximum
+         * interoperability, as some consumers might use images while others might use metadata, or
+         * both.
          *
          * @return this object for chaining
          */
