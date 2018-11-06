@@ -1760,11 +1760,19 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized int getVideoWidth() {
-            return getCurrentPlayer().getVideoWidth();
+            try {
+                return getCurrentPlayer().getVideoWidth();
+            } catch (IllegalStateException e) {
+                return 0;
+            }
         }
 
         synchronized int getVideoHeight() {
-            return getCurrentPlayer().getVideoHeight();
+            try {
+                return getCurrentPlayer().getVideoHeight();
+            } catch (IllegalStateException e) {
+                return 0;
+            }
         }
 
         synchronized PersistableBundle getMetrics() {
