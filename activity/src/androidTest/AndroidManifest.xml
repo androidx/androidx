@@ -20,6 +20,8 @@
 
     <application>
         <activity android:name="androidx.activity.LifecycleComponentActivity"/>
+        <activity android:name="androidx.activity.EagerOverrideLifecycleComponentActivity"/>
+        <activity android:name="androidx.activity.LazyOverrideLifecycleComponentActivity"/>
         <activity android:name="androidx.activity.ViewModelActivity"/>
         <activity android:name="androidx.activity.OnBackPressedComponentActivity"/>
     </application>
