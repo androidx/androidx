@@ -158,6 +158,57 @@ public class PrecomputedTextCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void testParams_equalsWithoutTextDirection() {
+        final Params base = new Params.Builder(PAINT)
+                .setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY)
+                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
+                .setTextDirection(LTR).build();
+
+        assertTrue(base.equalsWithoutTextDirection(base));
+
+        Params other = new Params.Builder(PAINT)
+                .setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY)
+                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
+                .setTextDirection(LTR).build();
+        assertTrue(base.equalsWithoutTextDirection(other));
+        assertTrue(other.equalsWithoutTextDirection(base));
+        assertEquals(base.hashCode(), other.hashCode());
+
+        other = new Params.Builder(PAINT)
+                .setBreakStrategy(Layout.BREAK_STRATEGY_SIMPLE)
+                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
+                .setTextDirection(LTR).build();
+        assertFalse(base.equalsWithoutTextDirection(other));
+        assertFalse(other.equalsWithoutTextDirection(base));
+
+        other = new Params.Builder(PAINT)
+                .setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY)
+                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NONE)
+                .setTextDirection(LTR).build();
+        assertFalse(base.equalsWithoutTextDirection(other));
+        assertFalse(other.equalsWithoutTextDirection(base));
+
+
+        other = new Params.Builder(PAINT)
+                .setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY)
+                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
+                .setTextDirection(RTL).build();
+        assertTrue(base.equalsWithoutTextDirection(other));
+        assertTrue(other.equalsWithoutTextDirection(base));
+
+
+        TextPaint anotherPaint = new TextPaint(PAINT);
+        anotherPaint.setTextSize(PAINT.getTextSize() * 2.0f);
+        other = new Params.Builder(anotherPaint)
+                .setBreakStrategy(Layout.BREAK_STRATEGY_HIGH_QUALITY)
+                .setHyphenationFrequency(Layout.HYPHENATION_FREQUENCY_NORMAL)
+                .setTextDirection(LTR).build();
+        assertFalse(base.equalsWithoutTextDirection(other));
+        assertFalse(other.equalsWithoutTextDirection(base));
+    }
+
+    @Test
     public void testParams_equals2() {
         final Params base = new Params.Builder(PAINT).build();
 
@@ -175,6 +226,24 @@ public class PrecomputedTextCompatTest {
         other = new Params.Builder(paint).build();
         assertFalse(base.equals(other));
         assertFalse(other.equals(base));
+    }
+
+    @Test
+    public void testParams_equalsWithoutTextDirection2() {
+        final Params base = new Params.Builder(PAINT).build();
+
+        assertTrue(base.equalsWithoutTextDirection(base));
+
+        Params other = new Params.Builder(PAINT).build();
+        assertTrue(base.equalsWithoutTextDirection(other));
+        assertTrue(other.equalsWithoutTextDirection(base));
+        assertEquals(base.hashCode(), other.hashCode());
+
+        TextPaint paint = new TextPaint(PAINT);
+        paint.setTextSize(paint.getTextSize() * 2.0f + 1.0f);
+        other = new Params.Builder(paint).build();
+        assertFalse(base.equalsWithoutTextDirection(other));
+        assertFalse(other.equalsWithoutTextDirection(base));
     }
 
     @Test
