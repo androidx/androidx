@@ -120,7 +120,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              *
              * @param session the session for this event
              * @param controller controller
-             * @param mediaId item id to get media item.
+             * @param mediaId non-empty media id of the requested item
              * @return a library result with a media item with the id. A runtime exception
              *         will be thrown if an invalid result is returned.
              * @see SessionCommand2#COMMAND_CODE_LIBRARY_GET_ITEM
@@ -139,7 +139,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              *
              * @param session the session for this event
              * @param controller controller
-             * @param parentId parent id to get children
+             * @param parentId non-empty parent id to get children
              * @param page page number. Starts from {@code 0}.
              * @param pageSize page size. Should be greater or equal to {@code 1}.
              * @param params library params
@@ -169,7 +169,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              *
              * @param session the session for this event
              * @param controller controller
-             * @param parentId parent id
+             * @param parentId non-empty parent id
              * @param params library params
              * @return result code
              * @see SessionCommand2#COMMAND_CODE_LIBRARY_SUBSCRIBE
@@ -190,7 +190,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              *
              * @param session the session for this event
              * @param controller controller
-             * @param parentId parent id
+             * @param parentId non-empty parent id
              * @return result code
              * @see SessionCommand2#COMMAND_CODE_LIBRARY_UNSUBSCRIBE
              */
@@ -209,8 +209,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              *
              * @param session the session for this event
              * @param controller controller
-             * @param query The search query sent from the media browser. It contains keywords
-             *              separated by space.
+             * @param query The non-empty search query sent from the media browser.
+             *              It contains keywords separated by space.
              * @param params library params
              * @return result code
              * @see SessionCommand2#COMMAND_CODE_LIBRARY_SEARCH
@@ -235,7 +235,8 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
              *
              * @param session the session for this event
              * @param controller controller
-             * @param query The search query which was previously sent through {@link #onSearch}.
+             * @param query The non-empty search query which was previously sent through
+             *              {@link #onSearch}.
              * @param page page number. Starts from {@code 0}.
              * @param pageSize page size. Should be greater or equal to {@code 1}.
              * @param params library params
@@ -324,7 +325,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          * to get the list of children.
          *
          * @param controller controller to notify
-         * @param parentId parent id with changes in its children
+         * @param parentId non-empty parent id with changes in its children
          * @param itemCount number of children.
          * @param params library params
          */
@@ -347,7 +348,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          * Notify all controllers that subscribed to the parent about change in the parent's
          * children, regardless of the library params supplied by
          * {@link MediaBrowser2#subscribe(String, LibraryParams)}.
-         *  @param parentId parent id
+         *  @param parentId non-empty parent id
          * @param itemCount number of children
          * @param params library params
          */
@@ -367,7 +368,7 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
          * Notify controller about change in the search result.
          *
          * @param controller controller to notify
-         * @param query previously sent search query from the controller.
+         * @param query previously sent non-empty search query from the controller.
          * @param itemCount the number of items that have been found in the search.
          * @param params library params
          */

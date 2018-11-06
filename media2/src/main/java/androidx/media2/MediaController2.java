@@ -362,7 +362,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Requests that the player start playback for a specific media id.
      *
-     * @param mediaId The id of the requested media. Shouldn't be an empty string.
+     * @param mediaId The non-empty media id
      * @param extras Optional extras that can include extra information about the media item
      *               to be played.
      * @hide
@@ -382,7 +382,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Requests that the player start playback for a specific search query.
      *
-     * @param query The search query. Shouldn't be an empty string.
+     * @param query The non-empty search query
      * @param extras Optional extras that can include extra information about the query.
      * @hide
      */
@@ -427,7 +427,7 @@ public class MediaController2 implements AutoCloseable {
      * playback. If the prepare is not needed, {@link #playFromMediaId} can be directly called
      * without this method.
      *
-     * @param mediaId The id of the requested media. Shouldn't be an empty string.
+     * @param mediaId The non-empty media id
      * @param extras Optional extras that can include extra information about the media item
      *               to be prepared.
      * @hide
@@ -453,7 +453,7 @@ public class MediaController2 implements AutoCloseable {
      * playback. If the prepare is not needed, {@link #playFromSearch} can be directly called
      * without this method.
      *
-     * @param query The search query. Shouldn't be an empty string.
+     * @param query The non-empty search query
      * @param extras Optional extras that can include extra information about the query.
      * @hide
      */
@@ -652,7 +652,7 @@ public class MediaController2 implements AutoCloseable {
      * <p>
      * If the user rating was {@code null}, the media item does not accept setting user rating.
      *
-     * @param mediaId The id of the media. Shouldn't be an empty string.
+     * @param mediaId The non-empty media id
      * @param rating The rating to set
      */
     public ListenableFuture<ControllerResult> setRating(@NonNull String mediaId,
@@ -739,7 +739,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Sets a {@link MediaItem2} for playback.
      *
-     * @param mediaId the descriptor of media item you want to play. Shouldn't be an empty string.
+     * @param mediaId The non-empty media id of the item to play
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
     public ListenableFuture<ControllerResult> setMediaItem(@NonNull String mediaId) {
@@ -787,7 +787,7 @@ public class MediaController2 implements AutoCloseable {
      * the current index of the playlist will be incremented correspondingly.
      *
      * @param index the index you want to add
-     * @param mediaId the media ID of the new item. Shouldn't be an empty string.
+     * @param mediaId The non-empty media id of the new item
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
     public ListenableFuture<ControllerResult> addPlaylistItem(@IntRange(from = 0) int index,
@@ -826,7 +826,7 @@ public class MediaController2 implements AutoCloseable {
      * Replaces the media item at index in the playlist with the media ID.
      *
      * @param index the index of the item to replace
-     * @param mediaId the media ID of the new item. Shouldn't be an empty string.
+     * @param mediaId The non-empty media id of the new item
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
     public ListenableFuture<ControllerResult> replacePlaylistItem(@IntRange(from = 0) int index,
