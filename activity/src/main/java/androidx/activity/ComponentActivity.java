@@ -25,11 +25,14 @@ import android.view.Window;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.BundleSavedStateRegistry;
+import androidx.lifecycle.BundleSavedStateRegistryOwner;
 import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
+import androidx.lifecycle.SavedStateRegistry;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 
@@ -45,7 +48,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class ComponentActivity extends androidx.core.app.ComponentActivity implements
         LifecycleOwner,
-        ViewModelStoreOwner {
+        ViewModelStoreOwner,
+        BundleSavedStateRegistryOwner {
 
     static final class NonConfigurationInstances {
         Object custom;
@@ -53,6 +57,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     }
 
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
+    private final BundleSavedStateRegistry mSavedStateRegistry = new BundleSavedStateRegistry();
 
     // Lazily recreated from NonConfigurationInstances by getViewModelStore()
     private ViewModelStore mViewModelStore;
@@ -100,6 +105,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @SuppressWarnings("RestrictedApi")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mSavedStateRegistry.performRestore(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
     }
 
@@ -112,6 +118,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             ((LifecycleRegistry) lifecycle).markState(Lifecycle.State.CREATED);
         }
         super.onSaveInstanceState(outState);
+        mSavedStateRegistry.performSave(outState);
     }
 
     /**
@@ -323,6 +330,12 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             callbackToRemove.onRemoved();
             mOnBackPressedCallbacks.remove(callbackToRemove);
         }
+    }
+
+    @NonNull
+    @Override
+    public final SavedStateRegistry<Bundle> getBundleSavedStateRegistry() {
+        return mSavedStateRegistry;
     }
 
     private class LifecycleAwareOnBackPressedCallback implements
