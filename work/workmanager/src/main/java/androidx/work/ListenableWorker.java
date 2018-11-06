@@ -73,7 +73,6 @@ public abstract class ListenableWorker {
     private @NonNull WorkerParameters mWorkerParams;
 
     private volatile boolean mStopped;
-    private volatile boolean mCancelled;
 
     private boolean mUsed;
 
@@ -199,27 +198,12 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * Returns {@code true} if this Worker has been told to stop and explicitly informed that it is
-     * cancelled and will never execute again.  If {@link #isStopped()} returns {@code true} but
-     * this method returns {@code false}, that means the system has decided to preempt the task.
-     * <p>
-     * Note that it is almost never sufficient to check only this method; its value is only
-     * meaningful when {@link #isStopped()} returns {@code true}.
-     *
-     * @return {@code true} if this work operation has been cancelled
-     */
-    public final boolean isCancelled() {
-        return mCancelled;
-    }
-
-    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public final void stop(boolean cancelled) {
+    public final void stop() {
         mStopped = true;
-        mCancelled = cancelled;
-        onStopped(cancelled);
+        onStopped();
     }
 
     /**
@@ -229,10 +213,8 @@ public abstract class ListenableWorker {
      * processing in this method should be lightweight - there are no contractual guarantees about
      * which thread will invoke this call, so this should not be a long-running or blocking
      * operation.
-     *
-     * @param cancelled If {@code true}, the work has been explicitly cancelled
      */
-    public void onStopped(boolean cancelled) {
+    public void onStopped() {
         // Do nothing by default.
     }
 
