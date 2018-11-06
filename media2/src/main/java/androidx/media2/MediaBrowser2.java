@@ -69,7 +69,7 @@ public class MediaBrowser2 extends MediaController2 {
          *               that you've specified with {@link #subscribe(String, LibraryParams)}.
          */
         public void onChildrenChanged(@NonNull MediaBrowser2 browser, @NonNull String parentId,
-                int itemCount, @Nullable LibraryParams params) { }
+                @IntRange(from = 0) int itemCount, @Nullable LibraryParams params) { }
 
         /**
          * Called when there's change in the search result requested by the previous
@@ -83,7 +83,7 @@ public class MediaBrowser2 extends MediaController2 {
          *               that you've specified with {@link #search(String, LibraryParams)}.
          */
         public void onSearchResultChanged(@NonNull MediaBrowser2 browser, @NonNull String query,
-                int itemCount, @Nullable LibraryParams params) { }
+                @IntRange(from = 0) int itemCount, @Nullable LibraryParams params) { }
     }
 
     public MediaBrowser2(@NonNull Context context, @NonNull SessionToken2 token,
