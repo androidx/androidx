@@ -45,7 +45,7 @@ public class SavedStateHandle {
         return mHolder.savedStateAccessor();
     }
 
-    SavedStateRegistry.SavedStateProvider savedStateComponent() {
+    SavedStateRegistry.SavedStateProvider<Bundle> savedStateComponent() {
         return mHolder;
     }
 

@@ -17,17 +17,19 @@
 package androidx.lifecycle;
 
 
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 
 /**
  * A scope that owns {@link SavedStateRegistry}
  */
-public interface SavedStateRegistryOwner {
+public interface BundleSavedStateRegistryOwner {
     /**
      * Returns owned {@link SavedStateRegistry}
      *
      * @return a {@link SavedStateRegistry}
      */
     @NonNull
-    SavedStateRegistry getSavedState();
+    SavedStateRegistry<Bundle> getBundleSavedStateRegistry();
 }
