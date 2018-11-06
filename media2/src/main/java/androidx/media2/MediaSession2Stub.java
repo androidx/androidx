@@ -710,8 +710,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(ControllerInfo controller) {
-                        if (mediaId == null) {
-                            Log.w(TAG, "prepareFromMediaId(): Ignoring null mediaId from "
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "prepareFromMediaId(): Ignoring empty mediaId from "
                                     + controller);
                             return RESULT_CODE_BAD_VALUE;
                         }
@@ -771,9 +771,9 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(ControllerInfo controller) {
-                        if (mediaId == null) {
-                            Log.w(TAG,
-                                    "playFromMediaId(): Ignoring null mediaId from " + controller);
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "playFromMediaId(): Ignoring empty mediaId from "
+                                    + controller);
                             return RESULT_CODE_BAD_VALUE;
                         }
                         return mSessionImpl.getCallback().onPlayFromMediaId(
@@ -793,13 +793,12 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new SessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(ControllerInfo controller) {
-                        if (mediaId == null) {
-                            Log.w(TAG, "setRating(): Ignoring null mediaId from " + controller);
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "setRating(): Ignoring empty mediaId from " + controller);
                             return RESULT_CODE_BAD_VALUE;
                         }
                         if (rating2 == null) {
-                            Log.w(TAG,
-                                    "setRating(): Ignoring null rating from " + controller);
+                            Log.w(TAG, "setRating(): Ignoring null rating from " + controller);
                             return RESULT_CODE_BAD_VALUE;
                         }
                         return mSessionImpl.getCallback().onSetRating(
@@ -1237,8 +1236,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 new LibrarySessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(ControllerInfo controller) {
-                        if (parentId == null) {
-                            Log.w(TAG, "unsubscribe(): Ignoring null parentId from " + controller);
+                        if (TextUtils.isEmpty(parentId)) {
+                            Log.w(TAG, "unsubscribe(): Ignoring empty parentId from " + controller);
                             return LibraryResult.RESULT_CODE_BAD_VALUE;
                         }
                         return getLibrarySession().onUnsubscribeOnExecutor(controller, parentId);
