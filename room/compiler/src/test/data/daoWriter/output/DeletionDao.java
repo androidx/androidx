@@ -95,7 +95,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public void deleteUser(User user) {
+  public void deleteUser(final User user) {
     __db.beginTransaction();
     try {
       __deletionAdapterOfUser.handle(user);
@@ -106,7 +106,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public void deleteUsers(User user1, List<User> others) {
+  public void deleteUsers(final User user1, final List<User> others) {
     __db.beginTransaction();
     try {
       __deletionAdapterOfUser.handle(user1);
@@ -118,7 +118,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public void deleteArrayOfUsers(User[] users) {
+  public void deleteArrayOfUsers(final User[] users) {
     __db.beginTransaction();
     try {
       __deletionAdapterOfUser.handleMultiple(users);
@@ -129,7 +129,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public Integer deleteUserAndReturnCountObject(User user) {
+  public Integer deleteUserAndReturnCountObject(final User user) {
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -142,7 +142,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public int deleteUserAndReturnCount(User user) {
+  public int deleteUserAndReturnCount(final User user) {
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -155,7 +155,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public int deleteUserAndReturnCount(User user1, List<User> others) {
+  public int deleteUserAndReturnCount(final User user1, final List<User> others) {
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -169,7 +169,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public int deleteUserAndReturnCount(User[] users) {
+  public int deleteUserAndReturnCount(final User[] users) {
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -182,7 +182,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public Completable deleteUserCompletable(User user) {
+  public Completable deleteUserCompletable(final User user) {
     return Completable.fromCallable(new Callable() {
       @Override
       public Void call() throws Exception {
@@ -199,7 +199,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public Single<Integer> deleteUserSingle(User user) {
+  public Single<Integer> deleteUserSingle(final User user) {
     return Single.fromCallable(new Callable<Integer>() {
       @Override
       public Integer call() throws Exception {
@@ -217,7 +217,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public Maybe<Integer> deleteUserMaybe(User user) {
+  public Maybe<Integer> deleteUserMaybe(final User user) {
     return Maybe.fromCallable(new Callable<Integer>() {
       @Override
       public Integer call() throws Exception {
@@ -235,7 +235,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public int multiPKey(MultiPKeyEntity entity) {
+  public int multiPKey(final MultiPKeyEntity entity) {
     int _total = 0;
     __db.beginTransaction();
     try {
@@ -248,7 +248,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public void deleteUserAndBook(User user, Book book) {
+  public void deleteUserAndBook(final User user, final Book book) {
     __db.beginTransaction();
     try {
       __deletionAdapterOfUser.handle(user);
@@ -260,7 +260,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public int deleteByUid(int uid) {
+  public int deleteByUid(final int uid) {
     final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
     __db.beginTransaction();
     try {
@@ -290,7 +290,7 @@ public final class DeletionDao_Impl implements DeletionDao {
   }
 
   @Override
-  public int deleteByUidList(int... uid) {
+  public int deleteByUidList(final int... uid) {
     StringBuilder _stringBuilder = StringUtil.newStringBuilder();
     _stringBuilder.append("DELETE FROM user where uid IN(");
     final int _inputSize = uid.length;

@@ -55,6 +55,15 @@ interface BooksDao {
     @Insert
     fun addPublishersMaybe(vararg publishers: Publisher): Maybe<List<Long>>
 
+    @Insert
+    fun addPublisherSingle(publisher: Publisher): Single<Long>
+
+    @Insert
+    fun addPublisherCompletable(publisher: Publisher): Completable
+
+    @Insert
+    fun addPublisherMaybe(publisher: Publisher): Maybe<Long>
+
     @Delete
     fun deletePublishers(vararg publishers: Publisher)
 
