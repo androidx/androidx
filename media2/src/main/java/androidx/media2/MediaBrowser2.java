@@ -135,7 +135,7 @@ public class MediaBrowser2 extends MediaController2 {
      * called with the library params. You should call
      * {@link #getChildren(String, int, int, LibraryParams)} to get the items under the parent.
      *
-     * @param parentId parent id
+     * @param parentId parent id. Shouldn't be an empty string.
      * @param params library params
      */
     public ListenableFuture<BrowserResult> subscribe(@NonNull String parentId,
@@ -156,7 +156,7 @@ public class MediaBrowser2 extends MediaController2 {
      * This unsubscribes all previous subscription with the parent id, regardless of the library
      * param that was previously sent to the library service.
      *
-     * @param parentId parent id
+     * @param parentId parent id. Shouldn't be an empty string.
      */
     public ListenableFuture<BrowserResult> unsubscribe(@NonNull String parentId) {
         if (TextUtils.isEmpty(parentId)) {
@@ -174,7 +174,7 @@ public class MediaBrowser2 extends MediaController2 {
      * If it's successfully completed, {@link BrowserResult#getMediaItems()} will return the list
      * of children.
      *
-     * @param parentId parent id for getting the children.
+     * @param parentId parent id for getting the children. Shouldn't be an empty string.
      * @param page page number to get the result. Starts from {@code 0}
      * @param pageSize page size. Should be greater or equal to {@code 1}
      * @param params library params
@@ -204,7 +204,7 @@ public class MediaBrowser2 extends MediaController2 {
      * If it's successfully completed, {@link BrowserResult#getMediaItem()} will return the media
      * item.
      *
-     * @param mediaId media id for specifying the item
+     * @param mediaId media id for specifying the item. Shouldn't be an empty string.
      * @see BrowserResult#getMediaItems()
      */
     public ListenableFuture<BrowserResult> getItem(@NonNull final String mediaId) {
@@ -225,7 +225,7 @@ public class MediaBrowser2 extends MediaController2 {
      * {@link BrowserCallback#getSearchResult(String, int, int, LibraryParams)} the search result
      * and calls {@link #getSearchResult(String, int, int, LibraryParams)}} for getting the result.
      *
-     * @param query search query. Should not be an empty string.
+     * @param query search query. Shouldn't be an empty string.
      * @param params library params
      * @see BrowserCallback#getSearchResult(String, int, int, LibraryParams)
      * @see #getSearchResult(String, int, int, LibraryParams)
@@ -247,7 +247,8 @@ public class MediaBrowser2 extends MediaController2 {
      * If it's successfully completed, {@link BrowserResult#getMediaItems()} will return the search
      * result.
      *
-     * @param query search query that you've specified with {@link #search(String, LibraryParams)}
+     * @param query search query that you've specified with {@link #search(String, LibraryParams)}.
+     *              Shouldn't be an empty string.
      * @param page page number to get search result. Starts from {@code 0}
      * @param pageSize page size. Should be greater or equal to {@code 1}
      * @param params library params
