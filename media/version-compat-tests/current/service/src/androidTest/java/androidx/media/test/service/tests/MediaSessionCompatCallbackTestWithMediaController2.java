@@ -57,7 +57,6 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -266,12 +265,11 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         assertTrue(mSessionCallback.mOnSkipToNextCalled);
     }
 
-    //@Test see: b/110738672
+    @Test
     public void testSkipToPlaylistItem() throws Exception {
         prepareLooper();
 
         final int testSkipToIndex = 1;
-        // replace = remove + add
         final List<MediaItem2> testList = MediaTestUtils.createPlaylist(2);
         final List<QueueItem> testQueue = MediaUtils2.convertToQueueItemList(testList);
 
@@ -279,7 +277,7 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         mSession.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
         createControllerAndWaitConnection();
 
-        mSessionCallback.reset(2);
+        mSessionCallback.reset(1);
         mController.skipToPlaylistItem(testSkipToIndex);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSkipToQueueItemCalled);
@@ -512,7 +510,6 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     }
 
     @Test
-    @Ignore("b/110738672")
     public void testPrepareFromSearch() throws Exception {
         prepareLooper();
         final String request = "random query";
