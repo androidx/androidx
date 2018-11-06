@@ -61,7 +61,7 @@ internal class ParagraphAndroid constructor(
         get() = Double.MAX_VALUE
 
     val didExceedMaxLines: Boolean
-        get() = false
+        get() = layout?.let { it.didExceedMaxLines } ?: false
 
     fun layout(width: Double, force: Boolean = false) {
         val floorWidth = floor(width)
@@ -82,7 +82,12 @@ internal class ParagraphAndroid constructor(
         }
 
         val charSequence = text.toString() as CharSequence
-        layout = TextLayout(charSequence = charSequence, width = floorWidth, textPaint = textPaint)
+        val maxLines = paragraphStyle.maxLines ?: Int.MAX_VALUE
+        layout = TextLayout(
+            charSequence = charSequence,
+            width = floorWidth,
+            textPaint = textPaint,
+            maxLines = maxLines)
         this.width = floorWidth
     }
 

@@ -101,8 +101,7 @@ class Paragraph internal constructor(
      * null, `ellipsis` was not null, and one of the lines exceeded the width
      * constraint.
      *
-     * See the discussion of the `maxLines` and `ellipsis` arguments at [new
-     * ParagraphStyle].
+     * See the discussion of the `maxLines` and `ellipsis` arguments at [ParagraphStyle].
      */
     val didExceedMaxLines: Boolean
         get() = paragraphImpl.didExceedMaxLines
