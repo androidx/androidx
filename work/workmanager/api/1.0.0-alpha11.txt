@@ -127,9 +127,8 @@ package androidx.work {
     method public final java.util.Set<java.lang.String> getTags();
     method @RequiresApi(24) public final java.util.List<java.lang.String>? getTriggeredContentAuthorities();
     method @RequiresApi(24) public final java.util.List<android.net.Uri>? getTriggeredContentUris();
-    method public final boolean isCancelled();
     method public final boolean isStopped();
-    method public void onStopped(boolean);
+    method public void onStopped();
     method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> startWork();
   }
 

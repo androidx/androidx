@@ -879,7 +879,6 @@ public class WorkerWrapperTest extends DatabaseTest {
         Executors.newSingleThreadExecutor().submit(workerWrapper);
         workerWrapper.interrupt(false);
         assertThat(worker.isStopped(), is(true));
-        assertThat(worker.isCancelled(), is(false));
     }
 
     @Test
@@ -912,7 +911,6 @@ public class WorkerWrapperTest extends DatabaseTest {
         Executors.newSingleThreadExecutor().submit(workerWrapper);
         workerWrapper.interrupt(true);
         assertThat(worker.isStopped(), is(true));
-        assertThat(worker.isCancelled(), is(true));
     }
 
     @Test

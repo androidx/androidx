@@ -75,23 +75,22 @@
                 android:layout_marginTop="12dp"
                 android:text="Observe Image URI"/>
 
+        <EditText android:id="@+id/delay_in_ms"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="12dp"
+                android:ems="10"
+                android:hint="Delay in ms"
+                android:inputType="number"
+                android:singleLine="true"
+                android:text="0"/>
 
         <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-
-            <EditText android:id="@+id/delay_in_ms"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="12dp"
-                    android:ems="10"
-                    android:hint="Delay in ms"
-                    android:inputType="number"
-                    android:singleLine="true"
-                    android:text="0"/>
 
             <Button android:id="@+id/schedule_delay"
                     android:layout_width="wrap_content"
@@ -99,7 +98,23 @@
                     android:layout_marginLeft="8dp"
                     android:layout_marginStart="8dp"
                     android:layout_marginTop="12dp"
-                    android:text="Schedule with Delay"/>
+                    android:text="Schedule w/ Delay"/>
+
+            <Button android:id="@+id/coroutine_sleep"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Coroutine Sleep"/>
+
+            <Button android:id="@+id/coroutine_cancel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginTop="12dp"
+                    android:text="Coroutine Cancel"/>
 
         </LinearLayout>
 
