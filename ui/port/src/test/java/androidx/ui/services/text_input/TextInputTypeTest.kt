@@ -16,7 +16,8 @@
 
 package androidx.ui.services.text_input
 
-import org.junit.Assert.assertEquals
+import org.hamcrest.CoreMatchers.equalTo
+import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -27,26 +28,26 @@ class TextInputTypeTest {
     fun `numberWithOptions default`() {
         val defaultTextInputType = TextInputType.numberWithOptions()
 
-        assertEquals(2, defaultTextInputType.index)
-        assertEquals(false, defaultTextInputType.signed)
-        assertEquals(false, defaultTextInputType.decimal)
+        assertThat(2, equalTo(defaultTextInputType.index))
+        assertThat(false, equalTo(defaultTextInputType.signed))
+        assertThat(false, equalTo(defaultTextInputType.decimal))
     }
 
     @Test
     fun `numberWithOptions with signed`() {
         val textInputType = TextInputType.numberWithOptions(signed = true)
 
-        assertEquals(2, textInputType.index)
-        assertEquals(true, textInputType.signed)
-        assertEquals(false, textInputType.decimal)
+        assertThat(2, equalTo(textInputType.index))
+        assertThat(true, equalTo(textInputType.signed))
+        assertThat(false, equalTo(textInputType.decimal))
     }
 
     @Test
     fun `numberWithOptions with decimal`() {
         val textInputType = TextInputType.numberWithOptions(decimal = true)
 
-        assertEquals(2, textInputType.index)
-        assertEquals(false, textInputType.signed)
-        assertEquals(true, textInputType.decimal)
+        assertThat(2, equalTo(textInputType.index))
+        assertThat(false, equalTo(textInputType.signed))
+        assertThat(true, equalTo(textInputType.decimal))
     }
 }
