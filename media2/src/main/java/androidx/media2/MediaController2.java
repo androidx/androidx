@@ -362,7 +362,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Requests that the player start playback for a specific media id.
      *
-     * @param mediaId The id of the requested media.
+     * @param mediaId The id of the requested media. Shouldn't be an empty string.
      * @param extras Optional extras that can include extra information about the media item
      *               to be played.
      * @hide
@@ -370,8 +370,8 @@ public class MediaController2 implements AutoCloseable {
     @RestrictTo(LIBRARY_GROUP)
     public ListenableFuture<ControllerResult> playFromMediaId(@NonNull String mediaId,
             @Nullable Bundle extras) {
-        if (mediaId == null) {
-            throw new IllegalArgumentException("mediaId shouldn't be null");
+        if (TextUtils.isEmpty(mediaId)) {
+            throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
         if (isConnected()) {
             return getImpl().playFromMediaId(mediaId, extras);
@@ -382,7 +382,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Requests that the player start playback for a specific search query.
      *
-     * @param query The search query. Should not be an empty string.
+     * @param query The search query. Shouldn't be an empty string.
      * @param extras Optional extras that can include extra information about the query.
      * @hide
      */
@@ -427,7 +427,7 @@ public class MediaController2 implements AutoCloseable {
      * playback. If the prepare is not needed, {@link #playFromMediaId} can be directly called
      * without this method.
      *
-     * @param mediaId The id of the requested media.
+     * @param mediaId The id of the requested media. Shouldn't be an empty string.
      * @param extras Optional extras that can include extra information about the media item
      *               to be prepared.
      * @hide
@@ -435,8 +435,8 @@ public class MediaController2 implements AutoCloseable {
     @RestrictTo(LIBRARY_GROUP)
     public ListenableFuture<ControllerResult> prepareFromMediaId(@NonNull String mediaId,
             @Nullable Bundle extras) {
-        if (mediaId == null) {
-            throw new IllegalArgumentException("mediaId shouldn't be null");
+        if (TextUtils.isEmpty(mediaId)) {
+            throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
         if (isConnected()) {
             return getImpl().prepareFromMediaId(mediaId, extras);
@@ -453,7 +453,7 @@ public class MediaController2 implements AutoCloseable {
      * playback. If the prepare is not needed, {@link #playFromSearch} can be directly called
      * without this method.
      *
-     * @param query The search query. Should not be an empty string.
+     * @param query The search query. Shouldn't be an empty string.
      * @param extras Optional extras that can include extra information about the query.
      * @hide
      */
@@ -652,13 +652,13 @@ public class MediaController2 implements AutoCloseable {
      * <p>
      * If the user rating was {@code null}, the media item does not accept setting user rating.
      *
-     * @param mediaId The id of the media
+     * @param mediaId The id of the media. Shouldn't be an empty string.
      * @param rating The rating to set
      */
     public ListenableFuture<ControllerResult> setRating(@NonNull String mediaId,
             @NonNull Rating2 rating) {
-        if (mediaId == null) {
-            throw new IllegalArgumentException("mediaId shouldn't be null");
+        if (TextUtils.isEmpty(mediaId)) {
+            throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
         if (rating == null) {
             throw new IllegalArgumentException("rating shouldn't be null");
@@ -739,7 +739,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Sets a {@link MediaItem2} for playback.
      *
-     * @param mediaId the descriptor of media item you want to play
+     * @param mediaId the descriptor of media item you want to play. Shouldn't be an empty string.
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
     public ListenableFuture<ControllerResult> setMediaItem(@NonNull String mediaId) {
@@ -787,7 +787,7 @@ public class MediaController2 implements AutoCloseable {
      * the current index of the playlist will be incremented correspondingly.
      *
      * @param index the index you want to add
-     * @param mediaId the media ID of the new item
+     * @param mediaId the media ID of the new item. Shouldn't be an empty string.
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
     public ListenableFuture<ControllerResult> addPlaylistItem(@IntRange(from = 0) int index,
@@ -826,7 +826,7 @@ public class MediaController2 implements AutoCloseable {
      * Replaces the media item at index in the playlist with the media ID.
      *
      * @param index the index of the item to replace
-     * @param mediaId the media ID of the new item
+     * @param mediaId the media ID of the new item. Shouldn't be an empty string.
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
     public ListenableFuture<ControllerResult> replacePlaylistItem(@IntRange(from = 0) int index,
@@ -1306,12 +1306,6 @@ public class MediaController2 implements AutoCloseable {
     // The same as MediaController.PlaybackInfo
     @VersionedParcelize
     public static final class PlaybackInfo implements VersionedParcelable {
-        private static final String KEY_PLAYBACK_TYPE = "android.media.audio_info.playback_type";
-        private static final String KEY_CONTROL_TYPE = "android.media.audio_info.control_type";
-        private static final String KEY_MAX_VOLUME = "android.media.audio_info.max_volume";
-        private static final String KEY_CURRENT_VOLUME = "android.media.audio_info.current_volume";
-        private static final String KEY_AUDIO_ATTRIBUTES = "android.media.audio_info.audio_attrs";
-
         @ParcelField(1)
         int mPlaybackType;
         @ParcelField(2)
@@ -1427,35 +1421,9 @@ public class MediaController2 implements AutoCloseable {
                     && ObjectsCompat.equals(mAudioAttrsCompat, other.mAudioAttrsCompat);
         }
 
-        Bundle toBundle() {
-            Bundle bundle = new Bundle();
-            bundle.putInt(KEY_PLAYBACK_TYPE, mPlaybackType);
-            bundle.putInt(KEY_CONTROL_TYPE, mControlType);
-            bundle.putInt(KEY_MAX_VOLUME, mMaxVolume);
-            bundle.putInt(KEY_CURRENT_VOLUME, mCurrentVolume);
-            if (mAudioAttrsCompat != null) {
-                bundle.putBundle(KEY_AUDIO_ATTRIBUTES, mAudioAttrsCompat.toBundle());
-            }
-            return bundle;
-        }
-
         static PlaybackInfo createPlaybackInfo(int playbackType, AudioAttributesCompat attrs,
                 int controlType, int max, int current) {
             return new PlaybackInfo(playbackType, attrs, controlType, max, current);
-        }
-
-        static PlaybackInfo fromBundle(Bundle bundle) {
-            if (bundle == null) {
-                return null;
-            }
-            final int volumeType = bundle.getInt(KEY_PLAYBACK_TYPE);
-            final int volumeControl = bundle.getInt(KEY_CONTROL_TYPE);
-            final int maxVolume = bundle.getInt(KEY_MAX_VOLUME);
-            final int currentVolume = bundle.getInt(KEY_CURRENT_VOLUME);
-            final AudioAttributesCompat attrs = AudioAttributesCompat.fromBundle(
-                    bundle.getBundle(KEY_AUDIO_ATTRIBUTES));
-            return createPlaybackInfo(volumeType, attrs, volumeControl, maxVolume,
-                    currentVolume);
         }
     }
 

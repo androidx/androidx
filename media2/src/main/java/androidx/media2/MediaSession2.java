@@ -566,13 +566,10 @@ public class MediaSession2 implements AutoCloseable {
         /**
          * Called when a controller requested to begin playback from a search query through
          * {@link MediaController2#playFromSearch(String, Bundle)}
-         * <p>
-         * An empty query indicates that the app may play any music. The implementation should
-         * attempt to make a smart choice about what to play.
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param query query string. Can be empty to indicate any suggested media
+         * @param query query string.
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PLAY_FROM_SEARCH
          * @hide
@@ -634,14 +631,11 @@ public class MediaSession2 implements AutoCloseable {
          * Called when a controller requested to prepare playback from a search query through
          * {@link MediaController2#prepareFromSearch(String, Bundle)}.
          * <p>
-         * An empty query indicates that the app may prepare any music. The implementation should
-         * attempt to make a smart choice about what to play.
-         * <p>
          * During the prepare, a session should not hold audio focus in order to allow
          * other sessions play seamlessly. The state of playback should be updated to
          * {@link SessionPlayer2#PLAYER_STATE_PAUSED} after the prepare is done.
          * <p>
-         * The playback of the prepareed content should start in the later calls of
+         * The playback of the prepared content should start in the later calls of
          * {@link SessionPlayer2#play()}.
          * <p>
          * Override {@link #onPlayFromSearch} to handle requests for starting playback without
@@ -649,7 +643,7 @@ public class MediaSession2 implements AutoCloseable {
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param query query string. Can be empty to indicate any suggested media
+         * @param query query string
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH
          * @hide

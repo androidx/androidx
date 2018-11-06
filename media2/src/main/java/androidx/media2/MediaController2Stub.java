@@ -414,8 +414,8 @@ class MediaController2Stub extends IMediaController2.Stub {
         if (libraryParams == null) {
             return;
         }
-        if (parentId == null) {
-            Log.w(TAG, "onChildrenChanged(): Ignoring null parentId");
+        if (TextUtils.isEmpty(parentId)) {
+            Log.w(TAG, "onChildrenChanged(): Ignoring empty parentId");
             return;
         }
         if (itemCount < 0) {
