@@ -129,13 +129,15 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPrepareFromMediaId(final String mediaId, final Bundle extras) {
-        if (mediaId == null) {
-            return;
-        }
         dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
                 new SessionTask() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "onPrepareFromMediaId(): Ignoring empty mediaId from "
+                                    + controller);
+                            return;
+                        }
                         mSessionImpl.getCallback().onPrepareFromMediaId(mSessionImpl.getInstance(),
                                 controller, mediaId, extras);
                     }
@@ -144,13 +146,15 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPrepareFromSearch(final String query, final Bundle extras) {
-        if (query == null) {
-            return;
-        }
         dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
                 new SessionTask() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(query)) {
+                            Log.w(TAG, "onPrepareFromSearch(): Ignoring empty query from "
+                                    + controller);
+                            return;
+                        }
                         mSessionImpl.getCallback().onPrepareFromSearch(mSessionImpl.getInstance(),
                                 controller, query, extras);
                     }
@@ -184,13 +188,15 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPlayFromMediaId(final String mediaId, final Bundle extras) {
-        if (mediaId == null) {
-            return;
-        }
         dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID,
                 new SessionTask() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(mediaId)) {
+                            Log.w(TAG, "onPlayFromMediaId(): Ignoring empty mediaId from "
+                                    + controller);
+                            return;
+                        }
                         mSessionImpl.getCallback().onPlayFromMediaId(mSessionImpl.getInstance(),
                                 controller, mediaId, extras);
                     }
@@ -199,13 +205,15 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPlayFromSearch(final String query, final Bundle extras) {
-        if (query == null) {
-            return;
-        }
         dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_SEARCH,
                 new SessionTask() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
+                        if (TextUtils.isEmpty(query)) {
+                            Log.w(TAG, "onPlayFromSearch(): Ignoring empty query from "
+                                    + controller);
+                            return;
+                        }
                         mSessionImpl.getCallback().onPlayFromSearch(mSessionImpl.getInstance(),
                                 controller, query, extras);
                     }
