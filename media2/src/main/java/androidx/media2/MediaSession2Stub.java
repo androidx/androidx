@@ -546,15 +546,15 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void prefetch(IMediaController2 caller, int seq) throws RuntimeException {
+    public void prepare(IMediaController2 caller, int seq) throws RuntimeException {
         if (caller == null) {
             return;
         }
-        dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_PREFETCH,
+        dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_PLAYER_PREPARE,
                 new SessionPlayerTask() {
                     @Override
                     public ListenableFuture<PlayerResult> run(ControllerInfo controller) {
-                        return mSessionImpl.prefetch();
+                        return mSessionImpl.prepare();
                     }
                 });
     }
@@ -659,63 +659,63 @@ class MediaSession2Stub extends IMediaSession2.Stub {
     }
 
     @Override
-    public void prefetchFromUri(final IMediaController2 caller, int seq, final Uri uri,
+    public void prepareFromUri(final IMediaController2 caller, int seq, final Uri uri,
             final Bundle extras) {
         if (caller == null) {
             return;
         }
-        dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_URI,
+        dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI,
                 new SessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(ControllerInfo controller) {
                         if (uri == null) {
-                            Log.w(TAG, "prefetchFromUri(): Ignoring null uri from " + controller);
+                            Log.w(TAG, "prepareFromUri(): Ignoring null uri from " + controller);
                             return RESULT_CODE_BAD_VALUE;
                         }
-                        return mSessionImpl.getCallback().onPrefetchFromUri(
+                        return mSessionImpl.getCallback().onPrepareFromUri(
                                 mSessionImpl.getInstance(), controller, uri, extras);
                     }
                 });
     }
 
     @Override
-    public void prefetchFromSearch(final IMediaController2 caller, int seq, final String query,
+    public void prepareFromSearch(final IMediaController2 caller, int seq, final String query,
             final Bundle extras) {
         if (caller == null) {
             return;
         }
-        dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH,
+        dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
                 new SessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(ControllerInfo controller) {
                         if (TextUtils.isEmpty(query)) {
-                            Log.w(TAG, "prefetchFromSearch(): Ignoring empty query from "
+                            Log.w(TAG, "prepareFromSearch(): Ignoring empty query from "
                                     + controller);
                             return RESULT_CODE_BAD_VALUE;
                         }
-                        return mSessionImpl.getCallback().onPrefetchFromSearch(
+                        return mSessionImpl.getCallback().onPrepareFromSearch(
                                 mSessionImpl.getInstance(), controller, query, extras);
                     }
                 });
     }
 
     @Override
-    public void prefetchFromMediaId(final IMediaController2 caller, int seq, final String mediaId,
+    public void prepareFromMediaId(final IMediaController2 caller, int seq, final String mediaId,
             final Bundle extras) {
         if (caller == null) {
             return;
         }
         dispatchSessionTask(caller, seq,
-                SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID,
+                SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
                 new SessionCallbackTask<Integer>() {
                     @Override
                     public Integer run(ControllerInfo controller) {
                         if (mediaId == null) {
-                            Log.w(TAG, "prefetchFromMediaId(): Ignoring null mediaId from "
+                            Log.w(TAG, "prepareFromMediaId(): Ignoring null mediaId from "
                                     + controller);
                             return RESULT_CODE_BAD_VALUE;
                         }
-                        return mSessionImpl.getCallback().onPrefetchFromMediaId(
+                        return mSessionImpl.getCallback().onPrepareFromMediaId(
                                 mSessionImpl.getInstance(), controller, mediaId, extras);
                     }
                 });

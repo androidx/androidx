@@ -656,7 +656,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onPrefetchFromSearch(MediaSession2 session, ControllerInfo controller,
+            public int onPrepareFromSearch(MediaSession2 session, ControllerInfo controller,
                     String query, Bundle extras) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(request, query);
@@ -684,7 +684,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onPrefetchFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
+            public int onPrepareFromUri(MediaSession2 session, ControllerInfo controller, Uri uri,
                     Bundle extras) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(request, uri);
@@ -712,7 +712,7 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final SessionCallback callback = new SessionCallback() {
             @Override
-            public int onPrefetchFromMediaId(MediaSession2 session, ControllerInfo controller,
+            public int onPrepareFromMediaId(MediaSession2 session, ControllerInfo controller,
                     String mediaId, Bundle extras) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(request, mediaId);

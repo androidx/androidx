@@ -430,7 +430,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> prefetch() {
+    public ListenableFuture<PlayerResult> prepare() {
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
             @Override
             public ListenableFuture<PlayerResult> run(SessionPlayer2 player) throws Exception {

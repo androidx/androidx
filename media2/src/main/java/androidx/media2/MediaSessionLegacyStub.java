@@ -119,10 +119,10 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
 
     @Override
     public void onPrepare() {
-        dispatchSessionTask(SessionCommand2.COMMAND_CODE_PLAYER_PREFETCH, new SessionTask() {
+        dispatchSessionTask(SessionCommand2.COMMAND_CODE_PLAYER_PREPARE, new SessionTask() {
             @Override
             public void run(ControllerInfo controller) throws RemoteException {
-                mSessionImpl.prefetch();
+                mSessionImpl.prepare();
             }
         });
     }
@@ -132,11 +132,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         if (mediaId == null) {
             return;
         }
-        dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_MEDIA_ID,
+        dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID,
                 new SessionTask() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onPrefetchFromMediaId(mSessionImpl.getInstance(),
+                        mSessionImpl.getCallback().onPrepareFromMediaId(mSessionImpl.getInstance(),
                                 controller, mediaId, extras);
                     }
                 });
@@ -147,11 +147,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         if (query == null) {
             return;
         }
-        dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_SEARCH,
+        dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
                 new SessionTask() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onPrefetchFromSearch(mSessionImpl.getInstance(),
+                        mSessionImpl.getCallback().onPrepareFromSearch(mSessionImpl.getInstance(),
                                 controller, query, extras);
                     }
                 });
@@ -162,11 +162,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         if (uri == null) {
             return;
         }
-        dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PREFETCH_FROM_URI,
+        dispatchSessionTask(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI,
                 new SessionTask() {
                     @Override
                     public void run(ControllerInfo controller) throws RemoteException {
-                        mSessionImpl.getCallback().onPrefetchFromUri(mSessionImpl.getInstance(),
+                        mSessionImpl.getCallback().onPrepareFromUri(mSessionImpl.getInstance(),
                                 controller, uri, extras);
                     }
                 });
