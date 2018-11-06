@@ -55,7 +55,6 @@ import java.util.concurrent.TimeUnit;
 public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
 
     MockPlayer mPlayer;
-    RemoteMediaBrowser2 mBrowser2;
 
     @Before
     @Override
@@ -97,8 +96,8 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
                 service, mPlayer, sHandlerExecutor, sessionCallback)
                 .setId("testOnSubscribe")
                 .build()) {
-            mBrowser2 = createRemoteBrowser2(session.getToken());
-            mBrowser2.subscribe(testParentId, testParams);
+            RemoteMediaBrowser2 browser = createRemoteBrowser2(session.getToken());
+            browser.subscribe(testParentId, testParams);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -127,8 +126,8 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
                 service, mPlayer, sHandlerExecutor, sessionCallback)
                 .setId("testOnUnsubscribe")
                 .build()) {
-            mBrowser2 = createRemoteBrowser2(session.getToken());
-            mBrowser2.unsubscribe(testParentId);
+            RemoteMediaBrowser2 browser = createRemoteBrowser2(session.getToken());
+            browser.unsubscribe(testParentId);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
