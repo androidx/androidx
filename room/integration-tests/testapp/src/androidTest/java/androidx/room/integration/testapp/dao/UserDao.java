@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
+import io.reactivex.Completable;
 import io.reactivex.Flowable;
 import io.reactivex.Maybe;
 import io.reactivex.Observable;
@@ -87,6 +88,15 @@ public abstract class UserDao {
 
     @Update
     public abstract int update(User user);
+
+    @Update
+    public abstract Completable updateCompletable(User user);
+
+    @Update
+    public abstract Single<Integer> updateSingle(User user);
+
+    @Update
+    public abstract Single<Integer> updateSingleUsers(User user1, User user2);
 
     @Update
     public abstract int updateAll(List<User> users);

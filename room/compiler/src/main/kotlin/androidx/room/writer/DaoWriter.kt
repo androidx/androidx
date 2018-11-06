@@ -503,11 +503,16 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         elm: ExecutableElement,
         owner: DeclaredType
     ): MethodSpec.Builder {
-        val baseSpec = MethodSpec.overriding(elm, owner, processingEnv.typeUtils).build()
+        val baseSpec = MethodSpec.overriding(elm, owner, processingEnv.typeUtils)
+                .build()
+
+        // make all the params final
+        val params = baseSpec.parameters.map { it.toBuilder().addModifiers(FINAL).build() }
+
         return MethodSpec.methodBuilder(baseSpec.name).apply {
             addAnnotation(Override::class.java)
             addModifiers(baseSpec.modifiers)
-            addParameters(baseSpec.parameters)
+            addParameters(params)
             varargs(baseSpec.varargs)
             returns(baseSpec.returnType)
         }
