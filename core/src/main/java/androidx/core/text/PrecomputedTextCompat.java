@@ -37,6 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
+import androidx.core.os.BuildCompat;
 import androidx.core.os.TraceCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
@@ -58,7 +59,7 @@ import java.util.concurrent.FutureTask;
  * layout information will be included in this instance, {@link android.widget.TextView} or
  * {@link StaticLayout} will not have to recalculate this information.
  *
- * On API 28 or later, there is full PrecomputedText support by framework. From API 21 to API 27,
+ * On API 29 or later, there is full PrecomputedText support by framework. From API 21 to API 27,
  * PrecomputedTextCompat relies on internal text layout cache. PrecomputedTextCompat immediately
  * computes the text layout in the constuctor to warm up the internal text layout cache. On API 20
  * or before, PrecomputedTextCompat does nothing.
@@ -193,7 +194,7 @@ public class PrecomputedTextCompat implements Spannable {
 
         Params(@NonNull TextPaint paint, @NonNull TextDirectionHeuristic textDir,
                 int strategy, int frequency) {
-            if (Build.VERSION.SDK_INT >= 28) {
+            if (BuildCompat.isAtLeastQ()) {
                 mWrapped = new PrecomputedText.Params.Builder(paint).setBreakStrategy(strategy)
                         .setHyphenationFrequency(frequency).setTextDirection(textDir).build();
             } else {
@@ -211,8 +212,7 @@ public class PrecomputedTextCompat implements Spannable {
             mTextDir = wrapped.getTextDirection();
             mBreakStrategy = wrapped.getBreakStrategy();
             mHyphenationFrequency = wrapped.getHyphenationFrequency();
-            mWrapped = wrapped;
-
+            mWrapped = (BuildCompat.isAtLeastQ()) ? wrapped : null;
         }
 
         /**
@@ -261,20 +261,14 @@ public class PrecomputedTextCompat implements Spannable {
             return mHyphenationFrequency;
         }
 
+
         /**
-         * Check if the same text layout.
-         *
-         * @return true if this and the given param result in the same text layout
+         * Similar to equals but don't compare text direction
+         * @hide
          */
-        @Override
-        public boolean equals(@Nullable Object o) {
-            if (o == this) {
-                return true;
-            }
-            if (!(o instanceof Params)) {
-                return false;
-            }
-            Params other = (Params) o;
+        @RestrictTo(LIBRARY_GROUP)
+        public boolean equalsWithoutTextDirection(@NonNull Params other) {
+
             if (mWrapped != null) {
                 return mWrapped.equals(other.mWrapped);
             }
@@ -284,12 +278,6 @@ public class PrecomputedTextCompat implements Spannable {
                     return false;
                 }
                 if (mHyphenationFrequency != other.getHyphenationFrequency()) {
-                    return false;
-                }
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                if (mTextDir != other.getTextDirection()) {
                     return false;
                 }
             }
@@ -332,6 +320,31 @@ public class PrecomputedTextCompat implements Spannable {
                 return false;
             }
 
+            return true;
+        }
+
+        /**
+         * Check if the same text layout.
+         *
+         * @return true if this and the given param result in the same text layout
+         */
+        @Override
+        public boolean equals(@Nullable Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof Params)) {
+                return false;
+            }
+            Params other = (Params) o;
+            if (!equalsWithoutTextDirection(other)) {
+                return false;
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                if (mTextDir != other.getTextDirection()) {
+                    return false;
+                }
+            }
             return true;
         }
 
@@ -397,7 +410,7 @@ public class PrecomputedTextCompat implements Spannable {
     // The list of measured paragraph info.
     private final @NonNull int[] mParagraphEnds;
 
-    // null on API 27 or before. Non-null on API 28 or later
+    // null on API 27 or before. Non-null on API 29 or later
     private final @Nullable PrecomputedText mWrapped;
 
     /**
@@ -422,7 +435,7 @@ public class PrecomputedTextCompat implements Spannable {
         try {
             TraceCompat.beginSection("PrecomputedText");
 
-            if (Build.VERSION.SDK_INT >= 28 && params.mWrapped != null) {
+            if (BuildCompat.isAtLeastQ() && params.mWrapped != null) {
                 return new PrecomputedTextCompat(
                         PrecomputedText.create(text, params.mWrapped), params);
             }
@@ -486,7 +499,7 @@ public class PrecomputedTextCompat implements Spannable {
         mText = precomputed;
         mParams = params;
         mParagraphEnds = null;
-        mWrapped = precomputed;
+        mWrapped = (BuildCompat.isAtLeastQ()) ? precomputed : null;
     }
 
     /**
@@ -514,7 +527,7 @@ public class PrecomputedTextCompat implements Spannable {
      * Returns the count of paragraphs.
      */
     public @IntRange(from = 0) int getParagraphCount() {
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (BuildCompat.isAtLeastQ()) {
             return mWrapped.getParagraphCount();
         } else {
             return mParagraphEnds.length;
@@ -526,7 +539,7 @@ public class PrecomputedTextCompat implements Spannable {
      */
     public @IntRange(from = 0) int getParagraphStart(@IntRange(from = 0) int paraIndex) {
         Preconditions.checkArgumentInRange(paraIndex, 0, getParagraphCount(), "paraIndex");
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (BuildCompat.isAtLeastQ()) {
             return mWrapped.getParagraphStart(paraIndex);
         } else {
             return paraIndex == 0 ? 0 : mParagraphEnds[paraIndex - 1];
@@ -538,7 +551,7 @@ public class PrecomputedTextCompat implements Spannable {
      */
     public @IntRange(from = 0) int getParagraphEnd(@IntRange(from = 0) int paraIndex) {
         Preconditions.checkArgumentInRange(paraIndex, 0, getParagraphCount(), "paraIndex");
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (BuildCompat.isAtLeastQ()) {
             return mWrapped.getParagraphEnd(paraIndex);
         } else {
             return mParagraphEnds[paraIndex];
@@ -662,7 +675,7 @@ public class PrecomputedTextCompat implements Spannable {
             throw new IllegalArgumentException(
                     "MetricAffectingSpan can not be set to PrecomputedText.");
         }
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (BuildCompat.isAtLeastQ()) {
             mWrapped.setSpan(what, start, end, flags);
         } else {
             mText.setSpan(what, start, end, flags);
@@ -678,7 +691,7 @@ public class PrecomputedTextCompat implements Spannable {
             throw new IllegalArgumentException(
                     "MetricAffectingSpan can not be removed from PrecomputedText.");
         }
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (BuildCompat.isAtLeastQ()) {
             mWrapped.removeSpan(what);
         } else {
             mText.removeSpan(what);
@@ -692,7 +705,7 @@ public class PrecomputedTextCompat implements Spannable {
 
     @Override
     public <T> T[] getSpans(int start, int end, Class<T> type) {
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (BuildCompat.isAtLeastQ()) {
             return mWrapped.getSpans(start, end, type);
         } else {
             return mText.getSpans(start, end, type);
