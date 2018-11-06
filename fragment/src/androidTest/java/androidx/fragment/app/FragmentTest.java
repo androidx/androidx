@@ -27,12 +27,14 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.test.R;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
@@ -81,6 +83,7 @@ public class FragmentTest {
 
     @LargeTest
     @Test
+    @SdkSuppress(minSdkVersion = 16) // waitForHalfFadeIn requires API 16
     public void testChildFragmentManagerGone() throws Throwable {
         final FragmentA fragmentA = new FragmentA();
         final FragmentB fragmentB = new FragmentB();
@@ -127,6 +130,7 @@ public class FragmentTest {
         FragmentTestUtil.popBackStackImmediate(mActivityRule);
     }
 
+    @RequiresApi(16) // ViewTreeObserver.OnDrawListener was added in API 16
     private void waitForHalfFadeIn(Fragment fragment) throws Throwable {
         if (fragment.getView() == null) {
             FragmentTestUtil.waitForExecution(mActivityRule);
