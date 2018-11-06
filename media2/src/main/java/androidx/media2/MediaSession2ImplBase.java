@@ -53,6 +53,7 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.concurrent.futures.AbstractResolvableFuture;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
@@ -70,6 +71,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 class MediaSession2ImplBase implements MediaSession2Impl {
     private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "android.media.session2.id";
@@ -413,8 +415,8 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                     // Let dispatchPlayerTask() handle such cases.
                     return null;
                 }
-                return MediaPlayer.CombindedCommandResultFuture.create(DIRECT_EXECUTOR,
-                        prepareFuture, playFuture);
+                return CombinedCommandResultFuture.create(
+                        DIRECT_EXECUTOR, prepareFuture, playFuture);
             }
         });
     }
@@ -1410,6 +1412,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
             }
         }
     }
+
     static class PlaylistItemListener implements MediaItem2.OnMetadataChangedListener {
         private final WeakReference<MediaSession2ImplBase> mSession;
 
@@ -1438,6 +1441,57 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                             });
                     return;
                 }
+            }
+        }
+    }
+
+    static final class CombinedCommandResultFuture<T extends BaseResult2>
+            extends AbstractResolvableFuture<T> {
+        final ListenableFuture<T>[] mFutures;
+        AtomicInteger mSuccessCount = new AtomicInteger(0);
+
+        public static <U extends BaseResult2> CombinedCommandResultFuture create(
+                Executor executor, ListenableFuture<U>... futures) {
+            return new CombinedCommandResultFuture<U>(executor, futures);
+        }
+
+        private CombinedCommandResultFuture(Executor executor,
+                ListenableFuture<T>[] futures) {
+            mFutures = futures;
+            for (int i = 0; i < mFutures.length; ++i) {
+                final int cur = i;
+                mFutures[i].addListener(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            T result = mFutures[cur].get();
+                            int resultCode = result.getResultCode();
+                            if (resultCode != RESULT_CODE_SUCCESS
+                                    && resultCode != RESULT_CODE_SKIPPED) {
+                                for (int j = 0; j < mFutures.length; ++j) {
+                                    if (!mFutures[j].isCancelled() && !mFutures[j].isDone()
+                                            && cur != j) {
+                                        mFutures[j].cancel(true);
+                                    }
+                                }
+                                set(result);
+                            } else {
+                                int cnt = mSuccessCount.incrementAndGet();
+                                if (cnt == mFutures.length) {
+                                    set(result);
+                                }
+                            }
+                        } catch (Exception e) {
+                            for (int j = 0; j < mFutures.length; ++j) {
+                                if (!mFutures[j].isCancelled() && !mFutures[j].isDone()
+                                        && cur != j) {
+                                    mFutures[j].cancel(true);
+                                }
+                            }
+                            setException(e);
+                        }
+                    }
+                }, executor);
             }
         }
     }
