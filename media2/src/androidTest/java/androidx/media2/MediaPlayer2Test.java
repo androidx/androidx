@@ -735,7 +735,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     public void testVideoSurfaceResetting() throws Exception {
         final int tolerance = 150;
         final int audioLatencyTolerance = 1000;  /* covers audio path latency variability */
-        final int seekPos = 4760;  // This is the I-frame position
+        final int seekPos = 1840;  // This is the I-frame position
 
         final CountDownLatch seekDone = new CountDownLatch(1);
 
@@ -752,10 +752,11 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
             mEventCallbacks.add(ecb);
         }
 
-        if (!checkLoadResource(R.raw.testvideo)) {
+        if (!checkLoadResource(
+                R.raw.video_480x360_mp4_h264_500kbps_25fps_aac_stereo_128kbps_44100hz)) {
             return; // skip;
         }
-        playLoadedVideo(352, 288, -1);
+        playLoadedVideo(480, 360, -1);
 
         Thread.sleep(SLEEP_TIME);
 
