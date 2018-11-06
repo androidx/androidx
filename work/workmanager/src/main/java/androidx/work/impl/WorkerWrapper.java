@@ -318,7 +318,7 @@ public class WorkerWrapper implements Runnable {
         }
         // Worker can be null if run() hasn't been called yet.
         if (mWorker != null) {
-            mWorker.stop(cancelled);
+            mWorker.stop();
         }
     }
 

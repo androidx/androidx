@@ -148,6 +148,31 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.coroutine_sleep).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String delayString = delayInMs.getText().toString();
+                long delay = Long.parseLong(delayString);
+                Log.d(TAG, "Enqueuing job with delay of " + delay + " ms");
+
+                Data inputData = new Data.Builder()
+                        .put("sleep_time", delay)
+                        .build();
+                WorkManager.getInstance().enqueue(
+                        new OneTimeWorkRequest.Builder(CoroutineSleepWorker.class)
+                                .setInputData(inputData)
+                                .addTag("coroutine_sleep")
+                                .build());
+            }
+        });
+
+        findViewById(R.id.coroutine_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WorkManager.getInstance().cancelAllWorkByTag("coroutine_sleep");
+            }
+        });
+
         findViewById(R.id.enqueue_periodic_work).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

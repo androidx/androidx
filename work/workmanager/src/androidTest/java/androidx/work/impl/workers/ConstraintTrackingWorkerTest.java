@@ -227,11 +227,8 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
         mWorkerWrapper.interrupt(true);
 
         assertThat(mWorker.isStopped(), is(true));
-        assertThat(mWorker.isCancelled(), is(true));
         assertThat(mWorker.getDelegate(), is(notNullValue()));
         assertThat(mWorker.getDelegate().isStopped(), is(true));
-        assertThat(mWorker.getDelegate().isCancelled(), is(true));
-
     }
 
     private void setupDelegateForExecution(@NonNull String delegateName, Executor executor) {

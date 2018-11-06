@@ -19,6 +19,7 @@ import static androidx.build.dependencies.DependenciesKt.*
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
+    id("kotlin-android")
 }
 
 project.ext.noDocs = true
@@ -36,6 +37,7 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     implementation project(':work:work-runtime')
     implementation project(':work:work-firebase')
+    implementation project(':work:work-coroutines')
     implementation "android.arch.lifecycle:extensions:1.1.0"
     implementation "android.arch.persistence.room:runtime:1.1.1-rc1"
     annotationProcessor "android.arch.persistence.room:compiler:1.1.1-rc1"
