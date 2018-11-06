@@ -492,7 +492,7 @@ public class MediaSession2 implements AutoCloseable {
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param mediaId incoming media item from the controller
+         * @param mediaId non-empty media id for creating item with
          * @return translated media item for player with the mediaId. Can be {@code null} to ignore.
          * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
          */
@@ -512,7 +512,7 @@ public class MediaSession2 implements AutoCloseable {
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param mediaId media id from the controller
+         * @param mediaId non-empty media id
          * @param rating new rating from the controller
          * @see SessionCommand2#COMMAND_CODE_SESSION_SET_RATING
          */
@@ -551,7 +551,7 @@ public class MediaSession2 implements AutoCloseable {
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param mediaId media id
+         * @param mediaId non-empty media id
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PLAY_FROM_MEDIA_ID
          * @hide
@@ -569,7 +569,7 @@ public class MediaSession2 implements AutoCloseable {
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param query query string.
+         * @param query non-empty search query.
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PLAY_FROM_SEARCH
          * @hide
@@ -615,7 +615,7 @@ public class MediaSession2 implements AutoCloseable {
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param mediaId media id to prepare
+         * @param mediaId non-empty media id
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PREPARE_FROM_MEDIA_ID
          * @hide
@@ -643,7 +643,7 @@ public class MediaSession2 implements AutoCloseable {
          *
          * @param session the session for this event
          * @param controller controller information
-         * @param query query string
+         * @param query non-empty search query
          * @param extras optional extra bundle
          * @see SessionCommand2#COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH
          * @hide
