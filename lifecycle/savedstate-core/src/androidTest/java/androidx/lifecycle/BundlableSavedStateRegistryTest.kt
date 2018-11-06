@@ -19,38 +19,24 @@ package androidx.lifecycle
 import android.os.Bundle
 import androidx.test.filters.SmallTest
 import org.hamcrest.CoreMatchers.`is`
-import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-class SavedStateRegistryTest {
-
-    @Test
-    fun registerWithSameKey() {
-        val registry = BundlableSavedStateRegistry()
-        registry.registerSavedStateProvider("key") { Bundle.EMPTY }
-        try {
-            registry.registerSavedStateProvider("key") { Bundle.EMPTY }
-            Assert.fail("can't register with the same key")
-        } catch (e: IllegalArgumentException) {
-            // fail as expected
-        }
-    }
+class BundlableSavedStateRegistryTest {
 
     @Test
     fun saveRestoreFlow() {
-        val registry = BundlableSavedStateRegistry()
+        val registry = BundleSavedStateRegistry()
         registry.registerSavedStateProvider("a") { bundleOf("foo", 1) }
         registry.registerSavedStateProvider("b") { bundleOf("foo", 2) }
         val state = Bundle()
         registry.performSave(state)
 
-        val newRegistry = BundlableSavedStateRegistry()
+        val newRegistry = BundleSavedStateRegistry()
         newRegistry.performRestore(state)
 
         assertThat(newRegistry.isRestored, `is`(true))
@@ -59,69 +45,6 @@ class SavedStateRegistryTest {
 
         assertThat(bundleForA.isSame(bundleOf("foo", 1)), `is`(true))
         assertThat(bundleForB.isSame(bundleOf("foo", 2)), `is`(true))
-    }
-
-    @Test
-    fun consumeSameTwice() {
-        val registry = BundlableSavedStateRegistry()
-        registry.registerSavedStateProvider("a") { bundleOf("foo", 1) }
-        val state = Bundle()
-        registry.performSave(state)
-
-        val newStore = BundlableSavedStateRegistry()
-        newStore.performRestore(state)
-
-        assertThat(newStore.isRestored, `is`(true))
-        val bundleForA = newStore.consumeRestoredStateForKey("a")
-        assertThat(bundleForA.isSame(bundleOf("foo", 1)), `is`(true))
-        assertThat(newStore.consumeRestoredStateForKey("a"), nullValue())
-    }
-
-    @Test
-    fun unregister() {
-        val registry = BundlableSavedStateRegistry()
-        registry.registerSavedStateProvider("a") { bundleOf("foo", 1) }
-        registry.unregisterSavedStateProvider("a")
-        // this call should succeed
-        registry.registerSavedStateProvider("a") { bundleOf("foo", 2) }
-        registry.unregisterSavedStateProvider("a")
-        val state = Bundle()
-        registry.performRestore(state)
-        assertThat(state.isEmpty, `is`(true))
-    }
-
-    @Test
-    fun unconsumedSavedState() {
-        val registry = BundlableSavedStateRegistry()
-        registry.registerSavedStateProvider("a") { bundleOf("foo", 1) }
-        val savedState1 = Bundle()
-        registry.performSave(savedState1)
-        val intermediateStore = BundlableSavedStateRegistry()
-        intermediateStore.performRestore(savedState1)
-        val savedState2 = Bundle()
-        intermediateStore.performSave(savedState2)
-        val newRegistry = BundlableSavedStateRegistry()
-        newRegistry.performRestore(savedState2)
-        val bundleForA = newRegistry.consumeRestoredStateForKey("a")
-        assertThat(bundleForA.isSame(bundleOf("foo", 1)), `is`(true))
-    }
-
-    @Test
-    fun unconsumedSavedStateClashWithCallback() {
-        val registry = BundlableSavedStateRegistry()
-        registry.registerSavedStateProvider("a") { bundleOf("foo", 1) }
-        val savedState1 = Bundle()
-        registry.performSave(savedState1)
-        val intermediateStore = BundlableSavedStateRegistry()
-        // there is unconsumed value for "a"
-        intermediateStore.performRestore(savedState1)
-        intermediateStore.registerSavedStateProvider("a") { bundleOf("foo", 2) }
-        val savedState2 = Bundle()
-        intermediateStore.performSave(savedState2)
-        val newStore = BundlableSavedStateRegistry()
-        newStore.performRestore(savedState2)
-        val bundleForA = newStore.consumeRestoredStateForKey("a")
-        assertThat(bundleForA.isSame(bundleOf("foo", 2)), `is`(true))
     }
 }
 

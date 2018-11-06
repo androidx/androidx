@@ -28,6 +28,10 @@ dependencies {
     api(SUPPORT_ANNOTATIONS)
     implementation(ARCH_CORE_COMMON)
 
+    testImplementation(JUNIT)
+    testImplementation(TEST_RUNNER)
+    testImplementation(KOTLIN_STDLIB)
+
     androidTestImplementation(JUNIT)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(KOTLIN_STDLIB)
