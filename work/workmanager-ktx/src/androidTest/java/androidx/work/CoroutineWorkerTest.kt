@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.work.couroutines
+package androidx.work
 
 import android.arch.core.executor.ArchTaskExecutor
 import android.content.Context
@@ -22,17 +22,9 @@ import android.util.Log
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
-import androidx.work.Configuration
-import androidx.work.Data
-import androidx.work.ListenableWorker
-import androidx.work.Logger
-import androidx.work.WorkerFactory
-import androidx.work.WorkerParameters
-import androidx.work.coroutines.CoroutineWorker
 import androidx.work.impl.WorkDatabase
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
-import androidx.work.workDataOf
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -73,7 +65,9 @@ class CoroutineWorkerTest {
         configuration = Configuration.Builder()
             .setExecutor(SynchronousExecutor())
             .build()
-        workManagerImpl = WorkManagerImpl(context, configuration, InstantWorkTaskExecutor())
+        workManagerImpl = WorkManagerImpl(context, configuration,
+            InstantWorkTaskExecutor()
+        )
         WorkManagerImpl.setDelegate(workManagerImpl)
         database = workManagerImpl.getWorkDatabase()
         Logger.setMinimumLoggingLevel(Log.DEBUG)
