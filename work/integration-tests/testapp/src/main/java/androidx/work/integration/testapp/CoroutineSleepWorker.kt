@@ -19,7 +19,7 @@ package androidx.work.integration.testapp
 import android.content.Context
 import android.util.Log
 import androidx.work.WorkerParameters
-import androidx.work.coroutines.CoroutineWorker
+import androidx.work.CoroutineWorker
 import kotlinx.coroutines.delay
 
 class CoroutineSleepWorker(context: Context, params: WorkerParameters)
