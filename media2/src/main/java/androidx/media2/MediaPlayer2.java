@@ -491,7 +491,7 @@ public abstract class MediaPlayer2 {
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
      */
     // This is an asynchronous call.
-    public abstract Object setSurface(Surface surface);
+    public abstract Object setSurface(@Nullable Surface surface);
 
     /* Do not change these video scaling mode values below without updating
      * their counterparts in system/window.h! Please do not forget to update

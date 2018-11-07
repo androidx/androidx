@@ -180,7 +180,7 @@ public class UriMediaItem2 extends MediaItem2 {
          * @return A new UriMediaItem2 with values supplied by the Builder.
          */
         @Override
-        public UriMediaItem2 build() {
+        public @NonNull UriMediaItem2 build() {
             return new UriMediaItem2(this);
         }
     }

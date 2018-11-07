@@ -22,6 +22,7 @@ import android.annotation.TargetApi;
 import android.media.MediaTimestamp;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -45,7 +46,7 @@ public final class MediaTimestamp2 {
     /**
      * An unknown media timestamp value
      */
-    public static final MediaTimestamp2
+    public static final @NonNull MediaTimestamp2
             TIMESTAMP_UNKNOWN = new MediaTimestamp2(-1, -1, 0.0f);
 
     /**

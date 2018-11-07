@@ -17,6 +17,8 @@
 
 package androidx.media2;
 
+import androidx.annotation.NonNull;
+
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -49,7 +51,7 @@ public abstract class DataSourceCallback2 implements Closeable {
      * @throws IOException on fatal errors.
      * @return the number of bytes read, or -1 if there was an error.
      */
-    public abstract int readAt(long position, byte[] buffer, int offset, int size)
+    public abstract int readAt(long position, @NonNull byte[] buffer, int offset, int size)
             throws IOException;
 
     /**
