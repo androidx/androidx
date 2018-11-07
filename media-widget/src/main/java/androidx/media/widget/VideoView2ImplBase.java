@@ -1155,6 +1155,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_SET_SPEED)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM)
+                    .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO)
                     .addCommand(SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME)
                     .addCommand(SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME)
