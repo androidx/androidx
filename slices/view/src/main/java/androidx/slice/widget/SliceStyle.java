@@ -17,11 +17,14 @@
 package androidx.slice.widget;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
 import androidx.annotation.RestrictTo;
 import androidx.slice.view.R;
+
+import static androidx.slice.widget.SliceView.MODE_LARGE;
 
 /**
  * Holds style information shared between child views of a slice
@@ -43,6 +46,12 @@ public class SliceStyle {
     private int mVerticalGridTextPadding;
     private int mGridTopPadding;
     private int mGridBottomPadding;
+
+    private int mRowMaxHeight;
+    private int mRowTextWithRangeHeight;
+    private int mRowSingleTextWithRangeHeight;
+    private int mRowMinHeight;
+    private int mRowRangeHeight;
 
     public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
@@ -78,6 +87,18 @@ public class SliceStyle {
         } finally {
             a.recycle();
         }
+
+        // Note: The above colors and dimensions are styleable, but the below ones are not.
+
+        final Resources r = context.getResources();
+
+        mRowMaxHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_max_height);
+        mRowTextWithRangeHeight = r.getDimensionPixelSize(
+                R.dimen.abc_slice_row_range_multi_text_height);
+        mRowSingleTextWithRangeHeight = r.getDimensionPixelSize(
+                R.dimen.abc_slice_row_range_single_text_height);
+        mRowMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
+        mRowRangeHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_range_height);
     }
 
     public void setTintColor(int tint) {
@@ -138,5 +159,22 @@ public class SliceStyle {
 
     public int getGridBottomPadding() {
         return mGridBottomPadding;
+    }
+
+    public int getRowHeight(RowContent row, SliceViewPolicy policy) {
+        int maxHeight = policy.getMaxSmallHeight() > 0 ? policy.getMaxSmallHeight() : mRowMaxHeight;
+        if (row.getRange() != null || policy.getMode() == MODE_LARGE) {
+            if (row.getRange() != null) {
+                // Range element always has set height and then the height of the text
+                // area on the row will vary depending on if 1 or 2 lines of text.
+                int textAreaHeight = row.getLineCount() > 1 ? mRowTextWithRangeHeight
+                        : mRowSingleTextWithRangeHeight;
+                return textAreaHeight + mRowRangeHeight;
+            } else {
+                return (row.getLineCount() > 1 || row.getIsHeader()) ? maxHeight : mRowMinHeight;
+            }
+        } else {
+            return maxHeight;
+        }
     }
 }

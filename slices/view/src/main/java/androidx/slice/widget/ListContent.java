@@ -86,12 +86,12 @@ public class ListContent extends SliceContent {
         mSliceActions = SliceMetadata.getSliceActions(slice);
         final SliceItem headerItem = findHeaderItem(slice);
         if (headerItem != null) {
-            mHeaderContent = new RowContent(mContext, headerItem, 0);
+            mHeaderContent = new RowContent(headerItem, 0);
             mRowItems.add(mHeaderContent);
         }
         final SliceItem seeMoreItem = getSeeMoreItem(slice);
         if (seeMoreItem != null) {
-            mSeeMoreContent = new RowContent(mContext, seeMoreItem, -1);
+            mSeeMoreContent = new RowContent(seeMoreItem, -1);
         }
 
         // Filter + create row items
@@ -103,13 +103,13 @@ public class ListContent extends SliceContent {
                     HINT_TTL, HINT_LAST_UPDATED);
             if (!isNonRowContent && (FORMAT_ACTION.equals(format) || FORMAT_SLICE.equals(format))) {
                 if (mHeaderContent == null && !child.hasHint(HINT_LIST_ITEM)) {
-                    mHeaderContent = new RowContent(mContext, child, 0);
+                    mHeaderContent = new RowContent(child, 0);
                     mRowItems.add(0, mHeaderContent);
                 } else if (child.hasHint(HINT_LIST_ITEM)) {
                     if (child.hasHint(HINT_HORIZONTAL)) {
                         mRowItems.add(new GridContent(mContext, child, i));
                     } else {
-                        mRowItems.add(new RowContent(mContext, child, i));
+                        mRowItems.add(new RowContent(child, i));
                     }
                 }
             }
