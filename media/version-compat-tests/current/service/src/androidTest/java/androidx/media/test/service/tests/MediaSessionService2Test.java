@@ -82,8 +82,8 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
                     }
                 });
 
-        RemoteMediaController2 controller1 = new RemoteMediaController2(mContext, mToken, true);
-        RemoteMediaController2 controller2 = new RemoteMediaController2(mContext, mToken, true);
+        RemoteMediaController2 controller1 = createRemoteController2(mToken, true);
+        RemoteMediaController2 controller2 = createRemoteController2(mToken, true);
 
         assertNotEquals(controller1.getConnectedSessionToken(),
                 controller2.getConnectedSessionToken());
@@ -108,8 +108,8 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
                     }
                 });
 
-        RemoteMediaController2 controller1 = new RemoteMediaController2(mContext, mToken, true);
-        RemoteMediaController2 controller2 = new RemoteMediaController2(mContext, mToken, true);
+        RemoteMediaController2 controller1 = createRemoteController2(mToken, true);
+        RemoteMediaController2 controller2 = createRemoteController2(mToken, true);
         controller1.close();
         controller2.close();
 
@@ -146,8 +146,8 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
                     }
                 });
 
-        RemoteMediaController2 controller1 = new RemoteMediaController2(mContext, mToken, true);
-        RemoteMediaController2 controller2 = new RemoteMediaController2(mContext, mToken, true);
+        RemoteMediaController2 controller1 = createRemoteController2(mToken, true);
+        RemoteMediaController2 controller2 = createRemoteController2(mToken, true);
         controller1.close();
         controller2.close();
 
@@ -157,7 +157,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
     @Test
     public void testGetSessions() throws InterruptedException {
         prepareLooper();
-        RemoteMediaController2 controller = new RemoteMediaController2(mContext, mToken, true);
+        RemoteMediaController2 controller = createRemoteController2(mToken, true);
         MediaSessionService2 service = TestServiceRegistry.getInstance().getServiceInstance();
         try (MediaSession2 session = new MediaSession2.Builder(mContext, new MockPlayer(0))
                 .setId("testGetSessions")
@@ -177,7 +177,7 @@ public class MediaSessionService2Test extends MediaSession2TestBase {
     @Test
     public void testAddSessions_removedWhenClose() throws InterruptedException {
         prepareLooper();
-        RemoteMediaController2 controller = new RemoteMediaController2(mContext, mToken, true);
+        RemoteMediaController2 controller = createRemoteController2(mToken, true);
         MediaSessionService2 service = TestServiceRegistry.getInstance().getServiceInstance();
         try (MediaSession2 session = new MediaSession2.Builder(mContext, new MockPlayer(0))
                 .setId("testAddSessions_removedWhenClose")
