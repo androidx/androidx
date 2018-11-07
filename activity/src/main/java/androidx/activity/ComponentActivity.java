@@ -52,7 +52,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewModelStore viewModelStore;
     }
 
-    private final LifecycleRegistry mLifecycleRegistry;
+    private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
 
     // Lazily recreated from NonConfigurationInstances by getViewModelStore()
     private ViewModelStore mViewModelStore;
@@ -62,9 +62,16 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             new CopyOnWriteArrayList<>();
 
     public ComponentActivity() {
-        mLifecycleRegistry = new LifecycleRegistry(this);
+        Lifecycle lifecycle = getLifecycle();
+        //noinspection ConstantConditions
+        if (lifecycle == null) {
+            throw new IllegalStateException("getLifecycle() returned null in ComponentActivity's "
+                    + "constructor. Please make sure you are lazily constructing your Lifecycle "
+                    + "in the first call to getLifecycle() rather than relying on field "
+                    + "initialization.");
+        }
         if (Build.VERSION.SDK_INT >= 19) {
-            mLifecycleRegistry.addObserver(new GenericLifecycleObserver() {
+            getLifecycle().addObserver(new GenericLifecycleObserver() {
                 @Override
                 public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
                     if (event == Lifecycle.Event.ON_STOP) {
@@ -77,7 +84,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             });
         }
-        mLifecycleRegistry.addObserver(new GenericLifecycleObserver() {
+        getLifecycle().addObserver(new GenericLifecycleObserver() {
             @Override
             public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
                 if (event == Lifecycle.Event.ON_DESTROY) {
@@ -100,7 +107,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @CallSuper
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
-        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
+        Lifecycle lifecycle = getLifecycle();
+        if (lifecycle instanceof LifecycleRegistry) {
+            ((LifecycleRegistry) lifecycle).markState(Lifecycle.State.CREATED);
+        }
         super.onSaveInstanceState(outState);
     }
 
@@ -161,6 +171,19 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         return nc != null ? nc.custom : null;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overriding this method is no longer supported and this method will be made
+     * <code>final</code> in a future version of ComponentActivity. If you do override
+     * this method, you <code>must</code>:
+     * <ol>
+     *     <li>Return an instance of {@link LifecycleRegistry}</li>
+     *     <li>Lazily initialize your LifecycleRegistry object when this is first called.
+     *     Note that this method will be called in the super classes' constructor, before any
+     *     field initialization or object state creation is complete.</li>
+     * </ol>
+     */
     @NonNull
     @Override
     public Lifecycle getLifecycle() {
@@ -261,11 +284,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     public void addOnBackPressedCallback(@NonNull LifecycleOwner owner,
             @NonNull OnBackPressedCallback onBackPressedCallback) {
-        // Use mLifecycleRegistry directly rather than getLifecycle() for this
-        // to avoid implications where the Activity has overridden getLifecycle()
-        Lifecycle lifecycle = owner == this
-                ? mLifecycleRegistry
-                : owner.getLifecycle();
+        Lifecycle lifecycle = owner.getLifecycle();
         if (lifecycle.getCurrentState() == Lifecycle.State.DESTROYED) {
             // Already destroyed, nothing to do
             return;
