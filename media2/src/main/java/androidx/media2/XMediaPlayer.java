@@ -1525,8 +1525,10 @@ public class XMediaPlayer extends SessionPlayer2 {
      * Retrieves the DRM Info associated with the current media item.
      *
      * @throws IllegalStateException if called before being prepared
+     * @hide
      */
     @Nullable
+    @RestrictTo(LIBRARY_GROUP)
     public DrmInfo getDrmInfo() {
         MediaPlayer2.DrmInfo info = mPlayer.getDrmInfo();
         return info == null ? null : new DrmInfo(info);
@@ -1554,7 +1556,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      * {@link PlayerCallback#onDrmInfo}.
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link DrmResult} will be delivered when the command completes.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     // This is an asynchronous call.
     @NonNull
     public ResolvableFuture<DrmResult> prepareDrm(@NonNull UUID uuid) {
@@ -1574,7 +1578,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      * A {@code reset()} call will release the DRM session implicitly.
      *
      * @throws NoDrmSchemeException if there is no active DRM session to release
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void releaseDrm() throws NoDrmSchemeException {
         try {
             mPlayer.releaseDrm();
@@ -1619,7 +1625,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      * This may be {@code null} if no additional parameters are to be sent.
      *
      * @throws NoDrmSchemeException if there is no active DRM session
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public MediaDrm.KeyRequest getDrmKeyRequest(
             @Nullable byte[] keySetId, @Nullable byte[] initData,
@@ -1652,8 +1660,10 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @throws NoDrmSchemeException if there is no active DRM session
      * @throws DeniedByServerException if the response indicates that the
      * server rejected the request
+     * @hide
      */
     @Nullable
+    @RestrictTo(LIBRARY_GROUP)
     public byte[] provideDrmKeyResponse(
             @Nullable byte[] keySetId, @NonNull byte[] response)
             throws NoDrmSchemeException, DeniedByServerException {
@@ -1669,7 +1679,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      * keys to load, obtained from a prior call to {@link #provideDrmKeyResponse}.
      *
      * @param keySetId identifies the saved key set to restore
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void restoreDrmKeys(@NonNull byte[] keySetId) throws NoDrmSchemeException {
         try {
             mPlayer.restoreDrmKeys(keySetId);
@@ -1686,7 +1698,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      * Standard fields names are:
      * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
      * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     @NonNull
     public String getDrmPropertyString(@NonNull String propertyName) throws NoDrmSchemeException {
         try {
@@ -1705,7 +1719,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      * Standard fields names are:
      * {@link MediaDrm#PROPERTY_VENDOR}, {@link MediaDrm#PROPERTY_VERSION},
      * {@link MediaDrm#PROPERTY_DESCRIPTION}, {@link MediaDrm#PROPERTY_ALGORITHMS}
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setDrmPropertyString(@NonNull String propertyName, @NonNull String value)
             throws NoDrmSchemeException {
         try {
@@ -1722,7 +1738,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      * of {@link #prepareDrm(UUID uuid)}.
      *
      * @param listener the callback that will be run
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public void setOnDrmConfigHelper(final @Nullable OnDrmConfigHelper listener) {
         mPlayer.setOnDrmConfigHelper(listener == null ? null :
                 new MediaPlayer2.OnDrmConfigHelper() {
@@ -2244,7 +2262,9 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param item the MediaItem2 of this media item
          * @param drmInfo DRM info of the source including PSSH, and subset
          *                of crypto schemes supported by this device
+         * @hide
          */
+        @RestrictTo(LIBRARY_GROUP)
         public void onDrmInfo(@NonNull XMediaPlayer mp,
                 @NonNull MediaItem2 item, @NonNull DrmInfo drmInfo) { }
     }
@@ -2335,7 +2355,9 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     /**
      * Encapsulates the DRM properties of the source.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static final class DrmInfo {
         private final MediaPlayer2.DrmInfo mMp2DrmInfo;
 
@@ -2371,7 +2393,9 @@ public class XMediaPlayer extends SessionPlayer2 {
      *
      * The only allowed DRM calls in this listener are {@link #getDrmPropertyString}
      * and {@link #setDrmPropertyString}.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public interface OnDrmConfigHelper {
         /**
          * Called to give the app the opportunity to configure DRM before the session is created
@@ -2385,7 +2409,9 @@ public class XMediaPlayer extends SessionPlayer2 {
     /**
      * Thrown when a DRM method is called before preparing a DRM scheme through prepareDrm().
      * Extends MediaDrm.MediaDrmException
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static class NoDrmSchemeException extends MediaDrmException {
         public NoDrmSchemeException(@Nullable String detailMessage) {
             super(detailMessage);
@@ -2541,7 +2567,9 @@ public class XMediaPlayer extends SessionPlayer2 {
 
     /**
      * Result class of the asynchronous DRM APIs.
+     * @hide
      */
+    @RestrictTo(LIBRARY_GROUP)
     public static class DrmResult extends PlayerResult {
         /**
          * The device required DRM provisioning but couldn't reach the provisioning server.
