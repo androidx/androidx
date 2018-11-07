@@ -16,29 +16,6 @@
 
 package androidx.slice.widget;
 
-import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
-import static android.app.slice.Slice.HINT_NO_TINT;
-import static android.app.slice.Slice.HINT_PARTIAL;
-import static android.app.slice.Slice.HINT_SHORTCUT;
-import static android.app.slice.Slice.SUBTYPE_MAX;
-import static android.app.slice.Slice.SUBTYPE_VALUE;
-import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_IMAGE;
-import static android.app.slice.SliceItem.FORMAT_INT;
-import static android.app.slice.SliceItem.FORMAT_LONG;
-import static android.app.slice.SliceItem.FORMAT_SLICE;
-
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.SMALL_IMAGE;
-import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
-import static androidx.slice.widget.EventInfo.ACTION_TYPE_BUTTON;
-import static androidx.slice.widget.EventInfo.ACTION_TYPE_SLIDER;
-import static androidx.slice.widget.EventInfo.ACTION_TYPE_TOGGLE;
-import static androidx.slice.widget.EventInfo.ROW_TYPE_LIST;
-import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
-import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
-import static androidx.slice.widget.SliceView.MODE_SMALL;
-
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
@@ -63,6 +40,10 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -75,9 +56,27 @@ import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
+import static android.app.slice.Slice.HINT_NO_TINT;
+import static android.app.slice.Slice.HINT_PARTIAL;
+import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.Slice.SUBTYPE_MAX;
+import static android.app.slice.Slice.SUBTYPE_VALUE;
+import static android.app.slice.SliceItem.FORMAT_ACTION;
+import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
+import static androidx.slice.core.SliceHints.ICON_IMAGE;
+import static androidx.slice.core.SliceHints.SMALL_IMAGE;
+import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_BUTTON;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_SLIDER;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_TOGGLE;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_LIST;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
+import static androidx.slice.widget.SliceView.MODE_SMALL;
 
 /**
  * Row item is in small template format and can be used to construct list items for use
