@@ -413,7 +413,7 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                     // Let dispatchPlayerTask() handle such cases.
                     return null;
                 }
-                return XMediaPlayer.CombindedCommandResultFuture.create(DIRECT_EXECUTOR,
+                return MediaPlayer.CombindedCommandResultFuture.create(DIRECT_EXECUTOR,
                         prepareFuture, playFuture);
             }
         });

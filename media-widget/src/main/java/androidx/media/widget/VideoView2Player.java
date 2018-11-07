@@ -20,14 +20,14 @@ import android.content.Context;
 
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
-import androidx.media2.XMediaPlayer;
+import androidx.media2.MediaPlayer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
 import java.util.List;
 
-class VideoView2Player extends XMediaPlayer {
+class VideoView2Player extends MediaPlayer {
     VideoView2Player(Context context) {
         super(context);
     }
