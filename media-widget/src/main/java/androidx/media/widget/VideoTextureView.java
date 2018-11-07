@@ -27,7 +27,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.media2.XMediaPlayer;
+import androidx.media2.MediaPlayer;
 
 @RequiresApi(21)
 class VideoTextureView extends TextureView
@@ -37,7 +37,7 @@ class VideoTextureView extends TextureView
 
     private Surface mSurface;
     private SurfaceListener mSurfaceListener;
-    private XMediaPlayer mMediaPlayer;
+    private MediaPlayer mMediaPlayer;
     // A flag to indicate taking over other view should be proceed.
     private boolean mIsTakingOverOldView;
     private VideoViewInterface mOldView;
@@ -52,7 +52,7 @@ class VideoTextureView extends TextureView
     ////////////////////////////////////////////////////
 
     @Override
-    public boolean assignSurfaceToMediaPlayer(XMediaPlayer mp) {
+    public boolean assignSurfaceToMediaPlayer(MediaPlayer mp) {
         if (mp == null || !hasAvailableSurface()) {
             // Surface is not ready.
             return false;
@@ -72,7 +72,7 @@ class VideoTextureView extends TextureView
     }
 
     @Override
-    public void setMediaPlayer(XMediaPlayer mp) {
+    public void setMediaPlayer(MediaPlayer mp) {
         mMediaPlayer = mp;
         if (mIsTakingOverOldView) {
             takeOver(mOldView);

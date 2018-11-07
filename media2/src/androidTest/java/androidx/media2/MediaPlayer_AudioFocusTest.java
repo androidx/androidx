@@ -72,7 +72,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Tests {@link XMediaPlayer} for audio focus and noisy intent handling.
+ * Tests {@link MediaPlayer} for audio focus and noisy intent handling.
  * <p>
  * This may be flaky test because another app including system component may take audio focus.
  */
@@ -80,7 +80,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @MediumTest
-public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
+public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     private static final int WAIT_TIME_MS = 2000;
 
     static TestUtils.SyncHandler sHandler;
@@ -91,12 +91,12 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
 
     @BeforeClass
     public static void setUpThread() {
-        synchronized (XMediaPlayer_AudioFocusTest.class) {
+        synchronized (MediaPlayer_AudioFocusTest.class) {
             if (sHandler != null) {
                 return;
             }
             prepareLooper();
-            HandlerThread handlerThread = new HandlerThread("XMediaPlayer_AudioFocusTest");
+            HandlerThread handlerThread = new HandlerThread("MediaPlayer_AudioFocusTest");
             handlerThread.start();
             sHandler = new TestUtils.SyncHandler(handlerThread.getLooper());
             sHandlerExecutor = new Executor() {
@@ -124,7 +124,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
 
     @AfterClass
     public static void cleanUpThread() {
-        synchronized (XMediaPlayer_AudioFocusTest.class) {
+        synchronized (MediaPlayer_AudioFocusTest.class) {
             if (sHandler == null) {
                 return;
             }
@@ -159,7 +159,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
                 .setContentType(contentType).setUsage(usage).build();
     }
 
-    private void sendNoisyIntent(XMediaPlayer player) {
+    private void sendNoisyIntent(MediaPlayer player) {
         // We cannot use Context.sendBroadcast() because it throws SecurityException for such
         // framework related intent.
         Intent intent = new Intent(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
@@ -216,7 +216,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
         try {
             mInstrumentation.runOnMainSync(new Runnable() {
                 public void run() {
-                    mPlayer = new XMediaPlayer(mActivity) {
+                    mPlayer = new MediaPlayer(mActivity) {
                         @Override
                         public ListenableFuture<PlayerResult> setPlayerVolume(float volume) {
                             if (volume < getMaxPlayerVolume()) {
@@ -261,7 +261,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
         testPausedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
-                    public void run(XMediaPlayer player) {
+                    public void run(MediaPlayer player) {
                         // Noisy intent would pause for USAGE_MEDIA.
                         sendNoisyIntent(player);
                     }
@@ -276,7 +276,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
         testDuckedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_GAME),
                 new PlayerRunnable() {
                     @Override
-                    public void run(XMediaPlayer player) {
+                    public void run(MediaPlayer player) {
                         // Noisy intent would duck for USAGE_GAME.
                         sendNoisyIntent(player);
                     }
@@ -400,7 +400,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
         testPausedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
-                    public void run(XMediaPlayer player) throws InterruptedException {
+                    public void run(MediaPlayer player) throws InterruptedException {
                         // Somebody else has request audio focus.
                         // Session should lose audio focus and pause playback.
                         requestAudioFocus(AUDIOFOCUS_GAIN_TRANSIENT);
@@ -415,7 +415,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
         testPausedAfterAction(createAudioAttributes(CONTENT_TYPE_SPEECH, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
-                    public void run(XMediaPlayer player) throws InterruptedException {
+                    public void run(MediaPlayer player) throws InterruptedException {
                         // Although ducking is possible, CONTENT_TYPE_SPEECH should prefer pause.
                         requestAudioFocus(AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
                     }
@@ -434,7 +434,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
         testDuckedAfterAction(createAudioAttributes(CONTENT_TYPE_MUSIC, USAGE_MEDIA),
                 new PlayerRunnable() {
                     @Override
-                    public void run(XMediaPlayer player) throws InterruptedException {
+                    public void run(MediaPlayer player) throws InterruptedException {
                         // This will trigger duck (lower volume).
                         requestAudioFocus(AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK);
                     }
@@ -443,7 +443,7 @@ public class XMediaPlayer_AudioFocusTest extends XMediaPlayerTestBase {
 
     @FunctionalInterface
     private interface PlayerRunnable {
-        void run(XMediaPlayer player) throws InterruptedException;
+        void run(MediaPlayer player) throws InterruptedException;
     }
 
     private class AudioFocusListener implements OnAudioFocusChangeListener {

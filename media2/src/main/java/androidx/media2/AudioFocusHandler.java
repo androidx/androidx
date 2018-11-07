@@ -64,7 +64,7 @@ public class AudioFocusHandler {
 
     private final AudioFocusHandlerImpl mImpl;
 
-    AudioFocusHandler(Context context, XMediaPlayer player) {
+    AudioFocusHandler(Context context, MediaPlayer player) {
         mImpl = new AudioFocusHandlerImplBase(context, player);
     }
 
@@ -119,7 +119,7 @@ public class AudioFocusHandler {
         private final OnAudioFocusChangeListener mAudioFocusListener = new AudioFocusListener();
         final Object mLock = new Object();
         private final Context mContext;
-        final XMediaPlayer mPlayer;
+        final MediaPlayer mPlayer;
         private final AudioManager mAudioManager;
 
         @GuardedBy("mLock")
@@ -131,7 +131,7 @@ public class AudioFocusHandler {
         @GuardedBy("mLock")
         boolean mHasRegisteredReceiver;
 
-        AudioFocusHandlerImplBase(Context context, XMediaPlayer player) {
+        AudioFocusHandlerImplBase(Context context, MediaPlayer player) {
             mContext = context;
             mPlayer = player;
             mPlayer.registerPlayerCallback(ContextCompat.getMainExecutor(context), this);

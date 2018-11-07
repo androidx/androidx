@@ -43,10 +43,10 @@ import android.view.SurfaceHolder;
 import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
+import androidx.media2.MediaPlayer.DrmInfo;
+import androidx.media2.MediaPlayer.DrmResult;
 import androidx.media2.SessionPlayer2.PlayerResult;
 import androidx.media2.TestUtils.Monitor;
-import androidx.media2.XMediaPlayer.DrmInfo;
-import androidx.media2.XMediaPlayer.DrmResult;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;
@@ -80,12 +80,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * DRM tests which use XMediaPlayer to play audio or video.
+ * DRM tests which use MediaPlayer to play audio or video.
  */
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 @Suppress // Disabled as it 100% fails b/79682973
-public class XMediaPlayerDrmTest {
+public class MediaPlayerDrmTest {
     private static final int STREAM_RETRIES = 3;
 
     private Monitor mOnVideoSizeChangedCalled = new Monitor();
@@ -96,12 +96,12 @@ public class XMediaPlayerDrmTest {
     private Context mContext;
     private Resources mResources;
 
-    private XMediaPlayer mPlayer = null;
+    private MediaPlayer mPlayer = null;
     private MediaStubActivity mActivity;
     private Instrumentation mInstrumentation;
 
     private ExecutorService mExecutor;
-    private XMediaPlayer.PlayerCallback mECb = null;
+    private MediaPlayer.PlayerCallback mECb = null;
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule =
@@ -134,7 +134,7 @@ public class XMediaPlayerDrmTest {
         try {
             mActivityRule.runOnUiThread(new Runnable() {
                 public void run() {
-                    mPlayer = new XMediaPlayer(mActivity);
+                    mPlayer = new MediaPlayer(mActivity);
                 }
             });
         } catch (Throwable e) {
@@ -256,7 +256,7 @@ public class XMediaPlayerDrmTest {
     //////////////////////////////////////////////////////////////////////////////////////////
     // Modular DRM
 
-    private static final String TAG = "XMediaPlayerDrmTest";
+    private static final String TAG = "MediaPlayerDrmTest";
 
     private static final int PLAY_TIME_MS = 60 * 1000;
     private byte[] mKeySetId;
@@ -377,21 +377,21 @@ public class XMediaPlayerDrmTest {
 
         mAudioOnly = (width == 0);
 
-        mECb = new XMediaPlayer.PlayerCallback() {
+        mECb = new MediaPlayer.PlayerCallback() {
                 @Override
-                public void onVideoSizeChanged(XMediaPlayer mp, MediaItem2 item, int w, int h) {
+                public void onVideoSizeChanged(MediaPlayer mp, MediaItem2 item, int w, int h) {
                     Log.v(TAG, "VideoSizeChanged" + " w:" + w + " h:" + h);
                     mOnVideoSizeChangedCalled.signal();
                 }
 
                 @Override
-                public void onError(XMediaPlayer mp, MediaItem2 item, int what, int extra) {
+                public void onError(MediaPlayer mp, MediaItem2 item, int what, int extra) {
                     fail("Media player had error " + what + " playing video");
                 }
 
                 @Override
-                public void onInfo(XMediaPlayer mp, MediaItem2 item, int what, int extra) {
-                    if (what == XMediaPlayer.MEDIA_INFO_MEDIA_ITEM_END) {
+                public void onInfo(MediaPlayer mp, MediaItem2 item, int what, int extra) {
+                    if (what == MediaPlayer.MEDIA_INFO_MEDIA_ITEM_END) {
                         Log.v(TAG, "playLoadedVideo: onInfo_PlaybackComplete");
                         mOnPlaybackCompleted.signal();
                     }
@@ -474,9 +474,9 @@ public class XMediaPlayerDrmTest {
             throws InterruptedException, ExecutionException {
         final AtomicBoolean asyncSetupDrmError = new AtomicBoolean(false);
 
-        mPlayer.registerPlayerCallback(mExecutor, new XMediaPlayer.PlayerCallback() {
+        mPlayer.registerPlayerCallback(mExecutor, new MediaPlayer.PlayerCallback() {
             @Override
-            public void onDrmInfo(XMediaPlayer mp, MediaItem2 item, DrmInfo drmInfo) {
+            public void onDrmInfo(MediaPlayer mp, MediaItem2 item, DrmInfo drmInfo) {
                 Log.v(TAG, "preparePlayerAndDrm_V1: onDrmInfo" + drmInfo);
 
                 // in the callback (async mode) so handling exceptions here
@@ -506,9 +506,9 @@ public class XMediaPlayerDrmTest {
     }
 
     private void preparePlayerAndDrm_V2_syncDrmSetupPlusConfig() throws Exception {
-        mPlayer.setOnDrmConfigHelper(new XMediaPlayer.OnDrmConfigHelper() {
+        mPlayer.setOnDrmConfigHelper(new MediaPlayer.OnDrmConfigHelper() {
             @Override
-            public void onDrmConfig(XMediaPlayer mp, MediaItem2 item) {
+            public void onDrmConfig(MediaPlayer mp, MediaItem2 item) {
                 String widevineSecurityLevel3 = "L3";
                 String securityLevelProperty = "securityLevel";
 
@@ -520,7 +520,7 @@ public class XMediaPlayerDrmTest {
                     level = mp.getDrmPropertyString(securityLevelProperty);
                     Log.v(TAG, "preparePlayerAndDrm_V2: getDrmPropertyString: "
                             + securityLevelProperty + " -> " + level);
-                } catch (XMediaPlayer.NoDrmSchemeException e) {
+                } catch (MediaPlayer.NoDrmSchemeException e) {
                     Log.v(TAG, "preparePlayerAndDrm_V2: NoDrmSchemeException");
                 } catch (Exception e) {
                     Log.v(TAG, "preparePlayerAndDrm_V2: onDrmConfig EXCEPTION " + e);
@@ -544,9 +544,9 @@ public class XMediaPlayerDrmTest {
             throws InterruptedException, ExecutionException {
         final AtomicBoolean asyncSetupDrmError = new AtomicBoolean(false);
 
-        mPlayer.registerPlayerCallback(mExecutor, new XMediaPlayer.PlayerCallback() {
+        mPlayer.registerPlayerCallback(mExecutor, new MediaPlayer.PlayerCallback() {
             @Override
-            public void onDrmInfo(XMediaPlayer mp, MediaItem2 item, DrmInfo drmInfo) {
+            public void onDrmInfo(MediaPlayer mp, MediaItem2 item, DrmInfo drmInfo) {
                 Log.v(TAG, "preparePlayerAndDrm_V3: onDrmInfo" + drmInfo);
 
                 // DRM preperation
@@ -831,7 +831,7 @@ public class XMediaPlayerDrmTest {
             // storing offline key for a later restore
             mKeySetId = (keyType == MediaDrm.KEY_TYPE_OFFLINE) ? keySetId : null;
 
-        } catch (XMediaPlayer.NoDrmSchemeException e) {
+        } catch (MediaPlayer.NoDrmSchemeException e) {
             Log.d(TAG, "setupDrm: NoDrmSchemeException");
             e.printStackTrace();
             throw e;
@@ -866,7 +866,7 @@ public class XMediaPlayerDrmTest {
 
             mPlayer.restoreDrmKeys(mKeySetId);
 
-        } catch (XMediaPlayer.NoDrmSchemeException e) {
+        } catch (MediaPlayer.NoDrmSchemeException e) {
             Log.v(TAG, "setupDrmRestore: NoDrmSchemeException");
             e.printStackTrace();
             throw e;
