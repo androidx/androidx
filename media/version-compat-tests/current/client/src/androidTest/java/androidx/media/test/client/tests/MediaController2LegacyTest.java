@@ -23,6 +23,7 @@ import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent;
@@ -57,6 +58,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tests {@link MediaController2} interacting with {@link MediaSessionCompat}.
+ *
+ * TODO: Pull out callback tests to a separate file (i.e. MediaController2LegacyCallbackTest).
  */
 @SmallTest
 public class MediaController2LegacyTest extends MediaSession2TestBase {
@@ -192,6 +195,81 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     }
 
     @Test
+    public void testGetCurrentMediaItemAfterConnected() throws Exception {
+        prepareLooper();
+        mController = createController(mSession.getSessionToken(), true, null);
+        assertNull(mController.getCurrentMediaItem());
+    }
+
+    @Test
+    public void testGetCurrentMediaItemAfterConnected_metadata() throws Exception {
+        prepareLooper();
+        final String testMediaId = "testGetCurrentMediaItemWhenConnected_metadata";
+        MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                .putText(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, testMediaId)
+                .build();
+        mSession.setMetadata(metadata);
+
+        mController = createController(mSession.getSessionToken(), true, null);
+        assertEquals(testMediaId, mController.getCurrentMediaItem().getMediaId());
+    }
+
+    @Test
+    public void testControllerCallback_onCurrentMediaItemChanged_byMetadataChange()
+            throws Exception {
+        prepareLooper();
+        final String testMediaId = "testControllerCallback_onCurrentMediaItemChanged_bySetMetadata";
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onCurrentMediaItemChanged(MediaController2 controller, MediaItem2 item) {
+                MediaTestUtils.assertMediaItemWithId(testMediaId, item);
+                latch.countDown();
+            }
+        };
+        mController = createController(mSession.getSessionToken(), true, callback);
+        MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
+                .putText(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, testMediaId)
+                .build();
+        mSession.setMetadata(metadata);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onCurrentMediaItemChanged_byActiveQueueItemChange()
+            throws Exception {
+        prepareLooper();
+        final List<MediaItem2> testList = MediaTestUtils.createPlaylist(2);
+        final List<QueueItem> testQueue = MediaUtils2.convertToQueueItemList(testList);
+        mSession.setQueue(testQueue);
+
+        PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder();
+
+        // Set the current active queue item to index 'oldItemIndex'.
+        final int oldItemIndex = 0;
+        builder.setActiveQueueItemId(testQueue.get(oldItemIndex).getQueueId());
+        mSession.setPlaybackState(builder.build());
+
+        final int newItemIndex = 1;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onCurrentMediaItemChanged(MediaController2 controller, MediaItem2 item) {
+                MediaTestUtils.assertMediaItemsWithId(testList.get(newItemIndex), item);
+                latch.countDown();
+            }
+        };
+        mController = createController(mSession.getSessionToken(), true, callback);
+
+        // The new playbackState will tell the controller that the active queue item is changed to
+        // 'newItemIndex'.
+        builder.setActiveQueueItemId(testQueue.get(newItemIndex).getQueueId());
+        mSession.setPlaybackState(builder.build());
+
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
     public void testControllerCallback_onSeekCompleted() throws Exception {
         prepareLooper();
         final long testSeekPosition = 400;
@@ -219,7 +297,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testControllerCallbackBufferingCompleted() throws Exception {
+    public void testControllerCallback_onBufferingCompleted() throws Exception {
         prepareLooper();
         final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(1);
         final MediaMetadataCompat metadata = MediaUtils2.convertToMediaMetadataCompat(
@@ -257,7 +335,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testControllerCallbackBufferingStarved() throws Exception {
+    public void testControllerCallback_onBufferingStarved() throws Exception {
         prepareLooper();
         final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(1);
         final MediaMetadataCompat metadata = MediaUtils2.convertToMediaMetadataCompat(
@@ -329,7 +407,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     }
 
     @Test
-    public void testControllerCallback_releaseSession() throws Exception {
+    public void testControllerCallback_onDisconnected() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken());
         mSession.release();
