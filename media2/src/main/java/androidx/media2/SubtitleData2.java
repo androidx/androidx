@@ -28,7 +28,7 @@ import java.util.concurrent.Executor;
 
 /**
  * Class encapsulating subtitle data, as received through the
- * {@link XMediaPlayer.PlayerCallback#onSubtitleData} interface.
+ * {@link MediaPlayer.PlayerCallback#onSubtitleData} interface.
  * The subtitle data includes:
  * <ul>
  * <li> the track index</li>
@@ -38,15 +38,15 @@ import java.util.concurrent.Executor;
  * </ul>
  * The data is stored in a byte-array, and is encoded in one of the supported in-band
  * subtitle formats. The subtitle encoding is determined by the MIME type of the
- * {@link XMediaPlayer.TrackInfo} of the subtitle track, one of
+ * {@link MediaPlayer.TrackInfo} of the subtitle track, one of
  * {@link #MIMETYPE_TEXT_CEA_608}, {@link #MIMETYPE_TEXT_CEA_708},
  * {@link #MIMETYPE_TEXT_VTT}.
  * <p>
- * Here is an example of iterating over the tracks of a {@link XMediaPlayer}, and checking which
+ * Here is an example of iterating over the tracks of a {@link MediaPlayer}, and checking which
  * encoding is used for the subtitle tracks:
  * <p>
  * <pre class="prettyprint">
- * XMediaPlayer mp = new XMediaPlayer(context);
+ * MediaPlayer mp = new MediaPlayer(context);
  * // prepare the player with a valid media item.
  * &hellip;
  *
@@ -65,8 +65,8 @@ import java.util.concurrent.Executor;
  * }
  * </pre>
  * <p>
- * @see XMediaPlayer#registerPlayerCallback(Executor, SessionPlayer2.PlayerCallback)
- * @see XMediaPlayer.PlayerCallback#onSubtitleData(XMediaPlayer, MediaItem2, SubtitleData2)
+ * @see MediaPlayer#registerPlayerCallback(Executor, SessionPlayer2.PlayerCallback)
+ * @see MediaPlayer.PlayerCallback#onSubtitleData(MediaPlayer, MediaItem2, SubtitleData2)
  */
 public final class SubtitleData2 {
     private static final String TAG = "SubtitleData2";
@@ -112,7 +112,7 @@ public final class SubtitleData2 {
 
     /**
      * Returns the index of the MediaPlayer track which contains this subtitle data.
-     * @return an index in the array returned by {@link XMediaPlayer#getTrackInfo()}.
+     * @return an index in the array returned by {@link MediaPlayer#getTrackInfo()}.
      */
     public int getTrackIndex() {
         return mTrackIndex;

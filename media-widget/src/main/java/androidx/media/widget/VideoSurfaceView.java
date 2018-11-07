@@ -28,7 +28,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.media2.XMediaPlayer;
+import androidx.media2.MediaPlayer;
 
 @RequiresApi(21)
 class VideoSurfaceView extends SurfaceView
@@ -37,7 +37,7 @@ class VideoSurfaceView extends SurfaceView
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private Surface mSurface = null;
     private SurfaceListener mSurfaceListener = null;
-    private XMediaPlayer mMediaPlayer;
+    private MediaPlayer mMediaPlayer;
     // A flag to indicate taking over other view should be proceed.
     private boolean mIsTakingOverOldView;
     private VideoViewInterface mOldView;
@@ -52,7 +52,7 @@ class VideoSurfaceView extends SurfaceView
     ////////////////////////////////////////////////////
 
     @Override
-    public boolean assignSurfaceToMediaPlayer(XMediaPlayer mp) {
+    public boolean assignSurfaceToMediaPlayer(MediaPlayer mp) {
         Log.d(TAG, "assignSurfaceToMediaPlayer(): mSurface: " + mSurface);
         if (mp == null || !hasAvailableSurface()) {
             return false;
@@ -72,7 +72,7 @@ class VideoSurfaceView extends SurfaceView
     }
 
     @Override
-    public void setMediaPlayer(XMediaPlayer mp) {
+    public void setMediaPlayer(MediaPlayer mp) {
         mMediaPlayer = mp;
         if (mIsTakingOverOldView) {
             takeOver(mOldView);

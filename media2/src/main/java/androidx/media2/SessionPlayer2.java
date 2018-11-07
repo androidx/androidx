@@ -140,7 +140,7 @@ import java.util.concurrent.Executor;
  * </table>
  */
 // Previously MediaSessionCompat.Callback.
-// Players can extend this directly (e.g. XMediaPlayer) or create wrapper and control underlying
+// Players can extend this directly (e.g. MediaPlayer) or create wrapper and control underlying
 // player.
 // Preferably it can be interface, but API guideline requires to use abstract class.
 @TargetApi(Build.VERSION_CODES.P)
