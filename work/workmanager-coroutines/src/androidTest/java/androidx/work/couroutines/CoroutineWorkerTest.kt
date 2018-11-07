@@ -108,7 +108,6 @@ class CoroutineWorkerTest {
 
         assertThat(future.isDone, `is`(true))
         assertThat(future.isCancelled, `is`(false))
-        assertThat(worker.job.isCompleted, `is`(true))
         assertThat(payload.result, `is`(ListenableWorker.Result.SUCCESS))
         assertThat(payload.outputData.getLong("output", 0L), `is`(999L))
     }
