@@ -68,7 +68,6 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
     private static final String TAG = "MediaSession2CallbackTest";
 
     MockPlayer mPlayer;
-    RemoteMediaController2 mController2;
 
     @Before
     @Override
@@ -93,16 +92,16 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnCommandRequest")
                 .build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
-            mController2.pause();
+            controller.pause();
             assertFalse(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             assertFalse(mPlayer.mPauseCalled);
             assertEquals(1, callback.commands.size());
             assertEquals(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE,
                     (long) callback.commands.get(0).getCommandCode());
 
-            mController2.play();
+            controller.play();
             assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             assertTrue(mPlayer.mPlayCalled);
             assertFalse(mPlayer.mPauseCalled);
@@ -138,9 +137,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnCreateMediaItem")
                 .build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
-            mController2.setPlaylist(list, null);
+            controller.setPlaylist(list, null);
             assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
             List<MediaItem2> playerList = mPlayer.getPlaylist();
@@ -191,8 +190,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnCustomCommand")
                 .build()) {
-            mController2 = createRemoteController2(session.getToken());
-            mController2.sendCustomCommand(testCommand, testArgs);
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
+            controller.sendCustomCommand(testCommand, testArgs);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -212,8 +211,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnFastForward").build()) {
-            mController2 = createRemoteController2(session.getToken());
-            mController2.fastForward();
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
+            controller.fastForward();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -233,8 +232,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnRewind").build()) {
-            mController2 = createRemoteController2(session.getToken());
-            mController2.rewind();
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
+            controller.rewind();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -254,8 +253,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSkipForward").build()) {
-            mController2 = createRemoteController2(session.getToken());
-            mController2.skipForward();
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
+            controller.skipForward();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -275,8 +274,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSkipBackward").build()) {
-            mController2 = createRemoteController2(session.getToken());
-            mController2.skipBackward();
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
+            controller.skipBackward();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -301,9 +300,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPlayFromSearch").build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
-            mController2.playFromSearch(testQuery, testExtras);
+            controller.playFromSearch(testQuery, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -329,9 +328,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPlayFromUri")
                 .build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
-            mController2.playFromUri(testUri, testExtras);
+            controller.playFromUri(testUri, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -356,9 +355,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPlayFromMediaId").build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
-            mController2.playFromMediaId(testMediaId, testExtras);
+            controller.playFromMediaId(testMediaId, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -383,9 +382,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPrepareFromSearch").build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
-            mController2.prepareFromSearch(testQuery, testExtras);
+            controller.prepareFromSearch(testQuery, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -410,9 +409,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPrepareFromUri").build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
-            mController2.prepareFromUri(testUri, testExtras);
+            controller.prepareFromUri(testUri, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -437,9 +436,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnPrepareFromMediaId").build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
-            mController2.prepareFromMediaId(testMediaId, testExtras);
+            controller.prepareFromMediaId(testMediaId, testExtras);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -467,9 +466,9 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
         try (MediaSession2 session = new MediaSession2.Builder(mContext, mPlayer)
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSetRating").build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
-            mController2.setRating(testMediaId, testRating);
+            controller.setRating(testMediaId, testRating);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -490,10 +489,10 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSubscribeRoutesInfo")
                 .build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
             callback.resetLatchCount(1);
-            mController2.subscribeRoutesInfo();
+            controller.subscribeRoutesInfo();
             assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -514,10 +513,10 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnUnsubscribeRoutesInfo")
                 .build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
             callback.resetLatchCount(1);
-            mController2.unsubscribeRoutesInfo();
+            controller.unsubscribeRoutesInfo();
             assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -540,10 +539,10 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                 .setSessionCallback(sHandlerExecutor, callback)
                 .setId("testOnSelectRoute")
                 .build()) {
-            mController2 = createRemoteController2(session.getToken());
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
 
             callback.resetLatchCount(1);
-            mController2.selectRoute(testRoute);
+            controller.selectRoute(testRoute);
             assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
@@ -566,7 +565,7 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                         return super.onConnect(session, controller);
                     }
                 }).build()) {
-            mController2 = createRemoteController2(
+            RemoteMediaController2 controller = createRemoteController2(
                     session.getToken(), false /* waitForConnection */);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
@@ -587,8 +586,8 @@ public class MediaSession2CallbackTest extends MediaSession2TestBase {
                         latch.countDown();
                     }
                 }).build()) {
-            mController2 = createRemoteController2(session.getToken());
-            mController2.close();
+            RemoteMediaController2 controller = createRemoteController2(session.getToken());
+            controller.close();
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }

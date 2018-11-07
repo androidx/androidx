@@ -134,6 +134,10 @@ public class MediaSession2LegacyCallbackTest extends MediaSession2TestBase {
         if (mSession != null) {
             mSession.close();
         }
+        if (mController != null) {
+            mController.cleanUp();
+            mController = null;
+        }
     }
 
     @Test
