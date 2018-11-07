@@ -251,7 +251,8 @@ public class MediaController2 implements AutoCloseable {
      *
      * @return SessionToken2 of the connected session, or {@code null} if not connected
      */
-    public @Nullable SessionToken2 getConnectedSessionToken() {
+    @Nullable
+    public SessionToken2 getConnectedSessionToken() {
         return isConnected() ? getImpl().getConnectedSessionToken() : null;
     }
 
@@ -266,6 +267,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Requests that the player start or resume playback.
      */
+    @NonNull
     public ListenableFuture<ControllerResult> play() {
         if (isConnected()) {
             return getImpl().play();
@@ -276,6 +278,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Requests that the player pause playback.
      */
+    @NonNull
     public ListenableFuture<ControllerResult> pause() {
         if (isConnected()) {
             return getImpl().pause();
@@ -290,6 +293,7 @@ public class MediaController2 implements AutoCloseable {
      * its playback state to {@link SessionPlayer2#PLAYER_STATE_PAUSED}. Afterwards, {@link #play}
      * can be called to start playback.
      */
+    @NonNull
     public ListenableFuture<ControllerResult> prepare() {
         if (isConnected()) {
             return getImpl().prepare();
@@ -302,7 +306,8 @@ public class MediaController2 implements AutoCloseable {
      *
      * @see MediaSession2.SessionCallback#onFastForward(MediaSession2, ControllerInfo)
      */
-    public @NonNull ListenableFuture<ControllerResult> fastForward() {
+    @NonNull
+    public ListenableFuture<ControllerResult> fastForward() {
         if (isConnected()) {
             return getImpl().fastForward();
         }
@@ -314,7 +319,8 @@ public class MediaController2 implements AutoCloseable {
      *
      * @see MediaSession2.SessionCallback#onRewind(MediaSession2, ControllerInfo)
      */
-    public @NonNull ListenableFuture<ControllerResult> rewind() {
+    @NonNull
+    public ListenableFuture<ControllerResult> rewind() {
         if (isConnected()) {
             return getImpl().rewind();
         }
@@ -326,7 +332,8 @@ public class MediaController2 implements AutoCloseable {
      *
      * @see MediaSession2.SessionCallback#onSkipForward(MediaSession2, ControllerInfo)
      */
-    public @NonNull ListenableFuture<ControllerResult> skipForward() {
+    @NonNull
+    public ListenableFuture<ControllerResult> skipForward() {
         // To match with KEYCODE_MEDIA_SKIP_FORWARD
         if (isConnected()) {
             return getImpl().skipForward();
@@ -339,7 +346,8 @@ public class MediaController2 implements AutoCloseable {
      *
      * @see MediaSession2.SessionCallback#onSkipBackward(MediaSession2, ControllerInfo)
      */
-    public @NonNull ListenableFuture<ControllerResult> skipBackward() {
+    @NonNull
+    public ListenableFuture<ControllerResult> skipBackward() {
         // To match with KEYCODE_MEDIA_SKIP_BACKWARD
         if (isConnected()) {
             return getImpl().skipBackward();
@@ -352,6 +360,7 @@ public class MediaController2 implements AutoCloseable {
      *
      * @param pos Position to move to, in milliseconds.
      */
+    @NonNull
     public ListenableFuture<ControllerResult> seekTo(long pos) {
         if (isConnected()) {
             return getImpl().seekTo(pos);
@@ -510,6 +519,7 @@ public class MediaController2 implements AutoCloseable {
      * @param flags flags from {@link AudioManager} to include with the volume request for local
      *              playback
      */
+    @NonNull
     public ListenableFuture<ControllerResult> setVolumeTo(int value, @VolumeFlags int flags) {
         if (isConnected()) {
             return getImpl().setVolumeTo(value, flags);
@@ -537,6 +547,7 @@ public class MediaController2 implements AutoCloseable {
      * @param flags flags from {@link AudioManager} to include with the volume request for local
      *              playback
      */
+    @NonNull
     public ListenableFuture<ControllerResult> adjustVolume(@VolumeDirection int direction,
             @VolumeFlags int flags) {
         if (isConnected()) {
@@ -551,7 +562,8 @@ public class MediaController2 implements AutoCloseable {
      *
      * @return A {@link PendingIntent} to launch UI or null
      */
-    public @Nullable PendingIntent getSessionActivity() {
+    @Nullable
+    public PendingIntent getSessionActivity() {
         return isConnected() ? getImpl().getSessionActivity() : null;
     }
 
@@ -602,6 +614,7 @@ public class MediaController2 implements AutoCloseable {
     /**
      * Set the playback speed.
      */
+    @NonNull
     public ListenableFuture<ControllerResult> setPlaybackSpeed(float speed) {
         if (isConnected()) {
             return getImpl().setPlaybackSpeed(speed);
@@ -639,7 +652,8 @@ public class MediaController2 implements AutoCloseable {
      *
      * @return The current playback info or null
      */
-    public @Nullable PlaybackInfo getPlaybackInfo() {
+    @Nullable
+    public PlaybackInfo getPlaybackInfo() {
         return isConnected() ? getImpl().getPlaybackInfo() : null;
     }
 
@@ -655,6 +669,7 @@ public class MediaController2 implements AutoCloseable {
      * @param mediaId The non-empty media id
      * @param rating The rating to set
      */
+    @NonNull
     public ListenableFuture<ControllerResult> setRating(@NonNull String mediaId,
             @NonNull Rating2 rating) {
         if (TextUtils.isEmpty(mediaId)) {
@@ -681,6 +696,7 @@ public class MediaController2 implements AutoCloseable {
      * @param command custom command
      * @param args optional argument
      */
+    @NonNull
     public ListenableFuture<ControllerResult> sendCustomCommand(@NonNull SessionCommand2 command,
             @Nullable Bundle args) {
         if (command == null) {
@@ -707,7 +723,8 @@ public class MediaController2 implements AutoCloseable {
      *         or it doesn't have enough permission
      * @see SessionCommand2#COMMAND_CODE_PLAYER_GET_PLAYLIST
      */
-    public @Nullable List<MediaItem2> getPlaylist() {
+    @Nullable
+    public List<MediaItem2> getPlaylist() {
         return isConnected() ? getImpl().getPlaylist() : null;
     }
 
@@ -720,6 +737,7 @@ public class MediaController2 implements AutoCloseable {
      * @see ControllerCallback#onPlaylistChanged
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
+    @NonNull
     public ListenableFuture<ControllerResult> setPlaylist(@NonNull List<String> list,
             @Nullable MediaMetadata2 metadata) {
         if (list == null) {
@@ -742,6 +760,7 @@ public class MediaController2 implements AutoCloseable {
      * @param mediaId The non-empty media id of the item to play
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
+    @NonNull
     public ListenableFuture<ControllerResult> setMediaItem(@NonNull String mediaId) {
         if (TextUtils.isEmpty(mediaId)) {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
@@ -757,6 +776,7 @@ public class MediaController2 implements AutoCloseable {
      *
      * @param metadata metadata of the playlist
      */
+    @NonNull
     public ListenableFuture<ControllerResult> updatePlaylistMetadata(
             @Nullable MediaMetadata2 metadata) {
         if (isConnected()) {
@@ -773,7 +793,8 @@ public class MediaController2 implements AutoCloseable {
      * @return metadata metadata of the playlist, or null if none is set or the controller is not
      *         connected
      */
-    public @Nullable MediaMetadata2 getPlaylistMetadata() {
+    @Nullable
+    public MediaMetadata2 getPlaylistMetadata() {
         return isConnected() ? getImpl().getPlaylistMetadata() : null;
     }
 
@@ -790,6 +811,7 @@ public class MediaController2 implements AutoCloseable {
      * @param mediaId The non-empty media id of the new item
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
+    @NonNull
     public ListenableFuture<ControllerResult> addPlaylistItem(@IntRange(from = 0) int index,
             @NonNull String mediaId) {
         if (index < 0) {
@@ -812,6 +834,7 @@ public class MediaController2 implements AutoCloseable {
      *
      * @param index the media item you want to add
      */
+    @NonNull
     public ListenableFuture<ControllerResult> removePlaylistItem(@IntRange(from = 0) int index) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
@@ -829,6 +852,7 @@ public class MediaController2 implements AutoCloseable {
      * @param mediaId The non-empty media id of the new item
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
+    @NonNull
     public ListenableFuture<ControllerResult> replacePlaylistItem(@IntRange(from = 0) int index,
             @NonNull String mediaId) {
         if (index < 0) {
@@ -849,6 +873,7 @@ public class MediaController2 implements AutoCloseable {
      *
      * @return the currently playing item, or null if unknown or not connected
      */
+    @Nullable
     public MediaItem2 getCurrentMediaItem() {
         return isConnected() ? getImpl().getCurrentMediaItem() : null;
     }
@@ -858,6 +883,7 @@ public class MediaController2 implements AutoCloseable {
      * <p>
      * This calls {@link SessionPlayer2#skipToPreviousPlaylistItem()}.
      */
+    @NonNull
     public ListenableFuture<ControllerResult> skipToPreviousPlaylistItem() {
         if (isConnected()) {
             return getImpl().skipToPreviousItem();
@@ -870,6 +896,7 @@ public class MediaController2 implements AutoCloseable {
      * <p>
      * This calls {@link SessionPlayer2#skipToNextPlaylistItem()}.
      */
+    @NonNull
     public ListenableFuture<ControllerResult> skipToNextPlaylistItem() {
         if (isConnected()) {
             return getImpl().skipToNextItem();
@@ -884,6 +911,7 @@ public class MediaController2 implements AutoCloseable {
      *
      * @param index The item in the playlist you want to play
      */
+    @NonNull
     public ListenableFuture<ControllerResult> skipToPlaylistItem(@IntRange(from = 0) int index) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
@@ -917,6 +945,7 @@ public class MediaController2 implements AutoCloseable {
      * @see SessionPlayer2#REPEAT_MODE_ALL
      * @see SessionPlayer2#REPEAT_MODE_GROUP
      */
+    @NonNull
     public ListenableFuture<ControllerResult> setRepeatMode(@RepeatMode int repeatMode) {
         if (isConnected()) {
             return getImpl().setRepeatMode(repeatMode);
@@ -945,6 +974,7 @@ public class MediaController2 implements AutoCloseable {
      * @see SessionPlayer2#SHUFFLE_MODE_ALL
      * @see SessionPlayer2#SHUFFLE_MODE_GROUP
      */
+    @NonNull
     public ListenableFuture<ControllerResult> setShuffleMode(@ShuffleMode int shuffleMode) {
         if (isConnected()) {
             return getImpl().setShuffleMode(shuffleMode);
@@ -1177,7 +1207,8 @@ public class MediaController2 implements AutoCloseable {
          * @param args
          * @return result of handling custom command
          */
-        public @NonNull ControllerResult onCustomCommand(@NonNull MediaController2 controller,
+        @NonNull
+        public ControllerResult onCustomCommand(@NonNull MediaController2 controller,
                 @NonNull SessionCommand2 command, @Nullable Bundle args) {
             return new ControllerResult(ControllerResult.RESULT_CODE_NOT_SUPPORTED);
         }
@@ -1362,6 +1393,7 @@ public class MediaController2 implements AutoCloseable {
          *
          * @return The attributes for this session
          */
+        @Nullable
         public AudioAttributesCompat getAudioAttributes() {
             return mAudioAttrsCompat;
         }
@@ -1568,7 +1600,8 @@ public class MediaController2 implements AutoCloseable {
          * @see #sendCustomCommand(SessionCommand2, Bundle)
          * @return result of send custom command
          */
-        public @Nullable Bundle getCustomCommandResult() {
+        @Nullable
+        public Bundle getCustomCommandResult() {
             return mCustomCommandResult;
         }
 
@@ -1587,7 +1620,8 @@ public class MediaController2 implements AutoCloseable {
          *         current media item was {@code null}, or any other reason.
          */
         @Override
-        public @Nullable MediaItem2 getMediaItem() {
+        @Nullable
+        public MediaItem2 getMediaItem() {
             return mItem;
         }
     }

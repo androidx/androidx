@@ -548,7 +548,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     @GuardedBy("mPlaylistLock")
     private boolean mSetMediaItemCalled;
 
-    public XMediaPlayer(Context context) {
+    public XMediaPlayer(@NonNull Context context) {
         mState = PLAYER_STATE_IDLE;
         mPlayer = MediaPlayer2.create(context);
         mExecutor = Executors.newFixedThreadPool(1);
@@ -579,6 +579,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> play() {
         // TODO: Make commands be executed sequentially
         if (mAudioFocusHandler.onPlayRequested()) {
@@ -594,6 +595,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> pause() {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         // TODO: Make commands be executed sequentially
@@ -612,6 +614,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> prepare() {
         ListenableFuture ret;
         synchronized (mPendingCommands) {
@@ -634,6 +637,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> seekTo(long position) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -644,6 +648,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setPlaybackSpeed(float playbackSpeed) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -656,8 +661,9 @@ public class XMediaPlayer extends SessionPlayer2 {
         return future;
     }
 
+    @NonNull
     @Override
-    public ListenableFuture<PlayerResult> setAudioAttributes(AudioAttributesCompat attr) {
+    public ListenableFuture<PlayerResult> setAudioAttributes(@NonNull AudioAttributesCompat attr) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
             Object token = mPlayer.setAudioAttributes(attr);
@@ -720,6 +726,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @Nullable
     public AudioAttributesCompat getAudioAttributes() {
         try {
             return mPlayer.getAudioAttributes();
@@ -729,6 +736,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setMediaItem(@NonNull MediaItem2 item) {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
@@ -743,6 +751,7 @@ public class XMediaPlayer extends SessionPlayer2 {
         return setPlayerMediaItemsInternal(item, null);
     }
 
+    @NonNull
     @Override
     public ListenableFuture<PlayerResult> setPlaylist(
             @NonNull final List<MediaItem2> playlist, @Nullable final MediaMetadata2 metadata) {
@@ -780,8 +789,10 @@ public class XMediaPlayer extends SessionPlayer2 {
         return createFutureForResultCodeInternal(RESULT_CODE_SUCCESS);
     }
 
+    @NonNull
     @Override
-    public ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem2 item) {
+    public ListenableFuture<PlayerResult> addPlaylistItem(
+            int index, @NonNull MediaItem2 item) {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
         }
@@ -827,7 +838,8 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> removePlaylistItem(MediaItem2 item) {
+    @NonNull
+    public ListenableFuture<PlayerResult> removePlaylistItem(@NonNull MediaItem2 item) {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
         }
@@ -870,8 +882,10 @@ public class XMediaPlayer extends SessionPlayer2 {
         return createFutureForResultCodeInternal(RESULT_CODE_SUCCESS);
     }
 
+    @NonNull
     @Override
-    public ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem2 item) {
+    public ListenableFuture<PlayerResult> replacePlaylistItem(
+            int index, @NonNull MediaItem2 item) {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
         }
@@ -921,6 +935,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> skipToPreviousPlaylistItem() {
         MediaItem2 curItem;
         MediaItem2 nextItem;
@@ -942,6 +957,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> skipToNextPlaylistItem() {
         MediaItem2 curItem;
         MediaItem2 nextItem;
@@ -964,7 +980,8 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> skipToPlaylistItem(MediaItem2 item) {
+    @NonNull
+    public ListenableFuture<PlayerResult> skipToPlaylistItem(@NonNull MediaItem2 item) {
         MediaItem2 curItem;
         MediaItem2 nextItem;
         synchronized (mPlaylistLock) {
@@ -980,8 +997,10 @@ public class XMediaPlayer extends SessionPlayer2 {
         return setPlayerMediaItemsInternal(curItem, nextItem);
     }
 
+    @NonNull
     @Override
-    public ListenableFuture<PlayerResult> updatePlaylistMetadata(final MediaMetadata2 metadata) {
+    public ListenableFuture<PlayerResult> updatePlaylistMetadata(
+            final @Nullable MediaMetadata2 metadata) {
         synchronized (mPlaylistLock) {
             mPlaylistMetadata = metadata;
         }
@@ -997,6 +1016,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setRepeatMode(final int repeatMode) {
         if (repeatMode < SessionPlayer2.REPEAT_MODE_NONE
                 || repeatMode > SessionPlayer2.REPEAT_MODE_GROUP) {
@@ -1021,6 +1041,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @NonNull
     public ListenableFuture<PlayerResult> setShuffleMode(final int shuffleMode) {
         if (shuffleMode < SessionPlayer2.SHUFFLE_MODE_NONE
                 || shuffleMode > SessionPlayer2.SHUFFLE_MODE_GROUP) {
@@ -1045,6 +1066,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @Nullable
     public List<MediaItem2> getPlaylist() {
         synchronized (mPlaylistLock) {
             return mPlaylist.isEmpty() ? null : new ArrayList<>(mPlaylist);
@@ -1052,6 +1074,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @Nullable
     public MediaMetadata2 getPlaylistMetadata() {
         synchronized (mPlaylistLock) {
             return mPlaylistMetadata;
@@ -1073,6 +1096,7 @@ public class XMediaPlayer extends SessionPlayer2 {
     }
 
     @Override
+    @Nullable
     public MediaItem2 getCurrentMediaItem() {
         return mPlayer.getCurrentMediaItem();
     }
@@ -1141,7 +1165,8 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
      */
-    public ListenableFuture<PlayerResult> setSurface(Surface surface) {
+    @NonNull
+    public ListenableFuture<PlayerResult> setSurface(@Nullable Surface surface) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
             Object token = mPlayer.setSurface(surface);
@@ -1162,6 +1187,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
      */
+    @NonNull
     public ListenableFuture<PlayerResult> setPlayerVolume(float volume) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -1234,6 +1260,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
      */
+    @NonNull
     public ListenableFuture<PlayerResult> setPlaybackParams(@NonNull PlaybackParams2 params) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -1249,6 +1276,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      *
      * @return the playback params.
      */
+    @NonNull
     public PlaybackParams2 getPlaybackParams() {
         return mPlayer.getPlaybackParams();
     }
@@ -1270,6 +1298,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
      */
+    @NonNull
     public ListenableFuture<PlayerResult> seekTo(long msec, @SeekMode int mode) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         int mp2SeekMode = sSeekModeMap.getOrDefault(mode, SEEK_NEXT_SYNC);
@@ -1320,6 +1349,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
      */
+    @NonNull
     public ListenableFuture<PlayerResult> setAudioSessionId(int sessionId) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -1356,6 +1386,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
      */
+    @NonNull
     public ListenableFuture<PlayerResult> attachAuxEffect(int effectId) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -1381,6 +1412,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
      */
+    @NonNull
     public ListenableFuture<PlayerResult> setAuxEffectSendLevel(float level) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -1396,6 +1428,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      *
      * @return List of track info. The total number of tracks is the size of the list.
      */
+    @NonNull
     public List<TrackInfo> getTrackInfo() {
         List<MediaPlayer2.TrackInfo> list = mPlayer.getTrackInfo();
         List<TrackInfo> trackList = new ArrayList<>();
@@ -1454,6 +1487,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
      */
+    @NonNull
     public ListenableFuture<PlayerResult> selectTrack(int index) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -1477,6 +1511,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @return a {@link ListenableFuture} which represents the pending completion of the command.
      * {@link PlayerResult} will be delivered when the command completes.
      */
+    @NonNull
     public ListenableFuture<PlayerResult> deselectTrack(int index) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -1491,6 +1526,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      *
      * @throws IllegalStateException if called before being prepared
      */
+    @Nullable
     public DrmInfo getDrmInfo() {
         MediaPlayer2.DrmInfo info = mPlayer.getDrmInfo();
         return info == null ? null : new DrmInfo(info);
@@ -1520,6 +1556,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * {@link DrmResult} will be delivered when the command completes.
      */
     // This is an asynchronous call.
+    @NonNull
     public ResolvableFuture<DrmResult> prepareDrm(@NonNull UUID uuid) {
         ResolvableFuture<DrmResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -1616,6 +1653,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * @throws DeniedByServerException if the response indicates that the
      * server rejected the request
      */
+    @Nullable
     public byte[] provideDrmKeyResponse(
             @Nullable byte[] keySetId, @NonNull byte[] response)
             throws NoDrmSchemeException, DeniedByServerException {
@@ -1685,7 +1723,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      *
      * @param listener the callback that will be run
      */
-    public void setOnDrmConfigHelper(final OnDrmConfigHelper listener) {
+    public void setOnDrmConfigHelper(final @Nullable OnDrmConfigHelper listener) {
         mPlayer.setOnDrmConfigHelper(listener == null ? null :
                 new MediaPlayer2.OnDrmConfigHelper() {
                     @Override
@@ -2122,7 +2160,7 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param height the height of the video
          */
         public void onVideoSizeChanged(
-                XMediaPlayer mp, MediaItem2 item, int width, int height) { }
+                @NonNull XMediaPlayer mp, @NonNull MediaItem2 item, int width, int height) { }
 
         /**
          * Called to indicate available timed metadata
@@ -2140,8 +2178,8 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param item the MediaItem2 of this media item
          * @param data the timed metadata sample associated with this event
          */
-        public void onTimedMetaDataAvailable(
-                XMediaPlayer mp, MediaItem2 item, TimedMetaData2 data) { }
+        public void onTimedMetaDataAvailable(@NonNull XMediaPlayer mp,
+                @NonNull MediaItem2 item, @NonNull TimedMetaData2 data) { }
 
         /**
          * Called to indicate an error.
@@ -2152,8 +2190,8 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param extra an extra code, specific to the error. Typically
          * implementation dependent.
          */
-        public void onError(
-                XMediaPlayer mp, MediaItem2 item, @MediaError int what, int extra) { }
+        public void onError(@NonNull XMediaPlayer mp,
+                @NonNull MediaItem2 item, @MediaError int what, int extra) { }
 
         /**
          * Called to indicate an info or a warning.
@@ -2164,7 +2202,8 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param extra an extra code, specific to the info. Typically
          * implementation dependent.
          */
-        public void onInfo(XMediaPlayer mp, MediaItem2 item, @MediaInfo int what, int extra) { }
+        public void onInfo(@NonNull XMediaPlayer mp,
+                @NonNull MediaItem2 item, @MediaInfo int what, int extra) { }
 
         /**
          * Called when a discontinuity in the normal progression of the media time is detected.
@@ -2186,8 +2225,8 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param timestamp the timestamp that correlates media time, system time and clock rate,
          *     or {@link MediaTimestamp2#TIMESTAMP_UNKNOWN} in an error case.
          */
-        public void onMediaTimeDiscontinuity(
-                XMediaPlayer mp, MediaItem2 item, MediaTimestamp2 timestamp) { }
+        public void onMediaTimeDiscontinuity(@NonNull XMediaPlayer mp,
+                @NonNull MediaItem2 item, @NonNull MediaTimestamp2 timestamp) { }
 
         /**
          * Called when when a player subtitle track has new subtitle data available.
@@ -2195,8 +2234,8 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param item the MediaItem2 of this media item
          * @param data the subtitle data
          */
-        public void onSubtitleData(
-                XMediaPlayer mp, MediaItem2 item, @NonNull SubtitleData2 data) { }
+        public void onSubtitleData(@NonNull XMediaPlayer mp,
+                @NonNull MediaItem2 item, @NonNull SubtitleData2 data) { }
 
         /**
          * Called to indicate DRM info is available
@@ -2206,7 +2245,8 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param drmInfo DRM info of the source including PSSH, and subset
          *                of crypto schemes supported by this device
          */
-        public void onDrmInfo(XMediaPlayer mp, MediaItem2 item, DrmInfo drmInfo) { }
+        public void onDrmInfo(@NonNull XMediaPlayer mp,
+                @NonNull MediaItem2 item, @NonNull DrmInfo drmInfo) { }
     }
 
     /**
@@ -2241,6 +2281,7 @@ public class XMediaPlayer extends SessionPlayer2 {
          * When the language is unknown or could not be determined,
          * ISO-639-2 language code, "und", is returned.
          */
+        @NonNull
         public String getLanguage() {
             String language = mFormat.getString(MediaFormat.KEY_LANGUAGE);
             return language == null ? "und" : language;
@@ -2250,6 +2291,7 @@ public class XMediaPlayer extends SessionPlayer2 {
          * Gets the {@link MediaFormat} of the track.  If the format is
          * unknown or could not be determined, null is returned.
          */
+        @Nullable
         public MediaFormat getFormat() {
             if (mTrackType == MEDIA_TRACK_TYPE_TIMEDTEXT
                     || mTrackType == MEDIA_TRACK_TYPE_SUBTITLE) {
@@ -2300,6 +2342,7 @@ public class XMediaPlayer extends SessionPlayer2 {
         /**
          * Returns the PSSH info of the media item for each supported DRM scheme.
          */
+        @NonNull
         public Map<UUID, byte[]> getPssh() {
             return mMp2DrmInfo.getPssh();
         }
@@ -2309,6 +2352,7 @@ public class XMediaPlayer extends SessionPlayer2 {
          * It effectively identifies the subset of the source's DRM schemes which
          * are supported by the device too.
          */
+        @NonNull
         public List<UUID> getSupportedSchemes() {
             return mMp2DrmInfo.getSupportedSchemes();
         }
@@ -2335,7 +2379,7 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param mp the {@code XMediaPlayer} associated with this callback
          * @param item the MediaItem2 of this media item
          */
-        void onDrmConfig(XMediaPlayer mp, MediaItem2 item);
+        void onDrmConfig(@NonNull XMediaPlayer mp, @NonNull MediaItem2 item);
     }
 
     /**
@@ -2343,7 +2387,7 @@ public class XMediaPlayer extends SessionPlayer2 {
      * Extends MediaDrm.MediaDrmException
      */
     public static class NoDrmSchemeException extends MediaDrmException {
-        public NoDrmSchemeException(String detailMessage) {
+        public NoDrmSchemeException(@Nullable String detailMessage) {
             super(detailMessage);
         }
     }
@@ -2543,7 +2587,7 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @param resultCode result code. Recommends to use the standard code defined here.
          * @param item media item when the operation is completed
          */
-        public DrmResult(@DrmResultCode int resultCode, @Nullable MediaItem2 item) {
+        public DrmResult(@DrmResultCode int resultCode, @NonNull MediaItem2 item) {
             super(resultCode, item);
         }
 
@@ -2553,7 +2597,8 @@ public class XMediaPlayer extends SessionPlayer2 {
          * @return result code.
          */
         @Override
-        public @DrmResultCode int getResultCode() {
+        @DrmResultCode
+        public int getResultCode() {
             return super.getResultCode();
         }
     }

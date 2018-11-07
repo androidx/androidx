@@ -722,8 +722,8 @@ public abstract class SessionPlayer2 implements AutoCloseable {
          * @see #getPlaylist()
          * @see #getPlaylistMetadata()
          */
-        public void onPlaylistChanged(@NonNull SessionPlayer2 player, List<MediaItem2> list,
-                @Nullable MediaMetadata2 metadata) {
+        public void onPlaylistChanged(@NonNull SessionPlayer2 player,
+                @Nullable List<MediaItem2> list, @Nullable MediaMetadata2 metadata) {
         }
 
         /**

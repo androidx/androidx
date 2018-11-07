@@ -232,7 +232,7 @@ public abstract class MediaSessionService2 extends Service {
     @CallSuper
     @Nullable
     @Override
-    public IBinder onBind(Intent intent) {
+    public IBinder onBind(@NonNull Intent intent) {
         return mImpl.onBind(intent);
     }
 
