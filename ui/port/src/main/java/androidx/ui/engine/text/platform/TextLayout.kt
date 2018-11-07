@@ -26,17 +26,15 @@ import android.text.TextPaint
 import android.text.TextUtils
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import kotlin.math.ceil
-import kotlin.math.min
 
-private const val ALIGN_NORMAL = 0
-private const val ALIGN_OPPOSITE = 1
-private const val ALIGN_CENTER = 2
-private const val ALIGN_LEFT = 3
-private const val ALIGN_RIGHT = 4
+internal const val ALIGN_NORMAL = 0
+internal const val ALIGN_OPPOSITE = 1
+internal const val ALIGN_CENTER = 2
+internal const val ALIGN_LEFT = 3
+internal const val ALIGN_RIGHT = 4
 
-private const val JUSTIFICATION_MODE_NONE = Layout.JUSTIFICATION_MODE_NONE
-private const val JUSTIFICATION_MODE_INTER_WORD = Layout.JUSTIFICATION_MODE_INTER_WORD
+internal const val JUSTIFICATION_MODE_NONE = Layout.JUSTIFICATION_MODE_NONE
+internal const val JUSTIFICATION_MODE_INTER_WORD = Layout.JUSTIFICATION_MODE_INTER_WORD
 
 private const val HYPHENATION_FREQUENCY_NORMAL = Layout.HYPHENATION_FREQUENCY_NORMAL
 private const val HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL
@@ -127,7 +125,7 @@ internal class TextLayout constructor(
             boringMetrics.width.toDouble()
         }
 
-        val finalWidth = ceil(min(maxIntrinsicWidth, width)).toInt()
+        val finalWidth = width.toInt()
         val ellipsizeWidth = finalWidth
 
         layout = if (boringMetrics != null && maxIntrinsicWidth <= width) {
@@ -332,9 +330,9 @@ internal class StaticLayoutFactory {
     }
 }
 
-object TextAlignmentAdapter {
-    private val ALIGN_LEFT_FRAMEWORK: Layout.Alignment
-    private val ALIGN_RIGHT_FRAMEWORK: Layout.Alignment
+internal object TextAlignmentAdapter {
+    val ALIGN_LEFT_FRAMEWORK: Layout.Alignment
+    val ALIGN_RIGHT_FRAMEWORK: Layout.Alignment
 
     init {
         val values = Layout.Alignment.values()

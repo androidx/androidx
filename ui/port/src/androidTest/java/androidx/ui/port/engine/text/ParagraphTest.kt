@@ -18,8 +18,10 @@ package androidx.ui.port.engine.text
 import android.app.Instrumentation
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.text.Layout
 import android.text.TextPaint
 import androidx.test.InstrumentationRegistry
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.FontFallback
@@ -27,6 +29,7 @@ import androidx.ui.engine.text.Paragraph
 import androidx.ui.engine.text.ParagraphConstraints
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
+import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.text.platform.StaticLayoutFactory
 import androidx.ui.engine.window.Locale
@@ -469,6 +472,163 @@ class ParagraphTest {
         assertThat(paragraph.didExceedMaxLines, equalTo(false))
     }
 
+    @Test
+    fun textAlign_defaultValue_equalsNormalInNative() {
+        val paragraph = Paragraph(
+            text = StringBuilder(""),
+            textStyles = listOf(),
+            paragraphStyle = ParagraphStyle()
+        )
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+        val nativeLayout = paragraph.paragraphImpl.layout?.layout
+        assertThat(nativeLayout?.alignment, equalTo(Layout.Alignment.ALIGN_NORMAL))
+    }
+
+    @Test
+    fun textAlign_whenAlignLeft_returnsZeroForGetLineLeft() {
+        val texts = listOf("aa", "\u05D0\u05D0")
+        val fontSize = 20.0
+
+        texts.map { text ->
+            val paragraph = simpleParagraph(
+                text = text,
+                textAlign = TextAlign.left,
+                fontSize = fontSize
+            )
+            val layoutWidth = (text.length + 2) * fontSize
+            paragraph.layout(ParagraphConstraints(width = layoutWidth))
+            val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
+            // TODO(Migration/haoyuchang): Add getLineLeft/getLineRight to ParagraphAndroid.
+            assertThat(nativeLayout.getLineLeft(0), equalTo(0.0f))
+        }
+    }
+
+    @Test
+    fun textAlign_whenAlignRight_returnsLayoutWidthForGetLineRight() {
+        val texts = listOf("aa", "\u05D0\u05D0")
+        val fontSize = 20.0
+
+        texts.map { text ->
+            val paragraph = simpleParagraph(
+                text = text,
+                textAlign = TextAlign.right,
+                fontSize = fontSize
+            )
+            val layoutWidth = (text.length + 2) * fontSize
+            paragraph.layout(ParagraphConstraints(width = layoutWidth))
+            val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
+            assertThat(nativeLayout.getLineRight(0), equalTo(layoutWidth.toFloat()))
+        }
+    }
+
+    @Test
+    fun textAlign_whenAlignCenter_textIsCentered() {
+        val texts = listOf("aa", "\u05D0\u05D0")
+        val fontSize = 20.0
+
+        texts.map { text ->
+            val paragraph = simpleParagraph(
+                text = text,
+                textAlign = TextAlign.center,
+                fontSize = fontSize
+            )
+            val layoutWidth = (text.length + 2) * fontSize
+            paragraph.layout(ParagraphConstraints(width = layoutWidth))
+            val textWidth = text.length * fontSize
+            val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
+            assertThat(nativeLayout.getLineLeft(0),
+                    equalTo((layoutWidth / 2 - textWidth / 2).toFloat()))
+            assertThat(nativeLayout.getLineRight(0),
+                equalTo((layoutWidth / 2 + textWidth / 2).toFloat()))
+        }
+    }
+
+    @Test
+    fun textAlign_whenAlignStart_withLTR_returnsZeroForGetLineLeft() {
+        val text = "aa"
+        val fontSize = 20.0
+        val layoutWidth = (text.length + 2) * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textAlign = TextAlign.start,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
+        assertThat(nativeLayout.getLineLeft(0), equalTo(0.0f))
+    }
+
+    @Test
+    fun textAlign_whenAlignEnd_withLTR_returnsLayoutWidthForGetLineRight() {
+        val text = "aa"
+        val fontSize = 20.0
+        val layoutWidth = (text.length + 2) * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textAlign = TextAlign.end,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
+        assertThat(nativeLayout.getLineRight(0), equalTo(layoutWidth.toFloat()))
+    }
+
+    @Test
+    fun textAlign_whenAlignStart_withRTL_returnsLayoutWidthForGetLineRight() {
+        val text = "\u05D0\u05D0"
+        val fontSize = 20.0
+        val layoutWidth = (text.length + 2) * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textAlign = TextAlign.start,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
+        assertThat(nativeLayout.getLineRight(0), equalTo(layoutWidth.toFloat()))
+    }
+
+    @Test
+    fun textAlign_whenAlignEnd_withRTL_returnsZeroForGetLineLeft() {
+        val text = "\u05D0\u05D0"
+        val fontSize = 20.0
+        val layoutWidth = (text.length + 2) * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textAlign = TextAlign.end,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
+        assertThat(nativeLayout.getLineLeft(0), equalTo(0.0f))
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    // We have to test justification above API 28 because of this bug b/68009059, where devices
+    // before API 28 may have an extra space at the end of line.
+    fun textAlign_whenAlignJustify_justifies() {
+        val text = "a a a"
+        val fontSize = 20.0
+        val layoutWidth = ("a a".length + 1) * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textAlign = TextAlign.justify,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
+        assertThat(nativeLayout.getLineLeft(0), equalTo(0.0f))
+        assertThat(nativeLayout.getLineRight(0), equalTo(layoutWidth.toFloat()))
+        // Last line should align start
+        assertThat(nativeLayout.getLineLeft(1), equalTo(0.0f))
+    }
+
     // TODO(migration/siyamed) add test
     @Test
     fun getWordBoundary() {
@@ -476,6 +636,7 @@ class ParagraphTest {
 
     fun simpleParagraph(
         text: CharSequence = "",
+        textAlign: TextAlign? = null,
         fontSize: Double? = null,
         maxLines: Int? = null
     ): Paragraph {
@@ -483,6 +644,7 @@ class ParagraphTest {
             text = StringBuilder(text),
             textStyles = listOf(),
             paragraphStyle = ParagraphStyle(
+                textAlign = textAlign,
                 fontFamily = fontFallback,
                 fontSize = fontSize,
                 maxLines = maxLines
