@@ -16,7 +16,6 @@ dependencies {
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
     testImplementation(TEST_RULES)
-    api(project(":ui-text"))
     testImplementation("com.google.truth:truth:0.42")
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version
@@ -40,10 +39,10 @@ android {
 }
 
 supportLibrary {
-    name = "Androidx UI Framework port"
-    publish = true
+    name = "Androidx Text"
+    publish = false
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2018"
-    description = "This is a temporary project for porting from an existing framework to androidx."
+    description = "AndroidX Text."
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.engine.text.platform
+package androidx.text
 
 import android.graphics.Canvas
 import android.os.Build
@@ -26,30 +26,120 @@ import android.text.TextPaint
 import android.text.TextUtils
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 
-internal const val ALIGN_NORMAL = 0
-internal const val ALIGN_OPPOSITE = 1
-internal const val ALIGN_CENTER = 2
-internal const val ALIGN_LEFT = 3
-internal const val ALIGN_RIGHT = 4
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val ALIGN_NORMAL = 0
 
-internal const val JUSTIFICATION_MODE_NONE = Layout.JUSTIFICATION_MODE_NONE
-internal const val JUSTIFICATION_MODE_INTER_WORD = Layout.JUSTIFICATION_MODE_INTER_WORD
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val ALIGN_OPPOSITE = 1
 
-private const val HYPHENATION_FREQUENCY_NORMAL = Layout.HYPHENATION_FREQUENCY_NORMAL
-private const val HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL
-private const val HYPHENATION_FREQUENCY_NONE = Layout.HYPHENATION_FREQUENCY_NONE
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val ALIGN_CENTER = 2
 
-private const val BREAK_STRATEGY_SIMPLE = Layout.BREAK_STRATEGY_SIMPLE
-private const val BREAK_STRATEGY_HIGH_QUALITY = Layout.BREAK_STRATEGY_HIGH_QUALITY
-private const val BREAK_STRATEGY_BALANCED = Layout.BREAK_STRATEGY_BALANCED
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val ALIGN_LEFT = 3
 
-private const val TEXT_DIRECTION_LTR = 0
-private const val TEXT_DIRECTION_RTL = 1
-private const val TEXT_DIRECTION_FIRST_STRONG_LTR = 2
-private const val TEXT_DIRECTION_FIRST_STRONG_RTL = 3
-private const val TEXT_DIRECTION_ANY_RTL_LTR = 4
-private const val TEXT_DIRECTION_LOCALE = 5
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val ALIGN_RIGHT = 4
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val JUSTIFICATION_MODE_NONE = Layout.JUSTIFICATION_MODE_NONE
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val JUSTIFICATION_MODE_INTER_WORD = Layout.JUSTIFICATION_MODE_INTER_WORD
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val HYPHENATION_FREQUENCY_NORMAL = Layout.HYPHENATION_FREQUENCY_NORMAL
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val HYPHENATION_FREQUENCY_NONE = Layout.HYPHENATION_FREQUENCY_NONE
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val BREAK_STRATEGY_SIMPLE = Layout.BREAK_STRATEGY_SIMPLE
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val BREAK_STRATEGY_HIGH_QUALITY = Layout.BREAK_STRATEGY_HIGH_QUALITY
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val BREAK_STRATEGY_BALANCED = Layout.BREAK_STRATEGY_BALANCED
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val TEXT_DIRECTION_LTR = 0
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val TEXT_DIRECTION_RTL = 1
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val TEXT_DIRECTION_FIRST_STRONG_LTR = 2
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val TEXT_DIRECTION_FIRST_STRONG_RTL = 3
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val TEXT_DIRECTION_ANY_RTL_LTR = 4
+
+/**
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+const val TEXT_DIRECTION_LOCALE = 5
 
 private val DEFAULT_LINESPACING_MULTIPLIER = 1.0f
 private val DEFAULT_LINESPACING_EXTRA = 0.0f
@@ -93,7 +183,13 @@ internal annotation class HyphenationFrequency
 )
 internal annotation class TextDirection
 
-internal class TextLayout constructor(
+/**
+ * Wrapper for Static Text Layout classes.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class TextLayout constructor(
     charSequence: CharSequence,
     width: Double = 0.0,
     textPaint: TextPaint,
@@ -183,7 +279,13 @@ internal class TextLayout constructor(
     }
 }
 
-internal class BoringLayoutFactory {
+/**
+ * Factory Class for BoringLayout
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class BoringLayoutFactory {
     companion object {
         fun create(
             textPaint: TextPaint,
@@ -225,7 +327,13 @@ internal class BoringLayoutFactory {
     }
 }
 
-internal class StaticLayoutFactory {
+/**
+ * Factory Class for StaticLayout.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+class StaticLayoutFactory {
     companion object {
         fun create(
             textPaint: TextPaint,
@@ -254,7 +362,9 @@ internal class StaticLayoutFactory {
                 // TODO(Migration/siyamed): textDirectionHeuristic was added in 18 but no
                 // constructor for that before 23, this is a little trouble
                 val frameworkTextDirectionHeuristic =
-                    getTextDirectionHeuristic(textDirectionHeuristic)
+                    getTextDirectionHeuristic(
+                        textDirectionHeuristic
+                    )
                 val builder = StaticLayout.Builder.obtain(
                     charSequence,
                     start,
@@ -285,6 +395,7 @@ internal class StaticLayoutFactory {
                 builder.build()
             } else {
                 if (ellipsize != null) {
+                    @Suppress("DEPRECATION")
                     StaticLayout(
                         charSequence,
                         start,
@@ -299,6 +410,7 @@ internal class StaticLayoutFactory {
                         ellipsizeWidth
                     )
                 } else {
+                    @Suppress("DEPRECATION")
                     StaticLayout(
                         charSequence,
                         start,

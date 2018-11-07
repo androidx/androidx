@@ -261,6 +261,7 @@ includeProject(":webview-support-interfaces", new File(externalRoot, "webview_su
 ///// CRANE START
 
 includeProject(":ui-port", "ui/port")
+includeProject(":ui-text", "ui/text")
 includeProject(":ui-port-demos", new File(samplesRoot, "UiPortDemos"))
 includeProject(":ui-r4a", "ui-r4a")
 

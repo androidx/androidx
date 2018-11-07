@@ -20,9 +20,9 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.Layout
 import android.text.TextPaint
-import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.Paragraph
@@ -31,7 +31,7 @@ import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextPosition
-import androidx.ui.engine.text.platform.StaticLayoutFactory
+import androidx.text.StaticLayoutFactory
 import androidx.ui.engine.window.Locale
 import androidx.ui.port.bitmap
 import androidx.ui.port.matchers.equalToBitmap

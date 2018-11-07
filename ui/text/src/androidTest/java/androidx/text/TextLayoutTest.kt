@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui.port.engine.text.platform
+package androidx.text
 
 import android.graphics.Typeface
 import android.text.Layout
 import android.text.TextPaint
-import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
-import androidx.ui.engine.text.platform.TextLayout
+import androidx.test.platform.app.InstrumentationRegistry
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.Assert.assertThat
