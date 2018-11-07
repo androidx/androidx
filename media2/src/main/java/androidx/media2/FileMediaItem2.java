@@ -144,7 +144,7 @@ public class FileMediaItem2 extends MediaItem2 {
          * @return A new FileMediaItem2 with values supplied by the Builder.
          */
         @Override
-        public FileMediaItem2 build() {
+        public @NonNull FileMediaItem2 build() {
             return new FileMediaItem2(this);
         }
     }

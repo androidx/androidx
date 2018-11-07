@@ -23,6 +23,8 @@ import android.media.PlaybackParams;
 import android.os.Build;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
@@ -96,7 +98,7 @@ public final class PlaybackParams2 {
     /**
      * Returns the audio fallback mode. {@code null} if a value is not set.
      */
-    public @AudioFallbackMode Integer getAudioFallbackMode() {
+    public @AudioFallbackMode @Nullable Integer getAudioFallbackMode() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
                 return mPlaybackParams.getAudioFallbackMode();
@@ -111,7 +113,7 @@ public final class PlaybackParams2 {
     /**
      * Returns the pitch factor. {@code null} if a value is not set.
      */
-    public Float getPitch() {
+    public @Nullable Float getPitch() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
                 return mPlaybackParams.getPitch();
@@ -126,7 +128,7 @@ public final class PlaybackParams2 {
     /**
      * Returns the speed factor. {@code null} if a value is not set.
      */
-    public Float getSpeed() {
+    public @Nullable Float getSpeed() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             try {
                 return mPlaybackParams.getSpeed();
@@ -185,7 +187,7 @@ public final class PlaybackParams2 {
          *
          * @return this <code>Builder</code> instance.
          */
-        public Builder setAudioFallbackMode(@AudioFallbackMode int audioFallbackMode) {
+        public @NonNull Builder setAudioFallbackMode(@AudioFallbackMode int audioFallbackMode) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mPlaybackParams.setAudioFallbackMode(audioFallbackMode);
             } else {
@@ -200,7 +202,7 @@ public final class PlaybackParams2 {
          * @return this <code>Builder</code> instance.
          * @throws IllegalArgumentException if the pitch is negative.
          */
-        public Builder setPitch(float pitch) {
+        public @NonNull Builder setPitch(float pitch) {
             if (pitch < 0.f) {
                 throw new IllegalArgumentException("pitch must not be negative");
             }
@@ -217,7 +219,7 @@ public final class PlaybackParams2 {
          *
          * @return this <code>Builder</code> instance.
          */
-        public Builder setSpeed(float speed) {
+        public @NonNull Builder setSpeed(float speed) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 mPlaybackParams.setSpeed(speed);
             } else {
@@ -230,7 +232,7 @@ public final class PlaybackParams2 {
          * Takes the values of the Builder object and creates a PlaybackParams2 object.
          * @return PlaybackParams2 object with values from the Builder.
          */
-        public PlaybackParams2 build() {
+        public @NonNull PlaybackParams2 build() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 return new PlaybackParams2(mPlaybackParams);
             } else {
