@@ -34,11 +34,8 @@ import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
-import static androidx.slice.widget.SliceView.MODE_SMALL;
 
 import android.app.slice.Slice;
-import android.content.Context;
-import android.content.res.Resources;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,7 +44,6 @@ import androidx.annotation.RestrictTo;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
-import androidx.slice.view.R;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,27 +65,11 @@ public class GridContent extends SliceContent {
     private int mLargestImageMode = UNKNOWN_IMAGE;
     private boolean mIsLastIndex;
 
-    private int mBigPicMinHeight;
-    private int mBigPicMaxHeight;
-    private int mAllImagesHeight;
-    private int mImageTextHeight;
-    private int mMaxHeight;
-    private int mMinHeight;
     private SliceItem mTitleItem;
 
-    public GridContent(Context context, SliceItem gridItem, int position) {
+    public GridContent(SliceItem gridItem, int position) {
         super(gridItem, position);
         populate(gridItem);
-
-        if (context != null) {
-            Resources res = context.getResources();
-            mBigPicMinHeight = res.getDimensionPixelSize(R.dimen.abc_slice_big_pic_min_height);
-            mBigPicMaxHeight = res.getDimensionPixelSize(R.dimen.abc_slice_big_pic_max_height);
-            mAllImagesHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_only_height);
-            mImageTextHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_image_text_height);
-            mMinHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_min_height);
-            mMaxHeight = res.getDimensionPixelSize(R.dimen.abc_slice_grid_max_height);
-        }
     }
 
     /**
@@ -236,7 +216,12 @@ public class GridContent extends SliceContent {
     }
 
     /**
-     * Whether this content is being displayed last in a list.
+     * @return whether this content is being displayed last in a list.
+     */
+    public boolean getIsLastIndex() { return mIsLastIndex; }
+
+    /**
+     * Sets whether this content is being displayed last in a list.
      */
     public void setIsLastIndex(boolean isLast) {
         mIsLastIndex = isLast;
@@ -244,29 +229,7 @@ public class GridContent extends SliceContent {
 
     @Override
     public int getHeight(SliceStyle style, SliceViewPolicy policy) {
-        boolean isSmall = policy.getMode() == MODE_SMALL;
-        if (!isValid()) {
-            return 0;
-        }
-        int height;
-        if (mAllImages) {
-            height = mGridContent.size() == 1
-                    ? isSmall ? mBigPicMinHeight : mBigPicMaxHeight
-                    : mLargestImageMode == ICON_IMAGE ? mMinHeight : mAllImagesHeight;
-        } else {
-            boolean twoLines = getMaxCellLineCount() > 1;
-            boolean hasImage = hasImage();
-            boolean iconImagesOrNone = mLargestImageMode == ICON_IMAGE
-                    || mLargestImageMode == UNKNOWN_IMAGE;
-            height = (twoLines && !isSmall)
-                    ? hasImage ? mMaxHeight : mMinHeight
-                    : iconImagesOrNone ? mMinHeight : mImageTextHeight;
-        }
-        int topPadding = isAllImages() && mRowIndex == 0
-                ? style.getGridTopPadding() : 0;
-        int bottomPadding = isAllImages() && mIsLastIndex
-                ? style.getGridBottomPadding() : 0;
-        return height + topPadding + bottomPadding;
+        return style.getGridHeight(this, policy);
     }
 
     /**
