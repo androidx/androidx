@@ -94,8 +94,8 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
         TestServiceRegistry.getInstance().setSessionCallback(sessionCallback);
 
         // Create a controller to start the service.
-        RemoteMediaController2 controller = new RemoteMediaController2(
-                mContext, new SessionToken2(mContext, MOCK_MEDIA_SESSION_SERVICE), true);
+        RemoteMediaController2 controller = createRemoteController2(
+                new SessionToken2(mContext, MOCK_MEDIA_SESSION_SERVICE), true);
 
         // Set current media item.
         final String mediaId = "testMediaId";

@@ -63,6 +63,7 @@ import org.junit.runner.RunWith;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Tests {@link MediaController2}.
@@ -80,7 +81,6 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     MediaSessionCompat mSession;
     MediaSessionCallback mSessionCallback;
     AudioManager mAudioManager;
-    RemoteMediaController2 mController;
 
     @Before
     @Override
@@ -107,35 +107,32 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
             mSession.release();
             mSession = null;
         }
-
-        if (mController != null) {
-            mController.close();
-            mController = null;
-        }
     }
 
-    private void createControllerAndWaitConnection() throws Exception {
+    private RemoteMediaController2 createControllerAndWaitConnection() throws Exception {
         final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<SessionToken2> sessionToken2 = new AtomicReference<>();
         SessionToken2.createSessionToken2(mContext, mSession.getSessionToken(),
                 sHandlerExecutor, new SessionToken2.OnSessionToken2CreatedListener() {
                     @Override
                     public void onSessionToken2Created(
                             MediaSessionCompat.Token token, SessionToken2 token2) {
                         assertTrue(token2.isLegacySession());
-                        mController = new RemoteMediaController2(mContext, token2, true);
+                        sessionToken2.set(token2);
                         latch.countDown();
                     }
                 });
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        return createRemoteController2(sessionToken2.get(), true);
     }
 
     @Test
     public void testPlay() throws Exception {
         prepareLooper();
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.play();
+        controller.play();
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(1, mSessionCallback.mOnPlayCalledCount);
     }
@@ -143,10 +140,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testPause() throws Exception {
         prepareLooper();
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.pause();
+        controller.pause();
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPauseCalled);
     }
@@ -154,10 +151,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testPrepare() throws Exception {
         prepareLooper();
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.prepare();
+        controller.prepare();
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPrepareCalled);
     }
@@ -165,11 +162,11 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testSeekTo() throws Exception {
         prepareLooper();
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
         final long seekPosition = 12125L;
-        mController.seekTo(seekPosition);
+        controller.seekTo(seekPosition);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSeekToCalled);
         assertEquals(seekPosition, mSessionCallback.mSeekPosition);
@@ -184,10 +181,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
 
         mSession.setQueue(testQueue);
         mSession.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
 
         final int testIndex = 1;
-        mController.addPlaylistItem(testIndex, testMediaId);
+        controller.addPlaylistItem(testIndex, testMediaId);
         assertTrue(mSessionCallback.await(TIMEOUT_MS));
         assertTrue(mSessionCallback.mOnAddQueueItemAtCalled);
 
@@ -204,10 +201,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
 
         mSession.setQueue(testQueue);
         mSession.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
 
         final MediaItem2 itemToRemove = testList.get(1);
-        mController.removePlaylistItem(1);
+        controller.removePlaylistItem(1);
         assertTrue(mSessionCallback.await(TIMEOUT_MS));
         assertTrue(mSessionCallback.mOnRemoveQueueItemCalled);
 
@@ -227,10 +224,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
 
         mSession.setQueue(testQueue);
         mSession.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
 
         mSessionCallback.reset(2);
-        mController.replacePlaylistItem(testReplaceIndex, testMediaId);
+        controller.replacePlaylistItem(testReplaceIndex, testMediaId);
         assertTrue(mSessionCallback.await(TIMEOUT_MS));
         assertTrue(mSessionCallback.mOnRemoveQueueItemCalled);
         assertTrue(mSessionCallback.mOnAddQueueItemAtCalled);
@@ -246,10 +243,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testSkipToPreviousItem() throws Exception {
         prepareLooper();
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.skipToPreviousItem();
+        controller.skipToPreviousItem();
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSkipToPreviousCalled);
     }
@@ -257,10 +254,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testSkipToNextItem() throws Exception {
         prepareLooper();
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.skipToNextItem();
+        controller.skipToNextItem();
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSkipToNextCalled);
     }
@@ -275,10 +272,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
 
         mSession.setQueue(testQueue);
         mSession.setFlags(FLAG_HANDLES_QUEUE_COMMANDS);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
 
         mSessionCallback.reset(1);
-        mController.skipToPlaylistItem(testSkipToIndex);
+        controller.skipToPlaylistItem(testSkipToIndex);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSkipToQueueItemCalled);
         assertEquals(testQueue.get(testSkipToIndex).getQueueId(), mSessionCallback.mQueueItemId);
@@ -290,10 +287,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final int testShuffleMode = SessionPlayer2.SHUFFLE_MODE_GROUP;
 
         mSession.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_NONE);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.setShuffleMode(testShuffleMode);
+        controller.setShuffleMode(testShuffleMode);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSetShuffleModeCalled);
         assertEquals(testShuffleMode, mSessionCallback.mShuffleMode);
@@ -305,10 +302,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final int testRepeatMode = SessionPlayer2.REPEAT_MODE_ALL;
 
         mSession.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.setRepeatMode(testRepeatMode);
+        controller.setRepeatMode(testRepeatMode);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSetRepeatModeCalled);
         assertEquals(testRepeatMode, mSessionCallback.mRepeatMode);
@@ -323,10 +320,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         TestVolumeProvider volumeProvider =
                 new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
         mSession.setPlaybackToRemote(volumeProvider);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
 
         final int targetVolume = 50;
-        mController.setVolumeTo(targetVolume, 0 /* flags */);
+        controller.setVolumeTo(targetVolume, 0 /* flags */);
         assertTrue(volumeProvider.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(volumeProvider.mSetVolumeToCalled);
         assertEquals(targetVolume, volumeProvider.mVolume);
@@ -341,10 +338,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         TestVolumeProvider volumeProvider =
                 new TestVolumeProvider(volumeControlType, maxVolume, currentVolume);
         mSession.setPlaybackToRemote(volumeProvider);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
 
         final int direction = AudioManager.ADJUST_RAISE;
-        mController.adjustVolume(direction, 0 /* flags */);
+        controller.adjustVolume(direction, 0 /* flags */);
         assertTrue(volumeProvider.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(volumeProvider.mAdjustVolumeCalled);
         assertEquals(direction, volumeProvider.mDirection);
@@ -368,12 +365,12 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         }
         // Set stream of the session.
         mSession.setPlaybackToLocal(stream);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int targetVolume = originalVolume == minVolume
                 ? originalVolume + 1 : originalVolume - 1;
 
-        mController.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
+        controller.setVolumeTo(targetVolume, AudioManager.FLAG_SHOW_UI);
         new PollingCheck(TIMEOUT_MS) {
             @Override
             protected boolean check() {
@@ -403,14 +400,14 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         }
         // Set stream of the session.
         mSession.setPlaybackToLocal(stream);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
 
         final int originalVolume = mAudioManager.getStreamVolume(stream);
         final int direction = originalVolume == minVolume
                 ? AudioManager.ADJUST_RAISE : AudioManager.ADJUST_LOWER;
         final int targetVolume = originalVolume + direction;
 
-        mController.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
+        controller.adjustVolume(direction, AudioManager.FLAG_SHOW_UI);
         new PollingCheck(TIMEOUT_MS) {
             @Override
             protected boolean check() {
@@ -429,10 +426,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final Bundle testArgs = new Bundle();
         testArgs.putString("args", "test_args");
         final SessionCommand2 testCommand = new SessionCommand2(command, null);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.sendCustomCommand(testCommand, testArgs);
+        controller.sendCustomCommand(testCommand, testArgs);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnCommandCalled);
         assertEquals(command, mSessionCallback.mCommand);
@@ -442,10 +439,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testFastForward() throws Exception {
         prepareLooper();
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.fastForward();
+        controller.fastForward();
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnFastForwardCalled);
     }
@@ -453,10 +450,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
     @Test
     public void testRewind() throws Exception {
         prepareLooper();
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.rewind();
+        controller.rewind();
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnRewindCalled);
     }
@@ -467,10 +464,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final String request = "random query";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.playFromSearch(request, bundle);
+        controller.playFromSearch(request, bundle);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPlayFromSearchCalled);
         assertEquals(request, mSessionCallback.mQuery);
@@ -483,10 +480,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final Uri request = Uri.parse("foo://boo");
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.playFromUri(request, bundle);
+        controller.playFromUri(request, bundle);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPlayFromUriCalled);
         assertEquals(request, mSessionCallback.mUri);
@@ -499,10 +496,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final String request = "media_id";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.playFromMediaId(request, bundle);
+        controller.playFromMediaId(request, bundle);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPlayFromMediaIdCalled);
         assertEquals(request, mSessionCallback.mMediaId);
@@ -515,10 +512,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final String request = "random query";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.prepareFromSearch(request, bundle);
+        controller.prepareFromSearch(request, bundle);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPrepareFromSearchCalled);
         assertEquals(request, mSessionCallback.mQuery);
@@ -531,10 +528,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final Uri request = Uri.parse("foo://boo");
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.prepareFromUri(request, bundle);
+        controller.prepareFromUri(request, bundle);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPrepareFromUriCalled);
         assertEquals(request, mSessionCallback.mUri);
@@ -547,10 +544,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final String request = "media_id";
         final Bundle bundle = new Bundle();
         bundle.putString("key", "value");
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.prepareFromMediaId(request, bundle);
+        controller.prepareFromMediaId(request, bundle);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertEquals(true, mSessionCallback.mOnPrepareFromMediaIdCalled);
         assertEquals(request, mSessionCallback.mMediaId);
@@ -566,10 +563,10 @@ public class MediaSessionCompatCallbackTestWithMediaController2 extends MediaSes
         final MediaMetadataCompat metadata = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID, mediaId).build();
         mSession.setMetadata(metadata);
-        createControllerAndWaitConnection();
+        RemoteMediaController2 controller = createControllerAndWaitConnection();
         mSessionCallback.reset(1);
 
-        mController.setRating(mediaId, rating2);
+        controller.setRating(mediaId, rating2);
         assertTrue(mSessionCallback.await(TIME_OUT_MS));
         assertTrue(mSessionCallback.mOnSetRatingCalled);
         assertEquals(rating2, MediaUtils2.convertToRating2(mSessionCallback.mRating));
