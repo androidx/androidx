@@ -75,7 +75,7 @@ public final class MediaTestUtils {
             list.add(new FileMediaItem2.Builder(new FileDescriptor())
                     .setMetadata(new MediaMetadata2.Builder()
                             .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
-                                    caller + "_item_" + (size + 1)).build())
+                                    caller + "_item_" + (i + 1)).build())
                     .build());
         }
         return list;

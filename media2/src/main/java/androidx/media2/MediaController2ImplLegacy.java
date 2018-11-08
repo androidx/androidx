@@ -1085,8 +1085,10 @@ class MediaController2ImplLegacy implements MediaController2Impl {
         @Override
         public void onPlaybackStateChanged(final PlaybackStateCompat state) {
             final PlaybackStateCompat prevState;
+            final MediaItem2 prevItem;
             final MediaItem2 currentItem;
             synchronized (mLock) {
+                prevItem = mCurrentMediaItem;
                 prevState = mPlaybackStateCompat;
                 mPlaybackStateCompat = state;
                 mPlayerState = MediaUtils2.convertToPlayerState(state);
@@ -1103,6 +1105,16 @@ class MediaController2ImplLegacy implements MediaController2Impl {
                 }
                 currentItem = mCurrentMediaItem;
             }
+
+            if (prevItem != currentItem) {
+                mCallbackExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onCurrentMediaItemChanged(mInstance, currentItem);
+                    }
+                });
+            }
+
             if (state == null) {
                 if (prevState != null) {
                     mCallbackExecutor.execute(new Runnable() {
@@ -1166,8 +1178,20 @@ class MediaController2ImplLegacy implements MediaController2Impl {
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
+            final MediaItem2 prevItem;
+            final MediaItem2 currentItem;
             synchronized (mLock) {
+                prevItem = mCurrentMediaItem;
                 setCurrentMediaItemLocked(metadata);
+                currentItem = mCurrentMediaItem;
+            }
+            if (prevItem != currentItem) {
+                mCallbackExecutor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        mCallback.onCurrentMediaItemChanged(mInstance, currentItem);
+                    }
+                });
             }
         }
 
