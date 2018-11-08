@@ -323,6 +323,27 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     }
 
     @Test
+    public void testControllerCallback_onPlaybackSpeedChanged() throws Exception {
+        prepareLooper();
+        final float testSpeed = 3.0f;
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onPlaybackSpeedChanged(MediaController2 controller, float speed) {
+                assertEquals(testSpeed, speed, 0.0f);
+                latch.countDown();
+            }
+        };
+        mController = createController(mSession.getSessionToken(), true, callback);
+        mSession.setPlaybackState(new PlaybackStateCompat.Builder()
+                .setState(PlaybackStateCompat.STATE_PLAYING, 0 /* position */,
+                        testSpeed /* playbackSpeed */)
+                .build());
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
     public void testControllerCallback_onConnected() throws Exception {
         prepareLooper();
         mController = createController(mSession.getSessionToken());
