@@ -1371,6 +1371,9 @@ class MediaSession2ImplBase implements MediaSession2Impl {
                         .putLong(MediaMetadata2.METADATA_KEY_DURATION, duration)
                         .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
                                 item.getMediaId())
+                        .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE,
+                                MediaMetadata2.BROWSABLE_TYPE_NONE)
+                        .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
                         .build();
             }
             if (metadata != null) {

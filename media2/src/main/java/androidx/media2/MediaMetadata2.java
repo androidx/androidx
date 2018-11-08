@@ -77,7 +77,7 @@ import java.util.Set;
  * {@link MediaBrowser2} can know whether the subsequent {@link MediaBrowser2#getChildren} would
  * successfuly run.
  * <p>
- * The {@link MediaLibrarySession} would require the explicit browable type for the the media items
+ * The {@link MediaLibrarySession} would require the explicit browsable type for the the media items
  * returned by the
  * {@link androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback}.
  * <p>

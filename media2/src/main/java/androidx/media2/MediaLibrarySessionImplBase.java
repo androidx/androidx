@@ -23,6 +23,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.os.RemoteException;
 import android.support.v4.media.session.MediaSessionCompat.Token;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -154,19 +155,26 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
             int pageSize) {
         returnedResult = ensureNonNullResult(returnedResult);
         if (returnedResult.getResultCode() == RESULT_CODE_SUCCESS) {
-            if (returnedResult.getMediaItems() == null) {
+            List<MediaItem2> items = returnedResult.getMediaItems();
+
+            if (items == null) {
                 if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
                     throw new RuntimeException("List shouldn't be null for the success");
                 }
                 return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
             }
-            if (returnedResult.getMediaItems().size() > pageSize) {
+            if (items.size() > pageSize) {
                 if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
                     throw new RuntimeException("List shouldn't contain items more than pageSize"
                             + ", size=" + returnedResult.getMediaItems().size()
                             + ", pageSize" + pageSize);
                 }
                 return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+            }
+            for (MediaItem2 item : items) {
+                if (!isValidItem(item)) {
+                    return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+                }
             }
         }
         return returnedResult;
@@ -175,14 +183,50 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
     private LibraryResult ensureNonNullResultWithValidItem(LibraryResult returnedResult) {
         returnedResult = ensureNonNullResult(returnedResult);
         if (returnedResult.getResultCode() == RESULT_CODE_SUCCESS) {
-            if (returnedResult.getMediaItem() == null) {
-                if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
-                    throw new RuntimeException("Item shouldn't be null for the success");
-                }
+            if (!isValidItem(returnedResult.getMediaItem())) {
                 return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
             }
         }
         return returnedResult;
+    }
+
+    private boolean isValidItem(MediaItem2 item) {
+        if (item == null) {
+            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
+                throw new RuntimeException("Item shouldn't be null for the success");
+            }
+            return false;
+        }
+        if (TextUtils.isEmpty(item.getMediaId())) {
+            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
+                throw new RuntimeException(
+                        "Media ID of an item shouldn't be empty for the success");
+            }
+            return false;
+        }
+        MediaMetadata2 metadata = item.getMetadata();
+        if (metadata == null) {
+            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
+                throw new RuntimeException(
+                        "Metadata of an item shouldn't be null for the success");
+            }
+            return false;
+        }
+        if (!metadata.containsKey(MediaMetadata2.METADATA_KEY_BROWSABLE)) {
+            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
+                throw new RuntimeException(
+                        "METADATA_KEY_BROWSABLE should be specified in metadata of an item");
+            }
+            return false;
+        }
+        if (!metadata.containsKey(MediaMetadata2.METADATA_KEY_PLAYABLE)) {
+            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
+                throw new RuntimeException(
+                        "METADATA_KEY_PLAYABLE should be specified in metadata of an item");
+            }
+            return false;
+        }
+        return true;
     }
 
     /**

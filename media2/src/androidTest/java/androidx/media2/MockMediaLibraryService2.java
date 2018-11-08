@@ -22,6 +22,7 @@ import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUC
 import static androidx.media2.MediaMetadata2.BROWSABLE_TYPE_MIXED;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_BROWSABLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_MEDIA_ID;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_PLAYABLE;
 import static androidx.media2.TestUtils.assertLibraryParamsEquals;
 
 import static org.junit.Assert.assertEquals;
@@ -79,7 +80,8 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         ROOT_ITEM = new MediaItem2.Builder()
                 .setMetadata(new MediaMetadata2.Builder()
                         .putString(METADATA_KEY_MEDIA_ID, "rootId")
-                        .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_MIXED).build()).build();
+                        .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_MIXED)
+                        .putLong(METADATA_KEY_PLAYABLE, 1).build()).build();
         ROOT_PARAMS_EXTRA = new Bundle();
         ROOT_PARAMS_EXTRA.putString(ID, ID);
         ROOT_PARAMS = new LibraryParams.Builder().setExtras(ROOT_PARAMS_EXTRA).build();
@@ -282,6 +284,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
                                 .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE,
                                         MediaMetadata2.BROWSABLE_TYPE_MIXED)
+                                .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
                                 .build())
                 .build();
     }
