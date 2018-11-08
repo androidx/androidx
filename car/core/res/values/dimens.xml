@@ -100,21 +100,6 @@ limitations under the License.
     <dimen name="car_app_bar_default_elevation">8dp</dimen>
     <dimen name="car_application_icon_size">44dp</dimen>
 
-    <!-- Action Bar -->
-    <dimen name="car_action_bar_height">96dp</dimen>
-    <dimen name="car_action_bar_buttons_space">@dimen/car_padding_4</dimen>
-    <dimen name="car_action_bar_button_width">128dp</dimen>
-    <dimen name="car_action_bar_button_height">128dp</dimen>
-    <dimen name="car_action_bar_activation_ring_stroke_width">3dp</dimen>
-    <dimen name="car_action_bar_activation_ring_radius">64dp</dimen>
-    <dimen name="car_action_bar_touch_ripple_size">38dp</dimen>
-    <dimen name="car_action_bar_button_ripple_radius">48dp</dimen>
-    <dimen name="car_action_bar_elevation">2dp</dimen>
-
-    <!-- Action Buttons -->
-    <dimen name="car_action_button_icon_inset">24dp</dimen>
-    <dimen name="car_action_button_ripple_inset">16dp</dimen>
-
     <!-- Lists -->
     <dimen name="car_single_line_list_item_height">96dp</dimen>
     <dimen name="car_double_line_list_item_height">@dimen/car_single_line_list_item_height</dimen>

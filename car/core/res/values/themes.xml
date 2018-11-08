@@ -55,7 +55,6 @@ limitations under the License.
         <item name="android:spinnerItemStyle">@style/CarSpinnerItem</item>
         <item name="android:spinnerDropDownItemStyle">@style/CarSpinnerItem</item>
         <item name="actionBarItemBackground">@drawable/car_card_ripple_background</item>
-        <item name="actionBarStyle">@style/Widget.Car.ActionBar.Dark</item>
         <item name="actionBarSize">@dimen/car_app_bar_height</item>
         <item name="actionButtonStyle">@style/Widget.Car.ActionButton.Light</item>
         <item name="actionMenuTextAppearance">@style/TextAppearance.Car.ActionBar.Menu</item>

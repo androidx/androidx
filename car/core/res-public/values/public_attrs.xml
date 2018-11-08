@@ -63,9 +63,6 @@
     <public type="attr" name="carMenuBarSpacing" />
     <public type="attr" name="carMenuBarThickness" />
 
-    <!-- ActionBar -->
-    <public type="attr" name="columns" />
-
     <!-- CarTheme -->
     <public type="attr" name="carDialogTheme" />
     <public type="attr" name="pagedListViewStyle" />
