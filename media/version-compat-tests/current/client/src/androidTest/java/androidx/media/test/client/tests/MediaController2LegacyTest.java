@@ -140,6 +140,50 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     }
 
     /**
+     * This also tests {@link ControllerCallback#onRepeatModeChanged(MediaController2, int)}.
+     */
+    @Test
+    public void testGetRepeatMode() throws Exception {
+        prepareLooper();
+        final int testRepeatMode = SessionPlayer2.REPEAT_MODE_GROUP;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onRepeatModeChanged(MediaController2 controller, int repeatMode) {
+                assertEquals(testRepeatMode, repeatMode);
+                latch.countDown();
+            }
+        };
+        mController = createController(mSession.getSessionToken(), true, callback);
+
+        mSession.setRepeatMode(testRepeatMode);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testRepeatMode, mController.getRepeatMode());
+    }
+
+    /**
+     * This also tests {@link ControllerCallback#onShuffleModeChanged(MediaController2, int)}.
+     */
+    @Test
+    public void testGetShuffleMode() throws Exception {
+        prepareLooper();
+        final int testShuffleMode = SessionPlayer2.SHUFFLE_MODE_GROUP;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onShuffleModeChanged(MediaController2 controller, int shuffleMode) {
+                assertEquals(testShuffleMode, shuffleMode);
+                latch.countDown();
+            }
+        };
+        mController = createController(mSession.getSessionToken(), true, callback);
+
+        mSession.setShuffleMode(testShuffleMode);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(testShuffleMode, mController.getShuffleMode());
+    }
+
+    /**
      * This also tests {@link ControllerCallback#onPlaylistChanged(
      * MediaController2, List, MediaMetadata2)}.
      */
