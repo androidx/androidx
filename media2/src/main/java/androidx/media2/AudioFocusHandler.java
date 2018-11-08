@@ -17,10 +17,7 @@
 package androidx.media2;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-import static androidx.media2.SessionPlayer2.PLAYER_STATE_ERROR;
-import static androidx.media2.SessionPlayer2.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer2.PLAYER_STATE_PAUSED;
-import static androidx.media2.SessionPlayer2.PLAYER_STATE_PLAYING;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,8 +31,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.content.ContextCompat;
-import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 
 /**
@@ -56,8 +51,9 @@ public class AudioFocusHandler {
     private static final boolean DEBUG = true;
 
     interface AudioFocusHandlerImpl {
-        boolean onPlayRequested();
-        void onPauseRequested();
+        boolean onPlay();
+        void onPause();
+        void onReset();
         void close();
         void sendIntent(Intent intent);
     }
@@ -69,25 +65,29 @@ public class AudioFocusHandler {
     }
 
     /**
-     * Should be called when the {@link MediaSession2#play()} is called. Returns whether the play()
+     * Should be called when the {@link XMediaPlayer#play()} is called. Returns whether the play()
      * can be proceed.
-     * <p>
-     * This matches with the Session.Callback#onPlay() written in the guideline.
      *
      * @return {@code true} if it's OK to start playback because audio focus was successfully
-     *         granted or audio focus isn't needed for starting playback. {@code false} otherwise.
-     *         (i.e. Audio focus is needed for starting playback but failed)
+     * granted or audio focus isn't needed for starting playback. {@code false} otherwise.
+     * (i.e. Audio focus is needed for starting playback but failed)
      */
-    public boolean onPlayRequested() {
-        return mImpl.onPlayRequested();
+    public boolean onPlay() {
+        return mImpl.onPlay();
     }
 
     /**
-     * Should be called when the {@link MediaSession2#pause()} is called. Returns whether the
-     * pause() can be proceed.
+     * Called when the {@link XMediaPlayer#pause()} is called.
      */
-    public void onPauseRequested() {
-        mImpl.onPauseRequested();
+    public void onPause() {
+        mImpl.onPause();
+    }
+
+    /**
+     * Called when the {@link XMediaPlayer#reset()} is called.
+     */
+    public void onReset() {
+        mImpl.onReset();
     }
 
     /**
@@ -106,14 +106,13 @@ public class AudioFocusHandler {
         mImpl.sendIntent(intent);
     }
 
-    private static class AudioFocusHandlerImplBase extends SessionPlayer2.PlayerCallback
-            implements AudioFocusHandlerImpl {
+    private static class AudioFocusHandlerImplBase implements AudioFocusHandlerImpl {
         // Value is from the {@link AudioFocusRequest} as follows
         // 'A typical attenuation by the “ducked” application is a factor of 0.2f (or -14dB), that
         // can for instance be applied with MediaPlayer.setVolume(0.2f) when using this class for
         // playback.'
         private static final float VOLUME_DUCK_FACTOR = 0.2f;
-        private final BroadcastReceiver mBecomingNoisyIntentReceiver = new NoisyIntentReceiver();
+        private final BroadcastReceiver mBecomingNoisyReceiver = new BecomingNoisyReceiver();
         private final IntentFilter mIntentFilter =
                 new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY);
         private final OnAudioFocusChangeListener mAudioFocusListener = new AudioFocusListener();
@@ -129,12 +128,11 @@ public class AudioFocusHandler {
         @GuardedBy("mLock")
         boolean mResumeWhenAudioFocusGain;
         @GuardedBy("mLock")
-        boolean mHasRegisteredReceiver;
+        boolean mBecomingNoisyReceiverRegistered;
 
         AudioFocusHandlerImplBase(Context context, MediaPlayer player) {
             mContext = context;
             mPlayer = player;
-            mPlayer.registerPlayerCallback(ContextCompat.getMainExecutor(context), this);
 
             // Cannot use session.getContext() because session's impl isn't initialized at this
             // moment.
@@ -142,21 +140,26 @@ public class AudioFocusHandler {
         }
 
         @Override
-        public boolean onPlayRequested() {
+        public boolean onPlay() {
             final AudioAttributesCompat attrs = mPlayer.getAudioAttributes();
             boolean result = true;
             synchronized (mLock) {
+                mAudioAttributes = attrs;
+                // Checks whether the audio attributes is {@code null}, to check indirectly whether
+                // the media item has audio track.
                 if (attrs == null) {
-                    mAudioAttributes = null;
+                    // No sound.
                     abandonAudioFocusLocked();
+                    unregisterBecomingNoisyReceiverLocked();
                 } else {
-                    // Keep cache of the audio attributes. Otherwise audio attributes may be changed
-                    // between the audio focus request and audio focus change, resulting the
-                    // unexpected situation.
-                    mAudioAttributes = attrs;
                     result = requestAudioFocusLocked();
+                    if (result) {
+                        registerBecomingNoisyReceiverLocked();
+                    }
                 }
             }
+            // Audio attributes shouldn't be {@code null} if it has audio track.
+            // To enforce it, sets the volume to the {@code 0} when the attribute is {@code null}.
             if (attrs == null) {
                 mPlayer.setPlayerVolume(0);
             }
@@ -164,107 +167,32 @@ public class AudioFocusHandler {
         }
 
         @Override
-        public void onPauseRequested() {
+        public void onPause() {
             synchronized (mLock) {
                 mResumeWhenAudioFocusGain = false;
-            }
-        }
-
-        /**
-         * Check we need to abandon/request audio focus when playback state becomes playing. It's
-         * needed to handle following cases.
-         *   1. Audio attribute has changed between {@link SessionPlayer2#play} and actual
-         *      start of playback. Note that {@link MediaPlayer2} only allows changing audio
-         *      attributes in IDLE state, so such issue wouldn't happen.
-         *   2. Or, playback is started without MediaSession2#play().
-         * <p>
-         * If there's no huge issue, then register noisy intent receiver here.
-         */
-        private void onPlayingNotLocked() {
-            final AudioAttributesCompat attrs = mPlayer.getAudioAttributes();
-            final int expectedFocusGain;
-            boolean pauseNeeded = false;
-            synchronized (mLock) {
-                expectedFocusGain = convertAudioAttributesToFocusGain(attrs);
-                if (ObjectsCompat.equals(mAudioAttributes, attrs)
-                        && expectedFocusGain == mCurrentFocusGainType) {
-                    // No change in audio attributes, and audio focus is granted as expected.
-                    // Register noisy intent if it has an audio attribute (i.e. has sound).
-                    if (attrs != null) {
-                        registerReceiverLocked();
-                    }
-                    return;
-                }
-                Log.w(TAG, "Expected " + mAudioAttributes + " and audioFocusGainType="
-                        + mCurrentFocusGainType + " when playback is started, but actually "
-                        + attrs
-                        + " and audioFocusGainType=" + mCurrentFocusGainType + ". Use"
-                        + " MediaSession2#play() for starting playback.");
-                mAudioAttributes = attrs;
-                if (mCurrentFocusGainType != expectedFocusGain) {
-                    // Note: Calling AudioManager#requestAudioFocus() again with the same
-                    //       listener but different focus gain type only updates the focus gain
-                    //       type.
-                    if (expectedFocusGain == AudioManager.AUDIOFOCUS_NONE) {
-                        abandonAudioFocusLocked();
-                    } else {
-                        if (requestAudioFocusLocked()) {
-                            registerReceiverLocked();
-                        } else {
-                            Log.e(TAG, "Playback is started without audio focus, and requesting"
-                                    + " audio focus is failed. Forcefully pausing playback");
-                            pauseNeeded = true;
-                        }
-                    }
-                }
-            }
-            if (attrs == null) {
-                // If attributes becomes null (i.e. no sound)
-                mPlayer.setPlayerVolume(0);
-            }
-            if (pauseNeeded) {
-                mPlayer.pause();
+                unregisterBecomingNoisyReceiverLocked();
             }
         }
 
         @Override
-        public void onPlayerStateChanged(SessionPlayer2 player, int playerState) {
-            switch (playerState) {
-                case PLAYER_STATE_IDLE: {
-                    synchronized (mLock) {
-                        abandonAudioFocusLocked();
-                    }
-                    break;
-                }
-                case PLAYER_STATE_PAUSED: {
-                    synchronized (mLock) {
-                        unregisterReceiverLocked();
-                    }
-                    break;
-                }
-                case PLAYER_STATE_PLAYING: {
-                    onPlayingNotLocked();
-                    break;
-                }
-                case PLAYER_STATE_ERROR: {
-                    close();
-                    break;
-                }
+        public void onReset() {
+            synchronized (mLock) {
+                abandonAudioFocusLocked();
+                unregisterBecomingNoisyReceiverLocked();
             }
         }
 
         @Override
         public void close() {
-            mPlayer.unregisterPlayerCallback(this);
             synchronized (mLock) {
-                unregisterReceiverLocked();
+                unregisterBecomingNoisyReceiverLocked();
                 abandonAudioFocusLocked();
             }
         }
 
         @Override
         public void sendIntent(Intent intent) {
-            mBecomingNoisyIntentReceiver.onReceive(mContext, intent);
+            mBecomingNoisyReceiver.onReceive(mContext, intent);
         }
 
         /**
@@ -321,29 +249,29 @@ public class AudioFocusHandler {
         }
 
         @GuardedBy("mLock")
-        private void registerReceiverLocked() {
-            if (mHasRegisteredReceiver) {
+        private void registerBecomingNoisyReceiverLocked() {
+            if (mBecomingNoisyReceiverRegistered) {
                 return;
             }
             if (DEBUG) {
-                Log.d(TAG, "registering noisy intent");
+                Log.d(TAG, "registering becoming noisy receiver");
             }
             // Registering the receiver multiple-times may not be allowed for newer platform.
             // Register only when it's not registered.
-            mContext.registerReceiver(mBecomingNoisyIntentReceiver, mIntentFilter);
-            mHasRegisteredReceiver = true;
+            mContext.registerReceiver(mBecomingNoisyReceiver, mIntentFilter);
+            mBecomingNoisyReceiverRegistered = true;
         }
 
         @GuardedBy("mLock")
-        private void unregisterReceiverLocked() {
-            if (!mHasRegisteredReceiver) {
+        private void unregisterBecomingNoisyReceiverLocked() {
+            if (!mBecomingNoisyReceiverRegistered) {
                 return;
             }
             if (DEBUG) {
-                Log.d(TAG, "unregistering noisy intent");
+                Log.d(TAG, "unregistering becoming noisy receiver");
             }
-            mContext.unregisterReceiver(mBecomingNoisyIntentReceiver);
-            mHasRegisteredReceiver = false;
+            mContext.unregisterReceiver(mBecomingNoisyReceiver);
+            mBecomingNoisyReceiverRegistered = false;
         }
 
         // Converts {@link AudioAttributesCompat} to one of the audio focus request. This follows
@@ -416,44 +344,41 @@ public class AudioFocusHandler {
             return AudioManager.AUDIOFOCUS_NONE;
         }
 
-        private class NoisyIntentReceiver extends BroadcastReceiver {
-            NoisyIntentReceiver() {
+        private class BecomingNoisyReceiver extends BroadcastReceiver {
+            BecomingNoisyReceiver() {
             }
 
+            // Note: This is always the main thread, except for the test.
             @Override
             public void onReceive(Context context, Intent intent) {
-                if (DEBUG) {
-                    Log.d(TAG, "Received noisy intent " + intent);
+                if (!AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
+                    return;
                 }
-                // This is always the main thread, except for the test.
+                final int usage;
                 synchronized (mLock) {
-                    if (!mHasRegisteredReceiver) {
+                    if (DEBUG) {
+                        Log.d(TAG, "Received noisy intent, intent=" + intent + ", registered="
+                                + mBecomingNoisyReceiverRegistered + ", attr=" + mAudioAttributes);
+                    }
+                    if (!mBecomingNoisyReceiverRegistered || mAudioAttributes == null) {
                         return;
                     }
+                    usage = mAudioAttributes.getUsage();
                 }
-                if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
-                    final int usage;
-                    synchronized (mLock) {
-                        if (mAudioAttributes == null) {
-                            return;
-                        }
-                        usage = mAudioAttributes.getUsage();
-                    }
-                    switch (usage) {
-                        case AudioAttributesCompat.USAGE_MEDIA:
-                            // Noisy intent guide says 'In the case of music players, users
-                            // typically expect the playback to be paused.'
-                            mPlayer.pause();
-                            break;
-                        case AudioAttributesCompat.USAGE_GAME:
-                            // Noisy intent guide says 'For gaming apps, you may choose to
-                            // significantly lower the volume instead'.
-                            mPlayer.setPlayerVolume(mPlayer.getPlayerVolume() * VOLUME_DUCK_FACTOR);
-                            break;
-                        default:
-                            // Noisy intent guide didn't say anything more for this. No-op for now.
-                            break;
-                    }
+                switch (usage) {
+                    case AudioAttributesCompat.USAGE_MEDIA:
+                        // Noisy intent guide says 'In the case of music players, users
+                        // typically expect the playback to be paused.'
+                        mPlayer.pause();
+                        break;
+                    case AudioAttributesCompat.USAGE_GAME:
+                        // Noisy intent guide says 'For gaming apps, you may choose to
+                        // significantly lower the volume instead'.
+                        mPlayer.setPlayerVolume(mPlayer.getPlayerVolume() * VOLUME_DUCK_FACTOR);
+                        break;
+                    default:
+                        // Noisy intent guide didn't say anything more for this. No-op for now.
+                        break;
                 }
             }
         }
@@ -473,7 +398,7 @@ public class AudioFocusHandler {
                     case AudioManager.AUDIOFOCUS_GAIN:
                         // Regains focus after the LOSS_TRANSIENT or LOSS_TRANSIENT_CAN_DUCK.
                         if (mPlayer.getPlayerState() == PLAYER_STATE_PAUSED) {
-                            // Note: onPlayRequested() will be called again with this.
+                            // Note: onPlay() will be called again with this.
                             synchronized (mLock) {
                                 if (!mResumeWhenAudioFocusGain) {
                                     break;
