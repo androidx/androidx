@@ -31,19 +31,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 
+import androidx.media.VolumeProviderCompat;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSessionCompat;
 import androidx.media.test.lib.MockActivity;
+import androidx.media.test.lib.TestUtils;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaController2.ControllerCallback;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaUtils2;
+import androidx.media2.RemoteSessionPlayer2;
+import androidx.media2.SessionCommand2;
 import androidx.media2.SessionPlayer2;
 import androidx.test.filters.SmallTest;
 
@@ -63,6 +69,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @SmallTest
 public class MediaController2LegacyTest extends MediaSession2TestBase {
+    private static final String TAG = "MediaController2LegacyTest";
 
     AudioManager mAudioManager;
     RemoteMediaSessionCompat mSession;
@@ -462,6 +469,89 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
                 .setState(PlaybackStateCompat.STATE_PLAYING, 0 /* position */,
                         testSpeed /* playbackSpeed */)
                 .build());
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onPlaybackInfoChanged_byPlaybackTypeChangeToRemote()
+            throws Exception {
+        prepareLooper();
+        final int volumeControlType = VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+        final int maxVolume = 100;
+        final int currentVolume = 45;
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onPlaybackInfoChanged(MediaController2 controller,
+                    MediaController2.PlaybackInfo info) {
+                // Here, we are intentionally avoid using assertEquals(), since this callback
+                // can be called many times which of them have inaccurate values.
+                Log.d(TAG, "Given playbackType=" + info.getPlaybackType()
+                        + " controlType=" + info.getControlType()
+                        + " maxVolume=" + info.getMaxVolume()
+                        + " currentVolume=" + info.getCurrentVolume()
+                        + " audioAttrs=" + info.getAudioAttributes());
+                if (MediaController2.PlaybackInfo.PLAYBACK_TYPE_REMOTE == info.getPlaybackType()
+                        && volumeControlType == info.getControlType()
+                        && maxVolume == info.getMaxVolume()
+                        && currentVolume == info.getCurrentVolume()) {
+                    latch.countDown();
+                }
+            }
+        };
+        mController = createController(mSession.getSessionToken(), true, callback);
+        mSession.setPlaybackToRemote(volumeControlType, maxVolume, currentVolume);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onPlaybackInfoChanged_byPlaybackTypeChangeToLocal()
+            throws Exception {
+        prepareLooper();
+        mSession.setPlaybackToRemote(VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 100, 45);
+
+        final int testLocalStreamType = AudioManager.STREAM_ALARM;
+        final int maxVolume = mAudioManager.getStreamMaxVolume(testLocalStreamType);
+        final int currentVolume = mAudioManager.getStreamVolume(testLocalStreamType);
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onPlaybackInfoChanged(MediaController2 controller,
+                    MediaController2.PlaybackInfo info) {
+                assertEquals(MediaController2.PlaybackInfo.PLAYBACK_TYPE_LOCAL,
+                        info.getPlaybackType());
+                assertEquals(RemoteSessionPlayer2.VOLUME_CONTROL_ABSOLUTE, info.getControlType());
+                assertEquals(maxVolume, info.getMaxVolume());
+                assertEquals(currentVolume, info.getCurrentVolume());
+                latch.countDown();
+            }
+        };
+        mController = createController(mSession.getSessionToken(), true, callback);
+        mSession.setPlaybackToLocal(testLocalStreamType);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onCustomCommand() throws Exception {
+        prepareLooper();
+        final String event = "testControllerCallback_onCustomCommand";
+        final Bundle extras = TestUtils.createTestBundle();
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public MediaController2.ControllerResult onCustomCommand(MediaController2 controller,
+                    SessionCommand2 command, Bundle args) {
+                assertEquals(event, command.getCustomCommand());
+                assertTrue(TestUtils.equals(extras, args));
+                latch.countDown();
+                return null;
+            }
+        };
+        mController = createController(mSession.getSessionToken(), true, callback);
+        mSession.sendSessionEvent(event, extras);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
