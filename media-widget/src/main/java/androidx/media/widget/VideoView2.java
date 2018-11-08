@@ -22,7 +22,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -37,12 +36,10 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaItem2;
-import androidx.media2.MediaMetadata2;
 import androidx.media2.SessionToken2;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.Map;
 
 /**
  * Displays a video file.  VideoView2 class is a ViewGroup class which is wrapping
@@ -150,7 +147,7 @@ public class VideoView2 extends BaseLayout {
      * @param mediaControlView a media control view2 instance.
      * @param intervalMs a time interval in milliseconds until VideoView2 hides MediaControlView2.
      */
-    public void setMediaControlView2(MediaControlView2 mediaControlView, long intervalMs) {
+    public void setMediaControlView2(@NonNull MediaControlView2 mediaControlView, long intervalMs) {
         mImpl.setMediaControlView2(mediaControlView, intervalMs);
     }
 
@@ -158,30 +155,9 @@ public class VideoView2 extends BaseLayout {
      * Returns MediaControlView2 instance which is currently attached to VideoView2 by default or by
      * {@link #setMediaControlView2} method.
      */
+    @Nullable
     public MediaControlView2 getMediaControlView2() {
         return mImpl.getMediaControlView2();
-    }
-
-    /**
-     * Sets MediaMetadata2 instance. It will replace the previously assigned MediaMetadata2 instance
-     * if any.
-     *
-     * @param metadata a MediaMetadata2 instance.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setMediaMetadata(MediaMetadata2 metadata) {
-        mImpl.setMediaMetadata(metadata);
-    }
-
-    /**
-     * Returns MediaMetadata2 instance which is retrieved from MediaPlayer inside VideoView2 by
-     * default or by {@link #setMediaMetadata} method.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public MediaMetadata2 getMediaMetadata() {
-        return mImpl.getMediaMetadata();
     }
 
     /**
@@ -191,6 +167,7 @@ public class VideoView2 extends BaseLayout {
      *
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
+    @NonNull
     public SessionToken2 getMediaSessionToken2() {
         return mImpl.getMediaSessionToken2();
     }
@@ -205,50 +182,9 @@ public class VideoView2 extends BaseLayout {
     }
 
     /**
-     * Sets video path.
-     *
-     * @param path the path of the video.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setVideoPath(String path) {
-        mImpl.setVideoUri(Uri.parse(path));
-    }
-
-    /**
-     * Sets video URI.
-     *
-     * @param uri the URI of the video.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setVideoUri(Uri uri) {
-        mImpl.setVideoUri(uri, null);
-    }
-
-    /**
-     * Sets video URI using specific headers.
-     *
-     * @param uri     the URI of the video.
-     * @param headers the headers for the URI request.
-     *                Note that the cross domain redirection is allowed by default, but that can be
-     *                changed with key/value pairs through the headers parameter with
-     *                "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value
-     *                to disallow or allow cross domain redirection.
-     *
-     * @hide
-     */
-    public void setVideoUri(Uri uri, @Nullable Map<String, String> headers) {
-        mImpl.setVideoUri(uri, headers);
-    }
-
-    /**
      * Sets {@link MediaItem2} object to render using VideoView2.
      * @param mediaItem the MediaItem2 to play
      */
-    @RestrictTo(LIBRARY_GROUP)
     public void setMediaItem2(@NonNull MediaItem2 mediaItem) {
         mImpl.setMediaItem2(mediaItem);
     }

@@ -321,7 +321,7 @@ public class MediaControlView2 extends BaseLayout {
      * Sets MediaSession2 token to control corresponding MediaSession2. It makes it possible to
      * send and receive data between MediaControlView2 and VideoView2.
      */
-    public void setMediaSessionToken2(SessionToken2 token) {
+    public void setMediaSessionToken2(@NonNull SessionToken2 token) {
         mController.setMediaSessionToken2(token);
         if (mController.hasMetadata()) {
             updateMetadata();
@@ -333,7 +333,7 @@ public class MediaControlView2 extends BaseLayout {
      * This needs to be implemented in order to display the fullscreen button.
      * @param l The callback that will be run
      */
-    public void setOnFullScreenListener(OnFullScreenListener l) {
+    public void setOnFullScreenListener(@NonNull OnFullScreenListener l) {
         mOnFullScreenListener = l;
         mFullScreenButton.setVisibility(View.VISIBLE);
     }
@@ -355,7 +355,7 @@ public class MediaControlView2 extends BaseLayout {
         /**
          * Called to indicate a fullscreen mode change.
          */
-        void onFullScreen(View view, boolean fullScreen);
+        void onFullScreen(@NonNull View view, boolean fullScreen);
     }
 
     @Override
