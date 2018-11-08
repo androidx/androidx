@@ -23,8 +23,8 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.MediaItem2;
-import androidx.media2.SessionToken2;
+import androidx.media2.MediaItem;
+import androidx.media2.SessionToken;
 
 /**
  * Interface for impl classes.
@@ -50,14 +50,14 @@ interface VideoView2Impl {
     MediaControlView2 getMediaControlView2();
 
     /**
-     * Returns {@link SessionToken2} so that developers create their own
-     * {@link androidx.media2.MediaController2} instance. This method should be called when
+     * Returns {@link SessionToken} so that developers create their own
+     * {@link androidx.media2.MediaController} instance. This method should be called when
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
     @NonNull
-    SessionToken2 getMediaSessionToken2();
+    SessionToken getSessionToken();
 
     /**
      * Sets the {@link AudioAttributesCompat} to be used during the playback of the video.
@@ -67,11 +67,11 @@ interface VideoView2Impl {
     void setAudioAttributes(@NonNull AudioAttributesCompat attributes);
 
     /**
-     * Sets {@link MediaItem2} object to render using VideoView2.
+     * Sets {@link MediaItem} object to render using VideoView2.
      *
-     * @param mediaItem the MediaItem2 to play
+     * @param mediaItem the MediaItem to play
      */
-    void setMediaItem2(@NonNull MediaItem2 mediaItem);
+    void setMediaItem(@NonNull MediaItem mediaItem);
 
     /**
      * Selects which view will be used to render video between SurfaceView and TextureView.

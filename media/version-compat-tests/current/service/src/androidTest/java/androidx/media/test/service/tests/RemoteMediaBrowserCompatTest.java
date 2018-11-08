@@ -34,7 +34,7 @@ import org.junit.runner.RunWith;
 
 /** Test {@link RemoteMediaBrowserCompat}. */
 @RunWith(AndroidJUnit4.class)
-public class RemoteMediaBrowserCompatTest extends MediaSession2TestBase {
+public class RemoteMediaBrowserCompatTest extends MediaSessionTestBase {
     private Context mContext;
     private RemoteMediaBrowserCompat mRemoteBrowserCompat;
 

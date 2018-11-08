@@ -35,8 +35,8 @@ class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
     public boolean isTrustedForMediaControl(MediaSessionManager.RemoteUserInfoImpl userInfo) {
         // Don't use framework's isTrustedForMediaControl().
         // In P, framework's isTrustedForMediaControl() does the sanity check whether the UID, PID,
-        // and package name match. In MediaSession2/MediaController2, Context#getPackageName() is
-        // used by MediaController2 to tell MediaSession2 the package name.
+        // and package name match. In MediaSession/MediaController, Context#getPackageName() is
+        // used by MediaController to tell MediaSession the package name.
         // However, UID, PID and Context#getPackageName() may not match if a activity/service runs
         // on the another app's process by specifying android:process in the AndroidManifest.xml.
         // In that case, sanity check will always fail.

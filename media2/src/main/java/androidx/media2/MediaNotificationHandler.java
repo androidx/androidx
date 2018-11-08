@@ -44,7 +44,7 @@ import androidx.media.app.NotificationCompat.MediaStyle;
 import java.util.List;
 
 /**
- * Provides default media notification for {@link MediaSessionService2}, and set the service as
+ * Provides default media notification for {@link MediaSessionService}, and set the service as
  * foreground/background according to the player state.
  *
  * @hide
@@ -52,11 +52,11 @@ import java.util.List;
 @VisibleForTesting(otherwise = PACKAGE_PRIVATE)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MediaNotificationHandler extends
-        MediaSession2.SessionCallback.ForegroundServiceEventCallback {
+        MediaSession.SessionCallback.ForegroundServiceEventCallback {
     private static final int NOTIFICATION_ID = 1001;
     private static final String NOTIFICATION_CHANNEL_ID = "default_channel_id";
 
-    private final MediaSessionService2 mServiceInstance;
+    private final MediaSessionService mServiceInstance;
     private final NotificationManager mNotificationManager;
     private final String mNotificationChannelName;
 
@@ -66,7 +66,7 @@ public class MediaNotificationHandler extends
     private final NotificationCompat.Action mSkipToPrevAction;
     private final NotificationCompat.Action mSkipToNextAction;
 
-    public MediaNotificationHandler(MediaSessionService2 service) {
+    public MediaNotificationHandler(MediaSessionService service) {
         mServiceInstance = service;
         mStartSelfIntent = new Intent(mServiceInstance, mServiceInstance.getClass());
 
@@ -92,9 +92,9 @@ public class MediaNotificationHandler extends
      * @param state player state
      */
     @Override
-    public void onPlayerStateChanged(MediaSession2 session,
-            @SessionPlayer2.PlayerState int state) {
-        MediaSessionService2.MediaNotification mediaNotification =
+    public void onPlayerStateChanged(MediaSession session,
+            @SessionPlayer.PlayerState int state) {
+        MediaSessionService.MediaNotification mediaNotification =
                 mServiceInstance.onUpdateNotification(session);
         if (mediaNotification == null) {
             // The service implementation doesn't want to use the automatic start/stopForeground
@@ -111,19 +111,19 @@ public class MediaNotificationHandler extends
             return;
         }
 
-        // state == SessionPlayer2.PLAYER_STATE_PLAYING
+        // state == SessionPlayer.PLAYER_STATE_PLAYING
         ContextCompat.startForegroundService(mServiceInstance, mStartSelfIntent);
         mServiceInstance.startForeground(id, notification);
     }
 
     @Override
-    public void onSessionClosed(MediaSession2 session) {
+    public void onSessionClosed(MediaSession session) {
         mServiceInstance.removeSession(session);
         stopForegroundServiceIfNeeded();
     }
 
     private void stopForegroundServiceIfNeeded() {
-        List<MediaSession2> sessions = mServiceInstance.getSessions();
+        List<MediaSession> sessions = mServiceInstance.getSessions();
         for (int i = 0; i < sessions.size(); i++) {
             if (!isPlaybackStopped(sessions.get(i).getPlayer().getPlayerState())) {
                 return;
@@ -137,9 +137,9 @@ public class MediaNotificationHandler extends
     }
 
     /**
-     * Creates a default media style notification for {@link MediaSessionService2}.
+     * Creates a default media style notification for {@link MediaSessionService}.
      */
-    public MediaSessionService2.MediaNotification onUpdateNotification(MediaSession2 session) {
+    public MediaSessionService.MediaNotification onUpdateNotification(MediaSession session) {
         ensureNotificationChannel();
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
@@ -147,7 +147,7 @@ public class MediaNotificationHandler extends
 
         // TODO: Filter actions when SessionPlayer#getSupportedActions() is introduced.
         builder.addAction(mSkipToPrevAction);
-        if (session.getPlayer().getPlayerState() == SessionPlayer2.PLAYER_STATE_PLAYING) {
+        if (session.getPlayer().getPlayerState() == SessionPlayer.PLAYER_STATE_PLAYING) {
             builder.addAction(mPauseAction);
         } else {
             builder.addAction(mPlayAction);
@@ -156,15 +156,15 @@ public class MediaNotificationHandler extends
 
         // Set metadata info in the notification.
         if (session.getPlayer().getCurrentMediaItem() != null) {
-            MediaMetadata2 metadata = session.getPlayer().getCurrentMediaItem().getMetadata();
+            MediaMetadata metadata = session.getPlayer().getCurrentMediaItem().getMetadata();
             if (metadata != null) {
-                CharSequence title = metadata.getText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE);
+                CharSequence title = metadata.getText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE);
                 if (title == null) {
-                    title = metadata.getText(MediaMetadata2.METADATA_KEY_TITLE);
+                    title = metadata.getText(MediaMetadata.METADATA_KEY_TITLE);
                 }
                 builder.setContentTitle(title)
-                        .setContentText(metadata.getText(MediaMetadata2.METADATA_KEY_ARTIST))
-                        .setLargeIcon(metadata.getBitmap(MediaMetadata2.METADATA_KEY_ALBUM_ART));
+                        .setContentText(metadata.getText(MediaMetadata.METADATA_KEY_ARTIST))
+                        .setLargeIcon(metadata.getBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART));
             }
         }
 
@@ -183,7 +183,7 @@ public class MediaNotificationHandler extends
                 .setOngoing(false)
                 .build();
 
-        return new MediaSessionService2.MediaNotification(NOTIFICATION_ID, notification);
+        return new MediaSessionService.MediaNotification(NOTIFICATION_ID, notification);
     }
 
     private NotificationCompat.Action createNotificationAction(int iconResId, int titleResId,
@@ -230,8 +230,8 @@ public class MediaNotificationHandler extends
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static boolean isPlaybackStopped(int state) {
-        return state == SessionPlayer2.PLAYER_STATE_PAUSED
-                || state == SessionPlayer2.PLAYER_STATE_IDLE
-                || state == SessionPlayer2.PLAYER_STATE_ERROR;
+        return state == SessionPlayer.PLAYER_STATE_PAUSED
+                || state == SessionPlayer.PLAYER_STATE_IDLE
+                || state == SessionPlayer.PLAYER_STATE_ERROR;
     }
 }

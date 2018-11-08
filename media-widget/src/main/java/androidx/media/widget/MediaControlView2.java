@@ -16,8 +16,8 @@
 
 package androidx.media.widget;
 
-import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_NOT_SUPPORTED;
-import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaController.ControllerResult.RESULT_CODE_NOT_SUPPORTED;
+import static androidx.media2.MediaController.ControllerResult.RESULT_CODE_SUCCESS;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -64,16 +64,16 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.media2.MediaController2;
-import androidx.media2.MediaItem2;
-import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaController;
+import androidx.media2.MediaItem;
+import androidx.media2.MediaMetadata;
 import androidx.media2.MediaPlayer;
-import androidx.media2.MediaSession2;
-import androidx.media2.SessionCommand2;
-import androidx.media2.SessionCommandGroup2;
-import androidx.media2.SessionPlayer2;
-import androidx.media2.SessionToken2;
-import androidx.media2.UriMediaItem2;
+import androidx.media2.MediaSession;
+import androidx.media2.SessionCommand;
+import androidx.media2.SessionCommandGroup;
+import androidx.media2.SessionPlayer;
+import androidx.media2.SessionToken;
+import androidx.media2.UriMediaItem;
 import androidx.mediarouter.app.MediaRouteButton;
 import androidx.mediarouter.media.MediaRouteSelector;
 
@@ -95,12 +95,12 @@ import java.util.concurrent.Executor;
  * MediaControlView2. For more information, refer to {@link VideoView2}.
  *
  * It is also possible to create a MediaControlView2 programmatically and add it to a custom video
- * view. In this case, the app will need to create a {@link MediaSession2} instance and set
- * {@link SessionToken2 its token} inside MediaControlView2 by calling
- * {@link #setMediaSessionToken2(SessionToken2)}. Then MediaControlView2 will create a
- * {@link MediaController2} and could send commands to the connected {@link MediaSession2 session}.
+ * view. In this case, the app will need to create a {@link MediaSession} instance and set
+ * {@link SessionToken its token} inside MediaControlView2 by calling
+ * {@link #setSession2Token(SessionToken)}. Then MediaControlView2 will create a
+ * {@link MediaController} and could send commands to the connected {@link MediaSession session}.
  * By default, the buttons inside MediaControlView2 will not visible unless the corresponding
- * {@link SessionCommand2} is marked as allowed. For more details, refer to {@link MediaSession2}.
+ * {@link SessionCommand} is marked as allowed. For more details, refer to {@link MediaSession}.
  * <p>
  * Currently, MediaControlView2 animates off-screen in two steps:
  *   1) Title and bottom bars slide up and down respectively and the transport controls fade out,
@@ -179,7 +179,7 @@ public class MediaControlView2 extends BaseLayout {
     private static final String RESOURCE_EMPTY = "";
 
     Resources mResources;
-    Controller2 mController;
+    Controller mController;
     OnFullScreenListener mOnFullScreenListener;
     private AccessibilityManager mAccessibilityManager;
     private WindowManager mWindowManager;
@@ -308,7 +308,7 @@ public class MediaControlView2 extends BaseLayout {
         super(context, attrs, defStyleAttr);
 
         mResources = context.getResources();
-        mController = new Controller2();
+        mController = new Controller();
         // Inflate MediaControlView2 from XML
         mRoot = makeControllerView();
         addView(mRoot);
@@ -318,11 +318,11 @@ public class MediaControlView2 extends BaseLayout {
     }
 
     /**
-     * Sets MediaSession2 token to control corresponding MediaSession2. It makes it possible to
+     * Sets MediaSession token to control corresponding MediaSession. It makes it possible to
      * send and receive data between MediaControlView2 and VideoView2.
      */
-    public void setMediaSessionToken2(@NonNull SessionToken2 token) {
-        mController.setMediaSessionToken2(token);
+    public void setSessionToken(@NonNull SessionToken token) {
+        mController.setSessionToken(token);
         if (mController.hasMetadata()) {
             updateMetadata();
         }
@@ -1717,13 +1717,13 @@ public class MediaControlView2 extends BaseLayout {
         mCustomPlaybackSpeedIndex = -1;
     }
 
-    boolean isHttpSchemeUrl(MediaItem2 currentMediaItem) {
+    boolean isHttpSchemeUrl(MediaItem currentMediaItem) {
         if (currentMediaItem == null) {
             return false;
         }
 
-        Uri uri = currentMediaItem instanceof UriMediaItem2
-                ? ((UriMediaItem2) currentMediaItem).getUri() : null;
+        Uri uri = currentMediaItem instanceof UriMediaItem
+                ? ((UriMediaItem) currentMediaItem).getUri() : null;
         if (uri == null) {
             // Something wrong.
             return false;
@@ -1800,7 +1800,7 @@ public class MediaControlView2 extends BaseLayout {
         postDelayed(mHideMainBars, mShowControllerIntervalMs);
     }
 
-    void updateAllowedCommands(SessionCommandGroup2 commands) {
+    void updateAllowedCommands(SessionCommandGroup commands) {
         if (DEBUG) {
             Log.d(TAG, "updateAllowedCommands(): commands: " + commands);
         }
@@ -1810,13 +1810,13 @@ public class MediaControlView2 extends BaseLayout {
         }
         mController.setAllowedCommands(commands);
 
-        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYER_PAUSE)) {
+        if (commands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_PAUSE)) {
             mPlayPauseButton.setVisibility(View.VISIBLE);
             mPlayPauseButton.setEnabled(true);
         } else {
             mPlayPauseButton.setVisibility(View.GONE);
         }
-        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_SESSION_REWIND)
+        if (commands.hasCommand(SessionCommand.COMMAND_CODE_SESSION_REWIND)
                 && mMediaType != MEDIA_TYPE_MUSIC) {
             if (mRewButton != null) {
                 mRewButton.setVisibility(View.VISIBLE);
@@ -1827,7 +1827,7 @@ public class MediaControlView2 extends BaseLayout {
                 mRewButton.setVisibility(View.GONE);
             }
         }
-        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD)
+        if (commands.hasCommand(SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD)
                 && mMediaType != MEDIA_TYPE_MUSIC) {
             if (mFfwdButton != null) {
                 mFfwdButton.setVisibility(View.VISIBLE);
@@ -1839,7 +1839,7 @@ public class MediaControlView2 extends BaseLayout {
             }
         }
         if (commands.hasCommand(
-                SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM)) {
+                SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM)) {
             if (mPrevButton != null) {
                 mPrevButton.setVisibility(VISIBLE);
                 mPrevButton.setEnabled(true);
@@ -1850,7 +1850,7 @@ public class MediaControlView2 extends BaseLayout {
             }
         }
         if (commands.hasCommand(
-                SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM)) {
+                SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM)) {
             if (mNextButton != null) {
                 mNextButton.setVisibility(VISIBLE);
                 mNextButton.setEnabled(true);
@@ -1860,12 +1860,12 @@ public class MediaControlView2 extends BaseLayout {
                 mNextButton.setVisibility(View.GONE);
             }
         }
-        if (commands.hasCommand(SessionCommand2.COMMAND_CODE_PLAYER_SEEK_TO)) {
+        if (commands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO)) {
             mSeekAvailable = true;
             mProgress.setEnabled(true);
         }
-        if (commands.hasCommand(new SessionCommand2(COMMAND_SHOW_SUBTITLE, null))
-                && commands.hasCommand(new SessionCommand2(COMMAND_HIDE_SUBTITLE, null))) {
+        if (commands.hasCommand(new SessionCommand(COMMAND_SHOW_SUBTITLE, null))
+                && commands.hasCommand(new SessionCommand(COMMAND_HIDE_SUBTITLE, null))) {
             mSubtitleButton.setVisibility(View.VISIBLE);
         } else {
             mSubtitleButton.setVisibility(View.GONE);
@@ -1885,8 +1885,8 @@ public class MediaControlView2 extends BaseLayout {
     boolean shouldNotHideBars() {
         return (mMediaType == MEDIA_TYPE_MUSIC && mSizeType == SIZE_TYPE_FULL)
                 || mAccessibilityManager.isTouchExplorationEnabled()
-                || mController.getPlaybackState() == SessionPlayer2.PLAYER_STATE_ERROR
-                || mController.getPlaybackState() == SessionPlayer2.PLAYER_STATE_IDLE;
+                || mController.getPlaybackState() == SessionPlayer.PLAYER_STATE_ERROR
+                || mController.getPlaybackState() == SessionPlayer.PLAYER_STATE_IDLE;
     }
 
     void seekTo(long newPosition, boolean shouldSeekNow) {
@@ -2128,197 +2128,197 @@ public class MediaControlView2 extends BaseLayout {
         }
     }
 
-    class Controller2 {
-        private MediaController2 mController2;
-        int mPlaybackState = SessionPlayer2.PLAYER_STATE_IDLE;
-        int mPrevState = SessionPlayer2.PLAYER_STATE_IDLE;
-        MediaMetadata2 mMediaMetadata2;
+    class Controller {
+        private MediaController mController;
+        int mPlaybackState = SessionPlayer.PLAYER_STATE_IDLE;
+        int mPrevState = SessionPlayer.PLAYER_STATE_IDLE;
+        MediaMetadata mMediaMetadata;
         private Executor mCallbackExecutor;
-        SessionCommandGroup2 mAllowedCommands;
+        SessionCommandGroup mAllowedCommands;
 
-        Controller2() {
+        Controller() {
             mCallbackExecutor = ContextCompat.getMainExecutor(getContext());
         }
 
-        void setMediaSessionToken2(SessionToken2 token) {
-            if (mController2 != null) {
-                mController2.close();
+        void setSessionToken(SessionToken token) {
+            if (mController != null) {
+                mController.close();
             }
-            mController2 = new MediaController2(getContext(), token, mCallbackExecutor,
+            mController = new MediaController(getContext(), token, mCallbackExecutor,
                     new MediaControllerCallback());
-            mPlaybackState = mController2.getPlayerState();
-            MediaItem2 currentItem = mController2.getCurrentMediaItem();
-            mMediaMetadata2 = currentItem != null ? currentItem.getMetadata() : null;
+            mPlaybackState = mController.getPlayerState();
+            MediaItem currentItem = mController.getCurrentMediaItem();
+            mMediaMetadata = currentItem != null ? currentItem.getMetadata() : null;
         }
 
         boolean hasMetadata() {
-            return mMediaMetadata2 != null;
+            return mMediaMetadata != null;
         }
 
         boolean isPlaying() {
-            return mPlaybackState == SessionPlayer2.PLAYER_STATE_PLAYING;
+            return mPlaybackState == SessionPlayer.PLAYER_STATE_PLAYING;
         }
 
         long getCurrentPosition() {
-            if (mController2 != null) {
-                long currentPosition = mController2.getCurrentPosition();
+            if (mController != null) {
+                long currentPosition = mController.getCurrentPosition();
                 return (currentPosition < 0) ? 0 : currentPosition;
             }
             return 0;
         }
 
         long getBufferPercentage() {
-            if (mController2 != null && mDuration != 0) {
-                long bufferedPos = mController2.getBufferedPosition();
+            if (mController != null && mDuration != 0) {
+                long bufferedPos = mController.getBufferedPosition();
                 return (bufferedPos < 0) ? -1 : (bufferedPos * 100 / mDuration);
             }
             return 0;
         }
 
         int getPlaybackState() {
-            if (mController2 != null) {
-                return mController2.getPlayerState();
+            if (mController != null) {
+                return mController.getPlayerState();
             }
-            return SessionPlayer2.PLAYER_STATE_IDLE;
+            return SessionPlayer.PLAYER_STATE_IDLE;
         }
 
         boolean canPause() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                    SessionCommand2.COMMAND_CODE_PLAYER_PAUSE);
+                    SessionCommand.COMMAND_CODE_PLAYER_PAUSE);
         }
 
         boolean canSeekBackward() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                    SessionCommand2.COMMAND_CODE_SESSION_REWIND);
+                    SessionCommand.COMMAND_CODE_SESSION_REWIND);
         }
 
         boolean canSeekForward() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                    SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
+                    SessionCommand.COMMAND_CODE_SESSION_FAST_FORWARD);
         }
 
         boolean canSkipToNext() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                    SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM);
+                    SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM);
         }
 
         boolean canSkipToPrevious() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
-                    SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM);
+                    SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM);
         }
 
         void pause() {
-            if (mController2 != null) {
-                mController2.pause();
+            if (mController != null) {
+                mController.pause();
             }
         }
 
         void play() {
-            if (mController2 != null) {
-                mController2.play();
+            if (mController != null) {
+                mController.play();
             }
         }
 
         void seekTo(long posMs) {
-            if (mController2 != null) {
-                mController2.seekTo(posMs);
+            if (mController != null) {
+                mController.seekTo(posMs);
             }
         }
 
         void skipToNextItem() {
-            if (mController2 != null) {
-                mController2.skipToNextPlaylistItem();
+            if (mController != null) {
+                mController.skipToNextPlaylistItem();
             }
         }
 
         void skipToPreviousItem() {
-            if (mController2 != null) {
-                mController2.skipToPreviousPlaylistItem();
+            if (mController != null) {
+                mController.skipToPreviousPlaylistItem();
             }
         }
 
         void setSpeed(float speed) {
-            if (mController2 != null) {
-                mController2.setPlaybackSpeed(speed);
+            if (mController != null) {
+                mController.setPlaybackSpeed(speed);
             }
         }
 
         void selectAudioTrack(int trackIndex) {
-            if (mController2 != null) {
+            if (mController != null) {
                 Bundle extra = new Bundle();
                 extra.putInt(KEY_SELECTED_AUDIO_INDEX, trackIndex);
-                mController2.sendCustomCommand(
-                        new SessionCommand2(COMMAND_SELECT_AUDIO_TRACK, null),
+                mController.sendCustomCommand(
+                        new SessionCommand(COMMAND_SELECT_AUDIO_TRACK, null),
                         extra);
             }
         }
 
         void showSubtitle(int trackIndex) {
-            if (mController2 != null) {
+            if (mController != null) {
                 Bundle extra = new Bundle();
                 extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, trackIndex);
-                mController2.sendCustomCommand(
-                        new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra);
+                mController.sendCustomCommand(
+                        new SessionCommand(COMMAND_SHOW_SUBTITLE, null), extra);
             }
         }
 
         void hideSubtitle() {
-            if (mController2 != null) {
-                mController2.sendCustomCommand(
-                        new SessionCommand2(COMMAND_HIDE_SUBTITLE, null), null);
+            if (mController != null) {
+                mController.sendCustomCommand(
+                        new SessionCommand(COMMAND_HIDE_SUBTITLE, null), null);
             }
         }
 
         long getDurationMs() {
             // TODO Remove this if-block after b/109639439 is fixed.
-            if (mMediaMetadata2 != null) {
-                if (mMediaMetadata2.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
-                    return mMediaMetadata2.getLong(MediaMetadata2.METADATA_KEY_DURATION);
+            if (mMediaMetadata != null) {
+                if (mMediaMetadata.containsKey(MediaMetadata.METADATA_KEY_DURATION)) {
+                    return mMediaMetadata.getLong(MediaMetadata.METADATA_KEY_DURATION);
                 }
             }
-            if (mController2 != null) {
-                return mController2.getDuration();
+            if (mController != null) {
+                return mController.getDuration();
             }
             return 0;
         }
 
         CharSequence getTitle() {
-            if (mMediaMetadata2 != null) {
-                if (mMediaMetadata2.containsKey(MediaMetadata2.METADATA_KEY_TITLE)) {
-                    return mMediaMetadata2.getText(MediaMetadata2.METADATA_KEY_TITLE);
+            if (mMediaMetadata != null) {
+                if (mMediaMetadata.containsKey(MediaMetadata.METADATA_KEY_TITLE)) {
+                    return mMediaMetadata.getText(MediaMetadata.METADATA_KEY_TITLE);
                 }
             }
             return null;
         }
 
         CharSequence getArtistText() {
-            if (mMediaMetadata2 != null) {
-                if (mMediaMetadata2.containsKey(MediaMetadata2.METADATA_KEY_ARTIST)) {
-                    return mMediaMetadata2.getText(MediaMetadata2.METADATA_KEY_ARTIST);
+            if (mMediaMetadata != null) {
+                if (mMediaMetadata.containsKey(MediaMetadata.METADATA_KEY_ARTIST)) {
+                    return mMediaMetadata.getText(MediaMetadata.METADATA_KEY_ARTIST);
                 }
             }
             return null;
         }
 
-        MediaItem2 getCurrentMediaItem() {
-            if (mController2 != null) {
-                return mController2.getCurrentMediaItem();
+        MediaItem getCurrentMediaItem() {
+            if (mController != null) {
+                return mController.getCurrentMediaItem();
             }
             return null;
         }
 
-        void setAllowedCommands(SessionCommandGroup2 commands) {
+        void setAllowedCommands(SessionCommandGroup commands) {
             mAllowedCommands = commands;
         }
 
-        SessionCommandGroup2 getAllowedCommands() {
+        SessionCommandGroup getAllowedCommands() {
             return mAllowedCommands;
         }
 
-        class MediaControllerCallback extends MediaController2.ControllerCallback {
+        class MediaControllerCallback extends MediaController.ControllerCallback {
             @Override
-            public void onPlayerStateChanged(@NonNull MediaController2 controller,
-                    @SessionPlayer2.PlayerState int state) {
+            public void onPlayerStateChanged(@NonNull MediaController controller,
+                    @SessionPlayer.PlayerState int state) {
                 if (DEBUG) {
                     Log.d(TAG, "onPlayerStateChanged(state: " + state + ")");
                 }
@@ -2330,20 +2330,20 @@ public class MediaControlView2 extends BaseLayout {
                 //   2) Need to handle case where the media file reaches end of duration.
                 if (mPlaybackState != mPrevState) {
                     switch (mPlaybackState) {
-                        case SessionPlayer2.PLAYER_STATE_PLAYING:
+                        case SessionPlayer.PLAYER_STATE_PLAYING:
                             removeCallbacks(mUpdateProgress);
                             post(mUpdateProgress);
                             resetHideCallbacks();
                             updateForStoppedState(false);
                             break;
-                        case SessionPlayer2.PLAYER_STATE_PAUSED:
+                        case SessionPlayer.PLAYER_STATE_PAUSED:
                             mPlayPauseButton.setImageDrawable(
                                     mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
                             mPlayPauseButton.setContentDescription(
                                     mResources.getString(R.string.mcv2_play_button_desc));
                             removeCallbacks(mUpdateProgress);
                             break;
-                        case SessionPlayer2.PLAYER_STATE_ERROR:
+                        case SessionPlayer.PLAYER_STATE_ERROR:
                             MediaControlView2.this.setEnabled(false);
                             mPlayPauseButton.setImageDrawable(
                                     mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
@@ -2373,7 +2373,7 @@ public class MediaControlView2 extends BaseLayout {
             }
 
             @Override
-            public void onSeekCompleted(MediaController2 controller, long position) {
+            public void onSeekCompleted(MediaController controller, long position) {
                 if (DEBUG) {
                     Log.d(TAG, "onSeekCompleted(): " + position);
                 }
@@ -2387,7 +2387,7 @@ public class MediaControlView2 extends BaseLayout {
                     mCurrentSeekPosition = mNextSeekPosition;
 
                     // If the next seek position is set, seek to that position.
-                    mController.seekTo(mNextSeekPosition);
+                    MediaControlView2.this.mController.seekTo(mNextSeekPosition);
                     mNextSeekPosition = SEEK_POSITION_NOT_SET;
                 } else {
                     mCurrentSeekPosition = SEEK_POSITION_NOT_SET;
@@ -2401,17 +2401,17 @@ public class MediaControlView2 extends BaseLayout {
             }
 
             @Override
-            public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
-                    @NonNull MediaItem2 mediaItem) {
+            public void onCurrentMediaItemChanged(@NonNull MediaController controller,
+                    @NonNull MediaItem mediaItem) {
                 if (DEBUG) {
                     Log.d(TAG, "onCurrentMediaItemChanged(): " + mediaItem);
                 }
-                mMediaMetadata2 = mediaItem.getMetadata();
+                mMediaMetadata = mediaItem.getMetadata();
                 updateMetadata();
             }
 
             @Override
-            public void onPlaybackCompleted(MediaController2 controller) {
+            public void onPlaybackCompleted(MediaController controller) {
                 if (DEBUG) {
                     Log.d(TAG, "onPlaybackCompleted()");
                 }
@@ -2422,37 +2422,37 @@ public class MediaControlView2 extends BaseLayout {
             }
 
             @Override
-            public void onConnected(@NonNull MediaController2 controller,
-                    @NonNull SessionCommandGroup2 allowedCommands) {
+            public void onConnected(@NonNull MediaController controller,
+                    @NonNull SessionCommandGroup allowedCommands) {
                 if (DEBUG) {
                     Log.d(TAG, "onConnected(): " + allowedCommands);
                 }
                 updateAllowedCommands(allowedCommands);
 
-                MediaItem2 mediaItem = controller.getCurrentMediaItem();
+                MediaItem mediaItem = controller.getCurrentMediaItem();
                 if (mediaItem != null) {
-                    mMediaMetadata2 = mediaItem.getMetadata();
+                    mMediaMetadata = mediaItem.getMetadata();
                     updateMetadata();
                 }
             }
 
             @Override
-            public void onAllowedCommandsChanged(@NonNull MediaController2 controller,
-                    @NonNull SessionCommandGroup2 commands) {
+            public void onAllowedCommandsChanged(@NonNull MediaController controller,
+                    @NonNull SessionCommandGroup commands) {
                 updateAllowedCommands(commands);
             }
 
             @Override
-            public void onPlaylistChanged(@NonNull MediaController2 controller,
-                    @NonNull List<MediaItem2> list,
-                    @Nullable MediaMetadata2 metadata) {
+            public void onPlaylistChanged(@NonNull MediaController controller,
+                    @NonNull List<MediaItem> list,
+                    @Nullable MediaMetadata metadata) {
                 if (DEBUG) {
                     Log.d(TAG, "onPlaylistChanged(): list: " + list);
                 }
             }
 
             @Override
-            public void onPlaybackSpeedChanged(@NonNull MediaController2 controller, float speed) {
+            public void onPlaybackSpeedChanged(@NonNull MediaController controller, float speed) {
                 int customSpeedMultBy100 = Math.round(speed * 100);
                 // An application may set a custom playback speed that is not included in the
                 // default playback speed list. The code below handles adding/removing the custom
@@ -2495,8 +2495,8 @@ public class MediaControlView2 extends BaseLayout {
             }
 
             @Override
-            public MediaController2.ControllerResult onCustomCommand(
-                    @NonNull MediaController2 controller, @NonNull SessionCommand2 command,
+            public MediaController.ControllerResult onCustomCommand(
+                    @NonNull MediaController controller, @NonNull SessionCommand command,
                     @Nullable Bundle args) {
                 if (DEBUG) {
                     Log.d(TAG, "onCustomCommand(): command: " + command);
@@ -2589,10 +2589,10 @@ public class MediaControlView2 extends BaseLayout {
                         }
                         break;
                     default:
-                        return new MediaController2.ControllerResult(
+                        return new MediaController.ControllerResult(
                                 RESULT_CODE_NOT_SUPPORTED, null);
                 }
-                return new MediaController2.ControllerResult(RESULT_CODE_SUCCESS, null);
+                return new MediaController.ControllerResult(RESULT_CODE_SUCCESS, null);
             }
         }
     }

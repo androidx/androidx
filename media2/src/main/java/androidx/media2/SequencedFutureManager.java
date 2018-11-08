@@ -98,7 +98,7 @@ class SequencedFutureManager implements AutoCloseable {
             } else {
                 if (DEBUG) {
                     // Note: May not be an error if the caller doesn't return ListenableFuture
-                    //       e.g. MediaSession2#broadcastCustomCommand
+                    //       e.g. MediaSession#broadcastCustomCommand
                     Log.d(TAG, "Unexpected sequence number, seq=" + seq,
                             new IllegalArgumentException());
                 }

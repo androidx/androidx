@@ -535,15 +535,15 @@ public final class MediaControllerCompat {
     }
 
     /**
-     * Gets the SessionToken2 as VersionedParcelable for the session that this controller is
-     * connected to.
+     * Gets the SessionToken in media2 as VersionedParcelable for the session that this controller
+     * is connected to.
      *
      * @return The session's token as VersionedParcelable.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public @Nullable VersionedParcelable getSessionToken2() {
-        return mToken.getSessionToken2();
+    public @Nullable VersionedParcelable getSession2Token() {
+        return mToken.getSession2Token();
     }
 
     /**
@@ -2297,9 +2297,9 @@ public final class MediaControllerCompat {
                             IMediaSession.Stub.asInterface(
                                     BundleCompat.getBinder(
                                             resultData, MediaSessionCompat.KEY_EXTRA_BINDER)));
-                    mediaControllerImpl.mSessionToken.setSessionToken2(
+                    mediaControllerImpl.mSessionToken.setSession2Token(
                             ParcelUtils.getVersionedParcelable(resultData,
-                                    MediaSessionCompat.KEY_SESSION_TOKEN2));
+                                    MediaSessionCompat.KEY_SESSION2_TOKEN));
                     mediaControllerImpl.processPendingCallbacksLocked();
                 }
             }

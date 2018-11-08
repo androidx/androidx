@@ -26,10 +26,10 @@ import android.os.Build;
 
 import androidx.media.test.service.MockPlayer;
 import androidx.media.test.service.MockRemotePlayer;
-import androidx.media.test.service.RemoteMediaController2;
-import androidx.media2.MediaSession2;
-import androidx.media2.RemoteSessionPlayer2;
-import androidx.media2.SessionCommandGroup2;
+import androidx.media.test.service.RemoteMediaController;
+import androidx.media2.MediaSession;
+import androidx.media2.RemoteSessionPlayer;
+import androidx.media2.SessionCommandGroup;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -42,35 +42,35 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Tests whether the methods of {@link androidx.media2.RemoteSessionPlayer2} are triggered by the
+ * Tests whether the methods of {@link androidx.media2.RemoteSessionPlayer} are triggered by the
  * controller.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class RemoteSessionPlayerTest extends MediaSession2TestBase {
+public class RemoteSessionPlayerTest extends MediaSessionTestBase {
 
-    MediaSession2 mSession;
-    RemoteMediaController2 mController2;
+    MediaSession mSession;
+    RemoteMediaController mController;
 
     @Before
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        // Create this test specific MediaSession2 to use our own Handler.
-        mSession = new MediaSession2.Builder(mContext, new MockPlayer(1))
-                .setSessionCallback(sHandlerExecutor, new MediaSession2.SessionCallback() {
+        // Create this test specific MediaSession to use our own Handler.
+        mSession = new MediaSession.Builder(mContext, new MockPlayer(1))
+                .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
                     @Override
-                    public SessionCommandGroup2 onConnect(MediaSession2 session,
-                            MediaSession2.ControllerInfo controller) {
+                    public SessionCommandGroup onConnect(MediaSession session,
+                            MediaSession.ControllerInfo controller) {
                         if (CLIENT_PACKAGE_NAME.equals(controller.getPackageName())) {
                             return super.onConnect(session, controller);
                         }
                         return null;
                     }
                 }).build();
-        // Create a default MediaController2 in client app.
-        mController2 = createRemoteController2(mSession.getToken());
+        // Create a default MediaController in client app.
+        mController = createRemoteController(mSession.getToken());
     }
 
     @After
@@ -87,14 +87,14 @@ public class RemoteSessionPlayerTest extends MediaSession2TestBase {
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
-        final int volumeControlType = RemoteSessionPlayer2.VOLUME_CONTROL_ABSOLUTE;
+        final int volumeControlType = RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE;
         MockRemotePlayer remotePlayer = new MockRemotePlayer(
                 volumeControlType, maxVolume, currentVolume);
 
         mSession.updatePlayer(remotePlayer);
 
         final int targetVolume = 50;
-        mController2.setVolumeTo(targetVolume, 0 /* flags */);
+        mController.setVolumeTo(targetVolume, 0 /* flags */);
 
         assertTrue(remotePlayer.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(remotePlayer.mSetVolumeToCalled);
@@ -106,7 +106,7 @@ public class RemoteSessionPlayerTest extends MediaSession2TestBase {
         prepareLooper();
         final int maxVolume = 100;
         final int currentVolume = 23;
-        final int volumeControlType = RemoteSessionPlayer2.VOLUME_CONTROL_ABSOLUTE;
+        final int volumeControlType = RemoteSessionPlayer.VOLUME_CONTROL_ABSOLUTE;
 
         MockRemotePlayer remotePlayer = new MockRemotePlayer(
                 volumeControlType, maxVolume, currentVolume);
@@ -114,7 +114,7 @@ public class RemoteSessionPlayerTest extends MediaSession2TestBase {
         mSession.updatePlayer(remotePlayer);
 
         final int direction = AudioManager.ADJUST_RAISE;
-        mController2.adjustVolume(direction, 0 /* flags */);
+        mController.adjustVolume(direction, 0 /* flags */);
 
         assertTrue(remotePlayer.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(remotePlayer.mAdjustVolumeCalled);
