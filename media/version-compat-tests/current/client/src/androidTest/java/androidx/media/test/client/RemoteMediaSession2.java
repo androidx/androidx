@@ -417,6 +417,14 @@ public class RemoteMediaSession2 {
             }
         }
 
+        public void setPlaylistMetadataWithLargeBitmaps(int count, int width, int height) {
+            try {
+                mBinder.setPlaylistMetadataWithLargeBitmaps(mSessionId, count, width, height);
+            } catch (RemoteException ex) {
+                Log.e(TAG, "Failed to call setPlaylistMetadataWithLargeBitmaps()");
+            }
+        }
+
         public void setRepeatMode(int repeatMode) {
             try {
                 mBinder.setRepeatMode(mSessionId, repeatMode);
