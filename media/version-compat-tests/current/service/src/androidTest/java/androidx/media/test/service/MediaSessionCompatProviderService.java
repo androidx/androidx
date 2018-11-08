@@ -35,6 +35,7 @@ import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
+import androidx.media.VolumeProviderCompat;
 import androidx.media.test.lib.TestUtils.SyncHandler;
 
 import java.util.HashMap;
@@ -119,6 +120,24 @@ public class MediaSessionCompatProviderService extends Service {
         }
 
         @Override
+        public void setPlaybackToRemote(String sessionTag, int volumeControl, int maxVolume,
+                int currentVolume) throws RemoteException {
+            MediaSessionCompat session = mSessionMap.get(sessionTag);
+            session.setPlaybackToRemote(new VolumeProviderCompat(
+                    volumeControl, maxVolume, currentVolume) {
+                @Override
+                public void onSetVolumeTo(int volume) {
+                    setCurrentVolume(volume);
+                }
+
+                @Override
+                public void onAdjustVolume(int direction) {
+                    setCurrentVolume(getCurrentVolume() + direction);
+                }
+            });
+        }
+
+        @Override
         public void release(String sessionTag) throws RemoteException {
             MediaSessionCompat session = mSessionMap.get(sessionTag);
             session.release();
@@ -182,6 +201,13 @@ public class MediaSessionCompatProviderService extends Service {
         public void setRatingType(String sessionTag, int type) throws RemoteException {
             MediaSessionCompat session = mSessionMap.get(sessionTag);
             session.setRatingType(type);
+        }
+
+        @Override
+        public void sendSessionEvent(String sessionTag, String event, Bundle extras)
+                throws RemoteException {
+            MediaSessionCompat session = mSessionMap.get(sessionTag);
+            session.sendSessionEvent(event, extras);
         }
     }
 }
