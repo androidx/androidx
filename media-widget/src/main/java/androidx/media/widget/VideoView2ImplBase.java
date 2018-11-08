@@ -874,6 +874,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 MediaMetadata2.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
         builder.putString(
                 MediaMetadata2.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
+        builder.putLong(MediaMetadata2.METADATA_KEY_BROWSABLE, MediaMetadata2.BROWSABLE_TYPE_NONE);
+        builder.putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1);
         return builder.build();
     }
 

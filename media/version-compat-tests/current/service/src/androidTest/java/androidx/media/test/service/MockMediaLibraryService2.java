@@ -50,8 +50,10 @@ import static androidx.media.test.service.MediaTestUtils.assertLibraryParamsEqua
 import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_BAD_VALUE;
 import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.MediaMetadata2.BROWSABLE_TYPE_MIXED;
+import static androidx.media2.MediaMetadata2.BROWSABLE_TYPE_NONE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_BROWSABLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_MEDIA_ID;
+import static androidx.media2.MediaMetadata2.METADATA_KEY_PLAYABLE;
 
 import android.app.Service;
 import android.content.Context;
@@ -88,6 +90,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
             .setMetadata(new MediaMetadata2.Builder()
                     .putString(METADATA_KEY_MEDIA_ID, ROOT_ID)
                     .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_MIXED)
+                    .putLong(METADATA_KEY_PLAYABLE, 0)
                     .build()).build();
     public static final LibraryParams ROOT_PARAMS = new LibraryParams.Builder()
             .setExtras(ROOT_EXTRAS).build();
@@ -217,7 +220,11 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                     list.add(builder
                             .setMetadata(new MediaMetadata2.Builder()
                                     .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
-                                            TestUtils.getMediaIdInDummyList(i)).build())
+                                            TestUtils.getMediaIdInDummyList(i))
+                                    .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE,
+                                            MediaMetadata2.BROWSABLE_TYPE_NONE)
+                                    .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
+                                    .build())
                             .build());
                 }
                 return new LibraryResult(RESULT_CODE_SUCCESS, list, null);
@@ -373,6 +380,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
     private MediaItem2 createMediaItem(String mediaId) {
         MediaMetadata2 metadata =  new MediaMetadata2.Builder()
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
+                .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_NONE)
                 .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
                 .build();
         return new MediaItem2.Builder()

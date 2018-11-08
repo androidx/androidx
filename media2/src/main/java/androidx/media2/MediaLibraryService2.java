@@ -83,6 +83,11 @@ public abstract class MediaLibraryService2 extends MediaSessionService2 {
     public static final class MediaLibrarySession extends MediaSession2 {
         /**
          * Callback for the {@link MediaLibrarySession}.
+         * <p>
+         * When you return {@link LibraryResult} with media items,
+         * items must have valid {@link MediaMetadata2#METADATA_KEY_MEDIA_ID} and
+         * specify {@link MediaMetadata2#METADATA_KEY_BROWSABLE} and
+         * {@link MediaMetadata2#METADATA_KEY_PLAYABLE}.
          */
         public static class MediaLibrarySessionCallback extends MediaSession2.SessionCallback {
             /**

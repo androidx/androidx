@@ -313,6 +313,7 @@ class MediaBrowser2ImplLegacy extends MediaController2ImplLegacy implements Medi
         MediaMetadata2 metadata = new MediaMetadata2.Builder()
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, browser.getRoot())
                 .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE, MediaMetadata2.BROWSABLE_TYPE_MIXED)
+                .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 0)
                 .setExtras(browser.getExtras())
                 .build();
         return new MediaItem2.Builder().setMetadata(metadata).build();

@@ -193,6 +193,7 @@ public class MediaUtils2 {
         }
         // Item is from the MediaControllerCompat, so forcefully set the playable.
         MediaMetadata2 metadata2 = new MediaMetadata2.Builder(metadataCompat.getBundle())
+                .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_NONE)
                 .putLong(METADATA_KEY_PLAYABLE, 1).build();
         return new MediaItem2.Builder().setMetadata(metadata2).build();
     }
@@ -371,11 +372,11 @@ public class MediaUtils2 {
                     bundle.getLong(EXTRA_BT_FOLDER_TYPE));
         } else if (browsable) {
             metadata2Builder.putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_MIXED);
+        } else {
+            metadata2Builder.putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_NONE);
         }
 
-        if (playable) {
-            metadata2Builder.putLong(METADATA_KEY_PLAYABLE, 1);
-        }
+        metadata2Builder.putLong(METADATA_KEY_PLAYABLE, playable ? 1 : 0);
 
         return metadata2Builder.build();
     }
@@ -388,7 +389,10 @@ public class MediaUtils2 {
             return null;
         }
         return new MediaMetadata2.Builder()
-                .putString(METADATA_KEY_TITLE, queueTitle.toString()).build();
+                .putString(METADATA_KEY_TITLE, queueTitle.toString())
+                .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_MIXED)
+                .putLong(METADATA_KEY_PLAYABLE, 1)
+                .build();
     }
 
     /**
