@@ -125,6 +125,18 @@ public class RemoteMediaSessionCompat {
         }
     }
 
+    /**
+     * Since we cannot pass VolumeProviderCompat directly,
+     * we pass volumeControl, maxVolume, currentVolume instead.
+     */
+    public void setPlaybackToRemote(int volumeControl, int maxVolume, int currentVolume) {
+        try {
+            mBinder.setPlaybackToRemote(mSessionTag, volumeControl, maxVolume, currentVolume);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call setPlaybackToRemote()");
+        }
+    }
+
     public void setPlaybackState(PlaybackStateCompat state) {
         try {
             mBinder.setPlaybackState(mSessionTag,
@@ -199,6 +211,14 @@ public class RemoteMediaSessionCompat {
             mBinder.setRatingType(mSessionTag, type);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call setRatingType()");
+        }
+    }
+
+    public void sendSessionEvent(String event, Bundle extras) {
+        try {
+            mBinder.sendSessionEvent(mSessionTag, event, extras);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call sendSessionEvent()");
         }
     }
 
