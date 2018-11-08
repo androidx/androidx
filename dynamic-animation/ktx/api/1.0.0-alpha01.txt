@@ -3,8 +3,8 @@ package androidx.dynamicanimation.animation {
 
   public final class DynamicAnimationKt {
     ctor public DynamicAnimationKt();
-    method public static <K extends android.view.View> androidx.dynamicanimation.animation.FlingAnimation flingAnimationOf(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K> property);
-    method public static <K extends android.view.View> androidx.dynamicanimation.animation.SpringAnimation springAnimationOf(K, androidx.dynamicanimation.animation.FloatPropertyCompat<K> property, float finalPosition = Float.NaN);
+    method public static <K> androidx.dynamicanimation.animation.FlingAnimation flingAnimationOf(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K> property);
+    method public static <K> androidx.dynamicanimation.animation.SpringAnimation springAnimationOf(K!, androidx.dynamicanimation.animation.FloatPropertyCompat<K> property, float finalPosition = Float.NaN);
     method public static androidx.dynamicanimation.animation.SpringAnimation withSpringForceProperties(androidx.dynamicanimation.animation.SpringAnimation, kotlin.jvm.functions.Function1<? super androidx.dynamicanimation.animation.SpringForce,kotlin.Unit> func);
   }
 
