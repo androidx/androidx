@@ -106,6 +106,7 @@ public class MediaSessionService2NotificationTest extends MediaSession2TestBase 
                 .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, "Test Song Name")
                 .putText(MediaMetadata2.METADATA_KEY_ARTIST, "Test Artist Name")
                 .putBitmap(MediaMetadata2.METADATA_KEY_ALBUM_ART, albumArt)
+                .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE, MediaMetadata2.BROWSABLE_TYPE_NONE)
                 .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
                 .build();
         mPlayer.mCurrentMediaItem = new MediaItem2.Builder()
