@@ -20,6 +20,7 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
+import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.Canvas
 import java.util.Locale
@@ -33,8 +34,8 @@ internal class ParagraphAndroid constructor(
 
     /** increased visibility for testing **/
     internal val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
-
-    private var layout: TextLayout? = null
+    /** increased visibility for testing **/
+    internal var layout: TextLayout? = null
 
     // TODO(Migration/siyamed): width having -1 but others having 0 as default value is counter
     // intuitive
@@ -82,12 +83,28 @@ internal class ParagraphAndroid constructor(
         }
 
         val charSequence = text.toString() as CharSequence
+        val alignment = when (paragraphStyle.textAlign) {
+            TextAlign.left -> ALIGN_LEFT
+            TextAlign.right -> ALIGN_RIGHT
+            TextAlign.center -> ALIGN_CENTER
+            TextAlign.start -> ALIGN_NORMAL
+            TextAlign.end -> ALIGN_OPPOSITE
+            else -> ALIGN_NORMAL
+        }
         val maxLines = paragraphStyle.maxLines ?: Int.MAX_VALUE
+        val justificationMode = when (paragraphStyle.textAlign) {
+            TextAlign.justify -> JUSTIFICATION_MODE_INTER_WORD
+            else -> JUSTIFICATION_MODE_NONE
+        }
+
         layout = TextLayout(
             charSequence = charSequence,
             width = floorWidth,
             textPaint = textPaint,
-            maxLines = maxLines)
+            alignment = alignment,
+            maxLines = maxLines,
+            justificationMode = justificationMode
+        )
         this.width = floorWidth
     }
 
