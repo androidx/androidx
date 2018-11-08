@@ -607,7 +607,7 @@ public class MediaSession2 implements AutoCloseable {
          * other sessions play seamlessly. The state of playback should be updated to
          * {@link SessionPlayer2#PLAYER_STATE_PAUSED} after the prepare is done.
          * <p>
-         * The playback of the prepareed content should start in the later calls of
+         * The playback of the prepared content should start in the later calls of
          * {@link SessionPlayer2#play()}.
          * <p>
          * Override {@link #onPlayFromMediaId} to handle requests for starting
@@ -663,7 +663,7 @@ public class MediaSession2 implements AutoCloseable {
          * other sessions play seamlessly. The state of playback should be updated to
          * {@link SessionPlayer2#PLAYER_STATE_PAUSED} after the prepare is done.
          * <p>
-         * The playback of the prepareed content should start in the later calls of
+         * The playback of the prepared content should start in the later calls of
          * {@link SessionPlayer2#play()}.
          * <p>
          * Override {@link #onPlayFromUri} to handle requests for starting playback without
