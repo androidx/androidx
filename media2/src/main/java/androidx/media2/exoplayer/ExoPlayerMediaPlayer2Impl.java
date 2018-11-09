@@ -694,6 +694,11 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
+    public void onBandwidthSample(MediaItem mediaItem, int bitrateKbps) {
+        notifyOnInfo(mediaItem, MEDIA_INFO_NETWORK_BANDWIDTH, bitrateKbps);
+    }
+
+    @Override
     public void onVideoRenderingStart(MediaItem mediaItem) {
         notifyOnInfo(mediaItem, MEDIA_INFO_VIDEO_RENDERING_START);
     }
