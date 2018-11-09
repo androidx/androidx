@@ -135,7 +135,7 @@ public class CarToolbar extends ViewGroup {
                 desiredHeight, MeasureSpec.AT_MOST);
 
         int width = 0;
-        if (mNavButtonView.getVisibility() != View.GONE) {
+        if (mNavButtonView.getVisibility() != GONE) {
             // Size of nav button is fixed.
             int measureSpec = MeasureSpec.makeMeasureSpec(mNavButtonIconSize, MeasureSpec.EXACTLY);
             mNavButtonView.measure(measureSpec, measureSpec);
@@ -144,7 +144,7 @@ public class CarToolbar extends ViewGroup {
             int navWidth = Math.max(mNavButtonContainerWidth, mNavButtonView.getMeasuredWidth());
             width += navWidth + getHorizontalMargins(mNavButtonView);
         }
-        if (mTitleTextView.getVisibility() != View.GONE) {
+        if (mTitleTextView.getVisibility() != GONE) {
             measureChild(mTitleTextView, widthMeasureSpec, width, childHeightMeasureSpec, 0);
             width += mTitleTextView.getMeasuredWidth() + getHorizontalMargins(mTitleTextView);
         }
@@ -158,7 +158,7 @@ public class CarToolbar extends ViewGroup {
         int height = bottom - top;
         int layoutLeft = getPaddingLeft();
 
-        if (mNavButtonView.getVisibility() != View.GONE) {
+        if (mNavButtonView.getVisibility() != GONE) {
             // Nav button is centered in container.
             int navButtonWidth = mNavButtonView.getMeasuredWidth();
             int containerWidth = Math.max(mNavButtonContainerWidth, navButtonWidth);
@@ -168,7 +168,7 @@ public class CarToolbar extends ViewGroup {
             layoutLeft += containerWidth;
         }
 
-        if (mTitleTextView.getVisibility() != View.GONE) {
+        if (mTitleTextView.getVisibility() != GONE) {
             layoutViewVerticallyCentered(mTitleTextView, layoutLeft, height);
         }
     }
@@ -199,11 +199,11 @@ public class CarToolbar extends ViewGroup {
      */
     public void setNavigationIcon(@Nullable Icon icon) {
         if (icon == null) {
-            mNavButtonView.setVisibility(View.GONE);
+            mNavButtonView.setVisibility(GONE);
             mNavButtonView.setImageDrawable(null);
             return;
         }
-        mNavButtonView.setVisibility(View.VISIBLE);
+        mNavButtonView.setVisibility(VISIBLE);
         mNavButtonView.setImageDrawable(icon.loadDrawable(getContext()));
     }
 
@@ -267,7 +267,7 @@ public class CarToolbar extends ViewGroup {
     public void setTitle(CharSequence title) {
         mTitleText = title;
         mTitleTextView.setText(title);
-        mTitleTextView.setVisibility(TextUtils.isEmpty(title) ? View.GONE : View.VISIBLE);
+        mTitleTextView.setVisibility(TextUtils.isEmpty(title) ? GONE : VISIBLE);
     }
 
     /**

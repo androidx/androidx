@@ -982,7 +982,7 @@ public class PagedListView extends FrameLayout {
             return;
         }
 
-        mScrollBarView.setVisibility(View.VISIBLE);
+        mScrollBarView.setVisibility(VISIBLE);
         mScrollBarView.setUpEnabled(!isAtStart);
         mScrollBarView.setDownEnabled(!isAtEnd);
 
@@ -1022,7 +1022,7 @@ public class PagedListView extends FrameLayout {
         if ((isAtStart && isAtEnd) || layoutManager == null || layoutManager.getItemCount() == 0) {
             mScrollBarView.setVisibility(View.INVISIBLE);
         } else {
-            mScrollBarView.setVisibility(View.VISIBLE);
+            mScrollBarView.setVisibility(VISIBLE);
         }
         mScrollBarView.setUpEnabled(!isAtStart);
         mScrollBarView.setDownEnabled(!isAtEnd);
