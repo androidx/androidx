@@ -42,6 +42,7 @@ import androidx.media2.MediaItem2;
 import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaTimestamp2;
 import androidx.media2.PlaybackParams2;
+import androidx.media2.SubtitleData2;
 import androidx.media2.exoplayer.external.Player;
 
 import java.io.IOException;
@@ -494,6 +495,35 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
             }
         });
     }
+    @Override
+    public int getSelectedTrack(final int trackType) {
+        return runPlayerCallableBlocking(new Callable<Integer>() {
+            @Override
+            public Integer call() {
+                return mPlayer.getSelectedTrack(trackType);
+            }
+        });
+    }
+
+    @Override
+    public Object selectTrack(final int index) {
+        return addTask(new Task(CALL_COMPLETED_SELECT_TRACK, false) {
+            @Override
+            void process() {
+                mPlayer.selectTrack(index);
+            }
+        });
+    }
+
+    @Override
+    public Object deselectTrack(final int index) {
+        return addTask(new Task(CALL_COMPLETED_DESELECT_TRACK, false) {
+            @Override
+            void process() {
+                mPlayer.deselectTrack(index);
+            }
+        });
+    }
 
     @Override
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -568,21 +598,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
             }
         });
         handlerThread.quit();
-    }
-
-    @Override
-    public int getSelectedTrack(int trackType) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object selectTrack(int index) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object deselectTrack(int index) {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -693,6 +708,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
                         mediaItem2,
                         width,
                         height);
+            }
+        });
+    }
+
+    @Override
+    public void onSubtitleData2(final MediaItem2 mediaItem2, final SubtitleData2 subtitleData2) {
+        notifyMediaPlayer2Event(new Mp2EventNotifier() {
+            @Override
+            public void notify(EventCallback cb) {
+                cb.onSubtitleData(
+                        ExoPlayerMediaPlayer2Impl.this, mediaItem2, subtitleData2);
             }
         });
     }
