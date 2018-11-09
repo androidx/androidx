@@ -17,20 +17,14 @@
 package androidx.media.widget;
 
 import android.content.Context;
-import android.net.Uri;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaItem2;
-import androidx.media2.MediaMetadata2;
 import androidx.media2.SessionToken2;
-
-import java.util.Map;
 
 /**
  * Interface for impl classes.
@@ -47,7 +41,7 @@ interface VideoView2Impl {
      * @param mediaControlView a media control view2 instance.
      * @param intervalMs a time interval in milliseconds until VideoView2 hides MediaControlView2.
      */
-    void setMediaControlView2(MediaControlView2 mediaControlView, long intervalMs);
+    void setMediaControlView2(@NonNull MediaControlView2 mediaControlView, long intervalMs);
 
     /**
      * Returns MediaControlView2 instance which is currently attached to VideoView2 by default or by
@@ -56,37 +50,13 @@ interface VideoView2Impl {
     MediaControlView2 getMediaControlView2();
 
     /**
-     * Sets MediaMetadata2 instance. It will replace the previously assigned MediaMetadata2 instance
-     * if any.
-     *
-     * @param metadata a MediaMetadata2 instance.
-     */
-    void setMediaMetadata(MediaMetadata2 metadata);
-
-    /**
-     * Returns MediaMetadata2 instance which is retrieved from MediaPlayer inside VideoView2 by
-     * default or by {@link #setMediaMetadata} method.
-     */
-    MediaMetadata2 getMediaMetadata();
-
-    /**
-     * Returns MediaController instance which is connected with MediaSession that VideoView2 is
-     * using. This method should be called when VideoView2 is attached to window, or it throws
-     * IllegalStateException, since internal MediaSession instance is not available until
-     * this view is attached to window. Please check {@link View#isAttachedToWindow}
-     * before calling this method.
-     *
-     * @throws IllegalStateException if internal MediaSession is not created yet.
-     */
-    MediaControllerCompat getMediaController();
-
-    /**
      * Returns {@link SessionToken2} so that developers create their own
      * {@link androidx.media2.MediaController2} instance. This method should be called when
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
+    @NonNull
     SessionToken2 getMediaSessionToken2();
 
     /**
@@ -95,32 +65,6 @@ interface VideoView2Impl {
      * @param attributes non-null <code>AudioAttributesCompat</code>.
      */
     void setAudioAttributes(@NonNull AudioAttributesCompat attributes);
-
-    /**
-     * Sets video path.
-     *
-     * @param path the path of the video.
-     */
-    void setVideoPath(String path);
-
-    /**
-     * Sets video URI.
-     *
-     * @param uri the URI of the video.
-     */
-    void setVideoUri(Uri uri);
-
-    /**
-     * Sets video URI using specific headers.
-     *
-     * @param uri     the URI of the video.
-     * @param headers the headers for the URI request.
-     *                Note that the cross domain redirection is allowed by default, but that can be
-     *                changed with key/value pairs through the headers parameter with
-     *                "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value
-     *                to disallow or allow cross domain redirection.
-     */
-    void setVideoUri(Uri uri, @Nullable Map<String, String> headers);
 
     /**
      * Sets {@link MediaItem2} object to render using VideoView2.
