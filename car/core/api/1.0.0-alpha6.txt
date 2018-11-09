@@ -156,23 +156,6 @@ package androidx.car.uxrestrictions {
 
 package androidx.car.widget {
 
-  public class ActionBar extends android.widget.RelativeLayout {
-    ctor public ActionBar(android.content.Context!);
-    ctor public ActionBar(android.content.Context!, android.util.AttributeSet!);
-    ctor public ActionBar(android.content.Context!, android.util.AttributeSet!, int);
-    ctor public ActionBar(android.content.Context!, android.util.AttributeSet!, int, int);
-    method public void setExpandCollapseView(android.view.View);
-    method public void setView(android.view.View?, @androidx.car.widget.ActionBar.SlotPosition int);
-    method public void setViews(android.view.View[]?);
-    field public static final int SLOT_EXPAND_COLLAPSE = 3; // 0x3
-    field public static final int SLOT_LEFT = 1; // 0x1
-    field public static final int SLOT_MAIN = 0; // 0x0
-    field public static final int SLOT_RIGHT = 2; // 0x2
-  }
-
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @IntDef({androidx.car.widget.ActionBar.SLOT_MAIN, androidx.car.widget.ActionBar.SLOT_LEFT, androidx.car.widget.ActionBar.SLOT_RIGHT, androidx.car.widget.ActionBar.SLOT_EXPAND_COLLAPSE}) public static @interface ActionBar.SlotPosition {
-  }
-
   public final class ActionListItem extends androidx.car.widget.ListItem<androidx.car.widget.ActionListItem.ViewHolder> {
     ctor public ActionListItem(android.content.Context);
     method public static androidx.car.widget.ActionListItem.ViewHolder createViewHolder(android.view.View!);

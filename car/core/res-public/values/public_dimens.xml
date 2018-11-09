@@ -99,21 +99,6 @@
     <public type="dimen" name="car_app_bar_default_elevation"/>
     <public type="dimen" name="car_application_icon_size" />
 
-    <!-- Action Bar -->
-    <public type="dimen" name="car_action_bar_height" />
-    <public type="dimen" name="car_action_bar_buttons_space" />
-    <public type="dimen" name="car_action_bar_button_width" />
-    <public type="dimen" name="car_action_bar_button_height" />
-    <public type="dimen" name="car_action_bar_activation_ring_stroke_width"/>
-    <public type="dimen" name="car_action_bar_activation_ring_radius" />
-    <public type="dimen" name="car_action_bar_touch_ripple_size" />
-    <public type="dimen" name="car_action_bar_button_ripple_radius" />
-    <public type="dimen" name="car_action_bar_elevation"/>
-
-    <!-- Action Buttons -->
-    <public type="dimen" name="car_action_button_icon_inset" />
-    <public type="dimen" name="car_action_button_ripple_inset" />
-
     <!-- Lists -->
     <public type="dimen" name="car_single_line_list_item_height" />
     <public type="dimen" name="car_double_line_list_item_height"/>

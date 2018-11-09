@@ -154,12 +154,6 @@ limitations under the License.
         <attr name="carMenuBarThickness" format="dimension"/>
     </declare-styleable>
 
-    <!-- Attributes for the ActionBar. -->
-    <declare-styleable name="ActionBar">
-        <!-- The number of horizontal slots. The minimum number is 3. -->
-        <attr name="columns" format="integer" />
-    </declare-styleable>
-
     <declare-styleable name="CarToolbar">
         <!-- Drawable to use for the navigation button located at the start of the toolbar. -->
         <attr name="navigationIcon" format="reference" />
