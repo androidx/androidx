@@ -30,7 +30,6 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.media.session.MediaControllerCompat;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -72,7 +71,6 @@ import androidx.palette.graphics.Palette;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -284,7 +282,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * @param intervalMs a time interval in milliseconds until VideoView2 hides MediaControlView2.
      */
     @Override
-    public void setMediaControlView2(MediaControlView2 mediaControlView, long intervalMs) {
+    public void setMediaControlView2(@NonNull MediaControlView2 mediaControlView, long intervalMs) {
         mMediaControlView = mediaControlView;
         mMediaControlView.setShowControllerInterval(intervalMs);
 
@@ -303,42 +301,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     /**
-     * Sets MediaMetadata2 instance. It will replace the previously assigned MediaMetadata2 instance
-     * if any.
-     *
-     * @param metadata a MediaMetadata2 instance.
-     */
-    @Override
-    public void setMediaMetadata(MediaMetadata2 metadata) {
-        if (mMediaItem != null) {
-            mMediaItem.setMetadata(metadata);
-        }
-    }
-
-    /**
-     * Returns MediaMetadata2 instance which is retrieved from MediaPlayer inside VideoView2 by
-     * default or by {@link #setMediaMetadata} method.
-     */
-    @Override
-    public MediaMetadata2 getMediaMetadata() {
-        return (mMediaItem != null) ? mMediaItem.getMetadata() : null;
-    }
-
-    /**
-     * Returns MediaController instance which is connected with MediaSession that VideoView2 is
-     * using. This method should be called when VideoView2 is attached to window, or it throws
-     * IllegalStateException, since internal MediaSession instance is not available until
-     * this view is attached to window. Please check {@link View#isAttachedToWindow}
-     * before calling this method.
-     *
-     * @throws IllegalStateException if internal MediaSession is not created yet.
-     */
-    @Override
-    public MediaControllerCompat getMediaController() {
-        return null;
-    }
-
-    /**
      * Returns {@link SessionToken2} so that developers create their own
      * {@link androidx.media2.MediaController2} instance. This method should be called when
      * VideoView2 is attached to window or after {@link #setMediaItem2} is called.
@@ -346,6 +308,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
     @Override
+    @NonNull
     public SessionToken2 getMediaSessionToken2() {
         if (mMediaSession == null) {
             throw new IllegalStateException("MediaSession2 instance is not available.");
@@ -364,43 +327,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             throw new IllegalArgumentException("Illegal null AudioAttributes");
         }
         mAudioAttributes = attributes;
-    }
-
-    /**
-     * Sets video path.
-     *
-     * @param path the path of the video.
-     */
-    @Override
-    public void setVideoPath(String path) {
-        setVideoUri(Uri.parse(path));
-    }
-
-    /**
-     * Sets video URI.
-     *
-     * @param uri the URI of the video.
-     */
-    @Override
-    public void setVideoUri(Uri uri) {
-        setVideoUri(uri, null);
-    }
-
-    /**
-     * Sets video URI using specific headers.
-     *
-     * @param uri     the URI of the video.
-     * @param headers the headers for the URI request.
-     *                Note that the cross domain redirection is allowed by default, but that can be
-     *                changed with key/value pairs through the headers parameter with
-     *                "android-allow-cross-domain-redirect" as the key and "0" or "1" as the value
-     *                to disallow or allow cross domain redirection.
-     */
-    @Override
-    public void setVideoUri(Uri uri, @Nullable Map<String, String> headers) {
-        UriMediaItem2.Builder builder = new UriMediaItem2.Builder(
-                mInstance.getContext(), uri, headers, null);
-        setMediaItem2(builder.build());
     }
 
     /**

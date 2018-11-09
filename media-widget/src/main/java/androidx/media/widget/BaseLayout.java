@@ -54,12 +54,12 @@ class BaseLayout extends ViewGroup {
     }
 
     @Override
-    public boolean checkLayoutParams(LayoutParams p) {
+    protected boolean checkLayoutParams(LayoutParams p) {
         return p instanceof MarginLayoutParams;
     }
 
     @Override
-    public LayoutParams generateDefaultLayoutParams() {
+    protected LayoutParams generateDefaultLayoutParams() {
         return new MarginLayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
     }
 
@@ -69,7 +69,7 @@ class BaseLayout extends ViewGroup {
     }
 
     @Override
-    public LayoutParams generateLayoutParams(LayoutParams lp) {
+    protected LayoutParams generateLayoutParams(LayoutParams lp) {
         if (lp instanceof MarginLayoutParams) {
             return lp;
         }

@@ -5,35 +5,29 @@ package androidx.media.widget {
     ctor public MediaControlView2(android.content.Context);
     ctor public MediaControlView2(android.content.Context, android.util.AttributeSet?);
     ctor public MediaControlView2(android.content.Context, android.util.AttributeSet?, int);
-    method public boolean checkLayoutParams(android.view.ViewGroup.LayoutParams!);
-    method public android.view.ViewGroup.LayoutParams! generateDefaultLayoutParams();
-    method public android.view.ViewGroup.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
     method public void onMeasure(int, int);
     method public void requestPlayButtonFocus();
-    method public void setMediaSessionToken2(androidx.media2.SessionToken2!);
-    method public void setOnFullScreenListener(androidx.media.widget.MediaControlView2.OnFullScreenListener!);
+    method public void setMediaSessionToken2(androidx.media2.SessionToken2);
+    method public void setOnFullScreenListener(androidx.media.widget.MediaControlView2.OnFullScreenListener);
   }
 
   public static interface MediaControlView2.OnFullScreenListener {
-    method public void onFullScreen(android.view.View!, boolean);
+    method public void onFullScreen(android.view.View, boolean);
   }
 
   public class VideoView2 extends android.view.ViewGroup {
     ctor public VideoView2(android.content.Context);
     ctor public VideoView2(android.content.Context, android.util.AttributeSet?);
     ctor public VideoView2(android.content.Context, android.util.AttributeSet?, int);
-    method public boolean checkLayoutParams(android.view.ViewGroup.LayoutParams!);
-    method public android.view.ViewGroup.LayoutParams! generateDefaultLayoutParams();
-    method public android.view.ViewGroup.LayoutParams! generateLayoutParams(android.view.ViewGroup.LayoutParams!);
-    method public androidx.media.widget.MediaControlView2! getMediaControlView2();
-    method public androidx.media2.SessionToken2! getMediaSessionToken2();
+    method public androidx.media.widget.MediaControlView2? getMediaControlView2();
+    method public androidx.media2.SessionToken2 getMediaSessionToken2();
     method public int getViewType();
     method public void onAttachedToWindow();
     method public void onDetachedFromWindow();
     method public void onMeasure(int, int);
     method public void setAudioAttributes(androidx.media.AudioAttributesCompat);
-    method public void setMediaControlView2(androidx.media.widget.MediaControlView2!, long);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setMediaItem2(androidx.media2.MediaItem2);
+    method public void setMediaControlView2(androidx.media.widget.MediaControlView2, long);
+    method public void setMediaItem2(androidx.media2.MediaItem2);
     method public void setViewType(int);
     field public static final int VIEW_TYPE_SURFACEVIEW = 0; // 0x0
     field public static final int VIEW_TYPE_TEXTUREVIEW = 1; // 0x1
