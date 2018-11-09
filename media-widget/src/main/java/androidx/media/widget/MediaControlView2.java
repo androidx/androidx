@@ -1404,21 +1404,21 @@ public class MediaControlView2 extends BaseLayout {
         }
 
         if (mMediaType != MEDIA_TYPE_MUSIC) {
-            String title = mController.getTitle();
+            CharSequence title = mController.getTitle();
             if (title != null) {
-                mTitleView.setText(title);
+                mTitleView.setText(title.toString());
             }
         } else {
-            String title = mController.getTitle();
+            CharSequence title = mController.getTitle();
             if (title == null) {
                 title = mResources.getString(R.string.mcv2_music_title_unknown_text);
             }
-            String artist = mController.getArtistText();
+            CharSequence artist = mController.getArtistText();
             if (artist == null) {
                 artist = mResources.getString(R.string.mcv2_music_artist_unknown_text);
             }
             // Update title for Embedded size type
-            mTitleView.setText(title + " - " + artist);
+            mTitleView.setText(title.toString() + " - " + artist.toString());
 
             // Remove unnecessary buttons
             mVideoQualityButton.setVisibility(View.GONE);
@@ -2243,18 +2243,18 @@ public class MediaControlView2 extends BaseLayout {
             }
             return 0;
         }
-        String getTitle() {
+        CharSequence getTitle() {
             if (mMediaMetadata2 != null) {
                 if (mMediaMetadata2.containsKey(MediaMetadata2.METADATA_KEY_TITLE)) {
-                    return mMediaMetadata2.getString(MediaMetadata2.METADATA_KEY_TITLE);
+                    return mMediaMetadata2.getText(MediaMetadata2.METADATA_KEY_TITLE);
                 }
             }
             return null;
         }
-        String getArtistText() {
+        CharSequence getArtistText() {
             if (mMediaMetadata2 != null) {
                 if (mMediaMetadata2.containsKey(MediaMetadata2.METADATA_KEY_ARTIST)) {
-                    return mMediaMetadata2.getString(MediaMetadata2.METADATA_KEY_ARTIST);
+                    return mMediaMetadata2.getText(MediaMetadata2.METADATA_KEY_ARTIST);
                 }
             }
             return null;
