@@ -30,7 +30,6 @@ import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.SessionResult;
 import androidx.media2.SessionPlayer2.BuffState;
 import androidx.versionedparcelable.ParcelImpl;
-import androidx.versionedparcelable.ParcelUtils;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -60,7 +59,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        SessionResult result = ParcelUtils.fromParcelable(sessionResult);
+        SessionResult result = MediaUtils2.fromParcelable(sessionResult);
         if (result == null) {
             return;
         }
@@ -78,7 +77,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        LibraryResult result = ParcelUtils.fromParcelable(libraryResult);
+        LibraryResult result = MediaUtils2.fromParcelable(libraryResult);
         if (result == null) {
             return;
         }
@@ -97,7 +96,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        controller.notifyCurrentMediaItemChanged((MediaItem2) ParcelUtils.fromParcelable(item));
+        controller.notifyCurrentMediaItemChanged((MediaItem2) MediaUtils2.fromParcelable(item));
     }
 
     @Override
@@ -137,7 +136,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        MediaItem2 item2 = ParcelUtils.fromParcelable(item);
+        MediaItem2 item2 = MediaUtils2.fromParcelable(item);
         if (item2 == null) {
             Log.w(TAG, "onBufferingStateChanged(): Ignoring null item");
             return;
@@ -160,7 +159,7 @@ class MediaController2Stub extends IMediaController2.Stub {
         List<MediaItem2> playlist =
                 MediaUtils2.convertParcelImplListSliceToMediaItem2List(listSlice);
         controller.notifyPlaylistChanges(playlist,
-                (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
+                (MediaMetadata2) MediaUtils2.fromParcelable(metadata));
     }
 
     @Override
@@ -176,7 +175,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             return;
         }
         controller.notifyPlaylistMetadataChanges(
-                (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
+                (MediaMetadata2) MediaUtils2.fromParcelable(metadata));
     }
 
     @Override
@@ -230,7 +229,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        PlaybackInfo info = ParcelUtils.fromParcelable(playbackInfo);
+        PlaybackInfo info = MediaUtils2.fromParcelable(playbackInfo);
         if (info == null) {
             Log.w(TAG, "onPlaybackInfoChanged(): Ignoring null playbackInfo");
             return;
@@ -282,10 +281,10 @@ class MediaController2Stub extends IMediaController2.Stub {
         List<MediaItem2> itemList =
                 MediaUtils2.convertParcelImplListSliceToMediaItem2List(listSlice);
         controller.onConnectedNotLocked(sessionBinder,
-                (SessionCommandGroup2) ParcelUtils.fromParcelable(commandGroup), playerState,
-                (MediaItem2) ParcelUtils.fromParcelable(currentItem),
+                (SessionCommandGroup2) MediaUtils2.fromParcelable(commandGroup), playerState,
+                (MediaItem2) MediaUtils2.fromParcelable(currentItem),
                 positionEventTimeMs, positionMs, playbackSpeed, bufferedPositionMs,
-                (PlaybackInfo) ParcelUtils.fromParcelable(playbackInfo), repeatMode, shuffleMode,
+                (PlaybackInfo) MediaUtils2.fromParcelable(playbackInfo), repeatMode, shuffleMode,
                 itemList, sessionActivity);
     }
 
@@ -320,7 +319,7 @@ class MediaController2Stub extends IMediaController2.Stub {
         }
         List<CommandButton> layout = new ArrayList<>();
         for (int i = 0; i < commandButtonList.size(); i++) {
-            CommandButton button = ParcelUtils.fromParcelable(commandButtonList.get(i));
+            CommandButton button = MediaUtils2.fromParcelable(commandButtonList.get(i));
             if (button != null) {
                 layout.add(button);
             }
@@ -344,7 +343,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             // TODO(jaewan): Revisit here. Could be a bug
             return;
         }
-        SessionCommandGroup2 commandGroup = ParcelUtils.fromParcelable(commands);
+        SessionCommandGroup2 commandGroup = MediaUtils2.fromParcelable(commands);
         if (commandGroup == null) {
             Log.w(TAG, "onAllowedCommandsChanged(): Ignoring null commands");
             return;
@@ -364,7 +363,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             Log.w(TAG, "Don't fail silently here. Highly likely a bug");
             return;
         }
-        SessionCommand2 command = ParcelUtils.fromParcelable(commandParcel);
+        SessionCommand2 command = MediaUtils2.fromParcelable(commandParcel);
         if (command == null) {
             Log.w(TAG, "sendCustomCommand(): Ignoring null command");
             return;
@@ -403,7 +402,7 @@ class MediaController2Stub extends IMediaController2.Stub {
             @Override
             public void run() {
                 browser.getCallback().onSearchResultChanged(browser, query, itemCount,
-                        (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
+                        (LibraryParams) MediaUtils2.fromParcelable(libraryParams));
             }
         });
     }
@@ -438,7 +437,7 @@ class MediaController2Stub extends IMediaController2.Stub {
                 // TODO (b/118472216): Find all ParcelUtils.fromParcelable usages, and null check
                 // before calling it.
                 browser.getCallback().onChildrenChanged(browser, parentId, itemCount,
-                        (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
+                        (LibraryParams) MediaUtils2.fromParcelable(libraryParams));
             }
         });
     }

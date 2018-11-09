@@ -56,6 +56,7 @@ import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.MediaUtils2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
@@ -176,7 +177,7 @@ public class MediaSession2ProviderService extends Service {
         public ParcelImpl getToken(String sessionId) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             return session2 != null
-                    ? (ParcelImpl) ParcelUtils.toParcelable(session2.getToken()) : null;
+                    ? MediaUtils2.toParcelable(session2.getToken()) : null;
         }
 
         @Override

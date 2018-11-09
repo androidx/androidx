@@ -18,6 +18,8 @@ package androidx.media.test.client.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 
+import static androidx.media.test.client.MediaTestUtils.assertEqualMediaIds;
+import static androidx.media.test.client.MediaTestUtils.assertMediaItemHasId;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 
 import static org.junit.Assert.assertEquals;
@@ -197,7 +199,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testGetPlaylist() throws Exception {
         prepareLooper();
-        final List<MediaItem2> testList = MediaTestUtils.createPlaylist(2);
+        final List<MediaItem2> testList = MediaTestUtils.createFileMediaItems(2);
         final List<QueueItem> testQueue = MediaUtils2.convertToQueueItemList(testList);
         final AtomicReference<List<MediaItem2>> listFromCallback = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
@@ -274,7 +276,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         final ControllerCallback callback = new ControllerCallback() {
             @Override
             public void onCurrentMediaItemChanged(MediaController2 controller, MediaItem2 item) {
-                MediaTestUtils.assertMediaItemWithId(testMediaId, item);
+                assertMediaItemHasId(item, testMediaId);
                 latch.countDown();
             }
         };
@@ -290,7 +292,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     public void testControllerCallback_onCurrentMediaItemChanged_byActiveQueueItemChange()
             throws Exception {
         prepareLooper();
-        final List<MediaItem2> testList = MediaTestUtils.createPlaylist(2);
+        final List<MediaItem2> testList = MediaTestUtils.createFileMediaItems(2);
         final List<QueueItem> testQueue = MediaUtils2.convertToQueueItemList(testList);
         mSession.setQueue(testQueue);
 
@@ -306,7 +308,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         final ControllerCallback callback = new ControllerCallback() {
             @Override
             public void onCurrentMediaItemChanged(MediaController2 controller, MediaItem2 item) {
-                MediaTestUtils.assertMediaItemsWithId(testList.get(newItemIndex), item);
+                assertEqualMediaIds(testList.get(newItemIndex), item);
                 latch.countDown();
             }
         };
@@ -350,7 +352,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testControllerCallback_onBufferingCompleted() throws Exception {
         prepareLooper();
-        final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(1);
+        final List<MediaItem2> testPlaylist = MediaTestUtils.createFileMediaItems(1);
         final MediaMetadataCompat metadata = MediaUtils2.convertToMediaMetadataCompat(
                 testPlaylist.get(0).getMetadata());
 
@@ -388,7 +390,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testControllerCallback_onBufferingStarved() throws Exception {
         prepareLooper();
-        final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(1);
+        final List<MediaItem2> testPlaylist = MediaTestUtils.createFileMediaItems(1);
         final MediaMetadataCompat metadata = MediaUtils2.convertToMediaMetadataCompat(
                 testPlaylist.get(0).getMetadata());
 

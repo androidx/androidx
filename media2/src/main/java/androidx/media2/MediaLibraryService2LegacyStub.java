@@ -536,7 +536,7 @@ class MediaLibraryService2LegacyStub extends MediaSessionService2LegacyStub {
                     for (int i = 0; i < searchRequests.size(); i++) {
                         SearchRequest request = searchRequests.get(i);
                         int page = 0;
-                        int pageSize = 0;
+                        int pageSize = Integer.MAX_VALUE;
                         if (request.mExtras != null) {
                             try {
                                 request.mExtras.setClassLoader(

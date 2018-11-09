@@ -16,10 +16,9 @@
 
 package androidx.media.test.client.tests;
 
-import static androidx.media.test.client.MediaTestUtils.assertLibraryParamsEquals;
-import static androidx.media.test.client.MediaTestUtils.assertLibraryParamsWithBundle;
-import static androidx.media.test.client.MediaTestUtils.assertMediaItemWithId;
-import static androidx.media.test.client.MediaTestUtils.assertPaginatedListWithIds;
+import static androidx.media.test.client.MediaTestUtils.assertEqualLibraryParams;
+import static androidx.media.test.client.MediaTestUtils.assertMediaItemHasId;
+import static androidx.media.test.client.MediaTestUtils.assertPaginatedListHasIds;
 import static androidx.media.test.client.MediaTestUtils.createLibraryParams;
 import static androidx.media.test.lib.CommonConstants.MOCK_MEDIA_LIBRARY_SERVICE;
 import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION_ASSERT_PARAMS;
@@ -172,7 +171,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         BrowserResult result = createBrowser().getItem(mediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
-        assertMediaItemWithId(mediaId, result.getMediaItem());
+        assertMediaItemHasId(result.getMediaItem(), mediaId);
     }
 
     @Test
@@ -202,9 +201,9 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertNull(result.getLibraryParams());
 
-        MediaTestUtils.assertPaginatedListWithIds(
-                MediaBrowser2Constants.GET_CHILDREN_RESULT,
-                page, pageSize, result.getMediaItems());
+        MediaTestUtils.assertPaginatedListHasIds(
+                result.getMediaItems(), MediaBrowser2Constants.GET_CHILDREN_RESULT,
+                page, pageSize);
     }
 
     @Test
@@ -269,7 +268,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
             public void onSearchResultChanged(MediaBrowser2 browser,
                     String queryOut, int itemCount, LibraryParams params) {
                 assertEquals(query, queryOut);
-                assertLibraryParamsEquals(testParams, params);
+                assertEqualLibraryParams(testParams, params);
                 assertEquals(MediaBrowser2Constants.SEARCH_RESULT_COUNT, itemCount);
                 latchForSearch.countDown();
             }
@@ -286,8 +285,8 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         result = browser.getSearchResult(query, page, pageSize, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
-        assertPaginatedListWithIds(MediaBrowser2Constants.SEARCH_RESULT, page, pageSize,
-                result.getMediaItems());
+        assertPaginatedListHasIds(result.getMediaItems(),
+                MediaBrowser2Constants.SEARCH_RESULT, page, pageSize);
     }
 
     @Test
@@ -305,7 +304,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
             public void onSearchResultChanged(
                     MediaBrowser2 browser, String queryOut, int itemCount, LibraryParams params) {
                 assertEquals(query, queryOut);
-                assertLibraryParamsEquals(testParams, params);
+                assertEqualLibraryParams(testParams, params);
                 assertEquals(MediaBrowser2Constants.LONG_LIST_COUNT, itemCount);
                 latch.countDown();
             }
@@ -339,7 +338,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
             public void onSearchResultChanged(
                     MediaBrowser2 browser, String queryOut, int itemCount, LibraryParams params) {
                 assertEquals(query, queryOut);
-                assertTrue(TestUtils.equals(testParams, params));
+                assertEqualLibraryParams(testParams, params);
                 assertEquals(MediaBrowser2Constants.SEARCH_RESULT_COUNT, itemCount);
                 latch.countDown();
             }
@@ -365,7 +364,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
             public void onSearchResultChanged(
                     MediaBrowser2 browser, String queryOut, int itemCount, LibraryParams params) {
                 assertEquals(query, queryOut);
-                assertLibraryParamsEquals(testParams, params);
+                assertEqualLibraryParams(testParams, params);
                 assertEquals(0, itemCount);
                 latch.countDown();
             }
@@ -391,7 +390,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
                     int itemCount, LibraryParams params) {
                 assertEquals(expectedParentId, parentId);
                 assertEquals(NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, itemCount);
-                assertLibraryParamsWithBundle(params, NOTIFY_CHILDREN_CHANGED_EXTRAS);
+                MediaTestUtils.assertEqualLibraryParams(params, NOTIFY_CHILDREN_CHANGED_EXTRAS);
                 latch.countDown();
             }
         };
@@ -419,7 +418,7 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
                     int itemCount, LibraryParams params) {
                 assertEquals(expectedParentId, parentId);
                 assertEquals(NOTIFY_CHILDREN_CHANGED_ITEM_COUNT, itemCount);
-                assertLibraryParamsWithBundle(params, NOTIFY_CHILDREN_CHANGED_EXTRAS);
+                assertEqualLibraryParams(params, NOTIFY_CHILDREN_CHANGED_EXTRAS);
                 latch.countDown();
             }
         };

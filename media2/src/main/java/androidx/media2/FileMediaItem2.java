@@ -19,6 +19,7 @@ package androidx.media2;
 import androidx.annotation.NonNull;
 import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.NonParcelField;
+import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.io.FileDescriptor;
@@ -27,10 +28,13 @@ import java.io.FileDescriptor;
  * Structure for media item for a file.
  * <p>
  * Users should use {@link Builder} to create {@link FileMediaItem2}.
+ * <p>
+ * You cannot directly send this object across the process through {@link ParcelUtils}. See
+ * {@link MediaItem2} for detail.
  *
  * @see MediaItem2
  */
-@VersionedParcelize
+@VersionedParcelize(isCustom = true)
 public class FileMediaItem2 extends MediaItem2 {
     /**
      * Used when the length of file descriptor is unknown.

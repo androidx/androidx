@@ -27,9 +27,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Pair;
+import androidx.versionedparcelable.CustomVersionedParcelable;
 import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
-import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.util.ArrayList;
@@ -50,15 +50,17 @@ import java.util.concurrent.Executor;
  * When it's shared across the processes, we cannot guarantee that they contain the right values
  * because media items are application dependent especially for the metadata.
  * <p>
- * When its subclass is sent between {@link MediaSession2}/{@link MediaController2} or
+ * When an object of the {@link MediaItem2}'s subclass is sent across the process between
+ * {@link MediaSession2}/{@link MediaController2} or
  * {@link androidx.media2.MediaLibraryService2.MediaLibrarySession}/{@link MediaBrowser2}, the
- * subclass' data will be anonymized. The recipient need to translate if it's interested in playback
- * with it. See {@link MediaSession2.SessionCallback#onCreateMediaItem} for the detail.
+ * object will sent as if it's {@link MediaItem2}. The recipient cannot get the object with the
+ * subclasses' type. This will sanitize process specific information (e.g.
+ * {@link java.io.FileDescriptor}, {@link android.content.Context}, etc).
  * <p>
  * This object isn't a thread safe.
  */
-@VersionedParcelize
-public class MediaItem2 implements VersionedParcelable {
+@VersionedParcelize(isCustom = true)
+public class MediaItem2 extends CustomVersionedParcelable {
     // intentionally less than long.MAX_VALUE.
     // Declare this first to avoid 'illegal forward reference'.
     static final long LONG_MAX = 0x7ffffffffffffffL;
@@ -99,6 +101,10 @@ public class MediaItem2 implements VersionedParcelable {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaItem2(BuilderBase builder) {
         this(builder.mMetadata, builder.mStartPositionMs, builder.mEndPositionMs);
+    }
+
+    MediaItem2(MediaItem2 item) {
+        this(item.mMetadata, item.mStartPositionMs, item.mEndPositionMs);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -156,8 +162,8 @@ public class MediaItem2 implements VersionedParcelable {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("MediaItem2{");
-        sb.append("mMetadata=").append(mMetadata);
+        final StringBuilder sb = new StringBuilder(getClass().getSimpleName());
+        sb.append("{mMetadata=").append(mMetadata);
         sb.append(", mStartPositionMs=").append(mStartPositionMs);
         sb.append(", mEndPositionMs=").append(mEndPositionMs);
         sb.append('}');
@@ -333,5 +339,19 @@ public class MediaItem2 implements VersionedParcelable {
 
     interface OnMetadataChangedListener {
         void onMetadataChanged(MediaItem2 item);
+    }
+
+    /**
+     * @hide
+     * @param isStream
+     */
+    @RestrictTo(LIBRARY)
+    @Override
+    public void onPreParceling(boolean isStream) {
+        if (getClass() != MediaItem2.class) {
+            throw new RuntimeException("MediaItem2's subclasses shouldn't be parcelized."
+                    + " Use instead");
+        }
+        super.onPreParceling(isStream);
     }
 }
