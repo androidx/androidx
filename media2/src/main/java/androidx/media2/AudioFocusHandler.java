@@ -65,7 +65,7 @@ public class AudioFocusHandler {
     }
 
     /**
-     * Should be called when the {@link XMediaPlayer#play()} is called. Returns whether the play()
+     * Should be called when the {@link MediaPlayer#play()} is called. Returns whether the play()
      * can be proceed.
      *
      * @return {@code true} if it's OK to start playback because audio focus was successfully
@@ -77,14 +77,14 @@ public class AudioFocusHandler {
     }
 
     /**
-     * Called when the {@link XMediaPlayer#pause()} is called.
+     * Called when the {@link MediaPlayer#pause()} is called.
      */
     public void onPause() {
         mImpl.onPause();
     }
 
     /**
-     * Called when the {@link XMediaPlayer#reset()} is called.
+     * Called when the {@link MediaPlayer#reset()} is called.
      */
     public void onReset() {
         mImpl.onReset();
@@ -157,11 +157,6 @@ public class AudioFocusHandler {
                         registerBecomingNoisyReceiverLocked();
                     }
                 }
-            }
-            // Audio attributes shouldn't be {@code null} if it has audio track.
-            // To enforce it, sets the volume to the {@code 0} when the attribute is {@code null}.
-            if (attrs == null) {
-                mPlayer.setPlayerVolume(0);
             }
             return result;
         }
