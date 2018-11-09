@@ -16,7 +16,6 @@
 
 package androidx.media2;
 
-import android.app.PendingIntent;
 import android.os.Bundle;
 
 import androidx.media2.IMediaSession;
@@ -45,10 +44,7 @@ oneway interface IMediaController {
     void onPlaybackCompleted() = 9;
     void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs) = 10;
 
-    void onConnected(IMediaSession sessionBinder, in ParcelImpl commandGroup, int playerState,
-        in ParcelImpl currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,
-        long bufferedPositionMs, in ParcelImpl playbackInfo, int repeatMode, int shuffleMode,
-        in ParcelImplListSlice listSlice, in PendingIntent sessionActivity) = 11;
+    void onConnected(in ParcelImpl connectionResult) = 11;
     void onDisconnected() = 12;
 
     void onSetCustomLayout(int seq, in List<ParcelImpl> commandButtonlist) = 13;

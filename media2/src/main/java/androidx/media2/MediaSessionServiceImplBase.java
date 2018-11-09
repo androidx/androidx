@@ -33,6 +33,7 @@ import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media2.MediaSessionService.MediaNotification;
 import androidx.media2.MediaSessionService.MediaSessionServiceImpl;
+import androidx.versionedparcelable.ParcelImpl;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -210,7 +211,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
         }
 
         @Override
-        public void connect(final IMediaController caller, final String packageName) {
+        public void connect(final IMediaController caller, final ParcelImpl connectionRequest) {
             final MediaSessionServiceImplBase serviceImpl = mServiceImpl.get();
             if (serviceImpl == null) {
                 if (DEBUG) {
@@ -221,6 +222,8 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
             final int pid = Binder.getCallingPid();
             final int uid = Binder.getCallingUid();
             final long token = Binder.clearCallingIdentity();
+            final ConnectionRequest request = MediaUtils.fromParcelable(connectionRequest);
+            final String packageName = connectionRequest == null ? null : request.getPackageName();
             try {
                 mHandler.post(new Runnable() {
                     @Override

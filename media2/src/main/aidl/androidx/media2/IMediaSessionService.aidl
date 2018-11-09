@@ -16,10 +16,6 @@
 
 package androidx.media2;
 
-import android.os.Bundle;
-import android.os.ResultReceiver;
-import android.net.Uri;
-
 import androidx.media2.IMediaController;
 import androidx.versionedparcelable.ParcelImpl;
 
@@ -31,6 +27,6 @@ import androidx.versionedparcelable.ParcelImpl;
  * @hide
  */
 oneway interface IMediaSessionService {
-    void connect(IMediaController caller, String callingPackage) = 0;
+    void connect(IMediaController caller, in ParcelImpl connectionRequest) = 0;
     // Next Id : 1
 }
