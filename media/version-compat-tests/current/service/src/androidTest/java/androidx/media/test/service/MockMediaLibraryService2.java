@@ -273,11 +273,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
                 List<MediaItem2> list = new ArrayList<>(LONG_LIST_COUNT);
                 MediaItem2.Builder builder = new MediaItem2.Builder();
                 for (int i = 0; i < LONG_LIST_COUNT; i++) {
-                    list.add(builder
-                            .setMetadata(new MediaMetadata2.Builder()
-                                    .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID,
-                                            TestUtils.getMediaIdInDummyList(i)).build())
-                            .build());
+                    list.add(createMediaItem(TestUtils.getMediaIdInDummyList(i)));
                 }
                 return new LibraryResult(RESULT_CODE_SUCCESS, list, null);
             } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
