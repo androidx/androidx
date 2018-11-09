@@ -94,9 +94,6 @@
     <public type="style" name="Widget.Car.Dialog.Body.Light" />
     <public type="style" name="Widget.Car.Dialog.Body.Dark" />
 
-    <!-- ActionBar Styles -->
-    <public type="style" name="Widget.Car.Button.ActionBar" />
-
     <!-- Preference Styles -->
     <public type="style" name="CarPreference" />
     <public type="style" name="CarPreference.Information" />

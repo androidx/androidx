@@ -106,7 +106,7 @@ public final class ListItemAdapterTest {
         int viewType = 1;
 
         // Using a random layout. The actual values does not matter.
-        int layoutRes = R.layout.activity_action_bar;
+        int layoutRes = R.layout.activity_column_card_view;
 
         adapter.registerListItemViewType(
                 viewType, layoutRes, CustomListItem::createViewHolder);
@@ -117,7 +117,7 @@ public final class ListItemAdapterTest {
         ListItemAdapter adapter = new ListItemAdapter(mContext, /* itemProvider= */ null);
 
         // Using a random layout. The actual values does not matter.
-        int layoutRes = R.layout.activity_action_bar;
+        int layoutRes = R.layout.activity_column_card_view;
 
         adapter.registerListItemViewType(
                 CustomListItem.LIST_ITEM_ID, layoutRes, CustomListItem::createViewHolder);
