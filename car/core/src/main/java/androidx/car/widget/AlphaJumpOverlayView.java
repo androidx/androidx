@@ -109,7 +109,7 @@ public class AlphaJumpOverlayView extends GridLayout {
      */
     public void show() {
         mAdapter.onAlphaJumpEnter();
-        setVisibility(View.VISIBLE);
+        setVisibility(VISIBLE);
         startAnimation(mOpenAnimation);
     }
 
@@ -118,6 +118,6 @@ public class AlphaJumpOverlayView extends GridLayout {
      */
     public void hide() {
         startAnimation(mCloseAnimation);
-        setVisibility(View.GONE);
+        setVisibility(GONE);
     }
 }
