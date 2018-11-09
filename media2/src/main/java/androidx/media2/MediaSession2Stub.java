@@ -75,7 +75,7 @@ import java.util.concurrent.TimeUnit;
 class MediaSession2Stub extends IMediaSession2.Stub {
     private static final String TAG = "MediaSession2Stub";
     private static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
-    private static final boolean THROW_EXCEPTION_FOR_NULL_RESULT = true;
+    private static final boolean RETHROW_EXCEPTION = true;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static final SparseArray<SessionCommand2> sCommandsForOnCommandRequest =
@@ -227,14 +227,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                         final ListenableFuture<PlayerResult> future =
                                 ((SessionPlayerTask) task).run(controller);
                         if (future == null) {
-                            if (THROW_EXCEPTION_FOR_NULL_RESULT) {
-                                throw new RuntimeException("SessionPlayer has returned null,"
-                                        + " commandCode=" + commandCode);
-                            } else {
-                                sendPlayerResult(controller, seq,
-                                        new PlayerResult(
-                                                PlayerResult.RESULT_CODE_UNKNOWN_ERROR, null));
-                            }
+                            throw new RuntimeException("SessionPlayer has returned null,"
+                                    + " commandCode=" + commandCode);
                         } else {
                             future.addListener(new Runnable() {
                                 @Override
@@ -254,13 +248,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     } else if (task instanceof SessionCallbackTask) {
                         final Object result = ((SessionCallbackTask) task).run(controller);
                         if (result == null) {
-                            if (THROW_EXCEPTION_FOR_NULL_RESULT) {
-                                throw new RuntimeException("SessionCallback has returned null,"
-                                        + " commandCode=" + commandCode);
-                            } else {
-                                sendSessionResult(controller, seq,
-                                        SessionResult.RESULT_CODE_UNKNOWN_ERROR);
-                            }
+                            throw new RuntimeException("SessionCallback has returned null,"
+                                    + " commandCode=" + commandCode);
                         } else if (result instanceof Integer) {
                             sendSessionResult(controller, seq, (Integer) result);
                         } else if (result instanceof SessionResult) {
@@ -272,13 +261,8 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     } else if (task instanceof LibrarySessionCallbackTask) {
                         final Object result = ((LibrarySessionCallbackTask) task).run(controller);
                         if (result == null) {
-                            if (THROW_EXCEPTION_FOR_NULL_RESULT) {
-                                throw new RuntimeException("LibrarySessionCallback has returned"
-                                        + " null, commandCode=" + commandCode);
-                            } else {
-                                sendLibraryResult(controller, seq,
-                                        LibraryResult.RESULT_CODE_UNKNOWN_ERROR);
-                            }
+                            throw new RuntimeException("LibrarySessionCallback has returned"
+                                    + " null, commandCode=" + commandCode);
                         } else if (result instanceof Integer) {
                             sendLibraryResult(controller, seq, (Integer) result);
                         } else if (result instanceof LibraryResult) {
@@ -299,13 +283,18 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                     Log.w(TAG, "Exception in " + controller.toString(), e);
                 } catch (Exception e) {
                     // Any random exception may be happen inside of the session player / callback.
+                    if (RETHROW_EXCEPTION) {
+                        throw e;
+                    }
                     if (task instanceof PlayerTask) {
                         sendPlayerResult(controller, seq,
                                 new PlayerResult(PlayerResult.RESULT_CODE_UNKNOWN_ERROR, null));
                     } else if (task instanceof SessionCallbackTask) {
-                        sendSessionResult(controller, seq, SessionResult.RESULT_CODE_UNKNOWN_ERROR);
+                        sendSessionResult(controller, seq,
+                                SessionResult.RESULT_CODE_UNKNOWN_ERROR);
                     } else if (task instanceof LibrarySessionCallbackTask) {
-                        sendLibraryResult(controller, seq, LibraryResult.RESULT_CODE_UNKNOWN_ERROR);
+                        sendLibraryResult(controller, seq,
+                                LibraryResult.RESULT_CODE_UNKNOWN_ERROR);
                     }
                 }
             }
@@ -646,7 +635,7 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 SessionResult result = mSessionImpl.getCallback().onCustomCommand(
                         mSessionImpl.getInstance(), controller, sessionCommand, args);
                 if (result == null) {
-                    if (THROW_EXCEPTION_FOR_NULL_RESULT) {
+                    if (RETHROW_EXCEPTION) {
                         throw new RuntimeException("SessionCallback#onCustomCommand has returned"
                                 + " null, command=" + sessionCommand);
                     } else {
