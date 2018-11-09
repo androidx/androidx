@@ -781,7 +781,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
      */
     private <T> T runPlayerCallableBlocking(final Callable<T> callable) {
         final ResolvableFuture<T> future = ResolvableFuture.create();
-        mTaskHandler.post(new Runnable() {
+        boolean success = mTaskHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -791,6 +791,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
                 }
             }
         });
+        Preconditions.checkState(success);
         try {
             T result;
             boolean wasInterrupted = false;
