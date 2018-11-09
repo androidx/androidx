@@ -33,10 +33,16 @@ class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
 
     @Override
     public boolean isTrustedForMediaControl(MediaSessionManager.RemoteUserInfoImpl userInfo) {
-        if (userInfo instanceof RemoteUserInfoImplApi28) {
-            return mObject.isTrustedForMediaControl(((RemoteUserInfoImplApi28) userInfo).mObject);
-        }
-        return false;
+        // Don't use framework's isTrustedForMediaControl().
+        // In P, framework's isTrustedForMediaControl() does the sanity check whether the UID, PID,
+        // and package name match. In MediaSession2/MediaController2, Context#getPackageName() is
+        // used by MediaController2 to tell MediaSession2 the package name.
+        // However, UID, PID and Context#getPackageName() may not match if a activity/service runs
+        // on the another app's process by specifying android:process in the AndroidManifest.xml.
+        // In that case, sanity check will always fail.
+        // Alternative way is to use Context#getOpPackageName() for sending the package name,
+        // but it's hidden so we cannot use it.
+        return super.isTrustedForMediaControl(userInfo);
     }
 
     static final class RemoteUserInfoImplApi28 implements MediaSessionManager.RemoteUserInfoImpl {
