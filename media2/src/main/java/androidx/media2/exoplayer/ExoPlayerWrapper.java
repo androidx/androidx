@@ -77,7 +77,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Wraps an ExoPlayer instance and provides methods and notifies events like those in the
@@ -251,8 +253,8 @@ import java.util.List;
         // groups.
         switch (state) {
             case Player.STATE_IDLE:
-            case Player.STATE_ENDED:
                 return MediaPlayer2.PLAYER_STATE_IDLE;
+            case Player.STATE_ENDED:
             case Player.STATE_BUFFERING:
                 return MediaPlayer2.PLAYER_STATE_PAUSED;
             case Player.STATE_READY:
@@ -656,17 +658,42 @@ import java.util.List;
             mFileDescriptor = fileDescriptor;
         }
 
-        public void close() {
-            try {
-                if (mFileDescriptor != null) {
-                    FileDescriptorUtil.close(mFileDescriptor);
-                } else if (mMediaItem instanceof CallbackMediaItem2) {
-                    ((CallbackMediaItem2) mMediaItem).getDataSourceCallback2().close();
-                }
-            } catch (IOException e) {
-                Log.w(TAG, "Error closing media item " + mMediaItem, e);
+    }
+
+    private static final class FileDescriptorRegistry {
+
+        private static final class Entry {
+            public final Object mLock;
+
+            public int mMediaItemCount;
+
+            Entry() {
+                mLock = new Object();
             }
         }
+
+        private final Map<FileDescriptor, Entry> mEntries;
+
+        FileDescriptorRegistry() {
+            mEntries = new HashMap<>();
+        }
+
+        public Object registerMediaItemAndGetLock(FileDescriptor fileDescriptor) {
+            if (!mEntries.containsKey(fileDescriptor)) {
+                mEntries.put(fileDescriptor, new Entry());
+            }
+            Entry entry = Preconditions.checkNotNull(mEntries.get(fileDescriptor));
+            entry.mMediaItemCount++;
+            return entry.mLock;
+        }
+
+        public void unregisterMediaItem(FileDescriptor fileDescriptor) {
+            Entry entry = Preconditions.checkNotNull(mEntries.get(fileDescriptor));
+            if (--entry.mMediaItemCount == 0) {
+                mEntries.remove(fileDescriptor);
+            }
+        }
+
     }
 
     private static final class MediaItemQueue {
@@ -676,6 +703,7 @@ import java.util.List;
         private final DataSource.Factory mDataSourceFactory;
         private final ConcatenatingMediaSource mConcatenatingMediaSource;
         private final ArrayDeque<MediaItemInfo> mMediaItemInfos;
+        private final FileDescriptorRegistry mFileDescriptorRegistry;
 
         private long mStartPlayingTimeNs;
         private long mCurrentMediaItemPlayingTimeUs;
@@ -687,12 +715,13 @@ import java.util.List;
             mDataSourceFactory = new DefaultDataSourceFactory(context, userAgent);
             mConcatenatingMediaSource = new ConcatenatingMediaSource();
             mMediaItemInfos = new ArrayDeque<>();
+            mFileDescriptorRegistry = new FileDescriptorRegistry();
             mStartPlayingTimeNs = -1;
         }
 
         public void clear() {
             while (!mMediaItemInfos.isEmpty()) {
-                mMediaItemInfos.remove().close();
+                releaseMediaItem(mMediaItemInfos.remove());
             }
         }
 
@@ -712,7 +741,7 @@ import java.util.List;
                 mConcatenatingMediaSource.removeMediaSourceRange(
                         /* fromIndex= */ 1, /* toIndex= */ size);
                 while (mMediaItemInfos.size() > 1) {
-                    mMediaItemInfos.removeLast().close();
+                    releaseMediaItem(mMediaItemInfos.removeLast());
                 }
             }
 
@@ -723,7 +752,10 @@ import java.util.List;
                     return;
                 }
                 try {
-                    appendMediaItem(mediaItem2, mDataSourceFactory, mMediaItemInfos, mediaSources);
+                    appendMediaItem(
+                            mediaItem2,
+                            mMediaItemInfos,
+                            mediaSources);
                 } catch (IOException e) {
                     mListener.onError(mediaItem2, MEDIA_ERROR_UNKNOWN);
                 }
@@ -756,7 +788,7 @@ import java.util.List;
 
         public void skipToNext() {
             // TODO(b/68398926): Play the start position of the next media item.
-            mMediaItemInfos.removeFirst().close();
+            releaseMediaItem(mMediaItemInfos.removeFirst());
             mConcatenatingMediaSource.removeMediaSource(0);
         }
 
@@ -794,7 +826,7 @@ import java.util.List;
                     mListener.onMediaItem2Ended(getCurrentMediaItem());
                 }
                 for (int i = 0; i < windowIndex; i++) {
-                    mMediaItemInfos.removeFirst().close();
+                    releaseMediaItem(mMediaItemInfos.removeFirst());
                 }
                 if (isPeriodTransition) {
                     mListener.onMediaItem2StartedAsNext(getCurrentMediaItem());
@@ -812,20 +844,23 @@ import java.util.List;
          * Appends a media source and associated information for the given media item to the
          * collections provided.
          */
-        private static void appendMediaItem(
+        private void appendMediaItem(
                 MediaItem2 mediaItem2,
-                DataSource.Factory dataSourceFactory,
                 Collection<MediaItemInfo> mediaItemInfos,
                 Collection<MediaSource> mediaSources) throws IOException {
+            DataSource.Factory dataSourceFactory = mDataSourceFactory;
             // Create a data source for reading from the file descriptor, if needed.
             FileDescriptor fileDescriptor = null;
             if (mediaItem2 instanceof FileMediaItem2) {
                 FileMediaItem2 fileMediaItem2 = (FileMediaItem2) mediaItem2;
+                // TODO(b/68398926): Remove dup'ing the file descriptor once FileMediaItem2 does it.
+                Object lock = mFileDescriptorRegistry.registerMediaItemAndGetLock(
+                        fileMediaItem2.getFileDescriptor());
                 fileDescriptor = FileDescriptorUtil.dup(fileMediaItem2.getFileDescriptor());
                 long offset = fileMediaItem2.getFileDescriptorOffset();
                 long length = fileMediaItem2.getFileDescriptorLength();
                 dataSourceFactory =
-                        FileDescriptorDataSource.getFactory(fileDescriptor, offset, length);
+                        FileDescriptorDataSource.getFactory(fileDescriptor, offset, length, lock);
             }
 
             // Create a source for the item.
@@ -839,15 +874,37 @@ import java.util.List;
             long endPosition = mediaItem2.getEndPosition();
             if (startPosition != 0L || endPosition != MediaItem2.POSITION_UNKNOWN) {
                 durationProvidingMediaSource = new DurationProvidingMediaSource(mediaSource);
+                // Disable the initial discontinuity to give seamless transitions to clips.
                 mediaSource = new ClippingMediaSource(
                         durationProvidingMediaSource,
                         C.msToUs(startPosition),
-                        C.msToUs(endPosition));
+                        C.msToUs(endPosition),
+                        /* enableInitialDiscontinuity= */ false,
+                        /* allowDynamicClippingUpdates= */ false,
+                        /* relativeToDefaultPosition= */ true);
             }
 
             mediaSources.add(mediaSource);
             mediaItemInfos.add(
                     new MediaItemInfo(mediaItem2, durationProvidingMediaSource, fileDescriptor));
+        }
+
+        private void releaseMediaItem(MediaItemInfo mediaItemInfo) {
+            MediaItem2 mediaItem = mediaItemInfo.mMediaItem;
+            try {
+                if (mediaItem instanceof FileMediaItem2) {
+                    FileDescriptorUtil.close(mediaItemInfo.mFileDescriptor);
+                    // TODO(b/68398926): Remove separate file descriptors once FileMediaItem2 dup's.
+                    FileDescriptor fileDescriptor =
+                            ((FileMediaItem2) mediaItem).getFileDescriptor();
+                    mFileDescriptorRegistry.unregisterMediaItem(fileDescriptor);
+                } else if (mediaItem instanceof CallbackMediaItem2) {
+                    ((CallbackMediaItem2) mediaItemInfo.mMediaItem)
+                            .getDataSourceCallback2().close();
+                }
+            } catch (IOException e) {
+                Log.w(TAG, "Error releasing media item " + mediaItem, e);
+            }
         }
 
     }
