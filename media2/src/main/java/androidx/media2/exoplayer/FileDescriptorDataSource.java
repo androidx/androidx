@@ -53,43 +53,48 @@ import java.io.InputStream;
      * @param fileDescriptor The file descriptor to read from.
      * @param offset The start offset in the file descriptor.
      * @param length The length of the range to read from the file descriptor.
+     * @param lock An object to synchronize on when using the file descriptor.
      * @return A factory for data sources that read from the file descriptor.
      */
     static DataSource.Factory getFactory(
-            final FileDescriptor fileDescriptor, final long offset, final long length) {
+            final FileDescriptor fileDescriptor,
+            final long offset,
+            final long length,
+            final Object lock) {
         return new DataSource.Factory() {
             @Override
             public DataSource createDataSource() {
-                return new FileDescriptorDataSource(fileDescriptor, offset, length);
+                return new FileDescriptorDataSource(fileDescriptor, offset, length, lock);
             }
         };
     }
 
     // TODO(b/80232248): Move into core ExoPlayer library and delete this class.
 
-    private final FileDescriptor mFactoryFileDescriptor;
+    private final FileDescriptor mFileDescriptor;
     private final long mOffset;
     private final long mLength;
+    private final Object mLock;
 
-    private @Nullable FileDescriptor mFileDescriptor;
     private @Nullable Uri mUri;
     private @Nullable InputStream mInputStream;
     private long mBytesRemaining;
     private boolean mOpened;
+    private long mPosition;
 
-    public FileDescriptorDataSource(FileDescriptor fileDescriptor, long offset, long length) {
+    FileDescriptorDataSource(
+            FileDescriptor fileDescriptor, long offset, long length, Object lock) {
         super(/* isNetwork= */ false);
-        mFactoryFileDescriptor = fileDescriptor;
+        mFileDescriptor = fileDescriptor;
         mOffset = offset;
         mLength = length;
+        mLock = lock;
     }
 
     @Override
-    public long open(DataSpec dataSpec) throws IOException {
+    public long open(DataSpec dataSpec) {
         mUri = dataSpec.uri;
         transferInitializing(dataSpec);
-        mFileDescriptor = FileDescriptorUtil.dup(mFactoryFileDescriptor);
-        FileDescriptorUtil.seek(mFileDescriptor, mOffset + dataSpec.position);
         mInputStream = new FileInputStream(mFileDescriptor);
         if (dataSpec.length != C.LENGTH_UNSET) {
             mBytesRemaining = dataSpec.length;
@@ -98,14 +103,14 @@ import java.io.InputStream;
         } else {
             mBytesRemaining = C.LENGTH_UNSET;
         }
+        mPosition = mOffset + dataSpec.position;
         mOpened = true;
         transferStarted(dataSpec);
         return mBytesRemaining;
     }
 
     @Override
-    public int read(byte[] buffer, int offset, int readLength)
-            throws IOException {
+    public int read(byte[] buffer, int offset, int readLength) throws IOException {
         if (readLength == 0) {
             return 0;
         } else if (mBytesRemaining == 0) {
@@ -113,12 +118,18 @@ import java.io.InputStream;
         }
         int bytesToRead = mBytesRemaining == C.LENGTH_UNSET
                 ? readLength : (int) Math.min(mBytesRemaining, readLength);
-        int bytesRead = Preconditions.checkNotNull(mInputStream).read(buffer, offset, bytesToRead);
-        if (bytesRead == -1) {
-            if (mBytesRemaining != C.LENGTH_UNSET) {
-                throw new EOFException();
+        int bytesRead;
+        synchronized (mLock) {
+            // The file descriptor position is shared across all users, so seek before reading.
+            FileDescriptorUtil.seek(mFileDescriptor, mPosition);
+            bytesRead = Preconditions.checkNotNull(mInputStream).read(buffer, offset, bytesToRead);
+            if (bytesRead == -1) {
+                if (mBytesRemaining != C.LENGTH_UNSET) {
+                    throw new EOFException();
+                }
+                return C.RESULT_END_OF_INPUT;
             }
-            return C.RESULT_END_OF_INPUT;
+            mPosition += bytesRead;
         }
         if (mBytesRemaining != C.LENGTH_UNSET) {
             mBytesRemaining -= bytesRead;
@@ -129,7 +140,7 @@ import java.io.InputStream;
 
     @Override
     public Uri getUri() {
-        return mUri;
+        return Preconditions.checkNotNull(mUri);
     }
 
     @Override
@@ -141,13 +152,9 @@ import java.io.InputStream;
             }
         } finally {
             mInputStream = null;
-            try {
-                FileDescriptorUtil.close(mFileDescriptor);
-            } finally {
-                if (mOpened) {
-                    mOpened = false;
-                    transferEnded();
-                }
+            if (mOpened) {
+                mOpened = false;
+                transferEnded();
             }
         }
     }
