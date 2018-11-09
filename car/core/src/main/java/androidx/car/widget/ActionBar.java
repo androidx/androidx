@@ -341,7 +341,7 @@ public class ActionBar extends RelativeLayout {
         TransitionManager.beginDelayedTransition(mRowsContainer, mIsExpanded ? mFadeIn : mFadeOut);
 
         for (int i = 0; i < mNumExtraRowsInUse; i++) {
-            mRowsContainer.getChildAt(i).setVisibility(mIsExpanded ? View.VISIBLE : View.GONE);
+            mRowsContainer.getChildAt(i).setVisibility(mIsExpanded ? VISIBLE : GONE);
         }
     }
 
