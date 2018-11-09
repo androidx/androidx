@@ -102,6 +102,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private VideoView2.OnViewTypeChangedListener mViewTypeChangedListener;
 
     VideoViewInterface mCurrentView;
+    VideoViewInterface mTargetView;
     private VideoTextureView mTextureView;
     private VideoSurfaceView mSurfaceView;
 
@@ -121,7 +122,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     private String mMusicArtistText;
     boolean mIsMusicMediaType;
     private int mPrevWidth;
-    private int mPrevHeight;
     int mDominantColor;
     private int mSizeType;
 
@@ -142,7 +142,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     int mSelectedSubtitleTrackIndex;
 
     private SubtitleAnchorView mSubtitleAnchorView;
-    boolean mSubtitleEnabled;
 
     VideoView2 mInstance;
 
@@ -268,6 +267,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mSurfaceView.setVisibility(View.GONE);
             mCurrentView = mTextureView;
         }
+        mTargetView = mCurrentView;
 
         MediaRouteSelector.Builder builder = new MediaRouteSelector.Builder();
         builder.addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK);
@@ -425,7 +425,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      */
     @Override
     public void setViewType(@VideoView2.ViewType int viewType) {
-        if (viewType == mCurrentView.getViewType()) {
+        if (viewType == mTargetView.getViewType()) {
+            Log.d(TAG, "setViewType with the same type (" + viewType + ") is ignored.");
             return;
         }
         VideoViewInterface targetView;
@@ -438,6 +439,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         } else {
             throw new IllegalArgumentException("Unknown view type: " + viewType);
         }
+
+        mTargetView = targetView;
         ((View) targetView).setVisibility(View.VISIBLE);
         targetView.takeOver(mCurrentView);
         mInstance.requestLayout();
@@ -559,7 +562,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
                 }
                 mPrevWidth = currWidth;
-                mPrevHeight = currHeight;
             }
         }
     }
@@ -598,15 +600,23 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     @Override
     public void onSurfaceTakeOverDone(VideoViewInterface view) {
+        if (view != mTargetView) {
+            if (DEBUG) {
+                Log.d(TAG, "onSurfaceTakeOverDone(). view is not targetView. ignore.: " + view);
+            }
+            return;
+        }
         if (DEBUG) {
             Log.d(TAG, "onSurfaceTakeOverDone(). Now current view is: " + view);
         }
         if (mCurrentState != STATE_PLAYING) {
             mMediaSession.getPlayer().seekTo(mMediaSession.getPlayer().getCurrentPosition());
         }
-        mCurrentView = view;
-        if (mViewTypeChangedListener != null) {
-            mViewTypeChangedListener.onViewTypeChanged(mInstance, view.getViewType());
+        if (view != mCurrentView) {
+            mCurrentView = view;
+            if (mViewTypeChangedListener != null) {
+                mViewTypeChangedListener.onViewTypeChanged(mInstance, view.getViewType());
+            }
         }
 
         if (needToStart()) {
@@ -689,7 +699,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mSubtitleController = new SubtitleController(context);
             mSubtitleController.registerRenderer(new ClosedCaptionRenderer(context));
             mSubtitleController.registerRenderer(new Cea708CaptionRenderer(context));
-            mSubtitleController.setAnchor((SubtitleController.Anchor) mSubtitleAnchorView);
+            mSubtitleController.setAnchor(mSubtitleAnchorView);
 
             // we don't set the target state here either, but preserve the
             // target state that was there before.
@@ -1097,7 +1107,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     if (mMediaControlView != null) {
                         mMediaControlView.setEnabled(true);
 
-                        Uri uri = (mMediaItem != null && mMediaItem instanceof UriMediaItem2)
+                        Uri uri = (mMediaItem instanceof UriMediaItem2)
                                 ? ((UriMediaItem2) mMediaItem).getUri() : null;
                         if (uri != null) {
                             String scheme = uri.getScheme();
