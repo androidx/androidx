@@ -35,6 +35,7 @@ import static androidx.media.test.lib.MediaBrowser2Constants
         .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
 import static androidx.media.test.lib.MediaBrowser2Constants
         .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
+import static androidx.media2.MediaBrowser2.BrowserResult.RESULT_CODE_BAD_VALUE;
 import static androidx.media2.MediaBrowser2.BrowserResult.RESULT_CODE_SUCCESS;
 
 import static junit.framework.Assert.assertEquals;
@@ -84,6 +85,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -175,14 +177,56 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
     }
 
     @Test
-    public void testGetItem_nullResult() throws Exception {
+    public void testGetItem_unknownId() throws Exception {
         prepareLooper();
         final String mediaId = "random_media_id";
 
         BrowserResult result = createBrowser().getItem(mediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_CODE_BAD_VALUE, result.getResultCode());
         assertNull(result.getMediaItem());
+    }
+
+    @Test
+    public void testGetItem_nullResult() throws Exception {
+        prepareLooper();
+        final String mediaId = MediaBrowser2Constants.MEDIA_ID_GET_NULL_ITEM;
+
+        // Exception will be thrown in the service side, and the process will be crashed.
+        // In that case one of following will happen
+        //   Case 1) Process is crashed. Pending ListenableFuture will get error
+        //   Case 2) Due to the frequent crashes with other tests, process may not crash immediately
+        //           because the Android shows dialog 'xxx keeps stopping' and defer sending
+        //           SIG_KILL until the user's explicit action.
+        try {
+            BrowserResult result = createBrowser().getItem(mediaId)
+                    .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            // Case 1.
+            assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        } catch (TimeoutException e) {
+            // Case 2.
+        }
+    }
+
+    @Test
+    public void testGetItem_invalidResult() throws Exception {
+        prepareLooper();
+        final String mediaId = MediaBrowser2Constants.MEDIA_ID_GET_INVALID_ITEM;
+
+        // Exception will be thrown in the service side, and the process will be crashed.
+        // In that case one of following will happen
+        //   Case 1) Process is crashed. Pending ListenableFuture will get error
+        //   Case 2) Due to the frequent crashes with other tests, process may not crash immediately
+        //           because the Android shows dialog 'xxx keeps stopping' and defer sending
+        //           SIG_KILL until the user's explicit action.
+        try {
+            BrowserResult result = createBrowser().getItem(mediaId)
+                    .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            // Case 1.
+            assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        } catch (TimeoutException e) {
+            // Case 2.
+        }
     }
 
     @Test

@@ -45,8 +45,6 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements MediaLibrarySessionImpl {
-    private static final boolean THROW_EXCEPTION_FOR_INVALID_RETURN = true;
-
     @GuardedBy("mLock")
     private final ArrayMap<ControllerCb, Set<String>> mSubscriptions = new ArrayMap<>();
 
@@ -143,10 +141,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
 
     private LibraryResult ensureNonNullResult(LibraryResult returnedResult) {
         if (returnedResult == null) {
-            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
-                throw new RuntimeException("LibraryResult shouldn't be null");
-            }
-            return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+            throw new RuntimeException("LibraryResult shouldn't be null");
         }
         return returnedResult;
     }
@@ -158,18 +153,12 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
             List<MediaItem2> items = returnedResult.getMediaItems();
 
             if (items == null) {
-                if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
-                    throw new RuntimeException("List shouldn't be null for the success");
-                }
-                return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+                throw new RuntimeException("List shouldn't be null for the success");
             }
             if (items.size() > pageSize) {
-                if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
-                    throw new RuntimeException("List shouldn't contain items more than pageSize"
-                            + ", size=" + returnedResult.getMediaItems().size()
-                            + ", pageSize" + pageSize);
-                }
-                return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+                throw new RuntimeException("List shouldn't contain items more than pageSize"
+                        + ", size=" + returnedResult.getMediaItems().size()
+                        + ", pageSize" + pageSize);
             }
             for (MediaItem2 item : items) {
                 if (!isValidItem(item)) {
@@ -192,39 +181,24 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
 
     private boolean isValidItem(MediaItem2 item) {
         if (item == null) {
-            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
-                throw new RuntimeException("Item shouldn't be null for the success");
-            }
-            return false;
+            throw new RuntimeException("Item shouldn't be null for the success");
         }
         if (TextUtils.isEmpty(item.getMediaId())) {
-            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
-                throw new RuntimeException(
-                        "Media ID of an item shouldn't be empty for the success");
-            }
-            return false;
+            throw new RuntimeException(
+                    "Media ID of an item shouldn't be empty for the success");
         }
         MediaMetadata2 metadata = item.getMetadata();
         if (metadata == null) {
-            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
-                throw new RuntimeException(
-                        "Metadata of an item shouldn't be null for the success");
-            }
-            return false;
+            throw new RuntimeException(
+                    "Metadata of an item shouldn't be null for the success");
         }
         if (!metadata.containsKey(MediaMetadata2.METADATA_KEY_BROWSABLE)) {
-            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
-                throw new RuntimeException(
-                        "METADATA_KEY_BROWSABLE should be specified in metadata of an item");
-            }
-            return false;
+            throw new RuntimeException(
+                    "METADATA_KEY_BROWSABLE should be specified in metadata of an item");
         }
         if (!metadata.containsKey(MediaMetadata2.METADATA_KEY_PLAYABLE)) {
-            if (THROW_EXCEPTION_FOR_INVALID_RETURN) {
-                throw new RuntimeException(
-                        "METADATA_KEY_PLAYABLE should be specified in metadata of an item");
-            }
-            return false;
+            throw new RuntimeException(
+                    "METADATA_KEY_PLAYABLE should be specified in metadata of an item");
         }
         return true;
     }
