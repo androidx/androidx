@@ -18,7 +18,7 @@ package androidx.media.test.service.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
-import static androidx.media.test.service.MediaTestUtils.assertLibraryParamsWithBundle;
+import static androidx.media.test.service.MediaTestUtils.assertEqualLibraryParams;
 import static androidx.media.test.service.MediaTestUtils.createLibraryParams;
 
 import static org.junit.Assert.assertEquals;
@@ -88,7 +88,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
                     Bundle rootHints) {
                 assertEquals(CLIENT_PACKAGE_NAME, clientPackageName);
                 if (rootHints.keySet().contains(testMediaId)) {
-                    assertLibraryParamsWithBundle(testParams, rootHints);
+                    assertEqualLibraryParams(testParams, rootHints);
                     // This should happen because getLibraryRoot() is called with testExtras.
                     latch.countDown();
                 }
@@ -185,7 +185,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
             public void onLoadChildren(String parentId, Result<List<MediaItem>> result,
                     Bundle option) {
                 assertEquals(testParentId, parentId);
-                assertLibraryParamsWithBundle(testParams, option);
+                assertEqualLibraryParams(testParams, option);
                 result.sendResult(null);
                 subscribeLatch.countDown();
             }
@@ -210,7 +210,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
             @Override
             public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result) {
                 assertEquals(testQuery, query);
-                assertLibraryParamsWithBundle(testParams, extras);
+                assertEqualLibraryParams(testParams, extras);
                 result.sendResult(testFullSearchResult);
                 latch.countDown();
             }
@@ -234,7 +234,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
             @Override
             public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result) {
                 assertEquals(testQuery, query);
-                assertLibraryParamsWithBundle(testParams, extras);
+                assertEqualLibraryParams(testParams, extras);
                 assertEquals(testPage, extras.getInt(MediaBrowserCompat.EXTRA_PAGE));
                 assertEquals(testPageSize, extras.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE));
                 result.sendResult(null);

@@ -46,7 +46,7 @@ import static androidx.media.test.lib.MediaBrowser2Constants
         .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE;
 import static androidx.media.test.lib.MediaBrowser2Constants
         .SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID;
-import static androidx.media.test.service.MediaTestUtils.assertLibraryParamsEquals;
+import static androidx.media.test.service.MediaTestUtils.assertEqualLibraryParams;
 import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_BAD_VALUE;
 import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.MediaMetadata2.BROWSABLE_TYPE_MIXED;
@@ -339,7 +339,7 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         private void assertLibraryParams(LibraryParams params) {
             synchronized (MockMediaLibraryService2.class) {
                 if (sAssertLibraryParams) {
-                    assertLibraryParamsEquals(sExpectedParams, params);
+                    assertEqualLibraryParams(sExpectedParams, params);
                 }
             }
         }

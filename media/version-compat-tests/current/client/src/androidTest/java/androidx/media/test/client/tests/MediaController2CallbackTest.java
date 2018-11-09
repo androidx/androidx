@@ -19,6 +19,8 @@ package androidx.media.test.client.tests;
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
+import static androidx.media.test.client.MediaTestUtils.assertEqualMediaIds;
+import static androidx.media.test.client.MediaTestUtils.assertNotMediaItemSubclass;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_ITEM;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_ITEM;
@@ -214,7 +216,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     public void testControllerCallback_sessionUpdatePlayer() throws InterruptedException {
         prepareLooper();
         final int testState = SessionPlayer2.PLAYER_STATE_PLAYING;
-        final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(3);
+        final List<MediaItem2> testPlaylist = MediaTestUtils.createFileMediaItems(3);
         final AudioAttributesCompat testAudioAttributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_RING).build();
         final CountDownLatch latch = new CountDownLatch(3);
@@ -231,7 +233,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     public void onPlaylistChanged(MediaController2 controller,
                             List<MediaItem2> list, MediaMetadata2 metadata) {
                         assertEquals(mController, controller);
-                        MediaTestUtils.assertMediaItemListsWithId(testPlaylist, list);
+                        assertNotMediaItemSubclass(list);
+                        assertEqualMediaIds(testPlaylist, list);
                         assertNull(metadata);
                         latch.countDown();
                     }
@@ -258,7 +261,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     public void testOnCurrentMediaItemChanged() throws Exception {
         prepareLooper();
         final int listSize = 5;
-        final List<MediaItem2> list = MediaTestUtils.createPlaylist(listSize);
+        final List<MediaItem2> list = MediaTestUtils.createFileMediaItems(listSize);
         mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
 
         final int currentItemIndex = 3;
@@ -274,6 +277,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                                 // No check needed..
                                 break;
                             case 2:
+                                assertNotMediaItemSubclass(item);
                                 assertEquals(currentItem.getMediaId(), item.getMediaId());
                                 break;
                             case 1:
@@ -389,7 +393,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @Test
     public void testOnPlaylistChanged() throws InterruptedException {
         prepareLooper();
-        final List<MediaItem2> testList = MediaTestUtils.createPlaylist(2);
+        final List<MediaItem2> testList = MediaTestUtils.createFileMediaItems(2);
         final AtomicReference<List<MediaItem2>> listFromCallback = new AtomicReference<>();
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController2.ControllerCallback callback =
@@ -398,11 +402,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     public void onPlaylistChanged(MediaController2 controller,
                             List<MediaItem2> playlist, MediaMetadata2 metadata) {
                         assertNotNull(playlist);
-                        assertEquals(testList.size(), playlist.size());
-                        for (int i = 0; i < playlist.size(); i++) {
-                            assertEquals(
-                                    testList.get(i).getMediaId(), playlist.get(i).getMediaId());
-                        }
+                        assertNotMediaItemSubclass(playlist);
+                        assertEqualMediaIds(testList, playlist);
                         listFromCallback.set(playlist);
                         latch.countDown();
                     }
@@ -589,7 +590,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         prepareLooper();
         final CountDownLatch latch = new CountDownLatch(1);
 
-        final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(3);
+        final List<MediaItem2> testPlaylist = MediaTestUtils.createFileMediaItems(3);
         final int targetItemIndex = 0;
         final int testBufferingState = SessionPlayer2.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
@@ -600,6 +601,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             public void onBufferingStateChanged(MediaController2 controller, MediaItem2 item,
                     int state) {
                 controller.setTimeDiff(0L);
+                assertNotMediaItemSubclass(item);
                 assertEquals(testPlaylist.get(targetItemIndex).getMediaId(), item.getMediaId());
                 assertEquals(testBufferingState, state);
                 assertEquals(testBufferingState, controller.getBufferingState());

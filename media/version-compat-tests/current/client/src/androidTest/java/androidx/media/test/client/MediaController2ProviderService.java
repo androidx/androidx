@@ -33,6 +33,7 @@ import androidx.media2.MediaBrowser2;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaUtils2;
 import androidx.media2.Rating2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
@@ -94,7 +95,7 @@ public class MediaController2ProviderService extends Service {
         @Override
         public void create(final boolean isBrowser, final String controllerId,
                 ParcelImpl tokenParcelable, boolean waitForConnection) throws RemoteException {
-            final SessionToken2 token = ParcelUtils.fromParcelable(tokenParcelable);
+            final SessionToken2 token = MediaUtils2.fromParcelable(tokenParcelable);
             final TestControllerCallback callback = new TestControllerCallback();
 
             try {
@@ -139,7 +140,7 @@ public class MediaController2ProviderService extends Service {
         @Override
         public ParcelImpl getConnectedSessionToken(String controllerId) throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            return (ParcelImpl) ParcelUtils.toParcelable(controller2.getConnectedSessionToken());
+            return MediaUtils2.toParcelable(controller2.getConnectedSessionToken());
         }
 
         @Override
@@ -176,7 +177,7 @@ public class MediaController2ProviderService extends Service {
         public void setPlaylist(String controllerId, List<String> list, ParcelImpl metadata)
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.setPlaylist(list, (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
+            controller2.setPlaylist(list, (MediaMetadata2) MediaUtils2.fromParcelable(metadata));
         }
 
         @Override
@@ -188,7 +189,7 @@ public class MediaController2ProviderService extends Service {
                 // Make media ID of each item same with its index.
                 list.add(TestUtils.getMediaIdInDummyList(i));
             }
-            controller2.setPlaylist(list, (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
+            controller2.setPlaylist(list, (MediaMetadata2) MediaUtils2.fromParcelable(metadata));
         }
 
         @Override
@@ -202,7 +203,7 @@ public class MediaController2ProviderService extends Service {
                 throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
             controller2.updatePlaylistMetadata(
-                    (MediaMetadata2) ParcelUtils.fromParcelable(metadata));
+                    (MediaMetadata2) MediaUtils2.fromParcelable(metadata));
         }
 
         @Override
@@ -380,14 +381,14 @@ public class MediaController2ProviderService extends Service {
         public void getLibraryRoot(String controllerId, ParcelImpl libraryParams)
                 throws RemoteException {
             MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
-            browser2.getLibraryRoot((LibraryParams) ParcelUtils.fromParcelable(libraryParams));
+            browser2.getLibraryRoot((LibraryParams) MediaUtils2.fromParcelable(libraryParams));
         }
 
         @Override
         public void subscribe(String controllerId, String parentId, ParcelImpl libraryParams)
                 throws RemoteException {
             MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
-            browser2.subscribe(parentId, (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
+            browser2.subscribe(parentId, (LibraryParams) MediaUtils2.fromParcelable(libraryParams));
         }
 
         @Override
@@ -401,7 +402,7 @@ public class MediaController2ProviderService extends Service {
                 ParcelImpl libraryParams) throws RemoteException {
             MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
             browser2.getChildren(parentId, page, pageSize,
-                    (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
+                    (LibraryParams) MediaUtils2.fromParcelable(libraryParams));
         }
 
         @Override
@@ -414,7 +415,7 @@ public class MediaController2ProviderService extends Service {
         public void search(String controllerId, String query, ParcelImpl libraryParams)
                 throws RemoteException {
             MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
-            browser2.search(query, (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
+            browser2.search(query, (LibraryParams) MediaUtils2.fromParcelable(libraryParams));
         }
 
         @Override
@@ -422,7 +423,7 @@ public class MediaController2ProviderService extends Service {
                 ParcelImpl libraryParams) throws RemoteException {
             MediaBrowser2 browser2 = (MediaBrowser2) mMediaController2Map.get(controllerId);
             browser2.getSearchResult(query, page, pageSize,
-                    (LibraryParams) ParcelUtils.fromParcelable(libraryParams));
+                    (LibraryParams) MediaUtils2.fromParcelable(libraryParams));
         }
 
         private class TestControllerCallback extends MediaBrowser2.BrowserCallback {

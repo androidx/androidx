@@ -19,16 +19,20 @@ package androidx.media2;
 import androidx.annotation.NonNull;
 import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.NonParcelField;
+import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelize;
 
 /**
  * Structure for media item descriptor for {@link DataSourceCallback2}.
  * <p>
  * Users should use {@link Builder} to create {@link CallbackMediaItem2}.
+ * <p>
+ * You cannot directly send this object across the process through {@link ParcelUtils}. See
+ * {@link MediaItem2} for detail.
  *
  * @see MediaItem2
  */
-@VersionedParcelize
+@VersionedParcelize(isCustom = true)
 public class CallbackMediaItem2 extends MediaItem2 {
     @NonParcelField
     @SuppressWarnings("WeakerAccess") /* synthetic access */

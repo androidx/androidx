@@ -186,7 +186,7 @@ public final class MediaTestUtils {
         return new LibraryParams.Builder().setExtras(extras).build();
     }
 
-    public static void assertLibraryParamsEquals(LibraryParams a, LibraryParams b) {
+    public static void assertEqualLibraryParams(LibraryParams a, LibraryParams b) {
         if (a == null || b == null) {
             assertEquals(a, b);
         } else {
@@ -194,14 +194,14 @@ public final class MediaTestUtils {
         }
     }
 
-    public static void assertLibraryParamsWithBundle(LibraryParams a, Bundle b) {
-        if (a == null || b == null) {
-            assertEquals(a, b);
+    public static void assertEqualLibraryParams(LibraryParams params, Bundle rootExtras) {
+        if (params == null || rootExtras == null) {
+            assertEquals(params, rootExtras);
         } else {
-            assertEquals(a.isRecent(), b.getBoolean(BrowserRoot.EXTRA_RECENT));
-            assertEquals(a.isOffline(), b.getBoolean(BrowserRoot.EXTRA_OFFLINE));
-            assertEquals(a.isSuggested(), b.getBoolean(BrowserRoot.EXTRA_SUGGESTED));
-            assertTrue(TestUtils.contains(b, a.getExtras()));
+            assertEquals(params.isRecent(), rootExtras.getBoolean(BrowserRoot.EXTRA_RECENT));
+            assertEquals(params.isOffline(), rootExtras.getBoolean(BrowserRoot.EXTRA_OFFLINE));
+            assertEquals(params.isSuggested(), rootExtras.getBoolean(BrowserRoot.EXTRA_SUGGESTED));
+            assertTrue(TestUtils.contains(rootExtras, params.getExtras()));
         }
     }
 }

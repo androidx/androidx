@@ -21,6 +21,8 @@ import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAG
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MUSIC;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_FIXED;
+import static androidx.media.test.client.MediaTestUtils.assertEqualMediaIds;
+import static androidx.media.test.client.MediaTestUtils.assertNotMediaItemSubclass;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media.test.lib.MediaSession2Constants.TEST_GET_SESSION_ACTIVITY;
 
@@ -254,7 +256,7 @@ public class MediaController2Test extends MediaSession2TestBase {
         final long bufferedPosition = 900000;
         final float speed = 0.5f;
         final long timeDiff = 102;
-        final MediaItem2 currentMediaItem = MediaTestUtils.createMediaItemWithMetadata();
+        final MediaItem2 currentMediaItem = MediaTestUtils.createFileMediaItemWithMetadata();
 
         Bundle config = RemoteMediaSession2.createMockPlayerConnectorConfig(
                 state, bufferingState, position, bufferedPosition, speed, null /* audioAttrs */,
@@ -267,7 +269,8 @@ public class MediaController2Test extends MediaSession2TestBase {
         assertEquals(bufferedPosition, controller.getBufferedPosition());
         assertEquals(speed, controller.getPlaybackSpeed(), 0.0f);
         assertEquals(position + (long) (speed * timeDiff), controller.getCurrentPosition());
-        MediaTestUtils.assertMediaItemsWithId(currentMediaItem, controller.getCurrentMediaItem());
+        assertNotMediaItemSubclass(controller.getCurrentMediaItem());
+        assertEqualMediaIds(currentMediaItem, controller.getCurrentMediaItem());
     }
 
     @Test
