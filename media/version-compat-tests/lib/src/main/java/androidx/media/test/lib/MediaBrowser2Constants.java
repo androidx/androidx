@@ -30,6 +30,8 @@ public class MediaBrowser2Constants {
     public static final Bundle ROOT_EXTRAS = new Bundle();
 
     public static final String MEDIA_ID_GET_ITEM = "media_id_get_item";
+    public static final String MEDIA_ID_GET_NULL_ITEM = "media_id_get_null_item";
+    public static final String MEDIA_ID_GET_INVALID_ITEM = "media_id_get_invalid_item";
 
     public static final String PARENT_ID = "parent_id";
     public static final String PARENT_ID_LONG_LIST = "parent_id_long_list";
