@@ -178,7 +178,7 @@ public class PagedScrollBarView extends ViewGroup {
     }
 
     void setShowAlphaJump(boolean show) {
-        mAlphaJumpButton.setVisibility(show ? View.VISIBLE : View.GONE);
+        mAlphaJumpButton.setVisibility(show ? VISIBLE : GONE);
     }
 
     /** Returns {@code true} if the scroll bar thumb is visible */
@@ -192,7 +192,7 @@ public class PagedScrollBarView extends ViewGroup {
      */
     public void setScrollbarThumbEnabled(boolean show) {
         mShowScrollBarThumb = show;
-        mScrollThumb.setVisibility(mShowScrollBarThumb ? View.VISIBLE : View.GONE);
+        mScrollThumb.setVisibility(mShowScrollBarThumb ? VISIBLE : GONE);
     }
 
     /**
@@ -223,7 +223,7 @@ public class PagedScrollBarView extends ViewGroup {
         }
 
         // If the scroll bars aren't visible, then no need to update.
-        if (getVisibility() == View.GONE || range == 0) {
+        if (getVisibility() == GONE || range == 0) {
             return;
         }
 
@@ -257,7 +257,7 @@ public class PagedScrollBarView extends ViewGroup {
      */
     void setParametersInLayout(int range, int offset, int extent) {
         // If the scroll bars aren't visible, then no need to update.
-        if (getVisibility() == View.GONE || range == 0) {
+        if (getVisibility() == GONE || range == 0) {
             return;
         }
 
