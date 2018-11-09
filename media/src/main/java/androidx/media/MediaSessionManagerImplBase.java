@@ -55,21 +55,15 @@ class MediaSessionManagerImplBase implements MediaSessionManager.MediaSessionMan
     @Override
     public boolean isTrustedForMediaControl(
             @NonNull MediaSessionManager.RemoteUserInfoImpl userInfo) {
-        ApplicationInfo applicationInfo;
         try {
-            applicationInfo = mContext.getPackageManager().getApplicationInfo(
+            ApplicationInfo applicationInfo = mContext.getPackageManager().getApplicationInfo(
                     userInfo.getPackageName(), 0);
+            if (applicationInfo == null) {
+                return false;
+            }
         } catch (PackageManager.NameNotFoundException e) {
             if (DEBUG) {
                 Log.d(TAG, "Package " + userInfo.getPackageName() + " doesn't exist");
-            }
-            return false;
-        }
-
-        if (applicationInfo.uid != userInfo.getUid()) {
-            if (DEBUG) {
-                Log.d(TAG, "Package name " + userInfo.getPackageName()
-                        + " doesn't match with the uid " + userInfo.getUid());
             }
             return false;
         }
