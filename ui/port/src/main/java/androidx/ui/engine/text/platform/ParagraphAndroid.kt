@@ -40,10 +40,8 @@ internal class ParagraphAndroid constructor(
     val textStyles: List<ParagraphBuilder.TextStyleIndex>
 ) {
 
-    /** increased visibility for testing **/
-    internal val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
-    /** increased visibility for testing **/
-    internal var layout: TextLayout? = null
+    private val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+    private var layout: TextLayout? = null
 
     // TODO(Migration/siyamed): width having -1 but others having 0 as default value is counter
     // intuitive
@@ -71,6 +69,10 @@ internal class ParagraphAndroid constructor(
 
     val didExceedMaxLines: Boolean
         get() = layout?.let { it.didExceedMaxLines } ?: false
+
+    // TODO(Migraition/haoyuchang): more getters needed to access the values in textPaint.
+    val textLocale: Locale
+        get() = textPaint.textLocale
 
     fun layout(width: Double, force: Boolean = false) {
         val floorWidth = floor(width)
@@ -126,6 +128,19 @@ internal class ParagraphAndroid constructor(
             // TODO(Migration/siyamed): we provide a default value
             affinity = TextAffinity.upstream
         )
+    }
+
+    // TODO(Migration/haoyuchang): more functions for testing are needed.
+    fun getLineLeft(index: Int): Double {
+        val tmpLayout = layout ?: throw java.lang.IllegalStateException("getLineLeft cannot be " +
+                    "called before layout() is called")
+        return tmpLayout.getLineLeft(index)
+    }
+
+    fun getLineRight(index: Int): Double {
+        val tmpLayout = layout ?: throw java.lang.IllegalStateException("getLineRight cannot be " +
+                "called before layout() is called")
+        return tmpLayout.getLineRight(index)
     }
 
     fun paint(canvas: Canvas, x: Double, y: Double) {

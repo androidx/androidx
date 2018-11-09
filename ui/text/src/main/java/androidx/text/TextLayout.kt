@@ -277,6 +277,14 @@ class TextLayout constructor(
     fun paint(canvas: Canvas) {
         layout.draw(canvas)
     }
+
+    fun getLineLeft(index: Int): Double {
+        return layout.getLineLeft(index).toDouble()
+    }
+
+    fun getLineRight(index: Int): Double {
+        return layout.getLineRight(index).toDouble()
+    }
 }
 
 /**

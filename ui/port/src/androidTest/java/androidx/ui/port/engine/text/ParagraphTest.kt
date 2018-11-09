@@ -16,10 +16,7 @@
 package androidx.ui.port.engine.text
 
 import android.app.Instrumentation
-import android.graphics.Paint
 import android.graphics.Typeface
-import android.text.Layout
-import android.text.TextPaint
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -31,7 +28,6 @@ import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextPosition
-import androidx.text.StaticLayoutFactory
 import androidx.ui.engine.window.Locale
 import androidx.ui.port.bitmap
 import androidx.ui.port.matchers.equalToBitmap
@@ -42,11 +38,12 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import kotlin.math.ceil
 
 @RunWith(JUnit4::class)
 @SmallTest
 class ParagraphTest {
+    // TODO(Migration/haoyuchang): These native calls should be removed after the
+    // counterparts are implemented in crane.
     private lateinit var instrumentation: Instrumentation
     private lateinit var fontFallback: FontFallback
 
@@ -155,30 +152,6 @@ class ParagraphTest {
             assertThat(text, paragraph.maxIntrinsicWidth, equalTo(fontSize * text.indexOf("\n")))
             assertThat(text, paragraph.minIntrinsicWidth, equalTo(0.0))
             assertThat(text, paragraph.ideographicBaseline, equalTo(Double.MAX_VALUE))
-        }
-    }
-
-    @Test
-    fun draw_with_newline_and_line_break_default_values() {
-        val fontSize = 50.0
-        for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
-            val paragraph = simpleParagraph(text = text, fontSize = fontSize)
-
-            // 2 chars width
-            paragraph.layout(ParagraphConstraints(width = 2 * fontSize))
-
-            val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
-            textPaint.textSize = fontSize.toFloat()
-            textPaint.typeface = fontFallback.typeface
-
-            val staticLayout = StaticLayoutFactory.create(
-                textPaint = textPaint,
-                charSequence = text,
-                width = ceil(paragraph.width).toInt(),
-                ellipsizeWidth = ceil(paragraph.width).toInt()
-            )
-
-            assertThat(paragraph.bitmap(), equalToBitmap(staticLayout.bitmap()))
         }
     }
 
@@ -351,13 +324,13 @@ class ParagraphTest {
         paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
 
         assertThat(
-            paragraph.paragraphImpl.textPaint.textLocale.toLanguageTag(),
+            paragraph.paragraphImpl.textLocale.toLanguageTag(),
             equalTo(java.util.Locale.getDefault().toLanguageTag())
         )
     }
 
     @Test
-    fun locale_isSetOnThePaint_enUS() {
+    fun locale_isSetOnParagraphImpl_enUS() {
         val locale = Locale(_languageCode = "en", _countryCode = "US")
         val text = "abc"
         val paragraph = Paragraph(
@@ -370,11 +343,11 @@ class ParagraphTest {
 
         paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
 
-        assertThat(paragraph.paragraphImpl.textPaint.textLocale.toLanguageTag(), equalTo("en-US"))
+        assertThat(paragraph.paragraphImpl.textLocale.toLanguageTag(), equalTo("en-US"))
     }
 
     @Test
-    fun locale_isSetOnThePaint_jpJP() {
+    fun locale_isSetOnParagraphImpl_jpJP() {
         val locale = Locale(_languageCode = "ja", _countryCode = "JP")
         val text = "abc"
         val paragraph = Paragraph(
@@ -387,11 +360,11 @@ class ParagraphTest {
 
         paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
 
-        assertThat(paragraph.paragraphImpl.textPaint.textLocale.toLanguageTag(), equalTo("ja-JP"))
+        assertThat(paragraph.paragraphImpl.textLocale.toLanguageTag(), equalTo("ja-JP"))
     }
 
     @Test
-    fun locale_noCountryCode_isSetOnThePaint() {
+    fun locale_noCountryCode_isSetOnParagraphImpl() {
         val locale = Locale(_languageCode = "ja")
         val text = "abc"
         val paragraph = Paragraph(
@@ -404,7 +377,7 @@ class ParagraphTest {
 
         paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
 
-        assertThat(paragraph.paragraphImpl.textPaint.textLocale.toLanguageTag(), equalTo("ja"))
+        assertThat(paragraph.paragraphImpl.textLocale.toLanguageTag(), equalTo("ja"))
     }
 
     @Test
@@ -473,15 +446,28 @@ class ParagraphTest {
     }
 
     @Test
-    fun textAlign_defaultValue_equalsNormalInNative() {
-        val paragraph = Paragraph(
-            text = StringBuilder(""),
-            textStyles = listOf(),
-            paragraphStyle = ParagraphStyle()
+    fun textAlign_defaultValue_alignsStart() {
+        val textLTR = "aa"
+        val textRTL = "\u05D0\u05D0"
+        val fontSize = 20.0
+
+        val paragraphLTR = simpleParagraph(
+            text = textLTR,
+            fontSize = fontSize
         )
-        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
-        val nativeLayout = paragraph.paragraphImpl.layout?.layout
-        assertThat(nativeLayout?.alignment, equalTo(Layout.Alignment.ALIGN_NORMAL))
+        val layoutLTRWidth = (textLTR.length + 2) * fontSize
+        paragraphLTR.layout(ParagraphConstraints(width = layoutLTRWidth))
+
+        val paragraphRTL = simpleParagraph(
+            text = textRTL,
+            fontSize = fontSize
+        )
+        val layoutRTLWidth = (textRTL.length + 2) * fontSize
+        paragraphRTL.layout(ParagraphConstraints(width = layoutRTLWidth))
+
+        // When textAlign is TextAlign.start, LTR aligns to left, RTL aligns to right.
+        assertThat(paragraphLTR.paragraphImpl.getLineLeft(0), equalTo(0.0))
+        assertThat(paragraphRTL.paragraphImpl.getLineRight(0), equalTo(layoutRTLWidth))
     }
 
     @Test
@@ -497,9 +483,8 @@ class ParagraphTest {
             )
             val layoutWidth = (text.length + 2) * fontSize
             paragraph.layout(ParagraphConstraints(width = layoutWidth))
-            val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
-            // TODO(Migration/haoyuchang): Add getLineLeft/getLineRight to ParagraphAndroid.
-            assertThat(nativeLayout.getLineLeft(0), equalTo(0.0f))
+            val paragraphImpl = paragraph.paragraphImpl
+            assertThat(paragraphImpl.getLineLeft(0), equalTo(0.0))
         }
     }
 
@@ -516,8 +501,8 @@ class ParagraphTest {
             )
             val layoutWidth = (text.length + 2) * fontSize
             paragraph.layout(ParagraphConstraints(width = layoutWidth))
-            val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
-            assertThat(nativeLayout.getLineRight(0), equalTo(layoutWidth.toFloat()))
+            val paragraphImpl = paragraph.paragraphImpl
+            assertThat(paragraphImpl.getLineRight(0), equalTo(layoutWidth))
         }
     }
 
@@ -535,11 +520,11 @@ class ParagraphTest {
             val layoutWidth = (text.length + 2) * fontSize
             paragraph.layout(ParagraphConstraints(width = layoutWidth))
             val textWidth = text.length * fontSize
-            val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
-            assertThat(nativeLayout.getLineLeft(0),
-                    equalTo((layoutWidth / 2 - textWidth / 2).toFloat()))
-            assertThat(nativeLayout.getLineRight(0),
-                equalTo((layoutWidth / 2 + textWidth / 2).toFloat()))
+            val paragraphImpl = paragraph.paragraphImpl
+            assertThat(paragraphImpl.getLineLeft(0),
+                    equalTo(layoutWidth / 2 - textWidth / 2))
+            assertThat(paragraphImpl.getLineRight(0),
+                equalTo(layoutWidth / 2 + textWidth / 2))
         }
     }
 
@@ -555,8 +540,8 @@ class ParagraphTest {
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
-        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
-        assertThat(nativeLayout.getLineLeft(0), equalTo(0.0f))
+        val paragraphImpl = paragraph.paragraphImpl
+        assertThat(paragraphImpl.getLineLeft(0), equalTo(0.0))
     }
 
     @Test
@@ -571,8 +556,8 @@ class ParagraphTest {
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
-        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
-        assertThat(nativeLayout.getLineRight(0), equalTo(layoutWidth.toFloat()))
+        val paragraphImpl = paragraph.paragraphImpl
+        assertThat(paragraphImpl.getLineRight(0), equalTo(layoutWidth))
     }
 
     @Test
@@ -587,8 +572,8 @@ class ParagraphTest {
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
-        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
-        assertThat(nativeLayout.getLineRight(0), equalTo(layoutWidth.toFloat()))
+        val paragraphImpl = paragraph.paragraphImpl
+        assertThat(paragraphImpl.getLineRight(0), equalTo(layoutWidth))
     }
 
     @Test
@@ -603,8 +588,8 @@ class ParagraphTest {
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
-        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
-        assertThat(nativeLayout.getLineLeft(0), equalTo(0.0f))
+        val paragraphImpl = paragraph.paragraphImpl
+        assertThat(paragraphImpl.getLineLeft(0), equalTo(0.0))
     }
 
     @Test
@@ -622,11 +607,11 @@ class ParagraphTest {
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
-        val nativeLayout = paragraph.paragraphImpl.layout?.layout!!
-        assertThat(nativeLayout.getLineLeft(0), equalTo(0.0f))
-        assertThat(nativeLayout.getLineRight(0), equalTo(layoutWidth.toFloat()))
+        val paragraphImpl = paragraph.paragraphImpl
+        assertThat(paragraphImpl.getLineLeft(0), equalTo(0.0))
+        assertThat(paragraphImpl.getLineRight(0), equalTo(layoutWidth))
         // Last line should align start
-        assertThat(nativeLayout.getLineLeft(1), equalTo(0.0f))
+        assertThat(paragraphImpl.getLineLeft(1), equalTo(0.0))
     }
 
     // TODO(migration/siyamed) add test
@@ -634,7 +619,7 @@ class ParagraphTest {
     fun getWordBoundary() {
     }
 
-    fun simpleParagraph(
+    private fun simpleParagraph(
         text: CharSequence = "",
         textAlign: TextAlign? = null,
         fontSize: Double? = null,
@@ -645,9 +630,9 @@ class ParagraphTest {
             textStyles = listOf(),
             paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
+                maxLines = maxLines,
                 fontFamily = fontFallback,
-                fontSize = fontSize,
-                maxLines = maxLines
+                fontSize = fontSize
             )
         )
     }

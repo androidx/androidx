@@ -19,9 +19,20 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.text.Layout
 import androidx.ui.engine.text.Paragraph
+import androidx.ui.engine.text.platform.ParagraphAndroid
 import kotlin.math.ceil
 
 fun Paragraph.bitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(
+        ceil(this.width).toInt(),
+        ceil(this.height).toInt(),
+        Bitmap.Config.ARGB_8888
+    )
+    this.paint(androidx.ui.painting.Canvas(Canvas(bitmap)), 0.0, 0.0)
+    return bitmap
+}
+
+internal fun ParagraphAndroid.bitmap(): Bitmap {
     val bitmap = Bitmap.createBitmap(
         ceil(this.width).toInt(),
         ceil(this.height).toInt(),
