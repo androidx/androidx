@@ -182,7 +182,7 @@ package androidx.media2 {
     field public static final int PLAYBACK_TYPE_REMOTE = 2; // 0x2
   }
 
-  public class MediaItem2 implements androidx.versionedparcelable.VersionedParcelable {
+  public class MediaItem2 extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public long getEndPosition();
     method public androidx.media2.MediaMetadata2? getMetadata();
     method public long getStartPosition();
@@ -266,7 +266,7 @@ package androidx.media2 {
     method public int onUnsubscribe(androidx.media2.MediaLibraryService2.MediaLibrarySession, androidx.media2.MediaSession2.ControllerInfo, String);
   }
 
-  public final class MediaMetadata2 implements androidx.versionedparcelable.VersionedParcelable {
+  public final class MediaMetadata2 extends androidx.versionedparcelable.CustomVersionedParcelable {
     method public boolean containsKey(String);
     method public android.graphics.Bitmap? getBitmap(String);
     method public android.os.Bundle? getExtras();
@@ -451,7 +451,7 @@ package androidx.media2 {
 
   public static final class MediaSession2.CommandButton implements androidx.versionedparcelable.VersionedParcelable {
     method public androidx.media2.SessionCommand2? getCommand();
-    method public String? getDisplayName();
+    method public CharSequence? getDisplayName();
     method public android.os.Bundle? getExtras();
     method public int getIconResId();
     method public boolean isEnabled();
@@ -461,7 +461,7 @@ package androidx.media2 {
     ctor public MediaSession2.CommandButton.Builder();
     method public androidx.media2.MediaSession2.CommandButton build();
     method public androidx.media2.MediaSession2.CommandButton.Builder setCommand(androidx.media2.SessionCommand2?);
-    method public androidx.media2.MediaSession2.CommandButton.Builder setDisplayName(String?);
+    method public androidx.media2.MediaSession2.CommandButton.Builder setDisplayName(CharSequence?);
     method public androidx.media2.MediaSession2.CommandButton.Builder setEnabled(boolean);
     method public androidx.media2.MediaSession2.CommandButton.Builder setExtras(android.os.Bundle?);
     method public androidx.media2.MediaSession2.CommandButton.Builder setIconResId(int);
