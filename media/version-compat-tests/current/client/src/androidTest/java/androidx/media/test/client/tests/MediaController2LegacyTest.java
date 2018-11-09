@@ -510,6 +510,10 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
     @Test
     public void testControllerCallback_onPlaybackInfoChanged_byPlaybackTypeChangeToLocal()
             throws Exception {
+        if (Build.VERSION.SDK_INT == 21 || Build.VERSION.SDK_INT == 22) {
+            // In API 21 and 22, onAudioInfoChanged is not called.
+            return;
+        }
         prepareLooper();
         mSession.setPlaybackToRemote(VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE, 100, 45);
 
