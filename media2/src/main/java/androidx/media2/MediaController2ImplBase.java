@@ -84,8 +84,6 @@ import androidx.media2.SequencedFutureManager.SequencedFuture;
 import androidx.media2.SessionCommand2.CommandCode;
 import androidx.media2.SessionPlayer2.RepeatMode;
 import androidx.media2.SessionPlayer2.ShuffleMode;
-import androidx.versionedparcelable.ParcelImpl;
-import androidx.versionedparcelable.ParcelUtils;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -564,7 +562,7 @@ class MediaController2ImplBase implements MediaController2Impl {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.setRating(mControllerStub, seq, mediaId,
-                        (ParcelImpl) ParcelUtils.toParcelable(rating));
+                        MediaUtils2.toParcelable(rating));
             }
         });
     }
@@ -575,8 +573,8 @@ class MediaController2ImplBase implements MediaController2Impl {
         return dispatchRemoteSessionTask(command, new RemoteSessionTask() {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                iSession2.onCustomCommand(mControllerStub, seq,
-                        (ParcelImpl) ParcelUtils.toParcelable(command), args);
+                iSession2.onCustomCommand(mControllerStub, seq, MediaUtils2.toParcelable(command),
+                        args);
             }
         });
     }
@@ -595,7 +593,7 @@ class MediaController2ImplBase implements MediaController2Impl {
             @Override
             public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                 iSession2.setPlaylist(mControllerStub, seq, list,
-                        (ParcelImpl) ParcelUtils.toParcelable(metadata));
+                        MediaUtils2.toParcelable(metadata));
             }
         });
     }
@@ -619,7 +617,7 @@ class MediaController2ImplBase implements MediaController2Impl {
                     @Override
                     public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
                         iSession2.updatePlaylistMetadata(mControllerStub, seq,
-                                (ParcelImpl) ParcelUtils.toParcelable(metadata));
+                                MediaUtils2.toParcelable(metadata));
                     }
                 });
     }
@@ -1138,7 +1136,7 @@ class MediaController2ImplBase implements MediaController2Impl {
         }
         try {
             iSession2.onControllerResult(mControllerStub, seq,
-                    (ParcelImpl) ParcelUtils.toParcelable(result));
+                    MediaUtils2.toParcelable(result));
         } catch (RemoteException e) {
             Log.w(TAG, "Error in sending");
         }

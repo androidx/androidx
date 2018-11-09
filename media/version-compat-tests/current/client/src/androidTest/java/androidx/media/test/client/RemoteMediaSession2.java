@@ -54,6 +54,7 @@ import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.MediaUtils2;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
@@ -187,7 +188,7 @@ public class RemoteMediaSession2 {
     public SessionToken2 getToken() {
         SessionToken2 token = null;
         try {
-            token = ParcelUtils.fromParcelable(mBinder.getToken(mSessionId));
+            token = MediaUtils2.fromParcelable(mBinder.getToken(mSessionId));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to get session token. sessionId=" + mSessionId);
         }

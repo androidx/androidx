@@ -25,7 +25,6 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.versionedparcelable.ParcelImpl;
-import androidx.versionedparcelable.ParcelUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -108,12 +107,12 @@ public class Rating2Test extends MediaTestBase {
     }
 
     private Rating2 writeToParcelAndCreateRating2(Rating2 rating2) {
-        ParcelImpl parcelImpl = (ParcelImpl) ParcelUtils.toParcelable(rating2);
+        ParcelImpl parcelImpl = MediaUtils2.toParcelable(rating2);
         Parcel parcel = Parcel.obtain();
         parcelImpl.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
         ParcelImpl newParcelImpl = ParcelImpl.CREATOR.createFromParcel(parcel);
         parcel.recycle();
-        return ParcelUtils.fromParcelable(newParcelImpl);
+        return MediaUtils2.fromParcelable(newParcelImpl);
     }
 }

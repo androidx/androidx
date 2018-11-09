@@ -132,7 +132,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
         final int testState = SessionPlayer2.PLAYER_STATE_PLAYING;
         final int testBufferingPosition = 1500;
         final float testSpeed = 1.5f;
-        final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(3);
+        final List<MediaItem2> testPlaylist = MediaTestUtils.createFileMediaItems(3);
         final String testPlaylistTitle = "testPlaylistTitle";
         final MediaMetadata2 testPlaylistMetadata = new MediaMetadata2.Builder()
                 .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, testPlaylistTitle).build();
@@ -374,7 +374,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
     @Test
     public void testBufferingStateChange() throws Exception {
         prepareLooper();
-        final List<MediaItem2> testPlaylist = MediaTestUtils.createPlaylist(3);
+        final List<MediaItem2> testPlaylist = MediaTestUtils.createFileMediaItems(3);
         final int testItemIndex = 0;
         final int testBufferingState = SessionPlayer2.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
@@ -420,7 +420,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
                 .setMetadata(metadata)
                 .build();
 
-        List<MediaItem2> playlist = MediaTestUtils.createPlaylist(5);
+        List<MediaItem2> playlist = MediaTestUtils.createFileMediaItems(5);
         final int testItemIndex = 3;
         playlist.set(testItemIndex, currentMediaItem);
         mSession.getMockPlayer().setPlaylistWithDummyItem(playlist);
@@ -441,7 +441,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession2 extends MediaSes
     @Test
     public void testPlaylistAndPlaylistMetadataChange() throws Exception {
         prepareLooper();
-        final List<MediaItem2> playlist = MediaTestUtils.createPlaylist(5);
+        final List<MediaItem2> playlist = MediaTestUtils.createFileMediaItems(5);
         final String playlistTitle = "playlistTitle";
         MediaMetadata2 playlistMetadata = new MediaMetadata2.Builder()
                 .putText(MediaMetadata2.METADATA_KEY_DISPLAY_TITLE, playlistTitle).build();

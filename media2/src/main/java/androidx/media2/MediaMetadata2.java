@@ -839,7 +839,7 @@ public final class MediaMetadata2 implements VersionedParcelable {
         }
         Rating2 rating = null;
         try {
-            rating = ParcelUtils.fromParcelable(mBundle.getParcelable(key));
+            rating = ParcelUtils.getVersionedParcelable(mBundle, key);
         } catch (Exception e) {
             // ignore, value was not a rating
             Log.w(TAG, "Failed to retrieve a key as Rating.", e);
@@ -1147,7 +1147,7 @@ public final class MediaMetadata2 implements VersionedParcelable {
                             + " key cannot be used to put a Rating");
                 }
             }
-            mBundle.putParcelable(key, ParcelUtils.toParcelable(value));
+            ParcelUtils.putVersionedParcelable(mBundle, key, value);
             return this;
         }
 
