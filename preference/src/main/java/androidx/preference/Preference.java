@@ -675,7 +675,7 @@ public class Preference implements Comparable<Preference> {
      * @param icon The optional icon for this preference
      */
     public void setIcon(Drawable icon) {
-        if ((icon == null && mIcon != null) || (icon != null && mIcon != icon)) {
+        if (mIcon != icon) {
             mIcon = icon;
             mIconResId = 0;
             notifyChanged();
@@ -735,8 +735,7 @@ public class Preference implements Comparable<Preference> {
         if (getSummaryProvider() != null) {
             throw new IllegalStateException("Preference already has a SummaryProvider set.");
         }
-        if ((summary == null && mSummary != null)
-                || (summary != null && !summary.equals(mSummary))) {
+        if (!TextUtils.equals(mSummary, summary)) {
             mSummary = summary;
             notifyChanged();
         }
