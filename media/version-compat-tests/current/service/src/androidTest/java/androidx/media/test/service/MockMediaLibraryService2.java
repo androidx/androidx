@@ -23,7 +23,9 @@ import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION_ASSER
 import static androidx.media.test.lib.MediaBrowser2Constants.CUSTOM_ACTION_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.GET_CHILDREN_RESULT;
 import static androidx.media.test.lib.MediaBrowser2Constants.LONG_LIST_COUNT;
+import static androidx.media.test.lib.MediaBrowser2Constants.MEDIA_ID_GET_INVALID_ITEM;
 import static androidx.media.test.lib.MediaBrowser2Constants.MEDIA_ID_GET_ITEM;
+import static androidx.media.test.lib.MediaBrowser2Constants.MEDIA_ID_GET_NULL_ITEM;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_EXTRAS;
 import static androidx.media.test.lib.MediaBrowser2Constants.NOTIFY_CHILDREN_CHANGED_ITEM_COUNT;
 import static androidx.media.test.lib.MediaBrowser2Constants.PARENT_ID;
@@ -198,11 +200,21 @@ public class MockMediaLibraryService2 extends MediaLibraryService2 {
         @Override
         public LibraryResult onGetItem(MediaLibrarySession session, ControllerInfo controller,
                 String mediaId) {
-            if (MEDIA_ID_GET_ITEM.equals(mediaId)) {
-                return new LibraryResult(RESULT_CODE_SUCCESS, createMediaItem(mediaId), null);
-            } else {
-                return new LibraryResult(RESULT_CODE_BAD_VALUE);
+            switch (mediaId) {
+                case MEDIA_ID_GET_ITEM:
+                    return new LibraryResult(RESULT_CODE_SUCCESS, createMediaItem(mediaId), null);
+                case MEDIA_ID_GET_NULL_ITEM:
+                    return new LibraryResult(RESULT_CODE_SUCCESS);
+                case MEDIA_ID_GET_INVALID_ITEM:
+                    // No browsable
+                    MediaMetadata2 metadata =  new MediaMetadata2.Builder()
+                            .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
+                            .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
+                            .build();
+                    return new LibraryResult(RESULT_CODE_SUCCESS,
+                            new MediaItem2.Builder().setMetadata(metadata).build(), null);
             }
+            return new LibraryResult(RESULT_CODE_BAD_VALUE);
         }
 
         @Override
