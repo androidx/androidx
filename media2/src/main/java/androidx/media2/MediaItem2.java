@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -61,6 +62,8 @@ import java.util.concurrent.Executor;
  */
 @VersionedParcelize(isCustom = true)
 public class MediaItem2 extends CustomVersionedParcelable {
+    private static final String TAG = "MediaItem2";
+
     // intentionally less than long.MAX_VALUE.
     // Declare this first to avoid 'illegal forward reference'.
     static final long LONG_MAX = 0x7ffffffffffffffL;
@@ -178,8 +181,10 @@ public class MediaItem2 extends CustomVersionedParcelable {
      * @see MediaMetadata2#METADATA_KEY_MEDIA_ID
      */
     public void setMetadata(@Nullable MediaMetadata2 metadata) {
-        if (metadata != null && !TextUtils.equals(getMediaId(), metadata.getMediaId())) {
-            throw new IllegalArgumentException("metadata's id should be matched with the mediaId");
+        if (mMetadata != null && metadata != null
+                && !TextUtils.equals(getMediaId(), metadata.getMediaId())) {
+            Log.d(TAG, "MediaItem's media ID shouldn't be changed");
+            return;
         }
         mMetadata = metadata;
         List<Pair<OnMetadataChangedListener, Executor>> listeners = new ArrayList<>();
