@@ -24,7 +24,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,10 +33,10 @@ import android.widget.TextView;
 import androidx.car.test.R;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.InstrumentationRegistry;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
-import androidx.test.filters.SmallTest;
-import androidx.test.filters.Suppress;
+import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -55,7 +54,7 @@ import java.util.Random;
 
 /** Unit tests for the ability of the {@link PagedListView} to save state. */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public final class PagedListViewSavedStateTest {
     /**
      * Used by {@link TestAdapter} to calculate ViewHolder height so N items appear in one page of
@@ -87,7 +86,6 @@ public final class PagedListViewSavedStateTest {
         Assume.assumeTrue(isAutoDevice());
 
         mActivity = mActivityRule.getActivity();
-        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         mPagedListView1 = mActivity.findViewById(R.id.paged_list_view_1);
         mPagedListView2 = mActivity.findViewById(R.id.paged_list_view_2);
@@ -121,9 +119,8 @@ public final class PagedListViewSavedStateTest {
         }
     }
 
-    @Suppress
     @Test
-    public void testPagePositionRememberedOnRotation() {
+    public void testPagePositionRememberedOnReCreate() {
         LinearLayoutManager layoutManager1 =
                 (LinearLayoutManager) mPagedListView1.getRecyclerView().getLayoutManager();
         LinearLayoutManager layoutManager2 =
@@ -144,9 +141,8 @@ public final class PagedListViewSavedStateTest {
         int topPositionOfPagedListView2 =
                 layoutManager2.findFirstVisibleItemPosition();
 
-        // Perform a configuration change by rotating the screen.
-        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        // Recreate the activity to trigger the saving and restoration of state
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> mActivity.recreate());
 
         // Check that the positions are the same after the change.
         assertEquals(topPositionOfPagedListView1,
