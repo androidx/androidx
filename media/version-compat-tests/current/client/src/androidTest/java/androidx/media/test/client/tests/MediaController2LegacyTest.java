@@ -36,6 +36,7 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v4.media.session.PlaybackStateCompat.CustomAction;
 import android.util.Log;
 
 import androidx.media.VolumeProviderCompat;
@@ -45,11 +46,14 @@ import androidx.media.test.lib.MockActivity;
 import androidx.media.test.lib.TestUtils;
 import androidx.media2.MediaController2;
 import androidx.media2.MediaController2.ControllerCallback;
+import androidx.media2.MediaController2.ControllerResult;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaUtils2;
 import androidx.media2.RemoteSessionPlayer2;
 import androidx.media2.SessionCommand2;
+import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
 import androidx.test.filters.SmallTest;
 
@@ -556,6 +560,78 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         };
         mController = createController(mSession.getSessionToken(), true, callback);
         mSession.sendSessionEvent(event, extras);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onSetCustomLayout() throws Exception {
+        prepareLooper();
+
+        final CustomAction testCustomAction1 =
+                new CustomAction.Builder("testCustomAction1", "testName1", 1).build();
+        final CustomAction testCustomAction2 =
+                new CustomAction.Builder("testCustomAction2", "testName2", 2).build();
+        final CountDownLatch latch = new CountDownLatch(2);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public int onSetCustomLayout(MediaController2 controller, List<CommandButton> layout) {
+                assertEquals(1, layout.size());
+                CommandButton button = layout.get(0);
+
+                switch ((int) latch.getCount()) {
+                    case 2:
+                        assertEquals(testCustomAction1.getAction(),
+                                button.getCommand().getCustomCommand());
+                        assertEquals(testCustomAction1.getName(), button.getDisplayName());
+                        assertEquals(testCustomAction1.getIcon(), button.getIconResId());
+                        break;
+                    case 1:
+                        assertEquals(testCustomAction2.getAction(),
+                                button.getCommand().getCustomCommand());
+                        assertEquals(testCustomAction2.getName(), button.getDisplayName());
+                        assertEquals(testCustomAction2.getIcon(), button.getIconResId());
+                        break;
+                }
+                latch.countDown();
+                return ControllerResult.RESULT_CODE_SUCCESS;
+            }
+        };
+        mSession.setPlaybackState(new PlaybackStateCompat.Builder()
+                .addCustomAction(testCustomAction1).build());
+        // onSetCustomLayout will be called when its connected
+        mController = createController(mSession.getSessionToken(), true, callback);
+        // onSetCustomLayout will be called again when the custom action in the playback state is
+        // changed.
+        mSession.setPlaybackState(new PlaybackStateCompat.Builder()
+                .addCustomAction(testCustomAction2).build());
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testControllerCallback_onAllowedCommandChanged() throws Exception {
+        prepareLooper();
+
+        final CustomAction testCustomAction1 =
+                new CustomAction.Builder("testCustomAction1", "testName1", 1).build();
+        final CustomAction testCustomAction2 =
+                new CustomAction.Builder("testCustomAction2", "testName2", 2).build();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public void onAllowedCommandsChanged(MediaController2 controller,
+                    SessionCommandGroup2 commands) {
+                assertFalse(commands.hasCommand(new SessionCommand2(
+                        testCustomAction1.getAction(), testCustomAction1.getExtras())));
+                assertTrue(commands.hasCommand(new SessionCommand2(
+                        testCustomAction2.getAction(), testCustomAction2.getExtras())));
+                latch.countDown();
+            }
+        };
+        mSession.setPlaybackState(new PlaybackStateCompat.Builder()
+                .addCustomAction(testCustomAction1).build());
+        mController = createController(mSession.getSessionToken(), true, callback);
+        mSession.setPlaybackState(new PlaybackStateCompat.Builder()
+                .addCustomAction(testCustomAction2).build());
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
