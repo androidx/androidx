@@ -204,25 +204,10 @@ limitations under the License.
         <item name="background">@color/car_card</item>
         <item name="contentInsetEnd">@dimen/car_keyline_1</item>
         <item name="contentInsetStart">@dimen/car_keyline_1</item>
-        <item name="elevation">@dimen/car_action_bar_elevation</item>
+        <item name="elevation">@dimen/car_app_bar_default_elevation</item>
         <item name="subtitleTextAppearance">@style/TextAppearance.Car.Body2</item>
         <item name="titleTextAppearance">@style/TextAppearance.Car.Body1.Medium</item>
         <item name="navigationIcon">@drawable/ic_nav_arrow_back</item>
-    </style>
-
-    <!-- The styling for the default action bar. -->
-    <style name="Widget.Car.ActionBar" parent="Widget.AppCompat.Light.ActionBar.Solid">
-        <item name="titleTextStyle">@style/TextAppearance.Car.Body1</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.Car.Body3</item>
-    </style>
-
-    <!-- The styling for the default action bar that has a dark background. -->
-    <style name="Widget.Car.ActionBar.Dark">
-        <item name="background">@android:color/black</item>
-        <item name="backgroundStacked">@android:color/black</item>
-        <item name="backgroundSplit">@android:color/black</item>
-        <item name="titleTextStyle">@style/TextAppearance.Car.Body1.Light</item>
-        <item name="subtitleTextStyle">@style/TextAppearance.Car.Body3.Light</item>
     </style>
 
     <!-- ================ -->
@@ -481,19 +466,6 @@ limitations under the License.
     <!-- Body text for a dialog that is fixed in a dark color. -->
     <style name="Widget.Car.Dialog.Body.Dark">
         <item name="android:textAppearance">@style/TextAppearance.Car.Body2.Dark</item>
-    </style>
-
-    <!-- ================ -->
-    <!-- ActionBar Styles -->
-    <!-- ================ -->
-    <eat-comment />
-
-    <!-- Styles for action buttons -->
-    <style name="Widget.Car.Button.ActionBar">
-        <item name="android:scaleType">fitCenter</item>
-        <item name="android:padding">@dimen/car_action_button_icon_inset</item>
-        <item name="android:background">@drawable/car_action_button_background</item>
-        <item name="android:tint">@color/car_tint</item>
     </style>
 
     <!-- ================= -->

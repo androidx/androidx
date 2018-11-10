@@ -32,10 +32,6 @@ limitations under the License.
          interacting with the current application. [CHAR_LIMIT=30] -->
     <string name="speed_bump_lockout_message">Focus on the road</string>
 
-    <!-- Action Bar -->
-    <!-- Content description for the 'Expand/Collapse' button [CHAR_LIMIT=50] -->
-    <string name="action_bar_expand_collapse_button">Expand/collapse button</string>
-
     <!-- Scroll bar -->
     <!-- Content description for the page up button on the scrollbar [CHAR_LIMIT=20]. -->
     <string name="scroll_bar_page_up_button">Scroll up</string>

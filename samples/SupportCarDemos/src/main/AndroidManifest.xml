@@ -213,18 +213,5 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".SupportCarDemoActivity"/>
         </activity>
-
-        <activity
-            android:name=".DefaultActionBarDemoActivity"
-            android:label="Default Action Bar"
-            android:parentActivityName=".SupportCarDemoActivity"
-            android:theme="@style/Theme.Car">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.SAMPLE_CODE" />
-            </intent-filter>
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                       android:value=".SupportCarDemoActivity" />
-        </activity>
     </application>
 </manifest>

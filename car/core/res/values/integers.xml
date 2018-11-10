@@ -41,13 +41,6 @@ limitations under the License.
          truncated. -->
     <integer name="car_borderless_button_text_length_limit">20</integer>
 
-    <!-- Action Bar animation durations -->
-    <integer name="car_action_bar_expand_scale_duration_ms">233</integer>
-    <integer name="car_action_bar_expand_opacity_delay_ms">33</integer>
-    <integer name="car_action_bar_expand_opacity_duration_ms">133</integer>
-    <integer name="car_action_bar_collapse_scale_duration_ms">100</integer>
-    <integer name="car_action_bar_collapse_opacity_duration_ms">40</integer>
-
     <!-- Alpha Jump Overlay -->
     <!-- The number of columns of buttons to display in the alpha jump overview. -->
     <integer name="car_alpha_jump_button_columns">7</integer>
