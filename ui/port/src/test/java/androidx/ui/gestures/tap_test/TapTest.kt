@@ -16,6 +16,7 @@
 
 package androidx.ui.gestures.tap_test
 
+import androidx.ui.async.Timer
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.gestures.arena.GestureArenaMember
 import androidx.ui.gestures.arena.GestureDisposition
@@ -26,8 +27,12 @@ import androidx.ui.gestures.gesture_tester.ensureGestureBinding
 import androidx.ui.gestures.gesture_tester.gestureArena
 import androidx.ui.gestures.gesture_tester.pointerRouter
 import androidx.ui.gestures.tap.TapGestureRecognizer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.TestCoroutineContext
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
+import org.junit.After
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -39,9 +44,18 @@ class TapTest {
         override fun rejectGesture(pointer: Int) {}
     }
 
+    private lateinit var job: Job
+
     @Before
     fun setup() {
         ensureGestureBinding()
+        job = Job()
+        Timer.scope = CoroutineScope(TestCoroutineContext() + job)
+    }
+
+    @After
+    fun teardown() {
+        job.cancel()
     }
 
     @Test

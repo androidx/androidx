@@ -16,13 +16,19 @@
 
 package androidx.ui.rendering
 
+import androidx.ui.async.Timer
 import androidx.ui.engine.geometry.Size
 import androidx.ui.matchers.MoreOrLessEquals
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.proxybox.RenderIntrinsicHeight
 import androidx.ui.rendering.proxybox.RenderIntrinsicWidth
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.TestCoroutineContext
+import org.junit.After
 import org.junit.Assert.assertThat
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -50,6 +56,19 @@ class IntrinsicWidthTest {
                             _intrinsicDimensions.minHeight + (_intrinsicDimensions.maxHeight -
                                     _intrinsicDimensions.minHeight) / 2.0))
         }
+    }
+
+    private lateinit var job: Job
+
+    @Before
+    fun setup() {
+        job = Job()
+        Timer.scope = CoroutineScope(TestCoroutineContext() + job)
+    }
+
+    @After
+    fun teardown() {
+        job.cancel()
     }
 
     @Test

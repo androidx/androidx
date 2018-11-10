@@ -32,8 +32,13 @@
 
 package androidx.ui.async
 
-import android.os.Handler
+import androidx.annotation.VisibleForTesting
+import androidx.ui.async.Timer.Companion.run
 import androidx.ui.core.Duration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * A count-down timer that can be configured to fire once or repeatedly.
@@ -70,6 +75,11 @@ abstract class Timer {
 
     companion object {
 
+        // TODO(shepshapard): This should come from some kind of "Ambient" or "Context" and not set
+        // "statically" like this.
+        @VisibleForTesting
+        var scope = CoroutineScope(Dispatchers.Main)
+
         /**
          * Creates a new timer.
          *
@@ -77,19 +87,21 @@ abstract class Timer {
          *
          */
         fun create(duration: Duration, callback: () -> Unit): Timer {
-            // TODO(Migration/Andrey): temporary porting the logic with the Android's Handler
-            val handler = Handler()
-            handler.postDelayed(callback, duration.inMilliseconds)
+
+            val job = scope.launch {
+                delay(duration.inMilliseconds)
+                callback()
+            }
+
             return object : Timer() {
                 override fun cancel() {
-                    handler.removeCallbacks(callback)
+                    job.cancel()
                 }
 
                 override val tick: Int
                     get() = TODO()
-
                 override val isActive: Boolean
-                    get() = TODO()
+                    get() = job.isActive
             }
 
 //            if (Zone.current == Zone.root) {

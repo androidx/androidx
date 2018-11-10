@@ -16,11 +16,17 @@
 
 package androidx.ui.rendering
 
+import androidx.ui.async.Timer
 import androidx.ui.engine.geometry.Size
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.proxybox.RenderProxyBox
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.TestCoroutineContext
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -68,6 +74,19 @@ class DynamicIntrinsicsTest {
                     child!!.getMinIntrinsicHeight(Double.POSITIVE_INFINITY)
             )
         }
+    }
+
+    private lateinit var job: Job
+
+    @Before
+    fun setup() {
+        job = Job()
+        Timer.scope = CoroutineScope(TestCoroutineContext() + job)
+    }
+
+    @After
+    fun teardown() {
+        job.cancel()
     }
 
     @Test

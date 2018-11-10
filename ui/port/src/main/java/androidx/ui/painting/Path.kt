@@ -596,7 +596,8 @@ class Path {
         path2: androidx.ui.painting.Path,
         operation: PathOperation
     ): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+        // TODO(shepshapard): Our current min SDK is 21, so this check shouldn't be needed.
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             val op = when (operation) {
                 PathOperation.difference -> android.graphics.Path.Op.DIFFERENCE
                 PathOperation.intersect -> android.graphics.Path.Op.INTERSECT
@@ -605,9 +606,9 @@ class Path {
                 else -> android.graphics.Path.Op.XOR
             }
             return internalPath.op(path1.toFrameworkPath(), path2.toFrameworkPath(), op)
-        } else {
-            return false
-        }
+//        } else {
+//            return false
+//        }
     }
 
     // TODO(Migration/njawad) figure out equivalent for PathMetrics for the framework based in Path

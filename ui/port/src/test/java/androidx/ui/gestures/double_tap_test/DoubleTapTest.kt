@@ -16,6 +16,7 @@
 
 package androidx.ui.gestures.double_tap_test
 
+import androidx.ui.async.Timer
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.gestures.arena.GestureArenaMember
 import androidx.ui.gestures.arena.GestureDisposition
@@ -26,16 +27,33 @@ import androidx.ui.gestures.gesture_tester.ensureGestureBinding
 import androidx.ui.gestures.gesture_tester.gestureArena
 import androidx.ui.gestures.gesture_tester.pointerRouter
 import androidx.ui.gestures.multitap.DoubleTapGestureRecognizer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.test.TestCoroutineContext
 import org.hamcrest.CoreMatchers.`is`
+import org.junit.After
 import org.junit.Assert.assertThat
+import org.junit.Before
 import org.junit.Test
 
 class DoubleTapTest {
 
+    private lateinit var job: Job
+
+    @Before
+    fun setup() {
+        ensureGestureBinding()
+        job = Job()
+        Timer.scope = CoroutineScope(TestCoroutineContext() + job)
+    }
+
+    @After
+    fun teardown() {
+        job.cancel()
+    }
+
     @Test
     fun `Should recognize double tap`() {
-        ensureGestureBinding()
-
         val tap = DoubleTapGestureRecognizer()
 
         var doubleTapRecognized = false
@@ -70,8 +88,6 @@ class DoubleTapTest {
 
     @Test
     fun `Inter-tap distance cancels double tap`() {
-        ensureGestureBinding()
-
         val tap = DoubleTapGestureRecognizer()
 
         var doubleTapRecognized = false
@@ -106,8 +122,6 @@ class DoubleTapTest {
 
     @Test
     fun `Intra-tap distance cancels double tap`() {
-        ensureGestureBinding()
-
         val tap = DoubleTapGestureRecognizer()
 
         var doubleTapRecognized = false
@@ -264,8 +278,6 @@ class DoubleTapTest {
 
     @Test
     fun `Should not recognize two overlapping taps`() {
-        ensureGestureBinding()
-
         val tap = DoubleTapGestureRecognizer()
 
         var doubleTapRecognized = false
@@ -300,8 +312,6 @@ class DoubleTapTest {
 
     @Test
     fun `Should recognize one tap of group followed by second tap`() {
-        ensureGestureBinding()
-
         val tap = DoubleTapGestureRecognizer()
 
         var doubleTapRecognized = false
@@ -347,8 +357,6 @@ class DoubleTapTest {
 
     @Test
     fun `Should cancel on arena reject during first tap`() {
-        ensureGestureBinding()
-
         val tap = DoubleTapGestureRecognizer()
 
         var doubleTapRecognized = false
@@ -388,8 +396,6 @@ class DoubleTapTest {
 
     @Test
     fun `Should cancel on arena reject between taps`() {
-        ensureGestureBinding()
-
         val tap = DoubleTapGestureRecognizer()
 
         var doubleTapRecognized = false
@@ -429,8 +435,6 @@ class DoubleTapTest {
 
     @Test
     fun `Should cancel on arena reject during last tap`() {
-        ensureGestureBinding()
-
         val tap = DoubleTapGestureRecognizer()
 
         var doubleTapRecognized = false
