@@ -55,10 +55,12 @@ import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaUtils2;
+import androidx.media2.ParcelImplListSlice;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
 import androidx.media2.SessionToken2;
+import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
 import java.util.ArrayList;
@@ -163,11 +165,12 @@ public class RemoteMediaSession2 {
         Bundle bundle = createMockPlayerConnectorConfig(state, buffState, pos, buffPos, speed,
                 attr);
         if (playlist != null) {
-            bundle.putParcelableArrayList(KEY_PLAYLIST,
-                    MediaTestUtils.playlistToParcelableArrayList(playlist));
+            ParcelImplListSlice listSlice = new ParcelImplListSlice(
+                    MediaTestUtils.convertToParcelImplList(playlist));
+            bundle.putParcelable(KEY_PLAYLIST, listSlice);
         }
         if (currentItem != null) {
-            bundle.putBundle(KEY_MEDIA_ITEM, currentItem.toBundle());
+            bundle.putParcelable(KEY_MEDIA_ITEM, MediaUtils2.toParcelable(currentItem));
         }
         if (metadata != null) {
             ParcelUtils.putVersionedParcelable(bundle, KEY_METADATA, metadata);
@@ -225,7 +228,7 @@ public class RemoteMediaSession2 {
 
     public void broadcastCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
         try {
-            mBinder.broadcastCustomCommand(mSessionId, command.toBundle(), args);
+            mBinder.broadcastCustomCommand(mSessionId, MediaUtils2.toParcelable(command), args);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call broadcastCustomCommand()");
         }
@@ -235,7 +238,7 @@ public class RemoteMediaSession2 {
             @NonNull SessionCommand2 command, @Nullable Bundle args) {
         try {
             // TODO: ControllerInfo should be handled.
-            mBinder.sendCustomCommand(mSessionId, null, command.toBundle(), args);
+            mBinder.sendCustomCommand(mSessionId, null, MediaUtils2.toParcelable(command), args);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call sendCustomCommand2()");
         }
@@ -253,7 +256,8 @@ public class RemoteMediaSession2 {
             @NonNull SessionCommandGroup2 commands) {
         try {
             // TODO: ControllerInfo should be handled.
-            mBinder.setAllowedCommands(mSessionId, null, commands.toBundle());
+            mBinder.setAllowedCommands(mSessionId, null,
+                    MediaUtils2.toParcelable(commands));
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call setAllowedCommands()");
         }
@@ -272,9 +276,9 @@ public class RemoteMediaSession2 {
     public void setCustomLayout(@NonNull ControllerInfo controller,
             @NonNull List<CommandButton> layout) {
         try {
-            List<Bundle> bundleList = new ArrayList<>();
+            List<ParcelImpl> bundleList = new ArrayList<>();
             for (CommandButton btn : layout) {
-                bundleList.add(btn.toBundle());
+                bundleList.add(MediaUtils2.toParcelable(btn));
             }
             // TODO: ControllerInfo should be handled.
             mBinder.setCustomLayout(mSessionId, null, bundleList);
@@ -380,7 +384,7 @@ public class RemoteMediaSession2 {
         public void setPlaylist(List<MediaItem2> playlist) {
             try {
                 mBinder.setPlaylist(
-                        mSessionId, MediaTestUtils.mediaItem2ListToBundleList(playlist));
+                        mSessionId, MediaTestUtils.convertToParcelImplList(playlist));
             } catch (RemoteException ex) {
                 Log.e(TAG, "Failed to call setPlaylist()");
             }
@@ -403,7 +407,7 @@ public class RemoteMediaSession2 {
         public void setPlaylistWithDummyItem(List<MediaItem2> playlist) {
             try {
                 mBinder.setPlaylistWithDummyItem(
-                        mSessionId, MediaTestUtils.mediaItem2ListToBundleList(playlist));
+                        mSessionId, MediaTestUtils.convertToParcelImplList(playlist));
             } catch (RemoteException ex) {
                 Log.e(TAG, "Failed to call setPlaylistWithDummyItem()");
             }

@@ -20,9 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand2.COMMAND_VERSION_1;
 
-import android.os.Bundle;
-import android.os.Parcelable;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -34,10 +31,8 @@ import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,7 +41,6 @@ import java.util.Set;
 @VersionedParcelize
 public final class SessionCommandGroup2 implements VersionedParcelable {
     private static final String TAG = "SessionCommandGroup2";
-    private static final String KEY_COMMANDS = "android.media.session2.commandgroup.commands";
 
     @ParcelField(1)
     Set<SessionCommand2> mCommands = new HashSet<>();
@@ -136,49 +130,6 @@ public final class SessionCommandGroup2 implements VersionedParcelable {
      */
     public @NonNull Set<SessionCommand2> getCommands() {
         return new HashSet<>(mCommands);
-    }
-
-    /**
-     * @return A new {@link Bundle} instance from the SessionCommandGroup2.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public @NonNull Bundle toBundle() {
-        ArrayList<Bundle> list = new ArrayList<>();
-        for (SessionCommand2 command : mCommands) {
-            list.add(command.toBundle());
-        }
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(KEY_COMMANDS, list);
-        return bundle;
-    }
-
-    /**
-     * @return A new {@link SessionCommandGroup2} instance from the bundle.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static @Nullable SessionCommandGroup2 fromBundle(Bundle commands) {
-        if (commands == null) {
-            return null;
-        }
-        List<Parcelable> list = commands.getParcelableArrayList(KEY_COMMANDS);
-        if (list == null) {
-            return null;
-        }
-        SessionCommandGroup2 commandGroup = new SessionCommandGroup2();
-        for (int i = 0; i < list.size(); i++) {
-            Parcelable parcelable = list.get(i);
-            if (!(parcelable instanceof Bundle)) {
-                continue;
-            }
-            Bundle commandBundle = (Bundle) parcelable;
-            SessionCommand2 command = SessionCommand2.fromBundle(commandBundle);
-            if (command != null) {
-                commandGroup.addCommand(command);
-            }
-        }
-        return commandGroup;
     }
 
     /**

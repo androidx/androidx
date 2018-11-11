@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
@@ -34,6 +33,8 @@ import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
+import androidx.media2.MediaUtils2;
+import androidx.versionedparcelable.ParcelImpl;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -132,35 +133,40 @@ public final class MediaTestUtils {
                 .build();
     }
 
-    public static List<MediaItem2> playlistFromParcelableList(List<Parcelable> parcelables,
+    public static List<MediaItem2> convertToMediaItems(List<ParcelImpl> list,
             boolean createItem) {
-        if (parcelables == null) {
+        if (list == null) {
             return null;
         }
 
         List<MediaItem2> result = new ArrayList<>();
         if (createItem) {
-            for (Parcelable itemBundle : parcelables) {
-                MediaItem2 item = MediaItem2.fromBundle((Bundle) itemBundle);
+            for (ParcelImpl parcel : list) {
+                MediaItem2 item = MediaUtils2.fromParcelable(parcel);
                 result.add(new FileMediaItem2.Builder(new FileDescriptor())
                         .setMetadata(item.getMetadata())
                         .build());
             }
         } else {
-            for (Parcelable itemBundle : parcelables) {
-                result.add(MediaItem2.fromBundle((Bundle) itemBundle));
+            for (ParcelImpl parcel : list) {
+                result.add((MediaItem2) MediaUtils2.fromParcelable(parcel));
             }
         }
         return result;
     }
 
-    public static List<CommandButton> buttonListFromBundleList(List<Bundle> bundleList) {
-        if (bundleList == null) {
+    /**
+     * Converts to list of {@link CommandButton}.
+     * @param commandButtons list of ParcelImpl
+     * @return
+     */
+    public static List<CommandButton> convertToCommandButtonList(List<ParcelImpl> commandButtons) {
+        if (commandButtons == null) {
             return null;
         }
         List<CommandButton> result = new ArrayList<>();
-        for (int i = 0; i < bundleList.size(); i++) {
-            result.add(CommandButton.fromBundle(bundleList.get(i)));
+        for (int i = 0; i < commandButtons.size(); i++) {
+            result.add((CommandButton) MediaUtils2.fromParcelable(commandButtons.get(i)));
         }
         return result;
     }
