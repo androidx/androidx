@@ -60,6 +60,7 @@ import androidx.media2.SessionPlayer;
 import androidx.media2.SessionToken;
 import androidx.media2.SubtitleData;
 import androidx.media2.UriMediaItem;
+import androidx.media2.VideoSize;
 import androidx.media2.subtitle.Cea708CaptionRenderer;
 import androidx.media2.subtitle.ClosedCaptionRenderer;
 import androidx.media2.subtitle.SubtitleController;
@@ -898,9 +899,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             new MediaPlayer.PlayerCallback() {
                 @Override
                 public void onVideoSizeChanged(
-                        MediaPlayer mp, MediaItem dsd, int width, int height) {
+                        MediaPlayer mp, MediaItem dsd, VideoSize size) {
                     if (DEBUG) {
-                        Log.d(TAG, "onVideoSizeChanged(): size: " + width + "/" + height);
+                        Log.d(TAG, "onVideoSizeChanged(): size: " + size.getWidth() + "/"
+                                + size.getHeight());
                     }
                     if (mp != mMediaPlayer) {
                         if (DEBUG) {
@@ -908,8 +910,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         }
                         return;
                     }
-                    mVideoWidth = width;
-                    mVideoHeight = height;
+                    mVideoWidth = size.getWidth();
+                    mVideoHeight = size.getHeight();
                     if (DEBUG) {
                         Log.d(TAG, "onVideoSizeChanged(): mVideoSize:" + mVideoWidth + "/"
                                 + mVideoHeight);
@@ -1054,8 +1056,9 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     }
 
                     if (player instanceof VideoView2Player) {
-                        int videoWidth = ((VideoView2Player) player).getVideoWidth();
-                        int videoHeight = ((VideoView2Player) player).getVideoHeight();
+                        VideoSize size = ((VideoView2Player) player).getVideoSize();
+                        int videoWidth = size.getWidth();
+                        int videoHeight = size.getHeight();
 
                         if (videoWidth != 0 && videoHeight != 0) {
                             if (videoWidth != mVideoWidth || videoHeight != mVideoHeight) {

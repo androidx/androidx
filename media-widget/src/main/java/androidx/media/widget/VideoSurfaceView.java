@@ -30,6 +30,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.media2.MediaPlayer;
+import androidx.media2.VideoSize;
 
 @RequiresApi(21)
 class VideoSurfaceView extends SurfaceView
@@ -146,8 +147,13 @@ class VideoSurfaceView extends SurfaceView
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int videoWidth = (mMediaPlayer == null) ? 0 : mMediaPlayer.getVideoWidth();
-        int videoHeight = (mMediaPlayer == null) ? 0 : mMediaPlayer.getVideoHeight();
+        int videoWidth = 0;
+        int videoHeight = 0;
+        if (mMediaPlayer != null) {
+            VideoSize size = mMediaPlayer.getVideoSize();
+            videoWidth = size.getWidth();
+            videoHeight = size.getHeight();
+        }
         if (DEBUG) {
             Log.d(TAG, "onMeasure(" + MeasureSpec.toString(widthMeasureSpec) + ", "
                     + MeasureSpec.toString(heightMeasureSpec) + ")");

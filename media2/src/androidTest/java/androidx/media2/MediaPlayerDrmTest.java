@@ -379,8 +379,9 @@ public class MediaPlayerDrmTest {
 
         mECb = new MediaPlayer.PlayerCallback() {
                 @Override
-                public void onVideoSizeChanged(MediaPlayer mp, MediaItem item, int w, int h) {
-                    Log.v(TAG, "VideoSizeChanged" + " w:" + w + " h:" + h);
+                public void onVideoSizeChanged(MediaPlayer mp, MediaItem item, VideoSize size) {
+                    Log.v(TAG, "VideoSizeChanged" + " w:" + size.getWidth() + " h:"
+                            + size.getHeight());
                     mOnVideoSizeChangedCalled.signal();
                 }
 
