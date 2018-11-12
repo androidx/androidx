@@ -308,13 +308,13 @@ public class MediaControlView2 extends BaseLayout {
         super(context, attrs, defStyleAttr);
 
         mResources = context.getResources();
+        mController = new Controller2();
         // Inflate MediaControlView2 from XML
         mRoot = makeControllerView();
         addView(mRoot);
         mShowControllerIntervalMs = DEFAULT_SHOW_CONTROLLER_INTERVAL_MS;
         mAccessibilityManager = (AccessibilityManager) context.getSystemService(
                 Context.ACCESSIBILITY_SERVICE);
-        mController = new Controller2();
     }
 
     /**
@@ -1644,25 +1644,35 @@ public class MediaControlView2 extends BaseLayout {
         }
         mFfwdButton = v.findViewById(R.id.ffwd);
         if (mFfwdButton != null) {
-            mFfwdButton.setOnClickListener(mFfwdListener);
             if (mMediaType == MEDIA_TYPE_MUSIC) {
                 mFfwdButton.setVisibility(View.GONE);
+            } else {
+                mFfwdButton.setOnClickListener(mFfwdListener);
             }
         }
         mRewButton = v.findViewById(R.id.rew);
         if (mRewButton != null) {
-            mRewButton.setOnClickListener(mRewListener);
             if (mMediaType == MEDIA_TYPE_MUSIC) {
                 mRewButton.setVisibility(View.GONE);
+            } else {
+                mRewButton.setOnClickListener(mRewListener);
             }
         }
         mNextButton = v.findViewById(R.id.next);
         if (mNextButton != null) {
-            mNextButton.setOnClickListener(mNextListener);
+            if (mController.canSkipToNext()) {
+                mNextButton.setOnClickListener(mNextListener);
+            } else {
+                mNextButton.setVisibility(View.GONE);
+            }
         }
         mPrevButton = v.findViewById(R.id.prev);
         if (mPrevButton != null) {
-            mPrevButton.setOnClickListener(mPrevListener);
+            if (mController.canSkipToPrevious()) {
+                mPrevButton.setOnClickListener(mPrevListener);
+            } else {
+                mPrevButton.setVisibility(View.GONE);
+            }
         }
         return v;
     }
@@ -2140,12 +2150,15 @@ public class MediaControlView2 extends BaseLayout {
             MediaItem2 currentItem = mController2.getCurrentMediaItem();
             mMediaMetadata2 = currentItem != null ? currentItem.getMetadata() : null;
         }
+
         boolean hasMetadata() {
             return mMediaMetadata2 != null;
         }
+
         boolean isPlaying() {
             return mPlaybackState == SessionPlayer2.PLAYER_STATE_PLAYING;
         }
+
         long getCurrentPosition() {
             if (mController2 != null) {
                 long currentPosition = mController2.getCurrentPosition();
@@ -2153,6 +2166,7 @@ public class MediaControlView2 extends BaseLayout {
             }
             return 0;
         }
+
         long getBufferPercentage() {
             if (mController2 != null && mDuration != 0) {
                 long bufferedPos = mController2.getBufferedPosition();
@@ -2160,54 +2174,75 @@ public class MediaControlView2 extends BaseLayout {
             }
             return 0;
         }
+
         int getPlaybackState() {
             if (mController2 != null) {
                 return mController2.getPlayerState();
             }
             return SessionPlayer2.PLAYER_STATE_IDLE;
         }
+
         boolean canPause() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
                     SessionCommand2.COMMAND_CODE_PLAYER_PAUSE);
         }
+
         boolean canSeekBackward() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
                     SessionCommand2.COMMAND_CODE_SESSION_REWIND);
         }
+
         boolean canSeekForward() {
             return mAllowedCommands != null && mAllowedCommands.hasCommand(
                     SessionCommand2.COMMAND_CODE_SESSION_FAST_FORWARD);
         }
+
+        boolean canSkipToNext() {
+            return mAllowedCommands != null && mAllowedCommands.hasCommand(
+                    SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM);
+        }
+
+        boolean canSkipToPrevious() {
+            return mAllowedCommands != null && mAllowedCommands.hasCommand(
+                    SessionCommand2.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM);
+        }
+
         void pause() {
             if (mController2 != null) {
                 mController2.pause();
             }
         }
+
         void play() {
             if (mController2 != null) {
                 mController2.play();
             }
         }
+
         void seekTo(long posMs) {
             if (mController2 != null) {
                 mController2.seekTo(posMs);
             }
         }
+
         void skipToNextItem() {
             if (mController2 != null) {
                 mController2.skipToNextPlaylistItem();
             }
         }
+
         void skipToPreviousItem() {
             if (mController2 != null) {
                 mController2.skipToPreviousPlaylistItem();
             }
         }
+
         void setSpeed(float speed) {
             if (mController2 != null) {
                 mController2.setPlaybackSpeed(speed);
             }
         }
+
         void selectAudioTrack(int trackIndex) {
             if (mController2 != null) {
                 Bundle extra = new Bundle();
@@ -2217,6 +2252,7 @@ public class MediaControlView2 extends BaseLayout {
                         extra);
             }
         }
+
         void showSubtitle(int trackIndex) {
             if (mController2 != null) {
                 Bundle extra = new Bundle();
@@ -2225,12 +2261,14 @@ public class MediaControlView2 extends BaseLayout {
                         new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra);
             }
         }
+
         void hideSubtitle() {
             if (mController2 != null) {
                 mController2.sendCustomCommand(
                         new SessionCommand2(COMMAND_HIDE_SUBTITLE, null), null);
             }
         }
+
         long getDurationMs() {
             // TODO Remove this if-block after b/109639439 is fixed.
             if (mMediaMetadata2 != null) {
@@ -2243,6 +2281,7 @@ public class MediaControlView2 extends BaseLayout {
             }
             return 0;
         }
+
         CharSequence getTitle() {
             if (mMediaMetadata2 != null) {
                 if (mMediaMetadata2.containsKey(MediaMetadata2.METADATA_KEY_TITLE)) {
@@ -2251,6 +2290,7 @@ public class MediaControlView2 extends BaseLayout {
             }
             return null;
         }
+
         CharSequence getArtistText() {
             if (mMediaMetadata2 != null) {
                 if (mMediaMetadata2.containsKey(MediaMetadata2.METADATA_KEY_ARTIST)) {
@@ -2259,15 +2299,18 @@ public class MediaControlView2 extends BaseLayout {
             }
             return null;
         }
+
         MediaItem2 getCurrentMediaItem() {
             if (mController2 != null) {
                 return mController2.getCurrentMediaItem();
             }
             return null;
         }
+
         void setAllowedCommands(SessionCommandGroup2 commands) {
             mAllowedCommands = commands;
         }
+
         SessionCommandGroup2 getAllowedCommands() {
             return mAllowedCommands;
         }
