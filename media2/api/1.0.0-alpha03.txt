@@ -268,7 +268,6 @@ package androidx.media2 {
 
   public final class MediaMetadata2 implements androidx.versionedparcelable.VersionedParcelable {
     method public boolean containsKey(String);
-    method public static androidx.media2.MediaMetadata2 fromBundle(android.os.Bundle?);
     method public android.graphics.Bitmap? getBitmap(String);
     method public android.os.Bundle? getExtras();
     method public float getFloat(String);
@@ -279,7 +278,6 @@ package androidx.media2 {
     method public CharSequence? getText(String);
     method public java.util.Set<java.lang.String> keySet();
     method public int size();
-    method public android.os.Bundle toBundle();
     field public static final long BROWSABLE_TYPE_ALBUMS = 2L; // 0x2L
     field public static final long BROWSABLE_TYPE_ARTISTS = 3L; // 0x3L
     field public static final long BROWSABLE_TYPE_GENRES = 4L; // 0x4L
