@@ -71,7 +71,7 @@ public class SliceSerializeMetrics {
     public void testSerialization() throws Exception {
         final BenchmarkState state = mBenchmarkRule.getState();
         // Create a slice containing all the types in a hierarchy.
-        Slice before = createSlice(Uri.parse("context://pkg/slice"), 3, 3, 6);
+        Slice before = createSlice(mContext, Uri.parse("context://pkg/slice"), 3, 3, 6);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream(1024 * 1024);
 
         if (WRITE_SAMPLE_FILE) {
@@ -131,7 +131,7 @@ public class SliceSerializeMetrics {
             after = SliceUtils.parseSlice(mContext, inputStream, "UTF-8", listener);
         }
 
-        Slice before = createSlice(Uri.parse("context://pkg/slice"), 3, 3, 6);
+        Slice before = createSlice(mContext, Uri.parse("context://pkg/slice"), 3, 3, 6);
         assertEquivalentRoot(before, after);
     }
 
@@ -176,11 +176,11 @@ public class SliceSerializeMetrics {
         }
     }
 
-    private Slice createSlice(Uri uri, int width, int depth, int items) {
+    public static Slice createSlice(Context context, Uri uri, int width, int depth, int items) {
         Slice.Builder builder = new Slice.Builder(uri);
         if (depth > 0) {
             for (int i = 0; i < width; i++) {
-                builder.addSubSlice(createSlice(uri.buildUpon()
+                builder.addSubSlice(createSlice(context, uri.buildUpon()
                         .appendPath(String.valueOf(width))
                         .appendPath(String.valueOf(depth))
                         .appendPath(String.valueOf(items))
@@ -197,7 +197,7 @@ public class SliceSerializeMetrics {
             builder.addText("Some text", null);
         }
         if (items > 3) {
-            PendingIntent pi = PendingIntent.getActivity(mContext, 0, new Intent(), 0);
+            PendingIntent pi = PendingIntent.getActivity(context, 0, new Intent(), 0);
             builder.addAction(pi,
                     new Slice.Builder(Uri.parse("content://pkg/slice/action"))
                             .addText("Action text", null)
@@ -207,7 +207,7 @@ public class SliceSerializeMetrics {
             builder.addInt(0xff00ff00, "subtype");
         }
         if (items > 5) {
-            builder.addIcon(IconCompat.createWithResource(mContext,
+            builder.addIcon(IconCompat.createWithResource(context,
                     R.drawable.abc_slice_see_more_bg), null);
         }
         return builder.addHints("Hint 1", "Hint 2")
