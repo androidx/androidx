@@ -63,4 +63,11 @@
         app:autoSizeMaxTextSize="50dp"
         app:autoSizeStepGranularity="1px" />
 
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/textview_linespacing"
+        android:layout_width="100dp"
+        android:layout_height="200dp"
+        app:autoSizeMaxTextSize="20dp"
+        android:text="@string/sample_text1" />
+
 </LinearLayout>

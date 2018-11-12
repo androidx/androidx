@@ -39,9 +39,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.R;
 import androidx.core.widget.TextViewCompat;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,6 +70,10 @@ class AppCompatTextViewAutoSizeHelper {
     // Cache of TextView methods used via reflection; the key is the method name and the value is
     // the method itself or null if it can not be found.
     private static ConcurrentHashMap<String, Method> sTextViewMethodByNameCache =
+            new ConcurrentHashMap<>();
+    // Cache of TextView fields used via reflection; the key is the field name and the value is
+    // the field itself or null if it can not be found.
+    private static ConcurrentHashMap<String, Field> sTextViewFieldByNameCache =
             new ConcurrentHashMap<>();
     // Use this to specify that any of the auto-size configuration int values have not been set.
     static final float UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1f;
@@ -655,6 +661,29 @@ class AppCompatTextViewAutoSizeHelper {
         return mAutoSizeTextSizesInPx[bestSizeIndex];
     }
 
+    @VisibleForTesting
+    void initTempTextPaint(final int suggestedSizeInPx) {
+        if (mTempTextPaint == null) {
+            mTempTextPaint = new TextPaint();
+        } else {
+            mTempTextPaint.reset();
+        }
+        mTempTextPaint.set(mTextView.getPaint());
+        mTempTextPaint.setTextSize(suggestedSizeInPx);
+    }
+
+    @VisibleForTesting
+    StaticLayout createLayout(CharSequence text, Layout.Alignment alignment, int availableWidth,
+            int maxLines) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return createStaticLayoutForMeasuring(text, alignment, availableWidth, maxLines);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            return createStaticLayoutForMeasuringPre23(text, alignment, availableWidth);
+        } else {
+            return createStaticLayoutForMeasuringPre16(text, alignment, availableWidth);
+        }
+    }
+
     private boolean suggestedSizeFitsInSpace(int suggestedSizeInPx, RectF availableSpace) {
         CharSequence text = mTextView.getText();
         TransformationMethod transformationMethod = mTextView.getTransformationMethod();
@@ -666,22 +695,13 @@ class AppCompatTextViewAutoSizeHelper {
         }
 
         final int maxLines = Build.VERSION.SDK_INT >= 16 ? mTextView.getMaxLines() : -1;
-        if (mTempTextPaint == null) {
-            mTempTextPaint = new TextPaint();
-        } else {
-            mTempTextPaint.reset();
-        }
-        mTempTextPaint.set(mTextView.getPaint());
-        mTempTextPaint.setTextSize(suggestedSizeInPx);
+        initTempTextPaint(suggestedSizeInPx);
 
         // Needs reflection call due to being private.
         Layout.Alignment alignment = invokeAndReturnWithDefault(
                 mTextView, "getLayoutAlignment", Layout.Alignment.ALIGN_NORMAL);
-        final StaticLayout layout = Build.VERSION.SDK_INT >= 23
-                ? createStaticLayoutForMeasuring(
-                        text, alignment, Math.round(availableSpace.right), maxLines)
-                : createStaticLayoutForMeasuringPre23(
-                        text, alignment, Math.round(availableSpace.right));
+        final StaticLayout layout = createLayout(text, alignment, Math.round(availableSpace.right),
+                maxLines);
         // Lines overflow.
         if (maxLines != -1 && (layout.getLineCount() > maxLines
                 || (layout.getLineEnd(layout.getLineCount() - 1)) != text.length())) {
@@ -720,28 +740,12 @@ class AppCompatTextViewAutoSizeHelper {
                 .build();
     }
 
+    @RequiresApi(16)
     private StaticLayout createStaticLayoutForMeasuringPre23(CharSequence text,
             Layout.Alignment alignment, int availableWidth) {
-        // Setup defaults.
-        float lineSpacingMultiplier = 1.0f;
-        float lineSpacingAdd = 0.0f;
-        boolean includePad = true;
-
-        if (Build.VERSION.SDK_INT >= 16) {
-            // Call public methods.
-            lineSpacingMultiplier = mTextView.getLineSpacingMultiplier();
-            lineSpacingAdd = mTextView.getLineSpacingExtra();
-            includePad = mTextView.getIncludeFontPadding();
-        } else {
-            // Call private methods and make sure to provide fallback defaults in case something
-            // goes wrong. The default values have been inlined with the StaticLayout defaults.
-            lineSpacingMultiplier = invokeAndReturnWithDefault(mTextView,
-                    "getLineSpacingMultiplier", lineSpacingMultiplier);
-            lineSpacingAdd = invokeAndReturnWithDefault(mTextView,
-                    "getLineSpacingExtra", lineSpacingAdd);
-            includePad = invokeAndReturnWithDefault(mTextView,
-                    "getIncludeFontPadding", includePad);
-        }
+        final float lineSpacingMultiplier = mTextView.getLineSpacingMultiplier();
+        final float lineSpacingAdd = mTextView.getLineSpacingExtra();
+        final boolean includePad = mTextView.getIncludeFontPadding();
 
         // The layout could not be constructed using the builder so fall back to the
         // most broad constructor.
@@ -752,7 +756,25 @@ class AppCompatTextViewAutoSizeHelper {
                 includePad);
     }
 
-    private <T> T invokeAndReturnWithDefault(@NonNull Object object,
+    private StaticLayout createStaticLayoutForMeasuringPre16(CharSequence text,
+            Layout.Alignment alignment, int availableWidth) {
+        // The default values have been inlined with the StaticLayout defaults.
+
+        final float lineSpacingMultiplier = accessAndReturnWithDefault(mTextView,
+                "mSpacingMult", 1.0f);
+        final float lineSpacingAdd = accessAndReturnWithDefault(mTextView,
+                "mSpacingAdd", 0.0f);
+        final boolean includePad = accessAndReturnWithDefault(mTextView,
+                "mIncludePad", true);
+
+        return new StaticLayout(text, mTempTextPaint, availableWidth,
+                alignment,
+                lineSpacingMultiplier,
+                lineSpacingAdd,
+                includePad);
+    }
+
+    private static <T> T invokeAndReturnWithDefault(@NonNull Object object,
             @NonNull final String methodName, @NonNull final T defaultValue) {
         T result = null;
         boolean exceptionThrown = false;
@@ -773,8 +795,23 @@ class AppCompatTextViewAutoSizeHelper {
         return result;
     }
 
+    private static <T> T accessAndReturnWithDefault(@NonNull Object object,
+            @NonNull final String fieldName, @NonNull final T defaultValue) {
+        try {
+            final Field field = getTextViewField(fieldName);
+            if (field == null) {
+                return defaultValue;
+            }
+
+            return (T) field.get(object);
+        }  catch (IllegalAccessException e) {
+            Log.w(TAG, "Failed to access TextView#" + fieldName + " member", e);
+            return defaultValue;
+        }
+    }
+
     @Nullable
-    private Method getTextViewMethod(@NonNull final String methodName) {
+    private static Method getTextViewMethod(@NonNull final String methodName) {
         try {
             Method method = sTextViewMethodByNameCache.get(methodName);
             if (method == null) {
@@ -789,6 +826,25 @@ class AppCompatTextViewAutoSizeHelper {
             return method;
         } catch (Exception ex) {
             Log.w(TAG, "Failed to retrieve TextView#" + methodName + "() method", ex);
+            return null;
+        }
+    }
+
+    @Nullable
+    private static Field getTextViewField(@NonNull final String fieldName) {
+        try {
+            Field field = sTextViewFieldByNameCache.get(fieldName);
+            if (field == null) {
+                field = TextView.class.getDeclaredField(fieldName);
+                if (field != null) {
+                    field.setAccessible(true);
+                    sTextViewFieldByNameCache.put(fieldName, field);
+                }
+            }
+
+            return field;
+        } catch (NoSuchFieldException e) {
+            Log.w(TAG, "Failed to access TextView#" + fieldName + " member", e);
             return null;
         }
     }

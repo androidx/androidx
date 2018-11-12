@@ -15,23 +15,30 @@
  */
 package androidx.appcompat.widget;
 
+import static android.text.Layout.Alignment.ALIGN_NORMAL;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Build;
+import android.text.StaticLayout;
 import android.text.method.SingleLineTransformationMethod;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.test.R;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.lang.reflect.Field;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -86,6 +93,52 @@ public class AppCompatTextViewAutoSizeTest extends
         }
         assertEquals(TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM, textView.getAutoSizeTextType());
         assertTrue(textView.getTransformationMethod() instanceof SingleLineTransformationMethod);
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
+    public void testSpacingIsSetPre16() throws NoSuchFieldException, IllegalAccessException {
+        final AppCompatTextView textView = (AppCompatTextView) mActivity
+                .getLayoutInflater().inflate(R.layout.textview_autosize_maxlines, null);
+        textView.setLineSpacing(5, 5);
+
+        final AppCompatTextViewAutoSizeHelper helper =
+                new AppCompatTextViewAutoSizeHelper(textView);
+        helper.initTempTextPaint(100);
+
+        final String text = mActivity.getResources().getString(R.string.sample_text1);
+        StaticLayout staticLayout = helper.createLayout(text, ALIGN_NORMAL, 100, 1);
+
+        final Field spacingMultField = TextView.class.getDeclaredField("mSpacingMult");
+        spacingMultField.setAccessible(true);
+        final float spacingMultReference = (float) spacingMultField.get(textView);
+        final float spacingMultActual = staticLayout.getSpacingMultiplier();
+        assertEquals(spacingMultReference, spacingMultActual, 0f);
+
+        final Field spacingAddField = TextView.class.getDeclaredField("mSpacingAdd");
+        spacingAddField.setAccessible(true);
+        final float spacingAddReference = (float) spacingAddField.get(textView);
+        final float spacingAddActual = staticLayout.getSpacingAdd();
+        assertEquals(spacingAddReference, spacingAddActual, 0f);
+
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
+    public void testSpacingIsSet() {
+        final AppCompatTextView textView = (AppCompatTextView) mActivity
+                .getLayoutInflater().inflate(R.layout.textview_autosize_maxlines,  null);
+        textView.setLineSpacing(5, 5);
+
+        final AppCompatTextViewAutoSizeHelper helper =
+                new AppCompatTextViewAutoSizeHelper(textView);
+        helper.initTempTextPaint(100);
+
+        final String text = mActivity.getResources().getString(R.string.sample_text1);
+        StaticLayout staticLayout = helper.createLayout(text, ALIGN_NORMAL, 100, 1);
+
+        assertEquals(textView.getLineSpacingMultiplier(), staticLayout.getSpacingMultiplier(), 0f);
+        assertEquals(textView.getLineSpacingExtra(), staticLayout.getSpacingAdd(), 0f);
     }
 
     public static class CustomTextViewWithTransformationMethod extends AppCompatTextView {
