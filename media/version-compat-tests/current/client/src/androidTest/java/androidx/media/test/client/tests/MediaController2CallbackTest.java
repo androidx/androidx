@@ -35,6 +35,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -460,7 +461,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     @Override
                     public void onPlaylistMetadataChanged(MediaController2 controller,
                             MediaMetadata2 metadata) {
-                        assertNotNull(testMetadata);
+                        assertNotNull(metadata);
                         assertEquals(testMetadata.getMediaId(), metadata.getMediaId());
                         metadataFromCallback.set(metadata);
                         latch.countDown();
@@ -474,6 +475,39 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(metadataFromCallback.get().getMediaId(),
                 controller.getPlaylistMetadata().getMediaId());
+    }
+
+    @Test
+    public void testOnPlaylistMetadataChanged_withManyLargeImages() throws InterruptedException {
+        prepareLooper();
+        final int imageCount = 100;
+        final int originalWidth = 1024;
+        final int originalHeight = 1024;
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController2.ControllerCallback callback =
+                new MediaController2.ControllerCallback() {
+                    @Override
+                    public void onPlaylistMetadataChanged(MediaController2 controller,
+                            MediaMetadata2 metadata) {
+                        assertNotNull(metadata);
+                        Set<String> keySet = metadata.keySet();
+                        assertEquals(imageCount, keySet.size());
+                        for (String key : keySet) {
+                            Bitmap value = metadata.getBitmap(key);
+                            assertTrue("Bitmap should have been scaled down.",
+                                    originalWidth > value.getWidth()
+                                            && originalHeight > value.getHeight());
+                        }
+                        latch.countDown();
+                    }
+                };
+        RemoteMediaSession2.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
+        player.setPlaylistMetadataWithLargeBitmaps(imageCount, originalWidth, originalHeight);
+
+        MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
+        player.notifyPlaylistMetadataChanged();
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     /**

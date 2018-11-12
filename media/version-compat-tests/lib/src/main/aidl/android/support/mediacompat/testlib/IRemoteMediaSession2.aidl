@@ -54,6 +54,7 @@ interface IRemoteMediaSession2 {
     void createAndSetDummyPlaylist(String sessionId, int size);
     void setPlaylistWithDummyItem(String sessionId, in List<ParcelImpl> playlist);
     void setPlaylistMetadata(String sessionId, in Bundle metadata);
+    void setPlaylistMetadataWithLargeBitmaps(String sessionId, int count, int width, int height);
     void setShuffleMode(String sessionId, int shuffleMode);
     void setRepeatMode(String sessionId, int repeatMode);
     void setCurrentMediaItem(String sessionId, int index);
