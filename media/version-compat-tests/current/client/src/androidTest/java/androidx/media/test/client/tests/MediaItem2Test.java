@@ -25,7 +25,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Parcel;
 
-import androidx.media.test.lib.TestUtils;
+import androidx.media.test.client.MediaTestUtils;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaUtils2;
@@ -80,8 +80,8 @@ public class MediaItem2Test {
         assertFalse(testRemoteItem instanceof UriMediaItem2);
         assertEquals(testUriItem.getStartPosition(), testRemoteItem.getStartPosition());
         assertEquals(testUriItem.getEndPosition(), testRemoteItem.getEndPosition());
-        TestUtils.equals(testUriItem.getMetadata().toBundle(),
-                testRemoteItem.getMetadata().toBundle());
+        MediaTestUtils.assertMediaMetadata2Equals(
+                testUriItem.getMetadata(), testRemoteItem.getMetadata());
     }
 
     @Test
