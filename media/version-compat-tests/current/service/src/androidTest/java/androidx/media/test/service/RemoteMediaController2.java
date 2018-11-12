@@ -259,7 +259,7 @@ public class RemoteMediaController2 {
 
     public void sendCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args) {
         try {
-            mBinder.sendCustomCommand(mControllerId, command.toBundle(), args);
+            mBinder.sendCustomCommand(mControllerId, MediaUtils2.toParcelable(command), args);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call sendCustomCommand()");
         }
