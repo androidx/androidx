@@ -83,7 +83,6 @@
     <public type="dimen" name="car_button_height" />
     <public type="dimen" name="car_button_min_width" />
     <public type="dimen" name="car_button_horizontal_padding" />
-    <public type="dimen" name="car_borderless_button_horizontal_padding"/>
     <public type="dimen" name="car_button_radius" />
     <public type="dimen" name="car_pill_button_size" />
 

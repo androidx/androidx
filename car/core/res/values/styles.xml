@@ -269,13 +269,18 @@ limitations under the License.
         <item name="drawableSize">@dimen/car_arrow_size</item>
     </style>
 
-    <!-- The styles for the regular and borderless buttons. -->
+    <!-- The style for the regular buttons. -->
     <style name="Widget.Car.Button" parent="Widget.AppCompat.Button">
+        <item name="android:fadingEdgeLength">@dimen/car_button_fading_edge_length</item>
         <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:ellipsize">none</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
+        <item name="android:maxEms">@integer/car_button_max_ems</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
         <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
         <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
+        <item name="android:requiresFadingEdge">horizontal</item>
+        <item name="android:singleLine">true</item>
         <item name="android:textSize">@dimen/car_body3_size</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:background">@drawable/car_button_background</item>
@@ -292,12 +297,18 @@ limitations under the License.
         <item name="android:textColor">@color/car_body1_light</item>
     </style>
 
+    <!-- The style for borderless buttons. -->
     <style name="Widget.Car.Button.Borderless.Colored" parent="Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:fadingEdgeLength">@dimen/car_button_fading_edge_length</item>
         <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:ellipsize">none</item>
         <item name="android:layout_height">@dimen/car_button_height</item>
+        <item name="android:maxEms">@integer/car_button_max_ems</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
-        <item name="android:paddingStart">@dimen/car_borderless_button_horizontal_padding</item>
-        <item name="android:paddingEnd">@dimen/car_borderless_button_horizontal_padding</item>
+        <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
+        <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
+        <item name="android:requiresFadingEdge">horizontal</item>
+        <item name="android:singleLine">true</item>
         <item name="android:textSize">@dimen/car_body3_size</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textColor">?android:attr/colorButtonNormal</item>
