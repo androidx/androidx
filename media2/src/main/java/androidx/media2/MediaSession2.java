@@ -958,7 +958,7 @@ public class MediaSession2 implements AutoCloseable {
         @ParcelField(2)
         int mIconResId;
         @ParcelField(3)
-        String mDisplayName;
+        CharSequence mDisplayName;
         @ParcelField(4)
         Bundle mExtras;
         @ParcelField(5)
@@ -971,7 +971,7 @@ public class MediaSession2 implements AutoCloseable {
         }
 
         CommandButton(@Nullable SessionCommand2 command, int iconResId,
-                @Nullable String displayName, Bundle extras, boolean enabled) {
+                @Nullable CharSequence displayName, Bundle extras, boolean enabled) {
             mCommand = command;
             mIconResId = iconResId;
             mDisplayName = displayName;
@@ -1005,7 +1005,7 @@ public class MediaSession2 implements AutoCloseable {
          *
          * @return custom display name. Can be {@code null} or empty.
          */
-        public @Nullable String getDisplayName() {
+        public @Nullable CharSequence getDisplayName() {
             return mDisplayName;
         }
 
@@ -1033,7 +1033,7 @@ public class MediaSession2 implements AutoCloseable {
         public static final class Builder {
             private SessionCommand2 mCommand;
             private int mIconResId;
-            private String mDisplayName;
+            private CharSequence mDisplayName;
             private Bundle mExtras;
             private boolean mEnabled;
 
@@ -1067,7 +1067,7 @@ public class MediaSession2 implements AutoCloseable {
              *
              * @param displayName display name of the button
              */
-            public @NonNull Builder setDisplayName(@Nullable String displayName) {
+            public @NonNull Builder setDisplayName(@Nullable CharSequence displayName) {
                 mDisplayName = displayName;
                 return this;
             }
