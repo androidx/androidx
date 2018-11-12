@@ -40,6 +40,7 @@ import static androidx.media.test.lib.MediaSession2Constants
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -427,6 +428,20 @@ public class MediaSession2ProviderService extends Service {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlayer player = (MockPlayer) session2.getPlayer();
             player.mMetadata = MediaMetadata2.fromBundle(metadata);
+        }
+
+        @Override
+        public void setPlaylistMetadataWithLargeBitmaps(String sessionId, int count, int width,
+                int height) throws RemoteException {
+            MediaSession2 session2 = mSession2Map.get(sessionId);
+            MockPlayer player = (MockPlayer) session2.getPlayer();
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+
+            MediaMetadata2.Builder builder = new MediaMetadata2.Builder();
+            for (int i = 0; i < count; i++) {
+                builder.putBitmap(TestUtils.getMediaIdInDummyList(i), bitmap);
+            }
+            player.mMetadata = builder.build();
         }
 
         @Override
