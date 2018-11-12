@@ -15,10 +15,12 @@
   ~ limitations under the License.
   -->
 
-<CheckBox
+<!-- This layout is inflated by android.R.layout.preference so the id cannot change -->
+<androidx.appcompat.widget.SwitchCompat
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/checkbox"
+    android:id="@+id/switchWidget"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:button="@drawable/car_checkbox"
-    android:background="?android:attr/listChoiceIndicatorMultiple" />
+    android:focusable="false"
+    android:clickable="false"
+    android:background="@null"/>
