@@ -18,7 +18,6 @@ package androidx.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -29,7 +28,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -133,7 +131,6 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     RecyclerView mList;
     private boolean mHavePrefs;
     private boolean mInitDone;
-    private Context mStyledContext;
     private int mLayoutResId = R.layout.preference_list_fragment;
     private Runnable mSelectPreferenceRunnable;
 
@@ -165,9 +162,9 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
             // Fallback to default theme.
             theme = R.style.PreferenceThemeOverlay;
         }
-        mStyledContext = new ContextThemeWrapper(getActivity(), theme);
+        getActivity().getTheme().applyStyle(theme, false);
 
-        mPreferenceManager = new PreferenceManager(mStyledContext);
+        mPreferenceManager = new PreferenceManager(getContext());
         mPreferenceManager.setOnNavigateToScreenListener(this);
         final Bundle args = getArguments();
         final String rootKey;
@@ -195,7 +192,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        TypedArray a = mStyledContext.obtainStyledAttributes(null,
+        TypedArray a = getContext().obtainStyledAttributes(null,
                 R.styleable.PreferenceFragmentCompat,
                 R.attr.preferenceFragmentCompatStyle,
                 0);
@@ -212,7 +209,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
         a.recycle();
 
-        final LayoutInflater themedInflater = inflater.cloneInContext(mStyledContext);
+        final LayoutInflater themedInflater = inflater.cloneInContext(getContext());
 
         final View view = themedInflater.inflate(mLayoutResId, container, false);
 
@@ -377,7 +374,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     public void addPreferencesFromResource(@XmlRes int preferencesResId) {
         requirePreferenceManager();
 
-        setPreferenceScreen(mPreferenceManager.inflateFromResource(mStyledContext,
+        setPreferenceScreen(mPreferenceManager.inflateFromResource(getContext(),
                 preferencesResId, getPreferenceScreen()));
     }
 
@@ -393,7 +390,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     public void setPreferencesFromResource(@XmlRes int preferencesResId, @Nullable String key) {
         requirePreferenceManager();
 
-        final PreferenceScreen xmlRoot = mPreferenceManager.inflateFromResource(mStyledContext,
+        final PreferenceScreen xmlRoot = mPreferenceManager.inflateFromResource(getContext(),
                 preferencesResId, null);
 
         final Preference root;
@@ -540,7 +537,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
             Bundle savedInstanceState) {
         // If device detected is Auto, use Auto's custom layout that contains a custom ViewGroup
         // wrapping a RecyclerView
-        if (mStyledContext.getPackageManager().hasSystemFeature(PackageManager
+        if (getContext().getPackageManager().hasSystemFeature(PackageManager
                 .FEATURE_AUTOMOTIVE)) {
             RecyclerView recyclerView = parent.findViewById(R.id.recycler_view);
             if (recyclerView != null) {
@@ -564,7 +561,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * @return A new {@link RecyclerView.LayoutManager} instance
      */
     public RecyclerView.LayoutManager onCreateLayoutManager() {
-        return new LinearLayoutManager(getActivity());
+        return new LinearLayoutManager(getContext());
     }
 
     /**
