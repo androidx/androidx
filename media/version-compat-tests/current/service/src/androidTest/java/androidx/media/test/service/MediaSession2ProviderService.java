@@ -433,11 +433,11 @@ public class MediaSession2ProviderService extends Service {
         }
 
         @Override
-        public void setPlaylistMetadata(String sessionId, Bundle metadata)
+        public void setPlaylistMetadata(String sessionId, ParcelImpl metadata)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlayer player = (MockPlayer) session2.getPlayer();
-            player.mMetadata = MediaMetadata2.fromBundle(metadata);
+            player.mMetadata = MediaUtils2.fromParcelable(metadata);
         }
 
         @Override

@@ -415,7 +415,7 @@ public class RemoteMediaSession2 {
 
         public void setPlaylistMetadata(MediaMetadata2 metadata) {
             try {
-                mBinder.setPlaylistMetadata(mSessionId, metadata.toBundle());
+                mBinder.setPlaylistMetadata(mSessionId, MediaUtils2.toParcelable(metadata));
             } catch (RemoteException ex) {
                 Log.e(TAG, "Failed to call setPlaylistMetadata()");
             }

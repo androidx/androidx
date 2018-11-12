@@ -929,31 +929,16 @@ public final class MediaMetadata2 extends CustomVersionedParcelable {
     }
 
     /**
-     * Gets the bundle backing the metadata object. This is available to support backwards
-     * compatibility. Apps shouldn't modify the bundle directly, nor share the metadata across the
-     * process with the bundle here.
+     * Gets the object which matches the given key in the backing bundle.
      *
-     * @return The Bundle backing this metadata.
      * @hide
      */
-    // TODO: Remove this method
     @RestrictTo(LIBRARY_GROUP)
-    public @NonNull Bundle toBundle() {
-        return mBundle;
-    }
-
-    /**
-     * Creates the {@link MediaMetadata2} from the bundle that previously returned by
-     * {@link #toBundle()}.
-     *
-     * @param bundle bundle for the metadata
-     * @return a new MediaMetadata2
-     * @hide
-     */
-    // TODO: Remove this method
-    @RestrictTo(LIBRARY_GROUP)
-    public static @NonNull MediaMetadata2 fromBundle(@Nullable Bundle bundle) {
-        return (bundle == null) ? null : new MediaMetadata2(bundle);
+    public @Nullable Object getObject(@NonNull String key) {
+        if (key == null) {
+            throw new IllegalArgumentException("key shouldn't be null");
+        }
+        return mBundle.get(key);
     }
 
     /**
@@ -1018,7 +1003,7 @@ public final class MediaMetadata2 extends CustomVersionedParcelable {
          * @param source
          */
         public Builder(@NonNull MediaMetadata2 source) {
-            mBundle = new Bundle(source.toBundle());
+            mBundle = new Bundle(source.mBundle);
         }
 
         /**
