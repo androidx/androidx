@@ -478,6 +478,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     }
 
     @Test
+    @LargeTest
     public void testOnPlaylistMetadataChanged_withManyLargeImages() throws InterruptedException {
         prepareLooper();
         final int imageCount = 100;
@@ -507,7 +508,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
 
         MediaController2 controller = createController(mRemoteSession2.getToken(), true, callback);
         player.notifyPlaylistMetadataChanged();
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertTrue(latch.await(3, TimeUnit.SECONDS));
     }
 
     /**
