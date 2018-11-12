@@ -18,8 +18,6 @@ package androidx.media.test.client.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 
-import static androidx.media.test.client.MediaTestUtils.assertEqualMediaIds;
-import static androidx.media.test.client.MediaTestUtils.assertMediaItemHasId;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 
 import static org.junit.Assert.assertEquals;
@@ -276,7 +274,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         final ControllerCallback callback = new ControllerCallback() {
             @Override
             public void onCurrentMediaItemChanged(MediaController2 controller, MediaItem2 item) {
-                assertMediaItemHasId(item, testMediaId);
+                MediaTestUtils.assertMediaItemHasId(item, testMediaId);
                 latch.countDown();
             }
         };
@@ -308,7 +306,7 @@ public class MediaController2LegacyTest extends MediaSession2TestBase {
         final ControllerCallback callback = new ControllerCallback() {
             @Override
             public void onCurrentMediaItemChanged(MediaController2 controller, MediaItem2 item) {
-                assertEqualMediaIds(testList.get(newItemIndex), item);
+                MediaTestUtils.assertMediaIdEquals(testList.get(newItemIndex), item);
                 latch.countDown();
             }
         };

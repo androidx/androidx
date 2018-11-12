@@ -34,6 +34,7 @@ import androidx.versionedparcelable.ParcelImpl;
 import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Utilities for tests.
@@ -128,7 +129,21 @@ public final class MediaTestUtils {
 
     // Note: It's not assertEquals() to avoid issue with the static import of JUnit's assertEquals.
     // Otherwise, this API hides the statically imported JUnit's assertEquals and compile will fail.
-    public static void assertEqualLibraryParams(LibraryParams a, LibraryParams b) {
+    public static void assertMediaMetadata2Equals(MediaMetadata2 expected, MediaMetadata2 actual) {
+        if (expected == null || actual == null) {
+            assertEquals(expected, actual);
+        } else {
+            Set<String> expectedKeySet = expected.keySet();
+            Set<String> actualKeySet = actual.keySet();
+
+            assertEquals(expectedKeySet, actualKeySet);
+            for (String key : expectedKeySet) {
+                assertEquals(expected.getObject(key), actual.getObject(key));
+            }
+        }
+    }
+
+    public static void assertLibraryParamsEquals(LibraryParams a, LibraryParams b) {
         if (a == null || b == null) {
             assertEquals(a, b);
         } else {
@@ -139,7 +154,7 @@ public final class MediaTestUtils {
         }
     }
 
-    public static void assertEqualLibraryParams(LibraryParams params, Bundle rootExtras) {
+    public static void assertLibraryParamsEquals(LibraryParams params, Bundle rootExtras) {
         if (params == null || rootExtras == null) {
             assertEquals(params, rootExtras);
         } else {
@@ -168,15 +183,15 @@ public final class MediaTestUtils {
         }
     }
 
-    public static void assertEqualMediaIds(MediaItem2 a, MediaItem2 b) {
+    public static void assertMediaIdEquals(MediaItem2 a, MediaItem2 b) {
         assertEquals(a.getMetadata().getString(MediaMetadata2.METADATA_KEY_MEDIA_ID),
                 b.getMetadata().getString(MediaMetadata2.METADATA_KEY_MEDIA_ID));
     }
 
-    public static void assertEqualMediaIds(List<MediaItem2> a, List<MediaItem2> b) {
+    public static void assertMediaIdEquals(List<MediaItem2> a, List<MediaItem2> b) {
         assertEquals(a.size(), b.size());
         for (int i = 0; i < a.size(); i++) {
-            assertEqualMediaIds(a.get(i), b.get(i));
+            assertMediaIdEquals(a.get(i), b.get(i));
         }
     }
 

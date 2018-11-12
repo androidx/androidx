@@ -33,6 +33,7 @@ import androidx.media2.MediaLibraryService2.LibraryParams;
 import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -241,11 +242,17 @@ public final class TestUtils {
         }
     }
 
-    public static void assertMetadataEquals(MediaMetadata2 a, MediaMetadata2 b) {
-        if (a == null || b == null) {
-            assertEquals(a, b);
+    public static void assertMetadataEquals(MediaMetadata2 expected, MediaMetadata2 actual) {
+        if (expected == null || actual == null) {
+            assertEquals(expected, actual);
         } else {
-            assertTrue(TestUtils.equals(a.toBundle(), b.toBundle()));
+            Set<String> expectedKeySet = expected.keySet();
+            Set<String> actualKeySet = actual.keySet();
+
+            assertEquals(expectedKeySet, actualKeySet);
+            for (String key : expectedKeySet) {
+                assertEquals(expected.getObject(key), actual.getObject(key));
+            }
         }
     }
 

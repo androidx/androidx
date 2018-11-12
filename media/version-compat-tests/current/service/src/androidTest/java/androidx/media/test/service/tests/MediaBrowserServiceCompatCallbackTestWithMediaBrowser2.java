@@ -18,9 +18,6 @@ package androidx.media.test.service.tests;
 
 import static android.support.mediacompat.testlib.util.IntentUtil.CLIENT_PACKAGE_NAME;
 
-import static androidx.media.test.service.MediaTestUtils.assertEqualLibraryParams;
-import static androidx.media.test.service.MediaTestUtils.createLibraryParams;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -34,6 +31,7 @@ import android.support.v4.media.MediaDescriptionCompat;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaBrowserServiceCompat.Result;
+import androidx.media.test.service.MediaTestUtils;
 import androidx.media.test.service.MockMediaBrowserServiceCompat;
 import androidx.media.test.service.MockMediaBrowserServiceCompat.Proxy;
 import androidx.media.test.service.RemoteMediaBrowser2;
@@ -88,7 +86,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
                     Bundle rootHints) {
                 assertEquals(CLIENT_PACKAGE_NAME, clientPackageName);
                 if (rootHints.keySet().contains(testMediaId)) {
-                    assertEqualLibraryParams(testParams, rootHints);
+                    MediaTestUtils.assertEqualLibraryParams(testParams, rootHints);
                     // This should happen because getLibraryRoot() is called with testExtras.
                     latch.countDown();
                 }
@@ -178,14 +176,14 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
     public void testOnLoadChildrenCalledBySubscribe() throws InterruptedException {
         prepareLooper();
         final String testParentId = "testOnLoadChildrenCalledBySubscribe";
-        final LibraryParams testParams = createLibraryParams();
+        final LibraryParams testParams = MediaTestUtils.createLibraryParams();
         final CountDownLatch subscribeLatch = new CountDownLatch(1);
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
             @Override
             public void onLoadChildren(String parentId, Result<List<MediaItem>> result,
                     Bundle option) {
                 assertEquals(testParentId, parentId);
-                assertEqualLibraryParams(testParams, option);
+                MediaTestUtils.assertEqualLibraryParams(testParams, option);
                 result.sendResult(null);
                 subscribeLatch.countDown();
             }
@@ -201,7 +199,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
-        final LibraryParams testParams = createLibraryParams();
+        final LibraryParams testParams = MediaTestUtils.createLibraryParams();
         final List<MediaItem> testFullSearchResult = createMediaItems(
                 (testPage + 1) * testPageSize + 3);
 
@@ -210,7 +208,7 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
             @Override
             public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result) {
                 assertEquals(testQuery, query);
-                assertEqualLibraryParams(testParams, extras);
+                MediaTestUtils.assertEqualLibraryParams(testParams, extras);
                 result.sendResult(testFullSearchResult);
                 latch.countDown();
             }
@@ -227,14 +225,14 @@ public class MediaBrowserServiceCompatCallbackTestWithMediaBrowser2 extends Medi
         final String testQuery = "search_query";
         final int testPage = 2;
         final int testPageSize = 4;
-        final LibraryParams testParams = createLibraryParams();
+        final LibraryParams testParams = MediaTestUtils.createLibraryParams();
 
         final CountDownLatch latch = new CountDownLatch(1);
         MockMediaBrowserServiceCompat.setMediaBrowserServiceProxy(new Proxy() {
             @Override
             public void onSearch(String query, Bundle extras, Result<List<MediaItem>> result) {
                 assertEquals(testQuery, query);
-                assertEqualLibraryParams(testParams, extras);
+                MediaTestUtils.assertEqualLibraryParams(testParams, extras);
                 assertEquals(testPage, extras.getInt(MediaBrowserCompat.EXTRA_PAGE));
                 assertEquals(testPageSize, extras.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE));
                 result.sendResult(null);
