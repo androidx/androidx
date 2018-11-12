@@ -227,10 +227,27 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     }
 
     /**
+     * @hide
+     * @return
+     */
+    @RestrictTo(LIBRARY)
+    public SliceItem[] getItemArray() {
+        return mItems;
+    }
+
+    /**
      * @return All hints associated with this Slice.
      */
     public @SliceHint List<String> getHints() {
         return Arrays.asList(mHints);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public @SliceHint String[] getHintArray() {
+        return mHints;
     }
 
     /**
@@ -340,8 +357,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          */
         public Builder addSubSlice(@NonNull Slice slice, String subType) {
             Preconditions.checkNotNull(slice);
-            mItems.add(new SliceItem(slice, FORMAT_SLICE, subType, slice.getHints().toArray(
-                    new String[slice.getHints().size()])));
+            mItems.add(new SliceItem(slice, FORMAT_SLICE, subType, slice.getHintArray()));
             return this;
         }
 
@@ -354,7 +370,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
                 @NonNull Slice s, @Nullable String subType) {
             Preconditions.checkNotNull(action);
             Preconditions.checkNotNull(s);
-            @SliceHint String[] hints = s.getHints().toArray(new String[s.getHints().size()]);
+            @SliceHint String[] hints = s.getHintArray();
             mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));
             return this;
         }
@@ -368,7 +384,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
         public Slice.Builder addAction(@NonNull SliceItem.ActionHandler action,
                 @NonNull Slice s, @Nullable String subType) {
             Preconditions.checkNotNull(s);
-            @SliceHint String[] hints = s.getHints().toArray(new String[s.getHints().size()]);
+            @SliceHint String[] hints = s.getHintArray();
             mItems.add(new SliceItem(action, s, FORMAT_ACTION, subType, hints));
             return this;
         }
