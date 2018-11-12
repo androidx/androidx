@@ -276,12 +276,12 @@ public class RemoteMediaSession2 {
     public void setCustomLayout(@NonNull ControllerInfo controller,
             @NonNull List<CommandButton> layout) {
         try {
-            List<ParcelImpl> bundleList = new ArrayList<>();
+            List<ParcelImpl> parcelList = new ArrayList<>();
             for (CommandButton btn : layout) {
-                bundleList.add(MediaUtils2.toParcelable(btn));
+                parcelList.add((ParcelImpl) ParcelUtils.toParcelable(btn));
             }
             // TODO: ControllerInfo should be handled.
-            mBinder.setCustomLayout(mSessionId, null, bundleList);
+            mBinder.setCustomLayout(mSessionId, null, parcelList);
         } catch (RemoteException ex) {
             Log.e(TAG, "Failed to call setCustomLayout()");
         }
