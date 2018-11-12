@@ -14,10 +14,10 @@ android {
 }
 
 dependencies {
-    api(project(":core"))
-    api(project(":viewpager"))
-    api(project(":annotation"))
-    api(project(":loader"))
+    api("androidx.core:core:1.1.0-alpha01")
+    api("androidx.viewpager:viewpager:1.0.0")
+    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.loader:loader:1.0.0")
     api(project(":activity"))
     api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
 
