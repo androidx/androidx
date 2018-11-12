@@ -31,7 +31,6 @@ import androidx.media2.MediaItem2;
 import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
-import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaUtils2;
 import androidx.versionedparcelable.ParcelImpl;
@@ -151,22 +150,6 @@ public final class MediaTestUtils {
             for (ParcelImpl parcel : list) {
                 result.add((MediaItem2) MediaUtils2.fromParcelable(parcel));
             }
-        }
-        return result;
-    }
-
-    /**
-     * Converts to list of {@link CommandButton}.
-     * @param commandButtons list of ParcelImpl
-     * @return
-     */
-    public static List<CommandButton> convertToCommandButtonList(List<ParcelImpl> commandButtons) {
-        if (commandButtons == null) {
-            return null;
-        }
-        List<CommandButton> result = new ArrayList<>();
-        for (int i = 0; i < commandButtons.size(); i++) {
-            result.add((CommandButton) MediaUtils2.fromParcelable(commandButtons.get(i)));
         }
         return result;
     }
