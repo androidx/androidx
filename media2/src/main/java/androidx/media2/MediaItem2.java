@@ -19,7 +19,6 @@ package androidx.media2;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -75,8 +74,6 @@ public class MediaItem2 extends CustomVersionedParcelable {
      */
     public static final long POSITION_UNKNOWN = LONG_MAX;
 
-    private static final String KEY_METADATA = "android.media.mediaitem2.metadata";
-
     @ParcelField(1)
     MediaMetadata2 mMetadata;
     @ParcelField(2)
@@ -128,39 +125,6 @@ public class MediaItem2 extends CustomVersionedParcelable {
         mMetadata = metadata;
         mStartPositionMs = startPositionMs;
         mEndPositionMs = endPositionMs;
-    }
-
-    /**
-     * Return this object as a bundle to share between processes.
-     *
-     * @return a new bundle instance
-     * @hide
-     */
-    // TODO(jaewan): Remove
-    public @NonNull Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        if (mMetadata != null) {
-            bundle.putBundle(KEY_METADATA, mMetadata.toBundle());
-        }
-        return bundle;
-    }
-
-    /**
-     * Create a MediaItem2 from the {@link Bundle}.
-     *
-     * @param bundle The bundle which was published by {@link MediaItem2#toBundle()}.
-     * @return The newly created MediaItem2. Can be {@code null} for {@code null} bundle.
-     * @hide
-     */
-    // TODO(jaewan): Remove
-    public static @Nullable MediaItem2 fromBundle(@Nullable Bundle bundle) {
-        if (bundle == null) {
-            return null;
-        }
-        final Bundle metadataBundle = bundle.getBundle(KEY_METADATA);
-        final MediaMetadata2 metadata = metadataBundle != null
-                ? MediaMetadata2.fromBundle(metadataBundle) : null;
-        return new MediaItem2(metadata, 0, 0);
     }
 
     @Override

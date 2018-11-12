@@ -57,6 +57,7 @@ import androidx.media2.MediaMetadata2;
 import androidx.media2.MediaSession2;
 import androidx.media2.MediaSession2.ControllerInfo;
 import androidx.media2.MediaUtils2;
+import androidx.media2.ParcelImplListSlice;
 import androidx.media2.SessionCommand2;
 import androidx.media2.SessionCommandGroup2;
 import androidx.media2.SessionPlayer2;
@@ -213,10 +214,14 @@ public class MediaSession2ProviderService extends Service {
                 localPlayer.mBufferedPosition = config.getLong(KEY_BUFFERED_POSITION);
                 localPlayer.mPlaybackSpeed = config.getFloat(KEY_SPEED);
 
-                localPlayer.mPlaylist = MediaTestUtils.playlistFromParcelableList(
-                        config.getParcelableArrayList(KEY_PLAYLIST), false /* createItem */);
-                localPlayer.mCurrentMediaItem = MediaItem2.fromBundle(
-                        config.getBundle(KEY_MEDIA_ITEM));
+                ParcelImplListSlice listSlice = config.getParcelable(KEY_PLAYLIST);
+                if (listSlice != null) {
+                    localPlayer.mPlaylist = MediaTestUtils.convertToMediaItems(listSlice.getList(),
+                            false /* createItem */);
+                }
+                ParcelImpl currentItem = config.getParcelable(KEY_MEDIA_ITEM);
+                localPlayer.mCurrentMediaItem = (currentItem == null)
+                        ? null : (MediaItem2) MediaUtils2.fromParcelable(currentItem);
                 localPlayer.mMetadata = ParcelUtils.getVersionedParcelable(config, KEY_METADATA);
                 player = localPlayer;
             }
@@ -227,18 +232,20 @@ public class MediaSession2ProviderService extends Service {
         }
 
         @Override
-        public void broadcastCustomCommand(String sessionId, Bundle command, Bundle args)
+        public void broadcastCustomCommand(String sessionId, ParcelImpl command, Bundle args)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
-            session2.broadcastCustomCommand(SessionCommand2.fromBundle(command), args);
+            session2.broadcastCustomCommand(
+                    (SessionCommand2) MediaUtils2.fromParcelable(command), args);
         }
 
         @Override
-        public void sendCustomCommand(String sessionId, Bundle controller, Bundle command,
+        public void sendCustomCommand(String sessionId, Bundle controller, ParcelImpl command,
                 Bundle args) throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             ControllerInfo info = MediaTestUtils.getTestControllerInfo(session2);
-            session2.sendCustomCommand(info, SessionCommand2.fromBundle(command), args);
+            session2.sendCustomCommand(info, (SessionCommand2) MediaUtils2.fromParcelable(command),
+                    args);
         }
 
         @Override
@@ -248,11 +255,12 @@ public class MediaSession2ProviderService extends Service {
         }
 
         @Override
-        public void setAllowedCommands(String sessionId, Bundle controller, Bundle commands)
+        public void setAllowedCommands(String sessionId, Bundle controller, ParcelImpl commands)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             ControllerInfo info = MediaTestUtils.getTestControllerInfo(session2);
-            session2.setAllowedCommands(info, SessionCommandGroup2.fromBundle(commands));
+            session2.setAllowedCommands(info,
+                    (SessionCommandGroup2) MediaUtils2.fromParcelable(commands));
         }
 
         @Override
@@ -264,11 +272,11 @@ public class MediaSession2ProviderService extends Service {
         }
 
         @Override
-        public void setCustomLayout(String sessionId, Bundle controller, List<Bundle> layout)
+        public void setCustomLayout(String sessionId, Bundle controller, List<ParcelImpl> layout)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             ControllerInfo info = MediaTestUtils.getTestControllerInfo(session2);
-            session2.setCustomLayout(info, MediaTestUtils.buttonListFromBundleList(layout));
+            session2.setCustomLayout(info, MediaTestUtils.convertToCommandButtonList(layout));
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -374,16 +382,11 @@ public class MediaSession2ProviderService extends Service {
         ////////////////////////////////////////////////////////////////////////////////
 
         @Override
-        public void setPlaylist(String sessionId, List<Bundle> playlist)
+        public void setPlaylist(String sessionId, List<ParcelImpl> playlist)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlayer player = (MockPlayer) session2.getPlayer();
-
-            List<MediaItem2> list = new ArrayList<>();
-            for (Bundle bundle : playlist) {
-                list.add(MediaItem2.fromBundle(bundle));
-            }
-            player.mPlaylist = list;
+            player.mPlaylist = MediaTestUtils.convertToMediaItems(playlist, false /* createItem */);
         }
 
         @Override
@@ -403,14 +406,14 @@ public class MediaSession2ProviderService extends Service {
         }
 
         @Override
-        public void setPlaylistWithDummyItem(String sessionId, List<Bundle> playlist)
+        public void setPlaylistWithDummyItem(String sessionId, List<ParcelImpl> playlist)
                 throws RemoteException {
             MediaSession2 session2 = mSession2Map.get(sessionId);
             MockPlayer player = (MockPlayer) session2.getPlayer();
 
             List<MediaItem2> list = new ArrayList<>();
-            for (Bundle bundle : playlist) {
-                MediaItem2 item = MediaItem2.fromBundle(bundle);
+            for (ParcelImpl parcel : playlist) {
+                MediaItem2 item = MediaUtils2.fromParcelable(parcel);
                 list.add(new FileMediaItem2.Builder(new FileDescriptor())
                         .setMetadata(item.getMetadata())
                         .build());
