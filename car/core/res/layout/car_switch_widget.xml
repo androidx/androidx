@@ -15,13 +15,9 @@
   ~ limitations under the License.
   -->
 
-<!-- This layout is inflated by android.R.layout.preference so the id cannot change -->
 <Switch
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/switch_widget"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:focusable="false"
-    android:clickable="false"
-    android:background="@null"
-    style="@style/Widget.Car.Switch"/>
+    style="?attr/switchStyle"/>
