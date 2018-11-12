@@ -19,10 +19,13 @@ package androidx.media.test.service.tests;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcel;
 
 import androidx.media.test.lib.TestUtils;
 import androidx.media2.MediaMetadata2;
@@ -32,9 +35,15 @@ import androidx.media2.ThumbRating2;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
+import androidx.versionedparcelable.ParcelImpl;
+import androidx.versionedparcelable.ParcelUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
@@ -72,5 +81,99 @@ public class MediaMetadata2Test {
         builder.setExtras(extras);
         MediaMetadata2 metadata = builder.build();
         assertTrue(TestUtils.equals(extras, metadata.getExtras()));
+    }
+
+    @Test
+    public void testParcelingWithSmallBitmaps() {
+        final int bitmapCount = 100;
+        final List<String> keyList = new ArrayList<>(bitmapCount);
+        final String bitmapKeyPrefix = "bitmap_";
+        for (int i = 0; i < bitmapCount; i++) {
+            keyList.add(bitmapKeyPrefix + i);
+        }
+
+        // A small bitmap about 160kB.
+        final int originalWidth = 200;
+        final int originalHeight = 200;
+        Bitmap testBitmap = Bitmap.createBitmap(
+                originalWidth, originalHeight, Bitmap.Config.ARGB_8888);
+
+        Builder builder = new Builder();
+        for (int i = 0; i < keyList.size(); i++) {
+            builder.putBitmap(keyList.get(i), testBitmap);
+        }
+
+        MediaMetadata2 metadata = builder.build();
+        ParcelImpl parcelImpl = (ParcelImpl) ParcelUtils.toParcelable(metadata);
+
+        // Bitmaps will not be scaled down since they are small.
+        Parcel parcel = Parcel.obtain();
+        parcelImpl.writeToParcel(parcel, 0 /* flags */);
+        parcel.setDataPosition(0);
+
+        MediaMetadata2 metadataFromParcel =
+                ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+
+        // Check the bitmap list from the metadata.
+        Set<String> keySet = metadataFromParcel.keySet();
+        assertTrue(keySet.containsAll(keyList));
+        assertTrue(keyList.containsAll(keySet));
+
+        for (String key : keySet) {
+            Bitmap bitmap = metadataFromParcel.getBitmap(key);
+            assertNotNull(bitmap);
+            int newWidth = bitmap.getWidth();
+            int newHeight = bitmap.getHeight();
+            // The bitmaps should not have been scaled down.
+            assertEquals(newWidth, originalWidth);
+            assertEquals(newHeight, originalHeight);
+        }
+    }
+
+    @Test
+    public void testParcelingWithLargeBitmaps() {
+        final int bitmapCount = 100;
+        final List<String> keyList = new ArrayList<>(bitmapCount);
+        final String bitmapKeyPrefix = "bitmap_";
+        for (int i = 0; i < bitmapCount; i++) {
+            keyList.add(bitmapKeyPrefix + i);
+        }
+
+        // A large bitmap (64MB) which exceeds the binder limit.
+        final int originalWidth = 4096;
+        final int originalHeight = 4096;
+        Bitmap testBitmap = Bitmap.createBitmap(
+                originalWidth, originalHeight, Bitmap.Config.ARGB_8888);
+
+        Builder builder = new Builder();
+        for (int i = 0; i < keyList.size(); i++) {
+            builder.putBitmap(keyList.get(i), testBitmap);
+        }
+
+        MediaMetadata2 metadata = builder.build();
+        ParcelImpl parcelImpl = (ParcelImpl) ParcelUtils.toParcelable(metadata);
+
+        // Bitmaps will be scaled down when the metadata is written to parcel.
+        Parcel parcel = Parcel.obtain();
+        parcelImpl.writeToParcel(parcel, 0 /* flags */);
+        parcel.setDataPosition(0);
+
+        MediaMetadata2 metadataFromParcel =
+                ParcelUtils.fromParcelable(ParcelImpl.CREATOR.createFromParcel(parcel));
+
+        // Check the bitmap list from the metadata.
+        Set<String> keySet = metadataFromParcel.keySet();
+        assertTrue(keySet.containsAll(keyList));
+        assertTrue(keyList.containsAll(keySet));
+
+        for (String key : keySet) {
+            Bitmap bitmap = metadataFromParcel.getBitmap(key);
+            assertNotNull(bitmap);
+            int newWidth = bitmap.getWidth();
+            int newHeight = bitmap.getHeight();
+            assertTrue("Resulting bitmap (size=" + newWidth + "x" + newHeight + ") was not "
+                            + "scaled down. ",
+                    newWidth < originalWidth && newHeight < originalHeight);
+        }
     }
 }
