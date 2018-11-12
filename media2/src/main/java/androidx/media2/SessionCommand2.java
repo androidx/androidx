@@ -572,11 +572,6 @@ public final class SessionCommand2 implements VersionedParcelable {
                         COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT));
     }
 
-    private static final String KEY_COMMAND_CODE = "android.media.session2.command.command_code";
-    private static final String KEY_COMMAND_CUSTOM_COMMAND =
-            "android.media.session2.command.custom_command";
-    private static final String KEY_COMMAND_EXTRAS = "android.media.session2.command.extras";
-
     @ParcelField(1)
     @CommandCode int mCommandCode;
     // Nonnull if it's custom command
@@ -642,40 +637,6 @@ public final class SessionCommand2 implements VersionedParcelable {
      */
     public @Nullable Bundle getExtras() {
         return mExtras;
-    }
-
-    /**
-     * @return a new {@link Bundle} instance from the command
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public Bundle toBundle() {
-        Bundle bundle = new Bundle();
-        bundle.putInt(KEY_COMMAND_CODE, mCommandCode);
-        bundle.putString(KEY_COMMAND_CUSTOM_COMMAND, mCustomCommand);
-        bundle.putBundle(KEY_COMMAND_EXTRAS, mExtras);
-        return bundle;
-    }
-
-    /**
-     * @return a new {@link SessionCommand2} instance from the Bundle
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static SessionCommand2 fromBundle(@NonNull Bundle command) {
-        if (command == null) {
-            throw new IllegalArgumentException("command shouldn't be null");
-        }
-        int code = command.getInt(KEY_COMMAND_CODE);
-        if (code != COMMAND_CODE_CUSTOM) {
-            return new SessionCommand2(code);
-        } else {
-            String customCommand = command.getString(KEY_COMMAND_CUSTOM_COMMAND);
-            if (customCommand == null) {
-                return null;
-            }
-            return new SessionCommand2(customCommand, command.getBundle(KEY_COMMAND_EXTRAS));
-        }
     }
 
     @Override

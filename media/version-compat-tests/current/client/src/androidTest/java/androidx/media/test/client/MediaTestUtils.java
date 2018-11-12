@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.os.Bundle;
-import android.os.Parcelable;
 
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.test.lib.TestUtils;
@@ -29,6 +28,8 @@ import androidx.media2.FileMediaItem2;
 import androidx.media2.MediaItem2;
 import androidx.media2.MediaLibraryService2.LibraryParams;
 import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaUtils2;
+import androidx.versionedparcelable.ParcelImpl;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -106,24 +107,13 @@ public final class MediaTestUtils {
                 .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId).build();
     }
 
-    public static ArrayList<Parcelable> playlistToParcelableArrayList(List<MediaItem2> playlist) {
-        if (playlist == null) {
-            return null;
-        }
-        ArrayList<Parcelable> result = new ArrayList<>();
-        for (MediaItem2 item : playlist) {
-            result.add(item.toBundle());
-        }
-        return result;
-    }
-
-    public static List<Bundle> mediaItem2ListToBundleList(List<MediaItem2> list) {
+    public static List<ParcelImpl> convertToParcelImplList(List<MediaItem2> list) {
         if (list == null) {
             return null;
         }
-        List<Bundle> result = new ArrayList<>();
+        List<ParcelImpl> result = new ArrayList<>();
         for (MediaItem2 item : list) {
-            result.add(item.toBundle());
+            result.add(MediaUtils2.toParcelable(item));
         }
         return result;
     }
@@ -174,8 +164,7 @@ public final class MediaTestUtils {
         // Compare the given results with originals.
         for (int originalIndex = fromIndex; originalIndex < toIndex; originalIndex++) {
             int relativeIndex = originalIndex - fromIndex;
-            assertMediaItemHasId(paginatedList.get(relativeIndex), fullIdList.get(originalIndex)
-            );
+            assertMediaItemHasId(paginatedList.get(relativeIndex), fullIdList.get(originalIndex));
         }
     }
 

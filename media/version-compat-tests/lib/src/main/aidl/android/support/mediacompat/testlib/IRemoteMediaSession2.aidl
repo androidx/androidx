@@ -29,13 +29,13 @@ interface IRemoteMediaSession2 {
     ParcelImpl getToken(String sessionId);
     Bundle getCompatToken(String sessionId);
     void updatePlayer(String sessionId, in Bundle playerBundle);
-    void broadcastCustomCommand(String sessionId, in Bundle command, in Bundle args);
-    void sendCustomCommand(String sessionId, in Bundle controller, in Bundle command,
+    void broadcastCustomCommand(String sessionId, in ParcelImpl command, in Bundle args);
+    void sendCustomCommand(String sessionId, in Bundle controller, in ParcelImpl command,
             in Bundle args);
     void close(String sessionId);
-    void setAllowedCommands(String sessionId, in Bundle controller, in Bundle commands);
+    void setAllowedCommands(String sessionId, in Bundle controller, in ParcelImpl commands);
     void notifyRoutesInfoChanged(String sessionId, in Bundle controller, in List<Bundle> routes);
-    void setCustomLayout(String sessionId, in Bundle controller, in List<Bundle> layout);
+    void setCustomLayout(String sessionId, in Bundle controller, in List<ParcelImpl> layout);
 
     // SessionPlayer2 Methods
     void setPlayerState(String sessionId, int state);
@@ -50,9 +50,9 @@ interface IRemoteMediaSession2 {
     void notifyCurrentMediaItemChanged(String sessionId, int index);
     void notifyAudioAttributesChanged(String sessionId, in Bundle attrs);
 
-    void setPlaylist(String sessionId, in List<Bundle> playlist);
+    void setPlaylist(String sessionId, in List<ParcelImpl> playlist);
     void createAndSetDummyPlaylist(String sessionId, int size);
-    void setPlaylistWithDummyItem(String sessionId, in List<Bundle> playlist);
+    void setPlaylistWithDummyItem(String sessionId, in List<ParcelImpl> playlist);
     void setPlaylistMetadata(String sessionId, in Bundle metadata);
     void setShuffleMode(String sessionId, int shuffleMode);
     void setRepeatMode(String sessionId, int repeatMode);

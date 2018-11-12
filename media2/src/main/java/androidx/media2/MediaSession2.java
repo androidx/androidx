@@ -953,14 +953,6 @@ public class MediaSession2 implements AutoCloseable {
      */
     @VersionedParcelize
     public static final class CommandButton implements VersionedParcelable {
-        private static final String KEY_COMMAND = "android.media.session2.command_button.command";
-        private static final String KEY_ICON_RES_ID =
-                "android.media.session2.command_button.icon_res_id";
-        private static final String KEY_DISPLAY_NAME =
-                "android.media.session2.command_button.display_name";
-        private static final String KEY_EXTRAS = "android.media.session2.command_button.extras";
-        private static final String KEY_ENABLED = "android.media.session2.command_button.enabled";
-
         @ParcelField(1)
         SessionCommand2 mCommand;
         @ParcelField(2)
@@ -1033,44 +1025,6 @@ public class MediaSession2 implements AutoCloseable {
          */
         public boolean isEnabled() {
             return mEnabled;
-        }
-
-        /**
-         * @hide
-         * @return Bundle
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public @NonNull Bundle toBundle() {
-            Bundle bundle = new Bundle();
-            bundle.putBundle(KEY_COMMAND, mCommand.toBundle());
-            bundle.putInt(KEY_ICON_RES_ID, mIconResId);
-            bundle.putString(KEY_DISPLAY_NAME, mDisplayName);
-            bundle.putBundle(KEY_EXTRAS, mExtras);
-            bundle.putBoolean(KEY_ENABLED, mEnabled);
-            return bundle;
-        }
-
-        /**
-         * @hide
-         * @return CommandButton
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public static @Nullable CommandButton fromBundle(Bundle bundle) {
-            if (bundle == null) {
-                return null;
-            }
-            CommandButton.Builder builder = new CommandButton.Builder();
-            builder.setCommand(SessionCommand2.fromBundle(bundle.getBundle(KEY_COMMAND)));
-            builder.setIconResId(bundle.getInt(KEY_ICON_RES_ID, 0));
-            builder.setDisplayName(bundle.getString(KEY_DISPLAY_NAME));
-            builder.setExtras(bundle.getBundle(KEY_EXTRAS));
-            builder.setEnabled(bundle.getBoolean(KEY_ENABLED));
-            try {
-                return builder.build();
-            } catch (IllegalStateException e) {
-                // Malformed or version mismatch. Return null for now.
-                return null;
-            }
         }
 
         /**
