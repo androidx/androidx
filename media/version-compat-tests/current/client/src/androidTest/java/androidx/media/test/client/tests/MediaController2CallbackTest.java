@@ -19,8 +19,6 @@ package androidx.media.test.client.tests;
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-import static androidx.media.test.client.MediaTestUtils.assertEqualMediaIds;
-import static androidx.media.test.client.MediaTestUtils.assertNotMediaItemSubclass;
 import static androidx.media.test.lib.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_NULL_ITEM;
 import static androidx.media.test.lib.CommonConstants.INDEX_FOR_UNKONWN_ITEM;
@@ -234,8 +232,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     public void onPlaylistChanged(MediaController2 controller,
                             List<MediaItem2> list, MediaMetadata2 metadata) {
                         assertEquals(mController, controller);
-                        assertNotMediaItemSubclass(list);
-                        assertEqualMediaIds(testPlaylist, list);
+                        MediaTestUtils.assertNotMediaItemSubclass(list);
+                        MediaTestUtils.assertMediaIdEquals(testPlaylist, list);
                         assertNull(metadata);
                         latch.countDown();
                     }
@@ -278,7 +276,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                                 // No check needed..
                                 break;
                             case 2:
-                                assertNotMediaItemSubclass(item);
+                                MediaTestUtils.assertNotMediaItemSubclass(item);
                                 assertEquals(currentItem.getMediaId(), item.getMediaId());
                                 break;
                             case 1:
@@ -403,8 +401,8 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
                     public void onPlaylistChanged(MediaController2 controller,
                             List<MediaItem2> playlist, MediaMetadata2 metadata) {
                         assertNotNull(playlist);
-                        assertNotMediaItemSubclass(playlist);
-                        assertEqualMediaIds(testList, playlist);
+                        MediaTestUtils.assertNotMediaItemSubclass(playlist);
+                        MediaTestUtils.assertMediaIdEquals(testList, playlist);
                         listFromCallback.set(playlist);
                         latch.countDown();
                     }
@@ -635,7 +633,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
             public void onBufferingStateChanged(MediaController2 controller, MediaItem2 item,
                     int state) {
                 controller.setTimeDiff(0L);
-                assertNotMediaItemSubclass(item);
+                MediaTestUtils.assertNotMediaItemSubclass(item);
                 assertEquals(testPlaylist.get(targetItemIndex).getMediaId(), item.getMediaId());
                 assertEquals(testBufferingState, state);
                 assertEquals(testBufferingState, controller.getBufferingState());

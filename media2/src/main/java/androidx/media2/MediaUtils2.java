@@ -408,9 +408,8 @@ public class MediaUtils2 {
         }
 
         MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-        Bundle bundle = metadata2.toBundle();
-        for (String key : bundle.keySet()) {
-            Object value = bundle.get(key);
+        for (String key : metadata2.keySet()) {
+            Object value = metadata2.getObject(key);
             if (value instanceof CharSequence) {
                 builder.putText(key, (CharSequence) value);
             } else if (value instanceof Rating2) {
