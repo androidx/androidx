@@ -15,10 +15,13 @@
   ~ limitations under the License.
   -->
 
+<!-- This layout is inflated by android.R.layout.preference so the id cannot change -->
 <CheckBox
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@android:id/checkbox"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:button="@drawable/car_checkbox"
+    android:focusable="false"
+    android:clickable="false"
     android:background="?android:attr/listChoiceIndicatorMultiple" />
