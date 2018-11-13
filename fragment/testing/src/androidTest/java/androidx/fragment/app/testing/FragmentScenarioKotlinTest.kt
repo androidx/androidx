@@ -64,4 +64,36 @@ class FragmentScenarioKotlinTest {
             assertThat(it.state).isEqualTo(State.RESUMED)
         }
     }
+
+    @Test
+    fun testlaunchInContainer_withInstantiate() {
+        var numberOfInstantiations = 0
+        val scenario = launchFragmentInContainer(null) {
+            numberOfInstantiations++
+            NoDefaultConstructorFragment(true)
+        }
+        assertThat(numberOfInstantiations).isEqualTo(1)
+        scenario.onFragment {
+            assertThat(it.created).isTrue()
+            assertThat(it.numberOfRecreations).isEqualTo(0)
+            assertThat(it.state).isEqualTo(State.RESUMED)
+            assertThat(it.isViewAttachedToWindow).isTrue()
+        }
+    }
+
+    @Test
+    fun testlaunch_withInstantiate() {
+        var numberOfInstantiations = 0
+        val scenario = launchFragment(null) {
+            numberOfInstantiations++
+            NoDefaultConstructorFragment(true)
+        }
+        assertThat(numberOfInstantiations).isEqualTo(1)
+        scenario.onFragment {
+            assertThat(it.created).isTrue()
+            assertThat(it.state).isEqualTo(State.RESUMED)
+        }
+    }
 }
+
+class NoDefaultConstructorFragment(val created: Boolean) : StateRecordingFragment()
