@@ -1041,57 +1041,6 @@ class MediaSession2Stub extends IMediaSession2.Stub {
                 });
     }
 
-    @Override
-    public void subscribeRoutesInfo(IMediaController2 caller, int seq) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq, SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        return mSessionImpl.getCallback().onSubscribeRoutesInfo(
-                                mSessionImpl.getInstance(), controller);
-                    }
-                });
-    }
-
-    @Override
-    public void unsubscribeRoutesInfo(IMediaController2 caller, int seq) {
-        if (caller == null) {
-            return;
-        }
-        dispatchSessionTask(caller, seq,
-                SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        return mSessionImpl.getCallback().onUnsubscribeRoutesInfo(
-                                mSessionImpl.getInstance(), controller);
-                    }
-                });
-    }
-
-    @Override
-    public void selectRoute(IMediaController2 caller, int seq, final Bundle route) {
-        if (caller == null) {
-            return;
-        }
-        if (MediaUtils2.isUnparcelableBundle(route)) {
-            // TODO (b/118472216): Prevent app crash from illegal binder call.
-            throw new RuntimeException("Unexpected route bundle: " + route);
-        }
-        dispatchSessionTask(caller, seq,
-                SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
-                new SessionCallbackTask<Integer>() {
-                    @Override
-                    public Integer run(ControllerInfo controller) {
-                        return mSessionImpl.getCallback().onSelectRoute(mSessionImpl.getInstance(),
-                                controller, route);
-                    }
-                });
-    }
-
     //////////////////////////////////////////////////////////////////////////////////////////////
     // AIDL methods for LibrarySession overrides
     //////////////////////////////////////////////////////////////////////////////////////////////
@@ -1406,11 +1355,6 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         @Override
         void onPlaybackCompleted() throws RemoteException {
             mIControllerCallback.onPlaybackCompleted();
-        }
-
-        @Override
-        void onRoutesInfoChanged(List<Bundle> routes) throws RemoteException {
-            mIControllerCallback.onRoutesInfoChanged(routes);
         }
 
         @Override

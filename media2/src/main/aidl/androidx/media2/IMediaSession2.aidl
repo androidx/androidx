@@ -70,10 +70,6 @@ oneway interface IMediaSession2 {
     void setRepeatMode(IMediaController2 caller, int seq, int repeatMode) = 31;
     void setShuffleMode(IMediaController2 caller, int seq, int shuffleMode) = 32;
 
-    void subscribeRoutesInfo(IMediaController2 caller, int seq) = 33;
-    void unsubscribeRoutesInfo(IMediaController2 caller, int seq) = 34;
-    void selectRoute(IMediaController2 caller, int seq, in Bundle route) = 35;
-
     void onControllerResult(IMediaController2 caller, int seq,
             in ParcelImpl controllerResult) = 46;
 

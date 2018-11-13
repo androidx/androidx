@@ -32,9 +32,6 @@ import static androidx.media2.MediaMetadata2.METADATA_KEY_MEDIA_URI;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_PLAYABLE;
 import static androidx.media2.MediaMetadata2.METADATA_KEY_TITLE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_PLAYER_SET_SPEED;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
 import static androidx.media2.SessionCommand2.COMMAND_VERSION_CURRENT;
 
 import android.annotation.SuppressLint;
@@ -746,9 +743,6 @@ public class MediaUtils2 {
         commandsBuilder.addAllSessionCommands(COMMAND_VERSION_CURRENT);
 
         commandsBuilder.removeCommand(COMMAND_CODE_PLAYER_SET_SPEED);
-        commandsBuilder.removeCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
-        commandsBuilder.removeCommand(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
-        commandsBuilder.removeCommand(COMMAND_CODE_SESSION_SELECT_ROUTE);
 
         if (state != null && state.getCustomActions() != null) {
             for (CustomAction customAction : state.getCustomActions()) {
