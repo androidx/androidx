@@ -49,7 +49,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Base class for all Room databases. All classes that are annotated with {@link Database} must
@@ -90,16 +90,20 @@ public abstract class RoomDatabase {
     @Deprecated
     protected List<Callback> mCallbacks;
 
-    private final ReentrantLock mCloseLock = new ReentrantLock();
+    private final ReentrantReadWriteLock mCloseLock = new ReentrantReadWriteLock();
 
     /**
      * {@link InvalidationTracker} uses this lock to prevent the database from closing while it is
      * querying database updates.
+     * <p>
+     * The returned lock is reentrant and will allow multiple threads to acquire the lock
+     * simultaneously until {@link #close()} is invoked in which the lock becomes exclusive as
+     * a way to let the InvalidationTracker finish its work before closing the database.
      *
      * @return The lock for {@link #close()}.
      */
     Lock getCloseLock() {
-        return mCloseLock;
+        return mCloseLock.readLock();
     }
 
     /**
@@ -197,12 +201,13 @@ public abstract class RoomDatabase {
      */
     public void close() {
         if (isOpen()) {
+            final Lock closeLock = mCloseLock.writeLock();
             try {
-                mCloseLock.lock();
+                closeLock.lock();
                 mInvalidationTracker.stopMultiInstanceInvalidation();
                 mOpenHelper.close();
             } finally {
-                mCloseLock.unlock();
+                closeLock.unlock();
             }
         }
     }
