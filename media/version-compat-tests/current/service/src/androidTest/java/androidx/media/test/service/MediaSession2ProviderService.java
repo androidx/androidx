@@ -266,14 +266,6 @@ public class MediaSession2ProviderService extends Service {
         }
 
         @Override
-        public void notifyRoutesInfoChanged(String sessionId, Bundle controller,
-                List<Bundle> routes) throws RemoteException {
-            MediaSession2 session2 = mSession2Map.get(sessionId);
-            ControllerInfo info = MediaTestUtils.getTestControllerInfo(session2);
-            session2.notifyRoutesInfoChanged(info, routes);
-        }
-
-        @Override
         public void setCustomLayout(String sessionId, Bundle controller, List<ParcelImpl> layout)
                 throws RemoteException {
             if (layout == null) {

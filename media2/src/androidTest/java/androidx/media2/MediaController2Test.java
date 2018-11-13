@@ -1409,65 +1409,6 @@ public class MediaController2Test extends MediaSession2TestBase {
     }
 
     @Test
-    public void testSubscribeRouteInfo() throws InterruptedException {
-        prepareLooper();
-        final TestSessionCallback callback = new TestSessionCallback() {
-            @Override
-            public int onSubscribeRoutesInfo(@NonNull MediaSession2 session,
-                    @NonNull ControllerInfo controller) {
-                assertEquals(mContext.getPackageName(), controller.getPackageName());
-                mLatch.countDown();
-                return RESULT_CODE_SUCCESS;
-            }
-
-            @Override
-            public int onUnsubscribeRoutesInfo(@NonNull MediaSession2 session,
-                    @NonNull ControllerInfo controller) {
-                assertEquals(mContext.getPackageName(), controller.getPackageName());
-                mLatch.countDown();
-                return RESULT_CODE_SUCCESS;
-            }
-        };
-        mSession.close();
-        mSession = new MediaSession2.Builder(mContext, mPlayer)
-                .setSessionCallback(sHandlerExecutor, callback).setId(TAG).build();
-        final MediaController2 controller = createController(mSession.getToken());
-
-        callback.resetLatchCount(1);
-        controller.subscribeRoutesInfo();
-        assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-
-        callback.resetLatchCount(1);
-        controller.unsubscribeRoutesInfo();
-        assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-    }
-
-    @Test
-    public void testSelectRouteInfo() throws InterruptedException {
-        prepareLooper();
-        final Bundle testRoute = new Bundle();
-        testRoute.putString("id", "testRoute");
-        final TestSessionCallback callback = new TestSessionCallback() {
-            @Override
-            public int onSelectRoute(@NonNull MediaSession2 session,
-                    @NonNull ControllerInfo controller, @NonNull Bundle route) {
-                assertEquals(mContext.getPackageName(), controller.getPackageName());
-                assertTrue(TestUtils.equals(route, testRoute));
-                mLatch.countDown();
-                return RESULT_CODE_SUCCESS;
-            }
-        };
-        mSession.close();
-        mSession = new MediaSession2.Builder(mContext, mPlayer)
-                .setSessionCallback(sHandlerExecutor, callback).setId(TAG).build();
-        final MediaController2 controller = createController(mSession.getToken());
-
-        callback.resetLatchCount(1);
-        controller.selectRoute(testRoute);
-        assertTrue(callback.mLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-    }
-
-    @Test
     public void testClose_beforeConnected() throws InterruptedException {
         prepareLooper();
         MediaController2 controller =

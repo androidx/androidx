@@ -316,24 +316,6 @@ class MediaController2Stub extends IMediaController2.Stub {
     }
 
     @Override
-    public void onRoutesInfoChanged(final List<Bundle> routes) {
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaController2ImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
-            }
-            MediaUtils2.keepUnparcelableBundlesOnly(routes);
-            controller.notifyRoutesInfoChanged(routes);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
-    }
-
-    @Override
     public void onConnected(IMediaSession2 sessionBinder, ParcelImpl commandGroup, int playerState,
             ParcelImpl currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,
             long bufferedPositionMs, ParcelImpl playbackInfo, int shuffleMode, int repeatMode,

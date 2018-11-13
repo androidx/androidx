@@ -674,11 +674,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onRoutesInfoChanged(List<Bundle> routes) throws RemoteException {
-            // no-op
-        }
-
-        @Override
         void onChildrenChanged(String parentId, int itemCount, LibraryParams params)
                 throws RemoteException {
             // no-op
@@ -836,11 +831,6 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                         .build();
             }
             mSessionImpl.getSessionCompat().setPlaybackState(state);
-        }
-
-        @Override
-        void onRoutesInfoChanged(List<Bundle> routes) throws RemoteException {
-            throw new AssertionError("This shouldn't be called.");
         }
 
         @Override

@@ -335,24 +335,6 @@ public class MediaSession2 implements AutoCloseable {
     }
 
     /**
-     * Notify routes information to a connected controller
-     *
-     * @param controller controller information
-     * @param routes The routes information. Each bundle should be from {@link
-     *               androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
-     *               RouteInfo}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
-            @Nullable List<Bundle> routes) {
-        if (controller == null) {
-            throw new IllegalArgumentException("controller shouldn't be null");
-        }
-        mImpl.notifyRoutesInfoChanged(controller, routes);
-    }
-
-    /**
      * @hide
      * @return Bundle
      */
@@ -741,54 +723,6 @@ public class MediaSession2 implements AutoCloseable {
         }
 
         /**
-         * Called when a controller called {@link MediaController2#subscribeRoutesInfo()}
-         * Session app should notify the routes information by calling
-         * {@link MediaSession2#notifyRoutesInfoChanged(ControllerInfo, List)}.
-         *
-         * @param session the session for this event
-         * @param controller controller information
-         * @see SessionCommand2#COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public @ResultCode int onSubscribeRoutesInfo(@NonNull MediaSession2 session,
-                @NonNull ControllerInfo controller) {
-            return RESULT_CODE_NOT_SUPPORTED;
-        }
-
-        /**
-         * Called when a controller called {@link MediaController2#unsubscribeRoutesInfo()}
-         *
-         * @param session the session for this event
-         * @param controller controller information
-         * @see SessionCommand2#COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public @ResultCode int onUnsubscribeRoutesInfo(@NonNull MediaSession2 session,
-                @NonNull ControllerInfo controller) {
-            return RESULT_CODE_NOT_SUPPORTED;
-        }
-
-        /**
-         * Called when a controller called {@link MediaController2#selectRoute(Bundle)}.
-         * @param session the session for this event
-         * @param controller controller information
-         * @param route The route bundle from {@link
-         *              androidx.mediarouter.media.MediaRouter.RouteInfo
-         *              #getUniqueRouteDescriptorBundle RouteInfo}
-         * @see SessionCommand2#COMMAND_CODE_SESSION_SELECT_ROUTE
-         * @see androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
-         * @see androidx.mediarouter.media.MediaRouter#getRoute
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public @ResultCode int onSelectRoute(@NonNull MediaSession2 session,
-                @NonNull ControllerInfo controller, @NonNull Bundle route) {
-            return RESULT_CODE_NOT_SUPPORTED;
-        }
-
-        /**
          * Called when the player state is changed. Used internally for setting the
          * {@link MediaSessionService2} as foreground/background.
          */
@@ -1137,7 +1071,6 @@ public class MediaSession2 implements AutoCloseable {
         abstract void onRepeatModeChanged(@SessionPlayer2.RepeatMode int repeatMode)
                 throws RemoteException;
         abstract void onPlaybackCompleted() throws RemoteException;
-        abstract void onRoutesInfoChanged(@Nullable List<Bundle> routes) throws RemoteException;
         abstract void onDisconnected() throws RemoteException;
 
         // Mostly matched with the methods in MediaBrowser2.BrowserCallback.
@@ -1164,8 +1097,6 @@ public class MediaSession2 implements AutoCloseable {
         void broadcastCustomCommand(@NonNull SessionCommand2 command, @Nullable Bundle args);
         ListenableFuture<SessionResult> sendCustomCommand(@NonNull ControllerInfo controller,
                 @NonNull SessionCommand2 command, @Nullable Bundle args);
-        void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
-                @Nullable List<Bundle> routes);
 
         // Internally used methods
         MediaSession2 getInstance();

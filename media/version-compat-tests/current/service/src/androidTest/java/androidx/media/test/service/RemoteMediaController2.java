@@ -353,30 +353,6 @@ public class RemoteMediaController2 {
         }
     }
 
-    public void subscribeRoutesInfo() {
-        try {
-            mBinder.subscribeRoutesInfo(mControllerId);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call subscribeRoutesInfo()");
-        }
-    }
-
-    public void unsubscribeRoutesInfo() {
-        try {
-            mBinder.unsubscribeRoutesInfo(mControllerId);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call unsubscribeRoutesInfo()");
-        }
-    }
-
-    public void selectRoute(@NonNull Bundle route) {
-        try {
-            mBinder.selectRoute(mControllerId, route);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call selectRoute()");
-        }
-    }
-
     public void close() {
         try {
             mBinder.close(mControllerId);

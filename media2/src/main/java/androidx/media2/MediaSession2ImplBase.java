@@ -451,17 +451,6 @@ class MediaSession2ImplBase implements MediaSession2Impl {
         });
     }
 
-    @Override
-    public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
-            @Nullable final List<Bundle> routes) {
-        dispatchRemoteControllerCallbackTask(controller, new RemoteControllerCallbackTask() {
-            @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onRoutesInfoChanged(routes);
-            }
-        });
-    }
-
     @Override public @SessionPlayer2.PlayerState int getPlayerState() {
         return dispatchPlayerTask(new PlayerTask<Integer>() {
             @Override

@@ -1098,7 +1098,6 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     .addCommand(SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_PLAY_FROM_URI)
                     .addCommand(SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI)
-                    .addCommand(SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST)
                     .addCommand(SessionCommand2.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)
                     .addCommand(new SessionCommand2(

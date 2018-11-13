@@ -263,16 +263,6 @@ public class RemoteMediaSession2 {
         }
     }
 
-    public void notifyRoutesInfoChanged(@NonNull ControllerInfo controller,
-            @Nullable List<Bundle> routes) {
-        try {
-            // TODO: ControllerInfo should be handled.
-            mBinder.notifyRoutesInfoChanged(mSessionId, null, routes);
-        } catch (RemoteException ex) {
-            Log.e(TAG, "Failed to call notifyRoutesInfoChanged()");
-        }
-    }
-
     public void setCustomLayout(@NonNull ControllerInfo controller,
             @NonNull List<CommandButton> layout) {
         try {

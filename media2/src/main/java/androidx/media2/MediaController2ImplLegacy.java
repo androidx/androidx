@@ -24,15 +24,11 @@ import static androidx.media2.MediaConstants2.ARGUMENT_COMMAND_CODE;
 import static androidx.media2.MediaConstants2.ARGUMENT_ICONTROLLER_CALLBACK;
 import static androidx.media2.MediaConstants2.ARGUMENT_PACKAGE_NAME;
 import static androidx.media2.MediaConstants2.ARGUMENT_PID;
-import static androidx.media2.MediaConstants2.ARGUMENT_ROUTE_BUNDLE;
 import static androidx.media2.MediaConstants2.ARGUMENT_UID;
 import static androidx.media2.MediaConstants2.CONTROLLER_COMMAND_BY_COMMAND_CODE;
 import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_DISCONNECTED;
 import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_NOT_SUPPORTED;
 import static androidx.media2.MediaController2.ControllerResult.RESULT_CODE_SUCCESS;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
 import static androidx.media2.SessionPlayer2.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.SessionPlayer2.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer2.UNKNOWN_TIME;
@@ -776,44 +772,6 @@ class MediaController2ImplLegacy implements MediaController2Impl {
             // PlaybackStateCompat.ShuffleMode.
             mControllerCompat.getTransportControls().setShuffleMode(shuffleMode);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
-    }
-
-    @Override
-    public ListenableFuture<ControllerResult> subscribeRoutesInfo() {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
-            }
-        }
-        sendCommand(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO);
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
-    }
-
-    @Override
-    public ListenableFuture<ControllerResult> unsubscribeRoutesInfo() {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
-            }
-        }
-        sendCommand(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO);
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
-    }
-
-    @Override
-    public ListenableFuture<ControllerResult> selectRoute(@NonNull Bundle route) {
-        synchronized (mLock) {
-            if (!mConnected) {
-                Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
-            }
-        }
-        Bundle args = new Bundle();
-        args.putBundle(ARGUMENT_ROUTE_BUNDLE, route);
-        sendCommand(COMMAND_CODE_SESSION_SELECT_ROUTE, args);
         return createFutureWithResult(RESULT_CODE_SUCCESS);
     }
 

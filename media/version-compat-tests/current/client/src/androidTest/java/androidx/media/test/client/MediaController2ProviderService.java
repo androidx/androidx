@@ -351,24 +351,6 @@ public class MediaController2ProviderService extends Service {
         }
 
         @Override
-        public void subscribeRoutesInfo(String controllerId) throws RemoteException {
-            MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.subscribeRoutesInfo();
-        }
-
-        @Override
-        public void unsubscribeRoutesInfo(String controllerId) throws RemoteException {
-            MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.unsubscribeRoutesInfo();
-        }
-
-        @Override
-        public void selectRoute(String controllerId, Bundle route) throws RemoteException {
-            MediaController2 controller2 = mMediaController2Map.get(controllerId);
-            controller2.selectRoute(route);
-        }
-
-        @Override
         public void close(String controllerId) throws RemoteException {
             MediaController2 controller2 = mMediaController2Map.get(controllerId);
             controller2.close();

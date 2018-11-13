@@ -282,31 +282,6 @@ public final class MediaRouter {
         return sGlobal.getRoutes();
     }
 
-    /**
-     * Gets the {@link MediaRouter.RouteInfo routes} from a uniqueRouteDescriptorBundle.
-     *
-     * @param uniqueRouteDescriptorBundle a bundle created by
-     *            {@link RouteInfo#getUniqueRouteDescriptorBundle()}
-     * @return A route for the given {@code uniqueRouteDescriptorBundle} if exist, otherwise null.
-     * @see androidx.media2.MediaSession2#notifyRoutesInfoChanged
-     * @see androidx.media2.MediaController2.ControllerCallback#onRoutesInfoChanged
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public @Nullable RouteInfo getRoute(Bundle uniqueRouteDescriptorBundle) {
-        if (uniqueRouteDescriptorBundle == null) {
-            return null;
-        }
-        uniqueRouteDescriptorBundle.setClassLoader(mContext.getClassLoader());
-        String uniqueId = null;
-        try {
-            uniqueId = uniqueRouteDescriptorBundle.getString(MediaRouteDescriptor.KEY_ID);
-        } catch (Exception e) {
-            return null;
-        }
-        return sGlobal.getRoute(uniqueId);
-    }
-
     @Nullable RouteInfo getRoute(String uniqueId) {
         checkCallingThread();
         return sGlobal.getRoute(uniqueId);
@@ -1326,23 +1301,6 @@ public final class MediaRouter {
          */
         public int getDeviceType() {
             return mDeviceType;
-        }
-
-        /**
-         * Gets the bundle of {@link MediaRouteDescriptor} with a global unique route id
-         * associated with this route.
-         *
-         * @return the bundle of {@link MediaRouteDescriptor} with a global unique route id
-         * associated with this route.
-         * @see androidx.media2.MediaSession2#notifyRoutesInfoChanged
-         * @see androidx.media2.MediaController2.ControllerCallback#onRoutesInfoChanged
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public @NonNull Bundle getUniqueRouteDescriptorBundle() {
-            Bundle bundle = mDescriptor.asBundle();
-            bundle.putString(MediaRouteDescriptor.KEY_ID, mUniqueId);
-            return bundle;
         }
 
         /**
