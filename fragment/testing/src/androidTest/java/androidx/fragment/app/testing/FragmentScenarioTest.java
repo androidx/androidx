@@ -21,6 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentFactory;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.test.filters.LargeTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -106,6 +109,33 @@ public final class FragmentScenarioTest {
                                 "androidx");
                         assertThat(fragment.isViewAttachedToWindow()).isTrue();
                         assertThat(fragment.getNumberOfRecreations()).isEqualTo(0);
+                    }
+                });
+    }
+
+    @Test
+    @LargeTest
+    public void launchFragmentWithFragmentFactory() {
+        FragmentFactory factory = new FragmentFactory() {
+            @NonNull
+            @Override
+            public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className,
+                    @Nullable Bundle args) {
+                if (!NoDefaultConstructorFragment.class.getName().equals(className)) {
+                    return super.instantiate(classLoader, className, args);
+                } else {
+                    return new NoDefaultConstructorFragment("my constructor param");
+                }
+            }
+        };
+        FragmentScenario<NoDefaultConstructorFragment> scenario =
+                FragmentScenario.launch(
+                        NoDefaultConstructorFragment.class, /*fragmentArgs=*/null, factory);
+        scenario.onFragment(
+                new FragmentScenario.FragmentAction<NoDefaultConstructorFragment>() {
+                    @Override
+                    public void perform(@NonNull NoDefaultConstructorFragment fragment) {
+                        assertThat(fragment.getName()).isEqualTo("my constructor param");
                     }
                 });
     }
@@ -341,6 +371,34 @@ public final class FragmentScenarioTest {
                     public void perform(@NonNull StateRecordingFragment fragment) {
                         assertThat(fragment.getState()).isEqualTo(State.RESUMED);
                         assertThat(fragment.getNumberOfRecreations()).isEqualTo(1);
+                    }
+                });
+    }
+
+    @Test
+    @LargeTest
+    public void recreateFragmentWithFragmentFactory() {
+        FragmentFactory factory = new FragmentFactory() {
+            @NonNull
+            @Override
+            public Fragment instantiate(@NonNull ClassLoader classLoader, @NonNull String className,
+                    @Nullable Bundle args) {
+                if (!NoDefaultConstructorFragment.class.getName().equals(className)) {
+                    return super.instantiate(classLoader, className, args);
+                } else {
+                    return new NoDefaultConstructorFragment("my constructor param");
+                }
+            }
+        };
+        FragmentScenario<NoDefaultConstructorFragment> scenario =
+                FragmentScenario.launch(
+                        NoDefaultConstructorFragment.class, /*fragmentArgs=*/null, factory);
+        scenario.recreate();
+        scenario.onFragment(
+                new FragmentScenario.FragmentAction<NoDefaultConstructorFragment>() {
+                    @Override
+                    public void perform(@NonNull NoDefaultConstructorFragment fragment) {
+                        assertThat(fragment.getName()).isEqualTo("my constructor param");
                     }
                 });
     }
