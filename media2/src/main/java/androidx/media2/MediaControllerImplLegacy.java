@@ -117,7 +117,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaBrowserCompat mBrowserCompat;
     @GuardedBy("mLock")
-    private boolean mIsReleased;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean mIsReleased;
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     List<MediaItem> mPlaylist;
@@ -161,7 +162,8 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
     // Media 1.0 variables
     @GuardedBy("mLock")
-    private MediaControllerCompat mControllerCompat;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    MediaControllerCompat mControllerCompat;
     @GuardedBy("mLock")
     private ControllerCompatCallback mControllerCompatCallback;
     @GuardedBy("mLock")
@@ -1032,6 +1034,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
         @Override
         public void onSessionEvent(final String event, final Bundle extras) {
+            synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
+            }
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1051,6 +1058,9 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             final SessionCommandGroup prevAllowedCommands;
             final SessionCommandGroup currentAllowedCommands;
             synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
                 prevItem = mCurrentMediaItem;
                 prevState = mPlaybackStateCompat;
                 mPlaybackStateCompat = state;
@@ -1186,6 +1196,9 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             final MediaItem prevItem;
             final MediaItem currentItem;
             synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
                 prevItem = mCurrentMediaItem;
                 setCurrentMediaItemLocked(metadata);
                 currentItem = mCurrentMediaItem;
@@ -1205,6 +1218,9 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             final List<MediaItem> playlist;
             final MediaMetadata playlistMetadata;
             synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
                 mQueue = MediaUtils.removeNullElements(queue);
                 if (mQueue == null || mQueue.size() == 0) {
                     // MediaSessionCompat can set queue as null or empty. However, SessionPlayer
@@ -1230,6 +1246,9 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         public void onQueueTitleChanged(CharSequence title) {
             final MediaMetadata playlistMetadata;
             synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
                 mPlaylistMetadata = MediaUtils.convertToMediaMetadata(title);
                 playlistMetadata = mPlaylistMetadata;
             }
@@ -1243,6 +1262,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
         @Override
         public void onExtrasChanged(final Bundle extras) {
+            synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
+            }
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1254,6 +1278,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
         @Override
         public void onAudioInfoChanged(final MediaControllerCompat.PlaybackInfo info) {
+            synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
+            }
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1264,6 +1293,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
         @Override
         public void onCaptioningEnabledChanged(final boolean enabled) {
+            synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
+            }
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
@@ -1276,6 +1310,9 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         @Override
         public void onRepeatModeChanged(@PlaybackStateCompat.RepeatMode final int repeatMode) {
             synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
                 mRepeatMode = repeatMode;
             }
             mCallbackExecutor.execute(new Runnable() {
@@ -1289,6 +1326,9 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         @Override
         public void onShuffleModeChanged(@PlaybackStateCompat.ShuffleMode final int shuffleMode) {
             synchronized (mLock) {
+                if (mIsReleased) {
+                    return;
+                }
                 mShuffleMode = shuffleMode;
             }
             mCallbackExecutor.execute(new Runnable() {
