@@ -27,8 +27,8 @@ import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
-import static androidx.media2.SubtitleData2.MIMETYPE_TEXT_CEA_608;
-import static androidx.media2.SubtitleData2.MIMETYPE_TEXT_CEA_708;
+import static androidx.media2.SubtitleData.MIMETYPE_TEXT_CEA_608;
+import static androidx.media2.SubtitleData.MIMETYPE_TEXT_CEA_708;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -38,12 +38,12 @@ import android.os.Build;
 
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.CallbackMediaItem2;
-import androidx.media2.FileMediaItem2;
-import androidx.media2.MediaItem2;
+import androidx.media2.CallbackMediaItem;
+import androidx.media2.FileMediaItem;
+import androidx.media2.MediaItem;
 import androidx.media2.MediaPlayer2;
-import androidx.media2.PlaybackParams2;
-import androidx.media2.UriMediaItem2;
+import androidx.media2.PlaybackParams;
+import androidx.media2.UriMediaItem;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.ExoPlaybackException;
 import androidx.media2.exoplayer.external.Format;
@@ -80,35 +80,35 @@ import java.net.SocketTimeoutException;
             .setAdtsExtractorFlags(AdtsExtractor.FLAG_ENABLE_CONSTANT_BITRATE_SEEKING);
 
     /**
-     * Returns an ExoPlayer media source for the given media item. The given {@link MediaItem2} is
+     * Returns an ExoPlayer media source for the given media item. The given {@link MediaItem} is
      * set as the tag of the source.
      */
     public static MediaSource createUnclippedMediaSource(
-            DataSource.Factory dataSourceFactory, MediaItem2 mediaItem2) {
-        if (mediaItem2 instanceof UriMediaItem2) {
-            Uri uri = ((UriMediaItem2) mediaItem2).getUri();
+            DataSource.Factory dataSourceFactory, MediaItem mediaItem) {
+        if (mediaItem instanceof UriMediaItem) {
+            Uri uri = ((UriMediaItem) mediaItem).getUri();
             if (Util.inferContentType(uri) == C.TYPE_HLS) {
                 return new HlsMediaSource.Factory(dataSourceFactory)
-                        .setTag(mediaItem2)
+                        .setTag(mediaItem)
                         .createMediaSource(uri);
             } else {
                 return new ExtractorMediaSource.Factory(dataSourceFactory)
                         .setExtractorsFactory(sExtractorsFactory)
-                        .setTag(mediaItem2)
+                        .setTag(mediaItem)
                         .createMediaSource(uri);
             }
-        } else if (mediaItem2 instanceof FileMediaItem2) {
+        } else if (mediaItem instanceof FileMediaItem) {
             return new ExtractorMediaSource.Factory(dataSourceFactory)
                     .setExtractorsFactory(sExtractorsFactory)
-                    .setTag(mediaItem2)
+                    .setTag(mediaItem)
                     .createMediaSource(Uri.EMPTY);
-        } else if (mediaItem2 instanceof CallbackMediaItem2) {
-            CallbackMediaItem2 callbackMediaItem2 = (CallbackMediaItem2) mediaItem2;
-            dataSourceFactory = DataSourceCallback2DataSource.getFactory(
-                    callbackMediaItem2.getDataSourceCallback2());
+        } else if (mediaItem instanceof CallbackMediaItem) {
+            CallbackMediaItem callbackMediaItem = (CallbackMediaItem) mediaItem;
+            dataSourceFactory = DataSourceCallbackDataSource.getFactory(
+                    callbackMediaItem.getDataSourceCallback());
             return new ExtractorMediaSource.Factory(dataSourceFactory)
                     .setExtractorsFactory(sExtractorsFactory)
-                    .setTag(mediaItem2)
+                    .setTag(mediaItem)
                     .createMediaSource(Uri.EMPTY);
         } else {
             throw new IllegalStateException();
@@ -134,7 +134,7 @@ import java.net.SocketTimeoutException;
     }
 
     /** Returns ExoPlayer playback parameters for the given playback params. */
-    public static PlaybackParameters getPlaybackParameters(PlaybackParams2 playbackParams2) {
+    public static PlaybackParameters getPlaybackParameters(PlaybackParams playbackParams2) {
         Float speed = playbackParams2.getSpeed();
         Float pitch = playbackParams2.getPitch();
         return new PlaybackParameters(speed != null ? speed : 1f, pitch != null ? pitch : 1f);

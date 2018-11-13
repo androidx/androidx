@@ -108,7 +108,7 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
     boolean loadResource(int resid) throws Exception {
         AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
         try {
-            mPlayer.setMediaItem(new FileMediaItem2.Builder(
+            mPlayer.setMediaItem(new FileMediaItem.Builder(
                     afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build());
         } finally {
             // Close descriptor later when test finishes since setMediaItem is async operation.

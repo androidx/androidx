@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.SessionPlayer2.PlayerResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_SUCCESS;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -28,11 +28,11 @@ import java.util.concurrent.TimeoutException;
 /**
  * Implements {@link ListenableFuture} for synchrous calls.
  */
-public class SyncListenableFuture implements ListenableFuture<SessionPlayer2.PlayerResult> {
-    private final SessionPlayer2.PlayerResult mResult;
+public class SyncListenableFuture implements ListenableFuture<SessionPlayer.PlayerResult> {
+    private final SessionPlayer.PlayerResult mResult;
 
-    SyncListenableFuture(MediaItem2 item) {
-        mResult = new SessionPlayer2.PlayerResult(RESULT_CODE_SUCCESS, item);
+    SyncListenableFuture(MediaItem item) {
+        mResult = new SessionPlayer.PlayerResult(RESULT_CODE_SUCCESS, item);
     }
 
     @Override
@@ -56,12 +56,12 @@ public class SyncListenableFuture implements ListenableFuture<SessionPlayer2.Pla
     }
 
     @Override
-    public SessionPlayer2.PlayerResult get() throws InterruptedException, ExecutionException {
+    public SessionPlayer.PlayerResult get() throws InterruptedException, ExecutionException {
         return mResult;
     }
 
     @Override
-    public SessionPlayer2.PlayerResult get(long l, TimeUnit timeUnit)
+    public SessionPlayer.PlayerResult get(long l, TimeUnit timeUnit)
             throws InterruptedException, ExecutionException, TimeoutException {
         return mResult;
     }

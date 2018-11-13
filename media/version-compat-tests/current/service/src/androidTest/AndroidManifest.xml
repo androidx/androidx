@@ -42,7 +42,7 @@
             </intent-filter>
         </service>
 
-        <service android:name="androidx.media.test.service.MediaSession2ProviderService">
+        <service android:name="androidx.media.test.service.MediaSessionProviderService">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA_SESSION2" />
@@ -56,15 +56,15 @@
             </intent-filter>
         </service>
 
-        <service android:name="androidx.media.test.service.MockMediaSessionService2">
+        <service android:name="androidx.media.test.service.MockMediaSessionService">
             <intent-filter>
-                <action android:name="android.media.MediaSessionService2" />
+                <action android:name="androidx.media2.MediaSessionService" />
             </intent-filter>
         </service>
 
-        <service android:name="androidx.media.test.service.MockMediaLibraryService2">
+        <service android:name="androidx.media.test.service.MockMediaLibraryService">
             <intent-filter>
-                <action android:name="android.media.MediaLibraryService2" />
+                <action android:name="androidx.media2.MediaLibraryService" />
             </intent-filter>
         </service>
 

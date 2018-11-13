@@ -40,12 +40,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.media.widget.test.R;
-import androidx.media2.FileMediaItem2;
-import androidx.media2.MediaController2;
-import androidx.media2.MediaItem2;
-import androidx.media2.MediaMetadata2;
-import androidx.media2.SessionPlayer2;
-import androidx.media2.UriMediaItem2;
+import androidx.media2.FileMediaItem;
+import androidx.media2.MediaController;
+import androidx.media2.MediaItem;
+import androidx.media2.MediaMetadata;
+import androidx.media2.SessionPlayer;
+import androidx.media2.UriMediaItem;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
@@ -90,10 +90,10 @@ public class MediaControlView2Test {
     private Uri mFileSchemeUri;
     private Uri mHttpsSchemeUri;
     private Uri mHttpSchemeUri;
-    private MediaItem2 mFileSchemeMediaItem;
-    private MediaItem2 mHttpsSchemeMediaItem;
-    private MediaItem2 mHttpSchemeMediaItem;
-    private List<MediaController2> mControllers = new ArrayList<>();
+    private MediaItem mFileSchemeMediaItem;
+    private MediaItem mHttpsSchemeMediaItem;
+    private MediaItem mHttpSchemeMediaItem;
+    private List<MediaController> mControllers = new ArrayList<>();
 
     @Rule
     public ActivityTestRule<MediaControlView2TestActivity> mActivityRule =
@@ -146,14 +146,14 @@ public class MediaControlView2Test {
 
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
-        final MediaController2 controller =
-                createController(new MediaController2.ControllerCallback() {
+        final MediaController controller =
+                createController(new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlayerStateChanged(@NonNull MediaController2 controller,
+                    public void onPlayerStateChanged(@NonNull MediaController controller,
                             int state) {
-                        if (state == SessionPlayer2.PLAYER_STATE_PAUSED) {
+                        if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
                             latchForPausedState.countDown();
-                        } else if (state == SessionPlayer2.PLAYER_STATE_PLAYING) {
+                        } else if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
                             latchForPlayingState.countDown();
                         }
                     }
@@ -161,7 +161,7 @@ public class MediaControlView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(mFileSchemeMediaItem);
+                mVideoView.setMediaItem(mFileSchemeMediaItem);
             }
         });
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -179,10 +179,10 @@ public class MediaControlView2Test {
 
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
-        final MediaController2 controller =
-                createController(new MediaController2.ControllerCallback() {
+        final MediaController controller =
+                createController(new MediaController.ControllerCallback() {
                     @Override
-                    public void onSeekCompleted(@NonNull MediaController2 controller,
+                    public void onSeekCompleted(@NonNull MediaController controller,
                             long position) {
                         if (position >= FFWD_MS) {
                             latchForFfwd.countDown();
@@ -190,9 +190,9 @@ public class MediaControlView2Test {
                     }
 
                     @Override
-                    public void onPlayerStateChanged(@NonNull MediaController2 controller,
+                    public void onPlayerStateChanged(@NonNull MediaController controller,
                             int state) {
-                        if (state == SessionPlayer2.PLAYER_STATE_PAUSED) {
+                        if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
                             latchForPausedState.countDown();
                         }
                     }
@@ -200,7 +200,7 @@ public class MediaControlView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(mFileSchemeMediaItem);
+                mVideoView.setMediaItem(mFileSchemeMediaItem);
             }
         });
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -218,20 +218,20 @@ public class MediaControlView2Test {
 
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
         final CountDownLatch latchForRew = new CountDownLatch(1);
-        final MediaController2 controller =
-                createController(new MediaController2.ControllerCallback() {
+        final MediaController controller =
+                createController(new MediaController.ControllerCallback() {
                     long mExpectedPosition;
                     final long mDelta = 1000L;
                     @Override
-                    public void onPlayerStateChanged(@NonNull MediaController2 controller,
+                    public void onPlayerStateChanged(@NonNull MediaController controller,
                             int state) {
-                        if (state == SessionPlayer2.PLAYER_STATE_PAUSED) {
+                        if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
                             mExpectedPosition = FFWD_MS;
                             controller.seekTo(mExpectedPosition);
                         }
                     }
                     @Override
-                    public void onSeekCompleted(@NonNull MediaController2 controller,
+                    public void onSeekCompleted(@NonNull MediaController controller,
                             long position) {
                         assertTrue(equalsSeekPosition(mExpectedPosition, position, mDelta));
                         if (mExpectedPosition == FFWD_MS) {
@@ -249,7 +249,7 @@ public class MediaControlView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(mFileSchemeMediaItem);
+                mVideoView.setMediaItem(mFileSchemeMediaItem);
             }
         });
         assertTrue(latchForFfwd.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -267,14 +267,14 @@ public class MediaControlView2Test {
 
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
-        final MediaController2 controller =
-                createController(new MediaController2.ControllerCallback() {
+        final MediaController controller =
+                createController(new MediaController.ControllerCallback() {
                     @Override
-                    public void onPlayerStateChanged(@NonNull MediaController2 controller,
+                    public void onPlayerStateChanged(@NonNull MediaController controller,
                             int state) {
-                        if (state == SessionPlayer2.PLAYER_STATE_PAUSED) {
+                        if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
                             latchForPausedState.countDown();
-                        } else if (state == SessionPlayer2.PLAYER_STATE_PLAYING) {
+                        } else if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
                             latchForPlayingState.countDown();
                         }
                     }
@@ -282,7 +282,7 @@ public class MediaControlView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(mHttpsSchemeMediaItem);
+                mVideoView.setMediaItem(mHttpsSchemeMediaItem);
             }
         });
         assertTrue(latchForPausedState.await(HTTPS_WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -301,22 +301,22 @@ public class MediaControlView2Test {
         final long duration = 49056L;
         final String title = "BigBuckBunny";
         final CountDownLatch latch = new CountDownLatch(2);
-        final MediaController2 controller =
-                createController(new MediaController2.ControllerCallback() {
+        final MediaController controller =
+                createController(new MediaController.ControllerCallback() {
                     @Override
-                    public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
-                            @Nullable MediaItem2 item) {
+                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
+                            @Nullable MediaItem item) {
                         if (item != null) {
-                            MediaMetadata2 metadata = item.getMetadata();
+                            MediaMetadata metadata = item.getMetadata();
                             if (metadata != null) {
-                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_TITLE)) {
+                                if (metadata.containsKey(MediaMetadata.METADATA_KEY_TITLE)) {
                                     assertEquals(title, metadata.getString(
-                                            MediaMetadata2.METADATA_KEY_TITLE));
+                                            MediaMetadata.METADATA_KEY_TITLE));
                                     latch.countDown();
                                 }
-                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
+                                if (metadata.containsKey(MediaMetadata.METADATA_KEY_DURATION)) {
                                     assertEquals(duration, metadata.getLong(
-                                            MediaMetadata2.METADATA_KEY_DURATION));
+                                            MediaMetadata.METADATA_KEY_DURATION));
                                     latch.countDown();
                                 }
                             }
@@ -326,7 +326,7 @@ public class MediaControlView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(mFileSchemeMediaItem);
+                mVideoView.setMediaItem(mFileSchemeMediaItem);
             }
         });
         assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -347,32 +347,32 @@ public class MediaControlView2Test {
         final long duration = 4206L;
         final String title = "Chimey Phone";
         final String artist = "Android";
-        final MediaItem2 uriMediaItem = createTestMediaItem2(uri);
-        final MediaItem2 fileMediaItem = new FileMediaItem2.Builder(afd.getFileDescriptor(),
+        final MediaItem uriMediaItem = createTestMediaItem2(uri);
+        final MediaItem fileMediaItem = new FileMediaItem.Builder(afd.getFileDescriptor(),
                 afd.getStartOffset(), afd.getLength()).build();
         final CountDownLatch latchForUri = new CountDownLatch(3);
         final CountDownLatch latchForFile = new CountDownLatch(3);
-        final MediaController2 controller =
-                createController(new MediaController2.ControllerCallback() {
+        final MediaController controller =
+                createController(new MediaController.ControllerCallback() {
                     @Override
-                    public void onCurrentMediaItemChanged(@NonNull MediaController2 controller,
-                            @Nullable MediaItem2 item) {
+                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
+                            @Nullable MediaItem item) {
                         if (item != null) {
-                            MediaMetadata2 metadata = item.getMetadata();
+                            MediaMetadata metadata = item.getMetadata();
                             if (metadata != null) {
-                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_TITLE)) {
+                                if (metadata.containsKey(MediaMetadata.METADATA_KEY_TITLE)) {
                                     assertEquals(title, metadata.getString(
-                                            MediaMetadata2.METADATA_KEY_TITLE));
+                                            MediaMetadata.METADATA_KEY_TITLE));
                                     countDown();
                                 }
-                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_ARTIST)) {
+                                if (metadata.containsKey(MediaMetadata.METADATA_KEY_ARTIST)) {
                                     assertEquals(artist, metadata.getString(
-                                            MediaMetadata2.METADATA_KEY_ARTIST));
+                                            MediaMetadata.METADATA_KEY_ARTIST));
                                     countDown();
                                 }
-                                if (metadata.containsKey(MediaMetadata2.METADATA_KEY_DURATION)) {
+                                if (metadata.containsKey(MediaMetadata.METADATA_KEY_DURATION)) {
                                     assertEquals(duration, metadata.getLong(
-                                            MediaMetadata2.METADATA_KEY_DURATION));
+                                            MediaMetadata.METADATA_KEY_DURATION));
                                     countDown();
                                 }
                             }
@@ -389,14 +389,14 @@ public class MediaControlView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(uriMediaItem);
+                mVideoView.setMediaItem(uriMediaItem);
             }
         });
         assertTrue(latchForUri.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(fileMediaItem);
+                mVideoView.setMediaItem(fileMediaItem);
             }
         });
         assertTrue(latchForFile.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -441,8 +441,8 @@ public class MediaControlView2Test {
         }
     }
 
-    private MediaItem2 createTestMediaItem2(Uri uri) {
-        return new UriMediaItem2.Builder(mVideoView.getContext(), uri).build();
+    private MediaItem createTestMediaItem2(Uri uri) {
+        return new UriMediaItem.Builder(mVideoView.getContext(), uri).build();
     }
 
     private boolean hasCodec(Uri uri) {
@@ -453,9 +453,9 @@ public class MediaControlView2Test {
         return TestUtils.hasCodecsForFileDescriptor(afd);
     }
 
-    private MediaController2 createController(MediaController2.ControllerCallback callback) {
-        MediaController2 controller = new MediaController2(mVideoView.getContext(),
-                mVideoView.getMediaSessionToken2(), mMainHandlerExecutor, callback);
+    private MediaController createController(MediaController.ControllerCallback callback) {
+        MediaController controller = new MediaController(mVideoView.getContext(),
+                mVideoView.getSessionToken(), mMainHandlerExecutor, callback);
         mControllers.add(controller);
         return controller;
     }

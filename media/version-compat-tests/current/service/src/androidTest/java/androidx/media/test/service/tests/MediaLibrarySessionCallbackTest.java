@@ -16,7 +16,7 @@
 
 package androidx.media.test.service.tests;
 
-import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -24,12 +24,12 @@ import static org.junit.Assert.assertTrue;
 import android.os.Build;
 
 import androidx.media.test.service.MediaTestUtils;
-import androidx.media.test.service.MockMediaLibraryService2;
+import androidx.media.test.service.MockMediaLibraryService;
 import androidx.media.test.service.MockPlayer;
-import androidx.media.test.service.RemoteMediaBrowser2;
-import androidx.media2.MediaLibraryService2.LibraryParams;
-import androidx.media2.MediaLibraryService2.MediaLibrarySession;
-import androidx.media2.MediaSession2;
+import androidx.media.test.service.RemoteMediaBrowser;
+import androidx.media2.MediaLibraryService.LibraryParams;
+import androidx.media2.MediaLibraryService.MediaLibrarySession;
+import androidx.media2.MediaSession;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -45,13 +45,13 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaLibrarySession.MediaLibrarySessionCallback}.
  *
- * TODO: Make this class extend MediaSession2CallbackTest.
- * TODO: Create MediaLibrarySessionTest which extends MediaSession2Test.
+ * TODO: Make this class extend MediaSessionCallbackTest.
+ * TODO: Create MediaLibrarySessionTest which extends MediaSessionTest.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
+public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
 
     MockPlayer mPlayer;
 
@@ -79,7 +79,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
                 new MediaLibrarySession.MediaLibrarySessionCallback() {
                     @Override
                     public int onSubscribe(MediaLibrarySession session,
-                            MediaSession2.ControllerInfo controller, String parentId,
+                            MediaSession.ControllerInfo controller, String parentId,
                             LibraryParams params) {
                         assertEquals(testParentId, parentId);
                         MediaTestUtils.assertEqualLibraryParams(testParams, params);
@@ -88,14 +88,14 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
                     }
         };
 
-        MockMediaLibraryService2 service = new MockMediaLibraryService2();
+        MockMediaLibraryService service = new MockMediaLibraryService();
         service.attachBaseContext(mContext);
 
         try (MediaLibrarySession session = new MediaLibrarySession.Builder(
                 service, mPlayer, sHandlerExecutor, sessionCallback)
                 .setId("testOnSubscribe")
                 .build()) {
-            RemoteMediaBrowser2 browser = createRemoteBrowser2(session.getToken());
+            RemoteMediaBrowser browser = createRemoteBrowser2(session.getToken());
             browser.subscribe(testParentId, testParams);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
@@ -111,21 +111,21 @@ public class MediaLibrarySessionCallbackTest extends MediaSession2TestBase {
                 new MediaLibrarySession.MediaLibrarySessionCallback() {
                     @Override
                     public int onUnsubscribe(MediaLibrarySession session,
-                            MediaSession2.ControllerInfo controller, String parentId) {
+                            MediaSession.ControllerInfo controller, String parentId) {
                         assertEquals(testParentId, parentId);
                         latch.countDown();
                         return RESULT_CODE_SUCCESS;
                     }
                 };
 
-        MockMediaLibraryService2 service = new MockMediaLibraryService2();
+        MockMediaLibraryService service = new MockMediaLibraryService();
         service.attachBaseContext(mContext);
 
         try (MediaLibrarySession session = new MediaLibrarySession.Builder(
                 service, mPlayer, sHandlerExecutor, sessionCallback)
                 .setId("testOnUnsubscribe")
                 .build()) {
-            RemoteMediaBrowser2 browser = createRemoteBrowser2(session.getToken());
+            RemoteMediaBrowser browser = createRemoteBrowser2(session.getToken());
             browser.unsubscribe(testParentId);
             assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }

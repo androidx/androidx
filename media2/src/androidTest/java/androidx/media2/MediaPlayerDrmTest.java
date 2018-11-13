@@ -45,7 +45,7 @@ import android.view.WindowManager;
 import androidx.annotation.CallSuper;
 import androidx.media2.MediaPlayer.DrmInfo;
 import androidx.media2.MediaPlayer.DrmResult;
-import androidx.media2.SessionPlayer2.PlayerResult;
+import androidx.media2.SessionPlayer.PlayerResult;
 import androidx.media2.TestUtils.Monitor;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
@@ -379,18 +379,18 @@ public class MediaPlayerDrmTest {
 
         mECb = new MediaPlayer.PlayerCallback() {
                 @Override
-                public void onVideoSizeChanged(MediaPlayer mp, MediaItem2 item, int w, int h) {
+                public void onVideoSizeChanged(MediaPlayer mp, MediaItem item, int w, int h) {
                     Log.v(TAG, "VideoSizeChanged" + " w:" + w + " h:" + h);
                     mOnVideoSizeChangedCalled.signal();
                 }
 
                 @Override
-                public void onError(MediaPlayer mp, MediaItem2 item, int what, int extra) {
+                public void onError(MediaPlayer mp, MediaItem item, int what, int extra) {
                     fail("Media player had error " + what + " playing video");
                 }
 
                 @Override
-                public void onInfo(MediaPlayer mp, MediaItem2 item, int what, int extra) {
+                public void onInfo(MediaPlayer mp, MediaItem item, int what, int extra) {
                     if (what == MediaPlayer.MEDIA_INFO_MEDIA_ITEM_END) {
                         Log.v(TAG, "playLoadedVideo: onInfo_PlaybackComplete");
                         mOnPlaybackCompleted.signal();
@@ -401,7 +401,7 @@ public class MediaPlayerDrmTest {
         mPlayer.registerPlayerCallback(mExecutor, mECb);
         Log.v(TAG, "playLoadedVideo: setMediaItem()");
         ListenableFuture<PlayerResult> future =
-                mPlayer.setMediaItem(new UriMediaItem2.Builder(mContext, file).build());
+                mPlayer.setMediaItem(new UriMediaItem.Builder(mContext, file).build());
         assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
 
         SurfaceHolder surfaceHolder = mActivity.getSurfaceHolder();
@@ -476,7 +476,7 @@ public class MediaPlayerDrmTest {
 
         mPlayer.registerPlayerCallback(mExecutor, new MediaPlayer.PlayerCallback() {
             @Override
-            public void onDrmInfo(MediaPlayer mp, MediaItem2 item, DrmInfo drmInfo) {
+            public void onDrmInfo(MediaPlayer mp, MediaItem item, DrmInfo drmInfo) {
                 Log.v(TAG, "preparePlayerAndDrm_V1: onDrmInfo" + drmInfo);
 
                 // in the callback (async mode) so handling exceptions here
@@ -508,7 +508,7 @@ public class MediaPlayerDrmTest {
     private void preparePlayerAndDrm_V2_syncDrmSetupPlusConfig() throws Exception {
         mPlayer.setOnDrmConfigHelper(new MediaPlayer.OnDrmConfigHelper() {
             @Override
-            public void onDrmConfig(MediaPlayer mp, MediaItem2 item) {
+            public void onDrmConfig(MediaPlayer mp, MediaItem item) {
                 String widevineSecurityLevel3 = "L3";
                 String securityLevelProperty = "securityLevel";
 
@@ -546,7 +546,7 @@ public class MediaPlayerDrmTest {
 
         mPlayer.registerPlayerCallback(mExecutor, new MediaPlayer.PlayerCallback() {
             @Override
-            public void onDrmInfo(MediaPlayer mp, MediaItem2 item, DrmInfo drmInfo) {
+            public void onDrmInfo(MediaPlayer mp, MediaItem item, DrmInfo drmInfo) {
                 Log.v(TAG, "preparePlayerAndDrm_V3: onDrmInfo" + drmInfo);
 
                 // DRM preperation
@@ -645,7 +645,7 @@ public class MediaPlayerDrmTest {
 
                 Log.v(TAG, "playLoadedVideo: setMediaItem()");
                 mPlayer.setMediaItem(
-                        new UriMediaItem2.Builder(mContext, file).build());
+                        new UriMediaItem.Builder(mContext, file).build());
 
                 Log.v(TAG, "playLoadedVideo: prepare()");
                 ListenableFuture<PlayerResult> future = mPlayer.prepare();

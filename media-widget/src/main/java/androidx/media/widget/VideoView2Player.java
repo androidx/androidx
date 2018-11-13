@@ -18,8 +18,8 @@ package androidx.media.widget;
 
 import android.content.Context;
 
-import androidx.media2.MediaItem2;
-import androidx.media2.MediaMetadata2;
+import androidx.media2.MediaItem;
+import androidx.media2.MediaMetadata;
 import androidx.media2.MediaPlayer;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -32,7 +32,7 @@ class VideoView2Player extends MediaPlayer {
         super(context);
     }
 
-    private MediaItem2 mMediaItem;
+    private MediaItem mMediaItem;
 
     @Override
     public ListenableFuture<PlayerResult> seekTo(long position) {
@@ -44,18 +44,18 @@ class VideoView2Player extends MediaPlayer {
     // TODO: Remove overrides below.
     ///////////////////////////////////////////////////////////////////////////////////////
     @Override
-    public List<MediaItem2> getPlaylist() {
+    public List<MediaItem> getPlaylist() {
         try {
             return super.getPlaylist();
         } finally {
-            ArrayList<MediaItem2> list = new ArrayList<>();
+            ArrayList<MediaItem> list = new ArrayList<>();
             list.add(getCurrentMediaItem());
             return list;
         }
     }
 
     @Override
-    public MediaMetadata2 getPlaylistMetadata() {
+    public MediaMetadata getPlaylistMetadata() {
         try {
             return super.getPlaylistMetadata();
         } finally {
@@ -82,13 +82,13 @@ class VideoView2Player extends MediaPlayer {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> setMediaItem(MediaItem2 item) {
+    public ListenableFuture<PlayerResult> setMediaItem(MediaItem item) {
         mMediaItem = item;
         return super.setMediaItem(item);
     }
 
     @Override
-    public MediaItem2 getCurrentMediaItem() {
+    public MediaItem getCurrentMediaItem() {
         try {
             return super.getCurrentMediaItem();
         } finally {

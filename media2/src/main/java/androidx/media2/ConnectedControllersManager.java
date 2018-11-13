@@ -22,9 +22,9 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
-import androidx.media2.MediaSession2.ControllerInfo;
-import androidx.media2.MediaSession2.MediaSession2Impl;
-import androidx.media2.SessionCommand2.CommandCode;
+import androidx.media2.MediaSession.ControllerInfo;
+import androidx.media2.MediaSession.MediaSessionImpl;
+import androidx.media2.SessionCommand.CommandCode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ class ConnectedControllersManager<T> {
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final ArrayMap<ControllerInfo, SessionCommandGroup2> mAllowedCommandGroupMap =
+    private final ArrayMap<ControllerInfo, SessionCommandGroup> mAllowedCommandGroupMap =
             new ArrayMap<>();
     @GuardedBy("mLock")
     private final ArrayMap<ControllerInfo, SequencedFutureManager>
@@ -49,13 +49,13 @@ class ConnectedControllersManager<T> {
     private final ArrayMap<ControllerInfo, T> mKeys = new ArrayMap<>();
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final MediaSession2Impl mSessionImpl;
+    final MediaSessionImpl mSessionImpl;
 
-    ConnectedControllersManager(MediaSession2Impl session) {
+    ConnectedControllersManager(MediaSessionImpl session) {
         mSessionImpl = session;
     }
 
-    public void addController(T key, ControllerInfo controller, SessionCommandGroup2 commands) {
+    public void addController(T key, ControllerInfo controller, SessionCommandGroup commands) {
         if (key == null || controller == null) {
             if (DEBUG) {
                 throw new IllegalArgumentException("key nor controller shouldn't be null");
@@ -71,7 +71,7 @@ class ConnectedControllersManager<T> {
         // TODO: Also notify controller connected.
     }
 
-    public void updateAllowedCommands(ControllerInfo controller, SessionCommandGroup2 commands) {
+    public void updateAllowedCommands(ControllerInfo controller, SessionCommandGroup commands) {
         synchronized (mLock) {
             if (!mAllowedCommandGroupMap.containsKey(controller)) {
                 if (DEBUG) {
@@ -186,8 +186,8 @@ class ConnectedControllersManager<T> {
         }
     }
 
-    public boolean isAllowedCommand(ControllerInfo controller, SessionCommand2 command) {
-        SessionCommandGroup2 allowedCommands;
+    public boolean isAllowedCommand(ControllerInfo controller, SessionCommand command) {
+        SessionCommandGroup allowedCommands;
         synchronized (mLock) {
             allowedCommands = mAllowedCommandGroupMap.get(controller);
         }
@@ -195,7 +195,7 @@ class ConnectedControllersManager<T> {
     }
 
     public boolean isAllowedCommand(ControllerInfo controller, @CommandCode int commandCode) {
-        SessionCommandGroup2 allowedCommands;
+        SessionCommandGroup allowedCommands;
         synchronized (mLock) {
             allowedCommands = mAllowedCommandGroupMap.get(controller);
         }

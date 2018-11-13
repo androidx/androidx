@@ -78,7 +78,7 @@ function runTest() {
     elif [[ $OPTION_TEST_TARGET == *"service"* ]]; then
       ${test_command} $OPTION_TEST_TARGET ${service_test_runner}
     else
-      # Since there is no MediaSession2 APIs in previous support library, don't run the test.
+      # Since there is no MediaSession APIs in previous support library, don't run the test.
       # Instead, only run mediacompat tests.
       if [[ $CLIENT_VERSION != "tot" || $SERVICE_VERSION != "tot" ]]; then
         ${test_command} "-e package $MEDIA_COMPAT_CLIENT_TEST_JAVA_PACKAGE" ${client_test_runner}

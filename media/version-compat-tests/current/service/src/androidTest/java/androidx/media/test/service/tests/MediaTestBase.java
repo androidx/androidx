@@ -31,7 +31,7 @@ abstract class MediaTestBase {
     /**
      * All tests methods should start with this.
      * <p>
-     * MediaControllerCompat, which is wrapped by the MediaSession2, can be only created by the
+     * MediaControllerCompat, which is wrapped by the MediaSession, can be only created by the
      * thread whose Looper is prepared. However, when the presubmit test runs on the server,
      * test runs with the {@link org.junit.internal.runners.statements.FailOnTimeout} which creates
      * dedicated thread for running test methods while methods annotated with @After or @Before

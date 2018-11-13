@@ -26,13 +26,13 @@ import android.util.Log;
 
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.test.lib.TestUtils;
-import androidx.media2.FileMediaItem2;
-import androidx.media2.MediaItem2;
-import androidx.media2.MediaLibraryService2.LibraryParams;
-import androidx.media2.MediaMetadata2;
-import androidx.media2.MediaSession2;
-import androidx.media2.MediaSession2.ControllerInfo;
-import androidx.media2.MediaUtils2;
+import androidx.media2.FileMediaItem;
+import androidx.media2.MediaItem;
+import androidx.media2.MediaLibraryService.LibraryParams;
+import androidx.media2.MediaMetadata;
+import androidx.media2.MediaSession;
+import androidx.media2.MediaSession.ControllerInfo;
+import androidx.media2.MediaUtils;
 import androidx.versionedparcelable.ParcelImpl;
 
 import java.io.FileDescriptor;
@@ -54,14 +54,14 @@ public final class MediaTestUtils {
 //     * @param id
 //     * @return
 //     */
-//    public static SessionToken2 getServiceToken(Context context, String id) {
+//    public static SessionToken getServiceToken(Context context, String id) {
 //        switch (id) {
 //            case MockMediaSessionService2.ID:
-//                return new SessionToken2(context, new ComponentName(
+//                return new SessionToken(context, new ComponentName(
 //                        context.getPackageName(), MockMediaSessionService2.class.getName()));
-//            case MockMediaLibraryService2.ID:
-//                return new SessionToken2(context, new ComponentName(
-//                        context.getPackageName(), MockMediaLibraryService2.class.getName()));
+//            case MockMediaLibraryService.ID:
+//                return new SessionToken(context, new ComponentName(
+//                        context.getPackageName(), MockMediaLibraryService.class.getName()));
 //        }
 //        fail("Unknown id=" + id);
 //        return null;
@@ -75,8 +75,8 @@ public final class MediaTestUtils {
      * @param size list size
      * @return the newly created playlist
      */
-    public static List<MediaItem2> createPlaylist(int size) {
-        final List<MediaItem2> list = new ArrayList<>();
+    public static List<MediaItem> createPlaylist(int size) {
+        final List<MediaItem> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
         for (int i = 0; i < size; i++) {
             list.add(createMediaItem(caller + "_item_" + (size + 1)));
@@ -84,13 +84,13 @@ public final class MediaTestUtils {
         return list;
     }
 
-    public static MediaItem2 createMediaItem(String id) {
-        return new FileMediaItem2.Builder(new FileDescriptor())
-                .setMetadata(new MediaMetadata2.Builder()
-                        .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, id)
-                        .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE,
-                                MediaMetadata2.BROWSABLE_TYPE_NONE)
-                        .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
+    public static MediaItem createMediaItem(String id) {
+        return new FileMediaItem.Builder(new FileDescriptor())
+                .setMetadata(new MediaMetadata.Builder()
+                        .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, id)
+                        .putLong(MediaMetadata.METADATA_KEY_BROWSABLE,
+                                MediaMetadata.BROWSABLE_TYPE_NONE)
+                        .putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1)
                         .build())
                 .build();
     }
@@ -110,8 +110,8 @@ public final class MediaTestUtils {
      * @return the newly created media item
      * @see #createMetadata()
      */
-    public static MediaItem2 createMediaItemWithMetadata() {
-        return new FileMediaItem2.Builder(new FileDescriptor())
+    public static MediaItem createMediaItemWithMetadata() {
+        return new FileMediaItem.Builder(new FileDescriptor())
                 .setMetadata(createMetadata())
                 .build();
     }
@@ -123,47 +123,47 @@ public final class MediaTestUtils {
      *
      * @return the newly created media item
      */
-    public static MediaMetadata2 createMetadata() {
+    public static MediaMetadata createMetadata() {
         String mediaId = Thread.currentThread().getStackTrace()[1].getMethodName();
-        return new MediaMetadata2.Builder()
-                .putString(MediaMetadata2.METADATA_KEY_MEDIA_ID, mediaId)
-                .putLong(MediaMetadata2.METADATA_KEY_BROWSABLE, MediaMetadata2.BROWSABLE_TYPE_NONE)
-                .putLong(MediaMetadata2.METADATA_KEY_PLAYABLE, 1)
+        return new MediaMetadata.Builder()
+                .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId)
+                .putLong(MediaMetadata.METADATA_KEY_BROWSABLE, MediaMetadata.BROWSABLE_TYPE_NONE)
+                .putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1)
                 .build();
     }
 
-    public static List<MediaItem2> convertToMediaItems(List<ParcelImpl> list,
+    public static List<MediaItem> convertToMediaItems(List<ParcelImpl> list,
             boolean createItem) {
         if (list == null) {
             return null;
         }
 
-        List<MediaItem2> result = new ArrayList<>();
+        List<MediaItem> result = new ArrayList<>();
         if (createItem) {
             for (ParcelImpl parcel : list) {
-                MediaItem2 item = MediaUtils2.fromParcelable(parcel);
-                result.add(new FileMediaItem2.Builder(new FileDescriptor())
+                MediaItem item = MediaUtils.fromParcelable(parcel);
+                result.add(new FileMediaItem.Builder(new FileDescriptor())
                         .setMetadata(item.getMetadata())
                         .build());
             }
         } else {
             for (ParcelImpl parcel : list) {
-                result.add((MediaItem2) MediaUtils2.fromParcelable(parcel));
+                result.add((MediaItem) MediaUtils.fromParcelable(parcel));
             }
         }
         return result;
     }
 
-    public static ControllerInfo getTestControllerInfo(MediaSession2 session2) {
-        if (session2 == null) {
+    public static ControllerInfo getTestControllerInfo(MediaSession session) {
+        if (session == null) {
             return null;
         }
-        for (ControllerInfo info : session2.getConnectedControllers()) {
+        for (ControllerInfo info : session.getConnectedControllers()) {
             if (CLIENT_PACKAGE_NAME.equals(info.getPackageName())) {
                 return info;
             }
         }
-        Log.e(TAG, "Test controller was not found in connected controllers. session=" + session2);
+        Log.e(TAG, "Test controller was not found in connected controllers. session=" + session);
         return null;
     }
 

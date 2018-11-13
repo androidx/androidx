@@ -17,7 +17,7 @@
 package androidx.media2;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
-import static androidx.media2.SessionPlayer2.PLAYER_STATE_PAUSED;
+import static androidx.media2.SessionPlayer.PLAYER_STATE_PAUSED;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -271,7 +271,7 @@ public class AudioFocusHandler {
 
         // Converts {@link AudioAttributesCompat} to one of the audio focus request. This follows
         // the class Javadoc of {@link AudioFocusRequest}.
-        // Note: Any change here should also reflects public Javadoc of {@link MediaSession2}.
+        // Note: Any change here should also reflects public Javadoc of {@link MediaSession}.
         private static int convertAudioAttributesToFocusGain(
                 final AudioAttributesCompat audioAttributesCompat) {
 

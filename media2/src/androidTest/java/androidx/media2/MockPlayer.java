@@ -27,9 +27,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 
 /**
- * A mock implementation of {@link SessionPlayer2} for testing.
+ * A mock implementation of {@link SessionPlayer} for testing.
  */
-public class MockPlayer extends SessionPlayer2 {
+public class MockPlayer extends SessionPlayer {
     public final CountDownLatch mCountDownLatch;
     public final boolean mChangePlayerStateWithTransportControl;
 
@@ -46,10 +46,10 @@ public class MockPlayer extends SessionPlayer2 {
     public @BuffState int mLastBufferingState;
     public long mDuration;
 
-    public List<MediaItem2> mPlaylist;
-    public MediaMetadata2 mMetadata;
-    public MediaItem2 mCurrentMediaItem;
-    public MediaItem2 mItem;
+    public List<MediaItem> mPlaylist;
+    public MediaMetadata mMetadata;
+    public MediaItem mCurrentMediaItem;
+    public MediaItem mItem;
     public int mIndex = -1;
     public @RepeatMode int mRepeatMode = -1;
     public @ShuffleMode int mShuffleMode = -1;
@@ -78,7 +78,7 @@ public class MockPlayer extends SessionPlayer2 {
     private MockPlayer(int count, boolean changePlayerStateWithTransportControl) {
         mCountDownLatch = (count > 0) ? new CountDownLatch(count) : null;
         mChangePlayerStateWithTransportControl = changePlayerStateWithTransportControl;
-        // This prevents MS2#play() from triggering SessionPlayer2#prepare().
+        // This prevents MS2#play() from triggering SessionPlayer#prepare().
         mLastPlayerState = PLAYER_STATE_PAUSED;
 
         // Sets default audio attributes to prevent setVolume() from being called with the play().
@@ -182,7 +182,7 @@ public class MockPlayer extends SessionPlayer2 {
         }
     }
 
-    public void notifyCurrentMediaItemChanged(final MediaItem2 item) {
+    public void notifyCurrentMediaItemChanged(final MediaItem item) {
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<PlayerCallback, Executor> pair : callbacks) {
             final PlayerCallback callback = pair.first;
@@ -195,7 +195,7 @@ public class MockPlayer extends SessionPlayer2 {
         }
     }
 
-    public void notifyBufferingStateChanged(final MediaItem2 item,
+    public void notifyBufferingStateChanged(final MediaItem item,
             final @BuffState int buffState) {
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<PlayerCallback, Executor> pair : callbacks) {
@@ -261,12 +261,12 @@ public class MockPlayer extends SessionPlayer2 {
     /////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public List<MediaItem2> getPlaylist() {
+    public List<MediaItem> getPlaylist() {
         return mPlaylist;
     }
 
     @Override
-    public ListenableFuture<PlayerResult> setMediaItem(MediaItem2 item) {
+    public ListenableFuture<PlayerResult> setMediaItem(MediaItem item) {
         mItem = item;
         mCurrentMediaItem = item;
         ArrayList list = new ArrayList<>();
@@ -276,7 +276,7 @@ public class MockPlayer extends SessionPlayer2 {
 
     @Override
     public ListenableFuture<PlayerResult> setPlaylist(
-            List<MediaItem2> list, MediaMetadata2 metadata) {
+            List<MediaItem> list, MediaMetadata metadata) {
         mSetPlaylistCalled = true;
         mPlaylist = list;
         mMetadata = metadata;
@@ -285,12 +285,12 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public MediaMetadata2 getPlaylistMetadata() {
+    public MediaMetadata getPlaylistMetadata() {
         return mMetadata;
     }
 
     @Override
-    public ListenableFuture<PlayerResult> updatePlaylistMetadata(MediaMetadata2 metadata) {
+    public ListenableFuture<PlayerResult> updatePlaylistMetadata(MediaMetadata metadata) {
         mUpdatePlaylistMetadataCalled = true;
         mMetadata = metadata;
         mCountDownLatch.countDown();
@@ -298,12 +298,12 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public MediaItem2 getCurrentMediaItem() {
+    public MediaItem getCurrentMediaItem() {
         return mCurrentMediaItem;
     }
 
     @Override
-    public ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem2 item) {
+    public ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem item) {
         mAddPlaylistItemCalled = true;
         mIndex = index;
         mItem = item;
@@ -312,7 +312,7 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> removePlaylistItem(MediaItem2 item) {
+    public ListenableFuture<PlayerResult> removePlaylistItem(MediaItem item) {
         mRemovePlaylistItemCalled = true;
         mItem = item;
         mCountDownLatch.countDown();
@@ -320,7 +320,7 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem2 item) {
+    public ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem item) {
         mReplacePlaylistItemCalled = true;
         mIndex = index;
         mItem = item;
@@ -329,7 +329,7 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> skipToPlaylistItem(MediaItem2 item) {
+    public ListenableFuture<PlayerResult> skipToPlaylistItem(MediaItem item) {
         mSkipToPlaylistItemCalled = true;
         mItem = item;
         mCountDownLatch.countDown();
@@ -405,8 +405,8 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     public void notifyPlaylistChanged() {
-        final List<MediaItem2> list = mPlaylist;
-        final MediaMetadata2 metadata = mMetadata;
+        final List<MediaItem> list = mPlaylist;
+        final MediaMetadata metadata = mMetadata;
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<PlayerCallback, Executor> pair : callbacks) {
             final PlayerCallback callback = pair.first;
@@ -420,7 +420,7 @@ public class MockPlayer extends SessionPlayer2 {
     }
 
     public void notifyPlaylistMetadataChanged() {
-        final MediaMetadata2 metadata = mMetadata;
+        final MediaMetadata metadata = mMetadata;
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<PlayerCallback, Executor> pair : callbacks) {
             final PlayerCallback callback = pair.first;
