@@ -479,7 +479,7 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     @LargeTest
     public void testOnPlaylistMetadataChanged_withManyLargeImages() throws InterruptedException {
         prepareLooper();
-        final int imageCount = 100;
+        final int imageCount = 20;
         final int originalWidth = 1024;
         final int originalHeight = 1024;
 
