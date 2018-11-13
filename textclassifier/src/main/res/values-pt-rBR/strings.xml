@@ -27,6 +27,6 @@ limitations under the License.
     <string name="add_contact" msgid="9005634177208282449">"Adicionar"</string>
     <string name="add_contact_desc" msgid="2475604767309086575">"Adicionar aos contatos"</string>
     <string name="floating_toolbar_open_overflow_description" msgid="1187148927509077545">"Mais opções"</string>
-    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"Fechar barra flutuante"</string>
+    <string name="floating_toolbar_close_overflow_description" msgid="6243666280435354232">"Fechar menu flutuante"</string>
     <string name="abc_share" msgid="7091841667818715717">"Compart."</string>
 </resources>
