@@ -40,26 +40,26 @@ oneway interface IMediaController {
     void onPlaybackInfoChanged(in ParcelImpl playbackInfo) = 6;
     void onRepeatModeChanged(int repeatMode) = 7;
     void onShuffleModeChanged(int shuffleMode) = 8;
-    void onPlaybackCompleted() = 23;
-    void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs) = 9;
+    void onPlaybackCompleted() = 9;
+    void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs) = 10;
 
     void onConnected(IMediaSession sessionBinder, in ParcelImpl commandGroup, int playerState,
         in ParcelImpl currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,
         long bufferedPositionMs, in ParcelImpl playbackInfo, int repeatMode, int shuffleMode,
-        in ParcelImplListSlice listSlice, in PendingIntent sessionActivity) = 12;
-    void onDisconnected() = 13;
+        in ParcelImplListSlice listSlice, in PendingIntent sessionActivity) = 11;
+    void onDisconnected() = 12;
 
-    void onSetCustomLayout(int seq, in List<ParcelImpl> commandButtonlist) = 14;
-    void onAllowedCommandsChanged(in ParcelImpl commandGroup) = 15;
-    void onCustomCommand(int seq, in ParcelImpl command, in Bundle args) = 16;
+    void onSetCustomLayout(int seq, in List<ParcelImpl> commandButtonlist) = 13;
+    void onAllowedCommandsChanged(in ParcelImpl commandGroup) = 14;
+    void onCustomCommand(int seq, in ParcelImpl command, in Bundle args) = 15;
 
-    void onSessionResult(int seq, in ParcelImpl sessionResult) = 24;
-    void onLibraryResult(int seq, in ParcelImpl libraryResult) = 25;
+    void onSessionResult(int seq, in ParcelImpl sessionResult) = 16;
+    void onLibraryResult(int seq, in ParcelImpl libraryResult) = 17;
 
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Browser sepcific
     //////////////////////////////////////////////////////////////////////////////////////////////
-    void onChildrenChanged(String parentId, int itemCount, in ParcelImpl libraryParams) = 19;
-    void onSearchResultChanged(String query, int itemCount, in ParcelImpl libraryParams) = 21;
-    // Next Id : 26
+    void onChildrenChanged(String parentId, int itemCount, in ParcelImpl libraryParams) = 18;
+    void onSearchResultChanged(String query, int itemCount, in ParcelImpl libraryParams) = 19;
+    // Next Id : 20
 }
