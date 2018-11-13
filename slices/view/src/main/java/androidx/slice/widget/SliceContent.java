@@ -123,6 +123,11 @@ public class SliceContent {
     }
 
     /**
+     * @return the row index of this content, or -1 if no row index is set.
+     */
+    public int getRowIndex() { return mRowIndex; }
+
+    /**
      * @return the desired height of this content based on the provided mode and context or the
      * default height if context is null.
      */
