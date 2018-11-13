@@ -306,7 +306,7 @@ public class MediaItem2 extends CustomVersionedParcelable {
     /**
      * Builder for {@link MediaItem2}.
      */
-    public static class Builder extends BuilderBase<BuilderBase> {
+    public static class Builder extends BuilderBase<Builder> {
         /**
          * Default constructor
          */
