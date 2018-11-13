@@ -193,9 +193,9 @@ package androidx.media2 {
   public static class MediaItem2.Builder {
     ctor public MediaItem2.Builder();
     method public androidx.media2.MediaItem2! build();
-    method public androidx.media2.MediaItem2.BuilderBase! setEndPosition(long);
-    method public androidx.media2.MediaItem2.BuilderBase! setMetadata(androidx.media2.MediaMetadata2!);
-    method public androidx.media2.MediaItem2.BuilderBase! setStartPosition(long);
+    method public androidx.media2.MediaItem2.Builder! setEndPosition(long);
+    method public androidx.media2.MediaItem2.Builder! setMetadata(androidx.media2.MediaMetadata2!);
+    method public androidx.media2.MediaItem2.Builder! setStartPosition(long);
   }
 
   public abstract class MediaLibraryService2 extends androidx.media2.MediaSessionService2 {
