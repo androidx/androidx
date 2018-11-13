@@ -41,7 +41,7 @@
     <string name="abc_menu_shift_shortcut_label" msgid="3271697756921353410">"MAIUSC +"</string>
     <string name="abc_menu_sym_shortcut_label" msgid="8327365089695024394">"SYM +"</string>
     <string name="abc_menu_function_shortcut_label" msgid="4974283687810130415">"FUNZIONE +"</string>
-    <string name="abc_menu_space_shortcut_label" msgid="2304645930658438191">"spazio"</string>
+    <string name="abc_menu_space_shortcut_label" msgid="2304645930658438191">"SPAZIO"</string>
     <string name="abc_menu_enter_shortcut_label" msgid="6840127756824236027">"INVIO"</string>
     <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"CANC"</string>
 </resources>
