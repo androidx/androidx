@@ -177,6 +177,14 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
+    public @NonNull @Slice.SliceHint String[] getHintArray() {
+        return mHints;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
     public void addHint(@Slice.SliceHint String hint) {
         mHints = ArrayUtils.appendElement(String.class, mHints, hint);
     }
