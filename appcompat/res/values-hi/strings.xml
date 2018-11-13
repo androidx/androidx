@@ -24,7 +24,7 @@
     <string name="abc_searchview_description_search" msgid="5466662225065974044">"खोजें"</string>
     <string name="abc_search_hint" msgid="940844115270746197">"खोजें…"</string>
     <string name="abc_searchview_description_query" msgid="908784302972860853">"सर्च क्वेरी"</string>
-    <string name="abc_searchview_description_clear" msgid="1769270744562318534">"क्‍वेरी साफ़ करें"</string>
+    <string name="abc_searchview_description_clear" msgid="1769270744562318534">"क्‍वेरी हटाएं"</string>
     <string name="abc_searchview_description_submit" msgid="8203855622131699655">"क्वेरी सबमिट करें"</string>
     <string name="abc_searchview_description_voice" msgid="3478748990613108725">"बोलकर खोजें"</string>
     <string name="abc_activitychooserview_choose_application" msgid="1798588241954930982">"कोई ऐप्लिकेशन चुनें"</string>

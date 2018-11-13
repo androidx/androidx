@@ -43,5 +43,5 @@
     <string name="abc_menu_function_shortcut_label" msgid="4974283687810130415">"Fungsi+"</string>
     <string name="abc_menu_space_shortcut_label" msgid="2304645930658438191">"ruang"</string>
     <string name="abc_menu_enter_shortcut_label" msgid="6840127756824236027">"enter"</string>
-    <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"padam"</string>
+    <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"delete"</string>
 </resources>
