@@ -670,11 +670,6 @@ public class MediaBrowser2CallbackTest extends MediaController2CallbackTest {
         }
 
         @Override
-        public void onRoutesInfoChanged(MediaController2 controller, List<Bundle> routes) {
-            mCallbackProxy.onRoutesInfoChanged(controller, routes);
-        }
-
-        @Override
         public void onSearchResultChanged(MediaBrowser2 browser, String query, int itemCount,
                 LibraryParams params) {
             super.onSearchResultChanged(browser, query, itemCount, params);

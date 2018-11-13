@@ -387,12 +387,6 @@ abstract class MediaSession2TestBase {
                 mOnCustomCommandRunnable = runnable;
             }
         }
-
-        @Override
-        public void onRoutesInfoChanged(@NonNull MediaController2 controller,
-                @Nullable List<Bundle> routes) {
-            mCallbackProxy.onRoutesInfoChanged(controller, routes);
-        }
     }
 
     public class TestMediaController extends MediaController2 implements TestControllerInterface {

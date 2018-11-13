@@ -37,8 +37,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaController2.ControllerCallback;
 import androidx.media2.MediaController2.PlaybackInfo;
@@ -589,24 +587,6 @@ public class MediaSession2Test extends MediaSession2TestBase {
         assertNotNull(controllerInfo);
         // TODO(jaewan): Test receivers as well.
         mSession.sendCustomCommand(controllerInfo, testCommand, testArgs);
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-    }
-
-    @Test
-    public void testNotifyRoutesInfoChanged() throws InterruptedException {
-        prepareLooper();
-        final CountDownLatch latch = new CountDownLatch(1);
-        final ControllerCallback callback = new ControllerCallback() {
-            @Override
-            public void onRoutesInfoChanged(@NonNull MediaController2 controller,
-                    @Nullable List<Bundle> routes) {
-                assertNull(routes);
-                latch.countDown();
-            }
-        };
-        final MediaController2 controller = createController(mSession.getToken(), true, callback);
-        ControllerInfo controllerInfo = getTestControllerInfo();
-        mSession.notifyRoutesInfoChanged(controllerInfo, null);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 

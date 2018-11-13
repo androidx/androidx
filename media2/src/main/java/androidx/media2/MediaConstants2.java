@@ -20,10 +20,7 @@ class MediaConstants2 {
     static final String CONTROLLER_COMMAND_BY_COMMAND_CODE =
             "androidx.media2.controller.command.BY_COMMAND_CODE";
 
-
     static final String ARGUMENT_COMMAND_CODE = "androidx.media2.argument.COMMAND_CODE";
-    static final String ARGUMENT_ROUTE_BUNDLE = "androidx.media2.argument.ROUTE_BUNDLE";
-
     static final String ARGUMENT_ICONTROLLER_CALLBACK =
             "androidx.media2.argument.ICONTROLLER_CALLBACK";
     static final String ARGUMENT_UID = "androidx.media2.argument.UID";

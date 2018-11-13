@@ -38,8 +38,6 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.test.client.MediaTestUtils;
 import androidx.media.test.client.RemoteMediaSession2;
@@ -61,7 +59,6 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -510,20 +507,6 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
     }
 
     /**
-     * Test whether {@link MediaSession2#setPlaylist(List, MediaMetadata2)} is notified
-     * through the {@link MediaController2.ControllerCallback#onPlaylistMetadataChanged(
-     * MediaController2, MediaMetadata2)}
-     * if the controller doesn't have {@link SessionCommand2#COMMAND_CODE_PLAYER_GET_PLAYLIST} but
-     * {@link SessionCommand2#COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA}.
-     */
-    @Ignore
-    @Test
-    public void testOnPlaylistMetadataChanged_sessionSetPlaylist() throws InterruptedException {
-        // TODO: Implement
-        // Create session with ID TEST_ON_PLAYLIST_METADATA_CHANGED_SESSION_SET_PLAYLIST.
-    }
-
-    /**
      * This also tests {@link MediaController2#getShuffleMode()}.
      */
     @Test
@@ -769,25 +752,6 @@ public class MediaController2CallbackTest extends MediaSession2TestBase {
         final MediaController2 controller =
                 createController(mRemoteSession2.getToken(), true, callback);
         mRemoteSession2.setCustomLayout(TEST_CONTROLLER_INFO, buttons);
-        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
-    }
-
-    @Test
-    public void testOnRoutesInfoChanged() throws InterruptedException {
-        prepareLooper();
-        final CountDownLatch latch = new CountDownLatch(1);
-        final MediaController2.ControllerCallback callback =
-                new MediaController2.ControllerCallback() {
-            @Override
-            public void onRoutesInfoChanged(@NonNull MediaController2 controller,
-                    @Nullable List<Bundle> routes) {
-                assertNull(routes);
-                latch.countDown();
-            }
-        };
-        final MediaController2 controller =
-                createController(mRemoteSession2.getToken(), true, callback);
-        mRemoteSession2.notifyRoutesInfoChanged(TEST_CONTROLLER_INFO, null /* routeList */);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 

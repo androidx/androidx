@@ -983,51 +983,6 @@ public class MediaController2 implements AutoCloseable {
     }
 
     /**
-     * Queries for information about the routes currently known.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> subscribeRoutesInfo() {
-        if (isConnected()) {
-            return getImpl().subscribeRoutesInfo();
-        }
-        return createDisconnectedFuture();
-    }
-
-    /**
-     * Unsubscribes for changes to the routes.
-     * <p>
-     * The {@link ControllerCallback#onRoutesInfoChanged callback} will no longer be invoked for
-     * the routes once this method returns.
-     * </p>
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> unsubscribeRoutesInfo() {
-        if (isConnected()) {
-            return getImpl().unsubscribeRoutesInfo();
-        }
-        return createDisconnectedFuture();
-    }
-
-    /**
-     * Selects the specified route.
-     *
-     * @param route The route to select.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> selectRoute(@NonNull Bundle route) {
-        if (route == null) {
-            throw new IllegalArgumentException("route shouldn't be null");
-        }
-        if (isConnected()) {
-            return getImpl().selectRoute(route);
-        }
-        return createDisconnectedFuture();
-    }
-
-    /**
      * Sets the time diff forcefully when calculating current position.
      * @param timeDiff {@code null} for reset.
      *
@@ -1107,9 +1062,6 @@ public class MediaController2 implements AutoCloseable {
         ListenableFuture<ControllerResult> setRepeatMode(@RepeatMode int repeatMode);
         @ShuffleMode int getShuffleMode();
         ListenableFuture<ControllerResult> setShuffleMode(@ShuffleMode int shuffleMode);
-        ListenableFuture<ControllerResult> subscribeRoutesInfo();
-        ListenableFuture<ControllerResult> unsubscribeRoutesInfo();
-        ListenableFuture<ControllerResult> selectRoute(@NonNull Bundle route);
 
         // Internally used methods
         @NonNull MediaController2 getInstance();
@@ -1314,21 +1266,6 @@ public class MediaController2 implements AutoCloseable {
          * @param controller the controller for this event
          */
         public void onPlaybackCompleted(@NonNull MediaController2 controller) { }
-
-        /**
-         * Called when a property of the indicated media route has changed.
-         *
-         * @param controller the controller for this event
-         * @param routes The list of Bundle from {@link
-         *               androidx.mediarouter.media.MediaRouter.RouteInfo
-         *               #getUniqueRouteDescriptorBundle RouteInfo}.
-         * @see androidx.mediarouter.media.MediaRouter.RouteInfo#getUniqueRouteDescriptorBundle
-         * @see androidx.mediarouter.media.MediaRouter#getRoute
-         * @hide
-         */
-        @RestrictTo(LIBRARY_GROUP)
-        public void onRoutesInfoChanged(@NonNull MediaController2 controller,
-                @Nullable List<Bundle> routes) { }
     }
 
     /**
