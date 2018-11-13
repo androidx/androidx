@@ -1301,8 +1301,10 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             mCallbackExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    Bundle args = new Bundle();
+                    args.putBoolean(MediaConstants.ARGUMENT_CAPTIONING_ENABLED, enabled);
                     mCallback.onCustomCommand(mInstance, new SessionCommand(
-                            SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED, null), null);
+                            SESSION_COMMAND_ON_CAPTIONING_ENABLED_CHANGED, null), args);
                 }
             });
         }
