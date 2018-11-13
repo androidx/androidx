@@ -23,14 +23,14 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.media.test.lib.TestUtils.SyncHandler;
-import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
-import androidx.media2.MediaSession2;
-import androidx.media2.MediaSessionService2;
+import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media2.MediaSession;
+import androidx.media2.MediaSessionService;
 
 import java.util.List;
 
 /**
- * Keeps the instance of currently running {@link MockMediaSessionService2}. And also provides
+ * Keeps the instance of currently running {@link MockMediaSessionService}. And also provides
  * a way to control them in one place.
  * <p>
  * It only support only one service at a time.
@@ -42,7 +42,7 @@ public class TestServiceRegistry {
     @GuardedBy("TestServiceRegistry.class")
     private static TestServiceRegistry sInstance;
     @GuardedBy("TestServiceRegistry.class")
-    private MediaSessionService2 mService;
+    private MediaSessionService mService;
     @GuardedBy("TestServiceRegistry.class")
     private SyncHandler mHandler;
     @GuardedBy("TestServiceRegistry.class")
@@ -111,7 +111,7 @@ public class TestServiceRegistry {
         }
     }
 
-    public void setServiceInstance(MediaSessionService2 service) {
+    public void setServiceInstance(MediaSessionService service) {
         synchronized (TestServiceRegistry.class) {
             if (mService != null) {
                 fail("Previous service instance is still running. Clean up manually to ensure"
@@ -122,7 +122,7 @@ public class TestServiceRegistry {
                 if (service != null) {
                     Log.d(TAG, "setServiceInstance(): service=" + service + ", session size="
                             + service.getSessions().size());
-                    for (MediaSession2 session : service.getSessions()) {
+                    for (MediaSession session : service.getSessions()) {
                         Log.d(TAG, "   session id=" + session.getId());
                     }
                 } else {
@@ -136,7 +136,7 @@ public class TestServiceRegistry {
         }
     }
 
-    public MediaSessionService2 getServiceInstance() {
+    public MediaSessionService getServiceInstance() {
         synchronized (TestServiceRegistry.class) {
             return mService;
         }
@@ -148,12 +148,12 @@ public class TestServiceRegistry {
                 if (DEBUG) {
                     Log.d(TAG, "cleanUp(): service=" + mService + ", session size="
                             + mService.getSessions().size());
-                    for (MediaSession2 session : mService.getSessions()) {
+                    for (MediaSession session : mService.getSessions()) {
                         Log.d(TAG, "   session id=" + session.getId());
                     }
                 }
                 // TODO(jaewan): Remove this, and override SessionService#onDestroy() to do this
-                List<MediaSession2> sessions = mService.getSessions();
+                List<MediaSession> sessions = mService.getSessions();
                 for (int i = 0; i < sessions.size(); i++) {
                     sessions.get(i).close();
                 }
@@ -178,6 +178,6 @@ public class TestServiceRegistry {
     }
 
     public interface OnGetSessionHandler {
-        MediaSession2 onGetSession();
+        MediaSession onGetSession();
     }
 }

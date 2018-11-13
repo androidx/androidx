@@ -16,8 +16,8 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_SUCCESS;
-import static androidx.media2.MediaLibraryService2.LibraryResult.RESULT_CODE_UNKNOWN_ERROR;
+import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_UNKNOWN_ERROR;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -29,14 +29,14 @@ import android.util.Log;
 import androidx.annotation.GuardedBy;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
-import androidx.media2.MediaLibraryService2.LibraryParams;
-import androidx.media2.MediaLibraryService2.LibraryResult;
-import androidx.media2.MediaLibraryService2.MediaLibrarySession;
-import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
-import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionImpl;
-import androidx.media2.MediaSession2.ControllerCb;
-import androidx.media2.MediaSession2.ControllerInfo;
-import androidx.media2.MediaSession2.SessionCallback;
+import androidx.media2.MediaLibraryService.LibraryParams;
+import androidx.media2.MediaLibraryService.LibraryResult;
+import androidx.media2.MediaLibraryService.MediaLibrarySession;
+import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionImpl;
+import androidx.media2.MediaSession.ControllerCb;
+import androidx.media2.MediaSession.ControllerInfo;
+import androidx.media2.MediaSession.SessionCallback;
 import androidx.versionedparcelable.ParcelImpl;
 
 import java.util.HashSet;
@@ -44,20 +44,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
-class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements MediaLibrarySessionImpl {
+class MediaLibrarySessionImplBase extends MediaSessionImplBase implements MediaLibrarySessionImpl {
     @GuardedBy("mLock")
     private final ArrayMap<ControllerCb, Set<String>> mSubscriptions = new ArrayMap<>();
 
-    MediaLibrarySessionImplBase(MediaSession2 instance, Context context, String id,
-            SessionPlayer2 player, PendingIntent sessionActivity, Executor callbackExecutor,
+    MediaLibrarySessionImplBase(MediaSession instance, Context context, String id,
+            SessionPlayer player, PendingIntent sessionActivity, Executor callbackExecutor,
             SessionCallback callback) {
         super(instance, context, id, player, sessionActivity, callbackExecutor, callback);
     }
 
     @Override
-    MediaBrowserServiceCompat createLegacyBrowserService(Context context, SessionToken2 token,
+    MediaBrowserServiceCompat createLegacyBrowserService(Context context, SessionToken token,
             Token sessionToken) {
-        return new MediaLibraryService2LegacyStub(context, this, sessionToken);
+        return new MediaLibraryServiceLegacyStub(context, this, sessionToken);
     }
 
     @Override
@@ -71,14 +71,14 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
     }
 
     @Override
-    MediaLibraryService2LegacyStub getLegacyBrowserService() {
-        return (MediaLibraryService2LegacyStub) super.getLegacyBrowserService();
+    MediaLibraryServiceLegacyStub getLegacyBrowserService() {
+        return (MediaLibraryServiceLegacyStub) super.getLegacyBrowserService();
     }
 
     @Override
     public List<ControllerInfo> getConnectedControllers() {
         List<ControllerInfo> list = super.getConnectedControllers();
-        MediaLibraryService2LegacyStub legacyStub = getLegacyBrowserService();
+        MediaLibraryServiceLegacyStub legacyStub = getLegacyBrowserService();
         if (legacyStub != null) {
             list.addAll(legacyStub.getConnectedControllersManager()
                     .getConnectedControllers());
@@ -91,7 +91,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
         if (super.isConnected(controller)) {
             return true;
         }
-        MediaLibraryService2LegacyStub legacyStub = getLegacyBrowserService();
+        MediaLibraryServiceLegacyStub legacyStub = getLegacyBrowserService();
         return legacyStub != null
                 ? legacyStub.getConnectedControllersManager().isConnected(controller) : false;
     }
@@ -150,7 +150,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
             int pageSize) {
         returnedResult = ensureNonNullResult(returnedResult);
         if (returnedResult.getResultCode() == RESULT_CODE_SUCCESS) {
-            List<MediaItem2> items = returnedResult.getMediaItems();
+            List<MediaItem> items = returnedResult.getMediaItems();
 
             if (items == null) {
                 throw new RuntimeException("List shouldn't be null for the success");
@@ -160,7 +160,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
                         + ", size=" + returnedResult.getMediaItems().size()
                         + ", pageSize" + pageSize);
             }
-            for (MediaItem2 item : items) {
+            for (MediaItem item : items) {
                 if (!isValidItem(item)) {
                     return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
                 }
@@ -179,7 +179,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
         return returnedResult;
     }
 
-    private boolean isValidItem(MediaItem2 item) {
+    private boolean isValidItem(MediaItem item) {
         if (item == null) {
             throw new RuntimeException("Item shouldn't be null for the success");
         }
@@ -187,16 +187,16 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
             throw new RuntimeException(
                     "Media ID of an item shouldn't be empty for the success");
         }
-        MediaMetadata2 metadata = item.getMetadata();
+        MediaMetadata metadata = item.getMetadata();
         if (metadata == null) {
             throw new RuntimeException(
                     "Metadata of an item shouldn't be null for the success");
         }
-        if (!metadata.containsKey(MediaMetadata2.METADATA_KEY_BROWSABLE)) {
+        if (!metadata.containsKey(MediaMetadata.METADATA_KEY_BROWSABLE)) {
             throw new RuntimeException(
                     "METADATA_KEY_BROWSABLE should be specified in metadata of an item");
         }
-        if (!metadata.containsKey(MediaMetadata2.METADATA_KEY_PLAYABLE)) {
+        if (!metadata.containsKey(MediaMetadata.METADATA_KEY_PLAYABLE)) {
             throw new RuntimeException(
                     "METADATA_KEY_PLAYABLE should be specified in metadata of an item");
         }
@@ -204,7 +204,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
     }
 
     /**
-     * Called by {@link MediaSession2Stub#getLibraryRoot(IMediaController2, int, ParcelImpl)}.
+     * Called by {@link MediaSessionStub#getLibraryRoot(IMediaController, int, ParcelImpl)}.
      *
      * @param controller
      * @param params
@@ -217,7 +217,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
     }
 
     /**
-     * Called by {@link MediaSession2Stub#getItem(IMediaController2, int, String)}.
+     * Called by {@link MediaSessionStub#getItem(IMediaController, int, String)}.
      *
      * @param controller
      * @param mediaId
@@ -285,7 +285,7 @@ class MediaLibrarySessionImplBase extends MediaSession2ImplBase implements Media
     @Override
     void dispatchRemoteControllerCallbackTask(RemoteControllerCallbackTask task) {
         super.dispatchRemoteControllerCallbackTask(task);
-        MediaLibraryService2LegacyStub legacyStub = getLegacyBrowserService();
+        MediaLibraryServiceLegacyStub legacyStub = getLegacyBrowserService();
         if (legacyStub != null) {
             dispatchRemoteControllerCallbackTask(legacyStub.getControllersForAll(), task);
         }

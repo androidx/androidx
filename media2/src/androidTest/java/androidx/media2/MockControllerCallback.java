@@ -24,19 +24,19 @@ import android.os.Bundle;
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.media2.MediaController2.ControllerCallback;
-import androidx.media2.MediaSession2.CommandButton;
-import androidx.media2.MediaSession2TestBase.TestControllerCallbackInterface;
+import androidx.media2.MediaController.ControllerCallback;
+import androidx.media2.MediaSession.CommandButton;
+import androidx.media2.MediaSessionTestBase.TestControllerCallbackInterface;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Mock {@link MediaController2.ControllerCallback} that implements
+ * Mock {@link MediaController.ControllerCallback} that implements
  * {@link TestControllerCallbackInterface}
  */
-public class MockControllerCallback extends MediaController2.ControllerCallback
+public class MockControllerCallback extends MediaController.ControllerCallback
         implements TestControllerCallbackInterface {
 
     public final ControllerCallback mCallbackProxy;
@@ -54,14 +54,14 @@ public class MockControllerCallback extends MediaController2.ControllerCallback
 
     @CallSuper
     @Override
-    public void onConnected(MediaController2 controller, SessionCommandGroup2 commands) {
+    public void onConnected(MediaController controller, SessionCommandGroup commands) {
         connectLatch.countDown();
         mCallbackProxy.onConnected(controller, commands);
     }
 
     @CallSuper
     @Override
-    public void onDisconnected(MediaController2 controller) {
+    public void onDisconnected(MediaController controller) {
         disconnectLatch.countDown();
         mCallbackProxy.onDisconnected(controller);
     }
@@ -70,10 +70,10 @@ public class MockControllerCallback extends MediaController2.ControllerCallback
     public void waitForConnect(boolean expect) throws InterruptedException {
         if (expect) {
             assertTrue(connectLatch.await(
-                    MediaSession2TestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
+                    MediaSessionTestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } else {
             assertFalse(connectLatch.await(
-                    MediaSession2TestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
+                    MediaSessionTestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 
@@ -81,16 +81,16 @@ public class MockControllerCallback extends MediaController2.ControllerCallback
     public void waitForDisconnect(boolean expect) throws InterruptedException {
         if (expect) {
             assertTrue(disconnectLatch.await(
-                    MediaSession2TestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
+                    MediaSessionTestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
         } else {
             assertFalse(disconnectLatch.await(
-                    MediaSession2TestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
+                    MediaSessionTestBase.TIMEOUT_MS, TimeUnit.MILLISECONDS));
         }
     }
 
     @Override
-    public MediaController2.ControllerResult onCustomCommand(MediaController2 controller,
-            SessionCommand2 command, Bundle args) {
+    public MediaController.ControllerResult onCustomCommand(MediaController controller,
+            SessionCommand command, Bundle args) {
         synchronized (this) {
             if (mOnCustomCommandRunnable != null) {
                 mOnCustomCommandRunnable.run();
@@ -100,72 +100,72 @@ public class MockControllerCallback extends MediaController2.ControllerCallback
     }
 
     @Override
-    public void onPlaybackInfoChanged(MediaController2 controller,
-            MediaController2.PlaybackInfo info) {
+    public void onPlaybackInfoChanged(MediaController controller,
+            MediaController.PlaybackInfo info) {
         mCallbackProxy.onPlaybackInfoChanged(controller, info);
     }
 
     @Override
-    public int onSetCustomLayout(MediaController2 controller, List<CommandButton> layout) {
+    public int onSetCustomLayout(MediaController controller, List<CommandButton> layout) {
         return mCallbackProxy.onSetCustomLayout(controller, layout);
     }
 
     @Override
-    public void onAllowedCommandsChanged(MediaController2 controller,
-            SessionCommandGroup2 commands) {
+    public void onAllowedCommandsChanged(MediaController controller,
+            SessionCommandGroup commands) {
         mCallbackProxy.onAllowedCommandsChanged(controller, commands);
     }
 
     @Override
-    public void onPlayerStateChanged(MediaController2 controller, int state) {
+    public void onPlayerStateChanged(MediaController controller, int state) {
         mCallbackProxy.onPlayerStateChanged(controller, state);
     }
 
     @Override
-    public void onSeekCompleted(MediaController2 controller, long position) {
+    public void onSeekCompleted(MediaController controller, long position) {
         mCallbackProxy.onSeekCompleted(controller, position);
     }
 
     @Override
-    public void onPlaybackSpeedChanged(MediaController2 controller, float speed) {
+    public void onPlaybackSpeedChanged(MediaController controller, float speed) {
         mCallbackProxy.onPlaybackSpeedChanged(controller, speed);
     }
 
     @Override
-    public void onBufferingStateChanged(MediaController2 controller, MediaItem2 item,
+    public void onBufferingStateChanged(MediaController controller, MediaItem item,
             int state) {
         mCallbackProxy.onBufferingStateChanged(controller, item, state);
     }
 
     @Override
-    public void onCurrentMediaItemChanged(MediaController2 controller, MediaItem2 item) {
+    public void onCurrentMediaItemChanged(MediaController controller, MediaItem item) {
         mCallbackProxy.onCurrentMediaItemChanged(controller, item);
     }
 
     @Override
-    public void onPlaylistChanged(MediaController2 controller,
-            List<MediaItem2> list, MediaMetadata2 metadata) {
+    public void onPlaylistChanged(MediaController controller,
+            List<MediaItem> list, MediaMetadata metadata) {
         mCallbackProxy.onPlaylistChanged(controller, list, metadata);
     }
 
     @Override
-    public void onPlaylistMetadataChanged(MediaController2 controller,
-            MediaMetadata2 metadata) {
+    public void onPlaylistMetadataChanged(MediaController controller,
+            MediaMetadata metadata) {
         mCallbackProxy.onPlaylistMetadataChanged(controller, metadata);
     }
 
     @Override
-    public void onShuffleModeChanged(MediaController2 controller, int shuffleMode) {
+    public void onShuffleModeChanged(MediaController controller, int shuffleMode) {
         mCallbackProxy.onShuffleModeChanged(controller, shuffleMode);
     }
 
     @Override
-    public void onRepeatModeChanged(MediaController2 controller, int repeatMode) {
+    public void onRepeatModeChanged(MediaController controller, int repeatMode) {
         mCallbackProxy.onRepeatModeChanged(controller, repeatMode);
     }
 
     @Override
-    public void onPlaybackCompleted(MediaController2 controller) {
+    public void onPlaybackCompleted(MediaController controller) {
         mCallbackProxy.onPlaybackCompleted(controller);
     }
 

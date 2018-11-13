@@ -52,14 +52,14 @@ import android.view.WindowManager;
 
 import androidx.core.content.ContextCompat;
 import androidx.media.widget.test.R;
-import androidx.media2.FileMediaItem2;
-import androidx.media2.MediaController2;
-import androidx.media2.MediaController2.ControllerResult;
-import androidx.media2.MediaItem2;
-import androidx.media2.SessionCommand2;
-import androidx.media2.SessionCommandGroup2;
-import androidx.media2.SessionPlayer2;
-import androidx.media2.UriMediaItem2;
+import androidx.media2.FileMediaItem;
+import androidx.media2.MediaController;
+import androidx.media2.MediaController.ControllerResult;
+import androidx.media2.MediaItem;
+import androidx.media2.SessionCommand;
+import androidx.media2.SessionCommandGroup;
+import androidx.media2.SessionPlayer;
+import androidx.media2.UriMediaItem;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
@@ -97,9 +97,9 @@ public class VideoView2Test {
 
     private Activity mActivity;
     private VideoView2 mVideoView;
-    private MediaItem2 mMediaItem;
-    private MediaController2.ControllerCallback mControllerCallback;
-    private MediaController2 mController;
+    private MediaItem mMediaItem;
+    private MediaController.ControllerCallback mControllerCallback;
+    private MediaController mController;
 
     @Rule
     public ActivityTestRule<VideoView2TestActivity> mActivityRule =
@@ -118,14 +118,14 @@ public class VideoView2Test {
         setKeepScreenOn();
         checkAttachedToWindow();
 
-        mControllerCallback = mock(MediaController2.ControllerCallback.class);
+        mControllerCallback = mock(MediaController.ControllerCallback.class);
         when(mControllerCallback.onCustomCommand(
-                nullable(MediaController2.class),
-                nullable(SessionCommand2.class),
+                nullable(MediaController.class),
+                nullable(SessionCommand.class),
                 nullable(Bundle.class))).thenReturn(
                         new ControllerResult(ControllerResult.RESULT_CODE_SUCCESS, null));
-        mController = new MediaController2(mVideoView.getContext(),
-                mVideoView.getMediaSessionToken2(), mMainHandlerExecutor, mControllerCallback);
+        mController = new MediaController(mVideoView.getContext(),
+                mVideoView.getSessionToken(), mMainHandlerExecutor, mControllerCallback);
     }
 
     @After
@@ -154,17 +154,17 @@ public class VideoView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(mMediaItem);
+                mVideoView.setMediaItem(mMediaItem);
             }
         });
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
-                any(MediaController2.class), any(SessionCommandGroup2.class));
+                any(MediaController.class), any(SessionCommandGroup.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PAUSED));
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PAUSED));
 
         mController.play();
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PLAYING));
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PLAYING));
     }
 
     @Test
@@ -177,16 +177,16 @@ public class VideoView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(mMediaItem);
+                mVideoView.setMediaItem(mMediaItem);
             }
         });
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
-                any(MediaController2.class), any(SessionCommandGroup2.class));
+                any(MediaController.class), any(SessionCommandGroup.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PAUSED));
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PAUSED));
         verify(mControllerCallback, after(TIME_OUT).never()).onPlayerStateChanged(
-                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PLAYING));
-        assertEquals(SessionPlayer2.PLAYER_STATE_PAUSED, mController.getPlayerState());
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PLAYING));
+        assertEquals(SessionPlayer.PLAYER_STATE_PAUSED, mController.getPlayerState());
     }
 
     @Test
@@ -200,24 +200,24 @@ public class VideoView2Test {
 
         AssetFileDescriptor afd = mContext.getResources()
                 .openRawResourceFd(R.raw.testvideo_with_2_subtitle_tracks);
-        final MediaItem2 item = new FileMediaItem2.Builder(
+        final MediaItem item = new FileMediaItem.Builder(
                 afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
                 .build();
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(item);
+                mVideoView.setMediaItem(item);
             }
         });
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
-                any(MediaController2.class), any(SessionCommandGroup2.class));
+                any(MediaController.class), any(SessionCommandGroup.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PAUSED));
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PAUSED));
 
         mController.play();
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
-                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PLAYING));
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PLAYING));
     }
 
     @Test
@@ -239,19 +239,19 @@ public class VideoView2Test {
             public void run() {
                 mVideoView.setOnViewTypeChangedListener(mockViewTypeListener);
                 mVideoView.setViewType(mVideoView.VIEW_TYPE_TEXTUREVIEW);
-                mVideoView.setMediaItem2(mMediaItem);
+                mVideoView.setMediaItem(mMediaItem);
             }
         });
         verify(mockViewTypeListener, timeout(TIME_OUT))
                 .onViewTypeChanged(mVideoView, VideoView2.VIEW_TYPE_TEXTUREVIEW);
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
-                any(MediaController2.class), any(SessionCommandGroup2.class));
+                any(MediaController.class), any(SessionCommandGroup.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
-                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PAUSED));
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PAUSED));
 
         mController.play();
         verify(mControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
-                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PLAYING));
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PLAYING));
     }
 
     @Test
@@ -276,14 +276,14 @@ public class VideoView2Test {
                 mVideoView.setViewType(mVideoView.VIEW_TYPE_SURFACEVIEW);
                 mVideoView.setViewType(mVideoView.VIEW_TYPE_TEXTUREVIEW);
                 mVideoView.setViewType(mVideoView.VIEW_TYPE_SURFACEVIEW);
-                mVideoView.setMediaItem2(mMediaItem);
+                mVideoView.setMediaItem(mMediaItem);
             }
         });
 
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
-                any(MediaController2.class), any(SessionCommandGroup2.class));
+                any(MediaController.class), any(SessionCommandGroup.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
-                any(MediaController2.class), eq(SessionPlayer2.PLAYER_STATE_PAUSED));
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PAUSED));
 
         assertEquals(mVideoView.getViewType(), mVideoView.VIEW_TYPE_SURFACEVIEW);
     }
@@ -297,16 +297,16 @@ public class VideoView2Test {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mVideoView.setMediaItem2(mMediaItem);
+                mVideoView.setMediaItem(mMediaItem);
             }
         });
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
-                any(MediaController2.class), any(SessionCommandGroup2.class));
+                any(MediaController.class), any(SessionCommandGroup.class));
         mController.play();
 
         // Verify the subtitle track count
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
-                any(MediaController2.class),
+                any(MediaController.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_TRACK_STATUS)),
                 argThat(new CommandArgumentMatcher(KEY_SUBTITLE_TRACK_COUNT, 2)));
 
@@ -314,31 +314,31 @@ public class VideoView2Test {
         Bundle extra = new Bundle();
         extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, 0);
         mController.sendCustomCommand(
-                new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra);
+                new SessionCommand(COMMAND_SHOW_SUBTITLE, null), extra);
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
-                any(MediaController2.class),
+                any(MediaController.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
                 argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 0)));
 
         // Select the second subtitle track
         extra.putInt(KEY_SELECTED_SUBTITLE_INDEX, 1);
         mController.sendCustomCommand(
-                new SessionCommand2(COMMAND_SHOW_SUBTITLE, null), extra);
+                new SessionCommand(COMMAND_SHOW_SUBTITLE, null), extra);
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
-                any(MediaController2.class),
+                any(MediaController.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_SELECTED)),
                 argThat(new CommandArgumentMatcher(KEY_SELECTED_SUBTITLE_INDEX, 1)));
 
         // Deselect subtitle track
         mController.sendCustomCommand(
-                new SessionCommand2(COMMAND_HIDE_SUBTITLE, null), null);
+                new SessionCommand(COMMAND_HIDE_SUBTITLE, null), null);
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onCustomCommand(
-                any(MediaController2.class),
+                any(MediaController.class),
                 argThat(new CommandMatcher(EVENT_UPDATE_SUBTITLE_DESELECTED)),
                 nullable(Bundle.class));
     }
 
-    class CommandMatcher implements ArgumentMatcher<SessionCommand2> {
+    class CommandMatcher implements ArgumentMatcher<SessionCommand> {
         final String mExpectedCommand;
 
         CommandMatcher(String command) {
@@ -346,7 +346,7 @@ public class VideoView2Test {
         }
 
         @Override
-        public boolean matches(SessionCommand2 command) {
+        public boolean matches(SessionCommand command) {
             return mExpectedCommand.equals(command.getCustomCommand());
         }
     }
@@ -401,11 +401,11 @@ public class VideoView2Test {
         return TestUtils.hasCodecsForResource(mActivity, R.raw.testvideo_with_2_subtitle_tracks);
     }
 
-    private MediaItem2 createTestMediaItem2() {
+    private MediaItem createTestMediaItem2() {
         Uri testVideoUri = Uri.parse(
                 "android.resource://" + mContext.getPackageName() + "/"
                         + R.raw.testvideo_with_2_subtitle_tracks);
-        return new UriMediaItem2.Builder(mVideoView.getContext(), testVideoUri)
+        return new UriMediaItem.Builder(mVideoView.getContext(), testVideoUri)
                 .build();
     }
 }

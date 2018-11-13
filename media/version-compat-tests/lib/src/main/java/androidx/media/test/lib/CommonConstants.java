@@ -23,10 +23,10 @@ public class CommonConstants {
 
     public static final ComponentName MEDIA_SESSION2_PROVIDER_SERVICE = new ComponentName(
             IntentUtil.SERVICE_PACKAGE_NAME,
-            "androidx.media.test.service.MediaSession2ProviderService");
+            "androidx.media.test.service.MediaSessionProviderService");
     public static final ComponentName MEDIA_CONTROLLER2_PROVIDER_SERVICE = new ComponentName(
             IntentUtil.CLIENT_PACKAGE_NAME,
-            "androidx.media.test.client.MediaController2ProviderService");
+            "androidx.media.test.client.MediaControllerProviderService");
     public static final ComponentName MEDIA_SESSION_COMPAT_PROVIDER_SERVICE = new ComponentName(
             IntentUtil.SERVICE_PACKAGE_NAME,
             "androidx.media.test.service.MediaSessionCompatProviderService");
@@ -39,10 +39,10 @@ public class CommonConstants {
 
     public static final ComponentName MOCK_MEDIA_SESSION_SERVICE = new ComponentName(
             IntentUtil.SERVICE_PACKAGE_NAME,
-            "androidx.media.test.service.MockMediaSessionService2");
+            "androidx.media.test.service.MockMediaSessionService");
     public static final ComponentName MOCK_MEDIA_LIBRARY_SERVICE = new ComponentName(
             IntentUtil.SERVICE_PACKAGE_NAME,
-            "androidx.media.test.service.MockMediaLibraryService2");
+            "androidx.media.test.service.MockMediaLibraryService");
 
     public static final String ACTION_MEDIA_SESSION2 = "androidx.media.test.action.MEDIA_SESSION2";
     public static final String ACTION_MEDIA_CONTROLLER2 =
