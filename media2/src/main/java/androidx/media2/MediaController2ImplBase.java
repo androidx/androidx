@@ -46,12 +46,9 @@ import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_PREPARE_FROM_URI;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_REWIND;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SELECT_ROUTE;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SET_RATING;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SKIP_BACKWARD;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SKIP_FORWARD;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO;
-import static androidx.media2.SessionCommand2.COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
 import static androidx.media2.SessionCommand2.COMMAND_CODE_VOLUME_SET_VOLUME;
 import static androidx.media2.SessionPlayer2.BUFFERING_STATE_UNKNOWN;
@@ -741,39 +738,6 @@ class MediaController2ImplBase implements MediaController2Impl {
     }
 
     @Override
-    public ListenableFuture<ControllerResult> subscribeRoutesInfo() {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO,
-                new RemoteSessionTask() {
-                    @Override
-                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.subscribeRoutesInfo(mControllerStub, seq);
-                    }
-                });
-    }
-
-    @Override
-    public ListenableFuture<ControllerResult> unsubscribeRoutesInfo() {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
-                new RemoteSessionTask() {
-                    @Override
-                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.unsubscribeRoutesInfo(mControllerStub, seq);
-                    }
-                });
-    }
-
-    @Override
-    public ListenableFuture<ControllerResult> selectRoute(final @NonNull Bundle route) {
-        return dispatchRemoteSessionTask(COMMAND_CODE_SESSION_SELECT_ROUTE,
-                new RemoteSessionTask() {
-                    @Override
-                    public void run(IMediaSession2 iSession2, int seq) throws RemoteException {
-                        iSession2.selectRoute(mControllerStub, seq, route);
-                    }
-                });
-    }
-
-    @Override
     public @NonNull Context getContext() {
         return mContext;
     }
@@ -1031,18 +995,6 @@ class MediaController2ImplBase implements MediaController2Impl {
                     return;
                 }
                 mCallback.onSeekCompleted(mInstance, seekPositionMs);
-            }
-        });
-    }
-
-    void notifyRoutesInfoChanged(final List<Bundle> routes) {
-        mCallbackExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                if (!mInstance.isConnected()) {
-                    return;
-                }
-                mCallback.onRoutesInfoChanged(mInstance, routes);
             }
         });
     }

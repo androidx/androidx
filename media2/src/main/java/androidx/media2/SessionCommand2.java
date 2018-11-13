@@ -111,9 +111,6 @@ public final class SessionCommand2 implements VersionedParcelable {
             COMMAND_CODE_SESSION_PREPARE_FROM_SEARCH,
             COMMAND_CODE_SESSION_PREPARE_FROM_URI,
             COMMAND_CODE_SESSION_SET_RATING,
-            COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO,
-            COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO,
-            COMMAND_CODE_SESSION_SELECT_ROUTE,
             COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
             COMMAND_CODE_LIBRARY_SUBSCRIBE,
             COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
@@ -479,37 +476,9 @@ public final class SessionCommand2 implements VersionedParcelable {
      */
     public static final int COMMAND_CODE_SESSION_SET_RATING = 40010;
 
-    /**
-     * Command code for {@link MediaController2#subscribeRoutesInfo()}
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_SUBSCRIBE_ROUTES_INFO = 40011;
-
-    /**
-     * Command code for {@link MediaController2#unsubscribeRoutesInfo()}
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_UNSUBSCRIBE_ROUTES_INFO = 40012;
-
-    /**
-     * Command code for {@link MediaController2#selectRoute(Bundle)}}
-     * <p>
-     * Code version is {@link #COMMAND_VERSION_1}.
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public static final int COMMAND_CODE_SESSION_SELECT_ROUTE = 40013;
-
     static {
         VERSION_SESSION_COMMANDS_MAP.put(COMMAND_VERSION_1,
-                new Range(COMMAND_CODE_SESSION_FAST_FORWARD,
-                        COMMAND_CODE_SESSION_SELECT_ROUTE));
+                new Range(COMMAND_CODE_SESSION_FAST_FORWARD, COMMAND_CODE_SESSION_SET_RATING));
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////

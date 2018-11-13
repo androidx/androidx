@@ -42,7 +42,6 @@ oneway interface IMediaController2 {
     void onShuffleModeChanged(int shuffleMode) = 8;
     void onPlaybackCompleted() = 23;
     void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs) = 9;
-    void onRoutesInfoChanged(in List<Bundle> routes) = 11;
 
     void onConnected(IMediaSession2 sessionBinder, in ParcelImpl commandGroup, int playerState,
         in ParcelImpl currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,

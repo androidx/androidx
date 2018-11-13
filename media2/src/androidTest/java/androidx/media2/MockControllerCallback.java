@@ -24,7 +24,6 @@ import android.os.Bundle;
 import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.media2.MediaController2.ControllerCallback;
 import androidx.media2.MediaSession2.CommandButton;
 import androidx.media2.MediaSession2TestBase.TestControllerCallbackInterface;
@@ -175,11 +174,5 @@ public class MockControllerCallback extends MediaController2.ControllerCallback
         synchronized (this) {
             mOnCustomCommandRunnable = runnable;
         }
-    }
-
-    @Override
-    public void onRoutesInfoChanged(@NonNull MediaController2 controller,
-            @Nullable List<Bundle> routes) {
-        mCallbackProxy.onRoutesInfoChanged(controller, routes);
     }
 }

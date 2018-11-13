@@ -59,9 +59,6 @@ interface IRemoteMediaController2 {
     void prepareFromSearch(String controllerId, String query, in Bundle extras);
     void prepareFromUri(String controllerId, in Uri uri, in Bundle extras);
     void setRating(String controllerId, String mediaId, in ParcelImpl rating);
-    void subscribeRoutesInfo(String controllerId);
-    void unsubscribeRoutesInfo(String controllerId);
-    void selectRoute(String controllerId, in Bundle route);
     void close(String controllerId);
 
     // MediaBrowser2 methods
