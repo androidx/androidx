@@ -107,7 +107,7 @@ public class ListContent extends SliceContent {
                     mRowItems.add(0, mHeaderContent);
                 } else if (child.hasHint(HINT_LIST_ITEM)) {
                     if (child.hasHint(HINT_HORIZONTAL)) {
-                        mRowItems.add(new GridContent(mContext, child, i));
+                        mRowItems.add(new GridContent(child, i));
                     } else {
                         mRowItems.add(new RowContent(child, i));
                     }
