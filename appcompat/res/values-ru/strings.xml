@@ -29,8 +29,8 @@
     <string name="abc_searchview_description_voice" msgid="3478748990613108725">"Голосовой поиск"</string>
     <string name="abc_activitychooserview_choose_application" msgid="1798588241954930982">"Выберите приложение"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="3732416590524162402">"Показать все"</string>
-    <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"Открыть доступ приложению \"<xliff:g id="APPLICATION_NAME">%s</xliff:g>\""</string>
-    <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"Открыть доступ"</string>
+    <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"Поделиться с помощью <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"Поделиться с помощью"</string>
     <string name="abc_capital_on" msgid="7831734969929204599">"ВКЛ"</string>
     <string name="abc_capital_off" msgid="3403923230105792483">"ВЫКЛ"</string>
     <string name="search_menu_title" msgid="730395136688082741">"Поиск"</string>

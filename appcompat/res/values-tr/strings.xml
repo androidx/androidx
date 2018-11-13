@@ -40,7 +40,7 @@
     <string name="abc_menu_alt_shortcut_label" msgid="5725160506500770567">"Alt+"</string>
     <string name="abc_menu_shift_shortcut_label" msgid="3271697756921353410">"Üst Karakter+"</string>
     <string name="abc_menu_sym_shortcut_label" msgid="8327365089695024394">"Sym+"</string>
-    <string name="abc_menu_function_shortcut_label" msgid="4974283687810130415">"İşlev+"</string>
+    <string name="abc_menu_function_shortcut_label" msgid="4974283687810130415">"Function+"</string>
     <string name="abc_menu_space_shortcut_label" msgid="2304645930658438191">"boşluk"</string>
     <string name="abc_menu_enter_shortcut_label" msgid="6840127756824236027">"enter"</string>
     <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"sil"</string>

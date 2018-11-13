@@ -25,12 +25,12 @@
     <string name="abc_search_hint" msgid="940844115270746197">"Qidirish…"</string>
     <string name="abc_searchview_description_query" msgid="908784302972860853">"Qidiruv so‘rovi"</string>
     <string name="abc_searchview_description_clear" msgid="1769270744562318534">"So‘rovni o‘chirish"</string>
-    <string name="abc_searchview_description_submit" msgid="8203855622131699655">"So‘rov yar"</string>
+    <string name="abc_searchview_description_submit" msgid="8203855622131699655">"So‘rov yaratish"</string>
     <string name="abc_searchview_description_voice" msgid="3478748990613108725">"Ovozli qidiruv"</string>
     <string name="abc_activitychooserview_choose_application" msgid="1798588241954930982">"Ilovani tanlang"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="3732416590524162402">"Hammasi"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"<xliff:g id="APPLICATION_NAME">%s</xliff:g> orqali ulashish"</string>
-    <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"Kimga ulashish"</string>
+    <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"Ulashish"</string>
     <string name="abc_capital_on" msgid="7831734969929204599">"YONIQ"</string>
     <string name="abc_capital_off" msgid="3403923230105792483">"YOQILMAGAN"</string>
     <string name="search_menu_title" msgid="730395136688082741">"Qidiruv"</string>

@@ -34,14 +34,14 @@
     <string name="abc_capital_on" msgid="7831734969929204599">"ВКЛУЧЕНО"</string>
     <string name="abc_capital_off" msgid="3403923230105792483">"ИСКЛУЧЕНО"</string>
     <string name="search_menu_title" msgid="730395136688082741">"Пребарај"</string>
-    <string name="abc_prepend_shortcut_label" msgid="3570106412128999382">"Мени+"</string>
-    <string name="abc_menu_meta_shortcut_label" msgid="8046416353848716905">"копче Meta+"</string>
-    <string name="abc_menu_ctrl_shortcut_label" msgid="944415252197684443">"копче Ctrl+"</string>
-    <string name="abc_menu_alt_shortcut_label" msgid="5725160506500770567">"копче Alt+"</string>
-    <string name="abc_menu_shift_shortcut_label" msgid="3271697756921353410">"копче Shift+"</string>
-    <string name="abc_menu_sym_shortcut_label" msgid="8327365089695024394">"копче Sym+"</string>
-    <string name="abc_menu_function_shortcut_label" msgid="4974283687810130415">"копче Function+"</string>
+    <string name="abc_prepend_shortcut_label" msgid="3570106412128999382">"Menu+"</string>
+    <string name="abc_menu_meta_shortcut_label" msgid="8046416353848716905">"Meta+"</string>
+    <string name="abc_menu_ctrl_shortcut_label" msgid="944415252197684443">"Ctrl+"</string>
+    <string name="abc_menu_alt_shortcut_label" msgid="5725160506500770567">"Alt+"</string>
+    <string name="abc_menu_shift_shortcut_label" msgid="3271697756921353410">"Shift+"</string>
+    <string name="abc_menu_sym_shortcut_label" msgid="8327365089695024394">"Sym+"</string>
+    <string name="abc_menu_function_shortcut_label" msgid="4974283687810130415">"Function+"</string>
     <string name="abc_menu_space_shortcut_label" msgid="2304645930658438191">"вселена"</string>
-    <string name="abc_menu_enter_shortcut_label" msgid="6840127756824236027">"копче enter"</string>
+    <string name="abc_menu_enter_shortcut_label" msgid="6840127756824236027">"Enter"</string>
     <string name="abc_menu_delete_shortcut_label" msgid="129742188101734366">"избриши"</string>
 </resources>
