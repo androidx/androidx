@@ -453,8 +453,6 @@ public abstract class MediaRouteProvider {
          * Gets the ID of the dynamic group route. Note that the route may have not been
          * published yet by the time the {@link DynamicGroupRouteController} is created.
          */
-        @NonNull
-        public abstract String getDynamicGroupRouteId();
 
         // TODO add @link annotation in front of MediaRouteCastDialog.
         /**
