@@ -102,7 +102,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
                 @Override
                 public void execute(Runnable runnable) {
                     TestUtils.SyncHandler handler;
-                    synchronized (MediaSession2TestBase.class) {
+                    synchronized (MediaSessionTestBase.class) {
                         handler = sHandler;
                     }
                     if (handler != null) {
@@ -168,7 +168,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     private void initPlayer(AudioAttributesCompat attr) throws Exception {
         loadResource(R.raw.loudsoftogg);
         mPlayer.setAudioAttributes(attr);
-        assertEquals(SessionPlayer2.PlayerResult.RESULT_CODE_SUCCESS,
+        assertEquals(SessionPlayer.PlayerResult.RESULT_CODE_SUCCESS,
                 mPlayer.prepare().get(WAIT_TIME_MS, TimeUnit.MILLISECONDS).getResultCode());
     }
 
@@ -178,14 +178,14 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
         final CountDownLatch latchForPaused = new CountDownLatch(1);
         initPlayer(attr);
 
-        mPlayer.registerPlayerCallback(sHandlerExecutor, new SessionPlayer2.PlayerCallback() {
+        mPlayer.registerPlayerCallback(sHandlerExecutor, new SessionPlayer.PlayerCallback() {
             @Override
-            public void onPlayerStateChanged(SessionPlayer2 mPlayer, int playerState) {
+            public void onPlayerStateChanged(SessionPlayer mPlayer, int playerState) {
                     switch (playerState) {
-                        case SessionPlayer2.PLAYER_STATE_PLAYING:
+                        case SessionPlayer.PLAYER_STATE_PLAYING:
                             latchForPlaying.countDown();
                             break;
-                        case SessionPlayer2.PLAYER_STATE_PAUSED:
+                        case SessionPlayer.PLAYER_STATE_PAUSED:
                             latchForPaused.countDown();
                             break;
                     }
@@ -231,10 +231,10 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
         }
 
         initPlayer(attr);
-        mPlayer.registerPlayerCallback(sHandlerExecutor, new SessionPlayer2.PlayerCallback() {
+        mPlayer.registerPlayerCallback(sHandlerExecutor, new SessionPlayer.PlayerCallback() {
             @Override
-            public void onPlayerStateChanged(SessionPlayer2 player, int playerState) {
-                if (playerState == SessionPlayer2.PLAYER_STATE_PLAYING) {
+            public void onPlayerStateChanged(SessionPlayer player, int playerState) {
+                if (playerState == SessionPlayer.PLAYER_STATE_PLAYING) {
                     latchForPlaying.countDown();
                 }
             }

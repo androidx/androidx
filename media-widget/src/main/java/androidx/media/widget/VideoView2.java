@@ -35,8 +35,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
-import androidx.media2.MediaItem2;
-import androidx.media2.SessionToken2;
+import androidx.media2.MediaItem;
+import androidx.media2.SessionToken;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -161,15 +161,15 @@ public class VideoView2 extends BaseLayout {
     }
 
     /**
-     * Returns {@link SessionToken2} so that developers create their own
-     * {@link androidx.media2.MediaController2} instance. This method should be called when
+     * Returns {@link SessionToken} so that developers create their own
+     * {@link androidx.media2.MediaController} instance. This method should be called when
      * VideoView2 is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
     @NonNull
-    public SessionToken2 getMediaSessionToken2() {
-        return mImpl.getMediaSessionToken2();
+    public SessionToken getSessionToken() {
+        return mImpl.getSessionToken();
     }
 
     /**
@@ -182,11 +182,11 @@ public class VideoView2 extends BaseLayout {
     }
 
     /**
-     * Sets {@link MediaItem2} object to render using VideoView2.
+     * Sets {@link MediaItem} object to render using VideoView2.
      * @param mediaItem the MediaItem2 to play
      */
-    public void setMediaItem2(@NonNull MediaItem2 mediaItem) {
-        mImpl.setMediaItem2(mediaItem);
+    public void setMediaItem(@NonNull MediaItem mediaItem) {
+        mImpl.setMediaItem(mediaItem);
     }
 
     /**

@@ -35,21 +35,21 @@
 
         <activity android:name="androidx.media2.MockActivity" />
 
-        <!-- Keep the test services synced together with the MockMediaSessionService2 -->
-        <service android:name="androidx.media2.MockMediaSessionService2">
+        <!-- Keep the test services synced together with the MockMediaSessionService -->
+        <service android:name="androidx.media2.MockMediaSessionService">
             <intent-filter>
-                <action android:name="android.media.MediaSessionService2" />
+                <action android:name="androidx.media2.MediaSessionService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
         <!-- Keep the test services synced together with the MockMediaLibraryService -->
-        <service android:name="androidx.media2.MockMediaLibraryService2">
+        <service android:name="androidx.media2.MockMediaLibraryService">
             <intent-filter>
-                <action android:name="android.media.MediaLibraryService2" />
+                <action android:name="androidx.media2.MediaLibraryService" />
                 <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
-        <!-- Keep the test services synced together with the MockMediaSessionService2 -->
+        <!-- Keep the test services synced together with the MockMediaSessionService -->
         <service android:name="androidx.media2.MockMediaBrowserServiceCompat">
             <intent-filter>
                 <action android:name="android.media.browse.MediaBrowserService" />

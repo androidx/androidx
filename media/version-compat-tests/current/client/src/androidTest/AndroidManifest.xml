@@ -24,7 +24,7 @@
             </intent-filter>
         </receiver>
 
-        <service android:name="androidx.media.test.client.MediaController2ProviderService">
+        <service android:name="androidx.media.test.client.MediaControllerProviderService">
             <intent-filter>
                 <!-- Keep sync with CommonConstants.java -->
                 <action android:name="androidx.media.test.action.MEDIA_CONTROLLER2" />

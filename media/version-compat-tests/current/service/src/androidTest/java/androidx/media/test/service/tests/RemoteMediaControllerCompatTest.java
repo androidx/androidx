@@ -38,7 +38,7 @@ import java.util.concurrent.TimeUnit;
 
 /** Test {@link RemoteMediaControllerCompat}. */
 @RunWith(AndroidJUnit4.class)
-public class RemoteMediaControllerCompatTest extends MediaSession2TestBase {
+public class RemoteMediaControllerCompatTest extends MediaSessionTestBase {
     private Context mContext;
     private MediaSessionCompat mSessionCompat;
     private RemoteMediaControllerCompat mRemoteControllerCompat;

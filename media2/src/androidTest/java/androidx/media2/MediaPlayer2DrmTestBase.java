@@ -270,18 +270,18 @@ public class MediaPlayer2DrmTestBase {
         mCallStatus = MediaPlayer2.CALL_STATUS_NO_ERROR;
         mECb = new MediaPlayer2.EventCallback() {
                 @Override
-                public void onVideoSizeChanged(MediaPlayer2 mp, MediaItem2 item, int w, int h) {
+                public void onVideoSizeChanged(MediaPlayer2 mp, MediaItem item, int w, int h) {
                     Log.v(TAG, "VideoSizeChanged" + " w:" + w + " h:" + h);
                     mOnVideoSizeChangedCalled.signal();
                 }
 
                 @Override
-                public void onError(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
+                public void onError(MediaPlayer2 mp, MediaItem item, int what, int extra) {
                     fail("Media player had error " + what + " playing video");
                 }
 
                 @Override
-                public void onInfo(MediaPlayer2 mp, MediaItem2 item, int what, int extra) {
+                public void onInfo(MediaPlayer2 mp, MediaItem item, int what, int extra) {
                     if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
                         mOnPreparedCalled.signal();
                     } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
@@ -291,7 +291,7 @@ public class MediaPlayer2DrmTestBase {
                 }
 
                 @Override
-                public void onCallCompleted(MediaPlayer2 mp, MediaItem2 item,
+                public void onCallCompleted(MediaPlayer2 mp, MediaItem item,
                         int what, int status) {
                     if (what == MediaPlayer2.CALL_COMPLETED_SET_DATA_SOURCE) {
                         mCallStatus = status;
@@ -303,7 +303,7 @@ public class MediaPlayer2DrmTestBase {
         mPlayer.setEventCallback(mExecutor, mECb);
         Log.v(TAG, "playLoadedVideo: setMediaItem()");
         mPlayer.setMediaItem(
-                new UriMediaItem2.Builder(mContext, file).build());
+                new UriMediaItem.Builder(mContext, file).build());
         mSetDataSourceCallCompleted.waitForSignal();
         if (mCallStatus != MediaPlayer2.CALL_STATUS_NO_ERROR) {
             throw new PrepareFailedException();
@@ -383,7 +383,7 @@ public class MediaPlayer2DrmTestBase {
 
         mPlayer.setDrmEventCallback(mExecutor, new MediaPlayer2.DrmEventCallback() {
             @Override
-            public void onDrmInfo(MediaPlayer2 mp, MediaItem2 item, DrmInfo drmInfo) {
+            public void onDrmInfo(MediaPlayer2 mp, MediaItem item, DrmInfo drmInfo) {
                 Log.v(TAG, "preparePlayerAndDrm_V1: onDrmInfo" + drmInfo);
 
                 // in the callback (async mode) so handling exceptions here
@@ -417,7 +417,7 @@ public class MediaPlayer2DrmTestBase {
     private void preparePlayerAndDrm_V2_syncDrmSetupPlusConfig() throws Exception {
         mPlayer.setOnDrmConfigHelper(new MediaPlayer2.OnDrmConfigHelper() {
             @Override
-            public void onDrmConfig(MediaPlayer2 mp, MediaItem2 item) {
+            public void onDrmConfig(MediaPlayer2 mp, MediaItem item) {
                 String widevineSecurityLevel3 = "L3";
                 String securityLevelProperty = "securityLevel";
 
@@ -459,7 +459,7 @@ public class MediaPlayer2DrmTestBase {
 
         mPlayer.setDrmEventCallback(mExecutor, new MediaPlayer2.DrmEventCallback() {
             @Override
-            public void onDrmInfo(MediaPlayer2 mp, MediaItem2 item, DrmInfo drmInfo) {
+            public void onDrmInfo(MediaPlayer2 mp, MediaItem item, DrmInfo drmInfo) {
                 Log.v(TAG, "preparePlayerAndDrm_V3: onDrmInfo" + drmInfo);
 
                 // DRM preperation
@@ -497,7 +497,7 @@ public class MediaPlayer2DrmTestBase {
             }
 
             @Override
-            public void onDrmPrepared(MediaPlayer2 mp, MediaItem2 item, int status) {
+            public void onDrmPrepared(MediaPlayer2 mp, MediaItem item, int status) {
                 Log.v(TAG, "preparePlayerAndDrm_V3: onDrmPrepared status: " + status);
 
                 assertTrue("preparePlayerAndDrm_V3: onDrmPrepared did not succeed",
@@ -558,7 +558,7 @@ public class MediaPlayer2DrmTestBase {
 
                 Log.v(TAG, "playLoadedVideo: setMediaItem()");
                 mPlayer.setMediaItem(
-                        new UriMediaItem2.Builder(mContext, file).build());
+                        new UriMediaItem.Builder(mContext, file).build());
 
                 Log.v(TAG, "playLoadedVideo: prepare()");
                 mPlayer.prepare();
@@ -691,7 +691,7 @@ public class MediaPlayer2DrmTestBase {
                         mPlayer.setDrmEventCallback(mExecutor, new MediaPlayer2.DrmEventCallback() {
                             @Override
                             public void onDrmPrepared(
-                                    MediaPlayer2 mp, MediaItem2 item, int status) {
+                                    MediaPlayer2 mp, MediaItem item, int status) {
                                 drmPrepared.signal();
                             }
                         });

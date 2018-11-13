@@ -40,9 +40,9 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.media.widget.MediaControlView2;
 import androidx.media.widget.VideoView2;
-import androidx.media2.MediaController2;
-import androidx.media2.SessionToken2;
-import androidx.media2.UriMediaItem2;
+import androidx.media2.MediaController;
+import androidx.media2.SessionToken;
+import androidx.media2.UriMediaItem;
 
 import java.util.concurrent.Executor;
 
@@ -63,7 +63,7 @@ public class VideoViewTest extends FragmentActivity {
     private float mSpeed = 1.0f;
 
     private MediaControlView2 mMediaControlView = null;
-    private MediaController2 mMediaController = null;
+    private MediaController mMediaController = null;
 
     private boolean mUseTextureView = false;
     private int mPrevWidth;
@@ -91,16 +91,16 @@ public class VideoViewTest extends FragmentActivity {
             if (mUseTextureView) {
                 mVideoView.setViewType(VideoView2.VIEW_TYPE_TEXTUREVIEW);
             }
-            UriMediaItem2 mediaItem = new UriMediaItem2.Builder(this, videoUri).build();
-            mVideoView.setMediaItem2(mediaItem);
+            UriMediaItem mediaItem = new UriMediaItem.Builder(this, videoUri).build();
+            mVideoView.setMediaItem(mediaItem);
 
             mMediaControlView = new MediaControlView2(this);
             mVideoView.setMediaControlView2(mMediaControlView, 2000);
             mMediaControlView.setOnFullScreenListener(new FullScreenListener());
-            SessionToken2 token = mVideoView.getMediaSessionToken2();
+            SessionToken token = mVideoView.getSessionToken();
 
             Executor executor = ContextCompat.getMainExecutor(this);
-            mMediaController = new MediaController2(
+            mMediaController = new MediaController(
                     this, token, executor, new ControllerCallback());
         }
         if (errorString != null) {
@@ -151,10 +151,10 @@ public class VideoViewTest extends FragmentActivity {
                         }).show();
     }
 
-    class ControllerCallback extends MediaController2.ControllerCallback {
+    class ControllerCallback extends MediaController.ControllerCallback {
         @Override
         public void onPlaybackSpeedChanged(
-                @NonNull MediaController2 controller, float speed) {
+                @NonNull MediaController controller, float speed) {
             mSpeed = speed;
         }
     }

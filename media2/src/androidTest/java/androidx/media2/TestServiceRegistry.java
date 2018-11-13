@@ -21,13 +21,13 @@ import static org.junit.Assert.fail;
 import android.os.Handler;
 
 import androidx.annotation.GuardedBy;
-import androidx.media2.MediaLibraryService2.MediaLibrarySession.MediaLibrarySessionCallback;
+import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.TestUtils.SyncHandler;
 
 import java.util.List;
 
 /**
- * Keeps the instance of currently running {@link MockMediaSessionService2}. And also provides
+ * Keeps the instance of currently running {@link MockMediaSessionService}. And also provides
  * a way to control them in one place.
  * <p>
  * It only support only one service at a time.
@@ -36,7 +36,7 @@ public class TestServiceRegistry {
     @GuardedBy("TestServiceRegistry.class")
     private static TestServiceRegistry sInstance;
     @GuardedBy("TestServiceRegistry.class")
-    private MediaSessionService2 mService;
+    private MediaSessionService mService;
     @GuardedBy("TestServiceRegistry.class")
     private SyncHandler mHandler;
     @GuardedBy("TestServiceRegistry.class")
@@ -105,7 +105,7 @@ public class TestServiceRegistry {
         }
     }
 
-    public void setServiceInstance(MediaSessionService2 service) {
+    public void setServiceInstance(MediaSessionService service) {
         synchronized (TestServiceRegistry.class) {
             if (mService != null) {
                 fail("Previous service instance is still running. Clean up manually to ensure"
@@ -118,7 +118,7 @@ public class TestServiceRegistry {
         }
     }
 
-    public MediaSessionService2 getServiceInstance() {
+    public MediaSessionService getServiceInstance() {
         synchronized (TestServiceRegistry.class) {
             return mService;
         }
@@ -128,7 +128,7 @@ public class TestServiceRegistry {
         synchronized (TestServiceRegistry.class) {
             if (mService != null) {
                 // TODO(jaewan): Remove this, and override SessionService#onDestroy() to do this
-                List<MediaSession2> sessions = mService.getSessions();
+                List<MediaSession> sessions = mService.getSessions();
                 for (int i = 0; i < sessions.size(); i++) {
                     sessions.get(i).close();
                 }
@@ -151,6 +151,6 @@ public class TestServiceRegistry {
     }
 
     public interface OnGetSessionHandler {
-        MediaSession2 onGetSession();
+        MediaSession onGetSession();
     }
 }
