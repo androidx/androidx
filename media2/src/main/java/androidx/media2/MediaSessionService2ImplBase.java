@@ -220,59 +220,64 @@ class MediaSessionService2ImplBase implements MediaSessionService2Impl {
             }
             final int pid = Binder.getCallingPid();
             final int uid = Binder.getCallingUid();
-            mHandler.post(new Runnable() {
-                @Override
-                public void run() {
-                    boolean shouldNotifyDisconnected = true;
-                    try {
-                        final MediaSessionService2ImplBase serviceImpl = mServiceImpl.get();
-                        if (serviceImpl == null) {
-                            if (DEBUG) {
-                                Log.d(TAG, "ServiceImpl isn't available");
-                            }
-                            return;
-                        }
-                        final MediaSessionService2 service = serviceImpl.getInstance();
-                        if (service == null) {
-                            if (DEBUG) {
-                                Log.d(TAG, "Service isn't available");
-                            }
-                            return;
-                        }
-                        if (DEBUG) {
-                            Log.d(TAG, "Handling incoming connection request from the controller"
-                                    + ", controller=" + packageName);
-
-                        }
-                        final MediaSession2 session;
+            final long token = Binder.clearCallingIdentity();
+            try {
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        boolean shouldNotifyDisconnected = true;
                         try {
-                            session = service.onGetSession();
-                            service.addSession(session);
-                            shouldNotifyDisconnected = false;
-
-                            session.handleControllerConnectionFromService(caller, packageName,
-                                    pid, uid);
-                        } catch (Exception e) {
-                            // Don't propagate exception in service to the controller.
-                            Log.w(TAG, "Failed to add a session to session service", e);
-                        }
-                    } finally {
-                        // Trick to call onDisconnected() in one place.
-                        if (shouldNotifyDisconnected) {
-                            if (DEBUG) {
-                                Log.d(TAG, "Service has destroyed prematurely."
-                                        + " Rejecting connection");
+                            final MediaSessionService2ImplBase serviceImpl = mServiceImpl.get();
+                            if (serviceImpl == null) {
+                                if (DEBUG) {
+                                    Log.d(TAG, "ServiceImpl isn't available");
+                                }
+                                return;
                             }
+                            final MediaSessionService2 service = serviceImpl.getInstance();
+                            if (service == null) {
+                                if (DEBUG) {
+                                    Log.d(TAG, "Service isn't available");
+                                }
+                                return;
+                            }
+                            if (DEBUG) {
+                                Log.d(TAG, "Handling incoming connection request from the"
+                                        + " controller, controller=" + packageName);
+
+                            }
+                            final MediaSession2 session;
                             try {
-                                caller.onDisconnected();
-                            } catch (RemoteException e) {
-                                // Controller may be died prematurely.
-                                // Not an issue because we'll ignore it anyway.
+                                session = service.onGetSession();
+                                service.addSession(session);
+                                shouldNotifyDisconnected = false;
+
+                                session.handleControllerConnectionFromService(caller, packageName,
+                                        pid, uid);
+                            } catch (Exception e) {
+                                // Don't propagate exception in service to the controller.
+                                Log.w(TAG, "Failed to add a session to session service", e);
+                            }
+                        } finally {
+                            // Trick to call onDisconnected() in one place.
+                            if (shouldNotifyDisconnected) {
+                                if (DEBUG) {
+                                    Log.d(TAG, "Service has destroyed prematurely."
+                                            + " Rejecting connection");
+                                }
+                                try {
+                                    caller.onDisconnected();
+                                } catch (RemoteException e) {
+                                    // Controller may be died prematurely.
+                                    // Not an issue because we'll ignore it anyway.
+                                }
                             }
                         }
                     }
-                }
-            });
+                });
+            } finally {
+                Binder.restoreCallingIdentity(token);
+            }
         }
 
         @Override

@@ -173,131 +173,141 @@ class MediaSession2Stub extends IMediaSession2.Stub {
             final @Nullable SessionCommand2 sessionCommand,
             final @CommandCode int commandCode,
             final @NonNull SessionTask task) {
-        final ControllerInfo controller = mConnectedControllersManager.getController(
-                caller.asBinder());
-        if (mSessionImpl.isClosed() || controller == null) {
-            return;
-        }
-        mSessionImpl.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (!mConnectedControllersManager.isConnected(controller)) {
-                    return;
-                }
-                SessionCommand2 commandForOnCommandRequest;
-                if (sessionCommand != null) {
-                    if (!mConnectedControllersManager.isAllowedCommand(
-                            controller, sessionCommand)) {
-                        if (DEBUG) {
-                            Log.d(TAG, "Command (" + sessionCommand + ") from "
-                                    + controller + " isn't allowed.");
-                        }
+        final long token = Binder.clearCallingIdentity();
+        try {
+            final ControllerInfo controller = mConnectedControllersManager.getController(
+                    caller.asBinder());
+            if (mSessionImpl.isClosed() || controller == null) {
+                return;
+            }
+            mSessionImpl.getCallbackExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    if (!mConnectedControllersManager.isConnected(controller)) {
                         return;
                     }
-                    commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
-                            sessionCommand.getCommandCode());
-                } else {
-                    if (!mConnectedControllersManager.isAllowedCommand(controller, commandCode)) {
-                        if (DEBUG) {
-                            Log.d(TAG, "Command (" + commandCode + ") from "
-                                    + controller + " isn't allowed.");
-                        }
-                        return;
-                    }
-                    commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
-                            commandCode);
-                }
-                try {
-                    if (commandForOnCommandRequest != null) {
-                        int resultCode = mSessionImpl.getCallback().onCommandRequest(
-                                mSessionImpl.getInstance(), controller, commandForOnCommandRequest);
-                        if (resultCode != RESULT_CODE_SUCCESS) {
-                            // Don't run rejected command.
+                    SessionCommand2 commandForOnCommandRequest;
+                    if (sessionCommand != null) {
+                        if (!mConnectedControllersManager.isAllowedCommand(
+                                controller, sessionCommand)) {
                             if (DEBUG) {
-                                Log.d(TAG, "Command (" + commandForOnCommandRequest + ") from "
-                                        + controller + " was rejected by " + mSessionImpl
-                                        + ", code=" + resultCode);
+                                Log.d(TAG, "Command (" + sessionCommand + ") from "
+                                        + controller + " isn't allowed.");
                             }
-                            sendSessionResult(controller, seq, resultCode);
                             return;
                         }
+                        commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
+                                sessionCommand.getCommandCode());
+                    } else {
+                        if (!mConnectedControllersManager.isAllowedCommand(controller,
+                                commandCode)) {
+                            if (DEBUG) {
+                                Log.d(TAG, "Command (" + commandCode + ") from "
+                                        + controller + " isn't allowed.");
+                            }
+                            return;
+                        }
+                        commandForOnCommandRequest = sCommandsForOnCommandRequest.get(
+                                commandCode);
                     }
-                    if (task instanceof SessionPlayerTask) {
-                        final ListenableFuture<PlayerResult> future =
-                                ((SessionPlayerTask) task).run(controller);
-                        if (future == null) {
-                            throw new RuntimeException("SessionPlayer has returned null,"
-                                    + " commandCode=" + commandCode);
-                        } else {
-                            future.addListener(new Runnable() {
-                                @Override
-                                public void run() {
-                                    try {
-                                        sendPlayerResult(controller, seq,
-                                                future.get(0, TimeUnit.MILLISECONDS));
-                                    } catch (Exception e) {
-                                        Log.w(TAG, "Cannot obtain PlayerResult after the"
-                                                + " command is finished", e);
-                                        sendSessionResult(controller, seq,
-                                                RESULT_CODE_INVALID_STATE);
-                                    }
+                    try {
+                        if (commandForOnCommandRequest != null) {
+                            int resultCode = mSessionImpl.getCallback().onCommandRequest(
+                                    mSessionImpl.getInstance(), controller,
+                                    commandForOnCommandRequest);
+                            if (resultCode != RESULT_CODE_SUCCESS) {
+                                // Don't run rejected command.
+                                if (DEBUG) {
+                                    Log.d(TAG, "Command (" + commandForOnCommandRequest
+                                            + ") from " + controller + " was rejected by "
+                                            + mSessionImpl + ", code=" + resultCode);
                                 }
-                            }, DIRECT_EXECUTOR);
+                                sendSessionResult(controller, seq, resultCode);
+                                return;
+                            }
                         }
-                    } else if (task instanceof SessionCallbackTask) {
-                        final Object result = ((SessionCallbackTask) task).run(controller);
-                        if (result == null) {
-                            throw new RuntimeException("SessionCallback has returned null,"
-                                    + " commandCode=" + commandCode);
-                        } else if (result instanceof Integer) {
-                            sendSessionResult(controller, seq, (Integer) result);
-                        } else if (result instanceof SessionResult) {
-                            sendSessionResult(controller, seq, (SessionResult) result);
+                        if (task instanceof SessionPlayerTask) {
+                            final ListenableFuture<PlayerResult> future =
+                                    ((SessionPlayerTask) task).run(controller);
+                            if (future == null) {
+                                throw new RuntimeException("SessionPlayer has returned null,"
+                                        + " commandCode=" + commandCode);
+                            } else {
+                                future.addListener(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            sendPlayerResult(controller, seq,
+                                                    future.get(0, TimeUnit.MILLISECONDS));
+                                        } catch (Exception e) {
+                                            Log.w(TAG, "Cannot obtain PlayerResult after the"
+                                                    + " command is finished", e);
+                                            sendSessionResult(controller, seq,
+                                                    RESULT_CODE_INVALID_STATE);
+                                        }
+                                    }
+                                }, DIRECT_EXECUTOR);
+                            }
+                        } else if (task instanceof SessionCallbackTask) {
+                            final Object result = ((SessionCallbackTask) task).run(controller);
+                            if (result == null) {
+                                throw new RuntimeException("SessionCallback has returned null,"
+                                        + " commandCode=" + commandCode);
+                            } else if (result instanceof Integer) {
+                                sendSessionResult(controller, seq, (Integer) result);
+                            } else if (result instanceof SessionResult) {
+                                sendSessionResult(controller, seq, (SessionResult) result);
+                            } else if (DEBUG) {
+                                throw new RuntimeException("Unexpected return type " + result
+                                        + ". Fix bug");
+                            }
+                        } else if (task instanceof LibrarySessionCallbackTask) {
+                            final Object result = ((LibrarySessionCallbackTask) task).run(
+                                    controller);
+                            if (result == null) {
+                                throw new RuntimeException("LibrarySessionCallback has returned"
+                                        + " null, commandCode=" + commandCode);
+                            } else if (result instanceof Integer) {
+                                sendLibraryResult(controller, seq, (Integer) result);
+                            } else if (result instanceof LibraryResult) {
+                                sendLibraryResult(controller, seq, (LibraryResult) result);
+                            } else if (DEBUG) {
+                                throw new RuntimeException("Unexpected return type " + result
+                                        + ". Fix bug");
+                            }
                         } else if (DEBUG) {
-                            throw new RuntimeException("Unexpected return type " + result
-                                    + ". Fix bug");
+                            throw new RuntimeException("Unknown task " + task + ". Fix bug");
                         }
-                    } else if (task instanceof LibrarySessionCallbackTask) {
-                        final Object result = ((LibrarySessionCallbackTask) task).run(controller);
-                        if (result == null) {
-                            throw new RuntimeException("LibrarySessionCallback has returned"
-                                    + " null, commandCode=" + commandCode);
-                        } else if (result instanceof Integer) {
-                            sendLibraryResult(controller, seq, (Integer) result);
-                        } else if (result instanceof LibraryResult) {
-                            sendLibraryResult(controller, seq, (LibraryResult) result);
-                        } else if (DEBUG) {
-                            throw new RuntimeException("Unexpected return type " + result
-                                    + ". Fix bug");
+                    } catch (RemoteException e) {
+                        // Currently it's TransactionTooLargeException or DeadSystemException.
+                        // We'd better to leave log for those cases because
+                        //   - TransactionTooLargeException means that we may need to fix our code.
+                        //     (e.g. add pagination or special way to deliver Bitmap)
+                        //   - DeadSystemException means that errors around it can be ignored.
+                        Log.w(TAG, "Exception in " + controller.toString(), e);
+                    } catch (Exception e) {
+                        // Any random exception may be happen inside
+                        // of the session player / callback.
+
+                        if (RETHROW_EXCEPTION) {
+                            throw e;
                         }
-                    } else if (DEBUG) {
-                        throw new RuntimeException("Unknown task " + task + ". Fix bug");
-                    }
-                } catch (RemoteException e) {
-                    // Currently it's TransactionTooLargeException or DeadSystemException.
-                    // We'd better to leave log for those cases because
-                    //   - TransactionTooLargeException means that we may need to fix our code.
-                    //     (e.g. add pagination or special way to deliver Bitmap)
-                    //   - DeadSystemException means that errors around it can be ignored.
-                    Log.w(TAG, "Exception in " + controller.toString(), e);
-                } catch (Exception e) {
-                    // Any random exception may be happen inside of the session player / callback.
-                    if (RETHROW_EXCEPTION) {
-                        throw e;
-                    }
-                    if (task instanceof PlayerTask) {
-                        sendPlayerResult(controller, seq,
-                                new PlayerResult(PlayerResult.RESULT_CODE_UNKNOWN_ERROR, null));
-                    } else if (task instanceof SessionCallbackTask) {
-                        sendSessionResult(controller, seq,
-                                SessionResult.RESULT_CODE_UNKNOWN_ERROR);
-                    } else if (task instanceof LibrarySessionCallbackTask) {
-                        sendLibraryResult(controller, seq,
-                                LibraryResult.RESULT_CODE_UNKNOWN_ERROR);
+                        if (task instanceof PlayerTask) {
+                            sendPlayerResult(controller, seq,
+                                    new PlayerResult(PlayerResult.RESULT_CODE_UNKNOWN_ERROR, null));
+                        } else if (task instanceof SessionCallbackTask) {
+                            sendSessionResult(controller, seq,
+                                    SessionResult.RESULT_CODE_UNKNOWN_ERROR);
+                        } else if (task instanceof LibrarySessionCallbackTask) {
+                            sendLibraryResult(controller, seq,
+                                    LibraryResult.RESULT_CODE_UNKNOWN_ERROR);
+                        }
                     }
                 }
-            }
-        });
+            });
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     private void dispatchLibrarySessionTask(@NonNull IMediaController2 caller, int seq,
@@ -439,7 +449,14 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         if (caller == null || TextUtils.isEmpty(callingPackage)) {
             return;
         }
-        connect(caller, callingPackage, Binder.getCallingPid(), Binder.getCallingUid());
+        final int pid = Binder.getCallingPid();
+        final int uid = Binder.getCallingUid();
+        final long token = Binder.clearCallingIdentity();
+        try {
+            connect(caller, callingPackage, pid, uid);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     @Override
@@ -447,7 +464,12 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         if (caller == null) {
             return;
         }
-        mConnectedControllersManager.removeController(caller.asBinder());
+        final long token = Binder.clearCallingIdentity();
+        try {
+            mConnectedControllersManager.removeController(caller.asBinder());
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     @Override
@@ -456,13 +478,18 @@ class MediaSession2Stub extends IMediaSession2.Stub {
         if (caller == null || controllerResult == null) {
             return;
         }
-        SequencedFutureManager manager = mConnectedControllersManager.getSequencedFutureManager(
-                caller.asBinder());
-        if (manager == null) {
-            return;
+        final long token = Binder.clearCallingIdentity();
+        try {
+            SequencedFutureManager manager = mConnectedControllersManager.getSequencedFutureManager(
+                    caller.asBinder());
+            if (manager == null) {
+                return;
+            }
+            MediaController2.ControllerResult result = MediaUtils2.fromParcelable(controllerResult);
+            manager.setFutureResult(seq, SessionResult.from(result));
+        } finally {
+            Binder.restoreCallingIdentity(token);
         }
-        MediaController2.ControllerResult result = MediaUtils2.fromParcelable(controllerResult);
-        manager.setFutureResult(seq, SessionResult.from(result));
     }
 
     @Override
