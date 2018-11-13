@@ -43,6 +43,9 @@ android {
         // remove when b/120615476 is fixed.
         disable("BanTargetApiAnnotation")
     }
+    defaultConfig {
+        minSdkVersion 19
+    }
 }
 
 supportLibrary {
@@ -52,6 +55,6 @@ supportLibrary {
     mavenGroup = LibraryGroups.MEDIA
     inceptionYear = "2018"
     description = "Androidx Media Widget"
-    failOnDeprecationWarnings = false
+    failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }
