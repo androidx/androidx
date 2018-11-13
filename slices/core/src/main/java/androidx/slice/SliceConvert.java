@@ -53,7 +53,7 @@ public class SliceConvert {
         android.app.slice.Slice.Builder builder = new android.app.slice.Slice.Builder(
                 slice.getUri(), unwrap(slice.getSpec()));
         builder.addHints(slice.getHints());
-        for (androidx.slice.SliceItem item : slice.getItems()) {
+        for (androidx.slice.SliceItem item : slice.getItemArray()) {
             switch (item.getFormat()) {
                 case FORMAT_SLICE:
                     builder.addSubSlice(unwrap(item.getSlice()), item.getSubType());
