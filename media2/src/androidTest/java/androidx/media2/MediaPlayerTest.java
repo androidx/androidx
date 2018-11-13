@@ -180,15 +180,15 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final TestUtils.Monitor onVideoRenderingStartCalled = new TestUtils.Monitor();
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onVideoSizeChanged(MediaPlayer mp, MediaItem dsd, int w, int h) {
-                if (w == 0 && h == 0) {
+            public void onVideoSizeChanged(MediaPlayer mp, MediaItem dsd, VideoSize size) {
+                if (size.getWidth() == 0 && size.getHeight() == 0) {
                     // A size of 0x0 can be sent initially one time when using NuPlayer.
                     assertFalse(onVideoSizeChangedCalled.isSignalled());
                     return;
                 }
                 onVideoSizeChangedCalled.signal();
-                assertEquals(width, w);
-                assertEquals(height, h);
+                assertEquals(width, size.getWidth());
+                assertEquals(height, size.getHeight());
             }
 
             @Override
