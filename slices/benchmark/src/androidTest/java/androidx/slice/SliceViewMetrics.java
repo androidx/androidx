@@ -125,6 +125,7 @@ public class SliceViewMetrics {
                 Uri uri = Uri.parse("content:///androidx.slice.benchmark");
                 Slice s = SliceSerializeMetrics.createSlice(mContext, uri, 3, 3, 6);
                 SliceView v = new SliceView(mContext);
+                v.setMode(mMode);
                 v.setSlice(s);
                 while (state.keepRunning()) {
                     v.setSlice(s);
