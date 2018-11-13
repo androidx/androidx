@@ -23,5 +23,5 @@
     <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Le matériel de lecture d\'empreintes digitales n\'est pas accessible."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Aucune empreinte digitale enregistrée."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Cet appareil ne possède pas de capteur d\'empreintes digitales"</string>
-    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"L\'opération d\'empreinte digitale a été annulée par l\'utilisateur."</string>
+    <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"L\'opération d\'authentification par empreinte digitale a été annulée par l\'utilisateur."</string>
 </resources>
