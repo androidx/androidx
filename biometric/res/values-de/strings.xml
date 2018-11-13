@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Berühre den Fingerabdrucksensor"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Fingerabdrucksensor berühren"</string>
     <string name="fingerprint_not_recognized" msgid="5491287833813257925">"Nicht erkannt"</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"Bereich für die Hilfemeldung"</string>
     <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Fingerabdruckhardware nicht verfügbar."</string>
