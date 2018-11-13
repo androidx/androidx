@@ -31,7 +31,7 @@ package androidx.work {
 
   public final class Constraints {
     ctor public Constraints(androidx.work.Constraints);
-    method @RequiresApi(24) public androidx.work.ContentUriTriggers? getContentUriTriggers();
+    method @RequiresApi(24) public androidx.work.ContentUriTriggers getContentUriTriggers();
     method public androidx.work.NetworkType getRequiredNetworkType();
     method @RequiresApi(24) public boolean hasContentUriTriggers();
     method public boolean requiresBatteryNotLow();
@@ -43,7 +43,7 @@ package androidx.work {
 
   public static final class Constraints.Builder {
     ctor public Constraints.Builder();
-    method @RequiresApi(24) public androidx.work.Constraints.Builder addContentUriTrigger(android.net.Uri!, boolean);
+    method @RequiresApi(24) public androidx.work.Constraints.Builder addContentUriTrigger(android.net.Uri, boolean);
     method public androidx.work.Constraints build();
     method public androidx.work.Constraints.Builder setRequiredNetworkType(androidx.work.NetworkType);
     method public androidx.work.Constraints.Builder setRequiresBatteryNotLow(boolean);
@@ -54,7 +54,6 @@ package androidx.work {
 
   public final class ContentUriTriggers {
     ctor public ContentUriTriggers();
-    method public void add(android.net.Uri, boolean);
     method public int size();
   }
 
@@ -125,8 +124,8 @@ package androidx.work {
     method @RequiresApi(28) public final android.net.Network? getNetwork();
     method public final int getRunAttemptCount();
     method public final java.util.Set<java.lang.String> getTags();
-    method @RequiresApi(24) public final java.util.List<java.lang.String>? getTriggeredContentAuthorities();
-    method @RequiresApi(24) public final java.util.List<android.net.Uri>? getTriggeredContentUris();
+    method @RequiresApi(24) public final java.util.List<java.lang.String> getTriggeredContentAuthorities();
+    method @RequiresApi(24) public final java.util.List<android.net.Uri> getTriggeredContentUris();
     method public final boolean isStopped();
     method public void onStopped();
     method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> startWork();
@@ -294,8 +293,8 @@ package androidx.work {
     method @RequiresApi(28) public android.net.Network? getNetwork();
     method public int getRunAttemptCount();
     method public java.util.Set<java.lang.String> getTags();
-    method @RequiresApi(24) public java.util.List<java.lang.String>? getTriggeredContentAuthorities();
-    method @RequiresApi(24) public java.util.List<android.net.Uri>? getTriggeredContentUris();
+    method @RequiresApi(24) public java.util.List<java.lang.String> getTriggeredContentAuthorities();
+    method @RequiresApi(24) public java.util.List<android.net.Uri> getTriggeredContentUris();
   }
 
 }
