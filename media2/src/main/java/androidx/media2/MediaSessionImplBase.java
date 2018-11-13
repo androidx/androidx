@@ -124,7 +124,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
             PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
         mContext = context;
         mInstance = instance;
-        mHandlerThread = new HandlerThread("MediaController_Thread");
+        mHandlerThread = new HandlerThread("MediaSession_Thread");
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
 
