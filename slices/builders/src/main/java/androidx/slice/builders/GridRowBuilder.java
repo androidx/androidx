@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
+import androidx.remotecallback.RemoteCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +122,26 @@ public class GridRowBuilder {
                     + "already been added");
         }
         mSeeMoreIntent = intent;
+        mHasSeeMore = true;
+        return this;
+    }
+
+    /**
+     * If all content in a slice cannot be shown, a "see more" affordance may be displayed where
+     * the content is cut off. The action added here should take the user to an activity to see
+     * all of the content, and will be invoked when the "see more" affordance is tapped.
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    @NonNull
+    public GridRowBuilder setSeeMoreAction(@NonNull RemoteCallback callback) {
+        if (mHasSeeMore) {
+            throw new IllegalStateException("Trying to add see more action when one has "
+                    + "already been added");
+        }
+        mSeeMoreIntent = callback.toPendingIntent();
         mHasSeeMore = true;
         return this;
     }
@@ -375,6 +396,15 @@ public class GridRowBuilder {
         @NonNull
         public CellBuilder setContentIntent(@NonNull PendingIntent intent) {
             mContentIntent = intent;
+            return this;
+        }
+
+        /**
+         * Sets the action to be invoked if the user taps on this cell in the row.
+         */
+        @NonNull
+        public CellBuilder setContentIntent(@NonNull RemoteCallback callback) {
+            mContentIntent = callback.toPendingIntent();
             return this;
         }
 
