@@ -30,6 +30,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentFactory;
 import androidx.lifecycle.Lifecycle.State;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.test.core.app.ActivityScenario;
 
 /**
@@ -51,6 +53,7 @@ public final class FragmentScenario<F extends Fragment> {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Class<F> mFragmentClass;
     private final ActivityScenario<EmptyFragmentActivity> mActivityScenario;
+    @Nullable private final FragmentFactory mFragmentFactory;
 
     /**
      * An empty activity inheriting FragmentActivity. This Activity is used to host Fragment in
@@ -59,12 +62,58 @@ public final class FragmentScenario<F extends Fragment> {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public static class EmptyFragmentActivity extends FragmentActivity {}
+    public static class EmptyFragmentActivity extends FragmentActivity {
+        @Override
+        protected void onCreate(@Nullable Bundle savedInstanceState) {
+            // Checks if we have a custom FragmentFactory and set it.
+            ViewModelProvider viewModelProvider = new ViewModelProvider(
+                    this, ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()));
+            FragmentFactory factory = viewModelProvider
+                    .get(FragmentFactoryHolderViewModel.class)
+                    .getFragmentFactory();
+            if (factory != null) {
+                getSupportFragmentManager().setFragmentFactory(factory);
+            }
+
+            // FragmentFactory needs to be set before calling the super.onCreate, otherwise the
+            // Activity crashes when it is recreating and there is a fragment which has no
+            // default constructor.
+            super.onCreate(savedInstanceState);
+        }
+    }
+
+    /**
+     * A view-model to hold a fragment factory.
+     *
+     * @hide
+     */
+    @RestrictTo(LIBRARY)
+    public static class FragmentFactoryHolderViewModel extends ViewModel {
+
+        @Nullable private FragmentFactory mFragmentFactory;
+
+        void setFragmentFactory(@Nullable FragmentFactory factory) {
+            mFragmentFactory = factory;
+        }
+
+        @Nullable
+        FragmentFactory getFragmentFactory() {
+            return mFragmentFactory;
+        }
+
+        @Override
+        protected void onCleared() {
+            super.onCleared();
+            mFragmentFactory = null;
+        }
+    }
 
     private FragmentScenario(
             @NonNull Class<F> fragmentClass,
+            @Nullable FragmentFactory fragmentFactory,
             @NonNull ActivityScenario<EmptyFragmentActivity> activityScenario) {
         this.mFragmentClass = fragmentClass;
+        this.mFragmentFactory = fragmentFactory;
         this.mActivityScenario = activityScenario;
     }
 
@@ -166,12 +215,20 @@ public final class FragmentScenario<F extends Fragment> {
             @NonNull final Class<F> fragmentClass, final @Nullable Bundle fragmentArgs,
             @Nullable final FragmentFactory factory, final int containerViewId) {
         FragmentScenario<F> scenario = new FragmentScenario<>(
-                fragmentClass, ActivityScenario.launch(EmptyFragmentActivity.class));
+                fragmentClass, factory,
+                ActivityScenario.launch(EmptyFragmentActivity.class));
         scenario.mActivityScenario.onActivity(
                 new ActivityScenario.ActivityAction<EmptyFragmentActivity>() {
                     @Override
                     public void perform(EmptyFragmentActivity activity) {
                         if (factory != null) {
+                            ViewModelProvider viewModelProvider = new ViewModelProvider(
+                                    activity,
+                                    ViewModelProvider.AndroidViewModelFactory.getInstance(
+                                            activity.getApplication()));
+                            viewModelProvider
+                                    .get(FragmentFactoryHolderViewModel.class)
+                                    .setFragmentFactory(factory);
                             activity.getSupportFragmentManager().setFragmentFactory(factory);
                         }
                         Fragment fragment = activity.getSupportFragmentManager()
