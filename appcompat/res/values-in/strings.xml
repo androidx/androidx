@@ -27,7 +27,7 @@
     <string name="abc_searchview_description_clear" msgid="1769270744562318534">"Hapus kueri"</string>
     <string name="abc_searchview_description_submit" msgid="8203855622131699655">"Kirim kueri"</string>
     <string name="abc_searchview_description_voice" msgid="3478748990613108725">"Penelusuran suara"</string>
-    <string name="abc_activitychooserview_choose_application" msgid="1798588241954930982">"Pilih apl"</string>
+    <string name="abc_activitychooserview_choose_application" msgid="1798588241954930982">"Pilih aplikasi"</string>
     <string name="abc_activity_chooser_view_see_all" msgid="3732416590524162402">"Lihat semua"</string>
     <string name="abc_shareactionprovider_share_with_application" msgid="9009661856846212431">"Bagikan dengan <xliff:g id="APPLICATION_NAME">%s</xliff:g>"</string>
     <string name="abc_shareactionprovider_share_with" msgid="2650565705514630347">"Bagikan dengan"</string>

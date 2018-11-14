@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="abc_action_mode_done" msgid="2571498368472823490">"Terminé"</string>
-    <string name="abc_action_bar_home_description" msgid="7903180715631665059">"Aller chez moi"</string>
+    <string name="abc_action_bar_home_description" msgid="7903180715631665059">"Revenir à l\'accueil"</string>
     <string name="abc_action_bar_up_description" msgid="6794660482873516081">"Revenir en arrière"</string>
     <string name="abc_action_menu_overflow_description" msgid="1155814932213556626">"Autres options"</string>
     <string name="abc_toolbar_collapse_description" msgid="6389460216547290468">"Réduire"</string>
