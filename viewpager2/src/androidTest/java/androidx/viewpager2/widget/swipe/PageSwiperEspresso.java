@@ -16,7 +16,6 @@
 
 package androidx.viewpager2.widget.swipe;
 
-import static androidx.core.util.Preconditions.checkArgumentNonnegative;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.swipeDown;
 import static androidx.test.espresso.action.ViewActions.swipeLeft;
@@ -31,18 +30,11 @@ import static org.hamcrest.CoreMatchers.allOf;
 import androidx.test.espresso.ViewAction;
 import androidx.viewpager2.widget.ViewPager2;
 
-public class PageSwiper {
-    private final int mLastPageIx;
+public class PageSwiperEspresso implements PageSwiper {
     private final ViewAction mActionPrevious;
     private final ViewAction mActionNext;
 
-    public PageSwiper(
-            int totalPages,
-            @ViewPager2.Orientation int orientation,
-            boolean isRtl
-    ) {
-        mLastPageIx = checkArgumentNonnegative(totalPages - 1);
-
+    public PageSwiperEspresso(@ViewPager2.Orientation int orientation, boolean isRtl) {
         mActionPrevious = orientation == ORIENTATION_HORIZONTAL
                 ? (isRtl ? swipeLeft() : swipeRight())
                 : swipeDown();
@@ -51,40 +43,12 @@ public class PageSwiper {
                 : swipeUp();
     }
 
-    public void swipe(int currentPageIx, int nextPageIx) {
-        if (nextPageIx > mLastPageIx) {
-            throw new IllegalArgumentException("Invalid next page: beyond last page.");
-        }
-
-        if (currentPageIx == nextPageIx) { // dedicated for testing edge behaviour
-            if (nextPageIx == 0) {
-                swipePrevious(); // bounce off the "left" edge
-                return;
-            }
-            if (nextPageIx == mLastPageIx) { // bounce off the "right" edge
-                swipeNext();
-                return;
-            }
-            throw new IllegalArgumentException(
-                    "Invalid sequence. Not on an edge, and current page = next page.");
-        }
-
-        if (Math.abs(nextPageIx - currentPageIx) > 1) {
-            throw new IllegalArgumentException(
-                    "Specified next page not adjacent to the current page.");
-        }
-
-        if (nextPageIx > currentPageIx) {
-            swipeNext();
-        } else {
-            swipePrevious();
-        }
-    }
-
+    @Override
     public void swipeNext() {
         swipe(mActionNext);
     }
 
+    @Override
     public void swipePrevious() {
         swipe(mActionPrevious);
     }
