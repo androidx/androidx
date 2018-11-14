@@ -35,7 +35,9 @@ public final class ContentUriTriggers {
      * @param uri {@link Uri} to observe
      * @param triggerForDescendants {@code true} if any changes in descendants cause this
      *                              {@link WorkRequest} to run
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public void add(@NonNull Uri uri, boolean triggerForDescendants) {
         Trigger trigger = new Trigger(uri, triggerForDescendants);
         mTriggers.add(trigger);

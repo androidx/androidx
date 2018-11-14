@@ -26,6 +26,7 @@ import android.support.annotation.RestrictTo;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -106,7 +107,7 @@ public final class WorkerParameters {
      * @see Constraints.Builder#addContentUriTrigger(android.net.Uri, boolean)
      */
     @RequiresApi(24)
-    public @Nullable List<Uri> getTriggeredContentUris() {
+    public @NonNull List<Uri> getTriggeredContentUris() {
         return mRuntimeExtras.triggeredContentUris;
     }
 
@@ -116,7 +117,7 @@ public final class WorkerParameters {
      * @return The list of content authorities that caused this Worker to execute
      */
     @RequiresApi(24)
-    public @Nullable List<String> getTriggeredContentAuthorities() {
+    public @NonNull List<String> getTriggeredContentAuthorities() {
         return mRuntimeExtras.triggeredContentAuthorities;
     }
 
@@ -171,8 +172,8 @@ public final class WorkerParameters {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class RuntimeExtras {
-        public List<String> triggeredContentAuthorities;
-        public List<Uri> triggeredContentUris;
+        public @NonNull List<String> triggeredContentAuthorities = Collections.emptyList();
+        public @NonNull List<Uri> triggeredContentUris = Collections.emptyList();
 
         @RequiresApi(28)
         public Network network;
