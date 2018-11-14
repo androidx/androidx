@@ -7,9 +7,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
-    api(project(":core"))
-    api(project(":customview"))
+    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.core:core:1.1.0-alpha01")
+    api("androidx.customview:customview:1.0.0")
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
