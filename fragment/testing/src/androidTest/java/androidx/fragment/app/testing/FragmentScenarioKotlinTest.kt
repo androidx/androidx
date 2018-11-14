@@ -70,11 +70,11 @@ class FragmentScenarioKotlinTest {
         var numberOfInstantiations = 0
         val scenario = launchFragmentInContainer(null) {
             numberOfInstantiations++
-            NoDefaultConstructorFragment(true)
+            NoDefaultConstructorFragment("my constructor arg")
         }
         assertThat(numberOfInstantiations).isEqualTo(1)
         scenario.onFragment {
-            assertThat(it.created).isTrue()
+            assertThat(it.constructorArg).isEqualTo("my constructor arg")
             assertThat(it.numberOfRecreations).isEqualTo(0)
             assertThat(it.state).isEqualTo(State.RESUMED)
             assertThat(it.isViewAttachedToWindow).isTrue()
@@ -86,14 +86,12 @@ class FragmentScenarioKotlinTest {
         var numberOfInstantiations = 0
         val scenario = launchFragment(null) {
             numberOfInstantiations++
-            NoDefaultConstructorFragment(true)
+            NoDefaultConstructorFragment("my constructor arg")
         }
         assertThat(numberOfInstantiations).isEqualTo(1)
         scenario.onFragment {
-            assertThat(it.created).isTrue()
+            assertThat(it.constructorArg).isEqualTo("my constructor arg")
             assertThat(it.state).isEqualTo(State.RESUMED)
         }
     }
 }
-
-class NoDefaultConstructorFragment(val created: Boolean) : StateRecordingFragment()
