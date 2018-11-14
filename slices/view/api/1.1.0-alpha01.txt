@@ -148,6 +148,7 @@ package androidx.slice.widget {
     method public void setScrollable(boolean);
     method public void setSlice(androidx.slice.Slice?);
     method public void setSliceActions(java.util.List<androidx.slice.core.SliceAction>?);
+    method public void showActionDividers(boolean);
     field public static final int MODE_LARGE = 2; // 0x2
     field public static final int MODE_SHORTCUT = 3; // 0x3
     field public static final int MODE_SMALL = 1; // 0x1

@@ -16,21 +16,6 @@
 
 package androidx.slice.widget;
 
-import android.text.TextUtils;
-import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.slice.SliceItem;
-import androidx.slice.core.SliceAction;
-import androidx.slice.core.SliceActionImpl;
-import androidx.slice.core.SliceQuery;
-
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_KEYWORDS;
 import static android.app.slice.Slice.HINT_LAST_UPDATED;
@@ -49,6 +34,21 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
+
+import android.text.TextUtils;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.slice.SliceItem;
+import androidx.slice.core.SliceAction;
+import androidx.slice.core.SliceActionImpl;
+import androidx.slice.core.SliceQuery;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Extracts information required to present content in a row format from a slice.
@@ -69,6 +69,7 @@ public class RowContent extends SliceContent {
     private SliceItem mRange;
     private boolean mIsHeader;
     private int mLineCount = 0;
+    private boolean mShowActionDivider;
 
     public RowContent(SliceItem rowSlice, int position) {
         super(rowSlice, position);
@@ -313,6 +314,20 @@ public class RowContent extends SliceContent {
         return FORMAT_ACTION.equals(mSliceItem.getFormat())
                 && mSliceItem.getSlice().hasHint(HINT_SEE_MORE)
                 && mSliceItem.getSlice().getItems().isEmpty();
+    }
+
+    /**
+     * Set whether this row content needs to show the action divider.
+     */
+    public void showActionDivider(boolean enabled) {
+        mShowActionDivider = enabled;
+    }
+
+    /**
+     * @return whether this row content needs to show the action divider.
+     */
+    public boolean hasActionDivider() {
+        return mShowActionDivider;
     }
 
     /**
