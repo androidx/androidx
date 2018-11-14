@@ -280,7 +280,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
 
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mRemovePlaylistItemCalled);
-        assertEquals(targetItem.getMediaId(), mPlayer.mItem.getMediaId());
+        assertEquals(targetIndex, mPlayer.mIndex);
     }
 
     @Test
@@ -317,7 +317,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
 
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertTrue(mPlayer.mSkipToPlaylistItemCalled);
-        assertEquals(playlist.get(targetIndex), mPlayer.mItem);
+        assertEquals(targetIndex, mPlayer.mIndex);
     }
 
     @Test

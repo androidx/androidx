@@ -121,7 +121,7 @@ public final class TestUtils {
         for (int i = 0; i < size; i++) {
             MediaItem item = new FileMediaItem.Builder(new FileDescriptor())
                     .setMetadata(new MediaMetadata.Builder()
-                            .putString(METADATA_KEY_MEDIA_ID, caller + "_item_" + (size + 1))
+                            .putString(METADATA_KEY_MEDIA_ID, caller + "_item_" + (i + 1))
                             .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_NONE)
                             .putLong(METADATA_KEY_PLAYABLE, 1)
                             .build())

@@ -666,12 +666,12 @@ public class MediaControllerTest extends MediaSessionTestBase {
         // It's easier to ensure that MediaController.getPlaylist() returns the playlist from the
         // player.
         MediaController controller = createController(mSession.getToken());
-        MediaItem targetItem = controller.getPlaylist().get(0);
-        controller.removePlaylistItem(0);
+        int targetIndex = 0;
+        controller.removePlaylistItem(targetIndex);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mPlayer.mRemovePlaylistItemCalled);
-        assertEquals(targetItem, mPlayer.mItem);
+        assertEquals(targetIndex, mPlayer.mIndex);
     }
 
     @Test
@@ -707,14 +707,14 @@ public class MediaControllerTest extends MediaSessionTestBase {
     public void testSkipToPlaylistItem() throws InterruptedException {
         prepareLooper();
         List<MediaItem> playlist = TestUtils.createMediaItems(2);
+        int targetIndex = 1;
         mPlayer.mPlaylist = playlist;
-
         MediaController controller = createController(mSession.getToken());
-        controller.skipToPlaylistItem(1);
+        controller.skipToPlaylistItem(targetIndex);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mPlayer.mSkipToPlaylistItemCalled);
-        assertEquals(playlist.get(1), mPlayer.mItem);
+        assertEquals(targetIndex, mPlayer.mIndex);
     }
 
     /**
