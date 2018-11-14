@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
@@ -27,7 +27,6 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.VideoView;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -42,18 +41,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Displays a video file.  VideoView2 class is a ViewGroup class which is wrapping
+ * Displays a video file.  VideoView class is a ViewGroup class which is wrapping
  * {@link MediaPlayer} so that developers can easily implement a video rendering application.
  *
  * <p>
- * <em> Data sources that VideoView2 supports : </em>
- * VideoView2 can play video files and audio-only files as
+ * <em> Data sources that VideoView supports : </em>
+ * VideoView can play video files and audio-only files as
  * well. It can load from various sources such as resources or content providers. The supported
  * media file formats are the same as {@link MediaPlayer}.
  *
  * <p>
  * <em> View type can be selected : </em>
- * VideoView2 can render videos on top of TextureView as well as
+ * VideoView can render videos on top of TextureView as well as
  * SurfaceView selectively. The default is SurfaceView and it can be changed using
  * {@link #setViewType(int)} method. Using SurfaceView is recommended in most cases for saving
  * battery. TextureView might be preferred for supporting various UIs such as animation and
@@ -61,24 +60,24 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p>
  * <em> Differences between {@link VideoView} class : </em>
- * VideoView2 covers and inherits the most of
+ * VideoView covers and inherits the most of
  * VideoView's functionality. The main differences are
  * <ul>
- * <li> VideoView2 inherits ViewGroup and renders videos using SurfaceView and TextureView
+ * <li> VideoView inherits ViewGroup and renders videos using SurfaceView and TextureView
  * selectively while VideoView inherits SurfaceView class.
- * <li> VideoView2 is integrated with MediaControlView2 and a default MediaControlView2 instance is
- * attached to VideoView2 by default.
- * <li> If a developer wants to attach a custom MediaControlView2,
- * assign the custom media control widget using {@link #setMediaControlView2}.
- * <li> VideoView2 is integrated with MediaSession and so it responses with media key events.
- * A VideoView2 keeps a MediaSession instance internally and connects it to a corresponding
- * MediaControlView2 instance.
+ * <li> VideoView is integrated with MediaControlView and a default MediaControlView instance is
+ * attached to VideoView by default.
+ * <li> If a developer wants to attach a custom MediaControlView,
+ * assign the custom media control widget using {@link #setMediaControlView}.
+ * <li> VideoView is integrated with MediaSession and so it responses with media key events.
+ * A VideoView keeps a MediaSession instance internally and connects it to a corresponding
+ * MediaControlView instance.
  * </p>
  * </ul>
  *
  * <p>
  * <em> Audio focus and audio attributes : </em>
- * VideoView2 requests audio focus with {@link AudioManager#AUDIOFOCUS_GAIN} internally,
+ * VideoView requests audio focus with {@link AudioManager#AUDIOFOCUS_GAIN} internally,
  * when playing a media content.
  * The default {@link AudioAttributesCompat} used during playback have a usage of
  * {@link AudioAttributesCompat#USAGE_MEDIA} and a content type of
@@ -86,15 +85,15 @@ import java.lang.annotation.RetentionPolicy;
  * use {@link #setAudioAttributes(AudioAttributesCompat)} to modify them.
  *
  * <p>
- * Note: VideoView2 does not retain its full state when going into the background. In particular, it
+ * Note: VideoView does not retain its full state when going into the background. In particular, it
  * does not restore the current play state, play position, selected tracks. Applications should save
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
- * @attr ref androidx.media.widget.R.styleable#VideoView2_enableControlView
- * @attr ref androidx.media.widget.R.styleable#VideoView2_viewType
+ * @attr ref androidx.media2.widget.R.styleable#VideoView_enableControlView
+ * @attr ref androidx.media2.widget.R.styleable#VideoView_viewType
  */
 @TargetApi(Build.VERSION_CODES.P)
-public class VideoView2 extends BaseLayout {
+public class VideoView extends BaseLayout {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @IntDef({
@@ -118,52 +117,52 @@ public class VideoView2 extends BaseLayout {
      */
     public static final int VIEW_TYPE_TEXTUREVIEW = 1;
 
-    private static final String TAG = "VideoView2";
+    private static final String TAG = "VideoView";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
-    private VideoView2Impl mImpl;
+    private VideoViewImpl mImpl;
 
-    public VideoView2(@NonNull Context context) {
+    public VideoView(@NonNull Context context) {
         this(context, null);
     }
 
-    public VideoView2(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public VideoView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public VideoView2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public VideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         if (DEBUG) {
-            Log.d(TAG, "Create VideoView2ImplBase");
+            Log.d(TAG, "Create VideoViewImplBase");
         }
-        mImpl = new VideoView2ImplBase();
+        mImpl = new VideoViewImplBase();
         mImpl.initialize(this, context, attrs, defStyleAttr);
     }
 
     /**
-     * Sets MediaControlView2 instance. It will replace the previously assigned MediaControlView2
+     * Sets MediaControlView instance. It will replace the previously assigned MediaControlView
      * instance if any.
      *
      * @param mediaControlView a media control view2 instance.
-     * @param intervalMs a time interval in milliseconds until VideoView2 hides MediaControlView2.
+     * @param intervalMs a time interval in milliseconds until VideoView hides MediaControlView.
      */
-    public void setMediaControlView2(@NonNull MediaControlView2 mediaControlView, long intervalMs) {
-        mImpl.setMediaControlView2(mediaControlView, intervalMs);
+    public void setMediaControlView(@NonNull MediaControlView mediaControlView, long intervalMs) {
+        mImpl.setMediaControlView(mediaControlView, intervalMs);
     }
 
     /**
-     * Returns MediaControlView2 instance which is currently attached to VideoView2 by default or by
-     * {@link #setMediaControlView2} method.
+     * Returns MediaControlView instance which is currently attached to VideoView by default or by
+     * {@link #setMediaControlView} method.
      */
     @Nullable
-    public MediaControlView2 getMediaControlView2() {
-        return mImpl.getMediaControlView2();
+    public MediaControlView getMediaControlView() {
+        return mImpl.getMediaControlView();
     }
 
     /**
      * Returns {@link SessionToken} so that developers create their own
      * {@link androidx.media2.MediaController} instance. This method should be called when
-     * VideoView2 is attached to window, or it throws IllegalStateException.
+     * VideoView is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
@@ -182,7 +181,7 @@ public class VideoView2 extends BaseLayout {
     }
 
     /**
-     * Sets {@link MediaItem} object to render using VideoView2.
+     * Sets {@link MediaItem} object to render using VideoView.
      * @param mediaItem the MediaItem2 to play
      */
     public void setMediaItem(@NonNull MediaItem mediaItem) {
@@ -244,7 +243,7 @@ public class VideoView2 extends BaseLayout {
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        return VideoView2.class.getName();
+        return VideoView.class.getName();
     }
 
     @Override

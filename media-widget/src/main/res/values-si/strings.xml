@@ -17,19 +17,19 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"ඔබට වෙළඳ දැන්වීම <xliff:g id="WAIT_TIME">%1$d</xliff:g>කින් මග හැරිය හැකිය"</string>
-    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"වෙළඳ දැන්වීම · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ඉතිරිව ඇත"</string>
-    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"ප්‍රචාරක වෙත පැමිණෙන්න"</string>
-    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"අක්‍රිය"</string>
-    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"ශ්‍රව්‍ය ඛණ්ඩය"</string>
-    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"කිසිවක් නැත"</string>
-    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"ස්වයං"</string>
-    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"පසුධාවන වේගය"</string>
-    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"සාමාන්‍ය"</string>
-    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
-    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"ඛණ්ඩය <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"ඛණ්ඩය <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
-    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"ඛණ්ඩය <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_ad_skip_wait_time" msgid="5221553996045003012">"ඔබට වෙළඳ දැන්වීම <xliff:g id="WAIT_TIME">%1$d</xliff:g>කින් මග හැරිය හැකිය"</string>
+    <string name="MediaControlView_ad_remaining_time" msgid="569530979387418179">"වෙළඳ දැන්වීම · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ඉතිරිව ඇත"</string>
+    <string name="MediaControlView_ad_text" msgid="649968140965666991">"ප්‍රචාරක වෙත පැමිණෙන්න"</string>
+    <string name="MediaControlView_subtitle_off_text" msgid="4713723682776722273">"අක්‍රිය"</string>
+    <string name="MediaControlView_audio_track_text" msgid="550490200661664153">"ශ්‍රව්‍ය ඛණ්ඩය"</string>
+    <string name="MediaControlView_audio_track_none_text" msgid="8920627943784676298">"කිසිවක් නැත"</string>
+    <string name="MediaControlView_video_quality_auto_text" msgid="2361919440626099583">"ස්වයං"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="7501705762236755130">"පසුධාවන වේගය"</string>
+    <string name="MediaControlView_playback_speed_normal" msgid="8621780673920663756">"සාමාන්‍ය"</string>
+    <string name="MediaControlView_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
+    <string name="MediaControlView_subtitle_track_number_text" msgid="81813613582208443">"ඛණ්ඩය <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"ඛණ්ඩය <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_audio_track_number_text" msgid="7535079749165525354">"ඛණ්ඩය <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"නොදන්නා ගීත මාතෘකාවකි"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"නොදන්නා කලාකරුවෙකි"</string>
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"ඔබ ඉල්ලා සිටි අයිතමය වාදනය කළ නොහැකි විය"</string>

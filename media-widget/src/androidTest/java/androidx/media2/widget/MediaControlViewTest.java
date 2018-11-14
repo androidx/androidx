@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 
@@ -39,13 +39,13 @@ import android.view.WindowManager;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.media.widget.test.R;
 import androidx.media2.FileMediaItem;
 import androidx.media2.MediaController;
 import androidx.media2.MediaItem;
 import androidx.media2.MediaMetadata;
 import androidx.media2.SessionPlayer;
 import androidx.media2.UriMediaItem;
+import androidx.media2.widget.test.R;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
@@ -66,15 +66,15 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test {@link MediaControlView2}.
+ * Test {@link MediaControlView}.
  *
  * TODO: Lower minSdkVersion to Kitkat.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class MediaControlView2Test {
-    private static final String TAG = "MediaControlView2Test";
+public class MediaControlViewTest {
+    private static final String TAG = "MediaControlViewTest";
     // Expected success time
     private static final int WAIT_TIME_MS = 1000;
     private static final int HTTPS_WAIT_TIME_MS = 5000;
@@ -86,7 +86,7 @@ public class MediaControlView2Test {
     private Instrumentation mInstrumentation;
 
     private Activity mActivity;
-    private VideoView2 mVideoView;
+    private VideoView mVideoView;
     private Uri mFileSchemeUri;
     private Uri mHttpsSchemeUri;
     private Uri mHttpSchemeUri;
@@ -96,8 +96,8 @@ public class MediaControlView2Test {
     private List<MediaController> mControllers = new ArrayList<>();
 
     @Rule
-    public ActivityTestRule<MediaControlView2TestActivity> mActivityRule =
-            new ActivityTestRule<>(MediaControlView2TestActivity.class);
+    public ActivityTestRule<MediaControlViewTestActivity> mActivityRule =
+            new ActivityTestRule<>(MediaControlViewTestActivity.class);
 
     @Before
     public void setup() throws Throwable {
@@ -131,9 +131,9 @@ public class MediaControlView2Test {
     @UiThreadTest
     @Test
     public void testConstructor() {
-        new MediaControlView2(mActivity);
-        new MediaControlView2(mActivity, null);
-        new MediaControlView2(mActivity, null, 0);
+        new MediaControlView(mActivity);
+        new MediaControlView(mActivity, null);
+        new MediaControlView(mActivity, null, 0);
     }
 
     @Test

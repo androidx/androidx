@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import static androidx.media2.MediaController.ControllerResult.RESULT_CODE_NOT_SUPPORTED;
 import static androidx.media2.MediaController.ControllerResult.RESULT_CODE_SUCCESS;
@@ -90,19 +90,19 @@ import java.util.concurrent.Executor;
  * rewind/fast-forward, skip to next/previous, select subtitle track, enter/exit full screen mode,
  * adjust video quality, select audio track, and adjust playback speed.
  * <p>
- * The easiest way to use a MediaControlView2 is by creating a {@link VideoView2}, which will
- * internally create a MediaControlView2 instance and handle all the commands from buttons inside
- * MediaControlView2. For more information, refer to {@link VideoView2}.
+ * The easiest way to use a MediaControlView is by creating a {@link VideoView}, which will
+ * internally create a MediaControlView instance and handle all the commands from buttons inside
+ * MediaControlView. For more information, refer to {@link VideoView}.
  *
- * It is also possible to create a MediaControlView2 programmatically and add it to a custom video
+ * It is also possible to create a MediaControlView programmatically and add it to a custom video
  * view. In this case, the app will need to create a {@link MediaSession} instance and set
- * {@link SessionToken its token} inside MediaControlView2 by calling
- * {@link #setSession2Token(SessionToken)}. Then MediaControlView2 will create a
+ * {@link SessionToken its token} inside MediaControlView by calling
+ * {@link #setSessionToken(SessionToken)}. Then MediaControlView will create a
  * {@link MediaController} and could send commands to the connected {@link MediaSession session}.
- * By default, the buttons inside MediaControlView2 will not visible unless the corresponding
+ * By default, the buttons inside MediaControlView will not visible unless the corresponding
  * {@link SessionCommand} is marked as allowed. For more details, refer to {@link MediaSession}.
  * <p>
- * Currently, MediaControlView2 animates off-screen in two steps:
+ * Currently, MediaControlView animates off-screen in two steps:
  *   1) Title and bottom bars slide up and down respectively and the transport controls fade out,
  *      leaving only the progress bar at the bottom of the view.
  *   2) Progress bar slides down off-screen.
@@ -114,8 +114,8 @@ import java.util.concurrent.Executor;
  */
 @TargetApi(Build.VERSION_CODES.P)
 @RequiresApi(21) // TODO correct minSdk API use incompatibilities and remove before release.
-public class MediaControlView2 extends BaseLayout {
-    private static final String TAG = "MediaControlView2";
+public class MediaControlView extends BaseLayout {
+    private static final String TAG = "MediaControlView";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     static final String KEY_VIDEO_TRACK_COUNT = "VideoTrackCount";
@@ -295,21 +295,21 @@ public class MediaControlView2 extends BaseLayout {
     ValueAnimator mOverflowShowAnimator;
     ValueAnimator mOverflowHideAnimator;
 
-    public MediaControlView2(@NonNull Context context) {
+    public MediaControlView(@NonNull Context context) {
         this(context, null);
     }
 
-    public MediaControlView2(@NonNull Context context, @Nullable AttributeSet attrs) {
+    public MediaControlView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public MediaControlView2(@NonNull Context context, @Nullable AttributeSet attrs,
+    public MediaControlView(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
 
         mResources = context.getResources();
         mController = new Controller();
-        // Inflate MediaControlView2 from XML
+        // Inflate MediaControlView from XML
         mRoot = makeControllerView();
         addView(mRoot);
         mShowControllerIntervalMs = DEFAULT_SHOW_CONTROLLER_INTERVAL_MS;
@@ -319,7 +319,7 @@ public class MediaControlView2 extends BaseLayout {
 
     /**
      * Sets MediaSession token to control corresponding MediaSession. It makes it possible to
-     * send and receive data between MediaControlView2 and VideoView2.
+     * send and receive data between MediaControlView and VideoView.
      */
     public void setSessionToken(@NonNull SessionToken token) {
         mController.setSessionToken(token);
@@ -360,7 +360,7 @@ public class MediaControlView2 extends BaseLayout {
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        return MediaControlView2.class.getName();
+        return MediaControlView.class.getName();
     }
 
     @Override
@@ -975,7 +975,7 @@ public class MediaControlView2 extends BaseLayout {
                         mAdSkipView.setVisibility(View.VISIBLE);
                     }
                     String skipTimeText = mResources.getString(
-                            R.string.MediaControlView2_ad_skip_wait_time,
+                            R.string.MediaControlView_ad_skip_wait_time,
                             ((AD_SKIP_WAIT_TIME_MS - currentPosition) / 1000 + 1));
                     mAdSkipView.setText(skipTimeText);
                 } else {
@@ -991,7 +991,7 @@ public class MediaControlView2 extends BaseLayout {
                 long remainingTime =
                         (mDuration - currentPosition < 0) ? 0 : (mDuration - currentPosition);
                 String remainingTimeText = mResources.getString(
-                        R.string.MediaControlView2_ad_remaining_time,
+                        R.string.MediaControlView_ad_remaining_time,
                         stringForTime(remainingTime));
                 mAdRemainingView.setText(remainingTimeText);
             }
@@ -1283,7 +1283,7 @@ public class MediaControlView2 extends BaseLayout {
                         mResources.getDrawable(R.drawable.ic_fullscreen, null));
             }
             mIsFullScreen = isEnteringFullScreen;
-            mOnFullScreenListener.onFullScreen(MediaControlView2.this,
+            mOnFullScreenListener.onFullScreen(MediaControlView.this,
                     mIsFullScreen);
         }
     };
@@ -1680,14 +1680,14 @@ public class MediaControlView2 extends BaseLayout {
     private void initializeSettingsLists() {
         mSettingsMainTextsList = new ArrayList<String>();
         mSettingsMainTextsList.add(
-                mResources.getString(R.string.MediaControlView2_audio_track_text));
+                mResources.getString(R.string.MediaControlView_audio_track_text));
         mSettingsMainTextsList.add(
-                mResources.getString(R.string.MediaControlView2_playback_speed_text));
+                mResources.getString(R.string.MediaControlView_playback_speed_text));
 
         mSettingsSubTextsList = new ArrayList<String>();
         mSettingsSubTextsList.add(
-                mResources.getString(R.string.MediaControlView2_audio_track_none_text));
-        String normalSpeed = mResources.getString(R.string.MediaControlView2_playback_speed_normal);
+                mResources.getString(R.string.MediaControlView_audio_track_none_text));
+        String normalSpeed = mResources.getString(R.string.MediaControlView_playback_speed_normal);
         mSettingsSubTextsList.add(normalSpeed);
         mSettingsSubTextsList.add(RESOURCE_EMPTY);
 
@@ -1697,14 +1697,14 @@ public class MediaControlView2 extends BaseLayout {
 
         mAudioTrackList = new ArrayList<String>();
         mAudioTrackList.add(
-                mResources.getString(R.string.MediaControlView2_audio_track_none_text));
+                mResources.getString(R.string.MediaControlView_audio_track_none_text));
 
         mVideoQualityList = new ArrayList<String>();
         mVideoQualityList.add(
-                mResources.getString(R.string.MediaControlView2_video_quality_auto_text));
+                mResources.getString(R.string.MediaControlView_video_quality_auto_text));
 
         mPlaybackSpeedTextList = new ArrayList<String>(Arrays.asList(
-                mResources.getStringArray(R.array.MediaControlView2_playback_speeds)));
+                mResources.getStringArray(R.array.MediaControlView_playback_speeds)));
         // Select the normal speed (1x) as the default value.
         mPlaybackSpeedTextList.add(PLAYBACK_SPEED_1x_INDEX, normalSpeed);
         mSelectedSpeedIndex = PLAYBACK_SPEED_1x_INDEX;
@@ -2344,7 +2344,7 @@ public class MediaControlView2 extends BaseLayout {
                             removeCallbacks(mUpdateProgress);
                             break;
                         case SessionPlayer.PLAYER_STATE_ERROR:
-                            MediaControlView2.this.setEnabled(false);
+                            MediaControlView.this.setEnabled(false);
                             mPlayPauseButton.setImageDrawable(
                                     mResources.getDrawable(R.drawable.ic_play_circle_filled, null));
                             mPlayPauseButton.setContentDescription(
@@ -2365,8 +2365,6 @@ public class MediaControlView2 extends BaseLayout {
                                         .setCancelable(true)
                                         .show();
                             }
-                        default:
-                            break;
                     }
                     mPrevState = mPlaybackState;
                 }
@@ -2387,7 +2385,7 @@ public class MediaControlView2 extends BaseLayout {
                     mCurrentSeekPosition = mNextSeekPosition;
 
                     // If the next seek position is set, seek to that position.
-                    MediaControlView2.this.mController.seekTo(mNextSeekPosition);
+                    MediaControlView.this.mController.seekTo(mNextSeekPosition);
                     mNextSeekPosition = SEEK_POSITION_NOT_SET;
                 } else {
                     mCurrentSeekPosition = SEEK_POSITION_NOT_SET;
@@ -2471,7 +2469,7 @@ public class MediaControlView2 extends BaseLayout {
                     }
                 } else {
                     String customSpeedText = mResources.getString(
-                            R.string.MediaControlView2_custom_playback_speed_text,
+                            R.string.MediaControlView_custom_playback_speed_text,
                             customSpeedMultBy100 / 100.0f);
 
                     for (int i = 0; i < mPlaybackSpeedMultBy100List.size(); i++) {
@@ -2513,7 +2511,7 @@ public class MediaControlView2 extends BaseLayout {
                         if (mAudioTrackCount > 0) {
                             for (int i = 0; i < mAudioTrackCount; i++) {
                                 String track = mResources.getString(
-                                        R.string.MediaControlView2_audio_track_number_text, i + 1);
+                                        R.string.MediaControlView_audio_track_number_text, i + 1);
                                 mAudioTrackList.add(track);
                             }
                             // Change sub text inside the Settings window.
@@ -2521,7 +2519,7 @@ public class MediaControlView2 extends BaseLayout {
                                     mAudioTrackList.get(0));
                         } else {
                             mAudioTrackList.add(mResources.getString(
-                                    R.string.MediaControlView2_audio_track_none_text));
+                                    R.string.MediaControlView_audio_track_none_text));
                         }
                         if (mVideoTrackCount == 0 && mAudioTrackCount > 0) {
                             mMediaType = MEDIA_TYPE_MUSIC;
@@ -2535,18 +2533,18 @@ public class MediaControlView2 extends BaseLayout {
                             mSubtitleButton.setAlpha(1.0f);
                             mSubtitleButton.setEnabled(true);
                             mSubtitleDescriptionsList.add(mResources.getString(
-                                    R.string.MediaControlView2_subtitle_off_text));
+                                    R.string.MediaControlView_subtitle_off_text));
                             for (int i = 0; i < mSubtitleTrackCount; i++) {
                                 String lang = subtitleTracksLanguageList.get(i);
                                 String track;
                                 if (lang.equals("")) {
                                     track = mResources.getString(
-                                            R.string.MediaControlView2_subtitle_track_number_text,
+                                            R.string.MediaControlView_subtitle_track_number_text,
                                             i + 1);
                                 } else {
                                     track = mResources.getString(
                                             R.string
-                                            .MediaControlView2_subtitle_track_number_and_lang_text,
+                                            .MediaControlView_subtitle_track_number_and_lang_text,
                                             i + 1, lang);
                                 }
                                 mSubtitleDescriptionsList.add(track);

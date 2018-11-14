@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
-import static androidx.media.widget.VideoView2.VIEW_TYPE_SURFACEVIEW;
+import static androidx.media2.widget.VideoView.VIEW_TYPE_TEXTUREVIEW;
 
 import android.content.Context;
-import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.util.Log;
 import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -33,20 +32,21 @@ import androidx.media2.MediaPlayer;
 import androidx.media2.VideoSize;
 
 @RequiresApi(21)
-class VideoSurfaceView extends SurfaceView
-        implements VideoViewInterface, SurfaceHolder.Callback {
-    private static final String TAG = "VideoSurfaceView";
+class VideoTextureView extends TextureView
+        implements VideoViewInterface, TextureView.SurfaceTextureListener {
+    private static final String TAG = "VideoTextureView";
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-    private Surface mSurface = null;
-    SurfaceListener mSurfaceListener = null;
+
+    private Surface mSurface;
+    SurfaceListener mSurfaceListener;
     private MediaPlayer mMediaPlayer;
     // A flag to indicate taking over other view should be proceed.
     private boolean mIsTakingOverOldView;
     VideoViewInterface mOldView;
 
-    VideoSurfaceView(Context context) {
+    VideoTextureView(Context context) {
         super(context, null);
-        getHolder().addCallback(this);
+        setSurfaceTextureListener(this);
     }
 
     ////////////////////////////////////////////////////
@@ -55,8 +55,8 @@ class VideoSurfaceView extends SurfaceView
 
     @Override
     public boolean assignSurfaceToMediaPlayer(MediaPlayer mp) {
-        Log.d(TAG, "assignSurfaceToMediaPlayer(): mSurface: " + mSurface);
         if (mp == null || !hasAvailableSurface()) {
+            // Surface is not ready.
             return false;
         }
         mp.setSurface(mSurface).addListener(
@@ -68,7 +68,7 @@ class VideoSurfaceView extends SurfaceView
                             mOldView = null;
                         }
                         if (mSurfaceListener != null) {
-                            mSurfaceListener.onSurfaceTakeOverDone(VideoSurfaceView.this);
+                            mSurfaceListener.onSurfaceTakeOverDone(VideoTextureView.this);
                         }
                     }
                 }, ContextCompat.getMainExecutor(getContext())
@@ -83,7 +83,7 @@ class VideoSurfaceView extends SurfaceView
 
     @Override
     public int getViewType() {
-        return VIEW_TYPE_SURFACEVIEW;
+        return VIEW_TYPE_TEXTUREVIEW;
     }
 
     @Override
@@ -110,39 +110,42 @@ class VideoSurfaceView extends SurfaceView
     }
 
     ////////////////////////////////////////////////////
-    // implements SurfaceHolder.Callback
+    // implements TextureView.SurfaceTextureListener
     ////////////////////////////////////////////////////
 
     @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        Log.d(TAG, "surfaceCreated: mSurface: " + mSurface + ", new : " + holder.getSurface());
-        mSurface = holder.getSurface();
+    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
+        mSurface = new Surface(surfaceTexture);
         if (mIsTakingOverOldView) {
             takeOver(mOldView);
         } else {
             assignSurfaceToMediaPlayer(mMediaPlayer);
         }
-
         if (mSurfaceListener != null) {
-            Rect rect = holder.getSurfaceFrame();
-            mSurfaceListener.onSurfaceCreated(this, rect.width(), rect.height());
+            mSurfaceListener.onSurfaceCreated(this, width, height);
         }
     }
 
     @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int width, int height) {
         if (mSurfaceListener != null) {
             mSurfaceListener.onSurfaceChanged(this, width, height);
         }
+        // requestLayout();  // TODO: figure out if it should be called here?
     }
 
     @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        // After we return from this we can't use the surface any more
-        mSurface = null;
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+        // no-op
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
         if (mSurfaceListener != null) {
             mSurfaceListener.onSurfaceDestroyed(this);
         }
+        mSurface = null;
+        return true;
     }
 
     @Override
