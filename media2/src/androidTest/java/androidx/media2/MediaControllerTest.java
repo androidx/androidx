@@ -613,7 +613,8 @@ public class MediaControllerTest extends MediaSessionTestBase {
         final List<MediaItem> list = TestUtils.createMediaItems(listSize);
         mPlayer.setPlaylist(list, null);
 
-        final MediaItem currentItem = list.get(3);
+        final int index = 3;
+        final MediaItem currentItem = list.get(index);
         final MediaItem unknownItem = TestUtils.createMediaItemWithMetadata();
         final CountDownLatch latch = new CountDownLatch(3);
         final MediaController controller =
@@ -623,12 +624,15 @@ public class MediaControllerTest extends MediaSessionTestBase {
                             MediaItem item) {
                         switch ((int) latch.getCount()) {
                             case 3:
+                                assertEquals(-1, controller.getCurrentMediaItemIndex());
                                 assertEquals(unknownItem, item);
                                 break;
                             case 2:
+                                assertEquals(index, controller.getCurrentMediaItemIndex());
                                 assertEquals(currentItem, item);
                                 break;
                             case 1:
+                                assertEquals(-1, controller.getCurrentMediaItemIndex());
                                 assertNull(item);
                         }
                         latch.countDown();
@@ -637,9 +641,15 @@ public class MediaControllerTest extends MediaSessionTestBase {
 
         // Player notifies with the unknown item. It's still OK.
         mPlayer.notifyCurrentMediaItemChanged(unknownItem);
+        assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
         // Known DSD should be notified through the onCurrentMediaItemChanged.
+        mPlayer.skipToPlaylistItem(index);
         mPlayer.notifyCurrentMediaItemChanged(currentItem);
+        assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+
         // Null DSD becomes null MediaItem.
+        mPlayer.setMediaItem(null);
         mPlayer.notifyCurrentMediaItemChanged(null);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -1494,10 +1504,12 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 if (metadata != null) {
                     switch ((int) latch.getCount()) {
                         case 2:
+                            assertEquals(-1, controller.getCurrentMediaItemIndex());
                             assertFalse(metadata.containsKey(
                                     MediaMetadata.METADATA_KEY_DURATION));
                             break;
                         case 1:
+                            assertEquals(-1, controller.getCurrentMediaItemIndex());
                             assertTrue(metadata.containsKey(
                                     MediaMetadata.METADATA_KEY_DURATION));
                             assertEquals(duration,
@@ -1519,6 +1531,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
     public void testSetMetadataForMediaItemInPlaylist() throws InterruptedException {
         final CountDownLatch latch = new CountDownLatch(2);
         final long duration = 1000L;
+        final int currentItemIdx = 0;
         final List<MediaItem> list = TestUtils.createMediaItems(2);
         final MediaMetadata oldMetadata = list.get(1).getMetadata();
         final MediaMetadata newMetadata = TestUtils.createMetadata(oldMetadata.getMediaId(),
@@ -1529,9 +1542,11 @@ public class MediaControllerTest extends MediaSessionTestBase {
                     @NonNull List<MediaItem> list, @Nullable MediaMetadata metadata) {
                 switch ((int) latch.getCount()) {
                     case 2:
+                        assertEquals(currentItemIdx, controller.getCurrentMediaItemIndex());
                         assertFalse(oldMetadata.containsKey(MediaMetadata.METADATA_KEY_DURATION));
                         break;
                     case 1:
+                        assertEquals(currentItemIdx, controller.getCurrentMediaItemIndex());
                         assertTrue(list.get(1).getMetadata().containsKey(
                                 MediaMetadata.METADATA_KEY_DURATION));
                         assertEquals(duration, list.get(1).getMetadata().getLong(
@@ -1542,6 +1557,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
         };
         MediaController controller = createController(mSession.getToken(), true, callback);
         mPlayer.setPlaylist(list, null);
+        mPlayer.skipToPlaylistItem(currentItemIdx);
         mPlayer.notifyPlaylistChanged();
         assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         list.get(1).setMetadata(newMetadata);

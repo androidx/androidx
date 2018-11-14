@@ -33,6 +33,8 @@ import java.util.concurrent.Executor;
  * A mock implementation of {@link SessionPlayer} for testing.
  */
 public class MockPlayer extends SessionPlayer {
+    private static final int ITEM_NONE = -1;
+
     public final CountDownLatch mCountDownLatch;
     public final boolean mChangePlayerStateWithTransportControl;
 
@@ -318,7 +320,36 @@ public class MockPlayer extends SessionPlayer {
     }
 
     @Override
+    public int getCurrentMediaItemIndex() {
+        if (mPlaylist == null) {
+            return ITEM_NONE;
+        }
+        return mPlaylist.indexOf(mCurrentMediaItem);
+    }
+
+    @Override
+    public int getPreviousMediaItemIndex() {
+        // TODO: reflect repeat & shuffle modes
+        int currentIdx = getCurrentMediaItemIndex();
+        if (currentIdx == ITEM_NONE || currentIdx == 0) {
+            return ITEM_NONE;
+        }
+        return currentIdx--;
+    }
+
+    @Override
+    public int getNextMediaItemIndex() {
+        // TODO: reflect repeat & shuffle modes
+        int currentIdx = getCurrentMediaItemIndex();
+        if (currentIdx == ITEM_NONE || currentIdx == mPlaylist.size() - 1) {
+            return ITEM_NONE;
+        }
+        return currentIdx++;
+    }
+
+    @Override
     public ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem item) {
+        // TODO: check for invalid index
         mAddPlaylistItemCalled = true;
         mIndex = index;
         mItem = item;
@@ -328,6 +359,7 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     public ListenableFuture<PlayerResult> removePlaylistItem(int index) {
+        // TODO: check for invalid index
         mRemovePlaylistItemCalled = true;
         mIndex = index;
         mCountDownLatch.countDown();
@@ -336,6 +368,7 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     public ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem item) {
+        // TODO: check for invalid index
         mReplacePlaylistItemCalled = true;
         mIndex = index;
         mItem = item;
@@ -345,6 +378,7 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     public ListenableFuture<PlayerResult> skipToPlaylistItem(int index) {
+        // TODO: check for invalid index
         mSkipToPlaylistItemCalled = true;
         mIndex = index;
         mCountDownLatch.countDown();
@@ -353,6 +387,7 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     public ListenableFuture<PlayerResult> skipToPreviousPlaylistItem() {
+        // TODO: reflect repeat & shuffle modes
         mSkipToPreviousItemCalled = true;
         mCountDownLatch.countDown();
         return new SyncListenableFuture(mCurrentMediaItem);
@@ -360,6 +395,7 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     public ListenableFuture<PlayerResult> skipToNextPlaylistItem() {
+        // TODO: reflect repeat & shuffle modes
         mSkipToNextItemCalled = true;
         mCountDownLatch.countDown();
         return new SyncListenableFuture(mCurrentMediaItem);

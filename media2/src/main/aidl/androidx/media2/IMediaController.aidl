@@ -31,11 +31,13 @@ import androidx.versionedparcelable.ParcelImpl;
  * @hide
  */
 oneway interface IMediaController {
-    void onCurrentMediaItemChanged(in ParcelImpl item) = 0;
+    void onCurrentMediaItemChanged(in ParcelImpl item, int currentIdx, int previousIdx,
+        int nextIdx) = 0;
     void onPlayerStateChanged(long eventTimeMs, long positionMs, int state) = 1;
     void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed) = 2;
     void onBufferingStateChanged(in ParcelImpl item, int state, long bufferedPositionMs) = 3;
-    void onPlaylistChanged(in ParcelImplListSlice listSlice, in ParcelImpl metadata) = 4;
+    void onPlaylistChanged(in ParcelImplListSlice listSlice, in ParcelImpl metadata, int currentIdx,
+        int previousIdx, int nextIdx) = 4;
     void onPlaylistMetadataChanged(in ParcelImpl metadata) = 5;
     void onPlaybackInfoChanged(in ParcelImpl playbackInfo) = 6;
     void onRepeatModeChanged(int repeatMode) = 7;
