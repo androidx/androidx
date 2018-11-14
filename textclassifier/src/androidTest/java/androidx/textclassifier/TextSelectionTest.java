@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import android.os.Build;
+import android.os.Bundle;
 import android.os.LocaleList;
 
 import androidx.core.os.LocaleListCompat;
@@ -48,9 +49,16 @@ public final class TextSelectionTest {
     private static final LocaleListCompat LOCALE_LIST =
             LocaleListCompat.forLanguageTags("en-US,de-DE");
 
+    private static final String BUNDLE_KEY = "key";
+    private static final String BUNDLE_VALUE = "value";
+    private static final Bundle BUNDLE = new Bundle();
+    static {
+        BUNDLE.putString(BUNDLE_KEY, BUNDLE_VALUE);
+    }
+
     @Test
     public void testParcel() {
-        TextSelection reference = createTextSelection();
+        TextSelection reference = createTextSelection().setExtras(BUNDLE).build();
 
         // Serialize/deserialize.
         final TextSelection result = TextSelection.createFromBundle(reference.toBundle());
@@ -58,6 +66,7 @@ public final class TextSelectionTest {
         assertEquals(START_INDEX, result.getSelectionStartIndex());
         assertEquals(END_INDEX, result.getSelectionEndIndex());
         assertEquals(ID, result.getId());
+        assertEquals(BUNDLE_VALUE, result.getExtras().getString(BUNDLE_KEY));
 
         assertThat(result.getEntityCount()).isEqualTo(3);
         assertThat(result.getEntity(0)).isEqualTo(TextClassifier.TYPE_ADDRESS);
@@ -79,6 +88,7 @@ public final class TextSelectionTest {
         TextSelection.Request reference =
                 new TextSelection.Request.Builder(text, startIndex, endIndex)
                         .setDefaultLocales(LocaleListCompat.forLanguageTags("en-US,de-DE"))
+                        .setExtras(BUNDLE)
                         .build();
 
         // Serialize/deserialize.
@@ -88,6 +98,7 @@ public final class TextSelectionTest {
         assertEquals(startIndex, result.getStartIndex());
         assertEquals(endIndex, result.getEndIndex());
         assertEquals("en-US,de-DE", result.getDefaultLocales().toLanguageTags());
+        assertEquals(BUNDLE_VALUE, result.getExtras().getString(BUNDLE_KEY));
     }
 
     @Test
@@ -160,7 +171,7 @@ public final class TextSelectionTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.O_MR1)
     public void testToPlatform_O() {
-        TextSelection reference = createTextSelection();
+        TextSelection reference = createTextSelection().build();
 
         android.view.textclassifier.TextSelection platformTextSelection =
                 (android.view.textclassifier.TextSelection) reference.toPlatform();
@@ -172,7 +183,7 @@ public final class TextSelectionTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     public void testToPlatform_P() {
-        TextSelection reference = createTextSelection();
+        TextSelection reference = createTextSelection().build();
 
         android.view.textclassifier.TextSelection platformTextSelection =
                 (android.view.textclassifier.TextSelection) reference.toPlatform();
@@ -195,12 +206,11 @@ public final class TextSelectionTest {
                 .isWithin(EPSILON).of(URL_SCORE);
     }
 
-    private TextSelection createTextSelection() {
+    private TextSelection.Builder createTextSelection() {
         return new TextSelection.Builder(START_INDEX, END_INDEX)
                 .setId(ID)
                 .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
                 .setEntityType(TextClassifier.TYPE_PHONE, PHONE_SCORE)
-                .setEntityType(TextClassifier.TYPE_URL, URL_SCORE)
-                .build();
+                .setEntityType(TextClassifier.TYPE_URL, URL_SCORE);
     }
 }

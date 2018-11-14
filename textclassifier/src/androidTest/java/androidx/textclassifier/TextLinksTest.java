@@ -26,9 +26,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.style.URLSpan;
 
 import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
@@ -43,7 +43,6 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +62,13 @@ public final class TextLinksTest {
     private static final long REFERENCE_TIME = System.currentTimeMillis();
 
     private Map<String, Float> mDummyEntityScores;
+
+    private static final String BUNDLE_KEY = "key";
+    private static final String BUNDLE_VALUE = "value";
+    private static final Bundle BUNDLE = new Bundle();
+    static {
+        BUNDLE.putString(BUNDLE_KEY, BUNDLE_VALUE);
+    }
 
     @Before
     public void setup() {
@@ -91,17 +97,19 @@ public final class TextLinksTest {
         final TextLinks reference = new TextLinks.Builder(FULL_TEXT.toString())
                 .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f))
                 .addLink(5, 12, getEntityScores(.8f, .1f, .5f))
+                .setExtras(BUNDLE)
                 .build();
 
         // Serialize/deserialize.
         final TextLinks result = TextLinks.createFromBundle(reference.toBundle());
 
         assertTextLinks(result);
+        assertEquals(BUNDLE_VALUE, result.getExtras().getString(BUNDLE_KEY));
     }
 
     @Test
     public void testBundleRequest() {
-        TextLinks.Request reference = createTextLinksRequest();
+        TextLinks.Request reference = createTextLinksRequest().setExtras(BUNDLE).build();
 
         // Serialize/deserialize.
         TextLinks.Request result = TextLinks.Request.createFromBundle(reference.toBundle());
@@ -113,6 +121,7 @@ public final class TextLinksTest {
                 Arrays.asList("default", "excluded")))
                 .containsExactly("included", "default");
         assertThat(result.getReferenceTime()).isEqualTo(REFERENCE_TIME);
+        assertEquals(BUNDLE_VALUE, result.getExtras().getString(BUNDLE_KEY));
     }
 
     @Test
@@ -128,7 +137,7 @@ public final class TextLinksTest {
     @Test
     @SdkSuppress(minSdkVersion = 28)
     public void testConvertToPlatformRequest() {
-        TextLinks.Request request = createTextLinksRequest();
+        TextLinks.Request request = createTextLinksRequest().build();
 
         android.view.textclassifier.TextLinks.Request platformRequest = request.toPlatform();
         assertEquals(FULL_TEXT, platformRequest.getText());
@@ -150,19 +159,6 @@ public final class TextLinksTest {
 
         TextLinks textLinks = TextLinks.fromPlatform(platformTextLinks, FULL_TEXT);
         assertTextLinks(textLinks);
-    }
-
-    @Test
-    public void testTextLinksWithUrlSpan() {
-        final String url = "http://www.google.com";
-        final TextLinks textLinks = new TextLinks.Builder(FULL_TEXT.toString())
-                .addLink(0, 4, getEntityScores(0.f, 0.f, 1.f), new URLSpan(url))
-                .build();
-
-        Collection<TextLinks.TextLink> links = textLinks.getLinks();
-        assertThat(links).hasSize(1);
-        TextLinks.TextLink textLink = links.iterator().next();
-        assertThat(textLink.getUrlSpan().getURL()).isEqualTo(url);
     }
 
     @Test
@@ -206,7 +202,7 @@ public final class TextLinksTest {
                 .isEqualTo(TextClassifier.TYPE_PHONE);
     }
 
-    private TextLinks.Request createTextLinksRequest() {
+    private TextLinks.Request.Builder createTextLinksRequest() {
         EntityConfig entityConfig = new EntityConfig.Builder()
                 .setIncludedEntityTypes(Arrays.asList("included"))
                 .setExcludedEntityTypes(Arrays.asList("excluded"))
@@ -216,8 +212,7 @@ public final class TextLinksTest {
         return new TextLinks.Request.Builder(FULL_TEXT)
                 .setDefaultLocales(LOCALE_LIST)
                 .setEntityConfig(entityConfig)
-                .setReferenceTime(REFERENCE_TIME)
-                .build();
+                .setReferenceTime(REFERENCE_TIME);
     }
 
     private void assertTextLinks(TextLinks textLinks) {

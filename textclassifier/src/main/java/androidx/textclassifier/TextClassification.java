@@ -75,6 +75,7 @@ public final class TextClassification {
     private static final String EXTRA_ACTIONS = "actions";
     private static final String EXTRA_ENTITY_CONFIDENCE = "entity_conf";
     private static final String EXTRA_ID = "id";
+    private static final String EXTRA_EXTRAS = "extras";
     private static final IconCompat NO_ICON =
             IconCompat.createWithData(new byte[0], 0, 0);
 
@@ -88,16 +89,19 @@ public final class TextClassification {
     @NonNull private final List<RemoteActionCompat> mActions;
     @NonNull private final EntityConfidence mEntityConfidence;
     @Nullable private final String mId;
+    @NonNull private final Bundle mExtras;
 
     TextClassification(
             @Nullable String text,
             @NonNull List<RemoteActionCompat> actions,
             @NonNull EntityConfidence entityConfidence,
-            @Nullable String id) {
+            @Nullable String id,
+            @NonNull Bundle extras) {
         mText = text;
         mActions = actions;
         mEntityConfidence = entityConfidence;
         mId = id;
+        mExtras = extras;
     }
 
     /**
@@ -155,6 +159,19 @@ public final class TextClassification {
         return mId;
     }
 
+    /**
+     * Returns the extended, vendor specific data.
+     *
+     * <p><b>NOTE: </b>Each call to this method returns a new bundle copy so clients should
+     * prefer to hold a reference to the returned bundle rather than frequently calling this
+     * method. Avoid updating the content of this bundle. On pre-O devices, the values in the
+     * Bundle are not deep copied.
+     */
+    @NonNull
+    public Bundle getExtras() {
+        return BundleUtils.deepCopy(mExtras);
+    }
+
     @Override
     public String toString() {
         return String.format(Locale.US,
@@ -173,6 +190,7 @@ public final class TextClassification {
         BundleUtils.putRemoteActionList(bundle, EXTRA_ACTIONS, mActions);
         BundleUtils.putMap(bundle, EXTRA_ENTITY_CONFIDENCE, mEntityConfidence.getConfidenceMap());
         bundle.putString(EXTRA_ID, mId);
+        bundle.putBundle(EXTRA_EXTRAS, mExtras);
         return bundle;
     }
 
@@ -184,7 +202,8 @@ public final class TextClassification {
     public static TextClassification createFromBundle(@NonNull Bundle bundle) {
         final Builder builder = new Builder()
                 .setText(bundle.getString(EXTRA_TEXT))
-                .setId(bundle.getString(EXTRA_ID));
+                .setId(bundle.getString(EXTRA_ID))
+                .setExtras(bundle.getBundle(EXTRA_EXTRAS));
         for (Map.Entry<String, Float> entityConfidence : BundleUtils.getFloatStringMapOrThrow(
                 bundle, EXTRA_ENTITY_CONFIDENCE).entrySet()) {
             builder.setEntityType(entityConfidence.getKey(), entityConfidence.getValue());
@@ -339,6 +358,7 @@ public final class TextClassification {
         @NonNull private List<RemoteActionCompat> mActions = new ArrayList<>();
         @NonNull private final Map<String, Float> mEntityConfidence = new ArrayMap<>();
         @Nullable private String mId;
+        @Nullable private Bundle mExtras;
 
         /**
          * Sets the classified text.
@@ -386,12 +406,22 @@ public final class TextClassification {
         }
 
         /**
+         * Sets the extended, vendor specific data.
+         */
+        @NonNull
+        public Builder setExtras(@Nullable Bundle extras) {
+            mExtras = extras;
+            return this;
+        }
+
+        /**
          * Builds and returns a {@link TextClassification} object.
          */
         @NonNull
         public TextClassification build() {
             return new TextClassification(
-                    mText, mActions, new EntityConfidence(mEntityConfidence), mId);
+                    mText, mActions, new EntityConfidence(mEntityConfidence), mId,
+                    mExtras == null ? Bundle.EMPTY : BundleUtils.deepCopy(mExtras));
         }
     }
 
@@ -411,18 +441,21 @@ public final class TextClassification {
         private final int mEndIndex;
         @Nullable private final LocaleListCompat mDefaultLocales;
         @Nullable private final Long mReferenceTime;
+        @NonNull private final Bundle mExtras;
 
         Request(
                 CharSequence text,
                 int startIndex,
                 int endIndex,
                 LocaleListCompat defaultLocales,
-                Long referenceTime) {
+                Long referenceTime,
+                Bundle extras) {
             mText = text;
             mStartIndex = startIndex;
             mEndIndex = endIndex;
             mDefaultLocales = defaultLocales;
             mReferenceTime = referenceTime;
+            mExtras = extras;
         }
 
         /**
@@ -470,6 +503,19 @@ public final class TextClassification {
         }
 
         /**
+         * Returns the extended, vendor specific data.
+         *
+         * <p><b>NOTE: </b>Each call to this method returns a new bundle copy so clients should
+         * prefer to hold a reference to the returned bundle rather than frequently calling this
+         * method. Avoid updating the content of this bundle. On pre-O devices, the values in the
+         * Bundle are not deep copied.
+         */
+        @NonNull
+        public Bundle getExtras() {
+            return BundleUtils.deepCopy(mExtras);
+        }
+
+        /**
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -506,6 +552,7 @@ public final class TextClassification {
             private final CharSequence mText;
             private final int mStartIndex;
             private final int mEndIndex;
+            private Bundle mExtras;
 
             @Nullable private LocaleListCompat mDefaultLocales;
             @Nullable private Long mReferenceTime = null;
@@ -560,11 +607,23 @@ public final class TextClassification {
             }
 
             /**
+             * Sets the extended, vendor specific data.
+             *
+             * @return this builder
+             */
+            @NonNull
+            public Builder setExtras(@Nullable Bundle extras) {
+                mExtras = extras;
+                return this;
+            }
+
+            /**
              * Builds and returns the request object.
              */
             @NonNull
             public Request build() {
-                return new Request(mText, mStartIndex, mEndIndex, mDefaultLocales, mReferenceTime);
+                return new Request(mText, mStartIndex, mEndIndex, mDefaultLocales, mReferenceTime,
+                        mExtras == null ? Bundle.EMPTY : BundleUtils.deepCopy(mExtras));
             }
         }
 
@@ -580,6 +639,7 @@ public final class TextClassification {
             bundle.putInt(EXTRA_END_INDEX, mEndIndex);
             BundleUtils.putLocaleList(bundle, EXTRA_DEFAULT_LOCALES, mDefaultLocales);
             BundleUtils.putLong(bundle, EXTRA_REFERENCE_TIME, mReferenceTime);
+            bundle.putBundle(EXTRA_EXTRAS, mExtras);
             return bundle;
         }
 
@@ -592,7 +652,8 @@ public final class TextClassification {
                     bundle.getInt(EXTRA_START_INDEX),
                     bundle.getInt(EXTRA_END_INDEX))
                     .setDefaultLocales(BundleUtils.getLocaleList(bundle, EXTRA_DEFAULT_LOCALES))
-                    .setReferenceTime(BundleUtils.getLong(bundle, EXTRA_REFERENCE_TIME));
+                    .setReferenceTime(BundleUtils.getLong(bundle, EXTRA_REFERENCE_TIME))
+                    .setExtras(bundle.getBundle(EXTRA_EXTRAS));
             return builder.build();
         }
     }
