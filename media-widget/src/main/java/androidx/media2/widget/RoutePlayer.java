@@ -353,7 +353,7 @@ public class RoutePlayer extends RemoteSessionPlayer {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> removePlaylistItem(MediaItem item) {
+    public ListenableFuture<PlayerResult> removePlaylistItem(int index) {
         // TODO: implement
         return createResult(RESULT_CODE_INVALID_STATE);
     }
@@ -377,7 +377,7 @@ public class RoutePlayer extends RemoteSessionPlayer {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> skipToPlaylistItem(MediaItem item) {
+    public ListenableFuture<PlayerResult> skipToPlaylistItem(int index) {
         // TODO: implement
         return createResult(RESULT_CODE_INVALID_STATE);
     }

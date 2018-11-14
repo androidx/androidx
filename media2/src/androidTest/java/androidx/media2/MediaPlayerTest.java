@@ -1320,7 +1320,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         // Test skipToPlaylistItem
         for (int i = listSize - 1; i >= 0; --i) {
-            result = mPlayer.skipToPlaylistItem(playlist.get(i)).get();
+            result = mPlayer.skipToPlaylistItem(i).get();
             assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
             assertEquals(playlist.get(i), mPlayer.getCurrentMediaItem());
         }
@@ -1357,7 +1357,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         mPlayer.setRepeatMode(SessionPlayer.REPEAT_MODE_NONE).get();
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
-        result = mPlayer.skipToPlaylistItem(playlist.get(listSize - 1)).get();
+        result = mPlayer.skipToPlaylistItem(listSize - 1).get();
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
 
         // Test skipToPrevious
