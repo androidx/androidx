@@ -43,6 +43,8 @@
             android:layout_toEndOf="@id/mr_cast_mute_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minHeight="48dp"
+            android:maxHeight="48dp"
             android:layout_marginRight="16dp"
             android:layout_marginEnd="16dp"
             android:layout_centerVertical="true"
