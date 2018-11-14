@@ -44,4 +44,5 @@ interface IRemoteMediaSessionCompat {
     void setFlags(String sessionTag, int flags);
     void setRatingType(String sessionTag, int type);
     void sendSessionEvent(String sessionTag, String event, in Bundle extras);
+    void setCaptioningEnabled(String sessionTag, boolean enabled);
 }

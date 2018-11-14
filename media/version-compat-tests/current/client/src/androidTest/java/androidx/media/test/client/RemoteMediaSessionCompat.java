@@ -222,6 +222,13 @@ public class RemoteMediaSessionCompat {
         }
     }
 
+    public void setCaptioningEnabled(boolean enabled) {
+        try {
+            mBinder.setCaptioningEnabled(mSessionTag, enabled);
+        } catch (RemoteException ex) {
+            Log.e(TAG, "Failed to call setCaptioningEnabled()");
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////////
     // Non-public methods
     ////////////////////////////////////////////////////////////////////////////////
