@@ -96,7 +96,8 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onCurrentMediaItemChanged(ParcelImpl item) {
+    public void onCurrentMediaItemChanged(ParcelImpl item, int currentIdx, int previousIdx,
+            int nextIdx) {
         if (item == null) {
             return;
         }
@@ -109,7 +110,8 @@ class MediaControllerStub extends IMediaController.Stub {
                 Log.w(TAG, "Don't fail silently here. Highly likely a bug");
                 return;
             }
-            controller.notifyCurrentMediaItemChanged((MediaItem) MediaUtils.fromParcelable(item));
+            controller.notifyCurrentMediaItemChanged((MediaItem) MediaUtils.fromParcelable(item),
+                    currentIdx, previousIdx, nextIdx);
         } finally {
             Binder.restoreCallingIdentity(token);
         }
@@ -176,7 +178,8 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onPlaylistChanged(ParcelImplListSlice listSlice, ParcelImpl metadata) {
+    public void onPlaylistChanged(ParcelImplListSlice listSlice, ParcelImpl metadata,
+            int currentIdx, int previousIdx, int nextIdx) {
         if (metadata == null) {
             return;
         }
@@ -192,7 +195,8 @@ class MediaControllerStub extends IMediaController.Stub {
             List<MediaItem> playlist =
                     MediaUtils.convertParcelImplListSliceToMediaItemList(listSlice);
             controller.notifyPlaylistChanges(playlist,
-                    (MediaMetadata) MediaUtils.fromParcelable(metadata));
+                    (MediaMetadata) MediaUtils.fromParcelable(metadata), currentIdx, previousIdx,
+                    nextIdx);
         } finally {
             Binder.restoreCallingIdentity(token);
         }

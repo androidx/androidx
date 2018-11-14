@@ -444,13 +444,14 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        final void onCurrentMediaItemChanged(MediaItem item) throws RemoteException {
+        final void onCurrentMediaItemChanged(MediaItem item, int currentIdx, int previousIdx,
+                int nextIdx) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata)
-                throws RemoteException {
+        final void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata,
+                int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
