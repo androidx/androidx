@@ -503,7 +503,13 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
         MediaController controller = createController(mRemoteSession2.getToken(), true, callback);
         player.notifyPlaylistMetadataChanged();
-        assertTrue(latch.await(3, TimeUnit.SECONDS));
+        if (Build.VERSION.SDK_INT <= 19) {
+            // Due to the GC, time takes longer than expected.
+            // It seems to be due to the Dalvik GC mechanism.
+            assertTrue(latch.await(10, TimeUnit.SECONDS));
+        } else {
+            assertTrue(latch.await(3, TimeUnit.SECONDS));
+        }
     }
 
     /**
