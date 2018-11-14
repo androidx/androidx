@@ -17,19 +17,19 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="MediaControlView2_ad_skip_wait_time" msgid="5221553996045003012">"<xliff:g id="WAIT_TIME">%1$d</xliff:g> စက္ကန့်တွင် \'ကြော်ငြာ\' ကို ကျော်နိုင်ပါမည်"</string>
-    <string name="MediaControlView2_ad_remaining_time" msgid="569530979387418179">"ကြော်ငြာ · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ကျန်သည်"</string>
-    <string name="MediaControlView2_ad_text" msgid="649968140965666991">"ကြော်ငြာရှင်၏ စာမျက်နှာသို့ ဝင်ကြည့်ရန်"</string>
-    <string name="MediaControlView2_subtitle_off_text" msgid="4713723682776722273">"ပိတ်ထားသည်"</string>
-    <string name="MediaControlView2_audio_track_text" msgid="550490200661664153">"သီချင်း"</string>
-    <string name="MediaControlView2_audio_track_none_text" msgid="8920627943784676298">"မရှိ"</string>
-    <string name="MediaControlView2_video_quality_auto_text" msgid="2361919440626099583">"အလိုအလျောက်"</string>
-    <string name="MediaControlView2_playback_speed_text" msgid="7501705762236755130">"ဖွင့်ရန် အမြန်နှုန်း"</string>
-    <string name="MediaControlView2_playback_speed_normal" msgid="8621780673920663756">"ပုံမှန်"</string>
-    <string name="MediaControlView2_time_placeholder" msgid="7559147215397038195">"၀၀:၀၀:၀၀"</string>
-    <string name="MediaControlView2_subtitle_track_number_text" msgid="81813613582208443">"အပုဒ်ရေ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView2_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"အပုဒ်ရေ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
-    <string name="MediaControlView2_audio_track_number_text" msgid="7535079749165525354">"အပုဒ်ရေ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_ad_skip_wait_time" msgid="5221553996045003012">"<xliff:g id="WAIT_TIME">%1$d</xliff:g> စက္ကန့်တွင် \'ကြော်ငြာ\' ကို ကျော်နိုင်ပါမည်"</string>
+    <string name="MediaControlView_ad_remaining_time" msgid="569530979387418179">"ကြော်ငြာ · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> ကျန်သည်"</string>
+    <string name="MediaControlView_ad_text" msgid="649968140965666991">"ကြော်ငြာရှင်၏ စာမျက်နှာသို့ ဝင်ကြည့်ရန်"</string>
+    <string name="MediaControlView_subtitle_off_text" msgid="4713723682776722273">"ပိတ်ထားသည်"</string>
+    <string name="MediaControlView_audio_track_text" msgid="550490200661664153">"သီချင်း"</string>
+    <string name="MediaControlView_audio_track_none_text" msgid="8920627943784676298">"မရှိ"</string>
+    <string name="MediaControlView_video_quality_auto_text" msgid="2361919440626099583">"အလိုအလျောက်"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="7501705762236755130">"ဖွင့်ရန် အမြန်နှုန်း"</string>
+    <string name="MediaControlView_playback_speed_normal" msgid="8621780673920663756">"ပုံမှန်"</string>
+    <string name="MediaControlView_time_placeholder" msgid="7559147215397038195">"၀၀:၀၀:၀၀"</string>
+    <string name="MediaControlView_subtitle_track_number_text" msgid="81813613582208443">"အပုဒ်ရေ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"အပုဒ်ရေ <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_audio_track_number_text" msgid="7535079749165525354">"အပုဒ်ရေ <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"အမည်မသိ သီချင်းခေါင်းစဉ်"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"အမည်မသိ အနုပညာရှင်"</string>
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"သင်တောင်းဆိုထားသည့်အရာကို ဖွင့်၍မရပါ"</string>

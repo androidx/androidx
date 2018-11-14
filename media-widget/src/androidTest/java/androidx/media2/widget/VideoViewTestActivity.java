@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import android.os.Bundle;
 
 import androidx.fragment.app.FragmentActivity;
-import androidx.media.widget.test.R;
+import androidx.media2.widget.test.R;
 
 /**
- * A minimal application for {@link VideoView2} test.
+ * A minimal application for {@link VideoView} test.
  */
-public class VideoView2TestActivity extends FragmentActivity {
+public class VideoViewTestActivity extends FragmentActivity {
     /**
      * Called with the activity is first created.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.videoview2_layout);
+        setContentView(R.layout.videoview_layout);
     }
 }

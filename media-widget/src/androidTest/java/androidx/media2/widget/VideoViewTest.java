@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import static android.content.Context.KEYGUARD_SERVICE;
 
-import static androidx.media.widget.MediaControlView2.COMMAND_HIDE_SUBTITLE;
-import static androidx.media.widget.MediaControlView2.COMMAND_SHOW_SUBTITLE;
-import static androidx.media.widget.MediaControlView2.EVENT_UPDATE_SUBTITLE_DESELECTED;
-import static androidx.media.widget.MediaControlView2.EVENT_UPDATE_SUBTITLE_SELECTED;
-import static androidx.media.widget.MediaControlView2.EVENT_UPDATE_TRACK_STATUS;
-import static androidx.media.widget.MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX;
-import static androidx.media.widget.MediaControlView2.KEY_SUBTITLE_TRACK_COUNT;
+import static androidx.media2.widget.MediaControlView.COMMAND_HIDE_SUBTITLE;
+import static androidx.media2.widget.MediaControlView.COMMAND_SHOW_SUBTITLE;
+import static androidx.media2.widget.MediaControlView.EVENT_UPDATE_SUBTITLE_DESELECTED;
+import static androidx.media2.widget.MediaControlView.EVENT_UPDATE_SUBTITLE_SELECTED;
+import static androidx.media2.widget.MediaControlView.EVENT_UPDATE_TRACK_STATUS;
+import static androidx.media2.widget.MediaControlView.KEY_SELECTED_SUBTITLE_INDEX;
+import static androidx.media2.widget.MediaControlView.KEY_SUBTITLE_TRACK_COUNT;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,7 +51,6 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.core.content.ContextCompat;
-import androidx.media.widget.test.R;
 import androidx.media2.FileMediaItem;
 import androidx.media2.MediaController;
 import androidx.media2.MediaController.ControllerResult;
@@ -60,6 +59,7 @@ import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionPlayer;
 import androidx.media2.UriMediaItem;
+import androidx.media2.widget.test.R;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.LargeTest;
@@ -77,17 +77,17 @@ import org.mockito.ArgumentMatcher;
 import java.util.concurrent.Executor;
 
 /**
- * Test {@link VideoView2}.
+ * Test {@link VideoView}.
  *
  * TODO: Lower minSdkVersion to Kitkat.
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
-public class VideoView2Test {
+public class VideoViewTest {
 
     /** Debug TAG. **/
-    private static final String TAG = "VideoView2Test";
+    private static final String TAG = "VideoViewTest";
     /** The maximum time to wait for an operation. */
     private static final long TIME_OUT = 1000L;
 
@@ -96,14 +96,14 @@ public class VideoView2Test {
     private Instrumentation mInstrumentation;
 
     private Activity mActivity;
-    private VideoView2 mVideoView;
+    private VideoView mVideoView;
     private MediaItem mMediaItem;
     private MediaController.ControllerCallback mControllerCallback;
     private MediaController mController;
 
     @Rule
-    public ActivityTestRule<VideoView2TestActivity> mActivityRule =
-            new ActivityTestRule<>(VideoView2TestActivity.class);
+    public ActivityTestRule<VideoViewTestActivity> mActivityRule =
+            new ActivityTestRule<>(VideoViewTestActivity.class);
 
     @Before
     public void setup() throws Throwable {
@@ -138,9 +138,9 @@ public class VideoView2Test {
     @UiThreadTest
     @Test
     public void testConstructor() {
-        new VideoView2(mActivity);
-        new VideoView2(mActivity, null);
-        new VideoView2(mActivity, null, 0);
+        new VideoView(mActivity);
+        new VideoView(mActivity, null);
+        new VideoView(mActivity, null, 0);
     }
 
     @Test
@@ -228,8 +228,8 @@ public class VideoView2Test {
             return;
         }
 
-        final VideoView2.OnViewTypeChangedListener mockViewTypeListener =
-                mock(VideoView2.OnViewTypeChangedListener.class);
+        final VideoView.OnViewTypeChangedListener mockViewTypeListener =
+                mock(VideoView.OnViewTypeChangedListener.class);
 
         // The default view type is surface view.
         assertEquals(mVideoView.getViewType(), mVideoView.VIEW_TYPE_SURFACEVIEW);
@@ -243,7 +243,7 @@ public class VideoView2Test {
             }
         });
         verify(mockViewTypeListener, timeout(TIME_OUT))
-                .onViewTypeChanged(mVideoView, VideoView2.VIEW_TYPE_TEXTUREVIEW);
+                .onViewTypeChanged(mVideoView, VideoView.VIEW_TYPE_TEXTUREVIEW);
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
                 any(MediaController.class), any(SessionCommandGroup.class));
         verify(mControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
@@ -262,8 +262,8 @@ public class VideoView2Test {
             return;
         }
 
-        final VideoView2.OnViewTypeChangedListener mockViewTypeListener =
-                mock(VideoView2.OnViewTypeChangedListener.class);
+        final VideoView.OnViewTypeChangedListener mockViewTypeListener =
+                mock(VideoView.OnViewTypeChangedListener.class);
 
         // The default view type is surface view.
         assertEquals(mVideoView.getViewType(), mVideoView.VIEW_TYPE_SURFACEVIEW);

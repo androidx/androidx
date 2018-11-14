@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_BAD_VALUE;
@@ -60,8 +60,8 @@ import java.util.concurrent.Future;
  */
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-public class RoutePlayer2 extends RemoteSessionPlayer {
-    private static final String TAG = "RoutePlayer2";
+public class RoutePlayer extends RemoteSessionPlayer {
+    private static final String TAG = "RoutePlayer";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     String mItemId;
@@ -97,7 +97,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer {
                             @Override
                             public void run() {
                                 ((RemoteSessionPlayer.Callback) callback)
-                                        .onVolumeChanged(RoutePlayer2.this, volume);
+                                        .onVolumeChanged(RoutePlayer.this, volume);
                             }
                         });
                     }
@@ -124,14 +124,14 @@ public class RoutePlayer2 extends RemoteSessionPlayer {
                 pair.second.execute(new Runnable() {
                     @Override
                     public void run() {
-                        callback.onPlayerStateChanged(RoutePlayer2.this, mCurrentPlayerState);
+                        callback.onPlayerStateChanged(RoutePlayer.this, mCurrentPlayerState);
                     }
                 });
             }
         }
     };
 
-    public RoutePlayer2(Context context, MediaRouteSelector selector,
+    public RoutePlayer(Context context, MediaRouteSelector selector,
             MediaRouter.RouteInfo route) {
         mMediaRouter = MediaRouter.getInstance(context);
         mMediaRouter.addCallback(selector, mRouterCallback);
@@ -145,7 +145,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer {
                 public void onResult(Bundle data,
                         String sessionId, MediaSessionStatus sessionStatus) {
                     if (DEBUG && !isSessionActive(sessionStatus)) {
-                        Log.v(TAG, "RoutePlayer2 has been initialized, but session is not"
+                        Log.v(TAG, "RoutePlayer has been initialized, but session is not"
                                 + "active.");
                     }
                 }
@@ -229,7 +229,7 @@ public class RoutePlayer2 extends RemoteSessionPlayer {
                             pair.second.execute(new Runnable() {
                                 @Override
                                 public void run() {
-                                    callback.onSeekCompleted(RoutePlayer2.this,
+                                    callback.onSeekCompleted(RoutePlayer.this,
                                             itemStatus.getContentPosition());
                                 }
                             });

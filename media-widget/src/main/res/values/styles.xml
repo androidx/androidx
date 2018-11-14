@@ -135,7 +135,7 @@
 
     <style name="TimeText.Current">
         <item name="android:textColor">@color/white</item>
-        <item name="android:text">@string/MediaControlView2_time_placeholder</item>
+        <item name="android:text">@string/MediaControlView_time_placeholder</item>
     </style>
 
     <style name="TimeText.Interpunct">
@@ -145,7 +145,7 @@
 
     <style name="TimeText.End">
         <item name="android:textColor">@color/white_opacity_70</item>
-        <item name="android:text">@string/MediaControlView2_time_placeholder</item>
+        <item name="android:text">@string/MediaControlView_time_placeholder</item>
     </style>
 
     <style name="BottomBarButton">

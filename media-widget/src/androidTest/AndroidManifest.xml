@@ -15,24 +15,24 @@
   limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.media.widget.test">
+    package="androidx.media2.widget.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name="androidx.media.widget.VideoView2TestActivity"
+        <activity android:name="androidx.media2.widget.VideoViewTestActivity"
             android:theme="@style/Theme.AppCompat"
             android:configChanges="keyboardHidden|orientation|screenSize"
-            android:label="VideoView2TestActivity">
+            android:label="VideoViewTestActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.media.widget.MediaControlView2TestActivity"
+        <activity android:name="androidx.media2.widget.MediaControlViewTestActivity"
                   android:theme="@style/Theme.AppCompat"
                   android:configChanges="keyboardHidden|orientation|screenSize"
-                  android:label="MediaControlView2TestActivity">
+                  android:label="MediaControlViewTestActivity">
             <intent-filter>
                 <category android:name="android.intent.category.FRAMEWORK_INSTRUMENTATION_TEST" />
             </intent-filter>

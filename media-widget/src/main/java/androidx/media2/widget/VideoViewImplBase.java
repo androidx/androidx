@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_INVALID_STATE;
 import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
@@ -75,11 +75,11 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
- * Base implementation of VideoView2.
+ * Base implementation of VideoView.
  */
 @RequiresApi(28)
-class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceListener {
-    private static final String TAG = "VideoView2ImplBase";
+class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceListener {
+    private static final String TAG = "VideoViewImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final int STATE_ERROR = -1;
@@ -98,16 +98,16 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     private AudioAttributesCompat mAudioAttributes;
 
-    private VideoView2.OnViewTypeChangedListener mViewTypeChangedListener;
+    private VideoView.OnViewTypeChangedListener mViewTypeChangedListener;
 
     VideoViewInterface mCurrentView;
     VideoViewInterface mTargetView;
     private VideoTextureView mTextureView;
     private VideoSurfaceView mSurfaceView;
 
-    VideoView2Player mMediaPlayer;
+    VideoViewPlayer mMediaPlayer;
     MediaItem mMediaItem;
-    MediaControlView2 mMediaControlView;
+    MediaControlView mMediaControlView;
     MediaSession mMediaSession;
     private String mTitle;
     Executor mCallbackExecutor;
@@ -142,13 +142,13 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     private SubtitleAnchorView mSubtitleAnchorView;
 
-    VideoView2 mInstance;
+    VideoView mInstance;
 
     private MediaRouter mMediaRouter;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaRouteSelector mRouteSelector;
     MediaRouter.RouteInfo mRoute;
-    RoutePlayer2 mRoutePlayer;
+    RoutePlayer mRoutePlayer;
 
     private final MediaRouter.Callback mRouterCallback = new MediaRouter.Callback() {
         @Override
@@ -162,7 +162,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 // Update player
                 resetPlayer();
                 mRoute = route;
-                mRoutePlayer = new RoutePlayer2(mInstance.getContext(), mRouteSelector, route);
+                mRoutePlayer = new RoutePlayer(mInstance.getContext(), mRouteSelector, route);
                 // TODO: Replace with MediaSession#setPlaylist once b/110811730 is fixed.
                 mRoutePlayer.setMediaItem(mMediaItem);
                 mRoutePlayer.setCurrentPosition(localPlaybackPosition);
@@ -198,7 +198,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
     @Override
     public void initialize(
-            VideoView2 instance, Context context,
+            VideoView instance, Context context,
             @Nullable AttributeSet attrs, int defStyleAttr) {
         mInstance = instance;
 
@@ -243,22 +243,22 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 "http://schemas.android.com/apk/res-auto",
                 "enableControlView", true);
         if (enableControlView) {
-            mMediaControlView = new MediaControlView2(context);
+            mMediaControlView = new MediaControlView(context);
         }
 
         // Choose surface view by default
-        int viewType = (attrs == null) ? VideoView2.VIEW_TYPE_SURFACEVIEW
+        int viewType = (attrs == null) ? VideoView.VIEW_TYPE_SURFACEVIEW
                 : attrs.getAttributeIntValue(
                 "http://schemas.android.com/apk/res-auto",
-                "viewType", VideoView2.VIEW_TYPE_SURFACEVIEW);
-        if (viewType == VideoView2.VIEW_TYPE_SURFACEVIEW) {
+                "viewType", VideoView.VIEW_TYPE_SURFACEVIEW);
+        if (viewType == VideoView.VIEW_TYPE_SURFACEVIEW) {
             if (DEBUG) {
                 Log.d(TAG, "viewType attribute is surfaceView.");
             }
             mTextureView.setVisibility(View.GONE);
             mSurfaceView.setVisibility(View.VISIBLE);
             mCurrentView = mSurfaceView;
-        } else if (viewType == VideoView2.VIEW_TYPE_TEXTUREVIEW) {
+        } else if (viewType == VideoView.VIEW_TYPE_TEXTUREVIEW) {
             if (DEBUG) {
                 Log.d(TAG, "viewType attribute is textureView.");
             }
@@ -276,14 +276,14 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     /**
-     * Sets MediaControlView2 instance. It will replace the previously assigned MediaControlView2
+     * Sets MediaControlView instance. It will replace the previously assigned MediaControlView
      * instance if any.
      *
      * @param mediaControlView a media control view2 instance.
-     * @param intervalMs a time interval in milliseconds until VideoView2 hides MediaControlView2.
+     * @param intervalMs a time interval in milliseconds until VideoView hides MediaControlView.
      */
     @Override
-    public void setMediaControlView2(@NonNull MediaControlView2 mediaControlView, long intervalMs) {
+    public void setMediaControlView(@NonNull MediaControlView mediaControlView, long intervalMs) {
         mMediaControlView = mediaControlView;
         mMediaControlView.setShowControllerInterval(intervalMs);
 
@@ -293,18 +293,18 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     /**
-     * Returns MediaControlView2 instance which is currently attached to VideoView2 by default or by
-     * {@link #setMediaControlView2} method.
+     * Returns MediaControlView instance which is currently attached to VideoView by default or by
+     * {@link #setMediaControlView} method.
      */
     @Override
-    public MediaControlView2 getMediaControlView2() {
+    public MediaControlView getMediaControlView() {
         return mMediaControlView;
     }
 
     /**
      * Returns {@link SessionToken} so that developers create their own
      * {@link androidx.media2.MediaController} instance. This method should be called when
-     * VideoView2 is attached to window or after {@link #setMediaItem} is called.
+     * VideoView is attached to window or after {@link #setMediaItem} is called.
      *
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
@@ -331,7 +331,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
     }
 
     /**
-     * Sets {@link MediaItem} object to render using VideoView2.
+     * Sets {@link MediaItem} object to render using VideoView.
      * @param mediaItem the MediaItem to play
      */
     @Override
@@ -346,21 +346,21 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      *
      * @param viewType the view type to render video
      * <ul>
-     * <li>{@link VideoView2#VIEW_TYPE_SURFACEVIEW}
-     * <li>{@link VideoView2#VIEW_TYPE_TEXTUREVIEW}
+     * <li>{@link VideoView#VIEW_TYPE_SURFACEVIEW}
+     * <li>{@link VideoView#VIEW_TYPE_TEXTUREVIEW}
      * </ul>
      */
     @Override
-    public void setViewType(@VideoView2.ViewType int viewType) {
+    public void setViewType(@VideoView.ViewType int viewType) {
         if (viewType == mTargetView.getViewType()) {
             Log.d(TAG, "setViewType with the same type (" + viewType + ") is ignored.");
             return;
         }
         VideoViewInterface targetView;
-        if (viewType == VideoView2.VIEW_TYPE_TEXTUREVIEW) {
+        if (viewType == VideoView.VIEW_TYPE_TEXTUREVIEW) {
             Log.d(TAG, "switching to TextureView");
             targetView = mTextureView;
-        } else if (viewType == VideoView2.VIEW_TYPE_SURFACEVIEW) {
+        } else if (viewType == VideoView.VIEW_TYPE_SURFACEVIEW) {
             Log.d(TAG, "switching to SurfaceView");
             targetView = mSurfaceView;
         } else {
@@ -378,7 +378,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      *
      * @return view type. See {@see setViewType}.
      */
-    @VideoView2.ViewType
+    @VideoView.ViewType
     @Override
     public int getViewType() {
         return mCurrentView.getViewType();
@@ -390,7 +390,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
      * @param l The callback that will be run
      */
     @Override
-    public void setOnViewTypeChangedListener(VideoView2.OnViewTypeChangedListener l) {
+    public void setOnViewTypeChangedListener(VideoView.OnViewTypeChangedListener l) {
         mViewTypeChangedListener = l;
     }
 
@@ -399,7 +399,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         // Note: MediaPlayer2 and MediaSession instances are created in onAttachedToWindow()
         // and closed in onDetachedFromWindow().
         if (mMediaPlayer == null) {
-            mMediaPlayer = new VideoView2Player(mInstance.getContext());
+            mMediaPlayer = new VideoViewPlayer(mInstance.getContext());
 
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
@@ -574,7 +574,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         } else {
             final Context context = mInstance.getContext();
             mMediaSession = new MediaSession.Builder(context, player)
-                    .setId("VideoView2_" + mInstance.toString())
+                    .setId("VideoView_" + mInstance.toString())
                     .setSessionCallback(mCallbackExecutor, new MediaSessionCallback())
                     .build();
         }
@@ -610,7 +610,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
 
         try {
             if (mMediaPlayer == null) {
-                mMediaPlayer = new VideoView2Player(mInstance.getContext());
+                mMediaPlayer = new VideoViewPlayer(mInstance.getContext());
             }
             mSurfaceView.setMediaPlayer(mMediaPlayer);
             mTextureView.setMediaPlayer(mMediaPlayer);
@@ -674,10 +674,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             mSubtitleAnchorView.setVisibility(View.VISIBLE);
 
             Bundle data = new Bundle();
-            data.putInt(MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX,
+            data.putInt(MediaControlView.KEY_SELECTED_SUBTITLE_INDEX,
                     mSubtitleTracks.indexOfKey(trackIndex));
             mMediaSession.broadcastCustomCommand(
-                    new SessionCommand(MediaControlView2.EVENT_UPDATE_SUBTITLE_SELECTED, null),
+                    new SessionCommand(MediaControlView.EVENT_UPDATE_SUBTITLE_SELECTED, null),
                     data);
         }
     }
@@ -691,7 +691,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         mSubtitleAnchorView.setVisibility(View.GONE);
 
         mMediaSession.broadcastCustomCommand(
-                new SessionCommand(MediaControlView2.EVENT_UPDATE_SUBTITLE_DESELECTED, null),
+                new SessionCommand(MediaControlView.EVENT_UPDATE_SUBTITLE_DESELECTED, null),
                 null);
     }
 
@@ -729,10 +729,10 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
         }
 
         Bundle data = new Bundle();
-        data.putInt(MediaControlView2.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
-        data.putInt(MediaControlView2.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
-        data.putInt(MediaControlView2.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTracks.size());
-        data.putStringArrayList(MediaControlView2.KEY_SUBTITLE_TRACK_LANGUAGE_LIST,
+        data.putInt(MediaControlView.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
+        data.putInt(MediaControlView.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
+        data.putInt(MediaControlView.KEY_SUBTITLE_TRACK_COUNT, mSubtitleTracks.size());
+        data.putStringArrayList(MediaControlView.KEY_SUBTITLE_TRACK_LANGUAGE_LIST,
                 subtitleTracksLanguageList);
         return data;
     }
@@ -800,7 +800,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
             updateCurrentMusicView(mMusicEmbeddedView);
         }
 
-        // Set duration and title values as MediaMetadata for MediaControlView2
+        // Set duration and title values as MediaMetadata for MediaControlView
         MediaMetadata.Builder builder = new MediaMetadata.Builder();
 
         if (mIsMusicMediaType) {
@@ -937,7 +937,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         Bundle data = extractTrackInfoData();
                         if (data != null) {
                             mMediaSession.broadcastCustomCommand(
-                                    new SessionCommand(MediaControlView2.EVENT_UPDATE_TRACK_STATUS,
+                                    new SessionCommand(MediaControlView.EVENT_UPDATE_TRACK_STATUS,
                                             null), data);
                         }
                     }
@@ -1022,7 +1022,7 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         Bundle data = extractTrackInfoData();
                         if (data != null) {
                             mMediaSession.broadcastCustomCommand(
-                                    new SessionCommand(MediaControlView2.EVENT_UPDATE_TRACK_STATUS,
+                                    new SessionCommand(MediaControlView.EVENT_UPDATE_TRACK_STATUS,
                                             null), data);
                         }
 
@@ -1055,8 +1055,8 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         mMediaSession.getPlayer().seekTo(seekToPosition);
                     }
 
-                    if (player instanceof VideoView2Player) {
-                        VideoSize size = ((VideoView2Player) player).getVideoSize();
+                    if (player instanceof VideoViewPlayer) {
+                        VideoSize size = ((VideoViewPlayer) player).getVideoSize();
                         int videoWidth = size.getWidth();
                         int videoHeight = size.getHeight();
 
@@ -1104,11 +1104,11 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                     .addCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)
                     .addCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)
                     .addCommand(new SessionCommand(
-                            MediaControlView2.COMMAND_SELECT_AUDIO_TRACK, null))
+                            MediaControlView.COMMAND_SELECT_AUDIO_TRACK, null))
                     .addCommand(new SessionCommand(
-                            MediaControlView2.COMMAND_SHOW_SUBTITLE, null))
+                            MediaControlView.COMMAND_SHOW_SUBTITLE, null))
                     .addCommand(new SessionCommand(
-                            MediaControlView2.COMMAND_HIDE_SUBTITLE, null));
+                            MediaControlView.COMMAND_HIDE_SUBTITLE, null));
             return commandsBuilder.build();
         }
 
@@ -1126,9 +1126,9 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                 return new MediaSession.SessionResult(RESULT_CODE_SUCCESS, null);
             }
             switch (customCommand.getCustomCommand()) {
-                case MediaControlView2.COMMAND_SHOW_SUBTITLE:
+                case MediaControlView.COMMAND_SHOW_SUBTITLE:
                     int subtitleIndex = args != null ? args.getInt(
-                            MediaControlView2.KEY_SELECTED_SUBTITLE_INDEX,
+                            MediaControlView.KEY_SELECTED_SUBTITLE_INDEX,
                             INVALID_TRACK_INDEX) : INVALID_TRACK_INDEX;
                     if (subtitleIndex != INVALID_TRACK_INDEX) {
                         int subtitleTrackIndex = mSubtitleTracks.keyAt(subtitleIndex);
@@ -1137,12 +1137,12 @@ class VideoView2ImplBase implements VideoView2Impl, VideoViewInterface.SurfaceLi
                         }
                     }
                     break;
-                case MediaControlView2.COMMAND_HIDE_SUBTITLE:
+                case MediaControlView.COMMAND_HIDE_SUBTITLE:
                     deselectSubtitleTrack();
                     break;
-                case MediaControlView2.COMMAND_SELECT_AUDIO_TRACK:
+                case MediaControlView.COMMAND_SELECT_AUDIO_TRACK:
                     int audioIndex = (args != null)
-                            ? args.getInt(MediaControlView2.KEY_SELECTED_AUDIO_INDEX,
+                            ? args.getInt(MediaControlView.KEY_SELECTED_AUDIO_INDEX,
                             INVALID_TRACK_INDEX) : INVALID_TRACK_INDEX;
                     if (audioIndex != INVALID_TRACK_INDEX) {
                         int audioTrackIndex = mAudioTrackIndices.get(audioIndex);

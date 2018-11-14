@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import android.content.Context;
 
@@ -27,8 +27,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 
-class VideoView2Player extends MediaPlayer {
-    VideoView2Player(Context context) {
+class VideoViewPlayer extends MediaPlayer {
+    VideoViewPlayer(Context context) {
         super(context);
     }
 
@@ -47,7 +47,7 @@ class VideoView2Player extends MediaPlayer {
     public List<MediaItem> getPlaylist() {
         try {
             return super.getPlaylist();
-        } finally {
+        } catch (Exception e) {
             ArrayList<MediaItem> list = new ArrayList<>();
             list.add(getCurrentMediaItem());
             return list;
@@ -58,7 +58,7 @@ class VideoView2Player extends MediaPlayer {
     public MediaMetadata getPlaylistMetadata() {
         try {
             return super.getPlaylistMetadata();
-        } finally {
+        } catch (Exception e) {
             return null;
         }
     }
@@ -67,7 +67,7 @@ class VideoView2Player extends MediaPlayer {
     public int getRepeatMode() {
         try {
             return super.getRepeatMode();
-        } finally {
+        } catch (Exception e) {
             return REPEAT_MODE_NONE;
         }
     }
@@ -76,7 +76,7 @@ class VideoView2Player extends MediaPlayer {
     public int getShuffleMode() {
         try {
             return super.getShuffleMode();
-        } finally {
+        } catch (Exception e) {
             return SHUFFLE_MODE_NONE;
         }
     }
@@ -91,7 +91,7 @@ class VideoView2Player extends MediaPlayer {
     public MediaItem getCurrentMediaItem() {
         try {
             return super.getCurrentMediaItem();
-        } finally {
+        } catch (Exception e) {
             return mMediaItem;
         }
     }

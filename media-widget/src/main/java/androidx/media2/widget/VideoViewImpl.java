@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -29,30 +29,30 @@ import androidx.media2.SessionToken;
 /**
  * Interface for impl classes.
  */
-interface VideoView2Impl {
+interface VideoViewImpl {
     void initialize(
-            VideoView2 instance, Context context,
+            VideoView instance, Context context,
             @Nullable AttributeSet attrs, int defStyleAttr);
 
     /**
-     * Sets MediaControlView2 instance. It will replace the previously assigned MediaControlView2
+     * Sets MediaControlView instance. It will replace the previously assigned MediaControlView
      * instance if any.
      *
      * @param mediaControlView a media control view2 instance.
-     * @param intervalMs a time interval in milliseconds until VideoView2 hides MediaControlView2.
+     * @param intervalMs a time interval in milliseconds until VideoView hides MediaControlView.
      */
-    void setMediaControlView2(@NonNull MediaControlView2 mediaControlView, long intervalMs);
+    void setMediaControlView(@NonNull MediaControlView mediaControlView, long intervalMs);
 
     /**
-     * Returns MediaControlView2 instance which is currently attached to VideoView2 by default or by
-     * {@link #setMediaControlView2} method.
+     * Returns MediaControlView instance which is currently attached to VideoView by default or by
+     * {@link #setMediaControlView} method.
      */
-    MediaControlView2 getMediaControlView2();
+    MediaControlView getMediaControlView();
 
     /**
      * Returns {@link SessionToken} so that developers create their own
      * {@link androidx.media2.MediaController} instance. This method should be called when
-     * VideoView2 is attached to window, or it throws IllegalStateException.
+     * VideoView is attached to window, or it throws IllegalStateException.
      *
      * @throws IllegalStateException if internal MediaSession is not created yet.
      */
@@ -67,7 +67,7 @@ interface VideoView2Impl {
     void setAudioAttributes(@NonNull AudioAttributesCompat attributes);
 
     /**
-     * Sets {@link MediaItem} object to render using VideoView2.
+     * Sets {@link MediaItem} object to render using VideoView.
      *
      * @param mediaItem the MediaItem to play
      */
@@ -78,18 +78,18 @@ interface VideoView2Impl {
      *
      * @param viewType the view type to render video
      * <ul>
-     * <li>{@link VideoView2#VIEW_TYPE_SURFACEVIEW}
-     * <li>{@link VideoView2#VIEW_TYPE_TEXTUREVIEW}
+     * <li>{@link VideoView#VIEW_TYPE_SURFACEVIEW}
+     * <li>{@link VideoView#VIEW_TYPE_TEXTUREVIEW}
      * </ul>
      */
-    void setViewType(@VideoView2.ViewType int viewType);
+    void setViewType(@VideoView.ViewType int viewType);
 
     /**
      * Returns view type.
      *
      * @return view type. See {@see setViewType}.
      */
-    @VideoView2.ViewType
+    @VideoView.ViewType
     int getViewType();
 
     /**
@@ -97,7 +97,7 @@ interface VideoView2Impl {
      * {@see #setViewType(int)}
      * @param l The callback that will be run
      */
-    void setOnViewTypeChangedListener(VideoView2.OnViewTypeChangedListener l);
+    void setOnViewTypeChangedListener(VideoView.OnViewTypeChangedListener l);
 
     void onAttachedToWindowImpl();
 
