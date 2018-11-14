@@ -25,6 +25,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.os.LocaleList;
 import android.text.SpannableString;
 
@@ -54,6 +55,12 @@ public final class TextClassificationTest {
     private static final LocaleListCompat LOCALE_LIST =
             LocaleListCompat.forLanguageTags("en-US,de-DE");
 
+    private static final String BUNDLE_KEY = "key";
+    private static final String BUNDLE_VALUE = "value";
+    private static final Bundle BUNDLE = new Bundle();
+    static {
+        BUNDLE.putString(BUNDLE_KEY, BUNDLE_VALUE);
+    }
 
     private static final String PRIMARY_LABEL = "primaryLabel";
     private static final String PRIMARY_DESCRIPTION = "primaryDescription";
@@ -84,15 +91,18 @@ public final class TextClassificationTest {
 
     @Test
     public void testBundle() {
-        final TextClassification reference = createExpectedBuilderWithRemoteActions().build();
+        final TextClassification reference = createExpectedBuilderWithRemoteActions()
+                .setExtras(BUNDLE).build();
         // Serialize/deserialize.
         final TextClassification result = TextClassification.createFromBundle(reference.toBundle());
         assertTextClassificationEquals(result, reference);
+        assertEquals(BUNDLE_VALUE, result.getExtras().getString(BUNDLE_KEY));
     }
 
     @Test
     public void testBundleRequest() {
-        TextClassification.Request reference = createTextClassificationRequest();
+        TextClassification.Request reference = createTextClassificationRequestBuilder()
+                .setExtras(BUNDLE).build();
 
         // Serialize/deserialize.
         TextClassification.Request result = TextClassification.Request.createFromBundle(
@@ -103,6 +113,7 @@ public final class TextClassificationTest {
         assertEquals(END_INDEX, result.getEndIndex());
         assertEquals(LOCALE_LIST.toLanguageTags(), result.getDefaultLocales().toLanguageTags());
         assertEquals(REFERENCE_TIME_IN_MS, result.getReferenceTime());
+        assertEquals(BUNDLE_VALUE, result.getExtras().getString(BUNDLE_KEY));
     }
 
     @Test
@@ -122,7 +133,7 @@ public final class TextClassificationTest {
     @Test
     @SdkSuppress(minSdkVersion = 28)
     public void testToPlatformRequest() {
-        TextClassification.Request request = createTextClassificationRequest();
+        TextClassification.Request request = createTextClassificationRequestBuilder().build();
         android.view.textclassifier.TextClassification.Request platformRequest =
                 (android.view.textclassifier.TextClassification.Request) request.toPlatform();
 
@@ -241,11 +252,10 @@ public final class TextClassificationTest {
         assertThat(platformTextClassification.getIntent()).isNull();
     }
 
-    private static TextClassification.Request createTextClassificationRequest() {
+    private static TextClassification.Request.Builder createTextClassificationRequestBuilder() {
         return new TextClassification.Request.Builder(TEXT, START_INDEX, END_INDEX)
                 .setDefaultLocales(LOCALE_LIST)
-                .setReferenceTime(REFERENCE_TIME_IN_MS)
-                .build();
+                .setReferenceTime(REFERENCE_TIME_IN_MS);
     }
 
     private TextClassification.Builder createExpectedBuilder() {

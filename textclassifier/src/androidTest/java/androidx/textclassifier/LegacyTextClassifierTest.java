@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 
 import android.app.PendingIntent;
 import android.content.Intent;
-import android.text.style.URLSpan;
 
 import androidx.collection.ArraySet;
 import androidx.core.app.RemoteActionCompat;
@@ -165,8 +164,6 @@ public final class LegacyTextClassifierTest {
         assertThat(textLink.getStart()).isEqualTo(START);
         assertThat(textLink.getEnd()).isEqualTo(text.length());
         assertThat(textLink.getConfidenceScore(TextClassifier.TYPE_URL)).isEqualTo(1.0f);
-        URLSpan urlSpan = textLink.getUrlSpan();
-        assertThat(urlSpan.getURL()).contains(URL);
     }
 
     @Test
@@ -183,8 +180,6 @@ public final class LegacyTextClassifierTest {
         assertThat(textLink.getStart()).isEqualTo(START);
         assertThat(textLink.getEnd()).isEqualTo(text.length());
         assertThat(textLink.getConfidenceScore(TextClassifier.TYPE_EMAIL)).isEqualTo(1.0f);
-        URLSpan urlSpan = textLink.getUrlSpan();
-        assertThat(urlSpan.getURL()).contains(EMAIL);
     }
 
     @Test
@@ -201,8 +196,6 @@ public final class LegacyTextClassifierTest {
         assertThat(textLink.getStart()).isEqualTo(START);
         assertThat(textLink.getEnd()).isEqualTo(text.length());
         assertThat(textLink.getConfidenceScore(TextClassifier.TYPE_PHONE)).isEqualTo(1.0f);
-        URLSpan urlSpan = textLink.getUrlSpan();
-        assertThat(urlSpan.getURL()).contains(PHONE_NUMBER);
     }
 
     @Test
@@ -258,7 +251,6 @@ public final class LegacyTextClassifierTest {
             String entityType = textLink.getEntity(0);
             assertThat(expectedEntities).contains(entityType);
             assertThat(textLink.getConfidenceScore(entityType)).isEqualTo(1.0f);
-            assertThat(textLink.getUrlSpan().getURL()).contains(entityToSpanText(entityType));
             expectedEntities.remove(entityType);
         }
     }
