@@ -16,6 +16,8 @@
 
 package androidx.work;
 
+import static androidx.work.NetworkType.NOT_REQUIRED;
+
 import android.arch.persistence.room.ColumnInfo;
 import android.net.Uri;
 import android.os.Build;
@@ -31,9 +33,10 @@ public final class Constraints {
 
     public static final Constraints NONE = new Constraints.Builder().build();
 
-    // TODO(sumir): Need to make this @NonNull, but that requires a db migration.
+    // NOTE: this is effectively a @NonNull, but changing the annotation would result in a really
+    // annoying database migration that we can deal with later.
     @ColumnInfo(name = "required_network_type")
-    private NetworkType mRequiredNetworkType;
+    private NetworkType mRequiredNetworkType = NOT_REQUIRED;
 
     @ColumnInfo(name = "requires_charging")
     private boolean mRequiresCharging;
@@ -47,8 +50,10 @@ public final class Constraints {
     @ColumnInfo(name = "requires_storage_not_low")
     private boolean mRequiresStorageNotLow;
 
+    // NOTE: this is effectively a @NonNull, but changing the annotation would result in a really
+    // annoying database migration that we can deal with later.
     @ColumnInfo(name = "content_uri_triggers")
-    private @Nullable ContentUriTriggers mContentUriTriggers;
+    private ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
 
     /**
      * @hide
@@ -63,9 +68,9 @@ public final class Constraints {
         mRequiredNetworkType = builder.mRequiredNetworkType;
         mRequiresBatteryNotLow = builder.mRequiresBatteryNotLow;
         mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
-        mContentUriTriggers = (Build.VERSION.SDK_INT >= 24)
-                ? builder.mContentUriTriggers
-                : new ContentUriTriggers();
+        if (Build.VERSION.SDK_INT >= 24) {
+            mContentUriTriggers = builder.mContentUriTriggers;
+        }
     }
 
     public Constraints(@NonNull Constraints other) {
@@ -167,7 +172,7 @@ public final class Constraints {
     }
 
     @RequiresApi(24)
-    public @Nullable ContentUriTriggers getContentUriTriggers() {
+    public @NonNull ContentUriTriggers getContentUriTriggers() {
         return mContentUriTriggers;
     }
 
@@ -176,7 +181,7 @@ public final class Constraints {
      */
     @RequiresApi(24)
     public boolean hasContentUriTriggers() {
-        return mContentUriTriggers != null && mContentUriTriggers.size() > 0;
+        return mContentUriTriggers.size() > 0;
     }
 
     @Override
@@ -193,8 +198,7 @@ public final class Constraints {
                 && mRequiresDeviceIdle == other.mRequiresDeviceIdle
                 && mRequiresBatteryNotLow == other.mRequiresBatteryNotLow
                 && mRequiresStorageNotLow == other.mRequiresStorageNotLow
-                && (mContentUriTriggers != null ? mContentUriTriggers.equals(
-                        other.mContentUriTriggers) : other.mContentUriTriggers == null);
+                && mContentUriTriggers.equals(other.mContentUriTriggers);
     }
 
     @Override
@@ -204,7 +208,7 @@ public final class Constraints {
         result = 31 * result + (mRequiresDeviceIdle ? 1 : 0);
         result = 31 * result + (mRequiresBatteryNotLow ? 1 : 0);
         result = 31 * result + (mRequiresStorageNotLow ? 1 : 0);
-        result = 31 * result + (mContentUriTriggers != null ? mContentUriTriggers.hashCode() : 0);
+        result = 31 * result + mContentUriTriggers.hashCode();
         return result;
     }
 
@@ -214,7 +218,7 @@ public final class Constraints {
     public static final class Builder {
         boolean mRequiresCharging = false;
         boolean mRequiresDeviceIdle = false;
-        NetworkType mRequiredNetworkType = NetworkType.NOT_REQUIRED;
+        NetworkType mRequiredNetworkType = NOT_REQUIRED;
         boolean mRequiresBatteryNotLow = false;
         boolean mRequiresStorageNotLow = false;
         ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
@@ -293,7 +297,9 @@ public final class Constraints {
          * @return The current {@link Builder}
          */
         @RequiresApi(24)
-        public @NonNull Builder addContentUriTrigger(Uri uri, boolean triggerForDescendants) {
+        public @NonNull Builder addContentUriTrigger(
+                @NonNull Uri uri,
+                boolean triggerForDescendants) {
             mContentUriTriggers.add(uri, triggerForDescendants);
             return this;
         }

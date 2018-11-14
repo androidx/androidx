@@ -141,7 +141,7 @@ public abstract class ListenableWorker {
      * @see Constraints.Builder#addContentUriTrigger(android.net.Uri, boolean)
      */
     @RequiresApi(24)
-    public final @Nullable List<Uri> getTriggeredContentUris() {
+    public final @NonNull List<Uri> getTriggeredContentUris() {
         return mWorkerParams.getTriggeredContentUris();
     }
 
@@ -151,7 +151,7 @@ public abstract class ListenableWorker {
      * @return The list of content authorities that caused this Worker to execute
      */
     @RequiresApi(24)
-    public final @Nullable List<String> getTriggeredContentAuthorities() {
+    public final @NonNull List<String> getTriggeredContentAuthorities() {
         return mWorkerParams.getTriggeredContentAuthorities();
     }
 
@@ -262,8 +262,6 @@ public abstract class ListenableWorker {
     public @NonNull WorkerFactory getWorkerFactory() {
         return mWorkerParams.getWorkerFactory();
     }
-
-
 
     /**
      * The payload of an {@link #startWork()} computation that contains both the result and the
