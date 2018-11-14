@@ -684,4 +684,27 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         // Should not crash.
         controller.close();
     }
+
+    @Test
+    public void testControllerCallback_onCustomCommand_bySetCaptioningEnabled() throws Exception {
+        prepareLooper();
+        final String sessionCommandOnCaptioningEnabledChanged =
+                "android.media.session.command.ON_CAPTIONING_ENALBED_CHANGED";
+        final String argumentCaptioningEnabled = "androidx.media2.argument.CAPTIONING_ENABLED";
+
+        final CountDownLatch latch = new CountDownLatch(1);
+        final ControllerCallback callback = new ControllerCallback() {
+            @Override
+            public ControllerResult onCustomCommand(MediaController controller,
+                    SessionCommand command, Bundle args) {
+                assertEquals(sessionCommandOnCaptioningEnabledChanged, command.getCustomCommand());
+                assertEquals(true, args.getBoolean(argumentCaptioningEnabled, false));
+                latch.countDown();
+                return new ControllerResult(ControllerResult.RESULT_CODE_SUCCESS, null);
+            }
+        };
+        mController = createController(mSession.getSessionToken(), true, callback);
+        mSession.setCaptioningEnabled(true);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
 }
