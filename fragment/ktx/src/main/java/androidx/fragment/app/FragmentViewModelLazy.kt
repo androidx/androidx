@@ -24,8 +24,8 @@ import androidx.lifecycle.ViewModelProvider.Factory
 import kotlin.reflect.KClass
 
 /**
- * Returns a property delegate to access Activity's [ViewModel], if [factory] is specified
- * it will be used to create [ViewModel] first time.
+ * Returns a property delegate to access Activity's [ViewModel], if [factoryProducer] is specified
+ * then [ViewModelProvider.Factory] returned by it will be used to create [ViewModel] first time.
  *
  * ```
  * class MyFragment : Fragment() {
@@ -37,17 +37,18 @@ import kotlin.reflect.KClass
  * [Fragment.onAttach()], and access prior to that will result in IllegalArgumentException.
  */
 @MainThread
-inline fun <reified VM : ViewModel> Fragment.viewModels(factory: Factory? = null): Lazy<VM> =
-    FragmentViewModelLazy(this, VM::class, factory)
+inline fun <reified VM : ViewModel> Fragment.viewModels(
+    noinline factoryProducer: (() -> Factory)? = null
+): Lazy<VM> = FragmentViewModelLazy(this, VM::class, factoryProducer)
 
 /**
  * An implementation of [Lazy] used by [Fragment.viewModels] tied to the given [fragment],
- * [viewModelClass], [factory]
+ * [viewModelClass], [factoryProducer]
  */
 class FragmentViewModelLazy<VM : ViewModel>(
     private val fragment: Fragment,
     private val viewModelClass: KClass<VM>,
-    private val factory: Factory?
+    private val factoryProducer: (() -> Factory)?
 ) : Lazy<VM> {
     private var cached: VM? = null
 
@@ -58,7 +59,8 @@ class FragmentViewModelLazy<VM : ViewModel>(
                 val application = fragment.activity?.application
                         ?: throw IllegalArgumentException("ViewModel can be accessed " +
                                 "only when Fragment is attached")
-                val resolvedFactory = factory ?: AndroidViewModelFactory.getInstance(application)
+                val resolvedFactory = factoryProducer?.invoke()
+                    ?: AndroidViewModelFactory.getInstance(application)
                 viewModel = ViewModelProvider(fragment, resolvedFactory).get(viewModelClass.java)
                 cached = viewModel
             }
