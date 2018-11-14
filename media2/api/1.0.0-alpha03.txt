@@ -362,8 +362,7 @@ package androidx.media2 {
     method public int getShuffleMode();
     method public androidx.media2.MediaTimestamp? getTimestamp();
     method public java.util.List<androidx.media2.MediaPlayer.TrackInfo> getTrackInfo();
-    method public int getVideoHeight();
-    method public int getVideoWidth();
+    method public androidx.media2.VideoSize getVideoSize();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> pause();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> play();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionPlayer.PlayerResult> prepare();
@@ -414,7 +413,7 @@ package androidx.media2 {
     method public void onMediaTimeDiscontinuity(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.MediaTimestamp);
     method public void onSubtitleData(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.SubtitleData);
     method public void onTimedMetaDataAvailable(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.TimedMetaData);
-    method public void onVideoSizeChanged(androidx.media2.MediaPlayer, androidx.media2.MediaItem, int, int);
+    method public void onVideoSizeChanged(androidx.media2.MediaPlayer, androidx.media2.MediaItem, androidx.media2.VideoSize);
   }
 
   public static final class MediaPlayer.TrackInfo {
@@ -765,6 +764,11 @@ package androidx.media2 {
     method public androidx.media2.UriMediaItem.Builder! setEndPosition(long);
     method public androidx.media2.UriMediaItem.Builder! setMetadata(androidx.media2.MediaMetadata!);
     method public androidx.media2.UriMediaItem.Builder! setStartPosition(long);
+  }
+
+  public final class VideoSize {
+    method public int getHeight();
+    method public int getWidth();
   }
 
 }
