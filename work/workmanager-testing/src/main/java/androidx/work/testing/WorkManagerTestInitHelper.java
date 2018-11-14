@@ -57,9 +57,9 @@ public final class WorkManagerTestInitHelper {
 
         final TestScheduler scheduler = new TestScheduler();
         WorkManagerImpl workManager = new TestWorkManagerImpl(context, configuration) {
-            @NonNull
+
             @Override
-            public List<Scheduler> getSchedulers() {
+            public @NonNull List<Scheduler> createSchedulers(Context context) {
                 return Collections.singletonList((Scheduler) scheduler);
             }
 
