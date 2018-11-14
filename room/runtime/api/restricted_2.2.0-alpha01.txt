@@ -153,9 +153,11 @@ package androidx.room.util {
   }
 
   public static class TableInfo.Column {
-    ctor public TableInfo.Column(String!, String!, boolean, int);
+    ctor @Deprecated public TableInfo.Column(String!, String!, boolean, int);
+    ctor public TableInfo.Column(String!, String!, boolean, int, String!);
     method public boolean isPrimaryKey();
     field public final int affinity;
+    field public final String! defaultValue;
     field public final String! name;
     field public final boolean notNull;
     field public final int primaryKeyPosition;

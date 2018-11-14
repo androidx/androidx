@@ -1,3 +1,5 @@
 // Baseline format: 1.0
 AddedAbstractMethod: androidx.room.Relation#associateBy():
     Added method androidx.room.Relation.associateBy()
+AddedAbstractMethod: androidx.room.ColumnInfo#defaultValue():
+    Added method androidx.room.ColumnInfo#defaultValue()
