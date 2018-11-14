@@ -85,7 +85,7 @@ public class FirebaseDelayedJobAlarmReceiver extends BroadcastReceiver {
             @NonNull WorkManagerImpl workManager) {
 
         List<Scheduler> schedulers = workManager.getSchedulers();
-        if (schedulers == null || schedulers.isEmpty()) {
+        if (schedulers.isEmpty()) {
             return null;
         }
         for (int i = 0; i < schedulers.size(); i++) {

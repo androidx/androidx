@@ -192,7 +192,7 @@ public class WorkManagerImpl extends WorkManager {
 
         Context applicationContext = context.getApplicationContext();
         WorkDatabase database = WorkDatabase.create(applicationContext, useTestDatabase);
-        List<Scheduler> schedulers = createSchedulers(applicationContext, this);
+        List<Scheduler> schedulers = createSchedulers(applicationContext);
         Processor processor = new Processor(
                 context,
                 configuration,
@@ -618,9 +618,13 @@ public class WorkManagerImpl extends WorkManager {
         mWorkTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
     }
 
-    private static List<Scheduler> createSchedulers(Context context, WorkManagerImpl workManager) {
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public @NonNull List<Scheduler> createSchedulers(Context context) {
         return Arrays.asList(
-                Schedulers.createBestAvailableBackgroundScheduler(context, workManager),
-                new GreedyScheduler(context, workManager));
+                Schedulers.createBestAvailableBackgroundScheduler(context, this),
+                new GreedyScheduler(context, this));
     }
 }
