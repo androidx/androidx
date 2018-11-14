@@ -20,7 +20,6 @@ package androidx.room.log
 
 import androidx.room.vo.Warning
 import java.io.StringWriter
-import java.util.UnknownFormatConversionException
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Element
 import javax.lang.model.element.ElementKind
@@ -38,7 +37,7 @@ class RLog(
     private fun String.safeFormat(vararg args: Any): String {
         try {
             return format(args)
-        } catch (ex: UnknownFormatConversionException) {
+        } catch (ex: Throwable) {
             // the input string might be from random source in which case we rather print the
             // msg as is instead of crashing while reporting an error.
             return this
