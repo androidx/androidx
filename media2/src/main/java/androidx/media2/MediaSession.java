@@ -858,7 +858,7 @@ public class MediaSession implements AutoCloseable {
 
         @Override
         public int hashCode() {
-            return mControllerCb != null ? mControllerCb.hashCode() : 0;
+            return ObjectsCompat.hash(mControllerCb, mRemoteUserInfo);
         }
 
         @Override
