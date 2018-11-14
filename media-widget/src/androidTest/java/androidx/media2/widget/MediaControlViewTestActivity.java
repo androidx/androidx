@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import android.os.Bundle;
 
 import androidx.fragment.app.FragmentActivity;
-import androidx.media.widget.test.R;
+import androidx.media2.widget.test.R;
 
 /**
- * A minimal application for {@link MediaControlView2Test}.
+ * A minimal application for {@link MediaControlViewTest}.
  */
-public class MediaControlView2TestActivity extends FragmentActivity {
+public class MediaControlViewTestActivity extends FragmentActivity {
     /**
      * Called with the activity is first created.
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.mediacontrolview2test_layout);
+        setContentView(R.layout.mediacontrolviewtest_layout);
     }
 }

@@ -15,12 +15,12 @@
   ~ limitations under the License.
   -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
 
-    <androidx.media.widget.VideoView2
-        android:id="@+id/videoview"
-        android:layout_width="160dp"
-        android:layout_height="120dp"/>
+    <androidx.media2.widget.VideoView
+            android:id="@+id/videoview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 </LinearLayout>

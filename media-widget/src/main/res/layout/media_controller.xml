@@ -75,7 +75,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:paddingEnd="5dip"
-                    android:text="@string/MediaControlView2_ad_text"
+                    android:text="@string/MediaControlView_ad_text"
                     android:textSize="10sp"
                     android:textColor="#FFFFFFFF" />
 

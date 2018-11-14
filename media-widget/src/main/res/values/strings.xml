@@ -18,22 +18,22 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Text for displaying ad skip wait time. -->
-    <string name="MediaControlView2_ad_skip_wait_time">
+    <string name="MediaControlView_ad_skip_wait_time">
         You can skip Ad in <xliff:g id="wait_time" example="5">%1$d</xliff:g>s
     </string>
     <!-- Text for displaying ad total remaining time. -->
-    <string name="MediaControlView2_ad_remaining_time">
+    <string name="MediaControlView_ad_remaining_time">
         Ad · <xliff:g id="remaining_time" example="1:15">%1$s</xliff:g> remaining
     </string>
     <!-- Placeholder text indicating that the user can press the button to go to an external website. -->
-    <string name="MediaControlView2_ad_text">Visit Advertiser</string>
-    <string name="MediaControlView2_subtitle_off_text">Off</string>
-    <string name="MediaControlView2_audio_track_text">Audio track</string>
-    <string name="MediaControlView2_audio_track_none_text">None</string>
-    <string name="MediaControlView2_video_quality_auto_text">Auto</string>
-    <string name="MediaControlView2_playback_speed_text">Playback speed</string>
-    <string name="MediaControlView2_playback_speed_normal">Normal</string>
-    <string-array translatable="false" name="MediaControlView2_playback_speeds">
+    <string name="MediaControlView_ad_text">Visit Advertiser</string>
+    <string name="MediaControlView_subtitle_off_text">Off</string>
+    <string name="MediaControlView_audio_track_text">Audio track</string>
+    <string name="MediaControlView_audio_track_none_text">None</string>
+    <string name="MediaControlView_video_quality_auto_text">Auto</string>
+    <string name="MediaControlView_playback_speed_text">Playback speed</string>
+    <string name="MediaControlView_playback_speed_normal">Normal</string>
+    <string-array translatable="false" name="MediaControlView_playback_speeds">
         <item>0.25x</item>
         <item>0.5x</item>
         <item>0.75x</item>
@@ -42,22 +42,22 @@
         <item>2x</item>
     </string-array>
     <!-- Text for displaying custom playback speed. -->
-    <string translatable="false" name="MediaControlView2_custom_playback_speed_text">
+    <string translatable="false" name="MediaControlView_custom_playback_speed_text">
         <xliff:g id="playback_speed" example="1.05">%1$.2f</xliff:g>x
     </string>
     <!-- Placeholder text for displaying time. Used to calculate which size layout to use. -->
-    <string name="MediaControlView2_time_placeholder">00:00:00</string>
+    <string name="MediaControlView_time_placeholder">00:00:00</string>
 
     <!-- Text for displaying subtitle track number without language info. -->
-    <string name="MediaControlView2_subtitle_track_number_text">
+    <string name="MediaControlView_subtitle_track_number_text">
         Track <xliff:g id="track_number" example="1">%1$d</xliff:g>
     </string>
     <!-- Text for displaying subtitle track number with language info. -->
-    <string name="MediaControlView2_subtitle_track_number_and_lang_text">
+    <string name="MediaControlView_subtitle_track_number_and_lang_text">
         Track <xliff:g id="track_number" example="1">%1$d</xliff:g> - <xliff:g id="lang" example="eng">%2$s</xliff:g>
     </string>
     <!-- Text for displaying audio track number. -->
-    <string name="MediaControlView2_audio_track_number_text">
+    <string name="MediaControlView_audio_track_number_text">
         Track <xliff:g id="audio_number" example="1">%1$d</xliff:g>
     </string>
     <!-- Text for displaying unknown song title. -->

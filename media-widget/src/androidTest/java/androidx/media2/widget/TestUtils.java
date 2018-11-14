@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.media.widget;
+package androidx.media2.widget;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
