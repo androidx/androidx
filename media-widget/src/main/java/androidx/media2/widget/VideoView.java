@@ -59,19 +59,18 @@ import java.lang.annotation.RetentionPolicy;
  * translucency.
  *
  * <p>
- * <em> Differences between {@link VideoView} class : </em>
- * VideoView covers and inherits the most of
- * VideoView's functionality. The main differences are
+ * <em> Differences between {@link android.widget.VideoView} class : </em>
+ * {@link VideoView} covers and inherits the most of
+ * {@link android.widget.VideoView}'s functionality. The main differences are
  * <ul>
- * <li> VideoView inherits ViewGroup and renders videos using SurfaceView and TextureView
- * selectively while VideoView inherits SurfaceView class.
- * <li> VideoView is integrated with MediaControlView and a default MediaControlView instance is
- * attached to VideoView by default.
+ * <li> {@link VideoView} inherits ViewGroup and renders videos using SurfaceView and TextureView
+ * selectively while {@link android.widget.VideoView} inherits SurfaceView class.
+ * <li> {@link VideoView} is integrated with {@link MediaControlView} and
+ * a default MediaControlView instance is attached to this VideoView by default.
  * <li> If a developer wants to attach a custom MediaControlView,
  * assign the custom media control widget using {@link #setMediaControlView}.
- * <li> VideoView is integrated with MediaSession and so it responses with media key events.
- * A VideoView keeps a MediaSession instance internally and connects it to a corresponding
- * MediaControlView instance.
+ * <li> {@link VideoView} is integrated with {@link androidx.media2.MediaSession} and so
+ * it responses with media key events.
  * </p>
  * </ul>
  *
