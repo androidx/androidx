@@ -1,0 +1,22 @@
+// Signature format: 2.0
+package androidx.work.testing {
+
+  public class SynchronousExecutor implements java.util.concurrent.Executor {
+    ctor public SynchronousExecutor();
+    method public void execute(Runnable);
+  }
+
+  public interface TestDriver {
+    method public void setAllConstraintsMet(java.util.UUID);
+    method public void setInitialDelayMet(java.util.UUID);
+    method public void setPeriodDelayMet(java.util.UUID);
+  }
+
+  public final class WorkManagerTestInitHelper {
+    method public static androidx.work.testing.TestDriver! getTestDriver();
+    method public static void initializeTestWorkManager(android.content.Context);
+    method public static void initializeTestWorkManager(android.content.Context, androidx.work.Configuration);
+  }
+
+}
+

@@ -1,0 +1,28 @@
+// Signature format: 2.0
+package androidx.work {
+
+  public abstract class CoroutineWorker extends androidx.work.ListenableWorker {
+    ctor public CoroutineWorker(android.content.Context appContext, androidx.work.WorkerParameters params);
+    method public abstract Object? doWork(kotlin.coroutines.experimental.Continuation<? super androidx.work.ListenableWorker.Payload> p);
+    method public kotlinx.coroutines.CoroutineDispatcher getCoroutineContext();
+    method public final void onStopped();
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> startWork();
+    property public kotlinx.coroutines.CoroutineDispatcher coroutineContext;
+  }
+
+  public final class DataKt {
+    ctor public DataKt();
+    method public static androidx.work.Data workDataOf(kotlin.Pair<java.lang.String,?>... pairs);
+  }
+
+  public final class OneTimeWorkRequestKt {
+    ctor public OneTimeWorkRequestKt();
+    method public static androidx.work.OneTimeWorkRequest.Builder setInputMerger(androidx.work.OneTimeWorkRequest.Builder, kotlin.reflect.KClass<? extends androidx.work.InputMerger> inputMerger);
+  }
+
+  public final class PeriodicWorkRequestKt {
+    ctor public PeriodicWorkRequestKt();
+  }
+
+}
+
