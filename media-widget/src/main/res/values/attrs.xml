@@ -16,8 +16,8 @@
   -->
 
 <resources>
-    <!-- Attributes that are read when parsing a <VideoView2> tag. -->
-    <declare-styleable name="VideoView2">
+    <!-- Attributes that are read when parsing a <VideoView> tag. -->
+    <declare-styleable name="VideoView">
         <!-- Default : true -->
         <attr name="enableControlView" format="boolean" />
         <!-- To choose underlying view type to render a video. Default : surfaceView -->

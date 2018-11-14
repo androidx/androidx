@@ -38,16 +38,16 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.media.widget.MediaControlView2;
-import androidx.media.widget.VideoView2;
 import androidx.media2.MediaController;
 import androidx.media2.SessionToken;
 import androidx.media2.UriMediaItem;
+import androidx.media2.widget.MediaControlView;
+import androidx.media2.widget.VideoView;
 
 import java.util.concurrent.Executor;
 
 /**
- * Test application for VideoView2/MediaControlView2
+ * Test application for VideoView/MediaControlView
  */
 @SuppressLint("NewApi")
 public class VideoViewTest extends FragmentActivity {
@@ -62,7 +62,7 @@ public class VideoViewTest extends FragmentActivity {
     private MyVideoView mVideoView = null;
     private float mSpeed = 1.0f;
 
-    private MediaControlView2 mMediaControlView = null;
+    private MediaControlView mMediaControlView = null;
     private MediaController mMediaController = null;
 
     private boolean mUseTextureView = false;
@@ -89,13 +89,13 @@ public class VideoViewTest extends FragmentActivity {
         } else {
             mUseTextureView = intent.getBooleanExtra(USE_TEXTURE_VIEW_EXTRA_NAME, false);
             if (mUseTextureView) {
-                mVideoView.setViewType(VideoView2.VIEW_TYPE_TEXTUREVIEW);
+                mVideoView.setViewType(VideoView.VIEW_TYPE_TEXTUREVIEW);
             }
             UriMediaItem mediaItem = new UriMediaItem.Builder(this, videoUri).build();
             mVideoView.setMediaItem(mediaItem);
 
-            mMediaControlView = new MediaControlView2(this);
-            mVideoView.setMediaControlView2(mMediaControlView, 2000);
+            mMediaControlView = new MediaControlView(this);
+            mVideoView.setMediaControlView(mMediaControlView, 2000);
             mMediaControlView.setOnFullScreenListener(new FullScreenListener());
             SessionToken token = mVideoView.getSessionToken();
 
@@ -160,7 +160,7 @@ public class VideoViewTest extends FragmentActivity {
     }
 
     private class FullScreenListener
-            implements MediaControlView2.OnFullScreenListener {
+            implements MediaControlView.OnFullScreenListener {
         @Override
         public void onFullScreen(View view, boolean fullScreen) {
             // TODO: Remove bottom controls after adding back button functionality.
@@ -201,7 +201,7 @@ public class VideoViewTest extends FragmentActivity {
      *
      * @author johngro@google.com (John Grossman)
      */
-    public static class MyVideoView extends VideoView2 {
+    public static class MyVideoView extends VideoView {
         private float mDX;
         private float mDY;
         private Activity mActivity;
@@ -254,25 +254,25 @@ public class VideoViewTest extends FragmentActivity {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (mVideoView.getViewType() == VideoView2.VIEW_TYPE_SURFACEVIEW) {
-            mVideoView.setViewType(VideoView2.VIEW_TYPE_TEXTUREVIEW);
+        if (mVideoView.getViewType() == VideoView.VIEW_TYPE_SURFACEVIEW) {
+            mVideoView.setViewType(VideoView.VIEW_TYPE_TEXTUREVIEW);
             Toast.makeText(this, "switch to TextureView", Toast.LENGTH_SHORT).show();
             setTitle(getViewTypeString(mVideoView));
-        } else if (mVideoView.getViewType() == VideoView2.VIEW_TYPE_TEXTUREVIEW) {
-            mVideoView.setViewType(VideoView2.VIEW_TYPE_SURFACEVIEW);
+        } else if (mVideoView.getViewType() == VideoView.VIEW_TYPE_TEXTUREVIEW) {
+            mVideoView.setViewType(VideoView.VIEW_TYPE_SURFACEVIEW);
             Toast.makeText(this, "switch to SurfaceView", Toast.LENGTH_SHORT).show();
             setTitle(getViewTypeString(mVideoView));
         }
     }
 
-    private String getViewTypeString(VideoView2 videoView) {
+    private String getViewTypeString(VideoView videoView) {
         if (videoView == null) {
             return "Unknown";
         }
         int type = videoView.getViewType();
-        if (type == VideoView2.VIEW_TYPE_SURFACEVIEW) {
+        if (type == VideoView.VIEW_TYPE_SURFACEVIEW) {
             return "SurfaceView";
-        } else if (type == VideoView2.VIEW_TYPE_TEXTUREVIEW) {
+        } else if (type == VideoView.VIEW_TYPE_TEXTUREVIEW) {
             return "TextureView";
         }
         return "Unknown";
