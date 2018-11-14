@@ -51,6 +51,7 @@ import java.util.logging.Logger;
  * @author Sven Mawson
  * @author Luke Sandberg
  */
+// TODO(b/119308748): Implement InternalFutureFailureAccess
 @SuppressWarnings("ShortCircuitBoolean") // we use non-short circuiting comparisons intentionally
 public abstract class AbstractResolvableFuture<V> implements ListenableFuture<V> {
 
