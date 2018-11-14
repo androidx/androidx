@@ -19,7 +19,7 @@
     public <init>();
 }
 
--keepclassmember class androidx.recyclerview.widget.RecyclerView {
+-keepclassmembers class androidx.recyclerview.widget.RecyclerView {
     public void suppressLayout(boolean);
     public boolean isLayoutSuppressed();
 }
