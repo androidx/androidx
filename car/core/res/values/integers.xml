@@ -37,9 +37,9 @@ limitations under the License.
     <!-- Slide Down Menu -->
     <integer name="car_slide_down_menu_column_number">4</integer>
 
-    <!-- The length limit of text in a borderless button. String longer than this limit should be
-         truncated. -->
-    <integer name="car_borderless_button_text_length_limit">20</integer>
+    <!-- The length limit of text in a borderless button, expressed in ems. String longer than this
+         limit should be truncated. -->
+    <integer name="car_button_max_ems">9</integer>
 
     <!-- Alpha Jump Overlay -->
     <!-- The number of columns of buttons to display in the alpha jump overview. -->
