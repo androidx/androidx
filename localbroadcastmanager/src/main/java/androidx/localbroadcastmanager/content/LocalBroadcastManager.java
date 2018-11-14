@@ -44,7 +44,13 @@ import java.util.Set;
  * <li> It is more efficient than sending a global broadcast through the
  * system.
  * </ul>
+ *
+ * @deprecated LocalBroadcastManager is an application-wide event bus and embraces layer violations
+ * in your app: any component may listen events from any other. You can replace usage of
+ * {@code LocalBroadcastManager} with other implementation of observable pattern, depending on your
+ * usecase suitable options may be {@link androidx.lifecycle.LiveData} or reactive streams.
  */
+@Deprecated
 public final class LocalBroadcastManager {
     private static final class ReceiverRecord {
         final IntentFilter filter;
