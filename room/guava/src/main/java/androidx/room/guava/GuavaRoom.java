@@ -97,4 +97,16 @@ public class GuavaRoom {
 
         return listenableFutureTask;
     }
+
+    /**
+     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
+     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
+     */
+    public static <T> ListenableFuture<T> createListenableFuture(
+            final RoomDatabase roomDatabase,
+            final Callable<T> callable) {
+        ListenableFutureTask<T> listenableFutureTask = ListenableFutureTask.create(callable);
+        roomDatabase.getQueryExecutor().execute(listenableFutureTask);
+        return listenableFutureTask;
+    }
 }
