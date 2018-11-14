@@ -285,9 +285,9 @@ public class TextListItemActivity extends Activity {
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with both dividers for actions. "
                     + mContext.getString(R.string.long_text));
-            actionItem.setPrimaryAction("Action 1", true,
+            actionItem.setPrimaryAction("Action 1 with really long text", true,
                     v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
-            actionItem.setSecondaryAction("Action 2", true,
+            actionItem.setSecondaryAction("Action 2 with really long text", true,
                     v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             mItems.add(actionItem);
 
@@ -295,9 +295,9 @@ public class TextListItemActivity extends Activity {
             actionItem.setPrimaryActionNoIcon();
             actionItem.setTitle("single line with both dividers for raised actions. "
                     + mContext.getString(R.string.long_text));
-            actionItem.setPrimaryAction("Action 1", true,
+            actionItem.setPrimaryAction("Action 1 with really long text", true,
                     v -> Toast.makeText(v.getContext(), "Action 1", Toast.LENGTH_SHORT).show());
-            actionItem.setSecondaryAction("Action 2", true,
+            actionItem.setSecondaryAction("Action 2 with really long text", true,
                     v -> Toast.makeText(v.getContext(), "Action 2", Toast.LENGTH_SHORT).show());
             actionItem.setActionBorderless(false);
             mItems.add(actionItem);

@@ -84,9 +84,9 @@ limitations under the License.
     <dimen name="car_button_height">56dp</dimen>
     <dimen name="car_button_min_width">158dp</dimen>
     <dimen name="car_button_horizontal_padding">@dimen/car_padding_4</dimen>
-    <dimen name="car_borderless_button_horizontal_padding">0dp</dimen>
     <dimen name="car_button_radius">@dimen/car_radius_1</dimen>
     <dimen name="car_pill_button_size">56dp</dimen>
+    <dimen name="car_button_fading_edge_length">40dp</dimen>
 
     <!-- Status Bar -->
     <dimen name="car_status_bar_height">36dp</dimen>
