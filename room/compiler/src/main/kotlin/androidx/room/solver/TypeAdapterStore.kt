@@ -73,6 +73,8 @@ import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.solver.shortcut.binder.InstantDeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InstantInsertMethodBinder
+import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.InstantDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.InstantInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCompletableDeleteOrUpdateMethodBinderProvider
@@ -168,6 +170,7 @@ class TypeAdapterStore private constructor(
             RxSingleInsertMethodBinderProvider(context),
             RxMaybeInsertMethodBinderProvider(context),
             RxCompletableInsertMethodBinderProvider(context),
+            GuavaListenableFutureInsertMethodBinderProvider(context),
             InstantInsertMethodBinderProvider(context)
     )
 
@@ -175,6 +178,7 @@ class TypeAdapterStore private constructor(
             RxSingleDeleteOrUpdateMethodBinderProvider(context),
             RxMaybeDeleteOrUpdateMethodBinderProvider(context),
             RxCompletableDeleteOrUpdateMethodBinderProvider(context),
+            GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(context),
             InstantDeleteOrUpdateMethodBinderProvider(context)
     )
 

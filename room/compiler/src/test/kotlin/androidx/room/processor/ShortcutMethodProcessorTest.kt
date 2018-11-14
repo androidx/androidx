@@ -19,6 +19,7 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.typeName
 import androidx.room.testing.TestInvocation
@@ -138,7 +139,8 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 "Integer",
                 "${RxJava2TypeNames.SINGLE}<Integer>",
                 "${RxJava2TypeNames.MAYBE}<Integer>",
-                RxJava2TypeNames.COMPLETABLE
+                RxJava2TypeNames.COMPLETABLE,
+                "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Integer>"
         ).forEach { type ->
             singleShortcutMethod(
                     """
@@ -240,7 +242,8 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 "Integer",
                 "${RxJava2TypeNames.SINGLE}<Integer>",
                 "${RxJava2TypeNames.MAYBE}<Integer>",
-                RxJava2TypeNames.COMPLETABLE
+                RxJava2TypeNames.COMPLETABLE,
+                "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Integer>"
         ).forEach { type ->
             singleShortcutMethod(
                     """
@@ -271,7 +274,10 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 "${RxJava2TypeNames.SINGLE}<String>",
                 "${RxJava2TypeNames.MAYBE}<String>",
                 "${RxJava2TypeNames.SINGLE}<User>",
-                "${RxJava2TypeNames.MAYBE}<User>"
+                "${RxJava2TypeNames.MAYBE}<User>",
+                "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<Int>",
+                "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<String>",
+                "${GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE}<User>"
         ).forEach { type ->
             singleShortcutMethod(
                     """
@@ -298,8 +304,8 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         DAO_PREFIX + input.joinToString("\n") + DAO_SUFFIX
-                ), COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY,
-                        COMMON.COMPLETABLE, COMMON.MAYBE, COMMON.SINGLE))
+                ), COMMON.USER, COMMON.BOOK, COMMON.NOT_AN_ENTITY, COMMON.COMPLETABLE, COMMON.MAYBE,
+                    COMMON.SINGLE, COMMON.LISTENABLE_FUTURE, COMMON.GUAVA_ROOM))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(annotation, Dao::class)
                         .nextRunHandler { invocation ->

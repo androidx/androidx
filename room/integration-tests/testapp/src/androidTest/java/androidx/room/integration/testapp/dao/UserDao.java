@@ -36,6 +36,8 @@ import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserSummary;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.reactivestreams.Publisher;
 
 import java.util.Date;
@@ -263,4 +265,28 @@ public abstract class UserDao {
     // The subquery is intentional (b/118398616)
     @Query("SELECT `mId`, `mName` FROM (SELECT * FROM User)")
     public abstract List<UserSummary> getNames();
+
+    @Insert
+    public abstract ListenableFuture<List<Long>> insertWithLongListFuture(List<User> users);
+
+    @Insert
+    public abstract ListenableFuture<Long[]> insertWithLongArrayFuture(User... users);
+
+    @Insert
+    public abstract ListenableFuture<Long> insertWithLongFuture(User user);
+
+    @Insert
+    public abstract ListenableFuture<Void> insertWithVoidFuture(User user);
+
+    @Delete
+    public abstract ListenableFuture<Integer> deleteWithIntFuture(User user);
+
+    @Delete
+    public abstract ListenableFuture<Void> deleteWithVoidFuture(User user);
+
+    @Update
+    public abstract ListenableFuture<Integer> updateWithIntFuture(User user);
+
+    @Update
+    public abstract ListenableFuture<Void> updateWithVoidFuture(User user);
 }
