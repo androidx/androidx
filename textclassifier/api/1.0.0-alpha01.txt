@@ -7,6 +7,7 @@ package androidx.textclassifier {
     method @FloatRange(from=0.0, to=1.0) public float getConfidenceScore(String!);
     method public String getEntityType(int);
     method @IntRange(from=0) public int getEntityTypeCount();
+    method public android.os.Bundle getExtras();
     method public String? getId();
     method public CharSequence? getText();
     method public android.os.Bundle toBundle();
@@ -17,6 +18,7 @@ package androidx.textclassifier {
     method public androidx.textclassifier.TextClassification.Builder addAction(androidx.core.app.RemoteActionCompat);
     method public androidx.textclassifier.TextClassification build();
     method public androidx.textclassifier.TextClassification.Builder! setEntityType(String, @FloatRange(from=0.0, to=1.0) float);
+    method public androidx.textclassifier.TextClassification.Builder setExtras(android.os.Bundle?);
     method public androidx.textclassifier.TextClassification.Builder setId(String?);
     method public androidx.textclassifier.TextClassification.Builder! setText(CharSequence?);
   }
@@ -25,6 +27,7 @@ package androidx.textclassifier {
     method public static androidx.textclassifier.TextClassification.Request! createFromBundle(android.os.Bundle);
     method public androidx.core.os.LocaleListCompat? getDefaultLocales();
     method @IntRange(from=0) public int getEndIndex();
+    method public android.os.Bundle getExtras();
     method public Long? getReferenceTime();
     method @IntRange(from=0) public int getStartIndex();
     method public CharSequence getText();
@@ -35,6 +38,7 @@ package androidx.textclassifier {
     ctor public TextClassification.Request.Builder(CharSequence, @IntRange(from=0) int, @IntRange(from=0) int);
     method public androidx.textclassifier.TextClassification.Request build();
     method public androidx.textclassifier.TextClassification.Request.Builder setDefaultLocales(androidx.core.os.LocaleListCompat?);
+    method public androidx.textclassifier.TextClassification.Request.Builder setExtras(android.os.Bundle?);
     method public androidx.textclassifier.TextClassification.Request.Builder setReferenceTime(Long?);
   }
 
@@ -113,6 +117,7 @@ package androidx.textclassifier {
   public final class TextLinks {
     method public int apply(android.text.Spannable, androidx.textclassifier.TextClassifier, androidx.textclassifier.TextLinksParams);
     method public static androidx.textclassifier.TextLinks createFromBundle(android.os.Bundle);
+    method public android.os.Bundle getExtras();
     method public java.util.Collection<androidx.textclassifier.TextLinks.TextLink> getLinks();
     method public android.os.Bundle toBundle();
     field public static final int APPLY_STRATEGY_IGNORE = 0; // 0x0
@@ -129,6 +134,7 @@ package androidx.textclassifier {
     method public androidx.textclassifier.TextLinks.Builder addLink(int, int, java.util.Map<java.lang.String,java.lang.Float>);
     method public androidx.textclassifier.TextLinks build();
     method public androidx.textclassifier.TextLinks.Builder clearTextLinks();
+    method public androidx.textclassifier.TextLinks.Builder setExtras(android.os.Bundle?);
   }
 
   public static class TextLinks.DefaultTextLinkSpan extends androidx.textclassifier.TextLinks.TextLinkSpan {
@@ -141,6 +147,7 @@ package androidx.textclassifier {
     method public static androidx.textclassifier.TextLinks.Request createFromBundle(android.os.Bundle);
     method public androidx.core.os.LocaleListCompat? getDefaultLocales();
     method public androidx.textclassifier.TextClassifier.EntityConfig getEntityConfig();
+    method public android.os.Bundle getExtras();
     method public Long? getReferenceTime();
     method public CharSequence getText();
     method public android.os.Bundle toBundle();
@@ -151,6 +158,7 @@ package androidx.textclassifier {
     method public androidx.textclassifier.TextLinks.Request build();
     method public androidx.textclassifier.TextLinks.Request.Builder setDefaultLocales(androidx.core.os.LocaleListCompat?);
     method public androidx.textclassifier.TextLinks.Request.Builder setEntityConfig(androidx.textclassifier.TextClassifier.EntityConfig?);
+    method public androidx.textclassifier.TextLinks.Request.Builder setExtras(android.os.Bundle?);
     method public androidx.textclassifier.TextLinks.Request.Builder setReferenceTime(Long?);
   }
 
@@ -196,6 +204,7 @@ package androidx.textclassifier {
     method @FloatRange(from=0.0, to=1.0) public float getConfidenceScore(String!);
     method public String getEntity(int);
     method @IntRange(from=0) public int getEntityCount();
+    method public android.os.Bundle getExtras();
     method public String? getId();
     method public int getSelectionEndIndex();
     method public int getSelectionStartIndex();
@@ -206,6 +215,7 @@ package androidx.textclassifier {
     ctor public TextSelection.Builder(@IntRange(from=0) int, @IntRange(from=0) int);
     method public androidx.textclassifier.TextSelection build();
     method public androidx.textclassifier.TextSelection.Builder setEntityType(String, @FloatRange(from=0.0, to=1.0) float);
+    method public androidx.textclassifier.TextSelection.Builder setExtras(android.os.Bundle?);
     method public androidx.textclassifier.TextSelection.Builder setId(String?);
   }
 
@@ -213,6 +223,7 @@ package androidx.textclassifier {
     method public static androidx.textclassifier.TextSelection.Request createFromBundle(android.os.Bundle);
     method public androidx.core.os.LocaleListCompat? getDefaultLocales();
     method @IntRange(from=0) public int getEndIndex();
+    method public android.os.Bundle getExtras();
     method @IntRange(from=0) public int getStartIndex();
     method public CharSequence getText();
     method public android.os.Bundle toBundle();
@@ -222,6 +233,7 @@ package androidx.textclassifier {
     ctor public TextSelection.Request.Builder(CharSequence, @IntRange(from=0) int, @IntRange(from=0) int);
     method public androidx.textclassifier.TextSelection.Request build();
     method public androidx.textclassifier.TextSelection.Request.Builder setDefaultLocales(androidx.core.os.LocaleListCompat?);
+    method public androidx.textclassifier.TextSelection.Request.Builder setExtras(android.os.Bundle?);
   }
 
 }

@@ -102,7 +102,7 @@ public final class TextLinkSpanTest {
 
         final Map<String, Float> scores = new ArrayMap<>();
         scores.put(TextClassifier.TYPE_EMAIL, 1f);
-        mTextLink = new TextLink(0, ENTITY.length(), scores, null);
+        mTextLink = new TextLink(0, ENTITY.length(), scores);
     }
 
     @Test

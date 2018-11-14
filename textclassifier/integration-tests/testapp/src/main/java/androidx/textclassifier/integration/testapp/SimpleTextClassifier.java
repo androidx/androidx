@@ -77,8 +77,7 @@ public class SimpleTextClassifier extends TextClassifier {
                 builder.addLink(
                         spannable.getSpanStart(urlSpan),
                         spannable.getSpanEnd(urlSpan),
-                        Collections.singletonMap(TextClassifier.TYPE_URL, 1.0f),
-                        urlSpan);
+                        Collections.singletonMap(TextClassifier.TYPE_URL, 1.0f));
             }
         }
         return builder.build();
