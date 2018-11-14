@@ -276,6 +276,11 @@
         <!-- The preferred padding along the right edge of list items. -->
         <attr name="listPreferredItemPaddingRight" format="dimension"/>
 
+        <!-- The preferred padding along the start edge of list items. -->
+        <attr name="listPreferredItemPaddingStart" format="dimension"/>
+        <!-- The preferred padding along the end edge of list items. -->
+        <attr name="listPreferredItemPaddingEnd" format="dimension"/>
+
         <!-- ListPopupWindow compatibility -->
         <attr name="dropDownListViewStyle" format="reference"/>
         <attr name="listPopupWindowStyle" format="reference"/>
