@@ -1312,20 +1312,22 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onCurrentMediaItemChanged(MediaItem item) throws RemoteException {
-            mIControllerCallback.onCurrentMediaItemChanged(MediaUtils.toParcelable(item));
+        void onCurrentMediaItemChanged(MediaItem item, int currentIdx, int previousIdx, int nextIdx)
+                throws RemoteException {
+            mIControllerCallback.onCurrentMediaItemChanged(MediaUtils.toParcelable(item),
+                    currentIdx, previousIdx, nextIdx);
         }
 
         @Override
-        void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata)
-                throws RemoteException {
+        void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata, int currentIdx,
+                int previousIdx, int nextIdx) throws RemoteException {
             ControllerInfo controller = mConnectedControllersManager.getController(
                     getCallbackBinder());
             if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
                 mIControllerCallback.onPlaylistChanged(
                         MediaUtils.convertMediaItemListToParcelImplListSlice(playlist),
-                        MediaUtils.toParcelable(metadata));
+                        MediaUtils.toParcelable(metadata), currentIdx, previousIdx, nextIdx);
             } else if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
                 mIControllerCallback.onPlaylistMetadataChanged(MediaUtils.toParcelable(metadata));

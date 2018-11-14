@@ -134,6 +134,12 @@ class MediaControllerImplBase implements MediaControllerImpl {
     @GuardedBy("mLock")
     private MediaItem mCurrentMediaItem;
     @GuardedBy("mLock")
+    private int mCurrentMediaItemIndex = -1;
+    @GuardedBy("mLock")
+    private int mPreviousMediaItemIndex = -1;
+    @GuardedBy("mLock")
+    private int mNextMediaItemIndex = -1;
+    @GuardedBy("mLock")
     private int mBufferingState;
     @GuardedBy("mLock")
     private long mBufferedPositionMs;
@@ -669,6 +675,27 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     @Override
+    public int getCurrentMediaItemIndex() {
+        synchronized (mLock) {
+            return mCurrentMediaItemIndex;
+        }
+    }
+
+    @Override
+    public int getPreviousMediaItemIndex() {
+        synchronized (mLock) {
+            return mPreviousMediaItemIndex;
+        }
+    }
+
+    @Override
+    public int getNextMediaItemIndex() {
+        synchronized (mLock) {
+            return mNextMediaItemIndex;
+        }
+    }
+
+    @Override
     public ListenableFuture<ControllerResult> skipToPreviousItem() {
         return dispatchRemoteSessionTask(COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM,
                 new RemoteSessionTask() {
@@ -827,9 +854,13 @@ class MediaControllerImplBase implements MediaControllerImpl {
         }
     }
 
-    void notifyCurrentMediaItemChanged(final MediaItem item) {
+    void notifyCurrentMediaItemChanged(final MediaItem item, int currentMediaItemIndex,
+            int previousMediaItemIndex, int nextMediaItemIndex) {
         synchronized (mLock) {
             mCurrentMediaItem = item;
+            mCurrentMediaItemIndex = currentMediaItemIndex;
+            mPreviousMediaItemIndex = previousMediaItemIndex;
+            mNextMediaItemIndex = nextMediaItemIndex;
         }
         mCallbackExecutor.execute(new Runnable() {
             @Override
@@ -894,10 +925,14 @@ class MediaControllerImplBase implements MediaControllerImpl {
         });
     }
 
-    void notifyPlaylistChanges(final List<MediaItem> playlist, final MediaMetadata metadata) {
+    void notifyPlaylistChanges(final List<MediaItem> playlist, final MediaMetadata metadata,
+            int currentMediaItemIndex, int previousMediaItemIndex, int nextMediaItemIndex) {
         synchronized (mLock) {
             mPlaylist = playlist;
             mPlaylistMetadata = metadata;
+            mCurrentMediaItemIndex = currentMediaItemIndex;
+            mPreviousMediaItemIndex = previousMediaItemIndex;
+            mNextMediaItemIndex = nextMediaItemIndex;
         }
         mCallbackExecutor.execute(new Runnable() {
             @Override

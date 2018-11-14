@@ -868,7 +868,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Get the lastly cached current item from
+     * Gets the lastly cached current item from
      * {@link ControllerCallback#onCurrentMediaItemChanged(MediaController, MediaItem)}.
      *
      * @return the currently playing item, or null if unknown or not connected
@@ -876,6 +876,42 @@ public class MediaController implements AutoCloseable {
     @Nullable
     public MediaItem getCurrentMediaItem() {
         return isConnected() ? getImpl().getCurrentMediaItem() : null;
+    }
+
+    /**
+     * Gets the current item index in the playlist. The returned value can be outdated after
+     * {@link ControllerCallback#onCurrentMediaItemChanged(MediaController, MediaItem)} or
+     * {@link ControllerCallback#onPlaylistChanged(MediaController, List, MediaMetadata)} is called.
+     *
+     * @return the index of current item in playlist, or -1 if current media item does not exist or
+     * playlist hasn't been set.
+     */
+    public int getCurrentMediaItemIndex() {
+        return isConnected() ? getImpl().getCurrentMediaItemIndex() : -1;
+    }
+
+    /**
+     * Gets the previous item index in the playlist. The returned value can be outdated after
+     * {@link ControllerCallback#onCurrentMediaItemChanged(MediaController, MediaItem)} or
+     * {@link ControllerCallback#onPlaylistChanged(MediaController, List, MediaMetadata)} is called.
+     *
+     * @return the index of previous item in playlist, or -1 if previous media item does not exist
+     * or playlist hasn't been set.
+     */
+    public int getPreviousMediaItemIndex() {
+        return isConnected() ? getImpl().getPreviousMediaItemIndex() : -1;
+    }
+
+    /**
+     * Gets the next item index in the playlist. The returned value can be outdated after
+     * {@link ControllerCallback#onCurrentMediaItemChanged(MediaController, MediaItem)} or
+     * {@link ControllerCallback#onPlaylistChanged(MediaController, List, MediaMetadata)} is called.
+     *
+     * @return the index of next item in playlist, or -1 if next media item does not exist or
+     * playlist hasn't been set.
+     */
+    public int getNextMediaItemIndex() {
+        return isConnected() ? getImpl().getNextMediaItemIndex() : -1;
     }
 
     /**
@@ -1055,6 +1091,9 @@ public class MediaController implements AutoCloseable {
         ListenableFuture<ControllerResult> replacePlaylistItem(int index,
                 @NonNull String mediaId);
         MediaItem getCurrentMediaItem();
+        int getCurrentMediaItemIndex();
+        int getPreviousMediaItemIndex();
+        int getNextMediaItemIndex();
         ListenableFuture<ControllerResult> skipToPreviousItem();
         ListenableFuture<ControllerResult> skipToNextItem();
         ListenableFuture<ControllerResult> skipToPlaylistItem(@NonNull int index);
@@ -1207,17 +1246,18 @@ public class MediaController implements AutoCloseable {
          * Called when the player's currently playing item is changed
          * <p>
          * When it's called, you should invalidate previous playback information and wait for later
-         * callbacks.
+         * callbacks. Also, current, previous, and next media item indices may need to be updated.
          *
          * @param controller the controller for this event
          * @param item new item
-         * @see #onBufferingStateChanged(MediaController, MediaItem, int)
          */
         public void onCurrentMediaItemChanged(@NonNull MediaController controller,
                 @Nullable MediaItem item) { }
 
         /**
          * Called when a playlist is changed.
+         * <p>
+         * When it's called, current, previous, and next media item indices may need to be updated.
          *
          * @param controller the controller for this event
          * @param list new playlist

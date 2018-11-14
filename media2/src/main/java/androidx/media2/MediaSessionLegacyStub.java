@@ -643,13 +643,14 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onCurrentMediaItemChanged(MediaItem item) throws RemoteException {
+        void onCurrentMediaItemChanged(MediaItem item, int currentIdx, int previousIdx, int nextIdx)
+                throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata)
-                throws RemoteException {
+        void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata, int currentIdx,
+                int previousIdx, int nextIdx) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
@@ -765,14 +766,15 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onCurrentMediaItemChanged(MediaItem item) throws RemoteException {
+        void onCurrentMediaItemChanged(MediaItem item, int currentIdx, int previousIdx, int nextIdx)
+                throws RemoteException {
             mSessionImpl.getSessionCompat().setMetadata(item == null ? null
                     : MediaUtils.convertToMediaMetadataCompat(item.getMetadata()));
         }
 
         @Override
-        void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata)
-                throws RemoteException {
+        void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata, int currentIdx,
+                int previousIdx, int nextIdx) throws RemoteException {
             if (Build.VERSION.SDK_INT < 21) {
                 // In order to avoid TransactionTooLargeException for below API 21,
                 // we need to cut the list so that it doesn't exceed the binder transaction limit.

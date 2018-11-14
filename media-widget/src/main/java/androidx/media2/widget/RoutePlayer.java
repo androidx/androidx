@@ -63,6 +63,7 @@ import java.util.concurrent.Future;
 public class RoutePlayer extends RemoteSessionPlayer {
     private static final String TAG = "RoutePlayer";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final int ITEM_NONE = -1;
 
     String mItemId;
     int mCurrentPlayerState;
@@ -293,6 +294,21 @@ public class RoutePlayer extends RemoteSessionPlayer {
     @Override
     public MediaItem getCurrentMediaItem() {
         return mItem;
+    }
+
+    @Override
+    public int getCurrentMediaItemIndex() {
+        return ITEM_NONE;
+    }
+
+    @Override
+    public int getPreviousMediaItemIndex() {
+        return ITEM_NONE;
+    }
+
+    @Override
+    public int getNextMediaItemIndex() {
+        return ITEM_NONE;
     }
 
     @Override

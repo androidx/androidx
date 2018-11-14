@@ -53,6 +53,9 @@ class MediaInterface {
         ListenableFuture<PlayerResult> updatePlaylistMetadata(MediaMetadata metadata);
 
         MediaItem getCurrentMediaItem();
+        int getCurrentMediaItemIndex();
+        int getPreviousMediaItemIndex();
+        int getNextMediaItemIndex();
         ListenableFuture<PlayerResult> skipToPlaylistItem(int index);
         ListenableFuture<PlayerResult> skipToPreviousItem();
         ListenableFuture<PlayerResult> skipToNextItem();
