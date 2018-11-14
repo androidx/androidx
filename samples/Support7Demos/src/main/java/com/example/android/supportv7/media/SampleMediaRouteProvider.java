@@ -55,7 +55,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
     private static final String VARIABLE_VOLUME_QUEUING_ROUTE_ID = "variable_queuing";
     private static final String VARIABLE_VOLUME_SESSION_ROUTE_ID = "variable_session";
 
-    protected static final int VOLUME_MAX = 10;
+    protected static final int VOLUME_MAX = 100;
 
     /**
      * A custom media control intent category for special requests that are
