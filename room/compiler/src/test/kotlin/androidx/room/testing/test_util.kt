@@ -16,9 +16,11 @@
 
 import androidx.room.DatabaseView
 import androidx.room.Entity
+import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
+import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.processor.TableEntityProcessor
@@ -117,6 +119,16 @@ object COMMON {
     val POSITIONAL_DATA_SOURCE by lazy {
         loadJavaCode("common/input/PositionalDataSource.java",
                 PagingTypeNames.POSITIONAL_DATA_SOURCE.toString())
+    }
+
+    val LISTENABLE_FUTURE by lazy {
+        loadJavaCode("common/input/guava/ListenableFuture.java",
+            GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE.toString())
+    }
+
+    val GUAVA_ROOM by lazy {
+        loadJavaCode("common/input/GuavaRoom.java",
+            RoomGuavaTypeNames.GUAVA_ROOM.toString())
     }
 }
 fun testCodeGenScope(): CodeGenScope {
