@@ -907,7 +907,7 @@ public class MediaController implements AutoCloseable {
     /**
      * Skips to the item in the playlist at the index.
      * <p>
-     * This calls {@link SessionPlayer#skipToPlaylistItem(MediaItem)}.
+     * This calls {@link SessionPlayer#skipToPlaylistItem(int)}.
      *
      * @param index The item in the playlist you want to play
      */

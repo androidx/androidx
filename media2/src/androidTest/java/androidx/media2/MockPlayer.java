@@ -312,9 +312,9 @@ public class MockPlayer extends SessionPlayer {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> removePlaylistItem(MediaItem item) {
+    public ListenableFuture<PlayerResult> removePlaylistItem(int index) {
         mRemovePlaylistItemCalled = true;
-        mItem = item;
+        mIndex = index;
         mCountDownLatch.countDown();
         return new SyncListenableFuture(mCurrentMediaItem);
     }
@@ -329,9 +329,9 @@ public class MockPlayer extends SessionPlayer {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> skipToPlaylistItem(MediaItem item) {
+    public ListenableFuture<PlayerResult> skipToPlaylistItem(int index) {
         mSkipToPlaylistItemCalled = true;
-        mItem = item;
+        mIndex = index;
         mCountDownLatch.countDown();
         return new SyncListenableFuture(mCurrentMediaItem);
     }

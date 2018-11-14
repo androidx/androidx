@@ -586,7 +586,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 if (index >= list.size()) {
                     return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                 }
-                return player.skipToPlaylistItem(list.get(index));
+                return player.skipToPlaylistItem(index);
             }
         });
     }
@@ -650,7 +650,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 if (index >= list.size()) {
                     return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
                 }
-                return player.removePlaylistItem(list.get(index));
+                return player.removePlaylistItem(index);
             }
         });
     }
