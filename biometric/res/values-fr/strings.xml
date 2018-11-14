@@ -17,10 +17,10 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Appuyez sur lecteur empr. dig."</string>
-    <string name="fingerprint_not_recognized" msgid="5491287833813257925">"Non reconnu"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="5354590751262189738">"Appuyez sur lecteur d\'empreinte"</string>
+    <string name="fingerprint_not_recognized" msgid="5491287833813257925">"Non reconnue"</string>
     <string name="accessibility_fingerprint_dialog_help_area" msgid="6241458715391513061">"Zone de message d\'aide"</string>
-    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Matériel d\'empreinte numérique indisponible."</string>
+    <string name="fingerprint_error_hw_not_available" msgid="3976825677335166260">"Matériel de lecture d\'empreinte digitale indisponible."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="3350805046152877040">"Aucune empreinte digitale enregistrée."</string>
     <string name="fingerprint_error_hw_not_present" msgid="1176237289575184578">"Aucun lecteur d\'empreinte digitale n\'est installé sur cet appareil"</string>
     <string name="fingerprint_error_user_canceled" msgid="3421037373085129417">"Opération d\'authentification par empreinte digitale annulée par l\'utilisateur."</string>
