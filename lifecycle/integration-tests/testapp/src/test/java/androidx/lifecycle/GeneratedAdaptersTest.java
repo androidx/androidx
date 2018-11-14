@@ -18,6 +18,7 @@ package androidx.lifecycle;
 
 import static androidx.lifecycle.Lifecycle.Event.ON_ANY;
 import static androidx.lifecycle.Lifecycle.Event.ON_RESUME;
+import static androidx.lifecycle.Lifecycling.lifecycleEventObserver;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
@@ -66,7 +67,7 @@ public class GeneratedAdaptersTest {
     @Test
     public void testSimpleSingleGeneratedAdapter() {
         List<String>  actual = new ArrayList<>();
-        LifecycleEventObserver callback = Lifecycling.getCallback(new SimpleObserver(actual));
+        LifecycleEventObserver callback = lifecycleEventObserver(new SimpleObserver(actual));
         callback.onStateChanged(mOwner, Lifecycle.Event.ON_CREATE);
         assertThat(callback, instanceOf(SingleGeneratedAdapterObserver.class));
         assertThat(actual, is(singletonList("onCreate")));
@@ -93,7 +94,7 @@ public class GeneratedAdaptersTest {
     @Test
     public void testOnAny() {
         List<String>  actual = new ArrayList<>();
-        LifecycleEventObserver callback = Lifecycling.getCallback(new TestObserver(actual));
+        LifecycleEventObserver callback = lifecycleEventObserver(new TestObserver(actual));
         callback.onStateChanged(mOwner, Lifecycle.Event.ON_CREATE);
         assertThat(callback, instanceOf(SingleGeneratedAdapterObserver.class));
         assertThat(actual, is(asList("onCreate", "onAny")));
@@ -142,7 +143,7 @@ public class GeneratedAdaptersTest {
     @Test
     public void testClashingInterfaces() {
         List<String>  actual = new ArrayList<>();
-        LifecycleEventObserver callback = Lifecycling.getCallback(new Impl1(actual));
+        LifecycleEventObserver callback = lifecycleEventObserver(new Impl1(actual));
         callback.onStateChanged(mOwner, Lifecycle.Event.ON_PAUSE);
         assertThat(callback, instanceOf(CompositeGeneratedAdaptersObserver.class));
         assertThat(actual, is(asList("onPause_0", "onPause_1")));
@@ -203,7 +204,7 @@ public class GeneratedAdaptersTest {
     @Test
     public void testClashingClassAndInterface() {
         List<String>  actual = new ArrayList<>();
-        LifecycleEventObserver callback = Lifecycling.getCallback(new Derived(actual));
+        LifecycleEventObserver callback = lifecycleEventObserver(new Derived(actual));
         callback.onStateChanged(mOwner, Lifecycle.Event.ON_RESUME);
         assertThat(callback, instanceOf(CompositeGeneratedAdaptersObserver.class));
         assertThat(actual, is(asList("onResume", "onAny_0", "onAny_1", "onAny_2")));
