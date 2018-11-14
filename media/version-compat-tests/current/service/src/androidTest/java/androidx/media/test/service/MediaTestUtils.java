@@ -79,7 +79,7 @@ public final class MediaTestUtils {
         final List<MediaItem> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
         for (int i = 0; i < size; i++) {
-            list.add(createMediaItem(caller + "_item_" + (size + 1)));
+            list.add(createMediaItem(caller + "_item_" + (i + 1)));
         }
         return list;
     }
@@ -99,7 +99,7 @@ public final class MediaTestUtils {
         final List<String> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[1].getMethodName();
         for (int i = 0; i < size; i++) {
-            list.add(caller + "_item_" + (size + 1));
+            list.add(caller + "_item_" + (i + 1));
         }
         return list;
     }

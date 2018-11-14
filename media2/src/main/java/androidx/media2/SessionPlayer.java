@@ -25,6 +25,7 @@ import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -437,7 +438,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      * {@link PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)} when it's
      * completed.
      *
-     * @param index the index you want to add
+     * @param index the index of the item you want to add in the playlist
      * @param item the media item you want to add
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
      */
@@ -453,13 +454,12 @@ public abstract class SessionPlayer implements AutoCloseable {
      * {@link PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)} when it's
      * completed.
      *
-     * @param item media item to remove
+     * @param index the index of the item you want to remove in the playlist
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
      */
     public abstract @NonNull ListenableFuture<PlayerResult> removePlaylistItem(
-            @NonNull MediaItem item);
+            @IntRange(from = 0) int index);
 
-    // TODO: Consider changing to replacePlaylistItem(MI2, MI2)
     /**
      * Replaces the media item at index in the playlist. This can be also used to update metadata of
      * an item.
@@ -468,7 +468,7 @@ public abstract class SessionPlayer implements AutoCloseable {
      * {@link PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)} when it's
      * completed.
      *
-     * @param index the index of the item to replace
+     * @param index the index of the item to replace in the playlist
      * @param item the new item
      * @see PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)
      */
@@ -504,11 +504,11 @@ public abstract class SessionPlayer implements AutoCloseable {
      * {@link PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)} when it's
      * completed.
      *
-     * @param item media item to start playing from
+     * @param index The index of the item you want to play in the playlist
      * @see PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)
      */
     public abstract @NonNull ListenableFuture<PlayerResult> skipToPlaylistItem(
-            @NonNull MediaItem item);
+            @IntRange(from = 0) int index);
 
     /**
      * Updates the playlist metadata while keeping the playlist as-is.

@@ -154,7 +154,7 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> removePlaylistItem(MediaItem item) {
+    public ListenableFuture<PlayerResult> removePlaylistItem(int index) {
         return null;
     }
 
@@ -174,7 +174,7 @@ public class MockRemotePlayer extends RemoteSessionPlayer {
     }
 
     @Override
-    public ListenableFuture<PlayerResult> skipToPlaylistItem(MediaItem item) {
+    public ListenableFuture<PlayerResult> skipToPlaylistItem(int index) {
         return null;
     }
 

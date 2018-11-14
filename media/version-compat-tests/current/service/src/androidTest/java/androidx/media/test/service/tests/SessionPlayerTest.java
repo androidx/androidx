@@ -285,22 +285,22 @@ public class SessionPlayerTest extends MediaSessionTestBase {
     @Test
     public void testRemovePlaylistItemBySession() {
         prepareLooper();
-        final MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
-        mSession.getPlayer().removePlaylistItem(testMediaItem);
+        final List<MediaItem> list = MediaTestUtils.createPlaylist(2);
+        mSession.getPlayer().setPlaylist(list, null);
+        mSession.getPlayer().removePlaylistItem(0);
         assertTrue(mPlayer.mRemovePlaylistItemCalled);
-        assertSame(testMediaItem, mPlayer.mItem);
+        assertSame(0, mPlayer.mIndex);
     }
 
     @Test
     public void testRemovePlaylistItemByController() throws InterruptedException {
         mPlayer.mPlaylist = MediaTestUtils.createPlaylist(2);
-        MediaItem targetItem = mPlayer.mPlaylist.get(0);
 
         mController.removePlaylistItem(0);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mPlayer.mRemovePlaylistItemCalled);
-        assertEquals(targetItem, mPlayer.mItem);
+        assertEquals(0, mPlayer.mIndex);
     }
 
     @Test
@@ -358,21 +358,24 @@ public class SessionPlayerTest extends MediaSessionTestBase {
     @Test
     public void testSkipToPlaylistItemBySession() throws Exception {
         prepareLooper();
-        final MediaItem testMediaItem = MediaTestUtils.createMediaItemWithMetadata();
-        mSession.getPlayer().skipToPlaylistItem(testMediaItem);
+        final List<MediaItem> list = MediaTestUtils.createPlaylist(2);
+        int targetIndex = 0;
+        mSession.getPlayer().setPlaylist(list, null);
+        mSession.getPlayer().skipToPlaylistItem(targetIndex);
         assertTrue(mPlayer.mSkipToPlaylistItemCalled);
-        assertSame(testMediaItem, mPlayer.mItem);
+        assertSame(targetIndex, mPlayer.mIndex);
     }
 
     @Test
     public void testSkipToPlaylistItemByController() throws InterruptedException {
         mPlayer.mPlaylist = MediaTestUtils.createPlaylist(3);
+        int targetIndex = 2;
 
-        mController.skipToPlaylistItem(2);
+        mController.skipToPlaylistItem(targetIndex);
         assertTrue(mPlayer.mCountDownLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         assertTrue(mPlayer.mSkipToPlaylistItemCalled);
-        assertEquals(mPlayer.mPlaylist.get(2), mPlayer.mItem);
+        assertEquals(targetIndex, mPlayer.mIndex);
     }
 
     @Test

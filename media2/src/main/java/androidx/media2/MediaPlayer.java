@@ -39,6 +39,7 @@ import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -976,7 +977,7 @@ public class MediaPlayer extends SessionPlayer {
             throw new IllegalArgumentException("item shouldn't be null");
         }
         if (index < 0) {
-            throw new IllegalArgumentException("index shouldn't be negative integer");
+            throw new IllegalArgumentException("index shouldn't be negative");
         }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -1026,9 +1027,9 @@ public class MediaPlayer extends SessionPlayer {
 
     @Override
     @NonNull
-    public ListenableFuture<PlayerResult> removePlaylistItem(@NonNull final MediaItem item) {
-        if (item == null) {
-            throw new IllegalArgumentException("item shouldn't be null");
+    public ListenableFuture<PlayerResult> removePlaylistItem(@IntRange(from = 0) final int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
         }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -1039,29 +1040,28 @@ public class MediaPlayer extends SessionPlayer {
                 MediaItem nextItem;
                 Pair<MediaItem, MediaItem> updatedCurNextItem = null;
                 synchronized (mPlaylistLock) {
-                    removedItemShuffleIdx = mShuffledList.indexOf(item);
-                    if (removedItemShuffleIdx >= 0) {
-                        mPlaylist.remove(item);
-                        mShuffledList.remove(removedItemShuffleIdx);
-                        if (removedItemShuffleIdx < mCurrentShuffleIdx) {
-                            mCurrentShuffleIdx--;
-                        }
-                        updatedCurNextItem = updateAndGetCurrentNextItemIfNeededLocked();
+                    if (index >= mPlaylist.size()) {
+                        return createFuturesForResultCode(RESULT_CODE_BAD_VALUE);
                     }
+                    MediaItem item = mPlaylist.remove(index);
+                    removedItemShuffleIdx = mShuffledList.indexOf(item);
+                    mShuffledList.remove(removedItemShuffleIdx);
+                    if (removedItemShuffleIdx < mCurrentShuffleIdx) {
+                        mCurrentShuffleIdx--;
+                    }
+                    updatedCurNextItem = updateAndGetCurrentNextItemIfNeededLocked();
                     curItem = mCurPlaylistItem;
                     nextItem = mNextPlaylistItem;
                 }
-                if (removedItemShuffleIdx >= 0) {
-                    final List<MediaItem> playlist = getPlaylist();
-                    final MediaMetadata metadata = getPlaylistMetadata();
-                    notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
-                        @Override
-                        public void callCallback(
-                                SessionPlayer.PlayerCallback callback) {
-                            callback.onPlaylistChanged(MediaPlayer.this, playlist, metadata);
-                        }
-                    });
-                }
+                final List<MediaItem> playlist = getPlaylist();
+                final MediaMetadata metadata = getPlaylistMetadata();
+                notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
+                    @Override
+                    public void callCallback(
+                            SessionPlayer.PlayerCallback callback) {
+                        callback.onPlaylistChanged(MediaPlayer.this, playlist, metadata);
+                    }
+                });
 
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 if (updatedCurNextItem != null) {
@@ -1088,7 +1088,7 @@ public class MediaPlayer extends SessionPlayer {
             throw new IllegalArgumentException("item shouldn't be null");
         }
         if (index < 0) {
-            throw new IllegalArgumentException("index shouldn't be negative integer");
+            throw new IllegalArgumentException("index shouldn't be negative");
         }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -1202,18 +1202,21 @@ public class MediaPlayer extends SessionPlayer {
 
     @Override
     @NonNull
-    public ListenableFuture<PlayerResult> skipToPlaylistItem(@NonNull final MediaItem item) {
+    public ListenableFuture<PlayerResult> skipToPlaylistItem(@IntRange(from = 0) final int index) {
+        if (index < 0) {
+            throw new IllegalArgumentException("index shouldn't be negative");
+        }
+
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 MediaItem curItem;
                 MediaItem nextItem;
                 synchronized (mPlaylistLock) {
-                    int newShuffleIdx = mShuffledList.indexOf(item);
-                    if (newShuffleIdx < 0) {
+                    if (index >= mPlaylist.size()) {
                         return createFuturesForResultCode(RESULT_CODE_BAD_VALUE);
                     }
-                    mCurrentShuffleIdx = newShuffleIdx;
+                    mCurrentShuffleIdx = mShuffledList.indexOf(mPlaylist.get(index));
                     updateAndGetCurrentNextItemIfNeededLocked();
                     curItem = mCurPlaylistItem;
                     nextItem = mNextPlaylistItem;
