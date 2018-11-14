@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.Observer;
 import androidx.slice.Slice;
 import androidx.slice.SliceItem;
@@ -230,6 +231,11 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         super.setOnClickListener(this);
     }
 
+    @VisibleForTesting
+    void setSliceViewPolicy(SliceViewPolicy policy) {
+        mViewPolicy = policy;
+    }
+
     /**
      * Indicates whether this view reacts to click events or not.
      * @hide
@@ -344,9 +350,11 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         if (mode == MODE_SHORTCUT) {
             return mShortcutSize;
         }
-        if (maxHeight > 0 && maxHeight <= mMinTemplateHeight) {
-            maxHeight = mMinTemplateHeight;
-            mViewPolicy.setMaxSmallHeight(mMinTemplateHeight);
+        if (maxHeight > 0 && maxHeight < mSliceStyle.getRowMaxHeight()) {
+            if (maxHeight <= mMinTemplateHeight) {
+                maxHeight = mMinTemplateHeight;
+            }
+            mViewPolicy.setMaxSmallHeight(maxHeight);
         } else {
             mViewPolicy.setMaxSmallHeight(0);
         }
