@@ -597,10 +597,40 @@ public abstract class SessionPlayer implements AutoCloseable {
     /**
      * Gets the current media item.
      *
-     * @return the current media item. Can be {@code null} only when media item nor playlist hasn't
-     *         set.
+     * @return the current media item. Can be {@code null} only when media item or playlist hasn't
+     *         been set.
      */
     public abstract @Nullable MediaItem getCurrentMediaItem();
+
+    /**
+     * Gets the index of current media item in playlist. This value may be updated when
+     * {@link PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)} or
+     * {@link PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)} is called.
+     *
+     * @return the index of current media item. Can be -1 only when current media item is null or
+     *         playlist hasn't been set.
+     */
+    public abstract int getCurrentMediaItemIndex();
+
+    /**
+     * Gets the previous item index in the playlist. The returned value can be outdated after
+     * {@link PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)} or
+     * {@link PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)} is called.
+     *
+     * @return the index of previous media item. Can be -1 only when previous media item does not
+     *         exist or playlist hasn't been set.
+     */
+    public abstract int getPreviousMediaItemIndex();
+
+    /**
+     * Gets the next item index in the playlist. The returned value can be outdated after
+     * {@link PlayerCallback#onCurrentMediaItemChanged(SessionPlayer, MediaItem)} or
+     * {@link PlayerCallback#onPlaylistChanged(SessionPlayer, List, MediaMetadata)} is called.
+     *
+     * @return the index of next media item. Can be -1 only when next media item does not exist or
+     *         playlist hasn't been set.
+     */
+    public abstract int getNextMediaItemIndex();
 
     // Listeners / Callback related
     // Intentionally final not to allow developers to change the behavior

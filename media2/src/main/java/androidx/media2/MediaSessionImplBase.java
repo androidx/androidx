@@ -81,6 +81,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 class MediaSessionImplBase implements MediaSessionImpl {
     private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "androidx.media2.session.id";
     private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
+    private static final int ITEM_NONE = -1;
 
     static final String TAG = "MSImplBase";
     static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
@@ -684,6 +685,36 @@ class MediaSessionImplBase implements MediaSessionImpl {
     }
 
     @Override
+    public int getCurrentMediaItemIndex() {
+        return dispatchPlayerTask(new PlayerTask<Integer>() {
+            @Override
+            public Integer run(SessionPlayer player) throws Exception {
+                return player.getCurrentMediaItemIndex();
+            }
+        }, ITEM_NONE);
+    }
+
+    @Override
+    public int getPreviousMediaItemIndex() {
+        return dispatchPlayerTask(new PlayerTask<Integer>() {
+            @Override
+            public Integer run(SessionPlayer player) throws Exception {
+                return player.getPreviousMediaItemIndex();
+            }
+        }, ITEM_NONE);
+    }
+
+    @Override
+    public int getNextMediaItemIndex() {
+        return dispatchPlayerTask(new PlayerTask<Integer>() {
+            @Override
+            public Integer run(SessionPlayer player) throws Exception {
+                return player.getNextMediaItemIndex();
+            }
+        }, ITEM_NONE);
+    }
+
+    @Override
     public ListenableFuture<PlayerResult> updatePlaylistMetadata(
             final @Nullable MediaMetadata metadata) {
         return dispatchPlayerTask(new PlayerTask<ListenableFuture<PlayerResult>>() {
@@ -909,7 +940,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
                     callback.onPlaylistChanged(
-                            newPlaylist, getPlaylistMetadata());
+                            newPlaylist, getPlaylistMetadata(), getCurrentMediaItemIndex(),
+                            getPreviousMediaItemIndex(), getNextMediaItemIndex());
                 }
             });
         } else {
@@ -930,7 +962,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
             dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
-                    callback.onCurrentMediaItemChanged(newCurrentItem);
+                    callback.onCurrentMediaItemChanged(newCurrentItem, getCurrentMediaItemIndex(),
+                            getPreviousMediaItemIndex(), getNextMediaItemIndex());
                 }
             });
         }
@@ -1165,7 +1198,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
             session.dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
-                    callback.onCurrentMediaItemChanged(item);
+                    callback.onCurrentMediaItemChanged(item, session.getCurrentMediaItemIndex(),
+                            session.getPreviousMediaItemIndex(), session.getNextMediaItemIndex());
                 }
             });
         }
@@ -1246,7 +1280,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
             dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
-                    callback.onPlaylistChanged(list, metadata);
+                    callback.onPlaylistChanged(list, metadata, session.getCurrentMediaItemIndex(),
+                            session.getPreviousMediaItemIndex(), session.getNextMediaItemIndex());
                 }
             });
         }
@@ -1371,12 +1406,16 @@ class MediaSessionImplBase implements MediaSessionImpl {
                         .build();
             }
             if (metadata != null) {
+                final MediaSessionImplBase session = getSession();
                 item.setMetadata(metadata);
                 dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
                     @Override
                     public void run(ControllerCb callback) throws RemoteException {
                         callback.onPlaylistChanged(
-                                player.getPlaylist(), player.getPlaylistMetadata());
+                                player.getPlaylist(), player.getPlaylistMetadata(),
+                                session.getCurrentMediaItemIndex(),
+                                session.getPreviousMediaItemIndex(),
+                                session.getNextMediaItemIndex());
                     }
                 });
             }
@@ -1401,7 +1440,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 session.dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
                     @Override
                     public void run(ControllerCb callback) throws RemoteException {
-                        callback.onCurrentMediaItemChanged(item);
+                        callback.onCurrentMediaItemChanged(item,
+                                session.getCurrentMediaItemIndex(),
+                                session.getPreviousMediaItemIndex(),
+                                session.getNextMediaItemIndex());
                     }
                 });
             }
@@ -1431,7 +1473,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
                             new RemoteControllerCallbackTask() {
                                 @Override
                                 public void run(ControllerCb callback) throws RemoteException {
-                                    callback.onPlaylistChanged(list, session.getPlaylistMetadata());
+                                    callback.onPlaylistChanged(list, session.getPlaylistMetadata(),
+                                            session.getCurrentMediaItemIndex(),
+                                            session.getPreviousMediaItemIndex(),
+                                            session.getNextMediaItemIndex());
                                 }
                             });
                     return;

@@ -944,7 +944,6 @@ public class MediaPlayer extends SessionPlayer {
                 synchronized (mPlaylistLock) {
                     mPlaylistMetadata = metadata;
                     mPlaylist.clear();
-                    mShuffledList.clear();
                     mPlaylist.addAll(playlist);
                     applyShuffleModeLocked();
                     mCurrentShuffleIdx = 0;
@@ -1146,6 +1145,9 @@ public class MediaPlayer extends SessionPlayer {
                 MediaItem curItem;
                 MediaItem nextItem;
                 synchronized (mPlaylistLock) {
+                    if (mCurrentShuffleIdx < 0) {
+                        return createFuturesForResultCode(RESULT_CODE_INVALID_STATE);
+                    }
                     int prevShuffleIdx = mCurrentShuffleIdx - 1;
                     if (prevShuffleIdx < 0) {
                         if (mRepeatMode == REPEAT_MODE_ALL || mRepeatMode == REPEAT_MODE_GROUP) {
@@ -1175,6 +1177,9 @@ public class MediaPlayer extends SessionPlayer {
                 MediaItem curItem;
                 MediaItem nextItem;
                 synchronized (mPlaylistLock) {
+                    if (mCurrentShuffleIdx < 0) {
+                        return createFuturesForResultCode(RESULT_CODE_INVALID_STATE);
+                    }
                     int nextShuffleIdx = mCurrentShuffleIdx + 1;
                     if (nextShuffleIdx >= mShuffledList.size()) {
                         if (mRepeatMode == REPEAT_MODE_ALL || mRepeatMode == REPEAT_MODE_GROUP) {
@@ -1350,6 +1355,52 @@ public class MediaPlayer extends SessionPlayer {
     @Nullable
     public MediaItem getCurrentMediaItem() {
         return mPlayer.getCurrentMediaItem();
+    }
+
+    @Override
+    public int getCurrentMediaItemIndex() {
+        synchronized (mPlaylistLock) {
+            if (mCurrentShuffleIdx < 0) {
+                return END_OF_PLAYLIST;
+            }
+            return mPlaylist.indexOf(mShuffledList.get(mCurrentShuffleIdx));
+        }
+    }
+
+    @Override
+    public int getPreviousMediaItemIndex() {
+        synchronized (mPlaylistLock) {
+            if (mCurrentShuffleIdx < 0) {
+                return END_OF_PLAYLIST;
+            }
+            int prevShuffleIdx = mCurrentShuffleIdx - 1;
+            if (prevShuffleIdx < 0) {
+                if (mRepeatMode == REPEAT_MODE_ALL || mRepeatMode == REPEAT_MODE_GROUP) {
+                    return mPlaylist.indexOf(mShuffledList.get(mShuffledList.size() - 1));
+                } else {
+                    return END_OF_PLAYLIST;
+                }
+            }
+            return mPlaylist.indexOf(mShuffledList.get(prevShuffleIdx));
+        }
+    }
+
+    @Override
+    public int getNextMediaItemIndex() {
+        synchronized (mPlaylistLock) {
+            if (mCurrentShuffleIdx < 0) {
+                return END_OF_PLAYLIST;
+            }
+            int nextShuffleIdx = mCurrentShuffleIdx + 1;
+            if (nextShuffleIdx >= mShuffledList.size()) {
+                if (mRepeatMode == REPEAT_MODE_ALL || mRepeatMode == REPEAT_MODE_GROUP) {
+                    return mPlaylist.indexOf(mShuffledList.get(0));
+                } else {
+                    return END_OF_PLAYLIST;
+                }
+            }
+            return mPlaylist.indexOf(mShuffledList.get(nextShuffleIdx));
+        }
     }
 
     @Override
