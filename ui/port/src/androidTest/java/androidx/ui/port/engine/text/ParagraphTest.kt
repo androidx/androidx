@@ -478,7 +478,7 @@ class ParagraphTest {
         texts.map { text ->
             val paragraph = simpleParagraph(
                 text = text,
-                textAlign = TextAlign.left,
+                textAlign = TextAlign.LEFT,
                 fontSize = fontSize
             )
             val layoutWidth = (text.length + 2) * fontSize
@@ -496,7 +496,7 @@ class ParagraphTest {
         texts.map { text ->
             val paragraph = simpleParagraph(
                 text = text,
-                textAlign = TextAlign.right,
+                textAlign = TextAlign.RIGHT,
                 fontSize = fontSize
             )
             val layoutWidth = (text.length + 2) * fontSize
@@ -514,7 +514,7 @@ class ParagraphTest {
         texts.map { text ->
             val paragraph = simpleParagraph(
                 text = text,
-                textAlign = TextAlign.center,
+                textAlign = TextAlign.CENTER,
                 fontSize = fontSize
             )
             val layoutWidth = (text.length + 2) * fontSize
@@ -536,7 +536,7 @@ class ParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textAlign = TextAlign.start,
+            textAlign = TextAlign.START,
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
@@ -552,7 +552,7 @@ class ParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textAlign = TextAlign.end,
+            textAlign = TextAlign.END,
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
@@ -568,7 +568,7 @@ class ParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textAlign = TextAlign.start,
+            textAlign = TextAlign.START,
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
@@ -584,7 +584,7 @@ class ParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textAlign = TextAlign.end,
+            textAlign = TextAlign.END,
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))
@@ -603,7 +603,7 @@ class ParagraphTest {
 
         val paragraph = simpleParagraph(
             text = text,
-            textAlign = TextAlign.justify,
+            textAlign = TextAlign.JUSTIFY,
             fontSize = fontSize
         )
         paragraph.layout(ParagraphConstraints(width = layoutWidth))

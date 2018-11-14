@@ -94,16 +94,16 @@ internal class ParagraphAndroid constructor(
 
         val charSequence = text.toString() as CharSequence
         val alignment = when (paragraphStyle.textAlign) {
-            TextAlign.left -> ALIGN_LEFT
-            TextAlign.right -> ALIGN_RIGHT
-            TextAlign.center -> ALIGN_CENTER
-            TextAlign.start -> ALIGN_NORMAL
-            TextAlign.end -> ALIGN_OPPOSITE
+            TextAlign.LEFT -> ALIGN_LEFT
+            TextAlign.RIGHT -> ALIGN_RIGHT
+            TextAlign.CENTER -> ALIGN_CENTER
+            TextAlign.START -> ALIGN_NORMAL
+            TextAlign.END -> ALIGN_OPPOSITE
             else -> ALIGN_NORMAL
         }
         val maxLines = paragraphStyle.maxLines ?: Int.MAX_VALUE
         val justificationMode = when (paragraphStyle.textAlign) {
-            TextAlign.justify -> JUSTIFICATION_MODE_INTER_WORD
+            TextAlign.JUSTIFY -> JUSTIFICATION_MODE_INTER_WORD
             else -> JUSTIFICATION_MODE_NONE
         }
 

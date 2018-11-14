@@ -294,10 +294,10 @@ class TextStyleTest {
         assertThat(textStyle.height).isEqualTo(HEIGHT)
         assertThat(textStyle.color).isEqualTo(COLOR1)
 
-        val paragraphStyle = textStyle.getParagraphStyle(textAlign = TextAlign.center)
+        val paragraphStyle = textStyle.getParagraphStyle(textAlign = TextAlign.CENTER)
         assertThat(paragraphStyle).isEqualTo(
             ParagraphStyle(
-                textAlign = TextAlign.center,
+                textAlign = TextAlign.CENTER,
                 fontWeight = FontWeight.w800,
                 fontSize = FONT_SIZE,
                 lineHeight = HEIGHT
