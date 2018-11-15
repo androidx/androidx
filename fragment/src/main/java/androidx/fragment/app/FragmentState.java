@@ -16,7 +16,6 @@
 
 package androidx.fragment.app;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -68,10 +67,9 @@ final class FragmentState implements Parcelable {
         mSavedFragmentState = in.readBundle();
     }
 
-    public Fragment instantiate(FragmentHostCallback host, @NonNull FragmentFactory factory) {
+    public Fragment instantiate(@NonNull ClassLoader classLoader,
+            @NonNull FragmentFactory factory) {
         if (mInstance == null) {
-            final Context context = host.getContext();
-            final ClassLoader classLoader = context.getClassLoader();
             if (mArguments != null) {
                 mArguments.setClassLoader(classLoader);
             }
@@ -92,7 +90,6 @@ final class FragmentState implements Parcelable {
             mInstance.mRetainInstance = mRetainInstance;
             mInstance.mDetached = mDetached;
             mInstance.mHidden = mHidden;
-            mInstance.mFragmentManager = host.mFragmentManager;
 
             if (FragmentManagerImpl.DEBUG) {
                 Log.v(FragmentManagerImpl.TAG, "Instantiated fragment " + mInstance);

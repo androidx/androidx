@@ -2453,7 +2453,9 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         mActive.clear();
         for (FragmentState fs : fms.mActive) {
             if (fs != null) {
-                Fragment f = fs.instantiate(mHost, getFragmentFactory());
+                Fragment f = fs.instantiate(mHost.getContext().getClassLoader(),
+                        getFragmentFactory());
+                f.mFragmentManager = this;
                 if (DEBUG) Log.v(TAG, "restoreAllState: active (" + f.mWho + "): " + f);
                 mActive.put(f.mWho, f);
                 // Now that the fragment is instantiated (or came from being
