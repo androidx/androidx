@@ -35,7 +35,7 @@ limitations under the License.
 
     <!-- Paddings -->
     <dimen name="car_padding_0">4dp</dimen>
-    <dimen name="car_padding_1">10dp</dimen>
+    <dimen name="car_padding_1">8dp</dimen>
     <dimen name="car_padding_2">12dp</dimen>
     <dimen name="car_padding_3">16dp</dimen>
     <dimen name="car_padding_4">20dp</dimen>
