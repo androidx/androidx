@@ -690,7 +690,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
 
     @Override
     public int getCurrentMediaItemIndex() {
-        return ITEM_NONE;
+        return mCurrentMediaItemIndex;
     }
 
     @Override
