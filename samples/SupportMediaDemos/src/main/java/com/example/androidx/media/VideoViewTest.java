@@ -25,6 +25,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -72,6 +73,10 @@ public class VideoViewTest extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                .detectAll()
+                .penaltyDeath()
+                .build());
 
         //Remove title bar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
