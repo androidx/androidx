@@ -16,24 +16,26 @@
 
 package androidx.slice.widget;
 
+import static androidx.slice.core.SliceHints.ICON_IMAGE;
+import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
+import static androidx.slice.widget.SliceView.MODE_LARGE;
+import static androidx.slice.widget.SliceView.MODE_SMALL;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.view.R;
-
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
-import static androidx.slice.widget.SliceView.MODE_LARGE;
-import static androidx.slice.widget.SliceView.MODE_SMALL;
 
 /**
  * Holds style information shared between child views of a slice
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@RequiresApi(19)
 public class SliceStyle {
     private int mTintColor = -1;
     private int mTitleColor;
@@ -116,6 +118,10 @@ public class SliceStyle {
         mGridImageTextHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_image_text_height);
         mGridMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_min_height);
         mGridMaxHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_max_height);
+    }
+
+    public int getRowMaxHeight() {
+        return mRowMaxHeight;
     }
 
     public void setTintColor(int tint) {

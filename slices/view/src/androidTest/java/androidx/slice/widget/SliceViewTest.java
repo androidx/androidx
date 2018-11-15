@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.slice;
+package androidx.slice.widget;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNull;
@@ -28,13 +28,16 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
+import android.util.TypedValue;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.core.graphics.drawable.IconCompat;
+import androidx.slice.Slice;
+import androidx.slice.SliceProvider;
 import androidx.slice.builders.ListBuilder;
 import androidx.slice.builders.SliceAction;
 import androidx.slice.render.SliceRenderActivity;
-import androidx.slice.widget.SliceLiveData;
-import androidx.slice.widget.SliceView;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.SdkSuppress;
@@ -256,9 +259,9 @@ public class SliceViewTest {
         lb.setHeader(new ListBuilder.HeaderBuilder()
                 .setTitle("Text")
                 .setPrimaryAction(getAction("Action")))
-            .addAction(action1)
-            .addAction(action2)
-            .addAction(action3);
+                .addAction(action1)
+                .addAction(action2)
+                .addAction(action3);
 
         ArrayList<SliceAction> expectedActions = new ArrayList<>();
         expectedActions.add(action1);
@@ -357,6 +360,48 @@ public class SliceViewTest {
         actionsToSet.add(new SliceAction(getIntent(""), icon, "action2"));
 
         mSliceView.setSliceActions(actionsToSet);
+    }
+
+    @Test
+    public void testHeightBetweenMinAndMax() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        SliceViewPolicy p = new SliceViewPolicy();
+        mSliceView.setMode(SliceView.MODE_SMALL);
+        mSliceView.setSliceViewPolicy(p);
+
+        mSliceView.setSlice(new ListBuilder(mContext, uri, ListBuilder.INFINITY)
+                .setHeader(new ListBuilder.HeaderBuilder()
+                        .setTitle("Title")
+                        .setSummary("Summary")
+                        .setSubtitle("Subtitle")
+                        .setPrimaryAction(SliceAction.createToggle(getIntent(""), "Switch", true)))
+                .build());
+
+        // Test a height between min and max heights, full width because that doesn't matter.
+        int width = mContext.getResources().getDisplayMetrics().widthPixels;
+        int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 49,
+                mContext.getResources().getDisplayMetrics());
+        mSliceView.setLayoutParams(new ViewGroup.LayoutParams(width, height));
+        mSliceView.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
+
+        assertEquals(height, p.getMaxSmallHeight());
+    }
+
+    private View find(View v, Class<?> desiredClass) {
+        if (desiredClass.isInstance(v)) {
+            return v;
+        }
+        if (v instanceof ViewGroup) {
+            ViewGroup vg = (ViewGroup) v;
+            for (int i = 0; i < vg.getChildCount(); i++) {
+                v = find(vg.getChildAt(i), desiredClass);
+                if (v != null) {
+                    return v;
+                }
+            }
+        }
+        return null;
     }
 
     private SliceAction getAction(String actionName) {
