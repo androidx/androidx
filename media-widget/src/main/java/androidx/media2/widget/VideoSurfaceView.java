@@ -24,9 +24,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.media2.MediaPlayer;
@@ -42,7 +40,6 @@ class VideoSurfaceView extends SurfaceView
     private MediaPlayer mMediaPlayer;
     // A flag to indicate taking over other view should be proceed.
     private boolean mIsTakingOverOldView;
-    VideoViewInterface mOldView;
 
     VideoSurfaceView(Context context) {
         super(context, null);
@@ -63,10 +60,6 @@ class VideoSurfaceView extends SurfaceView
                 new Runnable() {
                     @Override
                     public void run() {
-                        if (mOldView != null) {
-                            ((View) mOldView).setVisibility(GONE);
-                            mOldView = null;
-                        }
                         if (mSurfaceListener != null) {
                             mSurfaceListener.onSurfaceTakeOverDone(VideoSurfaceView.this);
                         }
@@ -90,18 +83,13 @@ class VideoSurfaceView extends SurfaceView
     public void setMediaPlayer(MediaPlayer mp) {
         mMediaPlayer = mp;
         if (mIsTakingOverOldView) {
-            takeOver(mOldView);
+            mIsTakingOverOldView = !assignSurfaceToMediaPlayer(mMediaPlayer);
         }
     }
 
     @Override
-    public void takeOver(@NonNull VideoViewInterface oldView) {
-        if (assignSurfaceToMediaPlayer(mMediaPlayer)) {
-            mIsTakingOverOldView = false;
-        } else {
-            mIsTakingOverOldView = true;
-            mOldView = oldView;
-        }
+    public void takeOver() {
+        mIsTakingOverOldView = !assignSurfaceToMediaPlayer(mMediaPlayer);
     }
 
     @Override
@@ -115,14 +103,7 @@ class VideoSurfaceView extends SurfaceView
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        Log.d(TAG, "surfaceCreated: mSurface: " + mSurface + ", new : " + holder.getSurface());
         mSurface = holder.getSurface();
-        if (mIsTakingOverOldView) {
-            takeOver(mOldView);
-        } else {
-            assignSurfaceToMediaPlayer(mMediaPlayer);
-        }
-
         if (mSurfaceListener != null) {
             Rect rect = holder.getSurfaceFrame();
             mSurfaceListener.onSurfaceCreated(this, rect.width(), rect.height());
