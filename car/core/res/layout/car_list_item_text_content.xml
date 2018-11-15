@@ -121,8 +121,7 @@
         app:layout_constraintEnd_toStartOf="@+id/switch_widget"
         style="@style/CarListVerticalDivider"/>
 
-    <include
-        layout="@layout/car_switch_widget"
+    <Switch
         android:id="@+id/switch_widget"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
