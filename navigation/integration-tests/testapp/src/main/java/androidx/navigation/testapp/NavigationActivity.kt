@@ -26,7 +26,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
 import android.widget.Toast
-import androidx.navigation.ActivityNavigator
+import androidx.navigation.ActivityNavigatorExtras
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -59,7 +59,7 @@ class NavigationActivity : AppCompatActivity() {
                 when (item.itemId) {
                     R.id.help_activity -> {
                         navController.navigate(R.id.help_activity, null, null,
-                                ActivityNavigator.Extras(ActivityOptionsCompat
+                                ActivityNavigatorExtras(ActivityOptionsCompat
                                         .makeSceneTransitionAnimation(this,
                                                 toolbar, "toolbar")))
                         true

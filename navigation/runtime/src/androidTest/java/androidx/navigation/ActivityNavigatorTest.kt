@@ -40,6 +40,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.argThat
 import org.mockito.ArgumentMatchers.refEq
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
@@ -260,7 +261,11 @@ class ActivityNavigatorTest {
                 activityRule.activity,
                 view,
                 "test")
-        val extras = ActivityNavigator.Extras(activityOptions)
+        val flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+        val extras = ActivityNavigator.Extras.Builder()
+            .setActivityOptions(activityOptions)
+            .addFlags(flags)
+            .build()
 
         val targetDestination = activityNavigator.createDestination().apply {
             id = TARGET_ID
@@ -269,7 +274,9 @@ class ActivityNavigatorTest {
         activityNavigator.navigate(targetDestination, null, null, extras)
         // Just verify that the ActivityOptions got passed through, there's
         // CTS tests to ensure that the ActivityOptions do the right thing
-        verify(context).startActivity(any(), refEq(activityOptions.toBundle()))
+        verify(context).startActivity(argThat { intent ->
+            intent.flags and flags != 0
+        }, refEq(activityOptions.toBundle()))
     }
 
     private fun waitForActivity(): TargetActivity {
