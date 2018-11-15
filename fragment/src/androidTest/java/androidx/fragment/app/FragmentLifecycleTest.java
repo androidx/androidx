@@ -326,6 +326,79 @@ public class FragmentLifecycleTest {
 
     @Test
     @UiThreadTest
+    public void restoreNestedFragmentsOnBackStack() {
+
+        final FragmentController fc1 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm1 = fc1.getSupportFragmentManager();
+
+        fc1.attachHost(null);
+        fc1.dispatchCreate();
+
+        // Add the initial state
+        final StrictFragment parentFragment = new StrictFragment();
+        final StrictFragment childFragment = new StrictFragment();
+        fm1.beginTransaction().add(parentFragment, "parent").commitNow();
+        final FragmentManager childFragmentManager = parentFragment.getChildFragmentManager();
+        childFragmentManager.beginTransaction().add(childFragment, "child").commitNow();
+
+        // Now add a Fragment to the back stack
+        final StrictFragment replacementChildFragment = new StrictFragment();
+        childFragmentManager.beginTransaction()
+                .remove(childFragment)
+                .add(replacementChildFragment, "child")
+                .addToBackStack("back_stack").commit();
+        childFragmentManager.executePendingTransactions();
+
+        // Move the activity to resumed
+        fc1.dispatchActivityCreated();
+        fc1.noteStateNotSaved();
+        fc1.execPendingActions();
+        fc1.dispatchStart();
+        fc1.dispatchResume();
+        fc1.execPendingActions();
+
+        // Now bring the state back down
+        fc1.dispatchPause();
+        final Parcelable savedState = fc1.saveAllState();
+        fc1.dispatchStop();
+        final FragmentManagerNonConfig nonconf = fc1.retainNestedNonConfig();
+        fc1.dispatchDestroy();
+
+        // Create the new controller and restore state
+        final FragmentController fc2 = FragmentController.createController(
+                new HostCallbacks(mActivityRule.getActivity()));
+
+        final FragmentManager fm2 = fc2.getSupportFragmentManager();
+
+        fc2.attachHost(null);
+        fc2.restoreAllState(savedState, nonconf);
+        fc2.dispatchCreate();
+
+        final StrictFragment restoredParentFragment = (StrictFragment) fm2
+                .findFragmentByTag("parent");
+        assertNotNull("Parent fragment was not restored", restoredParentFragment);
+        final StrictFragment restoredChildFragment = (StrictFragment) restoredParentFragment
+                .getChildFragmentManager().findFragmentByTag("child");
+        assertNotNull("Child fragment was not restored", restoredChildFragment);
+
+        fc2.dispatchActivityCreated();
+        fc2.noteStateNotSaved();
+        fc2.execPendingActions();
+        fc2.dispatchStart();
+        fc2.dispatchResume();
+        fc2.execPendingActions();
+
+        // Bring the state back down to destroyed before we finish the test
+        fc2.dispatchPause();
+        fc2.saveAllState();
+        fc2.dispatchStop();
+        fc2.dispatchDestroy();
+    }
+
+    @Test
+    @UiThreadTest
     public void restoreRetainedInstanceFragments() throws Throwable {
         // Create a new FragmentManager in isolation, nest some assorted fragments
         // and then restore them to a second new FragmentManager.
