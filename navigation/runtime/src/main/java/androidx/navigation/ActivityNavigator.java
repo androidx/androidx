@@ -23,7 +23,6 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -85,7 +84,6 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         return false;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void navigate(@NonNull Destination destination, @Nullable Bundle args,
             @Nullable NavOptions navOptions, @Nullable Navigator.Extras navigatorExtras) {
@@ -116,13 +114,11 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
                 intent.setData(Uri.parse(data.toString()));
             }
         }
-        if (navOptions != null && navOptions.shouldClearTask()) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        if (navigatorExtras instanceof Extras) {
+            Extras extras = (Extras) navigatorExtras;
+            intent.addFlags(extras.getFlags());
         }
-        if (navOptions != null && navOptions.shouldLaunchDocument()
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        } else if (!(mContext instanceof Activity)) {
+        if (!(mContext instanceof Activity)) {
             // If we're not launching from an Activity context we have to launch in a new task.
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
@@ -143,7 +139,12 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         NavOptions.addPopAnimationsToIntent(intent, navOptions);
         if (navigatorExtras instanceof Extras) {
             Extras extras = (Extras) navigatorExtras;
-            ActivityCompat.startActivity(mContext, intent, extras.getActivityOptions().toBundle());
+            ActivityOptionsCompat activityOptions = extras.getActivityOptions();
+            if (activityOptions != null) {
+                ActivityCompat.startActivity(mContext, intent, activityOptions.toBundle());
+            } else {
+                mContext.startActivity(intent);
+            }
         } else {
             mContext.startActivity(intent);
         }
@@ -352,27 +353,74 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
 
     /**
      * Extras that can be passed to ActivityNavigator to customize what
-     * {@link ActivityOptionsCompat} are passed through to the call to
+     * {@link ActivityOptionsCompat} and flags are passed through to the call to
      * {@link ActivityCompat#startActivity(Context, Intent, Bundle)}.
      */
     public static class Extras implements Navigator.Extras {
-        @NonNull
+        private final int mFlags;
         private final ActivityOptionsCompat mActivityOptions;
 
-        /**
-         * Create a new Extras instance with the given {@link ActivityOptionsCompat}.
-         * @param activityOptions The {@link ActivityOptionsCompat} to pass through
-         */
-        public Extras(@NonNull ActivityOptionsCompat activityOptions) {
+        Extras(int flags, @Nullable ActivityOptionsCompat activityOptions) {
+            mFlags = flags;
             mActivityOptions = activityOptions;
         }
 
         /**
-         * Gets the {@link ActivityOptionsCompat} instance.
+         * Gets the <code>Intent.FLAG_ACTIVITY_</code> flags that should be added to the Intent.
          */
-        @NonNull
+        int getFlags() {
+            return mFlags;
+        }
+
+        /**
+         * Gets the {@link ActivityOptionsCompat} that should be used with
+         * {@link ActivityCompat#startActivity(Context, Intent, Bundle)}.
+         */
+        @Nullable
         ActivityOptionsCompat getActivityOptions() {
             return mActivityOptions;
+        }
+
+        /**
+         * Builder for constructing new {@link Extras} instances. The resulting instances are
+         * immutable.
+         */
+        public static class Builder {
+            private int mFlags;
+            private ActivityOptionsCompat mActivityOptions;
+
+            /**
+             * Adds one or more <code>Intent.FLAG_ACTIVITY_</code> flags
+             *
+             * @param flags the flags to add
+             * @return this {@link Builder}
+             */
+            public Builder addFlags(int flags) {
+                mFlags |= flags;
+                return this;
+            }
+
+            /**
+             * Sets the {@link ActivityOptionsCompat} that should be used with
+             * {@link ActivityCompat#startActivity(Context, Intent, Bundle)}.
+             *
+             * @param activityOptions The {@link ActivityOptionsCompat} to pass through
+             * @return this {@link Builder}
+             */
+            public Builder setActivityOptions(@NonNull ActivityOptionsCompat activityOptions) {
+                mActivityOptions = activityOptions;
+                return this;
+            }
+
+            /**
+             * Constructs the final {@link Extras} instance.
+             *
+             * @return An immutable {@link Extras} instance.
+             */
+            @NonNull
+            public Extras build() {
+                return new Extras(mFlags, mActivityOptions);
+            }
         }
     }
 }
