@@ -1876,6 +1876,7 @@ package androidx.core.view {
 
   public class ViewCompat {
     ctor protected ViewCompat();
+    method public static int addAccessibilityAction(android.view.View, CharSequence, androidx.core.view.accessibility.AccessibilityViewCommand);
     method public static void addKeyboardNavigationClusters(android.view.View, java.util.Collection<android.view.View>, int);
     method public static void addOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);
     method public static androidx.core.view.ViewPropertyAnimatorCompat animate(android.view.View);
@@ -1971,7 +1972,9 @@ package androidx.core.view {
     method public static void postInvalidateOnAnimation(android.view.View, int, int, int, int);
     method public static void postOnAnimation(android.view.View, Runnable!);
     method public static void postOnAnimationDelayed(android.view.View, Runnable!, long);
+    method public static void removeAccessibilityAction(android.view.View, int);
     method public static void removeOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);
+    method public static void replaceAccessibilityAction(android.view.View, androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat, CharSequence?, androidx.core.view.accessibility.AccessibilityViewCommand?);
     method public static void requestApplyInsets(android.view.View);
     method public static <T extends android.view.View> T requireViewById(android.view.View, @IdRes int);
     method @Deprecated public static int resolveSizeAndState(int, int, int);
@@ -2580,6 +2583,53 @@ package androidx.core.view.accessibility {
     method @Deprecated public void setSource(android.view.View!, int);
     method public static void setSource(android.view.accessibility.AccessibilityRecord, android.view.View!, int);
     method @Deprecated public void setToIndex(int);
+  }
+
+  public interface AccessibilityViewCommand {
+    method public boolean perform(android.view.View, androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments?);
+  }
+
+  public abstract static class AccessibilityViewCommand.CommandArguments {
+    ctor public AccessibilityViewCommand.CommandArguments();
+  }
+
+  public static final class AccessibilityViewCommand.MoveAtGranularityArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
+    ctor public AccessibilityViewCommand.MoveAtGranularityArguments();
+    method public boolean getExtendSelection();
+    method public int getGranularity();
+  }
+
+  public static final class AccessibilityViewCommand.MoveHtmlArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
+    ctor public AccessibilityViewCommand.MoveHtmlArguments();
+    method public String! getHTMLElement();
+  }
+
+  public static final class AccessibilityViewCommand.MoveWindowArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
+    ctor public AccessibilityViewCommand.MoveWindowArguments();
+    method public int getX();
+    method public int getY();
+  }
+
+  public static final class AccessibilityViewCommand.ScrollToPositionArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
+    ctor public AccessibilityViewCommand.ScrollToPositionArguments();
+    method public int getColumn();
+    method public int getRow();
+  }
+
+  public static final class AccessibilityViewCommand.SetProgressArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
+    ctor public AccessibilityViewCommand.SetProgressArguments();
+    method public float getProgress();
+  }
+
+  public static final class AccessibilityViewCommand.SetSelectionArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
+    ctor public AccessibilityViewCommand.SetSelectionArguments();
+    method public int getEnd();
+    method public int getStart();
+  }
+
+  public static final class AccessibilityViewCommand.SetTextArguments extends androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments {
+    ctor public AccessibilityViewCommand.SetTextArguments();
+    method public CharSequence! getText();
   }
 
   public class AccessibilityWindowInfoCompat {
