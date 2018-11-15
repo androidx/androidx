@@ -29,6 +29,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
@@ -42,6 +43,7 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -112,14 +114,17 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
     private String mTitle;
     Executor mCallbackExecutor;
 
-    private WindowManager mManager;
     View mCurrentMusicView;
     View mMusicFullLandscapeView;
     View mMusicFullPortraitView;
     View mMusicEmbeddedView;
     private Drawable mMusicAlbumDrawable;
     private String mMusicArtistText;
-    boolean mIsMusicMediaType;
+
+    final Object mLock = new Object();
+    @GuardedBy("mLock")
+    boolean mCurrentItemIsMusic;
+
     private int mPrevWidth;
     int mDominantColor;
     private int mSizeType;
@@ -464,31 +469,34 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
 
     @Override
     public void onMeasureImpl(int widthMeasureSpec, int heightMeasureSpec) {
-        if (mIsMusicMediaType) {
-            int currWidth = mInstance.getMeasuredWidth();
-            int currHeight = mInstance.getMeasuredHeight();
-            if (mPrevWidth != currWidth) {
-                Point screenSize = new Point();
-                mManager.getDefaultDisplay().getSize(screenSize);
-                int screenWidth = screenSize.x;
-                if (currWidth == screenWidth) {
-                    int orientation = retrieveOrientation();
-                    if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                        updateCurrentMusicView(mMusicFullLandscapeView);
-                    } else {
-                        updateCurrentMusicView(mMusicFullPortraitView);
-                    }
+        synchronized (mLock) {
+            if (mCurrentItemIsMusic) {
+                int currWidth = mInstance.getMeasuredWidth();
+                if (mPrevWidth != currWidth) {
+                    Point screenSize = new Point();
+                    WindowManager winManager = (WindowManager) mInstance.getContext()
+                            .getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+                    winManager.getDefaultDisplay().getSize(screenSize);
+                    int screenWidth = screenSize.x;
+                    if (currWidth == screenWidth) {
+                        int orientation = retrieveOrientation();
+                        if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                            updateCurrentMusicView(mMusicFullLandscapeView);
+                        } else {
+                            updateCurrentMusicView(mMusicFullPortraitView);
+                        }
 
-                    if (mSizeType != SIZE_TYPE_FULL) {
-                        mSizeType = SIZE_TYPE_FULL;
+                        if (mSizeType != SIZE_TYPE_FULL) {
+                            mSizeType = SIZE_TYPE_FULL;
+                        }
+                    } else {
+                        if (mSizeType != SIZE_TYPE_EMBEDDED) {
+                            mSizeType = SIZE_TYPE_EMBEDDED;
+                            updateCurrentMusicView(mMusicEmbeddedView);
+                        }
                     }
-                } else {
-                    if (mSizeType != SIZE_TYPE_EMBEDDED) {
-                        mSizeType = SIZE_TYPE_EMBEDDED;
-                        updateCurrentMusicView(mMusicEmbeddedView);
-                    }
+                    mPrevWidth = currWidth;
                 }
-                mPrevWidth = currWidth;
             }
         }
     }
@@ -724,8 +732,9 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
         if (mAudioTrackIndices.size() > 0) {
             mSelectedAudioTrackIndex = 0;
         }
-        if (mVideoTrackIndices.size() == 0 && mAudioTrackIndices.size() > 0) {
-            mIsMusicMediaType = true;
+
+        synchronized (mLock) {
+            mCurrentItemIsMusic = mVideoTrackIndices.size() == 0 && mAudioTrackIndices.size() > 0;
         }
 
         Bundle data = new Bundle();
@@ -771,49 +780,52 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
         }
 
         MediaMetadata metadata = mMediaItem.getMetadata();
-        if (!mIsMusicMediaType) {
-            mTitle = extractString(metadata, MediaMetadata.METADATA_KEY_TITLE, retriever,
-                    MediaMetadataRetriever.METADATA_KEY_TITLE, path);
-        } else {
-            Resources resources = mInstance.getResources();
-            mManager = (WindowManager) mInstance.getContext().getApplicationContext()
-                    .getSystemService(Context.WINDOW_SERVICE);
 
-            mTitle = extractString(metadata, MediaMetadata.METADATA_KEY_TITLE, retriever,
-                    MediaMetadataRetriever.METADATA_KEY_TITLE,
-                    resources.getString(R.string.mcv2_music_title_unknown_text));
-            mMusicArtistText = extractString(metadata, MediaMetadata.METADATA_KEY_ARTIST,
-                    retriever, MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                    resources.getString(R.string.mcv2_music_artist_unknown_text));
-            mMusicAlbumDrawable = extractAlbumArt(metadata, retriever,
-                    resources.getDrawable(R.drawable.ic_default_album_image));
+        synchronized (mLock) {
+            if (!mCurrentItemIsMusic) {
+                mTitle = extractString(metadata,
+                        MediaMetadata.METADATA_KEY_TITLE, retriever,
+                        MediaMetadataRetriever.METADATA_KEY_TITLE, path);
+            } else {
+                Resources resources = mInstance.getResources();
+                mTitle = extractString(metadata,
+                        MediaMetadata.METADATA_KEY_TITLE, retriever,
+                        MediaMetadataRetriever.METADATA_KEY_TITLE,
+                        resources.getString(R.string.mcv2_music_title_unknown_text));
+                mMusicArtistText = extractString(metadata,
+                        MediaMetadata.METADATA_KEY_ARTIST,
+                        retriever,
+                        MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                        resources.getString(R.string.mcv2_music_artist_unknown_text));
+                mMusicAlbumDrawable = extractAlbumArt(metadata, retriever,
+                        resources.getDrawable(R.drawable.ic_default_album_image));
+
+                // Update Music View to reflect the new metadata
+                mInstance.removeView(mSurfaceView);
+                mInstance.removeView(mTextureView);
+                updateCurrentMusicView(mMusicEmbeddedView);
+            }
+
+            if (retriever != null) {
+                retriever.release();
+            }
+
+            // Set duration and title values as MediaMetadata for MediaControlView
+            MediaMetadata.Builder builder = new MediaMetadata.Builder();
+
+            if (mCurrentItemIsMusic) {
+                builder.putString(MediaMetadata.METADATA_KEY_ARTIST, mMusicArtistText);
+            }
+            builder.putString(MediaMetadata.METADATA_KEY_TITLE, mTitle);
+            builder.putLong(
+                    MediaMetadata.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
+            builder.putString(
+                    MediaMetadata.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
+            builder.putLong(MediaMetadata.METADATA_KEY_BROWSABLE,
+                    MediaMetadata.BROWSABLE_TYPE_NONE);
+            builder.putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1);
+            return builder.build();
         }
-
-        if (retriever != null) {
-            retriever.release();
-        }
-
-        // Update Music View to reflect the new metadata
-        if (mIsMusicMediaType) {
-            mInstance.removeView(mSurfaceView);
-            mInstance.removeView(mTextureView);
-            updateCurrentMusicView(mMusicEmbeddedView);
-        }
-
-        // Set duration and title values as MediaMetadata for MediaControlView
-        MediaMetadata.Builder builder = new MediaMetadata.Builder();
-
-        if (mIsMusicMediaType) {
-            builder.putString(MediaMetadata.METADATA_KEY_ARTIST, mMusicArtistText);
-        }
-        builder.putString(MediaMetadata.METADATA_KEY_TITLE, mTitle);
-        builder.putLong(
-                MediaMetadata.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
-        builder.putString(
-                MediaMetadata.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
-        builder.putLong(MediaMetadata.METADATA_KEY_BROWSABLE, MediaMetadata.BROWSABLE_TYPE_NONE);
-        builder.putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1);
-        return builder.build();
     }
 
     // TODO: move this method inside callback to make sure it runs inside the callback thread.
@@ -1026,10 +1038,18 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                                             null), data);
                         }
 
-                        MediaMetadata metadata = extractMetadata();
-                        if (metadata != null) {
-                            mMediaItem.setMetadata(metadata);
-                        }
+                        // Run extractMetadata() in another thread to prevent StrictMode violation.
+                        // extractMetadata() contains file IO indirectly,
+                        // via MediaMetadataRetriever.
+                        AsyncTask.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                MediaMetadata metadata = extractMetadata();
+                                if (metadata != null) {
+                                    mMediaItem.setMetadata(metadata);
+                                }
+                            }
+                        });
                     }
 
                     if (mMediaControlView != null) {
@@ -1168,9 +1188,11 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
             switch (command.getCommandCode()) {
                 case SessionCommand.COMMAND_CODE_PLAYER_PLAY:
                     mTargetState = STATE_PLAYING;
-                    if (!mCurrentView.hasAvailableSurface() && !mIsMusicMediaType) {
-                        Log.d(TAG, "surface is not available");
-                        return RESULT_CODE_INVALID_STATE;
+                    synchronized (mLock) {
+                        if (!mCurrentView.hasAvailableSurface() && !mCurrentItemIsMusic) {
+                            Log.d(TAG, "surface is not available");
+                            return RESULT_CODE_INVALID_STATE;
+                        }
                     }
                     break;
                 case SessionCommand.COMMAND_CODE_PLAYER_PAUSE:
