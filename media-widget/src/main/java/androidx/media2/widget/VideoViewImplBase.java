@@ -369,7 +369,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
 
         mTargetView = targetView;
         ((View) targetView).setVisibility(View.VISIBLE);
-        targetView.takeOver(mCurrentView);
+        targetView.takeOver();
         mInstance.requestLayout();
     }
 
@@ -504,6 +504,9 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     + ", mTargetState=" + mTargetState + ", width/height: " + width + "/" + height
                     + ", " + view.toString());
         }
+        if (view == mTargetView) {
+            ((VideoViewInterface) view).takeOver();
+        }
         if (needToStart()) {
             mMediaSession.getPlayer().play();
         }
@@ -540,6 +543,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
             mMediaSession.getPlayer().seekTo(mMediaSession.getPlayer().getCurrentPosition());
         }
         if (view != mCurrentView) {
+            ((View) mCurrentView).setVisibility(View.GONE);
             mCurrentView = view;
             if (mViewTypeChangedListener != null) {
                 mViewTypeChangedListener.onViewTypeChanged(mInstance, view.getViewType());

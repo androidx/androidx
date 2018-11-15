@@ -18,7 +18,6 @@ package androidx.media2.widget;
 
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.media2.MediaPlayer;
 
 interface VideoViewInterface {
@@ -36,15 +35,13 @@ interface VideoViewInterface {
 
     /**
      * Takes over oldView. It means that the MediaPlayer will start rendering on this view.
-     * The visibility of oldView will be set as {@link View#GONE}. If the view doesn't have a
-     * MediaPlayer instance or its surface is not available, the actual execution is deferred until
-     * a MediaPlayer instance is set by {@link #setMediaPlayer} or its surface becomes available.
+     * If the view doesn't have a MediaPlayer instance or its surface is not available,
+     * the actual execution is deferred until a MediaPlayer instance is set
+     * by {@link #setMediaPlayer} or its surface becomes available.
      * {@link SurfaceListener#onSurfaceTakeOverDone} will be called when the actual execution is
      * done.
-     *
-     * @param oldView The view that MediaPlayer is currently rendering on.
      */
-    void takeOver(@NonNull VideoViewInterface oldView);
+    void takeOver();
 
     /**
      * Indicates if the view's surface is available.
