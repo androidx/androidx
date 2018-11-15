@@ -495,12 +495,17 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatCheckBox extends android.widget.CheckBox implements androidx.core.widget.TintableCompoundButton {
+  public class AppCompatCheckBox extends android.widget.CheckBox implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
     ctor public AppCompatCheckBox(android.content.Context!);
     ctor public AppCompatCheckBox(android.content.Context!, android.util.AttributeSet!);
     ctor public AppCompatCheckBox(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportButtonTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportButtonTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
   }
@@ -566,12 +571,17 @@ package androidx.appcompat.widget {
     method public void setTextAppearance(android.content.Context!, int);
   }
 
-  public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.core.widget.TintableCompoundButton {
+  public class AppCompatRadioButton extends android.widget.RadioButton implements androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundButton {
     ctor public AppCompatRadioButton(android.content.Context!);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet!);
     ctor public AppCompatRadioButton(android.content.Context!, android.util.AttributeSet!, int);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportButtonTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
+    method public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportButtonTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
   }

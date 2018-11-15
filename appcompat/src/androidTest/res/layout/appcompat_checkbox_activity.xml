@@ -40,4 +40,34 @@
         android:layout_height="wrap_content"
         app:buttonCompat="@null" />
 
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/view_tinted_no_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sample_text1"
+        app:backgroundTint="@color/color_state_list_lilac"
+        app:backgroundTintMode="src_in" />
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/view_tinted_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sample_text2"
+        android:background="@drawable/test_drawable"
+        app:backgroundTint="@color/color_state_list_lilac"
+        app:backgroundTintMode="src_in" />
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/view_untinted_no_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sample_text2" />
+
+    <androidx.appcompat.widget.AppCompatCheckBox
+        android:id="@+id/view_untinted_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/sample_text2"
+        android:background="@drawable/test_background_green" />
+
 </LinearLayout>
