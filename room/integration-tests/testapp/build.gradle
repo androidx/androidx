@@ -40,10 +40,8 @@ dependencies {
     implementation(project(":room:room-runtime"))
     implementation(project(":sqlite:sqlite"))
     implementation(project(":sqlite:sqlite-framework"))
-    implementation(project(":arch:core-runtime"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
-    implementation(project(":lifecycle:lifecycle-runtime"))
-    implementation(project(":lifecycle:lifecycle-common"))
+    implementation(ARCH_CORE_RUNTIME)
+    implementation(ARCH_LIFECYCLE_EXTENSIONS)
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     implementation(FINDBUGS)
@@ -53,14 +51,12 @@ dependencies {
     androidTestAnnotationProcessor project(":room:room-compiler")
 
     // IJ's gradle integration just cannot figure this out ...
-    androidTestImplementation(project(":lifecycle:lifecycle-extensions"))
-    androidTestImplementation(project(":lifecycle:lifecycle-common"))
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
+    androidTestImplementation(ARCH_LIFECYCLE_EXTENSIONS)
     androidTestImplementation(project(":room:room-testing"))
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":room:room-guava"))
-    androidTestImplementation(project(":arch:core-testing"))
-    androidTestImplementation(project(":paging:paging-runtime"))
+    androidTestImplementation(ARCH_CORE_TESTING)
+    androidTestImplementation(ARCH_PAGING_RUNTIME)
 
     // FINDBUGS dependency resolves an app/testapp version conflict.
     androidTestImplementation(FINDBUGS)

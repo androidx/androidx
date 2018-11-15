@@ -26,15 +26,15 @@ dependencies {
     implementation(project(":sqlite:sqlite"))
     implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":room:room-runtime"))
-    implementation(project(":arch:core-runtime"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
+    implementation(ARCH_CORE_RUNTIME)
+    implementation(ARCH_LIFECYCLE_EXTENSIONS)
 
     androidTestAnnotationProcessor project(":room:room-compiler")
     androidTestAnnotationProcessor(AUTO_VALUE)
     androidTestAnnotationProcessor(AUTO_VALUE_PARCEL)
 
     androidTestImplementation(project(":room:room-testing"))
-    androidTestImplementation(project(":arch:core-testing"))
+    androidTestImplementation(ARCH_CORE_TESTING)
     androidTestImplementation(AUTO_VALUE_ANNOTATIONS)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)

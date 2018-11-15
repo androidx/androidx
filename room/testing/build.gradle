@@ -29,7 +29,7 @@ dependencies {
     api(project(":sqlite:sqlite"))
     api(project(":sqlite:sqlite-framework"))
     api(project(":room:room-migration"))
-    api(project(":arch:core-runtime"))
+    implementation(ARCH_CORE_RUNTIME)
     api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
     api(JUNIT)
 }

@@ -33,7 +33,7 @@ android {
 dependencies {
     api(project(":paging:paging-common"))
 
-    api("androidx.arch.core:core-runtime:2.0.0")
+    api(ARCH_CORE_RUNTIME)
 
     api(RX_JAVA)
     androidTestImplementation(JUNIT)
