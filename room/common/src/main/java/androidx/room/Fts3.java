@@ -16,8 +16,9 @@
 
 package androidx.room;
 
+import static androidx.room.FtsOptions.TOKENIZER_SIMPLE;
+
 import androidx.annotation.RequiresApi;
-import androidx.room.FtsOptions.Tokenizer;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -82,23 +83,27 @@ public @interface Fts3 {
     /**
      * The tokenizer to be used in the FTS table.
      * <p>
-     * The default value is {@link Tokenizer#SIMPLE}. Tokenizer arguments can be defined with
-     * {@link #tokenizerArgs()}.
+     * The default value is {@link FtsOptions#TOKENIZER_SIMPLE}. Tokenizer arguments can be defined
+     * with {@link #tokenizerArgs()}.
+     * <p>
+     * If a custom tokenizer is used, the tokenizer and its arguments are not verified at compile
+     * time.
      *
-     * @return The tokenizer to use on the FTS table. This is either {@link Tokenizer#SIMPLE},
-     * {@link Tokenizer#PORTER} or {@link Tokenizer#UNICODE61}.
+     * @return The tokenizer to use on the FTS table. Built-in available tokenizers are
+     * {@link FtsOptions#TOKENIZER_SIMPLE}, {@link FtsOptions#TOKENIZER_PORTER} and
+     * {@link FtsOptions#TOKENIZER_UNICODE61}.
      * @see #tokenizerArgs()
      * @see <a href="https://www.sqlite.org/fts3.html#tokenizer">SQLite tokernizers
      * documentation</a>
      */
-    Tokenizer tokenizer() default Tokenizer.SIMPLE;
+    String tokenizer() default TOKENIZER_SIMPLE;
 
     /**
      * Optional arguments to configure the defined tokenizer.
      * <p>
      * Tokenizer arguments consist of an argument name, followed by an "=" character, followed by
      * the option value. For example, <code>separators=.</code> defines the dot character as an
-     * additional separator when using the {@link Tokenizer#UNICODE61} tokenizer.
+     * additional separator when using the {@link FtsOptions#TOKENIZER_UNICODE61} tokenizer.
      * <p>
      * The available arguments that can be defined depend on the tokenizer defined, see the
      * <a href="https://www.sqlite.org/fts3.html#tokenizer">SQLite tokernizers documentation</a> for
