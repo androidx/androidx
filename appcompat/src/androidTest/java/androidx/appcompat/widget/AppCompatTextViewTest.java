@@ -38,7 +38,6 @@ import android.graphics.drawable.VectorDrawable;
 import android.os.Build;
 import android.os.LocaleList;
 import android.text.Layout;
-import android.text.PrecomputedText;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.textclassifier.TextClassificationManager;
@@ -50,7 +49,6 @@ import androidx.annotation.GuardedBy;
 import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
@@ -572,9 +570,6 @@ public class AppCompatTextViewTest
                 // setText may wrap the given text with SpannedString. Check the contents by casting
                 // to String.
                 assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
-                if (BuildCompat.isAtLeastQ()) {
-                    assertTrue(tv.getText() instanceof PrecomputedText);
-                }
             }
         });
     }
@@ -592,9 +587,6 @@ public class AppCompatTextViewTest
                 tv.measure(UNLIMITED_MEASURE_SPEC, UNLIMITED_MEASURE_SPEC);
                 assertNotEquals(0.0f, tv.getMeasuredWidth());
                 assertEquals(SAMPLE_TEXT_1, tv.getText().toString());
-                if (BuildCompat.isAtLeastQ()) {
-                    assertTrue(tv.getText() instanceof PrecomputedText);
-                }
             }
         });
         executor.doExecution(0);
@@ -624,9 +616,6 @@ public class AppCompatTextViewTest
                 // setText may wrap the given text with SpannedString. Check the contents by casting
                 // to String.
                 assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
-                if (BuildCompat.isAtLeastQ()) {
-                    assertTrue(tv.getText() instanceof PrecomputedText);
-                }
             }
         });
         executor.doExecution(0);  // Do execution of 1st runnable.
@@ -639,9 +628,6 @@ public class AppCompatTextViewTest
                 // setText may wrap the given text with SpannedString. Check the contents by casting
                 // to String.
                 assertEquals(SAMPLE_TEXT_2, tv.getText().toString());
-                if (BuildCompat.isAtLeastQ()) {
-                    assertTrue(tv.getText() instanceof PrecomputedText);
-                }
             }
         });
     }
