@@ -33,10 +33,10 @@ android {
 dependencies {
     api(project(":paging:paging-common"))
 
-    api("androidx.arch.core:core-runtime:2.0.0")
-    api("androidx.lifecycle:lifecycle-runtime:2.0.0")
-    api("androidx.lifecycle:lifecycle-livedata:2.0.0")
-    api("androidx.recyclerview:recyclerview:1.0.0", libs.support_exclude_config)
+    api(ARCH_CORE_RUNTIME)
+    api(ARCH_LIFECYCLE_RUNTIME)
+    api(ARCH_LIFECYCLE_LIVEDATA)
+    api(ANDROIDX_RECYCLERVIEW, libs.support_exclude_config)
 
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker

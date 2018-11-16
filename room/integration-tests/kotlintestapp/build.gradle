@@ -44,8 +44,8 @@ dependencies {
     implementation(project(":sqlite:sqlite"))
     implementation(project(":sqlite:sqlite-framework"))
     implementation(project(":room:room-runtime"))
-    implementation(project(":arch:core-runtime"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
+    implementation(ARCH_CORE_RUNTIME)
+    implementation(ARCH_LIFECYCLE_EXTENSIONS)
     kaptAndroidTest project(":room:room-compiler")
 
     androidTestImplementation(TEST_RUNNER) {
@@ -57,13 +57,12 @@ dependencies {
         exclude module: "hamcrest-core"
     })
     // IJ's gradle integration just cannot figure this out ...
-    androidTestImplementation project(':lifecycle:lifecycle-extensions')
-    androidTestImplementation project(':lifecycle:lifecycle-common')
-    androidTestImplementation project(':lifecycle:lifecycle-runtime')
+    androidTestImplementation(ARCH_LIFECYCLE_EXTENSIONS)
+    androidTestImplementation(ARCH_CORE_RUNTIME)
     androidTestImplementation project(':room:room-guava')
     androidTestImplementation project(':room:room-testing')
     androidTestImplementation project(':room:room-rxjava2')
-    androidTestImplementation project(':arch:core-testing')
+    androidTestImplementation(ARCH_CORE_TESTING)
     androidTestImplementation(GUAVA_ANDROID)
     androidTestImplementation(RX_JAVA)
     testImplementation(MOCKITO_CORE)

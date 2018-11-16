@@ -26,7 +26,8 @@ plugins {
 dependencies {
     api(project(":room:room-common"))
     api(project(":room:room-runtime"))
-    api(project(":arch:core-runtime"))
+    implementation(ARCH_CORE_RUNTIME)
+
     api(SUPPORT_ANNOTATIONS, libs.support_exclude_config)
     api(GUAVA_ANDROID)
 }
