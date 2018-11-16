@@ -26,12 +26,13 @@ plugins {
 dependencies {
     api(project(":room:room-common"))
     api(project(":room:room-runtime"))
-    api(project(":arch:core-runtime"))
+    implementation(ARCH_CORE_RUNTIME)
     api(SUPPORT_CORE_UTILS, libs.support_exclude_config)
     api(RX_JAVA)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
-    testImplementation(project(":arch:core-testing"))
+    testImplementation(ARCH_CORE_TESTING)
+    testImplementation(ARCH_LIFECYCLE_LIVEDATA) // for mocking invalidation tracker
 }
 
 supportLibrary {

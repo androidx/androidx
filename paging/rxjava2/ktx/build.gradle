@@ -39,7 +39,7 @@ dependencies {
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation project(":arch:core-testing")
+    androidTestImplementation(ARCH_CORE_TESTING)
 }
 
 supportLibrary {

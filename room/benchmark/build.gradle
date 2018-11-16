@@ -31,7 +31,7 @@ dependencies {
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation(project(":sqlite:sqlite"))
     androidTestImplementation(project(":sqlite:sqlite-framework"))
-    androidTestImplementation(project(":arch:core-runtime"))
+    androidTestImplementation(ARCH_CORE_RUNTIME)
     androidTestImplementation(project(":benchmark"))
     androidTestImplementation(RX_JAVA)
     androidTestImplementation(JUNIT)
