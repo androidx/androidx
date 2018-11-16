@@ -37,9 +37,6 @@
         <attr name="android:id" />
         <attr name="destination" format="reference" />
         <attr name="launchSingleTop" format="boolean" />
-        <attr name="launchDocument" format="boolean" />
-        <!-- Deprecated - set popUpTo to the root of your graph and use popUpToInclusive -->
-        <attr name="clearTask" format="boolean" />
         <attr name="popUpTo" format="reference" />
         <attr name="popUpToInclusive" format="boolean" />
         <attr name="enterAnim" format="reference" />

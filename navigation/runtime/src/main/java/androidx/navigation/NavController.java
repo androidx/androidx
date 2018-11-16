@@ -695,10 +695,7 @@ public class NavController {
                     + " is unknown to this NavController");
         }
         if (navOptions != null) {
-            if (navOptions.shouldClearTask()) {
-                // Start with a clean slate
-                popBackStack(mGraph.getId(), true);
-            } else if (navOptions.getPopUpTo() != 0) {
+            if (navOptions.getPopUpTo() != 0) {
                 popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
             }
         }
