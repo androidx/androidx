@@ -79,6 +79,13 @@
             android:entries="@array/planets_array"
             android:spinnerMode="dropdown"
             app:popupTheme="@style/OceanSpinnerPopupTheme" />
+
+        <androidx.appcompat.widget.AppCompatSpinner
+            android:id="@+id/spinner_dialog_popup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/planets_array"
+            android:spinnerMode="dialog" />
     </LinearLayout>
 
 </ScrollView>
