@@ -38,6 +38,7 @@ dependencies {
     api(project(":navigation:navigation-common-ktx"))
     api(KOTLIN_STDLIB)
     androidTestImplementation(project(":navigation:navigation-testing"))
+    androidTestImplementation(TRUTH)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
