@@ -46,24 +46,6 @@ class NavOptionsBuilder {
     var launchSingleTop = false
 
     /**
-     * Whether this navigation action should launch the destination in a new document.
-     *
-     * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT]
-     * works with activites.
-     */
-    @Deprecated("Use the documentLaunchMode flag on the Activity")
-    var launchDocument = false
-
-    /**
-     * Whether this navigation action should clear the entire back stack
-     *
-     * This functions similarly to how [android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK]
-     * works with activites.
-     */
-    @Deprecated("Use popUpTo with the root of the graph and inclusive set to true")
-    var clearTask = false
-
-    /**
      * Pop up to a given destination before navigating. This pops all non-matching destinations
      * from the back stack until this destination is found.
      */
@@ -100,10 +82,6 @@ class NavOptionsBuilder {
 
     internal fun build() = builder.apply {
         setLaunchSingleTop(launchSingleTop)
-        @Suppress("DEPRECATION")
-        setLaunchDocument(launchDocument)
-        @Suppress("DEPRECATION")
-        setClearTask(clearTask)
         setPopUpTo(popUpTo, inclusive)
     }.build()
 }

@@ -227,7 +227,6 @@ public class NavInflater {
         a.recycle();
     }
 
-    @SuppressWarnings("deprecation")
     private void inflateAction(@NonNull Resources res, @NonNull NavDestination dest,
             @NonNull AttributeSet attrs) {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavAction);
@@ -237,8 +236,6 @@ public class NavInflater {
 
         NavOptions.Builder builder = new NavOptions.Builder();
         builder.setLaunchSingleTop(a.getBoolean(R.styleable.NavAction_launchSingleTop, false));
-        builder.setLaunchDocument(a.getBoolean(R.styleable.NavAction_launchDocument, false));
-        builder.setClearTask(a.getBoolean(R.styleable.NavAction_clearTask, false));
         builder.setPopUpTo(a.getResourceId(R.styleable.NavAction_popUpTo, 0),
                 a.getBoolean(R.styleable.NavAction_popUpToInclusive, false));
         builder.setEnterAnim(a.getResourceId(R.styleable.NavAction_enterAnim, -1));

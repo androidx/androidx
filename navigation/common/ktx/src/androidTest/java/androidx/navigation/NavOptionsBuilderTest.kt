@@ -36,28 +36,6 @@ class NavOptionsTest {
             .isTrue()
     }
 
-    @Suppress("DEPRECATION")
-    @Test
-    fun launchDocument() {
-        val navOptions = navOptions {
-            launchDocument = true
-        }
-        assertWithMessage("NavOptions should have launchDocument set")
-            .that(navOptions.shouldLaunchDocument())
-            .isTrue()
-    }
-
-    @Suppress("DEPRECATION")
-    @Test
-    fun clearTask() {
-        val navOptions = navOptions {
-            clearTask = true
-        }
-        assertWithMessage("NavOptions should have clearTask set")
-            .that(navOptions.shouldClearTask())
-            .isTrue()
-    }
-
     @Test
     fun popUpTo() {
         val navOptions = navOptions {

@@ -29,12 +29,8 @@ import android.support.annotation.Nullable;
  * NavOptions stores special options for navigate actions
  */
 public class NavOptions {
-    static final int LAUNCH_SINGLE_TOP = 0x1;
-    static final int LAUNCH_DOCUMENT = 0x2;
-    static final int LAUNCH_CLEAR_TASK = 0x4;
-
     private static final String KEY_NAV_OPTIONS = "android-support-nav:navOptions";
-    private static final String KEY_LAUNCH_MODE = "launchMode";
+    private static final String KEY_SINGLE_TOP = "singleTop";
     private static final String KEY_POP_UP_TO = "popUpTo";
     private static final String KEY_POP_UP_TO_INCLUSIVE = "popUpToInclusive";
     private static final String KEY_ENTER_ANIM = "enterAnim";
@@ -90,7 +86,7 @@ public class NavOptions {
         }
     }
 
-    private int mLaunchMode;
+    private boolean mSingleTop;
     @IdRes
     private int mPopUpTo;
     private boolean mPopUpToInclusive;
@@ -103,10 +99,10 @@ public class NavOptions {
     @AnimRes @AnimatorRes
     private int mPopExitAnim;
 
-    NavOptions(int launchMode, @IdRes int popUpTo, boolean popUpToInclusive,
+    NavOptions(boolean singleTop, @IdRes int popUpTo, boolean popUpToInclusive,
             @AnimRes @AnimatorRes int enterAnim, @AnimRes @AnimatorRes int exitAnim,
             @AnimRes @AnimatorRes int popEnterAnim, @AnimRes @AnimatorRes int popExitAnim) {
-        mLaunchMode = launchMode;
+        mSingleTop = singleTop;
         mPopUpTo = popUpTo;
         mPopUpToInclusive = popUpToInclusive;
         mEnterAnim = enterAnim;
@@ -123,34 +119,7 @@ public class NavOptions {
      * works with activites.
      */
     public boolean shouldLaunchSingleTop() {
-        return (mLaunchMode & LAUNCH_SINGLE_TOP) != 0;
-    }
-
-    /**
-     * Whether this navigation action should launch the destination in a new document.
-     * <p>
-     * This functions similarly to how {@link android.content.Intent#FLAG_ACTIVITY_NEW_DOCUMENT}
-     * works with activites.
-     * @deprecated As per the {@link android.content.Intent#FLAG_ACTIVITY_NEW_DOCUMENT}
-     * documentation, it is recommended to use {@link android.R.attr#documentLaunchMode} on an
-     * Activity you wish to launch as a new document.
-     */
-    @Deprecated
-    public boolean shouldLaunchDocument() {
-        return (mLaunchMode & LAUNCH_DOCUMENT) != 0;
-    }
-
-    /**
-     * Whether this navigation action should clear the entire back stack
-     * <p>
-     * This functions similarly to how {@link android.content.Intent#FLAG_ACTIVITY_CLEAR_TASK}
-     * works with activites.
-     * @deprecated This is synonymous with {@link #getPopUpTo()} with the root of the graph and
-     * using {@link #isPopUpToInclusive()}.
-     */
-    @Deprecated
-    public boolean shouldClearTask() {
-        return (mLaunchMode & LAUNCH_CLEAR_TASK) != 0;
+        return mSingleTop;
     }
 
     /**
@@ -217,7 +186,7 @@ public class NavOptions {
     @NonNull
     private Bundle toBundle() {
         Bundle b = new Bundle();
-        b.putInt(KEY_LAUNCH_MODE, mLaunchMode);
+        b.putBoolean(KEY_SINGLE_TOP, mSingleTop);
         b.putInt(KEY_POP_UP_TO, mPopUpTo);
         b.putBoolean(KEY_POP_UP_TO_INCLUSIVE, mPopUpToInclusive);
         b.putInt(KEY_ENTER_ANIM, mEnterAnim);
@@ -229,7 +198,7 @@ public class NavOptions {
 
     @NonNull
     private static NavOptions fromBundle(@NonNull Bundle b) {
-        return new NavOptions(b.getInt(KEY_LAUNCH_MODE, 0),
+        return new NavOptions(b.getBoolean(KEY_SINGLE_TOP, false),
                 b.getInt(KEY_POP_UP_TO, 0), b.getBoolean(KEY_POP_UP_TO_INCLUSIVE, false),
                 b.getInt(KEY_ENTER_ANIM, -1), b.getInt(KEY_EXIT_ANIM, -1),
                 b.getInt(KEY_POP_ENTER_ANIM, -1), b.getInt(KEY_POP_EXIT_ANIM, -1));
@@ -239,7 +208,7 @@ public class NavOptions {
      * Builder for constructing new instances of NavOptions.
      */
     public static class Builder {
-        int mLaunchMode;
+        boolean mSingleTop;
         @IdRes
         int mPopUpTo;
         boolean mPopUpToInclusive;
@@ -264,59 +233,7 @@ public class NavOptions {
          */
         @NonNull
         public Builder setLaunchSingleTop(boolean singleTop) {
-            if (singleTop) {
-                mLaunchMode |= LAUNCH_SINGLE_TOP;
-            } else {
-                mLaunchMode &= ~LAUNCH_SINGLE_TOP;
-            }
-            return this;
-        }
-
-        /**
-         * Launch a navigation target as a document if you want it to appear as its own
-         * entry in the system Overview screen. If the same document is launched multiple times
-         * it will not create a new task, it will bring the existing document task to the front.
-         *
-         * <p>If the user presses the system Back key from a new document task they will land
-         * on their previous task. If the user reached the document task from the system Overview
-         * screen they will be taken to their home screen.</p>
-         *
-         * @param launchDocument true to launch a new document task
-         * @deprecated As per the {@link android.content.Intent#FLAG_ACTIVITY_NEW_DOCUMENT}
-         * documentation, it is recommended to use {@link android.R.attr#documentLaunchMode} on an
-         * Activity you wish to launch as a new document.
-         */
-        @Deprecated
-        @NonNull
-        public Builder setLaunchDocument(boolean launchDocument) {
-            if (launchDocument) {
-                mLaunchMode |= LAUNCH_DOCUMENT;
-            } else {
-                mLaunchMode &= ~LAUNCH_DOCUMENT;
-            }
-            return this;
-        }
-
-        /**
-         * Clear the entire task before launching this target. If you are launching as a
-         * {@link #setLaunchDocument(boolean) document}, this will clear the document task.
-         * Otherwise it will clear the current task.
-         *
-         * @param clearTask
-         * @return
-         * @deprecated Use {@link #setPopUpTo(int, boolean)} with the
-         * {@link NavDestination#getId() id} of the
-         * {@link androidx.navigation.NavController#getGraph() NavController's graph}
-         * and set inclusive to true.
-         */
-        @Deprecated
-        @NonNull
-        public Builder setClearTask(boolean clearTask) {
-            if (clearTask) {
-                mLaunchMode |= LAUNCH_CLEAR_TASK;
-            } else {
-                mLaunchMode &= ~LAUNCH_CLEAR_TASK;
-            }
+            mSingleTop = singleTop;
             return this;
         }
 
@@ -400,7 +317,7 @@ public class NavOptions {
          */
         @NonNull
         public NavOptions build() {
-            return new NavOptions(mLaunchMode, mPopUpTo, mPopUpToInclusive,
+            return new NavOptions(mSingleTop, mPopUpTo, mPopUpToInclusive,
                     mEnterAnim, mExitAnim, mPopEnterAnim, mPopExitAnim);
         }
     }
