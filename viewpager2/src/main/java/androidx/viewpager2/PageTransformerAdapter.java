@@ -26,6 +26,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeListener;
 import androidx.viewpager2.widget.ViewPager2.PageTransformer;
 
+import java.util.Locale;
+
 /**
  * Translates {@link OnPageChangeListener} events to {@link PageTransformer} events.
  *
@@ -63,7 +65,7 @@ public class PageTransformerAdapter implements OnPageChangeListener {
         for (int i = 0; i < mLayoutManager.getChildCount(); i++) {
             View view = mLayoutManager.getChildAt(i);
             if (view == null) {
-                throw new IllegalStateException(String.format(
+                throw new IllegalStateException(String.format(Locale.US,
                         "LayoutManager returned a null child at pos %d/%d while transforming pages",
                         i, mLayoutManager.getChildCount()));
             }
