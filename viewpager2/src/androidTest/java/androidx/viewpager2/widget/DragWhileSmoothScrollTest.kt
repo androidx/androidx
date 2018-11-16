@@ -17,6 +17,7 @@
 package androidx.viewpager2.widget
 
 import androidx.test.filters.LargeTest
+import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.DragWhileSmoothScrollTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.DragWhileSmoothScrollTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.DragWhileSmoothScrollTest.Event.OnPageSelectedEvent
@@ -72,20 +73,21 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 val listener = viewPager.addNewRecordingListener()
                 val movingForward = targetPage > startPage
 
-                // when
+                // when we are close enough
                 val waitTillCloseEnough = viewPager.addWaitForDistanceToTarget(targetPage,
                     distanceToTargetWhenStartDrag)
                 runOnUiThread { viewPager.setCurrentItem(targetPage, true) }
                 waitTillCloseEnough.await(1, SECONDS)
 
+                // then perform a swipe
                 if (dragInOppositeDirection == movingForward) {
-                    swiper.swipePrevious()
+                    swipeBackward(SwipeMethod.MANUAL)
                 } else {
-                    swiper.swipeNext()
+                    swipeForward(SwipeMethod.MANUAL)
                 }
                 viewPager.addWaitForIdleLatch().await(2, SECONDS)
 
-                // then
+                // and check the result
                 listener.apply {
                     assertThat(
                         stateEvents.map { it.state },
