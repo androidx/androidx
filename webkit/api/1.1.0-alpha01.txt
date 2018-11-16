@@ -29,6 +29,38 @@ package androidx.webkit {
     method @RequiresFeature(name=androidx.webkit.WebViewFeature.SERVICE_WORKER_CACHE_MODE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public abstract void setCacheMode(int);
   }
 
+  public class TracingConfig {
+    method public java.util.List<java.lang.String> getCustomIncludedCategories();
+    method public int getPredefinedCategories();
+    method public int getTracingMode();
+    field public static final int CATEGORIES_ALL = 1; // 0x1
+    field public static final int CATEGORIES_ANDROID_WEBVIEW = 2; // 0x2
+    field public static final int CATEGORIES_FRAME_VIEWER = 64; // 0x40
+    field public static final int CATEGORIES_INPUT_LATENCY = 8; // 0x8
+    field public static final int CATEGORIES_JAVASCRIPT_AND_RENDERING = 32; // 0x20
+    field public static final int CATEGORIES_NONE = 0; // 0x0
+    field public static final int CATEGORIES_RENDERING = 16; // 0x10
+    field public static final int CATEGORIES_WEB_DEVELOPER = 4; // 0x4
+    field public static final int RECORD_CONTINUOUSLY = 1; // 0x1
+    field public static final int RECORD_UNTIL_FULL = 0; // 0x0
+  }
+
+  public static class TracingConfig.Builder {
+    ctor public TracingConfig.Builder();
+    method public androidx.webkit.TracingConfig.Builder addCategories(int...);
+    method public androidx.webkit.TracingConfig.Builder addCategories(java.lang.String...);
+    method public androidx.webkit.TracingConfig.Builder addCategories(java.util.Collection<java.lang.String>);
+    method public androidx.webkit.TracingConfig build();
+    method public androidx.webkit.TracingConfig.Builder setTracingMode(int);
+  }
+
+  public abstract class TracingController {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public static androidx.webkit.TracingController getInstance();
+    method public abstract boolean isTracing();
+    method public abstract void start(androidx.webkit.TracingConfig);
+    method public abstract boolean stop(java.io.OutputStream?, java.util.concurrent.Executor);
+  }
+
   public class WebMessageCompat {
     ctor public WebMessageCompat(String?);
     ctor public WebMessageCompat(String?, androidx.webkit.WebMessagePortCompat[]?);
@@ -117,6 +149,7 @@ package androidx.webkit {
     field public static final String SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST = "SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST";
     field public static final String SHOULD_OVERRIDE_WITH_REDIRECTS = "SHOULD_OVERRIDE_WITH_REDIRECTS";
     field public static final String START_SAFE_BROWSING = "START_SAFE_BROWSING";
+    field public static final String TRACING_CONTROLLER_BASIC_USAGE = "TRACING_CONTROLLER_BASIC_USAGE";
     field public static final String VISUAL_STATE_CALLBACK = "VISUAL_STATE_CALLBACK";
     field public static final String WEB_MESSAGE_CALLBACK_ON_MESSAGE = "WEB_MESSAGE_CALLBACK_ON_MESSAGE";
     field public static final String WEB_MESSAGE_PORT_CLOSE = "WEB_MESSAGE_PORT_CLOSE";

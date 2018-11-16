@@ -20,6 +20,7 @@ import android.webkit.WebView;
 
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
+import org.chromium.support_lib_boundary.TracingControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderFactoryBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
@@ -85,5 +86,15 @@ public class WebViewProviderFactoryAdapter implements WebViewProviderFactory {
     public ServiceWorkerControllerBoundaryInterface getServiceWorkerController() {
         return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
                 ServiceWorkerControllerBoundaryInterface.class, mImpl.getServiceWorkerController());
+    }
+
+    /**
+     * Adapter method for fetching the support library class representing
+     * {@link android.webkit.TracingController}.
+     */
+    @Override
+    public TracingControllerBoundaryInterface getTracingController() {
+        return BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                TracingControllerBoundaryInterface.class, mImpl.getTracingController());
     }
 }

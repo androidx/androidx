@@ -400,8 +400,12 @@ class WebViewOnUiThread {
                         + "without calling waitForLoadCompletion after the load",
                 !isLoaded());
         clearLoad(); // clear any extraneous signals from a previous load.
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(call);
-        waitForLoadCompletion();
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            call.run();
+        } else {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(call);
+            waitForLoadCompletion();
+        }
     }
 
     /**
