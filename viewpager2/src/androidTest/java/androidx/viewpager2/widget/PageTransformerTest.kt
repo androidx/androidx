@@ -149,7 +149,7 @@ class PageTransformerTest : BaseTest() {
 
     private val swipe: Context.(Int, Int) -> Unit = { currentPage, targetPage ->
         val latch = viewPager.addWaitForScrolledLatch(targetPage)
-        swiper.swipe(currentPage, targetPage)
+        swipe(currentPage, targetPage)
         latch.await(1, SECONDS)
         assertBasicState(targetPage, "$targetPage")
     }

@@ -113,7 +113,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 val latch = viewPager.addWaitForScrolledLatch(targetPage)
 
                 // when
-                swiper.swipe(initialPage, targetPage)
+                swipe(initialPage, targetPage)
                 latch.await(1, SECONDS)
 
                 // then
@@ -173,7 +173,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 val latch = viewPager.addWaitForScrolledLatch(targetPage)
 
                 // when
-                swiper.swipe(initialPage, targetPage)
+                swipe(initialPage, targetPage)
                 latch.await(1, SECONDS)
 
                 // then
@@ -224,7 +224,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             val latch = viewPager.addWaitForScrolledLatch(0)
 
             // when
-            peekForward(config.orientation)
+            peekForward()
             latch.await(1, SECONDS)
 
             // then
@@ -275,7 +275,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             val latch1 = viewPager.addWaitForScrolledLatch(2)
 
             // when
-            peekBackward(config.orientation)
+            peekBackward()
             latch1.await(10, SECONDS)
 
             // then

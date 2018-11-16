@@ -44,6 +44,8 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
 import androidx.viewpager2.widget.swipe.FragmentAdapter
 import androidx.viewpager2.widget.swipe.PageSwiper
+import androidx.viewpager2.widget.swipe.PageSwiperEspresso
+import androidx.viewpager2.widget.swipe.PageSwiperManual
 import androidx.viewpager2.widget.swipe.TestActivity
 import androidx.viewpager2.widget.swipe.ViewAdapter
 import org.hamcrest.CoreMatchers.equalTo
@@ -115,31 +117,85 @@ open class BaseTest {
 
         val viewPager: ViewPager2 get() = activity.findViewById(R.id.view_pager)
 
-        val swiper: PageSwiper
-            get() = PageSwiper(viewPager.adapter.itemCount, viewPager.orientation, isRtl)
-
         val isRtl get() = ViewCompat.getLayoutDirection(viewPager) ==
                 ViewCompat.LAYOUT_DIRECTION_RTL
 
-        fun peekForward(@ViewPager2.Orientation orientation: Int) {
-            peek(orientation, adjustForRtl(orientation, -50f))
+        fun peekForward() {
+            peek(adjustForRtl(-50f))
         }
 
-        fun peekBackward(@ViewPager2.Orientation orientation: Int) {
-            peek(orientation, adjustForRtl(orientation, 50f))
+        fun peekBackward() {
+            peek(adjustForRtl(50f))
         }
 
-        private fun adjustForRtl(@ViewPager2.Orientation orientation: Int, offset: Float): Float {
-            return if (orientation == ORIENTATION_HORIZONTAL && isRtl) -offset else offset
+        enum class SwipeMethod {
+            ESPRESSO,
+            MANUAL
         }
 
-        private fun peek(@ViewPager2.Orientation orientation: Int, offset: Float) {
+        fun swipe(currentPageIx: Int, nextPageIx: Int, method: SwipeMethod = SwipeMethod.ESPRESSO) {
+            val lastPageIx = viewPager.adapter.itemCount - 1
+
+            if (nextPageIx > lastPageIx) {
+                throw IllegalArgumentException("Invalid next page: beyond last page.")
+            }
+
+            if (currentPageIx == nextPageIx) { // dedicated for testing edge behaviour
+                if (nextPageIx == 0) {
+                    swipeBackward(method) // bounce off the "left" edge
+                    return
+                }
+                if (nextPageIx == lastPageIx) { // bounce off the "right" edge
+                    swipeForward(method)
+                    return
+                }
+                throw IllegalArgumentException(
+                    "Invalid sequence. Not on an edge, and current page = next page."
+                )
+            }
+
+            if (Math.abs(nextPageIx - currentPageIx) > 1) {
+                throw IllegalArgumentException(
+                    "Specified next page not adjacent to the current page."
+                )
+            }
+
+            if (nextPageIx > currentPageIx) {
+                swipeForward(method)
+            } else {
+                swipeBackward(method)
+            }
+        }
+
+        fun swipeForward(method: SwipeMethod = SwipeMethod.ESPRESSO) {
+            swiper(method).swipeNext()
+        }
+
+        fun swipeBackward(method: SwipeMethod = SwipeMethod.ESPRESSO) {
+            swiper(method).swipePrevious()
+        }
+
+        private fun swiper(method: SwipeMethod = SwipeMethod.ESPRESSO): PageSwiper {
+            return when (method) {
+                SwipeMethod.ESPRESSO -> PageSwiperEspresso(
+                    viewPager.orientation,
+                    isRtl
+                )
+                SwipeMethod.MANUAL -> PageSwiperManual(viewPager, isRtl)
+            }
+        }
+
+        private fun adjustForRtl(offset: Float): Float {
+            return if (viewPager.orientation == ORIENTATION_HORIZONTAL && isRtl) -offset else offset
+        }
+
+        private fun peek(offset: Float) {
             onView(allOf(isDisplayed(), isAssignableFrom(ViewPager2::class.java)))
                 .perform(actionWithAssertions(
                     GeneralSwipeAction(Swipe.SLOW, GeneralLocation.CENTER,
                         CoordinatesProvider { view ->
                             val coordinates = GeneralLocation.CENTER.calculateCoordinates(view)
-                            if (orientation == ORIENTATION_HORIZONTAL) {
+                            if (viewPager.orientation == ORIENTATION_HORIZONTAL) {
                                 coordinates[0] += offset
                             } else {
                                 coordinates[1] += offset
@@ -198,6 +254,12 @@ open class BaseTest {
         }
 
         waitForRenderLatch.await(5, TimeUnit.SECONDS)
+
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            // Give slow devices some time to warm up,
+            // to prevent severe frame drops in the smooth scroll
+            Thread.sleep(1000)
+        }
     }
 
     fun ViewPager2.addWaitForIdleLatch(): CountDownLatch {
