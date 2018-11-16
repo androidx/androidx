@@ -22,7 +22,9 @@ import androidx.room.processor.ProcessorErrors
 import androidx.room.testing.TestInvocation
 import androidx.room.vo.Pojo
 import com.google.testing.compile.CompileTester
+import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
+import compileLibrarySources
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -81,6 +83,37 @@ class AutoValuePojoProcessorDelegateTest {
             assertThat(pojo.type.toString(), `is`("foo.bar.MyPojo"))
             assertThat(pojo.fields.size, `is`(1))
             assertThat(pojo.constructor?.element?.kind, `is`(ElementKind.METHOD))
+        }.compilesWithoutError().withWarningCount(0)
+    }
+
+    @Test
+    fun goodLibraryPojo() {
+        val libraryClassLoader = compileLibrarySources(
+            JavaFileObjects.forSourceString(MY_POJO.toString(),
+                """
+                    $HEADER
+                    @AutoValue.CopyAnnotations
+                    @PrimaryKey
+                    abstract long getArg0();
+                    static MyPojo create(long arg0) { return new AutoValue_MyPojo(arg0); }
+                    $FOOTER
+                    """),
+            JavaFileObjects.forSourceString(AUTOVALUE_MY_POJO.toString(),
+                """
+                    $AUTO_VALUE_HEADER
+                    @PrimaryKey
+                    private final long arg0;
+                    AutoValue_MyPojo(long arg0) { this.arg0 = arg0; }
+                    @PrimaryKey
+                    long getArg0() { return this.arg0; }
+                    $FOOTER
+                    """)
+        )
+        simpleRun(classLoader = libraryClassLoader) { invocation ->
+                PojoProcessor.createFor(context = invocation.context,
+                    element = invocation.typeElement(MY_POJO.toString()),
+                    bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                    parent = null).process()
         }.compilesWithoutError().withWarningCount(0)
     }
 

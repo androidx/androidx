@@ -66,11 +66,12 @@ class AutoValuePojoProcessorDelegate(
     }
 
     override fun findConstructors(element: TypeElement): List<ExecutableElement> {
+        val typeUtils = context.processingEnv.typeUtils
         return ElementFilter.methodsIn(autoValueElement.enclosedElements).filter {
             it.hasAnyOf(Modifier.STATIC) &&
                     !it.hasAnnotation(Ignore::class) &&
                     !it.hasAnyOf(Modifier.PRIVATE) &&
-                    it.returnType == autoValueElement.asType()
+                    typeUtils.isSameType(it.returnType, autoValueElement.asType())
         }
     }
 
