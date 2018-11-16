@@ -251,7 +251,7 @@ package androidx.transition {
     ctor @Deprecated public TransitionValues();
     ctor public TransitionValues(android.view.View);
     field public final java.util.Map<java.lang.String,java.lang.Object>! values;
-    field public android.view.View view;
+    field public android.view.View! view;
   }
 
   public abstract class Visibility extends androidx.transition.Transition {
