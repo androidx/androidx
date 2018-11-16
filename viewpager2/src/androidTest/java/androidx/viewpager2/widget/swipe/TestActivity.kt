@@ -18,6 +18,7 @@ package androidx.viewpager2.widget.swipe
 
 import android.os.Bundle
 import androidx.testutils.RecreatedActivity
+import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.test.R
 import androidx.viewpager2.widget.AdapterProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -25,6 +26,9 @@ import androidx.viewpager2.widget.ViewPager2
 class TestActivity : RecreatedActivity() {
     public override fun onCreate(bundle: Bundle?) {
         super.onCreate(bundle)
+        if (intent?.hasExtra(EXTRA_LANGUAGE) == true) {
+            LocaleTestUtils(this).setLocale(intent.getStringExtra(EXTRA_LANGUAGE))
+        }
 
         setContentView(R.layout.activity_test_layout)
 
@@ -37,5 +41,6 @@ class TestActivity : RecreatedActivity() {
     companion object {
         @JvmStatic
         var adapterProvider: AdapterProvider? = null
+        const val EXTRA_LANGUAGE = "language"
     }
 }

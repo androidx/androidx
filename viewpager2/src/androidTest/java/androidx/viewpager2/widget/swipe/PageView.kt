@@ -23,6 +23,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.viewpager2.test.R
 
+private const val PAGE_COLOR_EVEN = 0xFFFF0000.toInt()
+private const val PAGE_COLOR_ODD = 0xFF0000FF.toInt()
+
 object PageView {
     fun inflatePage(parent: ViewGroup): View =
             LayoutInflater.from(parent.context).inflate(R.layout.item_test_layout, parent, false)
@@ -33,5 +36,9 @@ object PageView {
 
     fun setPageText(page: View, text: String) {
         (page as TextView).text = text
+    }
+
+    fun setPageColor(page: View, position: Int) {
+        page.setBackgroundColor(if (position % 2 == 0) PAGE_COLOR_EVEN else PAGE_COLOR_ODD)
     }
 }

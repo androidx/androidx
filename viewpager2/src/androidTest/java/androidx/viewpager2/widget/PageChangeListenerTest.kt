@@ -22,14 +22,14 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.LargeTest
-import androidx.test.runner.AndroidJUnit4
 import androidx.testutils.PollingCheck
 import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.LocaleTestUtils
 import androidx.viewpager2.widget.PageChangeListenerTest.Event.MarkerEvent
 import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageScrollStateChangedEvent
 import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageSelectedEvent
-import androidx.viewpager2.widget.ViewPager2.Orientation
+import androidx.viewpager2.widget.PageChangeListenerTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
@@ -41,14 +41,33 @@ import org.hamcrest.Matchers.allOf
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.util.concurrent.TimeUnit.MILLISECONDS
 import java.util.concurrent.TimeUnit.SECONDS
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.roundToInt
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @LargeTest
-class PageChangeListenerTest : BaseTest() {
+class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
+    data class TestConfig(
+        @ViewPager2.Orientation val orientation: Int,
+        val rtl: Boolean
+    )
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun spec(): List<TestConfig> = createTestSet()
+    }
+
+    override fun setUp() {
+        super.setUp()
+        if (config.rtl) {
+            localeUtil.resetLocale()
+            localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
+        }
+    }
 
     /*
     Sample log to guide the test
@@ -80,8 +99,9 @@ class PageChangeListenerTest : BaseTest() {
     onPageScrolled,1,0.000000,0
     onPageScrollStateChanged,0
      */
-    private fun test_swipeBetweenPages(@Orientation orientation: Int) {
-        setUpTest(orientation).apply {
+    @Test
+    fun test_swipeBetweenPages() {
+        setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(4)))
             listOf(1, 2, 3, 2, 1, 0).forEach { targetPage ->
                 // given
@@ -121,16 +141,6 @@ class PageChangeListenerTest : BaseTest() {
         }
     }
 
-    @Test
-    fun test_swipeBetweenPages_horizontal() {
-        test_swipeBetweenPages(ORIENTATION_HORIZONTAL)
-    }
-
-    @Test
-    fun test_swipeBetweenPages_vertical() {
-        test_swipeBetweenPages(ORIENTATION_VERTICAL)
-    }
-
     /*
     Before page 0
     onPageScrollStateChanged,1
@@ -147,11 +157,12 @@ class PageChangeListenerTest : BaseTest() {
     onPageScrolled,2,0.000000,0
     onPageScrollStateChanged,0
      */
-    private fun test_swipeBeyondEdgePages(@Orientation orientation: Int) {
+    @Test
+    fun test_swipeBeyondEdgePages() {
         val totalPages = 3
         val edgePages = setOf(0, totalPages - 1)
 
-        setUpTest(orientation).apply {
+        setUpTest(config.orientation).apply {
 
             setAdapterSync(viewAdapterProvider(stringSequence(totalPages)))
             listOf(0, 0, 1, 2, 2, 2, 1, 2, 2, 2, 1, 0, 0, 0).forEach { targetPage ->
@@ -187,16 +198,6 @@ class PageChangeListenerTest : BaseTest() {
         }
     }
 
-    @Test
-    fun test_swipeBeyondEdgePages_horizontal() {
-        test_swipeBeyondEdgePages(ORIENTATION_HORIZONTAL)
-    }
-
-    @Test
-    fun test_swipeBeyondEdgePages_vertical() {
-        test_swipeBeyondEdgePages(ORIENTATION_VERTICAL)
-    }
-
     /*
     0 -> 1 (peek) -> 0
     onPageScrollStateChanged,1
@@ -214,15 +215,16 @@ class PageChangeListenerTest : BaseTest() {
     onPageScrolled,0,0.000000,0
     onPageScrollStateChanged,0
      */
-    private fun test_peekOnAdjacentPage_next(@Orientation orientation: Int) {
+    @Test
+    fun test_peekOnAdjacentPage_next() {
         // given
-        setUpTest(orientation).apply {
+        setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(3)))
             val listener = viewPager.addNewRecordingListener()
             val latch = viewPager.addWaitForScrolledLatch(0)
 
             // when
-            peekForward(orientation)
+            peekForward(config.orientation)
             latch.await(1, SECONDS)
 
             // then
@@ -244,16 +246,6 @@ class PageChangeListenerTest : BaseTest() {
         }
     }
 
-    @Test
-    fun test_peekOnAdjacentPage_horizontal_next() {
-        test_peekOnAdjacentPage_next(ORIENTATION_HORIZONTAL)
-    }
-
-    @Test
-    fun test_peekOnAdjacentPage_vertical_next() {
-        test_peekOnAdjacentPage_next(ORIENTATION_VERTICAL)
-    }
-
     /*
     1 -> 0 (peek) -> 1
     onPageScrollStateChanged,1
@@ -269,9 +261,10 @@ class PageChangeListenerTest : BaseTest() {
     onPageScrolled,1,0.000000,0
     onPageScrollStateChanged,0
      */
-    private fun test_peekOnAdjacentPage_previous(@Orientation orientation: Int) {
+    @Test
+    fun test_peekOnAdjacentPage_previous() {
         // given
-        setUpTest(orientation).apply {
+        setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(3)))
 
             viewPager.setCurrentItemSync(2, false, 200, MILLISECONDS)
@@ -282,7 +275,7 @@ class PageChangeListenerTest : BaseTest() {
             val latch1 = viewPager.addWaitForScrolledLatch(2)
 
             // when
-            peekBackward(orientation)
+            peekBackward(config.orientation)
             latch1.await(10, SECONDS)
 
             // then
@@ -304,16 +297,6 @@ class PageChangeListenerTest : BaseTest() {
                 scrollEvents.assertLastCorrect(2)
             }
         }
-    }
-
-    @Test
-    fun test_peekOnAdjacentPage_horizontal_previous() {
-        test_peekOnAdjacentPage_previous(ORIENTATION_HORIZONTAL)
-    }
-
-    @Test
-    fun test_peekOnAdjacentPage_vertical_previous() {
-        test_peekOnAdjacentPage_previous(ORIENTATION_VERTICAL)
     }
 
     /*
@@ -343,9 +326,10 @@ class PageChangeListenerTest : BaseTest() {
     onPageScrolled,0,0.000000,0
     onPageScrollStateChanged,0
      */
-    private fun test_selectItemProgrammatically_smoothScroll(@Orientation orientation: Int) {
+    @Test
+    fun test_selectItemProgrammatically_smoothScroll() {
         // given
-        setUpTest(orientation).apply {
+        setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(1000)))
 
             // when
@@ -384,18 +368,9 @@ class PageChangeListenerTest : BaseTest() {
     }
 
     @Test
-    fun test_selectItemProgrammatically_smoothScroll_horizontal() {
-        test_selectItemProgrammatically_smoothScroll(ORIENTATION_HORIZONTAL)
-    }
-
-    @Test
-    fun test_selectItemProgrammatically_smoothScroll_vertical() {
-        test_selectItemProgrammatically_smoothScroll(ORIENTATION_VERTICAL)
-    }
-
-    private fun test_multiplePageChanges(@Orientation orientation: Int) {
+    fun test_multiplePageChanges() {
         // given
-        setUpTest(orientation).apply {
+        setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(10)))
             val targetPages = listOf(4, 9)
             val listener = viewPager.addNewRecordingListener()
@@ -421,16 +396,6 @@ class PageChangeListenerTest : BaseTest() {
         }
     }
 
-    @Test
-    fun test_multiplePageChanges_horizontal() {
-        test_multiplePageChanges(ORIENTATION_HORIZONTAL)
-    }
-
-    @Test
-    fun test_multiplePageChanges_vertical() {
-        test_multiplePageChanges(ORIENTATION_VERTICAL)
-    }
-
     /**
      * Tests the case where setCurrentItem(x, false) is called while the smooth scroll from
      * setCurrentItem(x, true) is not yet finished.
@@ -450,9 +415,10 @@ class PageChangeListenerTest : BaseTest() {
      * onPageScrolled(4, 0.000000, 0)
      * onPageScrollStateChanged(0)
      */
-    private fun test_noSmoothScroll_after_smoothScroll(@Orientation orientation: Int) {
+    @Test
+    fun test_noSmoothScroll_after_smoothScroll() {
         // given
-        setUpTest(orientation).apply {
+        setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(6)))
             val targetPage = 4
             val marker = 1
@@ -479,16 +445,6 @@ class PageChangeListenerTest : BaseTest() {
         }
     }
 
-    @Test
-    fun test_noSmoothScroll_after_smoothScroll_horizontal() {
-        test_noSmoothScroll_after_smoothScroll(ORIENTATION_HORIZONTAL)
-    }
-
-    @Test
-    fun test_noSmoothScroll_after_smoothScroll_vertical() {
-        test_noSmoothScroll_after_smoothScroll(ORIENTATION_VERTICAL)
-    }
-
     /**
      * Tests a very specific case that can theoretically happen when a config change happens right
      * after an invocation to setCurrentItem. Due to a workaround for b/114019007, a smooth scroll
@@ -501,9 +457,10 @@ class PageChangeListenerTest : BaseTest() {
      *
      * Note that this test can be removed if we remove our workaround.
      */
-    private fun test_configChangeDuringFarSmoothScroll(@Orientation orientation: Int) {
+    @Test
+    fun test_configChangeDuringFarSmoothScroll() {
         // given
-        setUpTest(orientation).apply {
+        setUpTest(config.orientation).apply {
             val adapterProvider = viewAdapterProvider(stringSequence(5))
             setAdapterSync(adapterProvider)
             val targetPage = 4
@@ -530,16 +487,6 @@ class PageChangeListenerTest : BaseTest() {
         }
     }
 
-    @Test
-    fun test_configChangeDuringFarSmoothScroll_horizontal() {
-        test_configChangeDuringFarSmoothScroll(ORIENTATION_HORIZONTAL)
-    }
-
-    @Test
-    fun test_configChangeDuringFarSmoothScroll_vertical() {
-        test_configChangeDuringFarSmoothScroll(ORIENTATION_VERTICAL)
-    }
-
     /*
     0 -> 0
     // nothing
@@ -555,9 +502,10 @@ class PageChangeListenerTest : BaseTest() {
     onPageSelected,0
     onPageScrolled,0,0.000000,0
      */
-    private fun test_selectItemProgrammatically_noSmoothScroll(@Orientation orientation: Int) {
+    @Test
+    fun test_selectItemProgrammatically_noSmoothScroll() {
         // given
-        setUpTest(orientation).apply {
+        setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(3)))
 
             // when
@@ -585,26 +533,13 @@ class PageChangeListenerTest : BaseTest() {
         }
     }
 
-    @Test
-    fun test_selectItemProgrammatically_noSmoothScroll_horizontal() {
-        test_selectItemProgrammatically_noSmoothScroll(ORIENTATION_HORIZONTAL)
-    }
-
-    @Test
-    fun test_selectItemProgrammatically_noSmoothScroll_vertical() {
-        test_selectItemProgrammatically_noSmoothScroll(ORIENTATION_VERTICAL)
-    }
-
     /**
      * Test behavior when no OnPageChangeListeners are attached.
      * Introduced after finding a regression.
      */
-    private fun test_selectItemProgrammatically_noListener(
-        @Orientation orientation: Int,
-        smoothScroll: Boolean
-    ) {
+    private fun test_selectItemProgrammatically_noListener(smoothScroll: Boolean) {
         // given
-        setUpTest(orientation).apply {
+        setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(3)))
 
             // when
@@ -631,23 +566,13 @@ class PageChangeListenerTest : BaseTest() {
     }
 
     @Test
-    fun test_selectItemProgrammatically_noSmoothScroll_noListener_horizontal() {
-        test_selectItemProgrammatically_noListener(ORIENTATION_HORIZONTAL, false)
+    fun test_selectItemProgrammatically_noSmoothScroll_noListener() {
+        test_selectItemProgrammatically_noListener(false)
     }
 
     @Test
-    fun test_selectItemProgrammatically_noSmoothScroll_noListener_vertical() {
-        test_selectItemProgrammatically_noListener(ORIENTATION_VERTICAL, false)
-    }
-
-    @Test
-    fun test_selectItemProgrammatically_smoothScroll_noListener_horizontal() {
-        test_selectItemProgrammatically_noListener(ORIENTATION_HORIZONTAL, true)
-    }
-
-    @Test
-    fun test_selectItemProgrammatically_smoothScroll_noListener_vertical() {
-        test_selectItemProgrammatically_noListener(ORIENTATION_VERTICAL, true)
+    fun test_selectItemProgrammatically_smoothScroll_noListener() {
+        test_selectItemProgrammatically_noListener(true)
     }
 
     @Test
@@ -813,3 +738,15 @@ class PageChangeListenerTest : BaseTest() {
         assertThat(map { it.position }.distinct().size, isBetweenInIn(0, 4))
     }
 }
+
+// region Test Suite creation
+
+private fun createTestSet(): List<TestConfig> {
+    return listOf(ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL).flatMap { orientation ->
+        listOf(true, false).map { rtl ->
+            TestConfig(orientation, rtl)
+        }
+    }
+}
+
+// endregion
