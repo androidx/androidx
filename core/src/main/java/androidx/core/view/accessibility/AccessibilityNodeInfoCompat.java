@@ -28,6 +28,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.ClickableSpan;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -38,6 +39,14 @@ import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments;
+import androidx.core.view.accessibility.AccessibilityViewCommand.MoveAtGranularityArguments;
+import androidx.core.view.accessibility.AccessibilityViewCommand.MoveHtmlArguments;
+import androidx.core.view.accessibility.AccessibilityViewCommand.MoveWindowArguments;
+import androidx.core.view.accessibility.AccessibilityViewCommand.ScrollToPositionArguments;
+import androidx.core.view.accessibility.AccessibilityViewCommand.SetProgressArguments;
+import androidx.core.view.accessibility.AccessibilityViewCommand.SetSelectionArguments;
+import androidx.core.view.accessibility.AccessibilityViewCommand.SetTextArguments;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -50,14 +59,45 @@ import java.util.List;
  */
 public class AccessibilityNodeInfoCompat {
 
+    /**
+     * A class defining an action that can be performed on an {@link AccessibilityNodeInfo}.
+     * Each action has a unique id and a label.
+     * <p>
+     * There are three categories of actions:
+     * <ul>
+     * <li><strong>Standard actions</strong> - These are actions that are reported and
+     * handled by the standard UI widgets in the platform. For each standard action
+     * there is a static constant defined in this class, e.g. {@link #ACTION_FOCUS}.
+     * These actions will have {@code null} labels.
+     * </li>
+     * <li><strong>Custom actions action</strong> - These are actions that are reported
+     * and handled by custom widgets. i.e. ones that are not part of the UI toolkit. For
+     * example, an application may define a custom action for clearing the user history.
+     * </li>
+     * <li><strong>Overriden standard actions</strong> - These are actions that override
+     * standard actions to customize them. For example, an app may add a label to the
+     * standard {@link #ACTION_CLICK} action to indicate to the user that this action clears
+     * browsing history.
+     * </ul>
+     * </p>
+     * <p class="note">
+     * <strong>Note:</strong> Views which support these actions should invoke
+     * {@link View#setImportantForAccessibility(int)} with
+     * {@link View#IMPORTANT_FOR_ACCESSIBILITY_YES} to ensure an
+     * {@link android.accessibilityservice.AccessibilityService} can discover the set of supported
+     * actions.
+     * </p>
+     */
+    @TargetApi(21)
     public static class AccessibilityActionCompat {
+
+        private static final String TAG = "A11yActionCompat";
 
         /**
          * Action that gives input focus to the node.
          */
         public static final AccessibilityActionCompat ACTION_FOCUS =
-                new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
+                new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
 
         /**
          * Action that clears input focus of the node.
@@ -84,8 +124,7 @@ public class AccessibilityNodeInfoCompat {
          * Action that clicks on the node info.
          */
         public static final AccessibilityActionCompat ACTION_CLICK =
-                new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_CLICK, null);
+                new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_CLICK, null);
 
         /**
          * Action that long clicks on the node.
@@ -154,7 +193,8 @@ public class AccessibilityNodeInfoCompat {
          */
         public static final AccessibilityActionCompat ACTION_NEXT_AT_MOVEMENT_GRANULARITY =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY, null);
+                        AccessibilityNodeInfoCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY, null,
+                        MoveAtGranularityArguments.class);
 
         /**
          * Action that requests to go to the previous entity in this node's text
@@ -202,7 +242,8 @@ public class AccessibilityNodeInfoCompat {
          */
         public static final AccessibilityActionCompat ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY, null);
+                        AccessibilityNodeInfoCompat.ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY, null,
+                        MoveAtGranularityArguments.class);
 
         /**
          * Action to move to the next HTML element of a given type. For example, move
@@ -223,7 +264,8 @@ public class AccessibilityNodeInfoCompat {
          */
         public static final AccessibilityActionCompat ACTION_NEXT_HTML_ELEMENT =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_NEXT_HTML_ELEMENT, null);
+                        AccessibilityNodeInfoCompat.ACTION_NEXT_HTML_ELEMENT, null,
+                        MoveHtmlArguments.class);
 
         /**
          * Action to move to the previous HTML element of a given type. For example, move
@@ -244,7 +286,8 @@ public class AccessibilityNodeInfoCompat {
          */
         public static final AccessibilityActionCompat ACTION_PREVIOUS_HTML_ELEMENT =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_PREVIOUS_HTML_ELEMENT, null);
+                        AccessibilityNodeInfoCompat.ACTION_PREVIOUS_HTML_ELEMENT, null,
+                        MoveHtmlArguments.class);
 
         /**
          * Action to scroll the node content forward.
@@ -264,22 +307,19 @@ public class AccessibilityNodeInfoCompat {
          * Action to copy the current selection to the clipboard.
          */
         public static final AccessibilityActionCompat ACTION_COPY =
-                new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_COPY, null);
+                new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_COPY, null);
 
         /**
          * Action to paste the current clipboard content.
          */
         public static final AccessibilityActionCompat ACTION_PASTE =
-                new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_PASTE, null);
+                new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_PASTE, null);
 
         /**
          * Action to cut the current selection and place it to the clipboard.
          */
         public static final AccessibilityActionCompat ACTION_CUT =
-                new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_CUT, null);
+                new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_CUT, null);
 
         /**
          * Action to set the selection. Performing this action with no arguments
@@ -306,7 +346,8 @@ public class AccessibilityNodeInfoCompat {
          */
         public static final AccessibilityActionCompat ACTION_SET_SELECTION =
                 new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_SET_SELECTION, null);
+                        AccessibilityNodeInfoCompat.ACTION_SET_SELECTION, null,
+                        SetSelectionArguments.class);
 
         /**
          * Action to expand an expandable node.
@@ -342,12 +383,12 @@ public class AccessibilityNodeInfoCompat {
          *   Bundle arguments = new Bundle();
          *   arguments.putCharSequence(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE,
          *       "android");
-         *   info.performAction(AccessibilityActionCompat.ACTION_SET_TEXT.getId(), arguments);
+         *  info.performAction(AccessibilityActionCompat.ACTION_SET_TEXT.getId(), arguments);
          * </code></pre></p>
          */
         public static final AccessibilityActionCompat ACTION_SET_TEXT =
-                new AccessibilityActionCompat(
-                        AccessibilityNodeInfoCompat.ACTION_SET_TEXT, null);
+                new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_SET_TEXT, null,
+                        SetTextArguments.class);
 
         /**
          * Action that requests the node make its bounding rectangle visible
@@ -356,10 +397,9 @@ public class AccessibilityNodeInfoCompat {
          * @see View#requestRectangleOnScreen(Rect)
          */
         public static final AccessibilityActionCompat ACTION_SHOW_ON_SCREEN =
-                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionShowOnScreen, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_ON_SCREEN : null,
+                        android.R.id.accessibilityActionShowOnScreen, null, null, null);
 
         /**
          * Action that scrolls the node to make the specified collection
@@ -374,55 +414,49 @@ public class AccessibilityNodeInfoCompat {
          * @see AccessibilityNodeInfoCompat#getCollectionInfo()
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_TO_POSITION =
-                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionScrollToPosition, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_TO_POSITION
+                        : null, android.R.id.accessibilityActionScrollToPosition, null, null,
+                        ScrollToPositionArguments.class);
 
         /**
          * Action to scroll the node content up.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_UP =
-                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionScrollUp, null);
-
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_UP : null,
+                        android.R.id.accessibilityActionScrollUp, null, null, null);
         /**
          * Action to scroll the node content left.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_LEFT =
-                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_LEFT)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionScrollLeft, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_LEFT : null,
+                        android.R.id.accessibilityActionScrollLeft, null, null, null);
 
         /**
          * Action to scroll the node content down.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_DOWN =
-                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionScrollDown, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_DOWN : null,
+                        android.R.id.accessibilityActionScrollDown, null, null, null);
 
         /**
          * Action to scroll the node content right.
          */
         public static final AccessibilityActionCompat ACTION_SCROLL_RIGHT =
-                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_RIGHT)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionScrollRight, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_RIGHT : null,
+                        android.R.id.accessibilityActionScrollRight, null, null, null);
 
         /**
          * Action that context clicks the node.
          */
         public static final AccessibilityActionCompat ACTION_CONTEXT_CLICK =
-                Build.VERSION.SDK_INT >= 23 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_CONTEXT_CLICK)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionContextClick, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_CONTEXT_CLICK : null,
+                        android.R.id.accessibilityActionContextClick, null, null, null);
 
         /**
          * Action that sets progress between {@link  RangeInfoCompat#getMin() RangeInfo.getMin()} and
@@ -435,10 +469,10 @@ public class AccessibilityNodeInfoCompat {
          * @see RangeInfoCompat
          */
         public static final AccessibilityActionCompat ACTION_SET_PROGRESS =
-                Build.VERSION.SDK_INT >= 24 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionSetProgress, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 24
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SET_PROGRESS : null,
+                        android.R.id.accessibilityActionSetProgress, null, null,
+                        SetProgressArguments.class);
 
         /**
          * Action to move a window to a new location.
@@ -448,31 +482,38 @@ public class AccessibilityNodeInfoCompat {
          * {@link AccessibilityNodeInfoCompat#ACTION_ARGUMENT_MOVE_WINDOW_Y}
          */
         public static final AccessibilityActionCompat ACTION_MOVE_WINDOW =
-                Build.VERSION.SDK_INT >= 26 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_MOVE_WINDOW)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionMoveWindow, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 26
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_MOVE_WINDOW : null,
+                        android.R.id.accessibilityActionMoveWindow, null, null,
+                        MoveWindowArguments.class);
 
         /**
          * Action to show a tooltip.
          */
         public static final AccessibilityActionCompat ACTION_SHOW_TOOLTIP =
-                Build.VERSION.SDK_INT >= 28 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TOOLTIP)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionShowTooltip, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TOOLTIP : null,
+                        android.R.id.accessibilityActionShowTooltip, null, null, null);
 
         /**
          * Action to hide a tooltip. A node should expose this action only for views that are
          * currently showing a tooltip.
          */
         public static final AccessibilityActionCompat ACTION_HIDE_TOOLTIP =
-                Build.VERSION.SDK_INT >= 28 ? new AccessibilityActionCompat(
-                        AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP)
-                        : new AccessibilityActionCompat(
-                                android.R.id.accessibilityActionHideTooltip, null);
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 28
+                        ? AccessibilityNodeInfo.AccessibilityAction.ACTION_HIDE_TOOLTIP : null,
+                        android.R.id.accessibilityActionHideTooltip, null, null, null);
 
         final Object mAction;
+        private final int mId;
+        private final CharSequence mLabel;
+        private final Class<? extends CommandArguments> mViewCommandArgumentClass;
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        protected final AccessibilityViewCommand mCommand;
 
         /**
          * Creates a new instance.
@@ -481,12 +522,44 @@ public class AccessibilityNodeInfoCompat {
          * @param label The action label.
          */
         public AccessibilityActionCompat(int actionId, CharSequence label) {
-            this(Build.VERSION.SDK_INT >= 21
-                    ? new AccessibilityNodeInfo.AccessibilityAction(actionId, label) : null);
+            this(null, actionId, label, null, null);
+        }
+
+        /**
+         * Creates a new instance.
+         *
+         * @param actionId The action id.
+         * @param label The action label.
+         * @param command The command performed when the service requests the action
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public AccessibilityActionCompat(int actionId, CharSequence label,
+                AccessibilityViewCommand command) {
+            this(null, actionId, label, command, null);
         }
 
         AccessibilityActionCompat(Object action) {
-            mAction = action;
+            this(action, 0, null, null, null);
+        }
+
+        private AccessibilityActionCompat(int actionId, CharSequence label,
+                Class<? extends CommandArguments> viewCommandArgumentClass) {
+            this(null, actionId, label, null, viewCommandArgumentClass);
+        }
+
+        AccessibilityActionCompat(Object action, int id, CharSequence label,
+                AccessibilityViewCommand command,
+                Class<? extends CommandArguments> viewCommandArgumentClass) {
+            mId = id;
+            mLabel = label;
+            mCommand = command;
+            if (action == null) {
+                mAction = new AccessibilityNodeInfo.AccessibilityAction(id, label);
+            } else {
+                mAction = action;
+            }
+            mViewCommandArgumentClass = viewCommandArgumentClass;
         }
 
         /**
@@ -495,11 +568,7 @@ public class AccessibilityNodeInfoCompat {
          * @return The action id.
          */
         public int getId() {
-            if (Build.VERSION.SDK_INT >= 21) {
-                return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getId();
-            } else {
-                return 0;
-            }
+            return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getId();
         }
 
         /**
@@ -509,11 +578,45 @@ public class AccessibilityNodeInfoCompat {
          * @return The label.
          */
         public CharSequence getLabel() {
-            if (Build.VERSION.SDK_INT >= 21) {
-                return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getLabel();
-            } else {
-                return null;
+            return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getLabel();
+        }
+
+        /**
+         * Performs the action.
+         * @return If the action was handled.
+         * @param view View to act upon.
+         * @param arguments Optional action arguments.
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public boolean perform(View view, Bundle arguments) {
+            if (mCommand != null) {
+                CommandArguments viewCommandArgument = null;
+                if (mViewCommandArgumentClass != null) {
+                    try {
+                        viewCommandArgument =
+                                mViewCommandArgumentClass.getDeclaredConstructor().newInstance();
+                        viewCommandArgument.setBundle(arguments);
+                    } catch (Exception e) {
+                        final String className = mViewCommandArgumentClass == null
+                                ? "null" : mViewCommandArgumentClass.getName();
+                        Log.e(TAG, "Failed to execute command with argument class "
+                                + "ViewCommandArgument: " + className, e);
+                    }
+                }
+                return mCommand.perform(view, viewCommandArgument);
             }
+            return false;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP)
+        public AccessibilityActionCompat createReplacementAction(CharSequence label,
+                AccessibilityViewCommand command) {
+            return new AccessibilityActionCompat(null, mId, label, command,
+                    mViewCommandArgumentClass);
         }
     }
 
@@ -1693,6 +1796,11 @@ public class AccessibilityNodeInfoCompat {
      *
      * @param action The action.
      * @throws IllegalStateException If called from an AccessibilityService.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 21: No-op</li>
+     * </ul>
      */
     public void addAction(AccessibilityActionCompat action) {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -1713,6 +1821,11 @@ public class AccessibilityNodeInfoCompat {
      * @return The action removed from the list of actions.
      *
      * @throws IllegalStateException If called from an AccessibilityService.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 21: Always returns {@code false}</li>
+     * </ul>
      */
     public boolean removeAction(AccessibilityActionCompat action) {
         if (Build.VERSION.SDK_INT >= 21) {
@@ -2681,6 +2794,11 @@ public class AccessibilityNodeInfoCompat {
      * Gets the actions that can be performed on the node.
      *
      * @return A list of AccessibilityActions.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 21: Always returns {@code null}</li>
+     * </ul>
      */
     @SuppressWarnings("unchecked")
     public List<AccessibilityActionCompat> getActionList() {
