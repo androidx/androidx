@@ -242,6 +242,10 @@ includeProject(":support-media-compat-test-service", "media/version-compat-tests
 includeProject(":support-media-compat-test-service-previous", "media/version-compat-tests/previous/service")
 includeProject(":support-media-compat-test-lib", "media/version-compat-tests/lib")
 
+includeProject(":support-media2-test-client", "media2/version-compat-tests/current/client")
+includeProject(":support-media2-test-service", "media2/version-compat-tests/current/service")
+includeProject(":support-media2-test-common", "media2/version-compat-tests/common")
+
 /////////////////////////////
 //
 // External
