@@ -24,15 +24,21 @@ import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+
 import android.content.res.Resources;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
 import androidx.annotation.IdRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
 import org.hamcrest.Matcher;
@@ -125,5 +131,19 @@ public class AppCompatSpinnerTest
         spinner.setPopupBackgroundDrawable(ContextCompat.getDrawable(
                 mActivityTestRule.getActivity(), R.drawable.test_background_blue));
         verifySpinnerPopupTheming(R.id.view_ocean_themed_popup, R.color.test_blue, false);
+    }
+
+    @MediumTest
+    @Test
+    public void testHasAppCompatDialogMode() {
+        final AppCompatSpinner spinner = mContainer.findViewById(R.id.spinner_dialog_popup);
+        final AppCompatSpinner.SpinnerPopup popup = spinner.getInternalPopup();
+        assertNotNull(popup);
+        assertThat(popup, instanceOf(AppCompatSpinner.DialogPopup.class));
+
+        onView(withId(R.id.spinner_dialog_popup)).perform(click());
+
+        final AppCompatSpinner.DialogPopup dialogPopup = (AppCompatSpinner.DialogPopup) popup;
+        assertThat(dialogPopup.mPopup, instanceOf(AlertDialog.class));
     }
 }
