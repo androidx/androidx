@@ -67,21 +67,30 @@ public class FingerprintHelperFragment extends Fragment {
     // Also created once and retained.
     private final FingerprintManagerCompat.AuthenticationCallback mAuthenticationCallback =
             new FingerprintManagerCompat.AuthenticationCallback() {
+
+                private void dismissAndForwardResult(final int errMsgId,
+                        final CharSequence errString) {
+                    mHandler.obtainMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG)
+                            .sendToTarget();
+                    mExecutor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            mClientAuthenticationCallback
+                                    .onAuthenticationError(errMsgId, errString);
+                        }
+                    });
+                }
+
                 @Override
                 public void onAuthenticationError(final int errMsgId,
                         final CharSequence errString) {
                     if (errMsgId == BiometricPrompt.ERROR_CANCELED) {
                         if (mCanceledFrom == USER_CANCELED_FROM_NONE) {
-                            mHandler.obtainMessage(FingerprintDialogFragment.MSG_DISMISS_DIALOG)
-                                    .sendToTarget();
-                            mExecutor.execute(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mClientAuthenticationCallback
-                                            .onAuthenticationError(errMsgId, errString);
-                                }
-                            });
+                            dismissAndForwardResult(errMsgId, errString);
                         }
+                    } else if (errMsgId == BiometricPrompt.ERROR_LOCKOUT
+                            || errMsgId == BiometricPrompt.ERROR_LOCKOUT_PERMANENT) {
+                        dismissAndForwardResult(errMsgId, errString);
                     } else {
                         mHandler.obtainMessage(FingerprintDialogFragment.MSG_SHOW_ERROR, errMsgId,
                                 0,
