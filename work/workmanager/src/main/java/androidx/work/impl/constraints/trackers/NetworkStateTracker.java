@@ -90,8 +90,14 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     @Override
     public void stopTracking() {
         if (isNetworkCallbackSupported()) {
-            Logger.debug(TAG, "Unregistering network callback");
-            mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
+            try {
+                Logger.debug(TAG, "Unregistering network callback");
+                mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
+            } catch (IllegalArgumentException e) {
+                // This seems to be happening on NVIDIA Shield Tablets a lot.  Catching the
+                // exception since it's not fatal and moving on.  See b/119484416.
+                Logger.error(TAG, "Received exception while unregistering network callback", e);
+            }
         } else {
             Logger.debug(TAG, "Unregistering broadcast receiver");
             mAppContext.unregisterReceiver(mBroadcastReceiver);
