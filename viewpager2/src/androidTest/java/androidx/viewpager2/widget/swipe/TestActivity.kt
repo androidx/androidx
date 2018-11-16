@@ -24,8 +24,8 @@ import androidx.viewpager2.widget.AdapterProvider
 import androidx.viewpager2.widget.ViewPager2
 
 class TestActivity : RecreatedActivity() {
-    public override fun onCreate(bundle: Bundle?) {
-        super.onCreate(bundle)
+    public override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         if (intent?.hasExtra(EXTRA_LANGUAGE) == true) {
             LocaleTestUtils(this).setLocale(intent.getStringExtra(EXTRA_LANGUAGE))
         }

@@ -306,7 +306,9 @@ open class BaseTest {
         })
         post { setCurrentItem(targetPage, smoothScroll) }
         latch.await(timeout, unit)
-        latchRV.await(timeout, unit)
+        if (smoothScroll) {
+            latchRV.await(timeout, unit)
+        }
     }
 
     enum class SortOrder(val sign: Int) {
