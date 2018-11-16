@@ -15,6 +15,45 @@
    limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.media2.test.service">
-    <application/>
+          package="androidx.media2.test.service.test">
+    <application>
+        <receiver android:name="androidx.media.session.MediaButtonReceiver" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_BUTTON" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name="androidx.media2.test.service.MediaSessionProviderService">
+            <intent-filter>
+                <!-- Keep sync with CommonConstants.java -->
+                <action android:name="androidx.media.test.action.MEDIA2_SESSION" />
+            </intent-filter>
+        </service>
+
+        <service android:name="androidx.media2.test.service.MediaSessionCompatProviderService">
+            <intent-filter>
+                <!-- Keep sync with CommonConstants.java -->
+                <action android:name="androidx.media.test.action.MEDIA_SESSION_COMPAT" />
+            </intent-filter>
+        </service>
+
+        <service android:name="androidx.media2.test.service.MockMediaSessionService">
+            <intent-filter>
+                <action android:name="androidx.media2.MediaSessionService" />
+            </intent-filter>
+        </service>
+
+        <service android:name="androidx.media2.test.service.MockMediaLibraryService">
+            <intent-filter>
+                <action android:name="androidx.media2.MediaLibraryService" />
+            </intent-filter>
+        </service>
+
+        <service android:name="androidx.media2.test.service.MockMediaBrowserServiceCompat">
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService"/>
+            </intent-filter>
+        </service>
+
+    </application>
 </manifest>
