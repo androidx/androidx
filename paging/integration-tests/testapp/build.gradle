@@ -23,18 +23,15 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":arch:core-runtime"))
-    implementation(project(":arch:core-common"))
+    implementation(ARCH_CORE_RUNTIME)
     implementation(project(":paging:paging-common"))
-    implementation(project(":room:room-runtime"))
-    implementation(project(":room:room-rxjava2"))
-    implementation(project(":lifecycle:lifecycle-extensions"))
-    implementation(project(":lifecycle:lifecycle-runtime"))
-    implementation(project(":lifecycle:lifecycle-common"))
+    implementation(ARCH_ROOM_RUNTIME)
+    implementation(ARCH_ROOM_RXJAVA)
+    implementation(ARCH_LIFECYCLE_EXTENSIONS)
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    annotationProcessor project(":room:room-compiler")
+    annotationProcessor(ARCH_ROOM_COMPILER)
 
     implementation(MULTIDEX)
     implementation(SUPPORT_RECYCLERVIEW, libs.support_exclude_config)
