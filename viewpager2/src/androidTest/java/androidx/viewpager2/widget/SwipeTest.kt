@@ -66,7 +66,7 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
 
                     // page swipe
                     val latch = viewPager.addWaitForScrolledLatch(targetPage)
-                    swiper.swipe(currentPage, targetPage)
+                    swipe(currentPage, targetPage)
                     latch.await(1, TimeUnit.SECONDS)
                     assertBasicState(targetPage, expectedValues[targetPage])
                 }
