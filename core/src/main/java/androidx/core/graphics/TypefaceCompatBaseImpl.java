@@ -99,6 +99,7 @@ class TypefaceCompatBaseImpl {
         }
     }
 
+    @Nullable
     public Typeface createFromFontInfo(Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts, int style) {
         // When we load from file, we can only load one font so just take the first one.
