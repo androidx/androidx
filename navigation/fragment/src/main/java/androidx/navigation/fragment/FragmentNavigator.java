@@ -174,14 +174,13 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
 
         final @IdRes int destId = destination.getId();
         final boolean initialNavigation = mBackStack.isEmpty();
-        final boolean isClearTask = navOptions != null && navOptions.shouldClearTask();
         // TODO Build first class singleTop behavior for fragments
         final boolean isSingleTopReplacement = navOptions != null && !initialNavigation
                 && navOptions.shouldLaunchSingleTop()
                 && mBackStack.peekLast() == destId;
 
         int backStackEffect;
-        if (initialNavigation || isClearTask) {
+        if (initialNavigation) {
             backStackEffect = BACK_STACK_DESTINATION_ADDED;
         } else if (isSingleTopReplacement) {
             // Single Top means we only want one instance on the back stack
