@@ -20,6 +20,7 @@ import android.webkit.WebView;
 
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
+import org.chromium.support_lib_boundary.TracingControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface;
 
@@ -58,4 +59,9 @@ public interface WebViewProviderFactory {
      * Fetch the boundary interface representing {@link android.webkit.ServiceWorkerController}.
      */
     ServiceWorkerControllerBoundaryInterface getServiceWorkerController();
+
+    /**
+     * Fetch the boundary interface representing {@link android.webkit.TracingController}.
+     */
+    TracingControllerBoundaryInterface getTracingController();
 }

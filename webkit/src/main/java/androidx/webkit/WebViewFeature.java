@@ -32,11 +32,13 @@ import androidx.webkit.internal.WebViewFeatureInternal;
 
 import org.chromium.support_lib_boundary.util.Features;
 
+import java.io.OutputStream;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Utility class for checking which WebView Support Library features are supported on the device.
@@ -67,6 +69,7 @@ public class WebViewFeature {
             RECEIVE_HTTP_ERROR,
             SHOULD_OVERRIDE_WITH_REDIRECTS,
             SAFE_BROWSING_HIT,
+            TRACING_CONTROLLER_BASIC_USAGE,
             WEB_RESOURCE_REQUEST_IS_REDIRECT,
             WEB_RESOURCE_ERROR_GET_DESCRIPTION,
             WEB_RESOURCE_ERROR_GET_CODE,
@@ -226,6 +229,17 @@ public class WebViewFeature {
      * WebResourceRequest, int, SafeBrowsingResponseCompat)}.
      */
     public static final String SAFE_BROWSING_HIT = Features.SAFE_BROWSING_HIT;
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link TracingController#getInstance()},
+     * {@link TracingController#isTracing()},
+     * {@link TracingController#start(TracingConfig)},
+     * {@link TracingController#stop(OutputStream, Executor)}.
+     */
+    public static final String TRACING_CONTROLLER_BASIC_USAGE =
+            Features.TRACING_CONTROLLER_BASIC_USAGE;
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
