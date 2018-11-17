@@ -22,8 +22,13 @@ import androidx.ui.engine.text.TextPosition
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticableTree
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
+import androidx.ui.foundation.diagnostics.StringProperty
+import androidx.ui.foundation.diagnostics.describeIdentity
 import androidx.ui.gestures.recognizer.GestureRecognizer
 import androidx.ui.painting.basictypes.RenderComparison
+import androidx.ui.runtimeType
 import java.lang.StringBuilder
 
 /**
@@ -228,36 +233,26 @@ data class TextSpan(
         return result
     }
 
-    // TODO(Migration/qqd): Implement toStringShort.
-    override fun toStringShort(): String {
-        TODO()
-    }
-//    @override
-//    String toStringShort() => '$runtimeType';
+    override fun toStringShort() = describeIdentity(this)
 
-    // TODO(Migration/qqd): Implement debugFillProperties.
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-        TODO()
+        super.debugFillProperties(properties)
+        properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace
+        // Properties on style are added as if they were properties directly on this TextSpan.
+        if (style != null)
+            style.debugFillProperties(properties)
+
+        properties.add(
+            DiagnosticsProperty.create(
+            "recognizer", recognizer,
+            description = recognizer?. runtimeType?.toString(),
+            defaultValue = null
+        ))
+
+        properties.add(StringProperty("text", text, showName = false, defaultValue = null))
+        if (style == null && text == null && children == null)
+            properties.add(DiagnosticsNode.message("(empty)"))
     }
-//    @override
-//    void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-//        super.debugFillProperties(properties);
-//        properties.defaultDiagnosticsTreeStyle = DiagnosticsTreeStyle.whitespace;
-//        // Properties on style are added as if they were properties directly on
-//        // this TextSpan.
-//        if (style != null)
-//            style.debugFillProperties(properties);
-//
-//        properties.add(new DiagnosticsProperty<GestureRecognizer>(
-//            'recognizer', recognizer,
-//            description: recognizer?.runtimeType?.toString(),
-//            defaultValue: null,
-//        ));
-//
-//        properties.add(new StringProperty('text', text, showName: false, defaultValue: null));
-//        if (style == null && text == null && children == null)
-//            properties.add(new DiagnosticsNode.message('(empty)'));
-//    }
 
     override fun debugDescribeChildren(): List<DiagnosticsNode> {
         if (children == null) {
