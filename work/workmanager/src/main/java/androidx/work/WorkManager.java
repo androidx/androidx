@@ -40,12 +40,7 @@ import java.util.concurrent.TimeUnit;
  * criteria:
  * <p><ul>
  * <li>Uses JobScheduler for API 23+
- * <li>For API 14-22
- * <ul>
- *   <li>If using Firebase JobDispatcher in the app and the optional Firebase dependency, uses
- *     Firebase JobDispatcher
- *   <li>Otherwise, uses a custom AlarmManager + BroadcastReceiver implementation
- * </ul></ul>
+ * <li>Uses a custom AlarmManager + BroadcastReceiver implementation for API 14-22</ul>
  * <p></p>All work must have a corresponding {@link Worker} to perform the computations.  Work is
  * performed in the background thread.
  *
