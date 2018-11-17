@@ -821,7 +821,6 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @Test
     @LargeTest
     public void testPreservePlaybackProperties() throws Exception {
-        /* TODO: enable this test once MediaPlayer has playlist implementation.
         final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start1 = 6000;
         final long end1 = 7000;
@@ -842,49 +841,32 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 .setEndPosition(end2)
                 .build();
 
-        mPlayer.setMediaItem();
-        mPlayer.setNextMediaItem(dsd2);
+        List<MediaItem> items = new ArrayList<>();
+        items.add(dsd1);
+        items.add(dsd2);
+        mPlayer.setPlaylist(items, null);
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
+        final Monitor onCompletionCalled = new Monitor();
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override
-            public void onInfo(MediaPlayer2 mp, MediaItem dsd, int what, int extra) {
-                if (what == MediaPlayer2.MEDIA_INFO_PREPARED) {
-                    mOnPrepareCalled.signal();
-                } else if (what == MediaPlayer2.MEDIA_INFO_DATA_SOURCE_END) {
-                    mOnCompletionCalled.signal();
-                }
-            }
-
-            @Override
-            public void onCallCompleted(
-                    MediaPlayer2 mp, MediaItem dsd, int what, int status) {
-                if (what == MediaPlayer2.CALL_COMPLETED_PLAY) {
-                    assertTrue(status == MediaPlayer2.CALL_STATUS_NO_ERROR);
-                    mOnPlayCalled.signal();
-                }
+            public void onPlaybackCompleted(SessionPlayer player) {
+                onCompletionCalled.signal();
             }
         };
         mPlayer.registerPlayerCallback(mExecutor, callback);
 
-        mOnPrepareCalled.reset();
-        mPlayer.prepare();
-        mOnPrepareCalled.waitForSignal();
+        mPlayer.prepare().get();
 
-        mOnPlayCalled.reset();
-        mOnCompletionCalled.reset();
         mPlayer.setPlaybackParams(new PlaybackParams.Builder().setSpeed(2.0f).build());
         mPlayer.play();
 
-        mOnPlayCalled.waitForSignal();
-        mOnCompletionCalled.waitForSignal();
-
+        onCompletionCalled.waitForSignal();
         assertEquals(dsd2, mPlayer.getCurrentMediaItem());
         assertEquals(2.0f, mPlayer.getPlaybackParams().getSpeed(), 0.001f);
 
         afd1.close();
         afd2.close();
-        */
     }
 
     @Test
