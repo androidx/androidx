@@ -41,6 +41,7 @@ dependencies {
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
+    androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TRUTH)
     androidTestImplementation(GUAVA_LISTENABLE_FUTURE_AVOID_CONFLICT)
 }
