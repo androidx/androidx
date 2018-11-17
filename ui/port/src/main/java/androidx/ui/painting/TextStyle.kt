@@ -1,21 +1,24 @@
 /*
- * Copyright 2018 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2018 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package androidx.ui.painting
 
+import androidx.ui.assert
+import androidx.ui.clamp
+import androidx.ui.describeEnum
 import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
@@ -26,15 +29,22 @@ import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDecorationStyle
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.window.Locale
+import androidx.ui.foundation.diagnostics.DiagnosticLevel
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
+import androidx.ui.foundation.diagnostics.DiagnosticsNode
+import androidx.ui.foundation.diagnostics.DiagnosticsProperty
+import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.EnumProperty
+import androidx.ui.foundation.diagnostics.FlagProperty
+import androidx.ui.foundation.diagnostics.MessageProperty
+import androidx.ui.foundation.diagnostics.StringProperty
+import androidx.ui.foundation.diagnostics.describeIdentity
+import androidx.ui.lerpDouble
 import androidx.ui.painting.basictypes.RenderComparison
+import androidx.ui.toStringAsFixed
 
-// val _kDefaultDebugLabel: String = "unknown"
-
-private const val _kColorForegroundWarning: String =
-    """"Cannot provide both a color and a foreground
-    The color argument is just a shorthand for 'val foreground = Paint()..color = color'."""
+val _kDefaultDebugLabel: String = "unknown"
 
 /** The default font size if none is specified. */
 private const val _defaultFontSize: Double = 14.0
@@ -53,7 +63,6 @@ private const val _defaultFontSize: Double = 14.0
  * * `textBaseline`: The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
  * * `height`: The height of this text span, as a multiple of the font size.
  * * `locale`: The locale used to select region-specific glyphs.
- * * `foreground`: The paint used to draw the text. If this is specified, `color` must be null.
  * * `background`: The paint drawn as a background for the text.
  * * `decoration`: The decorations to paint near the text (e.g., an underline).
  * * `decorationColor`: The color in which to paint the text decorations.
@@ -75,267 +84,306 @@ data class TextStyle(
     val textBaseline: TextBaseline? = null,
     val height: Double? = null,
     val locale: Locale? = null,
-    val foreground: Paint? = null,
     val background: Paint? = null,
+    // TODO(Migration/qqd): The flutter version we are implementing does not have "foreground" in
+    // painting/TextStyle, but has it in engine/TextStyle.
     val decoration: TextDecoration? = null,
     val decorationColor: Color? = null,
     val decorationStyle: TextDecorationStyle? = null,
     val debugLabel: String? = null,
     // TODO(Migration/qqd): fontFamily was String
     var fontFamily: FontFallback? = null
-    // TODO(Migration/qqd): Delete packageName since we don't plan to implement it.
-//    val packageName: String? = null
 ) : Diagnosticable {
 
     init {
-        // TODO(Migration/qqd): Delete packageName since we don't plan to implement it.
-//        if (packageName == null) {
-//            fontFamily = fontFamily
-//        } else {
-//            // fontFamily = "packages//${packageName}//${fontFamily.toString()}"
-//        }
         assert(inherit != null)
-        assert((color == null) || (foreground == null)) { _kColorForegroundWarning }
     }
 
-    // TODO(Migration/qqd): Implement apply.
-    // / Creates a copy of this text style replacing or altering the specified
-    // / properties.
-    // /
-    // / The non-numeric properties [color], [fontFamily], [decoration],
-    // / [decorationColor] and [decorationStyle] are replaced with the new values.
-    // /
-    // / [foreground] will be given preference over [color] if it is not null.
-    // /
-    // / The numeric properties are multiplied by the given factors and then
-    // / incremented by the given deltas.
-    // /
-    // / For example, `style.apply(fontSizeFactor: 2.0, fontSizeDelta: 1.0)` would
-    // / return a [TextStyle] whose [fontSize] is `style.fontSize * 2.0 + 1.0`.
-    // /
-    // / For the [fontWeight], the delta is applied to the [FontWeight] enum index
-    // / values, so that for instance `style.apply(fontWeightDelta: -2)` whenv
-    // / applied to a `style` whose [fontWeight] is [FontWeight.w500] will return a
-    // / [TextStyle] with a [FontWeight.w300].
-    // /
-    // / The numeric arguments must not be null.
-    // /
-    // / If the underlying values are null, then the corresponding factors and/or
-    // / deltas must not be specified.
-    // /
-    // / If [foreground] is specified on this object, then applying [color] here
-    // / will have no effect.
-//    TextStyle apply({
-//        Color color,
-//        TextDecoration decoration,
-//        Color decorationColor,
-//        TextDecorationStyle decorationStyle,
-//        String fontFamily,
-//        double fontSizeFactor = 1.0,
-//        double fontSizeDelta = 0.0,
-//        int fontWeightDelta = 0,
-//        double letterSpacingFactor = 1.0,
-//        double letterSpacingDelta = 0.0,
-//        double wordSpacingFactor = 1.0,
-//        double wordSpacingDelta = 0.0,
-//        double heightFactor = 1.0,
-//        double heightDelta = 0.0,
-//    }) {
-//        assert(fontSizeFactor != null);
-//        assert(fontSizeDelta != null);
-//        assert(fontSize != null || (fontSizeFactor == 1.0 && fontSizeDelta == 0.0));
-//        assert(fontWeightDelta != null);
-//        assert(fontWeight != null || fontWeightDelta == 0.0);
-//        assert(letterSpacingFactor != null);
-//        assert(letterSpacingDelta != null);
-//        assert(letterSpacing != null || (letterSpacingFactor == 1.0 && letterSpacingDelta == 0.0));
-//        assert(wordSpacingFactor != null);
-//        assert(wordSpacingDelta != null);
-//        assert(wordSpacing != null || (wordSpacingFactor == 1.0 && wordSpacingDelta == 0.0));
-//        assert(heightFactor != null);
-//        assert(heightDelta != null);
-//        assert(heightFactor != null || (heightFactor == 1.0 && heightDelta == 0.0));
-//
-//        String modifiedDebugLabel;
-//        assert(() {
-//            if (debugLabel != null)
-//                modifiedDebugLabel = '($debugLabel).apply';
-//            return true;
-//        }());
-//
-//        return TextStyle(
-//            inherit: inherit,
-//            color: foreground == null ? color ?? this.color : null,
-//        fontFamily: fontFamily ?? this.fontFamily,
-//        fontSize: fontSize == null ? null : fontSize * fontSizeFactor + fontSizeDelta,
-//        fontWeight: fontWeight == null ? null : FontWeight.values[(fontWeight.index + fontWeightDelta).clamp(0, FontWeight.values.length - 1)],
-//        fontStyle: fontStyle,
-//        letterSpacing: letterSpacing == null ? null : letterSpacing * letterSpacingFactor + letterSpacingDelta,
-//        wordSpacing: wordSpacing == null ? null : wordSpacing * wordSpacingFactor + wordSpacingDelta,
-//        textBaseline: textBaseline,
-//        height: height == null ? null : height * heightFactor + heightDelta,
-//        locale: locale,
-//        foreground: foreground != null ? foreground : null,
-//        background: background,
-//        decoration: decoration ?? this.decoration,
-//        decorationColor: decorationColor ?? this.decorationColor,
-//        decorationStyle: decorationStyle ?? this.decorationStyle,
-//        debugLabel: modifiedDebugLabel,
-//        );
-//    }
+    /**
+     * Creates a copy of this text style replacing or altering the specified properties.
+     *
+     * The non-numeric properties [color], [fontFamily], [decoration], [decorationColor] and
+     * [decorationStyle] are replaced with the new values.
+     *
+     * The numeric properties are multiplied by the given factors and then incremented by the given
+     * deltas.
+     *
+     * For example, `style.apply(fontSizeFactor: 2.0, fontSizeDelta: 1.0)` would return a
+     * [TextStyle] whose [fontSize] is `style.fontSize * 2.0 + 1.0`.
+     *
+     * For the [fontWeight], the delta is applied to the [FontWeight] enum index values, so that for
+     * instance `style.apply(fontWeightDelta: -2)` when applied to a `style` whose [fontWeight] is
+     * [FontWeight.w500] will return a [TextStyle] with a [FontWeight.w300].
+     *
+     * The numeric arguments must not be null.
+     *
+     * If the underlying values are null, then the corresponding factors and/or deltas must not be
+     * specified.
+     *
+     * If [foreground] is specified on this object, then applying [color] here will have no effect.
+     */
+    fun apply(
+        color: Color? = null,
+        decoration: TextDecoration? = null,
+        decorationColor: Color? = null,
+        decorationStyle: TextDecorationStyle? = null,
+        fontFamily: FontFallback? = null,
+        fontSizeFactor: Double = 1.0,
+        fontSizeDelta: Double = 0.0,
+        fontWeightDelta: Int = 0,
+        letterSpacingFactor: Double = 1.0,
+        letterSpacingDelta: Double = 0.0,
+        wordSpacingFactor: Double = 1.0,
+        wordSpacingDelta: Double = 0.0,
+        heightFactor: Double = 1.0,
+        heightDelta: Double = 0.0
+    ): TextStyle {
+        assert(fontSizeFactor != null)
+        assert(fontSizeDelta != null)
+        assert(fontSize != null || (fontSizeFactor == 1.0 && fontSizeDelta == 0.0))
+        assert(fontWeightDelta != null)
+        assert(fontWeight != null || fontWeightDelta == 0)
+        assert(letterSpacingFactor != null)
+        assert(letterSpacingDelta != null)
+        assert(letterSpacing != null || (letterSpacingFactor == 1.0 && letterSpacingDelta == 0.0))
+        assert(wordSpacingFactor != null)
+        assert(wordSpacingDelta != null)
+        assert(wordSpacing != null || (wordSpacingFactor == 1.0 && wordSpacingDelta == 0.0))
+        assert(heightFactor != null)
+        assert(heightDelta != null)
+        assert(heightFactor != null || (heightFactor == 1.0 && heightDelta == 0.0))
 
-    // TODO(Migration/qqd): Implement merge.
-    // / Returns a new text style that is a combination of this style and the given
-    // / [other] style.
-    // /
-    // / If the given [other] text style has its [TextStyle.inherit] set to true,
-    // / its null properties are replaced with the non-null properties of this text
-    // / style. The [other] style _inherits_ the properties of this style. Another
-    // / way to think of it is that the "missing" properties of the [other] style
-    // / are _filled_ by the properties of this style.
-    // /
-    // / If the given [other] text style has its [TextStyle.inherit] set to false,
-    // / returns the given [other] style unchanged. The [other] style does not
-    // / inherit properties of this style.
-    // /
-    // / If the given text style is null, returns this text style.
-    // /
-    // / One of [color] or [foreground] must be null, and if this or `other` has
-    // / [foreground] specified it will be given preference over any color parameter.
-//    TextStyle merge(TextStyle other) {
-//        if (other == null)
-//            return this;
-//        if (!other.inherit)
-//            return other;
-//
-//        String mergedDebugLabel;
-//        assert(() {
-//            if (other.debugLabel != null || debugLabel != null)
-//                mergedDebugLabel = '(${debugLabel ?? _kDefaultDebugLabel}).merge(${other.debugLabel ?? _kDefaultDebugLabel})';
-//            return true;
-//        }());
-//
-//        return copyWith(
-//            color: other.color,
-//        fontFamily: other.fontFamily,
-//        fontSize: other.fontSize,
-//        fontWeight: other.fontWeight,
-//        fontStyle: other.fontStyle,
-//        letterSpacing: other.letterSpacing,
-//        wordSpacing: other.wordSpacing,
-//        textBaseline: other.textBaseline,
-//        height: other.height,
-//        locale: other.locale,
-//        foreground: other.foreground,
-//        background: other.background,
-//        decoration: other.decoration,
-//        decorationColor: other.decorationColor,
-//        decorationStyle: other.decorationStyle,
-//        debugLabel: mergedDebugLabel,
-//        );
-//    }
+        var modifiedDebugLabel = ""
 
-    // TODO(Migration/qqd): Implement lerp.
-    // / Interpolate between two text styles.
-    // /
-    // / This will not work well if the styles don't set the same fields.
-    // /
-    // / The `t` argument represents position on the timeline, with 0.0 meaning
-    // / that the interpolation has not started, returning `a` (or something
-    // / equivalent to `a`), 1.0 meaning that the interpolation has finished,
-    // / returning `b` (or something equivalent to `b`), and values in between
-    // / meaning that the interpolation is at the relevant point on the timeline
-    // / between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
-    // / 1.0, so negative values and values greater than 1.0 are valid (and can
-    // / easily be generated by curves such as [Curves.elasticInOut]).
-    // /
-    // / Values for `t` are usually obtained from an [Animation<double>], such as
-    // / an [AnimationController].
-    // /
-    // / If [foreground] is specified on either of `a` or `b`, both will be treated
-    // / as if they have a [foreground] paint (creating a new [Paint] if necessary
-    // / based on the [color] property).
-//    static TextStyle lerp(TextStyle a, TextStyle b, double t) {
-//        assert(t != null);
-//        assert(a == null || b == null || a.inherit == b.inherit);
-//        if (a == null && b == null) {
-//            return null;
-//        }
-//
-//        String lerpDebugLabel;
-//        assert(() {
-//            lerpDebugLabel = 'lerp(${a?.debugLabel ?? _kDefaultDebugLabel} ⎯${t.toStringAsFixed(1)}→ ${b?.debugLabel ?? _kDefaultDebugLabel})';
-//            return true;
-//        }());
-//
-//        if (a == null) {
-//            return TextStyle(
-//                inherit: b.inherit,
-//            color: Color.lerp(null, b.color, t),
-//            fontFamily: t < 0.5 ? null : b.fontFamily,
-//            fontSize: t < 0.5 ? null : b.fontSize,
-//            fontWeight: FontWeight.lerp(null, b.fontWeight, t),
-//            fontStyle: t < 0.5 ? null : b.fontStyle,
-//            letterSpacing: t < 0.5 ? null : b.letterSpacing,
-//            wordSpacing: t < 0.5 ? null : b.wordSpacing,
-//            textBaseline: t < 0.5 ? null : b.textBaseline,
-//            height: t < 0.5 ? null : b.height,
-//            locale: t < 0.5 ? null : b.locale,
-//            foreground: t < 0.5 ? null : b.foreground,
-//            background: t < 0.5 ? null : b.background,
-//            decoration: t < 0.5 ? null : b.decoration,
-//            decorationColor: Color.lerp(null, b.decorationColor, t),
-//            decorationStyle: t < 0.5 ? null : b.decorationStyle,
-//            debugLabel: lerpDebugLabel,
-//            );
-//        }
-//
-//        if (b == null) {
-//            return TextStyle(
-//                inherit: a.inherit,
-//            color: Color.lerp(a.color, null, t),
-//            fontFamily: t < 0.5 ? a.fontFamily : null,
-//            fontSize: t < 0.5 ? a.fontSize : null,
-//            fontWeight: FontWeight.lerp(a.fontWeight, null, t),
-//            fontStyle: t < 0.5 ? a.fontStyle : null,
-//            letterSpacing: t < 0.5 ? a.letterSpacing : null,
-//            wordSpacing: t < 0.5 ? a.wordSpacing : null,
-//            textBaseline: t < 0.5 ? a.textBaseline : null,
-//            height: t < 0.5 ? a.height : null,
-//            locale: t < 0.5 ? a.locale : null,
-//            foreground: t < 0.5 ? a.foreground : null,
-//            background: t < 0.5 ? a.background : null,
-//            decoration: t < 0.5 ? a.decoration : null,
-//            decorationColor: Color.lerp(a.decorationColor, null, t),
-//            decorationStyle: t < 0.5 ? a.decorationStyle : null,
-//            debugLabel: lerpDebugLabel,
-//            );
-//        }
-//
-//        return TextStyle(
-//            inherit: b.inherit,
-//        color: a.foreground == null && b.foreground == null ? Color.lerp(a.color, b.color, t) : null,
-//        fontFamily: t < 0.5 ? a.fontFamily : b.fontFamily,
-//        fontSize: ui.lerpDouble(a.fontSize ?? b.fontSize, b.fontSize ?? a.fontSize, t),
-//        fontWeight: FontWeight.lerp(a.fontWeight, b.fontWeight, t),
-//        fontStyle: t < 0.5 ? a.fontStyle : b.fontStyle,
-//        letterSpacing: ui.lerpDouble(a.letterSpacing ?? b.letterSpacing, b.letterSpacing ?? a.letterSpacing, t),
-//        wordSpacing: ui.lerpDouble(a.wordSpacing ?? b.wordSpacing, b.wordSpacing ?? a.wordSpacing, t),
-//        textBaseline: t < 0.5 ? a.textBaseline : b.textBaseline,
-//        height: ui.lerpDouble(a.height ?? b.height, b.height ?? a.height, t),
-//        locale: t < 0.5 ? a.locale : b.locale,
-//        foreground: (a.foreground != null || b.foreground != null)
-//        ? t < 0.5
-//        ? a.foreground ?? (Paint()..color = a.color)
-//        : b.foreground ?? (Paint()..color = b.color)
-//        : null,
-//        background: t < 0.5 ? a.background : b.background,
-//        decoration: t < 0.5 ? a.decoration : b.decoration,
-//        decorationColor: Color.lerp(a.decorationColor, b.decorationColor, t),
-//        decorationStyle: t < 0.5 ? a.decorationStyle : b.decorationStyle,
-//        debugLabel: lerpDebugLabel,
-//        );
-//    }
+        assert {
+            if (debugLabel != null) {
+                modifiedDebugLabel = "($debugLabel).apply"
+            }
+            true
+        }
+
+        return TextStyle(
+            inherit = inherit,
+            color = color ?: this.color,
+            fontFamily = fontFamily ?: this.fontFamily,
+            fontSize = if (fontSize == null) null else fontSize * fontSizeFactor + fontSizeDelta,
+            fontWeight = if (fontWeight == null) null
+            else FontWeight.values[(fontWeight.index + fontWeightDelta).clamp(
+                0,
+                FontWeight.values.size - 1
+            )],
+            fontStyle = fontStyle,
+            letterSpacing =
+            if (letterSpacing == null) null
+            else letterSpacing * letterSpacingFactor + letterSpacingDelta,
+            wordSpacing =
+            if (wordSpacing == null) null
+            else wordSpacing * wordSpacingFactor + wordSpacingDelta,
+            textBaseline = textBaseline,
+            height = if (height == null) null else height * heightFactor + heightDelta,
+            locale = locale,
+            background = background,
+            decoration = decoration ?: this.decoration,
+            decorationColor = decorationColor ?: this.decorationColor,
+            decorationStyle = decorationStyle ?: this.decorationStyle,
+            debugLabel = modifiedDebugLabel
+        )
+    }
+
+    /**
+     * Returns a new text style that is a combination of this style and the given [other] style.
+     *
+     * If the given [other] text style has its [TextStyle.inherit] set to true, its null properties
+     * are replaced with the non-null properties of this text style. The [other] style
+     * _inherits_ the properties of this style. Another way to think of it is that the "missing"
+     * properties of the [other] style are _filled_ by the properties of this style.
+     *
+     * If the given [other] text style has its [TextStyle.inherit] set to false, returns the given
+     * [other] style unchanged. The [other] style does not inherit properties of this style.
+     *
+     * If the given text style is null, returns this text style.
+     */
+    fun merge(other: TextStyle? = null): TextStyle {
+        if (other == null) return this
+        if (!other.inherit!!) return other
+
+        var mergedDebugLabel = ""
+        assert {
+            if (other.debugLabel != null || debugLabel != null) {
+                mergedDebugLabel = "(${debugLabel ?: _kDefaultDebugLabel}).merge(${other.debugLabel
+                    ?: _kDefaultDebugLabel})"
+            }
+            true
+        }
+
+        return TextStyle(
+            inherit = inherit,
+            color = other.color ?: this.color,
+            fontFamily = other.fontFamily ?: this.fontFamily,
+            fontSize = other.fontSize ?: this.fontSize,
+            fontWeight = other.fontWeight ?: this.fontWeight,
+            fontStyle = other.fontStyle ?: this.fontStyle,
+            letterSpacing = other.letterSpacing ?: this.letterSpacing,
+            wordSpacing = other.wordSpacing ?: this.wordSpacing,
+            textBaseline = other.textBaseline ?: this.textBaseline,
+            height = other.height ?: this.height,
+            locale = other.locale ?: this.locale,
+            background = other.background ?: this.background,
+            decoration = other.decoration ?: this.decoration,
+            decorationColor = other.decorationColor ?: this.decorationColor,
+            decorationStyle = other.decorationStyle ?: this.decorationStyle,
+            debugLabel = mergedDebugLabel
+        )
+    }
+
+    /**
+     * Interpolate between two text styles.
+     *
+     * This will not work well if the styles don't set the same fields.
+     *
+     * The `t` argument represents position on the timeline, with 0.0 meaning that the interpolation
+     * has not started, returning `a` (or something equivalent to `a`), 1.0 meaning that the
+     * interpolation has finished, returning `b` (or something equivalent to `b`), and values in
+     * between meaning that the interpolation is at the relevant point on the timeline between `a`
+     * and `b`. The interpolation can be extrapolated beyond 0.0 and 1.0, so negative values and
+     * values greater than 1.0 are valid (and can easily be generated by curves such as
+     * [Curves.elasticInOut]).
+     *
+     * Values for `t` are usually obtained from an [Animation<double>], such as an
+     * [AnimationController].
+     */
+    companion object {
+        fun lerp(a: TextStyle? = null, b: TextStyle? = null, t: Double): TextStyle? {
+            assert(t != null)
+            val aIsNull = a == null
+            val bIsNull = b == null
+            val inheritEqual = a?.inherit == b?.inherit
+            assert(aIsNull || bIsNull || inheritEqual)
+            if (aIsNull && bIsNull) {
+                return null
+            }
+
+            var lerpDebugLabel = ""
+            assert {
+                lerpDebugLabel =
+                        "lerp(${a?.debugLabel
+                            ?: _kDefaultDebugLabel} ⎯${t.toStringAsFixed(1)}→ ${b?.debugLabel
+                            ?: _kDefaultDebugLabel})"
+                true
+            }
+
+            if (a == null) {
+                val newB = TextStyle(
+                    inherit = b?.inherit,
+                    color = b?.color,
+                    fontFamily = b?.fontFamily,
+                    fontSize = b?.fontSize,
+                    fontWeight = b?.fontWeight,
+                    fontStyle = b?.fontStyle,
+                    letterSpacing = b?.letterSpacing,
+                    wordSpacing = b?.wordSpacing,
+                    textBaseline = b?.textBaseline,
+                    height = b?.height,
+                    locale = b?.locale,
+                    background = b?.background,
+                    decoration = b?.decoration,
+                    decorationColor = b?.decorationColor,
+                    decorationStyle = b?.decorationStyle,
+                    debugLabel = lerpDebugLabel
+                )
+                if (t < 0.5) {
+                    return TextStyle(
+                        inherit = newB.inherit,
+                        color = Color.lerp(null, newB.color, t),
+                        fontWeight = FontWeight.lerp(null, newB.fontWeight, t),
+                        decorationColor = Color.lerp(null, newB.decorationColor, t),
+                        debugLabel = lerpDebugLabel
+                    )
+                } else {
+                    return TextStyle(
+                        inherit = newB.inherit,
+                        color = Color.lerp(null, newB.color, t),
+                        fontFamily = newB.fontFamily,
+                        fontSize = newB.fontSize,
+                        fontWeight = FontWeight.lerp(null, newB.fontWeight, t),
+                        fontStyle = newB.fontStyle,
+                        letterSpacing = newB.letterSpacing,
+                        wordSpacing = newB.wordSpacing,
+                        textBaseline = newB.textBaseline,
+                        height = newB.height,
+                        locale = newB.locale,
+                        background = newB.background,
+                        decoration = newB.decoration,
+                        decorationColor = Color.lerp(null, newB.decorationColor, t),
+                        decorationStyle = newB.decorationStyle,
+                        debugLabel = lerpDebugLabel
+                    )
+                }
+            }
+
+            if (b == null) {
+                if (t < 0.5) {
+                    return TextStyle(
+                        inherit = a.inherit,
+                        color = Color.lerp(a.color, null, t),
+                        fontFamily = a.fontFamily,
+                        fontSize = a.fontSize,
+                        fontWeight = FontWeight.lerp(a.fontWeight, null, t),
+                        fontStyle = a.fontStyle,
+                        letterSpacing = a.letterSpacing,
+                        wordSpacing = a.wordSpacing,
+                        textBaseline = a.textBaseline,
+                        height = a.height,
+                        locale = a.locale,
+                        background = a.background,
+                        decoration = a.decoration,
+                        decorationColor = Color.lerp(a.decorationColor, null, t),
+                        decorationStyle = a.decorationStyle,
+                        debugLabel = lerpDebugLabel
+                    )
+                } else {
+                    return TextStyle(
+                        inherit = a.inherit,
+                        color = Color.lerp(a.color, null, t),
+                        fontWeight = FontWeight.lerp(a.fontWeight, null, t),
+                        decorationColor = Color.lerp(a.decorationColor, null, t),
+                        debugLabel = lerpDebugLabel
+                    )
+                }
+            }
+
+            // TODO(Migration/qqd): Currently [fontSize], [letterSpacing], [wordSpacing] and
+            // [height] of textstyles a and b cannot be null if both a and b are not null, because
+            // [lerpDouble(Double, Double, Double)] API cannot take null parameters. We could have a
+            // workaround by using 0.0, but for now let's keep it this way.
+            return TextStyle(
+                inherit = b.inherit,
+                color = Color.lerp(a.color, b.color, t),
+                fontFamily = if (t < 0.5) a.fontFamily else b.fontFamily,
+                fontSize = lerpDouble(a.fontSize ?: b.fontSize!!, b.fontSize ?: a.fontSize!!, t),
+                fontWeight = FontWeight.lerp(a.fontWeight, b.fontWeight, t),
+                fontStyle = if (t < 0.5) a.fontStyle else b.fontStyle,
+                letterSpacing = lerpDouble(
+                    a.letterSpacing ?: b.letterSpacing!!,
+                    b.letterSpacing ?: a.letterSpacing!!,
+                    t
+                ),
+                wordSpacing = lerpDouble(
+                    a.wordSpacing ?: b.wordSpacing!!,
+                    b.wordSpacing ?: a.wordSpacing!!,
+                    t
+                ),
+                textBaseline = if (t < 0.5) a.textBaseline else b.textBaseline,
+                height = lerpDouble(a.height ?: b.height!!, b.height ?: a.height!!, t),
+                locale = if (t < 0.5) a.locale else b.locale,
+                background = if (t < 0.5) a.background else b.background,
+                decoration = if (t < 0.5) a.decoration else b.decoration,
+                decorationColor = Color.lerp(a.decorationColor, b.decorationColor, t),
+                decorationStyle = if (t < 0.5) a.decorationStyle else b.decorationStyle,
+                debugLabel = lerpDebugLabel
+            )
+        }
+    }
 
     /** The style information for text runs, encoded for use by ui. */
     fun getTextStyle(textScaleFactor: Double = 1.0): androidx.ui.engine.text.TextStyle {
@@ -353,7 +401,6 @@ data class TextStyle(
             wordSpacing,
             height,
             locale,
-            foreground,
             background
         )
     }
@@ -413,116 +460,144 @@ data class TextStyle(
             textBaseline != other.textBaseline ||
             height != other.height ||
             locale != other.locale ||
-            foreground != other.foreground ||
-            background != other.background) {
+            background != other.background
+        ) {
             return RenderComparison.LAYOUT
         }
         if (color != other.color ||
             decoration != other.decoration ||
             decorationColor != other.decorationColor ||
-            decorationStyle != other.decorationStyle) {
+            decorationStyle != other.decorationStyle
+        ) {
             return RenderComparison.PAINT
         }
         return RenderComparison.IDENTICAL
     }
 
-    // TODO(Migration/qqd): Implement toString.
-    override fun toStringShort(): String {
-        TODO()
-    }
-//    @override
-//    String toStringShort() => '$runtimeType';
+    override fun toStringShort() = describeIdentity(this)
 
-    // TODO(Migration/qqd): Implement debugFillProperties.
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-        TODO()
+        super.debugFillProperties(properties)
+        if (debugLabel != null)
+            properties.add(MessageProperty("debugLabel", debugLabel))
+        var styles: MutableList<DiagnosticsNode> = mutableListOf<DiagnosticsNode>()
+        styles.add(DiagnosticsProperty.create("color", color, defaultValue = null))
+        styles.add(
+            StringProperty(
+                "family",
+                fontFamily.toString(),
+                defaultValue = null,
+                quoted = false
+            )
+        )
+        styles.add(DoubleProperty.create("size", fontSize, defaultValue = null))
+        var weightDescription = ""
+        if (fontWeight != null) {
+            when (fontWeight) {
+                FontWeight.w100 -> weightDescription = "100"
+                FontWeight.w200 -> weightDescription = "200"
+                FontWeight.w300 -> weightDescription = "300"
+                FontWeight.w400 -> weightDescription = "400"
+                FontWeight.w500 -> weightDescription = "500"
+                FontWeight.w600 -> weightDescription = "600"
+                FontWeight.w700 -> weightDescription = "700"
+                FontWeight.w800 -> weightDescription = "800"
+                FontWeight.w900 -> weightDescription = "900"
+            }
+        }
+        // TODO(jacobr): switch this to use enumProperty which will either cause the
+        // weight description to change to w600 from 600 or require existing
+        // enumProperty to handle this special case.
+        styles.add(
+            DiagnosticsProperty.create(
+                "weight",
+                fontWeight,
+                description = weightDescription,
+                defaultValue = null
+            )
+        )
+        styles.add(EnumProperty<FontStyle>("style", fontStyle, defaultValue = null))
+        styles.add(DoubleProperty.create("letterSpacing", letterSpacing, defaultValue = null))
+        styles.add(DoubleProperty.create("wordSpacing", wordSpacing, defaultValue = null))
+        styles.add(EnumProperty<TextBaseline>("baseline", textBaseline, defaultValue = null))
+        styles.add(DoubleProperty.create("height", height, unit = "x", defaultValue = null))
+        styles.add(
+            StringProperty(
+                "locale",
+                locale?.toString(),
+                defaultValue = null,
+                quoted = false
+            )
+        )
+        styles.add(
+            StringProperty(
+                "background",
+                background?.toString(),
+                defaultValue = null,
+                quoted = false
+            )
+        )
+        if (decoration != null || decorationColor != null || decorationStyle != null) {
+            var decorationDescription: MutableList<String> = mutableListOf()
+            if (decorationStyle != null)
+                decorationDescription.add(describeEnum(decorationStyle))
+
+            // Hide decorationColor from the default text view as it is shown in the
+            // terse decoration summary as well.
+            styles.add(
+                DiagnosticsProperty.create(
+                    "decorationColor",
+                    decorationColor,
+                    defaultValue = null,
+                    level = DiagnosticLevel.fine
+                )
+            )
+
+            if (decorationColor != null)
+                decorationDescription.add("$decorationColor")
+
+            // Intentionally collide with the property 'decoration' added below.
+            // Tools that show hidden properties could choose the first property
+            // matching the name to disambiguate.
+            styles.add(
+                DiagnosticsProperty.create(
+                    "decoration",
+                    decoration,
+                    defaultValue = null,
+                    level = DiagnosticLevel.hidden
+                )
+            )
+            if (decoration != null)
+                decorationDescription.add("$decoration")
+            assert(decorationDescription.isNotEmpty())
+            styles.add(
+                MessageProperty(
+                    "decoration",
+                    decorationDescription.joinToString(separator = " ")
+                )
+            )
+        }
+
+        val styleSpecified = styles.filter { n -> n.getLevel() != DiagnosticLevel.info }
+        properties.add(
+            DiagnosticsProperty.create(
+                "inherit",
+                inherit,
+                level =
+                if (styleSpecified == null && inherit!!) DiagnosticLevel.fine
+                else DiagnosticLevel.info
+            )
+        )
+        styles.iterator().forEach { properties.add(it) }
+
+        if (styleSpecified == null)
+            properties.add(
+                FlagProperty(
+                    "inherit",
+                    value = inherit!!,
+                    ifTrue = "<all styles inherited>",
+                    ifFalse = "<no style specified>"
+                )
+            )
     }
-// / Adds all properties prefixing property names with the optional `prefix`.
-//    @override
-//    void debugFillProperties(DiagnosticPropertiesBuilder properties, { String prefix = '' }) {
-//        super.debugFillProperties(properties);
-//        if (debugLabel != null)
-//            properties.add(MessageProperty('${prefix}debugLabel', debugLabel));
-//        final List<DiagnosticsNode> styles = <DiagnosticsNode>[];
-//        styles.add(DiagnosticsProperty<Color>('${prefix}color', color, defaultValue: null));
-//        styles.add(StringProperty('${prefix}family', fontFamily, defaultValue: null, quoted: false));
-//        styles.add(DoubleProperty('${prefix}size', fontSize, defaultValue: null));
-//        String weightDescription;
-//        if (fontWeight != null) {
-//            switch (fontWeight) {
-//                case FontWeight.w100:
-//                weightDescription = '100';
-//                break;
-//                case FontWeight.w200:
-//                weightDescription = '200';
-//                break;
-//                case FontWeight.w300:
-//                weightDescription = '300';
-//                break;
-//                case FontWeight.w400:
-//                weightDescription = '400';
-//                break;
-//                case FontWeight.w500:
-//                weightDescription = '500';
-//                break;
-//                case FontWeight.w600:
-//                weightDescription = '600';
-//                break;
-//                case FontWeight.w700:
-//                weightDescription = '700';
-//                break;
-//                case FontWeight.w800:
-//                weightDescription = '800';
-//                break;
-//                case FontWeight.w900:
-//                weightDescription = '900';
-//                break;
-//            }
-//        }
-//        // TODO(jacobr): switch this to use enumProperty which will either cause the
-//        // weight description to change to w600 from 600 or require existing
-//        // enumProperty to handle this special case.
-//        styles.add(DiagnosticsProperty<FontWeight>(
-//            '${prefix}weight',
-//            fontWeight,
-//            description: weightDescription,
-//            defaultValue: null,
-//        ));
-//        styles.add(EnumProperty<FontStyle>('${prefix}style', fontStyle, defaultValue: null));
-//        styles.add(DoubleProperty('${prefix}letterSpacing', letterSpacing, defaultValue: null));
-//        styles.add(DoubleProperty('${prefix}wordSpacing', wordSpacing, defaultValue: null));
-//        styles.add(EnumProperty<TextBaseline>('${prefix}baseline', textBaseline, defaultValue: null));
-//        styles.add(DoubleProperty('${prefix}height', height, unit: 'x', defaultValue: null));
-//        styles.add(DiagnosticsProperty<Locale>('${prefix}locale', locale, defaultValue: null));
-//        styles.add(DiagnosticsProperty<Paint>('${prefix}foreground', foreground, defaultValue: null));
-//        styles.add(DiagnosticsProperty<Paint>('${prefix}background', background, defaultValue: null));
-//        if (decoration != null || decorationColor != null || decorationStyle != null) {
-//            final List<String> decorationDescription = <String>[];
-//            if (decorationStyle != null)
-//                decorationDescription.add(describeEnum(decorationStyle));
-//
-//            // Hide decorationColor from the default text view as it is shown in the
-//            // terse decoration summary as well.
-//            styles.add(DiagnosticsProperty<Color>('${prefix}decorationColor', decorationColor, defaultValue: null, level: DiagnosticLevel.fine));
-//
-//            if (decorationColor != null)
-//                decorationDescription.add('$decorationColor');
-//
-//            // Intentionally collide with the property 'decoration' added below.
-//            // Tools that show hidden properties could choose the first property
-//            // matching the name to disambiguate.
-//            styles.add(DiagnosticsProperty<TextDecoration>('${prefix}decoration', decoration, defaultValue: null, level: DiagnosticLevel.hidden));
-//            if (decoration != null)
-//                decorationDescription.add('$decoration');
-//            assert(decorationDescription.isNotEmpty);
-//            styles.add(MessageProperty('${prefix}decoration', decorationDescription.join(' ')));
-//        }
-//
-//        final bool styleSpecified = styles.any((DiagnosticsNode n) => !n.isFiltered(DiagnosticLevel.info));
-//        properties.add(DiagnosticsProperty<bool>('${prefix}inherit', inherit, level: (!styleSpecified && inherit) ? DiagnosticLevel.fine : DiagnosticLevel.info));
-//        styles.forEach(properties.add);
-//
-//        if (!styleSpecified)
-//            properties.add(FlagProperty('inherit', value: inherit, ifTrue: '$prefix<all styles inherited>', ifFalse: '$prefix<no style specified>'));
-//    }
 }
