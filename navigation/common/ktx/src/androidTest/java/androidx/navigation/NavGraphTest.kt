@@ -49,8 +49,8 @@ class NavGraphTest {
             .isSameAs(destination)
         graph -= destination
         assertWithMessage("Destination should be removed after minusAssign")
-            .that(graph)
-            .doesNotContain(DESTINATION_ID)
+            .that(DESTINATION_ID in graph)
+            .isFalse()
     }
 
     @Test
@@ -61,18 +61,18 @@ class NavGraphTest {
         other += NavDestination(navigator).apply { id = SECOND_DESTINATION_ID }
         graph += other
         assertWithMessage("NavGraph should have destination1 from other")
-            .that(graph)
-            .contains(DESTINATION_ID)
+            .that(DESTINATION_ID in graph)
+            .isTrue()
         assertWithMessage("other nav graph should not have destination1")
-            .that(other)
-            .doesNotContain(DESTINATION_ID)
+            .that(DESTINATION_ID in other)
+            .isFalse()
 
         assertWithMessage("NavGraph should have destination2 from other")
-            .that(graph)
-            .contains(SECOND_DESTINATION_ID)
+            .that(SECOND_DESTINATION_ID in graph)
+            .isTrue()
         assertWithMessage("other nav graph should not have destination2")
-            .that(other)
-            .doesNotContain(SECOND_DESTINATION_ID)
+            .that(SECOND_DESTINATION_ID in other)
+            .isFalse()
     }
 
     @Test(expected = IllegalArgumentException::class)
