@@ -38,7 +38,7 @@ public class NavigatorProvider {
     }
 
     @NonNull
-    private static String getNameForNavigator(@NonNull Class<? extends Navigator> navigatorClass) {
+    static String getNameForNavigator(@NonNull Class<? extends Navigator> navigatorClass) {
         String name = sAnnotationNames.get(navigatorClass);
         if (name == null) {
             Navigator.Name annotation = navigatorClass.getAnnotation(Navigator.Name.class);

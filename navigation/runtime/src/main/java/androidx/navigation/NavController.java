@@ -106,7 +106,9 @@ public class NavController {
                             Iterator<NavDestination> iterator = mBackStack.descendingIterator();
                             while (iterator.hasNext()) {
                                 NavDestination destination = iterator.next();
-                                if (destination.getNavigator() == navigator) {
+                                Navigator currentNavigator = getNavigatorProvider().getNavigator(
+                                        destination.getNavigatorName());
+                                if (currentNavigator == navigator) {
                                     lastFromNavigator = destination;
                                     break;
                                 }
@@ -194,7 +196,7 @@ public class NavController {
             }
             context = ((ContextWrapper) context).getBaseContext();
         }
-        mNavigatorProvider.addNavigator(new NavGraphNavigator(mContext));
+        mNavigatorProvider.addNavigator(new NavGraphNavigator(mContext, mNavigatorProvider));
         mNavigatorProvider.addNavigator(new ActivityNavigator(mContext));
     }
 
@@ -309,7 +311,9 @@ public class NavController {
                 }
             }
             if (destination != null) {
-                popped = destination.getNavigator().popBackStack() || popped;
+                Navigator navigator = mNavigatorProvider.getNavigator(
+                        destination.getNavigatorName());
+                popped = navigator.popBackStack() || popped;
             }
         }
         return popped;
@@ -470,7 +474,10 @@ public class NavController {
             if (!deepLinked) {
                 // Navigate to the first destination in the graph
                 // if we haven't deep linked to a destination
-                mGraph.navigate(startDestinationArgs, null, null);
+                Navigator<NavGraph> navigator = mNavigatorProvider.getNavigator(
+                        mGraph.getNavigatorName());
+                navigator.navigate(mGraph, mGraph.addInDefaultArgs(startDestinationArgs),
+                        null, null);
             }
         }
     }
@@ -548,7 +555,9 @@ public class NavController {
                     throw new IllegalStateException("unknown destination during deep link: "
                             + NavDestination.getDisplayName(mContext, destinationId));
                 }
-                node.navigate(bundle,
+                Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
+                        node.getNavigatorName());
+                navigator.navigate(node, node.addInDefaultArgs(bundle),
                         new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build(), null);
             }
             return true;
@@ -567,7 +576,9 @@ public class NavController {
                 graph = (NavGraph) node;
             } else {
                 // Navigate to the last NavDestination, clearing any existing destinations
-                node.navigate(bundle, new NavOptions.Builder()
+                Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
+                        node.getNavigatorName());
+                navigator.navigate(node, node.addInDefaultArgs(bundle), new NavOptions.Builder()
                         .setPopUpTo(mGraph.getId(), true)
                         .setEnterAnim(0).setExitAnim(0).build(), null);
             }
@@ -699,7 +710,9 @@ public class NavController {
                 popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
             }
         }
-        node.navigate(args, navOptions, navigatorExtras);
+        Navigator<NavDestination> navigator = getNavigatorProvider().getNavigator(
+                node.getNavigatorName());
+        navigator.navigate(node, node.addInDefaultArgs(args), navOptions, navigatorExtras);
     }
 
     /**
