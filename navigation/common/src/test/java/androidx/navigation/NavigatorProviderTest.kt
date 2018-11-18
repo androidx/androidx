@@ -100,7 +100,7 @@ class NavigatorProviderTest {
 
 class NoNameNavigator : Navigator<NavDestination>() {
     override fun createDestination(): NavDestination {
-        return NavDestination(this)
+        throw IllegalStateException("createDestination is not supported")
     }
 
     override fun navigate(
@@ -128,7 +128,7 @@ internal open class EmptyNavigator : Navigator<NavDestination>() {
     }
 
     override fun createDestination(): NavDestination {
-        return NavDestination(this)
+        throw IllegalStateException("createDestination is not supported")
     }
 
     override fun navigate(

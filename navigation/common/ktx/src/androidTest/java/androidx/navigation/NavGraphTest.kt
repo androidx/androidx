@@ -32,7 +32,7 @@ class NavGraphTest {
     @Test
     fun plusAssign() {
         val graph = NavGraph(navGraphNavigator)
-        val destination = NavDestination(navigator).apply { id = DESTINATION_ID }
+        val destination = navigator.createDestination().apply { id = DESTINATION_ID }
         graph += destination
         assertWithMessage("plusAssign destination should be retrieved with get")
             .that(graph[DESTINATION_ID])
@@ -42,7 +42,7 @@ class NavGraphTest {
     @Test
     fun minusAssign() {
         val graph = NavGraph(navGraphNavigator)
-        val destination = NavDestination(navigator).apply { id = DESTINATION_ID }
+        val destination = navigator.createDestination().apply { id = DESTINATION_ID }
         graph += destination
         assertWithMessage("plusAssign destination should be retrieved with get")
             .that(graph[DESTINATION_ID])
@@ -57,8 +57,8 @@ class NavGraphTest {
     fun plusAssignGraph() {
         val graph = NavGraph(navGraphNavigator)
         val other = NavGraph(navGraphNavigator)
-        other += NavDestination(navigator).apply { id = DESTINATION_ID }
-        other += NavDestination(navigator).apply { id = SECOND_DESTINATION_ID }
+        other += navigator.createDestination().apply { id = DESTINATION_ID }
+        other += navigator.createDestination().apply { id = SECOND_DESTINATION_ID }
         graph += other
         assertWithMessage("NavGraph should have destination1 from other")
             .that(DESTINATION_ID in graph)
