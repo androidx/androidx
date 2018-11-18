@@ -6,6 +6,3 @@
 }
 # We need to keep WorkerParameters for the ListenableWorker constructor
 -keep class androidx.work.WorkerParameters
-# We reflectively try and instantiate FirebaseJobScheduler when we find a Firebase dependency
-# on the classpath.
--keep class androidx.work.impl.background.firebase.FirebaseJobScheduler
