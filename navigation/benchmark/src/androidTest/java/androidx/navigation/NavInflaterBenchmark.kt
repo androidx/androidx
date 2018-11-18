@@ -17,7 +17,7 @@
 package androidx.navigation
 
 import androidx.benchmark.BenchmarkRule
-import androidx.navigation.testing.TestNavigator
+import androidx.navigation.testing.TestNavigatorProvider
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.MediumTest
 import androidx.test.runner.AndroidJUnit4
@@ -34,10 +34,7 @@ class NavInflaterBenchmark {
 
     private val context = InstrumentationRegistry.getContext()
 
-    private var navInflater: NavInflater = NavInflater(context, SimpleNavigatorProvider().apply {
-        addNavigator(NavGraphNavigator(context))
-        addNavigator(TestNavigator())
-    })
+    private var navInflater: NavInflater = NavInflater(context, TestNavigatorProvider(context))
 
     @Test
     fun inflateSimple() {

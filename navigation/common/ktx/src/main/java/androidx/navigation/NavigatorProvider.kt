@@ -25,7 +25,7 @@ import kotlin.reflect.KClass
  *
  * @throws IllegalStateException if the Navigator has not been added
  */
-inline operator fun <D : NavDestination, T : Navigator<D>> NavigatorProvider.get(name: String): T =
+inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(name: String): T =
         getNavigator(name)
 
 /**
@@ -34,8 +34,8 @@ inline operator fun <D : NavDestination, T : Navigator<D>> NavigatorProvider.get
  *
  * @throws IllegalStateException if the Navigator has not been added
  */
-inline operator fun <D : NavDestination, T : Navigator<D>> NavigatorProvider.get(
-        clazz: KClass<T>
+inline operator fun <T : Navigator<out NavDestination>> NavigatorProvider.get(
+    clazz: KClass<T>
 ): T = getNavigator(clazz.java)
 
 /**
@@ -44,15 +44,15 @@ inline operator fun <D : NavDestination, T : Navigator<D>> NavigatorProvider.get
  *
  * @return the previously added [Navigator] for the given name, if any
  */
-inline operator fun <D : NavDestination> NavigatorProvider.set(
-        name: String,
-        navigator: Navigator<D>
+inline operator fun NavigatorProvider.set(
+    name: String,
+    navigator: Navigator<out NavDestination>
 ) = addNavigator(name, navigator)
 
 /**
  * Register a navigator using the name provided by the
  * [Navigator.Name annotation][Navigator.Name].
  */
-inline operator fun <D : NavDestination> NavigatorProvider.plusAssign(navigator: Navigator<D>) {
+inline operator fun NavigatorProvider.plusAssign(navigator: Navigator<out NavDestination>) {
     addNavigator(navigator)
 }
