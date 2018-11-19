@@ -32,7 +32,7 @@ object NavParserErrors {
     fun invalidId(value: String) = "Failed to parse $value as id. 'id' must be in the format:" +
         " @[+][package:]id/resource_name "
 
-    fun defaultValueParcelable(type: String?) = "Parcelable ('$type') " +
+    fun defaultValueObjectType(type: String?) = "'$type' " +
             "doesn't allow default values other than @null"
 
     fun defaultNullButNotNullable(name: String?) = "android:defaultValue is @null, but '$name' " +
