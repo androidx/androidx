@@ -46,6 +46,7 @@ import androidx.media2.exoplayer.external.ExoPlaybackException;
 import androidx.media2.exoplayer.external.ExoPlayerFactory;
 import androidx.media2.exoplayer.external.Player;
 import androidx.media2.exoplayer.external.SimpleExoPlayer;
+import androidx.media2.exoplayer.external.analytics.AnalyticsCollector;
 import androidx.media2.exoplayer.external.audio.AudioAttributes;
 import androidx.media2.exoplayer.external.audio.AudioCapabilities;
 import androidx.media2.exoplayer.external.audio.AudioListener;
@@ -59,6 +60,7 @@ import androidx.media2.exoplayer.external.source.TrackGroup;
 import androidx.media2.exoplayer.external.source.TrackGroupArray;
 import androidx.media2.exoplayer.external.trackselection.TrackSelectionArray;
 import androidx.media2.exoplayer.external.upstream.DataSource;
+import androidx.media2.exoplayer.external.upstream.DefaultBandwidthMeter;
 import androidx.media2.exoplayer.external.upstream.DefaultDataSourceFactory;
 import androidx.media2.exoplayer.external.util.MimeTypes;
 import androidx.media2.exoplayer.external.util.Util;
@@ -106,6 +108,9 @@ import java.util.Map;
         /** Called when the player becomes ready again after rebuffering. */
         void onBufferingEnded(MediaItem mediaItem);
 
+        /** Called when a sample of the available bandwidth is known. */
+        void onBandwidthSample(MediaItem mediaItem2, int bitrateKbps);
+
         /** Called when video rendering of the specified media item has started. */
         void onVideoRenderingStart(MediaItem mediaItem);
 
@@ -140,6 +145,7 @@ import java.util.Map;
     private final Context mContext;
     private final Listener mListener;
     private final Looper mLooper;
+    private final DefaultBandwidthMeter mBandwidthMeter;
 
     private SimpleExoPlayer mPlayer;
     private DefaultAudioSink mAudioSink;
@@ -169,6 +175,8 @@ import java.util.Map;
         mContext = context.getApplicationContext();
         mListener = listener;
         mLooper = looper;
+        // Use the same bandwidth meter for all playbacks via this wrapper.
+        mBandwidthMeter = new DefaultBandwidthMeter();
     }
 
     public Looper getLooper() {
@@ -417,6 +425,8 @@ import java.util.Map;
                 mTrackSelector.getPlayerTrackSelector(),
                 new DefaultLoadControl(),
                 /* drmSessionManager= */ null,
+                mBandwidthMeter,
+                new AnalyticsCollector.Factory(),
                 mLooper);
         mMediaItemQueue = new MediaItemQueue(mContext, mPlayer, mListener);
         mPlayer.addListener(listener);
@@ -549,6 +559,8 @@ import java.util.Map;
     private void maybeNotifyBufferingEvents() {
         if (mPrepared && !mRebuffering) {
             mRebuffering = true;
+            mListener.onBandwidthSample(
+                    getCurrentMediaItem(), (int) (mBandwidthMeter.getBitrateEstimate() / 1000));
             mListener.onBufferingStarted(getCurrentMediaItem());
         }
     }
@@ -572,6 +584,8 @@ import java.util.Map;
             mListener.onSeekCompleted(getCurrentPosition());
         } else if (mRebuffering) {
             mRebuffering = false;
+            mListener.onBandwidthSample(
+                    getCurrentMediaItem(), (int) (mBandwidthMeter.getBitrateEstimate() / 1000));
             mListener.onBufferingEnded(getCurrentMediaItem());
         }
     }
