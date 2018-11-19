@@ -34,11 +34,10 @@ class NoOpNavigator extends Navigator<NavDestination> {
     @Override
     public void navigate(@NonNull NavDestination destination, @Nullable Bundle args,
             @Nullable NavOptions navOptions, @Nullable Extras navigatorExtras) {
-        throw new IllegalStateException("NoOpNavigator does not support navigate");
     }
 
     @Override
     public boolean popBackStack() {
-        throw new IllegalStateException("NoOpNavigator does not support popBackStack");
+        return true;
     }
 }
