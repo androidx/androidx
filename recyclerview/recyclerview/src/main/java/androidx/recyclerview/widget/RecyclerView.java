@@ -5106,7 +5106,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 stop();
                 return; // no layout, cannot scroll.
             }
-            disableRunOnAnimationRequests();
+
+            mReSchedulePostAnimationCallback = false;
+            mEatRunOnAnimationRequest = true;
+
             consumePendingUpdateOperations();
 
             // TODO(72745539): After reviewing the code, it seems to me we may actually want to
@@ -5201,7 +5204,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 boolean scrollerFinishedY = scroller.getCurrY() == scroller.getFinalY();
                 final boolean doneScrolling = scroller.isFinished()
                         || ((scrollerFinishedX || unconsumedX != 0)
-                            && (scrollerFinishedY || unconsumedY != 0));
+                        && (scrollerFinishedY || unconsumedY != 0));
 
                 // Get the current smoothScroller. It may have changed by this point and we need to
                 // make sure we don't stop scrolling if it has changed and it's pending an initial
@@ -5212,7 +5215,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
                 if (!smoothScrollerPending && doneScrolling) {
                     // If we are done scrolling and the layout's SmoothScroller is not pending,
-                    // stop the scroll.
+                    // do the things we do at the end of a scroll and don't postOnAnimation.
 
                     if (getOverScrollMode() != View.OVER_SCROLL_NEVER) {
                         final int vel = (int) scroller.getCurrVelocity();
@@ -5221,12 +5224,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         absorbGlows(velX, velY);
                     }
 
-                    // setting state to idle will stop this.
-                    setScrollState(SCROLL_STATE_IDLE);
                     if (ALLOW_THREAD_GAP_WORK) {
                         mPrefetchRegistry.clearPrefetchPositions();
                     }
-                    stopNestedScroll(TYPE_NON_TOUCH);
                 } else {
                     // Otherwise continue the scroll.
 
@@ -5239,30 +5239,16 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
             SmoothScroller smoothScroller = mLayout.mSmoothScroller;
             // call this after the onAnimation is complete not to have inconsistent callbacks etc.
-            if (smoothScroller != null) {
-                if (smoothScroller.isPendingInitialRun()) {
-                    smoothScroller.onAnimation(0, 0);
-                }
-                // if mReSchedulePostAnimationCallback is false, disableRunOnAnimationRequests() was
-                // called at the start of this method and postOnAnimation() was not called before
-                // this point, which means that we aren't going to scroll anymore so we need to
-                // call stop on smoothScroller.
-                if (!mReSchedulePostAnimationCallback) {
-                    smoothScroller.stop(); //stop if it does not trigger any scroll
-                }
+            if (smoothScroller != null && smoothScroller.isPendingInitialRun()) {
+                smoothScroller.onAnimation(0, 0);
             }
-            enableRunOnAnimationRequests();
-        }
 
-        private void disableRunOnAnimationRequests() {
-            mReSchedulePostAnimationCallback = false;
-            mEatRunOnAnimationRequest = true;
-        }
-
-        private void enableRunOnAnimationRequests() {
             mEatRunOnAnimationRequest = false;
             if (mReSchedulePostAnimationCallback) {
-                postOnAnimation();
+                internalPostOnAnimation();
+            } else {
+                setScrollState(SCROLL_STATE_IDLE);
+                stopNestedScroll(TYPE_NON_TOUCH);
             }
         }
 
@@ -5270,9 +5256,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             if (mEatRunOnAnimationRequest) {
                 mReSchedulePostAnimationCallback = true;
             } else {
-                removeCallbacks(this);
-                ViewCompat.postOnAnimation(RecyclerView.this, this);
+                internalPostOnAnimation();
             }
+        }
+
+        private void internalPostOnAnimation() {
+            removeCallbacks(this);
+            ViewCompat.postOnAnimation(RecyclerView.this, this);
         }
 
         public void fling(int velocityX, int velocityY) {
