@@ -42,7 +42,7 @@ class NavGraphNavigatorStateTest {
     fun setup() {
         provider = NavigatorProvider().apply {
             addNavigator(NoOpNavigator().also { noOpNavigator = it })
-            addNavigator(NavGraphNavigator(mock(Context::class.java)).also {
+            addNavigator(NavGraphNavigator(mock(Context::class.java), this).also {
                 navGraphNavigator = it
             })
         }

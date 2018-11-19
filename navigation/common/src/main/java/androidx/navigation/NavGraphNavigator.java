@@ -31,16 +31,21 @@ import java.util.ArrayDeque;
 public class NavGraphNavigator extends Navigator<NavGraph> {
     private static final String KEY_BACK_STACK_IDS = "androidx-nav-graph:navigator:backStackIds";
 
-    private Context mContext;
+    private final Context mContext;
+    private final NavigatorProvider mNavigatorProvider;
     private ArrayDeque<Integer> mBackStack = new ArrayDeque<>();
 
     /**
      * Construct a Navigator capable of routing incoming navigation requests to the proper
      * destination within a {@link NavGraph}.
-     * @param context
+     * @param context Context used for providing debugging information
+     * @param navigatorProvider NavigatorProvider used to retrieve the correct
+     *                          {@link Navigator} to navigate to the start destination
      */
-    public NavGraphNavigator(@NonNull Context context) {
+    public NavGraphNavigator(@NonNull Context context,
+            @NonNull NavigatorProvider navigatorProvider) {
         mContext = context;
+        mNavigatorProvider = navigatorProvider;
     }
 
     /**
@@ -77,7 +82,10 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
             mBackStack.add(destination.getId());
             dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
         }
-        startDestination.navigate(args, navOptions, navigatorExtras);
+        Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
+                startDestination.getNavigatorName());
+        navigator.navigate(startDestination, startDestination.addInDefaultArgs(args),
+                navOptions, navigatorExtras);
     }
 
     /**

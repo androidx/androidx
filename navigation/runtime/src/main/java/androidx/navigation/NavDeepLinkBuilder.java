@@ -259,7 +259,7 @@ public class NavDeepLinkBuilder {
             @NonNull
             @Override
             public NavDestination createDestination() {
-                return new NavDestination(this);
+                return new NavDestination("permissive");
             }
 
             @Override
@@ -275,7 +275,7 @@ public class NavDeepLinkBuilder {
         };
 
         PermissiveNavigatorProvider(Context context) {
-            addNavigator(new NavGraphNavigator(context));
+            addNavigator(new NavGraphNavigator(context, this));
         }
 
         @NonNull
