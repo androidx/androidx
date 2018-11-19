@@ -9,7 +9,7 @@ package androidx.fragment.app {
   }
 
   public final class FragmentViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
-    ctor public FragmentViewModelLazy(androidx.fragment.app.Fragment fragment, kotlin.reflect.KClass<VM> viewModelClass, androidx.lifecycle.ViewModelProvider.Factory? factory);
+    ctor public FragmentViewModelLazy(androidx.fragment.app.Fragment fragment, kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
     method public VM getValue();
     method public boolean isInitialized();
     property public VM value;
