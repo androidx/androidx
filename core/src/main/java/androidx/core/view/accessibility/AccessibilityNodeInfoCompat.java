@@ -37,6 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments;
 import androidx.core.view.accessibility.AccessibilityViewCommand.MoveAtGranularityArguments;
@@ -1032,6 +1033,7 @@ public class AccessibilityNodeInfoCompat {
     private static final int BOOLEAN_PROPERTY_SCREEN_READER_FOCUSABLE = 0x00000001;
     private static final int BOOLEAN_PROPERTY_IS_HEADING = 0x00000002;
     private static final int BOOLEAN_PROPERTY_IS_SHOWING_HINT = 0x00000004;
+    private static final int BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY = 0x00000008;
 
     private final AccessibilityNodeInfo mInfo;
 
@@ -3669,6 +3671,37 @@ public class AccessibilityNodeInfoCompat {
             mInfo.setHeading(isHeading);
         } else {
             setBooleanProperty(BOOLEAN_PROPERTY_IS_HEADING, isHeading);
+        }
+    }
+
+    /**
+     * Returns whether node represents a text entry key that is part of a keyboard or keypad.
+     *
+     * @return {@code true} if the node is a text entry key, {@code false} otherwise.
+     */
+    public boolean isTextEntryKey() {
+        if (BuildCompat.isAtLeastQ()) {
+            return mInfo.isTextEntryKey();
+        }
+        return getBooleanProperty(BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY);
+    }
+
+    /**
+     * Sets whether the node represents a text entry key that is part of a keyboard or keypad.
+     * <p>This method has no effect below API 19</p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param isTextEntryKey {@code true} if the node is a text entry key, {@code false} otherwise.
+     */
+    public void setTextEntryKey(boolean isTextEntryKey) {
+        if (BuildCompat.isAtLeastQ()) {
+            mInfo.setTextEntryKey(isTextEntryKey);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY, isTextEntryKey);
         }
     }
 

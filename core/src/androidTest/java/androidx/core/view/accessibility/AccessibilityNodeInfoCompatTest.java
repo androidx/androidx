@@ -107,6 +107,16 @@ public class AccessibilityNodeInfoCompatTest {
 
     @SdkSuppress(minSdkVersion = 19)
     @Test
+    public void testGetSetTextEntryKey() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+        nodeCompat.setTextEntryKey(true);
+        assertThat(nodeCompat.isTextEntryKey(), is(true));
+        nodeCompat.setTextEntryKey(false);
+        assertThat(nodeCompat.isTextEntryKey(), is(false));
+    }
+
+    @SdkSuppress(minSdkVersion = 19)
+    @Test
     public void testAccessibilityActionsNotNull() {
         try {
             AccessibilityActionCompat actionCompat;
