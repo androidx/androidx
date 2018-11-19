@@ -77,7 +77,7 @@ public class NavInflater {
             }
 
             String rootElement = parser.getName();
-            NavDestination destination = inflate(res, parser, attrs);
+            NavDestination destination = inflate(res, parser, attrs, graphResId);
             if (!(destination instanceof NavGraph)) {
                 throw new IllegalArgumentException("Root element <" + rootElement + ">"
                         + " did not inflate into a NavGraph");
@@ -94,7 +94,8 @@ public class NavInflater {
 
     @NonNull
     private NavDestination inflate(@NonNull Resources res, @NonNull XmlResourceParser parser,
-            @NonNull AttributeSet attrs) throws XmlPullParserException, IOException {
+            @NonNull AttributeSet attrs, int graphResId)
+            throws XmlPullParserException, IOException {
         Navigator navigator = mNavigatorProvider.getNavigator(parser.getName());
         final NavDestination dest = navigator.createDestination();
 
@@ -116,7 +117,7 @@ public class NavInflater {
 
             final String name = parser.getName();
             if (TAG_ARGUMENT.equals(name)) {
-                inflateArgument(res, dest, attrs);
+                inflateArgument(res, dest, attrs, graphResId);
             } else if (TAG_DEEP_LINK.equals(name)) {
                 inflateDeepLink(res, dest, attrs);
             } else if (TAG_ACTION.equals(name)) {
@@ -127,7 +128,7 @@ public class NavInflater {
                 ((NavGraph) dest).addDestination(inflate(id));
                 a.recycle();
             } else if (dest instanceof NavGraph) {
-                ((NavGraph) dest).addDestination(inflate(res, parser, attrs));
+                ((NavGraph) dest).addDestination(inflate(res, parser, attrs, graphResId));
             }
         }
 
@@ -135,7 +136,7 @@ public class NavInflater {
     }
 
     private void inflateArgument(@NonNull Resources res, @NonNull NavDestination dest,
-            @NonNull AttributeSet attrs) throws XmlPullParserException {
+            @NonNull AttributeSet attrs, int graphResId) throws XmlPullParserException {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavArgument);
         String name = a.getString(R.styleable.NavArgument_android_name);
 
@@ -167,6 +168,41 @@ public class NavInflater {
                             }
                             throw new XmlPullParserException(
                                     "unsupported long value " + value.string);
+                        } else { //this might be an Enum
+                            Class<?> cls = null;
+                            String className;
+                            if (argType.startsWith(".")) {
+                                className = res.getResourcePackageName(graphResId) + argType;
+                            } else {
+                                className = argType;
+                            }
+                            try {
+                                cls = Class.forName(className);
+                            } catch (ClassNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            if (cls != null && cls.isEnum()) {
+                                boolean found = false;
+                                for (Object constant : cls.getEnumConstants()) {
+                                    if (((Enum) constant).name().equals(stringValue)) {
+                                        dest.getDefaultArguments()
+                                                .putSerializable(name, (Enum) constant);
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if (!found) {
+                                    throw new XmlPullParserException(
+                                            "Cannot find Enum value '" + stringValue + "' for "
+                                                    + "'" + className + "'");
+                                }
+                                break; //from switch statement
+                            } else {
+                                throw new XmlPullParserException(
+                                        "Unsupported argument type '" + argType + "' with "
+                                                + "non-null defaultValue. Class '" + className
+                                                + " does not exist or is not an Enum.");
+                            }
                         }
                         dest.getDefaultArguments().putString(name, stringValue);
                         break;
@@ -190,7 +226,7 @@ public class NavInflater {
                             }
                         } else {
                             throw new XmlPullParserException(
-                                    "unsupported argument type " + value.type);
+                                    "Unsupported argument type " + value.type);
                         }
                 }
             }

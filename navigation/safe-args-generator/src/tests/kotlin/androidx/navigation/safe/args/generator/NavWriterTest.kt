@@ -80,13 +80,13 @@ class NavWriterTest {
                         Argument("optionalInt", IntType, IntValue("239")),
                         Argument(
                                 "optionalParcelable",
-                                ParcelableType(ClassName.get("android.content.pm", "ActivityInfo")),
+                                ObjectType(ClassName.get("android.content.pm", "ActivityInfo")),
                                 NullValue,
                                 true
                         ),
                         Argument(
                                 "parcelable",
-                                ParcelableType(ClassName.get("android.content.pm", "ActivityInfo"))
+                                ObjectType(ClassName.get("android.content.pm", "ActivityInfo"))
                         ))), false)
         val actual = toJavaFileObject(actionSpec)
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.Next")
@@ -151,12 +151,21 @@ class NavWriterTest {
                 Argument("reference", ReferenceType, ReferenceValue(ResReference("a.b", "drawable",
                         "background"))),
                 Argument("floatArg", FloatType, FloatValue("1")),
+                Argument("floatArrayArg", FloatArrayType),
+                Argument("objectArrayArg", ObjectArrayType(
+                    ClassName.get("android.content.pm", "ActivityInfo"))),
                 Argument("boolArg", BoolType, BooleanValue("true")),
                 Argument(
                         "optionalParcelable",
-                        ParcelableType(ClassName.get("android.content.pm", "ActivityInfo")),
+                        ObjectType(ClassName.get("android.content.pm", "ActivityInfo")),
                         NullValue,
                         true
+                ),
+                Argument(
+                    "enumArg",
+                    ObjectType(ClassName.get("java.nio.file", "AccessMode")),
+                    EnumValue(ClassName.get("java.nio.file", "AccessMode"), "READ"),
+                    false
                 )),
                 listOf())
 

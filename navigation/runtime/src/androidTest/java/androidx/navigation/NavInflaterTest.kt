@@ -21,6 +21,7 @@ import android.net.Uri
 import android.os.Bundle
 
 import androidx.navigation.test.R
+import androidx.navigation.test.TestEnum
 import androidx.navigation.testing.TestNavigatorProvider
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
@@ -28,6 +29,7 @@ import androidx.test.runner.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 
 import org.junit.Before
 import org.junit.Test
@@ -111,6 +113,14 @@ class NavInflaterTest {
     }
 
     @Test
+    fun testDefaultArgumentsEnum() {
+        val defaultArguments = inflateDefaultArgumentsFromGraph()
+
+        assertEquals(TestEnum.VALUE_ONE, defaultArguments.getSerializable("test_enum") as TestEnum)
+        assertNull(defaultArguments.getSerializable("test_enum2"))
+    }
+
+    @Test
     fun testDefaultArgumentsString() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
@@ -126,6 +136,13 @@ class NavInflaterTest {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
         assertEquals(R.style.AppTheme, defaultArguments.getInt("test_reference"))
+    }
+
+    @Test
+    fun testRelativeClassName() {
+        val defaultArguments = inflateDefaultArgumentsFromGraph()
+        assertEquals(TestEnum.VALUE_TWO,
+            defaultArguments.getSerializable("test_relative_classname"))
     }
 
     private fun inflateDefaultArgumentsFromGraph(): Bundle {
