@@ -20,11 +20,13 @@ import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
+import androidx.lifecycle.ViewModelProvider.Factory
 import kotlin.reflect.KClass
 
 /**
- * Returns a [Lazy] delegate to access the ComponentActivity's ViewModel, if [factory] is specified
- * it will be used to create [ViewModel] first time.
+ * Returns a [Lazy] delegate to access the ComponentActivity's ViewModel, if [factoryProducer]
+ * is specified then [ViewModelProvider.Factory] returned by it will be used
+ * to create [ViewModel] first time.
  *
  * ```
  * class MyComponentActivity : ComponentActivity() {
@@ -37,17 +39,17 @@ import kotlin.reflect.KClass
  */
 @MainThread
 inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
-    factory: ViewModelProvider.Factory? = null
-): Lazy<VM> = ActivityViewModelLazy(this, VM::class, factory)
+    noinline factoryProducer: (() -> Factory)? = null
+): Lazy<VM> = ActivityViewModelLazy(this, VM::class, factoryProducer)
 
 /**
  * An implementation of [Lazy] used by [ComponentActivity.viewModels] tied to the given [activity],
- * [viewModelClass], [factory]
+ * [viewModelClass], [factoryProducer]
  */
 class ActivityViewModelLazy<VM : ViewModel>(
     private val activity: ComponentActivity,
     private val viewModelClass: KClass<VM>,
-    private val factory: ViewModelProvider.Factory?
+    private val factoryProducer: (() -> Factory)?
 ) : Lazy<VM> {
     private var cached: VM? = null
 
@@ -58,7 +60,8 @@ class ActivityViewModelLazy<VM : ViewModel>(
                 val application = activity.application
                         ?: throw IllegalArgumentException("ViewModel can be accessed " +
                                 "only when Activity is attached")
-                val resolvedFactory = factory ?: AndroidViewModelFactory.getInstance(application)
+                val resolvedFactory = factoryProducer?.invoke()
+                    ?: AndroidViewModelFactory.getInstance(application)
                 viewModel = ViewModelProvider(activity, resolvedFactory).get(viewModelClass.java)
                 cached = viewModel
             }
