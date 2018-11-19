@@ -76,7 +76,7 @@ public class NavController {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Deque<NavDestination> mBackStack = new ArrayDeque<>();
 
-    private final SimpleNavigatorProvider mNavigatorProvider = new SimpleNavigatorProvider() {
+    private final NavigatorProvider mNavigatorProvider = new NavigatorProvider() {
         @Nullable
         @Override
         public Navigator<? extends NavDestination> addNavigator(@NonNull String name,

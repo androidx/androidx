@@ -251,7 +251,7 @@ public class NavDeepLinkBuilder {
      * information.
      */
     @SuppressWarnings("unchecked")
-    private static class PermissiveNavigatorProvider extends SimpleNavigatorProvider {
+    private static class PermissiveNavigatorProvider extends NavigatorProvider {
         /**
          * A Navigator that only parses the {@link NavDestination} attributes.
          */
