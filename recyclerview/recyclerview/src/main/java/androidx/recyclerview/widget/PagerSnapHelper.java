@@ -177,8 +177,9 @@ public class PagerSnapHelper extends SnapHelper {
                 final int dx = snapDistances[0];
                 final int dy = snapDistances[1];
                 final int time = calculateTimeForDeceleration(Math.max(Math.abs(dx), Math.abs(dy)));
-                // TODO: revert change in next line when b/118663993 is fixed
-                action.update(dx, dy, Math.max(1, time), mDecelerateInterpolator);
+                if (time > 0) {
+                    action.update(dx, dy, time, mDecelerateInterpolator);
+                }
             }
 
             @Override
