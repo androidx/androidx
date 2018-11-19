@@ -16,19 +16,24 @@
 
 package androidx.slice.widget;
 
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
-import static androidx.slice.widget.SliceView.MODE_LARGE;
-import static androidx.slice.widget.SliceView.MODE_SMALL;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.view.R;
+
+import static android.app.slice.Slice.HINT_HORIZONTAL;
+import static androidx.slice.core.SliceHints.ICON_IMAGE;
+import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
+import static androidx.slice.widget.SliceView.MODE_LARGE;
+import static androidx.slice.widget.SliceView.MODE_SMALL;
 
 /**
  * Holds style information shared between child views of a slice
@@ -64,6 +69,9 @@ public class SliceStyle {
     private int mGridImageTextHeight;
     private int mGridMaxHeight;
     private int mGridMinHeight;
+
+    private int mListMinScrollHeight;
+    private int mListLargeHeight;
 
     public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
@@ -118,6 +126,9 @@ public class SliceStyle {
         mGridImageTextHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_image_text_height);
         mGridMinHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_min_height);
         mGridMaxHeight = r.getDimensionPixelSize(R.dimen.abc_slice_grid_max_height);
+
+        mListMinScrollHeight = r.getDimensionPixelSize(R.dimen.abc_slice_row_min_height);
+        mListLargeHeight = r.getDimensionPixelSize(R.dimen.abc_slice_large_height);
     }
 
     public int getRowMaxHeight() {
@@ -227,5 +238,99 @@ public class SliceStyle {
         int bottomPadding = grid.isAllImages() && grid.getIsLastIndex()
                 ? mGridBottomPadding : 0;
         return height + topPadding + bottomPadding;
+    }
+
+    public int getListHeight(ListContent list, SliceViewPolicy policy) {
+        if (policy.getMode() == MODE_SMALL) {
+            return list.getHeader().getHeight(this, policy);
+        }
+        int maxHeight = policy.getMaxHeight();
+        boolean scrollable = policy.isScrollable();
+
+        int desiredHeight = getListItemsHeight(list.getRowItems(), policy);
+        if (maxHeight > 0) {
+            // Always ensure we're at least the height of our small version.
+            int smallHeight = list.getHeader().getHeight(this, policy);
+            maxHeight = Math.max(smallHeight, maxHeight);
+        }
+        int maxLargeHeight = maxHeight > 0
+                ? maxHeight
+                : mListLargeHeight;
+        // Do we have enough content to reasonably scroll in our max?
+        boolean bigEnoughToScroll = desiredHeight - maxLargeHeight >= mListMinScrollHeight;
+
+        // Adjust for scrolling
+        int height = bigEnoughToScroll ? maxLargeHeight
+                : maxHeight <= 0 ? desiredHeight
+                : Math.min(maxLargeHeight, desiredHeight);
+        if (!scrollable) {
+            height = getListItemsHeight(getListItemsForNonScrollingList(list, height, policy),
+                                        policy);
+        }
+        return height;
+    }
+
+    public int getListItemsHeight(List<SliceContent> listItems, SliceViewPolicy policy) {
+        if (listItems == null) {
+            return 0;
+        }
+        int height = 0;
+        SliceContent maybeHeader = null;
+        if (!listItems.isEmpty()) {
+            maybeHeader = listItems.get(0);
+        }
+        if (listItems.size() == 1 && !maybeHeader.getSliceItem().hasHint(HINT_HORIZONTAL)) {
+            return maybeHeader.getHeight(this, policy);
+        }
+        for (int i = 0; i < listItems.size(); i++) {
+            height += listItems.get(i).getHeight(this, policy);
+        }
+        return height;
+    }
+
+    /**
+     * Returns a list of items that can fit in the provided height. If this list
+     * has a see more item this will be displayed in the list if appropriate.
+     *
+     * @param list the list from which to source the items.
+     * @param availableHeight to use to determine the row items to return.
+     * @param policy the policy info (scrolling, mode) to use when determining row items to return.
+     *
+     * @return the list of items that can be displayed in the provided height.
+     */
+    @NonNull
+    public ArrayList<SliceContent> getListItemsForNonScrollingList(ListContent list,
+                                                                    int availableHeight,
+                                                                    SliceViewPolicy policy) {
+        ArrayList<SliceContent> visibleItems = new ArrayList<>();
+        if (list.getRowItems() == null || list.getRowItems().size() == 0) {
+            return visibleItems;
+        }
+        final int minItemCountForSeeMore = list.getRowItems() != null ? 2 : 1;
+        int visibleHeight = 0;
+        // Need to show see more
+        if (list.getSeeMoreItem() != null) {
+            visibleHeight += list.getSeeMoreItem().getHeight(this, policy);
+        }
+        int rowCount = list.getRowItems().size();
+        for (int i = 0; i < rowCount; i++) {
+            int itemHeight = list.getRowItems().get(i).getHeight(this, policy);
+            if (availableHeight > 0 && visibleHeight + itemHeight > availableHeight) {
+                break;
+            } else {
+                visibleHeight += itemHeight;
+                visibleItems.add(list.getRowItems().get(i));
+            }
+        }
+        if (list.getSeeMoreItem() != null && visibleItems.size() >= minItemCountForSeeMore
+                && visibleItems.size() != rowCount) {
+            // Only add see more if we're at least showing one item and it's not the header
+            visibleItems.add(list.getSeeMoreItem());
+        }
+        if (visibleItems.size() == 0) {
+            // Didn't have enough space to show anything; should still show something
+            visibleItems.add(list.getRowItems().get(0));
+        }
+        return visibleItems;
     }
 }
