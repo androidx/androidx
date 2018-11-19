@@ -16,6 +16,21 @@
 
 package androidx.slice.widget;
 
+import android.text.TextUtils;
+import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.slice.SliceItem;
+import androidx.slice.core.SliceAction;
+import androidx.slice.core.SliceActionImpl;
+import androidx.slice.core.SliceQuery;
+
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_KEYWORDS;
 import static android.app.slice.Slice.HINT_LAST_UPDATED;
@@ -34,25 +49,6 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
-
-import static androidx.slice.widget.SliceView.MODE_LARGE;
-
-import android.content.Context;
-import android.text.TextUtils;
-import android.util.Log;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.slice.SliceItem;
-import androidx.slice.core.SliceAction;
-import androidx.slice.core.SliceActionImpl;
-import androidx.slice.core.SliceQuery;
-import androidx.slice.view.R;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Extracts information required to present content in a row format from a slice.

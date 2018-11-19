@@ -464,7 +464,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             mCurrentView.resetView();
         }
         mCurrentSlice = slice;
-        mListContent = new ListContent(getContext(), mCurrentSlice);
+        mListContent = new ListContent(mCurrentSlice);
         if (!mListContent.isValid()) {
             mActions = null;
             mCurrentView.resetView();

@@ -136,7 +136,7 @@ public class SliceMetadata {
         if (updatedItem != null) {
             mLastUpdated = updatedItem.getLong();
         }
-        mListContent = new ListContent(context, slice);
+        mListContent = new ListContent(slice);
         mHeaderContent = mListContent.getHeader();
         mTemplateType = mListContent.getHeaderTemplateType();
         mPrimaryAction = mListContent.getShortcut(mContext);
