@@ -259,7 +259,8 @@ package android.support.v4.media.session {
   }
 
   public static final class MediaControllerCompat.PlaybackInfo {
-    method public int getAudioStream();
+    method public androidx.media.AudioAttributesCompat getAudioAttributes();
+    method @Deprecated public int getAudioStream();
     method public int getCurrentVolume();
     method public int getMaxVolume();
     method public int getPlaybackType();
