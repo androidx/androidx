@@ -231,7 +231,7 @@ public class SliceSelectionDialog {
 
     protected static CharSequence findTitle(Context context, Slice loadedSlice,
             SliceMetadata metaData) {
-        ListContent content = new ListContent(context, loadedSlice);
+        ListContent content = new ListContent(loadedSlice);
         SliceItem headerItem = content.getHeader() != null
                 ? content.getHeader().getSliceItem() : null;
         if (headerItem == null) return null;
