@@ -171,21 +171,23 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onRepeatModeChanged(int seq, final int repeatMode) {
+    public void onRepeatModeChanged(int seq, final int repeatMode, final int currentIdx,
+            final int previousIdx, final int nextIdx) {
         dispatchControllerTask(new ControllerTask() {
             @Override
             public void run(MediaControllerImplBase controller) {
-                controller.notifyRepeatModeChanges(repeatMode);
+                controller.notifyRepeatModeChanges(repeatMode, currentIdx, previousIdx, nextIdx);
             }
         });
     }
 
     @Override
-    public void onShuffleModeChanged(int seq, final int shuffleMode) {
+    public void onShuffleModeChanged(int seq, final int shuffleMode, final int currentIdx,
+            final int previousIdx, final int nextIdx) {
         dispatchControllerTask(new ControllerTask() {
             @Override
             public void run(MediaControllerImplBase controller) {
-                controller.notifyShuffleModeChanges(shuffleMode);
+                controller.notifyShuffleModeChanges(shuffleMode, currentIdx, previousIdx, nextIdx);
             }
         });
     }
@@ -258,7 +260,8 @@ class MediaControllerStub extends IMediaController.Stub {
                     result.getPositionMs(), result.getPlaybackSpeed(),
                     result.getBufferedPositionMs(), result.getPlaybackInfo(),
                     result.getRepeatMode(), result.getShuffleMode(), itemList,
-                    result.getSessionActivity());
+                    result.getSessionActivity(), result.getCurrentMediaItemIndex(),
+                    result.getPreviousMediaItemIndex(), result.getNextMediaItemIndex());
         } finally {
             Binder.restoreCallingIdentity(token);
         }
