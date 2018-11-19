@@ -49,13 +49,31 @@ class NavParserTest {
                         Argument("intArgument", IntType, IntValue("261")),
                         Argument(
                                 "activityInfo",
-                                ParcelableType(ClassName.get("android.content.pm", "ActivityInfo"))
+                                ObjectType(ClassName.get("android.content.pm", "ActivityInfo"))
                         ),
                         Argument(
                                 "activityInfoNull",
-                                ParcelableType(ClassName.get("android.content.pm", "ActivityInfo")),
+                                ObjectType(ClassName.get("android.content.pm", "ActivityInfo")),
                                 NullValue,
                                 true
+                        ),
+                        Argument("intArrayArg", IntArrayType),
+                        Argument("stringArrayArg", StringArrayType),
+                        Argument("objectArrayArg", ObjectArrayType(
+                            ClassName.get("android.content.pm", "ActivityInfo"))),
+                        Argument(
+                            "enumArg",
+                            ObjectType(ClassName.get("java.nio.file", "AccessMode")),
+                            EnumValue(ClassName.get("java.nio.file", "AccessMode"), "READ"),
+                            false
+                        ),
+                        Argument(
+                            "objectRelativeArg",
+                            ObjectType(ClassName.get("a.b.pkg", "ClassName"))
+                        ),
+                        Argument(
+                            "objectRelativeArg2",
+                            ObjectType(ClassName.get("a.b", "ClassName"))
                         )
                 ))))
 

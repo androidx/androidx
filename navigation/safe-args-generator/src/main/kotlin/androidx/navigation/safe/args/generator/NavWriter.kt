@@ -117,9 +117,8 @@ private class ClassWithArgsSpecs(
         returns(BUNDLE_CLASSNAME)
         val bundleName = "__outBundle"
         addStatement("$T $N = new $T()", BUNDLE_CLASSNAME, bundleName, BUNDLE_CLASSNAME)
-        args.forEach { (name, type, _, _, sanitizedName) ->
-            addStatement("$N.$N($S, this.$N)", bundleName, type.bundlePutMethod(), name,
-                    sanitizedName)
+        args.forEach { arg ->
+            arg.type.addBundlePutStatement(this, arg, bundleName, "this.${arg.sanitizedName}")
         }
         addStatement("return $N", bundleName)
     }.build()
@@ -171,7 +170,8 @@ private class ClassWithArgsSpecs(
                 ReferenceType,
                 LongType -> "$sanitizedName != that.$sanitizedName"
                 FloatType -> "Float.compare(that.$sanitizedName, $sanitizedName) != 0"
-                StringType, is ParcelableType ->
+                StringType, IntArrayType, LongArrayType, FloatArrayType, StringArrayType,
+                BoolArrayType, ReferenceArrayType, is ObjectArrayType, is ObjectType ->
                     "$sanitizedName != null ? !$sanitizedName.equals(that.$sanitizedName) " +
                         ": that.$sanitizedName != null"
             }
@@ -197,7 +197,10 @@ private class ClassWithArgsSpecs(
             val hashCodeExpression = when (type) {
                 IntType, ReferenceType -> sanitizedName
                 FloatType -> "Float.floatToIntBits($sanitizedName)"
-                StringType, is ParcelableType ->
+                IntArrayType, LongArrayType, FloatArrayType, StringArrayType,
+                BoolArrayType, ReferenceArrayType, is ObjectArrayType ->
+                    "java.util.Arrays.hashCode($sanitizedName)"
+                StringType, is ObjectType ->
                     "($sanitizedName != null ? $sanitizedName.hashCode() : 0)"
                 BoolType -> "($sanitizedName ? 1 : 0)"
                 LongType -> "(int)($sanitizedName ^ ($sanitizedName >>> 32))"
@@ -337,8 +340,7 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
         addStatement("$N.setClassLoader($T.class.getClassLoader())", bundle, className)
         args.forEach { arg ->
             beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
-                addStatement("$N.$N = $N.$N($S)", result, arg.sanitizedName, bundle,
-                        arg.type.bundleGetMethod(), arg.name)
+                arg.type.addBundleGetStatement(this, arg, "$result.${arg.sanitizedName}", bundle)
                 addNullCheck(arg, "$result.${arg.sanitizedName}")
             }
             if (!arg.isOptional()) {
