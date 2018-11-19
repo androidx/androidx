@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class NavGraphBuilderTest {
-    private val provider = SimpleNavigatorProvider().apply {
+    private val provider = NavigatorProvider().apply {
         addNavigator(NavGraphNavigator(InstrumentationRegistry.getTargetContext()))
         addNavigator(NoOpNavigator())
     }

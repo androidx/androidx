@@ -25,7 +25,7 @@ import org.junit.runners.JUnit4
 @SmallTest
 @RunWith(JUnit4::class)
 class NavigatorProviderTest {
-    private val provider = SimpleNavigatorProvider()
+    private val provider = NavigatorProvider()
 
     @Test
     fun set() {
