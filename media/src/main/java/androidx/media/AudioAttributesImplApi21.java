@@ -24,16 +24,12 @@ import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 import android.media.AudioAttributes;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelize;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /** @hide */
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplApi21")
@@ -66,20 +62,6 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
         mLegacyStreamType = explicitLegacyStream;
     }
 
-    static Method sAudioAttributesToLegacyStreamType;
-
-    static Method getAudioAttributesToLegacyStreamTypeMethod() {
-        try {
-            if (sAudioAttributesToLegacyStreamType == null) {
-                sAudioAttributesToLegacyStreamType = AudioAttributes.class.getMethod(
-                        "toLegacyStreamType", AudioAttributes.class);
-            }
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-        return sAudioAttributesToLegacyStreamType;
-    }
-
     //////////////////////////////////////////////////////////////////////
     // Implements AudioAttributesImpl interface
     @Override
@@ -100,20 +82,7 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
         if (mLegacyStreamType != INVALID_STREAM_TYPE) {
             return mLegacyStreamType;
         }
-        Method frameworkMethod = getAudioAttributesToLegacyStreamTypeMethod();
-        if (frameworkMethod == null) {
-            Log.w(TAG, "No AudioAttributes#toLegacyStreamType() on API: "
-                    + android.os.Build.VERSION.SDK_INT);
-            return INVALID_STREAM_TYPE;
-        }
-        try {
-            Object result = frameworkMethod.invoke(null, mAudioAttributes);
-            return (Integer) result;
-        } catch (InvocationTargetException | IllegalAccessException e) {
-            Log.w(TAG, "getLegacyStreamType() failed on API: "
-                    + android.os.Build.VERSION.SDK_INT, e);
-            return -1; // AudioSystem.STREAM_DEFAULT
-        }
+        return AudioAttributesCompat.toVolumeStreamType(false, getFlags(), getUsage());
     }
 
     @Override
