@@ -27,7 +27,7 @@ import androidx.navigation.NavigatorProvider
 class TestNavigatorProvider(context: Context) : NavigatorProvider() {
 
     init {
-        addNavigator(NavGraphNavigator(context))
+        addNavigator(NavGraphNavigator(context, this))
         addNavigator(TestNavigator())
     }
 }
