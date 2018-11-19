@@ -19,6 +19,7 @@
 
     <!-- Demo titles -->
     <string name="paged_list_view_title">PagedListView</string>
+    <string name="paged_list_view_shrink_title">PagedListViewShrinkDemo</string>
     <string name="text_list_item_title">TextListItem</string>
     <string name="seekbar_list_item_title">SeekbarListItem</string>
     <string name="sub_header_list_item_title">SubheaderListItem</string>
@@ -129,5 +130,11 @@
         <item>Uranus</item>
         <item>Neptune</item>
     </string-array>
+
+    <!-- String for PagedListViewShrink Demo -->
+    <string name="text_description">Please choose the height of PagedListView below</string>
+    <string name="show_nothing">Show nothing</string>
+    <string name="show_buttons">Only show buttons</string>
+    <string name="show_everything">Show everything</string>
 </resources>
 
