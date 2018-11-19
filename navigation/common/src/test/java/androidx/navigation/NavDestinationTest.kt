@@ -130,11 +130,10 @@ class NavDestinationTest {
 
     @Test
     fun buildDeepLinkIds() {
-        val destination = NavDestination(mock(Navigator::class.java))
+        val destination = NoOpNavigator().createDestination()
         destination.id = DESTINATION_ID
         val parentId = 2
-        @Suppress("UNCHECKED_CAST")
-        val parent = NavGraph(mock(Navigator::class.java) as Navigator<NavGraph>).apply {
+        val parent = NavGraphNavigator(mock(Context::class.java)).createDestination().apply {
             id = parentId
         }
         destination.parent = parent
@@ -145,7 +144,7 @@ class NavDestinationTest {
 
     @Test
     fun putActionByDestinationId() {
-        val destination = NavDestination(mock(Navigator::class.java))
+        val destination = NoOpNavigator().createDestination()
         destination.putAction(ACTION_ID, DESTINATION_ID)
 
         val action = destination.getAction(ACTION_ID)
@@ -155,13 +154,13 @@ class NavDestinationTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun putActionWithInvalidDestinationId() {
-        val destination = NavDestination(mock(Navigator::class.java))
+        val destination = NoOpNavigator().createDestination()
         destination.putAction(INVALID_ACTION_ID, DESTINATION_ID)
     }
 
     @Test
     fun putAction() {
-        val destination = NavDestination(mock(Navigator::class.java))
+        val destination = NoOpNavigator().createDestination()
         val action = NavAction(DESTINATION_ID)
         destination.putAction(ACTION_ID, action)
 
@@ -170,7 +169,7 @@ class NavDestinationTest {
 
     @Test
     fun removeAction() {
-        val destination = NavDestination(mock(Navigator::class.java))
+        val destination = NoOpNavigator().createDestination()
         val action = NavAction(DESTINATION_ID)
         destination.putAction(ACTION_ID, action)
 

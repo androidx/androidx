@@ -39,18 +39,25 @@ class NavGraphTest {
         private const val SECOND_DESTINATION_ID = 2
     }
 
+    private lateinit var provider: NavigatorProvider
+    private lateinit var noOpNavigator: NoOpNavigator
     private lateinit var navGraphNavigator: NavGraphNavigator
 
     @Before
     fun setup() {
-        navGraphNavigator = NavGraphNavigator(mock(Context::class.java))
+        provider = NavigatorProvider().apply {
+            addNavigator(NoOpNavigator().also { noOpNavigator = it })
+            addNavigator(NavGraphNavigator(mock(Context::class.java)).also {
+                navGraphNavigator = it
+            })
+        }
     }
 
-    private fun createFirstDestination() = NavDestination(mock(Navigator::class.java)).apply {
+    private fun createFirstDestination() = noOpNavigator.createDestination().apply {
         id = FIRST_DESTINATION_ID
     }
 
-    private fun createSecondDestination() = NavDestination(mock(Navigator::class.java)).apply {
+    private fun createSecondDestination() = noOpNavigator.createDestination().apply {
         id = SECOND_DESTINATION_ID
     }
 
@@ -67,7 +74,7 @@ class NavGraphTest {
     @Test(expected = IllegalArgumentException::class)
     fun addDestinationWithoutId() {
         val graph = navGraphNavigator.createDestination()
-        val destination = NavDestination(mock(Navigator::class.java))
+        val destination = noOpNavigator.createDestination()
         graph.addDestination(destination)
     }
 
@@ -110,7 +117,7 @@ class NavGraphTest {
         val destination = createFirstDestination()
         val graph = createGraphWithDestination(destination)
 
-        val replacementDestination = NavDestination(mock(Navigator::class.java))
+        val replacementDestination = noOpNavigator.createDestination()
         replacementDestination.id = FIRST_DESTINATION_ID
         graph.addDestination(replacementDestination)
 

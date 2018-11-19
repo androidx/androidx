@@ -46,7 +46,7 @@ class NavGraphBuilderTest {
     @Test
     fun navigationUnaryPlus() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
-            +NavDestination(provider[NoOpNavigator::class]).apply {
+            +provider[NoOpNavigator::class].createDestination().apply {
                 id = DESTINATION_ID
             }
         }
@@ -58,7 +58,7 @@ class NavGraphBuilderTest {
     @Test
     fun navigationAddDestination() {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
-            val destination = NavDestination(provider[NoOpNavigator::class]).apply {
+            val destination = provider[NoOpNavigator::class].createDestination().apply {
                 id = DESTINATION_ID
             }
             addDestination(destination)
