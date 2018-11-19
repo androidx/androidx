@@ -37,11 +37,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The basic object that performs work.  Worker classes are instantiated at runtime by the
- * {@link WorkerFactory} specified in the {@link Configuration}.  The {@link #startWork()} method
- * is called on the main thread.  In case the work is preempted and later restarted for any
- * reason, a new instance of {@link ListenableWorker} is created. This means that
- * {@code startWork} is called exactly once per {@link ListenableWorker} instance.
+ * An object that can perform work asynchronously.  For most cases, we recommend using
+ * {@link Worker}, which offers a simple synchronous API that is executed on a pre-specified
+ * background thread.
+ * <p>
+ * ListenableWorker classes are instantiated at runtime by the {@link WorkerFactory} specified in
+ * the {@link Configuration}.  The {@link #startWork()} method is called on the main thread.
+ *
+ * <p>In case the work is preempted and later restarted for any reason, a new instance of
+ * ListenableWorker is created. This means that {@code startWork} is called exactly once per
+ * ListenableWorker instance.  A new ListenableWorker is created if a unit of work needs to be
+ * rerun.
  */
 public abstract class ListenableWorker {
 
@@ -57,7 +63,9 @@ public abstract class ListenableWorker {
 
         /**
          * Used to indicate that the work completed with a permanent failure.  Any work that depends
-         * on this will also be marked as failed and will not be run.
+         * on this will also be marked as failed and will not be run.  <b></b>If you need child
+         * workers to run , you need to return {@link #SUCCESS}</b>; failure indicates a permanent
+         * stoppage of the chain of work.
          */
         FAILURE,
 
@@ -275,7 +283,8 @@ public abstract class ListenableWorker {
         /**
          * Constructs a Payload with the given {@link Result} and an empty output.
          *
-         * @param result The result of the {@link #startWork()} computation
+         * @param result The {@link Result} of the {@link #startWork()} computation; note that
+         *               dependent work will not execute if you return {@link Result#FAILURE}
          */
         public Payload(@NonNull Result result) {
             this(result, Data.EMPTY);
@@ -284,7 +293,8 @@ public abstract class ListenableWorker {
         /**
          * Constructs a Payload with the given {@link Result} and output.
          *
-         * @param result The result of the {@link #startWork()} computation
+         * @param result The {@link Result} of the {@link #startWork()} computation; note that
+         *               dependent work will not execute if you return {@link Result#FAILURE}
          * @param output The output {@link Data} of the {@link #startWork()} computation
          */
         public Payload(@NonNull Result result, @NonNull Data output) {
