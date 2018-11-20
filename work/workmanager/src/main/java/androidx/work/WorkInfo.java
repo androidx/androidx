@@ -25,9 +25,9 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * A simple class with the id of a {@link WorkRequest}, its current {@link State}, output, and
- * tags.  Note that output is only available for terminal states ({@link State#SUCCEEDED} and
- * {@link State#FAILED}).
+ * Information about a particular {@link WorkRequest} containing the id of the WorkRequest, its
+ * current {@link State}, output, and tags.  Note that output is only available for the terminal
+ * states ({@link State#SUCCEEDED} and {@link State#FAILED}).
  */
 
 public final class WorkInfo {
@@ -104,46 +104,51 @@ public final class WorkInfo {
     }
 
     /**
-     * The current state of a unit of work.
+     * The current lifecycle state of a {@link WorkRequest}.
      */
     public enum State {
 
         /**
-         * The state for work that is enqueued (hasn't completed and isn't running)
+         * Used to indicate that the {@link WorkRequest} is enqueued and eligible to run when its
+         * {@link Constraints} are met and resources are available.
          */
         ENQUEUED,
 
         /**
-         * The state for work that is currently being executed
+         * Used to indicate that the {@link WorkRequest} is currently being executed.
          */
         RUNNING,
 
         /**
-         * The state for work that has completed successfully
+         * Used to indicate that the {@link WorkRequest} has completed in a successful state.  Note
+         * that {@link PeriodicWorkRequest}s will never enter this state (they will simply go back
+         * to {@link #ENQUEUED} and be eligible to run again).
          */
         SUCCEEDED,
 
         /**
-         * The state for work that has completed in a failure state
+         * Used to indicate that the {@link WorkRequest} has completed in a failure state.  All
+         * dependent work will also be marked as {@code #FAILED} and will never run.
          */
         FAILED,
 
         /**
-         * The state for work that is currently blocked because its prerequisites haven't finished
-         * successfully
+         * Used to indicate that the {@link WorkRequest} is currently blocked because its
+         * prerequisites haven't finished successfully.
          */
         BLOCKED,
 
         /**
-         * The state for work that has been cancelled and will not execute
+         * Used to indicate that the {@link WorkRequest} has been cancelled and will not execute.
+         * All dependent work will also be marked as {@code #CANCELLED} and will not run.
          */
         CANCELLED;
 
         /**
          * Returns {@code true} if this State is considered finished.
          *
-         * @return {@code true} for {@link #SUCCEEDED}, {@link #FAILED}, and
-         * {@link #CANCELLED} states
+         * @return {@code true} for {@link #SUCCEEDED}, {@link #FAILED}, and * {@link #CANCELLED}
+         *         states
          */
         public boolean isFinished() {
             return (this == SUCCEEDED || this == FAILED || this == CANCELLED);

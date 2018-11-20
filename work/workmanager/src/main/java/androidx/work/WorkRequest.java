@@ -29,7 +29,9 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The base interface for work requests.
+ * The base class for specifying parameters for work that should be enqueued in {@link WorkManager}.
+ * There are two concrete implementations of this class: {@link OneTimeWorkRequest} and
+ * {@link PeriodicWorkRequest}.
  */
 
 public abstract class WorkRequest {
@@ -106,7 +108,8 @@ public abstract class WorkRequest {
     }
 
     /**
-     * A builder for {@link WorkRequest}.
+     * A builder for {@link WorkRequest}s.  There are two concrete implementations of this class:
+     * {@link OneTimeWorkRequest.Builder} and {@link PeriodicWorkRequest.Builder}.
      *
      * @param <B> The concrete implementation of of this Builder
      * @param <W> The type of work object built by this Builder
@@ -125,10 +128,10 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Change backoff policy and delay for the work.  The default is
+         * Set the backoff policy and backoff delay for the work.  The default values are
          * {@link BackoffPolicy#EXPONENTIAL} and
-         * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}.  The maximum backoff delay
-         * duration is {@value WorkRequest#MAX_BACKOFF_MILLIS}.
+         * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}, respectively.  The maximum backoff
+         * delay duration is {@value WorkRequest#MAX_BACKOFF_MILLIS}.
          *
          * @param backoffPolicy The {@link BackoffPolicy} to use for work
          * @param backoffDelay Time to wait before restarting the worker in {@code timeUnit} units
@@ -146,7 +149,7 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Add constraints to the {@link OneTimeWorkRequest}.
+         * Add constraints to the {@link WorkRequest}.
          *
          * @param constraints The constraints for the work
          * @return The current {@link Builder}
@@ -157,7 +160,8 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Add input {@link Data} to the work.
+         * Add input {@link Data} to the work.  If a worker has prerequisites in its chain, this
+         * Data will be merged with the outputs of the prerequisites using an {@link InputMerger}.
          *
          * @param inputData key/value pairs that will be provided to the worker
          * @return The current {@link Builder}
@@ -168,8 +172,8 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Add an optional tag for the work.  This is particularly useful for modules or
-         * libraries who want to query for or cancel all of their own work.
+         * Add a tag for the work.  You can query and cancel work by tags.  Tags are particularly
+         * useful for modules or libraries to find and operate on their own work.
          *
          * @param tag A tag for identifying the work in queries.
          * @return The current {@link Builder}
@@ -181,12 +185,12 @@ public abstract class WorkRequest {
 
         /**
          * Specifies that the results of this work should be kept for at least the specified amount
-         * of time.  After this time has elapsed, the results may be pruned at the discretion of
-         * WorkManager when there are no pending dependent jobs.
-         *
+         * of time.  After this time has elapsed, the results <b>may</b> be pruned at the discretion
+         * of WorkManager when there are no pending dependent jobs.
+         * <p>
          * When the results of a work are pruned, it becomes impossible to query for its
          * {@link WorkInfo}.
-         *
+         * <p>
          * Specifying a long duration here may adversely affect performance in terms of app storage
          * and database query time.
          *
@@ -202,12 +206,12 @@ public abstract class WorkRequest {
 
         /**
          * Specifies that the results of this work should be kept for at least the specified amount
-         * of time.  After this time has elapsed, the results may be pruned at the discretion of
-         * WorkManager when there are no pending dependent jobs.
-         *
+         * of time.  After this time has elapsed, the results <p>may</p> be pruned at the discretion
+         * of WorkManager when there are no pending dependent jobs.
+         * <p>
          * When the results of a work are pruned, it becomes impossible to query for its
          * {@link WorkInfo}.
-         *
+         * <p>
          * Specifying a long duration here may adversely affect performance in terms of app storage
          * and database query time.
          *
@@ -221,9 +225,9 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Builds this work object.
+         * Builds a {@link WorkRequest} based on this {@link Builder}.
          *
-         * @return The concrete implementation of the work associated with this builder
+         * @return A {@link WorkRequest} based on this {@link Builder}
          */
         public final @NonNull W build() {
             W returnValue = buildInternal();
