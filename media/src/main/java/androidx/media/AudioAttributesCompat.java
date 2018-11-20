@@ -752,9 +752,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
             case USAGE_ASSISTANCE_ACCESSIBILITY:
                 return AudioManagerHidden.STREAM_ACCESSIBILITY;
             case USAGE_UNKNOWN:
-                return fromGetVolumeControlStream
-                        ? AudioManager.USE_DEFAULT_STREAM_TYPE
-                        : AudioManager.STREAM_MUSIC;
+                return AudioManager.STREAM_MUSIC;
             default:
                 if (fromGetVolumeControlStream) {
                     throw new IllegalArgumentException(
