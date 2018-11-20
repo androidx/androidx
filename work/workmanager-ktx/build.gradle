@@ -41,7 +41,7 @@ dependencies {
     api(KOTLIN_COROUTINES)
 
     androidTestImplementation project(':work:work-testing')
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(ESPRESSO_CORE)
     testImplementation(JUNIT)
 }
