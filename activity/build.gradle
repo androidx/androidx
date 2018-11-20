@@ -18,6 +18,7 @@ dependencies {
     api("androidx.core:core:1.0.0")
     api(ARCH_LIFECYCLE_RUNTIME, libs.exclude_annotations_transitive)
     api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
+    api(project(":lifecycle:lifecycle-savedstate-core"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TEST_RUNNER)

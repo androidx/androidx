@@ -96,7 +96,6 @@ includeProject(":lifecycle:lifecycle-reactivestreams", "lifecycle/reactivestream
 includeProject(":lifecycle:lifecycle-reactivestreams-ktx", "lifecycle/reactivestreams/ktx")
 includeProject(":lifecycle:lifecycle-runtime", "lifecycle/runtime")
 includeProject(":lifecycle:lifecycle-savedstate-core", "lifecycle/savedstate-core")
-includeProject(":lifecycle:lifecycle-savedstate-fragment", "lifecycle/savedstate-fragment")
 includeProject(":lifecycle:lifecycle-service", "lifecycle/service")
 includeProject(":lifecycle:lifecycle-viewmodel", "lifecycle/viewmodel")
 includeProject(":lifecycle:lifecycle-viewmodel-ktx", "lifecycle/viewmodel/ktx")
