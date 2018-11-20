@@ -388,6 +388,23 @@ public class SliceViewTest {
         assertEquals(height, p.getMaxSmallHeight());
     }
 
+    @Test
+    public void testShowActionDividers() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder()
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
+        Slice s = lb.build();
+
+        mSliceView.setSlice(s);
+        mSliceView.showActionDividers(true);
+
+        RowContent row = (RowContent) mSliceView.mListContent.getRowItems().get(0);
+        assertTrue(row.hasActionDivider());
+    }
+
     private View find(View v, Class<?> desiredClass) {
         if (desiredClass.isInstance(v)) {
             return v;

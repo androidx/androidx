@@ -16,6 +16,29 @@
 
 package androidx.slice.widget;
 
+import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
+import static android.app.slice.Slice.HINT_NO_TINT;
+import static android.app.slice.Slice.HINT_PARTIAL;
+import static android.app.slice.Slice.HINT_SHORTCUT;
+import static android.app.slice.Slice.SUBTYPE_MAX;
+import static android.app.slice.Slice.SUBTYPE_VALUE;
+import static android.app.slice.SliceItem.FORMAT_ACTION;
+import static android.app.slice.SliceItem.FORMAT_IMAGE;
+import static android.app.slice.SliceItem.FORMAT_INT;
+import static android.app.slice.SliceItem.FORMAT_LONG;
+import static android.app.slice.SliceItem.FORMAT_SLICE;
+
+import static androidx.slice.core.SliceHints.ICON_IMAGE;
+import static androidx.slice.core.SliceHints.SMALL_IMAGE;
+import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_BUTTON;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_SLIDER;
+import static androidx.slice.widget.EventInfo.ACTION_TYPE_TOGGLE;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_LIST;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
+import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
+import static androidx.slice.widget.SliceView.MODE_SMALL;
+
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
@@ -40,10 +63,6 @@ import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import androidx.annotation.ColorInt;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -56,27 +75,9 @@ import androidx.slice.core.SliceActionImpl;
 import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 
-import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
-import static android.app.slice.Slice.HINT_NO_TINT;
-import static android.app.slice.Slice.HINT_PARTIAL;
-import static android.app.slice.Slice.HINT_SHORTCUT;
-import static android.app.slice.Slice.SUBTYPE_MAX;
-import static android.app.slice.Slice.SUBTYPE_VALUE;
-import static android.app.slice.SliceItem.FORMAT_ACTION;
-import static android.app.slice.SliceItem.FORMAT_IMAGE;
-import static android.app.slice.SliceItem.FORMAT_INT;
-import static android.app.slice.SliceItem.FORMAT_LONG;
-import static android.app.slice.SliceItem.FORMAT_SLICE;
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.SMALL_IMAGE;
-import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
-import static androidx.slice.widget.EventInfo.ACTION_TYPE_BUTTON;
-import static androidx.slice.widget.EventInfo.ACTION_TYPE_SLIDER;
-import static androidx.slice.widget.EventInfo.ACTION_TYPE_TOGGLE;
-import static androidx.slice.widget.EventInfo.ROW_TYPE_LIST;
-import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
-import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
-import static androidx.slice.widget.SliceView.MODE_SMALL;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Row item is in small template format and can be used to construct list items for use
@@ -395,6 +396,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         // If we're here we might be able to show end items
         int endItemCount = 0;
         boolean firstItemIsADefaultToggle = false;
+        boolean singleActionAtTheEnd = false;
         SliceItem endAction = null;
         for (int i = 0; i < endItems.size(); i++) {
             final SliceItem endItem = (endItems.get(i) instanceof SliceItem)
@@ -409,14 +411,18 @@ public class RowView extends SliceChildView implements View.OnClickListener {
                     if (endItemCount == 1) {
                         firstItemIsADefaultToggle = !mToggles.isEmpty()
                                 && SliceQuery.find(endItem.getSlice(), FORMAT_IMAGE) == null;
+                        singleActionAtTheEnd = endItems.size() == 1
+                                && SliceQuery.find(endItem, FORMAT_ACTION) != null;
                     }
                 }
             }
         }
         mEndContainer.setVisibility(endItemCount > 0 ? VISIBLE : GONE);
 
-        // If there is a row action and the first end item is a default toggle, show the divider.
-        mDivider.setVisibility(mRowAction != null && firstItemIsADefaultToggle
+        // If there is a row action and the first end item is a default toggle, or action divider
+        // is set by presenter and a single action is at the end of the row, show the divider.
+        mDivider.setVisibility(mRowAction != null && (firstItemIsADefaultToggle
+                || (mRowContent.hasActionDivider() && singleActionAtTheEnd))
                 ? View.VISIBLE : View.GONE);
         boolean hasStartAction = mStartItem != null
                 && SliceQuery.find(mStartItem, FORMAT_ACTION) != null;
