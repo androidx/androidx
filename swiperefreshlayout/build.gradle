@@ -7,9 +7,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.0.0")
     api(project(":core"))
-    api(project(":interpolator"))
+    api("androidx.interpolator:interpolator:1.0.0")
 
     androidTestImplementation(JUNIT)
     androidTestImplementation(TEST_RUNNER)
