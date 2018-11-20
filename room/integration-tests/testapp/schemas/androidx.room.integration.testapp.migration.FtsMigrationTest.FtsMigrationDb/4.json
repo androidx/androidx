@@ -2,12 +2,12 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "8ed7ef043d4bd0464b46010ac0a59a06",
+    "identityHash": "56cdad50072034851f8b1943de6a2804",
     "entities": [
       {
         "ftsVersion": "FTS4",
         "ftsOptions": {
-          "tokenizer": "SIMPLE",
+          "tokenizer": "simple",
           "tokenizerArgs": [],
           "contentTable": "",
           "languageIdColumnName": "",
@@ -111,7 +111,7 @@
       {
         "ftsVersion": "FTS4",
         "ftsOptions": {
-          "tokenizer": "SIMPLE",
+          "tokenizer": "simple",
           "tokenizerArgs": [],
           "contentTable": "User",
           "languageIdColumnName": "",
@@ -162,9 +162,10 @@
         "foreignKeys": []
       }
     ],
+    "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"8ed7ef043d4bd0464b46010ac0a59a06\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"56cdad50072034851f8b1943de6a2804\")"
     ]
   }
 }
