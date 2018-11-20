@@ -1,0 +1,15 @@
+// Signature format: 2.0
+package androidx.savedstate.bundle {
+
+  public final class BundleSavedStateRegistry extends androidx.savedstate.AbstractSavedStateRegistry<android.os.Bundle> {
+    ctor public BundleSavedStateRegistry();
+    method @MainThread public void performRestore(android.os.Bundle?);
+    method @MainThread public void performSave(android.os.Bundle);
+  }
+
+  public interface BundleSavedStateRegistryOwner {
+    method public androidx.savedstate.SavedStateRegistry<android.os.Bundle> getBundleSavedStateRegistry();
+  }
+
+}
+
