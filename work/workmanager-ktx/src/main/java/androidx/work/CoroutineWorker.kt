@@ -25,10 +25,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
- * A {@link ListenableWorker} implementation that provides interop with Kotlin Coroutines.  By
- * default, CoroutineWorker runs on {@link Dispatchers#Default}, which can be modified by overriding
- * {@link #coroutineContext}.  Override the {@link #doWork()} function to do your suspending
- * work.
+ * A {@link ListenableWorker} implementation that provides interop with Kotlin Coroutines.  Override
+ * the {@link #doWork()} function to do your suspending work.
+ * <p>
+ * By default, CoroutineWorker runs on {@link Dispatchers#Default}; this can be modified by
+ * overriding {@link #coroutineContext}.
  */
 abstract class CoroutineWorker(
     appContext: Context,
@@ -73,7 +74,8 @@ abstract class CoroutineWorker(
      * A suspending method to do your work.  This function runs on the coroutine context specified
      * by {@link #coroutineContext}.
      *
-     * @return The {@link ListenableWorker.Payload} of the result of the background work
+     * @return The {@link ListenableWorker.Payload} of the result of the background work; note that
+     *         dependent work will not execute if you return {@link ListenableWorker.Result#FAILURE}
      */
     abstract suspend fun doWork(): ListenableWorker.Payload
 
