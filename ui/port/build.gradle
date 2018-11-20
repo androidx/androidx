@@ -26,6 +26,7 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation("com.google.truth:truth:0.42")
     androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }

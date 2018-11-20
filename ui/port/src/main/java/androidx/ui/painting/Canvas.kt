@@ -6,6 +6,7 @@ import androidx.ui.Vertices
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.text.Paragraph
 import androidx.ui.skia.SkMatrix
 
 // TODO(Migration/njawad): Copy the class here
@@ -573,32 +574,31 @@ class Canvas {
         internalCanvas.drawPicture(picture)
     }
 
-//    /// Draws the text in the given [Paragraph] into this canvas at the given
-//    /// [Offset].
-//    ///
-//    /// The [Paragraph] object must have had [Paragraph.layout] called on it
-//    /// first.
-//    ///
-//    /// To align the text, set the `textAlign` on the [ParagraphStyle] object
-//    /// passed to the [new ParagraphBuilder] constructor. For more details see
-//    /// [TextAlign] and the discussion at [new ParagraphStyle].
-//    ///
-//    /// If the text is left aligned or justified, the left margin will be at the
-//    /// position specified by the `offset` argument's [Offset.dx] coordinate.
-//    ///
-//    /// If the text is right aligned or justified, the right margin will be at the
-//    /// position described by adding the [ParagraphConstraints.width] given to
-//    /// [Paragraph.layout], to the `offset` argument's [Offset.dx] coordinate.
-//    ///
-//    /// If the text is centered, the centering axis will be at the position
-//    /// described by adding half of the [ParagraphConstraints.width] given to
-//    /// [Paragraph.layout], to the `offset` argument's [Offset.dx] coordinate.
-    // TODO(Migration/njawad update after Paragraph support is added to crane)
-//    void drawParagraph(Paragraph paragraph, Offset offset) {
-//        assert(paragraph != null);
-//        assert(_offsetIsValid(offset));
-//        paragraph._paint(this, offset.dx, offset.dy);
-//    }
+    /**
+     * Draws the text in the given [Paragraph] into this canvas at the given [Offset].
+     *
+     * The [Paragraph] object must have had [Paragraph.layout] called on it first.
+     *
+     * To align the text, set the `textAlign` on the [ParagraphStyle] object passed to the
+     * [new ParagraphBuilder] constructor. For more details see [TextAlign] and the discussion at
+     * [new ParagraphStyle].
+     *
+     * If the text is left aligned or justified, the left margin will be at the position specified
+     * by the `offset` argument's [Offset.dx] coordinate.
+     *
+     * If the text is right aligned or justified, the right margin will be at the position described
+     * by adding the [ParagraphConstraints.width] given to [Paragraph.layout], to the `offset`
+     * argument's [Offset.dx] coordinate.
+     *
+     * If the text is centered, the centering axis will be at the position described by adding half
+     * of the [ParagraphConstraints.width] given to [Paragraph.layout], to the `offset` argument's
+     * [Offset.dx] coordinate.
+     */
+    fun drawParagraph(paragraph: Paragraph, offset: Offset) {
+        assert(paragraph != null)
+        assert(Offset.isValid(offset))
+        paragraph.paint(this, offset.dx, offset.dy)
+    }
 
     /**
      * Draws a sequence of points according to the given [PointMode].
