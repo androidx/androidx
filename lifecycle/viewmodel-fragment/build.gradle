@@ -31,8 +31,13 @@ android {
 
 dependencies {
     api(SUPPORT_ANNOTATIONS)
-    api(project(":lifecycle:lifecycle-savedstate-fragment"))
+    api project(":fragment"), {
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-livedata-core'
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-runtime'
+    }
     api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    api(project(":lifecycle:lifecycle-runtime"))
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 

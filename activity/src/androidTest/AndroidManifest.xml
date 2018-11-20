@@ -24,6 +24,7 @@
         <activity android:name="androidx.activity.LazyOverrideLifecycleComponentActivity"/>
         <activity android:name="androidx.activity.ViewModelActivity"/>
         <activity android:name="androidx.activity.OnBackPressedComponentActivity"/>
+        <activity android:name="androidx.activity.SavedStateActivity"/>
     </application>
 
 </manifest>

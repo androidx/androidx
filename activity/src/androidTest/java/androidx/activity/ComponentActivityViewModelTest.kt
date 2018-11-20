@@ -16,14 +16,12 @@
 
 package androidx.activity
 
-import android.app.Instrumentation
 import android.os.Bundle
 import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
-import androidx.test.InstrumentationRegistry
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
@@ -73,7 +71,7 @@ class ComponentActivityViewModelTest {
             defaultActivityModel[0] = viewModelActivity.defaultActivityModel
             assertThat(defaultActivityModel[0]).isNotSameAs(activityModel[0])
         }
-        val recreatedActivity = recreateActivity()
+        val recreatedActivity = recreateActivity(activityRule)
         activityRule.runOnUiThread {
             assertThat(recreatedActivity.activityModel).isSameAs(activityModel[0])
             assertThat(recreatedActivity.defaultActivityModel).isSameAs(defaultActivityModel[0])
@@ -101,35 +99,6 @@ class ComponentActivityViewModelTest {
         activityRule.runOnUiThread { activity.lifecycle.addObserver(observer) }
         activity.finish()
         assertThat(latch.await(TIMEOUT.toLong(), TimeUnit.SECONDS)).isTrue()
-    }
-
-    @Throws(Throwable::class)
-    private fun recreateActivity(): ViewModelActivity {
-        val monitor = Instrumentation.ActivityMonitor(
-            ViewModelActivity::class.java.canonicalName, null, false
-        )
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        instrumentation.addMonitor(monitor)
-        val previous = activityRule.activity
-        activityRule.runOnUiThread { previous.recreate() }
-        var result: ViewModelActivity = previous
-
-        // this guarantee that we will reinstall monitor between notifications about onDestroy
-        // and onCreate
-
-        synchronized(monitor) {
-            do {
-                // the documentation says "Block until an Activity is created
-                // that matches this monitor." This statement is true, but there are some other
-                // true statements like: "Block until an Activity is destroyed" or
-                // "Block until an Activity is resumed"...
-
-                // this call will release synchronization monitor's monitor
-                result = monitor.waitForActivityWithTimeout(4000) as ViewModelActivity?
-                        ?: throw RuntimeException("Timeout. Failed to recreate an activity")
-            } while (result === previous)
-        }
-        return result
     }
 }
 
