@@ -87,6 +87,12 @@ public class MediaUtils {
         }
     };
 
+    // Initial version for all Media2 APIs.
+    public static final int VERSION_0 = 0;
+
+    // Current version for all Media2 APIs.
+    public static final int CURRENT_VERSION = VERSION_0;
+
     private MediaUtils() {
     }
 

@@ -40,32 +40,34 @@ import java.util.List;
 @VersionedParcelize(isCustom = true)
 class ConnectionResult extends CustomVersionedParcelable {
     @ParcelField(0)
+    int mVersion;
+    @ParcelField(1)
     IBinder mSessionBinder;
     @NonParcelField
     IMediaSession mSessionStub;
-    @ParcelField(1)
-    PendingIntent mSessionActivity;
     @ParcelField(2)
-    int mPlayerState;
+    PendingIntent mSessionActivity;
     @ParcelField(3)
-    MediaItem mCurrentMediaItem;
+    int mPlayerState;
     @ParcelField(4)
-    long mPositionEventTimeMs;
+    MediaItem mCurrentMediaItem;
     @ParcelField(5)
-    long mPositionMs;
+    long mPositionEventTimeMs;
     @ParcelField(6)
-    float mPlaybackSpeed;
+    long mPositionMs;
     @ParcelField(7)
-    long mBufferedPositionMs;
+    float mPlaybackSpeed;
     @ParcelField(8)
-    PlaybackInfo mPlaybackInfo;
+    long mBufferedPositionMs;
     @ParcelField(9)
-    int mRepeatMode;
+    PlaybackInfo mPlaybackInfo;
     @ParcelField(10)
-    int mShuffleMode;
+    int mRepeatMode;
     @ParcelField(11)
-    ParcelImplListSlice mPlaylistSlice;
+    int mShuffleMode;
     @ParcelField(12)
+    ParcelImplListSlice mPlaylistSlice;
+    @ParcelField(13)
     SessionCommandGroup mAllowedCommands;
 
     // For versioned parcelable
@@ -94,6 +96,7 @@ class ConnectionResult extends CustomVersionedParcelable {
             mPlaylistSlice = null;
         }
         mAllowedCommands = allowedCommands;
+        mVersion = MediaUtils.CURRENT_VERSION;
     }
 
     public IMediaSession getSessionStub() {
@@ -146,6 +149,10 @@ class ConnectionResult extends CustomVersionedParcelable {
 
     public SessionCommandGroup getAllowedCommands() {
         return mAllowedCommands;
+    }
+
+    public int getVersion() {
+        return mVersion;
     }
 
     @Override
