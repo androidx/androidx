@@ -53,7 +53,7 @@ class FtsEntityTest {
                 shadowTableName = "Mail_context",
                 ftsVersion = FtsVersion.FTS4,
                 ftsOptions = FtsOptions(
-                        tokenizer = androidx.room.FtsOptions.Tokenizer.PORTER,
+                        tokenizer = androidx.room.FtsOptions.TOKENIZER_PORTER,
                         tokenizerArgs = emptyList(),
                         contentEntity = null,
                         languageIdColumnName = "lid",
