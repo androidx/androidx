@@ -26,7 +26,7 @@ import androidx.work.impl.utils.futures.SettableFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * A basic class that performs work on a background thread provided by {@link WorkManager}.
+ * A class that performs work synchronously on a background thread provided by {@link WorkManager}.
  * <p>
  * Worker classes are instantiated at runtime by WorkManager and the {@link #doWork()} method is
  * called on a pre-specified background thread (see {@link Configuration#getExecutor()}).  This

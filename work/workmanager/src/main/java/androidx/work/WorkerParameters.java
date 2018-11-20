@@ -34,7 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 
 /**
- * Setup parameters for a {@link Worker}.
+ * Setup parameters for a {@link ListenableWorker}.
  */
 public final class WorkerParameters {
 
@@ -71,7 +71,7 @@ public final class WorkerParameters {
     }
 
     /**
-     * Gets the ID of the {@link WorkRequest} that created this Worker.
+     * Gets the ID of the {@link WorkRequest} that created this {@link ListenableWorker}.
      *
      * @return The ID of the creating {@link WorkRequest}
      */
@@ -81,7 +81,7 @@ public final class WorkerParameters {
 
     /**
      * Gets the input data.  Note that in the case that there are multiple prerequisites for this
-     * Worker, the input data has been run through an {@link InputMerger}.
+     * {@link ListenableWorker}, the input data has been run through an {@link InputMerger}.
      *
      * @return The input data for this work
      * @see OneTimeWorkRequest.Builder#setInputMerger(Class)
@@ -101,7 +101,8 @@ public final class WorkerParameters {
     }
 
     /**
-     * Gets the list of content {@link android.net.Uri}s that caused this Worker to execute
+     * Gets the list of content {@link android.net.Uri}s that caused this Worker to execute.  See
+     * @code JobParameters#getTriggeredContentUris()} for relevant {@code JobScheduler} code.
      *
      * @return The list of content {@link android.net.Uri}s that caused this Worker to execute
      * @see Constraints.Builder#addContentUriTrigger(android.net.Uri, boolean)
@@ -112,7 +113,9 @@ public final class WorkerParameters {
     }
 
     /**
-     * Gets the list of content authorities that caused this Worker to execute
+     * Gets the list of content authorities that caused this Worker to execute.  See
+     * {@code JobParameters#getTriggeredContentAuthorities()} for relevant {@code JobScheduler}
+     * code.
      *
      * @return The list of content authorities that caused this Worker to execute
      */
@@ -122,8 +125,8 @@ public final class WorkerParameters {
     }
 
     /**
-     * Gets the {@link android.net.Network} to use for this Worker.
-     * This method returns {@code null} if there is no network needed for this work request.
+     * Gets the {@link android.net.Network} to use for this Worker.  This method returns
+     * {@code null} if there is no network needed for this work request.
      *
      * @return The {@link android.net.Network} specified by the OS to be used with this Worker
      */
@@ -133,7 +136,8 @@ public final class WorkerParameters {
     }
 
     /**
-     * Gets the current run attempt count for this work.
+     * Gets the current run attempt count for this work.  Note that for periodic work, this value
+     * gets reset between periods.
      *
      * @return The current run attempt count for this work.
      */
