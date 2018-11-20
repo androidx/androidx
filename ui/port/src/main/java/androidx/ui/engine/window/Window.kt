@@ -249,7 +249,7 @@ class Window {
      *  * [GestureBinding], the Flutter framework class which manages pointer
      *    events.
      */
-    val onPointerDataPacket: BroadcastChannel<PointerDataPacket> = BroadcastChannel(1)
+    val onPointerDataPacket: BroadcastChannel<PointerDataPacket> = BroadcastChannel(100)
 
     /**
      * The route or path that the embedder requested when the application was

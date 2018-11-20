@@ -22,6 +22,8 @@ import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.ACTION_POINTER_DOWN
+import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import android.view.ViewGroup
 import androidx.ui.compositing.Scene
@@ -84,31 +86,44 @@ class CraneView(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        val pointerDataPacket = PointerDataPacket()
         val change =
             when (event.actionMasked) {
-                ACTION_DOWN -> PointerChange.down
+                ACTION_DOWN, ACTION_POINTER_DOWN -> PointerChange.down
                 ACTION_MOVE -> PointerChange.move
-                ACTION_UP -> PointerChange.up
+                ACTION_UP, ACTION_POINTER_UP -> PointerChange.up
                 ACTION_CANCEL -> PointerChange.cancel
                 else -> null
             }
 
         change?.let {
-            pointerDataPacket.data.add(
-                PointerData(
-                    timeStamp = Duration.create(milliseconds = event.eventTime),
-                    change = it,
-                    physicalX = event.x.toDouble(),
-                    physicalY = event.y.toDouble()
-                )
-            )
-            runBlocking {
-                window.onPointerDataPacket.send(pointerDataPacket)
+            if (it == PointerChange.move) {
+                for (i in 0 until event.pointerCount) {
+                    processInput(event, i, it)
+                }
+            } else {
+                processInput(event, event.actionIndex, it)
             }
         }
-
         return true
+    }
+
+    private fun processInput(event: MotionEvent, pointerIndex: Int, change: PointerChange) {
+        val pointerDataPacket = PointerDataPacket()
+        val id = event.getPointerId(pointerIndex)
+        val x = event.getX(pointerIndex).toDouble()
+        val y = event.getY(pointerIndex).toDouble()
+        pointerDataPacket.data.add(
+            PointerData(
+                timeStamp = Duration.create(milliseconds = event.eventTime),
+                change = change,
+                physicalX = x,
+                physicalY = y,
+                pointerId = id
+            )
+        )
+        runBlocking {
+            window.onPointerDataPacket.send(pointerDataPacket)
+        }
     }
 
     private fun updateMetrics() {

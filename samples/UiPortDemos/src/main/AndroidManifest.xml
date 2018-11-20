@@ -64,6 +64,17 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".WoodPeckerDemo"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Woodpecker Demo">
+            <!--we currently not support multiple FlutterViews, so lets not recreate activity
+                on a rotation as the view will also be recreated-->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".ContainingViewActivity"
                   android:configChanges="orientation|screenSize"
                   android:label="ContainingView Activity">

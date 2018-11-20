@@ -2,7 +2,7 @@ package androidx.ui.widgets.binding
 
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.binding.BindingBaseImpl
-import androidx.ui.gestures.binding.GestureBinding
+import androidx.ui.gestures2.GestureBinding2
 import androidx.ui.rendering.binding.RendererBindingImpl
 import androidx.ui.scheduler.binding.SchedulerBindingImpl
 import androidx.ui.services.ServicesBindingImpl
@@ -38,7 +38,7 @@ class WidgetsFlutterBinding {
             return WidgetsBindingImpl(
                 window,
                 base,
-                GestureBinding.initInstance(
+                GestureBinding2.initInstance(
                     window,
                     base,
                     rendererBinding,

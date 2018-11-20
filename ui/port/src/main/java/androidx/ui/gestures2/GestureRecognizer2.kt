@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.ui.gestures.hit_test
+package androidx.ui.gestures2
 
-import androidx.ui.gestures.events.PointerEvent
-import androidx.ui.gestures2.PointerEvent2
-import androidx.ui.gestures2.PointerEventPass
-
-// /// An object that can handle events.
-interface HitTestTarget {
-    // /// Override this method to receive events.
-    fun handleEvent(event: PointerEvent, entry: HitTestEntry)
-
-    // TODO(shepshapard): This is only for project Woodpecker
-    fun handleEvent(event: PointerEvent2, entry: HitTestEntry, pass: PointerEventPass) = event
+interface GestureRecognizer2 {
+    fun handleEvent(event: PointerEvent2, pass: PointerEventPass): PointerEvent2
 }
