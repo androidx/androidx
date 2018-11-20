@@ -95,8 +95,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                         while (mBackStack.size() > newCount) {
                             mBackStack.removeLast();
                         }
-                        int destId = mBackStack.isEmpty() ? 0 : mBackStack.peekLast();
-                        dispatchOnNavigatorNavigated(destId, BACK_STACK_DESTINATION_POPPED);
+                        dispatchOnNavigatorBackPress();
                     }
                 }
             };
@@ -108,12 +107,12 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     }
 
     @Override
-    public void onActive() {
+    protected void onBackPressAdded() {
         mFragmentManager.addOnBackStackChangedListener(mOnBackStackChangedListener);
     }
 
     @Override
-    public void onInactive() {
+    protected void onBackPressRemoved() {
         mFragmentManager.removeOnBackStackChangedListener(mOnBackStackChangedListener);
     }
 
@@ -134,8 +133,6 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             popped = true;
         }
         mBackStack.removeLast();
-        int destId = mBackStack.isEmpty() ? 0 : mBackStack.peekLast();
-        dispatchOnNavigatorNavigated(destId, BACK_STACK_DESTINATION_POPPED);
         return popped;
     }
 

@@ -116,13 +116,7 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
 
     @Override
     public boolean popBackStack() {
-        if (mBackStack.isEmpty()) {
-            return false;
-        }
-        mBackStack.removeLast();
-        int destId = mBackStack.isEmpty() ? 0 : mBackStack.peekLast();
-        dispatchOnNavigatorNavigated(destId, BACK_STACK_DESTINATION_POPPED);
-        return true;
+        return mBackStack.pollLast() != null;
     }
 
     @Override

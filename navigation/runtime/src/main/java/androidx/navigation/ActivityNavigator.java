@@ -72,13 +72,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
     @Override
     public boolean popBackStack() {
         if (mHostActivity != null) {
-            int destId = 0;
-            final Intent intent = mHostActivity.getIntent();
-            if (intent != null) {
-                destId = intent.getIntExtra(EXTRA_NAV_SOURCE, 0);
-            }
             mHostActivity.finish();
-            dispatchOnNavigatorNavigated(destId, BACK_STACK_DESTINATION_POPPED);
             return true;
         }
         return false;

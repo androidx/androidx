@@ -86,12 +86,54 @@ public class NavController {
             if (previousNavigator != navigator) {
                 if (previousNavigator != null) {
                     previousNavigator.removeOnNavigatorNavigatedListener(mOnNavigatedListener);
+                    previousNavigator.removeOnNavigatorBackPressListener(mOnBackPressListener);
                 }
                 navigator.addOnNavigatorNavigatedListener(mOnNavigatedListener);
+                navigator.addOnNavigatorBackPressListener(mOnBackPressListener);
             }
             return previousNavigator;
         }
     };
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Navigator.OnNavigatorBackPressListener mOnBackPressListener =
+            new Navigator.OnNavigatorBackPressListener() {
+                @Override
+                public void onPopBackStack(@NonNull Navigator navigator) {
+                    // Find what destination just got popped
+                    NavDestination lastFromNavigator = null;
+                    Iterator<NavDestination> iterator = mBackStack.descendingIterator();
+                    while (iterator.hasNext()) {
+                        NavDestination destination = iterator.next();
+                        Navigator currentNavigator = getNavigatorProvider().getNavigator(
+                                destination.getNavigatorName());
+                        if (currentNavigator == navigator) {
+                            lastFromNavigator = destination;
+                            break;
+                        }
+                    }
+                    if (lastFromNavigator == null) {
+                        throw new IllegalArgumentException("Navigator " + navigator
+                                + " reported pop but did not have any destinations"
+                                + " on the NavController back stack");
+                    }
+                    // Pop all intervening destinations from other Navigators off the
+                    // back stack
+                    popBackStack(lastFromNavigator.getId(), false);
+                    // Now record the pop operation that we were sent
+                    if (!mBackStack.isEmpty()) {
+                        mBackStack.removeLast();
+                    }
+                    // We never want to leave NavGraphs on the top of the stack
+                    while (!mBackStack.isEmpty()
+                            && mBackStack.peekLast() instanceof NavGraph) {
+                        popBackStack();
+                    }
+                    if (!mBackStack.isEmpty()) {
+                        dispatchOnNavigated(mBackStack.peekLast());
+                    }
+                }
+            };
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Navigator.OnNavigatorNavigatedListener mOnNavigatedListener =
@@ -99,53 +141,15 @@ public class NavController {
                 @Override
                 public void onNavigatorNavigated(@NonNull Navigator navigator, @IdRes int destId,
                         @Navigator.BackStackEffect int backStackEffect) {
-                    switch (backStackEffect) {
-                        case Navigator.BACK_STACK_DESTINATION_POPPED:
-                            // Find what destination just got popped
-                            NavDestination lastFromNavigator = null;
-                            Iterator<NavDestination> iterator = mBackStack.descendingIterator();
-                            while (iterator.hasNext()) {
-                                NavDestination destination = iterator.next();
-                                Navigator currentNavigator = getNavigatorProvider().getNavigator(
-                                        destination.getNavigatorName());
-                                if (currentNavigator == navigator) {
-                                    lastFromNavigator = destination;
-                                    break;
-                                }
-                            }
-                            if (lastFromNavigator == null) {
-                                throw new IllegalArgumentException("Navigator " + navigator
-                                        + " reported pop but did not have any destinations"
-                                        + " on the NavController back stack");
-                            }
-                            // Pop all intervening destinations from other Navigators off the
-                            // back stack
-                            popBackStack(lastFromNavigator.getId(), false);
-                            // Now record the pop operation that we were sent
-                            if (!mBackStack.isEmpty()) {
-                                mBackStack.removeLast();
-                            }
-                            // We never want to leave NavGraphs on the top of the stack
-                            while (!mBackStack.isEmpty()
-                                    && mBackStack.peekLast() instanceof NavGraph) {
-                                popBackStack();
-                            }
-                            if (!mBackStack.isEmpty()) {
-                                dispatchOnNavigated(mBackStack.peekLast());
-                            }
-                            break;
-                        case Navigator.BACK_STACK_DESTINATION_ADDED:
-                            NavDestination newDest = findDestination(destId);
-                            if (newDest == null) {
-                                throw new IllegalArgumentException("Navigator " + navigator
-                                        + " reported navigation to unknown destination id "
-                                        + NavDestination.getDisplayName(mContext, destId));
-                            }
-                            mBackStack.add(newDest);
-                            dispatchOnNavigated(newDest);
-                            break;
-                        case Navigator.BACK_STACK_UNCHANGED:
-                            break;
+                    if (backStackEffect == Navigator.BACK_STACK_DESTINATION_ADDED) {
+                        NavDestination newDest = findDestination(destId);
+                        if (newDest == null) {
+                            throw new IllegalArgumentException("Navigator " + navigator
+                                    + " reported navigation to unknown destination id "
+                                    + NavDestination.getDisplayName(mContext, destId));
+                        }
+                        mBackStack.add(newDest);
+                        dispatchOnNavigated(newDest);
                     }
                 }
             };
@@ -276,17 +280,29 @@ public class NavController {
             // Nothing to pop if the back stack is empty
             return false;
         }
-        ArrayList<NavDestination> destinationsToRemove = new ArrayList<>();
+        ArrayList<Navigator> popOperations = new ArrayList<>();
         Iterator<NavDestination> iterator = mBackStack.descendingIterator();
         boolean foundDestination = false;
         while (iterator.hasNext()) {
             NavDestination destination = iterator.next();
-            if (inclusive || destination.getId() != destinationId) {
-                destinationsToRemove.add(destination);
+            Navigator navigator = mNavigatorProvider.getNavigator(
+                    destination.getNavigatorName());
+            if (foundDestination) {
+                // We never want to leave NavGraphs on the top of the stack
+                if (destination instanceof NavGraph) {
+                    popOperations.add(navigator);
+                } else {
+                    // Break out of the loop as we've popped everything we need to
+                    break;
+                }
+            } else if (inclusive || destination.getId() != destinationId) {
+                popOperations.add(navigator);
             }
             if (destination.getId() == destinationId) {
                 foundDestination = true;
-                break;
+                if (!inclusive) {
+                    break;
+                }
             }
         }
         if (!foundDestination) {
@@ -297,24 +313,18 @@ public class NavController {
                     + " as it was not found on the current back stack");
             return false;
         }
-        boolean popped = false;
-        iterator = destinationsToRemove.iterator();
-        while (iterator.hasNext()) {
-            NavDestination destination = iterator.next();
-            // Skip destinations already removed by a previous popBackStack operation
-            while (!mBackStack.isEmpty() && mBackStack.peekLast().getId() != destination.getId()) {
-                if (iterator.hasNext()) {
-                    destination = iterator.next();
-                } else {
-                    destination = null;
-                    break;
-                }
+        boolean popped = true;
+        for (Navigator navigator : popOperations) {
+            if (navigator.popBackStack()) {
+                mBackStack.removeLast();
+            } else {
+                // The pop did not complete successfully, so stop immediately
+                popped = false;
+                break;
             }
-            if (destination != null) {
-                Navigator navigator = mNavigatorProvider.getNavigator(
-                        destination.getNavigatorName());
-                popped = navigator.popBackStack() || popped;
-            }
+        }
+        if (!mBackStack.isEmpty()) {
+            dispatchOnNavigated(mBackStack.peekLast());
         }
         return popped;
     }

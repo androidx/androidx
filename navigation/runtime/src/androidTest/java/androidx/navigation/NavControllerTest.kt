@@ -27,6 +27,7 @@ import androidx.navigation.testing.test
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -249,7 +250,10 @@ class NavControllerTest {
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
         assertEquals(1, navigator.backStack.size)
 
-        navController.popBackStack()
+        val success = navController.popBackStack()
+        assertWithMessage("NavController should return true when popping the root")
+                .that(success)
+                .isTrue()
         assertNull(navController.currentDestination)
         assertEquals(0, navigator.backStack.size)
     }
@@ -262,7 +266,10 @@ class NavControllerTest {
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
         assertEquals(1, navigator.backStack.size)
 
-        navController.popBackStack()
+        val success = navController.popBackStack()
+        assertWithMessage("NavController should return true when popping the root")
+                .that(success)
+                .isTrue()
         assertNull(navController.currentDestination)
         assertEquals(0, navigator.backStack.size)
 
@@ -322,8 +329,7 @@ class NavControllerTest {
         navigator.backStack.removeLast()
         val newDestination = navigator.current.first
         assertNotNull(newDestination)
-        navigator.dispatchOnNavigatorNavigated(newDestination.id,
-                Navigator.BACK_STACK_DESTINATION_POPPED)
+        navigator.dispatchOnNavigatorBackPress()
         assertEquals(R.id.nested_test, navController.currentDestination?.id ?: 0)
         assertEquals(1, navigator.backStack.size)
     }
