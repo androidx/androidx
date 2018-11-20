@@ -30,7 +30,7 @@ public class TestDataSourceCallback extends DataSourceCallback {
 
     private byte[] mData;
 
-    private boolean mThrowFromReadAt;
+    private Long mThrowFromReadAtPosition;
     private boolean mThrowFromGetSize;
     private Integer mReturnFromReadAt;
     private Long mReturnFromGetSize;
@@ -41,7 +41,7 @@ public class TestDataSourceCallback extends DataSourceCallback {
         try {
             InputStream in = afd.createInputStream();
             final int size = (int) afd.getDeclaredLength();
-            byte[] data = new byte[(int) size];
+            byte[] data = new byte[size];
             int writeIndex = 0;
             int numRead = 0;
             do {
@@ -61,7 +61,9 @@ public class TestDataSourceCallback extends DataSourceCallback {
     @Override
     public synchronized int readAt(long position, byte[] buffer, int offset, int size)
             throws IOException {
-        if (mThrowFromReadAt) {
+        if (mThrowFromReadAtPosition != null
+                && position <= mThrowFromReadAtPosition
+                && position + size > mThrowFromReadAtPosition) {
             throw new IOException("Test exception from readAt()");
         }
         if (mReturnFromReadAt != null) {
@@ -104,19 +106,19 @@ public class TestDataSourceCallback extends DataSourceCallback {
         return mIsClosed;
     }
 
-    public void throwFromReadAt() {
-        mThrowFromReadAt = true;
+    public synchronized void throwFromReadAtPosition(long position) {
+        mThrowFromReadAtPosition = position;
     }
 
-    public void throwFromGetSize() {
+    public synchronized void throwFromGetSize() {
         mThrowFromGetSize = true;
     }
 
-    public void returnFromReadAt(int numRead) {
+    public synchronized void returnFromReadAt(int numRead) {
         mReturnFromReadAt = numRead;
     }
 
-    public void returnFromGetSize(long size) {
+    public synchronized void returnFromGetSize(long size) {
         mReturnFromGetSize = size;
     }
 }
