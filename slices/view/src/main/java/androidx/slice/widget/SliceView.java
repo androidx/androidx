@@ -160,6 +160,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private boolean mShowActions = false;
     private boolean mShowLastUpdated = true;
     private boolean mCurrentSliceLoggedVisible = false;
+    private boolean mShowActionDividers = false;
 
     private int mShortcutSize;
     private int mMinTemplateHeight;
@@ -465,6 +466,9 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         }
         mCurrentSlice = slice;
         mListContent = new ListContent(mCurrentSlice);
+        if (mShowActionDividers) {
+            showActionDividers(true);
+        }
         if (!mListContent.isValid()) {
             mActions = null;
             mCurrentView.resetView();
@@ -622,6 +626,16 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      */
     public @SliceMode int getMode() {
         return mViewPolicy.getMode();
+    }
+
+    /**
+     * Whether this view should show action dividers for rows.
+     */
+    public void showActionDividers(boolean enabled) {
+        mShowActionDividers = enabled;
+        if (mListContent != null) {
+            mListContent.showActionDividers(enabled);
+        }
     }
 
     /**

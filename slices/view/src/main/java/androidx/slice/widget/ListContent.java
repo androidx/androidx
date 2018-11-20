@@ -16,23 +16,6 @@
 
 package androidx.slice.widget;
 
-import android.content.Context;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
-import androidx.slice.Slice;
-import androidx.slice.SliceItem;
-import androidx.slice.SliceMetadata;
-import androidx.slice.core.SliceAction;
-import androidx.slice.core.SliceActionImpl;
-import androidx.slice.core.SliceQuery;
-
 import static android.app.slice.Slice.HINT_ACTIONS;
 import static android.app.slice.Slice.HINT_HORIZONTAL;
 import static android.app.slice.Slice.HINT_KEYWORDS;
@@ -45,7 +28,25 @@ import static android.app.slice.Slice.HINT_TTL;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
+
 import static androidx.slice.widget.SliceView.MODE_SMALL;
+
+import android.content.Context;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
+import androidx.slice.Slice;
+import androidx.slice.SliceItem;
+import androidx.slice.SliceMetadata;
+import androidx.slice.core.SliceAction;
+import androidx.slice.core.SliceActionImpl;
+import androidx.slice.core.SliceQuery;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Extracts information required to present content in a list format from a slice.
@@ -187,6 +188,17 @@ public class ListContent extends SliceContent {
     @Nullable
     public SliceAction getShortcut(@Nullable Context context) {
         return mPrimaryAction != null ? mPrimaryAction : super.getShortcut(context);
+    }
+
+    /**
+     * Whether all the row contents should show action dividers.
+     */
+    public void showActionDividers(boolean enabled) {
+        for (SliceContent item : mRowItems) {
+            if (item instanceof RowContent) {
+                ((RowContent) item).showActionDivider(enabled);
+            }
+        }
     }
 
     /**
