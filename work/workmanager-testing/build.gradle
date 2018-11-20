@@ -34,7 +34,7 @@ dependencies {
     annotationProcessor "android.arch.persistence.room:compiler:1.0.0"
 
     androidTestImplementation "android.arch.core:core-testing:1.1.0"
-    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker

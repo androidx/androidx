@@ -93,21 +93,21 @@ class RxWorkerTest {
     }
 
     @Test
-    fun customScheuler() {
+    fun customScheduler() {
         var executorDidRun = false
         val executor = Executor {
             executorDidRun = true
             it.run()
         }
         var testSchedulerDidRun = false
-        val testScheudler = Schedulers.from {
+        val testScheduler = Schedulers.from {
             testSchedulerDidRun = true
             it.run()
         }
         val params = createWorkerParams(executor)
         val worker = object : RxWorker(Mockito.mock(Context::class.java), params) {
             override fun createWork() = Single.just(payload)
-            override fun getBackgroundScheduler() = testScheudler
+            override fun getBackgroundScheduler() = testScheduler
         }
         assertThat(worker.startWork().get(), `is`(payload))
         assertThat(executorDidRun, `is`(false))
