@@ -121,11 +121,12 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     /**
      * Create a new FontFamily instance
      */
+    @Nullable
     private Object newFamily() {
         try {
             return mFontFamilyCtor.newInstance();
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -136,12 +137,11 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     private boolean addFontFromAssetManager(Context context, Object family, String fileName,
             int ttcIndex, int weight, int style, @Nullable FontVariationAxis[] axes) {
         try {
-            final Boolean result = (Boolean) mAddFontFromAssetManager.invoke(family,
+            return (Boolean) mAddFontFromAssetManager.invoke(family,
                     context.getAssets(), fileName, 0 /* cookie */, false /* isAsset */, ttcIndex,
                     weight, style, axes);
-            return result.booleanValue();
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 
@@ -152,11 +152,10 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     private boolean addFontFromBuffer(Object family, ByteBuffer buffer,
             int ttcIndex, int weight, int style) {
         try {
-            final Boolean result = (Boolean) mAddFontFromBuffer.invoke(family,
+            return (Boolean) mAddFontFromBuffer.invoke(family,
                     buffer, ttcIndex, null /* axes */, weight, style);
-            return result.booleanValue();
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 
@@ -164,6 +163,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
      * Call method Typeface#createFromFamiliesWithDefault(
      *      FontFamily[] families, int weight, int italic)
      */
+    @Nullable
     protected Typeface createFromFamiliesWithDefault(Object family) {
         try {
             Object familyArray = Array.newInstance(mFontFamily, 1);
@@ -171,7 +171,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
             return (Typeface) mCreateFromFamiliesWithDefault.invoke(null /* static method */,
                     familyArray, RESOLVE_BY_FONT_TABLE, RESOLVE_BY_FONT_TABLE);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -180,10 +180,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
      */
     private boolean freeze(Object family) {
         try {
-            Boolean result = (Boolean) mFreeze.invoke(family);
-            return result.booleanValue();
+            return (Boolean) mFreeze.invoke(family);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 
@@ -194,11 +193,11 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         try {
             mAbortCreation.invoke(family);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
         }
     }
 
     @Override
+    @Nullable
     public Typeface createFromFontFamilyFilesResourceEntry(Context context,
             FontResourcesParserCompat.FontFamilyFilesResourceEntry entry, Resources resources,
             int style) {
@@ -206,6 +205,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
             return super.createFromFontFamilyFilesResourceEntry(context, entry, resources, style);
         }
         Object fontFamily = newFamily();
+        if (fontFamily == null) {
+            return null;
+        }
         for (final FontFileResourceEntry fontFile : entry.getEntries()) {
             if (!addFontFromAssetManager(context, fontFamily, fontFile.getFileName(),
                     fontFile.getTtcIndex(), fontFile.getWeight(), fontFile.isItalic() ? 1 : 0,
@@ -221,6 +223,7 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     }
 
     @Override
+    @Nullable
     public Typeface createFromFontInfo(Context context,
             @Nullable CancellationSignal cancellationSignal,
             @NonNull FontsContractCompat.FontInfo[] fonts, int style) {
@@ -248,6 +251,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
         Map<Uri, ByteBuffer> uriBuffer = FontsContractCompat.prepareFontData(
                 context, fonts, cancellationSignal);
         final Object fontFamily = newFamily();
+        if (fontFamily == null) {
+            return null;
+        }
         boolean atLeastOneFont = false;
         for (FontsContractCompat.FontInfo font : fonts) {
             final ByteBuffer fontBuffer = uriBuffer.get(font.getUri());
@@ -270,6 +276,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
             return null;
         }
         final Typeface typeface = createFromFamiliesWithDefault(fontFamily);
+        if (typeface == null) {
+            return null;
+        }
         return Typeface.create(typeface, style);
     }
 
@@ -284,6 +293,9 @@ public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
             return super.createFromResourcesFontFile(context, resources, id, path, style);
         }
         Object fontFamily = newFamily();
+        if (fontFamily == null) {
+            return null;
+        }
         if (!addFontFromAssetManager(context, fontFamily, path,
                 0 /* ttcIndex */, RESOLVE_BY_FONT_TABLE /* weight */,
                 RESOLVE_BY_FONT_TABLE /* italic */, null /* axes */)) {
