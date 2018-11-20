@@ -22,7 +22,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.MediaMetadata;
 import android.media.Rating;
@@ -55,6 +54,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.BundleCompat;
 import androidx.core.app.ComponentActivity;
+import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
@@ -941,7 +941,7 @@ public final class MediaControllerCompat {
                 if (callback != null) {
                     callback.onAudioInfoChanged(new PlaybackInfo(
                             info.getPlaybackType(),
-                            PlaybackInfo.toLegacyStreamType(info.getAudioAttributes()),
+                            AudioAttributesCompat.wrap(info.getAudioAttributes()),
                             info.getVolumeControl(),
                             info.getMaxVolume(),
                             info.getCurrentVolume()));
@@ -1371,15 +1371,20 @@ public final class MediaControllerCompat {
         public static final int PLAYBACK_TYPE_REMOTE = 2;
 
         private final int mPlaybackType;
-        // TODO update audio stream with AudioAttributes support version
-        private final int mAudioStream;
+        private final AudioAttributesCompat mAudioAttrsCompat;
         private final int mVolumeControl;
         private final int mMaxVolume;
         private final int mCurrentVolume;
 
         PlaybackInfo(int type, int stream, int control, int max, int current) {
+            this(type, new AudioAttributesCompat.Builder().setLegacyStreamType(stream).build(),
+                    control, max, current);
+        }
+
+        PlaybackInfo(int type, @NonNull AudioAttributesCompat attrsCompat,
+                int control, int max, int current) {
             mPlaybackType = type;
-            mAudioStream = stream;
+            mAudioAttrsCompat = attrsCompat;
             mVolumeControl = control;
             mMaxVolume = max;
             mCurrentVolume = current;
@@ -1403,11 +1408,25 @@ public final class MediaControllerCompat {
          * type is {@link PlaybackInfo#PLAYBACK_TYPE_REMOTE} this value does not
          * have meaning and should be ignored.
          *
+         * @deprecated Use {@link PlaybackInfo#getAudioAttributes()} instead.
+         *
          * @return The stream this session is playing on.
          */
+        @Deprecated
         public int getAudioStream() {
-            // TODO switch to AudioAttributesCompat when it is added.
-            return mAudioStream;
+            return mAudioAttrsCompat.getLegacyStreamType();
+        }
+
+        /**
+         * Get the audio attributes for this session. The attributes will affect
+         * volume handling for the session. When the volume type is
+         * {@link PlaybackInfo#PLAYBACK_TYPE_REMOTE} these may be ignored by the
+         * remote volume handler.
+         *
+         * @return The attributes for this session.
+         */
+        public @NonNull AudioAttributesCompat getAudioAttributes() {
+            return mAudioAttrsCompat;
         }
 
         /**
@@ -1443,51 +1462,6 @@ public final class MediaControllerCompat {
             return mCurrentVolume;
         }
 
-        // This is copied from AudioAttributes.toLegacyStreamType. TODO This
-        // either needs to be kept in sync with that one or toLegacyStreamType
-        // needs to be made public so it can be used by the support lib.
-        @RequiresApi(21)
-        static int toLegacyStreamType(AudioAttributes aa) {
-            final int flagSco = 0x1 << 2;
-            final int streamBluetoothSco = 6;
-            final int streamSystemEnforced = 7;
-            // flags to stream type mapping
-            if ((aa.getFlags() & AudioAttributes.FLAG_AUDIBILITY_ENFORCED)
-                    == AudioAttributes.FLAG_AUDIBILITY_ENFORCED) {
-                return streamSystemEnforced;
-            }
-            if ((aa.getFlags() & flagSco) == flagSco) {
-                return streamBluetoothSco;
-            }
-
-            // usage to stream type mapping
-            switch (aa.getUsage()) {
-                case AudioAttributes.USAGE_MEDIA:
-                case AudioAttributes.USAGE_GAME:
-                case AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY:
-                case AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
-                    return AudioManager.STREAM_MUSIC;
-                case AudioAttributes.USAGE_ASSISTANCE_SONIFICATION:
-                    return AudioManager.STREAM_SYSTEM;
-                case AudioAttributes.USAGE_VOICE_COMMUNICATION:
-                    return AudioManager.STREAM_VOICE_CALL;
-                case AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING:
-                    return AudioManager.STREAM_DTMF;
-                case AudioAttributes.USAGE_ALARM:
-                    return AudioManager.STREAM_ALARM;
-                case AudioAttributes.USAGE_NOTIFICATION_RINGTONE:
-                    return AudioManager.STREAM_RING;
-                case AudioAttributes.USAGE_NOTIFICATION:
-                case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST:
-                case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT:
-                case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED:
-                case AudioAttributes.USAGE_NOTIFICATION_EVENT:
-                    return AudioManager.STREAM_NOTIFICATION;
-                case AudioAttributes.USAGE_UNKNOWN:
-                default:
-                    return AudioManager.STREAM_MUSIC;
-            }
-        }
     }
 
     interface MediaControllerImpl {
@@ -2213,7 +2187,7 @@ public final class MediaControllerCompat {
             MediaController.PlaybackInfo volumeInfoFwk = mControllerFwk.getPlaybackInfo();
             return volumeInfoFwk != null ? new PlaybackInfo(
                     volumeInfoFwk.getPlaybackType(),
-                    PlaybackInfo.toLegacyStreamType(volumeInfoFwk.getAudioAttributes()),
+                    AudioAttributesCompat.wrap(volumeInfoFwk.getAudioAttributes()),
                     volumeInfoFwk.getVolumeControl(),
                     volumeInfoFwk.getMaxVolume(),
                     volumeInfoFwk.getCurrentVolume()) : null;
