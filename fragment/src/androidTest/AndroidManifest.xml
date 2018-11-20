@@ -41,6 +41,7 @@
         <activity android:name="androidx.fragment.app.test.HangingFragmentActivity"/>
         <activity android:name="androidx.fragment.app.test.ViewModelActivity" />
         <activity android:name="androidx.fragment.app.OnResumeTestActivity" />
+        <activity android:name="androidx.fragment.app.FragmentSavedStateActivity" />
         <activity android:name="androidx.fragment.app.DialogActivity"
                   android:theme="@style/DialogTheme"/>
     </application>
