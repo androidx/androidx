@@ -37,14 +37,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * An object that can perform work asynchronously.  For most cases, we recommend using
- * {@link Worker}, which offers a simple synchronous API that is executed on a pre-specified
- * background thread.
+ * A class that can perform work asynchronously in {@link WorkManager}.  For most cases, we
+ * recommend using {@link Worker}, which offers a simple synchronous API that is executed on a
+ * pre-specified background thread.
  * <p>
  * ListenableWorker classes are instantiated at runtime by the {@link WorkerFactory} specified in
  * the {@link Configuration}.  The {@link #startWork()} method is called on the main thread.
- *
- * <p>In case the work is preempted and later restarted for any reason, a new instance of
+ * <p>
+ * In case the work is preempted and later restarted for any reason, a new instance of
  * ListenableWorker is created. This means that {@code startWork} is called exactly once per
  * ListenableWorker instance.  A new ListenableWorker is created if a unit of work needs to be
  * rerun.
@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class ListenableWorker {
 
     /**
-     * The result of the Worker's computation.
+     * The result of a worker's computation.
      */
     public enum Result {
         /**
@@ -143,7 +143,8 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * Gets the list of content {@link android.net.Uri}s that caused this Worker to execute
+     * Gets the list of content {@link android.net.Uri}s that caused this Worker to execute.  See
+     * {@code JobParameters#getTriggeredContentUris()} for relevant {@code JobScheduler} code.
      *
      * @return The list of content {@link android.net.Uri}s that caused this Worker to execute
      * @see Constraints.Builder#addContentUriTrigger(android.net.Uri, boolean)
@@ -154,7 +155,9 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * Gets the list of content authorities that caused this Worker to execute
+     * Gets the list of content authorities that caused this Worker to execute.  See
+     * {@code JobParameters#getTriggeredContentAuthorities()} for relevant {@code JobScheduler}
+     * code.
      *
      * @return The list of content authorities that caused this Worker to execute
      */
@@ -164,8 +167,8 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * Gets the {@link android.net.Network} to use for this Worker.
-     * This method returns {@code null} if there is no network needed for this work request.
+     * Gets the {@link android.net.Network} to use for this Worker.  This method returns
+     * {@code null} if there is no network needed for this work request.
      *
      * @return The {@link android.net.Network} specified by the OS to be used with this Worker
      */
@@ -175,7 +178,8 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * Gets the current run attempt count for this work.
+     * Gets the current run attempt count for this work.  Note that for periodic work, this value
+     * gets reset between periods.
      *
      * @return The current run attempt count for this work.
      */
@@ -197,7 +201,7 @@ public abstract class ListenableWorker {
      * Returns {@code true} if this Worker has been told to stop.  This could be because of an
      * explicit cancellation signal by the user, or because the system has decided to preempt the
      * task. In these cases, the results of the work will be ignored by WorkManager and it is safe
-     * to stop the computation.
+     * to stop the computation.  WorkManager will retry the work at a later time if necessary.
      *
      * @return {@code true} if the work operation has been interrupted
      */
@@ -272,8 +276,8 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * The payload of an {@link #startWork()} computation that contains both the result and the
-     * output data.
+     * The payload of an {@link #startWork()} computation that contains both the {@link Result} and
+     * the output {@link Data}.
      */
     public static final class Payload {
 

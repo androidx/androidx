@@ -24,7 +24,10 @@ import android.support.annotation.RestrictTo;
 import java.lang.reflect.Constructor;
 
 /**
- * A factory object that creates {@link ListenableWorker} instances.
+ * A factory object that creates {@link ListenableWorker} instances.  The factory is invoked every
+ * time a work runs.  You can override the default implementation of this factory by manually
+ * initializing {@link WorkManager} (see {@link WorkManager#initialize(Context, Configuration)} and
+ * specifying a new WorkerFactory in {@link Configuration.Builder#setWorkerFactory(WorkerFactory)}.
  */
 public abstract class WorkerFactory {
 

@@ -32,19 +32,21 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * WorkManager is a library used to enqueue work that is guaranteed to execute after its constraints
- * are met.  WorkManager allows observation of work status and the ability to create complex chains
- * of work.
+ * WorkManager is a library used to enqueue deferrable work that is guaranteed to execute sometime
+ * after its {@link Constraints} are met.  WorkManager allows observation of work status and the
+ * ability to create complex chains of work.
  * <p>
  * WorkManager uses an underlying job dispatching service when available based on the following
  * criteria:
  * <p><ul>
  * <li>Uses JobScheduler for API 23+
  * <li>Uses a custom AlarmManager + BroadcastReceiver implementation for API 14-22</ul>
- * <p></p>All work must have a corresponding {@link Worker} to perform the computations.  Work is
- * performed in the background thread.
- *
- * <p>There are two types of work supported by WorkManager: {@link OneTimeWorkRequest} and
+ * <p>
+ * All work must be done in a {@link ListenableWorker} class.  A simple implementation,
+ * {@link Worker}, is recommended as the starting point for most developers.  With the optional
+ * dependencies, you can also use {@code CoroutineWorker} or {@code RxWorker}.
+ * <p>
+ * There are two types of work supported by WorkManager: {@link OneTimeWorkRequest} and
  * {@link PeriodicWorkRequest}.  You can enqueue requests using WorkManager as follows:
  *
  * <pre>
@@ -104,6 +106,9 @@ import java.util.concurrent.TimeUnit;
  * continuation.then(B).then(D, E).enqueue();  // A is implicitly enqueued here
  * continuation.then(C).enqueue();}</pre>
  *
+ * Work is eligible for execution when all of its prerequisites are complete.  If any of its
+ * prerequisites fail or are cancelled, the work will never run.
+ * <p>
  * WorkRequests can accept {@link Constraints}, inputs (see {@link Data}), and backoff criteria.
  * WorkRequests can be tagged with human-readable Strings
  * (see {@link WorkRequest.Builder#addTag(String)}), and chains of work can be given a
@@ -185,6 +190,9 @@ public abstract class WorkManager {
     /**
      * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
      * in the future using {@link WorkContinuation#enqueue()}.
+     * <p>
+     * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
+     * and will never run.
      *
      * @param work One or more {@link OneTimeWorkRequest} to start a chain of work
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
@@ -197,6 +205,9 @@ public abstract class WorkManager {
     /**
      * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
      * in the future using {@link WorkContinuation#enqueue()}.
+     * <p>
+     * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
+     * and will never run.
      *
      * @param work One or more {@link OneTimeWorkRequest} to start a chain of work
      * @return A {@link WorkContinuation} that allows for further chaining of dependent
@@ -209,12 +220,16 @@ public abstract class WorkManager {
      * chain with a given name to be active at a time.  For example, you may only want one sync
      * operation to be active.  If there is one pending, you can choose to let it run or replace it
      * with your new work.
-     *
+     * <p>
      * The {@code uniqueWorkName} uniquely identifies this set of work.
-     *
+     * <p>
      * If this method determines that new work should be enqueued and run, all records of previous
      * work with {@code uniqueWorkName} will be pruned.  If this method determines that new work
      * should NOT be run, then the entire chain will be considered a no-op.
+     * <p>
+     * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
+     * and will never run.  This is particularly important if you are using {@code APPEND} as your
+     * {@link ExistingWorkPolicy}.
      *
      * @param uniqueWorkName A unique name which for this chain of work
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}
@@ -239,12 +254,16 @@ public abstract class WorkManager {
      * chain with a given name to be active at a time.  For example, you may only want one sync
      * operation to be active.  If there is one pending, you can choose to let it run or replace it
      * with your new work.
-     *
+     * <p>
      * The {@code uniqueWorkName} uniquely identifies this set of work.
-     *
+     * <p>
      * If this method determines that new work should be enqueued and run, all records of previous
      * work with {@code uniqueWorkName} will be pruned.  If this method determines that new work
      * should NOT be run, then the entire chain will be considered a no-op.
+     * <p>
+     * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
+     * and will never run.  This is particularly important if you are using {@code APPEND} as your
+     * {@link ExistingWorkPolicy}.
      *
      * @param uniqueWorkName A unique name which for this chain of work
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}; see below for more information
@@ -268,10 +287,8 @@ public abstract class WorkManager {
      * {@link WorkContinuation}, where only one continuation of a particular name can be active at
      * a time. For example, you may only want one sync operation to be active. If there is one
      * pending, you can choose to let it run or replace it with your new work.
-     *
      * <p>
      * The {@code uniqueWorkName} uniquely identifies this {@link WorkContinuation}.
-     * </p>
      *
      * @param uniqueWorkName A unique name which for this operation
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}; see below for more information
@@ -296,10 +313,8 @@ public abstract class WorkManager {
      * {@link WorkContinuation}, where only one continuation of a particular name can be active at
      * a time. For example, you may only want one sync operation to be active. If there is one
      * pending, you can choose to let it run or replace it with your new work.
-     *
      * <p>
      * The {@code uniqueWorkName} uniquely identifies this {@link WorkContinuation}.
-     * </p>
      *
      * @param uniqueWorkName A unique name which for this operation
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}
@@ -322,10 +337,8 @@ public abstract class WorkManager {
      * one PeriodicWorkRequest of a particular name can be active at a time.  For example, you may
      * only want one sync operation to be active.  If there is one pending, you can choose to let it
      * run or replace it with your new work.
-     *
      * <p>
      * The {@code uniqueWorkName} uniquely identifies this PeriodicWorkRequest.
-     * </p>
      *
      * @param uniqueWorkName A unique name which for this operation
      * @param existingPeriodicWorkPolicy An {@link ExistingPeriodicWorkPolicy}
@@ -344,7 +357,8 @@ public abstract class WorkManager {
 
     /**
      * Cancels work with the given id if it isn't finished.  Note that cancellation is a best-effort
-     * policy and work that is already executing may continue to run.
+     * policy and work that is already executing may continue to run.  Upon cancellation,
+     * {@link ListenableWorker#onStopped()} will be invoked for any affected workers.
      *
      * @param id The id of the work
      * @return An {@link Operation} that can be used to determine when the cancelWorkById has
@@ -354,7 +368,8 @@ public abstract class WorkManager {
 
     /**
      * Cancels all unfinished work with the given tag.  Note that cancellation is a best-effort
-     * policy and work that is already executing may continue to run.
+     * policy and work that is already executing may continue to run.  Upon cancellation,
+     * {@link ListenableWorker#onStopped()} will be invoked for any affected workers.
      *
      * @param tag The tag used to identify the work
      * @return An {@link Operation} that can be used to determine when the cancelAllWorkByTag has
@@ -364,7 +379,8 @@ public abstract class WorkManager {
 
     /**
      * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
-     * a best-effort policy and work that is already executing may continue to run.
+     * a best-effort policy and work that is already executing may continue to run.  Upon
+     * cancellation, {@link ListenableWorker#onStopped()} will be invoked for any affected workers.
      *
      * @param uniqueWorkName The unique name used to identify the chain of work
      * @return An {@link Operation} that can be used to determine when the cancelUniqueWork has
@@ -376,6 +392,9 @@ public abstract class WorkManager {
      * Cancels all unfinished work.  <b>Use this method with extreme caution!</b>  By invoking it,
      * you will potentially affect other modules or libraries in your codebase.  It is strongly
      * recommended that you use one of the other cancellation methods at your disposal.
+     * <p>
+     * Upon cancellation, {@link ListenableWorker#onStopped()} will be invoked for any affected
+     * workers.
      *
      * @return An {@link Operation} that can be used to determine when the cancelAllWork has
      * completed
