@@ -48,29 +48,27 @@ import androidx.annotation.RestrictTo;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.res.TypedArrayUtils;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Represents the basic {@link Preference} UI building block displayed by a
- * {@link PreferenceFragmentCompat} in the form of a {@link RecyclerView}. This class provides
- * data for the {@link android.view.View} to be displayed in the list and associates with a
- * {@link SharedPreferences} or {@link PreferenceDataStore} to store/retrieve the preference data.
+ * The basic building block that represents an individual setting displayed to a user in the
+ * preference hierarchy. This class provides the data that will be displayed to the user and has
+ * a reference to the {@link SharedPreferences} or {@link PreferenceDataStore} instance that
+ * persists the preference's values.
  *
  * <p>When specifying a preference hierarchy in XML, each element can point to a subclass of
  * {@link Preference}, similar to the view hierarchy and layouts.
  *
- * <p>This class contains a {@code key} that will be used as the key into the
- * {@link SharedPreferences}. It is up to the subclass to decide how to store the value.
+ * <p>This class contains a {@code key} that that represents the key that is used to persist the
+ * value to the device. It is up to the subclass to decide how to store the value.
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
- * <p>For information about building a settings UI with Preferences,
- * read the <a href="{@docRoot}guide/topics/ui/settings.html">Settings</a>
- * guide.</p>
+ * <p>For information about building a settings screen using the AndroidX Preference library, see
+ * <a href="{@docRoot}guide/topics/ui/settings.html">Settings</a>.</p>
  * </div>
  *
  * @attr name android:icon

@@ -82,8 +82,8 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * <div class="special reference">
  * <h3>Developer Guides</h3>
- * <p>For information about using {@code PreferenceFragment}, read the
- * <a href="{@docRoot}guide/topics/ui/settings.html">Settings</a> guide.</p>
+ * <p>For information about building a settings screen using the AndroidX Preference library, see
+ * <a href="{@docRoot}guide/topics/ui/settings.html">Settings</a>.</p>
  * </div>
  *
  * @see Preference
