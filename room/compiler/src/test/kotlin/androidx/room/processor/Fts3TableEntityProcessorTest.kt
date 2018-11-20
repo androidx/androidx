@@ -160,9 +160,24 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public int getRowId() { return rowId; }
                 public void setRowId(int id) { this.rowId = rowId; }
                 """,
-                ftsAttributes = hashMapOf("tokenizer" to "FtsOptions.Tokenizer.PORTER")
+                ftsAttributes = hashMapOf("tokenizer" to "FtsOptions.TOKENIZER_PORTER")
         ) { entity, _ ->
-            assertThat(entity.ftsOptions.tokenizer, `is`(FtsOptions.Tokenizer.PORTER))
+            assertThat(entity.ftsOptions.tokenizer, `is`(FtsOptions.TOKENIZER_PORTER))
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun customTokenizer() {
+        singleEntity("""
+                @PrimaryKey
+                @ColumnInfo(name = "rowid")
+                private int rowId;
+                public int getRowId() { return rowId; }
+                public void setRowId(int id) { this.rowId = rowId; }
+                """,
+            ftsAttributes = hashMapOf("tokenizer" to "\"customICU\"")
+        ) { entity, _ ->
+            assertThat(entity.ftsOptions.tokenizer, `is`("customICU"))
         }.compilesWithoutError()
     }
 }

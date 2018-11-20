@@ -23,43 +23,41 @@ import androidx.annotation.RequiresApi;
  */
 public class FtsOptions {
 
-    public enum Tokenizer {
-        /**
-         * The name of the default tokenizer used on FTS tables.
-         *
-         * @see Fts4#tokenizer()
-         * @see Fts4#tokenizerArgs()
-         */
-        SIMPLE,
+    /**
+     * The name of the default tokenizer used on FTS tables.
+     *
+     * @see Fts4#tokenizer()
+     * @see Fts4#tokenizerArgs()
+     */
+    public static final String TOKENIZER_SIMPLE = "simple";
 
-        /**
-         * The name of the tokenizer based on the Porter Stemming Algorithm.
-         *
-         * @see Fts4#tokenizer()
-         * @see Fts4#tokenizerArgs()
-         */
-        PORTER,
+    /**
+     * The name of the tokenizer based on the Porter Stemming Algorithm.
+     *
+     * @see Fts4#tokenizer()
+     * @see Fts4#tokenizerArgs()
+     */
+    public static final String TOKENIZER_PORTER = "porter";
 
-        /**
-         * The name of a tokenizer implemented by the ICU library.
-         * <p>
-         * Not available in certain Android builds (e.g. vendor).
-         *
-         * @see Fts4#tokenizer()
-         * @see Fts4#tokenizerArgs()
-         */
-        ICU,
+    /**
+     * The name of a tokenizer implemented by the ICU library.
+     * <p>
+     * Not available in certain Android builds (e.g. vendor).
+     *
+     * @see Fts4#tokenizer()
+     * @see Fts4#tokenizerArgs()
+     */
+    public static final String TOKENIZER_ICU = "icu";
 
-        /**
-         * The name of the tokenizer that extends the {@link #SIMPLE} tokenizer
-         * according to rules in Unicode Version 6.1.
-         *
-         * @see Fts4#tokenizer()
-         * @see Fts4#tokenizerArgs()
-         */
-        @RequiresApi(21)
-        UNICODE61
-    }
+    /**
+     * The name of the tokenizer that extends the {@link #TOKENIZER_SIMPLE} tokenizer
+     * according to rules in Unicode Version 6.1.
+     *
+     * @see Fts4#tokenizer()
+     * @see Fts4#tokenizerArgs()
+     */
+    @RequiresApi(21)
+    public static final String TOKENIZER_UNICODE61 = "unicode61";
 
     public enum MatchInfo {
         /**
