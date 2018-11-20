@@ -126,6 +126,9 @@ public @interface Entity {
      * <p>
      * Normally, you can use {@link Ignore}, but this is useful for ignoring fields inherited from
      * parents.
+     * <p>
+     * Columns that are part of an {@link Embedded} field can not be individually ignored. To ignore
+     * columns from an inherited {@link Embedded} field, use the name of the field.
      *
      * @return The list of field names.
      */
