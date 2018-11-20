@@ -56,6 +56,7 @@ import androidx.work.impl.constraints.trackers.Trackers;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.utils.RepeatRule;
+import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.worker.SleepTestWorker;
@@ -121,7 +122,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         };
 
         Logger.setMinimumLoggingLevel(Log.VERBOSE);
-        mConfiguration = new Configuration.Builder().build();
+        mConfiguration = new Configuration.Builder().setExecutor(new SynchronousExecutor()).build();
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
         TaskExecutor instantTaskExecutor = new InstantWorkTaskExecutor();
@@ -194,6 +195,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     @Test
+    @RepeatRule.Repeat(times = 1)
     public void testDelayMet_success() throws InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
