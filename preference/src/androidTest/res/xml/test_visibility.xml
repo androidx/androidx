@@ -15,28 +15,26 @@
   ~ limitations under the License
   -->
 <PreferenceScreen
-        xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
-
     <PreferenceCategory
-            android:title="Category"
-            android:key="category">
+            app:title="Category"
+            app:key="category">
 
         <Preference
-                android:title="Default"
-                android:summary="This preference is visible by default"
-                android:key="default"/>
+                app:title="Default"
+                app:summary="This preference is visible by default"
+                app:key="default"/>
 
         <Preference
-                android:title="Visible"
-                android:summary="This preference is forced to be visible"
-                android:key="visible"
+                app:title="Visible"
+                app:summary="This preference is forced to be visible"
+                app:key="visible"
                 app:isPreferenceVisible="true"/>
 
         <Preference
-                android:title="Invisible"
-                android:summary="This preference is invisible"
-                android:key="invisible"
+                app:title="Invisible"
+                app:summary="This preference is invisible"
+                app:key="invisible"
                 app:isPreferenceVisible="false"/>
     </PreferenceCategory>
 </PreferenceScreen>

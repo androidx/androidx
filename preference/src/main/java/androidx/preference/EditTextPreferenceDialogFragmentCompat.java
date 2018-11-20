@@ -63,16 +63,19 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
         super.onBindDialogView(view);
 
         mEditText = view.findViewById(android.R.id.edit);
-        mEditText.requestFocus();
 
         if (mEditText == null) {
             throw new IllegalStateException("Dialog view must contain an EditText with id" +
                     " @android:id/edit");
         }
 
+        mEditText.requestFocus();
         mEditText.setText(mText);
         // Place cursor at the end
         mEditText.setSelection(mEditText.getText().length());
+        if (getEditTextPreference().getOnBindEditTextListener() != null) {
+            getEditTextPreference().getOnBindEditTextListener().onBindEditText(mEditText);
+        }
     }
 
     private EditTextPreference getEditTextPreference() {
