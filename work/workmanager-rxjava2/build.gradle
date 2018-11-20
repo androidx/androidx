@@ -28,7 +28,7 @@ dependencies {
     api(project(":work:work-runtime"))
     api(RX_JAVA)
     testImplementation(KOTLIN_STDLIB)
-    testImplementation(TEST_RUNNER)
+    testImplementation(TEST_EXT_JUNIT)
     testImplementation(MOCKITO_CORE)
 }
 
