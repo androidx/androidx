@@ -7,10 +7,10 @@ plugins {
 }
 
 dependencies {
-    api(project(":appcompat"))
-    api(project(":annotation"))
-    api(project(":collection"))
-    api(project(":core"))
+    api("androidx.appcompat:appcompat:1.0.0")
+    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.collection:collection:1.0.0")
+    api("androidx.core:core:1.1.0-alpha01")
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
