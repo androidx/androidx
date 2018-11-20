@@ -102,7 +102,7 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
         try {
             return sFontFamilyCtor.newInstance();
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -113,7 +113,7 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
                     family, buffer, ttcIndex, null /* variation axis */, weight, style);
             return result.booleanValue();
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return false;
         }
     }
 
@@ -124,14 +124,18 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
             return (Typeface) sCreateFromFamiliesWithDefault.invoke(
                     null /* static method */, familyArray);
         } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
     @Override
+    @Nullable
     public Typeface createFromFontInfo(Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts, int style) {
         Object family = newFamily();
+        if (family == null) {
+            return null;
+        }
         SimpleArrayMap<Uri, ByteBuffer> bufferCache = new SimpleArrayMap<>();
 
         for (final FontInfo font : fonts) {
@@ -150,13 +154,20 @@ class TypefaceCompatApi24Impl extends TypefaceCompatBaseImpl {
             }
         }
         final Typeface typeface = createFromFamiliesWithDefault(family);
+        if (typeface == null) {
+            return null;
+        }
         return Typeface.create(typeface, style);
     }
 
     @Override
+    @Nullable
     public Typeface createFromFontFamilyFilesResourceEntry(Context context,
             FontFamilyFilesResourceEntry entry, Resources resources, int style) {
         Object family = newFamily();
+        if (family == null) {
+            return null;
+        }
         for (final FontFileResourceEntry e : entry.getEntries()) {
             final ByteBuffer buffer =
                     TypefaceCompatUtil.copyToDirectBuffer(context, resources, e.getResourceId());
