@@ -171,6 +171,10 @@ public final class Constraints {
         this.mContentUriTriggers = mContentUriTriggers;
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(24)
     public @NonNull ContentUriTriggers getContentUriTriggers() {
         return mContentUriTriggers;
@@ -178,7 +182,9 @@ public final class Constraints {
 
     /**
      * @return {@code true} if {@link ContentUriTriggers} is not empty
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(24)
     public boolean hasContentUriTriggers() {
         return mContentUriTriggers.size() > 0;

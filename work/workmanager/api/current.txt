@@ -31,9 +31,7 @@ package androidx.work {
 
   public final class Constraints {
     ctor public Constraints(androidx.work.Constraints);
-    method @RequiresApi(24) public androidx.work.ContentUriTriggers getContentUriTriggers();
     method public androidx.work.NetworkType getRequiredNetworkType();
-    method @RequiresApi(24) public boolean hasContentUriTriggers();
     method public boolean requiresBatteryNotLow();
     method public boolean requiresCharging();
     method @RequiresApi(23) public boolean requiresDeviceIdle();
@@ -50,16 +48,6 @@ package androidx.work {
     method public androidx.work.Constraints.Builder setRequiresCharging(boolean);
     method @RequiresApi(23) public androidx.work.Constraints.Builder setRequiresDeviceIdle(boolean);
     method public androidx.work.Constraints.Builder setRequiresStorageNotLow(boolean);
-  }
-
-  public final class ContentUriTriggers {
-    ctor public ContentUriTriggers();
-    method public int size();
-  }
-
-  public static final class ContentUriTriggers.Trigger {
-    method public android.net.Uri getUri();
-    method public boolean shouldTriggerForDescendants();
   }
 
   public final class Data {
