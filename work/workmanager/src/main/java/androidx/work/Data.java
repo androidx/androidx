@@ -32,7 +32,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Persistable set of key/value pairs which are passed as inputs and outputs for {@link Worker}s.
+ * A persistable set of key/value pairs which are used as inputs and outputs for
+ * {@link ListenableWorker}s.  Keys are Strings, and values can be Strings, primitive types, or
+ * their array variants.
+ * <p>
  * This is a lightweight container, and should not be considered your data store.  As such, there is
  * an enforced {@link #MAX_DATA_BYTES} limit on the serialized (byte array) size of the payloads.
  * This class will throw {@link IllegalStateException}s if you try to serialize or deserialize past
@@ -67,7 +70,7 @@ public final class Data {
     }
 
     /**
-     * Get the boolean value for the given key.
+     * Gets the boolean value for the given key.
      *
      * @param key The key for the argument
      * @param defaultValue The default value to return if the key is not found
@@ -83,7 +86,7 @@ public final class Data {
     }
 
     /**
-     * Get the boolean array value for the given key.
+     * Gets the boolean array value for the given key.
      *
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
@@ -104,7 +107,7 @@ public final class Data {
 
 
     /**
-     * Get the integer value for the given key.
+     * Gets the integer value for the given key.
      *
      * @param key The key for the argument
      * @param defaultValue The default value to return if the key is not found
@@ -120,7 +123,7 @@ public final class Data {
     }
 
     /**
-     * Get the integer array value for the given key.
+     * Gets the integer array value for the given key.
      *
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
@@ -140,7 +143,7 @@ public final class Data {
     }
 
     /**
-     * Get the long value for the given key.
+     * Gets the long value for the given key.
      *
      * @param key The key for the argument
      * @param defaultValue The default value to return if the key is not found
@@ -156,7 +159,7 @@ public final class Data {
     }
 
     /**
-     * Get the long array value for the given key.
+     * Gets the long array value for the given key.
      *
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
@@ -176,7 +179,7 @@ public final class Data {
     }
 
     /**
-     * Get the float value for the given key.
+     * Gets the float value for the given key.
      *
      * @param key The key for the argument
      * @param defaultValue The default value to return if the key is not found
@@ -192,7 +195,7 @@ public final class Data {
     }
 
     /**
-     * Get the float array value for the given key.
+     * Gets the float array value for the given key.
      *
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
@@ -212,7 +215,7 @@ public final class Data {
     }
 
     /**
-     * Get the double value for the given key.
+     * Gets the double value for the given key.
      *
      * @param key The key for the argument
      * @param defaultValue The default value to return if the key is not found
@@ -228,7 +231,7 @@ public final class Data {
     }
 
     /**
-     * Get the double array value for the given key.
+     * Gets the double array value for the given key.
      *
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
@@ -248,7 +251,7 @@ public final class Data {
     }
 
     /**
-     * Get the String value for the given key.
+     * Gets the String value for the given key.
      *
      * @param key The key for the argument
      * @return The value specified by the key if it exists; the default value otherwise
@@ -263,7 +266,7 @@ public final class Data {
     }
 
     /**
-     * Get the String array value for the given key.
+     * Gets the String array value for the given key.
      *
      * @param key The key for the argument
      * @return The value specified by the key if it exists; {@code null} otherwise
@@ -448,7 +451,7 @@ public final class Data {
     }
 
     /**
-     * A builder for {@link Data}.
+     * A builder for {@link Data} objects.
      */
     public static final class Builder {
 
@@ -599,10 +602,10 @@ public final class Data {
         }
 
         /**
-         * Puts all input key-value pairs from the {@link Data} into the Builder.
-         * Any non-valid types will be logged and ignored.  Valid types are: Boolean, Integer,
-         * Long, Double, String, and array versions of each of those types.
-         * Any {@code null} values will also be ignored.
+         * Puts all input key-value pairs from a {@link Data} into the Builder.
+         * <p>
+         * Valid value types are: Boolean, Integer, Long, Float, Double, String, and their array
+         * versions.  Invalid types will throw an {@link IllegalArgumentException}.
          *
          * @param data {@link Data} containing key-value pairs to add
          * @return The {@link Builder}
@@ -613,9 +616,10 @@ public final class Data {
         }
 
         /**
-         * Puts all input key-value pairs into the Builder. Valid types are: Boolean, Integer,
-         * Long, Float, Double, String, and array versions of each of those types.
-         * Invalid types throw an {@link IllegalArgumentException}.
+         * Puts all input key-value pairs from a {@link Map} into the Builder.
+         * <p>
+         * Valid value types are: Boolean, Integer, Long, Float, Double, String, and their array
+         * versions.  Invalid types will throw an {@link IllegalArgumentException}.
          *
          * @param values A {@link Map} of key-value pairs to add
          * @return The {@link Builder}
@@ -635,7 +639,7 @@ public final class Data {
          * Invalid types throw an {@link IllegalArgumentException}.
          *
          * @param key A {@link String} key to add
-         * @param value A Nullable {@link Object} value to add
+         * @param value A nullable {@link Object} value to add of the valid types
          * @return The {@link Builder}
          * @hide
          */
@@ -677,7 +681,7 @@ public final class Data {
         }
 
         /**
-         * Builds an {@link Data} object.
+         * Builds a {@link Data} object.
          *
          * @return The {@link Data} object containing all key-value pairs specified by this
          *         {@link Builder}.

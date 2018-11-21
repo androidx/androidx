@@ -38,6 +38,7 @@ import com.google.common.util.concurrent.ListenableFuture;
  * means that {@link #doWork()} is called exactly once per Worker instance.  A new Worker is created
  * if a unit of work needs to be rerun.
  */
+
 public abstract class Worker extends ListenableWorker {
 
     // Package-private to avoid synthetic accessor.
