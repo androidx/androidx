@@ -9,7 +9,7 @@ plugins {
 dependencies {
     api(project(":media"))
     api(project(":appcompat"))
-    api(project(":palette"))
+    api("androidx.palette:palette:1.0.0")
     api(project(":recyclerview"))
 
     androidTestImplementation(TEST_RUNNER)
