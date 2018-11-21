@@ -44,7 +44,7 @@ import androidx.ui.lerpDouble
 import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.toStringAsFixed
 
-val _kDefaultDebugLabel: String = "unknown"
+private const val _kDefaultDebugLabel: String = "unknown"
 
 /** The default font size if none is specified. */
 private const val _defaultFontSize: Double = 14.0
@@ -167,18 +167,17 @@ data class TextStyle(
             color = color ?: this.color,
             fontFamily = fontFamily ?: this.fontFamily,
             fontSize = if (fontSize == null) null else fontSize * fontSizeFactor + fontSizeDelta,
-            fontWeight = if (fontWeight == null) null
-            else FontWeight.values[(fontWeight.index + fontWeightDelta).clamp(
-                0,
-                FontWeight.values.size - 1
-            )],
+            fontWeight = if (fontWeight == null) null else {
+                FontWeight.values[
+                    (fontWeight.index + fontWeightDelta).clamp(0, FontWeight.values.size - 1)
+                ]
+            },
             fontStyle = fontStyle,
-            letterSpacing =
-            if (letterSpacing == null) null
-            else letterSpacing * letterSpacingFactor + letterSpacingDelta,
+            letterSpacing = if (letterSpacing == null) null else {
+                letterSpacing * letterSpacingFactor + letterSpacingDelta
+            },
             wordSpacing =
-            if (wordSpacing == null) null
-            else wordSpacing * wordSpacingFactor + wordSpacingDelta,
+            if (wordSpacing == null) null else wordSpacing * wordSpacingFactor + wordSpacingDelta,
             textBaseline = textBaseline,
             height = if (height == null) null else height * heightFactor + heightDelta,
             locale = locale,
@@ -259,9 +258,7 @@ data class TextStyle(
             val bIsNull = b == null
             val inheritEqual = a?.inherit == b?.inherit
             assert(aIsNull || bIsNull || inheritEqual)
-            if (aIsNull && bIsNull) {
-                return null
-            }
+            if (aIsNull && bIsNull) return null
 
             var lerpDebugLabel = ""
             assert {
@@ -478,8 +475,9 @@ data class TextStyle(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        if (debugLabel != null)
+        if (debugLabel != null) {
             properties.add(MessageProperty("debugLabel", debugLabel))
+        }
         var styles: MutableList<DiagnosticsNode> = mutableListOf<DiagnosticsNode>()
         styles.add(DiagnosticsProperty.create("color", color, defaultValue = null))
         styles.add(
@@ -539,8 +537,9 @@ data class TextStyle(
         )
         if (decoration != null || decorationColor != null || decorationStyle != null) {
             var decorationDescription: MutableList<String> = mutableListOf()
-            if (decorationStyle != null)
+            if (decorationStyle != null) {
                 decorationDescription.add(describeEnum(decorationStyle))
+            }
 
             // Hide decorationColor from the default text view as it is shown in the
             // terse decoration summary as well.
@@ -553,8 +552,9 @@ data class TextStyle(
                 )
             )
 
-            if (decorationColor != null)
+            if (decorationColor != null) {
                 decorationDescription.add("$decorationColor")
+            }
 
             // Intentionally collide with the property 'decoration' added below.
             // Tools that show hidden properties could choose the first property
@@ -567,8 +567,9 @@ data class TextStyle(
                     level = DiagnosticLevel.hidden
                 )
             )
-            if (decoration != null)
+            if (decoration != null) {
                 decorationDescription.add("$decoration")
+            }
             assert(decorationDescription.isNotEmpty())
             styles.add(
                 MessageProperty(
@@ -584,13 +585,16 @@ data class TextStyle(
                 "inherit",
                 inherit,
                 level =
-                if (styleSpecified == null && inherit!!) DiagnosticLevel.fine
-                else DiagnosticLevel.info
+                if (styleSpecified == null && inherit!!) {
+                    DiagnosticLevel.fine
+                } else {
+                    DiagnosticLevel.info
+                }
             )
         )
         styles.iterator().forEach { properties.add(it) }
 
-        if (styleSpecified == null)
+        if (styleSpecified == null) {
             properties.add(
                 FlagProperty(
                     "inherit",
@@ -599,5 +603,6 @@ data class TextStyle(
                     ifFalse = "<no style specified>"
                 )
             )
+        }
     }
 }
