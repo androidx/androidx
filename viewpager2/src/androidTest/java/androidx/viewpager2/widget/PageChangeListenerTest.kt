@@ -175,7 +175,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
 
                 // when
                 swipe(initialPage, targetPage)
-                latch.await(1, SECONDS)
+                latch.await(2, SECONDS)
 
                 // then
                 assertBasicState(targetPage, "$targetPage")
@@ -183,15 +183,22 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 if (targetPage == initialPage && edgePages.contains(targetPage)) {
                     listener.apply {
                         // verify all events
-                        assertThat(draggingIx, equalTo(0))
-                        assertThat(idleIx, equalTo(lastIx))
-                        assertThat(scrollEventCount, equalTo(eventCount - 2))
+                        assertThat("Events should start with a state change to DRAGGING",
+                            draggingIx, equalTo(0))
+                        assertThat("Last event should be a state change to IDLE",
+                            idleIx, equalTo(lastIx))
+                        assertThat("All events but the state changes to DRAGGING and IDLE" +
+                                " should be scroll events",
+                            scrollEventCount, equalTo(eventCount - 2))
 
                         // dive into scroll events
                         scrollEvents.forEach {
-                            assertThat(it.position, equalTo(targetPage))
-                            assertThat(it.positionOffset, equalTo(0f))
-                            assertThat(it.positionOffsetPixels, equalTo(0))
+                            assertThat("All scroll events should report page $targetPage",
+                                it.position, equalTo(targetPage))
+                            assertThat("All scroll events should report an offset of 0f",
+                                it.positionOffset, equalTo(0f))
+                            assertThat("All scroll events should report an offset of 0px",
+                                it.positionOffsetPixels, equalTo(0))
                         }
                     }
                 }
@@ -231,10 +238,21 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             // then
             listener.apply {
                 // verify all events
-                assertThat(draggingIx, equalTo(0))
-                assertThat(settlingIx, isBetweenInEx(firstScrolledIx + 1, lastScrolledIx))
-                assertThat(idleIx, equalTo(lastIx))
-                assertThat(scrollEventCount, equalTo(eventCount - 3))
+                assertThat("There should be exactly 1 dragging event",
+                    stateEvents(SCROLL_STATE_DRAGGING).size, equalTo(1))
+                assertThat("There should be exactly 1 settling event",
+                    stateEvents(SCROLL_STATE_SETTLING).size, equalTo(1))
+                assertThat("There should be exactly 1 idle event",
+                    stateEvents(SCROLL_STATE_IDLE).size, equalTo(1))
+                assertThat("Events should start with a state change to DRAGGING",
+                    draggingIx, equalTo(0))
+                assertThat("The settling event should be fired between the first and the last" +
+                        " scroll event",
+                    settlingIx, isBetweenInEx(firstScrolledIx + 1, lastScrolledIx))
+                assertThat("The idle event should be the last global event",
+                    idleIx, equalTo(lastIx))
+                assertThat("All events other then the state changes should be scroll events",
+                    scrollEventCount, equalTo(eventCount - 3))
 
                 // dive into scroll events
                 scrollEvents.assertPositionSorted(SortOrder.DESC)
@@ -282,10 +300,21 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             // then
             listener.apply {
                 // verify all events
-                assertThat(draggingIx, equalTo(0))
-                assertThat(settlingIx, isBetweenInEx(firstScrolledIx + 1, lastScrolledIx))
-                assertThat(idleIx, equalTo(lastIx))
-                assertThat(scrollEventCount, equalTo(eventCount - 3))
+                assertThat("There should be exactly 1 dragging event",
+                    stateEvents(SCROLL_STATE_DRAGGING).size, equalTo(1))
+                assertThat("There should be exactly 1 settling event",
+                    stateEvents(SCROLL_STATE_SETTLING).size, equalTo(1))
+                assertThat("There should be exactly 1 idle event",
+                    stateEvents(SCROLL_STATE_IDLE).size, equalTo(1))
+                assertThat("Events should start with a state change to DRAGGING",
+                    draggingIx, equalTo(0))
+                assertThat("The settling event should be fired between the first and the last " +
+                        "scroll event",
+                    settlingIx, isBetweenInEx(firstScrolledIx + 1, lastScrolledIx))
+                assertThat("The idle event should be the last global event",
+                    idleIx, equalTo(lastIx))
+                assertThat("All events other then the state changes should be scroll events",
+                    scrollEventCount, equalTo(eventCount - 3))
 
                 // dive into scroll events
                 scrollEvents.assertPositionSorted(SortOrder.ASC)
@@ -748,6 +777,10 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         val idleIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE))
         val pageSelectedIx: (page: Int) -> Int = { events.indexOf(OnPageSelectedEvent(it)) }
         val markIx: (id: Int) -> Int = { events.indexOf(MarkerEvent(it)) }
+
+        fun stateEvents(state: Int): List<OnPageScrollStateChangedEvent> {
+            return stateEvents.filter { it.state == state }
+        }
 
         override fun onPageScrolled(
             position: Int,

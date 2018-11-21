@@ -132,9 +132,24 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             return;
         }
 
-        // Drag has settled (dragging && settling -> idle)
+        // Drag is finished (dragging || settling -> idle)
         if (mAdapterState == STATE_IN_PROGRESS_MANUAL_DRAG
                 && newState == RecyclerView.SCROLL_STATE_IDLE) {
+            if (mScrollState == SCROLL_STATE_DRAGGING && mScrollValues.mOffsetPx == 0) {
+                // When going from dragging to idle, we skipped the settling phase.
+                // Depending on whether mOffsetPx is 0 or not, PagerSnapHelper will kick in or not.
+                // If it won't, do the necessary bookkeeping before going to idle.
+                if (!mScrollHappened) {
+                    dispatchScrolled(getPosition(), 0f, 0);
+                } else {
+                    // Don't dispatch settling event
+                    mDispatchSelected = true;
+                    mScrollHappened = false;
+                }
+            } else if (mScrollState == SCROLL_STATE_SETTLING && !mScrollHappened) {
+                throw new IllegalStateException("RecyclerView sent SCROLL_STATE_SETTLING event "
+                        + "without scrolling any further before going to SCROLL_STATE_IDLE");
+            }
             if (!mScrollHappened) {
                 // Special case if we were snapped at a page when going from dragging to settling
                 // Happens if there was no velocity or if it was the first or last page
@@ -166,7 +181,11 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         if (mDispatchSelected) {
             // Drag started settling, need to calculate target page and dispatch onPageSelected now
             mDispatchSelected = false;
-            mTarget = (dy > 0 || (dy == 0 && dx < 0 == isLayoutRTL()))
+            boolean scrollingForward = dy > 0 || (dy == 0 && dx < 0 == isLayoutRTL());
+
+            // "&& values.mOffsetPx != 0": filters special case where we're scrolling forward and
+            // the first scroll event after settling already got us at the target
+            mTarget = scrollingForward && values.mOffsetPx != 0
                     ? values.mPosition + 1 : values.mPosition;
             if (mDragStartPosition != mTarget) {
                 dispatchSelected(mTarget);
