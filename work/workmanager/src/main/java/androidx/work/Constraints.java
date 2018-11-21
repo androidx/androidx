@@ -27,10 +27,17 @@ import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
 /**
- * The constraints that can be applied to one {@link WorkRequest}.
+ * A specification of the requirements that need to be met before a {@link WorkRequest} can run.  By
+ * default, WorkRequests do not have any requirements and can run immediately.  By adding
+ * requirements, you can make sure that work only runs in certain situations - for example, when you
+ * have an unmetered network and are charging.
  */
+
 public final class Constraints {
 
+    /**
+     * Represents a Constraints object with no requirements.
+     */
     public static final Constraints NONE = new Constraints.Builder().build();
 
     // NOTE: this is effectively a @NonNull, but changing the annotation would result in a really
@@ -96,7 +103,7 @@ public final class Constraints {
     }
 
     /**
-     * @return If the constraints require charging.
+     * @return {@code true} if the work should only execute while the device is charging
      */
     public boolean requiresCharging() {
         return mRequiresCharging;
@@ -112,7 +119,7 @@ public final class Constraints {
     }
 
     /**
-     * @return If the constraints require device idle.
+     * @return {@code true} if the work should only execute while the device is idle
      */
     @RequiresApi(23)
     public boolean requiresDeviceIdle() {
@@ -130,7 +137,7 @@ public final class Constraints {
     }
 
     /**
-     * @return If the constraints require battery not low status.
+     * @return {@code true} if the work should only execute when the battery isn't low
      */
     public boolean requiresBatteryNotLow() {
         return mRequiresBatteryNotLow;
@@ -146,7 +153,7 @@ public final class Constraints {
     }
 
     /**
-     * @return If the constraints require storage not low status.
+     * @return {@code true} if the work should only execute when the storage isn't low
      */
     public boolean requiresStorageNotLow() {
         return mRequiresStorageNotLow;
@@ -213,7 +220,7 @@ public final class Constraints {
     }
 
     /**
-     * Builder for {@link Constraints} class.
+     * A Builder for a {@link Constraints} object.
      */
     public static final class Builder {
         boolean mRequiresCharging = false;
@@ -224,11 +231,11 @@ public final class Constraints {
         ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
 
         /**
-         * Specify whether device should be plugged in for {@link WorkRequest} to run.
-         * Default is false.
+         * Sets whether device should be charging for the {@link WorkRequest} to run.  The
+         * default value is {@code false}.
          *
-         * @param requiresCharging true if device must be plugged in, false otherwise
-         * @return current builder
+         * @param requiresCharging {@code true} if device must be charging for the work to run
+         * @return The current {@link Builder}
          */
         public @NonNull Builder setRequiresCharging(boolean requiresCharging) {
             this.mRequiresCharging = requiresCharging;
@@ -236,11 +243,11 @@ public final class Constraints {
         }
 
         /**
-         * Specify whether device should be idle for {@link WorkRequest} to run. Default is
-         * false.
+         * Sets whether device should be idle for the {@link WorkRequest} to run.  The default
+         * value is {@code false}.
          *
-         * @param requiresDeviceIdle true if device must be idle, false otherwise
-         * @return current builder
+         * @param requiresDeviceIdle {@code true} if device must be idle for the work to run
+         * @return The current {@link Builder}
          */
         @RequiresApi(23)
         public @NonNull Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
@@ -249,11 +256,11 @@ public final class Constraints {
         }
 
         /**
-         * Specify whether device should have a particular {@link NetworkType} for
-         * {@link WorkRequest} to run. Default is {@link NetworkType#NOT_REQUIRED}.
+         * Sets whether device should have a particular {@link NetworkType} for the
+         * {@link WorkRequest} to run.  The default value is {@link NetworkType#NOT_REQUIRED}.
          *
-         * @param networkType type of network required
-         * @return current builder
+         * @param networkType The type of network required for the work to run
+         * @return The current {@link Builder}
          */
         public @NonNull Builder setRequiredNetworkType(@NonNull NetworkType networkType) {
             this.mRequiredNetworkType = networkType;
@@ -261,12 +268,12 @@ public final class Constraints {
         }
 
         /**
-         * Specify whether device battery should not be below critical threshold for
-         * {@link WorkRequest} to run. Default is false.
+         * Sets whether device battery should be at an acceptable level for the
+         * {@link WorkRequest} to run.  The default value is {@code false}.
          *
-         * @param requiresBatteryNotLow true if battery should not be below critical threshold,
-         *                              false otherwise
-         * @return current builder
+         * @param requiresBatteryNotLow {@code true} if the battery should be at an acceptable level
+         *                              for the work to run
+         * @return The current {@link Builder}
          */
         public @NonNull Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
             this.mRequiresBatteryNotLow = requiresBatteryNotLow;
@@ -274,12 +281,12 @@ public final class Constraints {
         }
 
         /**
-         * Specify whether device available storage should not be below critical threshold for
-         * {@link WorkRequest} to run. Default is {@code false}.
+         * Sets whether the device's available storage should be at an acceptable level for the
+         * {@link WorkRequest} to run.  The default value is {@code false}.
          *
-         * @param requiresStorageNotLow true if available storage should not be below critical
-         *                              threshold, false otherwise
-         * @return current builder
+         * @param requiresStorageNotLow {@code true} if the available storage should not be below a
+         *                              a critical threshold for the work to run
+         * @return The current {@link Builder}
          */
         public @NonNull Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
             this.mRequiresStorageNotLow = requiresStorageNotLow;
@@ -287,11 +294,12 @@ public final class Constraints {
         }
 
         /**
-         * Specify whether {@link WorkRequest} should run when a content: URI is updated.  This
-         * functionality is identical to the one found in {@code JobScheduler} and is described in
+         * Sets whether the {@link WorkRequest} should run when a local {@code content:} {@link Uri}
+         * is updated.  This functionality is identical to the one found in {@code JobScheduler} and
+         * is described in
          * {@code JobInfo.Builder#addTriggerContentUri(android.app.job.JobInfo.TriggerContentUri)}.
          *
-         * @param uri The content: URI to observe
+         * @param uri The local {@code content:} Uri to observe
          * @param triggerForDescendants {@code true} if any changes in descendants cause this
          *                              {@link WorkRequest} to run
          * @return The current {@link Builder}
@@ -307,7 +315,7 @@ public final class Constraints {
         /**
          * Generates the {@link Constraints} from this Builder.
          *
-         * @return new {@link Constraints} which can be attached to a {@link WorkRequest}
+         * @return The {@link Constraints} specified by this Builder
          */
         public @NonNull Constraints build() {
             return new Constraints(this);

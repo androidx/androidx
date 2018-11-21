@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  * {@link WorkRequest.Builder#setBackoffCriteria(BackoffPolicy, long, TimeUnit)} or one of its
  * variants.
  */
+
 public enum BackoffPolicy {
 
     /**
