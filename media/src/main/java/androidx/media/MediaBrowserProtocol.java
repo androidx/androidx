@@ -46,6 +46,7 @@ public class MediaBrowserProtocol {
     public static final String DATA_CUSTOM_ACTION_EXTRAS = "data_custom_action_extras";
 
     public static final String EXTRA_CLIENT_VERSION = "extra_client_version";
+    public static final String EXTRA_CALLING_PID = "extra_calling_pid";
     public static final String EXTRA_SERVICE_VERSION = "extra_service_version";
     public static final String EXTRA_MESSENGER_BINDER = "extra_messenger";
     public static final String EXTRA_SESSION_BINDER = "extra_session_binder";

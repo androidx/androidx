@@ -32,15 +32,18 @@ class ConnectionRequest implements VersionedParcelable {
     int mVersion;
     @ParcelField(1)
     String mPackageName;
+    @ParcelField(2)
+    int mPid;
 
     // For versioned parcelable.
     ConnectionRequest() {
         // no-op
     }
 
-    ConnectionRequest(String packageName) {
-        mPackageName = packageName;
+    ConnectionRequest(String packageName, int pid) {
         mVersion = MediaUtils.CURRENT_VERSION;
+        mPackageName = packageName;
+        mPid = pid;
     }
 
     public String getPackageName() {
@@ -49,5 +52,9 @@ class ConnectionRequest implements VersionedParcelable {
 
     public int getVersion() {
         return mVersion;
+    }
+
+    public int getPid() {
+        return mPid;
     }
 }

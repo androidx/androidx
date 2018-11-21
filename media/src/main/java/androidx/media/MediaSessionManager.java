@@ -20,7 +20,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.os.Build;
-import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
@@ -199,18 +198,15 @@ public final class MediaSessionManager {
         }
 
         /**
-         * Returns equality of two RemoteUserInfo.
+         * Returns equality of two RemoteUserInfo by comparing their package name, UID, and PID.
          * <p>
-         * Prior to P (API < 28), two RemoteUserInfo objects are equal only if
-         * they are from same package and from same process.
-         * <p>
-         * On P and beyond (API >= 28), two RemoteUserInfo objects are equal only if they're sent
-         * from the same controller (either {@link MediaControllerCompat} or
-         * {@link MediaBrowserCompat}. If it's not nor one of them is triggered by the key presses,
-         * they would be considered as different one.
-         * <p>
-         * If you only want to compare the caller's package, compare them with the
-         * {@link #getPackageName()}, {@link #getPid()}, and/or {@link #getUid()} directly.
+         * On P and before (API <= 28), two RemoteUserInfo objects equal if following conditions are
+         * met:
+         * <ol>
+         * <li>UID and package name are the same</li>
+         * <li>One of the RemoteUserInfo's PID is {@link #UNKNOWN_PID} or both of RemoteUserInfo's
+         *     PID are the same</li>
+         * </ol>
          *
          * @param obj the reference object with which to compare.
          * @return {@code true} if equals, {@code false} otherwise

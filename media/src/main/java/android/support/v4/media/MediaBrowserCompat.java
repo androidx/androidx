@@ -28,6 +28,7 @@ import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_SEND_CUSTOM_ACTION;
 import static androidx.media.MediaBrowserProtocol.CLIENT_MSG_UNREGISTER_CALLBACK_MESSENGER;
 import static androidx.media.MediaBrowserProtocol.CLIENT_VERSION_CURRENT;
 import static androidx.media.MediaBrowserProtocol.DATA_CALLBACK_TOKEN;
+import static androidx.media.MediaBrowserProtocol.DATA_CALLING_PID;
 import static androidx.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION;
 import static androidx.media.MediaBrowserProtocol.DATA_CUSTOM_ACTION_EXTRAS;
 import static androidx.media.MediaBrowserProtocol.DATA_MEDIA_ITEM_ID;
@@ -40,6 +41,7 @@ import static androidx.media.MediaBrowserProtocol.DATA_RESULT_RECEIVER;
 import static androidx.media.MediaBrowserProtocol.DATA_ROOT_HINTS;
 import static androidx.media.MediaBrowserProtocol.DATA_SEARCH_EXTRAS;
 import static androidx.media.MediaBrowserProtocol.DATA_SEARCH_QUERY;
+import static androidx.media.MediaBrowserProtocol.EXTRA_CALLING_PID;
 import static androidx.media.MediaBrowserProtocol.EXTRA_CLIENT_VERSION;
 import static androidx.media.MediaBrowserProtocol.EXTRA_MESSENGER_BINDER;
 import static androidx.media.MediaBrowserProtocol.EXTRA_SERVICE_VERSION;
@@ -64,6 +66,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.Process;
 import android.os.RemoteException;
 import android.support.v4.media.session.IMediaSession;
 import android.support.v4.media.session.MediaControllerCompat.TransportControls;
@@ -1633,6 +1636,7 @@ public final class MediaBrowserCompat {
             mContext = context;
             mRootHints = (rootHints != null ? new Bundle(rootHints) : new Bundle());
             mRootHints.putInt(EXTRA_CLIENT_VERSION, CLIENT_VERSION_CURRENT);
+            mRootHints.putInt(EXTRA_CALLING_PID, Process.myPid());
             callback.setInternalConnectionCallback(this);
             mBrowserFwk = new MediaBrowser(context, serviceComponent,
                     callback.mConnectionCallbackFwk, mRootHints);
@@ -2160,6 +2164,7 @@ public final class MediaBrowserCompat {
                 throws RemoteException {
             Bundle data = new Bundle();
             data.putString(DATA_PACKAGE_NAME, context.getPackageName());
+            data.putInt(DATA_CALLING_PID, Process.myPid());
             data.putBundle(DATA_ROOT_HINTS, mRootHints);
             sendRequest(CLIENT_MSG_CONNECT, data, callbacksMessenger);
         }
@@ -2199,6 +2204,7 @@ public final class MediaBrowserCompat {
                 throws RemoteException {
             Bundle data = new Bundle();
             data.putString(DATA_PACKAGE_NAME, context.getPackageName());
+            data.putInt(DATA_CALLING_PID, Process.myPid());
             data.putBundle(DATA_ROOT_HINTS, mRootHints);
             sendRequest(CLIENT_MSG_REGISTER_CALLBACK_MESSENGER, data, callbackMessenger);
         }
