@@ -22,31 +22,31 @@ import android.support.annotation.RequiresApi;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A class that represents a request for non-repeating work.
+ * A {@link WorkRequest} for non-repeating work.
+ * <p>
+ * OneTimeWorkRequests can be put in simple or complex graphs of work by using methods like
+ * {@link WorkManager#beginWith(OneTimeWorkRequest)} or {@link WorkManager#beginWith(List)}.
  */
-
 public final class OneTimeWorkRequest extends WorkRequest {
 
     /**
-     * Creates an array of {@link OneTimeWorkRequest} with defaults from an array of
-     * {@link ListenableWorker} class names.
+     * Creates a {@link OneTimeWorkRequest} with defaults from a  {@link ListenableWorker} class
+     * name.
      *
-     * @param workerClasses An array of {@link ListenableWorker} class names
-     * @return A list of {@link OneTimeWorkRequest} constructed by using defaults in the
-     * {@link Builder}
+     * @param workerClass An {@link ListenableWorker} class name
+     * @return A {@link OneTimeWorkRequest} constructed by using defaults in the {@link Builder}
      */
-    @SafeVarargs public static @NonNull List<OneTimeWorkRequest> from(
-            @NonNull Class<? extends ListenableWorker>... workerClasses) {
-        return from(Arrays.asList(workerClasses));
+    public static @NonNull OneTimeWorkRequest from(
+            @NonNull Class<? extends ListenableWorker> workerClass) {
+        return new OneTimeWorkRequest.Builder(workerClass).build();
     }
 
     /**
-     * Creates a list of {@link OneTimeWorkRequest} with defaults from an array of
+     * Creates a list of {@link OneTimeWorkRequest}s with defaults from an array of
      * {@link ListenableWorker} class names.
      *
      * @param workerClasses A list of {@link ListenableWorker} class names
@@ -67,17 +67,22 @@ public final class OneTimeWorkRequest extends WorkRequest {
     }
 
     /**
-     * Builder for {@link OneTimeWorkRequest} class.
+     * Builder for {@link OneTimeWorkRequest}s.
      */
     public static final class Builder extends WorkRequest.Builder<Builder, OneTimeWorkRequest> {
 
+        /**
+         * Creates a {@link OneTimeWorkRequest}.
+         *
+         * @param workerClass The {@link ListenableWorker} class to run for this work
+         */
         public Builder(@NonNull Class<? extends ListenableWorker> workerClass) {
             super(workerClass);
             mWorkSpec.inputMergerClassName = OverwritingInputMerger.class.getName();
         }
 
         /**
-         * Add an initial delay to the {@link OneTimeWorkRequest}.
+         * Sets an initial delay for the {@link OneTimeWorkRequest}.
          *
          * @param duration The length of the delay in {@code timeUnit} units
          * @param timeUnit The units of time for {@code duration}
@@ -89,7 +94,7 @@ public final class OneTimeWorkRequest extends WorkRequest {
         }
 
         /**
-         * Add an initial delay to the {@link OneTimeWorkRequest}.
+         * Sets an initial delay for the {@link OneTimeWorkRequest}.
          *
          * @param duration The length of the delay
          * @return The current {@link Builder}
@@ -101,10 +106,14 @@ public final class OneTimeWorkRequest extends WorkRequest {
         }
 
         /**
-         * Specify the {@link InputMerger} class name for this {@link OneTimeWorkRequest}.  An
-         * InputMerger takes one or more {@link Data} inputs to a worker and converts them to a
-         * single merged {@link Data} to be used as its input.  The default InputMerger is
-         * {@link OverwritingInputMerger}.
+         * Specifies the {@link InputMerger} class name for this {@link OneTimeWorkRequest}.
+         * <p>
+         * Before workers run, they receive input {@link Data} from their parent workers, as well as
+         * anything specified directly to them via {@link WorkRequest.Builder#setInputData(Data)}.
+         * An InputMerger takes all of these objects and converts them to a single merged
+         * {@link Data} to be used as the worker input.  The default InputMerger is
+         * {@link OverwritingInputMerger}.  This library also offers
+         * {@link ArrayCreatingInputMerger}; you can also specify your own.
          *
          * @param inputMerger The class name of the {@link InputMerger} for this
          *                    {@link OneTimeWorkRequest}
