@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit;
  * ListenableWorker instance.  A new ListenableWorker is created if a unit of work needs to be
  * rerun.
  */
+
 public abstract class ListenableWorker {
 
     /**
