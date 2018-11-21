@@ -24,26 +24,26 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * An {@link InputMerger} that attempts to merge the various inputs.  For each input, we look at
- * each key:
+ * An {@link InputMerger} that attempts to merge the inputs, creating arrays when necessary.  For
+ * each input, we look at each key:
  * <p><ul>
- * <li>If this is the first time we encountered the key</li>
+ * <li>If this is the first time we encountered the key:</li>
  *   <ul>
  *   <li>If it's an array, put it in the output</li>
  *   <li>If it's a primitive, turn it into a size 1 array and put it in the output</li>
  *   </ul>
- * <li>Else</li>
+ * <li>Else (we have encountered the key before):</li>
  *   <ul>
- *   <li>If the value type matches the old value type</li>
+ *   <li>If the value type matches the old value type:</li>
  *     <ul>
  *     <li>If they are arrays, concatenate them</li>
  *     <li>If they are primitives, turn them into a size 2 array</li>
  *     </ul>
- *   <li>Else if one is an array and the other is a primitive</li>
+ *   <li>Else if one is an array and the other is a primitive of that type:</li>
  *     <ul>
  *     <li>Make a longer array and concatenate them</li>
  *     </ul>
- *   <li>Else throw an {@link IllegalArgumentException}</li>
+ *   <li>Else throw an {@link IllegalArgumentException} because the types don't match</li>
  *   </ul>
  * </ul>
  */
