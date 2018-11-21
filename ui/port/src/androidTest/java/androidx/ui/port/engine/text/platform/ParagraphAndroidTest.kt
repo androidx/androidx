@@ -6,7 +6,7 @@ import android.graphics.Typeface
 import android.text.TextPaint
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.text.StaticLayoutFactory
+import androidx.text.StaticLayoutCompat
 import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
@@ -50,12 +50,13 @@ class ParagraphAndroidTest {
             textPaint.textSize = fontSize.toFloat()
             textPaint.typeface = fontFallback.typeface
 
-            val staticLayout = StaticLayoutFactory.create(
-                textPaint = textPaint,
-                charSequence = text,
-                width = ceil(paragraphAndroid.width).toInt(),
-                ellipsizeWidth = ceil(paragraphAndroid.width).toInt()
+            val staticLayout = StaticLayoutCompat.Builder(
+                text,
+                textPaint,
+                ceil(paragraphAndroid.width).toInt()
             )
+                .setEllipsizedWidth(ceil(paragraphAndroid.width).toInt())
+                .build()
             Assert.assertThat(paragraphAndroid.bitmap(), equalToBitmap(staticLayout.bitmap()))
         }
     }
