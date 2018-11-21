@@ -23,26 +23,5 @@
                 <action android:name="android.support.mediacompat.service.action.CALL_TRANSPORT_CONTROLS_METHOD"/>
             </intent-filter>
         </receiver>
-
-        <service android:name="androidx.media.test.client.MediaControllerProviderService">
-            <intent-filter>
-                <!-- Keep sync with CommonConstants.java -->
-                <action android:name="androidx.media.test.action.MEDIA_CONTROLLER2" />
-            </intent-filter>
-        </service>
-
-        <service android:name="androidx.media.test.client.MediaControllerCompatProviderService">
-            <intent-filter>
-                <!-- Keep sync with CommonConstants.java -->
-                <action android:name="androidx.media.test.action.MEDIA_CONTROLLER_COMPAT" />
-            </intent-filter>
-        </service>
-
-        <service android:name="androidx.media.test.client.MediaBrowserCompatProviderService">
-            <intent-filter>
-                <!-- Keep sync with CommonConstants.java -->
-                <action android:name="androidx.media.test.action.MEDIA_BROWSER_COMPAT" />
-            </intent-filter>
-        </service>
     </application>
 </manifest>

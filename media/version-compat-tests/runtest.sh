@@ -25,8 +25,6 @@
 
 CLIENT_MODULE_NAME_BASE="support-media-compat-test-client"
 SERVICE_MODULE_NAME_BASE="support-media-compat-test-service"
-MEDIA_COMPAT_CLIENT_TEST_JAVA_PACKAGE="android.support.mediacompat.client"
-MEDIA_COMPAT_SERVICE_TEST_JAVA_PACKAGE="android.support.mediacompat.service"
 TEST_VERSIONS=("MaxDepVersions" "MinDepVersions")
 CLIENT_VERSION=""
 SERVICE_VERSION=""
@@ -78,15 +76,8 @@ function runTest() {
     elif [[ $OPTION_TEST_TARGET == *"service"* ]]; then
       ${test_command} $OPTION_TEST_TARGET ${service_test_runner}
     else
-      # Since there is no MediaSession APIs in previous support library, don't run the test.
-      # Instead, only run mediacompat tests.
-      if [[ $CLIENT_VERSION != "tot" || $SERVICE_VERSION != "tot" ]]; then
-        ${test_command} "-e package $MEDIA_COMPAT_CLIENT_TEST_JAVA_PACKAGE" ${client_test_runner}
-        ${test_command} "-e package $MEDIA_COMPAT_SERVICE_TEST_JAVA_PACKAGE" ${service_test_runner}
-      else
-        ${test_command} ${client_test_runner}
-        ${test_command} ${service_test_runner}
-      fi
+      ${test_command} ${client_test_runner}
+      ${test_command} ${service_test_runner}
     fi
 
     echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Ended: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION (Version=$version) <<<<<<<<<<<<<<<<<<<<<<<<<<"
