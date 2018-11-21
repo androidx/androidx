@@ -15,25 +15,19 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.0.0")
-    api("androidx.core:core:1.0.0")
-    api(ARCH_LIFECYCLE_RUNTIME, libs.exclude_annotations_transitive)
-    api(ARCH_LIFECYCLE_VIEWMODEL, libs.exclude_annotations_transitive)
-    api(project(":savedstate:savedstate-bundle"))
+    api(project(":savedstate:savedstate-common"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(TRUTH)
-    androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 }
 
 supportLibrary {
     name = "Activity"
     publish = true
-    mavenVersion = LibraryVersions.ACTIVITY
-    mavenGroup = LibraryGroups.ACTIVITY
+    mavenVersion = LibraryVersions.SAVEDSTATE
+    mavenGroup = LibraryGroups.SAVEDSTATE
     inceptionYear = "2018"
     description = "Provides the base Activity subclass and the relevant hooks to build a composable structure on top."
 }
