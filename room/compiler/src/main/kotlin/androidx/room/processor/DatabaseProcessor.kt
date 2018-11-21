@@ -30,6 +30,7 @@ import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
+import asTypeElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
@@ -97,7 +98,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
             val executable = MoreElements.asExecutable(it)
             // TODO when we add support for non Dao return types (e.g. database), this code needs
             // to change
-            val daoType = MoreTypes.asTypeElement(executable.returnType)
+            val daoType = executable.returnType.asTypeElement()
             val dao = DaoProcessor(context, daoType, declaredType, dbVerifier).process()
             DaoMethod(executable, executable.simpleName.toString(), dao)
         }
@@ -275,7 +276,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
         context.checker.check(entityList.isNotEmpty(), element,
                 ProcessorErrors.DATABASE_ANNOTATION_MUST_HAVE_LIST_OF_ENTITIES)
         return entityList.map {
-            EntityProcessor(context, MoreTypes.asTypeElement(it)).process()
+            EntityProcessor(context, it.asTypeElement()).process()
         }
     }
 
@@ -284,7 +285,7 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
     ): Map<TypeElement, DatabaseView> {
         val viewList = dbAnnotation.getAsTypeMirrorList("views")
         return viewList.map {
-            val viewElement = MoreTypes.asTypeElement(it)
+            val viewElement = it.asTypeElement()
             viewElement to DatabaseViewProcessor(context, viewElement).process()
         }.toMap()
     }

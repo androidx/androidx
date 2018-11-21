@@ -18,6 +18,7 @@ package androidx.room.processor
 import androidx.room.ext.toAnnotationBox
 import androidx.room.vo.Entity
 import androidx.room.vo.ShortcutQueryParameter
+import asTypeElement
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
@@ -60,7 +61,7 @@ class ShortcutMethodProcessor(
                 .associateBy({ it.name }, {
                     EntityProcessor(
                             context = context,
-                            element = MoreTypes.asTypeElement(it.entityType)).process()
+                            element = it.entityType!!.asTypeElement()).process()
                 })
         return Pair(entities, params)
     }
