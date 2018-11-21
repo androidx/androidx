@@ -47,7 +47,7 @@ class FtsEntityTest {
                 embeddedFields = emptyList(),
                 primaryKey = PrimaryKey(
                         declaredIn = mock(Element::class.java),
-                        fields = listOf(primaryKeyField),
+                        fields = Fields(primaryKeyField),
                         autoGenerateId = true),
                 constructor = null,
                 shadowTableName = "Mail_context",

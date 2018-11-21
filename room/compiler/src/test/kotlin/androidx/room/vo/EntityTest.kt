@@ -77,7 +77,7 @@ class EntityTest {
                 type = mock(DeclaredType::class.java),
                 fields = emptyList(),
                 embeddedFields = emptyList(),
-                primaryKey = PrimaryKey(mock(Element::class.java), emptyList(), false),
+                primaryKey = PrimaryKey(mock(Element::class.java), Fields(), false),
                 indices = emptyList(),
                 foreignKeys = foreignKeys,
                 constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),

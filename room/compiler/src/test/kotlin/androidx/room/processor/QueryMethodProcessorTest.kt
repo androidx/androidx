@@ -709,7 +709,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 String lastNameX;
                 """, listOf("name", "lastName")) { adapter, _, _ ->
             assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("name", "lastName")))
-            assertThat(adapter?.mapping?.unusedFields, `is`(adapter?.pojo?.fields))
+            assertThat(adapter?.mapping?.unusedFields, `is`(adapter?.pojo?.fields as List<Field>))
         }?.failsToCompile()
                 ?.withErrorContaining(CANNOT_FIND_QUERY_RESULT_ADAPTER)
                 ?.and()

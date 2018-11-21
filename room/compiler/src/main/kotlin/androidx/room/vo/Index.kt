@@ -22,16 +22,17 @@ import androidx.room.migration.bundle.IndexBundle
 /**
  * Represents a processed index.
  */
-data class Index(val name: String, val unique: Boolean, val fields: List<Field>) :
-        HasSchemaIdentity {
+data class Index(val name: String, val unique: Boolean, override val fields: Fields) :
+        HasSchemaIdentity, HasFields {
     companion object {
         // should match the value in TableInfo.Index.DEFAULT_PREFIX
         const val DEFAULT_PREFIX = "index_"
     }
 
-    override fun getIdKey(): String {
-        return "$unique-$name-${fields.joinToString(",") { it.columnName }}"
-    }
+    constructor(name: String, unique: Boolean, fields: List<Field>)
+            : this(name, unique, Fields(fields))
+
+    override fun getIdKey() = "$unique-$name-${columnNames.joinToString(",")}"
 
     fun createQuery(tableName: String): String {
         val uniqueSQL = if (unique) {
@@ -41,12 +42,10 @@ data class Index(val name: String, val unique: Boolean, val fields: List<Field>)
         }
         return """
             CREATE $uniqueSQL INDEX `$name`
-            ON `$tableName` (${fields.map { it.columnName }.joinToString(", ") { "`$it`" }})
+            ON `$tableName` (${columnNames.joinToString(", ") { "`$it`" }})
             """.trimIndent().replace("\n", " ")
     }
 
-    val columnNames by lazy { fields.map { it.columnName } }
-
-    fun toBundle(): IndexBundle = IndexBundle(name, unique, fields.map { it.columnName },
-            createQuery(BundleUtil.TABLE_NAME_PLACEHOLDER))
+    fun toBundle(): IndexBundle = IndexBundle(name, unique, columnNames,
+        createQuery(BundleUtil.TABLE_NAME_PLACEHOLDER))
 }

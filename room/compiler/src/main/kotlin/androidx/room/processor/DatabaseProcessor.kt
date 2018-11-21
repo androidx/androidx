@@ -30,6 +30,8 @@ import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
+import androidx.room.vo.columnNames
+import androidx.room.vo.findFieldByColumnName
 import asTypeElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -131,15 +133,13 @@ class DatabaseProcessor(baseContext: Context, val element: TypeElement) {
                     return@foreignKeyLoop
                 }
                 val parentFields = foreignKey.parentColumns.mapNotNull { columnName ->
-                    val parentField = parent.fields.find {
-                        it.columnName == columnName
-                    }
+                    val parentField = parent.findFieldByColumnName(columnName)
                     if (parentField == null) {
                         context.logger.e(entity.element,
                                 ProcessorErrors.foreignKeyParentColumnDoesNotExist(
                                         parentEntity = parent.element.qualifiedName.toString(),
                                         missingColumn = columnName,
-                                        allColumns = parent.fields.map { it.columnName }))
+                                        allColumns = parent.columnNames))
                     }
                     parentField
                 }

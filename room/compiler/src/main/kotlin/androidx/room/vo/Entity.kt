@@ -70,7 +70,7 @@ open class Entity(
         return if (primaryKey.fields.isEmpty() || primaryKey.autoGenerateId) {
             null
         } else {
-            val keys = primaryKey.fields.joinToString(", ") { "`${it.columnName}`" }
+            val keys = primaryKey.columnNames.joinToString(", ") { "`$it`" }
             "PRIMARY KEY($keys)"
         }
     }
