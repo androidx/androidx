@@ -193,14 +193,11 @@ public class WorkContinuationImpl extends WorkContinuation {
 
     @Override
     protected @NonNull WorkContinuation combineInternal(
-            @Nullable OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations) {
-
-        if (work == null) {
-            work = new OneTimeWorkRequest.Builder(CombineContinuationsWorker.class)
-                    .setInputMerger(ArrayCreatingInputMerger.class)
-                    .build();
-        }
+        OneTimeWorkRequest combinedWork =
+                new OneTimeWorkRequest.Builder(CombineContinuationsWorker.class)
+                        .setInputMerger(ArrayCreatingInputMerger.class)
+                        .build();
 
         List<WorkContinuationImpl> parents = new ArrayList<>(continuations.size());
         for (WorkContinuation continuation : continuations) {
@@ -210,7 +207,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         return new WorkContinuationImpl(mWorkManagerImpl,
                 null,
                 ExistingWorkPolicy.KEEP,
-                Collections.singletonList(work),
+                Collections.singletonList(combinedWork),
                 parents);
     }
 
