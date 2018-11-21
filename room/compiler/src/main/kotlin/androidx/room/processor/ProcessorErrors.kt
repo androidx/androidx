@@ -251,7 +251,7 @@ object ProcessorErrors {
         val unusedColumnsWarning = if (unusedColumns.isNotEmpty()) {
             """
                 The query returns some columns [${unusedColumns.joinToString(", ")}] which are not
-                use by $pojoTypeName. You can use @ColumnInfo annotation on the fields to specify
+                used by $pojoTypeName. You can use @ColumnInfo annotation on the fields to specify
                 the mapping.
             """.trim()
         } else {
