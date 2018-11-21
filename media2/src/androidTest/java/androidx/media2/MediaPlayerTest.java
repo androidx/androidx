@@ -783,12 +783,13 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         TestDataSourceCallback dataSource =
                 TestDataSourceCallback.fromAssetFd(mResources.openRawResourceFd(resid));
+        // Ensure that we throw after reading enough data for preparation to complete.
+        dataSource.throwFromReadAtPosition(500_000);
         mPlayer.setMediaItem(new CallbackMediaItem.Builder(dataSource).build());
 
         mPlayer.prepare().get();
 
         mOnErrorCalled.reset();
-        dataSource.throwFromReadAt();
         mPlayer.play();
         assertTrue(mOnErrorCalled.waitForSignal());
     }
