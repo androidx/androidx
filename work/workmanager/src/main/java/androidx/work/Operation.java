@@ -16,15 +16,21 @@
 
 package androidx.work;
 
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * Information about an operation being performed by {@link WorkManager}.
+ * An object that provides information about the execution of an asynchronous command being
+ * performed by {@link WorkManager}.  Operations are generally tied to enqueue or cancel commands;
+ * when you call one of those commands, they occur asynchronously.  You can observe or await these
+ * commands by using the returned Operation.
  */
+
 public interface Operation {
 
     /**
@@ -42,29 +48,29 @@ public interface Operation {
     /**
      * Gets a {@link LiveData} of the Operation {@link State}.
      *
-     * @return A {@link LiveData} of the Operation {@link State}.
+     * @return A {@link LiveData} of the Operation {@link State}; you must use
+     *         {@link LiveData#observe(LifecycleOwner, Observer)} to receive updates
      */
     @NonNull
     LiveData<State> getState();
 
     /**
-     * Gets a {@link ListenableFuture} which will only resolve with a {@link State.SUCCESS}.
-     * FAILURE {@link Operation}'s will come through as a {@link Throwable} on the
-     * {@link ListenableFuture}.
-     *
+     * Gets a {@link ListenableFuture} for the terminal state of the {@link Operation}.  This will
+     * only resolve with a {@link State.SUCCESS}.  The {@link State.FAILURE} state will come through
+     * as a {@link Throwable} on the {@link ListenableFuture}.  {@link State.IN_PROGRESS} will never
+     * be reported as it's not a terminal state.
      * <p>
-     * Call {@link ListenableFuture#get()} to block until the {@link Operation} reaches a
-     * terminal state.
-     * </p>
+     * Call {@link ListenableFuture#get()} to block until the {@link Operation} reaches a terminal
+     * state.
      *
-     * @return a {@link ListenableFuture} with information about {@link Operation}'s
-     * {@link State.SUCCESS} state.
+     * @return A {@link ListenableFuture} with information about {@link Operation}'s
+     *         {@link State.SUCCESS} state.
      */
     @NonNull
     ListenableFuture<State.SUCCESS> getResult();
 
     /**
-     * The {@link Operation} state.
+     * The lifecycle state of an {@link Operation}.
      */
     abstract class State {
 
