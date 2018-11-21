@@ -25,7 +25,7 @@ package androidx.fragment.app {
     field public static final int STYLE_NO_TITLE = 1; // 0x1
   }
 
-  public class Fragment implements androidx.lifecycle.BundleSavedStateRegistryOwner android.content.ComponentCallbacks androidx.lifecycle.LifecycleOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
+  public class Fragment implements androidx.savedstate.bundle.BundleSavedStateRegistryOwner android.content.ComponentCallbacks androidx.lifecycle.LifecycleOwner android.view.View.OnCreateContextMenuListener androidx.lifecycle.ViewModelStoreOwner {
     ctor public Fragment();
     method public void dump(String, java.io.FileDescriptor?, java.io.PrintWriter, String[]?);
     method public final boolean equals(Object?);
@@ -33,7 +33,7 @@ package androidx.fragment.app {
     method public boolean getAllowEnterTransitionOverlap();
     method public boolean getAllowReturnTransitionOverlap();
     method public final android.os.Bundle? getArguments();
-    method public final androidx.lifecycle.SavedStateRegistry<android.os.Bundle> getBundleSavedStateRegistry();
+    method public final androidx.savedstate.SavedStateRegistry<android.os.Bundle> getBundleSavedStateRegistry();
     method public final androidx.fragment.app.FragmentManager getChildFragmentManager();
     method public android.content.Context? getContext();
     method public Object? getEnterTransition();

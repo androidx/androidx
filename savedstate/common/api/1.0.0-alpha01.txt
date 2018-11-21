@@ -1,0 +1,26 @@
+// Signature format: 2.0
+package androidx.savedstate {
+
+  public abstract class AbstractSavedStateRegistry<S> implements androidx.savedstate.SavedStateRegistry<S> {
+    ctor public AbstractSavedStateRegistry();
+    method @MainThread public final S? consumeRestoredStateForKey(String);
+    method @MainThread public final boolean isRestored();
+    method @MainThread public final void registerSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider<S>);
+    method @MainThread protected final void restoreSavedState(java.util.Map<java.lang.String,S>?);
+    method @MainThread protected final java.util.Map<java.lang.String,S> saveState();
+    method @MainThread public final void unregisterSavedStateProvider(String);
+  }
+
+  public interface SavedStateRegistry<S> {
+    method @MainThread public S? consumeRestoredStateForKey(String);
+    method @MainThread public boolean isRestored();
+    method @MainThread public void registerSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider<S>);
+    method @MainThread public void unregisterSavedStateProvider(String);
+  }
+
+  public static interface SavedStateRegistry.SavedStateProvider<S> {
+    method public S saveState();
+  }
+
+}
+

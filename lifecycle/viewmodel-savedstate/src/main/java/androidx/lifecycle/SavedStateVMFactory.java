@@ -19,6 +19,7 @@ package androidx.lifecycle;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.savedstate.SavedStateRegistry;
 
 abstract class SavedStateVMFactory implements ViewModelProvider.KeyedFactory {
     static final String TAG_SAVED_STATE_HANDLE = "androidx.lifecycle.savedstate.vm.tag";

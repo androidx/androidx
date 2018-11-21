@@ -20,30 +20,25 @@ import androidx.build.LibraryVersions
 import androidx.build.SupportLibraryExtension
 
 plugins {
-    id("SupportAndroidLibraryPlugin")
+    id("SupportJavaLibraryPlugin")
+    id("kotlin")
 }
 
 dependencies {
     api(SUPPORT_ANNOTATIONS)
-    api(project(":savedstate:savedstate-common"))
-    api(project(":lifecycle:lifecycle-livedata-core"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
+    implementation(ARCH_CORE_COMMON)
 
-    androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(TEST_RUNNER)
-    androidTestImplementation(TEST_RULES)
-    testImplementation(project(":arch:core-testing"))
     testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
+    testImplementation(TEST_RUNNER)
+    testImplementation(KOTLIN_STDLIB)
 }
 
 supportLibrary {
-    name = "Android Lifecycle ViewModel with SavedState"
+    name = "Android Lifecycle Saved State"
     publish = false
-    mavenVersion = LibraryVersions.LIFECYCLES_SAVEDSTATE
-    mavenGroup = LibraryGroups.LIFECYCLE
+    mavenVersion = LibraryVersions.SAVEDSTATE
+    mavenGroup = LibraryGroups.SAVEDSTATE
     inceptionYear = "2018"
-    description = "Android Lifecycle ViewModel"
+    description = "Android Lifecycle Saved State"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }
