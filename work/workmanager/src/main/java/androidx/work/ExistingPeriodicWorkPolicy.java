@@ -17,20 +17,21 @@
 package androidx.work;
 
 /**
- * An enum that determines what to do with existing {@link PeriodicWorkRequest}s with the same
- * unique name in case of a collision.
+ * An enumeration of the conflict resolution policies available to unique
+ * {@link PeriodicWorkRequest}s in case of a collision.
  */
+
 public enum ExistingPeriodicWorkPolicy {
 
     /**
-     * If there is existing pending work with the same unique name, cancel and delete it.  Then,
-     * insert the newly-specified work.
+     * If there is existing pending (uncompleted) work with the same unique name, cancel and delete
+     * it.  Then, insert the newly-specified work.
      */
     REPLACE,
 
     /**
-     * If there is existing pending work with the same unique name, do nothing.  Otherwise, insert
-     * the newly-specified work.
+     * If there is existing pending (uncompleted) work with the same unique name, do nothing.
+     * Otherwise, insert the newly-specified work.
      */
     KEEP
 }
