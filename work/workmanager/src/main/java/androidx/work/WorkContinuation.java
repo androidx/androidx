@@ -19,12 +19,10 @@ import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -133,36 +131,6 @@ public abstract class WorkContinuation {
      * {@code
      *  WorkContinuation left = workManager.beginWith(A).then(B);
      *  WorkContinuation right = workManager.beginWith(C).then(D);
-     *  WorkContinuation final = WorkContinuation.combine(left, right);
-     *  final.enqueue();}</pre>
-     *
-     * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
-     *                      return value
-     * @return A {@link WorkContinuation} that allows further chaining
-     */
-    public static @NonNull WorkContinuation combine(@NonNull WorkContinuation... continuations) {
-        return combine(Arrays.asList(continuations));
-    }
-
-    /**
-     * Combines multiple {@link WorkContinuation}s as prerequisites for a new WorkContinuation to
-     * allow for complex chaining.  For example, to create a graph like this:
-     *
-     * <pre>
-     *     A       C
-     *     |       |
-     *     B       D
-     *     |       |
-     *     +-------+
-     *         |
-     *         E    </pre>
-     *
-     * you would write the following:
-     *
-     * <pre>
-     * {@code
-     *  WorkContinuation left = workManager.beginWith(A).then(B);
-     *  WorkContinuation right = workManager.beginWith(C).then(D);
      *  WorkContinuation final = WorkContinuation.combine(Arrays.asList(left, right));
      *  final.enqueue();}</pre>
      *
@@ -171,39 +139,7 @@ public abstract class WorkContinuation {
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public static @NonNull WorkContinuation combine(@NonNull List<WorkContinuation> continuations) {
-        return continuations.get(0).combineInternal(null, continuations);
-    }
-
-    /**
-     * Combines multiple {@link WorkContinuation}s to allow for complex chaining using the
-     * {@link OneTimeWorkRequest} provided.
-     *
-     * @param work The {@link OneTimeWorkRequest} which depends on the successful completion of the
-     *             provided {@link WorkContinuation}s
-     * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
-     *                      {@link OneTimeWorkRequest} provided.
-     * @return A {@link WorkContinuation} that allows further chaining
-     */
-    public static @NonNull WorkContinuation combine(
-            @NonNull OneTimeWorkRequest work,
-            @NonNull WorkContinuation... continuations) {
-        return combine(work, Arrays.asList(continuations));
-    }
-
-    /**
-     * Combines multiple {@link WorkContinuation}s to allow for complex chaining using the
-     * {@link OneTimeWorkRequest} provided.
-     *
-     * @param work The {@link OneTimeWorkRequest} which depends on the successful completion of the
-     *             provided {@link WorkContinuation}s
-     * @param continuations Two or more {@link WorkContinuation}s that are prerequisites for the
-     *                      {@link OneTimeWorkRequest} provided.
-     * @return A {@link WorkContinuation} that allows further chaining
-     */
-    public static @NonNull WorkContinuation combine(
-            @NonNull OneTimeWorkRequest work,
-            @NonNull List<WorkContinuation> continuations) {
-        return continuations.get(0).combineInternal(work, continuations);
+        return continuations.get(0).combineInternal(continuations);
     }
 
     /**
@@ -211,6 +147,5 @@ public abstract class WorkContinuation {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected abstract @NonNull WorkContinuation combineInternal(
-            @Nullable OneTimeWorkRequest work,
             @NonNull List<WorkContinuation> continuations);
 }
