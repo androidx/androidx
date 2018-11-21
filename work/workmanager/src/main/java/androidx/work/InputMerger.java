@@ -22,7 +22,17 @@ import android.support.annotation.RestrictTo;
 import java.util.List;
 
 /**
- * An abstract class that allows the user to define how to merge a list of inputs to a Worker.
+ * An abstract class that allows the user to define how to merge a list of inputs to a
+ * {@link ListenableWorker}.
+ * <p>
+ * Before workers run, they receive input {@link Data} from their parent workers, as well as
+ * anything specified directly to them via {@link WorkRequest.Builder#setInputData(Data)}.  An
+ * InputMerger takes all of these objects and converts them to a single merged {@link Data} to be
+ * used as the worker input.  {@link WorkManager} offers two concrete InputMerger implementations:
+ * {@link OverwritingInputMerger} and {@link ArrayCreatingInputMerger}.
+ * <p>
+ * Note that the list of inputs to merge is in an unspecified order.  You should not make
+ * assumptions about the order of inputs.
  */
 
 public abstract class InputMerger {
@@ -32,7 +42,7 @@ public abstract class InputMerger {
     /**
      * Merges a list of {@link Data} and outputs a single Data object.
      *
-     * @param inputs A list of {@link Data} from previous Workers or the WorkRequest.Builder
+     * @param inputs A list of {@link Data}
      * @return The merged output
      */
     public abstract @NonNull Data merge(@NonNull List<Data> inputs);

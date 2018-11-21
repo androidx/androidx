@@ -29,6 +29,7 @@ import java.lang.reflect.Constructor;
  * initializing {@link WorkManager} (see {@link WorkManager#initialize(Context, Configuration)} and
  * specifying a new WorkerFactory in {@link Configuration.Builder#setWorkerFactory(WorkerFactory)}.
  */
+
 public abstract class WorkerFactory {
 
     private static final String TAG = "WorkerFactory";

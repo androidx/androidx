@@ -61,6 +61,7 @@ import java.util.List;
  * <p>
  * Because of the fluent nature of this class, its existence should be invisible in most cases.
  */
+
 public abstract class WorkContinuation {
 
     /**
