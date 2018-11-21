@@ -18,6 +18,7 @@ package androidx.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -44,59 +45,43 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * Shows a hierarchy of {@link Preference} objects as lists. These preferences will automatically
- * save to {@link android.content.SharedPreferences} as the user interacts with them. To retrieve
- * an instance of {@link android.content.SharedPreferences} that the preference hierarchy in this
- * fragment will use, call
+ * A PreferenceFragmentCompat is the entry point to using the Preference library. This
+ * {@link Fragment} displays a hierarchy of {@link Preference} objects to the user. It also
+ * handles persisting values to the device. To retrieve an instance of
+ * {@link android.content.SharedPreferences} that the preference hierarchy in this fragment will
+ * use by default, call
  * {@link PreferenceManager#getDefaultSharedPreferences(android.content.Context)} with a context
  * in the same package as this fragment.
  *
- * <p>Furthermore, the preferences shown will follow the visual style of system preferences. It
- * is easy to create a hierarchy of preferences (that can be shown on multiple screens) via XML.
- * For these reasons, it is recommended to use this fragment (as a superclass) to deal with
- * preferences in applications.
+ * <p>You can define a preference hierarchy as an XML resource, or you can build a hierarchy in
+ * code. In both cases you need to use a {@link PreferenceScreen} as the root component in your
+ * hierarchy.
  *
- * <p>A {@link PreferenceScreen} object should be at the top of the preference hierarchy.
- * Furthermore, subsequent {@link PreferenceScreen} in the hierarchy denote a screen break--that
- * is the preferences contained within subsequent {@link PreferenceScreen} should be shown on
- * another screen. The preference framework handles this by calling
- * {@link #onNavigateToScreen(PreferenceScreen)}.
+ * <p>To inflate from XML, use the {@link #setPreferencesFromResource(int, String)}. An example
+ * example XML resource is shown further down.
  *
- * <p>The preference hierarchy can be formed in multiple ways:
- *
- * <li> From an XML file specifying the hierarchy
- * <li> From different {@link android.app.Activity Activities} that each specify its own
- * preferences in an XML file via {@link android.app.Activity} meta-data
- * <li> From an object hierarchy rooted with {@link PreferenceScreen}
- *
- * <p>To inflate from XML, use the {@link #addPreferencesFromResource(int)}. The root element
- * should be a {@link PreferenceScreen}. Subsequent elements can point to actual
- * {@link Preference} subclasses. As mentioned above, subsequent {@link PreferenceScreen} in the
- * hierarchy will result in the screen break.
- *
- * <p>To specify an object hierarchy rooted with {@link PreferenceScreen}, use
- * {@link #setPreferenceScreen(PreferenceScreen)}.
+ * <p>To build a hierarchy from code, use
+ * {@link PreferenceManager#createPreferenceScreen(Context)} to create the root
+ * {@link PreferenceScreen}. Once you have added other {@link Preference}s to this root scree
+ * with {@link PreferenceScreen#addPreference(Preference)}, you then need to set the screen as
+ * the root screen in your hierarchy with {@link #setPreferenceScreen(PreferenceScreen)}.
  *
  * <p>As a convenience, this fragment implements a click listener for any preference in the
  * current hierarchy, see {@link #onPreferenceTreeClick(Preference)}.
  *
- * <div class="special reference">
- * <h3>Developer Guides</h3>
- * <p>For information about using {@link PreferenceFragmentCompat}, read the
- * <a href="{@docRoot}guide/topics/ui/settings.html">Settings</a> guide.</p>
- * </div>
+ * <div class="special reference"> <h3>Developer Guides</h3> <p>For more information about
+ * building a settings screen using the AndroidX Preference library, see
+ * <a href="{@docRoot}guide/topics/ui/settings.html">Settings</a>.</p> </div>
  *
  * <a name="SampleCode"></a>
  * <h3>Sample Code</h3>
  *
- * <p>The following sample code shows a simple preference fragment that is
- * populated from a resource.  The resource it loads is:</p>
+ * <p>The following sample code shows a simple settings screen using an XML resource. The XML
+ * resource is as follows:</p>
  *
  * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
  *
- * <p>The fragment implementation itself simply populates the preferences
- * when created.  Note that the preferences framework takes care of loading
- * the current values out of the app preferences and writing them when changed:</p>
+ * <p>The fragment that loads the XML resource is as follows:</p>
  *
  * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/Preferences.java preferences}
  *
