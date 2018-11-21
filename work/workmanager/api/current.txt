@@ -267,6 +267,7 @@ package androidx.work {
     method public final B keepResultsForAtLeast(long, java.util.concurrent.TimeUnit);
     method @RequiresApi(26) public final B keepResultsForAtLeast(java.time.Duration);
     method public final B setBackoffCriteria(androidx.work.BackoffPolicy, long, java.util.concurrent.TimeUnit);
+    method @RequiresApi(26) public final B setBackoffCriteria(androidx.work.BackoffPolicy, java.time.Duration);
     method public final B setConstraints(androidx.work.Constraints);
     method public final B setInputData(androidx.work.Data);
   }

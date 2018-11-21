@@ -130,11 +130,12 @@ public abstract class WorkRequest {
         /**
          * Sets the backoff policy and backoff delay for the work.  The default values are
          * {@link BackoffPolicy#EXPONENTIAL} and
-         * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}, respectively.  The maximum backoff
-         * delay duration is {@value WorkRequest#MAX_BACKOFF_MILLIS}.
+         * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}, respectively.  {@code backoffDelay}
+         * will be clamped between {@link WorkRequest#MIN_BACKOFF_MILLIS} and
+         * {@link WorkRequest#MAX_BACKOFF_MILLIS}.
          *
-         * @param backoffPolicy The {@link BackoffPolicy} to use for work
-         * @param backoffDelay Time to wait before restarting the worker in {@code timeUnit} units
+         * @param backoffPolicy The {@link BackoffPolicy} to use when increasing backoff time
+         * @param backoffDelay Time to wait before retrying the work in {@code timeUnit} units
          * @param timeUnit The {@link TimeUnit} for {@code backoffDelay}
          * @return The current {@link Builder}
          */
@@ -145,6 +146,27 @@ public abstract class WorkRequest {
             mBackoffCriteriaSet = true;
             mWorkSpec.backoffPolicy = backoffPolicy;
             mWorkSpec.setBackoffDelayDuration(timeUnit.toMillis(backoffDelay));
+            return getThis();
+        }
+
+        /**
+         * Sets the backoff policy and backoff delay for the work.  The default values are
+         * {@link BackoffPolicy#EXPONENTIAL} and
+         * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}, respectively.  {@code duration} will
+         * be clamped between {@link WorkRequest#MIN_BACKOFF_MILLIS} and
+         * {@link WorkRequest#MAX_BACKOFF_MILLIS}.
+         *
+         * @param backoffPolicy The {@link BackoffPolicy} to use when increasing backoff time
+         * @param duration Time to wait before retrying the work
+         * @return The current {@link Builder}
+         */
+        @RequiresApi(26)
+        public final @NonNull B setBackoffCriteria(
+                @NonNull BackoffPolicy backoffPolicy,
+                @NonNull Duration duration) {
+            mBackoffCriteriaSet = true;
+            mWorkSpec.backoffPolicy = backoffPolicy;
+            mWorkSpec.setBackoffDelayDuration(duration.toMillis());
             return getThis();
         }
 
