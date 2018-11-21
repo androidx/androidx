@@ -18,6 +18,7 @@
 
 package androidx.room.ext
 
+import asTypeElement
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -76,7 +77,7 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(processingEnvironment: Proces
             .map { it as VariableElement }
             .toSet()
     if (superclass.kind != TypeKind.NONE) {
-        return myMembers + MoreTypes.asTypeElement(superclass)
+        return myMembers + superclass.asTypeElement()
                 .getAllFieldsIncludingPrivateSupers(processingEnvironment)
     } else {
         return myMembers
@@ -88,10 +89,10 @@ fun TypeElement.getAllAbstractMethodsIncludingSupers(): Set<ExecutableElement> {
             .filter { it.hasAnyOf(Modifier.ABSTRACT) }
             .toSet()
     val interfaceMethods = interfaces.flatMap {
-        MoreTypes.asTypeElement(it).getAllAbstractMethodsIncludingSupers()
+        it.asTypeElement().getAllAbstractMethodsIncludingSupers()
     }
     if (superclass.kind != TypeKind.NONE) {
-        return myMethods + interfaceMethods + MoreTypes.asTypeElement(superclass)
+        return myMethods + interfaceMethods + superclass.asTypeElement()
                 .getAllAbstractMethodsIncludingSupers()
     } else {
         return myMethods + interfaceMethods
