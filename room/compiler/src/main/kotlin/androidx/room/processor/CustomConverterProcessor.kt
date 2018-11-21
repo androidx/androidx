@@ -30,6 +30,7 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_RECEIVE_1_PAR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.vo.CustomTypeConverter
+import asTypeElement
 import com.google.auto.common.MoreTypes
 import java.util.LinkedHashSet
 import javax.lang.model.element.Element
@@ -51,33 +52,26 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
             val annotation = element.toAnnotationBox(TypeConverters::class)
             return annotation?.let {
                 val classes = it.getAsTypeMirrorList("value")
-                        ?.filter {
-                            MoreTypes.isType(it)
-                        }?.mapTo(LinkedHashSet(), { it }) ?: LinkedHashSet<TypeMirror>()
-                val converters = classes
-                        .flatMap {
-                            CustomConverterProcessor(context, MoreTypes.asTypeElement(it))
-                                    .process()
-                        }
-                converters.let {
-                    reportDuplicates(context, converters)
+                    .filter { MoreTypes.isType(it) }
+                    .mapTo(LinkedHashSet()) { it }
+                val converters = classes.flatMap {
+                    CustomConverterProcessor(context, it.asTypeElement()).process()
                 }
+                reportDuplicates(context, converters)
                 ProcessResult(classes, converters.map(::CustomTypeConverterWrapper))
             } ?: ProcessResult.EMPTY
         }
 
-        fun reportDuplicates(context: Context, converters: List<CustomTypeConverter>) {
-            val groupedByFrom = converters.groupBy { it.from.typeName() }
-            groupedByFrom.forEach {
-                it.value.groupBy { it.to.typeName() }.forEach {
-                    if (it.value.size > 1) {
-                        it.value.forEach { converter ->
-                            context.logger.e(converter.method, ProcessorErrors
-                                    .duplicateTypeConverters(it.value.minus(converter)))
-                        }
+        private fun reportDuplicates(context: Context, converters: List<CustomTypeConverter>) {
+            converters
+                .groupBy { it.from.typeName() to it.to.typeName() }
+                .filterValues { it.size > 1 }
+                .values.forEach {
+                    it.forEach { converter ->
+                        context.logger.e(converter.method, ProcessorErrors
+                                .duplicateTypeConverters(it.minus(converter)))
                     }
                 }
-            }
         }
     }
 

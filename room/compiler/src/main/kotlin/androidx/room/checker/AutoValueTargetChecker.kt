@@ -25,8 +25,8 @@ import androidx.room.ext.hasAnnotation
 import androidx.room.ext.hasAnyOf
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
+import asTypeElement
 import com.google.auto.common.MoreElements
-import com.google.auto.common.MoreTypes
 import com.google.auto.value.AutoValue
 import com.google.common.collect.SetMultimap
 import javax.lang.model.element.Element
@@ -81,7 +81,7 @@ class AutoValueTargetChecker(
 
 private fun TypeElement.isAutoValueChild(): Boolean {
     if (superclass.kind != TypeKind.NONE) {
-        val superElement = MoreTypes.asTypeElement(superclass)
+        val superElement = superclass.asTypeElement()
         return superElement.hasAnnotation(AutoValue::class) || superElement.isAutoValueChild()
     } else {
         return false
