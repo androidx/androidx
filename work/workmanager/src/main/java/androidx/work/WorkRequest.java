@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
  * There are two concrete implementations of this class: {@link OneTimeWorkRequest} and
  * {@link PeriodicWorkRequest}.
  */
-
 public abstract class WorkRequest {
 
     /**
@@ -128,7 +127,7 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Set the backoff policy and backoff delay for the work.  The default values are
+         * Sets the backoff policy and backoff delay for the work.  The default values are
          * {@link BackoffPolicy#EXPONENTIAL} and
          * {@value WorkRequest#DEFAULT_BACKOFF_DELAY_MILLIS}, respectively.  The maximum backoff
          * delay duration is {@value WorkRequest#MAX_BACKOFF_MILLIS}.
@@ -149,7 +148,7 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Add constraints to the {@link WorkRequest}.
+         * Adds constraints to the {@link WorkRequest}.
          *
          * @param constraints The constraints for the work
          * @return The current {@link Builder}
@@ -160,7 +159,7 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Add input {@link Data} to the work.  If a worker has prerequisites in its chain, this
+         * Adds input {@link Data} to the work.  If a worker has prerequisites in its chain, this
          * Data will be merged with the outputs of the prerequisites using an {@link InputMerger}.
          *
          * @param inputData key/value pairs that will be provided to the worker
@@ -172,7 +171,7 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Add a tag for the work.  You can query and cancel work by tags.  Tags are particularly
+         * Adds a tag for the work.  You can query and cancel work by tags.  Tags are particularly
          * useful for modules or libraries to find and operate on their own work.
          *
          * @param tag A tag for identifying the work in queries.
@@ -243,7 +242,7 @@ public abstract class WorkRequest {
         abstract @NonNull B getThis();
 
         /**
-         * Set the initial state for this work.  Used in testing only.
+         * Sets the initial state for this work.  Used in testing only.
          *
          * @param state The {@link WorkInfo.State} to set
          * @return The current {@link Builder}
@@ -257,7 +256,7 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Set the initial run attempt count for this work.  Used in testing only.
+         * Sets the initial run attempt count for this work.  Used in testing only.
          *
          * @param runAttemptCount The initial run attempt count
          * @return The current {@link Builder}
@@ -271,7 +270,7 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Set the period start time for this work. Used in testing only.
+         * Sets the period start time for this work. Used in testing only.
          *
          * @param periodStartTime the period start time in {@code timeUnit} units
          * @param timeUnit The {@link TimeUnit} for {@code periodStartTime}
@@ -288,7 +287,7 @@ public abstract class WorkRequest {
         }
 
         /**
-         * Set when the scheduler actually schedules the worker.
+         * Sets when the scheduler actually schedules the worker.
          *
          * @param scheduleRequestedAt The time at which the scheduler scheduled a worker.
          * @param timeUnit            The {@link TimeUnit} for {@code scheduleRequestedAt}
