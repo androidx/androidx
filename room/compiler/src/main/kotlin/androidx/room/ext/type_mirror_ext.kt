@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import com.google.auto.common.MoreTypes
+import javax.lang.model.element.TypeElement
 import javax.lang.model.type.TypeKind.BOOLEAN
 import javax.lang.model.type.TypeKind.BYTE
 import javax.lang.model.type.TypeKind.CHAR
@@ -30,3 +32,5 @@ fun TypeMirror.defaultValue(): String {
         else -> "null"
     }
 }
+
+fun TypeMirror.asTypeElement(): TypeElement = MoreTypes.asTypeElement(this)

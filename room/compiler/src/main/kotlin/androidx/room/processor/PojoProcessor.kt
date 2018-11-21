@@ -37,14 +37,15 @@ import androidx.room.processor.autovalue.AutoValuePojoProcessorDelegate
 import androidx.room.processor.cache.Cache
 import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
-import androidx.room.vo.EntityOrView
 import androidx.room.vo.EmbeddedField
+import androidx.room.vo.EntityOrView
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
 import androidx.room.vo.Pojo
 import androidx.room.vo.PojoMethod
 import androidx.room.vo.Warning
+import asTypeElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.auto.value.AutoValue
@@ -421,7 +422,7 @@ class PojoProcessor private constructor(
     ): EmbeddedField? {
         val asMemberType = MoreTypes.asMemberOf(
             context.processingEnv.typeUtils, declaredType, variableElement)
-        val asTypeElement = MoreTypes.asTypeElement(asMemberType)
+        val asTypeElement = asMemberType.asTypeElement()
 
         if (detectReferenceRecursion(asTypeElement)) {
             return null
@@ -480,10 +481,10 @@ class PojoProcessor private constructor(
         }
         val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
         if (typeArg.kind == TypeKind.ERROR) {
-            context.logger.e(MoreTypes.asTypeElement(typeArg), CANNOT_FIND_TYPE)
+            context.logger.e(typeArg.asTypeElement(), CANNOT_FIND_TYPE)
             return null
         }
-        val typeArgElement = MoreTypes.asTypeElement(typeArg)
+        val typeArgElement = typeArg.asTypeElement()
         val entityClassInput = annotation.getAsTypeMirror("entity")
 
         // do we need to decide on the entity?
@@ -492,7 +493,7 @@ class PojoProcessor private constructor(
         val entityElement = if (inferEntity) {
             typeArgElement
         } else {
-            MoreTypes.asTypeElement(entityClassInput)
+            entityClassInput!!.asTypeElement()
         }
 
         if (detectReferenceRecursion(entityElement)) {

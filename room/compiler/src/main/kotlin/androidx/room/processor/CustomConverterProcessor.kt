@@ -30,6 +30,7 @@ import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_RECEIVE_1_PAR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.vo.CustomTypeConverter
+import asTypeElement
 import com.google.auto.common.MoreTypes
 import java.util.LinkedHashSet
 import javax.lang.model.element.Element
@@ -54,8 +55,7 @@ class CustomConverterProcessor(val context: Context, val element: TypeElement) {
                     .filter { MoreTypes.isType(it) }
                     .mapTo(LinkedHashSet()) { it }
                 val converters = classes.flatMap {
-                    CustomConverterProcessor(context, MoreTypes.asTypeElement(it))
-                                    .process()
+                    CustomConverterProcessor(context, it.asTypeElement()).process()
                 }
                 reportDuplicates(context, converters)
                 ProcessResult(classes, converters.map(::CustomTypeConverterWrapper))

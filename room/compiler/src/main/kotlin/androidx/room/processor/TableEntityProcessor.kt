@@ -34,6 +34,7 @@ import androidx.room.vo.Index
 import androidx.room.vo.Pojo
 import androidx.room.vo.PrimaryKey
 import androidx.room.vo.Warning
+import asTypeElement
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
@@ -342,8 +343,7 @@ class TableEntityProcessor internal constructor(
             val remainingFields = availableFields.filterNot {
                 it.element.enclosingElement == typeElement
             }
-            collectPrimaryKeysFromEntityAnnotations(
-                    MoreTypes.asTypeElement(mySuper), remainingFields)
+            collectPrimaryKeysFromEntityAnnotations(mySuper.asTypeElement(), remainingFields)
         } else {
             emptyList()
         }
@@ -390,7 +390,7 @@ class TableEntityProcessor internal constructor(
             // i have not declared anything, delegate to super
             val mySuper = typeElement.superclass
             if (mySuper != null && mySuper.kind != TypeKind.NONE) {
-                return choosePrimaryKey(candidates, MoreTypes.asTypeElement(mySuper))
+                return choosePrimaryKey(candidates, mySuper.asTypeElement())
             }
             PrimaryKey.MISSING
         } else {
@@ -459,7 +459,7 @@ class TableEntityProcessor internal constructor(
         if (typeMirror == null || typeMirror.kind == TypeKind.NONE) {
             return emptyList()
         }
-        val parentElement = MoreTypes.asTypeElement(typeMirror)
+        val parentElement = typeMirror.asTypeElement()
         val myIndices = parentElement
                 .toAnnotationBox(androidx.room.Entity::class)?.let { annotation ->
             val indices = extractIndices(annotation, tableName = "super")

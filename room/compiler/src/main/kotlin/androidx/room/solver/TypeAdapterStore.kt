@@ -83,6 +83,7 @@ import androidx.room.solver.shortcut.binderprovider.RxMaybeDeleteOrUpdateMethodB
 import androidx.room.solver.shortcut.binderprovider.RxMaybeInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxSingleDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxSingleInsertMethodBinderProvider
+import asTypeElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.common.annotations.VisibleForTesting
@@ -408,7 +409,7 @@ class TypeAdapterStore private constructor(
                 context.collectLogs { subContext ->
                     val pojo = PojoProcessor.createFor(
                             context = subContext,
-                            element = MoreTypes.asTypeElement(typeMirror),
+                            element = typeMirror.asTypeElement(),
                             bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                             parent = null
                     ).process()
@@ -455,7 +456,7 @@ class TypeAdapterStore private constructor(
                 // try to guess user's intention and hope that their query fits the result.
                 val pojo = PojoProcessor.createFor(
                         context = context,
-                        element = MoreTypes.asTypeElement(typeMirror),
+                        element = typeMirror.asTypeElement(),
                         bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                         parent = null
                 ).process()
