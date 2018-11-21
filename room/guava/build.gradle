@@ -25,7 +25,9 @@ plugins {
 
 dependencies {
     api(project(":room:room-common"))
-    api(project(":room:room-runtime"))
+    api(project(":room:room-runtime")) {
+        exclude group: 'com.google.guava', module: 'listenablefuture'
+    }
     implementation(ARCH_CORE_RUNTIME)
 
     api(SUPPORT_ANNOTATIONS, libs.support_exclude_config)
