@@ -16,7 +16,6 @@
 
 package androidx.media2;
 
-import android.app.PendingIntent;
 import android.os.Binder;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -320,12 +319,10 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onConnected(IMediaSession sessionBinder, ParcelImpl commandGroup, int playerState,
-            ParcelImpl currentItem, long positionEventTimeMs, long positionMs, float playbackSpeed,
-            long bufferedPositionMs, ParcelImpl playbackInfo, int shuffleMode, int repeatMode,
-            ParcelImplListSlice listSlice, PendingIntent sessionActivity) {
-        if (sessionBinder == null || commandGroup == null || currentItem == null
-                || playbackInfo == null) {
+    public void onConnected(ParcelImpl connectionResult) {
+        if (connectionResult == null) {
+            // disconnected
+            onDisconnected();
             return;
         }
         final long token = Binder.clearCallingIdentity();
@@ -337,15 +334,16 @@ class MediaControllerStub extends IMediaController.Stub {
                 }
                 return;
             }
+            ConnectionResult result = MediaUtils.fromParcelable(connectionResult);
             List<MediaItem> itemList =
-                    MediaUtils.convertParcelImplListSliceToMediaItemList(listSlice);
-            controller.onConnectedNotLocked(sessionBinder,
-                    (SessionCommandGroup) MediaUtils.fromParcelable(commandGroup), playerState,
-                    (MediaItem) MediaUtils.fromParcelable(currentItem),
-                    positionEventTimeMs, positionMs, playbackSpeed, bufferedPositionMs,
-                    (PlaybackInfo) MediaUtils.fromParcelable(playbackInfo), repeatMode,
-                    shuffleMode,
-                    itemList, sessionActivity);
+                    MediaUtils.convertParcelImplListSliceToMediaItemList(result.getPlaylistSlice());
+            controller.onConnectedNotLocked(result.getSessionStub(),
+                    result.getAllowedCommands(), result.getPlayerState(),
+                    result.getCurrentMediaItem(), result.getPositionEventTimeMs(),
+                    result.getPositionMs(), result.getPlaybackSpeed(),
+                    result.getBufferedPositionMs(), result.getPlaybackInfo(),
+                    result.getRepeatMode(), result.getShuffleMode(), itemList,
+                    result.getSessionActivity());
         } finally {
             Binder.restoreCallingIdentity(token);
         }

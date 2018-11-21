@@ -822,8 +822,9 @@ class MediaControllerImplBase implements MediaControllerImpl {
     private void connectToSession() {
         IMediaSession iSession = IMediaSession.Stub.asInterface((IBinder) mToken.getBinder());
         int seq = mSequencedFutureManager.obtainNextSequenceNumber();
+        ConnectionRequest request = new ConnectionRequest(mContext.getPackageName());
         try {
-            iSession.connect(mControllerStub, seq, mContext.getPackageName());
+            iSession.connect(mControllerStub, seq, MediaUtils.toParcelable(request));
         } catch (RemoteException e) {
             Log.w(TAG, "Failed to call connection request. Framework will retry"
                     + " automatically");
@@ -1192,8 +1193,10 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 Log.wtf(TAG, "Service interface is missing.");
                 return;
             }
+            ConnectionRequest request = new ConnectionRequest(getContext().getPackageName());
             try {
-                iService.connect(mControllerStub, getContext().getPackageName());
+
+                iService.connect(mControllerStub, MediaUtils.toParcelable(request));
             } catch (RemoteException e) {
                 Log.w(TAG, "Service " + name + " has died prematurely");
                 mInstance.close();

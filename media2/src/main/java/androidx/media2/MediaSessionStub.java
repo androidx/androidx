@@ -24,14 +24,12 @@ import static androidx.media2.MediaUtils.DIRECT_EXECUTOR;
 import static androidx.media2.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand.COMMAND_VERSION_CURRENT;
 
-import android.app.PendingIntent;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -367,24 +365,8 @@ class MediaSessionStub extends IMediaSession.Stub {
                     //       guarantee that events here are notified after the onConnected()
                     //       because IMediaController is oneway (i.e. async call) and Stub will
                     //       use thread poll for incoming calls.
-                    final int playerState = mSessionImpl.getPlayerState();
-                    final ParcelImpl currentItem = MediaUtils.toParcelable(
-                            mSessionImpl.getCurrentMediaItem());
-                    final long positionEventTimeMs = SystemClock.elapsedRealtime();
-                    final long positionMs = mSessionImpl.getCurrentPosition();
-                    final float playbackSpeed = mSessionImpl.getPlaybackSpeed();
-                    final long bufferedPositionMs = mSessionImpl.getBufferedPosition();
-                    final ParcelImpl playbackInfo =
-                            MediaUtils.toParcelable(mSessionImpl.getPlaybackInfo());
-                    final int repeatMode = mSessionImpl.getRepeatMode();
-                    final int shuffleMode = mSessionImpl.getShuffleMode();
-                    final PendingIntent sessionActivity = mSessionImpl.getSessionActivity();
-                    final List<MediaItem> playlist =
-                            allowedCommands.hasCommand(
-                                    SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)
-                                    ? mSessionImpl.getPlaylist() : null;
-                    final ParcelImplListSlice playlistSlice =
-                            MediaUtils.convertMediaItemListToParcelImplListSlice(playlist);
+                    ConnectionResult state = new ConnectionResult(
+                            MediaSessionStub.this, mSessionImpl, allowedCommands);
 
                     // Double check if session is still there, because close() can be called in
                     // another thread.
@@ -392,11 +374,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                         return;
                     }
                     try {
-                        caller.onConnected(MediaSessionStub.this,
-                                MediaUtils.toParcelable(allowedCommands),
-                                playerState, currentItem, positionEventTimeMs, positionMs,
-                                playbackSpeed, bufferedPositionMs, playbackInfo, repeatMode,
-                                shuffleMode, playlistSlice, sessionActivity);
+                        caller.onConnected(MediaUtils.toParcelable(state));
                     } catch (RemoteException e) {
                         // Controller may be died prematurely.
                     }
@@ -444,16 +422,17 @@ class MediaSessionStub extends IMediaSession.Stub {
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void connect(final IMediaController caller, int seq, final String callingPackage)
+    public void connect(final IMediaController caller, int seq, ParcelImpl connectionRequest)
             throws RuntimeException {
-        if (caller == null || TextUtils.isEmpty(callingPackage)) {
+        if (caller == null || connectionRequest == null) {
             return;
         }
         final int pid = Binder.getCallingPid();
         final int uid = Binder.getCallingUid();
         final long token = Binder.clearCallingIdentity();
+        final ConnectionRequest request = MediaUtils.fromParcelable(connectionRequest);
         try {
-            connect(caller, callingPackage, pid, uid);
+            connect(caller, request.getPackageName(), pid, uid);
         } finally {
             Binder.restoreCallingIdentity(token);
         }

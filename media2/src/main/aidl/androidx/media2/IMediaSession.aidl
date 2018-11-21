@@ -31,7 +31,7 @@ import androidx.versionedparcelable.ParcelImpl;
  * @hide
  */
 oneway interface IMediaSession {
-    void connect(IMediaController caller, int seq, String callingPackage) = 0;
+    void connect(IMediaController caller, int seq, in ParcelImpl connectionRequest) = 0;
     void release(IMediaController caller, int seq) = 1;
 
     void setVolumeTo(IMediaController caller, int seq, int value, int flags) = 2;
