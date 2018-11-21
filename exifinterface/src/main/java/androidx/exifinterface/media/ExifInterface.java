@@ -1512,8 +1512,21 @@ public class ExifInterface {
      *      <li>Type = String</li>
      *      <li>Default = None</li>
      *  </ul>
+     *
+     *  @deprecated Use {@link #TAG_CAMERA_OWNER_NAME} instead.
      */
+    @Deprecated
     public static final String TAG_CAMARA_OWNER_NAME = "CameraOwnerName";
+    /**
+     *  <p>This tag records the owner of a camera used in photography as an ASCII string.</p>
+     *
+     *  <ul>
+     *      <li>Tag = 42032</li>
+     *      <li>Type = String</li>
+     *      <li>Default = None</li>
+     *  </ul>
+     */
+    public static final String TAG_CAMERA_OWNER_NAME = "CameraOwnerName";
     /**
      *  <p>This tag records the serial number of the body of the camera that was used in photography
      *  as an ASCII string.</p>
