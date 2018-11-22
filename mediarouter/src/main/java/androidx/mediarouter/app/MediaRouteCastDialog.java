@@ -780,6 +780,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
         private final Drawable mTvIcon;
         private final Drawable mSpeakerIcon;
         private final Drawable mSpeakerGroupIcon;
+        private Item mGroupVolumeItem;
+        private boolean mShouldShowGroupVolume = false;
 
         RecyclerAdapter() {
             mItems = new ArrayList<>();
@@ -815,10 +817,8 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                 groupInfo = (MediaRouter.DynamicGroupInfo) mSelectedRoute;
             }
 
+            mGroupVolumeItem = new Item(mSelectedRoute, ITEM_TYPE_GROUP_VOLUME);
             if (!mMemberRoutes.isEmpty()) {
-                if (isGroupVolumeNeeded()) {
-                    mItems.add(new Item(mSelectedRoute, ITEM_TYPE_GROUP_VOLUME));
-                }
                 for (MediaRouter.RouteInfo memberRoute : mMemberRoutes) {
                     mItems.add(new Item(memberRoute, ITEM_TYPE_ROUTE));
                 }
@@ -880,6 +880,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             // Get ungroupable routes which are positioning at groupable routes section.
             // This can happen when dynamically added routes can't be grouped with some of other
             // routes at groupable routes section.
+            mShouldShowGroupVolume = isGroupVolumeNeeded();
             mUngroupableRoutes.clear();
             mUngroupableRoutes.addAll(MediaRouteDialogHelper.getItemsRemoved(mGroupableRoutes,
                     getGroupableRoutes()));
@@ -952,7 +953,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
         @Override
         public int getItemCount() {
-            return mItems.size();
+            return mItems.size() + (mShouldShowGroupVolume ? 1 : 0);
         }
 
         Drawable getIconDrawable(MediaRouter.RouteInfo route) {
@@ -991,11 +992,19 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
         @Override
         public int getItemViewType(int position) {
-            return mItems.get(position).getType();
+            return getItem(position).getType();
         }
 
         public Item getItem(int position) {
-            return mItems.get(position);
+            if (mShouldShowGroupVolume) {
+                if (position == 0) {
+                    return mGroupVolumeItem;
+                } else {
+                    return mItems.get(position - 1);
+                }
+            } else {
+                return mItems.get(position);
+            }
         }
 
         /**
