@@ -82,11 +82,12 @@ public class ViewPager2 extends ViewGroup {
     private CompositeOnPageChangeListener mExternalPageChangeListeners =
             new CompositeOnPageChangeListener(3);
 
+    int mCurrentItem;
     RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private ScrollEventAdapter mScrollEventAdapter;
     private PageTransformerAdapter mPageTransformerAdapter;
-    int mCurrentItem;
+    private CompositeOnPageChangeListener mPageChangeEventDispatcher;
 
     public ViewPager2(Context context) {
         super(context);
@@ -126,8 +127,8 @@ public class ViewPager2 extends ViewGroup {
         mScrollEventAdapter = new ScrollEventAdapter(mLayoutManager);
         mRecyclerView.addOnScrollListener(mScrollEventAdapter);
 
-        CompositeOnPageChangeListener dispatcher = new CompositeOnPageChangeListener(3);
-        mScrollEventAdapter.setOnPageChangeListener(dispatcher);
+        mPageChangeEventDispatcher = new CompositeOnPageChangeListener(3);
+        mScrollEventAdapter.setOnPageChangeListener(mPageChangeEventDispatcher);
 
         // Listener that updates mCurrentItem after swipes. Also triggered in other cases, but in
         // all those cases mCurrentItem will only be overwritten with the same value.
@@ -148,13 +149,13 @@ public class ViewPager2 extends ViewGroup {
 
         // Add currentItemUpdater before mExternalPageChangeListeners, because we need to update
         // internal state first
-        dispatcher.addOnPageChangeListener(currentItemUpdater);
-        dispatcher.addOnPageChangeListener(mExternalPageChangeListeners);
+        mPageChangeEventDispatcher.addOnPageChangeListener(currentItemUpdater);
+        mPageChangeEventDispatcher.addOnPageChangeListener(mExternalPageChangeListeners);
 
         // Add mPageTransformerAdapter after mExternalPageChangeListeners, because page transform
         // events must be fired after scroll events
         mPageTransformerAdapter = new PageTransformerAdapter(mLayoutManager);
-        dispatcher.addOnPageChangeListener(mPageTransformerAdapter);
+        mPageChangeEventDispatcher.addOnPageChangeListener(mPageTransformerAdapter);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
     }
@@ -227,12 +228,24 @@ public class ViewPager2 extends ViewGroup {
         setOrientation(ss.mOrientation);
         mCurrentItem = ss.mCurrentItem;
         if (ss.mScrollInProgress) {
+            // A scroll was in progress, so the RecyclerView is not at mCurrentItem right now. Move
+            // it to mCurrentItem instantly in the _next_ frame, as RecyclerView is not yet fired up
+            // at this moment. Remove the event dispatcher during this time, as it will fire a
+            // scroll event for the current position, which has already been fired before the config
+            // change.
+            final ScrollEventAdapter scrollEventAdapter = mScrollEventAdapter;
+            final OnPageChangeListener eventDispatcher = mPageChangeEventDispatcher;
+            scrollEventAdapter.setOnPageChangeListener(null);
             mRecyclerView.post(new Runnable() {
                 @Override
                 public void run() {
+                    scrollEventAdapter.setOnPageChangeListener(eventDispatcher);
+                    scrollEventAdapter.notifyRestoreCurrentItem(mCurrentItem);
                     mRecyclerView.scrollToPosition(mCurrentItem);
                 }
             });
+        } else {
+            mScrollEventAdapter.notifyRestoreCurrentItem(mCurrentItem);
         }
 
         if (ss.mAdapterState != null) {

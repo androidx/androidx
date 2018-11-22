@@ -38,6 +38,7 @@ import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_SETTLING
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.Matchers.allOf
+import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.junit.Assert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -174,7 +175,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
 
                 // when
                 swipe(initialPage, targetPage)
-                latch.await(1, SECONDS)
+                latch.await(2, SECONDS)
 
                 // then
                 assertBasicState(targetPage, "$targetPage")
@@ -182,15 +183,22 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 if (targetPage == initialPage && edgePages.contains(targetPage)) {
                     listener.apply {
                         // verify all events
-                        assertThat(draggingIx, equalTo(0))
-                        assertThat(idleIx, equalTo(lastIx))
-                        assertThat(scrollEventCount, equalTo(eventCount - 2))
+                        assertThat("Events should start with a state change to DRAGGING",
+                            draggingIx, equalTo(0))
+                        assertThat("Last event should be a state change to IDLE",
+                            idleIx, equalTo(lastIx))
+                        assertThat("All events but the state changes to DRAGGING and IDLE" +
+                                " should be scroll events",
+                            scrollEventCount, equalTo(eventCount - 2))
 
                         // dive into scroll events
                         scrollEvents.forEach {
-                            assertThat(it.position, equalTo(targetPage))
-                            assertThat(it.positionOffset, equalTo(0f))
-                            assertThat(it.positionOffsetPixels, equalTo(0))
+                            assertThat("All scroll events should report page $targetPage",
+                                it.position, equalTo(targetPage))
+                            assertThat("All scroll events should report an offset of 0f",
+                                it.positionOffset, equalTo(0f))
+                            assertThat("All scroll events should report an offset of 0px",
+                                it.positionOffsetPixels, equalTo(0))
                         }
                     }
                 }
@@ -230,10 +238,21 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             // then
             listener.apply {
                 // verify all events
-                assertThat(draggingIx, equalTo(0))
-                assertThat(settlingIx, isBetweenInEx(firstScrolledIx + 1, lastScrolledIx))
-                assertThat(idleIx, equalTo(lastIx))
-                assertThat(scrollEventCount, equalTo(eventCount - 3))
+                assertThat("There should be exactly 1 dragging event",
+                    stateEvents(SCROLL_STATE_DRAGGING).size, equalTo(1))
+                assertThat("There should be exactly 1 settling event",
+                    stateEvents(SCROLL_STATE_SETTLING).size, equalTo(1))
+                assertThat("There should be exactly 1 idle event",
+                    stateEvents(SCROLL_STATE_IDLE).size, equalTo(1))
+                assertThat("Events should start with a state change to DRAGGING",
+                    draggingIx, equalTo(0))
+                assertThat("The settling event should be fired between the first and the last" +
+                        " scroll event",
+                    settlingIx, isBetweenInEx(firstScrolledIx + 1, lastScrolledIx))
+                assertThat("The idle event should be the last global event",
+                    idleIx, equalTo(lastIx))
+                assertThat("All events other then the state changes should be scroll events",
+                    scrollEventCount, equalTo(eventCount - 3))
 
                 // dive into scroll events
                 scrollEvents.assertPositionSorted(SortOrder.DESC)
@@ -281,10 +300,21 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             // then
             listener.apply {
                 // verify all events
-                assertThat(draggingIx, equalTo(0))
-                assertThat(settlingIx, isBetweenInEx(firstScrolledIx + 1, lastScrolledIx))
-                assertThat(idleIx, equalTo(lastIx))
-                assertThat(scrollEventCount, equalTo(eventCount - 3))
+                assertThat("There should be exactly 1 dragging event",
+                    stateEvents(SCROLL_STATE_DRAGGING).size, equalTo(1))
+                assertThat("There should be exactly 1 settling event",
+                    stateEvents(SCROLL_STATE_SETTLING).size, equalTo(1))
+                assertThat("There should be exactly 1 idle event",
+                    stateEvents(SCROLL_STATE_IDLE).size, equalTo(1))
+                assertThat("Events should start with a state change to DRAGGING",
+                    draggingIx, equalTo(0))
+                assertThat("The settling event should be fired between the first and the last " +
+                        "scroll event",
+                    settlingIx, isBetweenInEx(firstScrolledIx + 1, lastScrolledIx))
+                assertThat("The idle event should be the last global event",
+                    idleIx, equalTo(lastIx))
+                assertThat("All events other then the state changes should be scroll events",
+                    scrollEventCount, equalTo(eventCount - 3))
 
                 // dive into scroll events
                 scrollEvents.assertPositionSorted(SortOrder.ASC)
@@ -446,43 +476,132 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
     }
 
     /**
-     * Tests a very specific case that can theoretically happen when a config change happens right
-     * after an invocation to setCurrentItem. Due to a workaround for b/114019007, a smooth scroll
-     * to a 'far away' page is split over two frames: first an instant scroll is done to a page
-     * 'close by' and in the next frame a smooth scroll is started to the actual page.
+     * Example trace:
      *
-     * Now, if the config change occurs between these two frames, the second part is never executed,
-     * and ViewPager2 will correct this after the config change. This test makes sure that this
-     * correction has no side effects.
-     *
-     * Note that this test can be removed if we remove our workaround.
+     * 0 -> 4 (smooth)
+     * >> viewPager.setCurrentItem(4, true)
+     * onPageScrollStateChanged(2)
+     * onPageSelected(4)
+     * onPageScrolled(1, 0.000000, 0)
+     * >> config change
+     * onPageScrolled(4, 0.000000, 0)
      */
     @Test
-    fun test_configChangeDuringFarSmoothScroll() {
+    fun test_configChangeDuringStartOfFarSmoothScroll() {
+        test_configChangeDuringFarSmoothScroll(4) {
+            // no delay
+        }
+    }
+
+    /**
+     * Example trace:
+     *
+     * 0 -> 4 (smooth)
+     * >> viewPager.setCurrentItem(4, true)
+     * onPageScrollStateChanged(2)
+     * onPageSelected(4)
+     * onPageScrolled(1, 0.000000, 0)
+     * onPageScrolled(1, 0.254016, 253)
+     * onPageScrolled(1, 0.641566, 639)
+     * onPageScrolled(2, 0.315261, 314)
+     * >> config change
+     * onPageScrolled(4, 0.000000, 0)
+     */
+    @Test
+    fun test_configChangeDuringMiddleOfFarSmoothScroll() {
+        val targetPage = 4
+        test_configChangeDuringFarSmoothScroll(targetPage) { viewPager ->
+            // let it scroll until we're 2 pages away from the target
+            viewPager.addWaitForDistanceToTarget(targetPage, 2f).await(2, SECONDS)
+        }
+    }
+
+    /**
+     * Example trace:
+     *
+     * 0 -> 4 (smooth)
+     * >> viewPager.setCurrentItem(4, true)
+     * onPageScrollStateChanged(2)
+     * onPageSelected(4)
+     * onPageScrolled(1, 0.000000, 0)
+     * onPageScrolled(1, 0.371486, 370)
+     * onPageScrolled(1, 0.557229, 555)
+     * onPageScrolled(2, 0.180723, 180)
+     * onPageScrolled(2, 0.574297, 572)
+     * onPageScrolled(2, 0.903614, 900)
+     * onPageScrolled(3, 0.218875, 218)
+     * onPageScrolled(3, 0.437751, 436)
+     * onPageScrolled(3, 0.655622, 653)
+     * onPageScrolled(3, 0.803213, 800)
+     * onPageScrolled(3, 0.911647, 908)
+     * onPageScrolled(3, 0.978916, 975)
+     * onPageScrolled(4, 0.000000, 0)
+     * onPageScrollStateChanged(0)
+     * >> config change
+     * onPageScrolled(4, 0.000000, 0)
+     */
+    @Test
+    fun test_configChangeAfterFarSmoothScroll() {
+        test_configChangeDuringFarSmoothScroll(4) { viewPager ->
+            // wait until it is finished
+            viewPager.addWaitForIdleLatch().await(2, SECONDS)
+        }
+    }
+
+    /**
+     * Tests what happens when a config change happens during a smooth scroll to any page more then
+     * 3 pages further. After the config change, the smooth scroll should be interrupted and the
+     * view pager should instantly skip to the target page instead.
+     *
+     * The configuration change is triggered after the delay callback has executed. Thus, the delay
+     * callback controls when the config change happens by the time it takes to execute.
+     *
+     * @param delayCallback The callback that determines when the configuration change is triggered
+     */
+    fun test_configChangeDuringFarSmoothScroll(
+        targetPage: Int,
+        delayCallback: (ViewPager2) -> Unit
+    ) {
         // given
+        assertThat(targetPage, greaterThanOrEqualTo(4))
         setUpTest(config.orientation).apply {
             val adapterProvider = viewAdapterProvider(stringSequence(5))
             setAdapterSync(adapterProvider)
-            val targetPage = 4
             val marker = 1
             val listener = viewPager.addNewRecordingListener()
 
             // when
             runOnUiThread { viewPager.setCurrentItem(targetPage, true) }
-            recreateActivity(adapterProvider)
-            // mark the config change in the listener
-            listener.markEvent(marker)
-            // viewPager is recreated, so need to reattach listener
-            viewPager.addOnPageChangeListener(listener)
+            delayCallback(viewPager)
+
+            recreateActivity(adapterProvider) { newViewPager ->
+                // mark the config change in the listener
+                listener.markEvent(marker)
+                // viewPager is recreated, so need to reattach listener
+                newViewPager.addOnPageChangeListener(listener)
+            }
+
+            // wait until we're at the target page. can take a while on stuttering devices.
+            // viewPager may have fired all events already, so poll the visible page instead
+            viewPager.waitUntilSnappedOnTargetByPolling(targetPage)
 
             // then
             listener.apply {
-                assertThat(viewPager.currentItem, equalTo(targetPage))
-                assertThat(viewPager.currentCompletelyVisibleItem, equalTo(targetPage))
-                assertThat(settlingIx, equalTo(0))
-                assertThat(selectEvents.count(), equalTo(1))
-                assertThat(pageSelectedIx(targetPage), equalTo(1))
-                assertThat(markIx(marker), equalTo(lastIx))
+                assertThat("viewPager.getCurrentItem() does not return the target page",
+                    viewPager.currentItem, equalTo(targetPage))
+                assertThat("Currently shown page is not the target page",
+                    viewPager.currentCompletelyVisibleItem, equalTo(targetPage))
+                assertThat("First overall event is not a SETTLING event",
+                    settlingIx, equalTo(0))
+                assertThat("Number of onPageSelected events is not 2",
+                    selectEvents.count(), equalTo(2))
+                assertThat("First onPageSelected event is not the second overall event",
+                    pageSelectedIx(targetPage), equalTo(1))
+                assertThat("Unexpected events were fired after the config change",
+                    eventsAfter(marker), equalTo(listOf(
+                        OnPageSelectedEvent(targetPage),
+                        OnPageScrolledEvent(targetPage, 0f, 0)
+                    )))
             }
         }
     }
@@ -547,13 +666,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 runOnUiThread { viewPager.setCurrentItem(targetPage, smoothScroll) }
 
                 // poll the viewpager on the ui thread
-                val targetReached = AtomicBoolean(false)
-                PollingCheck.waitFor(2000) {
-                    runOnUiThread {
-                        targetReached.set(targetPage == viewPager.currentCompletelyVisibleItem)
-                    }
-                    targetReached.get()
-                }
+                viewPager.waitUntilSnappedOnTargetByPolling(targetPage)
 
                 // wait until scroll events have propagated in the system
                 sleep(100)
@@ -616,6 +729,16 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         return RecordingListener().also { addOnPageChangeListener(it) }
     }
 
+    private fun ViewPager2.waitUntilSnappedOnTargetByPolling(targetPage: Int) {
+        val targetReached = AtomicBoolean(false)
+        PollingCheck.waitFor(2000) {
+            post {
+                targetReached.set(targetPage == currentCompletelyVisibleItem)
+            }
+            targetReached.get()
+        }
+    }
+
     private sealed class Event {
         data class OnPageScrolledEvent(
             val position: Int,
@@ -654,6 +777,10 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         val idleIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE))
         val pageSelectedIx: (page: Int) -> Int = { events.indexOf(OnPageSelectedEvent(it)) }
         val markIx: (id: Int) -> Int = { events.indexOf(MarkerEvent(it)) }
+
+        fun stateEvents(state: Int): List<OnPageScrollStateChangedEvent> {
+            return stateEvents.filter { it.state == state }
+        }
 
         override fun onPageScrolled(
             position: Int,
