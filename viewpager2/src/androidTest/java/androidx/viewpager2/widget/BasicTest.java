@@ -60,8 +60,11 @@ public class BasicTest {
         ViewPager2.SavedState state = new ViewPager2.SavedState(superState);
         state.mRecyclerViewId = 700;
         state.mOrientation = 800;
-        state.mAdapterState = new Parcelable[]{createIntBundle(1), createIntBundle(2),
-                createIntBundle(3)};
+
+        Bundle adapterState = new Bundle(1);
+        adapterState.putParcelableArray("adapterState",
+                new Parcelable[]{createIntBundle(1), createIntBundle(2), createIntBundle(3)});
+        state.mAdapterState = adapterState;
 
         // when
         Parcel parcel = Parcel.obtain();
@@ -78,11 +81,14 @@ public class BasicTest {
         assertThat("All of the parcel should be read", parcel.dataAvail(), equalTo(0));
         assertThat(recreatedState.mRecyclerViewId, equalTo(700));
         assertThat(recreatedState.mOrientation, equalTo(800));
-        assertThat(recreatedState.mAdapterState, arrayWithSize(3));
+        Parcelable[] recreatedAdapterState =
+                ((Bundle) recreatedState.mAdapterState).getParcelableArray("adapterState");
+        assertThat(recreatedAdapterState, arrayWithSize(3));
         assertThat((int) ((Bundle) recreatedState.getSuperState()).get("key"), equalTo(42));
-        assertThat((int) ((Bundle) recreatedState.mAdapterState[0]).get("key"), equalTo(1));
-        assertThat((int) ((Bundle) recreatedState.mAdapterState[1]).get("key"), equalTo(2));
-        assertThat((int) ((Bundle) recreatedState.mAdapterState[2]).get("key"), equalTo(3));
+        //noinspection ConstantConditions
+        assertThat((int) ((Bundle) recreatedAdapterState[0]).get("key"), equalTo(1));
+        assertThat((int) ((Bundle) recreatedAdapterState[1]).get("key"), equalTo(2));
+        assertThat((int) ((Bundle) recreatedAdapterState[2]).get("key"), equalTo(3));
     }
 
     private Bundle createIntBundle(int value) {
