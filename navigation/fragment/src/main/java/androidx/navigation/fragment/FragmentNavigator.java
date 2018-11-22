@@ -142,14 +142,14 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         return new Destination(this);
     }
 
-    @SuppressWarnings("deprecation")
+    @Nullable
     @Override
-    public void navigate(@NonNull Destination destination, @Nullable Bundle args,
+    public NavDestination navigate(@NonNull Destination destination, @Nullable Bundle args,
             @Nullable NavOptions navOptions, @Nullable Navigator.Extras navigatorExtras) {
         if (mFragmentManager.isStateSaved()) {
             Log.i(TAG, "Ignoring navigate() call: FragmentManager has already"
                     + " saved its state");
-            return;
+            return null;
         }
         final Fragment frag = destination.createFragment(args);
         final FragmentTransaction ft = mFragmentManager.beginTransaction();
@@ -176,9 +176,9 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 && navOptions.shouldLaunchSingleTop()
                 && mBackStack.peekLast() == destId;
 
-        int backStackEffect;
+        boolean isAdded;
         if (initialNavigation) {
-            backStackEffect = BACK_STACK_DESTINATION_ADDED;
+            isAdded = true;
         } else if (isSingleTopReplacement) {
             // Single Top means we only want one instance on the back stack
             if (mBackStack.size() > 1) {
@@ -190,11 +190,11 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 ft.addToBackStack(Integer.toString(destId));
                 mIsPendingBackStackOperation = true;
             }
-            backStackEffect = BACK_STACK_UNCHANGED;
+            isAdded = false;
         } else {
             ft.addToBackStack(Integer.toString(destId));
             mIsPendingBackStackOperation = true;
-            backStackEffect = BACK_STACK_DESTINATION_ADDED;
+            isAdded = true;
         }
         if (navigatorExtras instanceof Extras) {
             Extras extras = (Extras) navigatorExtras;
@@ -205,10 +205,12 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         ft.setReorderingAllowed(true);
         ft.commit();
         // The commit succeeded, update our view of the world
-        if (backStackEffect == BACK_STACK_DESTINATION_ADDED) {
+        if (isAdded) {
             mBackStack.add(destId);
+            return destination;
+        } else {
+            return null;
         }
-        dispatchOnNavigatorNavigated(destId, backStackEffect);
     }
 
     @Override
