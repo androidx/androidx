@@ -102,10 +102,17 @@ open class BaseTest {
     }
 
     data class Context(val activityTestRule: ActivityTestRule<TestActivity>) {
-        fun recreateActivity(adapterProvider: AdapterProvider) {
-            TestActivity.adapterProvider = adapterProvider
+        fun recreateActivity(
+            adapterProvider: AdapterProvider,
+            onCreateCallback: ((ViewPager2) -> Unit) = { }
+        ) {
+            TestActivity.onCreateCallback = { activity ->
+                val viewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
+                viewPager.adapter = adapterProvider(activity)
+                onCreateCallback(viewPager)
+            }
             activity = FragmentActivityUtils.recreateActivity(activityTestRule, activity)
-            TestActivity.adapterProvider = null
+            TestActivity.onCreateCallback = { }
         }
 
         var activity: TestActivity = activityTestRule.activity
@@ -335,14 +342,17 @@ open class BaseTest {
      * 3. Internal activity state is valid (as per activity self-test)
      */
     fun Context.assertBasicState(pageIx: Int, value: String) {
-        assertThat<Int>(viewPager.currentItem, equalTo(pageIx))
+        assertThat<Int>("viewPager.getCurrentItem() should return $pageIx",
+            viewPager.currentItem, equalTo(pageIx))
         onView(allOf<View>(withId(R.id.text_view), isDisplayed())).check(
                 matches(withText(value)))
 
         // FIXME: too tight coupling
         if (viewPager.adapter is FragmentAdapter) {
             val adapter = viewPager.adapter as FragmentAdapter
-            assertThat(adapter.attachCount.get() - adapter.destroyCount.get(), isBetweenInIn(1, 4))
+            assertThat("Number of fragment attaches minus fragment destroys must be " +
+                    "between 1 and 4 (inclusive)",
+                adapter.attachCount.get() - adapter.destroyCount.get(), isBetweenInIn(1, 4))
         }
     }
 
