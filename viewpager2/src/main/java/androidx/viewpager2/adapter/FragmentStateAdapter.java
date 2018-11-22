@@ -49,7 +49,8 @@ import java.util.List;
  * {@link Fragment}.
  * </ul>
  */
-public abstract class FragmentStateAdapter extends RecyclerView.Adapter<FragmentViewHolder> {
+public abstract class FragmentStateAdapter extends
+        RecyclerView.Adapter<FragmentViewHolder> implements StatefulAdapter {
     private static final String STATE_ARG_KEYS = "keys";
     private static final String STATE_ARG_VALUES = "values";
 
@@ -153,10 +154,8 @@ public abstract class FragmentStateAdapter extends RecyclerView.Adapter<Fragment
         fragmentTransaction.remove(fragment);
     }
 
-    /**
-     * Saves adapter state.
-     */
-    public Parcelable saveState() {
+    @Override
+    public @NonNull Parcelable saveState() {
         /** remove active fragments saving their state in {@link mSavedStates) */
         List<Long> toRemove = new ArrayList<>();
         for (int ix = 0; ix < mFragments.size(); ix++) {
@@ -185,9 +184,7 @@ public abstract class FragmentStateAdapter extends RecyclerView.Adapter<Fragment
         return savedState;
     }
 
-    /**
-     * Restores adapter state.
-     */
+    @Override
     public void restoreState(@NonNull Parcelable savedState) {
         try {
             Bundle bundle = (Bundle) savedState;

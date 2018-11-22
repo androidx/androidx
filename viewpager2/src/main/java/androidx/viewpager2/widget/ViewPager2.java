@@ -47,7 +47,7 @@ import androidx.viewpager2.CompositeOnPageChangeListener;
 import androidx.viewpager2.PageTransformerAdapter;
 import androidx.viewpager2.R;
 import androidx.viewpager2.ScrollEventAdapter;
-import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.adapter.StatefulAdapter;
 
 import java.lang.annotation.Retention;
 
@@ -209,8 +209,8 @@ public class ViewPager2 extends ViewGroup {
                 mLayoutManager.findFirstCompletelyVisibleItemPosition() != mCurrentItem;
 
         Adapter adapter = mRecyclerView.getAdapter();
-        if (adapter instanceof FragmentStateAdapter) {
-            ss.mAdapterState = ((FragmentStateAdapter) adapter).saveState();
+        if (adapter instanceof StatefulAdapter) {
+            ss.mAdapterState = ((StatefulAdapter) adapter).saveState();
         }
 
         return ss;
@@ -250,8 +250,8 @@ public class ViewPager2 extends ViewGroup {
 
         if (ss.mAdapterState != null) {
             Adapter adapter = mRecyclerView.getAdapter();
-            if (adapter instanceof FragmentStateAdapter) {
-                ((FragmentStateAdapter) adapter).restoreState(ss.mAdapterState);
+            if (adapter instanceof StatefulAdapter) {
+                ((StatefulAdapter) adapter).restoreState(ss.mAdapterState);
             }
         }
     }
@@ -331,8 +331,6 @@ public class ViewPager2 extends ViewGroup {
     }
 
     /**
-     * TODO(b/70663708): decide on an Adapter class. Here supporting subclasses of {@link Adapter}.
-     *
      * @see androidx.viewpager2.adapter.FragmentStateAdapter
      * @see RecyclerView#setAdapter(Adapter)
      */
