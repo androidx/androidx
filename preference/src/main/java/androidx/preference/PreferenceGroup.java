@@ -28,6 +28,7 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.collection.SimpleArrayMap;
@@ -276,13 +277,14 @@ public abstract class PreferenceGroup extends Preference {
 
     /**
      * Recursively finds and removes a {@link Preference} from this group or a nested group lower
-     * down in the hierarchy.
+     * down in the hierarchy. If two {@link Preference}s share the same key (not recommended),
+     * the first to appear will be removed.
      *
      * @param key The key of the preference to remove
      * @return Whether the preference was found and removed
      * @see #findPreference(CharSequence)
      */
-    public boolean removePreferenceRecursively(CharSequence key) {
+    public boolean removePreferenceRecursively(@NonNull CharSequence key) {
         final Preference preference = findPreference(key);
         if (preference == null) {
             return false;
