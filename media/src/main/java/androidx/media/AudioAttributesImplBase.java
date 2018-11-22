@@ -21,9 +21,29 @@ import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_CONTENT_TYPE
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_FLAGS;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_USAGE;
+import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MOVIE;
+import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_MUSIC;
+import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_SONIFICATION;
+import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_SPEECH;
 import static androidx.media.AudioAttributesCompat.CONTENT_TYPE_UNKNOWN;
 import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
+import static androidx.media.AudioAttributesCompat.USAGE_ALARM;
+import static androidx.media.AudioAttributesCompat.USAGE_ASSISTANCE_ACCESSIBILITY;
+import static androidx.media.AudioAttributesCompat.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static androidx.media.AudioAttributesCompat.USAGE_ASSISTANCE_SONIFICATION;
+import static androidx.media.AudioAttributesCompat.USAGE_ASSISTANT;
+import static androidx.media.AudioAttributesCompat.USAGE_GAME;
+import static androidx.media.AudioAttributesCompat.USAGE_MEDIA;
+import static androidx.media.AudioAttributesCompat.USAGE_NOTIFICATION;
+import static androidx.media.AudioAttributesCompat.USAGE_NOTIFICATION_COMMUNICATION_DELAYED;
+import static androidx.media.AudioAttributesCompat.USAGE_NOTIFICATION_COMMUNICATION_INSTANT;
+import static androidx.media.AudioAttributesCompat.USAGE_NOTIFICATION_COMMUNICATION_REQUEST;
+import static androidx.media.AudioAttributesCompat.USAGE_NOTIFICATION_EVENT;
+import static androidx.media.AudioAttributesCompat.USAGE_NOTIFICATION_RINGTONE;
 import static androidx.media.AudioAttributesCompat.USAGE_UNKNOWN;
+import static androidx.media.AudioAttributesCompat.USAGE_VIRTUAL_SOURCE;
+import static androidx.media.AudioAttributesCompat.USAGE_VOICE_COMMUNICATION;
+import static androidx.media.AudioAttributesCompat.USAGE_VOICE_COMMUNICATION_SIGNALLING;
 
 import android.os.Bundle;
 
@@ -68,8 +88,6 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
         mLegacyStream = legacyStream;
     }
 
-    //////////////////////////////////////////////////////////////////////
-    // Implements AudioAttributesImpl interface
     @Override
     public Object getAudioAttributes() {
         return null;
@@ -163,9 +181,6 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
         return sb.toString();
     }
 
-    //////////////////////////////////////////////////////////////////////
-    // Other public methods
-
     public static AudioAttributesImpl fromBundle(Bundle bundle) {
         if (bundle == null) {
             return null;
@@ -176,5 +191,92 @@ public class AudioAttributesImplBase implements AudioAttributesImpl {
         int legacyStream = bundle.getInt(AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE,
                 INVALID_STREAM_TYPE);
         return new AudioAttributesImplBase(contentType, flags, usage, legacyStream);
+    }
+
+    static class Builder implements AudioAttributesImpl.Builder {
+        private int mUsage = USAGE_UNKNOWN;
+        private int mContentType = CONTENT_TYPE_UNKNOWN;
+        private int mFlags = 0x0;
+        private int mLegacyStream = INVALID_STREAM_TYPE;
+
+        Builder() {
+        }
+
+        Builder(AudioAttributesCompat aa) {
+            mUsage = aa.getUsage();
+            mContentType = aa.getContentType();
+            mFlags = aa.getFlags();
+            mLegacyStream = aa.getRawLegacyStreamType();
+        }
+
+        @Override
+        public AudioAttributesImpl build() {
+            return new AudioAttributesImplBase(mContentType, mFlags, mUsage, mLegacyStream);
+        }
+
+        @Override
+        public Builder setUsage(@AudioAttributesCompat.AttributeUsage int usage) {
+            switch (usage) {
+                case USAGE_UNKNOWN:
+                case USAGE_MEDIA:
+                case USAGE_VOICE_COMMUNICATION:
+                case USAGE_VOICE_COMMUNICATION_SIGNALLING:
+                case USAGE_ALARM:
+                case USAGE_NOTIFICATION:
+                case USAGE_NOTIFICATION_RINGTONE:
+                case USAGE_NOTIFICATION_COMMUNICATION_REQUEST:
+                case USAGE_NOTIFICATION_COMMUNICATION_INSTANT:
+                case USAGE_NOTIFICATION_COMMUNICATION_DELAYED:
+                case USAGE_NOTIFICATION_EVENT:
+                case USAGE_ASSISTANCE_ACCESSIBILITY:
+                case USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
+                case USAGE_ASSISTANCE_SONIFICATION:
+                case USAGE_GAME:
+                case USAGE_VIRTUAL_SOURCE:
+                    mUsage = usage;
+                    break;
+                // TODO: shouldn't it be USAGE_ASSISTANT?
+                case USAGE_ASSISTANT:
+                    mUsage = USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+                    break;
+                default:
+                    mUsage = USAGE_UNKNOWN;
+            }
+            return this;
+        }
+
+        @Override
+        public Builder setContentType(@AudioAttributesCompat.AttributeContentType int contentType) {
+            switch (contentType) {
+                case CONTENT_TYPE_UNKNOWN:
+                case CONTENT_TYPE_MOVIE:
+                case CONTENT_TYPE_MUSIC:
+                case CONTENT_TYPE_SONIFICATION:
+                case CONTENT_TYPE_SPEECH:
+                    mContentType = contentType;
+                    break;
+                default:
+                    mUsage = CONTENT_TYPE_UNKNOWN;
+            }
+            return this;
+        }
+
+        @Override
+        public Builder setFlags(int flags) {
+            flags &= AudioAttributesCompat.FLAG_ALL;
+            mFlags |= flags;
+            return this;
+        }
+
+        @Override
+        public Builder setLegacyStreamType(int streamType) {
+            if (streamType == AudioManagerHidden.STREAM_ACCESSIBILITY) {
+                throw new IllegalArgumentException(
+                        "STREAM_ACCESSIBILITY is not a legacy stream "
+                                + "type that was used for audio playback");
+            }
+            mLegacyStream = streamType;
+            return this;
+        }
     }
 }
