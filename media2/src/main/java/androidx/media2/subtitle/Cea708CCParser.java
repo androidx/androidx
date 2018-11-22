@@ -94,7 +94,7 @@ import java.util.Arrays;
  * <p>Most of the extended code groups are being skipped.
  *
  */
-@RequiresApi(28)
+@RequiresApi(19)
 class Cea708CCParser {
     private static final String TAG = "Cea708CCParser";
     private static final boolean DEBUG = false;

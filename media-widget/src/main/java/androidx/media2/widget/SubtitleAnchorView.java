@@ -26,7 +26,7 @@ import androidx.annotation.RequiresApi;
 import androidx.media2.subtitle.SubtitleController.Anchor;
 import androidx.media2.subtitle.SubtitleTrack.RenderingWidget;
 
-@RequiresApi(21)
+@RequiresApi(19)
 class SubtitleAnchorView extends BaseLayout implements Anchor {
     private static final String TAG = "SubtitleAnchorView";
 
@@ -42,12 +42,7 @@ class SubtitleAnchorView extends BaseLayout implements Anchor {
     }
 
     SubtitleAnchorView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, 0);
-    }
-
-    SubtitleAnchorView(
-            Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
+        super(context, attrs, defStyleAttr);
     }
 
     @Override

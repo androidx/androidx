@@ -23,7 +23,6 @@ import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_UNKNOWN_ERROR;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.text.TextUtils;
@@ -59,7 +58,7 @@ import java.util.concurrent.Future;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+@RequiresApi(19)
 public class RoutePlayer extends RemoteSessionPlayer {
     private static final String TAG = "RoutePlayer";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);

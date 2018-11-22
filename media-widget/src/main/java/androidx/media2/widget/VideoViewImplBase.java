@@ -80,7 +80,7 @@ import java.util.concurrent.Executor;
 /**
  * Base implementation of VideoView.
  */
-@RequiresApi(28)
+@RequiresApi(19)
 class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceListener {
     private static final String TAG = "VideoViewImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -105,8 +105,8 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
 
     VideoViewInterface mCurrentView;
     VideoViewInterface mTargetView;
-    private VideoTextureView mTextureView;
-    private VideoSurfaceView mSurfaceView;
+    VideoTextureView mTextureView;
+    VideoSurfaceView mSurfaceView;
 
     VideoViewPlayer mMediaPlayer;
     MediaItem mMediaItem;
@@ -874,7 +874,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                 : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
     }
 
-    private void updateCurrentMusicView(View newMusicView) {
+    void updateCurrentMusicView(View newMusicView) {
         newMusicView.setBackgroundColor(mDominantColor);
 
         ImageView albumView = newMusicView.findViewById(R.id.album);

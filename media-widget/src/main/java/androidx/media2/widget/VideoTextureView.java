@@ -29,7 +29,7 @@ import androidx.core.content.ContextCompat;
 import androidx.media2.MediaPlayer;
 import androidx.media2.VideoSize;
 
-@RequiresApi(21)
+@RequiresApi(19)
 class VideoTextureView extends TextureView
         implements VideoViewInterface, TextureView.SurfaceTextureListener {
     private static final String TAG = "VideoTextureView";
