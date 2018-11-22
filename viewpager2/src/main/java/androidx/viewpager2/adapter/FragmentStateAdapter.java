@@ -16,11 +16,13 @@
 
 package androidx.viewpager2.adapter;
 
+import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.collection.LongSparseArray;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -48,10 +50,11 @@ import java.util.List;
  * </ul>
  */
 public abstract class FragmentStateAdapter extends RecyclerView.Adapter<FragmentViewHolder> {
-    private final List<Fragment> mFragments = new ArrayList<>();
+    private static final String STATE_ARG_KEYS = "keys";
+    private static final String STATE_ARG_VALUES = "values";
 
-    private final List<Fragment.SavedState> mSavedStates = new ArrayList<>();
-    // TODO: handle current item's menuVisibility userVisibleHint as FragmentStatePagerAdapter
+    private final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
+    private final LongSparseArray<Fragment.SavedState> mSavedStates = new LongSparseArray<>();
 
     private final FragmentManager mFragmentManager;
 
@@ -91,10 +94,7 @@ public abstract class FragmentStateAdapter extends RecyclerView.Adapter<Fragment
                 fragment.setInitialSavedState(savedState);
             }
         }
-        while (mFragments.size() <= position) {
-            mFragments.add(null);
-        }
-        mFragments.set(position, fragment);
+        mFragments.put(position, fragment);
         return fragment;
     }
 
@@ -146,34 +146,65 @@ public abstract class FragmentStateAdapter extends RecyclerView.Adapter<Fragment
         }
 
         if (fragment.isAdded()) {
-            while (mSavedStates.size() <= position) {
-                mSavedStates.add(null);
-            }
-            mSavedStates.set(position, mFragmentManager.saveFragmentInstanceState(fragment));
+            mSavedStates.put(position, mFragmentManager.saveFragmentInstanceState(fragment));
         }
 
-        mFragments.set(position, null);
+        mFragments.remove(position);
         fragmentTransaction.remove(fragment);
     }
 
     /**
      * Saves adapter state.
      */
-    public Parcelable[] saveState() {
-        FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        for (int i = 0; i < mFragments.size(); i++) {
-            removeFragment(mFragments.get(i), i, fragmentTransaction);
+    public Parcelable saveState() {
+        /** remove active fragments saving their state in {@link mSavedStates) */
+        List<Long> toRemove = new ArrayList<>();
+        for (int ix = 0; ix < mFragments.size(); ix++) {
+            toRemove.add(mFragments.keyAt(ix));
         }
-        fragmentTransaction.commitNowAllowingStateLoss();
-        return mSavedStates.toArray(new Fragment.SavedState[mSavedStates.size()]);
+        if (!toRemove.isEmpty()) {
+            FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+            for (Long position : toRemove) {
+                removeFragment(mFragments.get(position), position.intValue(), fragmentTransaction);
+            }
+            fragmentTransaction.commitNowAllowingStateLoss();
+        }
+
+        /** Write {@link mSavedStates) into a {@link Parcelable} */
+        final int length = mSavedStates.size();
+        long[] keys = new long[length];
+        Fragment.SavedState[] values = new Fragment.SavedState[length];
+        for (int ix = 0; ix < length; ix++) {
+            keys[ix] = mSavedStates.keyAt(ix);
+            values[ix] = mSavedStates.get(keys[ix]);
+        }
+
+        Bundle savedState = new Bundle(2);
+        savedState.putLongArray(STATE_ARG_KEYS, keys);
+        savedState.putParcelableArray(STATE_ARG_VALUES, values);
+        return savedState;
     }
 
     /**
      * Restores adapter state.
      */
-    public void restoreState(@NonNull Parcelable[] savedStates) {
-        for (Parcelable savedState : savedStates) {
-            mSavedStates.add((Fragment.SavedState) savedState);
+    public void restoreState(@NonNull Parcelable savedState) {
+        try {
+            Bundle bundle = (Bundle) savedState;
+            long[] keys = bundle.getLongArray(STATE_ARG_KEYS);
+            Fragment.SavedState[] values =
+                    (Fragment.SavedState[]) bundle.getParcelableArray(STATE_ARG_VALUES);
+            //noinspection ConstantConditions
+            if (keys.length != values.length) {
+                throw new IllegalStateException();
+            }
+
+            mSavedStates.clear();
+            for (int ix = 0; ix < keys.length; ix++) {
+                mSavedStates.put(keys[ix], values[ix]);
+            }
+        } catch (Exception ex) {
+            throw new IllegalStateException("Invalid savedState passed to the adapter.", ex);
         }
     }
 }

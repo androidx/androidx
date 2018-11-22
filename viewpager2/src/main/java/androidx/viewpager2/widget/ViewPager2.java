@@ -275,7 +275,7 @@ public class ViewPager2 extends ViewGroup {
         @Orientation int mOrientation;
         int mCurrentItem;
         boolean mScrollInProgress;
-        Parcelable[] mAdapterState;
+        Parcelable mAdapterState;
 
         @RequiresApi(24)
         SavedState(Parcel source, ClassLoader loader) {
@@ -297,7 +297,7 @@ public class ViewPager2 extends ViewGroup {
             mOrientation = source.readInt();
             mCurrentItem = source.readInt();
             mScrollInProgress = source.readByte() != 0;
-            mAdapterState = source.readParcelableArray(loader);
+            mAdapterState = source.readParcelable(loader);
         }
 
         @Override
@@ -307,7 +307,7 @@ public class ViewPager2 extends ViewGroup {
             out.writeInt(mOrientation);
             out.writeInt(mCurrentItem);
             out.writeByte((byte) (mScrollInProgress ? 1 : 0));
-            out.writeParcelableArray(mAdapterState, flags);
+            out.writeParcelable(mAdapterState, flags);
         }
 
         static final Creator<SavedState> CREATOR = new ClassLoaderCreator<SavedState>() {
