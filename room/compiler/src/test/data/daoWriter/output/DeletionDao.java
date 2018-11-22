@@ -183,7 +183,7 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Completable deleteUserCompletable(final User user) {
-    return Completable.fromCallable(new Callable() {
+    return Completable.fromCallable(new Callable<Void>() {
       @Override
       public Void call() throws Exception {
         __db.beginTransaction();

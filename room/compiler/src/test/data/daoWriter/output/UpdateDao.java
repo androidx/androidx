@@ -205,7 +205,7 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   @Override
   public Completable updateUserAndReturnCountCompletable(final User user) {
-    return Completable.fromCallable(new Callable() {
+    return Completable.fromCallable(new Callable<Void>() {
       @Override
       public Void call() throws Exception {
         __db.beginTransaction();
