@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2018 The Android Open Source Project
+  ~ Copyright 2018 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -12,20 +12,11 @@
   ~ distributed under the License is distributed on an "AS IS" BASIS,
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
-  ~ limitations under the License
+  ~ limitations under the License.
   -->
 <PreferenceScreen
         xmlns:app="http://schemas.android.com/apk/res-auto">
-    <Preference
-            app:title="Preference 1"
-            app:summary="12345"
-            app:enableCopying="true"/>
-
-    <Preference
-            app:title="Preference 2"
-            app:summary="6789"/>
-
-    <Preference
-            app:title="Preference 3"
-            app:enableCopying="true"/>
+    <EditTextPreference
+            app:title="preference"
+            app:key="preference"/>
 </PreferenceScreen>

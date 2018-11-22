@@ -24,6 +24,8 @@ import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.res.TypedArrayUtils;
 
 /**
@@ -33,6 +35,9 @@ import androidx.core.content.res.TypedArrayUtils;
  */
 public class EditTextPreference extends DialogPreference {
     private String mText;
+
+    @Nullable
+    private OnBindEditTextListener mOnBindEditTextListener;
 
     public EditTextPreference(Context context, AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
@@ -130,6 +135,46 @@ public class EditTextPreference extends DialogPreference {
         SavedState myState = (SavedState) state;
         super.onRestoreInstanceState(myState.getSuperState());
         setText(myState.mText);
+    }
+
+    /**
+     * Set an {@link OnBindEditTextListener} that will be invoked when the corresponding dialog
+     * view for this preference is bound. Set {@code null} to remove the existing
+     * OnBindEditTextListener.
+     *
+     * @param onBindEditTextListener The {@link OnBindEditTextListener} that will be invoked when
+     *                               the corresponding dialog view for this preference is bound
+     * @see OnBindEditTextListener
+     */
+    public void setOnBindEditTextListener(@Nullable OnBindEditTextListener onBindEditTextListener) {
+        mOnBindEditTextListener = onBindEditTextListener;
+    }
+
+    /**
+     * Returns the {@link OnBindEditTextListener} used to configure the {@link EditText}
+     * displayed in the corresponding dialog view for this preference.
+     *
+     * @return The {@link OnBindEditTextListener} set for this preference, or {@code null} if
+     * there is no OnBindEditTextListener set
+     * @see OnBindEditTextListener
+     */
+    public @Nullable OnBindEditTextListener getOnBindEditTextListener() {
+        return mOnBindEditTextListener;
+    }
+
+    /**
+     * Interface definition for a callback to be invoked when the corresponding dialog view for
+     * this preference is bound. This allows you to customize the {@link EditText} displayed
+     * in the dialog, such as setting a max length or a specific input type.
+     */
+    public interface OnBindEditTextListener {
+        /**
+         * Called when the dialog view for this preference has been bound, allowing you to
+         * customize the {@link EditText} displayed in the dialog.
+         *
+         * @param editText The {@link EditText} displayed in the dialog
+         */
+        void onBindEditText(@NonNull EditText editText);
     }
 
     private static class SavedState extends BaseSavedState {
