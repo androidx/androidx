@@ -27,6 +27,7 @@ import androidx.ui.engine.text.ParagraphConstraints
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextAlign
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.window.Locale
 import androidx.ui.port.bitmap
@@ -614,6 +615,97 @@ class ParagraphTest {
         assertThat(paragraphImpl.getLineLeft(1), equalTo(0.0))
     }
 
+    @Test
+    fun textDirection_whenLTR_dotIsOnRight() {
+        val text = "a.."
+        val fontSize = 20.0
+        val layoutWidth = text.length * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textDirection = TextDirection.LTR,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        // The offset of the last character in display order.
+        val offset = Offset("a.".length * fontSize + 1, fontSize / 2)
+        val charIndex = paragraph.getPositionForOffset(offset = offset).offset
+        assertThat(charIndex, equalTo(2))
+    }
+
+    @Test
+    fun textDirection_whenRTL_dotIsOnLeft() {
+        val text = "a.."
+        val fontSize = 20.0
+        val layoutWidth = text.length * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textDirection = TextDirection.RTL,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        // The offset of the first character in display order.
+        val offset = Offset(fontSize / 2 + 1, fontSize / 2)
+        val charIndex = paragraph.getPositionForOffset(offset = offset).offset
+        assertThat(charIndex, equalTo(2))
+    }
+
+    @Test
+    fun textDirection_whenDefault_withoutStrongChar_directionIsLTR() {
+        val text = "..."
+        val fontSize = 20.0
+        val layoutWidth = text.length * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        for (i in 0..text.length) {
+            // The offset of the i-th character in display order.
+            val offset = Offset(i * fontSize + 1, fontSize / 2)
+            val charIndex = paragraph.getPositionForOffset(offset = offset).offset
+            assertThat(charIndex, equalTo(i))
+        }
+    }
+
+    @Test
+    fun textDirection_whenDefault_withFirstStrongCharLTR_directionIsLTR() {
+        val text = "a\u05D0."
+        val fontSize = 20.0
+        val layoutWidth = text.length * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        for (i in 0 until text.length) {
+            // The offset of the i-th character in display order.
+            val offset = Offset(i * fontSize + 1, fontSize / 2)
+            val charIndex = paragraph.getPositionForOffset(offset = offset).offset
+            assertThat(charIndex, equalTo(i))
+        }
+    }
+
+    @Test
+    fun textDirection_whenDefault_withFirstStrongCharRTL_directionIsRTL() {
+        val text = "\u05D0a."
+        val fontSize = 20.0
+        val layoutWidth = text.length * fontSize
+
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        // The first character in display order should be '.'
+        val offset = Offset(fontSize / 2 + 1, fontSize / 2)
+        val index = paragraph.getPositionForOffset(offset = offset).offset
+        assertThat(index, equalTo(2))
+    }
+
     // TODO(migration/siyamed) add test
     @Test
     fun getWordBoundary() {
@@ -622,6 +714,7 @@ class ParagraphTest {
     private fun simpleParagraph(
         text: CharSequence = "",
         textAlign: TextAlign? = null,
+        textDirection: TextDirection? = null,
         fontSize: Double? = null,
         maxLines: Int? = null
     ): Paragraph {
@@ -630,6 +723,7 @@ class ParagraphTest {
             textStyles = listOf(),
             paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
+                textDirection = textDirection,
                 maxLines = maxLines,
                 fontFamily = fontFallback,
                 fontSize = fontSize

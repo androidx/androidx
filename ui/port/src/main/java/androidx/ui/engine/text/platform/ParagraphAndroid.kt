@@ -23,12 +23,16 @@ import androidx.text.ALIGN_OPPOSITE
 import androidx.text.ALIGN_RIGHT
 import androidx.text.JUSTIFICATION_MODE_INTER_WORD
 import androidx.text.JUSTIFICATION_MODE_NONE
+import androidx.text.TEXT_DIRECTION_FIRST_STRONG_LTR
+import androidx.text.TEXT_DIRECTION_LTR
+import androidx.text.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextAlign
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.Canvas
 import java.util.Locale
@@ -101,6 +105,13 @@ internal class ParagraphAndroid constructor(
             TextAlign.END -> ALIGN_OPPOSITE
             else -> ALIGN_NORMAL
         }
+        // TODO(Migration/haoyuchang): Layout has more settings that flutter,
+        //  we may add them in future.
+        val textDirectionHeuristic = when (paragraphStyle.textDirection) {
+            TextDirection.LTR -> TEXT_DIRECTION_LTR
+            TextDirection.RTL -> TEXT_DIRECTION_RTL
+            else -> TEXT_DIRECTION_FIRST_STRONG_LTR
+        }
         val maxLines = paragraphStyle.maxLines ?: Int.MAX_VALUE
         val justificationMode = when (paragraphStyle.textAlign) {
             TextAlign.JUSTIFY -> JUSTIFICATION_MODE_INTER_WORD
@@ -112,6 +123,7 @@ internal class ParagraphAndroid constructor(
             width = floorWidth,
             textPaint = textPaint,
             alignment = alignment,
+            textDirectionHeuristic = textDirectionHeuristic,
             maxLines = maxLines,
             justificationMode = justificationMode
         )
