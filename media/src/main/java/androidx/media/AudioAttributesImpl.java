@@ -31,4 +31,12 @@ interface AudioAttributesImpl extends VersionedParcelable {
     @AudioAttributesCompat.AttributeUsage int getUsage();
     int getFlags();
     @NonNull Bundle toBundle();
+
+    interface Builder {
+        AudioAttributesImpl build();
+        Builder setUsage(@AudioAttributesCompat.AttributeUsage int usage);
+        Builder setContentType(@AudioAttributesCompat.AttributeContentType int contentType);
+        Builder setFlags(int flags);
+        Builder setLegacyStreamType(int streamType);
+    }
 }
