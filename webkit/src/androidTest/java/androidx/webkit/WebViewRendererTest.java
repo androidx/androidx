@@ -24,6 +24,7 @@ import android.webkit.WebViewClient;
 
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.runner.AndroidJUnit4;
@@ -129,6 +130,7 @@ public class WebViewRendererTest {
         WebViewOnUiThread.destroy(webView);
     }
 
+    @LargeTest
     @Test
     @SuppressLint("NewApi")
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
