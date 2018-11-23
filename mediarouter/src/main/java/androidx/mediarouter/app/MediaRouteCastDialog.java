@@ -1078,18 +1078,21 @@ public class MediaRouteCastDialog extends AppCompatDialog {
             final View.OnClickListener mCheckBoxClickListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // If user clicked unchecked checkbox, isChecked returns true.
-                    if (((CheckBox) v).isChecked()) {
-                        mCheckBox.setEnabled(false);
+                    // Disable views not to be clicked twice
+                    // They will be enabled when the view is refreshed
+                    mCheckBox.setEnabled(false);
+                    mItemView.setEnabled(false);
+                    if (isSelected(mRoute)) {
+                        mCheckBox.setChecked(false);
+                        mRoute.unselectFromGroup();
+                        animateLayoutHeight(mVolumeSliderLayout, mCollapsedLayoutHeight);
+                    } else {
+                        mCheckBox.setChecked(true);
+                        // show indeterminate progress
                         mImageView.setVisibility(View.INVISIBLE);
                         mProgressBar.setVisibility(View.VISIBLE);
                         mRoute.selectIntoGroup();
                         animateLayoutHeight(mVolumeSliderLayout, mExpandedLayoutHeight);
-                    } else {
-                        // If user clicked checked checkbox, isChecked returns false.
-                        mCheckBox.setEnabled(false);
-                        mRoute.unselectFromGroup();
-                        animateLayoutHeight(mVolumeSliderLayout, mCollapsedLayoutHeight);
                     }
                 }
             };
@@ -1193,9 +1196,11 @@ public class MediaRouteCastDialog extends AppCompatDialog {
 
                     // Set enabled states of views, height of volume slider layout and alpha value
                     // of itemView.
+                    mItemView.setEnabled(enabled);
                     mCheckBox.setEnabled(enabled);
                     mMuteButton.setEnabled(enabled);
                     mVolumeSlider.setEnabled(enabled);
+                    mItemView.setOnClickListener(mCheckBoxClickListener);
                     mCheckBox.setOnClickListener(mCheckBoxClickListener);
                     setLayoutHeight(mVolumeSliderLayout, selected
                             ? mExpandedLayoutHeight : mCollapsedLayoutHeight);
