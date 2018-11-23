@@ -27,6 +27,7 @@ import android.support.annotation.IdRes;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -69,7 +70,7 @@ public abstract class Navigator<D extends NavDestination> {
     }
 
     @Retention(SOURCE)
-    @IntDef({BACK_STACK_UNCHANGED, BACK_STACK_DESTINATION_ADDED, BACK_STACK_DESTINATION_POPPED})
+    @IntDef({BACK_STACK_UNCHANGED, BACK_STACK_DESTINATION_ADDED})
     @interface BackStackEffect {}
 
     /**
@@ -93,11 +94,16 @@ public abstract class Navigator<D extends NavDestination> {
     /**
      * Indicator that the navigation event has popped an entry off the back stack.
      *
-     * @see #dispatchOnNavigatorNavigated
+     * @deprecated You no longer need to send these events - just return true from
+     * {@link #popBackStack()} to indicate that the pop operation succeeded
      */
+    @Deprecated
     public static final int BACK_STACK_DESTINATION_POPPED = 2;
 
     private final CopyOnWriteArrayList<OnNavigatorNavigatedListener> mOnNavigatedListeners =
+            new CopyOnWriteArrayList<>();
+
+    private final CopyOnWriteArrayList<OnNavigatorBackPressListener> mOnBackPressListeners =
             new CopyOnWriteArrayList<>();
 
     /**
@@ -233,6 +239,67 @@ public abstract class Navigator<D extends NavDestination> {
          */
         void onNavigatorNavigated(@NonNull Navigator navigator, @IdRes int destId,
                 @BackStackEffect int backStackEffect);
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected void onBackPressAdded() {
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected void onBackPressRemoved() {
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public final void addOnNavigatorBackPressListener(
+            @NonNull OnNavigatorBackPressListener listener) {
+        boolean added = mOnBackPressListeners.add(listener);
+        if (added && mOnBackPressListeners.size() == 1) {
+            onBackPressAdded();
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public final void removeOnNavigatorBackPressListener(
+            @NonNull OnNavigatorBackPressListener listener) {
+        boolean removed = mOnBackPressListeners.remove(listener);
+        if (removed && mOnBackPressListeners.isEmpty()) {
+            onBackPressRemoved();
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public final void dispatchOnNavigatorBackPress() {
+        for (OnNavigatorBackPressListener listener : mOnBackPressListeners) {
+            listener.onPopBackStack(this);
+        }
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface OnNavigatorBackPressListener {
+        /**
+         * This method is called after the Navigator navigates to a new destination.
+         *
+         * @param navigator
+         */
+        void onPopBackStack(@NonNull Navigator navigator);
     }
 
     /**

@@ -110,9 +110,6 @@ class NavGraphNavigatorTest {
         assertWithMessage("popBackStack should return true")
             .that(success)
             .isTrue()
-        verify(listener).onNavigatorNavigated(navGraphNavigator,
-                graph.id,
-                Navigator.BACK_STACK_DESTINATION_POPPED)
         verifyNoMoreInteractions(listener)
     }
 
