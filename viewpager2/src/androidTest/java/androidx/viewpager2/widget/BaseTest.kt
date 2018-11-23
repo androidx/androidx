@@ -39,6 +39,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.FragmentActivityUtils
 import androidx.viewpager2.LocaleTestUtils
+import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.test.R
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_IDLE
@@ -413,6 +414,25 @@ typealias AdapterProviderForItems = (items: List<String>) -> AdapterProvider
 
 val fragmentAdapterProvider: AdapterProviderForItems = { items ->
     { activity: TestActivity -> FragmentAdapter(activity.supportFragmentManager, items) }
+}
+
+/**
+ * Same as [fragmentAdapterProvider] but with a custom implementation of
+ * [FragmentStateAdapter.getItemId] and [FragmentStateAdapter.containsItem].
+ */
+val fragmentAdapterProviderCustomIds: AdapterProviderForItems = { items ->
+    { activity ->
+        fragmentAdapterProvider(items)(activity).also {
+            // more than position can represent, so a good test if ids are used consistently
+            val offset = 3L * Int.MAX_VALUE
+            val adapter = it as FragmentAdapter
+            adapter.positionToItemId = { position -> position + offset }
+            adapter.itemIdToContains = { itemId ->
+                val position = itemId - offset
+                position in (0 until adapter.itemCount)
+            }
+        }
+    }
 }
 
 val viewAdapterProvider: AdapterProviderForItems = { items -> { ViewAdapter(items) } }
