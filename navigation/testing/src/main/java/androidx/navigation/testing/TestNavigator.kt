@@ -59,14 +59,7 @@ open class TestNavigator : Navigator<TestNavigator.Destination>() {
     }
 
     override fun popBackStack(): Boolean {
-        val popped = backStack.pollLast() != null
-        if (popped) {
-            dispatchOnNavigatorNavigated(
-                if (backStack.isEmpty()) 0 else current.first.id,
-                Navigator.BACK_STACK_DESTINATION_POPPED
-            )
-        }
-        return popped
+        return backStack.pollLast() != null
     }
 
     /**
