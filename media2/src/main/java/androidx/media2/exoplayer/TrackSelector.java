@@ -24,6 +24,7 @@ import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_VIDEO;
 import static androidx.media2.exoplayer.RenderersFactory.AUDIO_RENDERER_INDEX;
+import static androidx.media2.exoplayer.RenderersFactory.METADATA_RENDERER_INDEX;
 import static androidx.media2.exoplayer.RenderersFactory.TEXT_RENDERER_INDEX;
 import static androidx.media2.exoplayer.RenderersFactory.VIDEO_RENDERER_INDEX;
 import static androidx.media2.exoplayer.TextRenderer.TRACK_TYPE_CEA608;
@@ -70,12 +71,14 @@ import java.util.List;
     private final DefaultTrackSelector mDefaultTrackSelector;
     private final List<MediaPlayer2.TrackInfo> mAudioTrackInfos;
     private final List<MediaPlayer2.TrackInfo> mVideoTrackInfos;
+    private final List<MediaPlayer2.TrackInfo> mMetadataTrackInfos;
     private final List<MediaPlayer2.TrackInfo> mTextTrackInfos;
     private final List<InternalTextTrackInfo> mInternalTextTrackInfos;
 
     private boolean mPendingMetadataUpdate;
     private int mSelectedAudioTrackIndex;
     private int mSelectedVideoTrackIndex;
+    private int mSelectedMetadataTrackIndex;
     private int mPlayerTextTrackIndex;
     private int mSelectedTextTrackIndex;
 
@@ -84,17 +87,20 @@ import java.util.List;
         mDefaultTrackSelector = new DefaultTrackSelector();
         mAudioTrackInfos = new ArrayList<>();
         mVideoTrackInfos = new ArrayList<>();
+        mMetadataTrackInfos = new ArrayList<>();
         mTextTrackInfos = new ArrayList<>();
         mInternalTextTrackInfos = new ArrayList<>();
         mSelectedAudioTrackIndex = TRACK_INDEX_UNSET;
         mSelectedVideoTrackIndex = TRACK_INDEX_UNSET;
+        mSelectedMetadataTrackIndex = TRACK_INDEX_UNSET;
         mPlayerTextTrackIndex = TRACK_INDEX_UNSET;
         mSelectedTextTrackIndex = TRACK_INDEX_UNSET;
         // Ensure undetermined text tracks are selected so that CEA-608/708 streams are sent to the
-        // text renderer.
+        // text renderer. By default, metadata tracks are not selected.
         mDefaultTrackSelector.setParameters(
                 new DefaultTrackSelector.ParametersBuilder()
-                        .setSelectUndeterminedTextLanguage(true));
+                        .setSelectUndeterminedTextLanguage(true)
+                        .setRendererDisabled(METADATA_RENDERER_INDEX, /* disabled= */ true));
     }
 
     public DefaultTrackSelector getPlayerTrackSelector() {
@@ -109,10 +115,12 @@ import java.util.List;
                 mDefaultTrackSelector.buildUponParameters().clearSelectionOverrides());
         mSelectedAudioTrackIndex = TRACK_INDEX_UNSET;
         mSelectedVideoTrackIndex = TRACK_INDEX_UNSET;
+        mSelectedMetadataTrackIndex = TRACK_INDEX_UNSET;
         mPlayerTextTrackIndex = TRACK_INDEX_UNSET;
         mSelectedTextTrackIndex = TRACK_INDEX_UNSET;
         mAudioTrackInfos.clear();
         mVideoTrackInfos.clear();
+        mMetadataTrackInfos.clear();
         mInternalTextTrackInfos.clear();
         mTextRenderer.clearSelection();
         MappingTrackSelector.MappedTrackInfo mappedTrackInfo =
@@ -136,6 +144,15 @@ import java.util.List;
                     MEDIA_TRACK_TYPE_VIDEO, ExoPlayerUtils.getMediaFormat(trackGroup.getFormat(0)));
             mVideoTrackInfos.add(trackInfo);
         }
+        TrackGroupArray metadataTrackGroups =
+                mappedTrackInfo.getTrackGroups(METADATA_RENDERER_INDEX);
+        for (int i = 0; i < metadataTrackGroups.length; i++) {
+            TrackGroup trackGroup = metadataTrackGroups.get(i);
+            TrackInfoImpl trackInfo = new TrackInfoImpl(
+                    MEDIA_TRACK_TYPE_METADATA,
+                    ExoPlayerUtils.getMediaFormat(trackGroup.getFormat(0)));
+            mMetadataTrackInfos.add(trackInfo);
+        }
 
         // Determine selected track indices for audio and video.
         TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
@@ -145,6 +162,10 @@ import java.util.List;
         TrackSelection videoTrackSelection = trackSelections.get(VIDEO_RENDERER_INDEX);
         mSelectedVideoTrackIndex = videoTrackSelection == null
                 ? TRACK_INDEX_UNSET : videoTrackGroups.indexOf(videoTrackSelection.getTrackGroup());
+        TrackSelection metadataTrackSelection = trackSelections.get(METADATA_RENDERER_INDEX);
+        mSelectedMetadataTrackIndex = metadataTrackSelection == null
+                ? TRACK_INDEX_UNSET : metadataTrackGroups.indexOf(
+                        metadataTrackSelection.getTrackGroup());
 
         // The text renderer exposes information about text tracks, but we may have preliminary
         // information from the player.
@@ -200,9 +221,12 @@ import java.util.List;
                 return mSelectedAudioTrackIndex;
             case MEDIA_TRACK_TYPE_VIDEO:
                 return mAudioTrackInfos.size() + mSelectedVideoTrackIndex;
-            case MEDIA_TRACK_TYPE_SUBTITLE:
-                return mAudioTrackInfos.size() + mVideoTrackInfos.size() + mSelectedTextTrackIndex;
             case MEDIA_TRACK_TYPE_METADATA:
+                return mAudioTrackInfos.size() + mVideoTrackInfos.size()
+                        + mSelectedMetadataTrackIndex;
+            case MEDIA_TRACK_TYPE_SUBTITLE:
+                return mAudioTrackInfos.size() + mVideoTrackInfos.size()
+                        + mMetadataTrackInfos.size() + mSelectedTextTrackIndex;
             case MEDIA_TRACK_TYPE_TIMEDTEXT:
             case MEDIA_TRACK_TYPE_UNKNOWN:
             default:
@@ -211,11 +235,12 @@ import java.util.List;
     }
 
     public List<MediaPlayer2.TrackInfo> getTrackInfos() {
-        // TODO(b/80232248): Expose information about metadata tracks.
         ArrayList<MediaPlayer2.TrackInfo> trackInfos = new ArrayList<>(
-                mVideoTrackInfos.size() + mAudioTrackInfos.size() + mInternalTextTrackInfos.size());
+                mVideoTrackInfos.size() + mAudioTrackInfos.size() + mMetadataTrackInfos.size()
+                        + mInternalTextTrackInfos.size());
         trackInfos.addAll(mVideoTrackInfos);
         trackInfos.addAll(mAudioTrackInfos);
+        trackInfos.addAll(mMetadataTrackInfos);
         trackInfos.addAll(mTextTrackInfos);
         // Note: the list returned by MediaPlayer2Impl is modifiable so do the same here.
         return trackInfos;
@@ -244,6 +269,22 @@ import java.util.List;
             return;
         }
         index -= mAudioTrackInfos.size();
+        if (index < mMetadataTrackInfos.size()) {
+            mSelectedMetadataTrackIndex = index;
+            MappingTrackSelector.MappedTrackInfo mappedTrackInfo =
+                    Preconditions.checkNotNull(mDefaultTrackSelector.getCurrentMappedTrackInfo());
+            TrackGroupArray metadataTrackGroups =
+                    mappedTrackInfo.getTrackGroups(METADATA_RENDERER_INDEX);
+            DefaultTrackSelector.SelectionOverride selectionOverride =
+                    new DefaultTrackSelector.SelectionOverride(index, /* tracks= */ 0);
+            mDefaultTrackSelector.setParameters(mDefaultTrackSelector.buildUponParameters()
+                    .setRendererDisabled(METADATA_RENDERER_INDEX, /* disabled= */ false)
+                    .setSelectionOverride(
+                            METADATA_RENDERER_INDEX, metadataTrackGroups, selectionOverride)
+                    .build());
+            return;
+        }
+        index -= mMetadataTrackInfos.size();
         Preconditions.checkArgument(index < mInternalTextTrackInfos.size());
         InternalTextTrackInfo internalTextTrackInfo = mInternalTextTrackInfos.get(index);
         if (mPlayerTextTrackIndex != internalTextTrackInfo.mPlayerTrackIndex) {
@@ -272,6 +313,13 @@ import java.util.List;
         Preconditions.checkArgument(
                 index >= mAudioTrackInfos.size(), "Audio track deselection is not supported");
         index -= mAudioTrackInfos.size();
+        if (index < mMetadataTrackInfos.size()) {
+            mSelectedMetadataTrackIndex = TRACK_INDEX_UNSET;
+            mDefaultTrackSelector.setParameters(mDefaultTrackSelector.buildUponParameters()
+                    .setRendererDisabled(METADATA_RENDERER_INDEX, /* disabled= */ true));
+            return;
+        }
+        index -= mMetadataTrackInfos.size();
         Preconditions.checkArgument(index == mSelectedTextTrackIndex);
         mTextRenderer.clearSelection();
         mSelectedTextTrackIndex = TRACK_INDEX_UNSET;
