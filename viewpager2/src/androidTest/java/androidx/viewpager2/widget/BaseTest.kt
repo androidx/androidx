@@ -250,11 +250,7 @@ open class BaseTest {
     }
 
     fun Context.setAdapterSync(adapterProvider: AdapterProvider) {
-        val waitForRenderLatch = CountDownLatch(1)
-
-        viewPager.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-            waitForRenderLatch.countDown()
-        }
+        val waitForRenderLatch = viewPager.addWaitForLayoutChangeLatch()
 
         runOnUiThread {
             viewPager.adapter = adapterProvider(activity)
@@ -266,6 +262,12 @@ open class BaseTest {
             // Give slow devices some time to warm up,
             // to prevent severe frame drops in the smooth scroll
             Thread.sleep(1000)
+        }
+    }
+
+    fun ViewPager2.addWaitForLayoutChangeLatch(): CountDownLatch {
+        return CountDownLatch(1).also {
+            addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> it.countDown() }
         }
     }
 
@@ -362,25 +364,10 @@ open class BaseTest {
         timeout: Long,
         unit: TimeUnit
     ) {
-        val latch = addWaitForScrolledLatch(targetPage, false)
-
-        // temporary hack to stop the tests from failing
-        // this most likely shows a bug in PageChangeListener - communicating IDLE before
-        // RecyclerView is ready; TODO: investigate further and fix
-        val latchRV = CountDownLatch(1)
-        val rv = getChildAt(0) as RecyclerView
-        rv.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState == 0) {
-                    latchRV.countDown()
-                }
-            }
-        })
+        if (currentItem == targetPage) return
+        val latch = addWaitForScrolledLatch(targetPage, smoothScroll)
         post { setCurrentItem(targetPage, smoothScroll) }
         latch.await(timeout, unit)
-        if (smoothScroll) {
-            latchRV.await(timeout, unit)
-        }
     }
 
     enum class SortOrder(val sign: Int) {
