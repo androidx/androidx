@@ -43,22 +43,12 @@ class FragmentAdapter(
 
     override fun getItemCount(): Int = items.size
 
-    override fun getItemId(position: Int): Long {
-        // more than position can represent, so a good test if ids are used consistently
-        // TODO:
-        // in tests, use both:
-        // - default implementation (position)
-        // - the below
-        return position + MORE_THAN_INT32_OFFSET
-    }
-
-    override fun containsItem(itemId: Long): Boolean {
-        val position = itemId - MORE_THAN_INT32_OFFSET
-        return position in 0..(itemCount - 1)
-    }
+    /** easy way of dynamically overriding [getItemCount] and [containsItem] */
+    var positionToItemId: (Int) -> Long = { position -> super.getItemId(position) }
+    var itemIdToContains: (Long) -> Boolean = { itemId -> super.containsItem(itemId) }
+    override fun getItemId(position: Int): Long = positionToItemId(position)
+    override fun containsItem(itemId: Long): Boolean = itemIdToContains(itemId)
 }
-
-private const val MORE_THAN_INT32_OFFSET = 3L * Int.MAX_VALUE
 
 class PageFragment : Fragment() {
     var onAttachListener: () -> Unit = {}
