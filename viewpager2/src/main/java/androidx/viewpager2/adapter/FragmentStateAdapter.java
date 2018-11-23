@@ -61,6 +61,7 @@ public abstract class FragmentStateAdapter extends
 
     public FragmentStateAdapter(FragmentManager fragmentManager) {
         mFragmentManager = fragmentManager;
+        setHasStableIds(true);
     }
 
     /**
@@ -89,13 +90,9 @@ public abstract class FragmentStateAdapter extends
 
     private Fragment getFragment(int position) {
         Fragment fragment = getItem(position);
-        if (mSavedStates.size() > position) {
-            Fragment.SavedState savedState = mSavedStates.get(position);
-            if (savedState != null) {
-                fragment.setInitialSavedState(savedState);
-            }
-        }
-        mFragments.put(position, fragment);
+        long itemId = getItemId(position);
+        fragment.setInitialSavedState(mSavedStates.get(itemId));
+        mFragments.put(itemId, fragment);
         return fragment;
     }
 
@@ -133,25 +130,58 @@ public abstract class FragmentStateAdapter extends
      */
     private void removeFragment(Fragment fragment, int position) {
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        removeFragment(fragment, position, fragmentTransaction);
+        removeFragment(fragment, getItemId(position), fragmentTransaction);
         fragmentTransaction.commitNowAllowingStateLoss();
     }
 
     /**
      * Adds a remove operation to the transaction, but does not commit.
      */
-    private void removeFragment(Fragment fragment, int position,
+    private void removeFragment(Fragment fragment, long itemId,
             @NonNull FragmentTransaction fragmentTransaction) {
         if (fragment == null) {
             return;
         }
 
         if (fragment.isAdded()) {
-            mSavedStates.put(position, mFragmentManager.saveFragmentInstanceState(fragment));
+            mSavedStates.put(itemId, mFragmentManager.saveFragmentInstanceState(fragment));
         }
 
-        mFragments.remove(position);
+        mFragments.remove(itemId);
         fragmentTransaction.remove(fragment);
+    }
+
+    /**
+     * Default implementation works for collections that don't add, move, remove items.
+     * <p>
+     * When overriding, also override {@link #containsItem(long)}.
+     * <p>
+     * If the item is not a part of the collection, return {@link RecyclerView#NO_ID}.
+     *
+     * @param position Adapter position
+     * @return stable item id {@link RecyclerView.Adapter#hasStableIds()}
+     */
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    /**
+     * Default implementation works for collections that don't add, move, remove items.
+     * <p>
+     * When overriding, also override {@link #getItemId(int)}
+     */
+    public boolean containsItem(long itemId) {
+        return itemId >= 0 && itemId < getItemCount();
+    }
+
+    @Override
+    public void setHasStableIds(boolean hasStableIds) {
+        if (!hasStableIds) {
+            throw new IllegalStateException(
+                    "Stable Ids are required for the adapter to function properly.");
+        }
+        super.setHasStableIds(true);
     }
 
     @Override
@@ -163,8 +193,8 @@ public abstract class FragmentStateAdapter extends
         }
         if (!toRemove.isEmpty()) {
             FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-            for (Long position : toRemove) {
-                removeFragment(mFragments.get(position), position.intValue(), fragmentTransaction);
+            for (Long itemId : toRemove) {
+                removeFragment(mFragments.get(itemId), itemId, fragmentTransaction);
             }
             fragmentTransaction.commitNowAllowingStateLoss();
         }
@@ -174,8 +204,11 @@ public abstract class FragmentStateAdapter extends
         long[] keys = new long[length];
         Fragment.SavedState[] values = new Fragment.SavedState[length];
         for (int ix = 0; ix < length; ix++) {
-            keys[ix] = mSavedStates.keyAt(ix);
-            values[ix] = mSavedStates.get(keys[ix]);
+            long itemId = mSavedStates.keyAt(ix);
+            if (containsItem(itemId)) {
+                keys[ix] = itemId;
+                values[ix] = mSavedStates.get(keys[ix]);
+            }
         }
 
         Bundle savedState = new Bundle(2);
@@ -198,7 +231,10 @@ public abstract class FragmentStateAdapter extends
 
             mSavedStates.clear();
             for (int ix = 0; ix < keys.length; ix++) {
-                mSavedStates.put(keys[ix], values[ix]);
+                long itemId = keys[ix];
+                if (containsItem(itemId)) {
+                    mSavedStates.put(itemId, values[ix]);
+                }
             }
         } catch (Exception ex) {
             throw new IllegalStateException("Invalid savedState passed to the adapter.", ex);
