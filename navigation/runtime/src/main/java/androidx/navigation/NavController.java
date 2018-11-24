@@ -179,7 +179,7 @@ public class NavController {
             }
             context = ((ContextWrapper) context).getBaseContext();
         }
-        mNavigatorProvider.addNavigator(new NavGraphNavigator(mContext, mNavigatorProvider));
+        mNavigatorProvider.addNavigator(new NavGraphNavigator(mNavigatorProvider));
         mNavigatorProvider.addNavigator(new ActivityNavigator(mContext));
     }
 

@@ -133,6 +133,7 @@ public class NavDestination {
     private final String mNavigatorName;
     private NavGraph mParent;
     private int mId;
+    private String mIdName;
     private CharSequence mLabel;
     private Bundle mDefaultArgs;
     private ArrayList<NavDeepLink> mDeepLinks;
@@ -165,6 +166,7 @@ public class NavDestination {
         final TypedArray a = context.getResources().obtainAttributes(attrs,
                 R.styleable.Navigator);
         setId(a.getResourceId(R.styleable.Navigator_android_id, 0));
+        mIdName = getDisplayName(context, mId);
         setLabel(a.getText(R.styleable.Navigator_android_label));
         a.recycle();
     }
@@ -190,7 +192,7 @@ public class NavDestination {
      * @return this destination's ID
      */
     @IdRes
-    public int getId() {
+    public final int getId() {
         return mId;
     }
 
@@ -200,8 +202,17 @@ public class NavDestination {
      *
      * @param id this destination's new ID
      */
-    public void setId(@IdRes int id) {
+    public final void setId(@IdRes int id) {
         mId = id;
+        mIdName = null;
+    }
+
+    @NonNull
+    String getDisplayName() {
+        if (mIdName == null) {
+            mIdName = Integer.toString(mId);
+        }
+        return mIdName;
     }
 
     /**

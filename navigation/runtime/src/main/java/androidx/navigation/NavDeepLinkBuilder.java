@@ -121,7 +121,7 @@ public class NavDeepLinkBuilder {
      */
     @NonNull
     public NavDeepLinkBuilder setGraph(@NavigationRes int navGraphId) {
-        return setGraph(new NavInflater(mContext, new PermissiveNavigatorProvider(mContext))
+        return setGraph(new NavInflater(mContext, new PermissiveNavigatorProvider())
                 .inflate(navGraphId));
     }
 
@@ -276,8 +276,8 @@ public class NavDeepLinkBuilder {
             }
         };
 
-        PermissiveNavigatorProvider(Context context) {
-            addNavigator(new NavGraphNavigator(context, this));
+        PermissiveNavigatorProvider() {
+            addNavigator(new NavGraphNavigator(this));
         }
 
         @NonNull

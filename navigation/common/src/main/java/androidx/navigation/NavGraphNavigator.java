@@ -16,7 +16,6 @@
 
 package androidx.navigation;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -31,20 +30,17 @@ import java.util.ArrayDeque;
 public class NavGraphNavigator extends Navigator<NavGraph> {
     private static final String KEY_BACK_STACK_IDS = "androidx-nav-graph:navigator:backStackIds";
 
-    private final Context mContext;
     private final NavigatorProvider mNavigatorProvider;
     private ArrayDeque<Integer> mBackStack = new ArrayDeque<>();
 
     /**
      * Construct a Navigator capable of routing incoming navigation requests to the proper
      * destination within a {@link NavGraph}.
-     * @param context Context used for providing debugging information
+     *
      * @param navigatorProvider NavigatorProvider used to retrieve the correct
      *                          {@link Navigator} to navigate to the start destination
      */
-    public NavGraphNavigator(@NonNull Context context,
-            @NonNull NavigatorProvider navigatorProvider) {
-        mContext = context;
+    public NavGraphNavigator(@NonNull NavigatorProvider navigatorProvider) {
         mNavigatorProvider = navigatorProvider;
     }
 
@@ -66,13 +62,11 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
         if (startId == 0) {
             throw new IllegalStateException("no start destination defined via"
                     + " app:startDestination for "
-                    + (destination.getId() != 0
-                            ? NavDestination.getDisplayName(mContext, destination.getId())
-                            : "the root navigation"));
+                    + destination.getDisplayName());
         }
         NavDestination startDestination = destination.findNode(startId, false);
         if (startDestination == null) {
-            final String dest = NavDestination.getDisplayName(mContext, startId);
+            final String dest = destination.getStartDestDisplayName();
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is not a direct child of this NavGraph");
         }
