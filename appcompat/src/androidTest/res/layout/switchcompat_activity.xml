@@ -29,4 +29,14 @@
             android:text="@string/sample_text1"
             app:fontFamily="@font/samplefont" />
 
+    <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/switch_tint"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_text1"
+            android:thumb="@drawable/switch_thumb_yellow"
+            app:thumbTint="#f0f"
+            app:track="@drawable/switch_track_red"
+            app:trackTint="#0ff" />
+
 </LinearLayout>
