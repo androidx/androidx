@@ -573,7 +573,7 @@ public class SwitchCompat extends CompoundButton {
 
     private void applyTrackTint() {
         if (mTrackDrawable != null && (mHasTrackTint || mHasTrackTintMode)) {
-            mTrackDrawable = mTrackDrawable.mutate();
+            mTrackDrawable = DrawableCompat.wrap(mTrackDrawable).mutate();
 
             if (mHasTrackTint) {
                 DrawableCompat.setTintList(mTrackDrawable, mTrackTintList);
@@ -696,7 +696,7 @@ public class SwitchCompat extends CompoundButton {
 
     private void applyThumbTint() {
         if (mThumbDrawable != null && (mHasThumbTint || mHasThumbTintMode)) {
-            mThumbDrawable = mThumbDrawable.mutate();
+            mThumbDrawable = DrawableCompat.wrap(mThumbDrawable).mutate();
 
             if (mHasThumbTint) {
                 DrawableCompat.setTintList(mThumbDrawable, mThumbTintList);
