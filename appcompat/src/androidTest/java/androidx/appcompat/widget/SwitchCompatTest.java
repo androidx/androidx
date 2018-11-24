@@ -19,9 +19,11 @@ package androidx.appcompat.widget;
 import static org.junit.Assert.assertEquals;
 
 import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
 import android.view.ViewGroup;
 
 import androidx.appcompat.test.R;
+import androidx.appcompat.testutils.TestUtils;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
@@ -57,5 +59,33 @@ public class SwitchCompatTest {
         Typeface expected = ResourcesCompat.getFont(mActivity, R.font.samplefont);
 
         assertEquals(expected, switchButton.getTypeface());
+    }
+
+    @Test
+    public void testTint() {
+        SwitchCompat switchButton = mContainer.findViewById(R.id.switch_tint);
+        Drawable thumb = switchButton.getThumbDrawable();
+        int expectedThumbTint = 0xffff00ff;
+        TestUtils.assertAllPixelsOfColor(
+                "Tint not applied to switch thumb",
+                thumb,
+                thumb.getIntrinsicWidth(),
+                thumb.getIntrinsicHeight(),
+                true,
+                expectedThumbTint,
+                0,
+                true);
+
+        Drawable track = switchButton.getTrackDrawable();
+        int expectedTrackTint = 0xff00ffff;
+        TestUtils.assertAllPixelsOfColor(
+                "Tint not applied to switch track",
+                track,
+                track.getIntrinsicWidth(),
+                track.getIntrinsicHeight(),
+                true,
+                expectedTrackTint,
+                0,
+                true);
     }
 }
