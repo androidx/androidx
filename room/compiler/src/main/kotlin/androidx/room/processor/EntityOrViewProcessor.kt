@@ -21,7 +21,7 @@ import androidx.room.Entity
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.typeName
 import androidx.room.vo.EntityOrView
-import androidx.room.vo.Field
+import androidx.room.vo.Fields
 import com.squareup.javapoet.TypeName
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
@@ -50,8 +50,7 @@ private class NonEntityOrViewProcessor(
                 parent = null,
                 referenceStack = referenceStack).process()
         return object : EntityOrView {
-            override val fields: List<Field>
-                get() = emptyList()
+            override val fields: Fields = Fields()
             override val tableName: String
                 get() = typeName.toString()
             override val typeName: TypeName

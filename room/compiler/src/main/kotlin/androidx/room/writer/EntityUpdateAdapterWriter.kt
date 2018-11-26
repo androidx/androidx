@@ -23,6 +23,7 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Entity
 import androidx.room.vo.FieldWithIndex
+import androidx.room.vo.columnNames
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -43,11 +44,8 @@ class EntityUpdateAdapterWriter(val entity: Entity, val onConflict: String) {
                 returns(ClassName.get("java.lang", "String"))
                 addModifiers(PUBLIC)
                 val query = "UPDATE OR $onConflict `${entity.tableName}` SET " +
-                        entity.fields.joinToString(",") { field ->
-                            "`${field.columnName}` = ?"
-                        } + " WHERE " + entity.primaryKey.fields.joinToString(" AND ") {
-                            "`${it.columnName}` = ?"
-                        }
+                        entity.columnNames.joinToString(",") { "`$it` = ?" } + " WHERE " +
+                        entity.primaryKey.columnNames.joinToString(" AND ") { "`$it` = ?" }
                 addStatement("return $S", query)
             }.build())
             addMethod(MethodSpec.methodBuilder("bind").apply {

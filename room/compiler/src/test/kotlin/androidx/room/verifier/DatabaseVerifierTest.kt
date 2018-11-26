@@ -29,6 +29,7 @@ import androidx.room.vo.Entity
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
+import androidx.room.vo.Fields
 import androidx.room.vo.PrimaryKey
 import collect
 import columnNames
@@ -252,7 +253,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                 fields = fields.toList(),
                 embeddedFields = emptyList(),
                 indices = emptyList(),
-                primaryKey = PrimaryKey(null, fields.take(1), false),
+                primaryKey = PrimaryKey(null, Fields(fields.take(1)), false),
                 foreignKeys = emptyList(),
                 constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),
                 shadowTableName = null
