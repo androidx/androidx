@@ -29,6 +29,7 @@ import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
 import androidx.room.vo.Warning
+import androidx.room.vo.findFieldByColumnName
 import androidx.room.writer.FieldReadWriteWriter
 import com.squareup.javapoet.TypeName
 import stripNonJava
@@ -58,7 +59,7 @@ class PojoRowAdapter(
                 // first check remaining, otherwise check any. maybe developer wants to map the same
                 // column into 2 fields. (if they want to post process etc)
                 val field = remainingFields.firstOrNull { it.columnName == column.name }
-                        ?: pojo.fields.firstOrNull { it.columnName == column.name }
+                        ?: pojo.findFieldByColumnName(column.name)
                 if (field == null) {
                     unusedColumns.add(column.name)
                     null

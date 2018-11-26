@@ -23,6 +23,7 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Entity
 import androidx.room.vo.FieldWithIndex
+import androidx.room.vo.columnNames
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -43,9 +44,7 @@ class EntityDeletionAdapterWriter(val entity: Entity) {
                 returns(ClassName.get("java.lang", "String"))
                 addModifiers(PUBLIC)
                 val query = "DELETE FROM `${entity.tableName}` WHERE " +
-                        entity.primaryKey.fields.joinToString(" AND ") {
-                            "`${it.columnName}` = ?"
-                        }
+                        entity.primaryKey.columnNames.joinToString(" AND ") { "`$it` = ?" }
                 addStatement("return $S", query)
             }.build())
             addMethod(MethodSpec.methodBuilder("bind").apply {

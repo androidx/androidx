@@ -16,17 +16,19 @@
 
 package androidx.room.vo
 
-import com.squareup.javapoet.TypeName
-
-/**
- * Common interface between [Entity] and [DatabaseView].
- */
-interface EntityOrView : HasFields {
-
-    /**
-     * The name of this table or view as it is stored in an SQLite database.
-     */
-    val tableName: String
-
-    val typeName: TypeName
+interface HasFields {
+    val fields: Fields
 }
+
+// we need to make it class to enable caching (see columnNames by lazy), extension properties
+// and functions don't have a way to store calculated value.
+data class Fields(private val fields: List<Field> = emptyList()) : List<Field> by fields {
+    constructor(field: Field) : this(listOf(field))
+    internal val columnNames by lazy(LazyThreadSafetyMode.NONE) { map { it.columnName } }
+}
+
+val HasFields.columnNames
+    get() = fields.columnNames
+
+fun HasFields.findFieldByColumnName(columnName: String) =
+    fields.find { it.columnName == columnName }

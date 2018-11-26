@@ -23,8 +23,10 @@ import androidx.room.vo.CallType
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
+import androidx.room.vo.Fields
 import androidx.room.vo.Index
 import androidx.room.vo.Pojo
+import androidx.room.vo.columnNames
 import com.google.testing.compile.JavaFileObjects
 import compileLibrarySource
 import org.hamcrest.CoreMatchers.`is`
@@ -57,7 +59,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     affinity = SQLTypeAffinity.INTEGER)))
             assertThat(field.setter, `is`(FieldSetter("setId", intType, CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter("getId", intType, CallType.METHOD)))
-            assertThat(entity.primaryKey.fields, `is`(listOf(field)))
+            assertThat(entity.primaryKey.fields, `is`(Fields(field)))
         }.compilesWithoutError()
     }
 
@@ -1082,8 +1084,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                     public int b;
                 }
                 """) { entity, _ ->
-            assertThat(entity.primaryKey.fields.map { it.columnName },
-                    `is`(listOf("bar_a", "bar_b")))
+            assertThat(entity.primaryKey.columnNames, `is`(listOf("bar_a", "bar_b")))
         }.compilesWithoutError().withWarningCount(0)
     }
 
@@ -1115,8 +1116,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """,
                 baseClass = "foo.bar.Base",
                 jfos = listOf(parent)) { entity, _ ->
-            assertThat(entity.primaryKey.fields.map { it.columnName },
-                    `is`(listOf("bar_a", "bar_b")))
+            assertThat(entity.primaryKey.columnNames, `is`(listOf("bar_a", "bar_b")))
         }.compilesWithoutError().withWarningCount(0)
     }
 
@@ -1148,8 +1148,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """,
                 baseClass = "foo.bar.Base",
                 jfos = listOf(parent)) { entity, _ ->
-            assertThat(entity.primaryKey.fields.map { it.columnName },
-                    `is`(listOf("bar_a", "bar_b")))
+            assertThat(entity.primaryKey.columnNames, `is`(listOf("bar_a", "bar_b")))
         }.compilesWithoutError().withNoteContaining(
                 "PrimaryKey[baseId] is overridden by PrimaryKey[foo > a, foo > b]")
     }
@@ -1183,8 +1182,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
                 """,
                 baseClass = "foo.bar.Base",
                 jfos = listOf(parent)) { entity, _ ->
-            assertThat(entity.primaryKey.fields.map { it.columnName },
-                    `is`(listOf("id")))
+            assertThat(entity.primaryKey.columnNames, `is`(listOf("id")))
         }.compilesWithoutError().withNoteContaining(
                 "PrimaryKey[foo > a, foo > b] is overridden by PrimaryKey[id]")
     }

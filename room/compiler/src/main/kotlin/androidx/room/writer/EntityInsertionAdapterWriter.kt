@@ -23,6 +23,7 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Entity
 import androidx.room.vo.FieldWithIndex
+import androidx.room.vo.columnNames
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -60,9 +61,8 @@ class EntityInsertionAdapterWriter(val entity: Entity, val onConflict: String) {
                 addModifiers(PUBLIC)
                 val query =
                         "INSERT OR $onConflict INTO `${entity.tableName}`(" +
-                                entity.fields.joinToString(",") {
-                                    "`${it.columnName}`"
-                                } + ") VALUES (" +
+                                entity.columnNames.joinToString(",") { "`$it`" } +
+                                ") VALUES (" +
                                 entity.fields.joinToString(",") {
                                     if (primitiveAutoGenerateField == it) {
                                         "nullif(?, 0)"

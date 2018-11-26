@@ -24,6 +24,7 @@ import androidx.room.vo.CallType
 import androidx.room.vo.Field
 import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
+import androidx.room.vo.Fields
 import com.google.auto.common.MoreElements
 import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers
@@ -62,7 +63,7 @@ class Fts4TableEntityProcessorTest : BaseFtsEntityParserTest() {
                     affinity = SQLTypeAffinity.INTEGER)))
             assertThat(field.setter, `is`(FieldSetter("setRowId", intType, CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter("getRowId", intType, CallType.METHOD)))
-            assertThat(entity.primaryKey.fields, `is`(listOf(field)))
+            assertThat(entity.primaryKey.fields, `is`(Fields(field)))
             assertThat(entity.shadowTableName, `is`("MyEntity_content"))
             assertThat(entity.ftsVersion, `is`(FtsVersion.FTS4))
         }.compilesWithoutError()
