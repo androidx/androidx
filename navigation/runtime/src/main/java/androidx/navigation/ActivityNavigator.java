@@ -390,6 +390,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
              * @param flags the flags to add
              * @return this {@link Builder}
              */
+            @NonNull
             public Builder addFlags(int flags) {
                 mFlags |= flags;
                 return this;
@@ -402,6 +403,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
              * @param activityOptions The {@link ActivityOptionsCompat} to pass through
              * @return this {@link Builder}
              */
+            @NonNull
             public Builder setActivityOptions(@NonNull ActivityOptionsCompat activityOptions) {
                 mActivityOptions = activityOptions;
                 return this;
