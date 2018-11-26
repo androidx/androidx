@@ -7,9 +7,9 @@ plugins {
 }
 
 dependencies {
-    api(project(":annotation"))
+    api("androidx.annotation:annotation:1.0.1")
     api(project(":core"))
-    api(project(':versionedparcelable'))
+    api("androidx.versionedparcelable:versionedparcelable:1.1.0-alpha01")
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)

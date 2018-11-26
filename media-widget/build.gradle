@@ -26,7 +26,7 @@ dependencies {
     api(project(":media2"))
     api(project(":mediarouter"))
     api(project(":appcompat"))
-    api(project(":palette"))
+    api("androidx.palette:palette:1.0.0")
     implementation(project(":concurrent:concurrent-futures"))
 
     androidTestImplementation(TEST_RUNNER)
