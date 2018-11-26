@@ -16,24 +16,25 @@
 
 package androidx.slice.widget;
 
+import static android.app.slice.Slice.HINT_HORIZONTAL;
+
+import static androidx.slice.core.SliceHints.ICON_IMAGE;
+import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
+import static androidx.slice.widget.SliceView.MODE_LARGE;
+import static androidx.slice.widget.SliceView.MODE_SMALL;
+
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.view.R;
 
-import static android.app.slice.Slice.HINT_HORIZONTAL;
-import static androidx.slice.core.SliceHints.ICON_IMAGE;
-import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
-import static androidx.slice.widget.SliceView.MODE_LARGE;
-import static androidx.slice.widget.SliceView.MODE_SMALL;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Holds style information shared between child views of a slice

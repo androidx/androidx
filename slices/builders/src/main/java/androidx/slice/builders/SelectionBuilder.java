@@ -16,11 +16,9 @@
 
 package androidx.slice.builders;
 
-import android.app.PendingIntent;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import android.app.PendingIntent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +27,9 @@ import androidx.annotation.RestrictTo;
 import androidx.collection.ArraySet;
 import androidx.core.util.Pair;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 
 /**

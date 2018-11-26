@@ -16,7 +16,14 @@
 
 package androidx.slice.builders.impl;
 
-import java.util.List;
+import static android.app.slice.Slice.HINT_SELECTED;
+import static android.app.slice.Slice.HINT_TITLE;
+import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
+import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
+
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.slice.core.SliceHints.HINT_SELECTION;
+import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
 
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -24,13 +31,7 @@ import androidx.core.util.Pair;
 import androidx.slice.Slice;
 import androidx.slice.builders.SelectionBuilder;
 
-import static android.app.slice.Slice.HINT_SELECTED;
-import static android.app.slice.Slice.HINT_TITLE;
-import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
-import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.slice.core.SliceHints.HINT_SELECTION;
-import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
+import java.util.List;
 
 /**
  * @hide
