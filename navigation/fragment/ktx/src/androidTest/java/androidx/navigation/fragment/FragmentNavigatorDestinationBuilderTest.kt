@@ -49,8 +49,8 @@ class TestNavigatorDestinationBuilderTest {
         assertTrue("Destination should be added to the graph",
                 DESTINATION_ID in graph)
         assertEquals("Fragment class should be set to BuilderTestFragment",
-                BuilderTestFragment::class.java,
-                (graph[DESTINATION_ID] as FragmentNavigator.Destination).fragmentClass)
+                BuilderTestFragment::class.java.name,
+                (graph[DESTINATION_ID] as FragmentNavigator.Destination).className)
     }
 
     @UiThreadTest
@@ -67,8 +67,8 @@ class TestNavigatorDestinationBuilderTest {
         assertTrue("Destination should be added to the graph",
                 DESTINATION_ID in graph)
         assertEquals("Fragment class should be set to BuilderTestFragment",
-                BuilderTestFragment::class.java,
-                (graph[DESTINATION_ID] as FragmentNavigator.Destination).fragmentClass)
+                BuilderTestFragment::class.java.name,
+                (graph[DESTINATION_ID] as FragmentNavigator.Destination).className)
         assertEquals("Fragment should have label set",
                 LABEL, graph[DESTINATION_ID].label)
     }

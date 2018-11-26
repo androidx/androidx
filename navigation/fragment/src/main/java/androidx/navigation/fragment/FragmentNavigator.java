@@ -45,16 +45,17 @@ import java.util.Map;
 /**
  * Navigator that navigates through {@link FragmentTransaction fragment transactions}. Every
  * destination using this Navigator must set a valid Fragment class name with
- * <code>android:name</code> or {@link Destination#setFragmentClass}.
+ * <code>android:name</code> or {@link Destination#setClassName(String)}.
  */
 @Navigator.Name("fragment")
 public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> {
     private static final String TAG = "FragmentNavigator";
     private static final String KEY_BACK_STACK_IDS = "androidx-nav-fragment:navigator:backStackIds";
 
+    private final Context mContext;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    FragmentManager mFragmentManager;
-    private int mContainerId;
+    final FragmentManager mFragmentManager;
+    private final int mContainerId;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     ArrayDeque<Integer> mBackStack = new ArrayDeque<>();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -103,6 +104,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
 
     public FragmentNavigator(@NonNull Context context, @NonNull FragmentManager manager,
             int containerId) {
+        mContext = context;
         mFragmentManager = manager;
         mContainerId = containerId;
     }
@@ -143,6 +145,25 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         return new Destination(this);
     }
 
+    /**
+     * Instantiates the Fragment.
+     *
+     * Note that this method is <strong>not</strong> responsible for calling
+     * {@link Fragment#setArguments(Bundle)} on the returned Fragment instance.
+     *
+     * @param context Context providing the correct {@link ClassLoader}
+     * @param fragmentManager FragmentManager the Fragment will be added to
+     * @param className The Fragment to instantiate
+     * @param args The Fragment's arguments, if any
+     * @return A new fragment instance.
+     */
+    @NonNull
+    public Fragment instantiateFragment(@NonNull Context context,
+            @SuppressWarnings("unused") @NonNull FragmentManager fragmentManager,
+            @NonNull String className, @Nullable Bundle args) {
+        return Fragment.instantiate(context, className, args);
+    }
+
     @Nullable
     @Override
     public NavDestination navigate(@NonNull Destination destination, @Nullable Bundle args,
@@ -152,7 +173,13 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                     + " saved its state");
             return null;
         }
-        final Fragment frag = destination.createFragment(args);
+        String className = destination.getClassName();
+        if (className.charAt(0) == '.') {
+            className = mContext.getPackageName() + className;
+        }
+        final Fragment frag = instantiateFragment(mContext, mFragmentManager,
+                className, args);
+        frag.setArguments(args);
         final FragmentTransaction ft = mFragmentManager.beginTransaction();
 
         int enterAnim = navOptions != null ? navOptions.getEnterAnim() : -1;
@@ -273,11 +300,11 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     @NavDestination.ClassType(Fragment.class)
     public static class Destination extends NavDestination {
 
-        private Class<? extends Fragment> mFragmentClass;
+        private String mClassName;
 
         /**
          * Construct a new fragment destination. This destination is not valid until you set the
-         * Fragment via {@link #setFragmentClass(Class)}.
+         * Fragment via {@link #setClassName(String)}.
          *
          * @param navigatorProvider The {@link NavController} which this destination
          *                          will be associated with.
@@ -288,7 +315,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
 
         /**
          * Construct a new fragment destination. This destination is not valid until you set the
-         * Fragment via {@link #setFragmentClass(Class)}.
+         * Fragment via {@link #setClassName(String)}.
          *
          * @param fragmentNavigator The {@link FragmentNavigator} which this destination
          *                          will be associated with. Generally retrieved via a
@@ -307,58 +334,36 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                     R.styleable.FragmentNavigator);
             String className = a.getString(R.styleable.FragmentNavigator_android_name);
             if (className != null) {
-                setFragmentClass(parseClassFromName(context, className, Fragment.class));
+                setClassName(className);
             }
             a.recycle();
         }
 
         /**
-         * Set the Fragment associated with this destination
-         * @param clazz The class name of the Fragment to show when you navigate to this
-         *              destination
+         * Set the Fragment class name associated with this destination
+         * @param className The class name of the Fragment to show when you navigate to this
+         *                  destination
          * @return this {@link Destination}
+         * @see #instantiateFragment(Context, FragmentManager, String, Bundle)
          */
         @NonNull
-        public final Destination setFragmentClass(@NonNull Class<? extends Fragment> clazz) {
-            mFragmentClass = clazz;
+        public final Destination setClassName(@NonNull String className) {
+            mClassName = className;
             return this;
         }
 
         /**
-         * Gets the Fragment associated with this destination
+         * Gets the Fragment's class name associated with this destination
          *
-         * @throws IllegalStateException when no fragment class was set.
+         * @throws IllegalStateException when no Fragment class was set.
+         * @see #instantiateFragment(Context, FragmentManager, String, Bundle)
          */
         @NonNull
-        public final Class<? extends Fragment> getFragmentClass() {
-            if (mFragmentClass == null) {
-                throw new IllegalStateException("fragment class not set");
+        public final String getClassName() {
+            if (mClassName == null) {
+                throw new IllegalStateException("Fragment class was not set");
             }
-            return mFragmentClass;
-        }
-
-        /**
-         * Create a new instance of the {@link Fragment} associated with this destination.
-         * @param args optional args to set on the new Fragment
-         * @return an instance of the {@link #getFragmentClass() Fragment class} associated
-         * with this destination
-         */
-        @SuppressWarnings("ClassNewInstance")
-        @NonNull
-        public Fragment createFragment(@Nullable Bundle args) {
-            Class<? extends Fragment> clazz = getFragmentClass();
-
-            Fragment f;
-            try {
-                f = clazz.newInstance();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-
-            if (args != null) {
-                f.setArguments(args);
-            }
-            return f;
+            return mClassName;
         }
     }
 
