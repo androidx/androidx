@@ -86,6 +86,10 @@ class FragmentManagerViewModel extends ViewModel {
         mHasBeenCleared = true;
     }
 
+    boolean isCleared() {
+        return mHasBeenCleared;
+    }
+
     void addRetainedFragment(@NonNull Fragment fragment) {
         mRetainedFragments.add(fragment);
     }
