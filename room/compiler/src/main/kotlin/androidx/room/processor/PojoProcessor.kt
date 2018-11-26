@@ -45,6 +45,8 @@ import androidx.room.vo.FieldSetter
 import androidx.room.vo.Pojo
 import androidx.room.vo.PojoMethod
 import androidx.room.vo.Warning
+import androidx.room.vo.columnNames
+import androidx.room.vo.findFieldByColumnName
 import asTypeElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -503,16 +505,14 @@ class PojoProcessor private constructor(
         val entity = EntityOrViewProcessor(context, entityElement, referenceStack).process()
 
         // now find the field in the entity.
-        val entityField = entity.fields.firstOrNull {
-            it.columnName == annotation.value.entityColumn
-        }
+        val entityField = entity.findFieldByColumnName(annotation.value.entityColumn)
 
         if (entityField == null) {
             context.logger.e(relationElement,
                     ProcessorErrors.relationCannotFindEntityField(
                             entityName = entity.typeName.toString(),
                             columnName = annotation.value.entityColumn,
-                            availableColumns = entity.fields.map { it.columnName }))
+                            availableColumns = entity.columnNames))
             return null
         }
 
@@ -547,13 +547,11 @@ class PojoProcessor private constructor(
         entity: EntityOrView,
         relationElement: VariableElement
     ) {
-        val missingColumns = projectionInput.filterNot { columnName ->
-            entity.fields.any { columnName == it.columnName }
-        }
+        val missingColumns = projectionInput.toList() - entity.columnNames
         if (missingColumns.isNotEmpty()) {
             context.logger.e(relationElement,
                     ProcessorErrors.relationBadProject(entity.typeName.toString(),
-                            missingColumns, entity.fields.map { it.columnName }))
+                            missingColumns, entity.columnNames))
         }
     }
 
@@ -574,7 +572,7 @@ class PojoProcessor private constructor(
         typeArgElement: TypeElement
     ): List<String> {
         return if (inferEntity || typeArg.typeName() == entity.typeName) {
-            entity.fields.map { it.columnName }
+            entity.columnNames
         } else {
             val columnAdapter = context.typeAdapterStore.findCursorValueReader(typeArg, null)
             if (columnAdapter != null) {
@@ -588,7 +586,7 @@ class PojoProcessor private constructor(
                         bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
                         parent = parent,
                         referenceStack = referenceStack).process()
-                pojo.fields.map { it.columnName }
+                pojo.columnNames
             }
         }
     }

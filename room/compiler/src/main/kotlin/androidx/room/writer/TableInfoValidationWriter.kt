@@ -25,6 +25,7 @@ import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.Entity
+import androidx.room.vo.columnNames
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import stripNonJava
@@ -80,8 +81,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
             addStatement("final $T $L = new $T($L)", indicesType, indicesSetVar,
                     indicesType, entity.indices.size)
             entity.indices.forEach { index ->
-                val columnNames = index.fields
-                        .joinToString(",") { "\"${it.columnName}\"" }
+                val columnNames = index.columnNames.joinToString(",") { "\"$it\"" }
                 addStatement("$L.add(new $T($S, $L, $T.asList($L)))",
                         indicesSetVar,
                         RoomTypeNames.TABLE_INFO_INDEX,

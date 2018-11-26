@@ -31,10 +31,12 @@ import androidx.room.processor.EntityProcessor.Companion.extractTableName
 import androidx.room.processor.cache.Cache
 import androidx.room.vo.Entity
 import androidx.room.vo.Field
+import androidx.room.vo.Fields
 import androidx.room.vo.FtsEntity
 import androidx.room.vo.FtsOptions
 import androidx.room.vo.LanguageId
 import androidx.room.vo.PrimaryKey
+import androidx.room.vo.columnNames
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.Name
 import javax.lang.model.element.TypeElement
@@ -101,7 +103,7 @@ class FtsTableEntityProcessor internal constructor(
         val primaryKey = findAndValidatePrimaryKey(entityAnnotation, pojo.fields)
         val languageId = findAndValidateLanguageId(pojo.fields, ftsOptions.languageIdColumnName)
 
-        val missingNotIndexed = ftsOptions.notIndexedColumns - pojo.fields.map { it.columnName }
+        val missingNotIndexed = ftsOptions.notIndexedColumns - pojo.columnNames
         context.checker.check(missingNotIndexed.isEmpty(), element,
                 ProcessorErrors.missingNotIndexedField(missingNotIndexed))
 
@@ -186,7 +188,7 @@ class FtsTableEntityProcessor internal constructor(
                         field?.let { pkField ->
                             PrimaryKey(
                                     declaredIn = pkField.element.enclosingElement,
-                                    fields = listOf(pkField),
+                                    fields = Fields(pkField),
                                     autoGenerateId = true)
                         }
                     } ?: emptyList()
@@ -195,7 +197,7 @@ class FtsTableEntityProcessor internal constructor(
             if (field.element.hasAnnotation(androidx.room.PrimaryKey::class)) {
                 PrimaryKey(
                         declaredIn = field.element.enclosingElement,
-                        fields = listOf(field),
+                        fields = Fields(field),
                         autoGenerateId = true)
             } else {
                 null
