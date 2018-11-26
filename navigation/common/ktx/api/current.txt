@@ -20,14 +20,14 @@ package androidx.navigation {
   @androidx.navigation.NavDestinationDsl public final class NavActionBuilder {
     ctor public NavActionBuilder();
     method public int getDestinationId();
-    method public void navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> block);
+    method public void navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> optionsBuilder);
     method public void setDestinationId(int p);
     property public final int destinationId;
   }
 
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
     ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, @IdRes int id);
-    method public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> block);
+    method public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> actionBuilder);
     method public D build();
     method public final void deepLink(String uriPattern);
     method public final android.os.Bundle? getDefaultArguments();
@@ -54,8 +54,8 @@ package androidx.navigation {
 
   public final class NavGraphBuilderKt {
     ctor public NavGraphBuilderKt();
-    method public static androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> block);
-    method public static void navigation(androidx.navigation.NavGraphBuilder, @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> block);
+    method public static androidx.navigation.NavGraph navigation(androidx.navigation.NavigatorProvider, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
+    method public static void navigation(androidx.navigation.NavGraphBuilder, @IdRes int id, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavGraphKt {
@@ -69,10 +69,10 @@ package androidx.navigation {
 
   @androidx.navigation.NavOptionsDsl public final class NavOptionsBuilder {
     ctor public NavOptionsBuilder();
-    method public void anim(kotlin.jvm.functions.Function1<? super androidx.navigation.AnimBuilder,kotlin.Unit> block);
+    method public void anim(kotlin.jvm.functions.Function1<? super androidx.navigation.AnimBuilder,kotlin.Unit> animBuilder);
     method public boolean getLaunchSingleTop();
     method public int getPopUpTo();
-    method public void popUpTo(@IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> block);
+    method public void popUpTo(@IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.PopUpToBuilder,kotlin.Unit> popUpToBuilder);
     method public void setLaunchSingleTop(boolean p);
     method public void setPopUpTo(int value);
     property public final boolean launchSingleTop;
@@ -81,7 +81,7 @@ package androidx.navigation {
 
   public final class NavOptionsBuilderKt {
     ctor public NavOptionsBuilderKt();
-    method public static androidx.navigation.NavOptions navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> block);
+    method public static androidx.navigation.NavOptions navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> optionsBuilder);
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) public @interface NavOptionsDsl {

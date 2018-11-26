@@ -34,8 +34,11 @@ inline fun NavGraphBuilder.test(@IdRes id: Int) = test(id) {}
  */
 inline fun NavGraphBuilder.test(
     @IdRes id: Int,
-    block: TestNavigatorDestinationBuilder.() -> Unit
-) = destination(TestNavigatorDestinationBuilder(provider[TestNavigator::class], id).apply(block))
+    builder: TestNavigatorDestinationBuilder.() -> Unit
+) = destination(TestNavigatorDestinationBuilder(
+    provider[TestNavigator::class],
+    id
+).apply(builder))
 
 /**
  * DSL for constructing a new [TestNavigator.Destination]
