@@ -21,16 +21,13 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.T
+import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.arrayTypeName
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.ParameterizedTypeName
-import com.squareup.javapoet.TypeSpec
-import javax.lang.model.element.Modifier
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -49,21 +46,13 @@ class RxQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callableImpl = TypeSpec.anonymousClassBuilder("").apply {
-            val typeName = typeArg.typeName()
-            superclass(ParameterizedTypeName.get(java.util.concurrent.Callable::class.typeName(),
-                    typeName))
-            addMethod(MethodSpec.methodBuilder("call").apply {
-                returns(typeName)
-                addException(Exception::class.typeName())
-                addModifiers(Modifier.PUBLIC)
-                addAnnotation(Override::class.java)
-                createRunQueryAndReturnStatements(builder = this,
-                        roomSQLiteQueryVar = roomSQLiteQueryVar,
-                        inTransaction = inTransaction,
-                        dbField = dbField,
-                        scope = scope)
-            }.build())
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
+            createRunQueryAndReturnStatements(builder = this,
+                roomSQLiteQueryVar = roomSQLiteQueryVar,
+                inTransaction = inTransaction,
+                dbField = dbField,
+                scope = scope)
+        }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
             }
