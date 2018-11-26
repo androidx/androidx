@@ -65,12 +65,14 @@ import java.util.TreeMap;
     @IntDef(/*prefix = "TRACK_TYPE",*/ value = {
             TRACK_TYPE_CEA608,
             TRACK_TYPE_CEA708,
+            TRACK_TYPE_WEBVTT,
             TRACK_TYPE_UNSET,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface TextTrackType {}
     public static final int TRACK_TYPE_CEA608 = 0;
     public static final int TRACK_TYPE_CEA708 = 1;
+    public static final int TRACK_TYPE_WEBVTT = 2;
     public static final int TRACK_TYPE_UNSET = -1;
 
     /**
@@ -122,11 +124,8 @@ import java.util.TreeMap;
     public int supportsFormat(Format format) {
         String mimeType = format.sampleMimeType;
         if (MimeTypes.APPLICATION_CEA608.equals(mimeType)
-                || MimeTypes.APPLICATION_CEA708.equals(mimeType)
-                || MimeTypes.TEXT_VTT.equals(mimeType)) {
+                || MimeTypes.APPLICATION_CEA708.equals(mimeType)) {
             return FORMAT_HANDLED;
-        } else if (MimeTypes.isText(mimeType)) {
-            return FORMAT_UNSUPPORTED_SUBTYPE;
         } else {
             return FORMAT_UNSUPPORTED_TYPE;
         }
@@ -155,6 +154,7 @@ import java.util.TreeMap;
         // Get an input buffer to parse.
         if (!mHasPendingInputBuffer) {
             // Try to read more subtitles from the source.
+            mInputBuffer.clear();
             int result = readSource(mFormatHolder, mInputBuffer, /* formatRequired= */ false);
             if (result == C.RESULT_NOTHING_READ || result == C.RESULT_FORMAT_READ) {
                 return;
