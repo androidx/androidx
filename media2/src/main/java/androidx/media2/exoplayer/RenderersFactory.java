@@ -34,6 +34,8 @@ import androidx.media2.exoplayer.external.audio.MediaCodecAudioRenderer;
 import androidx.media2.exoplayer.external.drm.DrmSessionManager;
 import androidx.media2.exoplayer.external.drm.FrameworkMediaCrypto;
 import androidx.media2.exoplayer.external.mediacodec.MediaCodecSelector;
+import androidx.media2.exoplayer.external.metadata.MetadataOutput;
+import androidx.media2.exoplayer.external.metadata.MetadataRenderer;
 import androidx.media2.exoplayer.external.text.TextOutput;
 import androidx.media2.exoplayer.external.video.MediaCodecVideoRenderer;
 import androidx.media2.exoplayer.external.video.VideoRendererEventListener;
@@ -52,6 +54,7 @@ import java.util.ArrayList;
     public static final int VIDEO_RENDERER_INDEX = 0;
     public static final int AUDIO_RENDERER_INDEX = 1;
     public static final int TEXT_RENDERER_INDEX = 2;
+    public static final int METADATA_RENDERER_INDEX = 3;
 
     private final AudioSink mAudioSink;
     private final TextRenderer mTextRenderer;
@@ -108,6 +111,15 @@ import java.util.ArrayList;
             int extensionRendererMode,
             ArrayList<Renderer> out) {
         out.add(mTextRenderer);
+    }
+
+    @Override
+    protected void buildMetadataRenderers(Context context,
+            MetadataOutput output,
+            Looper outputLooper,
+            @ExtensionRendererMode int extensionRendererMode,
+            ArrayList<Renderer> out) {
+        out.add(new MetadataRenderer(output, outputLooper, new Id3MetadataDecoderFactory()));
     }
 
 }
