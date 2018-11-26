@@ -16,7 +16,6 @@
 
 package androidx.navigation
 
-import android.content.Context
 import android.support.annotation.IdRes
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
@@ -24,13 +23,12 @@ import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class NavGraphBuilderTest {
     private val provider = NavigatorProvider().apply {
-        addNavigator(NavGraphNavigator(mock(Context::class.java), this))
+        addNavigator(NavGraphNavigator(this))
         addNavigator(NoOpNavigator())
     }
 
