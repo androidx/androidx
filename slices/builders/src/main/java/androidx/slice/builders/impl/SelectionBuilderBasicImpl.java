@@ -16,12 +16,12 @@
 
 package androidx.slice.builders.impl;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.slice.Slice;
 import androidx.slice.builders.SelectionBuilder;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 /**
  * @hide
