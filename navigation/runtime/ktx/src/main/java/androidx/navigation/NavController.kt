@@ -22,7 +22,7 @@ import android.support.annotation.IdRes
  * Construct a new [NavGraph]
  */
 inline fun NavController.createGraph(
-        @IdRes id: Int = 0,
-        @IdRes startDestination: Int,
-        block: NavGraphBuilder.() -> Unit
-): NavGraph = navigatorProvider.navigation(id, startDestination, block)
+    @IdRes id: Int = 0,
+    @IdRes startDestination: Int,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = navigatorProvider.navigation(id, startDestination, builder)

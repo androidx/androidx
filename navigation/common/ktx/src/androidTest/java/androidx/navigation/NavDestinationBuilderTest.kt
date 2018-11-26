@@ -92,5 +92,5 @@ private const val ACTION_ID = 1
  */
 fun NavigatorProvider.navDestination(
     @IdRes id: Int,
-    block: NavDestinationBuilder<NavDestination>.() -> Unit
-): NavDestination = NavDestinationBuilder(this[NoOpNavigator::class], id).apply(block).build()
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+): NavDestination = NavDestinationBuilder(this[NoOpNavigator::class], id).apply(builder).build()
