@@ -51,18 +51,6 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      * {@link #addDestination(NavDestination) add a destination} and
      * {@link #setStartDestination(int) set the starting destination}.
      *
-     * @param navigatorProvider The {@link NavController} which this NavGraph
-     *                          will be associated with.
-     */
-    public NavGraph(@NonNull NavigatorProvider navigatorProvider) {
-        this(navigatorProvider.getNavigator(NavGraphNavigator.class));
-    }
-
-    /**
-     * Construct a new NavGraph. This NavGraph is not valid until you
-     * {@link #addDestination(NavDestination) add a destination} and
-     * {@link #setStartDestination(int) set the starting destination}.
-     *
      * @param navGraphNavigator The {@link NavGraphNavigator} which this destination
      *                          will be associated with. Generally retrieved via a
      *                          {@link NavController}'s

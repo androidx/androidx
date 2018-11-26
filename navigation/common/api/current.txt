@@ -40,7 +40,6 @@ package androidx.navigation {
   }
 
   public class NavGraph extends androidx.navigation.NavDestination implements java.lang.Iterable<androidx.navigation.NavDestination> {
-    ctor public NavGraph(androidx.navigation.NavigatorProvider);
     ctor public NavGraph(androidx.navigation.Navigator<? extends androidx.navigation.NavGraph>);
     method public final void addAll(androidx.navigation.NavGraph);
     method public final void addDestination(androidx.navigation.NavDestination);
