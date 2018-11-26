@@ -24,11 +24,6 @@ package androidx.navigation.ui {
     method public static void setupWithNavController(android.support.design.widget.CollapsingToolbarLayout, android.support.v7.widget.Toolbar toolbar, androidx.navigation.NavController navController, androidx.navigation.ui.AppBarConfiguration configuration = AppBarConfiguration(navController.graph));
   }
 
-  public final class DrawerLayoutKt {
-    ctor public DrawerLayoutKt();
-    method @Deprecated public static boolean navigateUp(android.support.v4.widget.DrawerLayout?, androidx.navigation.NavController navController);
-  }
-
   public final class MenuItemKt {
     ctor public MenuItemKt();
     method public static boolean onNavDestinationSelected(android.view.MenuItem, androidx.navigation.NavController navController);

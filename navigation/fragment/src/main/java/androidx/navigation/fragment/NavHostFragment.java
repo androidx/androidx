@@ -183,28 +183,6 @@ public class NavHostFragment extends Fragment implements NavHost {
         return mNavController;
     }
 
-    /**
-     * Set a {@link NavGraph} for this navigation host's {@link NavController} by resource id.
-     * The existing graph will be replaced.
-     *
-     * @param graphResId resource id of the navigation graph to inflate
-     * @deprecated Call {@link #getNavController()} followed by {@link NavController#setGraph(int)}
-     * or construct your NavHostFragment using {@link NavHostFragment#create(int)}.
-     */
-    @Deprecated
-    public final void setGraph(@NavigationRes int graphResId) {
-        if (mNavController == null) {
-            Bundle args = getArguments();
-            if (args == null) {
-                args = new Bundle();
-            }
-            args.putInt(KEY_GRAPH_ID, graphResId);
-            setArguments(args);
-        } else {
-            mNavController.setGraph(graphResId);
-        }
-    }
-
     @CallSuper
     @Override
     public void onAttach(@NonNull Context context) {

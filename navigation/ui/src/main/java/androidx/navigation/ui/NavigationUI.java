@@ -98,27 +98,6 @@ public final class NavigationUI {
      * <p>If you do not have a {@link DrawerLayout}, you should call
      * {@link NavController#navigateUp()} directly.
      *
-     * @param drawerLayout The DrawerLayout that should be opened if you are on the topmost level
-     *                     of the app.
-     * @param navController The NavController that hosts your content.
-     * @return True if the {@link NavController} was able to navigate up.
-     * @deprecated Use {@link #navigateUp(NavController, DrawerLayout)} or
-     * {@link #navigateUp(NavController, AppBarConfiguration)}.
-     */
-    @Deprecated
-    public static boolean navigateUp(@Nullable DrawerLayout drawerLayout,
-            @NonNull NavController navController) {
-        return navigateUp(navController, new AppBarConfiguration.Builder(navController.getGraph())
-                .setDrawerLayout(drawerLayout)
-                .build());
-    }
-
-    /**
-     * Handles the Up button by delegating its behavior to the given NavController. This should
-     * generally be called from {@link AppCompatActivity#onSupportNavigateUp()}.
-     * <p>If you do not have a {@link DrawerLayout}, you should call
-     * {@link NavController#navigateUp()} directly.
-     *
      * @param navController The NavController that hosts your content.
      * @param drawerLayout The DrawerLayout that should be opened if you are on the topmost level
      *                     of the app.
