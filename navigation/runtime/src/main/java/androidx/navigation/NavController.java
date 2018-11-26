@@ -85,10 +85,8 @@ public class NavController {
                     super.addNavigator(name, navigator);
             if (previousNavigator != navigator) {
                 if (previousNavigator != null) {
-                    previousNavigator.removeOnNavigatorNavigatedListener(mOnNavigatedListener);
                     previousNavigator.removeOnNavigatorBackPressListener(mOnBackPressListener);
                 }
-                navigator.addOnNavigatorNavigatedListener(mOnNavigatedListener);
                 navigator.addOnNavigatorBackPressListener(mOnBackPressListener);
             }
             return previousNavigator;
@@ -131,25 +129,6 @@ public class NavController {
                     }
                     if (!mBackStack.isEmpty()) {
                         dispatchOnNavigated(mBackStack.peekLast());
-                    }
-                }
-            };
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Navigator.OnNavigatorNavigatedListener mOnNavigatedListener =
-            new Navigator.OnNavigatorNavigatedListener() {
-                @Override
-                public void onNavigatorNavigated(@NonNull Navigator navigator, @IdRes int destId,
-                        @Navigator.BackStackEffect int backStackEffect) {
-                    if (backStackEffect == Navigator.BACK_STACK_DESTINATION_ADDED) {
-                        NavDestination newDest = findDestination(destId);
-                        if (newDest == null) {
-                            throw new IllegalArgumentException("Navigator " + navigator
-                                    + " reported navigation to unknown destination id "
-                                    + NavDestination.getDisplayName(mContext, destId));
-                        }
-                        mBackStack.add(newDest);
-                        dispatchOnNavigated(newDest);
                     }
                 }
             };
@@ -484,10 +463,7 @@ public class NavController {
             if (!deepLinked) {
                 // Navigate to the first destination in the graph
                 // if we haven't deep linked to a destination
-                Navigator<NavGraph> navigator = mNavigatorProvider.getNavigator(
-                        mGraph.getNavigatorName());
-                navigator.navigate(mGraph, mGraph.addInDefaultArgs(startDestinationArgs),
-                        null, null);
+                navigate(mGraph, startDestinationArgs, null, null);
             }
         }
     }
@@ -565,9 +541,7 @@ public class NavController {
                     throw new IllegalStateException("unknown destination during deep link: "
                             + NavDestination.getDisplayName(mContext, destinationId));
                 }
-                Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
-                        node.getNavigatorName());
-                navigator.navigate(node, node.addInDefaultArgs(bundle),
+                navigate(node, bundle,
                         new NavOptions.Builder().setEnterAnim(0).setExitAnim(0).build(), null);
             }
             return true;
@@ -586,9 +560,7 @@ public class NavController {
                 graph = (NavGraph) node;
             } else {
                 // Navigate to the last NavDestination, clearing any existing destinations
-                Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
-                        node.getNavigatorName());
-                navigator.navigate(node, node.addInDefaultArgs(bundle), new NavOptions.Builder()
+                navigate(node, node.addInDefaultArgs(bundle), new NavOptions.Builder()
                         .setPopUpTo(mGraph.getId(), true)
                         .setEnterAnim(0).setExitAnim(0).build(), null);
             }
@@ -715,14 +687,47 @@ public class NavController {
                     : "")
                     + " is unknown to this NavController");
         }
+        navigate(node, args, navOptions, navigatorExtras);
+    }
+
+    private void navigate(@NonNull NavDestination node, @Nullable Bundle args,
+            @Nullable NavOptions navOptions, @Nullable Navigator.Extras navigatorExtras) {
         if (navOptions != null) {
             if (navOptions.getPopUpTo() != 0) {
                 popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
             }
         }
-        Navigator<NavDestination> navigator = getNavigatorProvider().getNavigator(
+        Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
                 node.getNavigatorName());
-        navigator.navigate(node, node.addInDefaultArgs(args), navOptions, navigatorExtras);
+        NavDestination newDest = navigator.navigate(node, node.addInDefaultArgs(args),
+                navOptions, navigatorExtras);
+        if (newDest != null) {
+            // Ensure that every parent NavGraph is also on the stack if it isn't already
+            // First get all of the parent NavGraphs
+            ArrayDeque<NavDestination> hierarchy = new ArrayDeque<>();
+            NavGraph parent = newDest.getParent();
+            while (parent != null) {
+                hierarchy.addFirst(parent);
+                parent = parent.getParent();
+            }
+            // Now iterate through the back stack and see which NavGraphs
+            // are already on the back stack
+            Iterator<NavDestination> iterator = mBackStack.iterator();
+            while (iterator.hasNext() && !hierarchy.isEmpty()) {
+                NavDestination destination = iterator.next();
+                if (destination.equals(hierarchy.getFirst())) {
+                    // This destination is already in the back stack so
+                    // we don't need to add it
+                    hierarchy.removeFirst();
+                }
+            }
+            // Add all of the remaining parent NavGraphs that aren't
+            // already on the back stack
+            mBackStack.addAll(hierarchy);
+            // And finally, add the new destination
+            mBackStack.add(newDest);
+            dispatchOnNavigated(newDest);
+        }
     }
 
     /**

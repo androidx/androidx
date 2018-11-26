@@ -64,13 +64,10 @@ class ActivityNavigatorTest {
     val activityRule = ActivityTestRule(ActivityNavigatorActivity::class.java)
 
     private lateinit var activityNavigator: ActivityNavigator
-    private lateinit var onNavigatedListener: Navigator.OnNavigatorNavigatedListener
 
     @Before
     fun setup() {
         activityNavigator = ActivityNavigator(activityRule.activity)
-        onNavigatedListener = mock(Navigator.OnNavigatorNavigatedListener::class.java)
-        activityNavigator.addOnNavigatorNavigatedListener(onNavigatedListener)
         TargetActivity.instances = spy(ArrayList())
     }
 
@@ -94,9 +91,6 @@ class ActivityNavigatorTest {
             setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
         }
         activityNavigator.navigate(targetDestination, null, null, null)
-        verify(onNavigatedListener).onNavigatorNavigated(activityNavigator, TARGET_ID,
-                Navigator.BACK_STACK_UNCHANGED)
-        verifyNoMoreInteractions(onNavigatedListener)
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
@@ -109,17 +103,12 @@ class ActivityNavigatorTest {
     fun navigateFromNonActivityContext() {
         // Create using the applicationContext
         val activityNavigator = ActivityNavigator(activityRule.activity.applicationContext)
-        val onNavigatedListener = mock(Navigator.OnNavigatorNavigatedListener::class.java)
-        activityNavigator.addOnNavigatorNavigatedListener(onNavigatedListener)
 
         val targetDestination = activityNavigator.createDestination().apply {
             id = TARGET_ID
             setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
         }
         activityNavigator.navigate(targetDestination, null, null, null)
-        verify(onNavigatedListener).onNavigatorNavigated(activityNavigator, TARGET_ID,
-                Navigator.BACK_STACK_UNCHANGED)
-        verifyNoMoreInteractions(onNavigatedListener)
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
@@ -137,9 +126,6 @@ class ActivityNavigatorTest {
         activityNavigator.navigate(targetDestination, null, navOptions {
             launchSingleTop = true
         }, null)
-        verify(onNavigatedListener).onNavigatorNavigated(activityNavigator, TARGET_ID,
-                Navigator.BACK_STACK_UNCHANGED)
-        verifyNoMoreInteractions(onNavigatedListener)
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
@@ -159,9 +145,6 @@ class ActivityNavigatorTest {
             putString(TARGET_ARGUMENT_NAME, TARGET_ARGUMENT_VALUE)
         }
         activityNavigator.navigate(targetDestination, args, null, null)
-        verify(onNavigatedListener).onNavigatorNavigated(activityNavigator, TARGET_ID,
-                Navigator.BACK_STACK_UNCHANGED)
-        verifyNoMoreInteractions(onNavigatedListener)
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
@@ -178,9 +161,6 @@ class ActivityNavigatorTest {
             setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
         }
         activityNavigator.navigate(targetDestination, null, null, null)
-        verify(onNavigatedListener).onNavigatorNavigated(activityNavigator, TARGET_ID,
-                Navigator.BACK_STACK_UNCHANGED)
-        verifyNoMoreInteractions(onNavigatedListener)
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
@@ -197,9 +177,6 @@ class ActivityNavigatorTest {
             setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
         }
         activityNavigator.navigate(targetDestination, null, null, null)
-        verify(onNavigatedListener).onNavigatorNavigated(activityNavigator, TARGET_ID,
-                Navigator.BACK_STACK_UNCHANGED)
-        verifyNoMoreInteractions(onNavigatedListener)
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
@@ -219,9 +196,6 @@ class ActivityNavigatorTest {
             putString(TARGET_ARGUMENT_NAME, TARGET_ARGUMENT_VALUE)
         }
         activityNavigator.navigate(targetDestination, args, null, null)
-        verify(onNavigatedListener).onNavigatorNavigated(activityNavigator, TARGET_ID,
-                Navigator.BACK_STACK_UNCHANGED)
-        verifyNoMoreInteractions(onNavigatedListener)
 
         val targetActivity = waitForActivity()
         val intent = targetActivity.intent
@@ -247,7 +221,6 @@ class ActivityNavigatorTest {
         } catch (e: IllegalArgumentException) {
             // Expected
         }
-        verifyNoMoreInteractions(onNavigatedListener)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
