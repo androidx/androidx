@@ -262,9 +262,11 @@ public class NavDeepLinkBuilder {
                 return new NavDestination("permissive");
             }
 
+            @Nullable
             @Override
-            public void navigate(@NonNull NavDestination destination, @Nullable Bundle args,
-                    @Nullable NavOptions navOptions, @Nullable Extras navigatorExtras) {
+            public NavDestination navigate(@NonNull NavDestination destination,
+                    @Nullable Bundle args, @Nullable NavOptions navOptions,
+                    @Nullable Extras navigatorExtras) {
                 throw new IllegalStateException("navigate is not supported");
             }
 

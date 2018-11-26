@@ -108,7 +108,7 @@ class NoNameNavigator : Navigator<NavDestination>() {
         args: Bundle?,
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
-    ) {
+    ): NavDestination? {
         throw IllegalStateException("navigate is not supported")
     }
 
@@ -136,7 +136,7 @@ internal open class EmptyNavigator : Navigator<NavDestination>() {
         args: Bundle?,
         navOptions: NavOptions?,
         navigatorExtras: Navigator.Extras?
-    ) {
+    ): NavDestination? {
         throw IllegalStateException("navigate is not supported")
     }
 
