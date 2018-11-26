@@ -32,7 +32,7 @@ import android.support.annotation.Nullable;
  * <p>Actions should be added via {@link NavDestination#putAction(int, int)} or
  * {@link NavDestination#putAction(int, NavAction)}.</p>
  */
-public class NavAction {
+public final class NavAction {
     @IdRes
     private final int mDestinationId;
     private NavOptions mNavOptions;

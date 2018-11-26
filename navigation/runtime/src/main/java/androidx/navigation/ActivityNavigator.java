@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -59,7 +60,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
     }
 
     @NonNull
-    Context getContext() {
+    final Context getContext() {
         return mContext;
     }
 
@@ -191,6 +192,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
             super(activityNavigator);
         }
 
+        @CallSuper
         @Override
         public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs) {
             super.onInflate(context, attrs);
@@ -216,7 +218,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @return this {@link Destination}
          */
         @NonNull
-        public Destination setIntent(@Nullable Intent intent) {
+        public final Destination setIntent(@Nullable Intent intent) {
             mIntent = intent;
             return this;
         }
@@ -226,7 +228,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @return
          */
         @Nullable
-        public Intent getIntent() {
+        public final Intent getIntent() {
             return mIntent;
         }
 
@@ -237,7 +239,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @return this {@link Destination}
          */
         @NonNull
-        public Destination setComponentName(@Nullable ComponentName name) {
+        public final Destination setComponentName(@Nullable ComponentName name) {
             if (mIntent == null) {
                 mIntent = new Intent();
             }
@@ -250,7 +252,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @return
          */
         @Nullable
-        public ComponentName getComponent() {
+        public final ComponentName getComponent() {
             if (mIntent == null) {
                 return null;
             }
@@ -263,7 +265,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @return this {@link Destination}
          */
         @NonNull
-        public Destination setAction(@Nullable String action) {
+        public final Destination setAction(@Nullable String action) {
             if (mIntent == null) {
                 mIntent = new Intent();
             }
@@ -275,7 +277,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * Get the action used to start the Activity, if any
          */
         @Nullable
-        public String getAction() {
+        public final String getAction() {
             if (mIntent == null) {
                 return null;
             }
@@ -294,7 +296,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @return this {@link Destination}
          */
         @NonNull
-        public Destination setData(@Nullable Uri data) {
+        public final Destination setData(@Nullable Uri data) {
             if (mIntent == null) {
                 mIntent = new Intent();
             }
@@ -306,7 +308,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * Get the data URI used to start the Activity, if any
          */
         @Nullable
-        public Uri getData() {
+        public final Uri getData() {
             if (mIntent == null) {
                 return null;
             }
@@ -325,7 +327,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * @return this {@link Destination}
          */
         @NonNull
-        public Destination setDataPattern(@Nullable String dataPattern) {
+        public final Destination setDataPattern(@Nullable String dataPattern) {
             mDataPattern = dataPattern;
             return this;
         }
@@ -334,15 +336,13 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * Gets the dynamic data URI pattern, if any
          */
         @Nullable
-        public String getDataPattern() {
+        public final String getDataPattern() {
             return mDataPattern;
         }
 
         @Override
-        public void putAction(int actionId, @NonNull NavAction action) {
-            throw new UnsupportedOperationException("Cannot add action " + actionId + " to "
-                    + getIntent() + ": Activity destinations are terminal"
-                    + " destinations in your navigation graph and will never trigger actions");
+        boolean supportsActions() {
+            return false;
         }
     }
 
@@ -351,7 +351,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
      * {@link ActivityOptionsCompat} and flags are passed through to the call to
      * {@link ActivityCompat#startActivity(Context, Intent, Bundle)}.
      */
-    public static class Extras implements Navigator.Extras {
+    public static final class Extras implements Navigator.Extras {
         private final int mFlags;
         private final ActivityOptionsCompat mActivityOptions;
 
@@ -363,7 +363,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         /**
          * Gets the <code>Intent.FLAG_ACTIVITY_</code> flags that should be added to the Intent.
          */
-        int getFlags() {
+        public int getFlags() {
             return mFlags;
         }
 
@@ -372,7 +372,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * {@link ActivityCompat#startActivity(Context, Intent, Bundle)}.
          */
         @Nullable
-        ActivityOptionsCompat getActivityOptions() {
+        public ActivityOptionsCompat getActivityOptions() {
             return mActivityOptions;
         }
 
@@ -380,7 +380,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
          * Builder for constructing new {@link Extras} instances. The resulting instances are
          * immutable.
          */
-        public static class Builder {
+        public static final class Builder {
             private int mFlags;
             private ActivityOptionsCompat mActivityOptions;
 

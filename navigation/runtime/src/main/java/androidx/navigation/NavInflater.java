@@ -37,7 +37,7 @@ import java.io.IOException;
 /**
  * Class which translates a navigation XML file into a {@link NavGraph}
  */
-public class NavInflater {
+public final class NavInflater {
     private static final String TAG_ARGUMENT = "argument";
     private static final String TAG_DEEP_LINK = "deepLink";
     private static final String TAG_ACTION = "action";

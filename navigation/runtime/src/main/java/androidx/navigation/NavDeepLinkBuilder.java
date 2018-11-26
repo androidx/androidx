@@ -49,7 +49,7 @@ import java.util.ArrayDeque;
  * You can construct an instance directly with {@link #NavDeepLinkBuilder(Context)} or build one
  * using an existing {@link NavController} via {@link NavController#createDeepLink()}.
  */
-public class NavDeepLinkBuilder {
+public final class NavDeepLinkBuilder {
     private final Context mContext;
     private final Intent mIntent;
 
@@ -121,7 +121,7 @@ public class NavDeepLinkBuilder {
      */
     @NonNull
     public NavDeepLinkBuilder setGraph(@NavigationRes int navGraphId) {
-        return setGraph(new NavInflater(mContext, new PermissiveNavigatorProvider(mContext))
+        return setGraph(new NavInflater(mContext, new PermissiveNavigatorProvider())
                 .inflate(navGraphId));
     }
 
@@ -276,8 +276,8 @@ public class NavDeepLinkBuilder {
             }
         };
 
-        PermissiveNavigatorProvider(Context context) {
-            addNavigator(new NavGraphNavigator(context, this));
+        PermissiveNavigatorProvider() {
+            addNavigator(new NavGraphNavigator(this));
         }
 
         @NonNull

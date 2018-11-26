@@ -28,7 +28,7 @@ import android.support.annotation.Nullable;
 /**
  * NavOptions stores special options for navigate actions
  */
-public class NavOptions {
+public final class NavOptions {
     private static final String KEY_NAV_OPTIONS = "android-support-nav:navOptions";
     private static final String KEY_SINGLE_TOP = "singleTop";
     private static final String KEY_POP_UP_TO = "popUpTo";
@@ -207,7 +207,7 @@ public class NavOptions {
     /**
      * Builder for constructing new instances of NavOptions.
      */
-    public static class Builder {
+    public static final class Builder {
         boolean mSingleTop;
         @IdRes
         int mPopUpTo;

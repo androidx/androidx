@@ -34,7 +34,7 @@ import java.lang.ref.WeakReference;
  * various common places in your application, or for performing navigation in response to
  * UI events.</p>
  */
-public class Navigation {
+public final class Navigation {
     // No instances. Static utilities only.
     private Navigation() {
     }
