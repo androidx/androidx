@@ -414,7 +414,6 @@ public abstract class PreferenceGroup extends Preference {
      * @param onExpandButtonClickListener The callback to be invoked
      * @see #setInitialExpandedChildrenCount(int)
      * @hide
-     * @pending
      */
     @RestrictTo(LIBRARY_GROUP)
     public void setOnExpandButtonClickListener(
@@ -427,7 +426,6 @@ public abstract class PreferenceGroup extends Preference {
      *
      * @return The callback to be invoked when the expand button is clicked.
      * @hide
-     * @pending
      */
     @RestrictTo(LIBRARY_GROUP)
     @Nullable
@@ -553,7 +551,6 @@ public abstract class PreferenceGroup extends Preference {
      * Definition for a callback to be invoked when the expand button is clicked.
      * @see #setInitialExpandedChildrenCount(int)
      * @hide
-     * @pending
      */
     @RestrictTo(LIBRARY_GROUP)
     public interface OnExpandButtonClickListener {
