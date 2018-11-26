@@ -26,8 +26,8 @@ annotation class NavOptionsDsl
 /**
  * Construct a new [NavOptions]
  */
-fun navOptions(block: NavOptionsBuilder.() -> Unit): NavOptions =
-        NavOptionsBuilder().apply(block).build()
+fun navOptions(optionsBuilder: NavOptionsBuilder.() -> Unit): NavOptions =
+        NavOptionsBuilder().apply(optionsBuilder).build()
 
 /**
  * DSL for constructing a new [NavOptions]
@@ -61,9 +61,9 @@ class NavOptionsBuilder {
      * Pop up to a given destination before navigating. This pops all non-matching destinations
      * from the back stack until this destination is found.
      */
-    fun popUpTo(@IdRes id: Int, block: PopUpToBuilder.() -> Unit) {
+    fun popUpTo(@IdRes id: Int, popUpToBuilder: PopUpToBuilder.() -> Unit) {
         popUpTo = id
-        inclusive = PopUpToBuilder().apply(block).inclusive
+        inclusive = PopUpToBuilder().apply(popUpToBuilder).inclusive
     }
 
     /**
@@ -71,8 +71,8 @@ class NavOptionsBuilder {
      *
      * Note: Animator resources are not supported for navigating to a new Activity
      */
-    fun anim(block: AnimBuilder.() -> Unit) {
-        AnimBuilder().apply(block).run {
+    fun anim(animBuilder: AnimBuilder.() -> Unit) {
+        AnimBuilder().apply(animBuilder).run {
             this@NavOptionsBuilder.builder.setEnterAnim(enter)
                     .setExitAnim(exit)
                     .setPopEnterAnim(popEnter)

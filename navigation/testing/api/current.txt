@@ -22,7 +22,7 @@ package androidx.navigation.testing {
   public final class TestNavigatorDestinationBuilderKt {
     ctor public TestNavigatorDestinationBuilderKt();
     method public static void test(androidx.navigation.NavGraphBuilder, @IdRes int id);
-    method public static void test(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.testing.TestNavigatorDestinationBuilder,kotlin.Unit> block);
+    method public static void test(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.testing.TestNavigatorDestinationBuilder,kotlin.Unit> builder);
   }
 
   public final class TestNavigatorProvider extends androidx.navigation.NavigatorProvider {
