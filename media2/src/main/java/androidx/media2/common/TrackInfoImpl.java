@@ -94,6 +94,9 @@ public final class TrackInfoImpl extends MediaPlayer2.TrackInfo {
             case MEDIA_TRACK_TYPE_SUBTITLE:
                 out.append("SUBTITLE");
                 break;
+            case MEDIA_TRACK_TYPE_METADATA:
+                out.append("METADATA");
+                break;
             default:
                 out.append("UNKNOWN");
                 break;

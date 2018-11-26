@@ -28,6 +28,7 @@ import static androidx.media2.exoplayer.RenderersFactory.TEXT_RENDERER_INDEX;
 import static androidx.media2.exoplayer.RenderersFactory.VIDEO_RENDERER_INDEX;
 import static androidx.media2.exoplayer.TextRenderer.TRACK_TYPE_CEA608;
 import static androidx.media2.exoplayer.TextRenderer.TRACK_TYPE_CEA708;
+import static androidx.media2.exoplayer.TextRenderer.TRACK_TYPE_WEBVTT;
 import static androidx.media2.exoplayer.TrackSelector.InternalTextTrackInfo.UNSET;
 
 import android.annotation.SuppressLint;
@@ -294,6 +295,8 @@ import java.util.List;
                 mType = TRACK_TYPE_CEA608;
             } else if (MimeTypes.APPLICATION_CEA708.equals(format.sampleMimeType)) {
                 mType = TRACK_TYPE_CEA708;
+            } else if (MimeTypes.TEXT_VTT.equals(format.sampleMimeType)) {
+                mType = TRACK_TYPE_WEBVTT;
             } else {
                 throw new IllegalStateException();
             }
@@ -304,6 +307,7 @@ import java.util.List;
             mChannel = UNSET;
         }
 
+        // TODO(b/80232248): Set flags for WebVTT.
         InternalTextTrackInfo(int playerTrackIndex, int type, int channel) {
             mPlayerTrackIndex = playerTrackIndex;
             mType = type;
@@ -320,6 +324,8 @@ import java.util.List;
                 mediaFormat.setString(MediaFormat.KEY_MIME, MIMETYPE_TEXT_CEA_608);
             } else if (type == TRACK_TYPE_CEA708) {
                 mediaFormat.setString(MediaFormat.KEY_MIME, MIMETYPE_TEXT_CEA_708);
+            } else if (type == TRACK_TYPE_WEBVTT) {
+                mediaFormat.setString(MediaFormat.KEY_MIME, MimeTypes.TEXT_VTT);
             } else {
                 // Unexpected.
                 throw new IllegalStateException();

@@ -729,7 +729,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
-    public void onMediaItemStartedAsNext(final MediaItem mediaItem) {
+    public void onMediaItemStartedAsNext(MediaItem mediaItem) {
         notifyOnInfo(mediaItem, MEDIA_INFO_DATA_SOURCE_START);
     }
 
