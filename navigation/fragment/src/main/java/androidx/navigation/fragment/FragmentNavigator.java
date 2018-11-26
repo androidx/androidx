@@ -19,6 +19,7 @@ package androidx.navigation.fragment;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -298,6 +299,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
             super(fragmentNavigator);
         }
 
+        @CallSuper
         @Override
         public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs) {
             super.onInflate(context, attrs);
@@ -317,7 +319,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          * @return this {@link Destination}
          */
         @NonNull
-        public Destination setFragmentClass(@NonNull Class<? extends Fragment> clazz) {
+        public final Destination setFragmentClass(@NonNull Class<? extends Fragment> clazz) {
             mFragmentClass = clazz;
             return this;
         }
@@ -328,7 +330,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          * @throws IllegalStateException when no fragment class was set.
          */
         @NonNull
-        public Class<? extends Fragment> getFragmentClass() {
+        public final Class<? extends Fragment> getFragmentClass() {
             if (mFragmentClass == null) {
                 throw new IllegalStateException("fragment class not set");
             }
@@ -363,7 +365,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
     /**
      * Extras that can be passed to FragmentNavigator to enable Fragment specific behavior
      */
-    public static class Extras implements Navigator.Extras {
+    public static final class Extras implements Navigator.Extras {
         private final LinkedHashMap<View, String> mSharedElements = new LinkedHashMap<>();
 
         Extras(Map<View, String> sharedElements) {
@@ -384,7 +386,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
          * Builder for constructing new {@link Extras} instances. The resulting instances are
          * immutable.
          */
-        public static class Builder {
+        public static final class Builder {
             private final LinkedHashMap<View, String> mSharedElements = new LinkedHashMap<>();
 
             /**

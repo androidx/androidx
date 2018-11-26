@@ -49,7 +49,7 @@ import java.util.ArrayDeque;
  * You can construct an instance directly with {@link #NavDeepLinkBuilder(Context)} or build one
  * using an existing {@link NavController} via {@link NavController#createDeepLink()}.
  */
-public class NavDeepLinkBuilder {
+public final class NavDeepLinkBuilder {
     private final Context mContext;
     private final Intent mIntent;
 

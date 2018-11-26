@@ -19,6 +19,7 @@ package androidx.navigation.fragment;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.NavigationRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -175,7 +176,7 @@ public class NavHostFragment extends Fragment implements NavHost {
      */
     @NonNull
     @Override
-    public NavController getNavController() {
+    public final NavController getNavController() {
         if (mNavController == null) {
             throw new IllegalStateException("NavController is not available before onCreate()");
         }
@@ -191,7 +192,7 @@ public class NavHostFragment extends Fragment implements NavHost {
      * or construct your NavHostFragment using {@link NavHostFragment#create(int)}.
      */
     @Deprecated
-    public void setGraph(@NavigationRes int graphResId) {
+    public final void setGraph(@NavigationRes int graphResId) {
         if (mNavController == null) {
             Bundle args = getArguments();
             if (args == null) {
@@ -204,6 +205,7 @@ public class NavHostFragment extends Fragment implements NavHost {
         }
     }
 
+    @CallSuper
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -217,6 +219,7 @@ public class NavHostFragment extends Fragment implements NavHost {
         }
     }
 
+    @CallSuper
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -295,6 +298,7 @@ public class NavHostFragment extends Fragment implements NavHost {
         Navigation.setViewNavController(rootView, mNavController);
     }
 
+    @CallSuper
     @Override
     public void onInflate(@NonNull Context context, @NonNull AttributeSet attrs,
             @Nullable Bundle savedInstanceState) {
@@ -313,6 +317,7 @@ public class NavHostFragment extends Fragment implements NavHost {
         a.recycle();
     }
 
+    @CallSuper
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);

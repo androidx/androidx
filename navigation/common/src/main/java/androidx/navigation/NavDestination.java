@@ -171,7 +171,7 @@ public class NavDestination {
         a.recycle();
     }
 
-    void setParent(NavGraph parent) {
+    final void setParent(NavGraph parent) {
         mParent = parent;
     }
 
@@ -181,7 +181,7 @@ public class NavDestination {
      * @return
      */
     @Nullable
-    public NavGraph getParent() {
+    public final NavGraph getParent() {
         return mParent;
     }
 
@@ -220,7 +220,7 @@ public class NavDestination {
      *
      * @param label A descriptive label of this destination.
      */
-    public void setLabel(@Nullable CharSequence label) {
+    public final void setLabel(@Nullable CharSequence label) {
         mLabel = label;
     }
 
@@ -228,7 +228,7 @@ public class NavDestination {
      * Gets the descriptive label of this destination.
      */
     @Nullable
-    public CharSequence getLabel() {
+    public final CharSequence getLabel() {
         return mLabel;
     }
 
@@ -238,7 +238,7 @@ public class NavDestination {
      * @return the name associated with this destination's navigator
      */
     @NonNull
-    public String getNavigatorName() {
+    public final String getNavigatorName() {
         return mNavigatorName;
     }
 
@@ -247,7 +247,8 @@ public class NavDestination {
      *
      * @return the default arguments bundle
      */
-    public @NonNull Bundle getDefaultArguments() {
+    @NonNull
+    public final Bundle getDefaultArguments() {
         if (mDefaultArgs == null) {
             mDefaultArgs = new Bundle();
         }
@@ -259,7 +260,7 @@ public class NavDestination {
      *
      * @param args the new bundle to set
      */
-    public void setDefaultArguments(@Nullable Bundle args) {
+    public final void setDefaultArguments(@Nullable Bundle args) {
         mDefaultArgs = args;
     }
 
@@ -269,7 +270,7 @@ public class NavDestination {
      *
      * @param args arguments to add
      */
-    public void addDefaultArguments(@NonNull Bundle args) {
+    public final void addDefaultArguments(@NonNull Bundle args) {
         getDefaultArguments().putAll(args);
     }
 
@@ -300,7 +301,7 @@ public class NavDestination {
      * @param uriPattern The uri pattern to add as a deep link
      * @see NavController#onHandleDeepLink(Intent)
      */
-    public void addDeepLink(@NonNull String uriPattern) {
+    public final void addDeepLink(@NonNull String uriPattern) {
         if (mDeepLinks == null) {
             mDeepLinks = new ArrayList<>();
         }
@@ -352,6 +353,14 @@ public class NavDestination {
     }
 
     /**
+     * @return Whether this NavDestination supports outgoing actions
+     * @see #putAction(int, NavAction)
+     */
+    boolean supportsActions() {
+        return true;
+    }
+
+    /**
      * Returns the destination ID for a given action. This will recursively check the
      * {@link #getParent() parent} of this destination if the action destination is not found in
      * this destination.
@@ -360,7 +369,7 @@ public class NavDestination {
      * @return destination ID mapped to the given action id, or 0 if none
      */
     @Nullable
-    public NavAction getAction(@IdRes int id) {
+    public final NavAction getAction(@IdRes int id) {
         NavAction destination = mActions == null ? null : mActions.get(id);
         // Search the parent for the given action if it is not found in this destination
         return destination != null
@@ -374,7 +383,7 @@ public class NavDestination {
      * @param actionId action ID to bind
      * @param destId destination ID for the given action
      */
-    public void putAction(@IdRes int actionId, @IdRes int destId) {
+    public final void putAction(@IdRes int actionId, @IdRes int destId) {
         putAction(actionId, new NavAction(destId));
     }
 
@@ -384,7 +393,13 @@ public class NavDestination {
      * @param actionId action ID to bind
      * @param action action to associate with this action ID
      */
-    public void putAction(@IdRes int actionId, @NonNull NavAction action) {
+    public final void putAction(@IdRes int actionId, @NonNull NavAction action) {
+        if (!supportsActions()) {
+            throw new UnsupportedOperationException("Cannot add action " + actionId + " to "
+                    + this + " as it does not support actions, indicating that it is a "
+                    + "terminal destination in your navigation graph and will never trigger "
+                    + "actions.");
+        }
         if (actionId == 0) {
             throw new IllegalArgumentException("Cannot have an action with actionId 0");
         }
@@ -399,7 +414,7 @@ public class NavDestination {
      *
      * @param actionId action ID to remove
      */
-    public void removeAction(@IdRes int actionId) {
+    public final void removeAction(@IdRes int actionId) {
         if (mActions == null) {
             return;
         }

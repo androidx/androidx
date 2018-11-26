@@ -111,7 +111,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      *
      * @param node destination to add
      */
-    public void addDestination(@NonNull NavDestination node) {
+    public final void addDestination(@NonNull NavDestination node) {
         if (node.getId() == 0) {
             throw new IllegalArgumentException("Destinations must have an id."
                     + " Call setId() or include an android:id in your navigation XML.");
@@ -141,7 +141,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      *
      * @param nodes destinations to add
      */
-    public void addDestinations(@NonNull Collection<NavDestination> nodes) {
+    public final void addDestinations(@NonNull Collection<NavDestination> nodes) {
         for (NavDestination node : nodes) {
             if (node == null) {
                 continue;
@@ -160,7 +160,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      *
      * @param nodes destinations to add
      */
-    public void addDestinations(@NonNull NavDestination... nodes) {
+    public final void addDestinations(@NonNull NavDestination... nodes) {
         for (NavDestination node : nodes) {
             if (node == null) {
                 continue;
@@ -178,11 +178,12 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      * @return the node with ID resid
      */
     @Nullable
-    public NavDestination findNode(@IdRes int resid) {
+    public final NavDestination findNode(@IdRes int resid) {
         return findNode(resid, true);
     }
 
-    NavDestination findNode(@IdRes int resid, boolean searchParents) {
+    @Nullable
+    final NavDestination findNode(@IdRes int resid, boolean searchParents) {
         NavDestination destination = mNodes.get(resid);
         // Search the parent for the NavDestination if it is not a child of this navigation graph
         // and searchParents is true
@@ -193,7 +194,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
 
     @NonNull
     @Override
-    public Iterator<NavDestination> iterator() {
+    public final Iterator<NavDestination> iterator() {
         return new Iterator<NavDestination>() {
             private int mIndex = -1;
             private boolean mWentToNext = false;
@@ -233,7 +234,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      * @param other collection of destinations to add. All destinations will be removed from this
      * graph after being added to this graph.
      */
-    public void addAll(@NonNull NavGraph other) {
+    public final void addAll(@NonNull NavGraph other) {
         Iterator<NavDestination> iterator = other.iterator();
         while (iterator.hasNext()) {
             NavDestination destination = iterator.next();
@@ -247,7 +248,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
      *
      * @param node the destination to remove.
      */
-    public void remove(@NonNull NavDestination node) {
+    public final void remove(@NonNull NavDestination node) {
         int index = mNodes.indexOfKey(node.getId());
         if (index >= 0) {
             mNodes.valueAt(index).setParent(null);
@@ -258,7 +259,7 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
     /**
      * Clear all destinations from this navigation graph.
      */
-    public void clear() {
+    public final void clear() {
         Iterator<NavDestination> iterator = iterator();
         while (iterator.hasNext()) {
             iterator.next();

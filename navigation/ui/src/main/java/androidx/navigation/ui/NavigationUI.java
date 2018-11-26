@@ -46,7 +46,7 @@ import java.util.Set;
  * Class which hooks up elements typically in the 'chrome' of your application such as global
  * navigation patterns like a navigation drawer or bottom nav bar with your {@link NavController}.
  */
-public class NavigationUI {
+public final class NavigationUI {
 
     // No instances. Static utilities only.
     private NavigationUI() {
