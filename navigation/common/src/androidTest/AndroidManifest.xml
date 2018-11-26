@@ -16,6 +16,6 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.navigation.common.test">
+          package="androidx.navigation.common">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 </manifest>
