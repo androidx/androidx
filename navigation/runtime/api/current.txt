@@ -30,9 +30,9 @@ package androidx.navigation {
 
   public static final class ActivityNavigator.Extras.Builder {
     ctor public ActivityNavigator.Extras.Builder();
-    method public androidx.navigation.ActivityNavigator.Extras.Builder! addFlags(int);
+    method public androidx.navigation.ActivityNavigator.Extras.Builder addFlags(int);
     method public androidx.navigation.ActivityNavigator.Extras build();
-    method public androidx.navigation.ActivityNavigator.Extras.Builder! setActivityOptions(android.support.v4.app.ActivityOptionsCompat);
+    method public androidx.navigation.ActivityNavigator.Extras.Builder setActivityOptions(android.support.v4.app.ActivityOptionsCompat);
   }
 
   public final class NavController {
