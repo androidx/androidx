@@ -78,8 +78,9 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         return false;
     }
 
+    @Nullable
     @Override
-    public void navigate(@NonNull Destination destination, @Nullable Bundle args,
+    public NavDestination navigate(@NonNull Destination destination, @Nullable Bundle args,
             @Nullable NavOptions navOptions, @Nullable Navigator.Extras navigatorExtras) {
         if (destination.getIntent() == null) {
             throw new IllegalStateException("Destination " + destination.getId()
@@ -154,7 +155,7 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
 
         // You can't pop the back stack from the caller of a new Activity,
         // so we don't add this navigator to the controller's back stack
-        dispatchOnNavigatorNavigated(destId, BACK_STACK_UNCHANGED);
+        return null;
     }
 
     /**

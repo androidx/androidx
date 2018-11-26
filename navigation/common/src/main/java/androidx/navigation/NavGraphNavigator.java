@@ -58,8 +58,9 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
         return new NavGraph(this);
     }
 
+    @Nullable
     @Override
-    public void navigate(@NonNull NavGraph destination, @Nullable Bundle args,
+    public NavDestination navigate(@NonNull NavGraph destination, @Nullable Bundle args,
             @Nullable NavOptions navOptions, @Nullable Extras navigatorExtras) {
         int startId = destination.getStartDestination();
         if (startId == 0) {
@@ -75,16 +76,13 @@ public class NavGraphNavigator extends Navigator<NavGraph> {
             throw new IllegalArgumentException("navigation destination " + dest
                     + " is not a direct child of this NavGraph");
         }
-        if (navOptions != null && navOptions.shouldLaunchSingleTop()
-                && isAlreadyTop(destination)) {
-            dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_UNCHANGED);
-        } else {
+        if (navOptions == null || !(navOptions.shouldLaunchSingleTop()
+                && isAlreadyTop(destination))) {
             mBackStack.add(destination.getId());
-            dispatchOnNavigatorNavigated(destination.getId(), BACK_STACK_DESTINATION_ADDED);
         }
         Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
                 startDestination.getNavigatorName());
-        navigator.navigate(startDestination, startDestination.addInDefaultArgs(args),
+        return navigator.navigate(startDestination, startDestination.addInDefaultArgs(args),
                 navOptions, navigatorExtras);
     }
 
