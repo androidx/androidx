@@ -40,6 +40,7 @@ import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaTimestamp;
 import androidx.media2.PlaybackParams;
 import androidx.media2.SubtitleData;
+import androidx.media2.TimedMetaData;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.DefaultLoadControl;
 import androidx.media2.exoplayer.external.ExoPlaybackException;
@@ -53,6 +54,8 @@ import androidx.media2.exoplayer.external.audio.AudioListener;
 import androidx.media2.exoplayer.external.audio.AudioProcessor;
 import androidx.media2.exoplayer.external.audio.AuxEffectInfo;
 import androidx.media2.exoplayer.external.audio.DefaultAudioSink;
+import androidx.media2.exoplayer.external.metadata.Metadata;
+import androidx.media2.exoplayer.external.metadata.MetadataOutput;
 import androidx.media2.exoplayer.external.source.ClippingMediaSource;
 import androidx.media2.exoplayer.external.source.ConcatenatingMediaSource;
 import androidx.media2.exoplayer.external.source.MediaSource;
@@ -119,6 +122,9 @@ import java.util.Map;
 
         /** Called when subtitle data is handled. */
         void onSubtitleData(MediaItem mediaItem, SubtitleData subtitleData);
+
+        /** Called when timed metadata is handled. */
+        void onTimedMetadata(MediaItem mediaItem, TimedMetaData timedMetaData);
 
         /** Called when playback transitions to the next media item. */
         void onMediaItemStartedAsNext(MediaItem mediaItem);
@@ -431,6 +437,7 @@ import java.util.Map;
         mMediaItemQueue = new MediaItemQueue(mContext, mPlayer, mListener);
         mPlayer.addListener(listener);
         mPlayer.addVideoListener(listener);
+        mPlayer.addMetadataOutput(listener);
         mVideoWidth = 0;
         mVideoHeight = 0;
         mPrepared = false;
@@ -548,6 +555,17 @@ import java.util.Map;
                 new SubtitleData(trackIndex, timeUs, /* durationUs= */ 0L, data));
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void handleMetadata(Metadata metadata) {
+        int length = metadata.length();
+        for (int i = 0; i < length; i++) {
+            ByteArrayFrame byteArrayFrame = (ByteArrayFrame) metadata.get(i);
+            mListener.onTimedMetadata(
+                    getCurrentMediaItem(),
+                    new TimedMetaData(byteArrayFrame.mTimestamp, byteArrayFrame.mData));
+        }
+    }
+
     private void maybeUpdateTimerForPlaying() {
         mMediaItemQueue.onPlaying();
     }
@@ -592,7 +610,7 @@ import java.util.Map;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final class ComponentListener extends Player.DefaultEventListener
-            implements VideoListener, AudioListener, TextRenderer.Output {
+            implements VideoListener, AudioListener, TextRenderer.Output, MetadataOutput {
 
         // DefaultEventListener implementation.
 
@@ -664,6 +682,13 @@ import java.util.Map;
         @Override
         public void onChannelAvailable(int type, int channel) {
             handleTextRendererChannelAvailable(type, channel);
+        }
+
+        // MetadataOutput implementation.
+
+        @Override
+        public void onMetadata(Metadata metadata) {
+            handleMetadata(metadata);
         }
 
     }
