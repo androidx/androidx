@@ -48,7 +48,7 @@ class NavInflaterTest {
     @Test
     fun testInflateSimple() {
         val context = InstrumentationRegistry.getTargetContext()
-        val navInflater = NavInflater(context, TestNavigatorProvider(context))
+        val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_simple)
 
         assertNotNull(graph)
@@ -58,7 +58,7 @@ class NavInflaterTest {
     @Test
     fun testInflateDeepLinkWithApplicationId() {
         val context = InstrumentationRegistry.getTargetContext()
-        val navInflater = NavInflater(context, TestNavigatorProvider(context))
+        val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_simple)
 
         assertNotNull(graph)
@@ -147,7 +147,7 @@ class NavInflaterTest {
 
     private fun inflateDefaultArgumentsFromGraph(): Bundle {
         val context = InstrumentationRegistry.getTargetContext()
-        val navInflater = NavInflater(context, TestNavigatorProvider(context))
+        val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_default_arguments)
 
         val startDestination = graph.findNode(graph.startDestination)

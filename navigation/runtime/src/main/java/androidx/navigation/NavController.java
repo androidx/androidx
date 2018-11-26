@@ -49,7 +49,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * (For example, if the navigation structure of the application is determined by live data obtained'
  * from a remote server.)</p>
  */
-public class NavController {
+public final class NavController {
     private static final String TAG = "NavController";
     private static final String KEY_NAVIGATOR_STATE =
             "android-support-nav:controller:navigatorState";
@@ -179,7 +179,7 @@ public class NavController {
             }
             context = ((ContextWrapper) context).getBaseContext();
         }
-        mNavigatorProvider.addNavigator(new NavGraphNavigator(mContext, mNavigatorProvider));
+        mNavigatorProvider.addNavigator(new NavGraphNavigator(mNavigatorProvider));
         mNavigatorProvider.addNavigator(new ActivityNavigator(mContext));
     }
 

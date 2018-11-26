@@ -16,7 +16,6 @@
 
 package androidx.navigation.testing
 
-import android.content.Context
 import androidx.navigation.NavGraphNavigator
 import androidx.navigation.NavigatorProvider
 
@@ -24,10 +23,10 @@ import androidx.navigation.NavigatorProvider
  * Simple NavigatorProvider that only supports &lt;navigation&gt; and &lt;test&gt; navigation
  * elements.
  */
-class TestNavigatorProvider(context: Context) : NavigatorProvider() {
+class TestNavigatorProvider : NavigatorProvider() {
 
     init {
-        addNavigator(NavGraphNavigator(context, this))
+        addNavigator(NavGraphNavigator(this))
         addNavigator(TestNavigator())
     }
 }

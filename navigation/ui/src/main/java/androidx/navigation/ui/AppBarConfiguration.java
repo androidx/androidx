@@ -32,7 +32,7 @@ import java.util.Set;
  * {@link android.support.design.widget.CollapsingToolbarLayout}, and
  * {@link android.support.v7.app.ActionBar}.
  */
-public class AppBarConfiguration {
+public final class AppBarConfiguration {
 
     @NonNull
     private final Set<Integer> mTopLevelDestinations;
@@ -69,7 +69,7 @@ public class AppBarConfiguration {
     /**
      * The Builder class for constructing new {@link AppBarConfiguration} instances.
      */
-    public static class Builder {
+    public static final class Builder {
         @NonNull
         private final Set<Integer> mTopLevelDestinations = new HashSet<>();
 

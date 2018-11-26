@@ -133,8 +133,8 @@ class NavDestinationTest {
         val destination = NoOpNavigator().createDestination()
         destination.id = DESTINATION_ID
         val parentId = 2
-        val parent = NavGraphNavigator(mock(Context::class.java),
-            mock(NavigatorProvider::class.java)).createDestination().apply {
+        val navGraphNavigator = NavGraphNavigator(mock(NavigatorProvider::class.java))
+        val parent = navGraphNavigator.createDestination().apply {
             id = parentId
         }
         destination.parent = parent

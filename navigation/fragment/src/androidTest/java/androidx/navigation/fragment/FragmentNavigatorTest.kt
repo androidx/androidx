@@ -72,7 +72,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
-            fragmentClass = EmptyFragment::class.java
+            className = EmptyFragment::class.java.name
         }
 
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -92,7 +92,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination().apply {
             id = INITIAL_FRAGMENT
-            fragmentClass = EmptyFragment::class.java
+            className = EmptyFragment::class.java.name
         }
 
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -124,7 +124,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // Push initial fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -159,7 +159,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // Push initial fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -195,7 +195,7 @@ class FragmentNavigatorTest {
     fun testSingleTopInitial() {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         fragmentNavigator.navigate(destination, null, null, null)
         fragmentManager.executePendingTransactions()
@@ -223,7 +223,7 @@ class FragmentNavigatorTest {
     fun testSingleTop() {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -259,7 +259,7 @@ class FragmentNavigatorTest {
                 fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -277,7 +277,7 @@ class FragmentNavigatorTest {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -314,7 +314,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // First push an initial Fragment
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -351,7 +351,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // First push two Fragments as our 'deep link'
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -390,7 +390,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // First push two Fragments as our 'deep link'
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
@@ -437,7 +437,7 @@ class FragmentNavigatorTest {
         fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
         destination.id = INITIAL_FRAGMENT
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         assertThat(fragmentNavigator.navigate(destination, null, null, null))
             .isEqualTo(destination)
@@ -499,7 +499,7 @@ class FragmentNavigatorTest {
         val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
         fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // Push 4 fragments without executing pending transactions.
         destination.id = INITIAL_FRAGMENT
@@ -524,7 +524,7 @@ class FragmentNavigatorTest {
         val backPressListener = mock(Navigator.OnNavigatorBackPressListener::class.java)
         fragmentNavigator.addOnNavigatorBackPressListener(backPressListener)
         val destination = fragmentNavigator.createDestination()
-        destination.fragmentClass = EmptyFragment::class.java
+        destination.className = EmptyFragment::class.java.name
 
         // Push 4 fragments
         destination.id = INITIAL_FRAGMENT
