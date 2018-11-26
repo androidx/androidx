@@ -97,5 +97,5 @@ private const val SECOND_DESTINATION_ID = 2
  */
 fun NavGraphBuilder.navDestination(
     @IdRes id: Int,
-    block: NavDestinationBuilder<NavDestination>.() -> Unit
-) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], id).apply(block))
+    builder: NavDestinationBuilder<NavDestination>.() -> Unit
+) = destination(NavDestinationBuilder(provider[NoOpNavigator::class], id).apply(builder))

@@ -27,8 +27,8 @@ annotation class NavDestinationDsl
  */
 @NavDestinationDsl
 open class NavDestinationBuilder<out D : NavDestination>(
-        protected val navigator: Navigator<out D>,
-        @IdRes val id: Int
+    protected val navigator: Navigator<out D>,
+    @IdRes val id: Int
 ) {
     /**
      * The descriptive label of the destination
@@ -68,8 +68,8 @@ open class NavDestinationBuilder<out D : NavDestination>(
     /**
      * Adds a new [NavAction] to the destination
      */
-    fun action(actionId: Int, block: NavActionBuilder.() -> Unit) {
-        actions[actionId] = NavActionBuilder().apply(block).build()
+    fun action(actionId: Int, actionBuilder: NavActionBuilder.() -> Unit) {
+        actions[actionId] = NavActionBuilder().apply(actionBuilder).build()
     }
 
     /**
@@ -105,8 +105,8 @@ class NavActionBuilder {
     /**
      * Sets the [NavOptions] for this action that should be used by default
      */
-    fun navOptions(block: NavOptionsBuilder.() -> Unit) {
-        navOptions = NavOptionsBuilder().apply(block).build()
+    fun navOptions(optionsBuilder: NavOptionsBuilder.() -> Unit) {
+        navOptions = NavOptionsBuilder().apply(optionsBuilder).build()
     }
 
     internal fun build() = NavAction(destinationId, navOptions)

@@ -25,7 +25,7 @@ package androidx.navigation {
 
   public final class ActivityNavigatorDestinationBuilderKt {
     ctor public ActivityNavigatorDestinationBuilderKt();
-    method public static void activity(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit> block);
+    method public static void activity(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.ActivityNavigatorDestinationBuilder,kotlin.Unit> builder);
   }
 
   public final class ActivityNavigatorExtrasKt {
@@ -35,12 +35,12 @@ package androidx.navigation {
 
   public final class NavControllerKt {
     ctor public NavControllerKt();
-    method public static androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> block);
+    method public static androidx.navigation.NavGraph createGraph(androidx.navigation.NavController, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class NavHostKt {
     ctor public NavHostKt();
-    method public static androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> block);
+    method public static androidx.navigation.NavGraph createGraph(androidx.navigation.NavHost, @IdRes int id = 0, @IdRes int startDestination, kotlin.jvm.functions.Function1<? super androidx.navigation.NavGraphBuilder,kotlin.Unit> builder);
   }
 
   public final class ViewKt {

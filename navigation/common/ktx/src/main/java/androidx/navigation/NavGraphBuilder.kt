@@ -22,28 +22,28 @@ import android.support.annotation.IdRes
  * Construct a new [NavGraph]
  */
 inline fun NavigatorProvider.navigation(
-        @IdRes id: Int = 0,
-        @IdRes startDestination: Int,
-        block: NavGraphBuilder.() -> Unit
-) = NavGraphBuilder(this, id, startDestination).apply(block).build()
+    @IdRes id: Int = 0,
+    @IdRes startDestination: Int,
+    builder: NavGraphBuilder.() -> Unit
+) = NavGraphBuilder(this, id, startDestination).apply(builder).build()
 
 /**
  * Construct a nested [NavGraph]
  */
 inline fun NavGraphBuilder.navigation(
-        @IdRes id: Int,
-        @IdRes startDestination: Int,
-        block: NavGraphBuilder.() -> Unit
-) = destination(NavGraphBuilder(provider, id, startDestination).apply(block))
+    @IdRes id: Int,
+    @IdRes startDestination: Int,
+    builder: NavGraphBuilder.() -> Unit
+) = destination(NavGraphBuilder(provider, id, startDestination).apply(builder))
 
 /**
  * DSL for constructing a new [NavGraph]
  */
 @NavDestinationDsl
 class NavGraphBuilder(
-        val provider: NavigatorProvider,
-        @IdRes id: Int,
-        @IdRes private var startDestination: Int
+    val provider: NavigatorProvider,
+    @IdRes id: Int,
+    @IdRes private var startDestination: Int
 ) : NavDestinationBuilder<NavGraph>(provider[NavGraphNavigator::class], id) {
     private val destinations = mutableListOf<NavDestination>()
 

@@ -34,12 +34,12 @@ inline fun <reified F : Fragment> NavGraphBuilder.fragment(@IdRes id: Int) = fra
  */
 inline fun <reified F : Fragment> NavGraphBuilder.fragment(
     @IdRes id: Int,
-    block: FragmentNavigatorDestinationBuilder.() -> Unit
+    builder: FragmentNavigatorDestinationBuilder.() -> Unit
 ) = destination(FragmentNavigatorDestinationBuilder(
         provider[FragmentNavigator::class],
         id,
         F::class
-).apply(block))
+).apply(builder))
 
 /**
  * DSL for constructing a new [FragmentNavigator.Destination]
