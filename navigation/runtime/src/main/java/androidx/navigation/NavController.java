@@ -459,7 +459,7 @@ public final class NavController {
             mBackStackToRestore = null;
         }
         if (mGraph != null && mBackStack.isEmpty()) {
-            boolean deepLinked = mActivity != null && onHandleDeepLink(mActivity.getIntent());
+            boolean deepLinked = mActivity != null && handleDeepLink(mActivity.getIntent());
             if (!deepLinked) {
                 // Navigate to the first destination in the graph
                 // if we haven't deep linked to a destination
@@ -488,7 +488,7 @@ public final class NavController {
      * @return True if the navigation controller found a valid deep link and navigated to it.
      * @see NavDestination#addDeepLink(String)
      */
-    public boolean onHandleDeepLink(@Nullable Intent intent) {
+    public boolean handleDeepLink(@Nullable Intent intent) {
         if (intent == null) {
             return false;
         }
