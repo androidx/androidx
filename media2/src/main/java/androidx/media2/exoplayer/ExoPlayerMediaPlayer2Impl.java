@@ -43,6 +43,7 @@ import androidx.media2.MediaPlayer2;
 import androidx.media2.MediaTimestamp;
 import androidx.media2.PlaybackParams;
 import androidx.media2.SubtitleData;
+import androidx.media2.TimedMetaData;
 import androidx.media2.exoplayer.external.Player;
 
 import java.io.IOException;
@@ -724,6 +725,17 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
             public void notify(EventCallback cb) {
                 cb.onSubtitleData(
                         ExoPlayerMediaPlayer2Impl.this, mediaItem, subtitleData);
+            }
+        });
+    }
+
+    @Override
+    public void onTimedMetadata(final MediaItem mediaItem, final TimedMetaData timedMetaData) {
+        notifyMediaPlayer2Event(new Mp2EventNotifier() {
+            @Override
+            public void notify(EventCallback cb) {
+                cb.onTimedMetaDataAvailable(
+                        ExoPlayerMediaPlayer2Impl.this, mediaItem, timedMetaData);
             }
         });
     }
