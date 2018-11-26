@@ -35,7 +35,7 @@ dependencies {
 
 supportLibrary {
     name = "Android Lifecycle Saved State"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.SAVEDSTATE
     mavenGroup = LibraryGroups.SAVEDSTATE
     inceptionYear = "2018"
