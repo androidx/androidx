@@ -536,8 +536,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     @Override
     public void reset() {
         clearPendingCommands();
-        mEndPositionHandler.removeCallbacksAndMessages(null);
-        mTaskHandler.removeCallbacksAndMessages(null);
 
         // Make sure that the current task finishes.
         Task currentTask;
@@ -554,6 +552,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                 }
             }
         }
+        mEndPositionHandler.removeCallbacksAndMessages(null);
+        mTaskHandler.removeCallbacksAndMessages(null);
         mPlayer.reset();
     }
 

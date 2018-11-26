@@ -552,7 +552,6 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     @Override
     public void reset() {
         clearPendingCommands();
-        mTaskHandler.removeCallbacksAndMessages(null);
 
         // Make sure that the current task finishes.
         Task currentTask;
@@ -570,6 +569,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
                 }
             }
         }
+        mTaskHandler.removeCallbacksAndMessages(null);
         runPlayerCallableBlocking(new Callable<Void>() {
             @Override
             public Void call() {
