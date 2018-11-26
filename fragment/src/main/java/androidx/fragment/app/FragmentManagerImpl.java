@@ -1012,19 +1012,21 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             newState = Fragment.CREATED;
                         } else {
                             if (DEBUG) Log.v(TAG, "movefrom CREATED: " + f);
-                            if (mNonConfig.shouldDestroy(f)) {
-                                f.performDestroy();
-                                Activity activity;
-                                if (mHost.getContext() instanceof Activity) {
-                                    activity = (Activity) mHost.getContext();
+                            boolean beingRemoved = f.mRemoving && !f.isInBackStack();
+                            if (beingRemoved || mNonConfig.shouldDestroy(f)) {
+                                boolean shouldClear;
+                                if (mHost instanceof ViewModelStoreOwner) {
+                                    shouldClear = mNonConfig.isCleared();
+                                } else if (mHost.getContext() instanceof Activity) {
+                                    Activity activity = (Activity) mHost.getContext();
+                                    shouldClear = !activity.isChangingConfigurations();
                                 } else {
-                                    activity = null;
+                                    shouldClear = true;
                                 }
-                                boolean isChangingConfigurations = activity != null
-                                        && activity.isChangingConfigurations();
-                                if (!isChangingConfigurations) {
+                                if (beingRemoved || shouldClear) {
                                     mNonConfig.clearNonConfigState(f);
                                 }
+                                f.performDestroy();
                                 dispatchOnFragmentDestroyed(f, false);
                             } else {
                                 f.mState = Fragment.INITIALIZING;
@@ -1033,7 +1035,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                             f.performDetach();
                             dispatchOnFragmentDetached(f, false);
                             if (!keepActive) {
-                                if (mNonConfig.shouldDestroy(f)) {
+                                if (beingRemoved || mNonConfig.shouldDestroy(f)) {
                                     makeInactive(f);
                                 } else {
                                     f.mHost = null;
