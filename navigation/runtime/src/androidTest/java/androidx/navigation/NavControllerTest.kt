@@ -505,7 +505,7 @@ class NavControllerTest {
 
         val intent = taskStackBuilder.editIntentAt(0)
         assertNotNull(intent)
-        navController.onHandleDeepLink(intent)
+        navController.handleDeepLink(intent)
 
         // The original Intent should be untouched and safely writable to a Parcel
         val p = Parcel.obtain()
