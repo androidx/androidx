@@ -16,10 +16,12 @@
 
 package androidx.ui.painting
 
+import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.window.Locale
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -267,16 +269,91 @@ class TextPainterTest() {
     }
 
     @Test
+    fun `applyFloatingPointHack with value is integer toDouble`() {
+        val textPainter = TextPainter()
+
+        assertThat(applyFloatingPointHack(2.toDouble())).isEqualTo(2.0)
+    }
+
+    @Test
     fun `applyFloatingPointHack with value smaller than half`() {
         val textPainter = TextPainter()
 
-        assertThat(textPainter.applyFloatingPointHack(2.2)).isEqualTo(3.0)
+        assertThat(applyFloatingPointHack(2.2)).isEqualTo(3.0)
     }
 
     @Test
     fun `applyFloatingPointHack with value larger than half`() {
         val textPainter = TextPainter()
 
-        assertThat(textPainter.applyFloatingPointHack(2.8)).isEqualTo(3.0)
+        assertThat(applyFloatingPointHack(2.8)).isEqualTo(3.0)
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `minIntrinsicWidth without layout assertion should fail`() {
+        val textPainter = TextPainter()
+
+        textPainter.minIntrinsicWidth
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `maxIntrinsicWidth without layout assertion should fail`() {
+        val textPainter = TextPainter()
+
+        textPainter.maxIntrinsicWidth
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `width without layout assertion should fail`() {
+        val textPainter = TextPainter()
+
+        textPainter.width
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `height without layout assertion should fail`() {
+        val textPainter = TextPainter()
+
+        textPainter.height
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `size without layout assertion should fail`() {
+        val textPainter = TextPainter()
+
+        textPainter.size
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `layout without text assertion should fail`() {
+        val textPainter = TextPainter(textDirection = TextDirection.LTR)
+
+        textPainter.layout()
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `layout without textDirection assertion should fail`() {
+        val textPainter = TextPainter(text = TextSpan())
+
+        textPainter.layout()
+    }
+
+    @Test
+    fun `layout with !needsLayout && minWidth == lastMinWidth && maxWidth == lastMaxWidth`() {
+        val textPainter =
+            TextPainter(text = TextSpan(text = "Hello"), textDirection = TextDirection.LTR)
+        textPainter.needsLayout = false
+
+        textPainter.layout(0.0, 0.0)
+
+        assertThat(textPainter.paragraph).isNull()
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `paint without layout assertion should fail`() {
+        val textPainter = TextPainter()
+        val canvas = mock<Canvas>()
+
+        textPainter.paint(canvas, Offset(0.0, 0.0))
     }
 }

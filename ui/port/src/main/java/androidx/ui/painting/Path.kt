@@ -418,7 +418,7 @@ class Path {
     }
 
     fun extendWithPath(path: Path, offset: Offset, matrix: Matrix4) {
-        assert(_offsetIsValid(offset))
+        assert(Offset.isValid(offset))
 //        if (matrix != null) {
             assert(_matrixIsValid(matrix))
             _extendWithPathAndMatrix(path, offset.dx, offset.dy, matrix)
@@ -468,7 +468,7 @@ class Path {
      * Returns true if the point is in the path, and false otherwise.
      */
     fun contains(offset: Offset) {
-        assert(_offsetIsValid(offset))
+        assert(Offset.isValid(offset))
         _contains(offset)
         // TODO(Migration/njawad) framework Path implementation does not have a contains method
     }
@@ -620,13 +620,6 @@ class Path {
 //    PathMetrics computeMetrics({bool forceClosed: false}) {
 //        return new PathMetrics._(this, forceClosed);
 //    }
-
-    private fun _offsetIsValid(offset: Offset): Boolean {
-        assert(Double.NaN != offset.dx && Double.NaN != offset.dy) {
-            "Offset argument contained a NaN value."
-        }
-        return true
-    }
 
     private fun _rectIsValid(rect: Rect): Boolean {
         assert(Double.NaN != rect.left) {

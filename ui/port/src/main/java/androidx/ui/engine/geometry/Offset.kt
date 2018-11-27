@@ -77,6 +77,13 @@ data class Offset(override val dx: Double, override val dy: Double) : OffsetBase
 //                return a * (1.0 - t)
             return Offset(lerpDouble(a.dx, b.dx, t), lerpDouble(a.dy, b.dy, t))
         }
+
+        fun isValid(offset: Offset): Boolean {
+            assert(Double.NaN != offset.dx && Double.NaN != offset.dy) {
+                "Offset argument contained a NaN value."
+            }
+            return true
+        }
     }
 
     /**
