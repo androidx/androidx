@@ -16,14 +16,18 @@
 
 package androidx.appcompat.widget;
 
+import static androidx.appcompat.testutils.TestUtilsMatchers.thumbColor;
+import static androidx.appcompat.testutils.TestUtilsMatchers.trackColor;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+
 import static org.junit.Assert.assertEquals;
 
 import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
 import android.view.ViewGroup;
 
 import androidx.appcompat.test.R;
-import androidx.appcompat.testutils.TestUtils;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
@@ -63,29 +67,12 @@ public class SwitchCompatTest {
 
     @Test
     public void testTint() {
-        SwitchCompat switchButton = mContainer.findViewById(R.id.switch_tint);
-        Drawable thumb = switchButton.getThumbDrawable();
-        int expectedThumbTint = 0xffff00ff;
-        TestUtils.assertAllPixelsOfColor(
-                "Tint not applied to switch thumb",
-                thumb,
-                thumb.getIntrinsicWidth(),
-                thumb.getIntrinsicHeight(),
-                true,
-                expectedThumbTint,
-                0,
-                true);
+        // Given a switch with tints set for the track and thumb
+        final int expectedThumbTint = 0xffff00ff;
+        final int expectedTrackTint = 0xff00ffff;
 
-        Drawable track = switchButton.getTrackDrawable();
-        int expectedTrackTint = 0xff00ffff;
-        TestUtils.assertAllPixelsOfColor(
-                "Tint not applied to switch track",
-                track,
-                track.getIntrinsicWidth(),
-                track.getIntrinsicHeight(),
-                true,
-                expectedTrackTint,
-                0,
-                true);
+        // Then the tints should be applied
+        onView(withId(R.id.switch_tint)).check(matches(thumbColor(expectedThumbTint)));
+        onView(withId(R.id.switch_tint)).check(matches(trackColor(expectedTrackTint)));
     }
 }
