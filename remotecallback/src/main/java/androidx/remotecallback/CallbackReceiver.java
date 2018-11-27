@@ -114,6 +114,7 @@ public interface CallbackReceiver<T> {
      * be used in the context on {@link #createRemoteCallback}.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    RemoteCallback toRemoteCallback(Class<T> cls, Bundle args, String method);
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    RemoteCallback toRemoteCallback(Class<T> cls, Context context, String authority, Bundle args,
+            String method);
 }
