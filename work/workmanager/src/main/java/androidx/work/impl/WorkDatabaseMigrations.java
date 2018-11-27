@@ -44,6 +44,7 @@ public class WorkDatabaseMigrations {
     public static final int VERSION_2 = 2;
     public static final int VERSION_3 = 3;
     public static final int VERSION_4 = 4;
+    public static final int VERSION_5 = 5;
 
     private static final String CREATE_SYSTEM_ID_INFO =
             "CREATE TABLE IF NOT EXISTS `SystemIdInfo` (`work_spec_id` TEXT NOT NULL, `system_id`"
@@ -61,6 +62,14 @@ public class WorkDatabaseMigrations {
                     + " AND interval_duration<>0";
 
     private static final String REMOVE_ALARM_INFO = "DROP TABLE IF EXISTS alarmInfo";
+
+    private static final String WORKSPEC_ADD_TRIGGER_UPDATE_DELAY =
+            "ALTER TABLE workspec ADD COLUMN `trigger_content_update_delay` INTEGER NOT NULL "
+                    + "DEFAULT -1";
+
+    private static final String WORKSPEC_ADD_TRIGGER_MAX_CONTENT_DELAY =
+            "ALTER TABLE workspec ADD COLUMN `trigger_max_content_delay` INTEGER NOT NULL DEFAULT"
+                    + " -1";
 
     /**
      * Removes the {@code alarmInfo} table and substitutes it for a more general
@@ -106,6 +115,17 @@ public class WorkDatabaseMigrations {
             if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
                 database.execSQL(PERIODIC_WORK_SET_SCHEDULE_REQUESTED_AT);
             }
+        }
+    };
+
+    /**
+     * Adds the {@code ContentUri} delays to the WorkSpec table.
+     */
+    public static Migration MIGRATION_4_5 = new Migration(VERSION_4, VERSION_5) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(WORKSPEC_ADD_TRIGGER_UPDATE_DELAY);
+            database.execSQL(WORKSPEC_ADD_TRIGGER_MAX_CONTENT_DELAY);
         }
     };
 }

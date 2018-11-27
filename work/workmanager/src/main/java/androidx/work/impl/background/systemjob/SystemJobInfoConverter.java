@@ -106,6 +106,8 @@ class SystemJobInfoConverter {
             for (ContentUriTriggers.Trigger trigger : contentUriTriggers.getTriggers()) {
                 builder.addTriggerContentUri(convertContentUriTrigger(trigger));
             }
+            builder.setTriggerContentUpdateDelay(constraints.getTriggerContentUpdateDelay());
+            builder.setTriggerContentMaxDelay(constraints.getTriggerMaxContentDelay());
         }
 
         // We don't want to persist these jobs because we reschedule these jobs on BOOT_COMPLETED.

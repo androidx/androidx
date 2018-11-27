@@ -48,6 +48,10 @@ package androidx.work {
     method public androidx.work.Constraints.Builder setRequiresCharging(boolean);
     method @RequiresApi(23) public androidx.work.Constraints.Builder setRequiresDeviceIdle(boolean);
     method public androidx.work.Constraints.Builder setRequiresStorageNotLow(boolean);
+    method @RequiresApi(24) public androidx.work.Constraints.Builder setTriggerContentMaxDelay(long, java.util.concurrent.TimeUnit);
+    method @RequiresApi(26) public androidx.work.Constraints.Builder setTriggerContentMaxDelay(java.time.Duration!);
+    method @RequiresApi(24) public androidx.work.Constraints.Builder setTriggerContentUpdateDelay(long, java.util.concurrent.TimeUnit);
+    method @RequiresApi(26) public androidx.work.Constraints.Builder setTriggerContentUpdateDelay(java.time.Duration!);
   }
 
   public final class Data {

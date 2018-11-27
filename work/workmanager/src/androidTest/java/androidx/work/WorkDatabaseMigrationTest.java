@@ -19,10 +19,12 @@ package androidx.work;
 import static android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL;
 
 import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_3_4;
+import static androidx.work.impl.WorkDatabaseMigrations.MIGRATION_4_5;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_1;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_2;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_3;
 import static androidx.work.impl.WorkDatabaseMigrations.VERSION_4;
+import static androidx.work.impl.WorkDatabaseMigrations.VERSION_5;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -39,6 +41,7 @@ import android.support.annotation.NonNull;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkDatabaseMigrations;
@@ -72,11 +75,17 @@ public class WorkDatabaseMigrationTest {
     private static final String CHECK_SYSTEM_ID_INFO = "SELECT * FROM SystemIdInfo";
     private static final String CHECK_ALARM_INFO = "SELECT * FROM alarmInfo";
     private static final String CHECK_TABLE_NAME = "SELECT * FROM %s";
+    private static final String CHECK_TABLE_FIELD = "PRAGMA table_info(%s)";
+
     private static final String TABLE_ALARM_INFO = "alarmInfo";
     private static final String TABLE_SYSTEM_ID_INFO = "SystemIdInfo";
     private static final String TABLE_WORKSPEC = "WorkSpec";
     private static final String TABLE_WORKTAG = "WorkTag";
     private static final String TABLE_WORKNAME = "WorkName";
+
+    private static final String NAME = "name";
+    private static final String TRIGGER_CONTENT_UPDATE_DELAY = "trigger_content_update_delay";
+    private static final String TRIGGER_MAX_CONTENT_DELAY = "trigger_max_content_delay";
 
     private Context mContext;
     private File mDatabasePath;
@@ -234,6 +243,26 @@ public class WorkDatabaseMigrationTest {
         database.close();
     }
 
+    @Test
+    @SmallTest
+    public void testMigrationVersion4To5() throws IOException {
+        SupportSQLiteDatabase database =
+                mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_4);
+        database = mMigrationTestHelper.runMigrationsAndValidate(
+                TEST_DATABASE,
+                VERSION_5,
+                VALIDATE_DROPPED_TABLES,
+                MIGRATION_4_5);
+        assertThat(checkExists(database, TABLE_WORKSPEC), is(true));
+        assertThat(
+                checkColumnExists(database, TABLE_WORKSPEC, TRIGGER_CONTENT_UPDATE_DELAY),
+                is(true));
+        assertThat(
+                checkColumnExists(database, TABLE_WORKSPEC, TRIGGER_MAX_CONTENT_DELAY),
+                is(true));
+        database.close();
+    }
+
     @NonNull
     private ContentValues contentValues(String workSpecId) {
         ContentValues contentValues = new ContentValues();
@@ -270,6 +299,32 @@ public class WorkDatabaseMigrationTest {
             return true;
         } catch (SQLiteException ignored) {
             // Should fail with a SQLiteException (no such table: tableName)
+            return false;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    private boolean checkColumnExists(
+            SupportSQLiteDatabase database,
+            String tableName,
+            String columnName) {
+
+        Cursor cursor = null;
+        try {
+            cursor = database.query(String.format(CHECK_TABLE_FIELD, tableName));
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                // https://www.sqlite.org/pragma.html#pragma_table_info
+                // Columns are: (cid, name, type, notnull, dfit_value, pk)
+                String name = cursor.getString(cursor.getColumnIndex(NAME));
+                if (columnName.equals(name)) {
+                    return true;
+                }
+                cursor.moveToNext();
+            }
             return false;
         } finally {
             if (cursor != null) {
