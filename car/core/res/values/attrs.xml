@@ -159,7 +159,7 @@ limitations under the License.
         <attr name="navigationIcon" format="reference" />
         <!-- The width of space in which navigation icon will be centered. -->
         <attr name="navigationIconContainerWidth" format="dimension" />
-        <attr name="title" formant="string" />
+        <attr name="title" format="string" />
         <attr name="titleTextAppearance" format="reference" />
     </declare-styleable>
 
