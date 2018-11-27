@@ -14,6 +14,7 @@ package androidx.slice {
   }
 
   @RequiresApi(19) public final class SliceItem extends androidx.versionedparcelable.CustomVersionedParcelable {
+    method public static android.text.ParcelableSpan createSensitiveSpan();
     method public void fireAction(android.content.Context?, android.content.Intent?) throws android.app.PendingIntent.CanceledException;
     method public android.app.PendingIntent! getAction();
     method public String! getFormat();
@@ -21,6 +22,7 @@ package androidx.slice {
     method public androidx.core.graphics.drawable.IconCompat! getIcon();
     method public int getInt();
     method public long getLong();
+    method public CharSequence? getRedactedText();
     method public androidx.slice.Slice! getSlice();
     method public String! getSubType();
     method public CharSequence! getText();
