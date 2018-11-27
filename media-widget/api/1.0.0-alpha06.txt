@@ -1,0 +1,37 @@
+// Signature format: 2.0
+package androidx.media2.widget {
+
+  @RequiresApi(21) public class MediaControlView extends android.view.ViewGroup {
+    ctor public MediaControlView(android.content.Context);
+    ctor public MediaControlView(android.content.Context, android.util.AttributeSet?);
+    ctor public MediaControlView(android.content.Context, android.util.AttributeSet?, int);
+    method public void onMeasure(int, int);
+    method public void requestPlayButtonFocus();
+    method public void setOnFullScreenListener(androidx.media2.widget.MediaControlView.OnFullScreenListener);
+    method public void setSessionToken(androidx.media2.SessionToken);
+  }
+
+  public static interface MediaControlView.OnFullScreenListener {
+    method public void onFullScreen(android.view.View, boolean);
+  }
+
+  public class VideoView extends android.view.ViewGroup {
+    ctor public VideoView(android.content.Context);
+    ctor public VideoView(android.content.Context, android.util.AttributeSet?);
+    ctor public VideoView(android.content.Context, android.util.AttributeSet?, int);
+    method public androidx.media2.widget.MediaControlView? getMediaControlView();
+    method public androidx.media2.SessionToken getSessionToken();
+    method public int getViewType();
+    method public void onAttachedToWindow();
+    method public void onDetachedFromWindow();
+    method public void onMeasure(int, int);
+    method public void setAudioAttributes(androidx.media.AudioAttributesCompat);
+    method public void setMediaControlView(androidx.media2.widget.MediaControlView, long);
+    method public void setMediaItem(androidx.media2.MediaItem);
+    method public void setViewType(int);
+    field public static final int VIEW_TYPE_SURFACEVIEW = 0; // 0x0
+    field public static final int VIEW_TYPE_TEXTUREVIEW = 1; // 0x1
+  }
+
+}
+
