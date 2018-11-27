@@ -803,11 +803,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                         resources.getString(R.string.mcv2_music_artist_unknown_text));
                 mMusicAlbumDrawable = extractAlbumArt(metadata, retriever,
                         resources.getDrawable(R.drawable.ic_default_album_image));
-
-                // Update Music View to reflect the new metadata
-                mInstance.removeView(mSurfaceView);
-                mInstance.removeView(mTextureView);
-                updateCurrentMusicView(mMusicEmbeddedView);
             }
 
             if (retriever != null) {
@@ -1045,15 +1040,8 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                         // Run extractMetadata() in another thread to prevent StrictMode violation.
                         // extractMetadata() contains file IO indirectly,
                         // via MediaMetadataRetriever.
-                        AsyncTask.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                MediaMetadata metadata = extractMetadata();
-                                if (metadata != null) {
-                                    mMediaItem.setMetadata(metadata);
-                                }
-                            }
-                        });
+                        MetadataExtractTask task = new MetadataExtractTask();
+                        task.execute();
                     }
 
                     if (mMediaControlView != null) {
@@ -1207,6 +1195,32 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     break;
             }
             return RESULT_CODE_SUCCESS;
+        }
+    }
+
+    private class MetadataExtractTask extends AsyncTask<Void, Void, MediaMetadata> {
+        MetadataExtractTask() {
+        }
+
+        @Override
+        protected MediaMetadata doInBackground(Void... params) {
+            return extractMetadata();
+        }
+
+        @Override
+        protected void onPostExecute(MediaMetadata metadata) {
+            if (metadata != null) {
+                mMediaItem.setMetadata(metadata);
+            }
+
+            synchronized (mLock) {
+                if (mCurrentItemIsMusic) {
+                    // Update Music View to reflect the new metadata
+                    mInstance.removeView(mSurfaceView);
+                    mInstance.removeView(mTextureView);
+                    updateCurrentMusicView(mMusicEmbeddedView);
+                }
+            }
         }
     }
 }
