@@ -26,6 +26,9 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.annotation.RestrictTo;
 
+import java.time.Duration;
+import java.util.concurrent.TimeUnit;
+
 /**
  * A specification of the requirements that need to be met before a {@link WorkRequest} can run.  By
  * default, WorkRequests do not have any requirements and can run immediately.  By adding
@@ -57,6 +60,12 @@ public final class Constraints {
     @ColumnInfo(name = "requires_storage_not_low")
     private boolean mRequiresStorageNotLow;
 
+    @ColumnInfo(name = "trigger_content_update_delay")
+    private long mTriggerContentUpdateDelay = -1;
+
+    @ColumnInfo(name = "trigger_max_content_delay")
+    private long  mTriggerMaxContentDelay = -1;
+
     // NOTE: this is effectively a @NonNull, but changing the annotation would result in a really
     // annoying database migration that we can deal with later.
     @ColumnInfo(name = "content_uri_triggers")
@@ -77,6 +86,8 @@ public final class Constraints {
         mRequiresStorageNotLow = builder.mRequiresStorageNotLow;
         if (Build.VERSION.SDK_INT >= 24) {
             mContentUriTriggers = builder.mContentUriTriggers;
+            mTriggerContentUpdateDelay = builder.mTriggerContentUpdateDelay;
+            mTriggerMaxContentDelay = builder.mTriggerContentMaxDelay;
         }
     }
 
@@ -173,6 +184,42 @@ public final class Constraints {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public long getTriggerContentUpdateDelay() {
+        return mTriggerContentUpdateDelay;
+    }
+
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setTriggerContentUpdateDelay(long triggerContentUpdateDelay) {
+        mTriggerContentUpdateDelay = triggerContentUpdateDelay;
+    }
+
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public long getTriggerMaxContentDelay() {
+        return mTriggerMaxContentDelay;
+    }
+
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void setTriggerMaxContentDelay(long triggerMaxContentDelay) {
+        mTriggerMaxContentDelay = triggerMaxContentDelay;
+    }
+
+    /**
+     * Needed by Room.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(24)
     public void setContentUriTriggers(@Nullable ContentUriTriggers mContentUriTriggers) {
         this.mContentUriTriggers = mContentUriTriggers;
@@ -199,19 +246,19 @@ public final class Constraints {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Constraints other = (Constraints) o;
-        return mRequiredNetworkType == other.mRequiredNetworkType
-                && mRequiresCharging == other.mRequiresCharging
-                && mRequiresDeviceIdle == other.mRequiresDeviceIdle
-                && mRequiresBatteryNotLow == other.mRequiresBatteryNotLow
-                && mRequiresStorageNotLow == other.mRequiresStorageNotLow
-                && mContentUriTriggers.equals(other.mContentUriTriggers);
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Constraints that = (Constraints) o;
+
+        if (mRequiresCharging != that.mRequiresCharging) return false;
+        if (mRequiresDeviceIdle != that.mRequiresDeviceIdle) return false;
+        if (mRequiresBatteryNotLow != that.mRequiresBatteryNotLow) return false;
+        if (mRequiresStorageNotLow != that.mRequiresStorageNotLow) return false;
+        if (mTriggerContentUpdateDelay != that.mTriggerContentUpdateDelay) return false;
+        if (mTriggerMaxContentDelay != that.mTriggerMaxContentDelay) return false;
+        if (mRequiredNetworkType != that.mRequiredNetworkType) return false;
+        return mContentUriTriggers.equals(that.mContentUriTriggers);
     }
 
     @Override
@@ -221,6 +268,9 @@ public final class Constraints {
         result = 31 * result + (mRequiresDeviceIdle ? 1 : 0);
         result = 31 * result + (mRequiresBatteryNotLow ? 1 : 0);
         result = 31 * result + (mRequiresStorageNotLow ? 1 : 0);
+        result = 31 * result + (int) (mTriggerContentUpdateDelay ^ (mTriggerContentUpdateDelay
+                >>> 32));
+        result = 31 * result + (int) (mTriggerMaxContentDelay ^ (mTriggerMaxContentDelay >>> 32));
         result = 31 * result + mContentUriTriggers.hashCode();
         return result;
     }
@@ -234,6 +284,9 @@ public final class Constraints {
         NetworkType mRequiredNetworkType = NOT_REQUIRED;
         boolean mRequiresBatteryNotLow = false;
         boolean mRequiresStorageNotLow = false;
+        // Same defaults as JobInfo
+        long mTriggerContentUpdateDelay = -1;
+        long mTriggerContentMaxDelay = -1;
         ContentUriTriggers mContentUriTriggers = new ContentUriTriggers();
 
         /**
@@ -315,6 +368,78 @@ public final class Constraints {
                 @NonNull Uri uri,
                 boolean triggerForDescendants) {
             mContentUriTriggers.add(uri, triggerForDescendants);
+            return this;
+        }
+
+        /**
+         * Sets the delay that is allowed from the time a {@code content:} {@link Uri}
+         * change is detected to the time when the {@link WorkRequest} is scheduled.  If there are
+         * more changes during this time, the delay will be reset to the start of the most recent
+         * change. This functionality is identical to the one found in {@code JobScheduler} and
+         * is described in {@code JobInfo.Builder#setTriggerContentUpdateDelay(long)}.
+         *
+         * @param duration The length of the delay in {@code timeUnit} units
+         * @param timeUnit The units of time for {@code duration}
+         * @return The current {@link Builder}
+         */
+        @RequiresApi(24)
+        @NonNull
+        public Builder setTriggerContentUpdateDelay(
+                long duration,
+                @NonNull TimeUnit timeUnit) {
+            mTriggerContentUpdateDelay = timeUnit.toMillis(duration);
+            return this;
+        }
+
+        /**
+         * Sets the delay that is allowed from the time a {@code content:} {@link Uri} change
+         * is detected to the time when the {@link WorkRequest} is scheduled.  If there are more
+         * changes during this time, the delay will be reset to the start of the most recent change.
+         * This functionality is identical to the one found in {@code JobScheduler} and
+         * is described in {@code JobInfo.Builder#setTriggerContentUpdateDelay(long)}.
+         *
+         * @param duration The length of the delay
+         * @return The current {@link Builder}
+         */
+        @RequiresApi(26)
+        @NonNull
+        public Builder setTriggerContentUpdateDelay(Duration duration) {
+            mTriggerContentUpdateDelay = duration.toMillis();
+            return this;
+        }
+
+        /**
+         * Sets the maximum delay that is allowed from the first time a {@code content:}
+         * {@link Uri} change is detected to the time when the {@link WorkRequest} is scheduled.
+         * This functionality is identical to the one found in {@code JobScheduler} and
+         * is described in {@code JobInfo.Builder#setTriggerContentMaxDelay(long)}.
+         *
+         * @param duration The length of the delay in {@code timeUnit} units
+         * @param timeUnit The units of time for {@code duration}
+         * @return The current {@link Builder}
+         */
+        @RequiresApi(24)
+        @NonNull
+        public Builder setTriggerContentMaxDelay(
+                long duration,
+                @NonNull TimeUnit timeUnit) {
+            mTriggerContentMaxDelay = timeUnit.toMillis(duration);
+            return this;
+        }
+
+        /**
+         * Sets the maximum delay that is allowed from the first time a {@code content:} {@link Uri}
+         * change is detected to the time when the {@link WorkRequest} is scheduled. This
+         * functionality is identical to the one found in {@code JobScheduler} and is described
+         * in {@code JobInfo.Builder#setTriggerContentMaxDelay(long)}.
+         *
+         * @param duration The length of the delay
+         * @return The current {@link Builder}
+         */
+        @RequiresApi(26)
+        @NonNull
+        public Builder setTriggerContentMaxDelay(Duration duration) {
+            mTriggerContentMaxDelay = duration.toMillis();
             return this;
         }
 
