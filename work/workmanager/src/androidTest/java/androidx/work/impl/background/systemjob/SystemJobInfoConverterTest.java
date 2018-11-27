@@ -48,6 +48,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.TimeUnit;
+
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 public class SystemJobInfoConverterTest extends WorkManagerTest {
@@ -160,11 +162,16 @@ public class SystemJobInfoConverterTest extends WorkManagerTest {
                 new JobInfo.TriggerContentUri(
                         expectedUri, JobInfo.TriggerContentUri.FLAG_NOTIFY_FOR_DESCENDANTS);
         WorkSpec workSpec = getTestWorkSpecWithConstraints(new Constraints.Builder()
-                .addContentUriTrigger(expectedUri, true).build());
+                .addContentUriTrigger(expectedUri, true)
+                .setTriggerContentUpdateDelay(5, TimeUnit.SECONDS)
+                .setTriggerContentMaxDelay(10, TimeUnit.SECONDS)
+                .build());
         JobInfo jobInfo = mConverter.convert(workSpec, JOB_ID);
 
         JobInfo.TriggerContentUri[] triggerContentUris = jobInfo.getTriggerContentUris();
         assertThat(triggerContentUris, is(arrayContaining(expectedTriggerContentUri)));
+        assertThat(jobInfo.getTriggerContentUpdateDelay(), is(TimeUnit.SECONDS.toMillis(5)));
+        assertThat(jobInfo.getTriggerContentMaxDelay(), is(TimeUnit.SECONDS.toMillis(10)));
     }
 
     @Test
