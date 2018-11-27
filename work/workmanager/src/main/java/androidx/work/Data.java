@@ -321,8 +321,16 @@ public final class Data {
                 objectOutputStream.writeUTF(entry.getKey());
                 objectOutputStream.writeObject(entry.getValue());
             }
+
+            if (outputStream.size() > MAX_DATA_BYTES) {
+                throw new IllegalStateException(
+                        "Data cannot occupy more than " + MAX_DATA_BYTES
+                                + " bytes when serialized");
+            }
+            return outputStream.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
+            return outputStream.toByteArray();
         } finally {
             if (objectOutputStream != null) {
                 try {
@@ -337,12 +345,6 @@ public final class Data {
                 e.printStackTrace();
             }
         }
-
-        if (outputStream.size() > MAX_DATA_BYTES) {
-            throw new IllegalStateException(
-                    "Data cannot occupy more than " + MAX_DATA_BYTES + " bytes when serialized");
-        }
-        return outputStream.toByteArray();
     }
 
     /**
@@ -687,7 +689,11 @@ public final class Data {
          *         {@link Builder}.
          */
         public @NonNull Data build() {
-            return new Data(mValues);
+            Data data = new Data(mValues);
+            // Make sure we catch Data objects that are too large at build() instead of later.  This
+            // method will throw an exception if data is too big.
+            Data.toByteArray(data);
+            return data;
         }
     }
 }
