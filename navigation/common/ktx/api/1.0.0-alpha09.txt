@@ -25,18 +25,30 @@ package androidx.navigation {
     property public final int destinationId;
   }
 
+  @androidx.navigation.NavDestinationDsl public final class NavArgumentBuilder {
+    ctor public NavArgumentBuilder();
+    method public androidx.navigation.NavArgument build();
+    method public Object? getDefaultValue();
+    method public boolean getNullable();
+    method public androidx.navigation.NavType<?> getType();
+    method public void setDefaultValue(Object? value);
+    method public void setNullable(boolean value);
+    method public void setType(androidx.navigation.NavType<?> value);
+    property public final Object? defaultValue;
+    property public final boolean nullable;
+    property public final androidx.navigation.NavType<?> type;
+  }
+
   @androidx.navigation.NavDestinationDsl public class NavDestinationBuilder<D extends androidx.navigation.NavDestination> {
     ctor public NavDestinationBuilder(androidx.navigation.Navigator<? extends D> navigator, @IdRes int id);
     method public final void action(int actionId, kotlin.jvm.functions.Function1<? super androidx.navigation.NavActionBuilder,kotlin.Unit> actionBuilder);
+    method public final void argument(String name, kotlin.jvm.functions.Function1<? super androidx.navigation.NavArgumentBuilder,kotlin.Unit> argumentBuilder);
     method public D build();
     method public final void deepLink(String uriPattern);
-    method public final android.os.Bundle? getDefaultArguments();
     method public final int getId();
     method public final CharSequence? getLabel();
     method protected final androidx.navigation.Navigator<? extends D> getNavigator();
-    method public final void setDefaultArguments(android.os.Bundle? p);
     method public final void setLabel(CharSequence? p);
-    property public final android.os.Bundle? defaultArguments;
     property public final CharSequence? label;
   }
 

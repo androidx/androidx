@@ -23,7 +23,6 @@ import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.support.annotation.NavigationRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -135,119 +134,95 @@ public final class NavInflater {
         return dest;
     }
 
+    @SuppressWarnings("unchecked")
     private void inflateArgument(@NonNull Resources res, @NonNull NavDestination dest,
             @NonNull AttributeSet attrs, int graphResId) throws XmlPullParserException {
         final TypedArray a = res.obtainAttributes(attrs, R.styleable.NavArgument);
         String name = a.getString(R.styleable.NavArgument_android_name);
+        if (name == null) {
+            throw new XmlPullParserException("Arguments must have a name");
+        }
+
+        NavArgument.Builder argumentBuilder = new NavArgument.Builder();
+        argumentBuilder.setIsNullable(a.getBoolean(R.styleable.NavArgument_nullable, false));
 
         TypedValue value = sTmpValue.get();
         if (value == null) {
             value = new TypedValue();
             sTmpValue.set(value);
         }
+
+        Object defaultValue = null;
+        NavType navType = null;
         String argType = a.getString(R.styleable.NavArgument_argType);
+        if (argType != null) {
+            navType = NavType.fromArgType(argType, res.getResourcePackageName(graphResId));
+        }
+
         if (a.getValue(R.styleable.NavArgument_android_defaultValue, value)) {
-            if ("string".equals(argType)) {
-                dest.getDefaultArguments()
-                        .putString(name, a.getString(R.styleable.NavArgument_android_defaultValue));
+            if (navType == NavType.StringType) {
+                defaultValue = a.getString(R.styleable.NavArgument_android_defaultValue);
             } else {
                 switch (value.type) {
                     case TypedValue.TYPE_STRING:
                         String stringValue = value.string.toString();
-                        if (argType == null) {
-                            Long longValue = parseLongValue(stringValue);
-                            if (longValue != null) {
-                                dest.getDefaultArguments().putLong(name, longValue);
-                                break;
-                            }
-                        } else if ("long".equals(argType)) {
-                            Long longValue = parseLongValue(stringValue);
-                            if (longValue != null) {
-                                dest.getDefaultArguments().putLong(name, longValue);
-                                break;
-                            }
-                            throw new XmlPullParserException(
-                                    "unsupported long value " + value.string);
-                        } else { //this might be an Enum
-                            Class<?> cls = null;
-                            String className;
-                            if (argType.startsWith(".")) {
-                                className = res.getResourcePackageName(graphResId) + argType;
-                            } else {
-                                className = argType;
-                            }
-                            try {
-                                cls = Class.forName(className);
-                            } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
-                            }
-                            if (cls != null && cls.isEnum()) {
-                                boolean found = false;
-                                for (Object constant : cls.getEnumConstants()) {
-                                    if (((Enum) constant).name().equals(stringValue)) {
-                                        dest.getDefaultArguments()
-                                                .putSerializable(name, (Enum) constant);
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if (!found) {
-                                    throw new XmlPullParserException(
-                                            "Cannot find Enum value '" + stringValue + "' for "
-                                                    + "'" + className + "'");
-                                }
-                                break; //from switch statement
-                            } else {
-                                throw new XmlPullParserException(
-                                        "Unsupported argument type '" + argType + "' with "
-                                                + "non-null defaultValue. Class '" + className
-                                                + " does not exist or is not an Enum.");
-                            }
+                        if (navType == null) {
+                            navType = NavType.inferFromValue(stringValue);
                         }
-                        dest.getDefaultArguments().putString(name, stringValue);
+                        defaultValue = navType.parseValue(stringValue);
                         break;
                     case TypedValue.TYPE_DIMENSION:
-                        dest.getDefaultArguments().putInt(name,
-                                (int) value.getDimension(res.getDisplayMetrics()));
+                        navType = checkNavType(value, navType, NavType.IntType,
+                                argType, "dimension");
+                        defaultValue = (int) value.getDimension(res.getDisplayMetrics());
                         break;
                     case TypedValue.TYPE_FLOAT:
-                        dest.getDefaultArguments().putFloat(name, value.getFloat());
+                        navType = checkNavType(value, navType, NavType.FloatType,
+                                argType, "float");
+                        defaultValue = value.getFloat();
                         break;
                     case TypedValue.TYPE_REFERENCE:
-                        dest.getDefaultArguments().putInt(name, value.data);
+                        navType = checkNavType(value, navType, NavType.IntType,
+                                argType, "reference");
+                        defaultValue = value.data;
+                        break;
+                    case TypedValue.TYPE_INT_BOOLEAN:
+                        navType = checkNavType(value, navType, NavType.BoolType,
+                                argType, "boolean");
+                        defaultValue = value.data != 0;
                         break;
                     default:
                         if (value.type >= TypedValue.TYPE_FIRST_INT
                                 && value.type <= TypedValue.TYPE_LAST_INT) {
-                            if (value.type == TypedValue.TYPE_INT_BOOLEAN) {
-                                dest.getDefaultArguments().putBoolean(name, value.data != 0);
-                            } else {
-                                dest.getDefaultArguments().putInt(name, value.data);
-                            }
+                            navType = checkNavType(value, navType, NavType.IntType,
+                                    argType, "integer");
+                            defaultValue = value.data;
                         } else {
                             throw new XmlPullParserException(
-                                    "Unsupported argument type " + value.type);
+                                    "unsupported argument type " + value.type);
                         }
                 }
             }
         }
+
+        if (defaultValue != null) {
+            argumentBuilder.setDefaultValue(defaultValue);
+        }
+        if (navType != null) {
+            argumentBuilder.setType(navType);
+        }
+        dest.addArgument(name, argumentBuilder.build());
         a.recycle();
     }
 
-    private @Nullable Long parseLongValue(String value) {
-        if (!value.endsWith("L")) {
-            return null;
+    private static NavType checkNavType(TypedValue value, NavType navType,
+            NavType expectedNavType, String argType, String foundType)
+            throws XmlPullParserException {
+        if (navType != null && navType != expectedNavType) {
+            throw new XmlPullParserException(
+                    "Type is " + argType + " but found " + foundType + ": " + value.data);
         }
-        try {
-            value = value.substring(0, value.length() - 1);
-            if (value.startsWith("0x")) {
-                return Long.parseLong(value.substring(2), 16);
-            } else {
-                return Long.parseLong(value);
-            }
-        } catch (NumberFormatException ex) {
-            return null;
-        }
+        return navType != null ? navType : expectedNavType;
     }
 
     private void inflateDeepLink(@NonNull Resources res, @NonNull NavDestination dest,
