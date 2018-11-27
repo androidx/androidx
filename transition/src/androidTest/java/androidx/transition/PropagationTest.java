@@ -16,18 +16,31 @@
 
 package androidx.transition;
 
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.graphics.Rect;
+import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.transition.test.R;
 
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 public class PropagationTest extends BaseTransitionTest {
@@ -80,6 +93,58 @@ public class PropagationTest extends BaseTransitionTest {
         // Test propagation speed
         propagation.setPropagationSpeed(1000000000f);
         assertEquals(0, getDelay(R.id.blueSquare));
+    }
+
+    @Test
+    public void withStartDelay() throws Throwable {
+        // This layout has red, blue, and green squares from the top.
+        enterScene(R.layout.scene3);
+        // Wait for the animators to be run; This is necessary because the eventual start delays of
+        // the animators are determined only when they are run by TransitionManager.
+        final CountDownLatch assertLatch = new CountDownLatch(3);
+
+        final SparseArray<Long> startDelays = new SparseArray<>();
+        final Fade fade = new Fade(Fade.OUT) {
+            @Override
+            public Animator onDisappear(ViewGroup sceneRoot, View view,
+                    TransitionValues startValues, TransitionValues endValues) {
+                final Animator anim = super.onDisappear(sceneRoot, view, startValues, endValues);
+                anim.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+                        final ObjectAnimator a = (ObjectAnimator) animation;
+                        final int viewId = ((View) a.getTarget()).getId();
+                        final long startDelay = a.getStartDelay();
+                        startDelays.put(viewId, startDelay);
+                        assertLatch.countDown();
+                    }
+                });
+                return anim;
+            }
+        };
+
+        final SidePropagation propagation = new SidePropagation();
+        propagation.setSide(Gravity.TOP);
+        propagation.setPropagationSpeed(0.3f);
+        fade.setStartDelay(12L);
+        fade.setPropagation(propagation);
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(mRoot, fade);
+                mRoot.findViewById(R.id.redSquare).setVisibility(View.GONE);
+                mRoot.findViewById(R.id.blueSquare).setVisibility(View.GONE);
+                mRoot.findViewById(R.id.greenSquare).setVisibility(View.GONE);
+            }
+        });
+
+        assertLatch.await(3000, TimeUnit.MILLISECONDS);
+        long redDelay = startDelays.get(R.id.redSquare, -1L);
+        long blueDelay = startDelays.get(R.id.blueSquare, -1L);
+        long greenDelay = startDelays.get(R.id.greenSquare, -1L);
+        assertThat(redDelay, is(12L));
+        assertThat(blueDelay, is(greaterThan(redDelay)));
+        assertThat(greenDelay, is(greaterThan(blueDelay)));
     }
 
     private TransitionValues capturePropagationValues(int viewId) {
