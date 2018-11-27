@@ -19,7 +19,6 @@ import android.graphics.Canvas
 import android.os.Build
 import android.text.BoringLayout
 import android.text.Layout
-import android.text.StaticLayout
 import android.text.TextDirectionHeuristic
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
@@ -211,20 +210,27 @@ class TextLayout constructor(
     val didExceedMaxLines: Boolean
 
     init {
-        val boringMetrics = BoringLayout.isBoring(charSequence, textPaint, null /* metrics */)
         val start = 0
         val end = charSequence.length
-        maxIntrinsicWidth = if (boringMetrics == null) {
-            // we may need to getWidthWithLimits(maxWidth: Int, maxLines: Int)
-            Layout.getDesiredWidth(charSequence, start, end, textPaint).toDouble()
+        val nativeTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
+        val boringMetrics = if (!nativeTextDir.isRtl(charSequence, start, end)) {
+            BoringLayout.isBoring(charSequence, textPaint, null /* metrics */)
         } else {
-            boringMetrics.width.toDouble()
+            null
         }
+
+        maxIntrinsicWidth = boringMetrics?.width?.toDouble()
+                // we may need to getWidthWithLimits(maxWidth: Int, maxLines: Int)
+                ?: Layout.getDesiredWidth(charSequence, start, end, textPaint).toDouble()
 
         val finalWidth = width.toInt()
         val ellipsizeWidth = finalWidth
 
+        val frameworkAlignment = TextAlignmentAdapter.get(alignment)
+        val frameworkTextDirectionHeuristic = getTextDirectionHeuristic(textDirectionHeuristic)
+
         layout = if (boringMetrics != null && maxIntrinsicWidth <= width) {
+            // TODO(Migration/haoyuchang): Create BoringLayoutCompat
             BoringLayoutFactory.create(
                 textPaint = textPaint,
                 charSequence = charSequence,
@@ -236,30 +242,27 @@ class TextLayout constructor(
                 ellipsizeWidth = ellipsizeWidth
             )
         } else {
-            StaticLayoutFactory.create(
-                textPaint = textPaint,
-                charSequence = charSequence,
-                width = finalWidth,
-                alignment = alignment,
-                ellipsize = ellipsize,
-                ellipsizeWidth = ellipsizeWidth,
-                start = start,
-                end = end,
-                textDirectionHeuristic = textDirectionHeuristic,
-                lineSpacingMultiplier = lineSpacingMultiplier,
-                lineSpacingExtra = lineSpacingExtra,
-                includePadding = includePadding,
-                maxLines = maxLines,
-                breakStrategy = breakStrategy,
-                hyphenationFrequency = hyphenationFrequency,
-                justificationMode = justificationMode,
-                leftIndents = leftIndents,
-                rightIndents = rightIndents
+            StaticLayoutCompat.Builder(
+                charSequence,
+                textPaint, finalWidth
             )
+                .setAlignment(frameworkAlignment)
+                .setTextDirection(frameworkTextDirectionHeuristic)
+                .setLineSpacingExtra(lineSpacingExtra.toFloat())
+                .setLineSpacingMultiplier(lineSpacingMultiplier.toFloat())
+                .setIncludePad(includePadding)
+                .setEllipsize(ellipsize)
+                .setEllipsizedWidth(ellipsizeWidth)
+                .setMaxLines(maxLines)
+                .setBreakStrategy(breakStrategy)
+                .setHyphenationFrequency(hyphenationFrequency)
+                .setJustificationMode(justificationMode)
+                .setIndents(leftIndents, rightIndents)
+                .build()
         }
 
-        didExceedMaxLines = if (Build.VERSION.SDK_INT in 23..25) {
-            /* In API 23 to 25, the layout.lineCount will be set to maxLines when there are more
+        didExceedMaxLines = if (Build.VERSION.SDK_INT <= 25) {
+            /* Before API 25, the layout.lineCount will be set to maxLines when there are more
                actual text lines in the layout.
                So in those versions, we first check if maxLines equals layout.lineCount. If true,
                we check whether the offset of the last character in Layout is the last character
@@ -335,118 +338,17 @@ class BoringLayoutFactory {
     }
 }
 
-/**
- * Factory Class for StaticLayout.
- *
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class StaticLayoutFactory {
-    companion object {
-        fun create(
-            textPaint: TextPaint,
-            charSequence: CharSequence,
-            width: Int = 0,
-            @TextLayoutAlignment alignment: Int = ALIGN_NORMAL,
-            ellipsize: TextUtils.TruncateAt? = null,
-            ellipsizeWidth: Int = 0,
-            start: Int = 0,
-            end: Int = charSequence.length,
-            @TextDirection textDirectionHeuristic: Int = TEXT_DIRECTION_FIRST_STRONG_LTR,
-            lineSpacingMultiplier: Double = 1.0,
-            lineSpacingExtra: Double = 0.0,
-            includePadding: Boolean = true,
-            maxLines: Int = Int.MAX_VALUE,
-            @BreakStrategy breakStrategy: Int = BREAK_STRATEGY_SIMPLE,
-            @HyphenationFrequency hyphenationFrequency: Int = HYPHENATION_FREQUENCY_NONE,
-            @JustificationMode justificationMode: Int = JUSTIFICATION_MODE_NONE,
-            leftIndents: IntArray? = null,
-            rightIndents: IntArray? = null
-        ): Layout {
-
-            val frameworkAlignment = TextAlignmentAdapter.get(alignment)
-
-            return if (Build.VERSION.SDK_INT >= 23) {
-                // TODO(Migration/siyamed): textDirectionHeuristic was added in 18 but no
-                // constructor for that before 23, this is a little trouble
-                val frameworkTextDirectionHeuristic =
-                    getTextDirectionHeuristic(
-                        textDirectionHeuristic
-                    )
-                val builder = StaticLayout.Builder.obtain(
-                    charSequence,
-                    start,
-                    end,
-                    textPaint,
-                    width
-                )
-                    .setAlignment(frameworkAlignment)
-                    .setTextDirection(frameworkTextDirectionHeuristic)
-                    .setLineSpacing(lineSpacingExtra.toFloat(), lineSpacingMultiplier.toFloat())
-                    .setBreakStrategy(breakStrategy)
-                    .setHyphenationFrequency(hyphenationFrequency)
-                    .setIncludePad(includePadding)
-                    .setMaxLines(maxLines)
-                    .setEllipsize(ellipsize)
-                    .setIndents(leftIndents, rightIndents)
-
-                if (Build.VERSION.SDK_INT >= 26) {
-                    builder.setJustificationMode(justificationMode)
-                }
-                // if (Build.VERSION.SDK_INT >= 28) {
-                // TODO(Migration/siyamed): last line spacing is required for editable text,
-                // otherwise we will need tricks
-                // builder.setAddLastLineLineSpacing(builder.mAddLastLineLineSpacing);
-                // builder.setUseLineSpacingFromFallbacks(true);
-                // }
-
-                builder.build()
-            } else {
-                if (ellipsize != null) {
-                    @Suppress("DEPRECATION")
-                    StaticLayout(
-                        charSequence,
-                        start,
-                        end,
-                        textPaint,
-                        width,
-                        frameworkAlignment,
-                        lineSpacingMultiplier.toFloat(),
-                        lineSpacingExtra.toFloat(),
-                        includePadding,
-                        ellipsize,
-                        ellipsizeWidth
-                    )
-                } else {
-                    @Suppress("DEPRECATION")
-                    StaticLayout(
-                        charSequence,
-                        start,
-                        end,
-                        textPaint,
-                        width,
-                        frameworkAlignment,
-                        lineSpacingMultiplier.toFloat(),
-                        lineSpacingExtra.toFloat(),
-                        includePadding
-                    )
-                }
-            }
-        }
-
-        @RequiresApi(api = 18)
-        fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: Int):
-                TextDirectionHeuristic {
-            return when (textDirectionHeuristic) {
-                TEXT_DIRECTION_LTR -> TextDirectionHeuristics.LTR
-                TEXT_DIRECTION_LOCALE -> TextDirectionHeuristics.LOCALE
-                TEXT_DIRECTION_RTL -> TextDirectionHeuristics.RTL
-                TEXT_DIRECTION_FIRST_STRONG_RTL -> TextDirectionHeuristics.FIRSTSTRONG_RTL
-                TEXT_DIRECTION_ANY_RTL_LTR -> TextDirectionHeuristics.ANYRTL_LTR
-                TEXT_DIRECTION_FIRST_STRONG_LTR -> TextDirectionHeuristics.FIRSTSTRONG_LTR
-                else -> TextDirectionHeuristics.FIRSTSTRONG_LTR
-            }
-        }
+@RequiresApi(api = 18)
+internal fun getTextDirectionHeuristic(@TextDirection textDirectionHeuristic: Int):
+        TextDirectionHeuristic {
+    return when (textDirectionHeuristic) {
+        TEXT_DIRECTION_LTR -> TextDirectionHeuristics.LTR
+        TEXT_DIRECTION_LOCALE -> TextDirectionHeuristics.LOCALE
+        TEXT_DIRECTION_RTL -> TextDirectionHeuristics.RTL
+        TEXT_DIRECTION_FIRST_STRONG_RTL -> TextDirectionHeuristics.FIRSTSTRONG_RTL
+        TEXT_DIRECTION_ANY_RTL_LTR -> TextDirectionHeuristics.ANYRTL_LTR
+        TEXT_DIRECTION_FIRST_STRONG_LTR -> TextDirectionHeuristics.FIRSTSTRONG_LTR
+        else -> TextDirectionHeuristics.FIRSTSTRONG_LTR
     }
 }
 
