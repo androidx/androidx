@@ -1007,6 +1007,9 @@ public class MediaControlView extends BaseLayout {
             mPlayPauseButton.setContentDescription(
                     mResources.getString(R.string.mcv2_play_button_desc));
         } else {
+            if (mIsStopped) {
+                mController.seekTo(0);
+            }
             mController.play();
             mPlayPauseButton.setImageDrawable(
                     mResources.getDrawable(R.drawable.ic_pause_circle_filled, null));
