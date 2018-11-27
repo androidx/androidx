@@ -101,7 +101,6 @@ package androidx.ui.engine.text
 // visual terms.
 // The order of this enum must match the order of the values in TextDirection.h's TextDirection.
 enum class TextDirection {
-    // TODO(Migration/siyamed): enums are lowercase in other classes, ask ryan@
     // The text flows from right to left (e.g. Arabic, Hebrew).
     LTR,
     // The text flows from left to right (e.g., English, French).

@@ -71,9 +71,7 @@ import androidx.ui.engine.window.Locale
  * * `locale`: The locale used to select region-specific glyphs.
  */
 data class ParagraphStyle constructor(
-    // TODO(Migration/siyamed): pass to TextLayout
     val textAlign: TextAlign? = null,
-    // TODO(Migration/siyamed): pass to TextLayout
     val textDirection: TextDirection? = null,
     // TODO(Migration/siyamed): pass to TextLayout
     val fontWeight: FontWeight? = null,
