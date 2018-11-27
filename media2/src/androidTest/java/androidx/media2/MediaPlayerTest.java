@@ -1181,6 +1181,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertEquals(0, mOnErrorCalled.getNumSignal());
     }
 
+    @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSetAndGetShuflleMode() throws Exception {
