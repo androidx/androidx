@@ -127,6 +127,10 @@ public final class NavDeepLinkBuilder {
 
     /**
      * Sets the graph that contains the {@link #setDestination(int) deep link destination}.
+     * <p>
+     * If you do not have access to a {@link NavController}, you can create a
+     * {@link NavigatorProvider} and use that to programmatically construct a navigation
+     * graph or use {@link NavInflater#NavInflater(Context, NavigatorProvider) NavInflater}.
      *
      * @param navGraph The {@link NavGraph} containing the deep link destination
      * @return this object for chaining
