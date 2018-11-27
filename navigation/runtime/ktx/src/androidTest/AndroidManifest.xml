@@ -16,7 +16,7 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.navigation.ktx.test">
+          package="androidx.navigation.ktx">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
     <application>
         <activity android:name="androidx.navigation.TestActivity"/>
