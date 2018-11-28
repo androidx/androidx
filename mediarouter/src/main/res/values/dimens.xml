@@ -48,6 +48,8 @@
 
     <!-- MediaRouteDevicePickerDialog/MediaRouteCastDialog's common dimensions. -->
     <eat-comment />
+    <!-- Height of group volume item in dynamic group -->
+    <dimen name="mr_dynamic_volume_group_list_item_height">80dp</dimen>
     <!-- Height of row. -->
     <dimen name="mr_dynamic_dialog_row_height">48dp</dimen>
 
