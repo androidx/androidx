@@ -172,7 +172,7 @@ class PojoProcessor private constructor(
                     }
                 }
 
-        val myFields = allFields[null]
+        val unfilteredMyFields = allFields[null]
                 ?.map {
                     FieldProcessor(
                             baseContext = context,
@@ -181,19 +181,24 @@ class PojoProcessor private constructor(
                             bindingScope = bindingScope,
                             fieldParent = parent).process()
                 } ?: emptyList()
+        val myFields = unfilteredMyFields.filterNot { ignoredColumns.contains(it.columnName) }
 
-        val embeddedFields =
+        val unfilteredEmbeddedFields =
                 allFields[Embedded::class]
                         ?.mapNotNull {
                             processEmbeddedField(declaredType, it)
                         }
                         ?: emptyList()
+        val embeddedFields =
+            unfilteredEmbeddedFields.filterNot { ignoredColumns.contains(it.field.columnName) }
 
         val subFields = embeddedFields.flatMap { it.pojo.fields }
-        val combinedFields = myFields + subFields
-        val fields = combinedFields.filterNot { ignoredColumns.contains(it.columnName) }
+        val fields = myFields + subFields
+
+        val unfilteredCombinedFields =
+            unfilteredMyFields + unfilteredEmbeddedFields.map { it.field }
         val missingIgnoredColumns = ignoredColumns.filterNot { ignoredColumn ->
-            combinedFields.any { it.columnName == ignoredColumn }
+            unfilteredCombinedFields.any { it.columnName == ignoredColumn }
         }
         context.checker.check(
                 missingIgnoredColumns.isEmpty(), element,

@@ -1117,6 +1117,65 @@ class PojoProcessorTest {
     }
 
     @Test
+    fun ignoredColumns_noConstructor() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private final String foo;
+                    private final String bar;
+
+                    public ${MY_POJO.simpleName()}(String foo) {
+                      this.foo = foo;
+                      this.bar = null;
+                    }
+
+                    public String getFoo() {
+                      return this.foo;
+                    }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            val pojo = PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                ignoredColumns = setOf("bar"),
+                parent = null).process()
+            assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
+            assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
+        }.compilesWithoutError()
+    }
+
+    @Test
+    fun ignoredColumns_noSetterGetter() {
+        simpleRun(
+            """
+                package foo.bar;
+                import androidx.room.*;
+                public class ${MY_POJO.simpleName()} {
+                    private String foo;
+                    private String bar;
+
+                    public String getFoo() {
+                      return this.foo;
+                    }
+
+                    public void setFoo(String foo) {
+                      this.foo = foo;
+                    }
+                }
+                """.toJFO(MY_POJO.toString())) { invocation ->
+            val pojo = PojoProcessor.createFor(context = invocation.context,
+                element = invocation.typeElement(MY_POJO.toString()),
+                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+                ignoredColumns = setOf("bar"),
+                parent = null).process()
+            assertThat(pojo.fields.find { it.name == "foo" }, notNullValue())
+            assertThat(pojo.fields.find { it.name == "bar" }, nullValue())
+        }.compilesWithoutError()
+    }
+
+    @Test
     fun ignoredColumns_columnInfo() {
         simpleRun(
                 """
