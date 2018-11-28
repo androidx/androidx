@@ -178,6 +178,7 @@ package androidx.preference {
     method public CharSequence! getTitle();
     method public final int getWidgetLayoutResource();
     method public boolean hasKey();
+    method public boolean isCopyingEnabled();
     method public boolean isEnabled();
     method public boolean isIconSpaceReserved();
     method public boolean isPersistent();
@@ -211,6 +212,7 @@ package androidx.preference {
     method public boolean persistStringSet(java.util.Set<java.lang.String>!);
     method public void restoreHierarchyState(android.os.Bundle!);
     method public void saveHierarchyState(android.os.Bundle!);
+    method public void setCopyingEnabled(boolean);
     method public void setDefaultValue(Object!);
     method public void setDependency(String!);
     method public void setEnabled(boolean);
