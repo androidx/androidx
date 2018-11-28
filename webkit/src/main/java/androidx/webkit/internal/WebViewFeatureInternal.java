@@ -282,7 +282,18 @@ public enum WebViewFeatureInternal {
      * {@link TracingController#stop(OutputStream, Executor)}.
      */
     TRACING_CONTROLLER_BASIC_USAGE(WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE,
-                                   Build.VERSION_CODES.P);
+                                   Build.VERSION_CODES.P),
+
+    /**
+     * This feature covers
+     * {@link WebViewCompat#getWebViewRendererClient()},
+     * {@link WebViewCompat#setWebViewRendererClient(WebViewRendererClient)},
+     * {@link WebViewRendererClient#onRendererUnresponsive(WebView,WebViewRenderer)},
+     * {@link WebViewRendererClient#onRendererResponsive(WebView,WebViewRenderer)}
+     */
+    WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE),
+
+    ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
     private static final int NOT_SUPPORTED_BY_FRAMEWORK = -1;
     private final String mFeatureValue;
@@ -347,7 +358,6 @@ public enum WebViewFeatureInternal {
                 new HashSet<>(
                         Arrays.asList(WebViewGlueCommunicator.getFactory().getWebViewFeatures()));
     }
-
 
     public static Set<String> getWebViewApkFeaturesForTesting() {
         return LAZY_HOLDER.WEBVIEW_APK_FEATURES;
