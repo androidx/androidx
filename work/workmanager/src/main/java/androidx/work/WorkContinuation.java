@@ -51,7 +51,7 @@ import java.util.List;
  * {@code
  *  WorkContinuation left = workManager.beginWith(A).then(B);
  *  WorkContinuation right = workManager.beginWith(C).then(D);
- *  WorkContinuation final = WorkContinuation.combine(Arrays.asList(left, right));
+ *  WorkContinuation final = WorkContinuation.combine(Arrays.asList(left, right)).then(E);
  *  final.enqueue();}</pre>
  *
  * Not that enqueuing a WorkContinuation enqueues all previously-unenqueued prerequisites.  You must
@@ -132,7 +132,7 @@ public abstract class WorkContinuation {
      * {@code
      *  WorkContinuation left = workManager.beginWith(A).then(B);
      *  WorkContinuation right = workManager.beginWith(C).then(D);
-     *  WorkContinuation final = WorkContinuation.combine(Arrays.asList(left, right));
+     *  WorkContinuation final = WorkContinuation.combine(Arrays.asList(left, right)).then(E);
      *  final.enqueue();}</pre>
      *
      * @param continuations One or more {@link WorkContinuation}s that are prerequisites for the
