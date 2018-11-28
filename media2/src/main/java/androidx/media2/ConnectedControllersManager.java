@@ -69,12 +69,6 @@ class ConnectedControllersManager<T> {
                 mControllerInfoMap.put(controllerKey, controllerInfo);
                 mControllerRecords.put(controllerInfo, new ConnectedControllerRecord(
                         controllerKey, new SequencedFutureManager(), commands));
-            } else if (!controllerInfo.equals(savedInfo)) {
-                // already exist, but controllerInfo is changed.
-                mControllerInfoMap.put(controllerKey, controllerInfo);
-                ConnectedControllerRecord record = mControllerRecords.remove(savedInfo);
-                record.allowedCommands = commands;
-                mControllerRecords.put(controllerInfo, record);
             } else {
                 // already exist. Only update allowed commands.
                 ConnectedControllerRecord record = mControllerRecords.get(controllerInfo);

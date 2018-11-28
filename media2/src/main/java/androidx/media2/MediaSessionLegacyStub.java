@@ -41,6 +41,7 @@ import android.util.SparseArray;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController.PlaybackInfo;
@@ -485,14 +486,20 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         if (mSessionImpl.isClosed()) {
             return;
         }
-        RemoteUserInfo remoteUserInfo = mSessionImpl.getSessionCompat().getCurrentControllerInfo();
-        final ControllerInfo controller;
-        synchronized (mLock) {
-            if (remoteUserInfo == null) {
-                Log.d(TAG, "RemoteUserInfo is null, ignoring command=" + sessionCommand
-                        + ", commandCode=" + commandCode);
-                return;
-            } else {
+        final RemoteUserInfo remoteUserInfo =
+                mSessionImpl.getSessionCompat().getCurrentControllerInfo();
+        if (remoteUserInfo == null) {
+            Log.d(TAG, "RemoteUserInfo is null, ignoring command=" + sessionCommand
+                    + ", commandCode=" + commandCode);
+            return;
+        }
+        mSessionImpl.getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                if (mSessionImpl.isClosed()) {
+                    return;
+                }
+                final ControllerInfo controller;
                 ControllerInfo ctrl = mConnectedControllersManager.getController(remoteUserInfo);
                 if (ctrl != null) {
                     controller = ctrl;
@@ -502,14 +509,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                             mSessionManager.isTrustedForMediaControl(remoteUserInfo),
                             new ControllerLegacyCb(remoteUserInfo));
                 }
-            }
-        }
-        mSessionImpl.getCallbackExecutor().execute(new Runnable() {
-            @Override
-            public void run() {
-                if (mSessionImpl.isClosed()) {
-                    return;
-                }
+
                 if (!mConnectedControllersManager.isConnected(controller)) {
                     SessionCommandGroup allowedCommands = mSessionImpl.getCallback().onConnect(
                             mSessionImpl.getInstance(), controller);
@@ -688,6 +688,23 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         @Override
         void onDisconnected() throws RemoteException {
             // no-op
+        }
+
+        @Override
+        public int hashCode() {
+            return ObjectsCompat.hash(mRemoteUserInfo);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || obj.getClass() != ControllerLegacyCb.class) {
+                return false;
+            }
+            ControllerLegacyCb other = (ControllerLegacyCb) obj;
+            return ObjectsCompat.equals(mRemoteUserInfo, other.mRemoteUserInfo);
         }
     }
 
