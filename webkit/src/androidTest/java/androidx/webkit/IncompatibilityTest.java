@@ -41,7 +41,7 @@ public class IncompatibilityTest {
     @Test
     @SdkSuppress(maxSdkVersion = 20)
     public void testPreLDeviceHasNoWebViewFeatures() {
-        assertEquals(0, WebViewFeatureInternal.getWebViewApkFeaturesForTesting().length);
+        assertEquals(0, WebViewFeatureInternal.getWebViewApkFeaturesForTesting().size());
     }
 
     @Test

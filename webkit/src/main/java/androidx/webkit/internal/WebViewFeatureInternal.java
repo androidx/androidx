@@ -38,10 +38,13 @@ import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
+import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 import org.chromium.support_lib_boundary.util.Features;
 
 import java.io.OutputStream;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 /**
@@ -305,6 +308,7 @@ public enum WebViewFeatureInternal {
      *                     framework.
      */
     WebViewFeatureInternal(String featureValue, int osVersion) {
+        assert !featureValue.endsWith(Features.DEV_SUFFIX);
         mFeatureValue = featureValue;
         mOsVersion = osVersion;
     }
@@ -335,20 +339,18 @@ public enum WebViewFeatureInternal {
      * Return whether this {@link WebViewFeatureInternal} is supported by the current WebView APK.
      */
     public boolean isSupportedByWebView() {
-        String[] webviewFeatures = LAZY_HOLDER.WEBVIEW_APK_FEATURES;
-        for (String webviewFeature : webviewFeatures) {
-            if (webviewFeature.equals(mFeatureValue)) return true;
-        }
-        return false;
+        return BoundaryInterfaceReflectionUtil.containsFeature(
+                LAZY_HOLDER.WEBVIEW_APK_FEATURES, mFeatureValue);
     }
 
     private static class LAZY_HOLDER {
-        static final String[] WEBVIEW_APK_FEATURES =
-                WebViewGlueCommunicator.getFactory().getWebViewFeatures();
+        static final Set<String> WEBVIEW_APK_FEATURES =
+                new HashSet<>(
+                        Arrays.asList(WebViewGlueCommunicator.getFactory().getWebViewFeatures()));
     }
 
 
-    public static String[] getWebViewApkFeaturesForTesting() {
+    public static Set<String> getWebViewApkFeaturesForTesting() {
         return LAZY_HOLDER.WEBVIEW_APK_FEATURES;
     }
 
