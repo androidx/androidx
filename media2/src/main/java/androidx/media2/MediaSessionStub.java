@@ -38,6 +38,7 @@ import android.util.SparseArray;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media2.MediaController.PlaybackInfo;
 import androidx.media2.MediaLibraryService.LibraryParams;
@@ -318,8 +319,8 @@ class MediaSessionStub extends IMediaSession.Stub {
 
     void connect(final IMediaController caller, final String callingPackage, final int pid,
             final int uid) {
-        MediaSessionManager.RemoteUserInfo
-                remoteUserInfo = new MediaSessionManager.RemoteUserInfo(callingPackage, pid, uid);
+        MediaSessionManager.RemoteUserInfo remoteUserInfo =
+                new MediaSessionManager.RemoteUserInfo(callingPackage, pid, uid);
         final ControllerInfo controllerInfo = new ControllerInfo(remoteUserInfo,
                 mSessionManager.isTrustedForMediaControl(remoteUserInfo),
                 new Controller2Cb(caller));
@@ -354,6 +355,10 @@ class MediaSessionStub extends IMediaSession.Stub {
                         allowedCommands = new SessionCommandGroup();
                     }
                     synchronized (mLock) {
+                        if (mConnectedControllersManager.isConnected(controllerInfo)) {
+                            Log.w(TAG, "Controller " + controllerInfo + " has sent connection"
+                                    + " request multiple times");
+                        }
                         mConnectingControllers.remove(callbackBinder);
                         mConnectedControllersManager.addController(
                                 callbackBinder, controllerInfo, allowedCommands);
@@ -1355,6 +1360,23 @@ class MediaSessionStub extends IMediaSession.Stub {
         @Override
         void onDisconnected() throws RemoteException {
             mIControllerCallback.onDisconnected();
+        }
+
+        @Override
+        public int hashCode() {
+            return ObjectsCompat.hash(getCallbackBinder());
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || obj.getClass() != Controller2Cb.class) {
+                return false;
+            }
+            Controller2Cb other = (Controller2Cb) obj;
+            return ObjectsCompat.equals(getCallbackBinder(), other.getCallbackBinder());
         }
     }
 }

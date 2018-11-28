@@ -576,6 +576,23 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
                         query, extras, result));
             }
         }
+
+        @Override
+        public int hashCode() {
+            return ObjectsCompat.hash(mRemoteUserInfo);
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (obj == null || obj.getClass() != BrowserLegacyCb.class) {
+                return false;
+            }
+            BrowserLegacyCb other = (BrowserLegacyCb) obj;
+            return ObjectsCompat.equals(mRemoteUserInfo, other.mRemoteUserInfo);
+        }
     }
 
     /**
