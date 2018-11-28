@@ -89,10 +89,9 @@ public class DataTest {
     @Test
     public void testSerializePastMaxSize() {
         int[] payload = new int[Data.MAX_DATA_BYTES + 1];
-        Data data = new Data.Builder().putIntArray("payload", payload).build();
         boolean caughtIllegalStateException = false;
         try {
-            Data.toByteArray(data);
+            new Data.Builder().putIntArray("payload", payload).build();
         } catch (IllegalStateException e) {
             caughtIllegalStateException = true;
         } finally {
