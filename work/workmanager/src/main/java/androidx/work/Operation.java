@@ -129,7 +129,7 @@ public interface Operation {
              * @return The {@link Throwable} which caused the {@link Operation} to fail.
              */
             @NonNull
-            public Throwable getException() {
+            public Throwable getThrowable() {
                 return mThrowable;
             }
 

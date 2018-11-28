@@ -166,7 +166,7 @@ package androidx.work {
 
   public static final class Operation.State.FAILURE extends androidx.work.Operation.State {
     ctor public Operation.State.FAILURE(Throwable);
-    method public Throwable getException();
+    method public Throwable getThrowable();
   }
 
   public static final class Operation.State.IN_PROGRESS extends androidx.work.Operation.State {

@@ -67,7 +67,7 @@ public class OperationImpl implements Operation {
             mOperationFuture.set((State.SUCCESS) state);
         } else if (state instanceof State.FAILURE) {
             State.FAILURE failed = (State.FAILURE) state;
-            mOperationFuture.setException(failed.getException());
+            mOperationFuture.setException(failed.getThrowable());
         }
     }
 }
