@@ -19,9 +19,9 @@ package androidx.room.processor
 import androidx.room.Query
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
-import androidx.room.ext.KotlinMetadataProcessor
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.toAnnotationBox
+import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
@@ -32,11 +32,7 @@ import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.QueryParameter
 import androidx.room.vo.Warning
-import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeName
-import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
-import me.eugeniomarletti.kotlin.metadata.kotlinMetadata
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
@@ -46,24 +42,12 @@ class QueryMethodProcessor(
     val containing: DeclaredType,
     val executableElement: ExecutableElement,
     val dbVerifier: DatabaseVerifier? = null
-) : KotlinMetadataProcessor {
+) {
     val context = baseContext.fork(executableElement)
 
-    // for kotlin metadata
-    override val processingEnv: ProcessingEnvironment
-        get() = context.processingEnv
-
-    private val classMetadata =
-            try {
-                containing.asElement().kotlinMetadata
-            } catch (throwable: Throwable) {
-                context.logger.d(executableElement,
-                        "failed to read get kotlin metadata from %s", executableElement)
-            } as? KotlinClassMetadata
-
     fun process(): QueryMethod {
-        val asMember = context.processingEnv.typeUtils.asMemberOf(containing, executableElement)
-        val executableType = MoreTypes.asExecutable(asMember)
+        val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
+        val returnType = delegate.extractReturnType()
 
         val annotation = executableElement.toAnnotationBox(Query::class)?.value
         context.checker.check(annotation != null, executableElement,
@@ -81,7 +65,7 @@ class QueryMethodProcessor(
                         DatabaseVerificaitonErrors.cannotVerifyQuery(query.resultInfo!!.error!!))
             }
 
-            context.checker.check(executableType.returnType.kind != TypeKind.ERROR,
+            context.checker.check(returnType.kind != TypeKind.ERROR,
                     executableElement, ProcessorErrors.CANNOT_RESOLVE_RETURN_TYPE,
                     executableElement)
             query
@@ -89,15 +73,15 @@ class QueryMethodProcessor(
             ParsedQuery.MISSING
         }
 
-        val returnTypeName = TypeName.get(executableType.returnType)
+        val returnTypeName = returnType.typeName()
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
 
         if (query.type == QueryType.DELETE) {
             context.checker.check(
-                    returnTypeName == TypeName.VOID || returnTypeName == TypeName.INT,
-                    executableElement,
-                    ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
+                returnTypeName == TypeName.VOID || returnTypeName == TypeName.INT,
+                executableElement,
+                ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
             )
         } else if (query.type == QueryType.INSERT) {
             context.checker.check(
@@ -106,10 +90,11 @@ class QueryMethodProcessor(
                 ProcessorErrors.PREPARED_INSERT_METHOD_INVALID_RETURN_TYPE
             )
         }
-        val resultBinder = context.typeAdapterStore
-                .findQueryResultBinder(executableType.returnType, query)
-        context.checker.check(resultBinder.adapter != null || query.type != QueryType.SELECT,
-                executableElement, ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
+        val resultBinder = delegate.findResultBinder(returnType, query)
+        context.checker.check(
+            resultBinder.adapter != null || query.type != QueryType.SELECT,
+                executableElement,
+            ProcessorErrors.cannotFindQueryResultAdapter(returnType.toString()))
         if (resultBinder is LiveDataQueryResultBinder) {
             context.checker.check(query.type == QueryType.SELECT, executableElement,
                     ProcessorErrors.LIVE_DATA_QUERY_WITHOUT_SELECT)
@@ -129,21 +114,12 @@ class QueryMethodProcessor(
                 }
             }
         }
-        val kotlinParameterNames = classMetadata?.getParameterNames(executableElement)
-
-        val parameters = executableElement.parameters
-                .mapIndexed { index, variableElement ->
-                    QueryParameterProcessor(
-                            baseContext = context,
-                            containing = containing,
-                            element = variableElement,
-                            sqlName = kotlinParameterNames?.getOrNull(index)).process()
-                }
+        val parameters = delegate.extractQueryParams()
         val queryMethod = QueryMethod(
                 element = executableElement,
                 query = query,
                 name = executableElement.simpleName.toString(),
-                returnType = executableType.returnType,
+                returnType = returnType,
                 parameters = parameters,
                 inTransaction = inTransaction,
                 queryResultBinder = resultBinder)
