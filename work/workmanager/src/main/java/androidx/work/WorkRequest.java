@@ -111,7 +111,7 @@ public abstract class WorkRequest {
      * A builder for {@link WorkRequest}s.  There are two concrete implementations of this class:
      * {@link OneTimeWorkRequest.Builder} and {@link PeriodicWorkRequest.Builder}.
      *
-     * @param <B> The concrete implementation of of this Builder
+     * @param <B> The concrete implementation of this Builder
      * @param <W> The type of work object built by this Builder
      */
     public abstract static class Builder<B extends Builder, W extends WorkRequest> {

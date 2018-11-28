@@ -52,18 +52,39 @@ public final class WorkInfo {
         mTags = new HashSet<>(tags);
     }
 
+    /**
+     * Gets the identifier of the {@link WorkRequest}.
+     *
+     * @return The identifier of a {@link WorkRequest}
+     */
     public @NonNull UUID getId() {
         return mId;
     }
 
+    /**
+     * Gets the current {@link State} of the {@link WorkRequest}.
+     *
+     * @return The current {@link State} of the {@link WorkRequest}
+     */
     public @NonNull State getState() {
         return mState;
     }
 
+    /**
+     * Gets the output {@link Data} for the {@link WorkRequest}.  If the WorkRequest is unfinished,
+     * this is always {@link Data#EMPTY}.
+     *
+     * @return The output {@link Data} of the {@link WorkRequest}
+     */
     public @NonNull Data getOutputData() {
         return mOutputData;
     }
 
+    /**
+     * Gets the {@link Set} of tags associated with the {@link WorkRequest}.
+     *
+     * @return The {@link Set} of tags associated with the {@link WorkRequest}
+     */
     public @NonNull Set<String> getTags() {
         return mTags;
     }

@@ -23,7 +23,7 @@ import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
 /**
- * A {@link WorkRequest} for repeating work.  This work runs executes multiple times until it is
+ * A {@link WorkRequest} for repeating work.  This work executes multiple times until it is
  * cancelled, with the first execution happening immediately or as soon as the given
  * {@link Constraints} are met.  The next execution will happen during the period interval; note
  * that execution may be delayed because {@link WorkManager} is subject to OS battery optimizations,
