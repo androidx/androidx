@@ -18,7 +18,6 @@ package androidx.core.view.accessibility;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
@@ -88,7 +87,6 @@ public class AccessibilityNodeInfoCompat {
      * actions.
      * </p>
      */
-    @TargetApi(21)
     public static class AccessibilityActionCompat {
 
         private static final String TAG = "A11yActionCompat";
@@ -554,7 +552,7 @@ public class AccessibilityNodeInfoCompat {
             mId = id;
             mLabel = label;
             mCommand = command;
-            if (action == null) {
+            if (Build.VERSION.SDK_INT >= 21 && action == null) {
                 mAction = new AccessibilityNodeInfo.AccessibilityAction(id, label);
             } else {
                 mAction = action;
@@ -568,7 +566,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The action id.
          */
         public int getId() {
-            return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getId();
+            if (Build.VERSION.SDK_INT >= 21) {
+                return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getId();
+            } else {
+                return 0;
+            }
         }
 
         /**
@@ -578,7 +580,11 @@ public class AccessibilityNodeInfoCompat {
          * @return The label.
          */
         public CharSequence getLabel() {
-            return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getLabel();
+            if (Build.VERSION.SDK_INT >= 21) {
+                return ((AccessibilityNodeInfo.AccessibilityAction) mAction).getLabel();
+            } else {
+                return null;
+            }
         }
 
         /**
@@ -2528,12 +2534,13 @@ public class AccessibilityNodeInfoCompat {
         return !extrasIntList(SPANS_START_KEY).isEmpty();
     }
 
-    @TargetApi(19)
     private void clearExtrasSpans() {
-        mInfo.getExtras().remove(SPANS_START_KEY);
-        mInfo.getExtras().remove(SPANS_END_KEY);
-        mInfo.getExtras().remove(SPANS_FLAGS_KEY);
-        mInfo.getExtras().remove(SPANS_ID_KEY);
+        if (Build.VERSION.SDK_INT >= 19) {
+            mInfo.getExtras().remove(SPANS_START_KEY);
+            mInfo.getExtras().remove(SPANS_END_KEY);
+            mInfo.getExtras().remove(SPANS_FLAGS_KEY);
+            mInfo.getExtras().remove(SPANS_ID_KEY);
+        }
     }
 
     private void addSpanLocationToExtras(ClickableSpan span, Spanned spanned, int id) {
