@@ -33,7 +33,6 @@ PREPROCESSOR_DISTRO_PATH="$BUILD_DIR/jetifier-preprocessor/build/distributions/j
 PREPROCESSOR_BIN_PATH="$OUT_DIR/jetifier-preprocessor/bin/jetifier-preprocessor"
 SUPPORT_LIBS_BUILD_NUMBER="4631572"
 APP_TOOLKIT_BUILD_NUMBER="4669041"
-SUPPORT_LIBS_DOWNLOADED="$OUT_DIR/supportLibs/downloaded"
 SUPPORT_LIBS_UNPACKED="$OUT_DIR/supportLibs/unpacked"
 
 GREEN='\033[0;32m'
@@ -41,8 +40,12 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 function die() {
-	echo "$@"
+	echo -e "${RED}ERROR!${NC} $@"
 	exit 1
+}
+
+function printOk() {
+	echo -e "${GREEN}[OK]${NC} $@"
 }
 
 function printSectionStart() {
@@ -61,101 +64,219 @@ function buildProjectUsingGradle() {
 	sh gradlew :jetifier-preprocessor:clean :jetifier-preprocessor:uploadArchives $2 > $TEMP_LOG --stacktrace
 }
 
+function downloadPackage() {
+	PACKAGE=$1
+	ARTIFACTS=("${!2}")
+
+	for IN in "${ARTIFACTS[@]}"
+	do
+	   :
+		SPLIT=(${IN//:/ })
+		ARTIFACT=${SPLIT[0]}
+		VERSION=${SPLIT[1]}
+		TYPE=${SPLIT[2]}
+		FILE_NAME=`echo "$PACKAGE-$ARTIFACT-$VERSION.$TYPE" | sed -e 's,/,-,g'`
+		url="https://dl.google.com/dl/android/maven2/$PACKAGE/$ARTIFACT/$VERSION/$ARTIFACT-$VERSION.$TYPE"
+		wget $url -O "$SUPPORT_LIBS_UNPACKED/$FILE_NAME" > /dev/null 2>&1 || die "FAILED to download $url!"
+		printOk "Downloaded '$PACKAGE:$ARTIFACT:$VERSION@$TYPE'"
+	done
+}
+
+
 rm -rf $OUT_DIR
 mkdir $OUT_DIR
+mkdir -p $SUPPORT_LIBS_UNPACKED
 echo "OUT dir is at '$OUT_DIR'"
 
-FETCH_ARTIFACT="/google/data/ro/projects/android/fetch_artifact"
-
-function getPreRenamedSupportLib() {
-	printSectionStart "Downloading all affected support libraries"
-	mkdir -p "$SUPPORT_LIBS_DOWNLOADED"
-
-	if [ "$FETCH_ARTIFACT" == "" ]; then
-		if which fetch_artifact; then
-			FETCH_ARTIFACT="$(which fetch_artifact)"
-		fi
-	fi
-	if [ ! -f "$FETCH_ARTIFACT" ]; then
-		die "fetch_artifact not found. Please set the environment variable FETCH_ARTIFACT equal to the path of fetch_artifact and try again"
-	fi
-
-	cd "$SUPPORT_LIBS_DOWNLOADED"
-	"$FETCH_ARTIFACT" --bid "$SUPPORT_LIBS_BUILD_NUMBER" --target support_library "top-of-tree-m2repository-$SUPPORT_LIBS_BUILD_NUMBER.zip" "$SUPPORT_LIBS_DOWNLOADED/support-lib.zip"
-	"$FETCH_ARTIFACT" --bid "$APP_TOOLKIT_BUILD_NUMBER" --target support_library_app_toolkit "top-of-tree-m2repository-$APP_TOOLKIT_BUILD_NUMBER.zip" "$SUPPORT_LIBS_DOWNLOADED/arch.zip"
-	cd -
-
-
-	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/support-lib.zip" -d "$SUPPORT_LIBS_UNPACKED"
-	unzip -oj "$SUPPORT_LIBS_DOWNLOADED/arch.zip" -d "$SUPPORT_LIBS_UNPACKED"
-	find "$SUPPORT_LIBS_UNPACKED" -type f -name "jetifier*" -exec rm -f {} \;
-}
 
 DATA_BINDING_VERSION=`curl https://dl.google.com/dl/android/maven2/com/android/databinding/baseLibrary/maven-metadata.xml|xmllint --format -|grep latest|awk '{split($NAME,a,"[><]"); print a[3]}'`
-function pullDataBinding() {
-	NAME=$1
-	TYPE=$2
-	curl "https://dl.google.com/dl/android/maven2/com/android/databinding/$NAME/$DATA_BINDING_VERSION/$NAME-$DATA_BINDING_VERSION.$TYPE" -o "$SUPPORT_LIBS_UNPACKED/databinding-$NAME.$TYPE"
-}
+DATABINDING=(
+	"baseLibrary:$DATA_BINDING_VERSION:jar"
+	"adapters:$DATA_BINDING_VERSION:aar"
+	"library:$DATA_BINDING_VERSION:aar"
+)
+downloadPackage "com/android/databinding" DATABINDING[@]
 
-function pullConstraint() {
-	NAME=$1
-	TYPE=$2
-	curl "https://dl.google.com/dl/android/maven2/com/android/support/constraint/$NAME/1.1.0/$NAME-1.1.0.$TYPE" -o "$SUPPORT_LIBS_UNPACKED/$NAME.$TYPE"
-}
 
-function pullTest() {
-	NAME=$1
-	curl "https://dl.google.com/dl/android/maven2/com/android/support/test/$NAME/1.0.2/$NAME-1.0.2.aar" -o "$SUPPORT_LIBS_UNPACKED/$NAME.aar"
-}
-# Unfortunately this doesn't make a coffee using a lever machine. It only downloads espresso artifacts.
-function pullEspresso() {
-	NAME=$1
-	curl "https://dl.google.com/dl/android/maven2/com/android/support/test/espresso/$NAME/3.0.2/$NAME-3.0.2.aar" -o "$SUPPORT_LIBS_UNPACKED/$NAME.aar"
-}
-function pullEspressoIdling() {
-	NAME=$1
-	curl "https://dl.google.com/dl/android/maven2/com/android/support/test/espresso/idling/$NAME/3.0.2/$NAME-3.0.2.aar" -o "$SUPPORT_LIBS_UNPACKED/$NAME.aar"
-}
+CONSTRAINT=(
+	"constraint-layout:1.1.3:aar"
+	"constraint-layout-solver:1.1.3:jar"
+)
+downloadPackage "com/android/support/constraint" CONSTRAINT[@]
 
-getPreRenamedSupportLib
-pullDataBinding "baseLibrary" "jar"
-pullDataBinding "adapters" "aar"
-pullDataBinding "library" "aar"
-pullConstraint "constraint-layout" "aar"
-pullConstraint "constraint-layout-solver" "jar"
 
-pullTest "monitor"
-pullTest "rules"
-pullTest "runner"
-# FYI: We skip orchestrator since it is apk
-pullEspresso "espresso-accessibility"
-pullEspresso "espresso-contrib"
-pullEspresso "espresso-core"
-pullEspresso "espresso-idling-resource"
-pullEspresso "espresso-intents"
-pullEspresso "espresso-remote"
-pullEspresso "espresso-web"
-pullEspressoIdling "idling-concurrent"
-pullEspressoIdling "idling-net"
-curl "https://dl.google.com/dl/android/maven2/com/android/support/test/janktesthelper/janktesthelper-v23/1.0.1/janktesthelper-v23-1.0.1.aar" -o "$SUPPORT_LIBS_UNPACKED/janktesthelper-v23.aar"
-curl "https://dl.google.com/dl/android/maven2/com/android/support/test/uiautomator/uiautomator-v18/2.1.3/uiautomator-v18-2.1.3.aar" -o "$SUPPORT_LIBS_UNPACKED/uiautomator-v18.aar"
-curl "https://dl.google.com/dl/android/maven2/com/android/support/multidex/1.0.3/multidex-1.0.3.aar" -o "$SUPPORT_LIBS_UNPACKED/multidex-1.0.3.aar"
-curl "https://dl.google.com/dl/android/maven2/com/android/support/multidex-instrumentation/1.0.3/multidex-instrumentation-1.0.3.aar" -o "$SUPPORT_LIBS_UNPACKED/multidex-instrumentation-1.0.3.aar"
-# FYI: We skip test-services since it is apk
+# Support artifacts
+SUPPORT=(
+	"animated-vector-drawable:28.0.0:aar"
+	"appcompat-v7:28.0.0:aar"
+	"asynclayoutinflater:28.0.0:aar"
+	"car:28.0.0-alpha5:aar"
+	"cardview-v7:28.0.0:aar"
+	"collections:28.0.0:jar"
+	"coordinatorlayout:28.0.0:aar"
+	"cursoradapter:28.0.0:aar"
+	"customtabs:28.0.0:aar"
+	"customview:28.0.0:aar"
+	"design:28.0.0:aar"
+#	"design-ANY" - obsolete (moved to design)
+	"documentfile:28.0.0:aar"
+	"drawerlayout:28.0.0:aar"
+	"exifinterface:28.0.0:aar"
+	"gridlayout-v7:28.0.0:aar"
+	"heifwriter:28.0.0:aar"
+# 	instantvideo - obsolete
+	"interpolator:28.0.0:aar"
+	"leanback-v17:28.0.0:aar"
+	"loader:28.0.0:aar"
+	"localbroadcastmanager:28.0.0:aar"
+# 	"media2:28.0.0-alpha03:aar"
+	"mediarouter-v7:28.0.0-alpha5:aar"
+	"multidex:1.0.3:aar"
+	"multidex-instrumentation:1.0.3:aar"
+	"palette-v7:28.0.0:aar"
+	"percent:28.0.0:aar"
+	"preference-leanback-v17:28.0.0:aar"
+# 	"preference v14" - empty (merged to v7)
+	"preference-v7:28.0.0:aar"
+	"print:28.0.0:aar"
+	"recommendation:28.0.0:aar"
+	"recyclerview-selection:28.0.0:aar"
+	"recyclerview-v7:28.0.0:aar"
+	"slices-builders:28.0.0:aar"
+	"slices-core:28.0.0:aar"
+	"slices-view:28.0.0:aar"
+	"slidingpanelayout:28.0.0:aar"
+	"support-annotations:28.0.0:jar"
+	"support-compat:28.0.0:aar"
+	"support-content:28.0.0-alpha1:aar"
+	"support-core-ui:28.0.0:aar"
+	"support-core-utils:28.0.0:aar"
+	"support-dynamic-animation:28.0.0:aar"
+	"support-emoji:28.0.0:aar"
+	"support-emoji-appcompat:28.0.0:aar"
+	"support-emoji-bundled:28.0.0:aar"
+	"support-fragment:28.0.0:aar"
+	"support-media-compat:28.0.0:aar"
+	"support-tv-provider:28.0.0:aar"
+	"support-v13:28.0.0:aar"
+	"support-v4:28.0.0:aar"
+	"support-vector-drawable:28.0.0:aar"
+	"swiperefreshlayout:28.0.0:aar"
+	"transition:28.0.0:aar"
+	"versionedparcelable:28.0.0:aar"
+	"viewpager:28.0.0:aar"
+	"wear:28.0.0:aar"
+# 	"wearable" - obsolete
+	"webkit:28.0.0:aar"
+#	"textclassifier:28.0.0:aar" - not released yet
+#	"activity:28.0.0:aar" - not released yet
+#	"biometric:28.0.0-alpha03:aar" - not released yet
+)
+downloadPackage "com/android/support" SUPPORT[@]
 
+ARCH_CORE=(
+	"common:1.1.1:jar"
+	"core:1.0.0-alpha3:aar"
+	"core-testing:1.1.1:aar"
+	"runtime:1.1.1:aar"
+)
+downloadPackage "android/arch/core" ARCH_CORE[@]
+
+
+ARCH_LIFECYCLE=(
+	"common:1.1.1:jar"
+	"common-java8:1.1.1:jar"
+	"compiler:1.1.1:jar"
+	"extensions:1.1.1:aar"
+	"livedata:1.1.1:aar"
+	"livedata-core:1.1.1:aar"
+	"reactivestreams:1.1.1:aar"
+	"runtime:1.1.1:aar"
+	"viewmodel:1.1.1:aar"
+)
+downloadPackage "android/arch/lifecycle" ARCH_LIFECYCLE[@]
+
+#TODO: add android.arch.navigation once it gets migrated
+
+
+ARCH_PAGING=(
+	"common:1.0.1:jar"
+	"runtime:1.0.1:aar"
+	"rxjava2:1.0.1:aar"
+)
+downloadPackage "android/arch/paging" ARCH_PAGING[@]
+
+
+ARCH_PERSISTANCE=(
+	"db:1.1.1:aar"
+	"db-framework:1.1.1:aar"
+)
+downloadPackage "android/arch/persistence" ARCH_PERSISTANCE[@]
+
+
+ARCH_ROOM=(
+	"common:1.1.1:jar"
+	"compiler:1.1.1:jar"
+	"guava:1.1.1:aar"
+	"migration:1.1.1:jar"
+	"runtime:1.1.1:aar"
+	"rxjava2:1.1.1:aar"
+	"testing:1.1.1:aar"
+)
+downloadPackage "android/arch/persistence/room" ARCH_ROOM[@]
+
+#TODO: add androidx.arch.work once it gets migrated
+
+
+TEST=(
+	"monitor:1.0.2:aar"
+	"rules:1.0.2:aar"
+	"runner:1.0.2:aar"
+)
+downloadPackage "com/android/support/test" TEST[@]
+
+
+ESPRESSO=(
+	# FYI: We skip orchestrator since it is apk
+	"espresso-accessibility:3.0.2:aar"
+	"espresso-contrib:3.0.2:aar"
+	"espresso-core:3.0.2:aar"
+	"espresso-idling-resource:3.0.2:aar"
+	"espresso-intents:3.0.2:aar"
+	"espresso-remote:3.0.2:aar"
+	"espresso-web:3.0.2:aar"
+)
+downloadPackage "com/android/support/test/espresso" ESPRESSO[@]
+
+
+ESPRESSO_IDLING=(
+	"idling-concurrent:3.0.2:aar"
+	"idling-net:3.0.2:aar"
+)
+downloadPackage "com/android/support/test/espresso/idling" ESPRESSO_IDLING[@]
+
+TEST_JANKTESTHELPER=("janktesthelper-v23:1.0.1:aar")
+downloadPackage "com/android/support/test/janktesthelper" TEST_JANKTESTHELPER[@]
+
+TEST_UIAUTOMATOR=("uiautomator-v18:2.1.3:aar")
+downloadPackage "com/android/support/test/uiautomator" TEST_UIAUTOMATOR[@]
+
+# FYI:
+# test-services is skipped skipped as it is an apk
 # exposed-instrumentation-api-publish skipped as it is deprecated
 # testing-support-lib skipped as it is deprecated
 
+printOk "All artifacts downloaded"
+
 printSectionStart "Preparing Jetifier"
 buildProjectUsingGradle $JETIFIER_DIR/../..
-echo "[OK] Clean build done"
+printOk "Clean build done"
 
 unzip $PREPROCESSOR_DISTRO_PATH -d $OUT_DIR > /dev/null
-echo "[OK] Copied & unziped jetifier preprocessor"
+printOk "Copied & unziped jetifier preprocessor"
 
 printSectionStart "Preprocessing mappings on support libraries"
 sh $PREPROCESSOR_BIN_PATH -i "$SUPPORT_LIBS_UNPACKED" -o "$GENERATED_CONFIG" -c "$DEFAULT_CONFIG" -l verbose || die
-echo "[OK] Done, config generated into $GENERATED_CONFIG"
+printOk "Done, config generated into $GENERATED_CONFIG"
 
 printSuccess
