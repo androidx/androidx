@@ -33,6 +33,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.core.util.Pair;
+import androidx.remotecallback.RemoteCallback;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.ListBuilderBasicImpl;
@@ -400,6 +401,26 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
+     * If all content in a slice cannot be shown, a "see more" affordance may be displayed where
+     * the content is cut off. The action added here should take the user to an activity to see
+     * all of the content, and will be invoked when the "see more" affordance is tapped.
+     * <p>
+     * Only one see more affordance can be added, this throws {@link IllegalStateException} if
+     * a row or action has been previously added.
+     * </p>
+     */
+    @NonNull
+    public ListBuilder setSeeMoreAction(@NonNull RemoteCallback callback) {
+        if (mHasSeeMore) {
+            throw new IllegalArgumentException("Trying to add see more action when one has "
+                    + "already been added");
+        }
+        mImpl.setSeeMoreAction(callback.toPendingIntent());
+        mHasSeeMore = true;
+        return this;
+    }
+
+    /**
      * Sets whether this slice indicates an error, i.e. the normal contents of this slice are
      * unavailable and instead the slice contains a message indicating an error.
      */
@@ -717,6 +738,15 @@ public class ListBuilder extends TemplateSliceBuilder {
         @NonNull
         public InputRangeBuilder setInputAction(@NonNull PendingIntent action) {
             mInputAction = action;
+            return this;
+        }
+
+        /**
+         * Set the {@link PendingIntent} to send when the current value is updated.
+         */
+        @NonNull
+        public InputRangeBuilder setInputAction(@NonNull RemoteCallback callback) {
+            mInputAction = callback.toPendingIntent();
             return this;
         }
 
