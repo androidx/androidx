@@ -423,8 +423,9 @@ public abstract class WorkManager {
      * use by library and module developers who have dependent data in their own repository that
      * must be updated or deleted in case someone cancels their work without their prior knowledge.
      *
-     * @return A {@link LiveData} of the timestamp in milliseconds when method that cancelled all
-     *         work was last invoked; this timestamp may be {@code 0L} if this never occurred.
+     * @return A {@link LiveData} of the timestamp ({@code System#getCurrentTimeMillis()}) when
+     *         {@link #cancelAllWork()} was last invoked; this timestamp may be {@code 0L} if this
+     *         never occurred
      */
     public abstract @NonNull LiveData<Long> getLastCancelAllTimeMillisLiveData();
 
@@ -434,8 +435,9 @@ public abstract class WorkManager {
      * repository that must be updated or deleted in case someone cancels their work without
      * their prior knowledge.
      *
-     * @return A {@link ListenableFuture} of the timestamp in milliseconds when method that
-     * cancelled all work was last invoked; this timestamp may be {@code 0L} if this never occurred
+     * @return A {@link ListenableFuture} of the timestamp ({@code System#getCurrentTimeMillis()})
+     *         when {@link #cancelAllWork()} was last invoked; this timestamp may be {@code 0L} if
+     *         this never occurred
      */
     public abstract @NonNull ListenableFuture<Long> getLastCancelAllTimeMillis();
 
