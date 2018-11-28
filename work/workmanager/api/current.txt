@@ -220,7 +220,7 @@ package androidx.work {
   }
 
   public abstract class WorkManager {
-    method public final androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest...);
+    method public final androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.WorkContinuation beginUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
     method public final androidx.work.WorkContinuation beginWith(androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.WorkContinuation beginWith(java.util.List<androidx.work.OneTimeWorkRequest>);
@@ -231,7 +231,7 @@ package androidx.work {
     method public final androidx.work.Operation enqueue(androidx.work.WorkRequest);
     method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest>);
     method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
-    method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest...);
+    method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest>);
     method public static androidx.work.WorkManager getInstance();
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Long> getLastCancelAllTimeMillis();
