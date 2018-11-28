@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     implementation(project(":slice-core"))
+    api(project(":remotecallback"))
     implementation project(":annotation")
     implementation project(path: ':core')
 }
