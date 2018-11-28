@@ -17,7 +17,9 @@
 package androidx.navigation.ui;
 
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.v7.widget.Toolbar;
 
@@ -44,13 +46,13 @@ class ToolbarOnNavigatedListener extends AbstractAppBarOnNavigatedListener {
 
     @Override
     public void onNavigated(@NonNull NavController controller,
-            @NonNull NavDestination destination) {
+            @NonNull NavDestination destination, @Nullable Bundle arguments) {
         Toolbar toolbar = mToolbarWeakReference.get();
         if (toolbar == null) {
             controller.removeOnNavigatedListener(this);
             return;
         }
-        super.onNavigated(controller, destination);
+        super.onNavigated(controller, destination, arguments);
     }
 
     @Override

@@ -16,6 +16,7 @@
 
 package androidx.navigation.ui;
 
+import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -181,11 +182,10 @@ public final class NavigationUI {
     public static void setupActionBarWithNavController(@NonNull AppCompatActivity activity,
             @NonNull NavController navController,
             @Nullable DrawerLayout drawerLayout) {
-        navController.addOnNavigatedListener(
-                new ActionBarOnNavigatedListener(activity,
-                        new AppBarConfiguration.Builder(navController.getGraph())
-                                .setDrawerLayout(drawerLayout)
-                                .build()));
+        setupActionBarWithNavController(activity, navController,
+                new AppBarConfiguration.Builder(navController.getGraph())
+                        .setDrawerLayout(drawerLayout)
+                        .build());
     }
 
     /**
@@ -431,10 +431,10 @@ public final class NavigationUI {
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
             @Override
             public void onNavigated(@NonNull NavController controller,
-                    @NonNull NavDestination destination) {
+                    @NonNull NavDestination destination, @Nullable Bundle arguments) {
                 NavigationView view = weakReference.get();
                 if (view == null) {
-                    controller.removeOnNavigatedListener(this);
+                    navController.removeOnNavigatedListener(this);
                     return;
                 }
                 Menu menu = view.getMenu();
@@ -496,10 +496,10 @@ public final class NavigationUI {
         navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
             @Override
             public void onNavigated(@NonNull NavController controller,
-                    @NonNull NavDestination destination) {
+                    @NonNull NavDestination destination, @Nullable Bundle arguments) {
                 BottomNavigationView view = weakReference.get();
                 if (view == null) {
-                    controller.removeOnNavigatedListener(this);
+                    navController.removeOnNavigatedListener(this);
                     return;
                 }
                 Menu menu = view.getMenu();

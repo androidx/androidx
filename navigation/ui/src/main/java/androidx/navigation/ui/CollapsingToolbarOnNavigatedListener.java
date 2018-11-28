@@ -17,7 +17,9 @@
 package androidx.navigation.ui;
 
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.widget.Toolbar;
@@ -49,7 +51,7 @@ class CollapsingToolbarOnNavigatedListener
 
     @Override
     public void onNavigated(@NonNull NavController controller,
-            @NonNull NavDestination destination) {
+            @NonNull NavDestination destination, @Nullable Bundle arguments) {
         CollapsingToolbarLayout collapsingToolbarLayout =
                 mCollapsingToolbarLayoutWeakReference.get();
         Toolbar toolbar = mToolbarWeakReference.get();
@@ -57,7 +59,7 @@ class CollapsingToolbarOnNavigatedListener
             controller.removeOnNavigatedListener(this);
             return;
         }
-        super.onNavigated(controller, destination);
+        super.onNavigated(controller, destination, arguments);
     }
 
     @Override
