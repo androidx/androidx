@@ -1047,10 +1047,7 @@ public class Preference implements Comparable<Preference> {
      * long pressing on the preference.
      *
      * @param enabled Set true to enable copying the summary of this preference
-     * @hide
-     * @pending
      */
-    @RestrictTo(LIBRARY_GROUP)
     public void setCopyingEnabled(boolean enabled) {
         if (mCopyingEnabled != enabled) {
             mCopyingEnabled = enabled;
@@ -1063,10 +1060,7 @@ public class Preference implements Comparable<Preference> {
      * long pressing on the preference.
      *
      * @return {@code true} if copying is enabled, false otherwise
-     * @hide
-     * @pending
      */
-    @RestrictTo(LIBRARY_GROUP)
     public boolean isCopyingEnabled() {
         return mCopyingEnabled;
     }
