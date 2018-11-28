@@ -25,7 +25,6 @@ import androidx.work.impl.WorkManagerImpl;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -113,7 +112,7 @@ import java.util.concurrent.TimeUnit;
  * WorkRequests can be tagged with human-readable Strings
  * (see {@link WorkRequest.Builder#addTag(String)}), and chains of work can be given a
  * uniquely-identifiable name (see
- * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest...)}).
+ * {@link #beginUniqueWork(String, ExistingWorkPolicy, OneTimeWorkRequest)}).
  *
  * <p>
  * <b>Manually initializing WorkManager</b>
@@ -234,20 +233,20 @@ public abstract class WorkManager {
      *
      * @param uniqueWorkName A unique name which for this chain of work
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}
-     * @param work One or more {@link OneTimeWorkRequest} to enqueue. {@code REPLACE} ensures that
-     *             if there is pending work labelled with {@code uniqueWorkName}, it will be
-     *             cancelled and the new work will run. {@code KEEP} will run the new sequence of
-     *             work only if there is no pending work labelled with {@code uniqueWorkName}.
-     *             {@code APPEND} will create a new sequence of work if there is no
-     *             existing work with {@code uniqueWorkName}; otherwise, {@code work} will be added
-     *             as a child of all leaf nodes labelled with {@code uniqueWorkName}.
+     * @param work The {@link OneTimeWorkRequest} to enqueue. {@code REPLACE} ensures that if there
+     *             is pending work labelled with {@code uniqueWorkName}, it will be cancelled and
+     *             the new work will run. {@code KEEP} will run the new sequence of work only if
+     *             there is no pending work labelled with {@code uniqueWorkName}.  {@code APPEND}
+     *             will create a new sequence of work if there is no existing work with
+     *             {@code uniqueWorkName}; otherwise, {@code work} will be added as a child of all
+     *             leaf nodes labelled with {@code uniqueWorkName}.
      * @return A {@link WorkContinuation} that allows further chaining
      */
     public final @NonNull WorkContinuation beginUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull OneTimeWorkRequest... work) {
-        return beginUniqueWork(uniqueWorkName, existingWorkPolicy, Arrays.asList(work));
+            @NonNull OneTimeWorkRequest work) {
+        return beginUniqueWork(uniqueWorkName, existingWorkPolicy, Collections.singletonList(work));
     }
 
     /**
@@ -293,20 +292,23 @@ public abstract class WorkManager {
      *
      * @param uniqueWorkName A unique name which for this operation
      * @param existingWorkPolicy An {@link ExistingWorkPolicy}; see below for more information
-     * @param work {@link OneTimeWorkRequest}s to enqueue. {@code REPLACE} ensures
-     *                     that if there is pending work labelled with {@code uniqueWorkName}, it
-     *                     will be cancelled and the new work will run. {@code KEEP} will run the
-     *                     new OneTimeWorkRequests only if there is no pending work labelled with
-     *                     {@code uniqueWorkName}. {@code APPEND} will append the
-     *                     OneTimeWorkRequests as leaf nodes labelled with {@code uniqueWorkName}.
+     * @param work The {@link OneTimeWorkRequest}s to enqueue. {@code REPLACE} ensures that if there
+     *             is pending work labelled with {@code uniqueWorkName}, it will be cancelled and
+     *             the new work will run. {@code KEEP} will run the new OneTimeWorkRequests only if
+     *             there is no pending work labelled with {@code uniqueWorkName}.  {@code APPEND}
+     *             will append the OneTimeWorkRequests as leaf nodes labelled with
+     *             {@code uniqueWorkName}.
      * @return An {@link Operation} that can be used to determine when the enqueue has completed
      */
     @NonNull
     public Operation enqueueUniqueWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingWorkPolicy existingWorkPolicy,
-            @NonNull OneTimeWorkRequest...work) {
-        return enqueueUniqueWork(uniqueWorkName, existingWorkPolicy, Arrays.asList(work));
+            @NonNull OneTimeWorkRequest work) {
+        return enqueueUniqueWork(
+                uniqueWorkName,
+                existingWorkPolicy,
+                Collections.singletonList(work));
     }
 
     /**
