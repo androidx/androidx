@@ -43,5 +43,4 @@ supportLibrary {
     description = "Android Support Leanback v17"
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
-    useMetalava = false
 }

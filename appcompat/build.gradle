@@ -26,7 +26,6 @@ dependencies {
     androidTestImplementation project(':internal-testutils'), {
         exclude group: 'androidx.appcompat', module: 'appcompat'
     }
-    androidTestImplementation(GUAVA_LISTENABLE_FUTURE_AVOID_CONFLICT)
 }
 
 android {

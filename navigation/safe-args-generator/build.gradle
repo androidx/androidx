@@ -39,7 +39,7 @@ dependencies {
     testCompile(GOOGLE_COMPILE_TESTING)
     def logger = new com.android.build.gradle.internal.LoggerWrapper(project.logger)
     def sdkHandler = new com.android.build.gradle.internal.SdkHandler(project, logger)
-    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/android-$SupportConfig.CURRENT_SDK_VERSION/",
+    testCompile fileTree(dir: "${sdkHandler.sdkFolder}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
             include : "android.jar")
     testCompile fileTree(dir: "${new File(project(":navigation:navigation-common").buildDir, "libJar")}",
             include : "*.jar")

@@ -17,12 +17,6 @@ dependencies {
     api(GUAVA_LISTENABLE_FUTURE)
     implementation(project(":concurrent:concurrent-futures"))
     compileOnly(CHECKER_FRAMEWORK)
-    if (System.getProperties()['idea.platform.prefix'] != null) {
-        // :media2-exoplayer merges the ExoPlayer JAR into its outputs, but Android Studio can't see
-        // the symbols, so depend on the JAR directly.
-        compileOnly fileTree(dir: "media2-exoplayer/src/main/libs",
-                include: ["exoplayer-media2.jar"])
-    }
     // Depend on media2-exoplayer so that the library groupId is set to match media2.
     implementation(project(":media2-exoplayer"))
 
