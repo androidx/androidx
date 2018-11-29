@@ -20,6 +20,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import androidx.work.Result;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -42,6 +43,6 @@ public class SleepWorker extends Worker {
         } catch (InterruptedException ignore) {
             Log.v(TAG, "Interrupted.");
         }
-        return Result.SUCCESS;
+        return Result.success();
     }
 }

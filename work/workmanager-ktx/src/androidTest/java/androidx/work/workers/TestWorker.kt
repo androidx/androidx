@@ -17,11 +17,12 @@
 package androidx.work.workers
 
 import android.content.Context
+import androidx.work.Result
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 
 class TestWorker(appContext: Context, params: WorkerParameters) : Worker(appContext, params) {
     override fun doWork(): Result {
-        return Result.SUCCESS
+        return Result.success()
     }
 }

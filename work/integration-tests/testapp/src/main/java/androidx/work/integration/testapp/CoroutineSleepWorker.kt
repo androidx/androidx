@@ -18,8 +18,9 @@ package androidx.work.integration.testapp
 
 import android.content.Context
 import android.util.Log
-import androidx.work.WorkerParameters
 import androidx.work.CoroutineWorker
+import androidx.work.Result
+import androidx.work.WorkerParameters
 import kotlinx.coroutines.delay
 
 class CoroutineSleepWorker(context: Context, params: WorkerParameters)
@@ -30,11 +31,11 @@ class CoroutineSleepWorker(context: Context, params: WorkerParameters)
         val tag = "CoroutineWorker"
     }
 
-    override suspend fun doWork(): Payload {
+    override suspend fun doWork(): Result {
         val sleepTime = inputData.getLong(sleepTimeKey, 0L)
         Log.e(tag, "sleeping for $sleepTime")
         delay(sleepTime)
         Log.e(tag, "finished sleep; stopped=$isStopped")
-        return Payload(Result.SUCCESS)
+        return Result.success()
     }
 }

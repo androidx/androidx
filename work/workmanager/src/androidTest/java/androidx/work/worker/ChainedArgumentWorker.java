@@ -20,6 +20,7 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 
 import androidx.work.Data;
+import androidx.work.Result;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -37,8 +38,7 @@ public class ChainedArgumentWorker extends Worker {
 
     @Override
     public @NonNull Result doWork() {
-        setOutputData(getChainedArguments());
-        return Result.SUCCESS;
+        return Result.success(getChainedArguments());
     }
 
     public static Data getChainedArguments() {

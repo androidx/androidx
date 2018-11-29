@@ -26,6 +26,7 @@ import android.util.Log;
 
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.Result;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.integration.testapp.db.Image;
@@ -56,14 +57,14 @@ public class ImageProcessingWorker extends Worker {
         String uriString = getInputData().getString(URI_KEY);
         if (TextUtils.isEmpty(uriString)) {
             Log.e(TAG, "Invalid URI!");
-            return Result.FAILURE;
+            return Result.failure();
         }
 
         Bitmap image = retrieveImage(uriString);
 
         if (image == null) {
             Log.e(TAG, "Could not retrieve image!");
-            return Result.FAILURE;
+            return Result.failure();
         }
 
         invertColors(image);
@@ -71,7 +72,7 @@ public class ImageProcessingWorker extends Worker {
 
         if (TextUtils.isEmpty(filePath)) {
             Log.e(TAG, "Could not compress image!");
-            return Result.FAILURE;
+            return Result.failure();
         }
 
         int processed = TestDatabase.getInstance(getApplicationContext())
@@ -80,11 +81,11 @@ public class ImageProcessingWorker extends Worker {
 
         if (processed != 1) {
             Log.e(TAG, "Database was not updated!");
-            return Result.FAILURE;
+            return Result.failure();
         }
 
         Log.d(TAG, "Image Processing Complete!");
-        return Result.SUCCESS;
+        return Result.success();
     }
 
     private Bitmap retrieveImage(String uriString) {
