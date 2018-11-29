@@ -19,6 +19,7 @@ package androidx.remotecallback;
 import static androidx.remotecallback.RemoteCallback.EXTRA_METHOD;
 
 import android.content.ComponentName;
+import android.content.ContentProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -26,6 +27,7 @@ import android.content.pm.ProviderInfo;
 import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 
 import java.lang.reflect.InvocationTargetException;
@@ -36,15 +38,24 @@ import java.lang.reflect.InvocationTargetException;
  * otherwise.
  */
 public class CallbackHandlerRegistry {
-    static final CallbackHandlerRegistry sInstance = new CallbackHandlerRegistry();
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final CallbackHandlerRegistry sInstance = new CallbackHandlerRegistry();
     private static final String TAG = "CallbackHandlerRegistry";
 
     private final ArrayMap<Class<? extends CallbackReceiver>, ClsHandler> mClsLookup =
             new ArrayMap<>();
 
+    /**
+     * @hide
+     */
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    <T extends CallbackReceiver> T getAndResetStub(Class<? extends CallbackReceiver> cls,
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public <T extends CallbackReceiver> T getAndResetStub(Class<? extends CallbackReceiver> cls,
             Context context, String authority) {
+        ensureInitialized(cls);
         ClsHandler stub = findMap(cls);
         initStub(stub.mCallStub, cls, context, authority);
         return (T) stub.mCallStub;
@@ -52,17 +63,12 @@ public class CallbackHandlerRegistry {
 
     private void initStub(CallbackReceiver stub, Class<? extends CallbackReceiver> cls,
             Context context, String authority) {
-        if (stub instanceof AppWidgetProviderWithCallbacks) {
-            ((AppWidgetProviderWithCallbacks) stub).mContext = context;
-        } else if (stub instanceof BroadcastReceiverWithCallbacks) {
-            ((BroadcastReceiverWithCallbacks) stub).mContext = context;
-        } else if (stub instanceof ContentProviderWithCallbacks) {
-            ContentProviderWithCallbacks contentProvider = (ContentProviderWithCallbacks) stub;
-            contentProvider.mContext = context;
-            if (contentProvider.mAuthority == null) {
-                contentProvider.mAuthority =
-                        determineAuthority(context, authority, cls);
-            }
+        ClsHandler clsHandler = findMap(cls);
+        clsHandler.mContext = context;
+        if (stub instanceof ContentProvider) {
+            clsHandler.mAuthority = determineAuthority(context, authority, cls);
+        } else {
+            clsHandler.mAuthority = null;
         }
     }
 
@@ -104,16 +110,18 @@ public class CallbackHandlerRegistry {
      */
     public <T extends CallbackReceiver> void invokeCallback(Context context, T receiver,
             Bundle bundle) {
-        ClsHandler map = findMap(receiver.getClass());
+        Class<? extends CallbackReceiver> receiverClass = receiver.getClass();
+        ensureInitialized(receiverClass);
+        ClsHandler map = findMap(receiverClass);
         if (map == null) {
-            Log.e(TAG, "No map found for " + receiver.getClass().getName());
+            Log.e(TAG, "No map found for " + receiverClass.getName());
             return;
         }
         String method = bundle.getString(EXTRA_METHOD);
         @SuppressWarnings("unchecked")
         CallbackHandler<T> callbackHandler = (CallbackHandler<T>) map.mHandlers.get(method);
         if (callbackHandler == null) {
-            Log.e(TAG, "No handler found for " + method + " on " + receiver.getClass().getName());
+            Log.e(TAG, "No handler found for " + method + " on " + receiverClass.getName());
             return;
         }
         callbackHandler.executeCallback(context, receiver, bundle);
@@ -189,12 +197,20 @@ public class CallbackHandlerRegistry {
      */
     public static RemoteCallback stubToRemoteCallback(CallbackReceiver receiver,
             Class<? extends CallbackReceiver> cls, Bundle args, String method) {
-        return receiver.toRemoteCallback(cls, args, method);
+        ClsHandler clsHandler = sInstance.findMap(cls);
+        Context context = clsHandler.mContext;
+        String authority = clsHandler.mAuthority;
+        // Clear out context and authority to avoid context leak.
+        clsHandler.mContext = null;
+        clsHandler.mAuthority = null;
+        return receiver.toRemoteCallback(cls, context, authority, args, method);
     }
 
     static class ClsHandler {
         final ArrayMap<String, CallbackHandler<? extends CallbackReceiver>> mHandlers =
                 new ArrayMap<>();
+        public String mAuthority;
+        Context mContext;
         CallbackReceiver mCallStub;
     }
 
