@@ -17,6 +17,7 @@
 package androidx.room.integration.testapp.test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -62,6 +63,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -637,6 +639,36 @@ public class SimpleEntityReadWriteTest {
         List<UserSummary> users = mUserDao.getNames();
         assertThat(users, hasSize(1));
         assertThat(users.get(0).getName(), is(equalTo("john")));
+    }
+
+    @Test
+    public void queryByCollection() {
+        User[] users = TestUtil.createUsersArray(3, 5, 7, 9);
+        mUserDao.insertAll(users);
+        List<Integer> ids = Arrays.asList(3, 5, 7, 9);
+        List<User> loadedUsers = mUserDao.loadByIdCollection(ids);
+        assertThat(loadedUsers, hasSize(4));
+        assertThat(loadedUsers, hasItems(users));
+    }
+
+    @Test
+    public void queryByQueue() {
+        User[] users = TestUtil.createUsersArray(3, 5, 7, 9);
+        mUserDao.insertAll(users);
+        LinkedList<Integer> ids = new LinkedList<>(Arrays.asList(3, 5, 7, 9));
+        List<User> loadedUsers = mUserDao.loadByIdQueue(ids);
+        assertThat(loadedUsers, hasSize(4));
+        assertThat(loadedUsers, hasItems(users));
+    }
+
+    @Test
+    public void queryBySet() {
+        User[] users = TestUtil.createUsersArray(3, 5, 7, 9);
+        mUserDao.insertAll(users);
+        HashSet<Integer> ids = new HashSet<>(Arrays.asList(3, 5, 7, 9));
+        List<User> loadedUsers = mUserDao.loadByIdSet(ids);
+        assertThat(loadedUsers, hasSize(4));
+        assertThat(loadedUsers, hasItems(users));
     }
 
     private Set<Day> toSet(Day... days) {
