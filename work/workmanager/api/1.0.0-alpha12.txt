@@ -120,20 +120,7 @@ package androidx.work {
     method @RequiresApi(24) public final java.util.List<android.net.Uri> getTriggeredContentUris();
     method public final boolean isStopped();
     method public void onStopped();
-    method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> startWork();
-  }
-
-  public static final class ListenableWorker.Payload {
-    ctor public ListenableWorker.Payload(androidx.work.ListenableWorker.Result);
-    ctor public ListenableWorker.Payload(androidx.work.ListenableWorker.Result, androidx.work.Data);
-    method public androidx.work.Data getOutputData();
-    method public androidx.work.ListenableWorker.Result getResult();
-  }
-
-  public static enum ListenableWorker.Result {
-    enum_constant public static final androidx.work.ListenableWorker.Result FAILURE;
-    enum_constant public static final androidx.work.ListenableWorker.Result RETRY;
-    enum_constant public static final androidx.work.ListenableWorker.Result SUCCESS;
+    method @MainThread public abstract com.google.common.util.concurrent.ListenableFuture<androidx.work.Result> startWork();
   }
 
   public enum NetworkType {
@@ -190,6 +177,14 @@ package androidx.work {
     ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker>, java.time.Duration);
     ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker>, long, java.util.concurrent.TimeUnit, long, java.util.concurrent.TimeUnit);
     ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker>, java.time.Duration, java.time.Duration);
+  }
+
+  public abstract class Result {
+    method public static androidx.work.Result failure();
+    method public static androidx.work.Result failure(androidx.work.Data);
+    method public static androidx.work.Result retry();
+    method public static androidx.work.Result success();
+    method public static androidx.work.Result success(androidx.work.Data);
   }
 
   public abstract class WorkContinuation {
@@ -266,10 +261,8 @@ package androidx.work {
 
   public abstract class Worker extends androidx.work.ListenableWorker {
     ctor @Keep public Worker(android.content.Context, androidx.work.WorkerParameters);
-    method @WorkerThread public abstract androidx.work.ListenableWorker.Result doWork();
-    method public final androidx.work.Data getOutputData();
-    method public final void setOutputData(androidx.work.Data);
-    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.ListenableWorker.Payload> startWork();
+    method @WorkerThread public abstract androidx.work.Result doWork();
+    method public final com.google.common.util.concurrent.ListenableFuture<androidx.work.Result> startWork();
   }
 
   public abstract class WorkerFactory {

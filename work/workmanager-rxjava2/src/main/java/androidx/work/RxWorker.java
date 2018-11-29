@@ -51,7 +51,7 @@ public abstract class RxWorker extends ListenableWorker {
     static final Executor INSTANT_EXECUTOR = new SynchronousExecutor();
 
     @Nullable
-    private SingleFutureAdapter<Payload> mSingleFutureObserverAdapter;
+    private SingleFutureAdapter<Result> mSingleFutureObserverAdapter;
 
     /**
      * @param appContext   The application {@link Context}
@@ -63,7 +63,7 @@ public abstract class RxWorker extends ListenableWorker {
 
     @NonNull
     @Override
-    public ListenableFuture<Payload> startWork() {
+    public ListenableFuture<Result> startWork() {
         mSingleFutureObserverAdapter = new SingleFutureAdapter<>();
 
         final Scheduler scheduler = getBackgroundScheduler();
@@ -93,7 +93,7 @@ public abstract class RxWorker extends ListenableWorker {
 
     /**
      * Override this method to define your actual work and return a {@code Single} of
-     * {@link androidx.work.ListenableWorker.Payload} which will be subscribed by the
+     * {@link androidx.work.Result} which will be subscribed by the
      * {@link WorkManager}.
      * <p>
      * If the returned {@code Single} fails, the worker will be considered as failed.
@@ -107,7 +107,7 @@ public abstract class RxWorker extends ListenableWorker {
      * @return a {@code Single<Payload>} that represents the work.
      */
     @MainThread
-    public abstract Single<Payload> createWork();
+    public abstract Single<Result> createWork();
 
     @Override
     public void onStopped() {

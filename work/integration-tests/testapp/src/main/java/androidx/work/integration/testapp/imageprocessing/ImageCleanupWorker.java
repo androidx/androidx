@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
+import androidx.work.Result;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.integration.testapp.db.Image;
@@ -57,6 +58,6 @@ public class ImageCleanupWorker extends Worker {
         }
         TestDatabase.getInstance(getApplicationContext()).getImageDao().clear();
         Log.d(TAG, "Cleanup Complete!");
-        return Result.SUCCESS;
+        return Result.success();
     }
 }

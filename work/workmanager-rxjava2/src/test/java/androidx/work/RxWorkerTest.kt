@@ -36,19 +36,19 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class RxWorkerTest {
     private val syncExecutor = SynchronousExecutor()
-    private val payload = ListenableWorker.Payload(ListenableWorker.Result.SUCCESS, Data.EMPTY)
+    private val result = Result.success()
 
     @Test
     fun simple() {
-        val worker = Single.just(payload).toWorker()
-        assertThat(worker.startWork().get(), `is`(payload))
+        val worker = Single.just(result).toWorker()
+        assertThat(worker.startWork().get(), `is`(result))
     }
 
     @Test
     fun cancelForwarding() {
         val latch = CountDownLatch(1)
         val worker = Single
-            .never<ListenableWorker.Payload>()
+            .never<Result>()
             .doOnDispose {
                 latch.countDown()
             }.toWorker(createWorkerParams(syncExecutor))
@@ -63,7 +63,7 @@ class RxWorkerTest {
     fun failedWork() {
         val error: Throwable = RuntimeException("a random error")
         val worker = Single
-            .error<ListenableWorker.Payload>(error)
+            .error<Result>(error)
             .toWorker(createWorkerParams(syncExecutor))
         val future = worker.startWork()
         try {
@@ -86,7 +86,7 @@ class RxWorkerTest {
             it.run()
         }
 
-        val rxWorker = Single.just(payload).toWorker(createWorkerParams(executor))
+        val rxWorker = Single.just(result).toWorker(createWorkerParams(executor))
         rxWorker.backgroundScheduler.scheduleDirect(runner)
         assertThat(runnerDidRun, `is`(true))
         assertThat(executorDidRun, `is`(true))
@@ -106,10 +106,10 @@ class RxWorkerTest {
         }
         val params = createWorkerParams(executor)
         val worker = object : RxWorker(Mockito.mock(Context::class.java), params) {
-            override fun createWork() = Single.just(payload)
+            override fun createWork() = Single.just(result)
             override fun getBackgroundScheduler() = testScheduler
         }
-        assertThat(worker.startWork().get(), `is`(payload))
+        assertThat(worker.startWork().get(), `is`(result))
         assertThat(executorDidRun, `is`(false))
         assertThat(testSchedulerDidRun, `is`(true))
     }
@@ -127,7 +127,7 @@ class RxWorkerTest {
         WorkerFactory.getDefaultWorkerFactory()
     )
 
-    private fun Single<ListenableWorker.Payload>.toWorker(
+    private fun Single<Result>.toWorker(
         params: WorkerParameters = createWorkerParams()
     ): RxWorker {
         return object : RxWorker(Mockito.mock(Context::class.java), params) {

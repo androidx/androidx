@@ -33,6 +33,7 @@ import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.Result;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkerParameters;
@@ -141,10 +142,10 @@ public class RetryActivity extends AppCompatActivity {
                     throw new RuntimeException("random failure");
                 }
                 Log.i(TAG, String.format("[%s] %s successful", name, getId()));
-                return Result.SUCCESS;
+                return Result.success();
             } catch (Exception e) {
                 Log.e(TAG, String.format("[%s] %s failed: %s", name, getId(), e.getMessage()));
-                return Result.RETRY;
+                return Result.retry();
             }
         }
     }

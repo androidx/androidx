@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.Result;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -81,7 +82,7 @@ public class TextMappingWorker extends Worker {
                 }
             }
         } catch (IOException e) {
-            return Result.FAILURE;
+            return Result.failure();
         } finally {
             if (scanner != null) {
                 scanner.close();
@@ -106,7 +107,7 @@ public class TextMappingWorker extends Worker {
                 dataOutputStream.writeInt(entry.getValue());
             }
         } catch (IOException e) {
-            return Result.FAILURE;
+            return Result.failure();
         } finally {
             if (dataOutputStream != null) {
                 try {
@@ -124,8 +125,6 @@ public class TextMappingWorker extends Worker {
             }
         }
 
-        setOutputData(new Data.Builder().putString(INPUT_FILE, outputFileName).build());
-
-        return Result.SUCCESS;
+        return Result.success(new Data.Builder().putString(INPUT_FILE, outputFileName).build());
     }
 }
