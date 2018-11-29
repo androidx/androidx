@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * A class that can perform work asynchronously in {@link WorkManager}.  For most cases, we
@@ -51,32 +50,6 @@ import java.util.concurrent.TimeUnit;
  */
 
 public abstract class ListenableWorker {
-
-    /**
-     * The result of a worker's computation.
-     */
-    public enum Result {
-        /**
-         * Used to indicate that the work completed successfully.  Any work that depends on this
-         * can be executed as long as all of its other dependencies and constraints are met.
-         */
-        SUCCESS,
-
-        /**
-         * Used to indicate that the work completed with a permanent failure.  Any work that depends
-         * on this will also be marked as failed and will not be run.  <b></b>If you need child
-         * workers to run , you need to return {@link #SUCCESS}</b>; failure indicates a permanent
-         * stoppage of the chain of work.
-         */
-        FAILURE,
-
-        /**
-         * Used to indicate that the work encountered a transient failure and should be retried with
-         * backoff specified in
-         * {@link WorkRequest.Builder#setBackoffCriteria(BackoffPolicy, long, TimeUnit)}.
-         */
-        RETRY
-    }
 
     private @NonNull Context mAppContext;
     private @NonNull WorkerParameters mWorkerParams;
@@ -192,11 +165,11 @@ public abstract class ListenableWorker {
      * Override this method to start your actual background processing. This method is called on
      * the main thread.
      *
-     * @return A {@link ListenableFuture} with the {@link Payload} of the computation.  If you
+     * @return A {@link ListenableFuture} with the {@link Result} of the computation.  If you
      *         cancel this Future, WorkManager will treat this unit of work as failed.
      */
     @MainThread
-    public abstract @NonNull ListenableFuture<Payload> startWork();
+    public abstract @NonNull ListenableFuture<Result> startWork();
 
     /**
      * Returns {@code true} if this Worker has been told to stop.  This could be because of an
@@ -274,51 +247,5 @@ public abstract class ListenableWorker {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull WorkerFactory getWorkerFactory() {
         return mWorkerParams.getWorkerFactory();
-    }
-
-    /**
-     * The payload of an {@link #startWork()} computation that contains both the {@link Result} and
-     * the output {@link Data}.
-     */
-    public static final class Payload {
-
-        @NonNull Result mResult;
-        @NonNull Data mOutput;
-
-        /**
-         * Constructs a Payload with the given {@link Result} and an empty output.
-         *
-         * @param result The {@link Result} of the {@link #startWork()} computation; note that
-         *               dependent work will not execute if you return {@link Result#FAILURE}
-         */
-        public Payload(@NonNull Result result) {
-            this(result, Data.EMPTY);
-        }
-
-        /**
-         * Constructs a Payload with the given {@link Result} and output.
-         *
-         * @param result The {@link Result} of the {@link #startWork()} computation; note that
-         *               dependent work will not execute if you return {@link Result#FAILURE}
-         * @param output The output {@link Data} of the {@link #startWork()} computation
-         */
-        public Payload(@NonNull Result result, @NonNull Data output) {
-            mResult = result;
-            mOutput = output;
-        }
-
-        /**
-         * @return The {@link Result} of this {@link ListenableWorker}
-         */
-        public @NonNull Result getResult() {
-            return mResult;
-        }
-
-        /**
-         * @return The output {@link Data} of this {@link ListenableWorker}
-         */
-        public @NonNull Data getOutputData() {
-            return mOutput;
-        }
     }
 }

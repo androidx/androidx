@@ -44,6 +44,7 @@ import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.Result;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManagerTest;
 import androidx.work.WorkRequest;
@@ -302,7 +303,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
                 sTriggeredContentAuthorities = getTriggeredContentAuthorities();
                 sTriggeredContentUris = getTriggeredContentUris();
             }
-            return Result.SUCCESS;
+            return Result.success();
         }
     }
 
@@ -322,7 +323,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
                 ++sTimesUpdated;
                 sNetwork = getNetwork();
             }
-            return Result.SUCCESS;
+            return Result.success();
         }
     }
 }

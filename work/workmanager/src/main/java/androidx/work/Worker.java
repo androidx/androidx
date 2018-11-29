@@ -42,8 +42,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 public abstract class Worker extends ListenableWorker {
 
     // Package-private to avoid synthetic accessor.
-    SettableFuture<Payload> mFuture;
-    private @NonNull volatile Data mOutputData = Data.EMPTY;
+    SettableFuture<Result> mFuture;
 
     @Keep
     public Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -57,49 +56,22 @@ public abstract class Worker extends ListenableWorker {
      * to have finished what its doing and will be destroyed.  If you need to do your work
      * asynchronously on a thread of your own choice, see {@link ListenableWorker}.
      *
-     * @return The {@link ListenableWorker.Result} of the computation; note that dependent work will
-     *         not execute if you return {@link ListenableWorker.Result#FAILURE}
+     * @return The {@link Result} of the computation; note that dependent work will
+     *         not execute if you use {@link Result#failure()} or {@link Result#failure(Data)}
      */
     @WorkerThread
     public abstract @NonNull Result doWork();
 
     @Override
-    public final @NonNull ListenableFuture<Payload> startWork() {
+    public final @NonNull ListenableFuture<Result> startWork() {
         mFuture = SettableFuture.create();
         getBackgroundExecutor().execute(new Runnable() {
             @Override
             public void run() {
                 Result result = doWork();
-                mFuture.set(new Payload(result, getOutputData()));
+                mFuture.set(result);
             }
         });
         return mFuture;
-    }
-
-    /**
-     * Call this method to pass a {@link Data} object as the output of this {@link Worker}.  This
-     * result can be observed and passed to Workers that are dependent on this one.
-     * <p>
-     * In cases like where two or more {@link OneTimeWorkRequest}s share a dependent WorkRequest,
-     * their Data will be merged together using an {@link InputMerger}.  The default InputMerger is
-     * {@link OverwritingInputMerger}, unless otherwise specified using the
-     * {@link OneTimeWorkRequest.Builder#setInputMerger(Class)} method.
-     * <p>
-     * The output Data is only valid if your worker returns a
-     * {@link ListenableWorker.Result#SUCCESS} or a {@link ListenableWorker.Result#FAILURE}.
-     *
-     * @param outputData An {@link Data} object that will be merged into the input Data of any
-     *                   OneTimeWorkRequest that is dependent on this one, or {@link Data#EMPTY} if
-     *                   there is nothing to contribute
-     */
-    public final void setOutputData(@NonNull Data outputData) {
-        mOutputData = outputData;
-    }
-
-    /**
-     * @return the output {@link Data} set by the {@link Worker}.
-     */
-    public final @NonNull Data getOutputData() {
-        return mOutputData;
     }
 }
