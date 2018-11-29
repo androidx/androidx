@@ -77,8 +77,7 @@ public class QueryTransactionTest {
     private TransactionDb mDb;
     private final boolean mUseTransactionDao;
     private Entity1Dao mDao;
-    private final LiveDataQueryTest.TestLifecycleOwner mLifecycleOwner = new LiveDataQueryTest
-            .TestLifecycleOwner();
+    private final TestLifecycleOwner mLifecycleOwner = new TestLifecycleOwner();
 
     @NonNull
     @Parameterized.Parameters(name = "useTransaction_{0}")
