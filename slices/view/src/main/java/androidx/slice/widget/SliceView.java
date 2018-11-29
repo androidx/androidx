@@ -451,10 +451,13 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         initSliceMetrics(slice);
         boolean isUpdate = slice != null && mCurrentSlice != null
                 && slice.getUri().equals(mCurrentSlice.getUri());
+        SliceMetadata oldSliceData = mSliceMetadata;
+        mCurrentSlice = slice;
+        mSliceMetadata = mCurrentSlice != null ? SliceMetadata.from(getContext(), mCurrentSlice)
+                : null;
         if (isUpdate) {
             // If its an update check the loading state
-            SliceMetadata oldSliceData = SliceMetadata.from(getContext(), mCurrentSlice);
-            SliceMetadata newSliceData = SliceMetadata.from(getContext(), slice);
+            SliceMetadata newSliceData = mSliceMetadata;
             if (oldSliceData.getLoadingState() == SliceMetadata.LOADED_ALL
                     && newSliceData.getLoadingState() == SliceMetadata.LOADED_NONE) {
                 // If it's the same slice going from "loaded all" to "loaded none"... let's
@@ -464,12 +467,11 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         } else {
             mCurrentView.resetView();
         }
-        mCurrentSlice = slice;
-        mListContent = new ListContent(mCurrentSlice);
+        mListContent = mSliceMetadata != null ? mSliceMetadata.getListContent() : null;
         if (mShowActionDividers) {
             showActionDividers(true);
         }
-        if (!mListContent.isValid()) {
+        if (mListContent == null || !mListContent.isValid()) {
             mActions = null;
             mCurrentView.resetView();
             updateActions();
@@ -479,7 +481,6 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         mCurrentView.setLoadingActions(null);
 
         // Check if the slice content is expired and show when it was last updated
-        mSliceMetadata = SliceMetadata.from(getContext(), mCurrentSlice);
         mActions = mSliceMetadata.getSliceActions();
         mCurrentView.setLastUpdated(mSliceMetadata.getLastUpdatedTime());
         mCurrentView.setShowLastUpdated(mShowLastUpdated && mSliceMetadata.isExpired());
