@@ -100,7 +100,8 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
                     String argName = matcher.group(1);
                     if (args.containsKey(argName)) {
                         matcher.appendReplacement(data, "");
-                        data.append(Uri.encode(args.getString(argName)));
+                        //noinspection ConstantConditions
+                        data.append(Uri.encode(args.get(argName).toString()));
                     } else {
                         throw new IllegalArgumentException("Could not find " + argName + " in "
                                 + args + " to fill data pattern " + dataPattern);
