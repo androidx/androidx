@@ -33,6 +33,8 @@ import androidx.navigation.NavDestination;
 
 import java.lang.ref.WeakReference;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * The abstract OnNavigatedListener for keeping any type of app bar updated. This handles both
@@ -76,8 +78,24 @@ abstract class AbstractAppBarOnNavigatedListener
             controller.removeOnNavigatedListener(this);
             return;
         }
-        CharSequence title = destination.getLabel();
-        if (!TextUtils.isEmpty(title)) {
+        CharSequence label = destination.getLabel();
+        if (!TextUtils.isEmpty(label)) {
+            // Fill in the data pattern with the args to build a valid URI
+            StringBuffer title = new StringBuffer();
+            Pattern fillInPattern = Pattern.compile("\\{(.+?)\\}");
+            Matcher matcher = fillInPattern.matcher(label);
+            while (matcher.find()) {
+                String argName = matcher.group(1);
+                if (arguments != null && arguments.containsKey(argName)) {
+                    matcher.appendReplacement(title, "");
+                    //noinspection ConstantConditions
+                    title.append(arguments.get(argName).toString());
+                } else {
+                    throw new IllegalArgumentException("Could not find " + argName + " in "
+                            + arguments + " to fill label " + label);
+                }
+            }
+            matcher.appendTail(title);
             setTitle(title);
         }
         boolean isTopLevelDestination = NavigationUI.matchDestinations(destination,
