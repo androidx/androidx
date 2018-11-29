@@ -27,6 +27,7 @@ import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import kotlinx.coroutines.asCoroutineDispatcher
 import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.instanceOf
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
@@ -98,12 +99,12 @@ class CoroutineWorkerTest {
         assertThat(worker.job.isCompleted, `is`(false))
 
         val future = worker.startWork()
-        val payload = future.get()
+        val result = future.get()
 
         assertThat(future.isDone, `is`(true))
         assertThat(future.isCancelled, `is`(false))
-        assertThat(payload.result, `is`(ListenableWorker.Result.SUCCESS))
-        assertThat(payload.outputData.getLong("output", 0L), `is`(999L))
+        assertThat(result, `is`(instanceOf(Result.Success::class.java)))
+        assertThat((result as Result.Success).outputData.getLong("output", 0L), `is`(999L))
     }
 
     @Test
@@ -162,8 +163,8 @@ class CoroutineWorkerTest {
     class SynchronousCoroutineWorker(context: Context, params: WorkerParameters) :
         CoroutineWorker(context, params) {
 
-        override suspend fun doWork(): Payload {
-            return Payload(Result.SUCCESS, workDataOf("output" to 999L))
+        override suspend fun doWork(): Result {
+            return Result.success(workDataOf("output" to 999L))
         }
 
         override val coroutineContext = SynchronousExecutor().asCoroutineDispatcher()

@@ -26,10 +26,10 @@ import kotlinx.coroutines.launch
 
 /**
  * A {@link ListenableWorker} implementation that provides interop with Kotlin Coroutines.  Override
- * the {@link #doWork()} function to do your suspending work.
+ * the [doWork] function to do your suspending work.
  * <p>
  * By default, CoroutineWorker runs on {@link Dispatchers#Default}; this can be modified by
- * overriding {@link #coroutineContext}.
+ * overriding [coroutineContext].
  */
 abstract class CoroutineWorker(
     appContext: Context,
@@ -37,7 +37,7 @@ abstract class CoroutineWorker(
 ) : ListenableWorker(appContext, params) {
 
     internal val job = Job()
-    internal val future: SettableFuture<Payload> = SettableFuture.create()
+    internal val future: SettableFuture<Result> = SettableFuture.create()
 
     init {
         future.addListener(
@@ -46,16 +46,16 @@ abstract class CoroutineWorker(
                     job.cancel()
                 }
             },
-            taskExecutor.backgroundExecutor)
+            taskExecutor.backgroundExecutor
+        )
     }
 
     /**
-     * The coroutine context on which {@link #doWork()} will run.  By default, this is
-     * {@link Dispatchers#Default}.
+     * The coroutine context on which [doWork] will run. By default, this is [Dispatchers.Default].
      */
     open val coroutineContext = Dispatchers.Default
 
-    final override fun startWork(): ListenableFuture<Payload> {
+    final override fun startWork(): ListenableFuture<Result> {
 
         val coroutineScope = CoroutineScope(coroutineContext + job)
         coroutineScope.launch {
@@ -72,12 +72,12 @@ abstract class CoroutineWorker(
 
     /**
      * A suspending method to do your work.  This function runs on the coroutine context specified
-     * by {@link #coroutineContext}.
+     * by [coroutineContext].
      *
-     * @return The {@link ListenableWorker.Payload} of the result of the background work; note that
-     *         dependent work will not execute if you return {@link ListenableWorker.Result#FAILURE}
+     * @return The [Result] of the result of the background work; note that
+     *         dependent work will not execute if you return [Result.failure]
      */
-    abstract suspend fun doWork(): ListenableWorker.Payload
+    abstract suspend fun doWork(): Result
 
     final override fun onStopped() {
         super.onStopped()

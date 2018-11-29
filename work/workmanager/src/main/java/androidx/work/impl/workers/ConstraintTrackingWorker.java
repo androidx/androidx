@@ -16,9 +16,6 @@
 
 package androidx.work.impl.workers;
 
-import static androidx.work.ListenableWorker.Result.FAILURE;
-import static androidx.work.ListenableWorker.Result.RETRY;
-
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -26,9 +23,9 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
 import android.text.TextUtils;
 
-import androidx.work.Data;
 import androidx.work.ListenableWorker;
 import androidx.work.Logger;
+import androidx.work.Result;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.WorkDatabase;
@@ -66,7 +63,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
     final Object mLock;
     // Marking this volatile as the delegated workers could switch threads.
     volatile boolean mAreConstraintsUnmet;
-    SettableFuture<Payload> mFuture;
+    SettableFuture<Result> mFuture;
 
     @Nullable private ListenableWorker mDelegate;
 
@@ -81,7 +78,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
 
     @NonNull
     @Override
-    public ListenableFuture<Payload> startWork() {
+    public ListenableFuture<Result> startWork() {
         getBackgroundExecutor().execute(new Runnable() {
             @Override
             public void run() {
@@ -132,7 +129,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
             // changes in constraints can cause the worker to throw RuntimeExceptions, and
             // that should cause a retry.
             try {
-                final ListenableFuture<Payload> innerFuture = mDelegate.startWork();
+                final ListenableFuture<Result> innerFuture = mDelegate.startWork();
                 innerFuture.addListener(new Runnable() {
                     @Override
                     public void run() {
@@ -168,12 +165,12 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
 
     // Package-private to avoid synthetic accessor.
     void setFutureFailed() {
-        mFuture.set(new Payload(FAILURE, Data.EMPTY));
+        mFuture.set(Result.failure());
     }
 
     // Package-private to avoid synthetic accessor.
     void setFutureRetry() {
-        mFuture.set(new Payload(RETRY, Data.EMPTY));
+        mFuture.set(Result.retry());
     }
 
     @Override

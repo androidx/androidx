@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.Result;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -63,6 +64,6 @@ public class ToastWorker extends Worker {
                 Toast.makeText(getApplicationContext(), displayMessage, Toast.LENGTH_SHORT).show();
             }
         });
-        return Result.SUCCESS;
+        return Result.success();
     }
 }

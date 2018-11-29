@@ -19,6 +19,7 @@ package androidx.work.worker;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import androidx.work.Result;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
@@ -35,6 +36,6 @@ public class UsedWorker extends Worker {
     @NonNull
     @Override
     public Result doWork() {
-        return Result.SUCCESS;
+        return Result.success();
     }
 }
