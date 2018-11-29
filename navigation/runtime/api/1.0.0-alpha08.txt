@@ -65,7 +65,7 @@ package androidx.navigation {
   }
 
   public static interface NavController.OnNavigatedListener {
-    method public void onNavigated(androidx.navigation.NavController, androidx.navigation.NavDestination);
+    method public void onNavigated(androidx.navigation.NavController, androidx.navigation.NavDestination, android.os.Bundle?);
   }
 
   public final class NavDeepLinkBuilder {

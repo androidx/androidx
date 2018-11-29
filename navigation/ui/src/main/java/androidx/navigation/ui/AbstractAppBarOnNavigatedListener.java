@@ -20,6 +20,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
@@ -67,7 +68,7 @@ abstract class AbstractAppBarOnNavigatedListener
 
     @Override
     public void onNavigated(@NonNull NavController controller,
-            @NonNull NavDestination destination) {
+            @NonNull NavDestination destination, @Nullable Bundle arguments) {
         DrawerLayout drawerLayout = mDrawerLayoutWeakReference != null
                 ? mDrawerLayoutWeakReference.get()
                 : null;
@@ -88,7 +89,7 @@ abstract class AbstractAppBarOnNavigatedListener
         }
     }
 
-    void setActionBarUpIndicator(boolean showAsDrawerIndicator) {
+    private void setActionBarUpIndicator(boolean showAsDrawerIndicator) {
         boolean animate = true;
         if (mArrowDrawable == null) {
             mArrowDrawable = new DrawerArrowDrawable(mContext);
