@@ -44,6 +44,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteStatement;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -64,6 +65,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -72,9 +74,12 @@ import java.util.concurrent.locks.ReentrantLock;
 @RunWith(JUnit4.class)
 public class InvalidationTrackerTest {
     private InvalidationTracker mTracker;
-    private @Mock RoomDatabase mRoomDatabase;
-    private @Mock SupportSQLiteDatabase mSqliteDb;
-    private @Mock SupportSQLiteOpenHelper mOpenHelper;
+    @Mock
+    private RoomDatabase mRoomDatabase;
+    @Mock
+    private SupportSQLiteDatabase mSqliteDb;
+    @Mock
+    private SupportSQLiteOpenHelper mOpenHelper;
     @Rule
     public JunitTaskExecutorRule mTaskExecutorRule = new JunitTaskExecutorRule(1, true);
 
@@ -300,6 +305,22 @@ public class InvalidationTrackerTest {
         assertThat(observer.await(), is(true));
         assertThat(observer.getInvalidatedTables().size(), is(1));
         assertThat(observer.getInvalidatedTables(), hasItem("a"));
+    }
+
+    @Test
+    public void failFastCreateLiveData() {
+        // assert that sending a bad createLiveData table name fails instantly
+        try {
+            mTracker.createLiveData(new String[]{"invalid table name"}, new Callable<Void>() {
+                @Override
+                public Void call() throws Exception {
+                    return null;
+                }
+            });
+            Assert.fail("should've throw an exception for invalid table name");
+        } catch (IllegalArgumentException expected) {
+            // expected
+        }
     }
 
     // @Test - disabled due to flakiness b/65257997
