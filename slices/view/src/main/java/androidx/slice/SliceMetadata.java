@@ -487,4 +487,12 @@ public class SliceMetadata {
         return (mExpiry == 0 || mExpiry == SliceHints.INFINITY || now > mExpiry)
                 ? 0 : mExpiry - now;
     }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public ListContent getListContent() {
+        return mListContent;
+    }
 }
