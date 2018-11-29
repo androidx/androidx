@@ -16,6 +16,10 @@
 
 package androidx.room.integration.testapp.test;
 
+import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.room.integration.testapp.vo.Address;
 import androidx.room.integration.testapp.vo.Coordinates;
 import androidx.room.integration.testapp.vo.House;
@@ -29,6 +33,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
 
 public class TestUtil {
     public static User[] createUsersArray(int... ids) {
@@ -124,6 +130,35 @@ public class TestUtil {
         mail.body = body;
         mail.datetime = System.currentTimeMillis();
         return mail;
+    }
+
+    public static void observeOnMainThread(final LiveData liveData, final LifecycleOwner provider,
+            final Observer observer) throws ExecutionException, InterruptedException {
+        FutureTask<Void> futureTask = new FutureTask<>(() -> {
+            //noinspection unchecked
+            liveData.observe(provider, observer);
+            return null;
+        });
+        ArchTaskExecutor.getInstance().executeOnMainThread(futureTask);
+        futureTask.get();
+    }
+
+    public static void observeForeverOnMainThread(final LiveData liveData, final Observer observer)
+            throws ExecutionException, InterruptedException {
+        FutureTask<Void> futureTask = new FutureTask<>(() -> {
+            //noinspection unchecked
+            liveData.observeForever(observer);
+            return null;
+        });
+        ArchTaskExecutor.getInstance().executeOnMainThread(futureTask);
+        futureTask.get();
+    }
+
+    public static void forceGc() {
+        Runtime.getRuntime().gc();
+        Runtime.getRuntime().runFinalization();
+        Runtime.getRuntime().gc();
+        Runtime.getRuntime().runFinalization();
     }
 
     private TestUtil() {

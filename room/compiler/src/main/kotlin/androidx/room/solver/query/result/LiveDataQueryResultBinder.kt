@@ -17,14 +17,14 @@
 package androidx.room.solver.query.result
 
 import androidx.annotation.NonNull
+import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.L
-import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.N
-import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.INVALIDATION_OBSERVER
+import androidx.room.ext.T
+import androidx.room.ext.arrayTypeName
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
-import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -37,55 +37,49 @@ import javax.lang.model.type.TypeMirror
 /**
  * Converts the query into a LiveData and returns it. No query is run until necessary.
  */
-class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<String>,
-                                adapter: QueryResultAdapter?)
-    : BaseObservableQueryResultBinder(adapter) {
+class LiveDataQueryResultBinder(
+    val typeArg: TypeMirror,
+    val tableNames: Set<String>,
+    adapter: QueryResultAdapter?
+) : BaseObservableQueryResultBinder(adapter) {
     @Suppress("JoinDeclarationAndAssignment")
     override fun convertAndReturn(
-            roomSQLiteQueryVar: String,
-            canReleaseQuery: Boolean,
-            dbField: FieldSpec,
-            inTransaction: Boolean,
-            scope: CodeGenScope
+        roomSQLiteQueryVar: String,
+        canReleaseQuery: Boolean,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
     ) {
-        val typeName = typeArg.typeName()
-
-        val liveDataImpl =
-                TypeSpec.anonymousClassBuilder(
-                        // This passes the Executor as a parameter to the superclass' constructor
-                        // while declaring an anonymous class.
-                        CodeBlock.builder().apply {
-                            add("$N.getQueryExecutor()", dbField)
-                        }.build().toString()).apply {
-            superclass(ParameterizedTypeName.get(LifecyclesTypeNames.COMPUTABLE_LIVE_DATA,
-                    typeName))
-            val observerField = FieldSpec.builder(RoomTypeNames.INVALIDATION_OBSERVER,
-                    scope.getTmpVar("_observer"), Modifier.PRIVATE).build()
-            addField(observerField)
-            addMethod(createComputeMethod(
-                    observerField = observerField,
-                    typeName = typeName,
-                    roomSQLiteQueryVar = roomSQLiteQueryVar,
-                    dbField = dbField,
-                    inTransaction = inTransaction,
-                    scope = scope
-            ))
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
+            createRunQueryAndReturnStatements(
+                builder = this,
+                roomSQLiteQueryVar = roomSQLiteQueryVar,
+                inTransaction = inTransaction,
+                dbField = dbField,
+                scope = scope
+            )
+        }.apply {
             if (canReleaseQuery) {
                 addMethod(createFinalizeMethod(roomSQLiteQueryVar))
             }
         }.build()
+
         scope.builder().apply {
-            addStatement("return $L.getLiveData()", liveDataImpl)
+            val tableNamesList = tableNames.joinToString(",") { "\"$it\"" }
+            addStatement(
+                "return $N.getInvalidationTracker().createLiveData(new $T{$L}, $L)",
+                dbField, String::class.arrayTypeName(), tableNamesList, callableImpl
+            )
         }
     }
 
     private fun createComputeMethod(
-            roomSQLiteQueryVar: String,
-            typeName: TypeName,
-            observerField: FieldSpec,
-            dbField: FieldSpec,
-            inTransaction: Boolean,
-            scope: CodeGenScope
+        roomSQLiteQueryVar: String,
+        typeName: TypeName,
+        observerField: FieldSpec,
+        dbField: FieldSpec,
+        inTransaction: Boolean,
+        scope: CodeGenScope
     ): MethodSpec {
         return MethodSpec.methodBuilder("compute").apply {
             addAnnotation(Override::class.java)
@@ -94,16 +88,20 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
 
             beginControlFlow("if ($N == null)", observerField).apply {
                 addStatement("$N = $L", observerField, createAnonymousObserver())
-                addStatement("$N.getInvalidationTracker().addWeakObserver($N)",
-                        dbField, observerField)
+                addStatement(
+                    "$N.getInvalidationTracker().addWeakObserver($N)",
+                    dbField, observerField
+                )
             }
             endControlFlow()
 
-            createRunQueryAndReturnStatements(builder = this,
-                    roomSQLiteQueryVar = roomSQLiteQueryVar,
-                    dbField = dbField,
-                    inTransaction = inTransaction,
-                    scope = scope)
+            createRunQueryAndReturnStatements(
+                builder = this,
+                roomSQLiteQueryVar = roomSQLiteQueryVar,
+                dbField = dbField,
+                inTransaction = inTransaction,
+                scope = scope
+            )
         }.build()
     }
 
@@ -114,10 +112,13 @@ class LiveDataQueryResultBinder(val typeArg: TypeMirror, val tableNames: Set<Str
             addMethod(MethodSpec.methodBuilder("onInvalidated").apply {
                 returns(TypeName.VOID)
                 addAnnotation(Override::class.java)
-                addParameter(ParameterSpec.builder(
-                        ParameterizedTypeName.get(Set::class.java, String::class.java), "tables")
+                addParameter(
+                    ParameterSpec.builder(
+                        ParameterizedTypeName.get(Set::class.java, String::class.java), "tables"
+                    )
                         .addAnnotation(NonNull::class.java)
-                        .build())
+                        .build()
+                )
                 addModifiers(Modifier.PUBLIC)
                 addStatement("invalidate()")
             }.build())
