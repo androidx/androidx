@@ -21,6 +21,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
 import android.support.annotation.VisibleForTesting;
+import android.util.Log;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,6 +44,8 @@ import java.util.Map;
  */
 
 public final class Data {
+
+    private static final String TAG = "Data";
 
     /**
      * An empty Data object with no elements.
@@ -321,30 +324,32 @@ public final class Data {
                 objectOutputStream.writeUTF(entry.getKey());
                 objectOutputStream.writeObject(entry.getValue());
             }
-
-            if (outputStream.size() > MAX_DATA_BYTES) {
-                throw new IllegalStateException(
-                        "Data cannot occupy more than " + MAX_DATA_BYTES
-                                + " bytes when serialized");
-            }
-            return outputStream.toByteArray();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error in Data#toByteArray: ", e);
             return outputStream.toByteArray();
         } finally {
             if (objectOutputStream != null) {
                 try {
+                    // NOTE: this writes something to the output stream for bookkeeping purposes.
+                    // Don't get the byteArray before we do this!
                     objectOutputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Error in Data#toByteArray: ", e);
                 }
             }
             try {
                 outputStream.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Error in Data#toByteArray: ", e);
             }
         }
+
+        if (outputStream.size() > MAX_DATA_BYTES) {
+            throw new IllegalStateException(
+                    "Data cannot occupy more than " + MAX_DATA_BYTES
+                            + " bytes when serialized");
+        }
+        return outputStream.toByteArray();
     }
 
     /**
@@ -372,19 +377,19 @@ public final class Data {
                 map.put(objectInputStream.readUTF(), objectInputStream.readObject());
             }
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Error in Data#fromByteArray: ", e);
         } finally {
             if (objectInputStream != null) {
                 try {
                     objectInputStream.close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Error in Data#fromByteArray: ", e);
                 }
             }
             try {
                 inputStream.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Error in Data#fromByteArray: ", e);
             }
         }
         return new Data(map);
