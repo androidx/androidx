@@ -27,6 +27,8 @@ import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
 
+import androidx.annotation.RestrictTo;
+
 /**
  * Version of ContentProvider that can be used as a {@link CallbackReceiver}.
  *
@@ -40,7 +42,6 @@ public abstract class ContentProviderWithCallbacks<T extends ContentProviderWith
         ContentProvider implements CallbackReceiver<T> {
 
     String mAuthority;
-    Context mContext;
 
     @Override
     public void attachInfo(Context context, ProviderInfo info) {
@@ -51,7 +52,6 @@ public abstract class ContentProviderWithCallbacks<T extends ContentProviderWith
     @Override
     public Bundle call(String method, String arg, Bundle extras) {
         if (ProviderRelayReceiver.METHOD_PROVIDER_CALLBACK.equals(method)) {
-            CallbackHandlerRegistry.sInstance.ensureInitialized(getClass());
             CallbackHandlerRegistry.sInstance.invokeCallback(getContext(), this, extras);
             return null;
         }
@@ -60,22 +60,26 @@ public abstract class ContentProviderWithCallbacks<T extends ContentProviderWith
 
     @Override
     public T createRemoteCallback(Context context) {
-        CallbackHandlerRegistry.sInstance.ensureInitialized(getClass());
         return CallbackHandlerRegistry.sInstance.getAndResetStub(getClass(), context, mAuthority);
     }
 
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
-    public RemoteCallback toRemoteCallback(Class<T> cls, Bundle args, String method) {
-        if (mAuthority == null) {
+    public RemoteCallback toRemoteCallback(Class<T> cls, Context context, String authority,
+            Bundle args, String method) {
+        if (authority == null) {
             throw new IllegalStateException(
                     "ContentProvider must be attached before creating callbacks");
         }
         Intent intent = new Intent(ACTION_PROVIDER_RELAY);
-        intent.setComponent(new ComponentName(mContext.getPackageName(),
+        intent.setComponent(new ComponentName(context.getPackageName(),
                 ProviderRelayReceiver.class.getName()));
         args.putString(EXTRA_METHOD, method);
-        args.putString(ProviderRelayReceiver.EXTRA_AUTHORITY, mAuthority);
+        args.putString(ProviderRelayReceiver.EXTRA_AUTHORITY, authority);
         intent.putExtras(args);
-        return new RemoteCallback(mContext, TYPE_PROVIDER, intent, cls.getName(), args);
+        return new RemoteCallback(context, TYPE_PROVIDER, intent, cls.getName(), args);
     }
 }
