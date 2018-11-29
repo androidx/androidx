@@ -29,6 +29,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.ContentView;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.test.R;
@@ -1052,15 +1054,16 @@ public class FragmentViewTests {
         }
     }
 
+    @ContentView(R.layout.fragment_a)
     public static class SimpleViewFragment extends Fragment {
         public int onCreateViewCount;
 
         @Nullable
         @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                 @Nullable Bundle savedInstanceState) {
             onCreateViewCount++;
-            return inflater.inflate(R.layout.fragment_a, container, false);
+            return super.onCreateView(inflater, container, savedInstanceState);
         }
     }
 }
