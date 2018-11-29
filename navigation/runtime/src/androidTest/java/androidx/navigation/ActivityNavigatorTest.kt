@@ -58,6 +58,7 @@ class ActivityNavigatorTest {
         const val TARGET_ARGUMENT_NAME = "test"
         const val TARGET_DATA_PATTERN = "http://www.example.com/{$TARGET_ARGUMENT_NAME}"
         const val TARGET_ARGUMENT_VALUE = "data_pattern"
+        const val TARGET_ARGUMENT_INT_VALUE = 1
     }
 
     @get:Rule
@@ -205,6 +206,29 @@ class ActivityNavigatorTest {
                 intent.data?.toString())
         assertEquals("Intent should have its arguments in its extras",
                 TARGET_ARGUMENT_VALUE, intent.getStringExtra(TARGET_ARGUMENT_NAME))
+    }
+
+    @Test
+    fun navigateDataPatternInt() {
+        val targetDestination = activityNavigator.createDestination().apply {
+            id = TARGET_ID
+            dataPattern = TARGET_DATA_PATTERN
+            setComponentName(ComponentName(activityRule.activity, TargetActivity::class.java))
+        }
+        val args = Bundle().apply {
+            putInt(TARGET_ARGUMENT_NAME, TARGET_ARGUMENT_INT_VALUE)
+        }
+        activityNavigator.navigate(targetDestination, args, null, null)
+
+        val targetActivity = waitForActivity()
+        val intent = targetActivity.intent
+        assertNotNull(intent)
+        assertEquals("Intent should have data set with argument filled in",
+            TARGET_DATA_PATTERN.replace("{$TARGET_ARGUMENT_NAME}",
+                TARGET_ARGUMENT_INT_VALUE.toString()),
+            intent.data?.toString())
+        assertEquals("Intent should have its arguments in its extras",
+            TARGET_ARGUMENT_INT_VALUE, intent.getIntExtra(TARGET_ARGUMENT_NAME, -1))
     }
 
     @Test
