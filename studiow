@@ -14,6 +14,7 @@ function getStudioUrl() {
 
 acceptsLicenseAgreement="$1"
 scriptDir="$(cd $(dirname $0) && pwd)"
+projectDir=$scriptDir
 tempDir="${scriptDir}/studio"
 function getOsName() {
   unameOutput="$(uname)"
@@ -70,13 +71,13 @@ function updateStudio() {
 function runStudioLinux() {
   studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
   echo "$studioPath &"
-  "${studioPath}" &
+  env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" "${studioPath}" "${projectDir}" &
 }
 
 function runStudioMac() {
   studioPath="${studioUnzippedPath}/Android Studio.app"
   echo "open ${studioPath}"
-  open "${studioPath}"
+  env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" open "${studioPath}" "${projectDir}"
 }
 
 function runStudio() {
