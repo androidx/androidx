@@ -48,7 +48,7 @@ import java.util.Set;
  * better to provide this as much as possible when you're using media widget and/or session APIs.
  * <p>
  * The media widget components build its UI based on the metadata here. For an example,
- * {@link androidx.media.widget.MediaControlView2} will show title from the metadata.
+ * {@link androidx.media2.widget.MediaControlView} will show title from the metadata.
  * <p>
  * The {@link MediaLibrarySession} would require some metadata values when it provides
  * {@link MediaItem}s to {@link MediaBrowser}.
@@ -128,7 +128,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
+    public static final String METADATA_KEY_TITLE = android.media.MediaMetadata.METADATA_KEY_TITLE;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -139,7 +139,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
+    public static final String METADATA_KEY_ARTIST =
+            android.media.MediaMetadata.METADATA_KEY_ARTIST;
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about the
@@ -149,7 +150,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putLong(String, long)
      * @see #getLong(String)
      */
-    public static final String METADATA_KEY_DURATION = "android.media.metadata.DURATION";
+    public static final String METADATA_KEY_DURATION =
+            android.media.MediaMetadata.METADATA_KEY_DURATION;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -160,7 +162,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_ALBUM = "android.media.metadata.ALBUM";
+    public static final String METADATA_KEY_ALBUM =
+            android.media.MediaMetadata.METADATA_KEY_ALBUM;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -171,7 +174,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_AUTHOR = "android.media.metadata.AUTHOR";
+    public static final String METADATA_KEY_AUTHOR =
+            android.media.MediaMetadata.METADATA_KEY_AUTHOR;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -182,7 +186,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_WRITER = "android.media.metadata.WRITER";
+    public static final String METADATA_KEY_WRITER =
+            android.media.MediaMetadata.METADATA_KEY_WRITER;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -193,7 +198,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_COMPOSER = "android.media.metadata.COMPOSER";
+    public static final String METADATA_KEY_COMPOSER =
+            android.media.MediaMetadata.METADATA_KEY_COMPOSER;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -204,7 +210,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
+    public static final String METADATA_KEY_COMPILATION =
+            android.media.MediaMetadata.METADATA_KEY_COMPILATION;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -216,7 +223,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_DATE = "android.media.metadata.DATE";
+    public static final String METADATA_KEY_DATE = android.media.MediaMetadata.METADATA_KEY_DATE;
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about the year
@@ -225,7 +232,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putLong(String, long)
      * @see #getLong(String)
      */
-    public static final String METADATA_KEY_YEAR = "android.media.metadata.YEAR";
+    public static final String METADATA_KEY_YEAR = android.media.MediaMetadata.METADATA_KEY_YEAR;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -236,7 +243,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_GENRE = "android.media.metadata.GENRE";
+    public static final String METADATA_KEY_GENRE = android.media.MediaMetadata.METADATA_KEY_GENRE;
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about the
@@ -245,7 +252,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putLong(String, long)
      * @see #getLong(String)
      */
-    public static final String METADATA_KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
+    public static final String METADATA_KEY_TRACK_NUMBER =
+            android.media.MediaMetadata.METADATA_KEY_TRACK_NUMBER;
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about the
@@ -254,7 +262,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putLong(String, long)
      * @see #getLong(String)
      */
-    public static final String METADATA_KEY_NUM_TRACKS = "android.media.metadata.NUM_TRACKS";
+    public static final String METADATA_KEY_NUM_TRACKS =
+            android.media.MediaMetadata.METADATA_KEY_NUM_TRACKS;
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about the
@@ -263,7 +272,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putLong(String, long)
      * @see #getLong(String)
      */
-    public static final String METADATA_KEY_DISC_NUMBER = "android.media.metadata.DISC_NUMBER";
+    public static final String METADATA_KEY_DISC_NUMBER =
+            android.media.MediaMetadata.METADATA_KEY_DISC_NUMBER;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -274,7 +284,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
+    public static final String METADATA_KEY_ALBUM_ARTIST =
+            android.media.MediaMetadata.METADATA_KEY_ALBUM_ARTIST;
 
     /**
      * The metadata key for a {@link Bitmap} typed value to retrieve the information about the
@@ -285,7 +296,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putBitmap(String, Bitmap)
      * @see #getBitmap(String)
      */
-    public static final String METADATA_KEY_ART = "android.media.metadata.ART";
+    public static final String METADATA_KEY_ART = android.media.MediaMetadata.METADATA_KEY_ART;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -296,7 +307,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_ART_URI = "android.media.metadata.ART_URI";
+    public static final String METADATA_KEY_ART_URI =
+            android.media.MediaMetadata.METADATA_KEY_ART_URI;
 
     /**
      * The metadata key for a {@link Bitmap} typed value to retrieve the information about the
@@ -307,7 +319,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putBitmap(String, Bitmap)
      * @see #getBitmap(String)
      */
-    public static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
+    public static final String METADATA_KEY_ALBUM_ART =
+            android.media.MediaMetadata.METADATA_KEY_ALBUM_ART;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -318,7 +331,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_ALBUM_ART_URI = "android.media.metadata.ALBUM_ART_URI";
+    public static final String METADATA_KEY_ALBUM_ART_URI =
+            android.media.MediaMetadata.METADATA_KEY_ALBUM_ART_URI;
 
     /**
      * The metadata key for a {@link Rating} typed value to retrieve the information about the
@@ -329,7 +343,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getRating(String)
      * @see <a href="#UserRating">User rating</a>
      */
-    public static final String METADATA_KEY_USER_RATING = "android.media.metadata.USER_RATING";
+    public static final String METADATA_KEY_USER_RATING =
+            android.media.MediaMetadata.METADATA_KEY_USER_RATING;
 
     /**
      * The metadata key for a {@link Rating} typed value to retrieve the information about the
@@ -338,7 +353,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putRating(String, Rating)
      * @see #getRating(String)
      */
-    public static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
+    public static final String METADATA_KEY_RATING =
+            android.media.MediaMetadata.METADATA_KEY_RATING;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -351,7 +367,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_DISPLAY_TITLE = "android.media.metadata.DISPLAY_TITLE";
+    public static final String METADATA_KEY_DISPLAY_TITLE =
+            android.media.MediaMetadata.METADATA_KEY_DISPLAY_TITLE;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -365,7 +382,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getString(String)
      */
     public static final String METADATA_KEY_DISPLAY_SUBTITLE =
-            "android.media.metadata.DISPLAY_SUBTITLE";
+            android.media.MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -379,7 +396,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getString(String)
      */
     public static final String METADATA_KEY_DISPLAY_DESCRIPTION =
-            "android.media.metadata.DISPLAY_DESCRIPTION";
+            android.media.MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION;
 
     /**
      * The metadata key for a {@link Bitmap} typed value to retrieve the information about the icon
@@ -393,7 +410,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putBitmap(String, Bitmap)
      * @see #getBitmap(String)
      */
-    public static final String METADATA_KEY_DISPLAY_ICON = "android.media.metadata.DISPLAY_ICON";
+    public static final String METADATA_KEY_DISPLAY_ICON =
+            android.media.MediaMetadata.METADATA_KEY_DISPLAY_ICON;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -407,7 +425,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getString(String)
      */
     public static final String METADATA_KEY_DISPLAY_ICON_URI =
-            "android.media.metadata.DISPLAY_ICON_URI";
+            android.media.MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -421,7 +439,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getString(String)
      * @see <a href="#MediaID">Media ID</a>
      */
-    public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
+    public static final String METADATA_KEY_MEDIA_ID =
+            android.media.MediaMetadata.METADATA_KEY_MEDIA_ID;
 
     /**
      * The metadata key for a {@link CharSequence} or {@link String} typed value to retrieve the
@@ -433,7 +452,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getText(String)
      * @see #getString(String)
      */
-    public static final String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
+    public static final String METADATA_KEY_MEDIA_URI =
+            android.media.MediaMetadata.METADATA_KEY_MEDIA_URI;
 
     /**
      * @hide
@@ -445,7 +465,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP)
     public static final String METADATA_KEY_RADIO_FREQUENCY =
-            "android.media.metadata.RADIO_FREQUENCY";
+            "androidx.media2.metadata.RADIO_FREQUENCY";
 
     /**
      * @hide
@@ -459,7 +479,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP)
     public static final String METADATA_KEY_RADIO_PROGRAM_NAME =
-            "android.media.metadata.RADIO_PROGRAM_NAME";
+            "androidx.media2.metadata.RADIO_PROGRAM_NAME";
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about the type
@@ -485,7 +505,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see <a href="#Browsable">Browsable</a>
      */
     public static final String METADATA_KEY_BROWSABLE =
-            "android.media.metadata.BROWSABLE";
+            "androidx.media2.metadata.BROWSABLE";
 
     /**
      * The type of browsable for non-browsable media item.
@@ -557,7 +577,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getLong(String)
      * @see <a href="#Playable">Playable</a>
      */
-    public static final String METADATA_KEY_PLAYABLE = "android.media.metadata.PLAYABLE";
+    public static final String METADATA_KEY_PLAYABLE = "androidx.media2.metadata.PLAYABLE";
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about whether
@@ -568,7 +588,8 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see Builder#putLong(String, long)
      * @see #getLong(String)
      */
-    public static final String METADATA_KEY_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
+    public static final String METADATA_KEY_ADVERTISEMENT =
+            "androidx.media2.metadata.ADVERTISEMENT";
 
     /**
      * The metadata key for a {@link Long} typed value to retrieve the information about the
@@ -585,7 +606,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
      * @see #getLong(String)
      */
     public static final String METADATA_KEY_DOWNLOAD_STATUS =
-            "android.media.metadata.DOWNLOAD_STATUS";
+            "androidx.media2.metadata.DOWNLOAD_STATUS";
 
     /**
      * The status value to indicate the media item is not downloaded.
@@ -611,7 +632,7 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     /**
      * A {@link Bundle} extra.
      */
-    public static final String METADATA_KEY_EXTRAS = "android.media.metadata.EXTRAS";
+    public static final String METADATA_KEY_EXTRAS = "androidx.media2.metadata.EXTRAS";
 
     /**
      * @hide
@@ -1294,4 +1315,3 @@ public final class MediaMetadata extends CustomVersionedParcelable {
         }
     }
 }
-
