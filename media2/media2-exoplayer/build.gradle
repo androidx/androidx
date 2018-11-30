@@ -31,19 +31,8 @@ android {
 
 dependencies {
     compileOnly(CHECKER_FRAMEWORK)
-}
 
-// Copy in classes from the prebuilt at the end of the java compilation task.
-afterEvaluate {
-    android.libraryVariants.all { variant ->
-        project.tasks.getByName("compile${variant.name.capitalize()}JavaWithJavac").doLast {
-            copy {
-              from zipTree("${projectDir}/src/main/libs/exoplayer-media2.jar")
-              into("${buildDir}/intermediates/javac/${variant.name}/" +
-                      "compile${variant.name.capitalize()}JavaWithJavac/classes")
-            }
-        }
-    }
+    compile files("src/main/libs/exoplayer-media2.jar")
 }
 
 supportLibrary {
