@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Looper;
 
@@ -154,6 +155,7 @@ public abstract class TextClassifier {
      */
     @WorkerThread
     @NonNull
+    @SuppressLint("RestrictedApi")
     public TextSelection suggestSelection(@NonNull TextSelection.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();
@@ -170,6 +172,7 @@ public abstract class TextClassifier {
      */
     @WorkerThread
     @NonNull
+    @SuppressLint("RestrictedApi")
     public TextClassification classifyText(@NonNull TextClassification.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();
@@ -188,6 +191,7 @@ public abstract class TextClassifier {
      */
     @WorkerThread
     @NonNull
+    @SuppressLint("RestrictedApi")
     public TextLinks generateLinks(@NonNull TextLinks.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();

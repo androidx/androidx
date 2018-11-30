@@ -19,6 +19,7 @@ package androidx.textclassifier;
 import static androidx.textclassifier.ConvertUtils.toPlatformEntityConfig;
 import static androidx.textclassifier.ConvertUtils.unwrapLocalListCompat;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.os.Build;
 import android.os.Bundle;
@@ -197,6 +198,7 @@ public final class TextLinks {
      * @return the status code which indicates the operation is success or not.
      */
     @Status
+    @SuppressLint("RestrictedApi")
     public int apply(
             @NonNull Spannable text,
             @NonNull TextClassifier textClassifier,
@@ -229,6 +231,7 @@ public final class TextLinks {
          */
         @VisibleForTesting
         @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @SuppressLint("RestrictedApi")
         TextLink(int start, int end, @NonNull Map<String, Float> entityScores) {
             Preconditions.checkNotNull(entityScores);
             Preconditions.checkArgument(!entityScores.isEmpty());
@@ -409,6 +412,7 @@ public final class TextLinks {
             @Nullable private Long mReferenceTime = null;
             @Nullable private Bundle mExtras;
 
+            @SuppressLint("RestrictedApi")
             public Builder(@NonNull CharSequence text) {
                 mText = Preconditions.checkNotNull(text);
             }
@@ -542,6 +546,7 @@ public final class TextLinks {
          * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @SuppressLint("RestrictedApi")
         TextLinkSpanData(
                 @NonNull TextLink textLink,
                 @NonNull TextClassifier textClassifier,
@@ -584,6 +589,7 @@ public final class TextLinks {
     public abstract static class TextLinkSpan extends ClickableSpan {
         private TextLinkSpanData mTextLinkSpanData;
 
+        @SuppressLint("RestrictedApi")
         public TextLinkSpan(@NonNull TextLinkSpanData textLinkSpanData) {
             mTextLinkSpanData = Preconditions.checkNotNull(textLinkSpanData);
         }
@@ -624,6 +630,7 @@ public final class TextLinks {
          */
         @Override
         @CallSuper
+        @SuppressLint("SyntheticAccessor")
         public void onClick(@NonNull View widget) {
             if (!(widget instanceof TextView)) {
                 return;
@@ -670,6 +677,7 @@ public final class TextLinks {
             }
 
             @Override
+            @SuppressLint("SyntheticAccessor")
             public void run() {
                 final TextClassifier classifier =
                         mTextLinkSpan.getTextLinkSpanData().getTextClassifier();
@@ -750,6 +758,7 @@ public final class TextLinks {
          *
          * @param fullText The full text to annotate with links.
          */
+        @SuppressLint("RestrictedApi")
         public Builder(@NonNull CharSequence fullText) {
             mFullText = Preconditions.checkNotNull(fullText);
             mLinks = new ArrayList<>();
@@ -763,6 +772,7 @@ public final class TextLinks {
          * @throws IllegalArgumentException if entityScores is null or empty.
          */
         @NonNull
+        @SuppressLint("RestrictedApi")
         public Builder addLink(int start, int end, @NonNull Map<String, Float> entityScores) {
             mLinks.add(new TextLink(start, end, Preconditions.checkNotNull(entityScores)));
             return this;
@@ -772,6 +782,7 @@ public final class TextLinks {
          * @hide
          */
         @NonNull
+        @SuppressLint("RestrictedApi")
         Builder addLink(TextLink link) {
             mLinks.add(Preconditions.checkNotNull(link));
             return this;
@@ -812,6 +823,7 @@ public final class TextLinks {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)
     @NonNull
+    @SuppressLint("RestrictedApi")
     // TODO: In Q, we should make getText public and use it here.
     static TextLinks fromPlatform(
             @NonNull android.view.textclassifier.TextLinks textLinks,

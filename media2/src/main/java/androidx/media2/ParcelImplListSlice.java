@@ -18,6 +18,7 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcel;
@@ -184,6 +185,7 @@ public class ParcelImplListSlice implements Parcelable {
     }
 
     @Override
+    @SuppressLint("RestrictedApi")
     public int describeContents() {
         int contents = 0;
         final List<ParcelImpl> list = getList();
