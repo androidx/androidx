@@ -18,6 +18,7 @@ package androidx.fragment.app.testing
 
 import android.os.Bundle
 import androidx.fragment.app.FragmentFactory
+import androidx.fragment.testing.test.R.style.ThemedFragmentTheme
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
@@ -69,6 +70,17 @@ class FragmentScenarioTest {
     }
 
     @Test
+    fun launchThemedFragment() {
+        with(launchFragment<ThemedFragment>(themeResId = ThemedFragmentTheme)) {
+            onFragment { fragment ->
+                assertThat(fragment.state).isEqualTo(State.RESUMED)
+                assertThat(fragment.isViewAttachedToWindow).isFalse()
+                assertThat(fragment.hasThemedFragmentTheme()).isTrue()
+            }
+        }
+    }
+
+    @Test
     fun launchFragmentInContainer() {
         with(launchFragmentInContainer<StateRecordingFragment>()) {
             onFragment { fragment ->
@@ -92,10 +104,21 @@ class FragmentScenarioTest {
     }
 
     @Test
+    fun launchThemedFragmentInContainer() {
+        with(launchFragmentInContainer<ThemedFragment>(themeResId = ThemedFragmentTheme)) {
+            onFragment { fragment ->
+                assertThat(fragment.state).isEqualTo(State.RESUMED)
+                assertThat(fragment.isViewAttachedToWindow).isTrue()
+                assertThat(fragment.hasThemedFragmentTheme()).isTrue()
+            }
+        }
+    }
+
+    @Test
     fun launchFragmentWithFragmentFactory() {
         with(
-            launchFragment<NoDefaultConstructorFragment>(/*fragmentArgs=*/null,
-                NoDefaultConstructorFragmentFactory("my constructor arg")
+            launchFragment<NoDefaultConstructorFragment>(
+                factory = NoDefaultConstructorFragmentFactory("my constructor arg")
             )
         ) {
             onFragment { fragment ->
@@ -109,8 +132,8 @@ class FragmentScenarioTest {
     @Test
     fun launchInContainerFragmentWithFragmentFactory() {
         with(
-            launchFragmentInContainer<NoDefaultConstructorFragment>(/*fragmentArgs=*/null,
-                NoDefaultConstructorFragmentFactory("my constructor arg")
+            launchFragmentInContainer<NoDefaultConstructorFragment>(
+                factory = NoDefaultConstructorFragmentFactory("my constructor arg")
             )
         ) {
             onFragment { fragment ->
@@ -124,7 +147,7 @@ class FragmentScenarioTest {
     @Test
     fun launchWithCrossInlineFactoryFunction() {
         var numberOfInstantiations = 0
-        with(launchFragment(/*fragmentArgs=*/null) {
+        with(launchFragment {
             numberOfInstantiations++
             NoDefaultConstructorFragment("my constructor arg")
         }) {
@@ -140,7 +163,7 @@ class FragmentScenarioTest {
     @Test
     fun launchInContainerWithCrossInlineFactoryFunction() {
         var numberOfInstantiations = 0
-        with(launchFragmentInContainer(/*fragmentArgs=*/null) {
+        with(launchFragmentInContainer {
             numberOfInstantiations++
             NoDefaultConstructorFragment("my constructor arg")
         }) {
@@ -328,7 +351,7 @@ class FragmentScenarioTest {
     @Test
     fun recreateFragmentWithFragmentFactory() {
         var numberOfInstantiations = 0
-        with(launchFragment(/*fragmentArgs=*/null) {
+        with(launchFragment {
             numberOfInstantiations++
             NoDefaultConstructorFragment("my constructor arg")
         }) {
@@ -343,6 +366,25 @@ class FragmentScenarioTest {
             onFragment { fragment ->
                 assertThat(fragment.state).isEqualTo(State.RESUMED)
                 assertThat(fragment.constructorArg).isEqualTo("my constructor arg")
+                assertThat(fragment.numberOfRecreations).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun recreateThemedFragment() {
+        with(launchFragmentInContainer<ThemedFragment>(themeResId = ThemedFragmentTheme)) {
+            onFragment { fragment ->
+                assertThat(fragment.state).isEqualTo(State.RESUMED)
+                assertThat(fragment.isViewAttachedToWindow).isTrue()
+                assertThat(fragment.hasThemedFragmentTheme()).isTrue()
+                assertThat(fragment.numberOfRecreations).isEqualTo(0)
+            }
+            recreate()
+            onFragment { fragment ->
+                assertThat(fragment.state).isEqualTo(State.RESUMED)
+                assertThat(fragment.isViewAttachedToWindow).isTrue()
+                assertThat(fragment.hasThemedFragmentTheme()).isTrue()
                 assertThat(fragment.numberOfRecreations).isEqualTo(1)
             }
         }
