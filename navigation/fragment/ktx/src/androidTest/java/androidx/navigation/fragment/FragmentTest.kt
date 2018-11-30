@@ -31,7 +31,7 @@ import org.junit.Test
 class ActivityTest {
     @get:Rule val activityRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private val fragmentManager get() = activityRule.activity.supportFragmentManager
-    private val contentFragment get() = fragmentManager.findFragmentById(android.R.id.content)
+    private val contentFragment get() = fragmentManager.findFragmentById(android.R.id.content)!!
 
     @UiThreadTest
     @Test fun findNavController() {
