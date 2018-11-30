@@ -40,6 +40,7 @@ import androidx.appcompat.widget.TooltipCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
@@ -286,7 +287,10 @@ public class MediaRouteButton extends View {
             MediaRouteChooserDialogFragment f =
                     mDialogFactory.onCreateChooserDialogFragment();
             f.setRouteSelector(mSelector);
-            f.show(fm, CHOOSER_FRAGMENT_TAG);
+
+            FragmentTransaction transaction = fm.beginTransaction();
+            transaction.add(f, CHOOSER_FRAGMENT_TAG);
+            transaction.commitAllowingStateLoss();
         } else {
             if (fm.findFragmentByTag(CONTROLLER_FRAGMENT_TAG) != null) {
                 Log.w(TAG, "showDialog(): Route controller dialog already showing!");
@@ -295,7 +299,10 @@ public class MediaRouteButton extends View {
             MediaRouteControllerDialogFragment f =
                     mDialogFactory.onCreateControllerDialogFragment();
             f.setRouteSelector(mSelector);
-            f.show(fm, CONTROLLER_FRAGMENT_TAG);
+
+            FragmentTransaction transaction = fm.beginTransaction();
+            transaction.add(f, CONTROLLER_FRAGMENT_TAG);
+            transaction.commitAllowingStateLoss();
         }
         return true;
     }
