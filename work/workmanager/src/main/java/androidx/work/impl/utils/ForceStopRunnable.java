@@ -65,12 +65,12 @@ public class ForceStopRunnable implements Runnable {
     @Override
     public void run() {
         if (shouldRescheduleWorkers()) {
-            Logger.debug(TAG, "Rescheduling Workers.");
+            Logger.get().debug(TAG, "Rescheduling Workers.");
             mWorkManager.rescheduleEligibleWork();
             // Mark the jobs as migrated.
             mWorkManager.getPreferences().setNeedsReschedule(false);
         } else if (isForceStopped()) {
-            Logger.debug(TAG, "Application was force-stopped, rescheduling.");
+            Logger.get().debug(TAG, "Application was force-stopped, rescheduling.");
             mWorkManager.rescheduleEligibleWork();
         }
         mWorkManager.onForceStopRunnableCompleted();
@@ -154,7 +154,9 @@ public class ForceStopRunnable implements Runnable {
             if (intent != null) {
                 String action = intent.getAction();
                 if (ACTION_FORCE_STOP_RESCHEDULE.equals(action)) {
-                    Logger.verbose(TAG, "Rescheduling alarm that keeps track of force-stops.");
+                    Logger.get().verbose(
+                            TAG,
+                            "Rescheduling alarm that keeps track of force-stops.");
                     ForceStopRunnable.setAlarm(context);
                 }
             }

@@ -42,7 +42,6 @@ import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.DatabaseTest;
-import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Processor;
@@ -120,9 +119,10 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 mLatch.countDown();
             }
         };
-
-        Logger.setMinimumLoggingLevel(Log.VERBOSE);
-        mConfiguration = new Configuration.Builder().setExecutor(new SynchronousExecutor()).build();
+        mConfiguration = new Configuration.Builder()
+                .setExecutor(new SynchronousExecutor())
+                .setMinimumLoggingLevel(Log.VERBOSE)
+                .build();
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
         TaskExecutor instantTaskExecutor = new InstantWorkTaskExecutor();

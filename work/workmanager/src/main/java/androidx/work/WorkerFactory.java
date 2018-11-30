@@ -82,7 +82,7 @@ public abstract class WorkerFactory {
         try {
             clazz = Class.forName(workerClassName).asSubclass(ListenableWorker.class);
         } catch (ClassNotFoundException e) {
-            Logger.error(TAG, "Class not found: " + workerClassName);
+            Logger.get().error(TAG, "Class not found: " + workerClassName);
             return null;
         }
 
@@ -94,7 +94,7 @@ public abstract class WorkerFactory {
                     workerParameters);
             return worker;
         } catch (Exception e) {
-            Logger.error(TAG, "Could not instantiate " + workerClassName, e);
+            Logger.get().error(TAG, "Could not instantiate " + workerClassName, e);
         }
         return null;
     }

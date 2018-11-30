@@ -20,88 +20,126 @@ import android.support.annotation.RestrictTo;
 import android.util.Log;
 
 /**
- * A class that handles logging to logcat.  It internally delegates to {@link Log} methods but
- * handles library-level verbosity settings.  This class offers no threading guarantees.
+ * The class that handles logging requests for {@link WorkManager}.  Currently, this class is not
+ * accessible and has only one default implementation, {@link LogcatLogger}, that writes to logcat
+ * when the logging request is of a certain verbosity or higher.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class Logger {
+public abstract class Logger {
 
-    private static int sLoggingLevel = Log.INFO;
+    private static Logger sLogger;
 
     /**
-     * @param loggingLevel The minimum logging level
+     * @param logger The {@link Logger} to use for all {@link WorkManager} logging.
      */
-    public static void setMinimumLoggingLevel(int loggingLevel) {
-        sLoggingLevel = loggingLevel;
+    public static void setLogger(Logger logger) {
+        sLogger = logger;
+    }
+
+    /**
+     * @return The current {@link Logger}.
+     */
+    public static synchronized Logger get() {
+        return sLogger;
+    }
+
+    public Logger(int loggingLevel) {
     }
 
     /**
      * Equivalent to Log.v.
      */
-    public static void verbose(String tag, String message, Throwable... throwables)  {
-        if (sLoggingLevel <= Log.VERBOSE) {
-            if (throwables != null && throwables.length >= 1) {
-                Log.v(tag, message, throwables[0]);
-            } else {
-                Log.v(tag, message);
-            }
-        }
-    }
+    public abstract void verbose(String tag, String message, Throwable... throwables);
 
     /**
      * Equivalent to Log.d.
      */
-    public static void debug(String tag, String message, Throwable... throwables)  {
-        if (sLoggingLevel <= Log.DEBUG) {
-            if (throwables != null && throwables.length >= 1) {
-                Log.d(tag, message, throwables[0]);
-            } else {
-                Log.d(tag, message);
-            }
-        }
-    }
+    public abstract void debug(String tag, String message, Throwable... throwables);
 
     /**
      * Equivalent to Log.i.
      */
-    public static void info(String tag, String message, Throwable... throwables)  {
-        if (sLoggingLevel <= Log.INFO) {
-            if (throwables != null && throwables.length >= 1) {
-                Log.i(tag, message, throwables[0]);
-            } else {
-                Log.i(tag, message);
-            }
-        }
-    }
+    public abstract void info(String tag, String message, Throwable... throwables);
 
     /**
      * Equivalent to Log.w.
      */
-    public static void warning(String tag, String message, Throwable... throwables)  {
-        if (sLoggingLevel <= Log.WARN) {
-            if (throwables != null && throwables.length >= 1) {
-                Log.w(tag, message, throwables[0]);
-            } else {
-                Log.w(tag, message);
-            }
-        }
-    }
+    public abstract void warning(String tag, String message, Throwable... throwables);
 
     /**
      * Equivalent to Log.e.
      */
-    public static void error(String tag, String message, Throwable... throwables)  {
-        if (sLoggingLevel <= Log.ERROR) {
-            if (throwables != null && throwables.length >= 1) {
-                Log.e(tag, message, throwables[0]);
-            } else {
-                Log.e(tag, message);
+    public abstract void error(String tag, String message, Throwable... throwables);
+
+    /**
+     * The default {@link Logger} implementation that writes to logcat when the requests meet or
+     * exceed the {@code loggingLevel} specified in the constructor.  This class offers no threading
+     * guarantees.
+     */
+    public static class LogcatLogger extends Logger {
+
+        private int mLoggingLevel;
+
+        public LogcatLogger(int loggingLevel) {
+            super(loggingLevel);
+            mLoggingLevel = loggingLevel;
+        }
+
+        @Override
+        public void verbose(String tag, String message, Throwable... throwables) {
+            if (mLoggingLevel <= Log.VERBOSE) {
+                if (throwables != null && throwables.length >= 1) {
+                    Log.v(tag, message, throwables[0]);
+                } else {
+                    Log.v(tag, message);
+                }
             }
         }
-    }
 
-    private Logger() {
+        @Override
+        public void debug(String tag, String message, Throwable... throwables) {
+            if (mLoggingLevel <= Log.DEBUG) {
+                if (throwables != null && throwables.length >= 1) {
+                    Log.d(tag, message, throwables[0]);
+                } else {
+                    Log.d(tag, message);
+                }
+            }
+        }
+
+        @Override
+        public void info(String tag, String message, Throwable... throwables) {
+            if (mLoggingLevel <= Log.INFO) {
+                if (throwables != null && throwables.length >= 1) {
+                    Log.i(tag, message, throwables[0]);
+                } else {
+                    Log.i(tag, message);
+                }
+            }
+        }
+
+        @Override
+        public void warning(String tag, String message, Throwable... throwables) {
+            if (mLoggingLevel <= Log.WARN) {
+                if (throwables != null && throwables.length >= 1) {
+                    Log.w(tag, message, throwables[0]);
+                } else {
+                    Log.w(tag, message);
+                }
+            }
+        }
+
+        @Override
+        public void error(String tag, String message, Throwable... throwables) {
+            if (mLoggingLevel <= Log.ERROR) {
+                if (throwables != null && throwables.length >= 1) {
+                    Log.e(tag, message, throwables[0]);
+                } else {
+                    Log.e(tag, message);
+                }
+            }
+        }
     }
 }

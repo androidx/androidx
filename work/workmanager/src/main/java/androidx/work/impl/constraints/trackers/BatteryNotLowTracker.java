@@ -62,7 +62,7 @@ public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent intent = mAppContext.registerReceiver(null, intentFilter);
         if (intent == null) {
-            Logger.error(TAG, "getInitialState - null intent received");
+            Logger.get().error(TAG, "getInitialState - null intent received");
             return null;
         }
         int plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, BATTERY_PLUGGED_NONE);
@@ -90,7 +90,7 @@ public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boo
             return;
         }
 
-        Logger.debug(TAG, String.format("Received %s", intent.getAction()));
+        Logger.get().debug(TAG, String.format("Received %s", intent.getAction()));
 
         switch (intent.getAction()) {
             case Intent.ACTION_BATTERY_OKAY:

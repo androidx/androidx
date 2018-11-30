@@ -192,6 +192,7 @@ public class WorkManagerImpl extends WorkManager {
 
         Context applicationContext = context.getApplicationContext();
         WorkDatabase database = WorkDatabase.create(applicationContext, useTestDatabase);
+        Logger.setLogger(new Logger.LogcatLogger(configuration.getMinimumLoggingLevel()));
         List<Scheduler> schedulers = createSchedulers(applicationContext);
         Processor processor = new Processor(
                 context,
@@ -590,10 +591,10 @@ public class WorkManagerImpl extends WorkManager {
      * Initializes an instance of {@link WorkManagerImpl}.
      *
      * @param context The application {@link Context}
-     * @param configuration The {@link Configuration} configuration.
-     * @param workDatabase The {@link WorkDatabase} instance.
-     * @param schedulers The {@link List} of {@link Scheduler}s to use.
-     * @param processor The {@link Processor} instance.
+     * @param configuration The {@link Configuration} configuration
+     * @param workDatabase The {@link WorkDatabase} instance
+     * @param schedulers The {@link List} of {@link Scheduler}s to use
+     * @param processor The {@link Processor} instance
      */
     private void internalInit(@NonNull Context context,
             @NonNull Configuration configuration,
@@ -611,8 +612,6 @@ public class WorkManagerImpl extends WorkManager {
         mProcessor = processor;
         mPreferences = new Preferences(mContext);
         mForceStopRunnableCompleted = false;
-
-        Logger.setMinimumLoggingLevel(mConfiguration.getMinimumLoggingLevel());
 
         // Checks for app force stops.
         mWorkTaskExecutor.executeOnBackgroundThread(new ForceStopRunnable(context, this));
