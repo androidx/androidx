@@ -1709,7 +1709,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * @param completelyVisible Whether child should be completely visible or not
      * @return The first visible child closest to start of the layout from user's perspective.
      */
-    private View findFirstVisibleChildClosestToStart(boolean completelyVisible,
+    View findFirstVisibleChildClosestToStart(boolean completelyVisible,
             boolean acceptPartiallyVisible) {
         if (mShouldReverseLayout) {
             return findOneVisibleChild(getChildCount() - 1, -1, completelyVisible,
@@ -1727,7 +1727,7 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
      * @param completelyVisible Whether child should be completely visible or not
      * @return The first visible child closest to end of the layout from user's perspective.
      */
-    private View findFirstVisibleChildClosestToEnd(boolean completelyVisible,
+    View findFirstVisibleChildClosestToEnd(boolean completelyVisible,
             boolean acceptPartiallyVisible) {
         if (mShouldReverseLayout) {
             return findOneVisibleChild(0, getChildCount(), completelyVisible,
