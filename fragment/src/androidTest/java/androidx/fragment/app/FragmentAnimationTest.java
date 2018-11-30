@@ -476,13 +476,13 @@ public class FragmentAnimationTest {
         waitForAnimationReady();
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
 
-        final EndAnimationListenerFragment fragment1 = new EndAnimationListenerFragment();
+        final AnimationListenerFragment fragment1 = new AnimationListenerFragment();
         fm.beginTransaction()
                 .add(R.id.fragmentContainer, fragment1)
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
-        final EndAnimationListenerFragment fragment2 = new EndAnimationListenerFragment();
+        final AnimationListenerFragment fragment2 = new AnimationListenerFragment();
 
         fm.beginTransaction()
                 .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out,
@@ -515,6 +515,88 @@ public class FragmentAnimationTest {
             @Override
             public void run() {
                 assertNull(fragment2.view.getParent());
+            }
+        });
+    }
+
+    @Test
+    public void animationListenersAreCalled() throws Throwable {
+        waitForAnimationReady();
+        final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
+
+        // Add first fragment
+        final AnimationListenerFragment fragment1 = new AnimationListenerFragment();
+        fragment1.mForceRunOnHwLayer = false;
+        fragment1.mRepeat = true;
+        fm.beginTransaction()
+                .add(R.id.fragmentContainer, fragment1)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        // Replace first fragment with second fragment with a fade in/out animation
+        final AnimationListenerFragment fragment2 = new AnimationListenerFragment();
+        fragment2.mForceRunOnHwLayer = true;
+        fragment2.mRepeat = false;
+        fm.beginTransaction()
+                .setCustomAnimations(android.R.anim.fade_in, android.R.anim.fade_out,
+                        android.R.anim.fade_in, android.R.anim.fade_out)
+                .replace(R.id.fragmentContainer, fragment2)
+                .addToBackStack(null)
+                .commit();
+        FragmentTestUtil.waitForExecution(mActivityRule);
+
+        // Wait for animation to finish
+        assertTrue(fragment1.exitLatch.await(2, TimeUnit.SECONDS));
+        assertTrue(fragment2.enterLatch.await(2, TimeUnit.SECONDS));
+
+        // Check if all animation listener callbacks have been called
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(1, fragment1.mExitStartCount);
+                assertEquals(1, fragment1.mExitRepeatCount);
+                assertEquals(1, fragment1.mExitEndCount);
+                assertEquals(1, fragment2.mEnterStartCount);
+                assertEquals(0, fragment2.mEnterRepeatCount);
+                assertEquals(1, fragment2.mEnterEndCount);
+
+                // fragment1 exited, so its enter animation should not have been called
+                assertEquals(0, fragment1.mEnterStartCount);
+                assertEquals(0, fragment1.mEnterRepeatCount);
+                assertEquals(0, fragment1.mEnterEndCount);
+                // fragment2 entered, so its exit animation should not have been called
+                assertEquals(0, fragment2.mExitStartCount);
+                assertEquals(0, fragment2.mExitRepeatCount);
+                assertEquals(0, fragment2.mExitEndCount);
+            }
+        });
+        fragment1.resetCounts();
+        fragment2.resetCounts();
+
+        // Now pop the transaction
+        FragmentTestUtil.popBackStackImmediate(mActivityRule);
+
+        assertTrue(fragment2.exitLatch.await(2, TimeUnit.SECONDS));
+        assertTrue(fragment1.enterLatch.await(2, TimeUnit.SECONDS));
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                assertEquals(1, fragment2.mExitStartCount);
+                assertEquals(0, fragment2.mExitRepeatCount);
+                assertEquals(1, fragment2.mExitEndCount);
+                assertEquals(1, fragment1.mEnterStartCount);
+                assertEquals(1, fragment1.mEnterRepeatCount);
+                assertEquals(1, fragment1.mEnterEndCount);
+
+                // fragment1 entered, so its exit animation should not have been called
+                assertEquals(0, fragment1.mExitStartCount);
+                assertEquals(0, fragment1.mExitRepeatCount);
+                assertEquals(0, fragment1.mExitEndCount);
+                // fragment2 exited, so its enter animation should not have been called
+                assertEquals(0, fragment2.mEnterStartCount);
+                assertEquals(0, fragment2.mEnterRepeatCount);
+                assertEquals(0, fragment2.mEnterEndCount);
             }
         });
     }
@@ -622,10 +704,23 @@ public class FragmentAnimationTest {
         }
     }
 
-    public static class EndAnimationListenerFragment extends StrictViewFragment {
+    public static class AnimationListenerFragment extends StrictViewFragment {
         public View view;
+        public boolean mForceRunOnHwLayer;
+        public boolean mRepeat;
+        public int mEnterStartCount = 0;
+        public int mEnterRepeatCount = 0;
+        public int mEnterEndCount = 0;
+        public int mExitStartCount = 0;
+        public int mExitRepeatCount = 0;
+        public int mExitEndCount = 0;
         public final CountDownLatch enterLatch = new CountDownLatch(1);
         public final CountDownLatch exitLatch = new CountDownLatch(1);
+
+        public void resetCounts() {
+            mEnterStartCount = mEnterRepeatCount = mEnterEndCount = 0;
+            mExitStartCount = mExitRepeatCount = mExitEndCount = 0;
+        }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -634,6 +729,12 @@ public class FragmentAnimationTest {
                 return view;
             }
             view = super.onCreateView(inflater, container, savedInstanceState);
+            if (mForceRunOnHwLayer && view != null) {
+                // Set any background color on the TextView, so view.hasOverlappingRendering() will
+                // return true, which in turn makes FragmentManagerImpl.shouldRunOnHWLayer() return
+                // true.
+                view.setBackgroundColor(0xFFFFFFFF);
+            }
             return view;
         }
 
@@ -644,23 +745,44 @@ public class FragmentAnimationTest {
             }
             Animation anim = AnimationUtils.loadAnimation(getActivity(), nextAnim);
             if (anim != null) {
+                if (mRepeat) {
+                    anim.setRepeatCount(1);
+                }
                 anim.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
+                        if (enter) {
+                            mEnterStartCount++;
+                        } else {
+                            mExitStartCount++;
+                        }
                     }
 
                     @Override
                     public void onAnimationEnd(Animation animation) {
                         if (enter) {
+                            mEnterEndCount++;
                             enterLatch.countDown();
                         } else {
-                            exitLatch.countDown();
+                            mExitEndCount++;
+                            // When exiting, the view is detached after onAnimationEnd,
+                            // so wait one frame to count down the latch
+                            view.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    exitLatch.countDown();
+                                }
+                            });
                         }
                     }
 
                     @Override
                     public void onAnimationRepeat(Animation animation) {
-
+                        if (enter) {
+                            mEnterRepeatCount++;
+                        } else {
+                            mExitRepeatCount++;
+                        }
                     }
                 });
             }
