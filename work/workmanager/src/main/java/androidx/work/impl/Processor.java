@@ -95,7 +95,9 @@ public class Processor implements ExecutionListener {
             // Work may get triggered multiple times if they have passing constraints
             // and new work with those constraints are added.
             if (mEnqueuedWorkMap.containsKey(id)) {
-                Logger.debug(TAG, String.format("Work %s is already enqueued for processing", id));
+                Logger.get().debug(
+                        TAG,
+                        String.format("Work %s is already enqueued for processing", id));
                 return false;
             }
 
@@ -116,7 +118,7 @@ public class Processor implements ExecutionListener {
             mEnqueuedWorkMap.put(id, workWrapper);
         }
         mWorkTaskExecutor.getBackgroundExecutor().execute(workWrapper);
-        Logger.debug(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
+        Logger.get().debug(TAG, String.format("%s: processing %s", getClass().getSimpleName(), id));
         return true;
     }
 
@@ -128,14 +130,14 @@ public class Processor implements ExecutionListener {
      */
     public boolean stopWork(String id) {
         synchronized (mLock) {
-            Logger.debug(TAG, String.format("Processor stopping %s", id));
+            Logger.get().debug(TAG, String.format("Processor stopping %s", id));
             WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
             if (wrapper != null) {
                 wrapper.interrupt(false);
-                Logger.debug(TAG, String.format("WorkerWrapper stopped for %s", id));
+                Logger.get().debug(TAG, String.format("WorkerWrapper stopped for %s", id));
                 return true;
             }
-            Logger.debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
+            Logger.get().debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
             return false;
         }
     }
@@ -148,15 +150,15 @@ public class Processor implements ExecutionListener {
      */
     public boolean stopAndCancelWork(String id) {
         synchronized (mLock) {
-            Logger.debug(TAG, String.format("Processor cancelling %s", id));
+            Logger.get().debug(TAG, String.format("Processor cancelling %s", id));
             mCancelledIds.add(id);
             WorkerWrapper wrapper = mEnqueuedWorkMap.remove(id);
             if (wrapper != null) {
                 wrapper.interrupt(true);
-                Logger.debug(TAG, String.format("WorkerWrapper cancelled for %s", id));
+                Logger.get().debug(TAG, String.format("WorkerWrapper cancelled for %s", id));
                 return true;
             }
-            Logger.debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
+            Logger.get().debug(TAG, String.format("WorkerWrapper could not be found for %s", id));
             return false;
         }
     }
@@ -221,7 +223,7 @@ public class Processor implements ExecutionListener {
 
         synchronized (mLock) {
             mEnqueuedWorkMap.remove(workSpecId);
-            Logger.debug(TAG, String.format("%s %s executed; reschedule = %s",
+            Logger.get().debug(TAG, String.format("%s %s executed; reschedule = %s",
                     getClass().getSimpleName(), workSpecId, needsReschedule));
 
             for (ExecutionListener executionListener : mOuterListeners) {

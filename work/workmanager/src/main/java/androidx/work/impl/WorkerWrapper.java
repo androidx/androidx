@@ -132,7 +132,9 @@ public class WorkerWrapper implements Runnable {
         try {
             mWorkSpec = mWorkSpecDao.getWorkSpec(mWorkSpecId);
             if (mWorkSpec == null) {
-                Logger.error(TAG, String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
+                Logger.get().error(
+                        TAG,
+                        String.format("Didn't find WorkSpec for id %s", mWorkSpecId));
                 resolve(false);
                 return;
             }
@@ -160,7 +162,7 @@ public class WorkerWrapper implements Runnable {
         } else {
             InputMerger inputMerger = InputMerger.fromClassName(mWorkSpec.inputMergerClassName);
             if (inputMerger == null) {
-                Logger.error(TAG, String.format("Could not create Input Merger %s",
+                Logger.get().error(TAG, String.format("Could not create Input Merger %s",
                         mWorkSpec.inputMergerClassName));
                 setFailedAndResolve();
                 return;
@@ -191,14 +193,14 @@ public class WorkerWrapper implements Runnable {
         }
 
         if (mWorker == null) {
-            Logger.error(TAG,
+            Logger.get().error(TAG,
                     String.format("Could not create Worker %s", mWorkSpec.workerClassName));
             setFailedAndResolve();
             return;
         }
 
         if (mWorker.isUsed()) {
-            Logger.error(TAG,
+            Logger.get().error(TAG,
                     String.format("Received an already-used Worker %s; WorkerFactory should return "
                             + "new instances",
                             mWorkSpec.workerClassName));
@@ -240,10 +242,10 @@ public class WorkerWrapper implements Runnable {
                     } catch (CancellationException exception) {
                         // Cancellations need to be treated with care here because innerFuture
                         // cancellations will bubble up, and we need to gracefully handle that.
-                        Logger.info(TAG, String.format("%s was cancelled", workDescription),
+                        Logger.get().info(TAG, String.format("%s was cancelled", workDescription),
                                 exception);
                     } catch (InterruptedException | ExecutionException exception) {
-                        Logger.error(TAG,
+                        Logger.get().error(TAG,
                                 String.format("%s failed because it threw an exception/error",
                                         workDescription), exception);
                     } finally {
@@ -324,11 +326,11 @@ public class WorkerWrapper implements Runnable {
     private void resolveIncorrectStatus() {
         WorkInfo.State status = mWorkSpecDao.getState(mWorkSpecId);
         if (status == RUNNING) {
-            Logger.debug(TAG, String.format("Status for %s is RUNNING;"
+            Logger.get().debug(TAG, String.format("Status for %s is RUNNING;"
                     + "not doing any work and rescheduling for later execution", mWorkSpecId));
             resolve(true);
         } else {
-            Logger.debug(TAG,
+            Logger.get().debug(TAG,
                     String.format("Status for %s is %s; not doing any work", mWorkSpecId, status));
             resolve(false);
         }
@@ -341,7 +343,7 @@ public class WorkerWrapper implements Runnable {
         // Worker exceeding a 10 min execution window.
         // One scheduler completing a Worker, and telling other Schedulers to cleanup.
         if (mInterrupted) {
-            Logger.debug(TAG, String.format("Work interrupted for %s", mWorkDescription));
+            Logger.get().debug(TAG, String.format("Work interrupted for %s", mWorkDescription));
             WorkInfo.State currentState = mWorkSpecDao.getState(mWorkSpecId);
             if (currentState == null) {
                 // This can happen because of a beginUniqueWork(..., REPLACE, ...).  Notify the
@@ -380,7 +382,9 @@ public class WorkerWrapper implements Runnable {
 
     private void handleResult(Result result) {
         if (result instanceof Result.Success) {
-            Logger.info(TAG, String.format("Worker result SUCCESS for %s", mWorkDescription));
+            Logger.get().info(
+                    TAG,
+                    String.format("Worker result SUCCESS for %s", mWorkDescription));
             if (mWorkSpec.isPeriodic()) {
                 resetPeriodicAndResolve();
             } else {
@@ -388,10 +392,14 @@ public class WorkerWrapper implements Runnable {
             }
 
         } else if (result instanceof Result.Retry) {
-            Logger.info(TAG, String.format("Worker result RETRY for %s", mWorkDescription));
+            Logger.get().info(
+                    TAG,
+                    String.format("Worker result RETRY for %s", mWorkDescription));
             rescheduleAndResolve();
         } else {
-            Logger.info(TAG, String.format("Worker result FAILURE for %s", mWorkDescription));
+            Logger.get().info(
+                    TAG,
+                    String.format("Worker result FAILURE for %s", mWorkDescription));
             if (mWorkSpec.isPeriodic()) {
                 resetPeriodicAndResolve();
             } else {
@@ -512,7 +520,7 @@ public class WorkerWrapper implements Runnable {
             List<String> dependentWorkIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
             for (String dependentWorkId : dependentWorkIds) {
                 if (mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
-                    Logger.info(TAG,
+                    Logger.get().info(TAG,
                             String.format("Setting status to enqueued for %s", dependentWorkId));
                     mWorkSpecDao.setState(ENQUEUED, dependentWorkId);
                     mWorkSpecDao.setPeriodStartTime(dependentWorkId, currentTimeMillis);

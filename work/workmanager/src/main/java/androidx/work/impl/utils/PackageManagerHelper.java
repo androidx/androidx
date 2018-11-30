@@ -52,10 +52,10 @@ public class PackageManagerHelper {
                             : PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP);
 
-            Logger.debug(TAG,
+            Logger.get().debug(TAG,
                     String.format("%s %s", klazz.getName(), (enabled ? "enabled" : "disabled")));
         } catch (Exception exception) {
-            Logger.debug(TAG, String.format("%s could not be %s", klazz.getName(),
+            Logger.get().debug(TAG, String.format("%s could not be %s", klazz.getName(),
                     (enabled ? "enabled" : "disabled")), exception);
         }
     }

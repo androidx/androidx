@@ -49,7 +49,7 @@ public class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<B
         IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent intent = mAppContext.registerReceiver(null, intentFilter);
         if (intent == null) {
-            Logger.error(TAG, "getInitialState - null intent received");
+            Logger.get().error(TAG, "getInitialState - null intent received");
             return null;
         }
         return isBatteryChangedIntentCharging(intent);
@@ -75,7 +75,7 @@ public class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<B
             return;
         }
 
-        Logger.debug(TAG, String.format("Received %s", action));
+        Logger.get().debug(TAG, String.format("Received %s", action));
         switch (action) {
             case BatteryManager.ACTION_CHARGING:
                 setState(true);

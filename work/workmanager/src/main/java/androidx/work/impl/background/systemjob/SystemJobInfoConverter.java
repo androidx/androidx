@@ -90,7 +90,7 @@ class SystemJobInfoConverter {
             if (Build.VERSION.SDK_INT >= 24) {
                 builder.setPeriodic(workSpec.intervalDuration, workSpec.flexDuration);
             } else {
-                Logger.debug(TAG,
+                Logger.get().debug(TAG,
                         "Flex duration is currently not supported before API 24. Ignoring.");
                 builder.setPeriodic(workSpec.intervalDuration);
             }
@@ -153,7 +153,7 @@ class SystemJobInfoConverter {
                 }
                 break;
         }
-        Logger.debug(TAG, String.format(
+        Logger.get().debug(TAG, String.format(
                 "API version too low. Cannot convert network type value %s", networkType));
         return JobInfo.NETWORK_TYPE_ANY;
     }

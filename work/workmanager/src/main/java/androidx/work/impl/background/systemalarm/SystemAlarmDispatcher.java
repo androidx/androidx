@@ -120,11 +120,11 @@ public class SystemAlarmDispatcher implements ExecutionListener {
      */
     @MainThread
     public boolean add(@NonNull final Intent intent, final int startId) {
-        Logger.debug(TAG, String.format("Adding command %s (%s)", intent, startId));
+        Logger.get().debug(TAG, String.format("Adding command %s (%s)", intent, startId));
         assertMainThread();
         String action = intent.getAction();
         if (TextUtils.isEmpty(action)) {
-            Logger.warning(TAG, "Unknown command. Ignoring");
+            Logger.get().warning(TAG, "Unknown command. Ignoring");
             return false;
         }
 
@@ -152,7 +152,9 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
     void setCompletedListener(@NonNull CommandsCompletedListener listener) {
         if (mCompletedListener != null) {
-            Logger.error(TAG, "A completion listener for SystemAlarmDispatcher already exists.");
+            Logger.get().error(
+                    TAG,
+                    "A completion listener for SystemAlarmDispatcher already exists.");
             return;
         }
         mCompletedListener = listener;
@@ -177,7 +179,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     @MainThread
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void dequeueAndCheckForCompletion() {
-        Logger.debug(TAG, "Checking if commands are complete.");
+        Logger.get().debug(TAG, "Checking if commands are complete.");
         assertMainThread();
 
         synchronized (mIntents) {
@@ -198,7 +200,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             // ReentrantLock, and lock the queue while command processor processes
             // an intent. Synchronized to prevent ConcurrentModificationExceptions.
             if (mCurrentIntent != null) {
-                Logger.debug(TAG, String.format("Removing command %s", mCurrentIntent));
+                Logger.get().debug(TAG, String.format("Removing command %s", mCurrentIntent));
                 if (!mIntents.remove(0).equals(mCurrentIntent)) {
                     throw new IllegalStateException("Dequeue-d command is not the first.");
                 }
@@ -208,7 +210,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             if (!mCommandHandler.hasPendingCommands() && mIntents.isEmpty()) {
                 // If there are no more intents to process, and the command handler
                 // has no more pending commands, stop the service.
-                Logger.debug(TAG, "No more commands & intents.");
+                Logger.get().debug(TAG, "No more commands & intents.");
                 if (mCompletedListener != null) {
                     mCompletedListener.onAllCommandsCompleted();
                 }
@@ -239,14 +241,14 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                         final String action = mCurrentIntent.getAction();
                         final int startId = mCurrentIntent.getIntExtra(KEY_START_ID,
                                 DEFAULT_START_ID);
-                        Logger.debug(TAG,
+                        Logger.get().debug(TAG,
                                 String.format("Processing command %s, %s", mCurrentIntent,
                                         startId));
                         final PowerManager.WakeLock wakeLock = WakeLocks.newWakeLock(
                                 mContext,
                                 String.format("%s (%s)", action, startId));
                         try {
-                            Logger.debug(TAG, String.format(
+                            Logger.get().debug(TAG, String.format(
                                     "Acquiring operation wake lock (%s) %s",
                                     action,
                                     wakeLock));
@@ -255,12 +257,17 @@ public class SystemAlarmDispatcher implements ExecutionListener {
                             mCommandHandler.onHandleIntent(mCurrentIntent, startId,
                                     SystemAlarmDispatcher.this);
                         } catch (Throwable throwable) {
-                            Logger.error(TAG, "Unexpected error in onHandleIntent", throwable);
+                            Logger.get().error(
+                                    TAG,
+                                    "Unexpected error in onHandleIntent",
+                                    throwable);
                         }  finally {
-                            Logger.debug(TAG, String.format(
-                                    "Releasing operation wake lock (%s) %s",
-                                    action,
-                                    wakeLock));
+                            Logger.get().debug(
+                                    TAG,
+                                    String.format(
+                                            "Releasing operation wake lock (%s) %s",
+                                            action,
+                                            wakeLock));
                             wakeLock.release();
                             // Check if we have processed all commands
                             postOnMainThread(
