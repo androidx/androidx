@@ -78,7 +78,7 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String action = intent != null ? intent.getAction() : null;
         if (!ACTION.equals(action)) {
-            Logger.debug(TAG, String.format("Ignoring unknown action %s", action));
+            Logger.get().debug(TAG, String.format("Ignoring unknown action %s", action));
         } else {
             boolean batteryNotLowProxyEnabled = intent.getBooleanExtra(
                     KEY_BATTERY_NOT_LOW_PROXY_ENABLED, false);
@@ -89,12 +89,16 @@ public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
             boolean networkStateProxyEnabled = intent.getBooleanExtra(
                     KEY_NETWORK_STATE_PROXY_ENABLED, false);
 
-            Logger.debug(TAG, String.format("Updating proxies: BatteryNotLowProxy enabled (%s), "
-                            + "BatteryChargingProxy enabled (%s), "
-                            + "StorageNotLowProxy (%s), "
-                            + "NetworkStateProxy enabled (%s)", batteryNotLowProxyEnabled,
-                    batteryChargingProxyEnabled, storageNotLowProxyEnabled,
-                    networkStateProxyEnabled));
+            Logger.get().debug(
+                    TAG,
+                    String.format("Updating proxies: BatteryNotLowProxy enabled (%s), "
+                                    + "BatteryChargingProxy enabled (%s), "
+                                    + "StorageNotLowProxy (%s), "
+                                    + "NetworkStateProxy enabled (%s)",
+                            batteryNotLowProxyEnabled,
+                            batteryChargingProxyEnabled,
+                            storageNotLowProxyEnabled,
+                            networkStateProxyEnabled));
 
             PackageManagerHelper.setComponentEnabled(context, BatteryNotLowProxy.class,
                     batteryNotLowProxyEnabled);

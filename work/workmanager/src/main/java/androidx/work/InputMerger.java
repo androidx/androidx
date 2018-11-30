@@ -62,7 +62,7 @@ public abstract class InputMerger {
             Class<?> clazz = Class.forName(className);
             return (InputMerger) clazz.newInstance();
         } catch (Exception e) {
-            Logger.error(TAG, "Trouble instantiating + " + className, e);
+            Logger.get().error(TAG, "Trouble instantiating + " + className, e);
         }
         return null;
     }

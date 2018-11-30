@@ -59,7 +59,7 @@ class WorkTimer {
             @NonNull TimeLimitExceededListener listener) {
 
         synchronized (mLock) {
-            Logger.debug(TAG, String.format("Starting timer for %s", workSpecId));
+            Logger.get().debug(TAG, String.format("Starting timer for %s", workSpecId));
             // clear existing timer's first
             stopTimer(workSpecId);
             WorkTimerRunnable runnable = new WorkTimerRunnable(this, workSpecId);
@@ -73,7 +73,7 @@ class WorkTimer {
         synchronized (mLock) {
             WorkTimerRunnable removed = mTimerMap.remove(workSpecId);
             if (removed != null) {
-                Logger.debug(TAG, String.format("Stopping timer for %s", workSpecId));
+                Logger.get().debug(TAG, String.format("Stopping timer for %s", workSpecId));
                 mListeners.remove(workSpecId);
             }
         }
@@ -114,7 +114,7 @@ class WorkTimer {
                         listener.onTimeLimitExceeded(mWorkSpecId);
                     }
                 } else {
-                    Logger.debug(TAG, String.format(
+                    Logger.get().debug(TAG, String.format(
                             "Timer with %s is already marked as complete.", mWorkSpecId));
                 }
             }

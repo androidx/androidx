@@ -162,7 +162,7 @@ public class CommandHandler implements ExecutionListener {
         } else {
             Bundle extras = intent.getExtras();
             if (!hasKeys(extras, KEY_WORKSPEC_ID)) {
-                Logger.error(TAG,
+                Logger.get().error(TAG,
                         String.format("Invalid request for %s, requires %s.",
                                 action,
                                 KEY_WORKSPEC_ID));
@@ -176,7 +176,7 @@ public class CommandHandler implements ExecutionListener {
                 } else if (ACTION_EXECUTION_COMPLETED.equals(action)) {
                     handleExecutionCompleted(intent, startId, dispatcher);
                 } else {
-                    Logger.warning(TAG, String.format("Ignoring intent %s", intent));
+                    Logger.get().warning(TAG, String.format("Ignoring intent %s", intent));
                 }
             }
         }
@@ -189,7 +189,7 @@ public class CommandHandler implements ExecutionListener {
 
         Bundle extras = intent.getExtras();
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
-        Logger.debug(TAG, String.format("Handling schedule work for %s", workSpecId));
+        Logger.get().debug(TAG, String.format("Handling schedule work for %s", workSpecId));
 
         WorkManagerImpl workManager = dispatcher.getWorkManager();
         WorkDatabase workDatabase = workManager.getWorkDatabase();
@@ -207,12 +207,12 @@ public class CommandHandler implements ExecutionListener {
             // the background task thread so all database operations happen on the same thread.
             // See b/114705286.
             if (workSpec == null) {
-                Logger.warning(TAG,
+                Logger.get().warning(TAG,
                         "Skipping scheduling " + workSpecId + " because it's no longer in "
                         + "the DB");
                 return;
             } else if (workSpec.state != WorkInfo.State.ENQUEUED) {
-                Logger.warning(TAG,
+                Logger.get().warning(TAG,
                         "Skipping scheduling " + workSpecId + " because it is no longer "
                         + "enqueued");
                 return;
@@ -221,11 +221,11 @@ public class CommandHandler implements ExecutionListener {
             long triggerAt = workSpec.calculateNextRunTime();
 
             if (!workSpec.hasConstraints()) {
-                Logger.debug(TAG, String.format("Setting up Alarms for %s", workSpecId));
+                Logger.get().debug(TAG, String.format("Setting up Alarms for %s", workSpecId));
                 Alarms.setAlarm(mContext, dispatcher.getWorkManager(), workSpecId, triggerAt);
             } else {
                 // Schedule an alarm irrespective of whether all constraints matched.
-                Logger.debug(TAG,
+                Logger.get().debug(TAG,
                         String.format("Opportunistically setting an alarm for %s", workSpecId));
                 Alarms.setAlarm(
                         mContext,
@@ -257,7 +257,7 @@ public class CommandHandler implements ExecutionListener {
         Bundle extras = intent.getExtras();
         synchronized (mLock) {
             String workSpecId = extras.getString(KEY_WORKSPEC_ID);
-            Logger.debug(TAG, String.format("Handing delay met for %s", workSpecId));
+            Logger.get().debug(TAG, String.format("Handing delay met for %s", workSpecId));
             DelayMetCommandHandler delayMetCommandHandler =
                     new DelayMetCommandHandler(mContext, startId, workSpecId, dispatcher);
             mPendingDelayMet.put(workSpecId, delayMetCommandHandler);
@@ -271,7 +271,7 @@ public class CommandHandler implements ExecutionListener {
 
         Bundle extras = intent.getExtras();
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
-        Logger.debug(TAG, String.format("Handing stopWork work for %s", workSpecId));
+        Logger.get().debug(TAG, String.format("Handing stopWork work for %s", workSpecId));
 
         dispatcher.getWorkManager().stopWork(workSpecId);
         Alarms.cancelAlarm(mContext, dispatcher.getWorkManager(), workSpecId);
@@ -284,7 +284,7 @@ public class CommandHandler implements ExecutionListener {
             @NonNull Intent intent, int startId,
             @NonNull SystemAlarmDispatcher dispatcher) {
 
-        Logger.debug(TAG, String.format("Handling constraints changed %s", intent));
+        Logger.get().debug(TAG, String.format("Handling constraints changed %s", intent));
         // Constraints changed command handler is synchronous. No cleanup
         // is necessary.
         ConstraintsCommandHandler changedCommandHandler =
@@ -297,7 +297,7 @@ public class CommandHandler implements ExecutionListener {
             int startId,
             @NonNull SystemAlarmDispatcher dispatcher) {
 
-        Logger.debug(TAG, String.format("Handling reschedule %s, %s", intent, startId));
+        Logger.get().debug(TAG, String.format("Handling reschedule %s, %s", intent, startId));
         dispatcher.getWorkManager().rescheduleEligibleWork();
     }
 
@@ -309,7 +309,9 @@ public class CommandHandler implements ExecutionListener {
         Bundle extras = intent.getExtras();
         String workSpecId = extras.getString(KEY_WORKSPEC_ID);
         boolean needsReschedule = extras.getBoolean(KEY_NEEDS_RESCHEDULE);
-        Logger.debug(TAG, String.format("Handling onExecutionCompleted %s, %s", intent, startId));
+        Logger.get().debug(
+                TAG,
+                String.format("Handling onExecutionCompleted %s, %s", intent, startId));
         // Delegate onExecuted() to the command handler.
         onExecuted(workSpecId, needsReschedule);
     }

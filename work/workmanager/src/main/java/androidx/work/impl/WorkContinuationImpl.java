@@ -185,7 +185,7 @@ public class WorkContinuationImpl extends WorkContinuation {
             mWorkManagerImpl.getWorkTaskExecutor().executeOnBackgroundThread(runnable);
             mOperation = runnable.getOperation();
         } else {
-            Logger.warning(TAG,
+            Logger.get().warning(TAG,
                     String.format("Already enqueued work ids (%s)", TextUtils.join(", ", mIds)));
         }
         return mOperation;

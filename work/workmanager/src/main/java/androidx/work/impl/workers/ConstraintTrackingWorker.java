@@ -92,7 +92,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
     void setupAndRunConstraintTrackingWork() {
         String className = getInputData().getString(ARGUMENT_CLASS_NAME);
         if (TextUtils.isEmpty(className)) {
-            Logger.error(TAG, "No worker to delegate to.");
+            Logger.get().error(TAG, "No worker to delegate to.");
             setFutureFailed();
             return;
         }
@@ -103,7 +103,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
                 mWorkerParameters);
 
         if (mDelegate == null) {
-            Logger.debug(TAG, "No worker to delegate to.");
+            Logger.get().debug(TAG, "No worker to delegate to.");
             setFutureFailed();
             return;
         }
@@ -123,7 +123,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
         workConstraintsTracker.replace(Collections.singletonList(workSpec));
 
         if (workConstraintsTracker.areAllConstraintsMet(getId().toString())) {
-            Logger.debug(TAG, String.format("Constraints met for delegate %s", className));
+            Logger.get().debug(TAG, String.format("Constraints met for delegate %s", className));
 
             // Wrapping the call to mDelegate#doWork() in a try catch, because
             // changes in constraints can cause the worker to throw RuntimeExceptions, and
@@ -143,12 +143,12 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
                     }
                 }, getBackgroundExecutor());
             } catch (Throwable exception) {
-                Logger.debug(TAG, String.format(
+                Logger.get().debug(TAG, String.format(
                         "Delegated worker %s threw exception in startWork.", className),
                         exception);
                 synchronized (mLock) {
                     if (mAreConstraintsUnmet) {
-                        Logger.debug(TAG, "Constraints were unmet, Retrying.");
+                        Logger.get().debug(TAG, "Constraints were unmet, Retrying.");
                         setFutureRetry();
                     } else {
                         setFutureFailed();
@@ -156,7 +156,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
                 }
             }
         } else {
-            Logger.debug(TAG, String.format(
+            Logger.get().debug(TAG, String.format(
                     "Constraints not met for delegate %s. Requesting retry.", className));
             setFutureRetry();
         }
@@ -211,7 +211,7 @@ public class ConstraintTrackingWorker extends ListenableWorker implements WorkCo
     @Override
     public void onAllConstraintsNotMet(@NonNull List<String> workSpecIds) {
         // If at any point, constraints are not met mark it so we can retry the work.
-        Logger.debug(TAG, String.format("Constraints changed for %s", workSpecIds));
+        Logger.get().debug(TAG, String.format("Constraints changed for %s", workSpecIds));
         synchronized (mLock) {
             mAreConstraintsUnmet = true;
         }

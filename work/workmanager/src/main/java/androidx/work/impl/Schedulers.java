@@ -104,11 +104,11 @@ public class Schedulers {
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
             scheduler = new SystemJobScheduler(context, workManager);
             setComponentEnabled(context, SystemJobService.class, true);
-            Logger.debug(TAG, "Created SystemJobScheduler and enabled SystemJobService");
+            Logger.get().debug(TAG, "Created SystemJobScheduler and enabled SystemJobService");
         } else {
             scheduler = new SystemAlarmScheduler(context);
             enableSystemAlarmService = true;
-            Logger.debug(TAG, "Created SystemAlarmScheduler");
+            Logger.get().debug(TAG, "Created SystemAlarmScheduler");
         }
 
         setComponentEnabled(context, SystemAlarmService.class, enableSystemAlarmService);

@@ -63,7 +63,7 @@ public class SystemAlarmService extends LifecycleService
     @MainThread
     @Override
     public void onAllCommandsCompleted() {
-        Logger.debug(TAG, "All commands completed in dispatcher");
+        Logger.get().debug(TAG, "All commands completed in dispatcher");
         // No need to pass in startId; stopSelf() translates to stopSelf(-1) which is a hard stop
         // of all startCommands. This is the behavior we want.
         stopSelf();
