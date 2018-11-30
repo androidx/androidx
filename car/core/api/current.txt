@@ -237,6 +237,8 @@ package androidx.car.widget {
     method public void setNavigationIconOnClickListener(android.view.View.OnClickListener?);
     method public void setTitle(@StringRes int);
     method public void setTitle(CharSequence!);
+    method public void setTitleIcon(android.graphics.drawable.Icon?);
+    method public void setTitleIconSize(@Px int);
     method public void setTitleTextAppearance(@StyleRes int);
   }
 
