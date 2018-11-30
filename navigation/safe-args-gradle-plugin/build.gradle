@@ -41,14 +41,14 @@ dependencies {
 }
 
 task generateSdkResource() {
-    inputs.property("compileSdkVersion", SupportConfig.CURRENT_SDK_VERSION)
+    inputs.property("compileSdkVersion", SupportConfig.TARGET_SDK_VERSION)
     inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
     outputs.dir(generatedResources)
     doLast {
         // Properties.write will have a timestamp, that invalidates the task,
         // so we don't use it and write a file manually
         new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
-            writer.write("compileSdkVersion=$SupportConfig.CURRENT_SDK_VERSION\n")
+            writer.write("compileSdkVersion=$SupportConfig.TARGET_SDK_VERSION\n")
             writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
         }
     }
