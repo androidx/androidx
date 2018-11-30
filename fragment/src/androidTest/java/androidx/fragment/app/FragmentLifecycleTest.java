@@ -17,6 +17,7 @@
 
 package androidx.fragment.app;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertEquals;
@@ -53,6 +54,7 @@ import androidx.core.view.ViewCompat;
 import androidx.fragment.app.test.EmptyFragmentTestActivity;
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.test.R;
+import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.test.InstrumentationRegistry;
@@ -92,6 +94,9 @@ public class FragmentLifecycleTest {
         assertTrue("fragment is not added", strictFragment.isAdded());
         assertFalse("fragment is detached", strictFragment.isDetached());
         assertTrue("fragment is not resumed", strictFragment.isResumed());
+        Lifecycle lifecycle = strictFragment.getLifecycle();
+        assertThat(lifecycle.getCurrentState())
+                .isEqualTo(Lifecycle.State.RESUMED);
 
         // Test removal as well; StrictFragment will throw here too.
         fm.beginTransaction().remove(strictFragment).commit();
@@ -99,6 +104,12 @@ public class FragmentLifecycleTest {
 
         assertFalse("fragment is added", strictFragment.isAdded());
         assertFalse("fragment is resumed", strictFragment.isResumed());
+        assertThat(lifecycle.getCurrentState())
+                .isEqualTo(Lifecycle.State.DESTROYED);
+        // Once removed, a new Lifecycle should be created just in case
+        // the developer reuses the same Fragment
+        assertThat(strictFragment.getLifecycle().getCurrentState())
+                .isEqualTo(Lifecycle.State.INITIALIZED);
 
         // This one is perhaps counterintuitive; "detached" means specifically detached
         // but still managed by a FragmentManager. The .remove call above
