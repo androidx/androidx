@@ -56,13 +56,16 @@ public class SystemAlarmService extends LifecycleService
         if (intent != null) {
             mDispatcher.add(intent, startId);
         }
-        return Service.START_STICKY;
+        // If the service were to crash, we want all unacknowledged Intents to get redelivered.
+        return Service.START_REDELIVER_INTENT;
     }
 
     @MainThread
     @Override
     public void onAllCommandsCompleted() {
         Logger.debug(TAG, "All commands completed in dispatcher");
+        // No need to pass in startId; stopSelf() translates to stopSelf(-1) which is a hard stop
+        // of all startCommands. This is the behavior we want.
         stopSelf();
     }
 }
