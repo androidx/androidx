@@ -20,6 +20,8 @@ import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import androidx.navigation.NavGraph;
 
@@ -87,6 +89,24 @@ public final class AppBarConfiguration {
          */
         public Builder(@NonNull NavGraph navGraph) {
             mTopLevelDestinations.add(NavigationUI.findStartDestination(navGraph).getId());
+        }
+
+        /**
+         * Create a new Builder using a {@link Menu} containing all top level destinations. It is
+         * expected that the {@link MenuItem#getItemId() menu item id} of each item corresponds
+         * with a destination in your navigation graph. The Up button will not be displayed when
+         * on these destinations.
+         *
+         * @param topLevelMenu A Menu containing MenuItems corresponding with the destinations
+         *                     considered at the top level of your information hierarchy.
+         *                     The Up button will not be displayed when on these destinations.
+         */
+        public Builder(@NonNull Menu topLevelMenu) {
+            int size = topLevelMenu.size();
+            for (int index = 0; index < size; index++) {
+                MenuItem item = topLevelMenu.getItem(index);
+                mTopLevelDestinations.add(item.getItemId());
+            }
         }
 
         /**

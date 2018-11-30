@@ -8,6 +8,7 @@ package androidx.navigation.ui {
 
   public static final class AppBarConfiguration.Builder {
     ctor public AppBarConfiguration.Builder(androidx.navigation.NavGraph);
+    ctor public AppBarConfiguration.Builder(android.view.Menu);
     ctor public AppBarConfiguration.Builder(int...);
     ctor public AppBarConfiguration.Builder(java.util.Set<java.lang.Integer>);
     method public androidx.navigation.ui.AppBarConfiguration build();
