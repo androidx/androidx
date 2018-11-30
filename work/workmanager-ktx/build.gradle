@@ -40,6 +40,7 @@ dependencies {
     api(KOTLIN_STDLIB)
     api(KOTLIN_COROUTINES)
 
+    androidTestImplementation project(':concurrent:concurrent-futures')
     androidTestImplementation project(':work:work-testing')
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(ESPRESSO_CORE)
