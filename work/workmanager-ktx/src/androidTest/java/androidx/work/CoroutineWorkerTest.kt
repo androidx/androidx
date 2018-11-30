@@ -65,13 +65,13 @@ class CoroutineWorkerTest {
         context = InstrumentationRegistry.getTargetContext()
         configuration = Configuration.Builder()
             .setExecutor(SynchronousExecutor())
+            .setMinimumLoggingLevel(Log.DEBUG)
             .build()
         workManagerImpl = WorkManagerImpl(context, configuration,
             InstantWorkTaskExecutor()
         )
         WorkManagerImpl.setDelegate(workManagerImpl)
-        database = workManagerImpl.getWorkDatabase()
-        Logger.setMinimumLoggingLevel(Log.DEBUG)
+        database = workManagerImpl.workDatabase
     }
 
     @After

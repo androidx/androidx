@@ -144,7 +144,7 @@ public class EnqueueRunnable implements Runnable {
                 if (!parent.isEnqueued()) {
                     needsScheduling |= processContinuation(parent);
                 } else {
-                    Logger.warning(TAG, String.format("Already enqueued work ids (%s).",
+                    Logger.get().warning(TAG, String.format("Already enqueued work ids (%s).",
                             TextUtils.join(", ", parent.getIds())));
                 }
             }
@@ -196,7 +196,7 @@ public class EnqueueRunnable implements Runnable {
             for (String id : prerequisiteIds) {
                 WorkSpec prerequisiteWorkSpec = workDatabase.workSpecDao().getWorkSpec(id);
                 if (prerequisiteWorkSpec == null) {
-                    Logger.error(TAG,
+                    Logger.get().error(TAG,
                             String.format("Prerequisite %s doesn't exist; not enqueuing", id));
                     return false;
                 }

@@ -77,7 +77,6 @@ import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.TestLifecycleOwner;
@@ -152,12 +151,12 @@ public class WorkManagerImplTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mConfiguration = new Configuration.Builder()
                 .setExecutor(Executors.newSingleThreadExecutor())
+                .setMinimumLoggingLevel(Log.DEBUG)
                 .build();
         mWorkManagerImpl =
                 new WorkManagerImpl(mContext, mConfiguration, new InstantWorkTaskExecutor());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
         mDatabase = mWorkManagerImpl.getWorkDatabase();
-        Logger.setMinimumLoggingLevel(Log.DEBUG);
     }
 
     @After

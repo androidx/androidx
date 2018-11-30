@@ -127,7 +127,7 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
         synchronized (mLock) {
             for (ConstraintController constraintController : mConstraintControllers) {
                 if (constraintController.isWorkSpecConstrained(workSpecId)) {
-                    Logger.debug(TAG, String.format("Work %s constrained by %s", workSpecId,
+                    Logger.get().debug(TAG, String.format("Work %s constrained by %s", workSpecId,
                             constraintController.getClass().getSimpleName()));
                     return false;
                 }
@@ -142,7 +142,7 @@ public class WorkConstraintsTracker implements ConstraintController.OnConstraint
             List<String> unconstrainedWorkSpecIds = new ArrayList<>();
             for (String workSpecId : workSpecIds) {
                 if (areAllConstraintsMet(workSpecId)) {
-                    Logger.debug(TAG, String.format("Constraints met for %s", workSpecId));
+                    Logger.get().debug(TAG, String.format("Constraints met for %s", workSpecId));
                     unconstrainedWorkSpecIds.add(workSpecId);
                 }
             }

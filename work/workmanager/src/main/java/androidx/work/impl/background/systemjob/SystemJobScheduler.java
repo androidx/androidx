@@ -87,13 +87,13 @@ public class SystemJobScheduler implements Scheduler {
                 // See b/114705286.
                 WorkSpec currentDbWorkSpec = workDatabase.workSpecDao().getWorkSpec(workSpec.id);
                 if (currentDbWorkSpec == null) {
-                    Logger.warning(
+                    Logger.get().warning(
                             TAG,
                             "Skipping scheduling " + workSpec.id
                                     + " because it's no longer in the DB");
                     continue;
                 } else if (currentDbWorkSpec.state != WorkInfo.State.ENQUEUED) {
-                    Logger.warning(
+                    Logger.get().warning(
                             TAG,
                             "Skipping scheduling " + workSpec.id
                                     + " because it is no longer enqueued");
@@ -144,7 +144,9 @@ public class SystemJobScheduler implements Scheduler {
     @VisibleForTesting
     public void scheduleInternal(WorkSpec workSpec, int jobId) {
         JobInfo jobInfo = mSystemJobInfoConverter.convert(workSpec, jobId);
-        Logger.debug(TAG, String.format("Scheduling work ID %s Job ID %s", workSpec.id, jobId));
+        Logger.get().debug(
+                TAG,
+                String.format("Scheduling work ID %s Job ID %s", workSpec.id, jobId));
         mJobScheduler.schedule(jobInfo);
     }
 

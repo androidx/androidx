@@ -78,10 +78,10 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     @Override
     public void startTracking() {
         if (isNetworkCallbackSupported()) {
-            Logger.debug(TAG, "Registering network callback");
+            Logger.get().debug(TAG, "Registering network callback");
             mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);
         } else {
-            Logger.debug(TAG, "Registering broadcast receiver");
+            Logger.get().debug(TAG, "Registering broadcast receiver");
             mAppContext.registerReceiver(mBroadcastReceiver,
                     new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         }
@@ -91,15 +91,18 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
     public void stopTracking() {
         if (isNetworkCallbackSupported()) {
             try {
-                Logger.debug(TAG, "Unregistering network callback");
+                Logger.get().debug(TAG, "Unregistering network callback");
                 mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
             } catch (IllegalArgumentException e) {
                 // This seems to be happening on NVIDIA Shield Tablets a lot.  Catching the
                 // exception since it's not fatal and moving on.  See b/119484416.
-                Logger.error(TAG, "Received exception while unregistering network callback", e);
+                Logger.get().error(
+                        TAG,
+                        "Received exception while unregistering network callback",
+                        e);
             }
         } else {
-            Logger.debug(TAG, "Unregistering broadcast receiver");
+            Logger.get().debug(TAG, "Unregistering broadcast receiver");
             mAppContext.unregisterReceiver(mBroadcastReceiver);
         }
     }
@@ -138,13 +141,15 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         @Override
         public void onCapabilitiesChanged(Network network, NetworkCapabilities capabilities) {
             // The Network parameter is unreliable when a VPN app is running - use active network.
-            Logger.debug(TAG, String.format("Network capabilities changed: %s", capabilities));
+            Logger.get().debug(
+                    TAG,
+                    String.format("Network capabilities changed: %s", capabilities));
             setState(getActiveNetworkState());
         }
 
         @Override
         public void onLost(Network network) {
-            Logger.debug(TAG, "Network connection lost");
+            Logger.get().debug(TAG, "Network connection lost");
             setState(getActiveNetworkState());
         }
     }
@@ -159,7 +164,7 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
                 return;
             }
             if (intent.getAction().equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-                Logger.debug(TAG, "Network broadcast received");
+                Logger.get().debug(TAG, "Network broadcast received");
                 setState(getActiveNetworkState());
             }
         }

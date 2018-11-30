@@ -58,7 +58,7 @@ public abstract class ConstraintTracker<T> {
             if (mListeners.add(listener)) {
                 if (mListeners.size() == 1) {
                     mCurrentState = getInitialState();
-                    Logger.debug(TAG, String.format("%s: initial state = %s",
+                    Logger.get().debug(TAG, String.format("%s: initial state = %s",
                             getClass().getSimpleName(),
                             mCurrentState));
                     startTracking();

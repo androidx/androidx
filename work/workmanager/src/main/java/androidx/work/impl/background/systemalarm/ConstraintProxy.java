@@ -32,7 +32,7 @@ abstract class ConstraintProxy extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Logger.debug(TAG, String.format("onReceive : %s", intent));
+        Logger.get().debug(TAG, String.format("onReceive : %s", intent));
         Intent constraintChangedIntent = CommandHandler.createConstraintsChangedIntent(context);
         context.startService(constraintChangedIntent);
     }
