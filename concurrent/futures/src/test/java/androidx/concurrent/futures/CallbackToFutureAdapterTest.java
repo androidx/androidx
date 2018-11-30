@@ -81,7 +81,7 @@ public class CallbackToFutureAdapterTest {
         assertThat(t).isEqualTo(t);
     }
 
-    @Test
+    // Temporarily disabled due to b/120236209.
     public void testGcedCallback() throws Exception {
         AtomicBoolean wasCalled = new AtomicBoolean();
         ListenableFuture<String> future = exampleLeakyCallbackAdapter(wasCalled);
