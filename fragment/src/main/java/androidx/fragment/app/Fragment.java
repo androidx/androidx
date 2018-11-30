@@ -963,8 +963,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Control whether a fragment instance is retained across Activity
-     * re-creation (such as from a configuration change).  This can only
-     * be used with fragments not in the back stack.  If set, the fragment
+     * re-creation (such as from a configuration change). If set, the fragment
      * lifecycle will be slightly different when an activity is recreated:
      * <ul>
      * <li> {@link #onDestroy()} will not be called (but {@link #onDetach()} still
