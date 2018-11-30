@@ -16,16 +16,18 @@
 package androidx.ui.engine.text.platform
 
 import android.text.TextPaint
-import androidx.text.ALIGN_CENTER
-import androidx.text.ALIGN_LEFT
-import androidx.text.ALIGN_NORMAL
-import androidx.text.ALIGN_OPPOSITE
-import androidx.text.ALIGN_RIGHT
-import androidx.text.JUSTIFICATION_MODE_INTER_WORD
-import androidx.text.JUSTIFICATION_MODE_NONE
-import androidx.text.TEXT_DIRECTION_FIRST_STRONG_LTR
-import androidx.text.TEXT_DIRECTION_LTR
-import androidx.text.TEXT_DIRECTION_RTL
+import androidx.text.LayoutCompat.ALIGN_CENTER
+import androidx.text.LayoutCompat.ALIGN_LEFT
+import androidx.text.LayoutCompat.ALIGN_NORMAL
+import androidx.text.LayoutCompat.ALIGN_OPPOSITE
+import androidx.text.LayoutCompat.ALIGN_RIGHT
+import androidx.text.LayoutCompat.DEFAULT_ALIGNMENT
+import androidx.text.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
+import androidx.text.LayoutCompat.DEFAULT_MAX_LINES
+import androidx.text.LayoutCompat.DEFAULT_TEXT_DIRECTION
+import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
+import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
+import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.ParagraphBuilder
@@ -103,19 +105,19 @@ internal class ParagraphAndroid constructor(
             TextAlign.CENTER -> ALIGN_CENTER
             TextAlign.START -> ALIGN_NORMAL
             TextAlign.END -> ALIGN_OPPOSITE
-            else -> ALIGN_NORMAL
+            else -> DEFAULT_ALIGNMENT
         }
         // TODO(Migration/haoyuchang): Layout has more settings that flutter,
         //  we may add them in future.
         val textDirectionHeuristic = when (paragraphStyle.textDirection) {
             TextDirection.LTR -> TEXT_DIRECTION_LTR
             TextDirection.RTL -> TEXT_DIRECTION_RTL
-            else -> TEXT_DIRECTION_FIRST_STRONG_LTR
+            else -> DEFAULT_TEXT_DIRECTION
         }
-        val maxLines = paragraphStyle.maxLines ?: Int.MAX_VALUE
+        val maxLines = paragraphStyle.maxLines ?: DEFAULT_MAX_LINES
         val justificationMode = when (paragraphStyle.textAlign) {
             TextAlign.JUSTIFY -> JUSTIFICATION_MODE_INTER_WORD
-            else -> JUSTIFICATION_MODE_NONE
+            else -> DEFAULT_JUSTIFICATION_MODE
         }
 
         layout = TextLayout(

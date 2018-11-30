@@ -16,6 +16,18 @@
 
 package androidx.text;
 
+import static androidx.text.LayoutCompat.DEFAULT_ADD_LAST_LINE_LINE_SPCAING;
+import static androidx.text.LayoutCompat.DEFAULT_BREAK_STRATEGY;
+import static androidx.text.LayoutCompat.DEFAULT_FALLBACK_LINE_SPACING;
+import static androidx.text.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY;
+import static androidx.text.LayoutCompat.DEFAULT_INCLUDE_PADDING;
+import static androidx.text.LayoutCompat.DEFAULT_JUSTIFICATION_MODE;
+import static androidx.text.LayoutCompat.DEFAULT_LAYOUT_ALIGNMENT;
+import static androidx.text.LayoutCompat.DEFAULT_LINESPACING_EXTRA;
+import static androidx.text.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER;
+import static androidx.text.LayoutCompat.DEFAULT_MAX_LINES;
+import static androidx.text.LayoutCompat.DEFAULT_TEXT_DIRECTION_HEURISTIC;
+
 import android.os.Build;
 import android.text.Layout;
 import android.text.StaticLayout;
@@ -31,6 +43,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.text.LayoutCompat.BreakStrategy;
+import androidx.text.LayoutCompat.HyphenationFrequency;
+import androidx.text.LayoutCompat.JustificationMode;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -75,6 +90,7 @@ public class StaticLayoutCompat {
             }
         }
 
+        @NonNull
         private CharSequence mText;
 
         @IntRange(from = 0)
@@ -107,8 +123,10 @@ public class StaticLayoutCompat {
         @Nullable
         TextUtils.TruncateAt mEllipsize;
 
+        @IntRange(from = 0)
         int mEllipsizedWidth;
 
+        @IntRange(from = 0)
         int mMaxLines;
 
         @BreakStrategy
@@ -144,19 +162,19 @@ public class StaticLayoutCompat {
             mEnd = mText.length();
             mPaint = Preconditions.checkNotNull(paint, "Paint can't be null");
             mWidth = Preconditions.checkArgumentNonnegative(width, "Width can't be negative");
-            mAlignment = Layout.Alignment.ALIGN_NORMAL;
-            mTextDir = TextDirectionHeuristics.FIRSTSTRONG_LTR;
-            mLineSpacingMultiplier = 1.0f;
-            mLineSpacingExtra = 0.0f;
-            mIncludePadding = true;
-            mFallbackLineSpacing = true;
-            mEllipsizedWidth = width;
+            mAlignment = DEFAULT_LAYOUT_ALIGNMENT;
+            mTextDir = DEFAULT_TEXT_DIRECTION_HEURISTIC;
+            mLineSpacingMultiplier = DEFAULT_LINESPACING_MULTIPLIER;
+            mLineSpacingExtra = DEFAULT_LINESPACING_EXTRA;
+            mIncludePadding = DEFAULT_INCLUDE_PADDING;
+            mFallbackLineSpacing = DEFAULT_FALLBACK_LINE_SPACING;
             mEllipsize = null;
-            mMaxLines = Integer.MAX_VALUE;
-            mBreakStrategy = Layout.BREAK_STRATEGY_SIMPLE;
-            mHyphenationFrequency = Layout.HYPHENATION_FREQUENCY_NONE;
-            mJustificationMode = Layout.JUSTIFICATION_MODE_NONE;
-            mAddLastLineLineSpacing = false;
+            mEllipsizedWidth = width;
+            mMaxLines = DEFAULT_MAX_LINES;
+            mBreakStrategy = DEFAULT_BREAK_STRATEGY;
+            mHyphenationFrequency = DEFAULT_HYPHENATION_FREQUENCY;
+            mJustificationMode = DEFAULT_JUSTIFICATION_MODE;
+            mAddLastLineLineSpacing = DEFAULT_ADD_LAST_LINE_LINE_SPCAING;
         }
 
         /**
@@ -337,22 +355,6 @@ public class StaticLayoutCompat {
         }
 
         /**
-         * Set the width as used for ellipsizing purposes, if it differs from the
-         * normal layout width. The default is the {@code width}
-         * passed to {@link #Builder(CharSequence, int, int, TextPaint, int)}.
-         *
-         * @param ellipsizedWidth width used for ellipsizing, in pixels
-         * @return this builder, useful for chaining
-         * @see android.widget.TextView#setEllipsize
-         */
-        @NonNull
-        public Builder setEllipsizedWidth(@IntRange(from = 0) int ellipsizedWidth) {
-            mEllipsizedWidth = Preconditions.checkArgumentNonnegative(ellipsizedWidth,
-                    "EllipsizedWidth can't be negative");
-            return this;
-        }
-
-        /**
          * Set ellipsizing on the layout. Causes words that are longer than the view
          * is wide, or exceeding the number of lines (see #setMaxLines) in the case
          * of {@link android.text.TextUtils.TruncateAt#END} or
@@ -366,6 +368,22 @@ public class StaticLayoutCompat {
         @NonNull
         public Builder setEllipsize(@Nullable TextUtils.TruncateAt ellipsize) {
             mEllipsize = ellipsize;
+            return this;
+        }
+
+        /**
+         * Set the width as used for ellipsizing purposes, if it differs from the
+         * normal layout width. The default is the {@code width}
+         * passed to {@link #Builder(CharSequence, TextPaint, int)}.
+         *
+         * @param ellipsizedWidth width used for ellipsizing, in pixels
+         * @return this builder, useful for chaining
+         * @see android.widget.TextView#setEllipsize
+         */
+        @NonNull
+        public Builder setEllipsizedWidth(@IntRange(from = 0) int ellipsizedWidth) {
+            mEllipsizedWidth = Preconditions.checkArgumentNonnegative(ellipsizedWidth,
+                    "EllipsizedWidth can't be negative");
             return this;
         }
 

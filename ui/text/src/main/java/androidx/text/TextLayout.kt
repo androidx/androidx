@@ -17,170 +17,36 @@ package androidx.text
 
 import android.graphics.Canvas
 import android.os.Build
-import android.text.BoringLayout
 import android.text.Layout
 import android.text.TextDirectionHeuristic
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.TextUtils
-import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val ALIGN_NORMAL = 0
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val ALIGN_OPPOSITE = 1
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val ALIGN_CENTER = 2
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val ALIGN_LEFT = 3
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val ALIGN_RIGHT = 4
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val JUSTIFICATION_MODE_NONE = Layout.JUSTIFICATION_MODE_NONE
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val JUSTIFICATION_MODE_INTER_WORD = Layout.JUSTIFICATION_MODE_INTER_WORD
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val HYPHENATION_FREQUENCY_NORMAL = Layout.HYPHENATION_FREQUENCY_NORMAL
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val HYPHENATION_FREQUENCY_FULL = Layout.HYPHENATION_FREQUENCY_FULL
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val HYPHENATION_FREQUENCY_NONE = Layout.HYPHENATION_FREQUENCY_NONE
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val BREAK_STRATEGY_SIMPLE = Layout.BREAK_STRATEGY_SIMPLE
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val BREAK_STRATEGY_HIGH_QUALITY = Layout.BREAK_STRATEGY_HIGH_QUALITY
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val BREAK_STRATEGY_BALANCED = Layout.BREAK_STRATEGY_BALANCED
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val TEXT_DIRECTION_LTR = 0
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val TEXT_DIRECTION_RTL = 1
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val TEXT_DIRECTION_FIRST_STRONG_LTR = 2
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val TEXT_DIRECTION_FIRST_STRONG_RTL = 3
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val TEXT_DIRECTION_ANY_RTL_LTR = 4
-
-/**
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-const val TEXT_DIRECTION_LOCALE = 5
-
-private val DEFAULT_LINESPACING_MULTIPLIER = 1.0f
-private val DEFAULT_LINESPACING_EXTRA = 0.0f
-
-@IntDef(
-    ALIGN_NORMAL,
-    ALIGN_CENTER,
-    ALIGN_OPPOSITE,
-    ALIGN_LEFT,
-    ALIGN_RIGHT
-)
-internal annotation class TextLayoutAlignment
-
-@IntDef(
-    JUSTIFICATION_MODE_NONE,
-    JUSTIFICATION_MODE_INTER_WORD
-)
-internal annotation class JustificationMode
-
-@IntDef(
-    BREAK_STRATEGY_SIMPLE,
-    BREAK_STRATEGY_HIGH_QUALITY,
-    BREAK_STRATEGY_BALANCED
-)
-internal annotation class BreakStrategy
-
-@IntDef(
-    HYPHENATION_FREQUENCY_NORMAL,
-    HYPHENATION_FREQUENCY_FULL,
-    HYPHENATION_FREQUENCY_NONE
-)
-internal annotation class HyphenationFrequency
-
-@IntDef(
-    TEXT_DIRECTION_LTR,
-    TEXT_DIRECTION_RTL,
-    TEXT_DIRECTION_FIRST_STRONG_LTR,
-    TEXT_DIRECTION_FIRST_STRONG_RTL,
-    TEXT_DIRECTION_ANY_RTL_LTR,
-    TEXT_DIRECTION_LOCALE
-)
-internal annotation class TextDirection
+import androidx.text.LayoutCompat.ALIGN_CENTER
+import androidx.text.LayoutCompat.ALIGN_LEFT
+import androidx.text.LayoutCompat.ALIGN_NORMAL
+import androidx.text.LayoutCompat.ALIGN_OPPOSITE
+import androidx.text.LayoutCompat.ALIGN_RIGHT
+import androidx.text.LayoutCompat.BreakStrategy
+import androidx.text.LayoutCompat.DEFAULT_ALIGNMENT
+import androidx.text.LayoutCompat.DEFAULT_BREAK_STRATEGY
+import androidx.text.LayoutCompat.DEFAULT_HYPHENATION_FREQUENCY
+import androidx.text.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
+import androidx.text.LayoutCompat.DEFAULT_LINESPACING_EXTRA
+import androidx.text.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
+import androidx.text.LayoutCompat.DEFAULT_TEXT_DIRECTION
+import androidx.text.LayoutCompat.HyphenationFrequency
+import androidx.text.LayoutCompat.JustificationMode
+import androidx.text.LayoutCompat.TEXT_DIRECTION_ANY_RTL_LTR
+import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_LTR
+import androidx.text.LayoutCompat.TEXT_DIRECTION_FIRST_STRONG_RTL
+import androidx.text.LayoutCompat.TEXT_DIRECTION_LOCALE
+import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
+import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
+import androidx.text.LayoutCompat.TextDirection
+import androidx.text.LayoutCompat.TextLayoutAlignment
 
 /**
  * Wrapper for Static Text Layout classes.
@@ -192,16 +58,16 @@ class TextLayout constructor(
     charSequence: CharSequence,
     width: Double = 0.0,
     textPaint: TextPaint,
-    @TextLayoutAlignment alignment: Int = ALIGN_NORMAL,
+    @TextLayoutAlignment alignment: Int = DEFAULT_ALIGNMENT,
     ellipsize: TextUtils.TruncateAt? = null,
-    @TextDirection textDirectionHeuristic: Int = TEXT_DIRECTION_FIRST_STRONG_LTR,
-    lineSpacingMultiplier: Double = 1.0,
-    lineSpacingExtra: Double = 0.0,
+    @TextDirection textDirectionHeuristic: Int = DEFAULT_TEXT_DIRECTION,
+    lineSpacingMultiplier: Double = DEFAULT_LINESPACING_MULTIPLIER.toDouble(),
+    lineSpacingExtra: Double = DEFAULT_LINESPACING_EXTRA.toDouble(),
     includePadding: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
-    @BreakStrategy breakStrategy: Int = BREAK_STRATEGY_SIMPLE,
-    @HyphenationFrequency hyphenationFrequency: Int = HYPHENATION_FREQUENCY_NONE,
-    @JustificationMode justificationMode: Int = JUSTIFICATION_MODE_NONE,
+    @BreakStrategy breakStrategy: Int = DEFAULT_BREAK_STRATEGY,
+    @HyphenationFrequency hyphenationFrequency: Int = DEFAULT_HYPHENATION_FREQUENCY,
+    @JustificationMode justificationMode: Int = DEFAULT_JUSTIFICATION_MODE,
     leftIndents: IntArray? = null,
     rightIndents: IntArray? = null
 ) {
@@ -212,12 +78,8 @@ class TextLayout constructor(
     init {
         val start = 0
         val end = charSequence.length
-        val nativeTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
-        val boringMetrics = if (!nativeTextDir.isRtl(charSequence, start, end)) {
-            BoringLayout.isBoring(charSequence, textPaint, null /* metrics */)
-        } else {
-            null
-        }
+        val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
+        val boringMetrics = BoringLayoutCompat.isBoring(charSequence, textPaint, frameworkTextDir)
 
         maxIntrinsicWidth = boringMetrics?.width?.toDouble()
                 // we may need to getWidthWithLimits(maxWidth: Int, maxLines: Int)
@@ -225,26 +87,26 @@ class TextLayout constructor(
 
         val finalWidth = width.toInt()
         val ellipsizeWidth = finalWidth
-
         val frameworkAlignment = TextAlignmentAdapter.get(alignment)
         val frameworkTextDirectionHeuristic = getTextDirectionHeuristic(textDirectionHeuristic)
 
         layout = if (boringMetrics != null && maxIntrinsicWidth <= width) {
-            // TODO(Migration/haoyuchang): Create BoringLayoutCompat
-            BoringLayoutFactory.create(
-                textPaint = textPaint,
-                charSequence = charSequence,
-                width = finalWidth,
-                alignment = alignment,
-                metrics = boringMetrics,
-                includePadding = includePadding,
-                ellipsize = ellipsize,
-                ellipsizeWidth = ellipsizeWidth
+            BoringLayoutCompat.Builder(
+                charSequence,
+                textPaint,
+                finalWidth,
+                boringMetrics
             )
+                .setAlignment(frameworkAlignment)
+                .setIncludePad(includePadding)
+                .setEllipsize(ellipsize)
+                .setEllipsizedWidth(ellipsizeWidth)
+                .build()
         } else {
             StaticLayoutCompat.Builder(
                 charSequence,
-                textPaint, finalWidth
+                textPaint,
+                finalWidth
             )
                 .setAlignment(frameworkAlignment)
                 .setTextDirection(frameworkTextDirectionHeuristic)
@@ -287,54 +149,6 @@ class TextLayout constructor(
 
     fun getLineRight(index: Int): Double {
         return layout.getLineRight(index).toDouble()
-    }
-}
-
-/**
- * Factory Class for BoringLayout
- *
- * @hide
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class BoringLayoutFactory {
-    companion object {
-        fun create(
-            textPaint: TextPaint,
-            charSequence: CharSequence,
-            width: Int = 0,
-            @TextLayoutAlignment alignment: Int,
-            metrics: BoringLayout.Metrics,
-            includePadding: Boolean = false,
-            ellipsize: TextUtils.TruncateAt?,
-            ellipsizeWidth: Int = 0
-        ): Layout {
-            val frameworkAlignment = TextAlignmentAdapter.get(alignment)
-            return if (ellipsize == null) {
-                BoringLayout(
-                    charSequence,
-                    textPaint,
-                    width,
-                    frameworkAlignment,
-                    DEFAULT_LINESPACING_MULTIPLIER,
-                    DEFAULT_LINESPACING_EXTRA,
-                    metrics,
-                    includePadding
-                )
-            } else {
-                BoringLayout(
-                    charSequence,
-                    textPaint,
-                    width,
-                    frameworkAlignment,
-                    DEFAULT_LINESPACING_MULTIPLIER,
-                    DEFAULT_LINESPACING_EXTRA,
-                    metrics,
-                    includePadding,
-                    ellipsize,
-                    ellipsizeWidth
-                )
-            }
-        }
     }
 }
 
