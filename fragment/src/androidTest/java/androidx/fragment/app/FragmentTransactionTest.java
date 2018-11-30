@@ -267,19 +267,6 @@ public class FragmentTransactionTest {
         assertFalse("runOnCommit runnable for back stack transaction was run", ran[0]);
     }
 
-    /**
-     * Test to ensure that when onBackPressed() is received that there is no crash.
-     */
-    @Test
-    @UiThreadTest
-    public void crashOnBackPressed() {
-        Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
-        Bundle outState = new Bundle();
-        FragmentTestActivity activity = mActivityRule.getActivity();
-        instrumentation.callActivityOnSaveInstanceState(activity, outState);
-        activity.onBackPressed();
-    }
-
     // Ensure that getFragments() works during transactions, even if it is run off thread
     @Test
     public void getFragmentsOffThread() throws Throwable {
