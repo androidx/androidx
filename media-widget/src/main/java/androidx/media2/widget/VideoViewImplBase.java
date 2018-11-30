@@ -133,9 +133,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
     int mCurrentState = STATE_IDLE;
     long mSeekWhenPrepared;  // recording the seek position while preparing
 
-    int mVideoWidth;
-    int mVideoHeight;
-
     private ArrayList<Integer> mVideoTrackIndices;
     ArrayList<Integer> mAudioTrackIndices;
     SparseArray<SubtitleTrack> mSubtitleTracks;
@@ -207,8 +204,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
             @Nullable AttributeSet attrs, int defStyleAttr) {
         mInstance = instance;
 
-        mVideoWidth = 0;
-        mVideoHeight = 0;
         mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
 
         mAudioAttributes = new AudioAttributesCompat.Builder()
@@ -664,8 +659,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
             mSelectedSubtitleTrackIndex = INVALID_TRACK_INDEX;
             mSelectedAudioTrackIndex = INVALID_TRACK_INDEX;
         }
-        mVideoWidth = 0;
-        mVideoHeight = 0;
     }
 
     boolean isRemotePlayback() {
@@ -921,15 +914,9 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                         }
                         return;
                     }
-                    mVideoWidth = size.getWidth();
-                    mVideoHeight = size.getHeight();
-                    if (DEBUG) {
-                        Log.d(TAG, "onVideoSizeChanged(): mVideoSize:" + mVideoWidth + "/"
-                                + mVideoHeight);
-                    }
-                    if (mVideoWidth != 0 && mVideoHeight != 0) {
-                        mInstance.requestLayout();
-                    }
+                    mTextureView.forceLayout();
+                    mSurfaceView.forceLayout();
+                    mInstance.requestLayout();
                 }
 
                 @Override
@@ -1068,17 +1055,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     }
 
                     if (player instanceof VideoViewPlayer) {
-                        VideoSize size = ((VideoViewPlayer) player).getVideoSize();
-                        int videoWidth = size.getWidth();
-                        int videoHeight = size.getHeight();
-
-                        if (videoWidth != 0 && videoHeight != 0) {
-                            if (videoWidth != mVideoWidth || videoHeight != mVideoHeight) {
-                                mVideoWidth = videoWidth;
-                                mVideoHeight = videoHeight;
-                                mInstance.requestLayout();
-                            }
-                        }
                         if (needToStart()) {
                             mMediaSession.getPlayer().play();
                         }
