@@ -48,6 +48,7 @@ public class SliceStyle {
     private int mSubtitleColor;
     private int mHeaderTitleSize;
     private int mHeaderSubtitleSize;
+    private int mHeaderDividerPadding;
     private int mVerticalHeaderTextPadding;
     private int mTitleSize;
     private int mSubtitleSize;
@@ -89,6 +90,8 @@ public class SliceStyle {
                     R.styleable.SliceView_headerSubtitleSize, 0);
             mVerticalHeaderTextPadding = (int) a.getDimension(
                     R.styleable.SliceView_headerTextVerticalPadding, 0);
+            mHeaderDividerPadding = (int) a.getDimension(
+                    R.styleable.SliceView_headerDividerPadding, 0);
 
             mTitleSize = (int) a.getDimension(R.styleable.SliceView_titleSize, 0);
             mSubtitleSize = (int) a.getDimension(
@@ -162,6 +165,10 @@ public class SliceStyle {
 
     public int getVerticalHeaderTextPadding() {
         return mVerticalHeaderTextPadding;
+    }
+
+    public int getHeaderDividerPadding() {
+        return mHeaderDividerPadding;
     }
 
     public int getTitleSize() {
