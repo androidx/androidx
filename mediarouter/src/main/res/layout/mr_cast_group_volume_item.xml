@@ -17,11 +17,12 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="@dimen/mr_dynamic_volume_group_list_item_height"
               android:orientation="vertical">
     <TextView android:id="@+id/mr_group_volume_route_name"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="match_parent"
+              android:layout_weight="1"
               android:paddingTop="16dp"
               android:paddingLeft="16dp"
               android:paddingRight="16dp"
