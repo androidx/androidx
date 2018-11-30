@@ -6,9 +6,11 @@ set -e
 
 
 function getStudioUrl() {
+  version="3.3.0.17"
+  ideaMajorVersion="182"
+  buildNumber="5138683"
   osName="$1"
-  buildNumber="5056338"
-  studioUrl="https://dl.google.com/dl/android/studio/ide-zips/3.2.1.0/android-studio-ide-181.${buildNumber}-${osName}.zip"
+  studioUrl="https://dl.google.com/dl/android/studio/ide-zips/${version}/android-studio-ide-${ideaMajorVersion}.${buildNumber}-${osName}.zip"
   echo "${studioUrl}"
 }
 
@@ -71,13 +73,17 @@ function updateStudio() {
 function runStudioLinux() {
   studioPath="${studioUnzippedPath}/android-studio/bin/studio.sh"
   echo "$studioPath &"
-  env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" "${studioPath}" "${projectDir}" &
+  env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
+      STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
+      "${studioPath}" "${projectDir}" &
 }
 
 function runStudioMac() {
   studioPath="${studioUnzippedPath}/Android Studio.app"
   echo "open ${studioPath}"
-  env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" open "${studioPath}" "${projectDir}"
+  env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
+      STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
+      open "${studioPath}" "${projectDir}"
 }
 
 function runStudio() {
