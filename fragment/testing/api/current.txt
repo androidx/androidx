@@ -5,9 +5,11 @@ package androidx.fragment.app.testing {
     method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F>);
     method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F>, android.os.Bundle?);
     method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F>, android.os.Bundle?, androidx.fragment.app.FragmentFactory?);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launch(Class<F>, android.os.Bundle?, int, androidx.fragment.app.FragmentFactory?);
     method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F>);
     method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F>, android.os.Bundle?);
     method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F>, android.os.Bundle?, androidx.fragment.app.FragmentFactory?);
+    method public static <F extends androidx.fragment.app.Fragment> androidx.fragment.app.testing.FragmentScenario<F> launchInContainer(Class<F>, android.os.Bundle?, int, androidx.fragment.app.FragmentFactory?);
     method public androidx.fragment.app.testing.FragmentScenario<F> moveToState(androidx.lifecycle.Lifecycle.State);
     method public androidx.fragment.app.testing.FragmentScenario<F> onFragment(androidx.fragment.app.testing.FragmentScenario.FragmentAction<F>);
     method public androidx.fragment.app.testing.FragmentScenario<F> recreate();
