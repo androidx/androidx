@@ -19,6 +19,7 @@
 package androidx.navigation.ui
 
 import android.support.v4.widget.DrawerLayout
+import android.view.Menu
 import androidx.navigation.NavGraph
 
 /**
@@ -39,6 +40,27 @@ inline fun AppBarConfiguration(
     navGraph: NavGraph,
     drawerLayout: DrawerLayout? = null
 ) = AppBarConfiguration.Builder(navGraph)
+    .setDrawerLayout(drawerLayout)
+    .build()
+
+/**
+ * Configuration options for [NavigationUI] methods that interact with implementations of the
+ * app bar pattern such as [android.support.v7.widget.Toolbar],
+ * [android.support.design.widget.CollapsingToolbarLayout], and
+ * [android.support.v7.app.ActionBar].
+ *
+ * @param topLevelMenu A Menu containing MenuItems corresponding with the destinations
+ *                     considered at the top level of your information hierarchy.
+ *                     The Up button will not be displayed when on these destinations.
+ * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
+ *                     the Navigation button will show a drawer symbol when it is not being shown
+ *                     as an Up button.
+ */
+@Suppress("FunctionName") /* Acts like a constructor */
+inline fun AppBarConfiguration(
+    topLevelMenu: Menu,
+    drawerLayout: DrawerLayout? = null
+) = AppBarConfiguration.Builder(topLevelMenu)
     .setDrawerLayout(drawerLayout)
     .build()
 
