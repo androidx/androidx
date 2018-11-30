@@ -23,6 +23,7 @@ import android.graphics.Rect;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
@@ -211,7 +212,7 @@ public abstract class FragmentTransitionImpl {
      * Finds all views that have transition names in the hierarchy under the given view and
      * stores them in {@code namedViews} map with the name as the key.
      */
-    void findNamedViews(Map<String, View> namedViews, View view) {
+    void findNamedViews(Map<String, View> namedViews, @NonNull View view) {
         if (view.getVisibility() == View.VISIBLE) {
             String transitionName = ViewCompat.getTransitionName(view);
             if (transitionName != null) {

@@ -561,7 +561,7 @@ class FragmentTransition {
         final Fragment inFragment = fragments.lastIn;
         final Fragment outFragment = fragments.firstOut;
         if (inFragment != null) {
-            inFragment.getView().setVisibility(View.VISIBLE);
+            inFragment.requireView().setVisibility(View.VISIBLE);
         }
         if (inFragment == null || outFragment == null) {
             return null; // no shared element without a fragment
@@ -786,7 +786,7 @@ class FragmentTransition {
         }
         final Fragment outFragment = fragments.firstOut;
         final ArrayMap<String, View> outSharedElements = new ArrayMap<>();
-        impl.findNamedViews(outSharedElements, outFragment.getView());
+        impl.findNamedViews(outSharedElements, outFragment.requireView());
 
         final SharedElementCallback sharedElementCallback;
         final ArrayList<String> names;

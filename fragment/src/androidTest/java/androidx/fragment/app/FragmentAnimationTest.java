@@ -450,7 +450,7 @@ public class FragmentAnimationTest {
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
-        final View fragmentView = fragment1.getView();
+        final View fragmentView = fragment1.requireView();
 
         final TranslateAnimation xAnimation = new TranslateAnimation(0, 1000, 0, 0);
         mActivityRule.runOnUiThread(new Runnable() {
@@ -569,8 +569,8 @@ public class FragmentAnimationTest {
     private void assertPostponed(AnimatorFragment fragment, int expectedAnimators)
             throws InterruptedException {
         assertTrue(fragment.mOnCreateViewCalled);
-        assertEquals(View.VISIBLE, fragment.getView().getVisibility());
-        assertEquals(0f, fragment.getView().getAlpha(), 0f);
+        assertEquals(View.VISIBLE, fragment.requireView().getVisibility());
+        assertEquals(0f, fragment.requireView().getAlpha(), 0f);
         assertEquals(expectedAnimators, fragment.numAnimators);
     }
 

@@ -1597,6 +1597,22 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Get the root view for the fragment's layout (the one returned by {@link #onCreateView}).
+     *
+     * @throws IllegalStateException if no view was returned by {@link #onCreateView}.
+     * @see #getView()
+     */
+    @NonNull
+    public final View requireView() {
+        View view = getView();
+        if (view == null) {
+            throw new IllegalStateException("Fragment " + this + " did not return a View from"
+                    + " onCreateView() or this was called before onCreateView().");
+        }
+        return view;
+    }
+
+    /**
      * Called when the fragment's activity has been created and this
      * fragment's view hierarchy instantiated.  It can be used to do final
      * initialization once these pieces are in place, such as retrieving

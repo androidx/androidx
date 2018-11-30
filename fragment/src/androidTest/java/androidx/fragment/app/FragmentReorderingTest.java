@@ -676,7 +676,7 @@ public class FragmentReorderingTest {
                 .setReorderingAllowed(true)
                 .commit();
         mFM.executePendingTransactions();
-        final View editText = fragment2.getView().findViewById(R.id.editText);
+        final View editText = fragment2.requireView().findViewById(R.id.editText);
         assertTrue(editText.isFocused());
         assertFalse(firstEditText.isFocused());
     }
