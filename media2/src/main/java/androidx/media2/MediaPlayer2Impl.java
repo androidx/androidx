@@ -22,6 +22,7 @@ import android.media.AudioAttributes;
 import android.media.DeniedByServerException;
 import android.media.MediaDataSource;
 import android.media.MediaDrm;
+import android.media.MediaFormat;
 import android.media.MediaPlayer;
 import android.media.ResourceBusyException;
 import android.media.UnsupportedSchemeException;
@@ -31,6 +32,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Parcel;
 import android.os.PersistableBundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Surface;
@@ -85,6 +87,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
     static ArrayMap<Integer, Integer> sErrorEventExtraMap;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static ArrayMap<Integer, Integer> sStateMap;
+    static ArrayMap<Integer, Integer> sTrackTypeMap;
 
     static {
         sInfoEventMap = new ArrayMap<>();
@@ -117,6 +120,20 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         sStateMap.put(PLAYER_STATE_PAUSED, SessionPlayer.PLAYER_STATE_PAUSED);
         sStateMap.put(PLAYER_STATE_PLAYING, SessionPlayer.PLAYER_STATE_PLAYING);
         sStateMap.put(PLAYER_STATE_ERROR, SessionPlayer.PLAYER_STATE_ERROR);
+
+        sTrackTypeMap = new ArrayMap<>();
+        sTrackTypeMap.put(MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN,
+                TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN);
+        sTrackTypeMap.put(MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO,
+                TrackInfo.MEDIA_TRACK_TYPE_VIDEO);
+        sTrackTypeMap.put(MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO,
+                TrackInfo.MEDIA_TRACK_TYPE_AUDIO);
+        sTrackTypeMap.put(MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT,
+                TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN);
+        sTrackTypeMap.put(MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE,
+                TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+        sTrackTypeMap.put(MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_METADATA,
+                TrackInfo.MEDIA_TRACK_TYPE_METADATA);
     }
 
     MediaPlayerSourceQueue mPlayer;
@@ -597,7 +614,14 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         MediaPlayer.TrackInfo[] list = mPlayer.getTrackInfo();
         List<TrackInfo> trackList = new ArrayList<>();
         for (MediaPlayer.TrackInfo info : list) {
-            trackList.add(new TrackInfoImpl(info.getTrackType(), info.getFormat()));
+            int trackType = sTrackTypeMap.get(info.getTrackType());
+            MediaFormat format = info.getFormat();
+            if (format != null && TextUtils.equals(
+                    format.getString(MediaFormat.KEY_MIME), MediaFormat.MIMETYPE_TEXT_VTT)) {
+                // Hide WebVTT track. For background, see b/120081663.
+                trackType = TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN;
+            }
+            trackList.add(new TrackInfoImpl(trackType, format));
         }
         return trackList;
     }
