@@ -24,16 +24,17 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 
 /**
- * The OnNavigatedListener specifically for keeping the ActionBar updated. This handles both
- * updating the title and updating the Up Indicator, transitioning between the drawer icon and
- * up arrow as needed.
+ * The OnDestinationChangedListener specifically for keeping the ActionBar updated.
+ * This handles both updating the title and updating the Up Indicator, transitioning between
+ * the drawer icon and up arrow as needed.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ActionBarOnNavigatedListener extends AbstractAppBarOnNavigatedListener {
+class ActionBarOnDestinationChangedListener extends
+        AbstractAppBarOnDestinationChangedListener {
     private final AppCompatActivity mActivity;
 
-    ActionBarOnNavigatedListener(@NonNull AppCompatActivity activity,
+    ActionBarOnDestinationChangedListener(@NonNull AppCompatActivity activity,
             @NonNull AppBarConfiguration configuration) {
         super(activity.getDrawerToggleDelegate().getActionBarThemedContext(), configuration);
         mActivity = activity;

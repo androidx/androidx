@@ -132,21 +132,21 @@ public final class NavController {
                         popBackStack();
                     }
                     if (!mBackStack.isEmpty()) {
-                        dispatchOnNavigated(mBackStack.peekLast());
+                        dispatchOnCurrentDestinationChanged(mBackStack.peekLast());
                     }
                 }
             };
 
-    private final CopyOnWriteArrayList<OnNavigatedListener> mOnNavigatedListeners =
-            new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<OnDestinationChangedListener>
+            mOnDestinationChangedListeners = new CopyOnWriteArrayList<>();
 
     /**
-     * OnNavigatorNavigatedListener receives a callback when the associated controller
-     * navigates to a new destination.
+     * OnDestinationChangedListener receives a callback when the
+     * {@link #getCurrentDestination()} or its arguments change.
      */
-    public interface OnNavigatedListener {
+    public interface OnDestinationChangedListener {
         /**
-         * Callback for when the controller navigates to a new destination.
+         * Callback for when the {@link #getCurrentDestination()} or its arguments change.
          * This navigation may be to a destination that has not been seen before, or one that
          * was previously on the back stack. This method is called after navigation is complete,
          * but associated transitions may still be playing.
@@ -155,8 +155,8 @@ public final class NavController {
          * @param destination the new destination
          * @param arguments the arguments passed to the destination
          */
-        void onNavigated(@NonNull NavController controller, @NonNull NavDestination destination,
-                @Nullable Bundle arguments);
+        void onDestinationChanged(@NonNull NavController controller,
+                @NonNull NavDestination destination, @Nullable Bundle arguments);
     }
 
     /**
@@ -210,31 +210,33 @@ public final class NavController {
     }
 
     /**
-     * Adds an {@link OnNavigatedListener} to this controller to receive events when
-     * the controller navigates to a new destination.
+     * Adds an {@link OnDestinationChangedListener} to this controller to receive a callback
+     * whenever the {@link #getCurrentDestination()} or its arguments change.
      *
      * <p>The current destination, if any, will be immediately sent to your listener.</p>
      *
      * @param listener the listener to receive events
      */
-    public void addOnNavigatedListener(@NonNull OnNavigatedListener listener) {
+    public void addOnCurrentDestinationChangedListener(
+            @NonNull OnDestinationChangedListener listener) {
         // Inform the new listener of our current state, if any
         if (!mBackStack.isEmpty()) {
             NavBackStackEntry backStackEntry = mBackStack.peekLast();
-            listener.onNavigated(this, backStackEntry.getDestination(),
+            listener.onDestinationChanged(this, backStackEntry.getDestination(),
                     backStackEntry.getArguments());
         }
-        mOnNavigatedListeners.add(listener);
+        mOnDestinationChangedListeners.add(listener);
     }
 
     /**
-     * Removes an {@link OnNavigatedListener} from this controller. It will no longer
-     * receive navigation events.
+     * Removes an {@link OnDestinationChangedListener} from this controller.
+     * It will no longer receive callbacks.
      *
      * @param listener the listener to remove
      */
-    public void removeOnNavigatedListener(@NonNull OnNavigatedListener listener) {
-        mOnNavigatedListeners.remove(listener);
+    public void removeOnCurrentDestinationChangedListener(
+            @NonNull OnDestinationChangedListener listener) {
+        mOnDestinationChangedListeners.remove(listener);
     }
 
     /**
@@ -311,7 +313,7 @@ public final class NavController {
             }
         }
         if (!mBackStack.isEmpty()) {
-            dispatchOnNavigated(mBackStack.peekLast());
+            dispatchOnCurrentDestinationChanged(mBackStack.peekLast());
         }
         return popped;
     }
@@ -359,9 +361,10 @@ public final class NavController {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void dispatchOnNavigated(NavBackStackEntry backStackEntry) {
-        for (OnNavigatedListener listener : mOnNavigatedListeners) {
-            listener.onNavigated(this, backStackEntry.getDestination(),
+    void dispatchOnCurrentDestinationChanged(NavBackStackEntry backStackEntry) {
+        for (OnDestinationChangedListener listener :
+                mOnDestinationChangedListeners) {
+            listener.onDestinationChanged(this, backStackEntry.getDestination(),
                     backStackEntry.getArguments());
         }
     }
@@ -748,7 +751,7 @@ public final class NavController {
             // And finally, add the new destination
             NavBackStackEntry newBackStackEntry = new NavBackStackEntry(newDest, finalArgs);
             mBackStack.add(newBackStackEntry);
-            dispatchOnNavigated(newBackStackEntry);
+            dispatchOnCurrentDestinationChanged(newBackStackEntry);
         }
     }
 

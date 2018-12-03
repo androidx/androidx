@@ -30,18 +30,19 @@ import androidx.navigation.NavDestination;
 import java.lang.ref.WeakReference;
 
 /**
- * The OnNavigatedListener specifically for keeping a CollapsingToolbarLayout+Toolbar updated.
+ * The OnDestinationChangedListener specifically for keeping a
+ * CollapsingToolbarLayout+Toolbar updated.
  * This handles both updating the title and updating the Up Indicator, transitioning between
  * the drawer icon and up arrow as needed.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class CollapsingToolbarOnNavigatedListener
-        extends AbstractAppBarOnNavigatedListener {
+class CollapsingToolbarOnDestinationChangedListener
+        extends AbstractAppBarOnDestinationChangedListener {
     private final WeakReference<CollapsingToolbarLayout> mCollapsingToolbarLayoutWeakReference;
     private final WeakReference<Toolbar> mToolbarWeakReference;
 
-    CollapsingToolbarOnNavigatedListener(
+    CollapsingToolbarOnDestinationChangedListener(
             @NonNull CollapsingToolbarLayout collapsingToolbarLayout,
             @NonNull Toolbar toolbar, @NonNull AppBarConfiguration configuration) {
         super(collapsingToolbarLayout.getContext(), configuration);
@@ -50,16 +51,16 @@ class CollapsingToolbarOnNavigatedListener
     }
 
     @Override
-    public void onNavigated(@NonNull NavController controller,
+    public void onDestinationChanged(@NonNull NavController controller,
             @NonNull NavDestination destination, @Nullable Bundle arguments) {
         CollapsingToolbarLayout collapsingToolbarLayout =
                 mCollapsingToolbarLayoutWeakReference.get();
         Toolbar toolbar = mToolbarWeakReference.get();
         if (collapsingToolbarLayout == null || toolbar == null) {
-            controller.removeOnNavigatedListener(this);
+            controller.removeOnCurrentDestinationChangedListener(this);
             return;
         }
-        super.onNavigated(controller, destination, arguments);
+        super.onDestinationChanged(controller, destination, arguments);
     }
 
     @Override

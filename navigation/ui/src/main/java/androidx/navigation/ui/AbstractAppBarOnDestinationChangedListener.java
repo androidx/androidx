@@ -37,14 +37,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The abstract OnNavigatedListener for keeping any type of app bar updated. This handles both
- * updating the title and updating the Up Indicator, transitioning between the drawer icon and
- * up arrow as needed.
+ * The abstract OnDestinationChangedListener for keeping any type of app bar updated.
+ * This handles both updating the title and updating the Up Indicator, transitioning between
+ * the drawer icon and up arrow as needed.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-abstract class AbstractAppBarOnNavigatedListener
-        implements NavController.OnNavigatedListener {
+abstract class AbstractAppBarOnDestinationChangedListener
+        implements NavController.OnDestinationChangedListener {
     private final Context mContext;
     private final Set<Integer> mTopLevelDestinations;
     @Nullable
@@ -52,7 +52,7 @@ abstract class AbstractAppBarOnNavigatedListener
     private DrawerArrowDrawable mArrowDrawable;
     private ValueAnimator mAnimator;
 
-    AbstractAppBarOnNavigatedListener(@NonNull Context context,
+    AbstractAppBarOnDestinationChangedListener(@NonNull Context context,
             @NonNull AppBarConfiguration configuration) {
         mContext = context;
         mTopLevelDestinations = configuration.getTopLevelDestinations();
@@ -69,13 +69,13 @@ abstract class AbstractAppBarOnNavigatedListener
     protected abstract void setNavigationIcon(Drawable icon);
 
     @Override
-    public void onNavigated(@NonNull NavController controller,
+    public void onDestinationChanged(@NonNull NavController controller,
             @NonNull NavDestination destination, @Nullable Bundle arguments) {
         DrawerLayout drawerLayout = mDrawerLayoutWeakReference != null
                 ? mDrawerLayoutWeakReference.get()
                 : null;
         if (mDrawerLayoutWeakReference != null && drawerLayout == null) {
-            controller.removeOnNavigatedListener(this);
+            controller.removeOnCurrentDestinationChangedListener(this);
             return;
         }
         CharSequence label = destination.getLabel();
