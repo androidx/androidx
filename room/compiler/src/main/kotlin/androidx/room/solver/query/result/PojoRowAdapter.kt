@@ -86,7 +86,7 @@ class PojoRowAdapter(
                         allQueryColumns = info.columns.map { it.name }))
             }
             if (matchedFields.isEmpty()) {
-                context.logger.e(ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER)
+                context.logger.e(ProcessorErrors.cannotFindQueryResultAdapter(out.toString()))
             }
         } else {
             matchedFields = remainingFields.map { it }

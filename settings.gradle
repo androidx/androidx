@@ -144,6 +144,7 @@ includeProject(":room:integration-tests:room-testapp-kotlin", "room/integration-
 includeProject(":room:room-benchmark", "room/benchmark")
 includeProject(":room:room-common", "room/common")
 includeProject(":room:room-compiler", "room/compiler")
+includeProject(":room:room-coroutines", "room/coroutines")
 includeProject(":room:room-guava", "room/guava")
 includeProject(":room:room-migration", "room/migration")
 includeProject(":room:room-runtime", "room/runtime")

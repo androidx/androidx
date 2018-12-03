@@ -328,7 +328,7 @@ fun Types.isAssignableWithoutVariance(from: TypeMirror, to: TypeMirror): Boolean
 fun TypeMirror.extendsBound(): TypeMirror? {
     return this.accept(object : SimpleTypeVisitor7<TypeMirror?, Void?>() {
         override fun visitWildcard(type: WildcardType, ignored: Void?): TypeMirror? {
-            return type.extendsBound
+            return type.extendsBound ?: type.superBound
         }
     }, null)
 }
@@ -367,4 +367,16 @@ fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
                 paramsMatch(MoreElements.asExecutable(this).parameters,
                         MoreElements.asExecutable(it).parameters)
     }
+}
+
+/**
+ * Finds the Kotlin's suspend function return type by inspecting the type param of the Continuation
+ * parameter of the function. This method assumes the executable element is a suspend function.
+ * @see KotlinMetadataElement.isSuspendFunction
+ */
+fun ExecutableElement.getSuspendFunctionReturnType(): TypeMirror {
+    // the continuation parameter is always the last parameter of a suspend function and it only has
+    // one type parameter, e.g Continuation<? super T>
+    val typeParam = MoreTypes.asDeclared(parameters.last().asType()).typeArguments.first()
+    return typeParam.extendsBoundOrSelf() // reduce the type param
 }

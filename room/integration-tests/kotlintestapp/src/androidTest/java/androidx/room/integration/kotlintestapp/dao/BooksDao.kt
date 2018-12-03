@@ -21,6 +21,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.RawQuery
 import androidx.room.Transaction
 import androidx.room.TypeConverters
 import androidx.room.Update
@@ -33,6 +34,7 @@ import androidx.room.integration.kotlintestapp.vo.Lang
 import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBooks
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.google.common.base.Optional
 import com.google.common.util.concurrent.ListenableFuture
 import io.reactivex.Completable
@@ -108,6 +110,40 @@ interface BooksDao {
 
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBook(bookId: String): Book
+
+    @Query("SELECT * FROM book WHERE bookId = :bookId")
+    suspend fun getBookSuspend(bookId: String): Book
+
+    @Query("SELECT * FROM book")
+    suspend fun getBooksSuspend(): List<Book>
+
+    @Transaction
+    @Query("SELECT * FROM book WHERE salesCnt > :count")
+    suspend fun getBooksWithMinSalesCountSuspend(count: Int): List<Book>
+
+    @RawQuery
+    suspend fun getBookWithRawQuerySuspend(query: SupportSQLiteQuery): Book
+
+    @Insert
+    suspend fun insertBookSuspend(book: Book)
+
+    @Insert
+    suspend fun insertBookWithResultSuspend(book: Book): Long
+
+    @Insert
+    suspend fun insertBooksWithResultSuspend(vararg book: Book): List<Long>
+
+    @Delete
+    suspend fun deleteBookSuspend(book: Book)
+
+    @Delete
+    suspend fun deleteBookWithResultSuspend(book: Book): Int
+
+    @Update
+    suspend fun updateBookSuspend(book: Book)
+
+    @Update
+    suspend fun updateBookWithResultSuspend(book: Book): Int
 
     @Query("""SELECT * FROM book WHERE
             bookId IN(:bookIds)

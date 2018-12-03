@@ -18,15 +18,23 @@ package androidx.room.integration.kotlintestapp.test
 
 import android.database.sqlite.SQLiteConstraintException
 import androidx.arch.core.executor.ArchTaskExecutor
-import androidx.room.integration.kotlintestapp.vo.*
+import androidx.room.integration.kotlintestapp.vo.Author
+import androidx.room.integration.kotlintestapp.vo.Book
+import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
+import androidx.room.integration.kotlintestapp.vo.Lang
+import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.base.Optional
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
+import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
-import org.hamcrest.CoreMatchers.*
+import org.hamcrest.CoreMatchers.`is`
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.CoreMatchers.instanceOf
+import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -48,6 +56,32 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1)
 
         assertThat(booksDao.getBook(TestUtil.BOOK_1.bookId), `is`<Book>(TestUtil.BOOK_1))
+    }
+
+    @Test
+    fun bookByIdSuspend() {
+        runBlocking {
+            booksDao.addAuthors(TestUtil.AUTHOR_1)
+            booksDao.addPublishers(TestUtil.PUBLISHER)
+            booksDao.addBooks(TestUtil.BOOK_1)
+
+            assertThat(booksDao.getBookSuspend(TestUtil.BOOK_1.bookId), `is`<Book>(TestUtil.BOOK_1))
+        }
+    }
+
+    @Test
+    fun allBookSuspend() {
+        runBlocking {
+            booksDao.addAuthors(TestUtil.AUTHOR_1)
+            booksDao.addPublishers(TestUtil.PUBLISHER)
+            booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
+
+            val books = booksDao.getBooksSuspend()
+
+            assertThat(books.size, `is`(2))
+            assertThat(books[0], `is`<Book>(TestUtil.BOOK_1))
+            assertThat(books[1], `is`<Book>(TestUtil.BOOK_2))
+        }
     }
 
     @SdkSuppress(minSdkVersion = 24)
