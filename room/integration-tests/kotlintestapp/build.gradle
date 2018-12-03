@@ -62,6 +62,7 @@ dependencies {
     androidTestImplementation project(':room:room-guava')
     androidTestImplementation project(':room:room-testing')
     androidTestImplementation project(':room:room-rxjava2')
+    androidTestImplementation(project(":room:room-coroutines"))
     androidTestImplementation(ARCH_CORE_TESTING)
     androidTestImplementation(GUAVA_ANDROID)
     androidTestImplementation(RX_JAVA)

@@ -16,6 +16,7 @@
 
 package androidx.room.solver.shortcut.result
 
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
@@ -53,10 +54,14 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: Ty
         private fun isVoidObject(typeMirror: TypeMirror) = MoreTypes.isType(typeMirror) &&
                 MoreTypes.isTypeOf(Void::class.java, typeMirror)
 
+        private fun isKotlinUnit(typeMirror: TypeMirror) = MoreTypes.isType(typeMirror) &&
+                MoreTypes.isTypeOf(Unit::class.java, typeMirror)
+
         private fun isDeleteOrUpdateValid(returnType: TypeMirror): Boolean {
             return returnType.kind == TypeKind.VOID ||
                     isIntType(returnType) ||
-                    isVoidObject(returnType)
+                    isVoidObject(returnType) ||
+                    isKotlinUnit(returnType)
         }
     }
 
@@ -88,6 +93,8 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: Ty
                     addStatement("return $L", resultVar)
                 } else if (hasNullReturn(returnType)) {
                     addStatement("return null")
+                } else if (hasUnitReturn(returnType)) {
+                    addStatement("return $T.INSTANCE", KotlinTypeNames.UNIT)
                 }
             }
             nextControlFlow("finally").apply {
@@ -99,8 +106,12 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: Ty
     }
 
     private fun hasResultValue(returnType: TypeMirror): Boolean {
-        return !(returnType.kind == TypeKind.VOID || isVoidObject(returnType))
+        return !(returnType.kind == TypeKind.VOID ||
+                isVoidObject(returnType) ||
+                isKotlinUnit(returnType))
     }
 
     private fun hasNullReturn(returnType: TypeMirror) = isVoidObject(returnType)
+
+    private fun hasUnitReturn(returnType: TypeMirror) = isKotlinUnit(returnType)
 }

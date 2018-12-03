@@ -20,7 +20,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Ignore
 import androidx.room.Relation
-import androidx.room.ext.KotlinMetadataProcessor
+import androidx.room.ext.KotlinMetadataElement
 import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
 import androidx.room.ext.hasAnnotation
@@ -51,12 +51,6 @@ import asTypeElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import com.google.auto.value.AutoValue
-import me.eugeniomarletti.kotlin.metadata.KotlinClassMetadata
-import me.eugeniomarletti.kotlin.metadata.isDataClass
-import me.eugeniomarletti.kotlin.metadata.isPrimary
-import me.eugeniomarletti.kotlin.metadata.jvm.getJvmConstructorSignature
-import me.eugeniomarletti.kotlin.metadata.kotlinMetadata
-import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.ABSTRACT
 import javax.lang.model.element.Modifier.PRIVATE
@@ -83,21 +77,10 @@ class PojoProcessor private constructor(
     val referenceStack: LinkedHashSet<Name> = LinkedHashSet(),
     val ignoredColumns: Set<String>,
     private val delegate: Delegate
-) : KotlinMetadataProcessor {
+) {
     val context = baseContext.fork(element)
 
-    // for KotlinMetadataUtils
-    override val processingEnv: ProcessingEnvironment
-        get() = context.processingEnv
-
-    // opportunistic kotlin metadata
-    private val kotlinMetadata by lazy {
-        try {
-            element.kotlinMetadata
-        } catch (throwable: Throwable) {
-            context.logger.d(element, "failed to read get kotlin metadata from %s", element)
-        } as? KotlinClassMetadata
-    }
+    private val kotlinMetadata = KotlinMetadataElement.createFor(context, element)
 
     companion object {
         val PROCESSED_ANNOTATIONS = listOf(ColumnInfo::class, Embedded::class,
@@ -389,18 +372,10 @@ class PojoProcessor private constructor(
                 // if the Pojo is a Kotlin data class then pick its primary constructor. This is
                 // better than picking the no-arg constructor and forcing users to define fields as
                 // vars.
-                val primaryConstructor = kotlinMetadata?.data?.let { kotlinData ->
-                    if (kotlinData.classProto.isDataClass) {
-                        val primaryConstructorSignature = kotlinData.classProto
-                                .constructorList.first { it.isPrimary }
-                                .getJvmConstructorSignature(
-                                        kotlinData.nameResolver,
-                                        kotlinData.classProto.typeTable)
+                val primaryConstructor =
+                    kotlinMetadata?.findPrimaryConstructorSignature()?.let { signature ->
                         goodConstructors.firstOrNull {
-                            it.element.jvmMethodSignature == primaryConstructorSignature
-                        }
-                    } else {
-                        null
+                            kotlinMetadata.getMethodSignature(it.element) == signature
                     }
                 }
                 if (primaryConstructor != null) {

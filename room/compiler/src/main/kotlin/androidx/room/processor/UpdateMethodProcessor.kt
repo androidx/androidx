@@ -43,8 +43,9 @@ class UpdateMethodProcessor(
                 missingParamError = ProcessorErrors.UPDATE_MISSING_PARAMS
         )
 
-        val methodBinder = context.typeAdapterStore
-                .findDeleteOrUpdateMethodBinder(executableElement.returnType)
+        val returnType = delegate.extractReturnType()
+        val methodBinder = delegate.findDeleteOrUpdateMethodBinder(returnType)
+
         context.checker.check(
                 methodBinder.adapter != null,
                 executableElement,
