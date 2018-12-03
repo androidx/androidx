@@ -27,12 +27,14 @@ public static class Finish implements NavDirections {
     public Finish() {
     }
 
+    @Override
     @NonNull
     public Bundle getArguments() {
         Bundle __outBundle = new Bundle();
         return __outBundle;
     }
 
+    @Override
     public int getActionId() {
         return a.b.R.id.finish;
     }

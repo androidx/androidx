@@ -55,6 +55,7 @@ public class SanitizedMainFragmentDirections {
             return this;
         }
 
+        @Override
         @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
@@ -63,6 +64,7 @@ public class SanitizedMainFragmentDirections {
             return __outBundle;
         }
 
+        @Override
         public int getActionId() {
             return a.b.R.id.previous_action;
         }
@@ -138,6 +140,7 @@ public class SanitizedMainFragmentDirections {
             return this;
         }
 
+        @Override
         @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
@@ -146,6 +149,7 @@ public class SanitizedMainFragmentDirections {
             return __outBundle;
         }
 
+        @Override
         public int getActionId() {
             return a.b.R.id.next_action;
         }
