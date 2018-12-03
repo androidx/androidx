@@ -17,9 +17,6 @@
 package androidx.remotecallback;
 
 import android.content.Context;
-import android.os.Bundle;
-
-import androidx.annotation.RestrictTo;
 
 /**
  * An objects that can receive remote callbacks.
@@ -108,13 +105,4 @@ public interface CallbackReceiver<T> {
      * </pre>
      */
     T createRemoteCallback(Context context);
-
-    /**
-     * Generates a {@link RemoteCallback} when a RemoteCallback is being triggered, should only
-     * be used in the context on {@link #createRemoteCallback}.
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    RemoteCallback toRemoteCallback(Class<T> cls, Context context, String authority, Bundle args,
-            String method);
 }

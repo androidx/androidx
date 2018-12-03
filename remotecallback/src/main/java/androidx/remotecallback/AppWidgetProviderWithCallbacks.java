@@ -34,7 +34,7 @@ import androidx.annotation.RestrictTo;
  *           AppWidgetProviderWithCallbacks\<X>)
  */
 public class AppWidgetProviderWithCallbacks<T extends CallbackReceiver> extends
-        AppWidgetProvider implements CallbackReceiver<T> {
+        AppWidgetProvider implements CallbackReceiver<T>, CallbackBase<T> {
 
     @Override
     public void onReceive(Context context, Intent intent) {

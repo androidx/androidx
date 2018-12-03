@@ -39,7 +39,7 @@ import androidx.annotation.RestrictTo;
  *           ContentProviderWithCallbacks\<X>)
  */
 public abstract class ContentProviderWithCallbacks<T extends ContentProviderWithCallbacks> extends
-        ContentProvider implements CallbackReceiver<T> {
+        ContentProvider implements CallbackReceiver<T>, CallbackBase<T> {
 
     String mAuthority;
 

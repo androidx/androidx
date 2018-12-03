@@ -197,13 +197,17 @@ public class CallbackHandlerRegistry {
      */
     public static RemoteCallback stubToRemoteCallback(CallbackReceiver receiver,
             Class<? extends CallbackReceiver> cls, Bundle args, String method) {
+        if (!(receiver instanceof CallbackBase)) {
+            throw new IllegalArgumentException(
+                    "May only be called on classes that extend a *WithCallbacks base class.");
+        }
         ClsHandler clsHandler = sInstance.findMap(cls);
         Context context = clsHandler.mContext;
         String authority = clsHandler.mAuthority;
         // Clear out context and authority to avoid context leak.
         clsHandler.mContext = null;
         clsHandler.mAuthority = null;
-        return receiver.toRemoteCallback(cls, context, authority, args, method);
+        return ((CallbackBase) receiver).toRemoteCallback(cls, context, authority, args, method);
     }
 
     static class ClsHandler {
