@@ -62,6 +62,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.media2.MediaController;
@@ -1123,7 +1124,7 @@ public class MediaControlView extends BaseLayout {
                 updateForStoppedState(false);
             }
 
-            if (isHttpSchemeUrl(mController.getCurrentMediaItem()) && mController.isPlaying()) {
+            if (isCurrentMediaItemFromNetwork() && mController.isPlaying()) {
                 mWasPlaying = true;
                 mController.pause();
             }
@@ -1145,7 +1146,7 @@ public class MediaControlView extends BaseLayout {
                 long newPosition = ((mDuration * progress) / MAX_PROGRESS);
                 // Do not seek if the current media item has a http scheme URL to improve seek
                 // performance.
-                boolean shouldSeekNow = !isHttpSchemeUrl(mController.getCurrentMediaItem());
+                boolean shouldSeekNow = !isCurrentMediaItemFromNetwork();
                 seekTo(newPosition, shouldSeekNow);
             }
         }
@@ -1159,7 +1160,7 @@ public class MediaControlView extends BaseLayout {
 
             long latestSeekPosition = getLatestSeekPosition();
             // Reset existing seek positions since we only need to seek to the latest position.
-            if (isHttpSchemeUrl(mController.getCurrentMediaItem())) {
+            if (isCurrentMediaItemFromNetwork()) {
                 mCurrentSeekPosition = SEEK_POSITION_NOT_SET;
                 mNextSeekPosition = SEEK_POSITION_NOT_SET;
             }
@@ -1720,25 +1721,19 @@ public class MediaControlView extends BaseLayout {
         mCustomPlaybackSpeedIndex = -1;
     }
 
-    boolean isHttpSchemeUrl(MediaItem currentMediaItem) {
-        if (currentMediaItem == null) {
+    /**
+     * @return true iff the current media item is from network.
+     */
+    @VisibleForTesting
+    boolean isCurrentMediaItemFromNetwork() {
+        MediaItem currentMediaItem = mController.getCurrentMediaItem();
+
+        if (!(currentMediaItem instanceof UriMediaItem)) {
             return false;
         }
 
-        Uri uri = currentMediaItem instanceof UriMediaItem
-                ? ((UriMediaItem) currentMediaItem).getUri() : null;
-        if (uri == null) {
-            // Something wrong.
-            return false;
-        }
-
-        String scheme = uri.getScheme();
-        if (scheme != null) {
-            if (scheme.equals("http") || scheme.equals("https")) {
-                return true;
-            }
-        }
-        return false;
+        Uri uri = ((UriMediaItem) currentMediaItem).getUri();
+        return UriUtil.isFromNetwork(uri);
     }
 
     void displaySettingsWindow(BaseAdapter adapter) {

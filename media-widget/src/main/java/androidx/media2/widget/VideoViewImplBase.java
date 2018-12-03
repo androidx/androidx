@@ -755,13 +755,12 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                 Uri uri = ((UriMediaItem) mMediaItem).getUri();
 
                 // Save file name as title since the file may not have a title Metadata.
-                String scheme = uri.getScheme();
-                if (scheme != null) {
-                    if (scheme.equals("file")) {
-                        path = uri.getLastPathSegment();
-                    } else if (scheme.equals("http") || scheme.equals("https")) {
-                        path = uri.getPath();
-                    }
+                if (UriUtil.isFromNetwork(uri)) {
+                    path = uri.getPath();
+                } else if ("file".equals(uri.getScheme())) {
+                    path = uri.getLastPathSegment();
+                } else {
+                    // TODO: needs default title. b/120515913
                 }
                 retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(mInstance.getContext(), uri);
@@ -1038,15 +1037,10 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
 
                         Uri uri = (mMediaItem instanceof UriMediaItem)
                                 ? ((UriMediaItem) mMediaItem).getUri() : null;
-                        if (uri != null) {
-                            String scheme = uri.getScheme();
-                            if (scheme != null) {
-                                if (scheme.equals("file")) {
-                                    mMediaControlView.setRouteSelector(null);
-                                } else if (scheme.equals("http") || scheme.equals("https")) {
-                                    mMediaControlView.setRouteSelector(mRouteSelector);
-                                }
-                            }
+                        if (uri != null && UriUtil.isFromNetwork(uri)) {
+                            mMediaControlView.setRouteSelector(mRouteSelector);
+                        } else {
+                            mMediaControlView.setRouteSelector(null);
                         }
                     }
 
