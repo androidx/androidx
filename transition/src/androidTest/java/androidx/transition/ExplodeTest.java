@@ -18,7 +18,9 @@ package androidx.transition;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.AdditionalMatchers.and;
+import static org.mockito.AdditionalMatchers.geq;
 import static org.mockito.AdditionalMatchers.gt;
+import static org.mockito.AdditionalMatchers.leq;
 import static org.mockito.AdditionalMatchers.lt;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
@@ -30,8 +32,8 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -148,6 +150,7 @@ public class ExplodeTest extends BaseTransitionTest {
         verifyMovement(mBlueSquare, Gravity.RIGHT | Gravity.BOTTOM, false);
         verifyMovement(mYellowSquare, Gravity.LEFT | Gravity.BOTTOM, false);
         waitForEnd();
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
         verifyNoTranslation(mRedSquare);
         verifyNoTranslation(mGreenSquare);
@@ -167,26 +170,26 @@ public class ExplodeTest extends BaseTransitionTest {
             if (movingOut) {
                 verify(v, mode).setTranslationX(and(lt(0f), lt(startX)));
             } else {
-                verify(v, mode).setTranslationX(and(lt(0f), gt(startX)));
+                verify(v, mode).setTranslationX(and(leq(0f), gt(startX)));
             }
         } else if ((direction & Gravity.RIGHT) == Gravity.RIGHT) {
             if (movingOut) {
                 verify(v, mode).setTranslationX(and(gt(0f), gt(startX)));
             } else {
-                verify(v, mode).setTranslationX(and(gt(0f), lt(startX)));
+                verify(v, mode).setTranslationX(and(geq(0f), lt(startX)));
             }
         }
         if ((direction & Gravity.TOP) == Gravity.TOP) {
             if (movingOut) {
                 verify(v, mode).setTranslationY(and(lt(0f), lt(startY)));
             } else {
-                verify(v, mode).setTranslationY(and(lt(0f), gt(startY)));
+                verify(v, mode).setTranslationY(and(leq(0f), gt(startY)));
             }
         } else if ((direction & Gravity.BOTTOM) == Gravity.BOTTOM) {
             if (movingOut) {
                 verify(v, mode).setTranslationY(and(gt(0f), gt(startY)));
             } else {
-                verify(v, mode).setTranslationY(and(gt(0f), lt(startY)));
+                verify(v, mode).setTranslationY(and(geq(0f), lt(startY)));
             }
         }
     }
