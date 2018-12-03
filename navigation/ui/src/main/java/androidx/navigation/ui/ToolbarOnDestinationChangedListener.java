@@ -29,30 +29,31 @@ import androidx.navigation.NavDestination;
 import java.lang.ref.WeakReference;
 
 /**
- * The OnNavigatedListener specifically for keeping a Toolbar updated. This handles both
- * updating the title and updating the Up Indicator, transitioning between the drawer icon and
- * up arrow as needed.
+ * The OnDestinationChangedListener specifically for keeping a Toolbar updated.
+ * This handles both updating the title and updating the Up Indicator, transitioning between
+ * the drawer icon and up arrow as needed.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class ToolbarOnNavigatedListener extends AbstractAppBarOnNavigatedListener {
+class ToolbarOnDestinationChangedListener extends
+        AbstractAppBarOnDestinationChangedListener {
     private final WeakReference<Toolbar> mToolbarWeakReference;
 
-    ToolbarOnNavigatedListener(
+    ToolbarOnDestinationChangedListener(
             @NonNull Toolbar toolbar, @NonNull AppBarConfiguration configuration) {
         super(toolbar.getContext(), configuration);
         mToolbarWeakReference = new WeakReference<>(toolbar);
     }
 
     @Override
-    public void onNavigated(@NonNull NavController controller,
+    public void onDestinationChanged(@NonNull NavController controller,
             @NonNull NavDestination destination, @Nullable Bundle arguments) {
         Toolbar toolbar = mToolbarWeakReference.get();
         if (toolbar == null) {
-            controller.removeOnNavigatedListener(this);
+            controller.removeOnCurrentDestinationChangedListener(this);
             return;
         }
-        super.onNavigated(controller, destination, arguments);
+        super.onDestinationChanged(controller, destination, arguments);
     }
 
     @Override

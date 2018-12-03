@@ -208,8 +208,8 @@ public final class NavigationUI {
     public static void setupActionBarWithNavController(@NonNull AppCompatActivity activity,
             @NonNull NavController navController,
             @NonNull AppBarConfiguration configuration) {
-        navController.addOnNavigatedListener(
-                new ActionBarOnNavigatedListener(activity, configuration));
+        navController.addOnCurrentDestinationChangedListener(
+                new ActionBarOnDestinationChangedListener(activity, configuration));
     }
 
     /**
@@ -281,8 +281,8 @@ public final class NavigationUI {
     public static void setupWithNavController(@NonNull Toolbar toolbar,
             @NonNull final NavController navController,
             @NonNull final AppBarConfiguration configuration) {
-        navController.addOnNavigatedListener(
-                new ToolbarOnNavigatedListener(toolbar, configuration));
+        navController.addOnCurrentDestinationChangedListener(
+                new ToolbarOnDestinationChangedListener(toolbar, configuration));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -376,8 +376,9 @@ public final class NavigationUI {
             @NonNull Toolbar toolbar,
             @NonNull final NavController navController,
             @NonNull final AppBarConfiguration configuration) {
-        navController.addOnNavigatedListener(new CollapsingToolbarOnNavigatedListener(
-                collapsingToolbarLayout, toolbar, configuration));
+        navController.addOnCurrentDestinationChangedListener(
+                new CollapsingToolbarOnDestinationChangedListener(
+                        collapsingToolbarLayout, toolbar, configuration));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -428,22 +429,23 @@ public final class NavigationUI {
                     }
                 });
         final WeakReference<NavigationView> weakReference = new WeakReference<>(navigationView);
-        navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
-            @Override
-            public void onNavigated(@NonNull NavController controller,
-                    @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                NavigationView view = weakReference.get();
-                if (view == null) {
-                    navController.removeOnNavigatedListener(this);
-                    return;
-                }
-                Menu menu = view.getMenu();
-                for (int h = 0, size = menu.size(); h < size; h++) {
-                    MenuItem item = menu.getItem(h);
-                    item.setChecked(matchDestination(destination, item.getItemId()));
-                }
-            }
-        });
+        navController.addOnCurrentDestinationChangedListener(
+                new NavController.OnDestinationChangedListener() {
+                    @Override
+                    public void onDestinationChanged(@NonNull NavController controller,
+                            @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                        NavigationView view = weakReference.get();
+                        if (view == null) {
+                            navController.removeOnCurrentDestinationChangedListener(this);
+                            return;
+                        }
+                        Menu menu = view.getMenu();
+                        for (int h = 0, size = menu.size(); h < size; h++) {
+                            MenuItem item = menu.getItem(h);
+                            item.setChecked(matchDestination(destination, item.getItemId()));
+                        }
+                    }
+                });
     }
 
     /**
@@ -493,24 +495,25 @@ public final class NavigationUI {
                 });
         final WeakReference<BottomNavigationView> weakReference =
                 new WeakReference<>(bottomNavigationView);
-        navController.addOnNavigatedListener(new NavController.OnNavigatedListener() {
-            @Override
-            public void onNavigated(@NonNull NavController controller,
-                    @NonNull NavDestination destination, @Nullable Bundle arguments) {
-                BottomNavigationView view = weakReference.get();
-                if (view == null) {
-                    navController.removeOnNavigatedListener(this);
-                    return;
-                }
-                Menu menu = view.getMenu();
-                for (int h = 0, size = menu.size(); h < size; h++) {
-                    MenuItem item = menu.getItem(h);
-                    if (matchDestination(destination, item.getItemId())) {
-                        item.setChecked(true);
+        navController.addOnCurrentDestinationChangedListener(
+                new NavController.OnDestinationChangedListener() {
+                    @Override
+                    public void onDestinationChanged(@NonNull NavController controller,
+                            @NonNull NavDestination destination, @Nullable Bundle arguments) {
+                        BottomNavigationView view = weakReference.get();
+                        if (view == null) {
+                            navController.removeOnCurrentDestinationChangedListener(this);
+                            return;
+                        }
+                        Menu menu = view.getMenu();
+                        for (int h = 0, size = menu.size(); h < size; h++) {
+                            MenuItem item = menu.getItem(h);
+                            if (matchDestination(destination, item.getItemId())) {
+                                item.setChecked(true);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
     }
 
     /**
