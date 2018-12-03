@@ -75,7 +75,7 @@ abstract class AbstractAppBarOnDestinationChangedListener
                 ? mDrawerLayoutWeakReference.get()
                 : null;
         if (mDrawerLayoutWeakReference != null && drawerLayout == null) {
-            controller.removeOnCurrentDestinationChangedListener(this);
+            controller.removeOnDestinationChangedListener(this);
             return;
         }
         CharSequence label = destination.getLabel();
