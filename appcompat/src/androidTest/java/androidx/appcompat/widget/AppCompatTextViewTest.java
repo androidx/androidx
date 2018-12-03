@@ -632,8 +632,6 @@ public class AppCompatTextViewTest
         });
     }
 
-    /*
-    TODO(nona): Re-enable this test case (http://b/120038752).
     @Test
     public void testSetTextAsync_directionDifference() throws Throwable {
         mActivity.runOnUiThread(new Runnable() {
@@ -648,7 +646,6 @@ public class AppCompatTextViewTest
             }
         });
     }
-    */
 
     @Test
     public void testSetTextAsync_createAndAttach() throws Throwable {
