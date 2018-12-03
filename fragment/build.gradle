@@ -14,7 +14,7 @@ android {
 }
 
 dependencies {
-    api("androidx.core:core:1.1.0-alpha01")
+    api("androidx.core:core:1.1.0-alpha02")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.annotation:annotation:1.0.0")
     api("androidx.loader:loader:1.0.0")
