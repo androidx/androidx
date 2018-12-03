@@ -81,7 +81,7 @@ class FragmentNavigatorTest {
         val fragment = fragmentManager.findFragmentById(R.id.container)
         assertNotNull("Fragment should be added", fragment)
         assertEquals("Fragment should be the correct type",
-                EmptyFragment::class.java, fragment::class.java)
+                EmptyFragment::class.java, fragment!!::class.java)
         assertEquals("Fragment should be the primary navigation Fragment",
                 fragment, fragmentManager.primaryNavigationFragment)
     }
@@ -101,7 +101,7 @@ class FragmentNavigatorTest {
         val fragment = fragmentManager.findFragmentById(R.id.container)
         assertNotNull("Fragment should be added", fragment)
         assertEquals("Fragment should be the correct type",
-                EmptyFragment::class.java, fragment::class.java)
+                EmptyFragment::class.java, fragment!!::class.java)
         assertEquals("Fragment should be the primary navigation Fragment",
                 fragment, fragmentManager.primaryNavigationFragment)
 
@@ -113,7 +113,7 @@ class FragmentNavigatorTest {
         val replacementFragment = fragmentManager.findFragmentById(R.id.container)
         assertNotNull("Replacement Fragment should be added", replacementFragment)
         assertEquals("Replacement Fragment should be the correct type",
-                EmptyFragment::class.java, replacementFragment::class.java)
+                EmptyFragment::class.java, replacementFragment!!::class.java)
         assertEquals("Replacement Fragment should be the primary navigation Fragment",
                 replacementFragment, fragmentManager.primaryNavigationFragment)
     }
@@ -215,7 +215,7 @@ class FragmentNavigatorTest {
         assertNotEquals("Replacement should be a new instance", fragment,
                 replacementFragment)
         assertEquals("Old instance should be destroyed", Lifecycle.State.DESTROYED,
-                fragment.lifecycle.currentState)
+                fragment!!.lifecycle.currentState)
     }
 
     @UiThreadTest
@@ -249,7 +249,7 @@ class FragmentNavigatorTest {
         assertNotEquals("Replacement should be a new instance", fragment,
                 replacementFragment)
         assertEquals("Old instance should be destroyed", Lifecycle.State.DESTROYED,
-                fragment.lifecycle.currentState)
+                fragment!!.lifecycle.currentState)
     }
 
     @UiThreadTest
@@ -445,7 +445,7 @@ class FragmentNavigatorTest {
         var fragment = fragmentManager.findFragmentById(R.id.container)
         assertNotNull("Fragment should be added", fragment)
         assertEquals("Fragment should be the correct type",
-                EmptyFragment::class.java, fragment::class.java)
+                EmptyFragment::class.java, fragment!!::class.java)
         assertEquals("Fragment should be the primary navigation Fragment",
                 fragment, fragmentManager.primaryNavigationFragment)
 
@@ -457,7 +457,7 @@ class FragmentNavigatorTest {
         var replacementFragment = fragmentManager.findFragmentById(R.id.container)
         assertNotNull("Replacement Fragment should be added", replacementFragment)
         assertEquals("Replacement Fragment should be the correct type",
-                EmptyFragment::class.java, replacementFragment::class.java)
+                EmptyFragment::class.java, replacementFragment!!::class.java)
         assertEquals("Replacement Fragment should be the primary navigation Fragment",
                 replacementFragment, fragmentManager.primaryNavigationFragment)
 
