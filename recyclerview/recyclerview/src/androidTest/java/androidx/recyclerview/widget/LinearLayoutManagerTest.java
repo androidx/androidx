@@ -909,7 +909,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
     }
 
     @Test
-    public void layoutFrozenBug70402422() throws Throwable {
+    public void layoutSuppressedBug70402422() throws Throwable {
         final Config config = new Config();
         TestAdapter adapter = new TestAdapter(2);
         adapter.setHasStableIds(false);
@@ -929,10 +929,10 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mRecyclerView.setLayoutFrozen(true);
+                mRecyclerView.suppressLayout(true);
             }
         });
-        // requestLayout during item animation, which should be eaten by setLayoutFrozen(true)
+        // requestLayout during item animation, which should be eaten by suppressLayout(true)
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -947,13 +947,13 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 itemAnimator.endAnimations();
             }
         });
-        // When setLayoutFrozen(false), the firstItemView should run a layout pass and clear
+        // When suppressLayout(false), the firstItemView should run a layout pass and clear
         // isLayoutRequested() flag.
         mLayoutManager.expectLayouts(1);
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mRecyclerView.setLayoutFrozen(false);
+                mRecyclerView.suppressLayout(false);
             }
         });
         mLayoutManager.waitForLayout(1);

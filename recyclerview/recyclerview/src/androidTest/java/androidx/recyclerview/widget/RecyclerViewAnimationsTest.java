@@ -1549,15 +1549,15 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.expectLayouts(2);
         mLayoutManager.mOnLayoutCallbacks.mLayoutMin = 1;
         mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 8;
-        freezeLayout(true);
+        suppressLayout(true);
         mTestAdapter.addAndNotify(0, 1);
 
-        mLayoutManager.assertNoLayout("RV should keep old child during frozen", 2);
+        mLayoutManager.assertNoLayout("RV should keep old child during suppressLayout", 2);
         assertEquals(7, mRecyclerView.getChildCount());
 
-        freezeLayout(false);
+        suppressLayout(false);
         mLayoutManager.waitForLayout(2);
-        assertEquals("RV should get updated after waken from frozen",
+        assertEquals("RV should get updated after waken from suppressLayout",
                 8, mRecyclerView.getChildCount());
     }
 
