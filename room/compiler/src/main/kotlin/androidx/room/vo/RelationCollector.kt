@@ -26,7 +26,7 @@ import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
 import androidx.room.processor.Context
-import androidx.room.processor.ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER
+import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.processor.ProcessorErrors.relationAffinityMismatch
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.query.parameter.QueryParameterAdapter
@@ -327,7 +327,8 @@ data class RelationCollector(
                 }
 
                 if (rowAdapter == null) {
-                    context.logger.e(relation.field.element, CANNOT_FIND_QUERY_RESULT_ADAPTER)
+                    context.logger.e(relation.field.element,
+                        cannotFindQueryResultAdapter(relation.pojoType.toString()))
                     null
                 } else {
                     RelationCollector(

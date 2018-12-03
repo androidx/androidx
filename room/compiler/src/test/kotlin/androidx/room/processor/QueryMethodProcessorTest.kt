@@ -30,7 +30,7 @@ import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.typeName
 import androidx.room.parser.Table
-import androidx.room.processor.ProcessorErrors.CANNOT_FIND_QUERY_RESULT_ADAPTER
+import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
@@ -711,7 +711,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(adapter?.mapping?.unusedColumns, `is`(listOf("name", "lastName")))
             assertThat(adapter?.mapping?.unusedFields, `is`(adapter?.pojo?.fields as List<Field>))
         }?.failsToCompile()
-                ?.withErrorContaining(CANNOT_FIND_QUERY_RESULT_ADAPTER)
+                ?.withErrorContaining(cannotFindQueryResultAdapter("foo.bar.MyClass.Pojo"))
                 ?.and()
                 ?.withWarningContaining(
                         ProcessorErrors.cursorPojoMismatch(
@@ -853,7 +853,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         if (enableVerification) {
             return assertion
         } else {
-            assertion.failsToCompile().withErrorContaining(CANNOT_FIND_QUERY_RESULT_ADAPTER)
+            assertion.failsToCompile()
+                .withErrorContaining(cannotFindQueryResultAdapter("foo.bar.MyClass.Pojo"))
             return null
         }
     }

@@ -33,8 +33,7 @@ class DeletionMethodProcessor(
 
         val returnType = delegate.extractReturnType()
 
-        val methodBinder = context.typeAdapterStore
-                .findDeleteOrUpdateMethodBinder(returnType)
+        val methodBinder = delegate.findDeleteOrUpdateMethodBinder(returnType)
 
         context.checker.check(
                 methodBinder.adapter != null,
