@@ -33,8 +33,11 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.text.Annotation;
+import android.text.ParcelableSpan;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateUtils;
@@ -88,6 +91,8 @@ public final class SliceItem extends CustomVersionedParcelable {
     private static final String SUBTYPE = "subtype";
     private static final String OBJ = "obj";
     private static final String OBJ_2 = "obj_2";
+    private static final String SLICE_CONTENT = "androidx.slice.content";
+    private static final String SLICE_CONTENT_SENSITIVE = "sensitive";
 
     /**
      * @hide
@@ -235,6 +240,17 @@ public final class SliceItem extends CustomVersionedParcelable {
     public CharSequence getSanitizedText() {
         if (mSanitizedText == null) mSanitizedText = sanitizeText(getText());
         return mSanitizedText;
+    }
+
+    /**
+     * Get the same content as {@link #getText()} except with content that should be excluded from
+     * persistent logs because it was tagged with {@link #createSensitiveSpan()}.
+     *
+     * @return The text held by this {@link android.app.slice.SliceItem#FORMAT_TEXT} SliceItem
+     */
+    @Nullable
+    public CharSequence getRedactedText() {
+        return redactSensitiveText(getText());
     }
 
     /**
@@ -551,6 +567,15 @@ public final class SliceItem extends CustomVersionedParcelable {
         mHolder = null;
     }
 
+    /**
+     * Creates a span object that identifies content that should be redacted when acquired using
+     * {@link #getRedactedText()}.
+     */
+    @NonNull
+    public static ParcelableSpan createSensitiveSpan() {
+        return new Annotation(SLICE_CONTENT, SLICE_CONTENT_SENSITIVE);
+    }
+
     private static String layoutDirectionToString(int layoutDirection) {
         switch (layoutDirection) {
             case android.util.LayoutDirection.LTR:
@@ -564,6 +589,53 @@ public final class SliceItem extends CustomVersionedParcelable {
             default:
                 return Integer.toString(layoutDirection);
         }
+    }
+
+    private static CharSequence redactSensitiveText(CharSequence text) {
+        if (text instanceof Spannable) {
+            return redactSpannableText((Spannable) text);
+        } else if (text instanceof Spanned) {
+            if (!isRedactionNeeded((Spanned) text)) return text;
+            Spannable fixedText = new SpannableString(text);
+            return redactSpannableText(fixedText);
+        } else {
+            return text;
+        }
+    }
+
+    private static boolean isRedactionNeeded(Spanned text) {
+        for (Annotation span : text.getSpans(0, text.length(), Annotation.class)) {
+            if (SLICE_CONTENT.equals(span.getKey())
+                    && SLICE_CONTENT_SENSITIVE.equals(span.getValue())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static CharSequence redactSpannableText(Spannable text) {
+        Spanned out = text;
+        for (Annotation span : text.getSpans(0, text.length(), Annotation.class)) {
+            if (!SLICE_CONTENT.equals(span.getKey())
+                    || !SLICE_CONTENT_SENSITIVE.equals(span.getValue())) {
+                continue;
+            }
+            int spanStart = text.getSpanStart(span);
+            int spanEnd = text.getSpanEnd(span);
+            out = new SpannableStringBuilder()
+                    .append(out.subSequence(0, spanStart))
+                    .append(createRedacted(spanEnd - spanStart))
+                    .append(out.subSequence(spanEnd, text.length()));
+        }
+        return out;
+    }
+
+    private static String createRedacted(final int n) {
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < n; i++) {
+            s.append('*');
+        }
+        return s.toString();
     }
 
     private static CharSequence sanitizeText(CharSequence text) {
