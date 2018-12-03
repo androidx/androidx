@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.ParcelFileDescriptor;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -32,6 +33,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
+import androidx.media2.FileMediaItem;
 import androidx.media2.MediaItem;
 import androidx.media2.SessionToken;
 
@@ -178,6 +180,10 @@ public class VideoView extends BaseLayout {
 
     /**
      * Sets {@link MediaItem} object to render using VideoView.
+     * <p>
+     * When the media item is a {@link FileMediaItem}, the {@link ParcelFileDescriptor}
+     * in the {@link FileMediaItem} will be closed by the VideoView.
+     *
      * @param mediaItem the MediaItem2 to play
      */
     public void setMediaItem(@NonNull MediaItem mediaItem) {

@@ -46,6 +46,7 @@ import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -182,8 +183,11 @@ public class VideoViewTest {
         AssetFileDescriptor afd = mContext.getResources()
                 .openRawResourceFd(R.raw.testvideo_with_2_subtitle_tracks);
         final MediaItem item = new FileMediaItem.Builder(
-                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
+                ParcelFileDescriptor.dup(afd.getFileDescriptor()),
+                afd.getStartOffset(),
+                afd.getLength())
                 .build();
+        afd.close();
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
