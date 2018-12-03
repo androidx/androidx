@@ -70,6 +70,7 @@ import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.InterruptionAwareWorker;
 import androidx.work.worker.LatchWorker;
 import androidx.work.worker.RetryWorker;
+import androidx.work.worker.ReturnNullResultWorker;
 import androidx.work.worker.SleepTestWorker;
 import androidx.work.worker.TestWorker;
 import androidx.work.worker.UsedWorker;
@@ -960,6 +961,19 @@ public class WorkerWrapperTest extends DatabaseTest {
         Executors.newSingleThreadExecutor().submit(workerWrapper);
         Thread.sleep(1000L);
         assertThat(workerWrapper.mWorker.getRunAttemptCount(), is(10));
+    }
+
+    @Test
+    @SmallTest
+    public void testWorkerThatReturnsNullResult() {
+        OneTimeWorkRequest work =
+                new OneTimeWorkRequest.Builder(ReturnNullResultWorker.class).build();
+        insertWork(work);
+        WorkerWrapper workerWrapper = createBuilder(work.getStringId()).build();
+        FutureListener listener = createAndAddFutureListener(workerWrapper);
+        workerWrapper.run();
+        assertThat(listener.mResult, is(false));
+        assertThat(mWorkSpecDao.getState(work.getStringId()), is(FAILED));
     }
 
     private WorkerWrapper.Builder createBuilder(String workSpecId) {
