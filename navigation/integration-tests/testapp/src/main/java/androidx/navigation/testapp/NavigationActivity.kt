@@ -71,7 +71,7 @@ class NavigationActivity : AppCompatActivity() {
         val bottomNavView = findViewById<BottomNavigationView>(R.id.bottom_nav_view)
         bottomNavView?.setupWithNavController(navController)
 
-        navController.addOnNavigatedListener { _, destination, _ ->
+        navController.addOnCurrentDestinationChangedListener { _, destination, _ ->
             val dest: String = try {
                 resources.getResourceName(destination.id)
             } catch (e: Resources.NotFoundException) {
