@@ -82,6 +82,8 @@ public class WorkManagerImpl extends WorkManager {
     private Preferences mPreferences;
     private boolean mForceStopRunnableCompleted;
     private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
+    // TODO remove after moving to X: b/74477406
+    private final WorkManagerLiveDataTracker mLiveDataTracker = new WorkManagerLiveDataTracker();
 
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
@@ -428,7 +430,7 @@ public class WorkManagerImpl extends WorkManager {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
                 dao.getWorkStatusPojoLiveDataForIds(Collections.singletonList(id.toString()));
-        return LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData,
+        LiveData<WorkInfo> deduped = LiveDataUtils.dedupedMappedLiveDataFor(inputLiveData,
                 new Function<List<WorkSpec.WorkInfoPojo>, WorkInfo>() {
                     @Override
                     public WorkInfo apply(List<WorkSpec.WorkInfoPojo> input) {
@@ -440,6 +442,7 @@ public class WorkManagerImpl extends WorkManager {
                     }
                 },
                 mWorkTaskExecutor);
+        return mLiveDataTracker.track(deduped);
     }
 
     @Override
@@ -454,10 +457,11 @@ public class WorkManagerImpl extends WorkManager {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForTag(tag);
-        return LiveDataUtils.dedupedMappedLiveDataFor(
+        LiveData<List<WorkInfo>> deduped = LiveDataUtils.dedupedMappedLiveDataFor(
                 inputLiveData,
                 WorkSpec.WORK_INFO_MAPPER,
                 mWorkTaskExecutor);
+        return mLiveDataTracker.track(deduped);
     }
 
     @Override
@@ -473,10 +477,11 @@ public class WorkManagerImpl extends WorkManager {
         WorkSpecDao workSpecDao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
                 workSpecDao.getWorkStatusPojoLiveDataForName(name);
-        return LiveDataUtils.dedupedMappedLiveDataFor(
+        LiveData<List<WorkInfo>> deduped = LiveDataUtils.dedupedMappedLiveDataFor(
                 inputLiveData,
                 WorkSpec.WORK_INFO_MAPPER,
                 mWorkTaskExecutor);
+        return mLiveDataTracker.track(deduped);
     }
 
     @Override
@@ -492,10 +497,11 @@ public class WorkManagerImpl extends WorkManager {
         WorkSpecDao dao = mWorkDatabase.workSpecDao();
         LiveData<List<WorkSpec.WorkInfoPojo>> inputLiveData =
                 dao.getWorkStatusPojoLiveDataForIds(workSpecIds);
-        return LiveDataUtils.dedupedMappedLiveDataFor(
+        LiveData<List<WorkInfo>> deduped = LiveDataUtils.dedupedMappedLiveDataFor(
                 inputLiveData,
                 WorkSpec.WORK_INFO_MAPPER,
                 mWorkTaskExecutor);
+        return mLiveDataTracker.track(deduped);
     }
 
     /**
