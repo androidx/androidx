@@ -53,22 +53,6 @@ import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.query.result.RowAdapter
 import androidx.room.solver.query.result.SingleColumnRowAdapter
 import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
-import androidx.room.solver.types.BoxedBooleanToBoxedIntConverter
-import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
-import androidx.room.solver.types.ByteArrayColumnTypeAdapter
-import androidx.room.solver.types.ColumnTypeAdapter
-import androidx.room.solver.types.CompositeAdapter
-import androidx.room.solver.types.CompositeTypeConverter
-import androidx.room.solver.types.CursorValueReader
-import androidx.room.solver.types.NoOpConverter
-import androidx.room.solver.types.PrimitiveBooleanToIntConverter
-import androidx.room.solver.types.PrimitiveColumnTypeAdapter
-import androidx.room.solver.types.StatementValueBinder
-import androidx.room.solver.types.StringColumnTypeAdapter
-import androidx.room.solver.types.TypeConverter
-import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
-import androidx.room.solver.shortcut.result.InsertMethodAdapter
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.solver.shortcut.binder.InstantDeleteOrUpdateMethodBinder
@@ -83,6 +67,22 @@ import androidx.room.solver.shortcut.binderprovider.RxMaybeDeleteOrUpdateMethodB
 import androidx.room.solver.shortcut.binderprovider.RxMaybeInsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxSingleDeleteOrUpdateMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxSingleInsertMethodBinderProvider
+import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
+import androidx.room.solver.shortcut.result.InsertMethodAdapter
+import androidx.room.solver.types.BoxedBooleanToBoxedIntConverter
+import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
+import androidx.room.solver.types.ByteArrayColumnTypeAdapter
+import androidx.room.solver.types.ColumnTypeAdapter
+import androidx.room.solver.types.CompositeAdapter
+import androidx.room.solver.types.CompositeTypeConverter
+import androidx.room.solver.types.CursorValueReader
+import androidx.room.solver.types.NoOpConverter
+import androidx.room.solver.types.PrimitiveBooleanToIntConverter
+import androidx.room.solver.types.PrimitiveColumnTypeAdapter
+import androidx.room.solver.types.StatementValueBinder
+import androidx.room.solver.types.StringColumnTypeAdapter
+import androidx.room.solver.types.TypeConverter
+import androidx.room.vo.ShortcutQueryParameter
 import asTypeElement
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -474,12 +474,11 @@ class TypeAdapterStore private constructor(
     }
 
     fun findQueryParameterAdapter(typeMirror: TypeMirror): QueryParameterAdapter? {
-        if (MoreTypes.isType(typeMirror) &&
-                (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror) ||
-                        MoreTypes.isTypeOf(java.util.Set::class.java, typeMirror))) {
+        val typeUtils = context.processingEnv.typeUtils
+        if (MoreTypes.isType(typeMirror) && typeUtils.isAssignable(typeMirror,
+                typeUtils.erasure(context.COMMON_TYPES.COLLECTION))) {
             val declared = MoreTypes.asDeclared(typeMirror)
-            val binder = findStatementValueBinder(declared.typeArguments.first(),
-                    null)
+            val binder = findStatementValueBinder(declared.typeArguments.first(), null)
             if (binder != null) {
                 return CollectionQueryParameterAdapter(binder)
             } else {

@@ -28,11 +28,12 @@ import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
 class Context private constructor(
-        val processingEnv: ProcessingEnvironment,
-        val logger: RLog,
-        private val typeConverters: CustomConverterProcessor.ProcessResult,
-        private val inheritedAdapterStore: TypeAdapterStore?,
-        val cache: Cache) {
+    val processingEnv: ProcessingEnvironment,
+    val logger: RLog,
+    private val typeConverters: CustomConverterProcessor.ProcessResult,
+    private val inheritedAdapterStore: TypeAdapterStore?,
+    val cache: Cache
+) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES: Context.CommonTypes = Context.CommonTypes(processingEnv)
 
@@ -63,6 +64,9 @@ class Context private constructor(
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
         val STRING: TypeMirror by lazy {
             processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
+        }
+        val COLLECTION: TypeMirror by lazy {
+            processingEnv.elementUtils.getTypeElement("java.util.Collection").asType()
         }
     }
 
