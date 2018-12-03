@@ -23,6 +23,7 @@ import android.support.annotation.MainThread;
 import android.support.annotation.RestrictTo;
 
 import androidx.work.Logger;
+import androidx.work.impl.utils.WakeLocks;
 
 /**
  * Service invoked by {@link android.app.AlarmManager} to run work tasks.
@@ -64,6 +65,8 @@ public class SystemAlarmService extends LifecycleService
     @Override
     public void onAllCommandsCompleted() {
         Logger.get().debug(TAG, "All commands completed in dispatcher");
+        // Check to see if we hold any more wake locks.
+        WakeLocks.checkWakeLocks();
         // No need to pass in startId; stopSelf() translates to stopSelf(-1) which is a hard stop
         // of all startCommands. This is the behavior we want.
         stopSelf();
