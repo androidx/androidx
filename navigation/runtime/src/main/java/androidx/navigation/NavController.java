@@ -121,19 +121,12 @@ public final class NavController {
                     }
                     // Pop all intervening destinations from other Navigators off the
                     // back stack
-                    popBackStack(lastFromNavigator.getId(), false);
+                    popBackStackInternal(lastFromNavigator.getId(), false);
                     // Now record the pop operation that we were sent
                     if (!mBackStack.isEmpty()) {
                         mBackStack.removeLast();
                     }
-                    // We never want to leave NavGraphs on the top of the stack
-                    while (!mBackStack.isEmpty()
-                            && mBackStack.peekLast().getDestination() instanceof NavGraph) {
-                        popBackStack();
-                    }
-                    if (!mBackStack.isEmpty()) {
-                        dispatchOnCurrentDestinationChanged(mBackStack.peekLast());
-                    }
+                    dispatchOnDestinationChanged();
                 }
             };
 
@@ -254,7 +247,6 @@ public final class NavController {
         return popBackStack(getCurrentDestination().getId(), true);
     }
 
-
     /**
      * Attempts to pop the controller's back stack back to a specific destination.
      *
@@ -264,6 +256,24 @@ public final class NavController {
      * @return true if the stack was popped at least once, false otherwise
      */
     public boolean popBackStack(@IdRes int destinationId, boolean inclusive) {
+        boolean popped = popBackStackInternal(destinationId, inclusive);
+        if (popped) {
+            dispatchOnDestinationChanged();
+        }
+        return popped;
+    }
+
+    /**
+     * Attempts to pop the controller's back stack back to a specific destination. This does
+     * <strong>not</strong> handle calling {@link #dispatchOnDestinationChanged()}
+     *
+     * @param destinationId The topmost destination to retain
+     * @param inclusive Whether the given destination should also be popped.
+     *
+     * @return true if the stack was popped at least once, false otherwise
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    boolean popBackStackInternal(@IdRes int destinationId, boolean inclusive) {
         if (mBackStack.isEmpty()) {
             // Nothing to pop if the back stack is empty
             return false;
@@ -275,22 +285,12 @@ public final class NavController {
             NavDestination destination = iterator.next().getDestination();
             Navigator navigator = mNavigatorProvider.getNavigator(
                     destination.getNavigatorName());
-            if (foundDestination) {
-                // We never want to leave NavGraphs on the top of the stack
-                if (destination instanceof NavGraph) {
-                    popOperations.add(navigator);
-                } else {
-                    // Break out of the loop as we've popped everything we need to
-                    break;
-                }
-            } else if (inclusive || destination.getId() != destinationId) {
+            if (inclusive || destination.getId() != destinationId) {
                 popOperations.add(navigator);
             }
             if (destination.getId() == destinationId) {
                 foundDestination = true;
-                if (!inclusive) {
-                    break;
-                }
+                break;
             }
         }
         if (!foundDestination) {
@@ -310,9 +310,6 @@ public final class NavController {
                 popped = false;
                 break;
             }
-        }
-        if (!mBackStack.isEmpty()) {
-            dispatchOnCurrentDestinationChanged(mBackStack.peekLast());
         }
         return popped;
     }
@@ -360,11 +357,21 @@ public final class NavController {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void dispatchOnCurrentDestinationChanged(NavBackStackEntry backStackEntry) {
-        for (OnDestinationChangedListener listener :
-                mOnDestinationChangedListeners) {
-            listener.onDestinationChanged(this, backStackEntry.getDestination(),
-                    backStackEntry.getArguments());
+    void dispatchOnDestinationChanged() {
+        // We never want to leave NavGraphs on the top of the stack
+        //noinspection StatementWithEmptyBody
+        while (!mBackStack.isEmpty()
+                && mBackStack.peekLast().getDestination() instanceof NavGraph
+                && popBackStackInternal(mBackStack.peekLast().getDestination().getId(), true)) {
+            // Keep popping
+        }
+        if (!mBackStack.isEmpty()) {
+            NavBackStackEntry backStackEntry = mBackStack.peekLast();
+            for (OnDestinationChangedListener listener :
+                    mOnDestinationChangedListeners) {
+                listener.onDestinationChanged(this, backStackEntry.getDestination(),
+                        backStackEntry.getArguments());
+            }
         }
     }
 
@@ -714,9 +721,11 @@ public final class NavController {
 
     private void navigate(@NonNull NavDestination node, @Nullable Bundle args,
             @Nullable NavOptions navOptions, @Nullable Navigator.Extras navigatorExtras) {
+        boolean popped = false;
         if (navOptions != null) {
             if (navOptions.getPopUpTo() != 0) {
-                popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
+                popped = popBackStackInternal(navOptions.getPopUpTo(),
+                        navOptions.isPopUpToInclusive());
             }
         }
         Navigator<NavDestination> navigator = mNavigatorProvider.getNavigator(
@@ -750,7 +759,9 @@ public final class NavController {
             // And finally, add the new destination
             NavBackStackEntry newBackStackEntry = new NavBackStackEntry(newDest, finalArgs);
             mBackStack.add(newBackStackEntry);
-            dispatchOnCurrentDestinationChanged(newBackStackEntry);
+        }
+        if (popped || newDest != null) {
+            dispatchOnDestinationChanged();
         }
     }
 

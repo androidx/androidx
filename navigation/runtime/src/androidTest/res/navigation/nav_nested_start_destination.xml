@@ -19,7 +19,14 @@
         android:id="@+id/nested"
         app:startDestination="@+id/nested_test">
 
-        <test android:id="@+id/nested_test"/>
+        <test android:id="@+id/nested_test">
+            <action
+                    android:id="@+id/pop_forward"
+                    app:destination="@+id/nested_second_test"
+                    app:popUpTo="@id/nested_test"
+                    app:popUpToInclusive="true"/>
+        </test>
+        <test android:id="@+id/nested_second_test"/>
     </navigation>
 
     <test android:id="@+id/second_test"/>
