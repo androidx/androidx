@@ -74,6 +74,7 @@ private fun navigationFiles(variant: BaseVariant) = variant.sourceSets
             }
         }
         .flatMap { navFolder -> navFolder.listFiles().asIterable() }
+        .filter { file -> file.isFile }
         .groupBy { file -> file.name }
         .map { entry -> entry.value.last() }
 
