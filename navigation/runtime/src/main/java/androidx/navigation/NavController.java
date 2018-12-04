@@ -217,8 +217,7 @@ public final class NavController {
      *
      * @param listener the listener to receive events
      */
-    public void addOnCurrentDestinationChangedListener(
-            @NonNull OnDestinationChangedListener listener) {
+    public void addOnDestinationChangedListener(@NonNull OnDestinationChangedListener listener) {
         // Inform the new listener of our current state, if any
         if (!mBackStack.isEmpty()) {
             NavBackStackEntry backStackEntry = mBackStack.peekLast();
@@ -234,7 +233,7 @@ public final class NavController {
      *
      * @param listener the listener to remove
      */
-    public void removeOnCurrentDestinationChangedListener(
+    public void removeOnDestinationChangedListener(
             @NonNull OnDestinationChangedListener listener) {
         mOnDestinationChangedListeners.remove(listener);
     }

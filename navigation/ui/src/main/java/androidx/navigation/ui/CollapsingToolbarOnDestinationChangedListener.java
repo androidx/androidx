@@ -57,7 +57,7 @@ class CollapsingToolbarOnDestinationChangedListener
                 mCollapsingToolbarLayoutWeakReference.get();
         Toolbar toolbar = mToolbarWeakReference.get();
         if (collapsingToolbarLayout == null || toolbar == null) {
-            controller.removeOnCurrentDestinationChangedListener(this);
+            controller.removeOnDestinationChangedListener(this);
             return;
         }
         super.onDestinationChanged(controller, destination, arguments);
