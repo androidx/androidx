@@ -160,6 +160,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     private boolean mShowActions = false;
     private boolean mShowLastUpdated = true;
     private boolean mCurrentSliceLoggedVisible = false;
+    private boolean mShowHeaderDivider = false;
     private boolean mShowActionDividers = false;
 
     private int mShortcutSize;
@@ -468,6 +469,9 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             mCurrentView.resetView();
         }
         mListContent = mSliceMetadata != null ? mSliceMetadata.getListContent() : null;
+        if (mShowHeaderDivider) {
+            showHeaderDivider(true);
+        }
         if (mShowActionDividers) {
             showActionDividers(true);
         }
@@ -627,6 +631,16 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
      */
     public @SliceMode int getMode() {
         return mViewPolicy.getMode();
+    }
+
+    /**
+     * Whether this view should show the header divider.
+     */
+    public void showHeaderDivider(boolean enabled) {
+        mShowHeaderDivider = enabled;
+        if (mListContent != null) {
+            mListContent.showHeaderDivider(enabled);
+        }
     }
 
     /**

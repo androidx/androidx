@@ -191,6 +191,15 @@ public class ListContent extends SliceContent {
     }
 
     /**
+     * Whether the header row should show the bottom divider.
+     */
+    public void showHeaderDivider(boolean enabled) {
+        if (mHeaderContent != null && mRowItems.size() > 1) {
+            mHeaderContent.showBottomDivider(enabled);
+        }
+    }
+
+    /**
      * Whether all the row contents should show action dividers.
      */
     public void showActionDividers(boolean enabled) {

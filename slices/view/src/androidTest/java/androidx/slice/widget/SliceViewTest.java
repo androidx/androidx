@@ -389,6 +389,42 @@ public class SliceViewTest {
     }
 
     @Test
+    public void testHideHeaderDividerWhenOnlyOneRow() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder()
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
+        Slice s = lb.build();
+
+        mSliceView.setSlice(s);
+        mSliceView.showHeaderDivider(true);
+
+        assertFalse(mSliceView.mListContent.getHeader().hasBottomDivider());
+    }
+
+    @Test
+    public void testShowHeaderDivider() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder()
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
+        lb.addRow(new ListBuilder.RowBuilder()
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
+        Slice s = lb.build();
+
+        mSliceView.setSlice(s);
+        mSliceView.showHeaderDivider(true);
+
+        assertTrue(mSliceView.mListContent.getHeader().hasBottomDivider());
+    }
+
+    @Test
     public void testShowActionDividers() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);

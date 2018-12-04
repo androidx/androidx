@@ -108,7 +108,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     private TextView mPrimaryText;
     private TextView mSecondaryText;
     private TextView mLastUpdatedText;
-    private View mDivider;
+    private View mBottomDivider;
+    private View mActionDivider;
     private ArrayMap<SliceActionImpl, SliceActionView> mToggles = new ArrayMap<>();
     private ArrayMap<SliceActionImpl, SliceActionView> mActions = new ArrayMap<>();
     private LinearLayout mEndContainer;
@@ -171,7 +172,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mPrimaryText = (TextView) findViewById(android.R.id.title);
         mSecondaryText = (TextView) findViewById(android.R.id.summary);
         mLastUpdatedText = (TextView) findViewById(R.id.last_updated);
-        mDivider = findViewById(R.id.divider);
+        mBottomDivider = findViewById(R.id.bottom_divider);
+        mActionDivider = findViewById(R.id.action_divider);
         mActionSpinner = findViewById(R.id.action_sent_indicator);
         SliceViewUtil.tintIndeterminateProgressBar(getContext(), mActionSpinner);
         mEndContainer = (LinearLayout) findViewById(android.R.id.widget_frame);
@@ -346,6 +348,19 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
         addSubtitle(titleItem != null /* hasTitle */);
 
+        if (mRowContent.hasBottomDivider()) {
+            if (mSliceStyle != null) {
+                final int padding = mSliceStyle.getHeaderDividerPadding();
+                LinearLayout.LayoutParams lp =
+                        (LinearLayout.LayoutParams) mBottomDivider.getLayoutParams();
+                lp.setMargins(padding, 0, padding, 0);
+                mBottomDivider.setLayoutParams(lp);
+            }
+            mBottomDivider.setVisibility(View.VISIBLE);
+        } else {
+            mBottomDivider.setVisibility(View.GONE);
+        }
+
         SliceItem primaryAction = mRowContent.getPrimaryAction();
         if (primaryAction != null && primaryAction != mStartItem) {
             mRowAction = new SliceActionImpl(primaryAction);
@@ -421,7 +436,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
 
         // If there is a row action and the first end item is a default toggle, or action divider
         // is set by presenter and a single action is at the end of the row, show the divider.
-        mDivider.setVisibility(mRowAction != null && (firstItemIsADefaultToggle
+        mActionDivider.setVisibility(mRowAction != null && (firstItemIsADefaultToggle
                 || (mRowContent.hasActionDivider() && singleActionAtTheEnd))
                 ? View.VISIBLE : View.GONE);
         boolean hasStartAction = mStartItem != null
@@ -845,7 +860,8 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         mActions.clear();
         mRowAction = null;
         mStartItem = null;
-        mDivider.setVisibility(GONE);
+        mBottomDivider.setVisibility(GONE);
+        mActionDivider.setVisibility(GONE);
         if (mSeeMoreView != null) {
             mRootView.removeView(mSeeMoreView);
             mSeeMoreView = null;
