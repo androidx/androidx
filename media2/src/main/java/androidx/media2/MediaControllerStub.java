@@ -83,7 +83,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onCurrentMediaItemChanged(final ParcelImpl item, final int currentIdx,
+    public void onCurrentMediaItemChanged(int seq, final ParcelImpl item, final int currentIdx,
             final int previousIdx, final int nextIdx) {
         if (item == null) {
             return;
@@ -99,7 +99,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onPlayerStateChanged(final long eventTimeMs, final long positionMs,
+    public void onPlayerStateChanged(int seq, final long eventTimeMs, final long positionMs,
             final int state) {
         dispatchControllerTask(new ControllerTask() {
             @Override
@@ -110,7 +110,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onPlaybackSpeedChanged(final long eventTimeMs, final long positionMs,
+    public void onPlaybackSpeedChanged(int seq, final long eventTimeMs, final long positionMs,
             final float speed) {
         dispatchControllerTask(new ControllerTask() {
             @Override
@@ -121,7 +121,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onBufferingStateChanged(final ParcelImpl item, @BuffState final int state,
+    public void onBufferingStateChanged(int seq, final ParcelImpl item, @BuffState final int state,
             final long bufferedPositionMs, final long eventTimeMs, final long positionMs) {
         if (item == null) {
             return;
@@ -141,8 +141,9 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onPlaylistChanged(final ParcelImplListSlice listSlice, final ParcelImpl metadata,
-            final int currentIdx, final int previousIdx, final int nextIdx) {
+    public void onPlaylistChanged(int seq, final ParcelImplListSlice listSlice,
+            final ParcelImpl metadata, final int currentIdx, final int previousIdx,
+            final int nextIdx) {
         if (metadata == null) {
             return;
         }
@@ -159,7 +160,8 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onPlaylistMetadataChanged(final ParcelImpl metadata) throws RuntimeException {
+    public void onPlaylistMetadataChanged(int seq, final ParcelImpl metadata)
+            throws RuntimeException {
         if (metadata == null) {
             return;
         }
@@ -173,7 +175,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onRepeatModeChanged(final int repeatMode) {
+    public void onRepeatModeChanged(int seq, final int repeatMode) {
         dispatchControllerTask(new ControllerTask() {
             @Override
             public void run(MediaControllerImplBase controller) {
@@ -183,7 +185,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onShuffleModeChanged(final int shuffleMode) {
+    public void onShuffleModeChanged(int seq, final int shuffleMode) {
         dispatchControllerTask(new ControllerTask() {
             @Override
             public void run(MediaControllerImplBase controller) {
@@ -193,7 +195,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onPlaybackCompleted() {
+    public void onPlaybackCompleted(int seq) {
         dispatchControllerTask(new ControllerTask() {
             @Override
             public void run(MediaControllerImplBase controller) {
@@ -203,7 +205,8 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onPlaybackInfoChanged(final ParcelImpl playbackInfo) throws RuntimeException {
+    public void onPlaybackInfoChanged(int seq, final ParcelImpl playbackInfo)
+            throws RuntimeException {
         if (playbackInfo == null) {
             return;
         }
@@ -224,7 +227,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onSeekCompleted(final long eventTimeMs, final long positionMs,
+    public void onSeekCompleted(int seq, final long eventTimeMs, final long positionMs,
             final long seekPositionMs) {
         dispatchControllerTask(new ControllerTask() {
             @Override
@@ -235,10 +238,10 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onConnected(ParcelImpl connectionResult) {
+    public void onConnected(int seq, ParcelImpl connectionResult) {
         if (connectionResult == null) {
             // disconnected
-            onDisconnected();
+            onDisconnected(seq);
             return;
         }
         final long token = Binder.clearCallingIdentity();
@@ -266,7 +269,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onDisconnected() {
+    public void onDisconnected(int seq) {
         final long token = Binder.clearCallingIdentity();
         try {
             final MediaControllerImplBase controller = mController.get();
@@ -304,7 +307,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onAllowedCommandsChanged(final ParcelImpl commands) {
+    public void onAllowedCommandsChanged(int seq, final ParcelImpl commands) {
         if (commands == null) {
             return;
         }
@@ -343,7 +346,7 @@ class MediaControllerStub extends IMediaController.Stub {
     // MediaBrowser specific
     ////////////////////////////////////////////////////////////////////////////////////////////
     @Override
-    public void onSearchResultChanged(final String query, final int itemCount,
+    public void onSearchResultChanged(int seq, final String query, final int itemCount,
             final ParcelImpl libraryParams) throws RuntimeException {
         if (libraryParams == null) {
             return;
@@ -366,7 +369,7 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onChildrenChanged(final String parentId, final int itemCount,
+    public void onChildrenChanged(int seq, final String parentId, final int itemCount,
             final ParcelImpl libraryParams) {
         if (libraryParams == null) {
             return;

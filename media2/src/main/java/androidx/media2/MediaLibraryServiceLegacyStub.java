@@ -404,12 +404,13 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        final void onPlaybackInfoChanged(PlaybackInfo info) throws RemoteException {
+        final void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onAllowedCommandsChanged(SessionCommandGroup commands) throws RemoteException {
+        final void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+                throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
@@ -420,63 +421,64 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        final void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
+        final void onPlayerStateChanged(int seq, long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
+        final void onPlaybackSpeedChanged(int seq, long eventTimeMs, long positionMs, float speed)
                 throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onBufferingStateChanged(MediaItem item, int bufferingState,
+        final void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
                 long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onSeekCompleted(long eventTimeMs, long positionMs, long position)
+        final void onSeekCompleted(int seq, long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onCurrentMediaItemChanged(MediaItem item, int currentIdx, int previousIdx,
-                int nextIdx) throws RemoteException {
+        final void onCurrentMediaItemChanged(int seq, MediaItem item, int currentIdx,
+                int previousIdx, int nextIdx) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata,
+        final void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
                 int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onPlaylistMetadataChanged(MediaMetadata metadata) throws RemoteException {
+        final void onPlaylistMetadataChanged(int seq, MediaMetadata metadata)
+                throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onShuffleModeChanged(int shuffleMode) throws RemoteException {
+        final void onShuffleModeChanged(int seq, int shuffleMode) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onRepeatModeChanged(int repeatMode) throws RemoteException {
+        final void onRepeatModeChanged(int seq, int repeatMode) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onPlaybackCompleted() throws RemoteException {
+        final void onPlaybackCompleted(int seq) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onDisconnected() throws RemoteException {
+        final void onDisconnected(int seq) throws RemoteException {
             // No-op. BrowserCompat doesn't have concept of receiving release of a session.
         }
     }
@@ -493,14 +495,14 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        void onChildrenChanged(String parentId, int itemCount, LibraryParams params)
+        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
                 throws RemoteException {
             Bundle extras = params != null ? params.getExtras() : null;
             notifyChildrenChanged(mRemoteUserInfo, parentId, extras);
         }
 
         @Override
-        void onSearchResultChanged(String query, int itemCount, LibraryParams params)
+        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
                 throws RemoteException {
             // In MediaLibrarySession/MediaBrowser, we have two different APIs for getting size of
             // search result (and also starting search) and getting result.
@@ -606,7 +608,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        void onChildrenChanged(String parentId, int itemCount, LibraryParams libraryParams)
+        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams libraryParams)
                 throws RemoteException {
             // This will trigger {@link MediaLibraryServiceLegacyStub#onLoadChildren}.
             if (libraryParams == null || libraryParams.getExtras() == null) {
@@ -617,7 +619,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        void onSearchResultChanged(String query, int itemCount, LibraryParams params)
+        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
                 throws RemoteException {
             // Shouldn't be called. If it's called, it's bug.
             // This method in the base class is introduced to internally send return of
