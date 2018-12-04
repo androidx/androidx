@@ -189,7 +189,7 @@ public class ListFragment extends Fragment {
             if (!mListShown && !hadAdapter) {
                 // The list was hidden, and previously didn't have an
                 // adapter.  It is now time to show it.
-                setListShown(true, getView().getWindowToken() != null);
+                setListShown(true, requireView().getWindowToken() != null);
             }
         }
     }

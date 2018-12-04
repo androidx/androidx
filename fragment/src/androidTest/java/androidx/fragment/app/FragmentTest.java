@@ -15,6 +15,8 @@
  */
 package androidx.fragment.app;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -64,6 +66,31 @@ public class FragmentTest {
     public void setup() {
         mActivity = mActivityRule.getActivity();
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    }
+
+    @SmallTest
+    @UiThreadTest
+    @Test
+    public void testRequireView() {
+        StrictViewFragment fragment1 = new StrictViewFragment();
+        mActivity.getSupportFragmentManager()
+                .beginTransaction()
+                .add(R.id.content, fragment1)
+                .commitNow();
+        assertThat(fragment1.requireView())
+                .isNotNull();
+    }
+
+    @SmallTest
+    @UiThreadTest
+    @Test(expected = IllegalStateException.class)
+    public void testRequireViewWithoutView() {
+        StrictFragment fragment1 = new StrictFragment();
+        mActivity.getSupportFragmentManager()
+                .beginTransaction()
+                .add(fragment1, "fragment")
+                .commitNow();
+        fragment1.requireView();
     }
 
     @SmallTest
@@ -135,7 +162,7 @@ public class FragmentTest {
         if (fragment.getView() == null) {
             FragmentTestUtil.waitForExecution(mActivityRule);
         }
-        final View view = fragment.getView();
+        final View view = fragment.requireView();
         final Animation animation = view.getAnimation();
         if (animation == null || animation.hasEnded()) {
             // animation has already completed
@@ -203,6 +230,11 @@ public class FragmentTest {
         }
         try {
             fragment.requireHost();
+            fail();
+        } catch (IllegalStateException expected) {
+        }
+        try {
+            fragment.requireView();
             fail();
         } catch (IllegalStateException expected) {
         }
