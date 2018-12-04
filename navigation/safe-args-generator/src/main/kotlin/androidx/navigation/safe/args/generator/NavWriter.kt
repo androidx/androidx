@@ -111,7 +111,13 @@ private class ClassWithArgsSpecs(
         }
     }.build()
 
-    fun toBundleMethod(name: String) = MethodSpec.methodBuilder(name).apply {
+    fun toBundleMethod(
+        name: String,
+        addOverrideAnnotation: Boolean = false
+    ) = MethodSpec.methodBuilder(name).apply {
+        if (addOverrideAnnotation) {
+            addAnnotation(Override::class.java)
+        }
         addAnnotation(annotations.NONNULL_CLASSNAME)
         addModifiers(Modifier.PUBLIC)
         returns(BUNDLE_CLASSNAME)
@@ -287,6 +293,7 @@ fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
     val className = ClassName.get("", action.id.javaIdentifier.toCamelCase())
 
     val getDestIdMethod = MethodSpec.methodBuilder("getActionId")
+            .addAnnotation(Override::class.java)
             .addModifiers(Modifier.PUBLIC)
             .returns(Int::class.java)
             .addStatement("return $N", action.id.accessor())
@@ -313,7 +320,7 @@ fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
             .addFields(specs.fieldSpecs())
             .addMethod(specs.constructor())
             .addMethods(specs.setters(className))
-            .addMethod(specs.toBundleMethod("getArguments"))
+            .addMethod(specs.toBundleMethod("getArguments", true))
             .addMethod(getDestIdMethod)
             .addMethod(specs.equalsMethod(className, additionalEqualsBlock))
             .addMethod(specs.hashCodeMethod(additionalHashCodeBlock))
