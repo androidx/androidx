@@ -115,6 +115,7 @@ package androidx.fragment.app {
     method public final android.content.Context requireContext();
     method public final androidx.fragment.app.FragmentManager requireFragmentManager();
     method public final Object requireHost();
+    method public final android.view.View requireView();
     method public void setAllowEnterTransitionOverlap(boolean);
     method public void setAllowReturnTransitionOverlap(boolean);
     method public void setArguments(android.os.Bundle?);

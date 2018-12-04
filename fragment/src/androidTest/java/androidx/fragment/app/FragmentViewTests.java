@@ -258,7 +258,7 @@ public class FragmentViewTests {
         final Fragment replacement1 = fm.findFragmentByTag("1");
         FragmentTestUtil.assertChildren(container, replacement1);
         assertTrue(replacement1.isHidden());
-        assertEquals(View.GONE, replacement1.getView().getVisibility());
+        assertEquals(View.GONE, replacement1.requireView().getVisibility());
     }
 
     // Removing a detached fragment should do nothing to the View and popping should bring
@@ -334,21 +334,21 @@ public class FragmentViewTests {
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
         FragmentTestUtil.assertChildren(container, fragment);
-        assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+        assertEquals(View.VISIBLE, fragment.requireView().getVisibility());
 
         fm.beginTransaction().hide(fragment).addToBackStack(null).commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
         FragmentTestUtil.assertChildren(container, fragment);
         assertTrue(fragment.isHidden());
-        assertEquals(View.GONE, fragment.getView().getVisibility());
+        assertEquals(View.GONE, fragment.requireView().getVisibility());
 
         fm.popBackStack();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
         FragmentTestUtil.assertChildren(container, fragment);
         assertFalse(fragment.isHidden());
-        assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+        assertEquals(View.VISIBLE, fragment.requireView().getVisibility());
     }
 
     // Hiding a hidden fragment should not throw
@@ -391,21 +391,21 @@ public class FragmentViewTests {
 
         FragmentTestUtil.assertChildren(container, fragment);
         assertTrue(fragment.isHidden());
-        assertEquals(View.GONE, fragment.getView().getVisibility());
+        assertEquals(View.GONE, fragment.requireView().getVisibility());
 
         fm.beginTransaction().show(fragment).addToBackStack(null).commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
         FragmentTestUtil.assertChildren(container, fragment);
         assertFalse(fragment.isHidden());
-        assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+        assertEquals(View.VISIBLE, fragment.requireView().getVisibility());
 
         fm.popBackStack();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
         FragmentTestUtil.assertChildren(container, fragment);
         assertTrue(fragment.isHidden());
-        assertEquals(View.GONE, fragment.getView().getVisibility());
+        assertEquals(View.GONE, fragment.requireView().getVisibility());
     }
 
     // Showing a shown fragment should not throw
@@ -447,7 +447,7 @@ public class FragmentViewTests {
 
         FragmentTestUtil.assertChildren(container, fragment);
         assertFalse(fragment.isDetached());
-        assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+        assertEquals(View.VISIBLE, fragment.requireView().getVisibility());
 
         fm.beginTransaction().detach(fragment).addToBackStack(null).commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
@@ -460,7 +460,7 @@ public class FragmentViewTests {
 
         FragmentTestUtil.assertChildren(container, fragment);
         assertFalse(fragment.isDetached());
-        assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+        assertEquals(View.VISIBLE, fragment.requireView().getVisibility());
     }
 
     // Detaching a hidden fragment should remove the View from the hierarchy. Then popping it should
@@ -478,7 +478,7 @@ public class FragmentViewTests {
         FragmentTestUtil.assertChildren(container, fragment);
         assertFalse(fragment.isDetached());
         assertTrue(fragment.isHidden());
-        assertEquals(View.GONE, fragment.getView().getVisibility());
+        assertEquals(View.GONE, fragment.requireView().getVisibility());
 
         fm.beginTransaction().detach(fragment).addToBackStack(null).commit();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
@@ -493,7 +493,7 @@ public class FragmentViewTests {
         FragmentTestUtil.assertChildren(container, fragment);
         assertTrue(fragment.isHidden());
         assertFalse(fragment.isDetached());
-        assertEquals(View.GONE, fragment.getView().getVisibility());
+        assertEquals(View.GONE, fragment.requireView().getVisibility());
     }
 
     // Detaching a detached fragment should not throw
@@ -542,7 +542,7 @@ public class FragmentViewTests {
 
         FragmentTestUtil.assertChildren(container, fragment);
         assertFalse(fragment.isDetached());
-        assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+        assertEquals(View.VISIBLE, fragment.requireView().getVisibility());
 
         fm.popBackStack();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
@@ -577,7 +577,7 @@ public class FragmentViewTests {
         FragmentTestUtil.assertChildren(container, fragment);
         assertTrue(fragment.isHidden());
         assertFalse(fragment.isDetached());
-        assertEquals(View.GONE, fragment.getView().getVisibility());
+        assertEquals(View.GONE, fragment.requireView().getVisibility());
 
         fm.popBackStack();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
@@ -633,7 +633,7 @@ public class FragmentViewTests {
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
         FragmentTestUtil.assertChildren(container, fragment2);
-        assertEquals(View.VISIBLE, fragment2.getView().getVisibility());
+        assertEquals(View.VISIBLE, fragment2.requireView().getVisibility());
 
         fm.popBackStack();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
@@ -644,7 +644,7 @@ public class FragmentViewTests {
         assertFalse(replacement1.isHidden());
         assertTrue(replacement1.isAdded());
         assertFalse(replacement1.isDetached());
-        assertEquals(View.VISIBLE, replacement1.getView().getVisibility());
+        assertEquals(View.VISIBLE, replacement1.requireView().getVisibility());
     }
 
     // Replace of multiple fragments in a container. Popping should replace it back again
@@ -673,7 +673,7 @@ public class FragmentViewTests {
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
         FragmentTestUtil.assertChildren(container, fragment3);
-        assertEquals(View.VISIBLE, fragment3.getView().getVisibility());
+        assertEquals(View.VISIBLE, fragment3.requireView().getVisibility());
 
         fm.popBackStack();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
@@ -686,13 +686,13 @@ public class FragmentViewTests {
         assertFalse(replacement1.isHidden());
         assertTrue(replacement1.isAdded());
         assertFalse(replacement1.isDetached());
-        assertEquals(View.VISIBLE, replacement1.getView().getVisibility());
+        assertEquals(View.VISIBLE, replacement1.requireView().getVisibility());
 
         // fragment2 was hidden, so it should be returned hidden
         assertTrue(replacement2.isHidden());
         assertTrue(replacement2.isAdded());
         assertFalse(replacement2.isDetached());
-        assertEquals(View.GONE, replacement2.getView().getVisibility());
+        assertEquals(View.GONE, replacement2.requireView().getVisibility());
     }
 
     // Replace of empty container. Should act as add and popping should just remove the fragment
@@ -711,7 +711,7 @@ public class FragmentViewTests {
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
         FragmentTestUtil.assertChildren(container, fragment);
-        assertEquals(View.VISIBLE, fragment.getView().getVisibility());
+        assertEquals(View.VISIBLE, fragment.requireView().getVisibility());
 
         fm.popBackStack();
         FragmentTestUtil.executePendingTransactions(mActivityRule);
@@ -845,7 +845,7 @@ public class FragmentViewTests {
         FragmentTestUtil.executePendingTransactions(mActivityRule);
         FragmentTestUtil.assertChildren(container, fragment1);
 
-        assertEquals(View.INVISIBLE, fragment1.getView().getVisibility());
+        assertEquals(View.INVISIBLE, fragment1.requireView().getVisibility());
 
         final InvisibleFragment fragment2 = new InvisibleFragment();
         fragment2.visibility = View.GONE;
@@ -856,7 +856,7 @@ public class FragmentViewTests {
         FragmentTestUtil.executePendingTransactions(mActivityRule);
         FragmentTestUtil.assertChildren(container, fragment2);
 
-        assertEquals(View.GONE, fragment2.getView().getVisibility());
+        assertEquals(View.GONE, fragment2.requireView().getVisibility());
     }
 
     // Test to ensure that popping and adding a fragment properly track the fragments added
@@ -951,8 +951,7 @@ public class FragmentViewTests {
         FragmentTestUtil.executePendingTransactions(mActivityRule);
 
         FragmentTestUtil.assertChildren(container, fragment1);
-        ViewGroup innerContainer = (ViewGroup)
-                fragment1.getView().findViewById(R.id.fragmentContainer1);
+        ViewGroup innerContainer = fragment1.requireView().findViewById(R.id.fragmentContainer1);
 
         Fragment fragment2 = fragment1.getChildFragmentManager().findFragmentByTag("inner");
         FragmentTestUtil.assertChildren(innerContainer, fragment2);
