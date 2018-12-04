@@ -23,7 +23,7 @@ plugins {
 
 dependencies {
     api(project(":car"))
-    api("androidx.versionedparcelable:versionedparcelable:1.1.0-alpha01")
+    api(project(":versionedparcelable"))
     api(project(":annotation"))
 
     annotationProcessor(project(":versionedparcelable-annotation"))
