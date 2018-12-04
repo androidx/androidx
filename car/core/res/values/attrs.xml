@@ -164,7 +164,9 @@ limitations under the License.
         <!-- The dimension size of the title icon. -->
         <attr name="titleIconSize" format="dimension" />
         <attr name="title" format="string" />
+        <attr name="subtitle" format="string" />
         <attr name="titleTextAppearance" format="reference" />
+        <attr name="subtitleTextAppearance" format="reference" />
     </declare-styleable>
 
     <!-- Attributes specifically related to modifying car themes. -->
