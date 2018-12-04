@@ -58,12 +58,16 @@ import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.After
 import org.junit.Assert.assertThat
 import org.junit.Before
+import org.junit.Rule
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
 
 open class BaseTest {
     lateinit var localeUtil: LocaleTestUtils
+
+    @get:Rule
+    val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java, false, false)
 
     @Before
     open fun setUp() {
@@ -78,16 +82,11 @@ open class BaseTest {
     }
 
     fun setUpTest(@ViewPager2.Orientation orientation: Int): Context {
-        val activityTestRule = object : ActivityTestRule<TestActivity>(TestActivity::class.java) {
-            override fun getActivityIntent(): Intent {
-                val intent = Intent()
-                if (localeUtil.isLocaleChangedAndLock()) {
-                    intent.putExtra(TestActivity.EXTRA_LANGUAGE, localeUtil.getLocale().toString())
-                }
-                return intent
-            }
+        val intent = Intent()
+        if (localeUtil.isLocaleChangedAndLock()) {
+            intent.putExtra(TestActivity.EXTRA_LANGUAGE, localeUtil.getLocale().toString())
         }
-        activityTestRule.launchActivity(null)
+        activityTestRule.launchActivity(intent)
 
         val viewPager: ViewPager2 = activityTestRule.activity.findViewById(R.id.view_pager)
         activityTestRule.runOnUiThread { viewPager.orientation = orientation }
