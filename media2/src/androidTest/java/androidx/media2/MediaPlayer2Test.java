@@ -2896,6 +2896,31 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    public void testGetWidthAndHeightWithNonSquarePixels() throws Exception {
+        assertTrue(loadResource(R.raw.testvideo_with_2_subtitle_tracks));
+        MediaPlayer2.EventCallback ecb = new MediaPlayer2.EventCallback() {
+            @Override
+            public void onVideoSizeChanged(MediaPlayer2 mp, MediaItem item,
+                    int width, int height) {
+                mOnVideoSizeChangedCalled.signal();
+            }
+        };
+        synchronized (mEventCbLock) {
+            mEventCallbacks.add(ecb);
+        }
+        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+        mPlayer.prepare();
+        mOnVideoSizeChangedCalled.waitForSignal();
+
+        assertEquals(160, mPlayer.getVideoWidth());
+        assertEquals(90, mPlayer.getVideoHeight());
+
+        mPlayer.reset();
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSkipUnnecessarySeek() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final TestDataSourceCallback source =
