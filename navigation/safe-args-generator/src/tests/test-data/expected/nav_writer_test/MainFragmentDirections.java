@@ -71,6 +71,7 @@ public class MainFragmentDirections {
             return this;
         }
 
+        @Override
         @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
@@ -79,6 +80,7 @@ public class MainFragmentDirections {
             return __outBundle;
         }
 
+        @Override
         public int getActionId() {
             return a.b.R.id.previous;
         }
@@ -154,6 +156,7 @@ public class MainFragmentDirections {
             return this;
         }
 
+        @Override
         @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
@@ -162,6 +165,7 @@ public class MainFragmentDirections {
             return __outBundle;
         }
 
+        @Override
         public int getActionId() {
             return a.b.R.id.next;
         }

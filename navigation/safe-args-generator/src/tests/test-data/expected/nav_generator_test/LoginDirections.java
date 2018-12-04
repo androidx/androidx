@@ -17,12 +17,14 @@ public class LoginDirections {
         public ActionDone() {
         }
 
+        @Override
         @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
             return __outBundle;
         }
 
+        @Override
         public int getActionId() {
             return foo.R.id.action_done;
         }
