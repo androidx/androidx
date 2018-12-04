@@ -23,6 +23,7 @@ import static androidx.work.WorkInfo.State.RUNNING;
 import static androidx.work.WorkInfo.State.SUCCEEDED;
 import static androidx.work.impl.model.WorkSpec.SCHEDULE_NOT_REQUESTED_YET;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -236,6 +237,7 @@ public class WorkerWrapper implements Runnable {
             final String workDescription = mWorkDescription;
             future.addListener(new Runnable() {
                 @Override
+                @SuppressLint("SyntheticAccessor")
                 public void run() {
                     try {
                         // If the ListenableWorker returns a null result treat it as a failure.
