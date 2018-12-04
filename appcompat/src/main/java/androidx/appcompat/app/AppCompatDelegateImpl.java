@@ -20,6 +20,7 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static android.view.Window.FEATURE_OPTIONS_PANEL;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.UiModeManager;
@@ -2432,6 +2433,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
         @SuppressWarnings("BanParcelableUsage")
+        @SuppressLint("BanParcelableUsage")
         private static class SavedState implements Parcelable {
             int featureId;
             boolean isOpen;

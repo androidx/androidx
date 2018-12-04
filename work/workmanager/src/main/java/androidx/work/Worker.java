@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.Keep;
 import android.support.annotation.NonNull;
@@ -45,6 +46,7 @@ public abstract class Worker extends ListenableWorker {
     SettableFuture<Result> mFuture;
 
     @Keep
+    @SuppressLint("BanKeepAnnotation")
     public Worker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
         super(context, workerParams);
     }

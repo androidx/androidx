@@ -43,6 +43,7 @@ import java.util.List;
  */
 @RestrictTo(LIBRARY_GROUP)
 @SuppressWarnings("BanParcelableUsage")
+@SuppressLint("BanParcelableUsage")
 public class ParcelImplListSlice implements Parcelable {
     private static final String TAG = "ParcelImplListSlice";
     private static final boolean DEBUG = false;
