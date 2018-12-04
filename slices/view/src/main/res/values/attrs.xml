@@ -32,6 +32,8 @@
         <attr name="headerSubtitleSize" format="dimension"/>
         <!-- Vertical padding to use between header title text and header subtitle text. -->
         <attr name="headerTextVerticalPadding" format="dimension" />
+        <!-- Padding to use between header divider and the edge of the view. -->
+        <attr name="headerDividerPadding" format="dimension" />
 
         <!-- Text size to use for title text in a non-header row of the slice. -->
         <attr name="titleSize" format="dimension" />

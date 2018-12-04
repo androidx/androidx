@@ -69,6 +69,7 @@ public class RowContent extends SliceContent {
     private SliceItem mRange;
     private boolean mIsHeader;
     private int mLineCount = 0;
+    private boolean mShowBottomDivider;
     private boolean mShowActionDivider;
 
     public RowContent(SliceItem rowSlice, int position) {
@@ -314,6 +315,20 @@ public class RowContent extends SliceContent {
         return FORMAT_ACTION.equals(mSliceItem.getFormat())
                 && mSliceItem.getSlice().hasHint(HINT_SEE_MORE)
                 && mSliceItem.getSlice().getItems().isEmpty();
+    }
+
+    /**
+     * Set whether this row content needs to show the bottom divider.
+     */
+    public void showBottomDivider(boolean enabled) {
+        mShowBottomDivider = enabled;
+    }
+
+    /**
+     * @return whether this row content needs to show the bottom divider.
+     */
+    public boolean hasBottomDivider() {
+        return mShowBottomDivider;
     }
 
     /**
