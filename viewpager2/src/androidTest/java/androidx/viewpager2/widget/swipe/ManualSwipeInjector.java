@@ -95,20 +95,20 @@ public class ManualSwipeInjector {
     public void perform(Instrumentation instr, View view) {
         float[] swipeStart = mStartCoordinatesProvider.calculateCoordinates(view);
         float[] swipeEnd = mEndCoordinatesProviders.calculateCoordinates(view);
-        sendSwipe(instr, swipeStart, swipeEnd, mDuration, mSteps);
+        sendSwipe(instr, swipeStart, swipeEnd, mDuration, mSteps, view);
     }
 
     /**
      * Inject motion events to emulate a swipe to the target location.
-     *
      * @param instr The controller to inject the motion events with
      * @param from The pointer location where we start the swipe
      * @param to The pointer location where we end the swipe
      * @param duration The duration in milliseconds of the swipe gesture
      * @param steps The number of move motion events that will be sent for the gesture
+     * @param view The View on which the swipe is performed
      */
     private void sendSwipe(Instrumentation instr, float[] from, float[] to, int duration,
-            int steps) {
+            int steps, View view) {
         float[][] coords = interpolate(from, to, steps);
         long startTime = SystemClock.uptimeMillis();
 
@@ -122,7 +122,8 @@ public class ManualSwipeInjector {
             injectMotionEvent(instr, obtainUpEvent(startTime, duration, coords[coords.length - 1]),
                     events);
         } catch (Exception e) {
-            throw new PerformException.Builder().withCause(e).build();
+            throw new PerformException.Builder().withCause(e).withActionDescription("Perform swipe")
+                    .withViewDescription(view != null ? view.toString() : "unknown").build();
         } finally {
             for (MotionEvent event : events) {
                 event.recycle();
