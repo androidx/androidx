@@ -95,7 +95,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlayAudioOnce() throws Exception {
         assertTrue(loadResource(R.raw.testmp3_2));
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
