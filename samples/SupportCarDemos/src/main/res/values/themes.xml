@@ -22,6 +22,7 @@
 
     <!-- The main theme for all activities within the Car Demo. -->
     <style name="CarTheme" parent="Theme.Car.NoActionBar">
+        <item name="android:colorEdgeEffect">@color/car_card_ripple_background_light</item>
     </style>
 
     <!-- A theme for activities within the Car Demo that have a drawer. -->
