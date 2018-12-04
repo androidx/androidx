@@ -15,6 +15,7 @@
  */
 package com.example.android.supportv7.util;
 
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -47,6 +48,7 @@ public class DiffUtilActivity extends AppCompatActivity {
     private Random mRandom = new Random(System.nanoTime());
 
     @Override
+    @SuppressLint("WrongThread")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         LinearLayout ll = new LinearLayout(this);

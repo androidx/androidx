@@ -13,7 +13,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Paddings -->
     <dimen name="car_padding_2">16dp</dimen>
     <dimen name="car_padding_3">28dp</dimen>
@@ -30,7 +30,7 @@ limitations under the License.
     <dimen name="car_app_bar_height">96dp</dimen>
 
     <!-- Action Bar -->
-    <dimen name="car_action_bar_height">128dp</dimen>
+    <dimen name="car_action_bar_height" tools:ignore="MissingDefaultResource">128dp</dimen>
 
     <!-- List Items -->
     <dimen name="car_single_line_list_item_height">116dp</dimen>

@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 
@@ -47,6 +48,7 @@ public final class TextClassificationManager {
     /** @hide **/
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @VisibleForTesting
+    @SuppressLint("RestrictedApi")
     TextClassificationManager(@NonNull Context context) {
         mContext = Preconditions.checkNotNull(context);
         mDefaultTextClassifier = defaultTextClassifier(context);
@@ -56,6 +58,7 @@ public final class TextClassificationManager {
      * Returns an instance of {@link TextClassificationManager} for the specified context.
      * Each context has its own {@link TextClassificationManager}.
      */
+    @SuppressLint("RestrictedApi")
     public static TextClassificationManager of(@NonNull Context context) {
         Preconditions.checkNotNull(context);
         synchronized (sLock) {

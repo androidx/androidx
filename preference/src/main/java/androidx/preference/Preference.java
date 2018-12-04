@@ -19,6 +19,7 @@ package androidx.preference;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -201,6 +202,7 @@ public class Preference implements Comparable<Preference> {
      *                     theme. Can be 0 to not look for defaults.
      * @see #Preference(Context, android.util.AttributeSet)
      */
+    @SuppressLint("RestrictedApi")
     public Preference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         mContext = context;
 
@@ -308,6 +310,7 @@ public class Preference implements Comparable<Preference> {
      * @param attrs   The attributes of the XML tag that is inflating the preference
      * @see #Preference(Context, AttributeSet, int)
      */
+    @SuppressLint("RestrictedApi")
     public Preference(Context context, AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceStyle,
                 android.R.attr.preferenceStyle));

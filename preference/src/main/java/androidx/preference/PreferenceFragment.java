@@ -18,6 +18,7 @@ package androidx.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
@@ -182,6 +183,7 @@ public abstract class PreferenceFragment extends Fragment implements
     public abstract void onCreatePreferences(Bundle savedInstanceState, String rootKey);
 
     @Override
+    @SuppressLint("RestrictedApi")
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 

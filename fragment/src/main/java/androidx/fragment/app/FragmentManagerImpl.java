@@ -22,6 +22,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -197,6 +198,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
                 && modifiesAlpha(anim);
     }
 
+    @SuppressLint("RestrictedApi")
     private void throwException(RuntimeException ex) {
         Log.e(TAG, ex.getMessage());
         Log.e(TAG, "Activity state:");
@@ -424,6 +426,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
+    @SuppressLint("RestrictedApi")
     public String toString() {
         StringBuilder sb = new StringBuilder(128);
         sb.append("FragmentManager{");
@@ -2415,6 +2418,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         restoreSaveState(state);
     }
 
+    @SuppressLint("RestrictedApi")
     void restoreSaveState(Parcelable state) {
         // If there is no saved state at all, then there's nothing else to do
         if (state == null) return;

@@ -51,6 +51,7 @@ import static androidx.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT_FAILED;
 import static androidx.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
 import static androidx.media.MediaBrowserProtocol.SERVICE_VERSION_CURRENT;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -477,6 +478,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             }
 
             @Override
+            @SuppressLint("SyntheticAccessor")
             public MediaBrowserService.BrowserRoot onGetRoot(String clientPackageName,
                     int clientUid, Bundle rootHints) {
                 MediaSessionCompat.ensureClassLoader(rootHints);

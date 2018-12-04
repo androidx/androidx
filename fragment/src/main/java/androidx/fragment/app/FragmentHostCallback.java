@@ -58,6 +58,7 @@ public abstract class FragmentHostCallback<E> extends FragmentContainer {
         this(activity, activity /*context*/, new Handler(), 0 /*windowAnimations*/);
     }
 
+    @SuppressLint("RestrictedApi")
     FragmentHostCallback(@Nullable Activity activity, @NonNull Context context,
             @NonNull Handler handler, int windowAnimations) {
         mActivity = activity;

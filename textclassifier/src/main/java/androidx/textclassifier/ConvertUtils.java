@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
@@ -86,6 +87,7 @@ final class ConvertUtils {
 
     @NonNull
     @RequiresApi(28)
+    @SuppressLint("RestrictedApi")
     static Map<String, Float> createFloatMapFromTextLinks(
             @NonNull android.view.textclassifier.TextLinks.TextLink textLink) {
         Preconditions.checkNotNull(textLink);

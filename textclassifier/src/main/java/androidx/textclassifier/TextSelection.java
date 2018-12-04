@@ -175,6 +175,7 @@ public final class TextSelection {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(26)
     @NonNull
+    @SuppressLint("RestrictedApi")
     static TextSelection fromPlatform(
             @NonNull android.view.textclassifier.TextSelection textSelection) {
         Preconditions.checkNotNull(textSelection);
@@ -236,6 +237,7 @@ public final class TextSelection {
          * @param startIndex the start index of the text selection.
          * @param endIndex the end index of the text selection. Must be greater than startIndex
          */
+        @SuppressLint("RestrictedApi")
         public Builder(@IntRange(from = 0) int startIndex, @IntRange(from = 0) int endIndex) {
             Preconditions.checkArgument(startIndex >= 0);
             Preconditions.checkArgument(endIndex > startIndex);
@@ -409,6 +411,7 @@ public final class TextSelection {
              * @param startIndex start index of the selected part of text
              * @param endIndex end index of the selected part of text
              */
+            @SuppressLint("RestrictedApi")
             public Builder(
                     @NonNull CharSequence text,
                     @IntRange(from = 0) int startIndex,

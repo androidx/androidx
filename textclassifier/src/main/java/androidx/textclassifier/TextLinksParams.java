@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
 import android.text.Spannable;
 import android.text.style.ClickableSpan;
 
@@ -101,6 +102,7 @@ public final class TextLinksParams {
      * @return a status code indicating whether or not the links were successfully applied
      */
     @TextLinks.Status
+    @SuppressLint("RestrictedApi")
     int apply(@NonNull Spannable text,
             @NonNull TextLinks textLinks,
             @NonNull TextClassifier textClassifier) {
