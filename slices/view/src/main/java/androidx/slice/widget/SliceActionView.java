@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.slice.SliceItem;
 import androidx.slice.core.SliceActionImpl;
@@ -125,8 +126,13 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
                 switchView.setTrackDrawable(trackDrawable);
 
                 // See frameworks/base/core/res/res/drawable/switch_thumb_material_anim.xml.
-                final int uncheckedThumbColor = SliceViewUtil.getColorAttr(getContext(),
+                int uncheckedThumbColor = SliceViewUtil.getColorAttr(getContext(),
                         androidx.appcompat.R.attr.colorSwitchThumbNormal);
+                if (uncheckedThumbColor == 0) {
+                    // We aren't in an appcompat theme, pull the default light switch color.
+                    uncheckedThumbColor = ContextCompat.getColor(getContext(),
+                            R.color.switch_thumb_normal_material_light);
+                }
 
                 ColorStateList thumbTintList = new ColorStateList(
                         new int[][]{ CHECKED_STATE_SET, EMPTY_STATE_SET },
