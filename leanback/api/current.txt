@@ -3169,15 +3169,31 @@ package androidx.leanback.widget {
 
 package androidx.leanback.widget.picker {
 
+  public class DatePicker extends androidx.leanback.widget.picker.Picker {
+    ctor public DatePicker(android.content.Context!, android.util.AttributeSet!);
+    ctor public DatePicker(android.content.Context!, android.util.AttributeSet!, int);
+    method public long getDate();
+    method public String! getDatePickerFormat();
+    method public long getMaxDate();
+    method public long getMinDate();
+    method public final void onColumnValueChanged(int, int);
+    method public void setDate(long);
+    method public void setDate(int, int, int, boolean);
+    method public void setDatePickerFormat(String!);
+    method public void setMaxDate(long);
+    method public void setMinDate(long);
+  }
+
   public class Picker extends android.widget.FrameLayout {
+    ctor public Picker(android.content.Context!, android.util.AttributeSet!);
     ctor public Picker(android.content.Context!, android.util.AttributeSet!, int);
     method public void addOnValueChangedListener(androidx.leanback.widget.picker.Picker.PickerValueListener!);
     method public float getActivatedVisibleItemCount();
     method public androidx.leanback.widget.picker.PickerColumn! getColumnAt(int);
     method public int getColumnsCount();
     method protected int getPickerItemHeightPixels();
-    method public final int getPickerItemLayoutId();
-    method public final int getPickerItemTextViewId();
+    method @LayoutRes public final int getPickerItemLayoutId();
+    method @IdRes public final int getPickerItemTextViewId();
     method public int getSelectedColumn();
     method @Deprecated public final CharSequence! getSeparator();
     method public final java.util.List<java.lang.CharSequence>! getSeparators();
@@ -3188,7 +3204,8 @@ package androidx.leanback.widget.picker {
     method public void setColumnAt(int, androidx.leanback.widget.picker.PickerColumn!);
     method public void setColumnValue(int, int, boolean);
     method public void setColumns(java.util.List<androidx.leanback.widget.picker.PickerColumn>!);
-    method public final void setPickerItemTextViewId(int);
+    method public final void setPickerItemLayoutId(@LayoutRes int);
+    method public final void setPickerItemTextViewId(@IdRes int);
     method public void setSelectedColumn(int);
     method public final void setSeparator(CharSequence!);
     method public final void setSeparators(java.util.List<java.lang.CharSequence>!);
@@ -3213,6 +3230,14 @@ package androidx.leanback.widget.picker {
     method public void setMaxValue(int);
     method public void setMinValue(int);
     method public void setStaticLabels(CharSequence[]!);
+  }
+
+  public class PinPicker extends androidx.leanback.widget.picker.Picker {
+    ctor public PinPicker(android.content.Context!, android.util.AttributeSet!);
+    ctor public PinPicker(android.content.Context!, android.util.AttributeSet!, int);
+    method public String! getPin();
+    method public void resetPin();
+    method public void setNumberOfColumns(int);
   }
 
   public class TimePicker extends androidx.leanback.widget.picker.Picker {
