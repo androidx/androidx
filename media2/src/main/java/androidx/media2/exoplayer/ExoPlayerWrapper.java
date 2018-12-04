@@ -472,8 +472,12 @@ import java.util.Map;
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void handleVideoSizeChanged(int width, int height) {
-        mVideoWidth = width;
+    void handleVideoSizeChanged(int width, int height, float pixelWidthHeightRatio) {
+        if (pixelWidthHeightRatio != 1f) {
+            mVideoWidth = (int) (pixelWidthHeightRatio * width);
+        } else {
+            mVideoWidth = width;
+        }
         mVideoHeight = height;
         mListener.onVideoSizeChanged(mMediaItemQueue.getCurrentMediaItem(), width, height);
     }
@@ -652,7 +656,7 @@ import java.util.Map;
                 final int height,
                 int unappliedRotationDegrees,
                 float pixelWidthHeightRatio) {
-            handleVideoSizeChanged(width, height);
+            handleVideoSizeChanged(width, height, pixelWidthHeightRatio);
         }
 
         @Override
