@@ -18,12 +18,14 @@ public class LoginFragmentDirections extends LoginDirections {
         public Register() {
         }
 
+        @Override
         @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
             return __outBundle;
         }
 
+        @Override
         public int getActionId() {
             return foo.R.id.register;
         }

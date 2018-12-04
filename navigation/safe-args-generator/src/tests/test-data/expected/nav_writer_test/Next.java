@@ -102,6 +102,7 @@ public static class Next implements NavDirections {
         return this;
     }
 
+    @Override
     @NonNull
     public Bundle getArguments() {
         Bundle __outBundle = new Bundle();
@@ -126,6 +127,7 @@ public static class Next implements NavDirections {
         return __outBundle;
     }
 
+    @Override
     public int getActionId() {
         return a.b.R.id.next;
     }

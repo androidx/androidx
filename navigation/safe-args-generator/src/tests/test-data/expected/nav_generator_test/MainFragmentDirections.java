@@ -33,12 +33,14 @@ public class MainFragmentDirections {
         public StartLogin() {
         }
 
+        @Override
         @NonNull
         public Bundle getArguments() {
             Bundle __outBundle = new Bundle();
             return __outBundle;
         }
 
+        @Override
         public int getActionId() {
             return foo.R.id.start_login;
         }
