@@ -1890,7 +1890,7 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         for (int i = 0; i < numAdded; i++) {
             final Fragment fragment = fragments.valueAt(i);
             if (!fragment.mAdded) {
-                final View view = fragment.getView();
+                final View view = fragment.requireView();
                 fragment.mPostponedAlpha = view.getAlpha();
                 view.setAlpha(0f);
             }

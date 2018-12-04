@@ -367,8 +367,8 @@ public class PostponedTransitionTest {
         clearTargets(fragment1);
         clearTargets(fragment2);
 
-        final View startBlue1 = fragment1.getView().findViewById(R.id.blueSquare);
-        final View startBlue2 = fragment2.getView().findViewById(R.id.blueSquare);
+        final View startBlue1 = fragment1.requireView().findViewById(R.id.blueSquare);
+        final View startBlue2 = fragment2.requireView().findViewById(R.id.blueSquare);
 
         final TransitionFragment fragment3 = new PostponedFragment2();
 
@@ -465,8 +465,8 @@ public class PostponedTransitionTest {
         clearTargets(fragment1);
         clearTargets(fragment2);
 
-        final View startBlue1 = fragment1.getView().findViewById(R.id.blueSquare);
-        final View startBlue2 = fragment2.getView().findViewById(R.id.blueSquare);
+        final View startBlue1 = fragment1.requireView().findViewById(R.id.blueSquare);
+        final View startBlue2 = fragment2.requireView().findViewById(R.id.blueSquare);
 
         final TransitionFragment fragment3 = new PostponedFragment2();
 
@@ -563,8 +563,8 @@ public class PostponedTransitionTest {
         clearTargets(fragment1);
         clearTargets(fragment2);
 
-        final View startBlue1 = fragment1.getView().findViewById(R.id.blueSquare);
-        final View startBlue2 = fragment2.getView().findViewById(R.id.blueSquare);
+        final View startBlue1 = fragment1.requireView().findViewById(R.id.blueSquare);
+        final View startBlue2 = fragment2.requireView().findViewById(R.id.blueSquare);
 
         final TransitionFragment fragment3 = new PostponedFragment2();
         final StrictFragment strictFragment1 = new StrictFragment();
@@ -621,7 +621,7 @@ public class PostponedTransitionTest {
     @Test
     public void commitNowStartsPostponed() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
-        final View startBlue1 = mBeginningFragment.getView().findViewById(R.id.blueSquare);
+        final View startBlue1 = mBeginningFragment.requireView().findViewById(R.id.blueSquare);
 
         final TransitionFragment fragment2 = new PostponedFragment2();
         final TransitionFragment fragment1 = new PostponedFragment1();
@@ -634,7 +634,7 @@ public class PostponedTransitionTest {
                 .commit();
         FragmentTestUtil.waitForExecution(mActivityRule);
 
-        final View startBlue2 = fragment2.getView().findViewById(R.id.blueSquare);
+        final View startBlue2 = fragment2.requireView().findViewById(R.id.blueSquare);
 
         mInstrumentation.runOnMainSync(new Runnable() {
             @Override
@@ -709,7 +709,7 @@ public class PostponedTransitionTest {
     @Test
     public void popPostponedTransaction() throws Throwable {
         final FragmentManager fm = mActivityRule.getActivity().getSupportFragmentManager();
-        final View startBlue = mBeginningFragment.getView().findViewById(R.id.blueSquare);
+        final View startBlue = mBeginningFragment.requireView().findViewById(R.id.blueSquare);
 
         final TransitionFragment fragment = new PostponedFragment2();
 
@@ -892,7 +892,7 @@ public class PostponedTransitionTest {
         assertEquals(0, start.sharedElementReturn.targets.size());
         assertEquals(0, end.sharedElementReturn.targets.size());
 
-        final View blue = end.getView().findViewById(R.id.blueSquare);
+        final View blue = end.requireView().findViewById(R.id.blueSquare);
         assertTrue(end.sharedElementEnter.targets.contains(blue));
         assertEquals("blueSquare", end.sharedElementEnter.targets.get(0).getTransitionName());
         assertEquals("blueSquare", end.sharedElementEnter.targets.get(1).getTransitionName());
@@ -926,7 +926,7 @@ public class PostponedTransitionTest {
         assertEquals(2, start.sharedElementReturn.targets.size());
         assertEquals(0, end.sharedElementReturn.targets.size());
 
-        final View blue = end.getView().findViewById(R.id.blueSquare);
+        final View blue = end.requireView().findViewById(R.id.blueSquare);
         assertTrue(start.sharedElementReturn.targets.contains(blue));
         assertEquals("blueSquare", start.sharedElementReturn.targets.get(0).getTransitionName());
         assertEquals("blueSquare", start.sharedElementReturn.targets.get(1).getTransitionName());
