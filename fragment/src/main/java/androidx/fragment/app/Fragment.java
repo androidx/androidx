@@ -880,6 +880,29 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Returns the parent Fragment containing this Fragment.
+     *
+     * @throws IllegalStateException if this Fragment is attached directly to an Activity or
+     * other Fragment host.
+     * @see #getParentFragment()
+     */
+    @NonNull
+    public final Fragment requireParentFragment() {
+        Fragment parentFragment = getParentFragment();
+        if (parentFragment == null) {
+            Context context = getContext();
+            if (context == null) {
+                throw new IllegalStateException("Fragment " + this + " is not attached to"
+                        + " any Fragment or host");
+            } else {
+                throw new IllegalStateException("Fragment " + this + " is not a child Fragment, it"
+                        + " is directly attached to " + getContext());
+            }
+        }
+        return parentFragment;
+    }
+
+    /**
      * Return true if the fragment is currently added to its activity.
      */
     final public boolean isAdded() {
