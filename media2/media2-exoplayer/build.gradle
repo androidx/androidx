@@ -32,7 +32,7 @@ android {
 dependencies {
     compileOnly(CHECKER_FRAMEWORK)
 
-    compile files("src/main/libs/exoplayer-media2.jar")
+    api files("src/main/libs/exoplayer-media2.jar")
 }
 
 supportLibrary {
