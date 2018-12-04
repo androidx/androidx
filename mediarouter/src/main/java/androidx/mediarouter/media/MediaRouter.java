@@ -18,6 +18,7 @@ package androidx.mediarouter.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
@@ -2094,6 +2095,7 @@ public final class MediaRouter {
         };
         private ForegroundChecker mForegroundChecker;
 
+        @SuppressLint("SyntheticAccessor")
         GlobalMediaRouter(Context applicationContext) {
             mApplicationContext = applicationContext;
             mDisplayManager = DisplayManagerCompat.getInstance(applicationContext);
@@ -3223,6 +3225,7 @@ public final class MediaRouter {
             // Assume we are in foreground if we have no further information
             private boolean mIsForeground = true;
             private boolean mIsStopped = false;
+            @SuppressLint("SyntheticAccessor")
             private Runnable mChecker = new Runnable() {
                 @Override
                 public void run() {

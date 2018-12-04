@@ -151,7 +151,7 @@ public class FragmentActivity extends ComponentActivity implements
             }
             return;
         }
-
+        @SuppressLint("RestrictedApi")
         ActivityCompat.PermissionCompatDelegate delegate =
                 ActivityCompat.getPermissionCompatDelegate();
         if (delegate != null && delegate.onActivityResult(this, requestCode, resultCode, data)) {

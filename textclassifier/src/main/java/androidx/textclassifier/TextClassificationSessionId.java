@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -127,6 +128,7 @@ public final class TextClassificationSessionId {
      * {@link #toBundle()}.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public static TextClassificationSessionId createFromBundle(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
 

@@ -16,6 +16,7 @@
 
 package com.example.android.supportv7.graphics;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -174,6 +175,7 @@ public class PaletteActivity extends AppCompatActivity {
 
             private int mNumColors;
 
+            @SuppressLint("RestrictedApi")
             public PhotosCursorAdapter(Context context, Cursor c) {
                 super(context, R.layout.palette_list_item, c, false);
                 mContext = context;

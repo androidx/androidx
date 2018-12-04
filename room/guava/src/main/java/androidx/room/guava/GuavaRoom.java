@@ -17,6 +17,8 @@ package androidx.room.guava;
 
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.RestrictTo;
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.room.RoomDatabase;
@@ -37,6 +39,7 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressWarnings("unused") // Used in GuavaListenableFutureQueryResultBinder code generation.
+@SuppressLint("RestrictedAPI") // ArchTaskExecutor can only be called from androidx.arch.core
 public class GuavaRoom {
 
     private GuavaRoom() {}

@@ -21,6 +21,7 @@ import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_FRAMEWORKS;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE;
 import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
 
+import android.annotation.SuppressLint;
 import android.media.AudioAttributes;
 import android.os.Bundle;
 
@@ -68,6 +69,7 @@ public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     }
 
     @Override
+    @SuppressLint("NewApi")
     public int getVolumeControlStream() {
         // TODO: address the framework change ag/4995785.
         return AudioAttributesCompat.toVolumeStreamType(true, getFlags(), getUsage());

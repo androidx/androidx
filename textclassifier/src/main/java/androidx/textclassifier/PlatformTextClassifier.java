@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.LocaleList;
@@ -39,6 +40,7 @@ final class PlatformTextClassifier implements TextClassifier {
     private final androidx.textclassifier.TextClassifier mTextClassifier;
     private final Context mContext;
 
+    @SuppressLint("RestrictedApi")
     PlatformTextClassifier(
             @NonNull Context context,
             @NonNull androidx.textclassifier.TextClassifier textClassifier) {

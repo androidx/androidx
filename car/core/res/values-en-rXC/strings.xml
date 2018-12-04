@@ -15,7 +15,9 @@ limitations under the License.
  -->
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2"
+    xmlns:tools="http://schemas.android.com/tools">
     <string name="speed_bump_lockout_message" msgid="5405697774899378511">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‏‏‏‏‎‎‏‎‏‏‎‎‎‎‎‏‎‎‏‏‏‎‎‏‎‏‎‏‏‏‏‏‎‎‎‏‎‏‎‎‏‏‏‏‏‏‏‏‏‏‎‎‏‏‏‎‎‏‎‏‎‎‏‏‏‏‎Focus on the road‎‏‎‎‏‎"</string>
-    <string name="action_bar_expand_collapse_button" msgid="196909968432559564">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‎‏‎‏‎‏‎‏‏‏‎‏‏‏‎‎‏‎‎‎‎‏‎‎‏‎‎‏‎‏‎‏‏‎‎‎‏‎‎‏‎‎‏‏‏‏‏‏‏‎‏‎‏‏‏‎‎‏‏‎‎‎Expand/collapse button‎‏‎‎‏‎"</string>
+    <string name="action_bar_expand_collapse_button" msgid="196909968432559564"
+    	tools:ignore="ExtraTranslation">"‎‏‎‎‎‎‎‏‎‏‏‏‎‎‎‎‎‏‎‎‏‎‎‎‎‏‏‏‏‎‏‎‏‎‏‎‏‏‏‎‏‏‏‎‎‏‎‎‎‎‏‎‎‏‎‎‏‎‏‎‏‏‎‎‎‏‎‎‏‎‎‏‏‏‏‏‏‏‎‏‎‏‏‏‎‎‏‏‎‎‎Expand/collapse button‎‏‎‎‏‎"</string>
 </resources>

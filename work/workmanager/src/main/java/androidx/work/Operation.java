@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
@@ -37,12 +38,14 @@ public interface Operation {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressLint("SyntheticAccessor")
     State.SUCCESS SUCCESS = new State.SUCCESS();
 
     /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressLint("SyntheticAccessor")
     State.IN_PROGRESS IN_PROGRESS = new State.IN_PROGRESS();
 
     /**

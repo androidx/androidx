@@ -18,6 +18,7 @@ package androidx.preference;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -77,6 +78,7 @@ public abstract class PreferenceGroup extends Preference {
         }
     };
 
+    @SuppressLint("RestrictedApi")
     public PreferenceGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 

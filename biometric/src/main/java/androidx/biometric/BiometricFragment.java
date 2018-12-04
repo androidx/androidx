@@ -16,6 +16,7 @@
 
 package androidx.biometric;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -40,6 +41,7 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @TargetApi(28)
+@SuppressLint("SyntheticAccessor")
 public class BiometricFragment extends Fragment {
 
     private static final String TAG = "BiometricFragment";

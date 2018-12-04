@@ -18,6 +18,7 @@ package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
@@ -256,6 +257,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                     }
 
                     @Override
+                    @SuppressLint("SyntheticAccessor")
                     public boolean onForwardingStarted() {
                         if (!getInternalPopup().isShowing()) {
                             showPopup();
@@ -941,6 +943,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         }
 
         @Override
+        @SuppressLint("SyntheticAccessor")
         public void show() {
             showPopup();
         }

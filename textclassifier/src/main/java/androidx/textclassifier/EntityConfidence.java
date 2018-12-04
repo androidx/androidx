@@ -16,6 +16,8 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -48,6 +50,7 @@ final class EntityConfidence {
      * @param source a map from entity to a confidence value in the range 0 (low confidence) to
      *               1 (high confidence).
      */
+    @SuppressLint("RestrictedApi")
     EntityConfidence(@NonNull Map<String, Float> source) {
         Preconditions.checkNotNull(source);
 
