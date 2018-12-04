@@ -36,7 +36,7 @@ import androidx.annotation.RestrictTo;
  *           BroadcastReceiverWithCallbacks\<X>)
  */
 public abstract class BroadcastReceiverWithCallbacks<T extends CallbackReceiver> extends
-        BroadcastReceiver implements CallbackReceiver<T> {
+        BroadcastReceiver implements CallbackReceiver<T>, CallbackBase<T> {
 
     /**
      * The action used for incoming RemoteCallbacks.
