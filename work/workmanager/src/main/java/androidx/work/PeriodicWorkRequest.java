@@ -30,8 +30,7 @@ import java.util.concurrent.TimeUnit;
  * such as doze mode.
  * <p>
  * You can control when the work executes in the period interval more exactly - see
- * {@link PeriodicWorkRequest.Builder#Builder(Class, Duration, Duration)} or one of its variants for
- * documentation on {@code flexInterval}s.
+ * {@link PeriodicWorkRequest.Builder#Builder} for documentation on {@code flexInterval}s.
  * <p>
  * Periodic work has a minimum interval of 15 minutes and it cannot have an initial delay.
  * <p>
@@ -89,7 +88,7 @@ public final class PeriodicWorkRequest extends WorkRequest {
          * may run immediately, at the end of the period, or any time in between so long as the
          * other conditions are satisfied at the time. The run time of the
          * {@link PeriodicWorkRequest} can be restricted to a flex period within an interval (see
-         * {@link #Builder(Class, long, TimeUnit, long, TimeUnit)}).
+         * {@code #Builder(Class, long, TimeUnit, long, TimeUnit)}).
          *
          * @param workerClass The {@link ListenableWorker} class to run for this work
          * @param repeatInterval The repeat interval in {@code repeatIntervalTimeUnit} units
@@ -111,7 +110,7 @@ public final class PeriodicWorkRequest extends WorkRequest {
          * may run immediately, at the end of the period, or any time in between so long as the
          * other conditions are satisfied at the time. The run time of the
          * {@link PeriodicWorkRequest} can be restricted to a flex period within an interval (see
-         * {@link #Builder(Class, Duration, Duration)}).
+         * {@code #Builder(Class, Duration, Duration)}).
          *
          * @param workerClass The {@link ListenableWorker} class to run for this work
          * @param repeatInterval The repeat interval
