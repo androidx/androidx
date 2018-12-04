@@ -50,7 +50,7 @@ class ToolbarOnDestinationChangedListener extends
             @NonNull NavDestination destination, @Nullable Bundle arguments) {
         Toolbar toolbar = mToolbarWeakReference.get();
         if (toolbar == null) {
-            controller.removeOnCurrentDestinationChangedListener(this);
+            controller.removeOnDestinationChangedListener(this);
             return;
         }
         super.onDestinationChanged(controller, destination, arguments);

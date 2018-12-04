@@ -208,7 +208,7 @@ public final class NavigationUI {
     public static void setupActionBarWithNavController(@NonNull AppCompatActivity activity,
             @NonNull NavController navController,
             @NonNull AppBarConfiguration configuration) {
-        navController.addOnCurrentDestinationChangedListener(
+        navController.addOnDestinationChangedListener(
                 new ActionBarOnDestinationChangedListener(activity, configuration));
     }
 
@@ -281,7 +281,7 @@ public final class NavigationUI {
     public static void setupWithNavController(@NonNull Toolbar toolbar,
             @NonNull final NavController navController,
             @NonNull final AppBarConfiguration configuration) {
-        navController.addOnCurrentDestinationChangedListener(
+        navController.addOnDestinationChangedListener(
                 new ToolbarOnDestinationChangedListener(toolbar, configuration));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -376,7 +376,7 @@ public final class NavigationUI {
             @NonNull Toolbar toolbar,
             @NonNull final NavController navController,
             @NonNull final AppBarConfiguration configuration) {
-        navController.addOnCurrentDestinationChangedListener(
+        navController.addOnDestinationChangedListener(
                 new CollapsingToolbarOnDestinationChangedListener(
                         collapsingToolbarLayout, toolbar, configuration));
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -429,14 +429,14 @@ public final class NavigationUI {
                     }
                 });
         final WeakReference<NavigationView> weakReference = new WeakReference<>(navigationView);
-        navController.addOnCurrentDestinationChangedListener(
+        navController.addOnDestinationChangedListener(
                 new NavController.OnDestinationChangedListener() {
                     @Override
                     public void onDestinationChanged(@NonNull NavController controller,
                             @NonNull NavDestination destination, @Nullable Bundle arguments) {
                         NavigationView view = weakReference.get();
                         if (view == null) {
-                            navController.removeOnCurrentDestinationChangedListener(this);
+                            navController.removeOnDestinationChangedListener(this);
                             return;
                         }
                         Menu menu = view.getMenu();
@@ -495,14 +495,14 @@ public final class NavigationUI {
                 });
         final WeakReference<BottomNavigationView> weakReference =
                 new WeakReference<>(bottomNavigationView);
-        navController.addOnCurrentDestinationChangedListener(
+        navController.addOnDestinationChangedListener(
                 new NavController.OnDestinationChangedListener() {
                     @Override
                     public void onDestinationChanged(@NonNull NavController controller,
                             @NonNull NavDestination destination, @Nullable Bundle arguments) {
                         BottomNavigationView view = weakReference.get();
                         if (view == null) {
-                            navController.removeOnCurrentDestinationChangedListener(this);
+                            navController.removeOnDestinationChangedListener(this);
                             return;
                         }
                         Menu menu = view.getMenu();

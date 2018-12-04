@@ -37,7 +37,7 @@ package androidx.navigation {
 
   public final class NavController {
     ctor public NavController(android.content.Context);
-    method public void addOnCurrentDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener);
+    method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
     method public androidx.navigation.NavDestination? getCurrentDestination();
     method public androidx.navigation.NavGraph getGraph();
@@ -54,7 +54,7 @@ package androidx.navigation {
     method public boolean navigateUp();
     method public boolean popBackStack();
     method public boolean popBackStack(@IdRes int, boolean);
-    method public void removeOnCurrentDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener);
+    method public void removeOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener);
     method public void restoreState(android.os.Bundle?);
     method public android.os.Bundle? saveState();
     method public void setGraph(@NavigationRes int);
