@@ -27,6 +27,9 @@
         <provider android:name="androidx.slice.SlicePermissionTest$PermissionProvider"
             android:authorities="androidx.slice.core.permission"
             android:exported="true" />
+        <provider android:name="androidx.slice.SliceProviderCallbackTest$Provider"
+            android:authorities="androidx.slice.core.test.callback"
+            android:exported="true" />
     </application>
 
 </manifest>

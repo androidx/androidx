@@ -14,32 +14,37 @@
  * limitations under the License.
  */
 
-package androidx.remotecallback;
+package androidx.slice;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.remotecallback.ProviderRelayReceiver.ACTION_PROVIDER_RELAY;
 import static androidx.remotecallback.RemoteCallback.EXTRA_METHOD;
 import static androidx.remotecallback.RemoteCallback.TYPE_PROVIDER;
 
 import android.content.ComponentName;
-import android.content.ContentProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.os.Bundle;
 
 import androidx.annotation.RestrictTo;
+import androidx.remotecallback.CallbackBase;
+import androidx.remotecallback.CallbackHandlerRegistry;
+import androidx.remotecallback.CallbackReceiver;
+import androidx.remotecallback.ProviderRelayReceiver;
+import androidx.remotecallback.RemoteCallback;
 
 /**
- * Version of ContentProvider that can be used as a {@link CallbackReceiver}.
+ * Version of SliceProvider that can be used as a {@link CallbackReceiver}.
  *
  * Be sure to call the super of {@link #call} when unhandled to ensure
  * callbacks are triggered.
  *
  * @param <T> Should be specified as the root class (e.g. class X extends
- *           ContentProviderWithCallbacks\<X>)
+ *           SliceProviderWithCallbacks\<X>)
  */
-public abstract class ContentProviderWithCallbacks<T extends ContentProviderWithCallbacks> extends
-        ContentProvider implements CallbackReceiver<T>, CallbackBase<T> {
+public abstract class SliceProviderWithCallbacks<T extends SliceProviderWithCallbacks> extends
+        SliceProvider implements CallbackReceiver<T>, CallbackBase<T> {
 
     String mAuthority;
 
@@ -64,10 +69,12 @@ public abstract class ContentProviderWithCallbacks<T extends ContentProviderWith
     }
 
     /**
+     * Note: Only visible because metalava doesn't realize this is hidden. Will properly
+     * disappear when we have support for androidx-level @RestrictTo.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
+    @RestrictTo(LIBRARY_GROUP)
     public RemoteCallback toRemoteCallback(Class<T> cls, Context context, String authority,
             Bundle args, String method) {
         if (authority == null) {
