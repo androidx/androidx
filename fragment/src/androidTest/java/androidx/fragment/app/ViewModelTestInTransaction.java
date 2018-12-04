@@ -91,7 +91,7 @@ public class ViewModelTestInTransaction {
             super.onCreate(savedInstanceState);
             Fragment parentFragment = getParentFragment();
             ViewModelProvider provider = new ViewModelProvider(
-                    parentFragment != null ? parentFragment : getActivity(),
+                    parentFragment != null ? parentFragment : requireActivity(),
                     new ViewModelProvider.NewInstanceFactory());
             mViewModel = provider.get(TestViewModel.class);
             assertThat(mViewModel, notNullValue());
