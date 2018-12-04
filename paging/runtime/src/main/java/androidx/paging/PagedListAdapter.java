@@ -16,6 +16,8 @@
 
 package androidx.paging;
 
+import android.annotation.SuppressLint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.AdapterListUpdateCallback;
@@ -278,6 +280,7 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      *
      * @see #removeLoadStateListener(PagedList.LoadStateListener)
      */
+    @SuppressLint("UnknownNullness")
     public void addLoadStateListener(PagedList.LoadStateListener listener) {
         mDiffer.addLoadStateListener(listener);
     }
@@ -288,6 +291,7 @@ public abstract class PagedListAdapter<T, VH extends RecyclerView.ViewHolder>
      * @param listener Previously registered listener.
      * @see #addLoadStateListener(PagedList.LoadStateListener)
      */
+    @SuppressLint("UnknownNullness")
     public void removeLoadStateListener(PagedList.LoadStateListener listener) {
         mDiffer.removeLoadStateListListener(listener);
     }

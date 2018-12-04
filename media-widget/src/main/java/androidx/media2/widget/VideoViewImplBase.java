@@ -19,6 +19,7 @@ package androidx.media2.widget;
 import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_INVALID_STATE;
 import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
@@ -899,6 +900,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
         mCurrentMusicView = newMusicView;
     }
 
+    @SuppressLint("SyntheticAccessor")
     MediaPlayer.PlayerCallback mMediaPlayerCallback =
             new MediaPlayer.PlayerCallback() {
                 @Override
@@ -1184,6 +1186,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
         }
 
         @Override
+        @SuppressLint("SyntheticAccessor")
         protected void onPostExecute(MediaMetadata metadata) {
             if (metadata != null) {
                 mMediaItem.setMetadata(metadata);

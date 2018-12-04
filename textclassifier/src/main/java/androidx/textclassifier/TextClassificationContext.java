@@ -16,6 +16,7 @@
 
 package androidx.textclassifier;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -39,6 +40,7 @@ public final class TextClassificationContext {
     private final String mWidgetType;
     @Nullable private final String mWidgetVersion;
 
+    @SuppressLint("RestrictedApi")
     TextClassificationContext(
             String packageName,
             String widgetType,
@@ -100,6 +102,7 @@ public final class TextClassificationContext {
          *
          * @return this builder
          */
+        @SuppressLint("RestrictedApi")
         public Builder(@NonNull String packageName, @NonNull @WidgetType String widgetType) {
             mPackageName = Preconditions.checkNotNull(packageName);
             mWidgetType = Preconditions.checkNotNull(widgetType);
@@ -144,6 +147,7 @@ public final class TextClassificationContext {
      * {@link #toBundle()}.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public static TextClassificationContext createFromBundle(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
 

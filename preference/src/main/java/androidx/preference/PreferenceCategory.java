@@ -16,6 +16,7 @@
 
 package androidx.preference;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
@@ -49,6 +50,7 @@ public class PreferenceCategory extends PreferenceGroup {
         this(context, attrs, defStyleAttr, 0);
     }
 
+    @SuppressLint("RestrictedApi")
     public PreferenceCategory(Context context, AttributeSet attrs) {
         this(context, attrs, TypedArrayUtils.getAttr(context, R.attr.preferenceCategoryStyle,
                 android.R.attr.preferenceCategoryStyle));

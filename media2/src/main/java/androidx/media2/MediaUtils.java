@@ -793,6 +793,7 @@ public class MediaUtils {
      * @param item
      * @return
      */
+    @SuppressLint("RestrictedApi")
     public static ParcelImpl toParcelable(VersionedParcelable item) {
         if (item instanceof MediaItem) {
             return new MediaItemParcelImpl((MediaItem) item);
@@ -804,13 +805,14 @@ public class MediaUtils {
      * Media2 version of {@link ParcelUtils#fromParcelable(Parcelable)}.
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
+    @SuppressLint("RestrictedApi")
     public static <T extends VersionedParcelable> T fromParcelable(ParcelImpl p) {
         return ParcelUtils.<T>fromParcelable(p);
     }
 
     private static class MediaItemParcelImpl extends ParcelImpl {
         private final MediaItem mItem;
-
+        @SuppressLint("RestrictedApi")
         MediaItemParcelImpl(MediaItem item) {
             // Up-cast (possibly MediaItem's subclass object) item to MediaItem for the
             // writeToParcel(). The copied media item will be only used when it's sent across the

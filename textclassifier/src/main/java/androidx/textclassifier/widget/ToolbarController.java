@@ -18,6 +18,7 @@ package androidx.textclassifier.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.ClipData;
@@ -96,6 +97,7 @@ public final class ToolbarController {
         return sInstance.get();
     }
 
+    @SuppressLint("RestrictedApi")
     private ToolbarController(TextView textView) {
         mTextView = Preconditions.checkNotNull(textView);
         mContentRect = new Rect();
@@ -117,6 +119,7 @@ public final class ToolbarController {
      * @param end text end index for positioning the toolbar;
      *            the toolbar will not be shown this index is invalid for the associated textView
      */
+    @SuppressLint("RestrictedApi")
     public void show(List<RemoteActionCompat> actions, int start, int end) {
         Preconditions.checkNotNull(actions);
         Preconditions.checkArgumentInRange(start, 0, end - 1, "start");
@@ -225,6 +228,7 @@ public final class ToolbarController {
                 y + textView.getTotalPaddingTop() - textView.getScrollY() + xy[1]};
     }
 
+    @SuppressLint("RestrictedApi")
     private static SupportMenu createMenu(
             final TextView textView,
             final BackgroundSpan highlight,
@@ -343,6 +347,7 @@ public final class ToolbarController {
 
         private final FloatingToolbar mToolbar;
 
+        @SuppressLint("RestrictedApi")
         OnWindowFocusChangeListener(FloatingToolbar toolbar) {
             mToolbar = Preconditions.checkNotNull(toolbar);
         }
@@ -361,6 +366,7 @@ public final class ToolbarController {
         private final TextView mTextView;
         private final FloatingToolbar mToolbar;
 
+        @SuppressLint("RestrictedApi")
         OnTextViewFocusChangeListener(TextView textView, FloatingToolbar toolbar) {
             mTextView = Preconditions.checkNotNull(textView);
             mToolbar = Preconditions.checkNotNull(toolbar);
@@ -379,6 +385,7 @@ public final class ToolbarController {
 
         private final FloatingToolbar mToolbar;
 
+        @SuppressLint("RestrictedApi")
         OnTextViewDetachedListener(FloatingToolbar toolbar) {
             mToolbar = Preconditions.checkNotNull(toolbar);
         }
@@ -401,6 +408,7 @@ public final class ToolbarController {
         @Nullable final ActionMode.Callback mOriginalCallback;
         private final boolean mPreferMe;
 
+        @SuppressLint("RestrictedApi")
         ActionModeCallback(
                 FloatingToolbar toolbar,
                 @Nullable ActionMode.Callback originalCallback,
@@ -470,6 +478,7 @@ public final class ToolbarController {
         private final ActionModeCallback mSelectionCallback;
         private final  ActionModeCallback mInsertionCallback;
 
+        @SuppressLint("RestrictedApi")
         OnToolbarDismissListener(
                 TextView textView,
                 OnWindowFocusChangeListener onWindowFocusChangeListener,
@@ -507,6 +516,7 @@ public final class ToolbarController {
 
         private final FloatingToolbar mToolbar;
 
+        @SuppressLint("RestrictedApi")
         OnMenuItemClickListener(FloatingToolbar toolbar) {
             mToolbar = Preconditions.checkNotNull(toolbar);
         }
