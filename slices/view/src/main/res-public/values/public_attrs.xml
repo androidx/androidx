@@ -23,6 +23,7 @@
     <public type="attr" name="headerTitleSize" />
     <public type="attr" name="headerSubtitleSize" />
     <public type="attr" name="headerTextVerticalPadding" />
+    <public type="attr" name="headerDividerPadding" />
     <public type="attr" name="titleSize" />
     <public type="attr" name="subtitleSize" />
     <public type="attr" name="textVerticalPadding" />
