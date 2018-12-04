@@ -77,7 +77,6 @@ public class MediaControlViewTest {
     private static final String TAG = "MediaControlViewTest";
     // Expected success time
     private static final int WAIT_TIME_MS = 1000;
-    private static final int HTTPS_WAIT_TIME_MS = 5000;
     private static final long FFWD_MS = 30000L;
     private static final long REW_MS = 10000L;
 
@@ -88,11 +87,7 @@ public class MediaControlViewTest {
     private Activity mActivity;
     private VideoView mVideoView;
     private Uri mFileSchemeUri;
-    private Uri mHttpsSchemeUri;
-    private Uri mHttpSchemeUri;
     private MediaItem mFileSchemeMediaItem;
-    private MediaItem mHttpsSchemeMediaItem;
-    private MediaItem mHttpSchemeMediaItem;
     private List<MediaController> mControllers = new ArrayList<>();
 
     @Rule
@@ -109,13 +104,7 @@ public class MediaControlViewTest {
         mVideoView = mActivity.findViewById(R.id.videoview);
         mFileSchemeUri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
                 + R.raw.test_file_scheme_video);
-        mHttpsSchemeUri = Uri.parse(mContext.getResources().getString(
-                R.string.test_https_scheme_video));
-        mHttpSchemeUri = Uri.parse(mContext.getResources().getString(
-                R.string.test_http_scheme_video));
         mFileSchemeMediaItem = createTestMediaItem2(mFileSchemeUri);
-        mHttpsSchemeMediaItem = createTestMediaItem2(mHttpsSchemeUri);
-        mHttpSchemeMediaItem = createTestMediaItem2(mHttpSchemeUri);
 
         setKeepScreenOn();
         checkAttachedToWindow();
@@ -255,39 +244,6 @@ public class MediaControlViewTest {
         assertTrue(latchForFfwd.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         onView(withId(R.id.rew)).perform(click());
         assertTrue(latchForRew.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-    }
-
-    @Test
-    public void testPlayHttpsSchemeVideo() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec(mHttpsSchemeUri)) {
-            Log.i(TAG, "SKIPPING testPlayHttpsSchemeVideo(): codec is not supported");
-            return;
-        }
-
-        final CountDownLatch latchForPausedState = new CountDownLatch(1);
-        final CountDownLatch latchForPlayingState = new CountDownLatch(1);
-        final MediaController controller =
-                createController(new MediaController.ControllerCallback() {
-                    @Override
-                    public void onPlayerStateChanged(@NonNull MediaController controller,
-                            int state) {
-                        if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                            latchForPausedState.countDown();
-                        } else if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
-                            latchForPlayingState.countDown();
-                        }
-                    }
-                });
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                mVideoView.setMediaItem(mHttpsSchemeMediaItem);
-            }
-        });
-        assertTrue(latchForPausedState.await(HTTPS_WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        onView(withId(R.id.pause)).perform(click());
-        assertTrue(latchForPlayingState.await(HTTPS_WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
     @Test

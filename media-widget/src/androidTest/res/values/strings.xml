@@ -16,6 +16,4 @@
   -->
 
 <resources>
-    <string name="test_https_scheme_video">https://archive.org/download/BigBuckBunny_328/BigBuckBunny_512kb.mp4</string>
-    <string name="test_http_scheme_video">http://archive.org/download/BigBuckBunny_328/BigBuckBunny_512kb.mp4</string>
 </resources>
