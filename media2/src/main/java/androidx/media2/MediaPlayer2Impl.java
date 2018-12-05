@@ -1365,6 +1365,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         @PlayerState int mPlayerState = SessionPlayer.PLAYER_STATE_IDLE;
         boolean mPlayPending;
         boolean mSetAsNextPlayer;
+        final Map<Integer, Integer> mSelectedTracks = new ArrayMap<>();
 
         MediaPlayerSource(final MediaItem item) {
             mDSD = item;
@@ -1385,6 +1386,32 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         void release() {
             clearListeners(this);
             mPlayer.release();
+        }
+
+        void selectTrack(int index) {
+            final MediaPlayer mp = getPlayer();
+            mp.selectTrack(index);
+            MediaPlayer.TrackInfo[] trackInfos = mp.getTrackInfo();
+            if (index >= 0 && index < trackInfos.length) {
+                mSelectedTracks.put(trackInfos[index].getTrackType(), index);
+            }
+        }
+
+        void deselectTrack(int index) {
+            final MediaPlayer mp = getPlayer();
+            mp.deselectTrack(index);
+            MediaPlayer.TrackInfo[] trackInfos = mp.getTrackInfo();
+            if (index >= 0 && index < trackInfos.length) {
+                int trackType = trackInfos[index].getTrackType();
+                if (trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE
+                        || trackType == MediaPlayer.TrackInfo.MEDIA_TRACK_TYPE_TIMEDTEXT) {
+                    mSelectedTracks.remove(trackType);
+                }
+            }
+        }
+
+        int getSelectedTrack(int trackType) {
+            return mSelectedTracks.getOrDefault(trackType, -1);
         }
     }
 
@@ -1870,15 +1897,18 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized int getSelectedTrack(int trackType) {
-            return getCurrentPlayer().getSelectedTrack(trackType);
+            final MediaPlayerSource currentPlayerSource = mQueue.get(0);
+            return currentPlayerSource.getSelectedTrack(trackType);
         }
 
         synchronized void selectTrack(int index) {
-            getCurrentPlayer().selectTrack(index);
+            final MediaPlayerSource currentPlayerSource = mQueue.get(0);
+            currentPlayerSource.selectTrack(index);
         }
 
         synchronized void deselectTrack(int index) {
-            getCurrentPlayer().deselectTrack(index);
+            final MediaPlayerSource currentPlayerSource = mQueue.get(0);
+            currentPlayerSource.deselectTrack(index);
         }
 
         synchronized MediaPlayer.DrmInfo getDrmInfo() {
