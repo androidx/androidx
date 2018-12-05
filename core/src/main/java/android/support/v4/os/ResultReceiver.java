@@ -18,6 +18,7 @@ package android.support.v4.os;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcel;
@@ -42,6 +43,7 @@ import androidx.annotation.RestrictTo;
  */
 @RestrictTo(LIBRARY_GROUP)
 @SuppressWarnings("BanParcelableUsage")
+@SuppressLint("BanParcelableUsage")
 public class ResultReceiver implements Parcelable {
     final boolean mLocal;
     final Handler mHandler;

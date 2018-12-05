@@ -338,6 +338,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * FragmentManager.saveFragmentInstanceState}.
      */
     @SuppressWarnings("BanParcelableUsage")
+    @SuppressLint("BanParcelableUsage")
     public static class SavedState implements Parcelable {
         final Bundle mState;
 

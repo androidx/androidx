@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Network;
 import android.net.Uri;
@@ -63,6 +64,7 @@ public abstract class ListenableWorker {
      * @param workerParams Parameters to setup the internal state of this worker
      */
     @Keep
+    @SuppressLint("BanKeepAnnotation")
     public ListenableWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
         // Actually make sure we don't get nulls.
         if (appContext == null) {
