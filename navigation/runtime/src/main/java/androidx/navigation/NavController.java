@@ -22,6 +22,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.NavigationRes;
 import android.support.annotation.NonNull;
@@ -50,7 +51,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * (For example, if the navigation structure of the application is determined by live data obtained'
  * from a remote server.)</p>
  */
-public final class NavController {
+public class NavController {
     private static final String TAG = "NavController";
     private static final String KEY_NAVIGATOR_STATE =
             "android-support-nav:controller:navigatorState";
@@ -400,6 +401,7 @@ public final class NavController {
      * @see #setGraph(NavGraph)
      * @see #getGraph
      */
+    @CallSuper
     public void setGraph(@NavigationRes int graphResId) {
         setGraph(graphResId, null);
     }
@@ -417,6 +419,7 @@ public final class NavController {
      * @see #setGraph(NavGraph, Bundle)
      * @see #getGraph
      */
+    @CallSuper
     public void setGraph(@NavigationRes int graphResId, @Nullable Bundle startDestinationArgs) {
         mGraph = getNavInflater().inflate(graphResId);
         onGraphCreated(startDestinationArgs);
@@ -432,6 +435,7 @@ public final class NavController {
      * @see #setGraph(int)
      * @see #getGraph
      */
+    @CallSuper
     public void setGraph(@NonNull NavGraph graph) {
         setGraph(graph, null);
     }
@@ -446,6 +450,7 @@ public final class NavController {
      * @see #setGraph(int, Bundle)
      * @see #getGraph
      */
+    @CallSuper
     public void setGraph(@NonNull NavGraph graph, @Nullable Bundle startDestinationArgs) {
         mGraph = graph;
         onGraphCreated(startDestinationArgs);
@@ -640,7 +645,7 @@ public final class NavController {
      * @param resId an {@link NavDestination#getAction(int) action} id or a destination id to
      *              navigate to
      */
-    public final void navigate(@IdRes int resId) {
+    public void navigate(@IdRes int resId) {
         navigate(resId, null);
     }
 
@@ -652,7 +657,7 @@ public final class NavController {
      *              navigate to
      * @param args arguments to pass to the destination
      */
-    public final void navigate(@IdRes int resId, @Nullable Bundle args) {
+    public void navigate(@IdRes int resId, @Nullable Bundle args) {
         navigate(resId, args, null);
     }
 
@@ -665,8 +670,8 @@ public final class NavController {
      * @param args arguments to pass to the destination
      * @param navOptions special options for this navigation operation
      */
-    @SuppressWarnings("deprecation")
-    public void navigate(@IdRes int resId, @Nullable Bundle args, @Nullable NavOptions navOptions) {
+    public void navigate(@IdRes int resId, @Nullable Bundle args,
+            @Nullable NavOptions navOptions) {
         navigate(resId, args, navOptions, null);
     }
 
@@ -814,6 +819,7 @@ public final class NavController {
      *
      * @return saved state for this controller
      */
+    @CallSuper
     @Nullable
     public Bundle saveState() {
         Bundle b = null;
@@ -859,6 +865,7 @@ public final class NavController {
      *
      * @param navState state bundle to restore
      */
+    @CallSuper
     public void restoreState(@Nullable Bundle navState) {
         if (navState == null) {
             return;
