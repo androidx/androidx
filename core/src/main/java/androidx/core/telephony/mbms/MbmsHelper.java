@@ -16,6 +16,7 @@
 
 package androidx.core.telephony.mbms;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -47,7 +48,9 @@ public final class MbmsHelper {
      * @return The best name to display to the user for the service, or {@code null} if nothing
      * matches.
      */
+    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
     @TargetApi(Build.VERSION_CODES.P)
+    @SuppressLint("BanTargetApiAnnotation")
     @Nullable
     public static CharSequence getBestNameForService(@NonNull Context context,
             @NonNull ServiceInfo serviceInfo) {

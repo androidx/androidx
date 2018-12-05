@@ -203,7 +203,9 @@ final class LegacyTextClassifier extends TextClassifier {
             mPermissionsChecker = Preconditions.checkNotNull(permissionsChecker);
         }
 
+        // Remove BanTargetApiAnnotation suppression once b/120625134 is addressed.
         @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+        @SuppressLint("BanTargetApiAnnotation")
         private static Bundle createUserRestrictions(Context context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
                 return Bundle.EMPTY;

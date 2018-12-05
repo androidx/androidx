@@ -136,6 +136,8 @@ public class ViewCompat {
     public static final int OVER_SCROLL_NEVER = 2;
 
     @TargetApi(Build.VERSION_CODES.O)
+    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
+    @SuppressLint("BanTargetApiAnnotation")
     @IntDef({
             View.IMPORTANT_FOR_AUTOFILL_AUTO,
             View.IMPORTANT_FOR_AUTOFILL_YES,
@@ -3811,6 +3813,8 @@ public class ViewCompat {
     }
 
     @TargetApi(28)
+    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
+    @SuppressLint("BanTargetApiAnnotation")
     private static AccessibilityViewProperty<Boolean> screenReaderFocusableProperty() {
         return new AccessibilityViewProperty<Boolean>(
                 R.id.tag_screen_reader_focusable, Boolean.class, 28) {
@@ -3882,6 +3886,8 @@ public class ViewCompat {
     }
 
     @TargetApi(28)
+    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
+    @SuppressLint("BanTargetApiAnnotation")
     private static AccessibilityViewProperty<CharSequence> paneTitleProperty() {
         return new AccessibilityViewProperty<CharSequence>(R.id.tag_accessibility_pane_title,
                 CharSequence.class, AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE, 28) {
@@ -3938,6 +3944,8 @@ public class ViewCompat {
     }
 
     @TargetApi(28)
+    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
+    @SuppressLint("BanTargetApiAnnotation")
     private static AccessibilityViewProperty<Boolean> accessibilityHeadingProperty() {
         return new AccessibilityViewProperty<Boolean>(
                 R.id.tag_accessibility_heading, Boolean.class, 28) {
@@ -4025,6 +4033,8 @@ public class ViewCompat {
     }
 
     @TargetApi(19)
+    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
+    @SuppressLint("BanTargetApiAnnotation")
     static void notifyViewAccessibilityStateChangedIfNeeded(View view, int changeType) {
         AccessibilityManager accessibilityManager = (AccessibilityManager)
                 view.getContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
@@ -4055,6 +4065,8 @@ public class ViewCompat {
             new AccessibilityPaneVisibilityManager();
 
     @TargetApi(19)
+    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
+    @SuppressLint("BanTargetApiAnnotation")
     static class AccessibilityPaneVisibilityManager
             implements ViewTreeObserver.OnGlobalLayoutListener, View.OnAttachStateChangeListener {
         private WeakHashMap<View, Boolean> mPanesToVisible = new WeakHashMap<View, Boolean>();
