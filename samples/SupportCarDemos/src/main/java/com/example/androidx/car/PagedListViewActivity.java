@@ -25,6 +25,7 @@ import android.widget.TextView;
 
 import androidx.car.widget.CarToolbar;
 import androidx.car.widget.PagedListView;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -47,14 +48,20 @@ public class PagedListViewActivity extends Activity {
         toolbar.setNavigationIconOnClickListener(v -> finish());
 
         PagedListView pagedListView = findViewById(R.id.paged_list_view);
-        pagedListView.setAdapter(new DemoAdapter(ITEM_COUNT));
+        pagedListView.setClipChildren(false);
+
+        DemoAdapter adapter = new DemoAdapter(ITEM_COUNT);
+        pagedListView.setAdapter(adapter);
+
+        RecyclerView recyclerView = pagedListView.getRecyclerView();
+        new ItemTouchHelper(new SimpleItemTouchHelperCallback(adapter))
+                .attachToRecyclerView(recyclerView);
     }
 
     /**
      * Adapter that populates a number of items for demo purposes.
      */
-    public static class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.ViewHolder> {
-
+    private static class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.ViewHolder> {
         private final List<String> mItems = new ArrayList<>();
 
         /**
@@ -88,6 +95,11 @@ public class PagedListViewActivity extends Activity {
             return mItems.size();
         }
 
+        public void onItemDismiss(int position) {
+            mItems.remove(position);
+            notifyItemRemoved(position);
+        }
+
         /**
          * ViewHolder for DemoAdapter.
          */
@@ -98,6 +110,30 @@ public class PagedListViewActivity extends Activity {
                 super(itemView);
                 mTextView = itemView.findViewById(R.id.text);
             }
+        }
+    }
+
+    /**
+     * A callback that will remove an item from {@link DemoAdapter} when it detects that an item
+     * has been swiped away.
+     */
+    private static class SimpleItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
+        private final DemoAdapter mAdapter;
+
+        SimpleItemTouchHelperCallback(DemoAdapter adapter) {
+            super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
+            mAdapter = adapter;
+        }
+
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                RecyclerView.ViewHolder target) {
+            return false;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
         }
     }
 }
