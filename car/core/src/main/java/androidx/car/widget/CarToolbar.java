@@ -26,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -61,7 +62,9 @@ public class CarToolbar extends ViewGroup {
 
     private final ImageButton mNavButtonView;
     private final int mNavButtonIconSize;
+    private final ImageView mTitleIconView;
     private final int mToolbarHeight;
+    private int mTitleIconSize;
     // There is no actual container for nav button. This value is used to calculate a horizontal
     // space on both ends of nav button (so it's centered).
     // We use dedicated attribute over horizontal margin so that the API for setting space before
@@ -99,6 +102,7 @@ public class CarToolbar extends ViewGroup {
         MinTouchTargetHelper.ensureThat(mNavButtonView).hasMinTouchSize(minTouchSize);
 
         mTitleTextView = findViewById(R.id.title);
+        mTitleIconView = findViewById(R.id.title_icon);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CarToolbar, defStyleAttr,
                 /* defStyleRes= */ 0);
@@ -112,6 +116,13 @@ public class CarToolbar extends ViewGroup {
             setNavigationIcon(Icon.createWithResource(getContext(),
                     a.getResourceId(R.styleable.CarToolbar_navigationIcon,
                             R.drawable.ic_nav_arrow_back)));
+
+            int titleIconResId = a.getResourceId(R.styleable.CarToolbar_titleIcon, -1);
+            setTitleIcon(titleIconResId != -1 ? Icon.createWithResource(context, titleIconResId)
+                    : null);
+
+            setTitleIconSize(a.getDimensionPixelSize(R.styleable.CarToolbar_titleIconSize,
+                    res.getDimensionPixelSize(R.dimen.car_application_icon_size)));
 
             mNavButtonContainerWidth = a.getDimensionPixelSize(
                     R.styleable.CarToolbar_navigationIconContainerWidth,
@@ -144,6 +155,12 @@ public class CarToolbar extends ViewGroup {
             int navWidth = Math.max(mNavButtonContainerWidth, mNavButtonView.getMeasuredWidth());
             width += navWidth + getHorizontalMargins(mNavButtonView);
         }
+        if (mTitleIconView.getVisibility() != GONE) {
+            int measureSpec = MeasureSpec.makeMeasureSpec(mTitleIconSize, MeasureSpec.EXACTLY);
+            mTitleIconView.measure(measureSpec, measureSpec);
+
+            width += mTitleIconView.getMeasuredWidth();
+        }
         if (mTitleTextView.getVisibility() != GONE) {
             measureChild(mTitleTextView, widthMeasureSpec, width, childHeightMeasureSpec, 0);
             width += mTitleTextView.getMeasuredWidth() + getHorizontalMargins(mTitleTextView);
@@ -167,7 +184,10 @@ public class CarToolbar extends ViewGroup {
             layoutViewVerticallyCentered(mNavButtonView, navButtonLeft, height);
             layoutLeft += containerWidth;
         }
-
+        if (mTitleIconView.getVisibility() != GONE) {
+            layoutViewVerticallyCentered(mTitleIconView, layoutLeft, height);
+            layoutLeft += mTitleIconView.getMeasuredWidth();
+        }
         if (mTitleTextView.getVisibility() != GONE) {
             layoutViewVerticallyCentered(mTitleTextView, layoutLeft, height);
         }
@@ -215,6 +235,35 @@ public class CarToolbar extends ViewGroup {
      */
     public void setNavigationIconContainerWidth(@Px int width) {
         mNavButtonContainerWidth = width;
+        requestLayout();
+    }
+
+    /**
+     * Set the title icon to use in the toolbar.
+     *
+     * <p>The title icon is positioned between the navigation button and the title.
+     *
+     * @param icon Icon to set; {@code null} will hide the icon.
+     * @attr ref R.styleable#CarToolbar_titleIcon
+     */
+    public void setTitleIcon(@Nullable Icon icon) {
+        if (icon == null) {
+            mTitleIconView.setVisibility(GONE);
+            mTitleIconView.setImageDrawable(null);
+            return;
+        }
+        mTitleIconView.setVisibility(VISIBLE);
+        mTitleIconView.setImageDrawable(icon.loadDrawable(getContext()));
+    }
+
+    /**
+     * Set a new size for the title icon.
+     *
+     * @param size Size of the title icon dimensions in pixels.
+     * @attr ref R.styleable#CarToolbar_titleIconSize
+     */
+    public void setTitleIconSize(@Px int size) {
+        mTitleIconSize = size;
         requestLayout();
     }
 

@@ -19,6 +19,7 @@ package com.example.androidx.car;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.car.widget.CarToolbar;
 
 /**
@@ -30,9 +31,11 @@ public class CarToolbarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_toolbar);
 
-        CarToolbar toolbar = findViewById(R.id.car_toolbar);
-        toolbar.setNavigationIconOnClickListener(v -> {
-            this.onSupportNavigateUp();
-        });
+        CarToolbar carToolbar = findViewById(R.id.car_toolbar);
+        carToolbar.setNavigationIconOnClickListener(v -> onSupportNavigateUp());
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        toolbar.setNavigationOnClickListener(v -> onSupportNavigateUp());
+        setSupportActionBar(toolbar);
     }
 }
