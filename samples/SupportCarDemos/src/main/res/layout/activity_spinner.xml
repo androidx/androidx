@@ -19,13 +19,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
     <Spinner
         android:id="@+id/spinner"
         android:layout_width="match_parent"
         android:layout_height="@dimen/car_single_line_list_item_height"
-        android:layout_marginRight="@dimen/car_margin"
         android:layout_marginLeft="@dimen/car_margin"
-        android:layout_gravity="center"/>
-
+        android:layout_marginRight="@dimen/car_margin"
+        android:layout_gravity="center"
+        android:background="@android:color/black"/>
 </FrameLayout>
