@@ -566,7 +566,6 @@ limitations under the License.
 
     <style name="Widget.Spinner.Car" parent="Widget.AppCompat.Spinner">
         <item name="android:spinnerMode">dialog</item>
-        <item name="android:background">@drawable/car_spinner_background</item>
     </style>
 
     <style name="CarSpinnerItem">
