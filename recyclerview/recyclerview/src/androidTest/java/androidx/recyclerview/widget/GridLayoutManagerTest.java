@@ -499,11 +499,16 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         final int consecutiveUnFocusableColsCount = 8;
         final int itemCount = (consecutiveFocusableColsCount + consecutiveUnFocusableColsCount)
                 * spanCount;
+        final int childWidth = 200;
+        final int childHeight = WRAP_CONTENT;
+        // Parent width is 1 more than 4 times child width, so when focusable child is 1 pixel on
+        // screen 4 non-focusable children can fit on screen.
+        final int parentWidth = childWidth * 4 + 1;
+        final int parentHeight = 1000;
 
         final RecyclerView recyclerView = setupBasic(new Config(spanCount, itemCount)
                         .orientation(HORIZONTAL).reverseLayout(true),
                 new GridTestAdapter(itemCount, 1) {
-                    RecyclerView mAttachedRv;
 
                     @Override
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
@@ -520,11 +525,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     }
 
                     @Override
-                    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-                        mAttachedRv = recyclerView;
-                    }
-
-                    @Override
                     public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
@@ -535,9 +535,11 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                             holder.itemView.setFocusable(false);
                             holder.itemView.setFocusableInTouchMode(false);
                         }
-                        holder.itemView.setMinimumWidth(mAttachedRv.getWidth() / visibleColCount);
+                        holder.itemView.setLayoutParams(
+                                new RecyclerView.LayoutParams(childWidth, childHeight));
                     }
                 });
+        recyclerView.setLayoutParams(new ViewGroup.LayoutParams(parentWidth, parentHeight));
         waitForFirstLayout(recyclerView);
 
         // adapter position of the currently focused item.
@@ -589,12 +591,16 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         final int consecutiveUnFocusableColsCount = 8;
         final int itemCount = (consecutiveFocusableColsCount + consecutiveUnFocusableColsCount)
                 * spanCount;
+        final int childWidth = 200;
+        final int childHeight = WRAP_CONTENT;
+        // Parent width is 1 more than 4 times child width, so when focusable child is 1 pixel on
+        // screen 4 non-focusable children can fit on screen.
+        final int parentWidth = childWidth * 4 + 1;
+        final int parentHeight = 1000;
 
         final RecyclerView recyclerView = setupBasic(new Config(spanCount, itemCount)
                         .orientation(HORIZONTAL).reverseLayout(false),
                 new GridTestAdapter(itemCount, 1) {
-                    RecyclerView mAttachedRv;
-
                     @Override
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                             int viewType) {
@@ -610,11 +616,6 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                     }
 
                     @Override
-                    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-                        mAttachedRv = recyclerView;
-                    }
-
-                    @Override
                     public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
@@ -625,9 +626,11 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                             holder.itemView.setFocusable(false);
                             holder.itemView.setFocusableInTouchMode(false);
                         }
-                        holder.itemView.setMinimumWidth(mAttachedRv.getWidth() / visibleColCount);
+                        holder.itemView.setLayoutParams(
+                                new RecyclerView.LayoutParams(childWidth, childHeight));
                     }
                 });
+        recyclerView.setLayoutParams(new ViewGroup.LayoutParams(parentWidth, parentHeight));
         waitForFirstLayout(recyclerView);
 
         // adapter position of the currently focused item.
