@@ -435,12 +435,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @RestrictTo(LIBRARY)
     @Override
-    protected TemplateBuilderImpl selectImpl(Uri uri) {
-        if (checkCompatible(SliceSpecs.LIST_V2, uri)) {
+    protected TemplateBuilderImpl selectImpl() {
+        if (checkCompatible(SliceSpecs.LIST_V2)) {
             return new ListBuilderImpl(getBuilder(), SliceSpecs.LIST_V2, getClock());
-        } else if (checkCompatible(SliceSpecs.LIST, uri)) {
+        } else if (checkCompatible(SliceSpecs.LIST)) {
             return new ListBuilderImpl(getBuilder(), SliceSpecs.LIST, getClock());
-        } else if (checkCompatible(SliceSpecs.BASIC, uri)) {
+        } else if (checkCompatible(SliceSpecs.BASIC)) {
             return new ListBuilderBasicImpl(getBuilder(), SliceSpecs.BASIC);
         }
         return null;
