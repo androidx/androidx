@@ -1024,7 +1024,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         size = size
     }
 
-    private var _cachedBaselines: MutableMap<TextBaseline, Double>? = null
+    private var _cachedBaselines: MutableMap<TextBaseline, Double?>? = null
 
     companion object {
         var _debugDoingBaseline = false
@@ -1034,73 +1034,73 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         }
     }
 
-    // TODO(Migration/andrey): Needs TextBaseline
-//    /// Returns the distance from the y-coordinate of the position of the box to
-//    /// the y-coordinate of the first given baseline in the box's contents.
-//    ///
-//    /// Used by certain layout models to align adjacent boxes on a common
-//    /// baseline, regardless of padding, font size differences, etc. If there is
-//    /// no baseline, this function returns the distance from the y-coordinate of
-//    /// the position of the box to the y-coordinate of the bottom of the box
-//    /// (i.e., the height of the box) unless the caller passes true
-//    /// for `onlyReal`, in which case the function returns null.
-//    ///
-//    /// Only call this function after calling [layout] on this box. You
-//    /// are only allowed to call this from the parent of this box during
-//    /// that parent's [performLayout] or [paint] functions.
-//    double getDistanceToBaseline(TextBaseline baseline, { bool onlyReal: false }) {
-//        assert(!debugNeedsLayout);
-//        assert(!_debugDoingBaseline);
-//        assert(() {
-//            final RenderObject parent = this.parent;
-//            if (owner.debugDoingLayout)
-//                return (RenderObject.debugActiveLayout == parent) && parent.debugDoingThisLayout;
-//            if (owner.debugDoingPaint)
-//                return ((RenderObject.debugActivePaint == parent) && parent.debugDoingThisPaint) ||
-//                        ((RenderObject.debugActivePaint == this) && debugDoingThisPaint);
-//            assert(parent == this.parent);
-//            return false;
-//        }());
-//        assert(_debugSetDoingBaseline(true));
-//        final double result = getDistanceToActualBaseline(baseline);
-//        assert(_debugSetDoingBaseline(false));
-//        if (result == null && !onlyReal)
-//            return size.height;
-//        return result;
-//    }
-//
-//    /// Calls [computeDistanceToActualBaseline] and caches the result.
-//    ///
-//    /// This function must only be called from [getDistanceToBaseline] and
-//    /// [computeDistanceToActualBaseline]. Do not call this function directly from
-//    /// outside those two methods.
-//    @protected
-//    @mustCallSuper
-//    double getDistanceToActualBaseline(TextBaseline baseline) {
-//        assert(_debugDoingBaseline);
-//        _cachedBaselines ??= <TextBaseline, double>{};
-//        _cachedBaselines.putIfAbsent(baseline, () => computeDistanceToActualBaseline(baseline));
-//        return _cachedBaselines[baseline];
-//    }
-//
-//    /// Returns the distance from the y-coordinate of the position of the box to
-//    /// the y-coordinate of the first given baseline in the box's contents, if
-//    /// any, or null otherwise.
-//    ///
-//    /// Do not call this function directly. Instead, call [getDistanceToBaseline]
-//    /// if you need to know the baseline of a child from an invocation of
-//    /// [performLayout] or [paint] and call [getDistanceToActualBaseline] if you
-//    /// are implementing [computeDistanceToActualBaseline] and need to defer to a
-//    /// child.
-//    ///
-//    /// Subclasses should override this method to supply the distances to their
-//    /// baselines.
-//    @protected
-//    double computeDistanceToActualBaseline(TextBaseline baseline) {
-//        assert(_debugDoingBaseline);
-//        return null;
-//    }
-//
+    /**
+     * Returns the distance from the y-coordinate of the position of the box to the y-coordinate of
+     * the first given baseline in the box's contents.
+     *
+     * Used by certain layout models to align adjacent boxes on a common baseline, regardless of
+     * padding, font size differences, etc. If there is no baseline, this function returns the
+     * distance from the y-coordinate of the position of the box to the y-coordinate of the bottom
+     * of the box(i.e., the height of the box) unless the caller passes true for `onlyReal`, in
+     * which case the function returns null.
+     *
+     * Only call this function after calling [layout] on this box. You are only allowed to call this
+     * from the parent of this box during that parent's [performLayout] or [paint] functions.
+     */
+    fun getDistanceToBaseline(baseline: TextBaseline, onlyReal: Boolean = false): Double? {
+        assert(!debugNeedsLayout)
+        assert(!_debugDoingBaseline)
+        assert {
+            val parent = this.parent as RenderObject
+            if (owner!!.debugDoingLayout) {
+                (RenderObject.debugActiveLayout == parent) && parent.debugDoingThisLayout
+            }
+            if (owner!!.debugDoingPaint) {
+                ((RenderObject.debugActivePaint == parent) && parent.debugDoingThisPaint) ||
+                        ((RenderObject.debugActivePaint == this) && debugDoingThisPaint)
+            }
+            assert(parent == this.parent)
+            false
+        }
+        assert(_debugSetDoingBaseline(true))
+        val result = getDistanceToActualBaseline(baseline)
+        assert(_debugSetDoingBaseline(false))
+        if (result == null && !onlyReal) return size.height
+        return result
+    }
+
+    /**
+     * Calls [computeDistanceToActualBaseline] and caches the result.
+     *
+     * This function must only be called from [getDistanceToBaseline] and
+     * [computeDistanceToActualBaseline]. Do not call this function directly from outside those two
+     * methods.
+     */
+    @CallSuper
+    protected fun getDistanceToActualBaseline(baseline: TextBaseline): Double? {
+        assert(_debugDoingBaseline)
+        val cachedBaselinesTemp = _cachedBaselines ?: mutableMapOf()
+        cachedBaselinesTemp.getOrPut(baseline) { computeDistanceToActualBaseline(baseline) }
+        _cachedBaselines = cachedBaselinesTemp
+        return cachedBaselinesTemp[baseline]
+    }
+
+    /**
+     * Returns the distance from the y-coordinate of the position of the box to the y-coordinate of
+     * the first given baseline in the box's contents, if any, or null otherwise.
+     *
+     * Do not call this function directly. Instead, call [getDistanceToBaseline] if you need to know
+     * the baseline of a child from an invocation of [performLayout] or [paint] and call
+     * [getDistanceToActualBaseline] if you are implementing [computeDistanceToActualBaseline] and
+     * need to defer to a child.
+     *
+     * Subclasses should override this method to supply the distances to their baselines.
+     */
+    protected open fun computeDistanceToActualBaseline(baseline: TextBaseline): Double? {
+        assert(_debugDoingBaseline)
+        return null
+    }
+
     // The box constraints most recently received from the parent.
     override val constraints: BoxConstraints?
         get() = super.constraints as BoxConstraints?
