@@ -335,6 +335,30 @@ class NavControllerTest {
     }
 
     @Test
+    fun testNavigateNestedPopUpToThenNavigatorInstigatedPop() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_nested_start_destination)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertEquals(R.id.nested_test, navController.currentDestination?.id ?: 0)
+        assertEquals(1, navigator.backStack.size)
+
+        navController.navigate(R.id.pop_forward)
+        assertEquals(R.id.nested_second_test, navController.currentDestination?.id ?: 0)
+        assertEquals(1, navigator.backStack.size)
+
+        // A Navigator can pop a destination off its own back stack
+        // then inform the NavController via dispatchOnNavigatorNavigated
+        navigator.backStack.removeLast()
+        navigator.dispatchOnNavigatorBackPress()
+        assertWithMessage("The last destination should be popped off the stack")
+            .that(navController.currentDestination)
+            .isNull()
+        assertWithMessage("TestNavigator should not nothing on its back stack")
+            .that(navigator.backStack.size)
+            .isEqualTo(0)
+    }
+
+    @Test
     fun testNavigateThenNavigateWithPop() {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_simple)
