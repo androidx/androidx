@@ -1286,6 +1286,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             mRenderPath.reset();
 
             if (vPath.isClipPath()) {
+                mRenderPath.setFillType(vPath.mFillRule == 0 ? Path.FillType.WINDING
+                        : Path.FillType.EVEN_ODD);
                 mRenderPath.addPath(path, mFinalPathMatrix);
                 canvas.clipPath(mRenderPath);
             } else {
@@ -1681,8 +1683,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * Common Path information for clip path and normal path.
      */
     private abstract static class VPath extends VObject {
+        private static final int FILL_TYPE_WINDING = 0;
         protected PathParser.PathDataNode[] mNodes = null;
         String mPathName;
+        // Default fill rule is winding, or as known as "non-zero".
+        int mFillRule = FILL_TYPE_WINDING;
         int mChangingConfigurations;
 
         public VPath() {
@@ -1760,11 +1765,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
      * Clip path, which only has name and pathData.
      */
     private static class VClipPath extends VPath {
-        public VClipPath() {
+        VClipPath() {
             // Empty constructor.
         }
 
-        public VClipPath(VClipPath copy) {
+        VClipPath(VClipPath copy) {
             super(copy);
         }
 
@@ -1795,6 +1800,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
             if (pathData != null) {
                 mNodes = PathParser.createNodesFromPathData(pathData);
             }
+            mFillRule = a.getInt(AndroidResources.STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_FILLTYPE,
+                    mFillRule);
         }
 
         @Override
@@ -1810,14 +1817,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         /////////////////////////////////////////////////////
         // Variables below need to be copied (deep copy if applicable) for mutation.
         private int[] mThemeAttrs;
-        private static final int FILL_TYPE_WINDING = 0;
         ComplexColorCompat mStrokeColor;
         float mStrokeWidth = 0;
 
         ComplexColorCompat mFillColor;
         float mStrokeAlpha = 1.0f;
-        // Default fill rule is winding, or as known as "non-zero".
-        int mFillRule = FILL_TYPE_WINDING;
         float mFillAlpha = 1.0f;
         float mTrimPathStart = 0;
         float mTrimPathEnd = 1;
@@ -1827,11 +1831,11 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
         Join mStrokeLineJoin = Join.MITER;
         float mStrokeMiterlimit = 4;
 
-        public VFullPath() {
+        VFullPath() {
             // Empty constructor.
         }
 
-        public VFullPath(VFullPath copy) {
+        VFullPath(VFullPath copy) {
             super(copy);
             mThemeAttrs = copy.mThemeAttrs;
 

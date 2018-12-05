@@ -68,10 +68,11 @@ class AndroidResources {
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_START = 5;
     static final int STYLEABLE_VECTOR_DRAWABLE_PATH_TRIM_PATH_FILLTYPE = 13;
     static final int[] STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH = {
-            android.R.attr.name, android.R.attr.pathData
+            android.R.attr.name, android.R.attr.pathData, android.R.attr.fillType
     };
     static final int STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_NAME = 0;
     static final int STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_PATH_DATA = 1;
+    static final int STYLEABLE_VECTOR_DRAWABLE_CLIP_PATH_FILLTYPE = 2;
 
     static final int[] STYLEABLE_ANIMATED_VECTOR_DRAWABLE = {
             android.R.attr.drawable
