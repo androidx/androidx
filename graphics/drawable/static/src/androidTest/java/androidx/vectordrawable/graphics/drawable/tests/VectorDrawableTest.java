@@ -92,6 +92,8 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_five_bars,
             R.drawable.vector_icon_filltype_evenodd,
             R.drawable.vector_icon_filltype_nonzero,
+            R.drawable.vector_icon_clip_filltype_evenodd,
+            R.drawable.vector_icon_clip_filltype_nonzero,
     };
 
     private static final int[] GOLDEN_IMAGES = new int[]{
@@ -123,6 +125,8 @@ public class VectorDrawableTest {
             R.drawable.vector_icon_five_bars_golden,
             R.drawable.vector_icon_filltype_evenodd_golden,
             R.drawable.vector_icon_filltype_nonzero_golden,
+            R.drawable.vector_icon_clip_filltype_evenodd_golden,
+            R.drawable.vector_icon_clip_filltype_nonzero_golden,
     };
 
     private static final int[] EDGES = new int[]{
@@ -152,6 +156,8 @@ public class VectorDrawableTest {
             -1,
             -1,
             R.drawable.vector_icon_five_bars_edge,
+            -1,
+            -1,
             -1,
             -1,
     };
