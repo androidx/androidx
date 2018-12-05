@@ -253,6 +253,8 @@ public class ListContent extends SliceContent {
                     return FORMAT_ACTION.equals(rc.getRange().getFormat())
                             ? EventInfo.ROW_TYPE_SLIDER
                             : EventInfo.ROW_TYPE_PROGRESS;
+                } else if (rc.getSelection() != null) {
+                    return EventInfo.ROW_TYPE_SELECTION;
                 } else if (primaryAction != null && primaryAction.isToggle()) {
                     return EventInfo.ROW_TYPE_TOGGLE;
                 } else if (isHeader && actions != null) {
