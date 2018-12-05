@@ -28,7 +28,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.StringRes;
@@ -44,11 +43,11 @@ import androidx.core.view.MarginLayoutParamsCompat;
  * <p>CarToolbar provides a subset of features of {@link Toolbar} through a driving safe UI. From
  * start to end, a CarToolbar provides the following elements:
  * <ul>
- *     <li><em>A navigation button.</em> Similar to that in Toolbar, navigation button should always
- *     provide access to other navigational destinations. If navigation button is to be used as
- *     Up Button, its <code>OnClickListener</code> needs to explicitly invoke
- *     {@link AppCompatActivity#onSupportNavigateUp()}
- *     <li><em>A title.</em> A single line text that ellipsizes at end.
+ * <li><em>A navigation button.</em> Similar to that in Toolbar, navigation button should always
+ * provide access to other navigational destinations. If navigation button is to be used as
+ * Up Button, its <code>OnClickListener</code> needs to explicitly invoke
+ * {@link AppCompatActivity#onSupportNavigateUp()}
+ * <li><em>A title.</em> A single line text that ellipsizes at end.
  * </ul>
  *
  * <p>One distinction between CarToolbar and Toolbar is that CarToolbar cannot be used as action bar
@@ -110,8 +109,9 @@ public class CarToolbar extends ViewGroup {
             setTitleTextAppearance(a.getResourceId(R.styleable.CarToolbar_titleTextAppearance,
                     R.style.TextAppearance_Car_Body1_Medium));
 
-            setNavigationIcon(a.getResourceId(R.styleable.CarToolbar_navigationIcon,
-                    R.drawable.ic_nav_arrow_back));
+            setNavigationIcon(Icon.createWithResource(getContext(),
+                    a.getResourceId(R.styleable.CarToolbar_navigationIcon,
+                            R.drawable.ic_nav_arrow_back)));
 
             mNavButtonContainerWidth = a.getDimensionPixelSize(
                     R.styleable.CarToolbar_navigationIconContainerWidth,
@@ -179,22 +179,7 @@ public class CarToolbar extends ViewGroup {
      * <p>The navigation button appears at the start of the toolbar if present. Setting an icon
      * will make the navigation button visible.
      *
-     * @param resId Resource ID of drawable to set.
-     *
-     * @attr ref R.styleable#CarToolbar_navigationIcon
-     */
-    public void setNavigationIcon(@DrawableRes int resId) {
-        setNavigationIcon(Icon.createWithResource(getContext(), resId));
-    }
-
-    /**
-     * Set the icon to use for the toolbar's navigation button.
-     *
-     * <p>The navigation button appears at the start of the toolbar if present. Setting an icon
-     * will make the navigation button visible.
-     *
      * @param icon Icon to set; {@code null} will hide the icon.
-     *
      * @attr ref R.styleable#CarToolbar_navigationIcon
      */
     public void setNavigationIcon(@Nullable Icon icon) {
@@ -318,11 +303,11 @@ public class CarToolbar extends ViewGroup {
      *
      * @param child Child view to measure.
      * @param parentWidthSpec Parent width MeasureSpec.
-     * @param widthUsed Width used so far by other child views; used as part of padding
-     *                  for current child view in MeasureSpec calculation.
+     * @param widthUsed Width used so far by other child views; used as part of padding for current
+     * child view in MeasureSpec calculation.
      * @param parentHeightSpec Parent height MeasureSpec.
-     * @param heightUsed Height used so far by other child views; used as part of padding
-     *                   for current child view in MeasureSpec calculation.
+     * @param heightUsed Height used so far by other child views; used as part of padding for
+     * current child view in MeasureSpec calculation.
      */
     private void measureChild(View child, int parentWidthSpec, int widthUsed,
             int parentHeightSpec, int heightUsed) {
