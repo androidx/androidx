@@ -30,6 +30,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import android.graphics.drawable.Icon;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -47,10 +48,13 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-/** Unit tests for {@link CarToolbar}. */
+/**
+ * Unit tests for {@link CarToolbar}.
+ */
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarToolbarTest {
+
     @Rule
     public ActivityTestRule<CarToolbarTestActivity> mActivityRule =
             new ActivityTestRule<>(CarToolbarTestActivity.class);
@@ -120,13 +124,15 @@ public class CarToolbarTest {
         // Since there is no easy way to compare drawable, here we are testing that calling the
         // relevant APIs doesn't crash.
         mActivityRule.runOnUiThread(() ->
-                mToolbar.setNavigationIcon(android.R.drawable.sym_def_app_icon));
+                mToolbar.setNavigationIcon(
+                        Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon)));
     }
 
     @Test
     public void testSetNavigationIconContainerWidth() throws Throwable {
         mActivityRule.runOnUiThread(() -> {
-            mToolbar.setNavigationIcon(R.drawable.ic_nav_arrow_back);
+            mToolbar.setNavigationIcon(
+                    Icon.createWithResource(mActivity, R.drawable.ic_nav_arrow_back));
             // Set title to verify icon space on right.
             mToolbar.setTitle("title");
         });
@@ -145,7 +151,8 @@ public class CarToolbarTest {
     public void testSetNavigationIconContainerWidth_NoContainerKeepsIconCompletelyVisible()
             throws Throwable {
         mActivityRule.runOnUiThread(() -> {
-            mToolbar.setNavigationIcon(R.drawable.ic_nav_arrow_back);
+            mToolbar.setNavigationIcon(
+                    Icon.createWithResource(mActivity, (R.drawable.ic_nav_arrow_back)));
             // Set title to verify icon space on right.
             mToolbar.setTitle("title");
         });
@@ -160,7 +167,7 @@ public class CarToolbarTest {
 
     @Test
     public void testSetNavigationIconOnClickListener() throws Throwable {
-        boolean[] clicked = new boolean[] {false};
+        boolean[] clicked = new boolean[]{false};
         mActivityRule.runOnUiThread(() ->
                 mToolbar.setNavigationIconOnClickListener(v -> clicked[0] = true));
 
