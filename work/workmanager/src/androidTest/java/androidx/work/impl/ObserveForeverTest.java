@@ -24,7 +24,6 @@ import android.arch.lifecycle.Observer;
 import android.support.annotation.Nullable;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.Configuration;
@@ -41,7 +40,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -52,14 +50,13 @@ import java.util.concurrent.TimeUnit;
  * TODO remove after moving to AndroidX.
  * see: b/74477406 for details.
  */
-@SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class ObserveForeverTest {
     private WorkManagerImpl mWorkManagerImpl;
     private final OneTimeWorkRequest mWork = new OneTimeWorkRequest.Builder(TestWorker.class)
             .addTag("foo")
-            .setInitialDelay(Duration.ofHours(1))
+            .setInitialDelay(1, TimeUnit.HOURS)
             .build();
 
     @Before
