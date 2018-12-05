@@ -1286,10 +1286,10 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem item, int bufferingState, long bufferedPositionMs)
-                throws RemoteException {
+        void onBufferingStateChanged(MediaItem item, int bufferingState, long bufferedPositionMs,
+                long eventTimeMs, long positionMs) throws RemoteException {
             mIControllerCallback.onBufferingStateChanged(MediaUtils.toParcelable(item),
-                    bufferingState, bufferedPositionMs);
+                    bufferingState, bufferedPositionMs, eventTimeMs, positionMs);
         }
 
         @Override
