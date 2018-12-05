@@ -26,6 +26,7 @@ import android.widget.CheckedTextView;
 import android.widget.ImageView;
 
 import androidx.annotation.ColorInt;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.view.TintableBackgroundView;
 import androidx.test.espresso.matcher.BoundedMatcher;
 
@@ -355,7 +356,6 @@ public class TestUtilsMatchers {
         };
     }
 
-
     /**
      * Returns a matcher that matches {@link View}s based on the given child type.
      *
@@ -382,4 +382,89 @@ public class TestUtilsMatchers {
         };
     }
 
+    /**
+     * Returns a matcher that matches <code>SwitchCompat</code>s whose thumb drawable is flat-filled
+     * with the specific color.
+     */
+    public static Matcher thumbColor(@ColorInt final int color) {
+        return new TypeSafeMatcher<SwitchCompat>() {
+            private String mFailedComparisonDescription;
+
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("with thumb drawable of color: ");
+                description.appendText(mFailedComparisonDescription);
+            }
+
+            @Override
+            protected boolean matchesSafely(SwitchCompat switchCompat) {
+                final Drawable thumb = switchCompat.getThumbDrawable();
+                if (thumb == null) {
+                    return false;
+                }
+
+                try {
+                    TestUtils.assertAllPixelsOfColor(
+                            "Tint not applied to switch thumb",
+                            thumb,
+                            thumb.getIntrinsicWidth(),
+                            thumb.getIntrinsicHeight(),
+                            true,
+                            color,
+                            0,
+                            true);
+                    // If we are here, the color comparison has passed.
+                    mFailedComparisonDescription = null;
+                    return true;
+                } catch (Throwable t) {
+                    // If we are here, the color comparison has failed.
+                    mFailedComparisonDescription = t.getMessage();
+                    return false;
+                }
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches <code>SwitchCompat</code>s whose track drawable is flat-filled
+     * with the specific color.
+     */
+    public static Matcher trackColor(@ColorInt final int color) {
+        return new TypeSafeMatcher<SwitchCompat>() {
+            private String mFailedComparisonDescription;
+
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("with thumb drawable of color: ");
+                description.appendText(mFailedComparisonDescription);
+            }
+
+            @Override
+            protected boolean matchesSafely(SwitchCompat switchCompat) {
+                final Drawable track = switchCompat.getTrackDrawable();
+                if (track == null) {
+                    return false;
+                }
+
+                try {
+                    TestUtils.assertAllPixelsOfColor(
+                            "Tint not applied to switch track",
+                            track,
+                            track.getIntrinsicWidth(),
+                            track.getIntrinsicHeight(),
+                            true,
+                            color,
+                            0,
+                            true);
+                    // If we are here, the color comparison has passed.
+                    mFailedComparisonDescription = null;
+                    return true;
+                } catch (Throwable t) {
+                    // If we are here, the color comparison has failed.
+                    mFailedComparisonDescription = t.getMessage();
+                    return false;
+                }
+            }
+        };
+    }
 }
