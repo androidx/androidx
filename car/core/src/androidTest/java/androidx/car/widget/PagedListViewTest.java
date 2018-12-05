@@ -368,9 +368,13 @@ public final class PagedListViewTest {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
+        int scrollBarContainerWidth =
+                mPagedListView.findViewById(R.id.paged_scroll_view).getLayoutParams().width;
+
         mPagedListView.setGutter(PagedListView.Gutter.NONE);
 
-        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(),
+                is(equalTo(scrollBarContainerWidth)));
         assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(0)));
     }
 
@@ -393,12 +397,16 @@ public final class PagedListViewTest {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
+        int scrollBarContainerWidth =
+                mPagedListView.findViewById(R.id.paged_scroll_view).getLayoutParams().width;
+
         mPagedListView.setGutter(PagedListView.Gutter.END);
 
         Resources res = InstrumentationRegistry.getContext().getResources();
         int gutterSize = res.getDimensionPixelSize(R.dimen.car_margin);
 
-        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(),
+                is(equalTo(scrollBarContainerWidth)));
         assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(gutterSize)));
     }
 
@@ -421,10 +429,14 @@ public final class PagedListViewTest {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
+        int scrollBarContainerWidth =
+                mPagedListView.findViewById(R.id.paged_scroll_view).getLayoutParams().width;
+
         mPagedListView.setGutter(PagedListView.Gutter.NONE);
         mPagedListView.setGutterSize(120);
 
-        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(),
+                is(equalTo(scrollBarContainerWidth)));
         assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(0)));
     }
 
@@ -447,12 +459,16 @@ public final class PagedListViewTest {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
+        int scrollBarContainerWidth =
+                mPagedListView.findViewById(R.id.paged_scroll_view).getLayoutParams().width;
+
         mPagedListView.setGutter(PagedListView.Gutter.END);
 
         int gutterSize = 120;
         mPagedListView.setGutterSize(gutterSize);
 
-        assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(0)));
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(),
+                is(equalTo(scrollBarContainerWidth)));
         assertThat(mRecyclerViewLayoutParams.getMarginEnd(), is(equalTo(gutterSize)));
     }
 
@@ -490,6 +506,20 @@ public final class PagedListViewTest {
         mPagedListView.setScrollBarContainerWidth(scrollBarContainerWidth);
 
         onView(withId(R.id.paged_scroll_view)).check(matches(withWidth(scrollBarContainerWidth)));
+    }
+
+    @Test
+    public void testSetScrollBarContainerWidth_WithGutter() {
+        // Just need enough items to ensure the scroll bar is showing.
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+
+        mPagedListView.setGutter(PagedListView.Gutter.START);
+
+        int scrollBarContainerWidth = 200;
+        mPagedListView.setScrollBarContainerWidth(scrollBarContainerWidth);
+
+        assertThat(mRecyclerViewLayoutParams.getMarginStart(),
+                is(equalTo(scrollBarContainerWidth)));
     }
 
     @Test

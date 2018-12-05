@@ -184,17 +184,12 @@ public class PagedListView extends FrameLayout {
      * The possible values for @{link #setGutter}. The default value is actually
      * {@link Gutter#BOTH}.
      */
-    @IntDef({
-            Gutter.NONE,
-            Gutter.START,
-            Gutter.END,
-            Gutter.BOTH,
-    })
+    @IntDef({Gutter.NONE, Gutter.START, Gutter.END, Gutter.BOTH})
     @Retention(SOURCE)
     public @interface Gutter {
         /**
          * No gutter on either side of the list items. The items will span the full width of the
-         * {@link PagedListView}.
+         * {@link PagedListView}, but will not overlap the scroll bar.
          */
         int NONE = 0;
 
@@ -209,7 +204,7 @@ public class PagedListView extends FrameLayout {
         int END = 2;
 
         /**
-         * Include a gutter on both sides of the list items. This is the default behaviour.
+         * Include a gutter on both sides of the list items. This is the default behavior.
          */
         int BOTH = 3;
     }
@@ -264,23 +259,6 @@ public class PagedListView extends FrameLayout {
         if (a.getBoolean(R.styleable.PagedListView_verticallyCenterListContent, false)) {
             // Setting the height of wrap_content allows the RecyclerView to center itself.
             mRecyclerView.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        }
-
-        int defaultGutterSize = getResources().getDimensionPixelSize(R.dimen.car_margin);
-        mGutterSize = a.getDimensionPixelSize(R.styleable.PagedListView_gutterSize,
-                defaultGutterSize);
-
-        if (a.hasValue(R.styleable.PagedListView_gutter)) {
-            int gutter = a.getInt(R.styleable.PagedListView_gutter, Gutter.BOTH);
-            setGutter(gutter);
-        } else if (a.hasValue(R.styleable.PagedListView_offsetScrollBar)) {
-            boolean offsetScrollBar =
-                    a.getBoolean(R.styleable.PagedListView_offsetScrollBar, false);
-            if (offsetScrollBar) {
-                setGutter(Gutter.START);
-            }
-        } else {
-            setGutter(Gutter.BOTH);
         }
 
         if (a.getBoolean(R.styleable.PagedListView_showPagedListViewDivider, true)) {
@@ -371,6 +349,25 @@ public class PagedListView extends FrameLayout {
             setScrollBarContainerWidth(scrollBarContainerWidth);
         }
 
+        int defaultGutterSize = getResources().getDimensionPixelSize(R.dimen.car_margin);
+        mGutterSize = a.getDimensionPixelSize(R.styleable.PagedListView_gutterSize,
+                defaultGutterSize);
+
+        // Initialization of the gutter has to come after the scroll bar container width has been
+        // set to prevent the internal RecyclerView from overlapping the scroll bar.
+        if (a.hasValue(R.styleable.PagedListView_gutter)) {
+            int gutter = a.getInt(R.styleable.PagedListView_gutter, Gutter.BOTH);
+            setGutter(gutter);
+        } else if (a.hasValue(R.styleable.PagedListView_offsetScrollBar)) {
+            boolean offsetScrollBar =
+                    a.getBoolean(R.styleable.PagedListView_offsetScrollBar, false);
+            if (offsetScrollBar) {
+                setGutter(Gutter.START);
+            }
+        } else {
+            setGutter(Gutter.BOTH);
+        }
+
         a.recycle();
     }
 
@@ -406,10 +403,12 @@ public class PagedListView extends FrameLayout {
     public void setGutter(@Gutter int gutter) {
         mGutter = gutter;
 
-        int startMargin = 0;
+        int startMargin = mScrollBarView.getLayoutParams().width;
         int endMargin = 0;
         if ((mGutter & Gutter.START) != 0) {
-            startMargin = mGutterSize;
+            // Ensure that the gutter value is large enough so that the RecyclerView does not
+            // overlap the scroll bar.
+            startMargin = Math.max(mGutterSize, startMargin);
         }
         if ((mGutter & Gutter.END) != 0) {
             endMargin = mGutterSize;
@@ -429,6 +428,10 @@ public class PagedListView extends FrameLayout {
     /**
      * Sets the size of the gutter that appears at the start, end or both sizes of the items in
      * the {@code PagedListView}.
+     *
+     * <p>Note, that if the gutter size given is smaller than the width of the scroll bar container
+     * set via {@link #setScrollBarContainerWidth(int)}, then the container width will be used as
+     * the gutter at the start. This ensures the scroll bar is never overlapped.
      *
      * @param gutterSize The size of the gutter in pixels.
      * @see #setGutter(int)
@@ -450,6 +453,10 @@ public class PagedListView extends FrameLayout {
         ViewGroup.LayoutParams layoutParams = mScrollBarView.getLayoutParams();
         layoutParams.width = width;
         mScrollBarView.requestLayout();
+
+        // Ensure that the gutter is updated so that the RecyclerView does not overlap the scroll
+        // bar.
+        setGutter(mGutter);
     }
 
     /**
