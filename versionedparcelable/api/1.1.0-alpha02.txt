@@ -1,0 +1,13 @@
+// Signature format: 2.0
+package androidx.versionedparcelable {
+
+  public class ParcelUtils {
+    method public static <T extends androidx.versionedparcelable.VersionedParcelable> T? getVersionedParcelable(android.os.Bundle!, String!);
+    method public static void putVersionedParcelable(android.os.Bundle, String, androidx.versionedparcelable.VersionedParcelable);
+  }
+
+  public interface VersionedParcelable {
+  }
+
+}
+
