@@ -20,6 +20,7 @@ local.properties
 *.iml
 **/out
 buildSrc/build
+buildSrc/lint-checks/build
 lifecycle/common/build
 jacoco.exec
 /studio

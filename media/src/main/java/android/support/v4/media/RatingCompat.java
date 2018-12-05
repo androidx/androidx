@@ -18,6 +18,7 @@ package android.support.v4.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.media.Rating;
 import android.os.Build;
 import android.os.Parcel;
@@ -39,6 +40,7 @@ import java.lang.annotation.RetentionPolicy;
  * through one of the factory methods.
  */
 @SuppressWarnings("BanParcelableUsage")
+@SuppressLint("BanParcelableUsage")
 public final class RatingCompat implements Parcelable {
     private final static String TAG = "Rating";
 

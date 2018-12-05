@@ -17,6 +17,7 @@ package android.support.v4.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.media.MediaMetadata;
 import android.net.Uri;
@@ -41,6 +42,7 @@ import java.util.Set;
  * Contains metadata about an item, such as the title, artist, etc.
  */
 @SuppressWarnings("BanParcelableUsage")
+@SuppressLint("BanParcelableUsage")
 public final class MediaMetadataCompat implements Parcelable {
     private static final String TAG = "MediaMetadata";
 

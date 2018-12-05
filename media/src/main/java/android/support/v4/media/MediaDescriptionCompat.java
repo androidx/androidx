@@ -17,6 +17,7 @@ package android.support.v4.media;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.media.MediaDescription;
 import android.net.Uri;
@@ -36,6 +37,7 @@ import androidx.annotation.RestrictTo;
  * {@link MediaMetadataCompat#getDescription()}.
  */
 @SuppressWarnings("BanParcelableUsage")
+@SuppressLint("BanParcelableUsage")
 public final class MediaDescriptionCompat implements Parcelable {
     /**
      * Used as a long extra field to indicate the bluetooth folder type of the media item as
