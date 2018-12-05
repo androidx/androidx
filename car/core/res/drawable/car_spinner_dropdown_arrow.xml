@@ -22,8 +22,6 @@
         android:width="@dimen/car_spinner_dropdown_arrow_size"
         android:height="@dimen/car_spinner_dropdown_arrow_size"
         android:drawable="@drawable/ic_arrow_drop_down"
-        android:gravity="center_vertical|end"
-        android:right="@dimen/car_keyline_1"
-        android:left="@dimen/car_keyline_1"
+        android:gravity="center"
         android:scaleType="fitXY"/>
 </ripple>
