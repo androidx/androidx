@@ -9,7 +9,7 @@ plugins {
 dependencies {
     api(project(":annotation"))
 
-    api(project(":core"))
+    api("androidx.core:core:1.1.0-alpha02")
     api(project(":collection"))
     api("androidx.cursoradapter:cursoradapter:1.0.0")
     api(project(":fragment"))
