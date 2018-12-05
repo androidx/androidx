@@ -29,6 +29,7 @@ import android.net.Uri;
 import androidx.remotecallback.RemoteCallable;
 import androidx.remotecallback.RemoteCallback;
 import androidx.test.InstrumentationRegistry;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -38,6 +39,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+@SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class SliceProviderCallbackTest {
