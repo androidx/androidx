@@ -46,5 +46,5 @@ abstract class RenderObjectWidget(key: Key?) : Widget(key) {
      * returned by this object's [createRenderObject].
      */
     // TODO(Migration/Filip): Removed covariant keyword for renderObject
-    internal fun didUnmountRenderObject(renderObject: RenderObject?) { }
+    internal open fun didUnmountRenderObject(renderObject: RenderObject?) { }
 }

@@ -63,14 +63,14 @@ data class Tween<T>(
      * See the constructor for details about whether this property may be null
      * (it varies from subclass to subclass).
      */
-    private var begin: T? = null,
+    var begin: T? = null,
     /**
      * The value this variable has at the end of the animation.
      *
      * See the constructor for details about whether this property may be null
      * (it varies from subclass to subclass).
      */
-    private var end: T? = null,
+    var end: T? = null,
     private val evaluator: TweenEvaluator<T>
 
 ) : Animatable<T>() {

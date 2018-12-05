@@ -18,7 +18,7 @@ import androidx.ui.widgets.framework.StatefulWidget
  * The label does not affect the key's identity.
  */
 // ignore: prefer_const_constructors_in_immutables , never use const for this class
-class LabeledGlobalKey<T : State<StatefulWidget>>(
+class LabeledGlobalKey<T : State<out StatefulWidget>>(
     private val _debugLabel: String
 ) : GlobalKey<T>() {
 

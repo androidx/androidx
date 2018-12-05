@@ -17,7 +17,7 @@ class StatefulElement(widget: StatefulWidget) : ComponentElement(widget) {
      * [StatefulElement] objects that hold them. The [State] objects are created
      * by [StatefulElement] in [mount].
      */
-    var state: State<StatefulWidget>? = widget.createState()
+    var state: State<StatefulWidget>? = widget.createState() as State<StatefulWidget>?
         private set
 
     init {

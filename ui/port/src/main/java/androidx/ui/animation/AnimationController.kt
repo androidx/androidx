@@ -100,7 +100,7 @@ class AnimationController(
      */
     value: Double? = null,
     /** * [duration] is the length of time this animation should last. */
-    private val duration: Duration? = null,
+    var duration: Duration? = null,
     /**
      * * [debugLabel] is a string to help identify this animation during
      *   debugging (used by [toString]).

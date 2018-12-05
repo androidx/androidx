@@ -27,13 +27,17 @@ import androidx.ui.vectormath64.Matrix4
 class Path {
 
     private val internalPath = android.graphics.Path()
+
+    // Temporary value holders to reuse an object (not part of a state):
     private val rectF = android.graphics.RectF()
-
     private val radii = FloatArray(8)
-
     private val mMatrix = android.graphics.Matrix()
 
     fun toFrameworkPath(): android.graphics.Path = internalPath
+
+    private fun clone() = androidx.ui.painting.Path().apply {
+        internalPath.set(this@Path.internalPath)
+    }
 
     /**
      * Determines how the interior of this path is calculated.
@@ -467,15 +471,24 @@ class Path {
      *
      * Returns true if the point is in the path, and false otherwise.
      */
-    fun contains(offset: Offset) {
+    fun contains(offset: Offset): Boolean {
         assert(Offset.isValid(offset))
-        _contains(offset)
-        // TODO(Migration/njawad) framework Path implementation does not have a contains method
+        return _contains(offset)
     }
 
-    private fun _contains(offset: Offset) {
+    private fun _contains(offset: Offset): Boolean {
+        // TODO("Migration/njawad framework Path implementation does not have a contains method")
         // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
-        TODO()
+
+        // TODO(Migration/Andrey: temporary non-efficient implementation)
+        val path = android.graphics.Path()
+        path.addRect(offset.dx.toFloat() - 0.01f, offset.dy.toFloat() - 0.01f,
+            offset.dx.toFloat() + 0.01f, offset.dy.toFloat() + 0.01f,
+            android.graphics.Path.Direction.CW)
+        if (path.op(internalPath, android.graphics.Path.Op.INTERSECT)) {
+            return !path.isEmpty
+        }
+        return false
         // Flutter calls into native code here
         // native 'Path_contains';
     }
@@ -485,18 +498,11 @@ class Path {
      * subpath translated by the given offset.
      */
     fun shift(offset: Offset): androidx.ui.painting.Path {
-        mMatrix.reset()
-        mMatrix.setTranslate(offset.dx.toFloat(), offset.dy.toFloat())
-        internalPath.transform(mMatrix)
-        return this
-    }
-
-    // Not necessary as ported implementation in public shift method above
-    private fun _shift(dx: Double, dy: Double): androidx.ui.painting.Path {
-        TODO()
-        // Flutter calls into native code here
-        // native 'Path_shift';
-        return this
+        return clone().apply {
+            mMatrix.reset()
+            mMatrix.setTranslate(offset.dx.toFloat(), offset.dy.toFloat())
+            internalPath.transform(mMatrix)
+        }
     }
 
     /**
@@ -507,7 +513,7 @@ class Path {
         // TODO(Migration/njawad: Update implementation with Matrix4 -> android.graphics.Matrix)
         TODO("Update implementation with Matrix4 -> android.graphics.Matrix conversion")
         // internalPath.transform(matrix);
-        return this
+        return clone()
     }
 
     // Not necessary as ported implementation with public transform method

@@ -1514,7 +1514,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * overridden [assembleSemanticsNode] method, to dispose of those nodes.
      */
     @CallSuper
-    fun clearSemantics() {
+    open fun clearSemantics() {
         needsSemanticsUpdate = true
         _semantics = null
         visitChildren { child ->
@@ -1708,10 +1708,10 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * to the tree. If new [SemanticsNode]s are instantiated in this method
      * they must be disposed in [clearSemantics].
      */
-    fun assembleSemanticsNode(
+    open fun assembleSemanticsNode(
         node: SemanticsNode,
         config: SemanticsConfiguration,
-        children: Iterable<SemanticsNode>
+        children: Collection<SemanticsNode>
     ) {
         assert(node == _semantics)
         node.updateWith(config = config, childrenInInversePaintOrder = children.toList())

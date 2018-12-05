@@ -19,6 +19,8 @@ package androidx.ui.animation
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.painting.Color
+import androidx.ui.painting.borders.ShapeBorder
+import androidx.ui.painting.borders.lerp
 
 // TODO(Migration|Andrey) Crane-specific typealias and extension constructors as we can't
 // TODO(Migration|Andrey) call A + B on any type in Kotlin
@@ -28,19 +30,22 @@ import androidx.ui.painting.Color
  */
 typealias TweenEvaluator<T> = (begin: T, end: T, t: Double) -> T
 
-fun Tween(begin: Float?, end: Float?) = Tween(begin, end, FloatTweenEvaluator)
+fun Tween(begin: Float? = null, end: Float? = null) = Tween(begin, end, FloatTweenEvaluator)
 
-fun Tween(begin: Double?, end: Double?) = Tween(begin, end, DoubleTweenEvaluator)
+fun Tween(begin: Double? = null, end: Double? = null) = Tween(begin, end, DoubleTweenEvaluator)
 
-fun Tween(begin: Int?, end: Int?) = Tween(begin, end, IntTweenEvaluator)
+fun Tween(begin: Int? = null, end: Int? = null) = Tween(begin, end, IntTweenEvaluator)
 
-fun Tween(begin: Long?, end: Long?) = Tween(begin, end, LongTweenEvaluator)
+fun Tween(begin: Long? = null, end: Long? = null) = Tween(begin, end, LongTweenEvaluator)
 
-fun Tween(begin: Color?, end: Color?) = Tween(begin, end, ColorTweenEvaluator)
+fun Tween(begin: Color? = null, end: Color? = null) = Tween(begin, end, ColorTweenEvaluator)
 
-fun Tween(begin: Size?, end: Size?) = Tween(begin, end, SizeTweenEvaluator)
+fun Tween(begin: Size? = null, end: Size? = null) = Tween(begin, end, SizeTweenEvaluator)
 
-fun Tween(begin: Rect?, end: Rect?) = Tween(begin, end, RectTweenEvaluator)
+fun Tween(begin: Rect? = null, end: Rect? = null) = Tween(begin, end, RectTweenEvaluator)
+
+fun Tween(begin: ShapeBorder? = null, end: ShapeBorder? = null) =
+    Tween(begin, end, ShapeBorderEvaluator)
 
 private object FloatTweenEvaluator : TweenEvaluator<Float> {
     override fun invoke(begin: Float, end: Float, t: Double): Float {
@@ -81,6 +86,12 @@ private object SizeTweenEvaluator : TweenEvaluator<Size> {
 private object RectTweenEvaluator : TweenEvaluator<Rect> {
     override fun invoke(begin: Rect, end: Rect, t: Double): Rect {
         return Rect.lerp(begin, end, t)!!
+    }
+}
+
+private object ShapeBorderEvaluator : TweenEvaluator<ShapeBorder> {
+    override fun invoke(begin: ShapeBorder, end: ShapeBorder, t: Double): ShapeBorder {
+        return lerp(begin, end, t)!!
     }
 }
 

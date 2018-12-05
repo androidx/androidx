@@ -23,6 +23,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.timelineWhitelistArguments
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
+import androidx.ui.painting.Path
 import androidx.ui.painting.PictureRecorder
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.debugProfilePaintsEnabled
@@ -390,35 +391,46 @@ class PaintingContext(
 //        }
 //    }
 
-    // TODO(Migration/andrey): needs ClipPathLayer and clipPath support on canvas
-//    /// Clip further painting using a path.
-//    ///
-//    /// * `needsCompositing` is whether the child needs compositing. Typically
-//    ///   matches the value of [RenderObject.needsCompositing] for the caller.
-//    /// * `offset` is the offset from the origin of the canvas' coordinate system
-//    ///   to the origin of the caller's coordinate system.
-//    /// * `bounds` is the region of the canvas (in the caller's coordinate system)
-//    ///   into which `painter` will paint in.
-//    /// * `clipPath` is the path (in the coordinate system of the caller) to use to
-//    ///   clip the painting done by `painter`.
-//    /// * `painter` is a callback that will paint with the `clipPath` applied. This
-//    ///   function calls the `painter` synchronously.
-//    void pushClipPath(bool needsCompositing, Offset offset, Rect bounds, Path clipPath, PaintingContextCallback painter) {
-//        final Rect offsetBounds = bounds.shift(offset);
-//        final Path offsetClipPath = clipPath.shift(offset);
-//        if (needsCompositing) {
-//            pushLayer(new ClipPathLayer(clipPath: offsetClipPath), painter, offset, childPaintBounds: offsetBounds);
-//        } else {
-//            canvas
-//            ..save()
-//            ..clipPath(clipPath.shift(offset))
-//            ..saveLayer(bounds.shift(offset), _defaultPaint);
-//            painter(this, offset);
-//            canvas
-//            ..restore()
-//            ..restore();
-//        }
-//    }
+    /**
+     * Clip further painting using a path.
+     *
+     * * `needsCompositing` is whether the child needs compositing. Typically
+     *   matches the value of [RenderObject.needsCompositing] for the caller.
+     * * `offset` is the offset from the origin of the canvas' coordinate system
+     *   to the origin of the caller's coordinate system.
+     * * `bounds` is the region of the canvas (in the caller's coordinate system)
+     *   into which `painter` will paint in.
+     * * `clipPath` is the path (in the coordinate system of the caller) to use to
+     *   clip the painting done by `painter`.
+     * * `painter` is a callback that will paint with the `clipPath` applied. This
+     *   function calls the `painter` synchronously.
+     */
+    fun pushClipPath(
+        needsCompositing: Boolean,
+        offset: Offset,
+        bounds: Rect,
+        clipPath: Path,
+        painter: PaintingContextCallback
+    ) {
+        val offsetBounds = bounds.shift(offset)
+        val offsetClipPath = clipPath.shift(offset)
+        if (needsCompositing) {
+            TODO("Migration/andrey: Not sure we will need clip layer in Crane")
+//            pushLayer(ClipPathLayer(clipPath= offsetClipPath), painter, offset,
+//                childPaintBounds= offsetBounds);
+        } else {
+            canvas.apply {
+                save()
+                clipPath(clipPath.shift(offset))
+                saveLayer(bounds.shift(offset), _defaultPaint)
+                painter(this@PaintingContext, offset)
+                canvas
+                restore()
+                restore()
+            }
+        }
+    }
+
     // TODO(Migration/andrey): needs Matrix4 with translationValues, multiply, translate; Canvas with transform
 //    /// Transform further painting using a matrix.
 //    ///

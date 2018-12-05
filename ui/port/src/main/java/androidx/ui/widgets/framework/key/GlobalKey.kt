@@ -40,7 +40,7 @@ import androidx.ui.widgets.framework._ElementLifecycle
  * Used by subclasses because the factory constructor shadows the implicit
  * constructor.
  */
-abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
+abstract class GlobalKey<T : State<out StatefulWidget>> : Key() {
 
     companion object {
 
@@ -51,7 +51,7 @@ abstract class GlobalKey<T : State<StatefulWidget>>() : Key() {
          * The label is purely for debugging and not used for comparing the identity
          * of the key.
          */
-        fun <T : State<StatefulWidget>> withLabel(debugLabel: String): LabeledGlobalKey<T> {
+        fun <T : State<out StatefulWidget>> withLabel(debugLabel: String): LabeledGlobalKey<T> {
             return LabeledGlobalKey(debugLabel)
         }
 
