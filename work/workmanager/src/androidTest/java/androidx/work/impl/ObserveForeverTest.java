@@ -24,6 +24,7 @@ import android.arch.lifecycle.Observer;
 import android.support.annotation.Nullable;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.Configuration;
@@ -51,6 +52,7 @@ import java.util.concurrent.TimeUnit;
  * TODO remove after moving to AndroidX.
  * see: b/74477406 for details.
  */
+@SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class ObserveForeverTest {
