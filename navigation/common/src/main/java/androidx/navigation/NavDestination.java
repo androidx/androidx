@@ -276,7 +276,7 @@ public class NavDestination {
 
     /**
      * Add a deep link to this destination. Matching Uris sent to
-     * {@link NavController#onHandleDeepLink(Intent)} will trigger navigating to this destination.
+     * {@link NavController#handleDeepLink(Intent)} will trigger navigating to this destination.
      * <p>
      * In addition to a direct Uri match, the following features are supported:
      * <ul>
@@ -299,7 +299,7 @@ public class NavDestination {
      * Programmatically added deep links should use {@link Context#getPackageName()} directly
      * when constructing the uriPattern.
      * @param uriPattern The uri pattern to add as a deep link
-     * @see NavController#onHandleDeepLink(Intent)
+     * @see NavController#handleDeepLink(Intent)
      */
     public final void addDeepLink(@NonNull String uriPattern) {
         if (mDeepLinks == null) {
