@@ -21,6 +21,7 @@ package androidx.slice {
     method public boolean isCachedSlice();
     method public boolean isErrorSlice();
     method public boolean isPermissionSlice();
+    method public boolean isSelection();
     method public boolean sendInputRangeAction(int) throws android.app.PendingIntent.CanceledException;
     method public boolean sendToggleAction(androidx.slice.core.SliceAction!, boolean) throws android.app.PendingIntent.CanceledException;
     field public static final int LOADED_ALL = 2; // 0x2

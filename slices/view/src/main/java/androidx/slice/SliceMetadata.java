@@ -344,6 +344,13 @@ public class SliceMetadata {
     }
 
     /**
+     * @return whether this slice is a selection (a drop-down list) slice.
+     */
+    public boolean isSelection() {
+        return (mTemplateType == EventInfo.ROW_TYPE_SELECTION);
+    }
+
+    /**
      * @return the list of keywords associated with the provided slice, null if no keywords were
      * specified or an empty list if the slice was specified to have no keywords.
      */
