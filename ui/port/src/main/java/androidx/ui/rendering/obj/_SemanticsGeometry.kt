@@ -21,7 +21,8 @@ import androidx.ui.painting.matrixutils.inverseTransformRect
 import androidx.ui.vectormath64.Matrix4
 
 // / From parent to child coordinate system.
-private fun _transformRect(rect: Rect?, parent: RenderObject, child: RenderObject): Rect? {
+// TODO(Migration/ryanmentley): Should be private except for synthetic accessor
+internal fun _transformRect(rect: Rect?, parent: RenderObject, child: RenderObject): Rect? {
     if (rect == null) {
         return null
     }
@@ -34,7 +35,8 @@ private fun _transformRect(rect: Rect?, parent: RenderObject, child: RenderObjec
     return inverseTransformRect(transform, rect)
 }
 
-private fun _intersectRects(a: Rect?, b: Rect?): Rect? {
+// TODO(Migration/ryanmentley): Should be private except for synthetic accessor
+internal fun _intersectRects(a: Rect?, b: Rect?): Rect? {
     if (a == null)
         return b
     if (b == null)
