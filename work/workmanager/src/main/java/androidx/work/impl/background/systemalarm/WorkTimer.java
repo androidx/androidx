@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,6 +42,20 @@ class WorkTimer {
 
     private static final String TAG = "WorkTimer";
 
+    private final ThreadFactory mBackgroundThreadFactory = new ThreadFactory() {
+
+        private int mThreadsCreated = 0;
+
+        @Override
+        public Thread newThread(@NonNull Runnable r) {
+            // Delegate to the default factory, but keep track of the current thread being used.
+            Thread thread = Executors.defaultThreadFactory().newThread(r);
+            thread.setName("WorkManager-WorkTimer-thread-" + mThreadsCreated);
+            mThreadsCreated++;
+            return thread;
+        }
+    };
+
     private final ScheduledExecutorService mExecutorService;
     final Map<String, WorkTimerRunnable> mTimerMap;
     final Map<String, TimeLimitExceededListener> mListeners;
@@ -50,7 +65,7 @@ class WorkTimer {
         mTimerMap = new HashMap<>();
         mListeners = new HashMap<>();
         mLock = new Object();
-        mExecutorService = Executors.newSingleThreadScheduledExecutor();
+        mExecutorService = Executors.newSingleThreadScheduledExecutor(mBackgroundThreadFactory);
     }
 
     @SuppressWarnings("FutureReturnValueIgnored")
