@@ -16,6 +16,8 @@
 
 package androidx.activity;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
@@ -99,6 +101,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             }
         });
+
+        if (19 <= SDK_INT && SDK_INT <= 23) {
+            getLifecycle().addObserver(new ImmLeaksCleaner(this));
+        }
     }
 
     @Override
