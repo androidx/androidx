@@ -1188,7 +1188,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         setRecyclerView(recyclerView);
         tlm.waitForLayout(2);
 
-        freezeLayout(true);
+        suppressLayout(true);
 
         if (fling) {
             assertFalse("fling should be blocked", fling(horizontalVelocity, verticalVelocity));
@@ -1202,7 +1202,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         assertEquals("rv's vertical scroll cb must not run", verticalScrollCount,
                 verticalCounter.get());
 
-        freezeLayout(false);
+        suppressLayout(false);
 
         if (fling) {
             assertTrue("fling should be started", fling(horizontalVelocity, verticalVelocity));
@@ -1334,11 +1334,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         final View c = recyclerView.getChildAt(recyclerView.getChildCount() - 1);
         assertTrue("test sanity", requestFocus(c, true));
         assertTrue("test sanity", c.hasFocus());
-        freezeLayout(true);
+        suppressLayout(true);
         focusSearch(recyclerView, c, View.FOCUS_DOWN);
-        assertEquals("onFocusSearchFailed should not be called when layout is frozen",
+        assertEquals("onFocusSearchFailed should not be called when layout is suppressed",
                 0, focusSearchCalled.get());
-        freezeLayout(false);
+        suppressLayout(false);
         focusSearch(c, View.FOCUS_DOWN);
         assertTrue(focusLatch.await(2, TimeUnit.SECONDS));
         assertEquals(1, focusSearchCalled.get());
@@ -1357,7 +1357,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void frozenAndChangeAdapter() throws Throwable {
+    public void suppressedAndChangeAdapter() throws Throwable {
         RecyclerView recyclerView = new RecyclerView(getActivity());
 
         final AtomicInteger focusSearchCalled = new AtomicInteger(0);
@@ -1392,13 +1392,13 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         setRecyclerView(recyclerView);
         tlm.waitForLayout(2);
 
-        freezeLayout(true);
+        suppressLayout(true);
         TestAdapter adapter2 = new TestAdapter(1000);
         setAdapter(adapter2);
         assertFalse(recyclerView.isLayoutFrozen());
         assertSame(adapter2, recyclerView.getAdapter());
 
-        freezeLayout(true);
+        suppressLayout(true);
         TestAdapter adapter3 = new TestAdapter(1000);
         swapAdapter(adapter3, true);
         assertFalse(recyclerView.isLayoutFrozen());
@@ -1621,10 +1621,10 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         recyclerView.expectDraws(1);
         tlm.expectLayouts(1);
-        freezeLayout(true);
+        suppressLayout(true);
         scrollToPosition(3);
         tlm.assertNoLayout("scrollToPosition should be ignored", 2);
-        freezeLayout(false);
+        suppressLayout(false);
         scrollToPosition(3);
         tlm.waitForLayout(2);
         recyclerView.waitForDraw(2);
@@ -5168,11 +5168,11 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         tlm.expectLayouts(1);
         setRecyclerView(rv);
         tlm.waitForLayout(2);
-        freezeLayout(true);
+        suppressLayout(true);
         smoothScrollToPosition(35, false);
-        assertEquals("smoothScrollToPosition should be ignored when frozen",
+        assertEquals("smoothScrollToPosition should be ignored when layout is suppressed",
                 -1, receivedSmoothScrollToPosition.get());
-        freezeLayout(false);
+        suppressLayout(false);
         smoothScrollToPosition(35, false);
         assertTrue("both scrolls should be called", cbLatch.await(3, TimeUnit.SECONDS));
         checkForMainThreadException();
