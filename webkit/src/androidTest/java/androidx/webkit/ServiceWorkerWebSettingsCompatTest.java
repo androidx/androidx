@@ -33,7 +33,7 @@ public class ServiceWorkerWebSettingsCompatTest {
 
     @Before
     public void setUp() throws Exception {
-        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
+        WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
         mSettings = ServiceWorkerControllerCompat.getInstance().getServiceWorkerWebSettings();
     }
 
@@ -44,7 +44,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      */
     @Test
     public void testCacheMode() {
-        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_CACHE_MODE);
+        WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_CACHE_MODE);
 
         int i = WebSettings.LOAD_DEFAULT;
         Assert.assertEquals(i, mSettings.getCacheMode());
@@ -61,7 +61,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      */
     @Test
     public void testAllowContentAccess() {
-        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS);
+        WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_CONTENT_ACCESS);
 
         Assert.assertEquals(mSettings.getAllowContentAccess(), true);
         for (boolean b : new boolean[]{false, true}) {
@@ -77,7 +77,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      */
     @Test
     public void testAllowFileAccess() {
-        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_FILE_ACCESS);
+        WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_FILE_ACCESS);
 
         Assert.assertEquals(mSettings.getAllowFileAccess(), true);
         for (boolean b : new boolean[]{false, true}) {
@@ -93,7 +93,7 @@ public class ServiceWorkerWebSettingsCompatTest {
      */
     @Test
     public void testBlockNetworkLoads() {
-        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS);
+        WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BLOCK_NETWORK_LOADS);
 
         // Note: we cannot test this setter unless we provide the INTERNET permission, otherwise we
         // get a SecurityException when we pass 'false'.
