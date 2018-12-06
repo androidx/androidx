@@ -21,12 +21,15 @@ import static android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_Q
 
 import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_MIXED;
 import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_NONE;
+import static androidx.media2.MediaMetadata.METADATA_KEY_ADVERTISEMENT;
 import static androidx.media2.MediaMetadata.METADATA_KEY_BROWSABLE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_DISPLAY_DESCRIPTION;
 import static androidx.media2.MediaMetadata.METADATA_KEY_DISPLAY_ICON;
 import static androidx.media2.MediaMetadata.METADATA_KEY_DISPLAY_ICON_URI;
 import static androidx.media2.MediaMetadata.METADATA_KEY_DISPLAY_SUBTITLE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_DISPLAY_TITLE;
+import static androidx.media2.MediaMetadata.METADATA_KEY_DOWNLOAD_STATUS;
+import static androidx.media2.MediaMetadata.METADATA_KEY_EXTRAS;
 import static androidx.media2.MediaMetadata.METADATA_KEY_MEDIA_ID;
 import static androidx.media2.MediaMetadata.METADATA_KEY_MEDIA_URI;
 import static androidx.media2.MediaMetadata.METADATA_KEY_PLAYABLE;
@@ -38,6 +41,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -64,7 +68,9 @@ import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -92,6 +98,26 @@ public class MediaUtils {
 
     // Current version for all Media2 APIs.
     public static final int CURRENT_VERSION = VERSION_0;
+
+    private static final Map<String, String> METADATA_COMPAT_KEY_TO_METADATA_KEY = new HashMap<>();
+    private static final Map<String, String> METADATA_KEY_TO_METADATA_COMPAT_KEY = new HashMap<>();
+    static {
+        METADATA_COMPAT_KEY_TO_METADATA_KEY.put(
+                MediaMetadataCompat.METADATA_KEY_ADVERTISEMENT, METADATA_KEY_ADVERTISEMENT);
+        METADATA_COMPAT_KEY_TO_METADATA_KEY.put(MediaMetadataCompat.METADATA_KEY_BT_FOLDER_TYPE,
+                METADATA_KEY_BROWSABLE);
+        METADATA_COMPAT_KEY_TO_METADATA_KEY.put(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS,
+                METADATA_KEY_DOWNLOAD_STATUS);
+
+        // Invert METADATA_COMPAT_KEY_TO_METADATA_KEY to create METADATA_KEY_TO_METADATA_COMPAT_KEY.
+        for (Map.Entry<String, String> entry : METADATA_COMPAT_KEY_TO_METADATA_KEY.entrySet()) {
+            // Sanity check..
+            if (METADATA_KEY_TO_METADATA_COMPAT_KEY.containsKey(entry.getValue())) {
+                throw new RuntimeException("Shouldn't map to the same value");
+            }
+            METADATA_KEY_TO_METADATA_COMPAT_KEY.put(entry.getValue(), entry.getKey());
+        }
+    }
 
     private MediaUtils() {
     }
@@ -204,10 +230,32 @@ public class MediaUtils {
             return null;
         }
         // Item is from the MediaControllerCompat, so forcefully set the playable.
-        MediaMetadata metadata = new MediaMetadata.Builder(metadataCompat.getBundle())
-                .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_NONE)
-                .putLong(METADATA_KEY_PLAYABLE, 1).build();
-        return new MediaItem.Builder().setMetadata(metadata).build();
+        MediaMetadata.Builder builder = new MediaMetadata.Builder()
+                .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_MIXED)
+                .putLong(METADATA_KEY_PLAYABLE, 1);
+        for (String key : metadataCompat.keySet()) {
+            Object value = metadataCompat.getBundle().get(key);
+            String metadataKey = METADATA_COMPAT_KEY_TO_METADATA_KEY.containsKey(key)
+                    ? METADATA_COMPAT_KEY_TO_METADATA_KEY.get(key) : key;
+            if (value instanceof CharSequence) {
+                builder.putText(metadataKey, (CharSequence) value);
+            } else if (value instanceof Bitmap) {
+                builder.putBitmap(metadataKey, (Bitmap) value);
+            } else if (value instanceof Long) {
+                builder.putLong(metadataKey, (Long) value);
+            } else if ((value instanceof RatingCompat)
+                    || (Build.VERSION.SDK_INT >= 19 && value instanceof android.media.Rating)) {
+                // Must be fwk Rating or RatingCompat according to SDK versions.
+                // Use MediaMetadataCompat#getRating(key) to get a RatingCompat object.
+                try {
+                    RatingCompat rating = metadataCompat.getRating(key);
+                    builder.putRating(metadataKey, MediaUtils.convertToRating(rating));
+                } catch (Exception e) {
+                    // Prevent from CastException in the getRating() due to the future changes.
+                }
+            }
+        }
+        return new MediaItem.Builder().setMetadata(builder.build()).build();
     }
 
     /**
@@ -419,18 +467,26 @@ public class MediaUtils {
         if (metadata == null) {
             return null;
         }
-
         MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
         for (String key : metadata.keySet()) {
+            String compatKey = METADATA_KEY_TO_METADATA_COMPAT_KEY.containsKey(key)
+                    ? METADATA_KEY_TO_METADATA_COMPAT_KEY.get(key) : key;
             Object value = metadata.getObject(key);
             if (value instanceof CharSequence) {
-                builder.putText(key, (CharSequence) value);
-            } else if (value instanceof Rating) {
-                builder.putRating(key, convertToRatingCompat((Rating) value));
+                builder.putText(compatKey, (CharSequence) value);
             } else if (value instanceof Bitmap) {
-                builder.putBitmap(key, (Bitmap) value);
+                builder.putBitmap(compatKey, (Bitmap) value);
             } else if (value instanceof Long) {
-                builder.putLong(key, (Long) value);
+                builder.putLong(compatKey, (Long) value);
+            } else if (value instanceof Bundle && !TextUtils.equals(key, METADATA_KEY_EXTRAS)) {
+                // Must be Bundle which contains a Rating.
+                // Use MediaMetadata#getRating(key) to get a Rating object.
+                try {
+                    Rating rating = metadata.getRating(key);
+                    builder.putRating(compatKey, MediaUtils.convertToRatingCompat(rating));
+                } catch (Exception e) {
+                    // Prevent from CastException in the getRating() due to the future changes.
+                }
             }
         }
         return builder.build();

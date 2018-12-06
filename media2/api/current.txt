@@ -289,7 +289,7 @@ package androidx.media2 {
     field public static final long BROWSABLE_TYPE_PLAYLISTS = 5L; // 0x5L
     field public static final long BROWSABLE_TYPE_TITLES = 1L; // 0x1L
     field public static final long BROWSABLE_TYPE_YEARS = 6L; // 0x6L
-    field public static final String METADATA_KEY_ADVERTISEMENT = "android.media.metadata.ADVERTISEMENT";
+    field public static final String METADATA_KEY_ADVERTISEMENT = "androidx.media2.metadata.ADVERTISEMENT";
     field public static final String METADATA_KEY_ALBUM = "android.media.metadata.ALBUM";
     field public static final String METADATA_KEY_ALBUM_ART = "android.media.metadata.ALBUM_ART";
     field public static final String METADATA_KEY_ALBUM_ARTIST = "android.media.metadata.ALBUM_ARTIST";
@@ -298,7 +298,7 @@ package androidx.media2 {
     field public static final String METADATA_KEY_ARTIST = "android.media.metadata.ARTIST";
     field public static final String METADATA_KEY_ART_URI = "android.media.metadata.ART_URI";
     field public static final String METADATA_KEY_AUTHOR = "android.media.metadata.AUTHOR";
-    field public static final String METADATA_KEY_BROWSABLE = "android.media.metadata.BROWSABLE";
+    field public static final String METADATA_KEY_BROWSABLE = "androidx.media2.metadata.BROWSABLE";
     field public static final String METADATA_KEY_COMPILATION = "android.media.metadata.COMPILATION";
     field public static final String METADATA_KEY_COMPOSER = "android.media.metadata.COMPOSER";
     field public static final String METADATA_KEY_DATE = "android.media.metadata.DATE";
@@ -308,14 +308,14 @@ package androidx.media2 {
     field public static final String METADATA_KEY_DISPLAY_ICON_URI = "android.media.metadata.DISPLAY_ICON_URI";
     field public static final String METADATA_KEY_DISPLAY_SUBTITLE = "android.media.metadata.DISPLAY_SUBTITLE";
     field public static final String METADATA_KEY_DISPLAY_TITLE = "android.media.metadata.DISPLAY_TITLE";
-    field public static final String METADATA_KEY_DOWNLOAD_STATUS = "android.media.metadata.DOWNLOAD_STATUS";
+    field public static final String METADATA_KEY_DOWNLOAD_STATUS = "androidx.media2.metadata.DOWNLOAD_STATUS";
     field public static final String METADATA_KEY_DURATION = "android.media.metadata.DURATION";
-    field public static final String METADATA_KEY_EXTRAS = "android.media.metadata.EXTRAS";
+    field public static final String METADATA_KEY_EXTRAS = "androidx.media2.metadata.EXTRAS";
     field public static final String METADATA_KEY_GENRE = "android.media.metadata.GENRE";
     field public static final String METADATA_KEY_MEDIA_ID = "android.media.metadata.MEDIA_ID";
     field public static final String METADATA_KEY_MEDIA_URI = "android.media.metadata.MEDIA_URI";
     field public static final String METADATA_KEY_NUM_TRACKS = "android.media.metadata.NUM_TRACKS";
-    field public static final String METADATA_KEY_PLAYABLE = "android.media.metadata.PLAYABLE";
+    field public static final String METADATA_KEY_PLAYABLE = "androidx.media2.metadata.PLAYABLE";
     field public static final String METADATA_KEY_RATING = "android.media.metadata.RATING";
     field public static final String METADATA_KEY_TITLE = "android.media.metadata.TITLE";
     field public static final String METADATA_KEY_TRACK_NUMBER = "android.media.metadata.TRACK_NUMBER";
