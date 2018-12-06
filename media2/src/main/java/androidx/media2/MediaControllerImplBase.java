@@ -63,6 +63,7 @@ import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
@@ -822,7 +823,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
     private void connectToSession() {
         IMediaSession iSession = IMediaSession.Stub.asInterface((IBinder) mToken.getBinder());
         int seq = mSequencedFutureManager.obtainNextSequenceNumber();
-        ConnectionRequest request = new ConnectionRequest(mContext.getPackageName());
+        ConnectionRequest request =
+                new ConnectionRequest(mContext.getPackageName(), Process.myPid());
         try {
             iSession.connect(mControllerStub, seq, MediaUtils.toParcelable(request));
         } catch (RemoteException e) {
@@ -1193,7 +1195,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 Log.wtf(TAG, "Service interface is missing.");
                 return;
             }
-            ConnectionRequest request = new ConnectionRequest(getContext().getPackageName());
+            ConnectionRequest request =
+                    new ConnectionRequest(getContext().getPackageName(), Process.myPid());
             try {
 
                 iService.connect(mControllerStub, MediaUtils.toParcelable(request));
