@@ -17,19 +17,19 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="MediaControlView_ad_skip_wait_time" msgid="5221553996045003012">"Mund të kapërcesh reklamën në <xliff:g id="WAIT_TIME">%1$d</xliff:g> s."</string>
-    <string name="MediaControlView_ad_remaining_time" msgid="569530979387418179">"Reklamë · Mbeten <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
-    <string name="MediaControlView_ad_text" msgid="649968140965666991">"Vizito reklamuesin"</string>
-    <string name="MediaControlView_subtitle_off_text" msgid="4713723682776722273">"Fik"</string>
-    <string name="MediaControlView_audio_track_text" msgid="550490200661664153">"Pjesë audio"</string>
-    <string name="MediaControlView_audio_track_none_text" msgid="8920627943784676298">"Asnjë"</string>
-    <string name="MediaControlView_video_quality_auto_text" msgid="2361919440626099583">"Automatik"</string>
-    <string name="MediaControlView_playback_speed_text" msgid="7501705762236755130">"Shpejtësia e luajtjes"</string>
-    <string name="MediaControlView_playback_speed_normal" msgid="8621780673920663756">"Normal"</string>
-    <string name="MediaControlView_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
-    <string name="MediaControlView_subtitle_track_number_text" msgid="81813613582208443">"Pjesa muzikore <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Pjesa muzikore <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
-    <string name="MediaControlView_audio_track_number_text" msgid="7535079749165525354">"Pjesa muzikore <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_ad_skip_wait_time" msgid="3753651347621953793">"Mund të kapërcesh reklamën pas <xliff:g id="WAIT_TIME">%1$d</xliff:g> sek."</string>
+    <string name="MediaControlView_ad_remaining_time" msgid="4641185767261790265">"Reklamë · Mbeten <xliff:g id="REMAINING_TIME">%1$s</xliff:g>"</string>
+    <string name="MediaControlView_ad_text" msgid="2490783095255206611">"Vizito reklamuesin"</string>
+    <string name="MediaControlView_subtitle_off_text" msgid="949804436969069183">"Joaktiv"</string>
+    <string name="MediaControlView_audio_track_text" msgid="2340583808541225049">"Pjesë audio"</string>
+    <string name="MediaControlView_audio_track_none_text" msgid="817557305803450833">"Asnjë"</string>
+    <string name="MediaControlView_video_quality_auto_text" msgid="7452749534449961098">"Automatike"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="1105249224734567460">"Shpejtësia e luajtjes"</string>
+    <string name="MediaControlView_playback_speed_normal" msgid="7872714147547253400">"Normale"</string>
+    <string name="MediaControlView_time_placeholder" msgid="7649184546978021202">"00:00:00"</string>
+    <string name="MediaControlView_subtitle_track_number_text" msgid="6445854343333368791">"Pjesa muzikore <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="3614576494603298564">"Pjesa muzikore <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> - <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_audio_track_number_text" msgid="4631844386452675665">"Pjesa muzikore <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"Titulli i këngës i panjohur"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"Artisti i panjohur"</string>
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Artikulli i kërkuar nuk mund të luhej"</string>

@@ -17,19 +17,19 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="MediaControlView_ad_skip_wait_time" msgid="5221553996045003012">"Voit ohittaa mainoksen <xliff:g id="WAIT_TIME">%1$d</xliff:g> s:n kuluttua"</string>
-    <string name="MediaControlView_ad_remaining_time" msgid="569530979387418179">"Mainos · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> jäljellä"</string>
-    <string name="MediaControlView_ad_text" msgid="649968140965666991">"Vieraile mainostajan sivulla"</string>
-    <string name="MediaControlView_subtitle_off_text" msgid="4713723682776722273">"Pois päältä"</string>
-    <string name="MediaControlView_audio_track_text" msgid="550490200661664153">"Ääniraita"</string>
-    <string name="MediaControlView_audio_track_none_text" msgid="8920627943784676298">"–"</string>
-    <string name="MediaControlView_video_quality_auto_text" msgid="2361919440626099583">"Automaattinen"</string>
-    <string name="MediaControlView_playback_speed_text" msgid="7501705762236755130">"Toistonopeus"</string>
-    <string name="MediaControlView_playback_speed_normal" msgid="8621780673920663756">"Normaali"</string>
-    <string name="MediaControlView_time_placeholder" msgid="7559147215397038195">"00:00:00"</string>
-    <string name="MediaControlView_subtitle_track_number_text" msgid="81813613582208443">"Raita <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
-    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="6322489858351248841">"Raita <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> – <xliff:g id="LANG">%2$s</xliff:g>"</string>
-    <string name="MediaControlView_audio_track_number_text" msgid="7535079749165525354">"Raita <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_ad_skip_wait_time" msgid="3753651347621953793">"Voit ohittaa mainoksen <xliff:g id="WAIT_TIME">%1$d</xliff:g> s:n kuluttua"</string>
+    <string name="MediaControlView_ad_remaining_time" msgid="4641185767261790265">"Mainos · <xliff:g id="REMAINING_TIME">%1$s</xliff:g> jäljellä"</string>
+    <string name="MediaControlView_ad_text" msgid="2490783095255206611">"Vieraile mainostajan sivulla"</string>
+    <string name="MediaControlView_subtitle_off_text" msgid="949804436969069183">"Pois"</string>
+    <string name="MediaControlView_audio_track_text" msgid="2340583808541225049">"Ääniraita"</string>
+    <string name="MediaControlView_audio_track_none_text" msgid="817557305803450833">"–"</string>
+    <string name="MediaControlView_video_quality_auto_text" msgid="7452749534449961098">"Automaattinen"</string>
+    <string name="MediaControlView_playback_speed_text" msgid="1105249224734567460">"Toistonopeus"</string>
+    <string name="MediaControlView_playback_speed_normal" msgid="7872714147547253400">"Normaali"</string>
+    <string name="MediaControlView_time_placeholder" msgid="7649184546978021202">"00:00:00"</string>
+    <string name="MediaControlView_subtitle_track_number_text" msgid="6445854343333368791">"Raita <xliff:g id="TRACK_NUMBER">%1$d</xliff:g>"</string>
+    <string name="MediaControlView_subtitle_track_number_and_lang_text" msgid="3614576494603298564">"Raita <xliff:g id="TRACK_NUMBER">%1$d</xliff:g> – <xliff:g id="LANG">%2$s</xliff:g>"</string>
+    <string name="MediaControlView_audio_track_number_text" msgid="4631844386452675665">"Raita <xliff:g id="AUDIO_NUMBER">%1$d</xliff:g>"</string>
     <string name="mcv2_music_title_unknown_text" msgid="1872032310053783148">"Kappaleen nimi tuntematon"</string>
     <string name="mcv2_music_artist_unknown_text" msgid="7281381729593359490">"Artisti tuntematon"</string>
     <string name="mcv2_playback_error_text" msgid="8679540579604773521">"Valitsemaasi kohdetta ei voitu toistaa."</string>
