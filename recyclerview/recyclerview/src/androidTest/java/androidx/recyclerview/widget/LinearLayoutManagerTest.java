@@ -375,8 +375,15 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         final int visibleChildCount = 5;
         final int consecutiveFocusablesCount = 2;
         final int consecutiveUnFocusablesCount = 18;
+        final int childWidth = 250;
+        final int childHeight = 1000;
+        // Parent width is 1 more than 4 times child width, so when focusable child is 1 pixel on
+        // screen 4 non-focusable children can fit on screen.
+        final int parentWidth = childWidth * 4 + 1;
+        final int parentHeight = childHeight;
         final TestAdapter adapter = new TestAdapter(
-                consecutiveFocusablesCount + consecutiveUnFocusablesCount) {
+                consecutiveFocusablesCount + consecutiveUnFocusablesCount,
+                new RecyclerView.LayoutParams(childWidth, childHeight)) {
             RecyclerView mAttachedRv;
 
             @Override
@@ -415,7 +422,9 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             }
         };
         setupByConfig(new Config(HORIZONTAL, false, false).adapter(adapter).reverseLayout(true),
-                false);
+                false,
+                null,
+                new RecyclerView.LayoutParams(parentWidth, parentHeight));
         waitForFirstLayout();
 
         // adapter position of the currently focused item.
@@ -461,8 +470,15 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         final int visibleChildCount = 5;
         final int consecutiveFocusablesCount = 2;
         final int consecutiveUnFocusablesCount = 18;
+        final int childWidth = 250;
+        final int childHeight = 1000;
+        // Parent width is 1 more than 4 times child width, so when focusable child is 1 pixel on
+        // screen 4 non-focusable children can fit on screen.
+        final int parentWidth = childWidth * 4 + 1;
+        final int parentHeight = childHeight;
         final TestAdapter adapter = new TestAdapter(
-                consecutiveFocusablesCount + consecutiveUnFocusablesCount) {
+                consecutiveFocusablesCount + consecutiveUnFocusablesCount,
+                new RecyclerView.LayoutParams(childWidth, childHeight)) {
             RecyclerView mAttachedRv;
 
             @Override
@@ -500,7 +516,10 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                         + mAttachedRv.getWidth() / (2 * visibleChildCount)) / visibleChildCount);
             }
         };
-        setupByConfig(new Config(HORIZONTAL, false, false).adapter(adapter), false);
+        setupByConfig(new Config(HORIZONTAL, false, false).adapter(adapter),
+                false,
+                null,
+                new RecyclerView.LayoutParams(parentWidth, parentHeight));
         waitForFirstLayout();
 
         // adapter position of the currently focused item.
