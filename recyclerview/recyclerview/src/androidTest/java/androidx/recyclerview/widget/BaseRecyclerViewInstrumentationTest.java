@@ -509,11 +509,11 @@ abstract public class BaseRecyclerViewInstrumentationTest {
         getInstrumentation().waitForIdleSync();
     }
 
-    void freezeLayout(final boolean freeze) throws Throwable {
+    void suppressLayout(final boolean suppress) throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mRecyclerView.setLayoutFrozen(freeze);
+                mRecyclerView.suppressLayout(suppress);
             }
         });
     }
