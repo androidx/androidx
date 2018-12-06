@@ -54,7 +54,7 @@ public class WebSettingsCompatTest {
      */
     @Test
     public void testOffscreenPreRaster() {
-        AssumptionUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
+        WebkitUtils.checkFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
 
         assertFalse(WebSettingsCompat.getOffscreenPreRaster(mWebViewOnUiThread.getSettings()));
 
@@ -69,7 +69,7 @@ public class WebSettingsCompatTest {
      */
     @Test
     public void testEnableSafeBrowsing() throws Throwable {
-        AssumptionUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
+        WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
 
         WebSettingsCompat.setSafeBrowsingEnabled(mWebViewOnUiThread.getSettings(), false);
         assertFalse(WebSettingsCompat.getSafeBrowsingEnabled(mWebViewOnUiThread.getSettings()));
@@ -82,7 +82,7 @@ public class WebSettingsCompatTest {
      */
     @Test
     public void testDisabledActionModeMenuItems() throws Throwable {
-        AssumptionUtils.checkFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
+        WebkitUtils.checkFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
 
         assertEquals(WebSettings.MENU_ITEM_NONE,
                 WebSettingsCompat.getDisabledActionModeMenuItems(mWebViewOnUiThread.getSettings()));
