@@ -718,12 +718,15 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         final int visibleColCount = 5;
         final int spanCount = 3;
         final int lastFocusableIndex = 6;
+        final int childWidth = 200;
+        final int childHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
+        final int parentWidth = childWidth * visibleColCount;
+        final int parentHeight = 1000;
 
         // Reverse layout so that views are placed from right to left.
         setupByConfig(new Config(HORIZONTAL, true, spanCount,
                         GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS),
                 new GridTestAdapter(18, 1) {
-                    RecyclerView mAttachedRv;
 
                     @Override
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
@@ -742,16 +745,9 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
-                    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-                        mAttachedRv = recyclerView;
-                    }
-
-                    @Override
                     public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
-                        RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView
-                                .getLayoutParams();
                         if (position <= lastFocusableIndex) {
                             holder.itemView.setFocusable(true);
                             holder.itemView.setFocusableInTouchMode(true);
@@ -759,14 +755,26 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                             holder.itemView.setFocusable(false);
                             holder.itemView.setFocusableInTouchMode(false);
                         }
-                        holder.itemView.setMinimumWidth(mAttachedRv.getWidth() / visibleColCount);
-                        lp.topMargin = 0;
-                        lp.leftMargin = 0;
-                        lp.rightMargin = 0;
-                        lp.bottomMargin = 0;
+
+                        StaggeredGridLayoutManager.LayoutParams oldLp =
+                                (StaggeredGridLayoutManager.LayoutParams)
+                                        holder.itemView.getLayoutParams();
+
+                        StaggeredGridLayoutManager.LayoutParams newLp =
+                                new StaggeredGridLayoutManager.LayoutParams(
+                                        childWidth,
+                                        childHeight);
+
+                        newLp.setFullSpan(oldLp.mFullSpan);
+                        newLp.topMargin = 0;
+                        newLp.leftMargin = 0;
+                        newLp.rightMargin = 0;
+                        newLp.bottomMargin = 0;
                         if (position == 11) {
-                            lp.rightMargin = 9;
+                            newLp.leftMargin = 9;
                         }
+
+                        holder.itemView.setLayoutParams(newLp);
                     }
                 });
 
@@ -778,8 +786,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         mAdapter.mFullSpanItems.add(6);
         mAdapter.mFullSpanItems.add(8);
         mAdapter.mFullSpanItems.add(11);
+        mRecyclerView.setLayoutParams(new ViewGroup.LayoutParams(parentWidth, parentHeight));
         waitFirstLayout();
-
 
         // adapter position of the currently focused item.
         int focusIndex = 1;
@@ -827,11 +835,14 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         final int visibleColCount = 5;
         final int spanCount = 3;
         final int lastFocusableIndex = 6;
+        final int childWidth = 200;
+        final int childHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
+        final int parentWidth = childWidth * visibleColCount;
+        final int parentHeight = 1000;
 
         setupByConfig(new Config(HORIZONTAL, false, spanCount,
                         GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS),
                 new GridTestAdapter(18, 1) {
-                    RecyclerView mAttachedRv;
 
                     @Override
                     public TestViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
@@ -850,16 +861,10 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     }
 
                     @Override
-                    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
-                        mAttachedRv = recyclerView;
-                    }
-
-                    @Override
                     public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
-                        RecyclerView.LayoutParams lp = (RecyclerView.LayoutParams) holder.itemView
-                                .getLayoutParams();
+
                         if (position <= lastFocusableIndex) {
                             holder.itemView.setFocusable(true);
                             holder.itemView.setFocusableInTouchMode(true);
@@ -867,14 +872,26 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                             holder.itemView.setFocusable(false);
                             holder.itemView.setFocusableInTouchMode(false);
                         }
-                        holder.itemView.setMinimumWidth(mAttachedRv.getWidth() / visibleColCount);
-                        lp.topMargin = 0;
-                        lp.leftMargin = 0;
-                        lp.rightMargin = 0;
-                        lp.bottomMargin = 0;
+
+                        StaggeredGridLayoutManager.LayoutParams oldLp =
+                                (StaggeredGridLayoutManager.LayoutParams)
+                                        holder.itemView.getLayoutParams();
+
+                        StaggeredGridLayoutManager.LayoutParams newLp =
+                                new StaggeredGridLayoutManager.LayoutParams(
+                                        childWidth,
+                                        childHeight);
+
+                        newLp.setFullSpan(oldLp.mFullSpan);
+                        newLp.topMargin = 0;
+                        newLp.leftMargin = 0;
+                        newLp.rightMargin = 0;
+                        newLp.bottomMargin = 0;
                         if (position == 11) {
-                            lp.leftMargin = 9;
+                            newLp.leftMargin = 9;
                         }
+
+                        holder.itemView.setLayoutParams(newLp);
                     }
                 });
 
@@ -886,8 +903,8 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         mAdapter.mFullSpanItems.add(6);
         mAdapter.mFullSpanItems.add(8);
         mAdapter.mFullSpanItems.add(11);
+        mRecyclerView.setLayoutParams(new ViewGroup.LayoutParams(parentWidth, parentHeight));
         waitFirstLayout();
-
 
         // adapter position of the currently focused item.
         int focusIndex = 1;
