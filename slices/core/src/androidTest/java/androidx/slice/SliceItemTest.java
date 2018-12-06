@@ -49,10 +49,14 @@ public class SliceItemTest {
     @Test
     public void testSpannedText() {
         // "Some [normal] text" where [] denotes bold.
-        CharSequence text = new SpannableStringBuilder()
-                .append("Some ")
-                .append("normal", new StyleSpan(BOLD), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                .append(" text");
+        SpannableStringBuilder text = new SpannableStringBuilder();
+        text.append("Some ");
+        int spanStart = text.length();
+        text.append("normal");
+        int spanEnd = text.length();
+        text.append(" text");
+        text.setSpan(new StyleSpan(BOLD), spanStart, spanEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
         SliceItem item = new SliceItem(text, android.app.slice.SliceItem.FORMAT_TEXT, null,
                 new String[0]);
 
@@ -63,12 +67,17 @@ public class SliceItemTest {
     @Test
     public void testRedactedText() {
         // "Some [normal] text" where [] denotes sensitive
-        CharSequence text = new SpannableStringBuilder()
-                .append("Some ")
-                .append("normal", SliceItem.createSensitiveSpan(),
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                .append(" text");
-        String redactedText = "Some ****** text";
+        SpannableStringBuilder text = new SpannableStringBuilder();
+        text.append("Some ");
+        int spanStart = text.length();
+        text.append("normal");
+        int spanEnd = text.length();
+        text.append(" text");
+        text.setSpan(SliceItem.createSensitiveSpan(), spanStart, spanEnd,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+        final String redactedText = "Some ****** text";
+
         SliceItem item = new SliceItem(text, android.app.slice.SliceItem.FORMAT_TEXT, null,
                 new String[0]);
 
