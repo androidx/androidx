@@ -20,7 +20,7 @@ import datetime, os, shutil, subprocess, sys
 from collections import OrderedDict
 
 def usage():
-  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--try-fail] <passingPath> <failingPath> <shellCommand>
+  print("""Usage: diff-filterer.py [--assume-no-side-effects] [--try-fail] [--work-path <workpath>] <passingPath> <failingPath> <shellCommand>
 
 diff-filterer.py attempts to transform (a copy of) the contents of <passingPath> into the contents of <failingPath> subject to the constraint that when <shellCommand> is run in that directory, it returns 0
 
@@ -30,6 +30,9 @@ OPTIONS
   --try-fail
     Invert the success/fail status of <shellCommand> and swap <passingPath> and <failingPath>
     That is, instead of trying to transform <passingPath> into <failingPath>, try to transform <failingPath> into <passingPath>
+  --work-path <filepath>
+    File path to use as the work directory for testing the shell command
+    This file path will be overwritten and modified as needed for testing purposes, and will also be the working directory of the shell command when it is run
 """)
   sys.exit(1)
 
@@ -256,10 +259,11 @@ def filesStateFromTree(rootPath):
 
 # Runner class that determines which diffs between two directories cause the given shell command to fail
 class DiffRunner(object):
-  def __init__(self, failingPath, passingPath, shellCommand, tempPath, assumeNoSideEffects, tryFail):
+  def __init__(self, failingPath, passingPath, shellCommand, tempPath, workPath, assumeNoSideEffects, tryFail):
     # some simple params
-    self.tempPath = tempPath
-    self.workPath = fileIo.join(tempPath, "work")
+    self.workPath = os.path.abspath(workPath)
+    if self.workPath is None:
+      self.workPath = fileIo.join(tempPath, "work")
     self.bestState_path = fileIo.join(tempPath, "bestResults")
     self.shellCommand = shellCommand
     self.originalPassingPath = os.path.abspath(passingPath)
@@ -379,11 +383,10 @@ class DiffRunner(object):
     return True
 
 def main(args):
-  if len(args) < 3:
-    usage()
   assumeNoSideEffects = False
   tryFail = False
-  while True:
+  workPath = None
+  while len(args) > 0:
     arg = args[0]
     if arg == "--assume-no-side-effects":
       assumeNoSideEffects = True
@@ -393,6 +396,15 @@ def main(args):
       tryFail = True
       args = args[1:]
       continue
+    if arg == "--work-path":
+      if len(args) < 2:
+        usage()
+      workPath = args[1]
+      args = args[2:]
+      continue
+    if len(arg) > 0 and arg[0] == "-":
+      print("Unrecognized argument: '" + arg + "'")
+      usage()
     break
   if len(args) != 3:
     usage()
@@ -405,7 +417,7 @@ def main(args):
     temp = passingPath
     passingPath = failingPath
     failingPath = temp
-  success = DiffRunner(failingPath, passingPath, shellCommand, tempPath, assumeNoSideEffects, tryFail).run()
+  success = DiffRunner(failingPath, passingPath, shellCommand, tempPath, workPath, assumeNoSideEffects, tryFail).run()
   endTime = datetime.datetime.now()
   duration = endTime - startTime
   if success:
