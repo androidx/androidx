@@ -16,9 +16,12 @@
 
 package androidx.media2.test.service.tests;
 
+import static androidx.media2.MediaMetadata.METADATA_KEY_RATING;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -26,9 +29,15 @@ import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcel;
+import android.support.v4.media.MediaDescriptionCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.RatingCompat;
 
+import androidx.media2.HeartRating;
+import androidx.media2.MediaItem;
 import androidx.media2.MediaMetadata;
 import androidx.media2.MediaMetadata.Builder;
+import androidx.media2.MediaUtils;
 import androidx.media2.Rating;
 import androidx.media2.ThumbRating;
 import androidx.media2.test.common.TestUtils;
@@ -175,5 +184,51 @@ public class MediaMetadataTest {
                             + "scaled down. ",
                     newWidth < originalWidth && newHeight < originalHeight);
         }
+    }
+
+    @Test
+    public void testMediaUtils_convertToMediaMetadataCompat() {
+        HeartRating testRating = new HeartRating(true);
+        long testState = MediaMetadata.STATUS_DOWNLOADING;
+        String testCustomKey = "android.media.test";
+        String testCustomValue = "customValue";
+        MediaMetadata testMetadata = new Builder()
+                .putRating(METADATA_KEY_RATING, testRating)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, testState)
+                .putString(testCustomKey, testCustomValue)
+                .build();
+
+        MediaMetadataCompat compat = MediaUtils.convertToMediaMetadataCompat(testMetadata);
+        assertEquals(3, compat.keySet().size());
+        RatingCompat returnedRating = compat.getRating(MediaMetadataCompat.METADATA_KEY_RATING);
+        assertEquals(RatingCompat.RATING_HEART, returnedRating.getRatingStyle());
+        assertTrue(returnedRating.hasHeart());
+        assertEquals(MediaDescriptionCompat.STATUS_DOWNLOADING,
+                compat.getLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS));
+        assertEquals(testCustomValue, compat.getString(testCustomKey));
+    }
+
+    @Test
+    public void testMediaUtils_convertToMediaItem() {
+        RatingCompat testRating = RatingCompat.newHeartRating(true);
+        long testState = MediaDescriptionCompat.STATUS_DOWNLOADING;
+        String testCustomKey = "android.media.test";
+        String testCustomValue = "customValue";
+        MediaMetadataCompat testMetadataCompat = new MediaMetadataCompat.Builder()
+                .putRating(MediaMetadataCompat.METADATA_KEY_RATING, testRating)
+                .putLong(MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS, testState)
+                .putString(testCustomKey, testCustomValue)
+                .build();
+
+        MediaItem item = MediaUtils.convertToMediaItem(testMetadataCompat);
+        Rating returnedRating = item.getMetadata().getRating(METADATA_KEY_RATING);
+        assertTrue(returnedRating instanceof HeartRating);
+        assertTrue(returnedRating.isRated());
+        assertEquals(testRating.hasHeart(), ((HeartRating) returnedRating).hasHeart());
+        assertEquals(MediaMetadata.STATUS_DOWNLOADING,
+                item.getMetadata().getLong(MediaMetadata.METADATA_KEY_DOWNLOAD_STATUS));
+        assertFalse(item.getMetadata().containsKey(
+                MediaMetadataCompat.METADATA_KEY_DOWNLOAD_STATUS));
+        assertEquals(testCustomValue, item.getMetadata().getString(testCustomKey));
     }
 }
