@@ -550,6 +550,38 @@ public final class PagedListViewTest {
     }
 
     @Test
+    public void testGetTopOffset() {
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+
+        int topOffset = 50;
+        mPagedListView.setListContentTopOffset(topOffset);
+
+        assertEquals(topOffset, mPagedListView.getListContentTopOffset());
+    }
+
+    @Test
+    public void testGetTopOffset_NoneSet() {
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+        assertEquals(0, mPagedListView.getListContentTopOffset());
+    }
+
+    @Test
+    public void testGetBottomOffset() {
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+
+        int bottomOffset = 50;
+        mPagedListView.setListContentBottomOffset(bottomOffset);
+
+        assertEquals(bottomOffset, mPagedListView.getListContentBottomOffset());
+    }
+
+    @Test
+    public void testGetBottomOffset_NoneSet() {
+        setUpPagedListView(ITEMS_PER_PAGE * 10);
+        assertEquals(0, mPagedListView.getListContentBottomOffset());
+    }
+
+    @Test
     public void testPagedDownScrollsOverLongItem_itemEndAlignedToScreenBottom() {
         TextListItem item = new TextListItem(mActivity);
         item.setBody(mActivity.getResources().getString(R.string.longer_than_screen_size));

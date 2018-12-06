@@ -318,6 +318,8 @@ package androidx.car.widget {
     method public void addItemDecoration(androidx.recyclerview.widget.RecyclerView.ItemDecoration);
     method public void addOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
     method public androidx.recyclerview.widget.RecyclerView.Adapter<? extends androidx.recyclerview.widget.RecyclerView.ViewHolder>? getAdapter();
+    method public int getListContentBottomOffset();
+    method public int getListContentTopOffset();
     method public int getMaxPages();
     method public int getPage(int);
     method public androidx.recyclerview.widget.RecyclerView getRecyclerView();
@@ -344,7 +346,8 @@ package androidx.car.widget {
     method public void setGutter(@androidx.car.widget.PagedListView.Gutter int);
     method public void setGutterSize(int);
     method public void setItemSpacing(int);
-    method public void setListContentTopOffset(int);
+    method public void setListContentBottomOffset(@Px int);
+    method public void setListContentTopOffset(@Px int);
     method public void setMaxPages(int);
     method public void setOnScrollListener(androidx.car.widget.PagedListView.OnScrollListener!);
     method public void setScrollBarContainerWidth(int);

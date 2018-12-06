@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,18 +25,19 @@ import android.widget.TextView;
 
 import androidx.car.widget.CarToolbar;
 import androidx.car.widget.PagedListView;
-import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Demo activity for PagedListView.
+ * Demo activity to test the methods that add a top and bottom offset to a {@link PagedListView}
+ * that has a {@link GridLayoutManager} as its LayoutManager.
  */
-public class PagedListViewActivity extends Activity {
-
-    private static final int ITEM_COUNT = 80;
+public class GridLayoutTopBottomOffsetActivity extends Activity {
+    private static final int ITEM_COUNT = 25;
+    private static final int NUM_OF_COLUMNS = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,20 +49,18 @@ public class PagedListViewActivity extends Activity {
         toolbar.setNavigationIconOnClickListener(v -> finish());
 
         PagedListView pagedListView = findViewById(R.id.paged_list_view);
-        pagedListView.setClipChildren(false);
+        pagedListView.setAdapter(new DemoAdapter(ITEM_COUNT));
+        pagedListView.getRecyclerView().setLayoutManager(
+                new GridLayoutManager(this, NUM_OF_COLUMNS));
 
-        DemoAdapter adapter = new DemoAdapter(ITEM_COUNT);
-        pagedListView.setAdapter(adapter);
-
-        RecyclerView recyclerView = pagedListView.getRecyclerView();
-        new ItemTouchHelper(new SimpleItemTouchHelperCallback(adapter))
-                .attachToRecyclerView(recyclerView);
+        pagedListView.setListContentTopOffset(50);
+        pagedListView.setListContentBottomOffset(50);
     }
 
     /**
      * Adapter that populates a number of items for demo purposes.
      */
-    private static class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.ViewHolder> {
+    public static class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.ViewHolder> {
         private final List<String> mItems = new ArrayList<>();
 
         /**
@@ -70,7 +69,6 @@ public class PagedListViewActivity extends Activity {
         public static String getItemText(int index) {
             return "Item " + index;
         }
-
 
         public DemoAdapter(int itemCount) {
             for (int i = 0; i < itemCount; i++) {
@@ -81,7 +79,7 @@ public class PagedListViewActivity extends Activity {
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-            View view = inflater.inflate(R.layout.paged_list_item, parent, false);
+            View view = inflater.inflate(R.layout.grid_layout_item, parent, false);
             return new ViewHolder(view);
         }
 
@@ -95,14 +93,7 @@ public class PagedListViewActivity extends Activity {
             return mItems.size();
         }
 
-        public void onItemDismiss(int position) {
-            mItems.remove(position);
-            notifyItemRemoved(position);
-        }
-
-        /**
-         * ViewHolder for DemoAdapter.
-         */
+        /** ViewHolder for DemoAdapter. */
         public static class ViewHolder extends RecyclerView.ViewHolder {
             private TextView mTextView;
 
@@ -110,30 +101,6 @@ public class PagedListViewActivity extends Activity {
                 super(itemView);
                 mTextView = itemView.findViewById(R.id.text);
             }
-        }
-    }
-
-    /**
-     * A callback that will remove an item from {@link DemoAdapter} when it detects that an item
-     * has been swiped away.
-     */
-    private static class SimpleItemTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
-        private final DemoAdapter mAdapter;
-
-        SimpleItemTouchHelperCallback(DemoAdapter adapter) {
-            super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
-            mAdapter = adapter;
-        }
-
-        @Override
-        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
-                RecyclerView.ViewHolder target) {
-            return false;
-        }
-
-        @Override
-        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-            mAdapter.onItemDismiss(viewHolder.getAdapterPosition());
         }
     }
 }
