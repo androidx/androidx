@@ -2200,12 +2200,18 @@ public class MediaSessionCompat {
                     Bundle data = new Bundle();
 
                     int uid = Binder.getCallingUid();
+                    data.putInt(DATA_CALLING_UID, uid);
                     // Note: Different apps can have same uid, but only when they are signed with
                     // the same private key. This means those apps are from the same developer.
                     // Session apps can allow/reject controller by reading one of their names.
                     data.putString(DATA_CALLING_PACKAGE, getPackageNameForUid(uid));
-                    data.putInt(DATA_CALLING_PID, Binder.getCallingPid());
-                    data.putInt(DATA_CALLING_UID, uid);
+                    int pid = Binder.getCallingPid();
+                    if (pid > 0) {
+                        data.putInt(DATA_CALLING_PID, pid);
+                    } else if (data.getLong(DATA_CALLING_PID, UNKNOWN_PID) == UNKNOWN_PID) {
+                        // This cannot be happen for now, but added for future changes.
+                        data.putInt(DATA_CALLING_PID, UNKNOWN_PID);
+                    }
                     if (extras != null) {
                         data.putBundle(DATA_EXTRAS, extras);
                     }
