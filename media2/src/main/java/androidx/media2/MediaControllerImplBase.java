@@ -499,7 +499,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
                 return UNKNOWN_TIME;
             }
-            if (mPlayerState == SessionPlayer.PLAYER_STATE_PLAYING) {
+            if (mPlayerState == SessionPlayer.PLAYER_STATE_PLAYING
+                    && mBufferingState != SessionPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED) {
                 long timeDiff = (mInstance.mTimeDiff != null) ? mInstance.mTimeDiff
                         : SystemClock.elapsedRealtime() - mPositionEventTimeMs;
                 long expectedPosition = mPositionMs + (long) (mPlaybackSpeed * timeDiff);
@@ -912,10 +913,12 @@ class MediaControllerImplBase implements MediaControllerImpl {
     }
 
     void notifyBufferingStateChanged(final MediaItem item, final int state,
-            long bufferedPositionMs) {
+            long bufferedPositionMs, long eventTimeMs, long positionMs) {
         synchronized (mLock) {
             mBufferingState = state;
             mBufferedPositionMs = bufferedPositionMs;
+            mPositionEventTimeMs = eventTimeMs;
+            mPositionMs = positionMs;
         }
         mCallbackExecutor.execute(new Runnable() {
             @Override

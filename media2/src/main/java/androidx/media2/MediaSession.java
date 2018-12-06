@@ -1065,7 +1065,8 @@ public class MediaSession implements AutoCloseable {
         abstract void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
                 throws RemoteException;
         abstract void onBufferingStateChanged(@NonNull MediaItem item,
-                @BuffState int bufferingState, long bufferedPositionMs) throws RemoteException;
+                @BuffState int bufferingState, long bufferedPositionMs, long eventTimeMs,
+                long positionMs) throws RemoteException;
         abstract void onSeekCompleted(long eventTimeMs, long positionMs, long position)
                 throws RemoteException;
         abstract void onCurrentMediaItemChanged(@Nullable MediaItem item, int currentIdx,

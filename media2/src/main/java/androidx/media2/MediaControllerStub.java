@@ -152,7 +152,7 @@ class MediaControllerStub extends IMediaController.Stub {
 
     @Override
     public void onBufferingStateChanged(ParcelImpl item, @BuffState int state,
-            long bufferedPositionMs) {
+            long bufferedPositionMs, long eventTimeMs, long positionMs) {
         if (item == null) {
             return;
         }
@@ -170,7 +170,8 @@ class MediaControllerStub extends IMediaController.Stub {
                 Log.w(TAG, "onBufferingStateChanged(): Ignoring null item");
                 return;
             }
-            controller.notifyBufferingStateChanged(itemObj, state, bufferedPositionMs);
+            controller.notifyBufferingStateChanged(itemObj, state, bufferedPositionMs, eventTimeMs,
+                    positionMs);
         } finally {
             Binder.restoreCallingIdentity(token);
         }
