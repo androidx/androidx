@@ -358,6 +358,51 @@ public class MediaControlViewTest {
         assertTrue(latchForFile.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
+    @Test
+    public void testCheckMediaItemIsFromHttp() throws Throwable {
+        testCheckMediaItemIsFromNetwork(Uri.parse("http://localhost/dummy.mp4"), true);
+    }
+
+    @Test
+    public void testCheckMediaItemIsFromHttps() throws Throwable {
+        testCheckMediaItemIsFromNetwork(Uri.parse("https://localhost/dummy.mp4"), true);
+    }
+
+    @Test
+    public void testCheckMediaItemIsFromRtsp() throws Throwable {
+        testCheckMediaItemIsFromNetwork(Uri.parse("rtsp://localhost/dummy.mp4"), true);
+    }
+
+    @Test
+    public void testCheckMediaItemIsFromFile() throws Throwable {
+        testCheckMediaItemIsFromNetwork(Uri.parse("file:///dummy.mp4"), false);
+    }
+
+    private void testCheckMediaItemIsFromNetwork(Uri uri, boolean isNetwork) throws Throwable {
+        final MediaItem mediaItem = createTestMediaItem2(uri);
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final MediaController controller =
+                createController(new MediaController.ControllerCallback() {
+                    @Override
+                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
+                            @Nullable MediaItem item) {
+                        if (item == mediaItem) {
+                            latch.countDown();
+                        }
+                    }
+                });
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setMediaItem(mediaItem);
+            }
+        });
+        assertTrue(latch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
+        assertEquals(mVideoView.getMediaControlView().isCurrentMediaItemFromNetwork(), isNetwork);
+    }
+
     private void setKeepScreenOn() throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
