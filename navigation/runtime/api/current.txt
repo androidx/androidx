@@ -35,7 +35,7 @@ package androidx.navigation {
     method public androidx.navigation.ActivityNavigator.Extras.Builder setActivityOptions(android.support.v4.app.ActivityOptionsCompat);
   }
 
-  public final class NavController {
+  public class NavController {
     ctor public NavController(android.content.Context);
     method public void addOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener);
     method public androidx.navigation.NavDeepLinkBuilder createDeepLink();
@@ -55,12 +55,12 @@ package androidx.navigation {
     method public boolean popBackStack();
     method public boolean popBackStack(@IdRes int, boolean);
     method public void removeOnDestinationChangedListener(androidx.navigation.NavController.OnDestinationChangedListener);
-    method public void restoreState(android.os.Bundle?);
-    method public android.os.Bundle? saveState();
-    method public void setGraph(@NavigationRes int);
-    method public void setGraph(@NavigationRes int, android.os.Bundle?);
-    method public void setGraph(androidx.navigation.NavGraph);
-    method public void setGraph(androidx.navigation.NavGraph, android.os.Bundle?);
+    method @CallSuper public void restoreState(android.os.Bundle?);
+    method @CallSuper public android.os.Bundle? saveState();
+    method @CallSuper public void setGraph(@NavigationRes int);
+    method @CallSuper public void setGraph(@NavigationRes int, android.os.Bundle?);
+    method @CallSuper public void setGraph(androidx.navigation.NavGraph);
+    method @CallSuper public void setGraph(androidx.navigation.NavGraph, android.os.Bundle?);
     field public static final String KEY_DEEP_LINK_INTENT = "android-support-nav:controller:deepLinkIntent";
   }
 
