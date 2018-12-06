@@ -65,6 +65,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -1526,6 +1527,55 @@ public final class MediaRouter {
             return changes;
         }
 
+        private boolean isSameControlFilters(List<IntentFilter> filters1,
+                List<IntentFilter> filters2) {
+            if (filters1 == filters2) {
+                return true;
+            }
+            if (filters1 == null || filters2 == null) {
+                return false;
+            }
+
+            ListIterator<IntentFilter> e1 = filters1.listIterator();
+            ListIterator<IntentFilter> e2 = filters2.listIterator();
+
+            while (e1.hasNext() && e2.hasNext()) {
+                if (!isSameControlFilter(e1.next(), e2.next())) {
+                    return false;
+                }
+            }
+            return !(e1.hasNext() || e2.hasNext());
+        }
+
+        private boolean isSameControlFilter(IntentFilter filter1, IntentFilter filter2) {
+            if (filter1 == filter2) {
+                return true;
+            }
+            if (filter1 == null || filter2 == null) {
+                return false;
+            }
+            // Check only actions and categories for a brief comparison
+            int countActions = filter1.countActions();
+            if (countActions != filter2.countActions()) {
+                return false;
+            }
+            for (int i = 0; i < countActions; ++i) {
+                if (!filter1.getAction(i).equals(filter2.getAction(i))) {
+                    return false;
+                }
+            }
+            int countCategories = filter1.countCategories();
+            if (countCategories != filter2.countCategories()) {
+                return false;
+            }
+            for (int i = 0; i < countCategories; ++i) {
+                if (!filter1.getCategory(i).equals(filter2.getCategory(i))) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         int updateDescriptor(MediaRouteDescriptor descriptor) {
             int changes = 0;
             mDescriptor = descriptor;
@@ -1550,7 +1600,8 @@ public final class MediaRouter {
                     mConnectionState = descriptor.getConnectionState();
                     changes |= CHANGE_GENERAL;
                 }
-                if (!mControlFilters.equals(descriptor.getControlFilters())) {
+                // Use custom method to compare two control filters to confirm it is changed.
+                if (!isSameControlFilters(mControlFilters, descriptor.getControlFilters())) {
                     mControlFilters.clear();
                     mControlFilters.addAll(descriptor.getControlFilters());
                     changes |= CHANGE_GENERAL;
