@@ -17,8 +17,6 @@
 package androidx.media2;
 
 import static androidx.media2.BaseResult.RESULT_CODE_BAD_VALUE;
-import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_NONE;
-import static androidx.media2.MediaMetadata.METADATA_KEY_BROWSABLE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_DURATION;
 import static androidx.media2.MediaMetadata.METADATA_KEY_MEDIA_ID;
 import static androidx.media2.MediaMetadata.METADATA_KEY_PLAYABLE;
@@ -1403,7 +1401,6 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 metadata = new MediaMetadata.Builder()
                         .putLong(METADATA_KEY_DURATION, duration)
                         .putString(METADATA_KEY_MEDIA_ID, item.getMediaId())
-                        .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_NONE)
                         .putLong(METADATA_KEY_PLAYABLE, 1)
                         .build();
             }

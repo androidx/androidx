@@ -231,7 +231,6 @@ public class MediaUtils {
         }
         // Item is from the MediaControllerCompat, so forcefully set the playable.
         MediaMetadata.Builder builder = new MediaMetadata.Builder()
-                .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_MIXED)
                 .putLong(METADATA_KEY_PLAYABLE, 1);
         for (String key : metadataCompat.keySet()) {
             Object value = metadataCompat.getBundle().get(key);
