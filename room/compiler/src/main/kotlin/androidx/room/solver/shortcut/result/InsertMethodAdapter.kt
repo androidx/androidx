@@ -23,7 +23,6 @@ import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.writer.DaoWriter
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.FieldSpec
@@ -122,12 +121,13 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
     fun createInsertionMethodBody(
         parameters: List<ShortcutQueryParameter>,
         insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        dbField: FieldSpec,
         scope: CodeGenScope
     ) {
         scope.builder().apply {
             // TODO assert thread
             // TODO collect results
-            addStatement("$N.beginTransaction()", DaoWriter.dbField)
+            addStatement("$N.beginTransaction()", dbField)
             val needsResultVar = insertionType != InsertionType.INSERT_VOID &&
                     insertionType != InsertionType.INSERT_VOID_OBJECT &&
                     insertionType != InsertionType.INSERT_UNIT
@@ -152,8 +152,7 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
                                 param.name)
                     }
                 }
-                addStatement("$N.setTransactionSuccessful()",
-                        DaoWriter.dbField)
+                addStatement("$N.setTransactionSuccessful()", dbField)
                 if (needsResultVar) {
                     addStatement("return $L", resultVar)
                 } else if (insertionType == InsertionType.INSERT_VOID_OBJECT) {
@@ -163,8 +162,7 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
                 }
             }
             nextControlFlow("finally").apply {
-                addStatement("$N.endTransaction()",
-                        DaoWriter.dbField)
+                addStatement("$N.endTransaction()", dbField)
             }
             endControlFlow()
         }

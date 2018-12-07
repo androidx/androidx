@@ -22,7 +22,6 @@ import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
@@ -55,6 +54,7 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: Ty
     fun createDeleteOrUpdateMethodBody(
         parameters: List<ShortcutQueryParameter>,
         adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        dbField: FieldSpec,
         scope: CodeGenScope
     ) {
         val resultVar = if (hasResultValue(returnType)) {
@@ -66,7 +66,7 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: Ty
             if (resultVar != null) {
                 addStatement("$T $L = 0", TypeName.INT, resultVar)
             }
-            addStatement("$N.beginTransaction()", DaoWriter.dbField)
+            addStatement("$N.beginTransaction()", dbField)
             beginControlFlow("try").apply {
                 parameters.forEach { param ->
                     val adapter = adapters[param.name]?.first
@@ -74,8 +74,7 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: Ty
                             if (resultVar == null) "" else "$resultVar +=",
                             adapter, param.handleMethodName(), param.name)
                 }
-                addStatement("$N.setTransactionSuccessful()",
-                        DaoWriter.dbField)
+                addStatement("$N.setTransactionSuccessful()", dbField)
                 if (resultVar != null) {
                     addStatement("return $L", resultVar)
                 } else if (hasNullReturn(returnType)) {
@@ -85,8 +84,7 @@ class DeleteOrUpdateMethodAdapter private constructor(private val returnType: Ty
                 }
             }
             nextControlFlow("finally").apply {
-                addStatement("$N.endTransaction()",
-                        DaoWriter.dbField)
+                addStatement("$N.endTransaction()", dbField)
             }
             endControlFlow()
         }

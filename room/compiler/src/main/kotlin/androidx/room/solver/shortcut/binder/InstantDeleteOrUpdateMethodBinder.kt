@@ -38,6 +38,7 @@ class InstantDeleteOrUpdateMethodBinder(
         adapter?.createDeleteOrUpdateMethodBody(
                 parameters = parameters,
                 adapters = adapters,
+                dbField = dbField,
                 scope = scope
         )
     }

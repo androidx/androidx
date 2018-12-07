@@ -58,6 +58,7 @@ class CallableDeleteOrUpdateMethodBinder private constructor(
             adapter?.createDeleteOrUpdateMethodBody(
                 parameters = parameters,
                 adapters = adapters,
+                dbField = dbField,
                 scope = adapterScope
             )
             addCode(adapterScope.generate())

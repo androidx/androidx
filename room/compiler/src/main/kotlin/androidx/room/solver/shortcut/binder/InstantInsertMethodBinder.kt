@@ -36,6 +36,7 @@ class InstantInsertMethodBinder(adapter: InsertMethodAdapter?) : InsertMethodBin
         adapter?.createInsertionMethodBody(
                 parameters = parameters,
                 insertionAdapters = insertionAdapters,
+                dbField = dbField,
                 scope = scope
         )
     }
