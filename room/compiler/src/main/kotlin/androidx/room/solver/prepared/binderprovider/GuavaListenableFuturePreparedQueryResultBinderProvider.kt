@@ -25,7 +25,7 @@ import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
-import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPrepared
+import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import javax.lang.model.type.DeclaredType
 
@@ -47,7 +47,7 @@ class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Contex
             context.logger.e(ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT)
         }
         val typeArg = declared.typeArguments.first()
-        return createPrepared(
+        return createPreparedBinder(
             returnType = typeArg,
             adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
         ) { callableImpl, dbField ->

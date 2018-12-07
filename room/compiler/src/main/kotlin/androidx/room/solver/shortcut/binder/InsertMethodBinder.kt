@@ -56,6 +56,7 @@ abstract class InsertMethodBinder(val adapter: InsertMethodAdapter?) {
     abstract fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
         insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        dbField: FieldSpec,
         scope: CodeGenScope
     )
 }

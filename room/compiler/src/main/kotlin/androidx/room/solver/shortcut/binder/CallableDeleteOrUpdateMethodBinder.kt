@@ -17,39 +17,45 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.L
-import androidx.room.ext.N
-import androidx.room.ext.RoomCoroutinesTypeNames
-import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.writer.DaoWriter
+import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.type.TypeMirror
 
 /**
- * Binder that knows how to write delete and update methods that are suspend functions.
+ * Binder for deferred delete and update methods.
+ *
+ * This binder will create a Callable implementation that delegates to the
+ * [DeleteOrUpdateMethodAdapter]. Usage of the Callable impl is then delegate to the [addStmntBlock]
+ * function.
  */
-class CoroutineDeleteOrUpdateMethodBinder(
-    private val typeArg: TypeMirror,
-    private val continuationParamName: String,
+class CallableDeleteOrUpdateMethodBinder private constructor(
+    val typeArg: TypeMirror,
+    val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
     adapter: DeleteOrUpdateMethodAdapter?
-
 ) : DeleteOrUpdateMethodBinder(adapter) {
 
-    private val instantDeleteOrUpdateMethodBinder = InstantDeleteOrUpdateMethodBinder(adapter)
+    companion object {
+        fun createDeleteOrUpdateBinder(
+            typeArg: TypeMirror,
+            adapter: DeleteOrUpdateMethodAdapter?,
+            addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
+        ) = CallableDeleteOrUpdateMethodBinder(typeArg, addCodeBlock, adapter)
+    }
 
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
         adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        dbField: FieldSpec,
         scope: CodeGenScope
     ) {
         val adapterScope = scope.fork()
         val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
-            instantDeleteOrUpdateMethodBinder.convertAndReturn(
+            adapter?.createDeleteOrUpdateMethodBody(
                 parameters = parameters,
                 adapters = adapters,
                 scope = adapterScope
@@ -58,12 +64,7 @@ class CoroutineDeleteOrUpdateMethodBinder(
         }.build()
 
         scope.builder().apply {
-            addStatement(
-                "return $T.execute($N, $L, $N)",
-                RoomCoroutinesTypeNames.COROUTINES_ROOM,
-                DaoWriter.dbField,
-                callableImpl,
-                continuationParamName)
+            addStmntBlock(callableImpl, dbField)
         }
     }
 }

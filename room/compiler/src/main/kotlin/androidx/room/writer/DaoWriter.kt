@@ -364,6 +364,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         method.methodBinder.convertAndReturn(
                 parameters = method.parameters,
                 insertionAdapters = insertionAdapters,
+                dbField = dbField,
                 scope = scope
         )
         return scope.builder().build()
@@ -426,6 +427,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         method.methodBinder.convertAndReturn(
                 parameters = method.parameters,
                 adapters = adapters,
+                dbField = dbField,
                 scope = scope
         )
         return scope.builder().build()

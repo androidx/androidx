@@ -39,12 +39,11 @@ class CallablePreparedQueryResultBinder private constructor(
 ) : PreparedQueryResultBinder(adapter) {
 
     companion object {
-        fun createPrepared(
+        fun createPreparedBinder(
             returnType: TypeMirror,
             adapter: PreparedQueryResultAdapter?,
             addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
-        ) =
-            CallablePreparedQueryResultBinder(returnType, addCodeBlock, adapter)
+        ) = CallablePreparedQueryResultBinder(returnType, addCodeBlock, adapter)
     }
 
     override fun executeAndReturn(

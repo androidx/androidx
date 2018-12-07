@@ -24,12 +24,12 @@ import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.getSuspendFunctionReturnType
 import androidx.room.parser.ParsedQuery
-import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPrepared
+import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.CoroutineResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import androidx.room.solver.shortcut.binder.CoroutineDeleteOrUpdateMethodBinder
-import androidx.room.solver.shortcut.binder.CoroutineInsertMethodBinder
+import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
+import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.vo.QueryParameter
@@ -182,7 +182,7 @@ class SuspendMethodProcessorDelegate(
     override fun findPreparedResultBinder(
         returnType: TypeMirror,
         query: ParsedQuery
-    ) = createPrepared(
+    ) = createPreparedBinder(
         returnType = returnType,
         adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(returnType, query)
     ) { callableImpl, dbField ->
@@ -198,16 +198,30 @@ class SuspendMethodProcessorDelegate(
     override fun findInsertMethodBinder(
         returnType: TypeMirror,
         params: List<ShortcutQueryParameter>
-    ) = CoroutineInsertMethodBinder(
+    ) = createInsertBinder(
         typeArg = returnType,
-        adapter = context.typeAdapterStore.findInsertAdapter(returnType, params),
-        continuationParamName = continuationParam.simpleName.toString()
-    )
+        adapter = context.typeAdapterStore.findInsertAdapter(returnType, params)
+    ) { callableImpl, dbField ->
+        addStatement(
+            "return $T.execute($N, $L, $N)",
+            RoomCoroutinesTypeNames.COROUTINES_ROOM,
+            dbField,
+            callableImpl,
+            continuationParam.simpleName.toString()
+        )
+    }
 
     override fun findDeleteOrUpdateMethodBinder(returnType: TypeMirror) =
-        CoroutineDeleteOrUpdateMethodBinder(
+        createDeleteOrUpdateBinder(
             typeArg = returnType,
-            adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(returnType),
-            continuationParamName = continuationParam.simpleName.toString()
-        )
+            adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(returnType)
+        ) { callableImpl, dbField ->
+            addStatement(
+                "return $T.execute($N, $L, $N)",
+                RoomCoroutinesTypeNames.COROUTINES_ROOM,
+                dbField,
+                callableImpl,
+                continuationParam.simpleName.toString()
+            )
+        }
 }

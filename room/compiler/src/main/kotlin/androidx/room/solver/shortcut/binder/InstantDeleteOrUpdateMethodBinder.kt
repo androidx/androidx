@@ -32,6 +32,7 @@ class InstantDeleteOrUpdateMethodBinder(
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
         adapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+        dbField: FieldSpec,
         scope: CodeGenScope
     ) {
         adapter?.createDeleteOrUpdateMethodBody(

@@ -24,7 +24,7 @@ import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
-import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPrepared
+import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import com.squareup.javapoet.ClassName
 import javax.lang.model.type.DeclaredType
@@ -53,7 +53,7 @@ sealed class RxPreparedQueryResultBinderProvider(
             context.logger.e(ProcessorErrors.MISSING_ROOM_RXJAVA2_ARTIFACT)
         }
         val typeArg = extractTypeArg(declared)
-        return createPrepared(
+        return createPreparedBinder(
             returnType = typeArg,
             adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
         ) { callableImpl, _ ->

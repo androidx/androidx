@@ -16,13 +16,15 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
+import androidx.room.ext.L
 import androidx.room.ext.RxJava2TypeNames
+import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
+import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
-import androidx.room.solver.shortcut.binder.RxCallableInsertMethodBinder
-import androidx.room.solver.shortcut.binder.RxCallableInsertMethodBinder.RxType
 import androidx.room.vo.ShortcutQueryParameter
+import com.squareup.javapoet.ClassName
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeMirror
 
@@ -31,7 +33,7 @@ import javax.lang.model.type.TypeMirror
  */
 sealed class RxCallableInsertMethodBinderProvider(
     val context: Context,
-    private val rxType: RxCallableInsertMethodBinder.RxType
+    private val rxType: RxType
 ) : InsertMethodBinderProvider {
 
     /**
@@ -54,7 +56,18 @@ sealed class RxCallableInsertMethodBinderProvider(
     ): InsertMethodBinder {
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findInsertAdapter(typeArg, params)
-        return RxCallableInsertMethodBinder(rxType, typeArg, adapter)
+        return createInsertBinder(typeArg, adapter) { callableImpl, _ ->
+            addStatement("return $T.fromCallable($L)", rxType.className, callableImpl)
+        }
+    }
+
+    /**
+     * Supported types for insert
+     */
+    enum class RxType(val className: ClassName) {
+        SINGLE(RxJava2TypeNames.SINGLE),
+        MAYBE(RxJava2TypeNames.MAYBE),
+        COMPLETABLE(RxJava2TypeNames.COMPLETABLE)
     }
 }
 

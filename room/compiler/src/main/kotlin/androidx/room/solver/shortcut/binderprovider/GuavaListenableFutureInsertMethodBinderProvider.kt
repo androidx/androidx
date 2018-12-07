@@ -17,11 +17,14 @@
 package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
+import androidx.room.ext.L
+import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
+import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
-import androidx.room.solver.shortcut.binder.GuavaListenableFutureInsertMethodBinder
+import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 import javax.lang.model.type.DeclaredType
@@ -53,6 +56,13 @@ class GuavaListenableFutureInsertMethodBinderProvider(
 
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findInsertAdapter(typeArg, params)
-        return GuavaListenableFutureInsertMethodBinder(typeArg, adapter)
+        return createInsertBinder(typeArg, adapter) { callableImpl, dbField ->
+            addStatement(
+                "return $T.createListenableFuture($N, $L)",
+                RoomGuavaTypeNames.GUAVA_ROOM,
+                dbField,
+                callableImpl
+            )
+        }
     }
 }
