@@ -43,6 +43,9 @@ import io.reactivex.schedulers.Schedulers;
  * By default, RxWorker will subscribe on the thread pool that runs {@link WorkManager}
  * {@link Worker}s. You can change this behavior by overriding {@link #getBackgroundScheduler()}
  * method.
+ * <p>
+ * An RxWorker is given a maximum of ten minutes to finish its execution and return a
+ * {@link Result}.  After this time has expired, the worker will be signalled to stop.
  *
  * @see Worker
  */
@@ -103,6 +106,9 @@ public abstract class RxWorker extends ListenableWorker {
      * <p>
      * By default, subscription happens on the shared {@link Worker} pool. You can change it
      * by overriding {@link #getBackgroundScheduler()}.
+     * <p>
+     * An RxWorker is given a maximum of ten minutes to finish its execution and return a
+     * {@link Result}.  After this time has expired, the worker will be signalled to stop.
      *
      * @return a {@code Single<Payload>} that represents the work.
      */

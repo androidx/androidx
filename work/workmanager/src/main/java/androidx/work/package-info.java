@@ -28,7 +28,8 @@
  * All work must be done in a {@link androidx.work.ListenableWorker} class.  A simple
  * implementation, {@link androidx.work.Worker}, is recommended as the starting point for most
  * developers.  With the optional dependencies, you can also use {@code CoroutineWorker} or
- * {@code RxWorker}.
+ * {@code RxWorker}.  All background work is given a maximum of ten minutes to finish its execution.
+ * After this time has expired, the worker will be signalled to stop.
  * <p>
  * There are two types of work supported by WorkManager: {@link androidx.work.OneTimeWorkRequest}
  * and {@link androidx.work.PeriodicWorkRequest}.  OneTimeWorkRequests can be chained together into

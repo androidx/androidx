@@ -43,7 +43,9 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * All work must be done in a {@link ListenableWorker} class.  A simple implementation,
  * {@link Worker}, is recommended as the starting point for most developers.  With the optional
- * dependencies, you can also use {@code CoroutineWorker} or {@code RxWorker}.
+ * dependencies, you can also use {@code CoroutineWorker} or {@code RxWorker}.  All background work
+ * is given a maximum of ten minutes to finish its execution.  After this time has expired, the
+ * worker will be signalled to stop.
  * <p>
  * There are two types of work supported by WorkManager: {@link OneTimeWorkRequest} and
  * {@link PeriodicWorkRequest}.  You can enqueue requests using WorkManager as follows:

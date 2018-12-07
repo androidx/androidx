@@ -38,6 +38,9 @@ import com.google.common.util.concurrent.ListenableFuture;
  * In case the work is preempted for any reason, the same instance of Worker is not reused.  This
  * means that {@link #doWork()} is called exactly once per Worker instance.  A new Worker is created
  * if a unit of work needs to be rerun.
+ * <p>
+ * A Worker is given a maximum of ten minutes to finish its execution and return a {@link Result}.
+ * After this time has expired, the Worker will be signalled to stop.
  */
 
 public abstract class Worker extends ListenableWorker {
@@ -57,6 +60,9 @@ public abstract class Worker extends ListenableWorker {
      * {@link Result} from this method.  Once you return from this method, the Worker is considered
      * to have finished what its doing and will be destroyed.  If you need to do your work
      * asynchronously on a thread of your own choice, see {@link ListenableWorker}.
+     * <p>
+     * A Worker is given a maximum of ten minutes to finish its execution and return a
+     * {@link Result}.  After this time has expired, the Worker will be signalled to stop.
      *
      * @return The {@link Result} of the computation; note that dependent work will
      *         not execute if you use {@link Result#failure()} or {@link Result#failure(Data)}

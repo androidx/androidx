@@ -48,6 +48,10 @@ import java.util.concurrent.Executor;
  * ListenableWorker is created. This means that {@code startWork} is called exactly once per
  * ListenableWorker instance.  A new ListenableWorker is created if a unit of work needs to be
  * rerun.
+ * <p>
+ * A ListenableWorker is given a maximum of ten minutes to finish its execution and return a
+ * {@link Result}.  After this time has expired, the worker will be signalled to stop and its
+ * {@link ListenableFuture} will be cancelled.
  */
 
 public abstract class ListenableWorker {
@@ -166,6 +170,10 @@ public abstract class ListenableWorker {
     /**
      * Override this method to start your actual background processing. This method is called on
      * the main thread.
+     * <p>
+     * A ListenableWorker is given a maximum of ten minutes to finish its execution and return a
+     * {@link Result}.  After this time has expired, the worker will be signalled to stop and its
+     * {@link ListenableFuture} will be cancelled.
      *
      * @return A {@link ListenableFuture} with the {@link Result} of the computation.  If you
      *         cancel this Future, WorkManager will treat this unit of work as failed.
