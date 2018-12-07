@@ -112,11 +112,11 @@ public class MediaRouteButton extends View {
     private int mRemoteIndicatorResIdToLoad;
 
     private static final int CONNECTION_STATE_DISCONNECTED =
-            MediaRouter.RouteGroup.CONNECTION_STATE_DISCONNECTED;
+            MediaRouter.RouteInfo.CONNECTION_STATE_DISCONNECTED;
     private static final int CONNECTION_STATE_CONNECTING =
-            MediaRouter.RouteGroup.CONNECTION_STATE_CONNECTING;
+            MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING;
     private static final int CONNECTION_STATE_CONNECTED =
-            MediaRouter.RouteGroup.CONNECTION_STATE_CONNECTED;
+            MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED;
 
     private int mConnectionState;
 

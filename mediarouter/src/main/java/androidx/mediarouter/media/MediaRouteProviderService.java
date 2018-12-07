@@ -719,7 +719,7 @@ public abstract class MediaRouteProviderService extends Service {
                 if (controller != null) {
                     mControllers.put(controllerId, controller);
                     Bundle bundle = new Bundle();
-                    bundle.putString(CLIENT_DATA_ROUTE_ID, controller.getDynamicGroupRouteId());
+                    bundle.putString(CLIENT_DATA_ROUTE_ID, initialMemberRouteId);
                     bundle.putString(DATA_KEY_GROUPABLE_SECION_TITLE,
                             controller.getGroupableSelectionTitle());
                     bundle.putString(DATA_KEY_TRANSFERABLE_SECTION_TITLE,

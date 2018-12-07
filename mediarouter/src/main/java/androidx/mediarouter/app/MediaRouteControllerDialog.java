@@ -231,13 +231,6 @@ public class MediaRouteControllerDialog extends AlertDialog {
         return mRoute;
     }
 
-    private MediaRouter.RouteGroup getGroup() {
-        if (mRoute instanceof MediaRouter.RouteGroup) {
-            return (MediaRouter.RouteGroup) mRoute;
-        }
-        return null;
-    }
-
     /**
      * Provides the subclass an opportunity to create a view that will replace the default media
      * controls for the currently playing content.
@@ -413,7 +406,7 @@ public class MediaRouteControllerDialog extends AlertDialog {
         mGroupMemberRoutesAnimatingWithBitmap = new HashSet<>();
 
         MediaRouterThemeHelper.setMediaControlsBackgroundColor(mContext,
-                mMediaMainControlLayout, mVolumeGroupList, getGroup() != null);
+                mMediaMainControlLayout, mVolumeGroupList, mRoute.isGroup());
         MediaRouterThemeHelper.setVolumeSliderColor(mContext,
                 (MediaRouteVolumeSlider) mVolumeSlider, mMediaMainControlLayout);
         mVolumeSliderMap = new HashMap<>();
@@ -628,8 +621,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
         int mainControllerHeight = getMainControllerHeight(canShowPlaybackControlLayout());
         int volumeGroupListCount = mGroupMemberRoutes.size();
         // Scale down volume group list items in landscape mode.
-        int expandedGroupListHeight = getGroup() == null ? 0 :
-                mVolumeGroupListItemHeight * getGroup().getMemberRoutes().size();
+        int expandedGroupListHeight = mRoute.isGroup()
+                ? mVolumeGroupListItemHeight * mRoute.getMemberRoutes().size() : 0;
         if (volumeGroupListCount > 0) {
             expandedGroupListHeight += mVolumeGroupListPaddingTop;
         }
@@ -739,8 +732,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
                 mVolumeControlLayout.setVisibility(View.VISIBLE);
                 mVolumeSlider.setMax(mRoute.getVolumeMax());
                 mVolumeSlider.setProgress(mRoute.getVolume());
-                mGroupExpandCollapseButton.setVisibility(getGroup() == null ? View.GONE
-                        : View.VISIBLE);
+                mGroupExpandCollapseButton.setVisibility(mRoute.isGroup()
+                        ? View.VISIBLE : View.GONE);
             }
         } else {
             mVolumeControlLayout.setVisibility(View.GONE);
@@ -748,9 +741,8 @@ public class MediaRouteControllerDialog extends AlertDialog {
     }
 
     private void rebuildVolumeGroupList(boolean animate) {
-        List<MediaRouter.RouteInfo> routes =
-                getGroup() == null ? null : getGroup().getMemberRoutes();
-        if (routes == null) {
+        List<MediaRouter.RouteInfo> routes = mRoute.getMemberRoutes();
+        if (routes.isEmpty()) {
             mGroupMemberRoutes.clear();
             mVolumeGroupAdapter.notifyDataSetChanged();
         } else if (MediaRouteDialogHelper.listUnorderedEquals(mGroupMemberRoutes, routes)) {
