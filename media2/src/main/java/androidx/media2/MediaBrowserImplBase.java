@@ -59,6 +59,11 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
     }
 
     @Override
+    public MediaBrowser getInstance() {
+        return (MediaBrowser) super.getInstance();
+    }
+
+    @Override
     public ListenableFuture<BrowserResult> getLibraryRoot(final LibraryParams params) {
         return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
                 new RemoteLibrarySessionTask() {
@@ -143,9 +148,24 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
                 });
     }
 
-    @FunctionalInterface
-    private interface RemoteLibrarySessionTask {
-        void run(IMediaSession iSession, int seq) throws RemoteException;
+    void notifySearchResultChanged(final String query, final int itemCount,
+            final LibraryParams libraryParams) {
+        getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                getCallback().onSearchResultChanged(getInstance(), query, itemCount, libraryParams);
+            }
+        });
+    }
+
+    void notifyChildrenChanged(final String parentId, final int itemCount,
+            final LibraryParams libraryParams) {
+        getCallbackExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                getCallback().onChildrenChanged(getInstance(), parentId, itemCount, libraryParams);
+            }
+        });
     }
 
     private ListenableFuture<BrowserResult> dispatchRemoteLibrarySessionTask(int commandCode,
@@ -167,5 +187,10 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
             // future work item 'keeping call sequence when session execute commands' impossible.
             return BrowserResult.createFutureWithResult(RESULT_CODE_PERMISSION_DENIED);
         }
+    }
+
+    @FunctionalInterface
+    private interface RemoteLibrarySessionTask {
+        void run(IMediaSession iSession, int seq) throws RemoteException;
     }
 }
