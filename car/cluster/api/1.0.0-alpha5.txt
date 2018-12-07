@@ -186,6 +186,7 @@ package androidx.car.cluster.navigation {
   }
 
   public class RichText implements androidx.versionedparcelable.VersionedParcelable {
+    method public java.util.List<androidx.car.cluster.navigation.RichTextElement> getElements();
   }
 
   public static final class RichText.Builder {
@@ -195,6 +196,8 @@ package androidx.car.cluster.navigation {
   }
 
   public class RichTextElement implements androidx.versionedparcelable.VersionedParcelable {
+    method public androidx.car.cluster.navigation.ImageReference? getImage();
+    method public String getText();
   }
 
   public static class RichTextElement.Builder {
