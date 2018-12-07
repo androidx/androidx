@@ -444,7 +444,6 @@ public class CarAlertDialog extends Dialog {
          */
         @NonNull
         public Builder setHeaderIcon(@DrawableRes int iconId) {
-            String resource  = mContext.getResources().getResourceTypeName(iconId);
             mIcon = Icon.createWithResource(mContext, iconId);
             return this;
         }
