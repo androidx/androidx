@@ -1249,13 +1249,19 @@ public class MediaRouteCastDialog extends AppCompatDialog {
                     // of itemView.
                     mItemView.setEnabled(enabled);
                     mCheckBox.setEnabled(enabled);
-                    mMuteButton.setEnabled(enabled);
-                    mVolumeSlider.setEnabled(enabled);
+                    mMuteButton.setEnabled(enabled || selected);
+                    mVolumeSlider.setEnabled(enabled || selected);
                     mItemView.setOnClickListener(mViewClickListener);
                     mCheckBox.setOnClickListener(mViewClickListener);
+
+                    // Do not show the volume slider of a group in this row
                     setLayoutHeight(mVolumeSliderLayout, selected
+                            && !(mRoute instanceof MediaRouter.RouteGroup)
                             ? mExpandedLayoutHeight : mCollapsedLayoutHeight);
-                    mItemView.setAlpha(enabled ? 1.0f : mDisabledAlpha);
+                    selected = false;
+
+                    mItemView.setAlpha(enabled || selected ? 1.0f : mDisabledAlpha);
+                    mCheckBox.setAlpha(enabled || !selected ? 1.0f : mDisabledAlpha);
                 } else {
                     mCheckBox.setVisibility(View.GONE);
                     mProgressBar.setVisibility(View.INVISIBLE);
