@@ -84,8 +84,7 @@ class RxCompletableInsertMethodBinderProvider(context: Context)
      * Like this, the generated Callable.call method will return Void.
      */
     override fun extractTypeArg(declared: DeclaredType): TypeMirror =
-            context.processingEnv.elementUtils.getTypeElement(Void::class.java.canonicalName)
-                    .asType()
+            context.COMMON_TYPES.VOID
 
     override fun matches(declared: DeclaredType): Boolean = isCompletable(declared)
 

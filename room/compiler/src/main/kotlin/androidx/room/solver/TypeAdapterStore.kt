@@ -37,6 +37,14 @@ import androidx.room.solver.binderprovider.RxFlowableQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxMaybeQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxObservableQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxSingleQueryResultBinderProvider
+import androidx.room.solver.prepared.binder.InstantPreparedQueryResultBinder
+import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
+import androidx.room.solver.prepared.binderprovider.GuavaListenableFuturePreparedQueryResultBinderProvider
+import androidx.room.solver.prepared.binderprovider.InstantPreparedQueryResultBinderProvider
+import androidx.room.solver.prepared.binderprovider.RxCompletablePreparedQueryResultBinderProvider
+import androidx.room.solver.prepared.binderprovider.RxMaybePreparedQueryResultBinderProvider
+import androidx.room.solver.prepared.binderprovider.RxSinglePreparedQueryResultBinderProvider
+import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
 import androidx.room.solver.query.parameter.ArrayQueryParameterAdapter
 import androidx.room.solver.query.parameter.BasicQueryParameterAdapter
 import androidx.room.solver.query.parameter.CollectionQueryParameterAdapter
@@ -165,6 +173,14 @@ class TypeAdapterStore private constructor(
             DataSourceQueryResultBinderProvider(context),
             DataSourceFactoryQueryResultBinderProvider(context),
             InstantQueryResultBinderProvider(context)
+    )
+
+    val preparedQueryResultBinderProviders = listOf(
+            RxSinglePreparedQueryResultBinderProvider(context),
+            RxMaybePreparedQueryResultBinderProvider(context),
+            RxCompletablePreparedQueryResultBinderProvider(context),
+            GuavaListenableFuturePreparedQueryResultBinderProvider(context),
+            InstantPreparedQueryResultBinderProvider(context)
     )
 
     val insertBinderProviders = listOf(
@@ -334,6 +350,23 @@ class TypeAdapterStore private constructor(
             InstantQueryResultBinder(findQueryResultAdapter(typeMirror, query))
         }
     }
+
+    fun findPreparedQueryResultBinder(
+        typeMirror: TypeMirror,
+        query: ParsedQuery
+    ): PreparedQueryResultBinder {
+        return if (typeMirror.kind == TypeKind.DECLARED) {
+            val declared = MoreTypes.asDeclared(typeMirror)
+            return preparedQueryResultBinderProviders.first {
+                it.matches(declared)
+            }.provide(declared, query)
+        } else {
+            InstantPreparedQueryResultBinder(findPreparedQueryResultAdapter(typeMirror, query))
+        }
+    }
+
+    fun findPreparedQueryResultAdapter(typeMirror: TypeMirror, query: ParsedQuery) =
+        PreparedQueryResultAdapter.create(typeMirror, query.type)
 
     fun findDeleteOrUpdateAdapter(typeMirror: TypeMirror): DeleteOrUpdateMethodAdapter? {
         return DeleteOrUpdateMethodAdapter.create(typeMirror)

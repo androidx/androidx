@@ -18,9 +18,14 @@ package androidx.room.processor
 
 import androidx.room.ext.KotlinMetadataElement
 import androidx.room.ext.KotlinTypeNames
+import androidx.room.ext.L
+import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
+import androidx.room.ext.T
 import androidx.room.ext.getSuspendFunctionReturnType
 import androidx.room.parser.ParsedQuery
+import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPrepared
+import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.CoroutineResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.shortcut.binder.CoroutineDeleteOrUpdateMethodBinder
@@ -62,6 +67,11 @@ abstract class MethodProcessorDelegate(
     }
 
     abstract fun findResultBinder(returnType: TypeMirror, query: ParsedQuery): QueryResultBinder
+
+    abstract fun findPreparedResultBinder(
+        returnType: TypeMirror,
+        query: ParsedQuery
+    ): PreparedQueryResultBinder
 
     abstract fun findInsertMethodBinder(
         returnType: TypeMirror,
@@ -121,6 +131,11 @@ class DefaultMethodProcessorDelegate(
     override fun findResultBinder(returnType: TypeMirror, query: ParsedQuery) =
         context.typeAdapterStore.findQueryResultBinder(returnType, query)
 
+    override fun findPreparedResultBinder(
+        returnType: TypeMirror,
+        query: ParsedQuery
+    ) = context.typeAdapterStore.findPreparedQueryResultBinder(returnType, query)
+
     override fun findInsertMethodBinder(
         returnType: TypeMirror,
         params: List<ShortcutQueryParameter>
@@ -163,6 +178,22 @@ class SuspendMethodProcessorDelegate(
             adapter = context.typeAdapterStore.findQueryResultAdapter(returnType, query),
             continuationParamName = continuationParam.simpleName.toString()
         )
+
+    override fun findPreparedResultBinder(
+        returnType: TypeMirror,
+        query: ParsedQuery
+    ) = createPrepared(
+        returnType = returnType,
+        adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(returnType, query)
+    ) { callableImpl, dbField ->
+        addStatement(
+            "return $T.execute($N, $L, $N)",
+            RoomCoroutinesTypeNames.COROUTINES_ROOM,
+            dbField,
+            callableImpl,
+            continuationParam.simpleName.toString()
+        )
+    }
 
     override fun findInsertMethodBinder(
         returnType: TypeMirror,

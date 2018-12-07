@@ -59,6 +59,15 @@ abstract interface UpdateDao {
     @Query("UPDATE User SET ageColumn = ageColumn + 1")
     void ageUserAll();
 
+    @Query("UPDATE User SET ageColumn = ageColumn + 1")
+    Completable ageUserAllCompletable();
+
+    @Query("UPDATE User SET ageColumn = ageColumn + 1")
+    Single<Integer> ageUserAllSingle();
+
+    @Query("UPDATE User SET ageColumn = ageColumn + 1")
+    Maybe<Integer> ageUserAllMaybe();
+
     @Transaction
     default void updateAndAge(User user) {
         updateUser(user);
