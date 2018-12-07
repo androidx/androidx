@@ -124,6 +124,8 @@ public class MediaRouteButton extends View {
     private int mMinWidth;
     private int mMinHeight;
 
+    private boolean mUseDynamicGroup;
+
     // The checked state is used when connected to a remote route.
     private static final int[] CHECKED_STATE_SET = {
         android.R.attr.state_checked
@@ -251,6 +253,13 @@ public class MediaRouteButton extends View {
     }
 
     /**
+     * Enables dynamic group feature.
+     */
+    public void enableDynamicGroup() {
+        mUseDynamicGroup = true;
+    }
+
+    /**
      * Show the route chooser or controller dialog.
      * <p>
      * If the default route is selected or if the currently selected route does
@@ -287,6 +296,7 @@ public class MediaRouteButton extends View {
             MediaRouteChooserDialogFragment f =
                     mDialogFactory.onCreateChooserDialogFragment();
             f.setRouteSelector(mSelector);
+            f.setUseDynamicGroup(mUseDynamicGroup);
 
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.add(f, CHOOSER_FRAGMENT_TAG);
@@ -299,6 +309,7 @@ public class MediaRouteButton extends View {
             MediaRouteControllerDialogFragment f =
                     mDialogFactory.onCreateControllerDialogFragment();
             f.setRouteSelector(mSelector);
+            f.setUseDynamicGroup(mUseDynamicGroup);
 
             FragmentTransaction transaction = fm.beginTransaction();
             transaction.add(f, CONTROLLER_FRAGMENT_TAG);

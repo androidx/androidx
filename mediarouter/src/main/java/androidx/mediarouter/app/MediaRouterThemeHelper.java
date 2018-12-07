@@ -22,7 +22,6 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.View;
@@ -38,9 +37,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 final class MediaRouterThemeHelper {
-    private static final boolean USE_SUPPORT_DYNAMIC_GROUP =
-            Log.isLoggable("UseSupportDynamicGroup", Log.DEBUG);
-
     private static final float MIN_CONTRAST = 3.0f;
 
     @IntDef({COLOR_DARK_ON_LIGHT_BACKGROUND, COLOR_WHITE_ON_DARK_BACKGROUND})
@@ -97,7 +93,7 @@ final class MediaRouterThemeHelper {
 
         // Since Chooser(Controller)Dialog and DevicePicker(Cast)Dialog is using same shape but
         // different color icon for LightTheme, change color of the icon for the latter.
-        if (USE_SUPPORT_DYNAMIC_GROUP && isLightTheme(context)) {
+        if (isLightTheme(context)) {
             int tintColor = ContextCompat.getColor(context, COLOR_DARK_ON_LIGHT_BACKGROUND_RES_ID);
             DrawableCompat.setTint(icon, tintColor);
         }
