@@ -81,7 +81,6 @@ data class ParagraphStyle constructor(
     // TODO(Migration/siyamed): fontFamily was String
     val fontFamily: FontFallback? = null,
     val fontSize: Double? = null,
-    // TODO(Migration/siyamed): pass to TextLayout
     val lineHeight: Double? = null,
     // TODO(Migration/siyamed): pass to TextLayout
     val ellipsis: String? = null,

@@ -51,6 +51,10 @@ class ParagraphTest {
     @Before
     fun setup() {
         instrumentation = InstrumentationRegistry.getInstrumentation()
+        // This sample font provides the following features:
+        // 1. The width of most of visible characters equals to font size.
+        // 2. The LTR/RTL characters are rendered as ▶/◀.
+        // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
         val font = Typeface.createFromAsset(instrumentation.context.assets, "sample_font.ttf")!!
         fontFallback = FontFallback(font)
     }
@@ -706,6 +710,65 @@ class ParagraphTest {
         assertThat(index, equalTo(2))
     }
 
+    @Test
+    fun lineHeight_returnsSameAsGiven() {
+        val text = "abcdefgh"
+        val fontSize = 20.0
+        // Make the layout 4 lines
+        val layoutWidth = text.length * fontSize / 4
+        val lineHeight = 1.5
+
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize,
+            lineHeight = lineHeight
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        assertThat(paragraphImpl.lineCount, equalTo(4))
+        // TODO(Migration/haoyuchang): Due to bug b/120530738, the height of the first line is
+        // wrong in the framework. Will fix it when the lineHeight in TextSpan is implemented.
+        for (i in 1 until paragraphImpl.lineCount - 1) {
+            val actualHeight = paragraphImpl.getLineHeight(i)
+            // In the sample_font.ttf, the height of the line should be
+            // fontSize + 0.2 * fontSize(line gap)
+            assertThat("line number $i", actualHeight, equalTo(1.2 * fontSize * lineHeight))
+        }
+    }
+
+    @Test
+    fun lineHeight_hasNoEffectOnLastLine() {
+        val text = "abc"
+        val fontSize = 20.0
+        val layoutWidth = (text.length - 1) * fontSize
+        val lineHeight = 1.5
+
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize,
+            lineHeight = lineHeight
+        )
+        paragraph.layout(ParagraphConstraints(width = layoutWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        val lastLine = paragraphImpl.lineCount - 1
+        // In the sample_font.ttf, the height of the line should be
+        // fontSize + 0.2 * fontSize(line gap)
+        assertThat(paragraphImpl.getLineHeight(lastLine), equalTo(1.2 * fontSize))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun lineHeight_whenNegative_throwsIAE() {
+        Paragraph(
+            text = StringBuilder(""),
+            textStyles = listOf(),
+            paragraphStyle = ParagraphStyle(
+                lineHeight = -1.0
+            )
+        )
+    }
+
     // TODO(migration/siyamed) add test
     @Test
     fun getWordBoundary() {
@@ -716,7 +779,8 @@ class ParagraphTest {
         textAlign: TextAlign? = null,
         textDirection: TextDirection? = null,
         fontSize: Double? = null,
-        maxLines: Int? = null
+        maxLines: Int? = null,
+        lineHeight: Double? = null
     ): Paragraph {
         return Paragraph(
             text = StringBuilder(text),
@@ -726,7 +790,8 @@ class ParagraphTest {
                 textDirection = textDirection,
                 maxLines = maxLines,
                 fontFamily = fontFallback,
-                fontSize = fontSize
+                fontSize = fontSize,
+                lineHeight = lineHeight
             )
         )
     }
