@@ -104,7 +104,7 @@ public class RichTextElement implements VersionedParcelable {
      * Returns the textual representation of this element
      */
     @NonNull
-    String getText() {
+    public String getText() {
         return Common.nonNullOrEmpty(mText);
     }
 
@@ -113,7 +113,7 @@ public class RichTextElement implements VersionedParcelable {
      * used instead.
      */
     @Nullable
-    ImageReference getImage() {
+    public ImageReference getImage() {
         return mImage;
     }
 

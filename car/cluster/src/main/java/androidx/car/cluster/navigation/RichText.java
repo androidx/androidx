@@ -86,7 +86,7 @@ public class RichText implements VersionedParcelable {
      * Returns the sequence of graphic elements
      */
     @NonNull
-    List<RichTextElement> getElements() {
+    public List<RichTextElement> getElements() {
         return Common.immutableOrEmpty(mElements);
     }
 
