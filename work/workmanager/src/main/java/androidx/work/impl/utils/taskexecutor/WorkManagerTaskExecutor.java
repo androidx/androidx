@@ -46,10 +46,15 @@ public class WorkManagerTaskExecutor implements TaskExecutor {
     // Avoiding synthetic accessor.
     volatile Thread mCurrentBackgroundExecutorThread;
     private final ThreadFactory mBackgroundThreadFactory = new ThreadFactory() {
+
+        private int mThreadsCreated = 0;
+
         @Override
         public Thread newThread(@NonNull Runnable r) {
             // Delegate to the default factory, but keep track of the current thread being used.
             Thread thread = Executors.defaultThreadFactory().newThread(r);
+            thread.setName("WorkManager-WorkManagerTaskExecutor-thread-" + mThreadsCreated);
+            mThreadsCreated++;
             mCurrentBackgroundExecutorThread = thread;
             return thread;
         }
