@@ -813,8 +813,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     MediaMetadata.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
             builder.putString(
                     MediaMetadata.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
-            builder.putLong(MediaMetadata.METADATA_KEY_BROWSABLE,
-                    MediaMetadata.BROWSABLE_TYPE_NONE);
             builder.putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1);
             return builder.build();
         }
