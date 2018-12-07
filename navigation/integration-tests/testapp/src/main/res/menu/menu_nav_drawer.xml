@@ -13,9 +13,11 @@
     <item
         android:id="@id/settings_activity"
         android:icon="@drawable/ic_settings"
-        android:title="@string/settings" />
+        android:title="@string/settings"
+        android:menuCategory="secondary" />
     <item
         android:id="@id/help_activity"
         android:icon="@drawable/ic_help"
-        android:title="@string/help" />
+        android:title="@string/help"
+        android:menuCategory="secondary" />
 </menu>
