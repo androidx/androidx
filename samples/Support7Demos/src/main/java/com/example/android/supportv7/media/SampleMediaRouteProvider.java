@@ -34,6 +34,7 @@ import androidx.mediarouter.media.MediaRouteDescriptor;
 import androidx.mediarouter.media.MediaRouteProvider;
 import androidx.mediarouter.media.MediaRouteProviderDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
+import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.MediaSessionStatus;
 
 import com.example.android.supportv7.R;
@@ -256,6 +257,13 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
         public void onSelect() {
             Log.d(TAG, mRouteId + ": Selected");
             mHelper.onSelect();
+            MediaRouteDescriptor groupDescriptor =
+                    new MediaRouteDescriptor.Builder(mRouteDescriptors.get(mRouteId))
+                            .setConnectionState(RouteInfo.CONNECTION_STATE_CONNECTED)
+                            .setVolume(mVolume)
+                            .build();
+            mRouteDescriptors.put(mRouteId, groupDescriptor);
+            publishRoutes();
         }
 
         @Override
@@ -315,6 +323,14 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
 
         public void onUnselect() {
             mPlayer.release();
+            MediaRouteDescriptor groupDescriptor = mRouteDescriptors.get(mRouteId);
+            if (groupDescriptor != null) {
+                new MediaRouteDescriptor.Builder(groupDescriptor)
+                        .setConnectionState(RouteInfo.CONNECTION_STATE_DISCONNECTED)
+                        .setVolume(mVolume)
+                        .build();
+                mRouteDescriptors.put(mRouteId, groupDescriptor);
+            }
         }
 
         public void onSetVolume(int volume) {

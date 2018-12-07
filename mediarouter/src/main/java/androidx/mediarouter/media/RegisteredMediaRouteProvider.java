@@ -426,7 +426,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     private final class RegisteredDynamicController extends DynamicGroupRouteController
             implements ControllerConnection {
         private final String mInitialMemberRouteId;
-        String mRouteId;
         String mGroupableSectionTitle;
         String mTransferableSectionTitle;
 
@@ -455,7 +454,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             ControlRequestCallback callback = new ControlRequestCallback() {
                 @Override
                 public void onResult(Bundle data) {
-                    mRouteId = data.getString(CLIENT_DATA_ROUTE_ID);
                     mGroupableSectionTitle = data.getString(DATA_KEY_GROUPABLE_SECION_TITLE);
                     mTransferableSectionTitle = data.getString(DATA_KEY_TRANSFERABLE_SECTION_TITLE);
                 }
@@ -546,11 +544,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
 
         /////////////////////////////////////////
         // Overrides DynamicGroupRouteController
-
-        @Override
-        public String getDynamicGroupRouteId() {
-            return mRouteId;
-        }
 
         @Override
         public String getGroupableSelectionTitle() {
