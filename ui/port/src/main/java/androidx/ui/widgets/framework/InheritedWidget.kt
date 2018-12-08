@@ -61,7 +61,7 @@ import androidx.ui.foundation.Key
  *    particular configuration and ambient state.
  *  * [Widget], for an overview of widgets in general.
  */
-abstract class InheritedWidget(key: Key, child: Widget) : ProxyWidget(key, child) {
+abstract class InheritedWidget(key: Key? = null, child: Widget? = null) : ProxyWidget(key, child) {
 
     override fun createElement(): InheritedElement = InheritedElement(this)
 

@@ -3,7 +3,7 @@ package androidx.ui.widgets.framework
 /** An [Element] that uses a [ProxyWidget] as its configuration. */
 abstract class ProxyElement(widget: ProxyWidget) : ComponentElement(widget) {
 
-    override fun build(): Widget = (widget as ProxyWidget).child
+    override fun build(): Widget = (widget as ProxyWidget).child!!
 
     override fun update(newWidget: Widget) {
         val oldWidget = widget
