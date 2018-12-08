@@ -82,6 +82,11 @@ final class FragmentState implements Parcelable {
             if (mSavedFragmentState != null) {
                 mSavedFragmentState.setClassLoader(classLoader);
                 mInstance.mSavedFragmentState = mSavedFragmentState;
+            } else {
+                // When restoring a Fragment, always ensure we have a
+                // non-null Bundle so that developers have a signal for
+                // when the Fragment is being restored
+                mInstance.mSavedFragmentState = new Bundle();
             }
             mInstance.mWho = mWho;
             mInstance.mFromLayout = mFromLayout;
