@@ -339,6 +339,59 @@ public class FragmentLifecycleTest {
 
     @Test
     @UiThreadTest
+    public void testSavedInstanceStateAfterRestore() {
+
+        final ViewModelStore viewModelStore = new ViewModelStore();
+        final FragmentController fc1 = startupFragmentController(null, viewModelStore);
+        final FragmentManager fm1 = fc1.getSupportFragmentManager();
+
+        // Add the initial state
+        final StrictFragment parentFragment = new StrictFragment();
+        parentFragment.setRetainInstance(true);
+        final StrictFragment childFragment = new StrictFragment();
+        fm1.beginTransaction().add(parentFragment, "parent").commitNow();
+        final FragmentManager childFragmentManager = parentFragment.getChildFragmentManager();
+        childFragmentManager.beginTransaction().add(childFragment, "child").commitNow();
+
+        // Confirm the initial state
+        assertWithMessage("Initial parent saved instance state should be null")
+                .that(parentFragment.mSavedInstanceState)
+                .isNull();
+        assertWithMessage("Initial child saved instance state should be null")
+                .that(childFragment.mSavedInstanceState)
+                .isNull();
+
+        // Bring the state back down to destroyed, simulating an activity restart
+        fc1.dispatchPause();
+        final Parcelable savedState = fc1.saveAllState();
+        fc1.dispatchStop();
+        fc1.dispatchDestroy();
+
+        // Create the new controller and restore state
+        final FragmentController fc2 = startupFragmentController(savedState, viewModelStore);
+        final FragmentManager fm2 = fc2.getSupportFragmentManager();
+
+        final StrictFragment restoredParentFragment = (StrictFragment) fm2
+                .findFragmentByTag("parent");
+        assertNotNull("Parent fragment was not restored", restoredParentFragment);
+        final StrictFragment restoredChildFragment = (StrictFragment) restoredParentFragment
+                .getChildFragmentManager().findFragmentByTag("child");
+        assertNotNull("Child fragment was not restored", restoredChildFragment);
+
+        assertWithMessage("Parent fragment saved instance state should still be null "
+                + "since it is a retained Fragment")
+                .that(restoredParentFragment.mSavedInstanceState)
+                .isNull();
+        assertWithMessage("Child fragment saved instance state should be non-null")
+                .that(restoredChildFragment.mSavedInstanceState)
+                .isNotNull();
+
+        // Bring the state back down to destroyed before we finish the test
+        shutdownFragmentController(fc2, viewModelStore);
+    }
+
+    @Test
+    @UiThreadTest
     public void restoreNestedFragmentsOnBackStack() {
 
         final ViewModelStore viewModelStore = new ViewModelStore();
