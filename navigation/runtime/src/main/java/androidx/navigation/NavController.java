@@ -716,12 +716,26 @@ public class NavController {
         }
         @IdRes int destId = resId;
         final NavAction navAction = currentNode.getAction(resId);
+        Bundle combinedArgs = null;
         if (navAction != null) {
             if (navOptions == null) {
                 navOptions = navAction.getNavOptions();
             }
             destId = navAction.getDestinationId();
+            Bundle navActionArgs = navAction.getDefaultArguments();
+            if (navActionArgs != null) {
+                combinedArgs = new Bundle();
+                combinedArgs.putAll(navActionArgs);
+            }
         }
+
+        if (args != null) {
+            if (combinedArgs == null) {
+                combinedArgs = new Bundle();
+            }
+            combinedArgs.putAll(args);
+        }
+
         if (destId == 0 && navOptions != null && navOptions.getPopUpTo() != 0) {
             popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
             return;
@@ -741,7 +755,7 @@ public class NavController {
                     : "")
                     + " is unknown to this NavController");
         }
-        navigate(node, args, navOptions, navigatorExtras);
+        navigate(node, combinedArgs, navOptions, navigatorExtras);
     }
 
     private void navigate(@NonNull NavDestination node, @Nullable Bundle args,

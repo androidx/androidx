@@ -46,6 +46,7 @@ class NavControllerTest {
         private const val TEST_ARG_VALUE = "value"
         private const val TEST_ARG_VALUE_INT = 123
         private const val TEST_OVERRIDDEN_VALUE_ARG = "test_overriden_value"
+        private const val TEST_ACTION_OVERRIDDEN_VALUE_ARG = "test_action_overriden_value"
         private const val TEST_OVERRIDDEN_VALUE_ARG_VALUE = "override"
     }
 
@@ -511,6 +512,10 @@ class NavControllerTest {
         // Test that default values can be overridden by programmatic values
         assertEquals(TEST_OVERRIDDEN_VALUE_ARG_VALUE,
                 returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG))
+        // Test that default values can be overridden by action default values
+        assertEquals(
+            TEST_OVERRIDDEN_VALUE_ARG_VALUE,
+            returnedArgs.getString(TEST_ACTION_OVERRIDDEN_VALUE_ARG))
     }
 
     @Test

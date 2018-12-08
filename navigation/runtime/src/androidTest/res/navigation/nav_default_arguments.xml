@@ -39,6 +39,8 @@
             android:defaultValue="VALUE_ONE"/>
         <argument android:name="test_relative_classname" app:argType=".TestEnum"
                   android:defaultValue="VALUE_TWO"/>
-
+        <action android:id="@+id/my_action" app:destination="@+id/start_test">
+            <argument android:name="test_action_arg" android:defaultValue="123L" />
+        </action>
     </test>
 </navigation>

@@ -4,8 +4,11 @@ package androidx.navigation {
   public final class NavAction {
     ctor public NavAction(@IdRes int);
     ctor public NavAction(@IdRes int, androidx.navigation.NavOptions?);
+    ctor public NavAction(@IdRes int, androidx.navigation.NavOptions?, android.os.Bundle?);
+    method public android.os.Bundle? getDefaultArguments();
     method public int getDestinationId();
     method public androidx.navigation.NavOptions? getNavOptions();
+    method public void setDefaultArguments(android.os.Bundle?);
     method public void setNavOptions(androidx.navigation.NavOptions?);
   }
 

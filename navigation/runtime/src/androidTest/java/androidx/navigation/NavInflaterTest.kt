@@ -162,6 +162,16 @@ class NavInflaterTest {
             defaultArguments.get("test_relative_classname")?.defaultValue)
     }
 
+    @Test
+    fun testActionArguments() {
+        val context = InstrumentationRegistry.getTargetContext()
+        val navInflater = NavInflater(context, TestNavigatorProvider())
+        val graph = navInflater.inflate(R.navigation.nav_default_arguments)
+        val startDestination = graph.findNode(graph.startDestination)
+        val action = startDestination?.getAction(R.id.my_action)
+        assertEquals(123L, action?.defaultArguments?.get("test_action_arg"))
+    }
+
     private fun inflateDefaultArgumentsFromGraph(): Map<String, NavArgument> {
         val context = InstrumentationRegistry.getTargetContext()
         val navInflater = NavInflater(context, TestNavigatorProvider())
