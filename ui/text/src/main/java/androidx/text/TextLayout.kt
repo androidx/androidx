@@ -139,9 +139,8 @@ class TextLayout constructor(
         }
     }
 
-    fun paint(canvas: Canvas) {
-        layout.draw(canvas)
-    }
+    val lineCount: Int
+        get() = layout.lineCount
 
     fun getLineLeft(index: Int): Double {
         return layout.getLineLeft(index).toDouble()
@@ -149,6 +148,22 @@ class TextLayout constructor(
 
     fun getLineRight(index: Int): Double {
         return layout.getLineRight(index).toDouble()
+    }
+
+    fun getLineTop(index: Int): Double {
+        return layout.getLineTop(index).toDouble()
+    }
+
+    fun getLineBottom(index: Int): Double {
+        return layout.getLineBottom(index).toDouble()
+    }
+
+    fun getLineHeight(index: Int): Double {
+        return (layout.getLineBottom(index) - layout.getLineTop(index)).toDouble()
+    }
+
+    fun paint(canvas: Canvas) {
+        layout.draw(canvas)
     }
 }
 

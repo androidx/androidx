@@ -107,6 +107,9 @@ class Paragraph internal constructor(
         get() = paragraphImpl.didExceedMaxLines
 
     init {
+        if (paragraphStyle.lineHeight != null && paragraphStyle.lineHeight < 0.0) {
+            throw IllegalArgumentException("lineHeight can't be negative")
+        }
         paragraphImpl = ParagraphAndroid(text, paragraphStyle, textStyles)
     }
 

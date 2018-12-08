@@ -23,6 +23,7 @@ import androidx.text.LayoutCompat.ALIGN_OPPOSITE
 import androidx.text.LayoutCompat.ALIGN_RIGHT
 import androidx.text.LayoutCompat.DEFAULT_ALIGNMENT
 import androidx.text.LayoutCompat.DEFAULT_JUSTIFICATION_MODE
+import androidx.text.LayoutCompat.DEFAULT_LINESPACING_MULTIPLIER
 import androidx.text.LayoutCompat.DEFAULT_MAX_LINES
 import androidx.text.LayoutCompat.DEFAULT_TEXT_DIRECTION
 import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
@@ -80,6 +81,17 @@ internal class ParagraphAndroid constructor(
     val textLocale: Locale
         get() = textPaint.textLocale
 
+    val lineCount: Int
+        get() = ensureLayout.lineCount
+
+    private val ensureLayout: TextLayout
+        get() {
+            val tmpLayout = this.layout ?: throw java.lang.IllegalStateException(
+                "layout() should be called first"
+            )
+            return tmpLayout
+        }
+
     fun layout(width: Double, force: Boolean = false) {
         val floorWidth = floor(width)
 
@@ -120,12 +132,16 @@ internal class ParagraphAndroid constructor(
             else -> DEFAULT_JUSTIFICATION_MODE
         }
 
+        val lineSpacingMultiplier =
+            paragraphStyle.lineHeight ?: DEFAULT_LINESPACING_MULTIPLIER.toDouble()
+
         layout = TextLayout(
             charSequence = charSequence,
             width = floorWidth,
             textPaint = textPaint,
             alignment = alignment,
             textDirectionHeuristic = textDirectionHeuristic,
+            lineSpacingMultiplier = lineSpacingMultiplier,
             maxLines = maxLines,
             justificationMode = justificationMode
         )
@@ -133,29 +149,23 @@ internal class ParagraphAndroid constructor(
     }
 
     fun getPositionForOffset(offset: Offset): TextPosition {
-        val tmpLayout = layout ?: throw IllegalStateException("getPositionForOffset cannot be " +
-                "called before layout() is called")
-
-        val line = tmpLayout.layout.getLineForVertical(offset.dy.toInt())
+        val line = ensureLayout.layout.getLineForVertical(offset.dy.toInt())
         return TextPosition(
-            offset = tmpLayout.layout.getOffsetForHorizontal(line, offset.dx.toFloat()),
+            offset = ensureLayout.layout.getOffsetForHorizontal(line, offset.dx.toFloat()),
             // TODO(Migration/siyamed): we provide a default value
             affinity = TextAffinity.upstream
         )
     }
 
-    // TODO(Migration/haoyuchang): more functions for testing are needed.
-    fun getLineLeft(index: Int): Double {
-        val tmpLayout = layout ?: throw java.lang.IllegalStateException("getLineLeft cannot be " +
-                    "called before layout() is called")
-        return tmpLayout.getLineLeft(index)
-    }
+    fun getLineLeft(index: Int): Double = ensureLayout.getLineLeft(index)
 
-    fun getLineRight(index: Int): Double {
-        val tmpLayout = layout ?: throw java.lang.IllegalStateException("getLineRight cannot be " +
-                "called before layout() is called")
-        return tmpLayout.getLineRight(index)
-    }
+    fun getLineRight(index: Int): Double = ensureLayout.getLineRight(index)
+
+    fun getLineHeight(index: Int): Double = ensureLayout.getLineHeight(index)
+
+    fun getLineTop(index: Int): Double = ensureLayout.getLineTop(index)
+
+    fun getLineBottom(index: Int): Double = ensureLayout.getLineBottom(index)
 
     fun paint(canvas: Canvas, x: Double, y: Double) {
         val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
