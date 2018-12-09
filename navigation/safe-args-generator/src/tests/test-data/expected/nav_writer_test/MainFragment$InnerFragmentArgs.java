@@ -22,39 +22,52 @@ import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.SuppressWarnings;
+import java.util.HashMap;
 
 public class MainFragment$InnerFragmentArgs {
-    @NonNull
-    private String mainArg;
+    private final HashMap arguments = new HashMap();
 
     private MainFragment$InnerFragmentArgs() {
     }
 
+    private MainFragment$InnerFragmentArgs(HashMap argumentsMap) {
+        this.arguments.putAll(argumentsMap);
+    }
+
     @NonNull
-    public static MainFragment$InnerFragmentArgs fromBundle(Bundle bundle) {
-        MainFragment$InnerFragmentArgs result = new MainFragment$InnerFragmentArgs();
+    @SuppressWarnings("unchecked")
+    public static MainFragment$InnerFragmentArgs fromBundle(@NonNull Bundle bundle) {
+        MainFragment$InnerFragmentArgs __result = new MainFragment$InnerFragmentArgs();
         bundle.setClassLoader(MainFragment$InnerFragmentArgs.class.getClassLoader());
         if (bundle.containsKey("mainArg")) {
-            result.mainArg = bundle.getString("mainArg");
-            if (result.mainArg == null) {
+            String mainArg;
+            mainArg = bundle.getString("mainArg");
+            if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"mainArg\" is marked as non-null but was passed a null value.");
             }
+            __result.arguments.put("mainArg", mainArg);
         } else {
             throw new IllegalArgumentException("Required argument \"mainArg\" is missing and does not have an android:defaultValue");
         }
-        return result;
+        return __result;
     }
 
+    @SuppressWarnings("unchecked")
     @NonNull
     public String getMainArg() {
-        return mainArg;
+        return (String) arguments.get("mainArg");
     }
 
+    @SuppressWarnings("unchecked")
     @NonNull
     public Bundle toBundle() {
-        Bundle __outBundle = new Bundle();
-        __outBundle.putString("mainArg", this.mainArg);
-        return __outBundle;
+        Bundle __result = new Bundle();
+        if (arguments.containsKey("mainArg")) {
+            String mainArg = (String) arguments.get("mainArg");
+            __result.putString("mainArg", mainArg);
+        }
+        return __result;
     }
 
     @Override
@@ -66,7 +79,10 @@ public class MainFragment$InnerFragmentArgs {
             return false;
         }
         MainFragment$InnerFragmentArgs that = (MainFragment$InnerFragmentArgs) object;
-        if (mainArg != null ? !mainArg.equals(that.mainArg) : that.mainArg != null) {
+        if (arguments.containsKey("mainArg") != that.arguments.containsKey("mainArg")) {
+            return false;
+        }
+        if (getMainArg() != null ? !getMainArg().equals(that.getMainArg()) : that.getMainArg() != null) {
             return false;
         }
         return true;
@@ -75,36 +91,34 @@ public class MainFragment$InnerFragmentArgs {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (mainArg != null ? mainArg.hashCode() : 0);
+        result = 31 * result + (getMainArg() != null ? getMainArg().hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
         return "MainFragment$InnerFragmentArgs{"
-                + "mainArg=" + mainArg
+                + "mainArg=" + getMainArg()
                 + "}";
     }
 
     public static class Builder {
-        @NonNull
-        private String mainArg;
+        private final HashMap arguments = new HashMap();
 
         public Builder(MainFragment$InnerFragmentArgs original) {
-            this.mainArg = original.mainArg;
+            this.arguments.putAll(original.arguments);
         }
 
         public Builder(@NonNull String mainArg) {
-            this.mainArg = mainArg;
-            if (this.mainArg == null) {
+            if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"mainArg\" is marked as non-null but was passed a null value.");
             }
+            this.arguments.put("mainArg", mainArg);
         }
 
         @NonNull
         public MainFragment$InnerFragmentArgs build() {
-            MainFragment$InnerFragmentArgs result = new MainFragment$InnerFragmentArgs();
-            result.mainArg = this.mainArg;
+            MainFragment$InnerFragmentArgs result = new MainFragment$InnerFragmentArgs(arguments);
             return result;
         }
 
@@ -113,13 +127,14 @@ public class MainFragment$InnerFragmentArgs {
             if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"mainArg\" is marked as non-null but was passed a null value.");
             }
-            this.mainArg = mainArg;
+            this.arguments.put("mainArg", mainArg);
             return this;
         }
 
+        @SuppressWarnings("unchecked")
         @NonNull
         public String getMainArg() {
-            return mainArg;
+            return (String) arguments.get("mainArg");
         }
     }
 }

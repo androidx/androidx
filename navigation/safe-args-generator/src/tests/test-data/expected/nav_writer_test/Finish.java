@@ -22,16 +22,21 @@ import androidx.navigation.NavDirections;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.SuppressWarnings;
+import java.util.HashMap;
 
 public static class Finish implements NavDirections {
+    private final HashMap arguments = new HashMap();
+
     public Finish() {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     @NonNull
     public Bundle getArguments() {
-        Bundle __outBundle = new Bundle();
-        return __outBundle;
+        Bundle __result = new Bundle();
+        return __result;
     }
 
     @Override

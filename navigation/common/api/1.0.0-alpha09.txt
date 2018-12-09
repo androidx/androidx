@@ -116,6 +116,7 @@ package androidx.navigation {
     field public static final androidx.navigation.NavType<java.lang.Integer> IntType;
     field public static final androidx.navigation.NavType<long[]> LongArrayType;
     field public static final androidx.navigation.NavType<java.lang.Long> LongType;
+    field public static final androidx.navigation.NavType<java.lang.Integer> ReferenceType;
     field public static final androidx.navigation.NavType<java.lang.String[]> StringArrayType;
     field public static final androidx.navigation.NavType<java.lang.String> StringType;
   }

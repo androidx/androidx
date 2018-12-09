@@ -204,7 +204,7 @@ class NavWriterTest {
     fun testGeneratedDirectionEqualsImpl() {
         val nextAction = Action(id("next"), id("destA"), listOf(Argument("main", StringType)))
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
-                listOf(nextAction))
+            listOf(nextAction))
 
         val actual = generateDirectionsJavaFile(dest, null, false).toJavaFileObject()
 
@@ -212,8 +212,8 @@ class NavWriterTest {
         val loader = InMemoryGeneratedClassLoader(generatedFiles)
 
         fun createNextObj(mainArgValue: String) = loader.loadClass("a.b.MainFragmentDirections")
-                .getDeclaredMethod("next", String::class.java)
-                .invoke(null, mainArgValue)
+            .getDeclaredMethod("next", String::class.java)
+            .invoke(null, mainArgValue)
 
         val nextObjectA = createNextObj("data")
         val nextObjectB = createNextObj("data")
