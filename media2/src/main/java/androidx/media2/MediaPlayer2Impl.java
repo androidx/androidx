@@ -187,6 +187,13 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         mPlayer = new MediaPlayerSourceQueue();
     }
 
+    @Override
+    public boolean cancel(Object token) {
+        synchronized (mTaskLock) {
+            return mPendingTasks.remove(token);
+        }
+    }
+
     /**
      * Releases the resources held by this {@code MediaPlayer2} object.
      *
@@ -210,13 +217,6 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
      * This class implements the Java {@code AutoCloseable} interface and
      * may be used with try-with-resources.
      */
-    @Override
-    public boolean cancel(Object token) {
-        synchronized (mTaskLock) {
-            return mPendingTasks.remove(token);
-        }
-    }
-
     @Override
     public void close() {
         clearEventCallback();
