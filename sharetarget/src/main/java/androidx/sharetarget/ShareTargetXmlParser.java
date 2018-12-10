@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.content.pm;
+package androidx.sharetarget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
@@ -57,11 +57,16 @@ class ShareTargetXmlParser {
 
     // List of share targets loaded from app's manifest. Will not change while the app is running.
     private static ArrayList<ShareTargetCompat> sShareTargets;
+    private static final Object GET_INSTANCE_LOCK = new Object();
 
     @WorkerThread
     static ArrayList<ShareTargetCompat> getShareTargets(Context context) {
         if (sShareTargets == null) {
-            sShareTargets = parseShareTargets(context);
+            synchronized (GET_INSTANCE_LOCK) {
+                if (sShareTargets == null) {
+                    sShareTargets = parseShareTargets(context);
+                }
+            }
         }
         return sShareTargets;
     }

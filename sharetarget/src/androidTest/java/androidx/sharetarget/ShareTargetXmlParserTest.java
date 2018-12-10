@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.content.pm;
+package androidx.sharetarget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -92,7 +92,7 @@ public class ShareTargetXmlParserTest {
      * a) locate the xml resource and read it
      * b) ignore the legacy shortcut definitions if any
      * c) drop incomplete share-target definitions
-     * d) read and return the expected share-targets
+     * d) read and return all valid share-targets from xml
      */
     @Test
     public void testGetShareTargets() {

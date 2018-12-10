@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.content.pm;
+package androidx.sharetarget;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -31,8 +31,10 @@ import android.graphics.Color;
 import android.graphics.drawable.Icon;
 
 import androidx.core.app.Person;
+import androidx.core.content.pm.ShortcutInfoCompat;
+import androidx.core.content.pm.ShortcutInfoCompatSaver;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.core.test.R;
+import androidx.sharetarget.test.R;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
@@ -61,7 +63,7 @@ public class ShortcutInfoCompatSaverTest {
     private static final String ID_SHORTCUT_NO_ICON = "shortcut-no-icon";
 
     private Context mContext;
-    private ShortcutInfoCompatSaver mShortcutInfoSaver;
+    private ShortcutInfoCompatSaverImpl mShortcutInfoSaver;
     private ExecutorService mCacheUpdateService;
     private ExecutorService mDiskIoService;
 
@@ -74,9 +76,9 @@ public class ShortcutInfoCompatSaverTest {
     @Before
     public void setup() {
         mContext = spy(new ContextWrapper(InstrumentationRegistry.getContext()));
-        mCacheUpdateService = ShortcutInfoCompatSaver.createExecutorService();
-        mDiskIoService = ShortcutInfoCompatSaver.createExecutorService();
-        mShortcutInfoSaver = new ShortcutInfoCompatSaver(mContext, mCacheUpdateService,
+        mCacheUpdateService = ShortcutInfoCompatSaverImpl.createExecutorService();
+        mDiskIoService = ShortcutInfoCompatSaverImpl.createExecutorService();
+        mShortcutInfoSaver = new ShortcutInfoCompatSaverImpl(mContext, mCacheUpdateService,
                 mDiskIoService);
         catchAsyncExceptions(mShortcutInfoSaver.removeAllShortcuts());
 
@@ -229,9 +231,9 @@ public class ShortcutInfoCompatSaverTest {
 
     @Test
     public void testGetInstance() {
-        ShortcutInfoCompatSaver saver = ShortcutInfoCompatSaver.getInstance(mContext);
+        ShortcutInfoCompatSaver saver = ShortcutInfoCompatSaverImpl.getInstance(mContext);
         assertNotNull(saver);
-        assertEquals(saver, ShortcutInfoCompatSaver.getInstance(mContext));
+        assertEquals(saver, ShortcutInfoCompatSaverImpl.getInstance(mContext));
     }
 
     @Test
@@ -318,7 +320,7 @@ public class ShortcutInfoCompatSaverTest {
 
         List<ShortcutInfoCompat> shortcuts = mShortcutInfoSaver.getShortcuts();
         for (ShortcutInfoCompat item : shortcuts) {
-            assertNull(item.mIcon);
+            assertNull(item.getIcon());
         }
     }
 
@@ -390,9 +392,9 @@ public class ShortcutInfoCompatSaverTest {
         // Wait until the last async operation is finished.
         lastFuture.get();
 
-        mCacheUpdateService = ShortcutInfoCompatSaver.createExecutorService();
-        mDiskIoService = ShortcutInfoCompatSaver.createExecutorService();
-        mShortcutInfoSaver = new ShortcutInfoCompatSaver(mContext, mCacheUpdateService,
+        mCacheUpdateService = ShortcutInfoCompatSaverImpl.createExecutorService();
+        mDiskIoService = ShortcutInfoCompatSaverImpl.createExecutorService();
+        mShortcutInfoSaver = new ShortcutInfoCompatSaverImpl(mContext, mCacheUpdateService,
                 mDiskIoService);
     }
 
