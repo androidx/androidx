@@ -3,6 +3,7 @@ package androidx.navigation.ui {
 
   public final class AppBarConfiguration {
     method public android.support.v4.widget.DrawerLayout? getDrawerLayout();
+    method public androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener? getFallbackOnNavigateUpListener();
     method public java.util.Set<java.lang.Integer> getTopLevelDestinations();
   }
 
@@ -13,6 +14,11 @@ package androidx.navigation.ui {
     ctor public AppBarConfiguration.Builder(java.util.Set<java.lang.Integer>);
     method public androidx.navigation.ui.AppBarConfiguration build();
     method public androidx.navigation.ui.AppBarConfiguration.Builder setDrawerLayout(android.support.v4.widget.DrawerLayout?);
+    method public androidx.navigation.ui.AppBarConfiguration.Builder setFallbackOnNavigateUpListener(androidx.navigation.ui.AppBarConfiguration.OnNavigateUpListener?);
+  }
+
+  public static interface AppBarConfiguration.OnNavigateUpListener {
+    method public boolean onNavigateUp();
   }
 
   public final class NavigationUI {

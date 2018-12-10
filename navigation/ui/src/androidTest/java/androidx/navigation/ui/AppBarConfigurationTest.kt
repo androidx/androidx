@@ -69,4 +69,14 @@ class AppBarConfigurationTest {
         val appBarConfiguration = builder.build()
         assertThat(appBarConfiguration.drawerLayout).isEqualTo(drawerLayout)
     }
+
+    @Test
+    fun testSetFallbackOnNavigateUpListener() {
+        val builder = AppBarConfiguration.Builder()
+        val onNavigateUpListener = mock(AppBarConfiguration.OnNavigateUpListener::class.java)
+        builder.setFallbackOnNavigateUpListener(onNavigateUpListener)
+        val appBarConfiguration = builder.build()
+        assertThat(appBarConfiguration.fallbackOnNavigateUpListener)
+            .isEqualTo(onNavigateUpListener)
+    }
 }
