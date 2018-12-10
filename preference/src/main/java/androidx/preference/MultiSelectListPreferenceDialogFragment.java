@@ -21,7 +21,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.preference.internal.AbstractMultiSelectListPreference;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -71,7 +70,7 @@ public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFra
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState == null) {
-            final AbstractMultiSelectListPreference preference = getListPreference();
+            final MultiSelectListPreference preference = getListPreference();
 
             if (preference.getEntries() == null || preference.getEntryValues() == null) {
                 throw new IllegalStateException(
@@ -102,8 +101,8 @@ public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFra
         outState.putCharSequenceArray(SAVE_STATE_ENTRY_VALUES, mEntryValues);
     }
 
-    private AbstractMultiSelectListPreference getListPreference() {
-        return (AbstractMultiSelectListPreference) getPreference();
+    private MultiSelectListPreference getListPreference() {
+        return (MultiSelectListPreference) getPreference();
     }
 
     @Override
@@ -136,7 +135,7 @@ public class MultiSelectListPreferenceDialogFragment extends PreferenceDialogFra
     @Deprecated
     @Override
     public void onDialogClosed(boolean positiveResult) {
-        final AbstractMultiSelectListPreference preference = getListPreference();
+        final MultiSelectListPreference preference = getListPreference();
         if (positiveResult && mPreferenceChanged) {
             final Set<String> values = mNewValues;
             if (preference.callChangeListener(values)) {
