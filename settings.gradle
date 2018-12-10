@@ -157,6 +157,7 @@ includeProject(":versionedparcelable-annotation", "versionedparcelable/annotatio
 includeProject(":versionedparcelable", "versionedparcelable")
 includeProject(":savedstate:savedstate-common", "savedstate/common")
 includeProject(":savedstate:savedstate-bundle", "savedstate/bundle")
+includeProject(":sharetarget", "sharetarget")
 includeProject(":slice-core", "slices/core")
 includeProject(":slice-view", "slices/view")
 includeProject(":slice-builders", "slices/builders")
