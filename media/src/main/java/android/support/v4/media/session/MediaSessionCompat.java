@@ -2208,7 +2208,7 @@ public class MediaSessionCompat {
                     int pid = Binder.getCallingPid();
                     if (pid > 0) {
                         data.putInt(DATA_CALLING_PID, pid);
-                    } else if (data.getLong(DATA_CALLING_PID, UNKNOWN_PID) == UNKNOWN_PID) {
+                    } else {
                         // This cannot be happen for now, but added for future changes.
                         data.putInt(DATA_CALLING_PID, UNKNOWN_PID);
                     }

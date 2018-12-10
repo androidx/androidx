@@ -748,7 +748,8 @@ public abstract class MediaBrowserServiceCompat extends Service {
             int pid = Binder.getCallingPid();
             if (pid > 0) {
                 data.putInt(DATA_CALLING_PID, pid);
-            } else if (data.getLong(DATA_CALLING_PID, UNKNOWN_PID) == UNKNOWN_PID) {
+            } else if (!data.containsKey(DATA_CALLING_PID)) {
+                // If the MediaBrowserCompat didn't send its PID, then put UNKNOWN_PID.
                 data.putInt(DATA_CALLING_PID, UNKNOWN_PID);
             }
             return super.sendMessageAtTime(msg, uptimeMillis);
