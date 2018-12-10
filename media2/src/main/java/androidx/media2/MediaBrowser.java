@@ -261,7 +261,8 @@ public class MediaBrowser extends MediaController {
     }
 
     private static ListenableFuture<LibraryResult> createDisconnectedFuture() {
-        return LibraryResult.createFutureWithResult(LibraryResult.RESULT_CODE_DISCONNECTED);
+        return LibraryResult.createFutureWithResult(
+                LibraryResult.RESULT_ERROR_SESSION_DISCONNECTED);
     }
 
     interface MediaBrowserImpl extends MediaControllerImpl {

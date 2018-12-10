@@ -1035,7 +1035,8 @@ public class MediaController implements AutoCloseable {
     }
 
     private static ListenableFuture<SessionResult> createDisconnectedFuture() {
-        return SessionResult.createFutureWithResult(SessionResult.RESULT_CODE_DISCONNECTED);
+        return SessionResult.createFutureWithResult(
+                SessionResult.RESULT_ERROR_SESSION_DISCONNECTED);
     }
 
     @NonNull ControllerCallback getCallback() {
@@ -1149,14 +1150,14 @@ public class MediaController implements AutoCloseable {
          * Can be called before {@link #onConnected(MediaController, SessionCommandGroup)}
          * is called.
          * <p>
-         * Default implementation returns {@link SessionResult#RESULT_CODE_NOT_SUPPORTED}.
+         * Default implementation returns {@link SessionResult#RESULT_ERROR_NOT_SUPPORTED}.
          *
          * @param controller the controller for this event
          * @param layout
          */
         public @SessionResult.ResultCode int onSetCustomLayout(
                 @NonNull MediaController controller, @NonNull List<CommandButton> layout) {
-            return SessionResult.RESULT_CODE_NOT_SUPPORTED;
+            return SessionResult.RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -1194,9 +1195,9 @@ public class MediaController implements AutoCloseable {
         /**
          * Called when the session sent a custom command. Returns a {@link SessionResult} for
          * session to get notification back. If the {@code null} is returned,
-         * {@link SessionResult#RESULT_CODE_UNKNOWN_ERROR} will be returned.
+         * {@link SessionResult#RESULT_ERROR_UNKNOWN_ERROR} will be returned.
          * <p>
-         * Default implementation returns {@link SessionResult#RESULT_CODE_NOT_SUPPORTED}.
+         * Default implementation returns {@link SessionResult#RESULT_ERROR_NOT_SUPPORTED}.
          *
          * @param controller the controller for this event
          * @param command
@@ -1206,7 +1207,7 @@ public class MediaController implements AutoCloseable {
         @NonNull
         public SessionResult onCustomCommand(@NonNull MediaController controller,
                 @NonNull SessionCommand command, @Nullable Bundle args) {
-            return new SessionResult(SessionResult.RESULT_CODE_NOT_SUPPORTED);
+            return new SessionResult(SessionResult.RESULT_ERROR_NOT_SUPPORTED);
         }
 
         /**

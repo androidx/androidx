@@ -16,8 +16,8 @@
 
 package androidx.media2;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_PERMISSION_DENIED;
-import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_ERROR_PERMISSION_DENIED;
+import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 import static androidx.media2.TestUtils.assertLibraryParamsEquals;
 import static androidx.media2.TestUtils.assertMediaItemEquals;
 import static androidx.media2.TestUtils.assertMediaItemWithId;
@@ -122,7 +122,7 @@ public class MediaBrowserTest extends MediaControllerTest {
         MockMediaLibraryService.setAssertLibraryParams(params);
         LibraryResult result = createBrowser().getLibraryRoot(params)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertMediaItemEquals(MockMediaLibraryService.ROOT_ITEM, result.getMediaItem());
         assertLibraryParamsEquals(MockMediaLibraryService.ROOT_PARAMS, result.getLibraryParams());
     }
@@ -134,7 +134,7 @@ public class MediaBrowserTest extends MediaControllerTest {
 
         LibraryResult result = createBrowser().getItem(mediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertMediaItemWithId(mediaId, result.getMediaItem());
     }
 
@@ -145,7 +145,7 @@ public class MediaBrowserTest extends MediaControllerTest {
 
         LibraryResult result = createBrowser().getItem(mediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertNotEquals(RESULT_SUCCESS, result.getResultCode());
         assertNull(result.getMediaItem());
     }
 
@@ -160,7 +160,7 @@ public class MediaBrowserTest extends MediaControllerTest {
         MockMediaLibraryService.setAssertLibraryParams(params);
         LibraryResult result = createBrowser().getChildren(parentId, page, pageSize, params)
                         .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         TestUtils.assertPaginatedListEquals(MockMediaLibraryService.GET_CHILDREN_RESULT,
                 page, pageSize, result.getMediaItems());
@@ -173,7 +173,7 @@ public class MediaBrowserTest extends MediaControllerTest {
 
         LibraryResult result = createBrowser().getChildren(parentId, 1, 1, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(0, result.getMediaItems().size());
     }
 
@@ -184,7 +184,7 @@ public class MediaBrowserTest extends MediaControllerTest {
 
         LibraryResult result = createBrowser().getChildren(parentId, 1, 1, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertNotEquals(RESULT_SUCCESS, result.getResultCode());
         assertNull(result.getMediaItems());
     }
 
@@ -213,13 +213,13 @@ public class MediaBrowserTest extends MediaControllerTest {
         MediaBrowser browser = createBrowser(callback);
         LibraryResult result = browser.search(query, params)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertTrue(latchForSearch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         // Get the search result.
         result = browser.getSearchResult(query, page, pageSize, params)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         TestUtils.assertPaginatedListEquals(MockMediaLibraryService.SEARCH_RESULT,
                 page, pageSize, result.getMediaItems());
@@ -248,7 +248,7 @@ public class MediaBrowserTest extends MediaControllerTest {
         MockMediaLibraryService.setAssertLibraryParams(params);
         LibraryResult result = createBrowser(callback).search(query, params)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertTrue(latch.await(
                 MockMediaLibraryService.SEARCH_TIME_IN_MS + TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
@@ -274,7 +274,7 @@ public class MediaBrowserTest extends MediaControllerTest {
         MockMediaLibraryService.setAssertLibraryParams(params);
         LibraryResult result = createBrowser(callback).search(query, params)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -292,16 +292,16 @@ public class MediaBrowserTest extends MediaControllerTest {
                 if (Process.myUid() == info.getUid()) {
                     assertEquals(testParentId, parentId);
                     assertLibraryParamsEquals(params, paramsOut);
-                    return RESULT_CODE_SUCCESS;
+                    return RESULT_SUCCESS;
                 }
-                return RESULT_CODE_PERMISSION_DENIED;
+                return RESULT_ERROR_PERMISSION_DENIED;
             }
         };
         TestServiceRegistry.getInstance().setSessionCallback(callback);
         MockMediaLibraryService.setAssertLibraryParams(params);
         LibraryResult result = createBrowser().subscribe(testParentId, params)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertNull(result.getMediaItems());
     }
 
@@ -315,15 +315,15 @@ public class MediaBrowserTest extends MediaControllerTest {
                     @NonNull ControllerInfo info, @NonNull String parentId) {
                 if (Process.myUid() == info.getUid()) {
                     assertEquals(testParentId, parentId);
-                    return RESULT_CODE_SUCCESS;
+                    return RESULT_SUCCESS;
                 }
-                return RESULT_CODE_PERMISSION_DENIED;
+                return RESULT_ERROR_PERMISSION_DENIED;
             }
         };
         TestServiceRegistry.getInstance().setSessionCallback(callback);
         LibraryResult result = createBrowser().unsubscribe(testParentId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertNull(result.getMediaItems());
     }
 
@@ -346,7 +346,7 @@ public class MediaBrowserTest extends MediaControllerTest {
                     // because the browser didn't subscribe this media id.
                     session.notifyChildrenChanged(anotherMediaId, testChildrenCount, null);
                 }
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
 
             @Override
@@ -354,7 +354,7 @@ public class MediaBrowserTest extends MediaControllerTest {
                     ControllerInfo controller, String parentId, int page, int pageSize,
                     LibraryParams params) {
                 // This wouldn't be called at all.
-                return new LibraryResult(RESULT_CODE_SUCCESS,
+                return new LibraryResult(RESULT_SUCCESS,
                         TestUtils.createMediaItems(testChildrenCount), null);
             }
         };
@@ -374,7 +374,7 @@ public class MediaBrowserTest extends MediaControllerTest {
                 .subscribe(subscribedMediaId, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         // Subscribe itself is success because onSubscribe() returned SUCCESS.
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // notifyChildrenChanged() in onSubscribe() should fail onChildrenChanged() should not be
         // called, because the ID hasn't been subscribed.
@@ -400,14 +400,14 @@ public class MediaBrowserTest extends MediaControllerTest {
                     // Should trigger onChildrenChanged() for the browser.
                     session.notifyChildrenChanged(expectedParentId, testChildrenCount, params);
                 }
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
 
             @Override
             public LibraryResult onGetChildren(MediaLibrarySession session,
                     ControllerInfo controller, String parentId, int page, int pageSize,
                     LibraryParams params) {
-                return new LibraryResult(RESULT_CODE_SUCCESS,
+                return new LibraryResult(RESULT_SUCCESS,
                         TestUtils.createMediaItems(testChildrenCount), null);
             }
         };
@@ -450,14 +450,14 @@ public class MediaBrowserTest extends MediaControllerTest {
                     session.notifyChildrenChanged(
                             controller, anotherMediaId, testChildrenCount, null);
                 }
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
 
             @Override
             public LibraryResult onGetChildren(MediaLibrarySession session,
                     ControllerInfo controller, String parentId, int page, int pageSize,
                     LibraryParams params) {
-                return new LibraryResult(RESULT_CODE_SUCCESS,
+                return new LibraryResult(RESULT_SUCCESS,
                         TestUtils.createMediaItems(testChildrenCount), null);
             }
         };
@@ -479,7 +479,7 @@ public class MediaBrowserTest extends MediaControllerTest {
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
         // onSubscribe() always returns SUCCESS, so success is expected.
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // But onChildrenChanged() wouldn't be called because notifyChildrenChanged() fails.
         assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -505,14 +505,14 @@ public class MediaBrowserTest extends MediaControllerTest {
                     session.notifyChildrenChanged(
                             controller, expectedParentId, testChildrenCount, testParams);
                 }
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
 
             @Override
             public LibraryResult onGetChildren(MediaLibrarySession session,
                     ControllerInfo controller, String parentId, int page, int pageSize,
                     LibraryParams params) {
-                return new LibraryResult(RESULT_CODE_SUCCESS,
+                return new LibraryResult(RESULT_SUCCESS,
                         TestUtils.createMediaItems(testChildrenCount), null);
             }
         };

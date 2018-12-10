@@ -17,8 +17,8 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
-import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;
@@ -484,7 +484,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                 assertEquals(testCommand, customCommand.getCustomCommand());
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
-                return new SessionResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_SUCCESS, null);
             }
         };
         mSession.close();
@@ -531,7 +531,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
             public int onFastForward(MediaSession session, ControllerInfo controller) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -553,7 +553,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
             public int onRewind(MediaSession session, ControllerInfo controller) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -582,7 +582,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                 assertEquals(request, query);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -610,7 +610,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                 assertEquals(request, uri);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -638,7 +638,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                 assertEquals(request, mediaId);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -666,7 +666,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                 assertEquals(request, query);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -694,7 +694,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                 assertEquals(request, uri);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -722,7 +722,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                 assertEquals(request, mediaId);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -752,7 +752,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                 assertEquals(mediaId, mediaIdOut);
                 assertEquals(MediaUtils.convertToRating(rating), ratingOut);
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
 
@@ -781,9 +781,9 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                 commands.add(command);
                 if (command.getCommandCode() == SessionCommand.COMMAND_CODE_PLAYER_PAUSE) {
                     latchForPause.countDown();
-                    return RESULT_CODE_INVALID_STATE;
+                    return RESULT_ERROR_INVALID_STATE;
                 }
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
 

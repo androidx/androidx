@@ -20,8 +20,8 @@ import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_FIXED;
-import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -520,7 +520,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
                                 layout.get(i).getDisplayName());
                     }
                     latch.countDown();
-                    return RESULT_CODE_SUCCESS;
+                    return RESULT_SUCCESS;
                 }
             };
             MediaController controller = createController(session.getToken(), true, callback);
@@ -579,7 +579,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
                 assertEquals(testCommand, command);
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
-                return new SessionResult(RESULT_CODE_SUCCESS);
+                return new SessionResult(RESULT_SUCCESS);
             }
         };
         final MediaController controller =
@@ -632,9 +632,9 @@ public class MediaSessionTest extends MediaSessionTestBase {
             assertFalse(controllerInfo.isTrusted());
             commands.add(command);
             if (command.getCommandCode() == SessionCommand.COMMAND_CODE_PLAYER_PAUSE) {
-                return RESULT_CODE_INVALID_STATE;
+                return RESULT_ERROR_INVALID_STATE;
             }
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
     }
 }

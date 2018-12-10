@@ -16,8 +16,8 @@
 
 package androidx.media2.test.service.tests;
 
-import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;
@@ -182,7 +182,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 assertEquals(testCommand, customCommand);
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
-                return new SessionResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_SUCCESS, null);
             }
         };
 
@@ -205,7 +205,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
             public int onFastForward(MediaSession session, ControllerInfo controller) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -226,7 +226,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
             public int onRewind(MediaSession session, ControllerInfo controller) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -247,7 +247,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
             public int onSkipForward(MediaSession session, ControllerInfo controller) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -268,7 +268,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
             public int onSkipBackward(MediaSession session, ControllerInfo controller) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -294,7 +294,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -321,7 +321,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 assertEquals(testUri, uri);
                 assertTrue(TestUtils.equals(extras, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -349,7 +349,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 assertEquals(mediaId, mediaId);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -376,7 +376,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 assertEquals(testQuery, query);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -403,7 +403,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 assertEquals(testUri, uri);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -430,7 +430,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 assertEquals(testMediaId, mediaId);
                 assertTrue(TestUtils.equals(testExtras, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -459,7 +459,7 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                 assertEquals(testMediaId, mediaId);
                 assertEquals(testRating, rating);
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
 
@@ -540,9 +540,9 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
             assertFalse(controllerInfo.isTrusted());
             commands.add(command);
             if (command.getCommandCode() == SessionCommand.COMMAND_CODE_PLAYER_PAUSE) {
-                return RESULT_CODE_INVALID_STATE;
+                return RESULT_ERROR_INVALID_STATE;
             }
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
     }
 }

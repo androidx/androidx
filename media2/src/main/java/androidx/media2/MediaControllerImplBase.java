@@ -49,10 +49,10 @@ import static androidx.media2.SessionCommand.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
 import static androidx.media2.SessionCommand.COMMAND_CODE_VOLUME_SET_VOLUME;
 import static androidx.media2.SessionPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.SessionPlayer.UNKNOWN_TIME;
-import static androidx.media2.SessionResult.RESULT_CODE_DISCONNECTED;
-import static androidx.media2.SessionResult.RESULT_CODE_PERMISSION_DENIED;
-import static androidx.media2.SessionResult.RESULT_CODE_SKIPPED;
-import static androidx.media2.SessionResult.RESULT_CODE_UNKNOWN_ERROR;
+import static androidx.media2.SessionResult.RESULT_ERROR_PERMISSION_DENIED;
+import static androidx.media2.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
+import static androidx.media2.SessionResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.SessionResult.RESULT_INFO_SKIPPED;
 import static androidx.media2.SessionToken.TYPE_SESSION;
 
 import android.app.PendingIntent;
@@ -90,7 +90,7 @@ import java.util.concurrent.Executor;
 class MediaControllerImplBase implements MediaControllerImpl {
     private static final boolean THROW_EXCEPTION_FOR_NULL_RESULT = true;
     private static final SessionResult RESULT_WHEN_CLOSED =
-            new SessionResult(RESULT_CODE_SKIPPED);
+            new SessionResult(RESULT_INFO_SKIPPED);
 
     static final String TAG = "MC2ImplBase";
     static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
@@ -273,14 +273,14 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 task.run(iSession, result.getSequenceNumber());
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-                result.set(new SessionResult(RESULT_CODE_DISCONNECTED));
+                result.set(new SessionResult(RESULT_ERROR_SESSION_DISCONNECTED));
             }
             return result;
         } else {
             // Don't create Future with SequencedFutureManager.
             // Otherwise session would receive discontinued sequence number, and it would make
             // future work item 'keeping call sequence when session execute commands' impossible.
-            return SessionResult.createFutureWithResult(RESULT_CODE_PERMISSION_DENIED);
+            return SessionResult.createFutureWithResult(RESULT_ERROR_PERMISSION_DENIED);
         }
     }
 
@@ -1147,7 +1147,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
                         throw new RuntimeException("ControllerCallback#onCustomCommand() has"
                                 + " returned null, command=" + command.getCustomCommand());
                     } else {
-                        result = new SessionResult(RESULT_CODE_UNKNOWN_ERROR);
+                        result = new SessionResult(RESULT_ERROR_UNKNOWN_ERROR);
                     }
                 }
                 sendControllerResult(seq, result);

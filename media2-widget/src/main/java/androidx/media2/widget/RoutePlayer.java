@@ -17,10 +17,10 @@
 package androidx.media2.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_BAD_VALUE;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_SUCCESS;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_UNKNOWN_ERROR;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_BAD_VALUE;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -86,7 +86,7 @@ public class RoutePlayer extends RemoteSessionPlayer {
                 final int volume = route.getVolume();
                 for (int i = 0; i < mPendingVolumeResult.size(); i++) {
                     mPendingVolumeResult.get(i).set(new PlayerResult(
-                            RESULT_CODE_SUCCESS, getCurrentMediaItem()));
+                            RESULT_SUCCESS, getCurrentMediaItem()));
                 }
                 mPendingVolumeResult.clear();
                 List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
@@ -156,7 +156,7 @@ public class RoutePlayer extends RemoteSessionPlayer {
     @Override
     public ListenableFuture<PlayerResult> play() {
         if (mItem == null) {
-            return createResult(RESULT_CODE_BAD_VALUE);
+            return createResult(RESULT_ERROR_BAD_VALUE);
         }
 
         // RemotePlaybackClient cannot call resume(..) without calling pause(..) first.
@@ -176,11 +176,11 @@ public class RoutePlayer extends RemoteSessionPlayer {
                     // Do nothing since this returns the buffering state--
                     // StatusCallback#onItemStatusChanged is called when the session reaches the
                     // play state.
-                    result.set(new PlayerResult(RESULT_CODE_SUCCESS, getCurrentMediaItem()));
+                    result.set(new PlayerResult(RESULT_SUCCESS, getCurrentMediaItem()));
                 }
             });
         }
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
@@ -203,11 +203,11 @@ public class RoutePlayer extends RemoteSessionPlayer {
                     // Do not update playback state here since this returns the buffering state--
                     // StatusCallback#onItemStatusChanged is called when the session reaches the
                     // pause state.
-                    result.set(new PlayerResult(RESULT_CODE_SUCCESS, getCurrentMediaItem()));
+                    result.set(new PlayerResult(RESULT_SUCCESS, getCurrentMediaItem()));
                 }
             });
         }
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
@@ -235,13 +235,13 @@ public class RoutePlayer extends RemoteSessionPlayer {
                             });
                         }
                     } else {
-                        result.set(new PlayerResult(RESULT_CODE_UNKNOWN_ERROR,
+                        result.set(new PlayerResult(RESULT_ERROR_UNKNOWN_ERROR,
                                 getCurrentMediaItem()));
                     }
                 }
             });
         }
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
@@ -276,7 +276,7 @@ public class RoutePlayer extends RemoteSessionPlayer {
     @Override
     public ListenableFuture<PlayerResult> setAudioAttributes(AudioAttributesCompat attributes) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
@@ -313,7 +313,7 @@ public class RoutePlayer extends RemoteSessionPlayer {
     @Override
     public ListenableFuture<PlayerResult> setPlaybackSpeed(float speed) {
         // Do nothing
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
@@ -358,61 +358,61 @@ public class RoutePlayer extends RemoteSessionPlayer {
     public ListenableFuture<PlayerResult> setPlaylist(List<MediaItem> list,
             MediaMetadata metadata) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
     public ListenableFuture<PlayerResult> addPlaylistItem(int index, MediaItem item) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
     public ListenableFuture<PlayerResult> removePlaylistItem(int index) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
     public ListenableFuture<PlayerResult> replacePlaylistItem(int index, MediaItem item) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
     public ListenableFuture<PlayerResult> skipToPreviousPlaylistItem() {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
     public ListenableFuture<PlayerResult> skipToNextPlaylistItem() {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
     public ListenableFuture<PlayerResult> skipToPlaylistItem(int index) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
     public ListenableFuture<PlayerResult> updatePlaylistMetadata(MediaMetadata metadata) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
     public ListenableFuture<PlayerResult> setRepeatMode(int repeatMode) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
     public ListenableFuture<PlayerResult> setShuffleMode(int shuffleMode) {
         // TODO: implement
-        return createResult(RESULT_CODE_INVALID_STATE);
+        return createResult(RESULT_ERROR_INVALID_STATE);
     }
 
     @Override
@@ -488,7 +488,7 @@ public class RoutePlayer extends RemoteSessionPlayer {
     private ListenableFuture<PlayerResult> playInternal() {
         if (!(mItem instanceof UriMediaItem)) {
             Log.w(TAG, "Data source type is not Uri." + mItem);
-            return createResult(RESULT_CODE_BAD_VALUE);
+            return createResult(RESULT_ERROR_BAD_VALUE);
         }
         final ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
         mClient.play(((UriMediaItem) mItem).getUri(), "video/mp4", null, mPosition, null,
@@ -507,14 +507,14 @@ public class RoutePlayer extends RemoteSessionPlayer {
                         // Do not update playback state here since this returns the buffering state.
                         // StatusCallback#onItemStatusChanged is called when the session reaches the
                         // play state.
-                        result.set(new PlayerResult(RESULT_CODE_SUCCESS, getCurrentMediaItem()));
+                        result.set(new PlayerResult(RESULT_SUCCESS, getCurrentMediaItem()));
                     }
                 });
         return result;
     }
 
     private ListenableFuture<PlayerResult> createResult() {
-        return createResult(RESULT_CODE_SUCCESS);
+        return createResult(RESULT_SUCCESS);
     }
 
     private ListenableFuture<PlayerResult> createResult(int code) {
