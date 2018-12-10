@@ -1653,7 +1653,7 @@ public class MediaSessionCompat {
      * owner to allow them to create a {@link MediaControllerCompat} to communicate with
      * the session.
      */
-    @SuppressWarnings("BanParcelableUsage")
+    @SuppressLint("BanParcelableUsage")
     public static final class Token implements Parcelable {
         private final Object mInner;
         private IMediaSession mExtraBinder;
@@ -1859,7 +1859,6 @@ public class MediaSessionCompat {
      * A single item that is part of the play queue. It contains a description
      * of the item and its id in the queue.
      */
-    @SuppressWarnings("BanParcelableUsage")
     @SuppressLint("BanParcelableUsage")
     public static final class QueueItem implements Parcelable {
         /**
@@ -2021,7 +2020,6 @@ public class MediaSessionCompat {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    @SuppressWarnings("BanParcelableUsage")
     @SuppressLint("BanParcelableUsage")
     public static final class ResultReceiverWrapper implements Parcelable {
         ResultReceiver mResultReceiver;

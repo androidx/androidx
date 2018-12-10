@@ -2432,7 +2432,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 frozenMenuState = null;
             }
         }
-        @SuppressWarnings("BanParcelableUsage")
         @SuppressLint("BanParcelableUsage")
         private static class SavedState implements Parcelable {
             int featureId;

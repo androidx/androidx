@@ -16,6 +16,7 @@
 
 package androidx.fragment.app;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.text.TextUtils;
@@ -23,7 +24,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 
-@SuppressWarnings("BanParcelableUsage")
+@SuppressLint("BanParcelableUsage")
 final class BackStackState implements Parcelable {
     final int[] mOps;
     final ArrayList<String> mFragmentWhos;
