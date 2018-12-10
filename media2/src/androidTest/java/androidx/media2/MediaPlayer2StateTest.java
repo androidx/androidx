@@ -918,9 +918,8 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
                 { sGetPlaybackParamsOperation, PLAYER_STATE_PLAYING, true },
                 { sGetPlaybackParamsOperation, PLAYER_STATE_ERROR, false },
 
-                // Temporarily disabled due to b/120095263
-                // { sGetTimestampOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                // { sGetTimestampOperation, PLAYER_STATE_IDLE, true },
+                { sGetTimestampOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, false },
+                { sGetTimestampOperation, PLAYER_STATE_IDLE, false },
                 { sGetTimestampOperation, PLAYER_STATE_PREPARED, true },
                 { sGetTimestampOperation, PLAYER_STATE_PAUSED, true },
                 { sGetTimestampOperation, PLAYER_STATE_PLAYING, true },
