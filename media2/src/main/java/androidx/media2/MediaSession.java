@@ -1057,36 +1057,37 @@ public class MediaSession implements AutoCloseable {
                 throws RemoteException;
         abstract void sendCustomCommand(int seq, @NonNull SessionCommand command,
                 @Nullable Bundle args) throws RemoteException;
-        abstract void onPlaybackInfoChanged(@NonNull PlaybackInfo info) throws RemoteException;
-        abstract void onAllowedCommandsChanged(@NonNull SessionCommandGroup commands)
+        abstract void onPlaybackInfoChanged(int seq, @NonNull PlaybackInfo info)
                 throws RemoteException;
-        abstract void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
+        abstract void onAllowedCommandsChanged(int seq, @NonNull SessionCommandGroup commands)
                 throws RemoteException;
-        abstract void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
-                throws RemoteException;
-        abstract void onBufferingStateChanged(@NonNull MediaItem item,
+        abstract void onPlayerStateChanged(int seq, long eventTimeMs, long positionMs,
+                int playerState) throws RemoteException;
+        abstract void onPlaybackSpeedChanged(int seq, long eventTimeMs, long positionMs,
+                float speed) throws RemoteException;
+        abstract void onBufferingStateChanged(int seq, @NonNull MediaItem item,
                 @BuffState int bufferingState, long bufferedPositionMs, long eventTimeMs,
                 long positionMs) throws RemoteException;
-        abstract void onSeekCompleted(long eventTimeMs, long positionMs, long position)
+        abstract void onSeekCompleted(int seq, long eventTimeMs, long positionMs, long position)
                 throws RemoteException;
-        abstract void onCurrentMediaItemChanged(@Nullable MediaItem item, int currentIdx,
+        abstract void onCurrentMediaItemChanged(int seq, @Nullable MediaItem item, int currentIdx,
                 int previousIdx, int nextIdx) throws RemoteException;
-        abstract void onPlaylistChanged(@NonNull List<MediaItem> playlist,
+        abstract void onPlaylistChanged(int seq, @NonNull List<MediaItem> playlist,
                 @Nullable MediaMetadata metadata, int currentIdx, int previousIdx,
                 int nextIdx) throws RemoteException;
-        abstract void onPlaylistMetadataChanged(@Nullable MediaMetadata metadata)
+        abstract void onPlaylistMetadataChanged(int seq, @Nullable MediaMetadata metadata)
                 throws RemoteException;
-        abstract void onShuffleModeChanged(@SessionPlayer.ShuffleMode int shuffleMode)
+        abstract void onShuffleModeChanged(int seq, @SessionPlayer.ShuffleMode int shuffleMode)
                 throws RemoteException;
-        abstract void onRepeatModeChanged(@SessionPlayer.RepeatMode int repeatMode)
+        abstract void onRepeatModeChanged(int seq, @SessionPlayer.RepeatMode int repeatMode)
                 throws RemoteException;
-        abstract void onPlaybackCompleted() throws RemoteException;
-        abstract void onDisconnected() throws RemoteException;
+        abstract void onPlaybackCompleted(int seq) throws RemoteException;
+        abstract void onDisconnected(int seq) throws RemoteException;
 
         // Mostly matched with the methods in MediaBrowser.BrowserCallback.
-        abstract void onChildrenChanged(@NonNull String parentId, int itemCount,
+        abstract void onChildrenChanged(int seq, @NonNull String parentId, int itemCount,
                 @Nullable LibraryParams params) throws RemoteException;
-        abstract void onSearchResultChanged(@NonNull String query, int itemCount,
+        abstract void onSearchResultChanged(int seq, @NonNull String query, int itemCount,
                 @Nullable LibraryParams params) throws RemoteException;
     }
 
