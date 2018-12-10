@@ -48,7 +48,7 @@ import java.util.ArrayList;
 /**
  * @hide
  */
-@RequiresApi(28)
+@RequiresApi(19)
 @RestrictTo(LIBRARY_GROUP)
 public class ClosedCaptionRenderer extends SubtitleController.Renderer {
     private static final String TAG = "ClosedCaptionRenderer";
@@ -123,11 +123,7 @@ public class ClosedCaptionRenderer extends SubtitleController.Renderer {
         }
 
         Cea608CCWidget(Context context, AttributeSet attrs, int defStyle) {
-            this(context, attrs, defStyle, 0);
-        }
-
-        Cea608CCWidget(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-            super(context, attrs, defStyleAttr, defStyleRes);
+            super(context, attrs, defStyle);
         }
 
         @Override

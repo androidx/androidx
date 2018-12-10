@@ -43,7 +43,7 @@ import java.util.TreeMap;
  *
  * @hide
  */
-@RequiresApi(28)
+@RequiresApi(19)
 @RestrictTo(LIBRARY_GROUP)
 public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
     private static final String TAG = "SubtitleTrack";
