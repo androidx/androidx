@@ -19,7 +19,6 @@ package androidx.work.integration.testapp
 import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
-import androidx.work.Result
 import androidx.work.WorkerParameters
 import kotlinx.coroutines.delay
 

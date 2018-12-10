@@ -37,7 +37,6 @@ import androidx.work.Data;
 import androidx.work.InputMerger;
 import androidx.work.ListenableWorker;
 import androidx.work.Logger;
-import androidx.work.Result;
 import androidx.work.WorkInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
@@ -77,7 +76,8 @@ public class WorkerWrapper implements Runnable {
     ListenableWorker mWorker;
 
     // Package-private for synthetic accessor.
-    @NonNull Result mResult = Result.failure();
+    @NonNull
+    ListenableWorker.Result mResult = ListenableWorker.Result.failure();
 
     private Configuration mConfiguration;
     private TaskExecutor mWorkTaskExecutor;
@@ -92,7 +92,7 @@ public class WorkerWrapper implements Runnable {
     private @NonNull SettableFuture<Boolean> mFuture = SettableFuture.create();
 
     // Package-private for synthetic accessor.
-    @Nullable ListenableFuture<Result> mInnerFuture = null;
+    @Nullable ListenableFuture<ListenableWorker.Result> mInnerFuture = null;
 
     private volatile boolean mInterrupted;
 
@@ -217,7 +217,7 @@ public class WorkerWrapper implements Runnable {
                 return;
             }
 
-            final SettableFuture<Result> future = SettableFuture.create();
+            final SettableFuture<ListenableWorker.Result> future = SettableFuture.create();
             // Call mWorker.startWork() on the main thread.
             mWorkTaskExecutor.getMainThreadExecutor()
                     .execute(new Runnable() {
@@ -241,7 +241,7 @@ public class WorkerWrapper implements Runnable {
                 public void run() {
                     try {
                         // If the ListenableWorker returns a null result treat it as a failure.
-                        Result result = future.get();
+                        ListenableWorker.Result result = future.get();
                         if (result == null) {
                             Logger.get().error(TAG, String.format(
                                     "%s returned a null result. Treating it as a failure.",
@@ -390,8 +390,8 @@ public class WorkerWrapper implements Runnable {
         mFuture.set(needsReschedule);
     }
 
-    private void handleResult(Result result) {
-        if (result instanceof Result.Success) {
+    private void handleResult(ListenableWorker.Result result) {
+        if (result instanceof ListenableWorker.Result.Success) {
             Logger.get().info(
                     TAG,
                     String.format("Worker result SUCCESS for %s", mWorkDescription));
@@ -401,7 +401,7 @@ public class WorkerWrapper implements Runnable {
                 setSucceededAndResolve();
             }
 
-        } else if (result instanceof Result.Retry) {
+        } else if (result instanceof ListenableWorker.Result.Retry) {
             Logger.get().info(
                     TAG,
                     String.format("Worker result RETRY for %s", mWorkDescription));
@@ -439,7 +439,7 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase.beginTransaction();
         try {
             recursivelyFailWorkAndDependents(mWorkSpecId);
-            Result.Failure failure = (Result.Failure) mResult;
+            ListenableWorker.Result.Failure failure = (ListenableWorker.Result.Failure) mResult;
             // Update Data as necessary.
             Data output = failure.getOutputData();
             mWorkSpecDao.setOutput(mWorkSpecId, output);
@@ -520,7 +520,7 @@ public class WorkerWrapper implements Runnable {
         mWorkDatabase.beginTransaction();
         try {
             mWorkSpecDao.setState(SUCCEEDED, mWorkSpecId);
-            Result.Success success = (Result.Success) mResult;
+            ListenableWorker.Result.Success success = (ListenableWorker.Result.Success) mResult;
             // Update Data as necessary.
             Data output = success.getOutputData();
             mWorkSpecDao.setOutput(mWorkSpecId, output);
