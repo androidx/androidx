@@ -27,6 +27,7 @@ import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
+import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import com.google.auto.common.MoreElements
 import com.google.common.truth.Truth
@@ -641,14 +642,18 @@ class DatabaseProcessorTest {
             val userDao = db.daoMethods.first().dao
             val insertionMethod = userDao.insertionMethods.find { it.name == "insert" }
             assertThat(insertionMethod, notNullValue())
-            val loadOne = userDao.queryMethods.find { it.name == "loadOne" }
+            val loadOne = userDao.queryMethods
+                .filterIsInstance<ReadQueryMethod>()
+                .find { it.name == "loadOne" }
             assertThat(loadOne, notNullValue())
             val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapter
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
             val adapterEntity = (adapter as EntityRowAdapter).entity
             assertThat(insertionMethod?.entities?.values?.first(), sameInstance(adapterEntity))
 
-            val withConverter = userDao.queryMethods.find { it.name == "loadWithConverter" }
+            val withConverter = userDao.queryMethods
+                .filterIsInstance<ReadQueryMethod>()
+                .find { it.name == "loadWithConverter" }
             assertThat(withConverter, notNullValue())
             val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapter
             assertThat("test sanity", adapter, instanceOf(EntityRowAdapter::class.java))
@@ -670,13 +675,17 @@ class DatabaseProcessorTest {
                 }
                 """, USER, USER_DAO) { db, _ ->
             val userDao = db.daoMethods.first().dao
-            val loadOne = userDao.queryMethods.find { it.name == "loadOnePojo" }
+            val loadOne = userDao.queryMethods
+                .filterIsInstance<ReadQueryMethod>()
+                .find { it.name == "loadOnePojo" }
             assertThat(loadOne, notNullValue())
             val adapter = loadOne?.queryResultBinder?.adapter?.rowAdapter
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))
             val adapterPojo = (adapter as PojoRowAdapter).pojo
 
-            val loadAll = userDao.queryMethods.find { it.name == "loadAllPojos" }
+            val loadAll = userDao.queryMethods
+                .filterIsInstance<ReadQueryMethod>()
+                .find { it.name == "loadAllPojos" }
             assertThat(loadAll, notNullValue())
             val loadAllAdapter = loadAll?.queryResultBinder?.adapter?.rowAdapter
             assertThat("test sanity", loadAllAdapter, instanceOf(PojoRowAdapter::class.java))
@@ -684,7 +693,9 @@ class DatabaseProcessorTest {
             assertThat(adapter, not(sameInstance(loadAllAdapter)))
             assertThat(adapterPojo, sameInstance(loadAllPojo))
 
-            val withConverter = userDao.queryMethods.find { it.name == "loadPojoWithConverter" }
+            val withConverter = userDao.queryMethods
+                .filterIsInstance<ReadQueryMethod>()
+                .find { it.name == "loadPojoWithConverter" }
             assertThat(withConverter, notNullValue())
             val convAdapter = withConverter?.queryResultBinder?.adapter?.rowAdapter
             assertThat("test sanity", adapter, instanceOf(PojoRowAdapter::class.java))

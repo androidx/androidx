@@ -62,6 +62,9 @@ class Context private constructor(
             cache = Cache(null, LinkedHashSet(), emptySet()))
 
     class CommonTypes(val processingEnv: ProcessingEnvironment) {
+        val VOID: TypeMirror by lazy {
+            processingEnv.elementUtils.getTypeElement("java.lang.Void").asType()
+        }
         val STRING: TypeMirror by lazy {
             processingEnv.elementUtils.getTypeElement("java.lang.String").asType()
         }

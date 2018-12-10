@@ -14,30 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.room.solver.shortcut.binder
+package androidx.room.solver.prepared.binder
 
 import androidx.room.solver.CodeGenScope
-import androidx.room.vo.ShortcutQueryParameter
-import androidx.room.solver.shortcut.result.InsertMethodAdapter
+import androidx.room.solver.prepared.result.PreparedQueryResultAdapter
 import com.squareup.javapoet.FieldSpec
-import com.squareup.javapoet.TypeSpec
 
 /**
- * Binder that knows how to write instant (blocking) insert methods.
+ * Default binder for prepared queries.
  */
-class InstantInsertMethodBinder(adapter: InsertMethodAdapter?) : InsertMethodBinder(adapter) {
+class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?)
+    : PreparedQueryResultBinder(adapter) {
 
-    override fun convertAndReturn(
-        parameters: List<ShortcutQueryParameter>,
-        insertionAdapters: Map<String, Pair<FieldSpec, TypeSpec>>,
+    override fun executeAndReturn(
+        stmtQueryVal: String,
+        preparedStmtField: String?,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {
-        adapter?.createInsertionMethodBody(
-                parameters = parameters,
-                insertionAdapters = insertionAdapters,
-                dbField = dbField,
-                scope = scope
-        )
+        adapter?.executeAndReturn(
+            stmtQueryVal = stmtQueryVal,
+            preparedStmtField = preparedStmtField,
+            dbField = dbField,
+            scope = scope)
     }
 }
