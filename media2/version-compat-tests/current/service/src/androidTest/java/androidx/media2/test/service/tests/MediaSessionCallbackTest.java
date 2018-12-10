@@ -16,8 +16,8 @@
 
 package androidx.media2.test.service.tests;
 
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;
@@ -37,6 +37,7 @@ import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.Rating;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
+import androidx.media2.SessionResult;
 import androidx.media2.StarRating;
 import androidx.media2.test.common.TestUtils;
 import androidx.media2.test.service.MediaTestUtils;
@@ -174,14 +175,14 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
             }
 
             @Override
-            public MediaSession.SessionResult onCustomCommand(MediaSession session,
+            public SessionResult onCustomCommand(MediaSession session,
                     MediaSession.ControllerInfo controller, SessionCommand customCommand,
                     Bundle args) {
                 assertEquals(CLIENT_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(testCommand, customCommand);
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
-                return new MediaSession.SessionResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_CODE_SUCCESS, null);
             }
         };
 

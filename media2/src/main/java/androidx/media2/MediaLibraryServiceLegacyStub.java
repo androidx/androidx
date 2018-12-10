@@ -19,7 +19,7 @@ package androidx.media2;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE;
 
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
 
 import android.content.Context;
@@ -38,11 +38,9 @@ import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController.PlaybackInfo;
 import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaLibraryService.LibraryResult;
 import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.MediaSession.CommandButton;
 import androidx.media2.MediaSession.ControllerInfo;
-import androidx.media2.MediaSession.SessionResult;
 import androidx.media2.SessionPlayer.PlayerResult;
 
 import java.util.ArrayList;

@@ -16,8 +16,8 @@
 
 package androidx.media2.widget;
 
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -60,6 +60,7 @@ import androidx.media2.RemoteSessionPlayer;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionPlayer;
+import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
 import androidx.media2.SubtitleData;
 import androidx.media2.UriMediaItem;
@@ -1095,7 +1096,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
         }
 
         @Override
-        public MediaSession.SessionResult onCustomCommand(@NonNull MediaSession session,
+        public SessionResult onCustomCommand(@NonNull MediaSession session,
                 @NonNull MediaSession.ControllerInfo controller,
                 @NonNull SessionCommand customCommand, @Nullable Bundle args) {
             if (session != mMediaSession) {
@@ -1105,7 +1106,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
             }
             if (isRemotePlayback()) {
                 // TODO: call mRoutePlayer.onCommand()
-                return new MediaSession.SessionResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_CODE_SUCCESS, null);
             }
             switch (customCommand.getCustomCommand()) {
                 case MediaControlView.COMMAND_SHOW_SUBTITLE:
@@ -1135,7 +1136,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     }
                     break;
             }
-            return new MediaSession.SessionResult(RESULT_CODE_SUCCESS, null);
+            return new SessionResult(RESULT_CODE_SUCCESS, null);
         }
 
         @Override

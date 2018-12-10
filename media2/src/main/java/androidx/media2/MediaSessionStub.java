@@ -17,12 +17,12 @@
 package androidx.media2;
 
 import static androidx.media2.BaseResult.RESULT_CODE_UNKNOWN_ERROR;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_BAD_VALUE;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.MediaUtils.DIRECT_EXECUTOR;
 import static androidx.media2.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand.COMMAND_VERSION_CURRENT;
+import static androidx.media2.SessionResult.RESULT_CODE_BAD_VALUE;
+import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 
 import android.content.Context;
 import android.net.Uri;
@@ -42,14 +42,12 @@ import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media2.MediaController.PlaybackInfo;
 import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaLibraryService.LibraryResult;
 import androidx.media2.MediaLibraryService.MediaLibrarySession;
 import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionImpl;
 import androidx.media2.MediaSession.CommandButton;
 import androidx.media2.MediaSession.ControllerCb;
 import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.MediaSession.MediaSessionImpl;
-import androidx.media2.MediaSession.SessionResult;
 import androidx.media2.MediaSessionImplBase.PlayerTask;
 import androidx.media2.SessionCommand.CommandCode;
 import androidx.media2.SessionPlayer.PlayerResult;
@@ -465,8 +463,8 @@ class MediaSessionStub extends IMediaSession.Stub {
 
     @Override
     public void onControllerResult(final IMediaController caller, int seq,
-            final ParcelImpl controllerResult) {
-        if (caller == null || controllerResult == null) {
+            final ParcelImpl sessionResult) {
+        if (caller == null || sessionResult == null) {
             return;
         }
         final long token = Binder.clearCallingIdentity();
@@ -476,8 +474,8 @@ class MediaSessionStub extends IMediaSession.Stub {
             if (manager == null) {
                 return;
             }
-            MediaController.ControllerResult result = MediaUtils.fromParcelable(controllerResult);
-            manager.setFutureResult(seq, SessionResult.from(result));
+            SessionResult result = MediaUtils.fromParcelable(sessionResult);
+            manager.setFutureResult(seq, result);
         } finally {
             Binder.restoreCallingIdentity(token);
         }

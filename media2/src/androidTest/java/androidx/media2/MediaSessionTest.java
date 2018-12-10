@@ -20,8 +20,8 @@ import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_FIXED;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -574,12 +574,12 @@ public class MediaSessionTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(2);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public MediaController.ControllerResult onCustomCommand(MediaController controller,
+            public SessionResult onCustomCommand(MediaController controller,
                     SessionCommand command, Bundle args) {
                 assertEquals(testCommand, command);
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
-                return new MediaController.ControllerResult(RESULT_CODE_SUCCESS);
+                return new SessionResult(RESULT_CODE_SUCCESS);
             }
         };
         final MediaController controller =

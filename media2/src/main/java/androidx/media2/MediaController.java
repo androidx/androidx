@@ -31,7 +31,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
-import android.os.SystemClock;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
@@ -42,13 +41,11 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaSession.CommandButton;
 import androidx.media2.MediaSession.ControllerInfo;
-import androidx.media2.MediaSession.SessionResult;
 import androidx.media2.SessionPlayer.RepeatMode;
 import androidx.media2.SessionPlayer.ShuffleMode;
 import androidx.versionedparcelable.ParcelField;
@@ -268,7 +265,7 @@ public class MediaController implements AutoCloseable {
      * Requests that the player start or resume playback.
      */
     @NonNull
-    public ListenableFuture<ControllerResult> play() {
+    public ListenableFuture<SessionResult> play() {
         if (isConnected()) {
             return getImpl().play();
         }
@@ -279,7 +276,7 @@ public class MediaController implements AutoCloseable {
      * Requests that the player pause playback.
      */
     @NonNull
-    public ListenableFuture<ControllerResult> pause() {
+    public ListenableFuture<SessionResult> pause() {
         if (isConnected()) {
             return getImpl().pause();
         }
@@ -294,7 +291,7 @@ public class MediaController implements AutoCloseable {
      * can be called to start playback.
      */
     @NonNull
-    public ListenableFuture<ControllerResult> prepare() {
+    public ListenableFuture<SessionResult> prepare() {
         if (isConnected()) {
             return getImpl().prepare();
         }
@@ -307,7 +304,7 @@ public class MediaController implements AutoCloseable {
      * @see MediaSession.SessionCallback#onFastForward(MediaSession, ControllerInfo)
      */
     @NonNull
-    public ListenableFuture<ControllerResult> fastForward() {
+    public ListenableFuture<SessionResult> fastForward() {
         if (isConnected()) {
             return getImpl().fastForward();
         }
@@ -320,7 +317,7 @@ public class MediaController implements AutoCloseable {
      * @see MediaSession.SessionCallback#onRewind(MediaSession, ControllerInfo)
      */
     @NonNull
-    public ListenableFuture<ControllerResult> rewind() {
+    public ListenableFuture<SessionResult> rewind() {
         if (isConnected()) {
             return getImpl().rewind();
         }
@@ -333,7 +330,7 @@ public class MediaController implements AutoCloseable {
      * @see MediaSession.SessionCallback#onSkipForward(MediaSession, ControllerInfo)
      */
     @NonNull
-    public ListenableFuture<ControllerResult> skipForward() {
+    public ListenableFuture<SessionResult> skipForward() {
         // To match with KEYCODE_MEDIA_SKIP_FORWARD
         if (isConnected()) {
             return getImpl().skipForward();
@@ -347,7 +344,7 @@ public class MediaController implements AutoCloseable {
      * @see MediaSession.SessionCallback#onSkipBackward(MediaSession, ControllerInfo)
      */
     @NonNull
-    public ListenableFuture<ControllerResult> skipBackward() {
+    public ListenableFuture<SessionResult> skipBackward() {
         // To match with KEYCODE_MEDIA_SKIP_BACKWARD
         if (isConnected()) {
             return getImpl().skipBackward();
@@ -361,7 +358,7 @@ public class MediaController implements AutoCloseable {
      * @param pos Position to move to, in milliseconds.
      */
     @NonNull
-    public ListenableFuture<ControllerResult> seekTo(long pos) {
+    public ListenableFuture<SessionResult> seekTo(long pos) {
         if (isConnected()) {
             return getImpl().seekTo(pos);
         }
@@ -377,7 +374,7 @@ public class MediaController implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> playFromMediaId(@NonNull String mediaId,
+    public ListenableFuture<SessionResult> playFromMediaId(@NonNull String mediaId,
             @Nullable Bundle extras) {
         if (TextUtils.isEmpty(mediaId)) {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
@@ -396,7 +393,7 @@ public class MediaController implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> playFromSearch(@NonNull String query,
+    public ListenableFuture<SessionResult> playFromSearch(@NonNull String query,
             @Nullable Bundle extras) {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
@@ -416,7 +413,7 @@ public class MediaController implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> playFromUri(@NonNull Uri uri,
+    public ListenableFuture<SessionResult> playFromUri(@NonNull Uri uri,
             @Nullable Bundle extras) {
         if (uri == null) {
             throw new IllegalArgumentException("uri shouldn't be null");
@@ -442,7 +439,7 @@ public class MediaController implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> prepareFromMediaId(@NonNull String mediaId,
+    public ListenableFuture<SessionResult> prepareFromMediaId(@NonNull String mediaId,
             @Nullable Bundle extras) {
         if (TextUtils.isEmpty(mediaId)) {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
@@ -467,7 +464,7 @@ public class MediaController implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> prepareFromSearch(@NonNull String query,
+    public ListenableFuture<SessionResult> prepareFromSearch(@NonNull String query,
             @Nullable Bundle extras) {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
@@ -493,7 +490,7 @@ public class MediaController implements AutoCloseable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public ListenableFuture<ControllerResult> prepareFromUri(@NonNull Uri uri,
+    public ListenableFuture<SessionResult> prepareFromUri(@NonNull Uri uri,
             @Nullable Bundle extras) {
         if (uri == null) {
             throw new IllegalArgumentException("uri shouldn't be null");
@@ -520,7 +517,7 @@ public class MediaController implements AutoCloseable {
      *              playback
      */
     @NonNull
-    public ListenableFuture<ControllerResult> setVolumeTo(int value, @VolumeFlags int flags) {
+    public ListenableFuture<SessionResult> setVolumeTo(int value, @VolumeFlags int flags) {
         if (isConnected()) {
             return getImpl().setVolumeTo(value, flags);
         }
@@ -548,7 +545,7 @@ public class MediaController implements AutoCloseable {
      *              playback
      */
     @NonNull
-    public ListenableFuture<ControllerResult> adjustVolume(@VolumeDirection int direction,
+    public ListenableFuture<SessionResult> adjustVolume(@VolumeDirection int direction,
             @VolumeFlags int flags) {
         if (isConnected()) {
             return getImpl().adjustVolume(direction, flags);
@@ -615,7 +612,7 @@ public class MediaController implements AutoCloseable {
      * Set the playback speed.
      */
     @NonNull
-    public ListenableFuture<ControllerResult> setPlaybackSpeed(float speed) {
+    public ListenableFuture<SessionResult> setPlaybackSpeed(float speed) {
         if (isConnected()) {
             return getImpl().setPlaybackSpeed(speed);
         }
@@ -670,7 +667,7 @@ public class MediaController implements AutoCloseable {
      * @param rating The rating to set
      */
     @NonNull
-    public ListenableFuture<ControllerResult> setRating(@NonNull String mediaId,
+    public ListenableFuture<SessionResult> setRating(@NonNull String mediaId,
             @NonNull Rating rating) {
         if (TextUtils.isEmpty(mediaId)) {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
@@ -689,15 +686,15 @@ public class MediaController implements AutoCloseable {
      * <p>
      * Interoperability: When connected to
      * {@link android.support.v4.media.session.MediaSessionCompat},
-     * {@link ControllerResult#getResultCode()} will return the custom result code from the
+     * {@link SessionResult#getResultCode()} will return the custom result code from the
      * {@link ResultReceiver#onReceiveResult(int, Bundle)} instead of the standard result codes
-     * defined in the {@link ControllerResult}.
+     * defined in the {@link SessionResult}.
      *
      * @param command custom command
      * @param args optional argument
      */
     @NonNull
-    public ListenableFuture<ControllerResult> sendCustomCommand(@NonNull SessionCommand command,
+    public ListenableFuture<SessionResult> sendCustomCommand(@NonNull SessionCommand command,
             @Nullable Bundle args) {
         if (command == null) {
             throw new IllegalArgumentException("command shouldn't be null");
@@ -738,7 +735,7 @@ public class MediaController implements AutoCloseable {
      * @see MediaMetadata#METADATA_KEY_MEDIA_ID
      */
     @NonNull
-    public ListenableFuture<ControllerResult> setPlaylist(@NonNull List<String> list,
+    public ListenableFuture<SessionResult> setPlaylist(@NonNull List<String> list,
             @Nullable MediaMetadata metadata) {
         if (list == null) {
             throw new IllegalArgumentException("list shouldn't be null");
@@ -761,7 +758,7 @@ public class MediaController implements AutoCloseable {
      * @see MediaMetadata#METADATA_KEY_MEDIA_ID
      */
     @NonNull
-    public ListenableFuture<ControllerResult> setMediaItem(@NonNull String mediaId) {
+    public ListenableFuture<SessionResult> setMediaItem(@NonNull String mediaId) {
         if (TextUtils.isEmpty(mediaId)) {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
@@ -777,7 +774,7 @@ public class MediaController implements AutoCloseable {
      * @param metadata metadata of the playlist
      */
     @NonNull
-    public ListenableFuture<ControllerResult> updatePlaylistMetadata(
+    public ListenableFuture<SessionResult> updatePlaylistMetadata(
             @Nullable MediaMetadata metadata) {
         if (isConnected()) {
             return getImpl().updatePlaylistMetadata(metadata);
@@ -812,7 +809,7 @@ public class MediaController implements AutoCloseable {
      * @see MediaMetadata#METADATA_KEY_MEDIA_ID
      */
     @NonNull
-    public ListenableFuture<ControllerResult> addPlaylistItem(@IntRange(from = 0) int index,
+    public ListenableFuture<SessionResult> addPlaylistItem(@IntRange(from = 0) int index,
             @NonNull String mediaId) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
@@ -835,7 +832,7 @@ public class MediaController implements AutoCloseable {
      * @param index the media item you want to add
      */
     @NonNull
-    public ListenableFuture<ControllerResult> removePlaylistItem(@IntRange(from = 0) int index) {
+    public ListenableFuture<SessionResult> removePlaylistItem(@IntRange(from = 0) int index) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
         }
@@ -853,7 +850,7 @@ public class MediaController implements AutoCloseable {
      * @see MediaMetadata#METADATA_KEY_MEDIA_ID
      */
     @NonNull
-    public ListenableFuture<ControllerResult> replacePlaylistItem(@IntRange(from = 0) int index,
+    public ListenableFuture<SessionResult> replacePlaylistItem(@IntRange(from = 0) int index,
             @NonNull String mediaId) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
@@ -928,7 +925,7 @@ public class MediaController implements AutoCloseable {
      * This calls {@link SessionPlayer#skipToPreviousPlaylistItem()}.
      */
     @NonNull
-    public ListenableFuture<ControllerResult> skipToPreviousPlaylistItem() {
+    public ListenableFuture<SessionResult> skipToPreviousPlaylistItem() {
         if (isConnected()) {
             return getImpl().skipToPreviousItem();
         }
@@ -941,7 +938,7 @@ public class MediaController implements AutoCloseable {
      * This calls {@link SessionPlayer#skipToNextPlaylistItem()}.
      */
     @NonNull
-    public ListenableFuture<ControllerResult> skipToNextPlaylistItem() {
+    public ListenableFuture<SessionResult> skipToNextPlaylistItem() {
         if (isConnected()) {
             return getImpl().skipToNextItem();
         }
@@ -956,7 +953,7 @@ public class MediaController implements AutoCloseable {
      * @param index The item in the playlist you want to play
      */
     @NonNull
-    public ListenableFuture<ControllerResult> skipToPlaylistItem(@IntRange(from = 0) int index) {
+    public ListenableFuture<SessionResult> skipToPlaylistItem(@IntRange(from = 0) int index) {
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
         }
@@ -990,7 +987,7 @@ public class MediaController implements AutoCloseable {
      * @see SessionPlayer#REPEAT_MODE_GROUP
      */
     @NonNull
-    public ListenableFuture<ControllerResult> setRepeatMode(@RepeatMode int repeatMode) {
+    public ListenableFuture<SessionResult> setRepeatMode(@RepeatMode int repeatMode) {
         if (isConnected()) {
             return getImpl().setRepeatMode(repeatMode);
         }
@@ -1019,7 +1016,7 @@ public class MediaController implements AutoCloseable {
      * @see SessionPlayer#SHUFFLE_MODE_GROUP
      */
     @NonNull
-    public ListenableFuture<ControllerResult> setShuffleMode(@ShuffleMode int shuffleMode) {
+    public ListenableFuture<SessionResult> setShuffleMode(@ShuffleMode int shuffleMode) {
         if (isConnected()) {
             return getImpl().setShuffleMode(shuffleMode);
         }
@@ -1037,8 +1034,8 @@ public class MediaController implements AutoCloseable {
         mTimeDiff = timeDiff;
     }
 
-    private static ListenableFuture<ControllerResult> createDisconnectedFuture() {
-        return ControllerResult.createFutureWithResult(ControllerResult.RESULT_CODE_DISCONNECTED);
+    private static ListenableFuture<SessionResult> createDisconnectedFuture() {
+        return SessionResult.createFutureWithResult(SessionResult.RESULT_CODE_DISCONNECTED);
     }
 
     @NonNull ControllerCallback getCallback() {
@@ -1052,63 +1049,63 @@ public class MediaController implements AutoCloseable {
     interface MediaControllerImpl extends AutoCloseable {
         @Nullable SessionToken getConnectedSessionToken();
         boolean isConnected();
-        ListenableFuture<ControllerResult> play();
-        ListenableFuture<ControllerResult> pause();
-        ListenableFuture<ControllerResult> prepare();
-        ListenableFuture<ControllerResult> fastForward();
-        ListenableFuture<ControllerResult> rewind();
-        ListenableFuture<ControllerResult> seekTo(long pos);
-        ListenableFuture<ControllerResult> skipForward();
-        ListenableFuture<ControllerResult> skipBackward();
-        ListenableFuture<ControllerResult> playFromMediaId(@NonNull String mediaId,
+        ListenableFuture<SessionResult> play();
+        ListenableFuture<SessionResult> pause();
+        ListenableFuture<SessionResult> prepare();
+        ListenableFuture<SessionResult> fastForward();
+        ListenableFuture<SessionResult> rewind();
+        ListenableFuture<SessionResult> seekTo(long pos);
+        ListenableFuture<SessionResult> skipForward();
+        ListenableFuture<SessionResult> skipBackward();
+        ListenableFuture<SessionResult> playFromMediaId(@NonNull String mediaId,
                 @Nullable Bundle extras);
-        ListenableFuture<ControllerResult> playFromSearch(@NonNull String query,
+        ListenableFuture<SessionResult> playFromSearch(@NonNull String query,
                 @Nullable Bundle extras);
-        ListenableFuture<ControllerResult> playFromUri(@NonNull Uri uri, @Nullable Bundle extras);
-        ListenableFuture<ControllerResult> prepareFromMediaId(@NonNull String mediaId,
+        ListenableFuture<SessionResult> playFromUri(@NonNull Uri uri, @Nullable Bundle extras);
+        ListenableFuture<SessionResult> prepareFromMediaId(@NonNull String mediaId,
                 @Nullable Bundle extras);
-        ListenableFuture<ControllerResult> prepareFromSearch(@NonNull String query,
+        ListenableFuture<SessionResult> prepareFromSearch(@NonNull String query,
                 @Nullable Bundle extras);
-        ListenableFuture<ControllerResult> prepareFromUri(@NonNull Uri uri,
+        ListenableFuture<SessionResult> prepareFromUri(@NonNull Uri uri,
                 @Nullable Bundle extras);
-        ListenableFuture<ControllerResult> setVolumeTo(int value, @VolumeFlags int flags);
-        ListenableFuture<ControllerResult> adjustVolume(@VolumeDirection int direction,
+        ListenableFuture<SessionResult> setVolumeTo(int value, @VolumeFlags int flags);
+        ListenableFuture<SessionResult> adjustVolume(@VolumeDirection int direction,
                 @VolumeFlags int flags);
         @Nullable PendingIntent getSessionActivity();
         int getPlayerState();
         long getDuration();
         long getCurrentPosition();
         float getPlaybackSpeed();
-        ListenableFuture<ControllerResult> setPlaybackSpeed(float speed);
+        ListenableFuture<SessionResult> setPlaybackSpeed(float speed);
         @SessionPlayer.BuffState int getBufferingState();
         long getBufferedPosition();
         @Nullable PlaybackInfo getPlaybackInfo();
-        ListenableFuture<ControllerResult> setRating(@NonNull String mediaId,
+        ListenableFuture<SessionResult> setRating(@NonNull String mediaId,
                 @NonNull Rating rating);
-        ListenableFuture<ControllerResult> sendCustomCommand(@NonNull SessionCommand command,
+        ListenableFuture<SessionResult> sendCustomCommand(@NonNull SessionCommand command,
                 @Nullable Bundle args);
         @Nullable List<MediaItem> getPlaylist();
-        ListenableFuture<ControllerResult> setPlaylist(@NonNull List<String> list,
+        ListenableFuture<SessionResult> setPlaylist(@NonNull List<String> list,
                 @Nullable MediaMetadata metadata);
-        ListenableFuture<ControllerResult> setMediaItem(@NonNull String mediaId);
-        ListenableFuture<ControllerResult> updatePlaylistMetadata(
+        ListenableFuture<SessionResult> setMediaItem(@NonNull String mediaId);
+        ListenableFuture<SessionResult> updatePlaylistMetadata(
                 @Nullable MediaMetadata metadata);
         @Nullable MediaMetadata getPlaylistMetadata();
-        ListenableFuture<ControllerResult> addPlaylistItem(int index, @NonNull String mediaId);
-        ListenableFuture<ControllerResult> removePlaylistItem(@NonNull int index);
-        ListenableFuture<ControllerResult> replacePlaylistItem(int index,
+        ListenableFuture<SessionResult> addPlaylistItem(int index, @NonNull String mediaId);
+        ListenableFuture<SessionResult> removePlaylistItem(@NonNull int index);
+        ListenableFuture<SessionResult> replacePlaylistItem(int index,
                 @NonNull String mediaId);
         MediaItem getCurrentMediaItem();
         int getCurrentMediaItemIndex();
         int getPreviousMediaItemIndex();
         int getNextMediaItemIndex();
-        ListenableFuture<ControllerResult> skipToPreviousItem();
-        ListenableFuture<ControllerResult> skipToNextItem();
-        ListenableFuture<ControllerResult> skipToPlaylistItem(@NonNull int index);
+        ListenableFuture<SessionResult> skipToPreviousItem();
+        ListenableFuture<SessionResult> skipToNextItem();
+        ListenableFuture<SessionResult> skipToPlaylistItem(@NonNull int index);
         @RepeatMode int getRepeatMode();
-        ListenableFuture<ControllerResult> setRepeatMode(@RepeatMode int repeatMode);
+        ListenableFuture<SessionResult> setRepeatMode(@RepeatMode int repeatMode);
         @ShuffleMode int getShuffleMode();
-        ListenableFuture<ControllerResult> setShuffleMode(@ShuffleMode int shuffleMode);
+        ListenableFuture<SessionResult> setShuffleMode(@ShuffleMode int shuffleMode);
 
         // Internally used methods
         @NonNull MediaController getInstance();
@@ -1152,14 +1149,14 @@ public class MediaController implements AutoCloseable {
          * Can be called before {@link #onConnected(MediaController, SessionCommandGroup)}
          * is called.
          * <p>
-         * Default implementation returns {@link ControllerResult#RESULT_CODE_NOT_SUPPORTED}.
+         * Default implementation returns {@link SessionResult#RESULT_CODE_NOT_SUPPORTED}.
          *
          * @param controller the controller for this event
          * @param layout
          */
-        public @ControllerResult.ResultCode int onSetCustomLayout(
+        public @SessionResult.ResultCode int onSetCustomLayout(
                 @NonNull MediaController controller, @NonNull List<CommandButton> layout) {
-            return ControllerResult.RESULT_CODE_NOT_SUPPORTED;
+            return SessionResult.RESULT_CODE_NOT_SUPPORTED;
         }
 
         /**
@@ -1195,11 +1192,11 @@ public class MediaController implements AutoCloseable {
                 @NonNull SessionCommandGroup commands) { }
 
         /**
-         * Called when the session sent a custom command. Returns a {@link ControllerResult} for
+         * Called when the session sent a custom command. Returns a {@link SessionResult} for
          * session to get notification back. If the {@code null} is returned,
-         * {@link ControllerResult#RESULT_CODE_UNKNOWN_ERROR} will be returned.
+         * {@link SessionResult#RESULT_CODE_UNKNOWN_ERROR} will be returned.
          * <p>
-         * Default implementation returns {@link ControllerResult#RESULT_CODE_NOT_SUPPORTED}.
+         * Default implementation returns {@link SessionResult#RESULT_CODE_NOT_SUPPORTED}.
          *
          * @param controller the controller for this event
          * @param command
@@ -1207,9 +1204,9 @@ public class MediaController implements AutoCloseable {
          * @return result of handling custom command
          */
         @NonNull
-        public ControllerResult onCustomCommand(@NonNull MediaController controller,
+        public SessionResult onCustomCommand(@NonNull MediaController controller,
                 @NonNull SessionCommand command, @Nullable Bundle args) {
-            return new ControllerResult(ControllerResult.RESULT_CODE_NOT_SUPPORTED);
+            return new SessionResult(SessionResult.RESULT_CODE_NOT_SUPPORTED);
         }
 
         /**
@@ -1441,173 +1438,6 @@ public class MediaController implements AutoCloseable {
         static PlaybackInfo createPlaybackInfo(int playbackType, AudioAttributesCompat attrs,
                 int controlType, int max, int current) {
             return new PlaybackInfo(playbackType, attrs, controlType, max, current);
-        }
-    }
-
-    /**
-     * Result class to be used with {@link ListenableFuture} for asynchronous calls.
-     */
-    @VersionedParcelize
-    public static class ControllerResult implements RemoteResult, VersionedParcelable {
-        /**
-         * Result code representing that the command is successfully completed.
-         * <p>
-         * Interoperability: When connected to
-         * {@link android.support.v4.media.session.MediaSessionCompat}, this can be also used to
-         * tell that the command was successfully sent, but the result is unknown.
-         */
-        // Redefined to override the Javadoc
-        public static final int RESULT_CODE_SUCCESS = 0;
-
-        /**
-         * @hide
-         */
-        @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
-                RESULT_CODE_SUCCESS,
-                RESULT_CODE_UNKNOWN_ERROR,
-                RESULT_CODE_INVALID_STATE,
-                RESULT_CODE_BAD_VALUE,
-                RESULT_CODE_PERMISSION_DENIED,
-                RESULT_CODE_IO_ERROR,
-                RESULT_CODE_SKIPPED,
-                RESULT_CODE_DISCONNECTED,
-                RESULT_CODE_NOT_SUPPORTED,
-                RESULT_CODE_AUTHENTICATION_EXPIRED,
-                RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED,
-                RESULT_CODE_CONCURRENT_STREAM_LIMIT,
-                RESULT_CODE_PARENTAL_CONTROL_RESTRICTED,
-                RESULT_CODE_NOT_AVAILABLE_IN_REGION,
-                RESULT_CODE_SKIP_LIMIT_REACHED,
-                RESULT_CODE_SETUP_REQUIRED})
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        public @interface ResultCode {}
-
-        @ParcelField(1)
-        int mResultCode;
-        @ParcelField(2)
-        long mCompletionTime;
-        @ParcelField(3)
-        Bundle mCustomCommandResult;
-        @ParcelField(4)
-        MediaItem mItem;
-
-        /**
-         * Constructor to be used by
-         * {@link ControllerCallback#onCustomCommand(MediaController, SessionCommand, Bundle)}.
-         *
-         * @param resultCode result code
-         * @param customCommandResult custom command result
-         */
-        public ControllerResult(@ResultCode int resultCode, @Nullable Bundle customCommandResult) {
-            this(resultCode, customCommandResult, null);
-        }
-
-        // For versioned parcelable
-        ControllerResult() {
-            // no-op
-        }
-
-        ControllerResult(@ResultCode int resultCode) {
-            this(resultCode, null, null);
-        }
-
-        ControllerResult(@ResultCode int resultCode, @Nullable Bundle customCommandResult,
-                @Nullable MediaItem item) {
-            this(resultCode, customCommandResult, item, SystemClock.elapsedRealtime());
-        }
-
-        ControllerResult(@ResultCode int resultCode, @Nullable Bundle customCommandResult,
-                @Nullable MediaItem item, long completionTime) {
-            mResultCode = resultCode;
-            mCustomCommandResult = customCommandResult;
-            mItem = item;
-            mCompletionTime = completionTime;
-        }
-
-        static ListenableFuture<ControllerResult> createFutureWithResult(
-                @ResultCode int resultCode) {
-            ResolvableFuture<ControllerResult> result = ResolvableFuture.create();
-            result.set(new ControllerResult(resultCode));
-            return result;
-        }
-
-        static ControllerResult from(@Nullable SessionResult result) {
-            if (result == null) {
-                return null;
-            }
-            return new ControllerResult(result.getResultCode(), result.getCustomCommandResult(),
-                    result.getMediaItem(), result.getCompletionTime());
-        }
-
-        /**
-         * Gets the result code.
-         *
-         * @return result code
-         * @see #RESULT_CODE_SUCCESS
-         * @see #RESULT_CODE_UNKNOWN_ERROR
-         * @see #RESULT_CODE_INVALID_STATE
-         * @see #RESULT_CODE_BAD_VALUE
-         * @see #RESULT_CODE_PERMISSION_DENIED
-         * @see #RESULT_CODE_IO_ERROR
-         * @see #RESULT_CODE_SKIPPED
-         * @see #RESULT_CODE_DISCONNECTED
-         * @see #RESULT_CODE_NOT_SUPPORTED
-         * @see #RESULT_CODE_AUTHENTICATION_EXPIRED
-         * @see #RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED
-         * @see #RESULT_CODE_CONCURRENT_STREAM_LIMIT
-         * @see #RESULT_CODE_PARENTAL_CONTROL_RESTRICTED
-         * @see #RESULT_CODE_NOT_AVAILABLE_IN_REGION
-         * @see #RESULT_CODE_SKIP_LIMIT_REACHED
-         * @see #RESULT_CODE_SETUP_REQUIRED
-         */
-        @Override
-        public @ResultCode int getResultCode() {
-            return mResultCode;
-        }
-
-        /**
-         * Gets the completion time of the command. Being more specific, it's the same as
-         * {@link android.os.SystemClock#elapsedRealtime()} when the command is completed.
-         *
-         * @return completion time of the command
-         */
-        @Override
-        public long getCompletionTime() {
-            return mCompletionTime;
-        }
-
-        /**
-         * Gets the result of {@link #sendCustomCommand(SessionCommand, Bundle)}. This is only
-         * valid when it's returned by the {@link #sendCustomCommand(SessionCommand, Bundle)} and
-         * will be {@code null} otherwise.
-         *
-         * @see #sendCustomCommand(SessionCommand, Bundle)
-         * @return result of send custom command
-         */
-        @Nullable
-        public Bundle getCustomCommandResult() {
-            return mCustomCommandResult;
-        }
-
-        /**
-         * Gets the {@link MediaItem} for which the command was executed. In other words, this is
-         * the current media item when the command was completed.
-         * <p>
-         * Can be {@code null} for many reasons. For examples,
-         * <ul>
-         * <li>Error happened.
-         * <li>Current media item was {@code null} at that time.
-         * <li>Command is irrelevant with the media item (e.g. custom command).
-         * </ul>
-         *
-         * @return media item when the command is completed. Can be {@code null} for an error, the
-         *         current media item was {@code null}, or any other reason.
-         */
-        @Override
-        @Nullable
-        public MediaItem getMediaItem() {
-            return mItem;
         }
     }
 }

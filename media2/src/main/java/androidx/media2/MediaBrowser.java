@@ -16,31 +16,18 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
-import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaLibraryService.LibraryResult;
 import androidx.media2.MediaLibraryService.MediaLibrarySession;
-import androidx.versionedparcelable.NonParcelField;
-import androidx.versionedparcelable.ParcelField;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -116,14 +103,14 @@ public class MediaBrowser extends MediaController {
     /**
      * Gets the library root.
      * <p>
-     * If it's successfully completed, {@link BrowserResult#getMediaItem()} will return the library
+     * If it's successfully completed, {@link LibraryResult#getMediaItem()} will return the library
      * root.
      *
      * @param params library params getting root
-     * @see BrowserResult#getMediaItem()
+     * @see LibraryResult#getMediaItem()
      */
     @NonNull
-    public ListenableFuture<BrowserResult> getLibraryRoot(@Nullable final LibraryParams params) {
+    public ListenableFuture<LibraryResult> getLibraryRoot(@Nullable final LibraryParams params) {
         if (isConnected()) {
             return getImpl().getLibraryRoot(params);
         }
@@ -139,7 +126,7 @@ public class MediaBrowser extends MediaController {
      * @param parentId non-empty parent id
      * @param params library params
      */
-    public @NonNull ListenableFuture<BrowserResult> subscribe(@NonNull String parentId,
+    public @NonNull ListenableFuture<LibraryResult> subscribe(@NonNull String parentId,
             @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(parentId)) {
             throw new IllegalArgumentException("parentId shouldn't be empty");
@@ -159,7 +146,7 @@ public class MediaBrowser extends MediaController {
      *
      * @param parentId non-empty parent id
      */
-    public @NonNull ListenableFuture<BrowserResult> unsubscribe(@NonNull String parentId) {
+    public @NonNull ListenableFuture<LibraryResult> unsubscribe(@NonNull String parentId) {
         if (TextUtils.isEmpty(parentId)) {
             throw new IllegalArgumentException("parentId shouldn't be empty");
         }
@@ -172,16 +159,16 @@ public class MediaBrowser extends MediaController {
     /**
      * Gets the list of children under the parent.
      * <p>
-     * If it's successfully completed, {@link BrowserResult#getMediaItems()} will return the list
+     * If it's successfully completed, {@link LibraryResult#getMediaItems()} will return the list
      * of children.
      *
      * @param parentId non-empty parent id for getting the children
      * @param page page number to get the result. Starts from {@code 0}
      * @param pageSize page size. Should be greater or equal to {@code 1}
      * @param params library params
-     * @see BrowserResult#getMediaItems()
+     * @see LibraryResult#getMediaItems()
      */
-    public @NonNull ListenableFuture<BrowserResult> getChildren(@NonNull String parentId,
+    public @NonNull ListenableFuture<LibraryResult> getChildren(@NonNull String parentId,
             @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
             @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(parentId)) {
@@ -202,13 +189,13 @@ public class MediaBrowser extends MediaController {
     /**
      * Gets the media item with the given media id.
      * <p>
-     * If it's successfully completed, {@link BrowserResult#getMediaItem()} will return the media
+     * If it's successfully completed, {@link LibraryResult#getMediaItem()} will return the media
      * item.
      *
      * @param mediaId non-empty media id for specifying the item
-     * @see BrowserResult#getMediaItems()
+     * @see LibraryResult#getMediaItems()
      */
-    public @NonNull ListenableFuture<BrowserResult> getItem(@NonNull final String mediaId) {
+    public @NonNull ListenableFuture<LibraryResult> getItem(@NonNull final String mediaId) {
         if (TextUtils.isEmpty(mediaId)) {
             throw new IllegalArgumentException("mediaId shouldn't be empty");
         }
@@ -221,7 +208,7 @@ public class MediaBrowser extends MediaController {
     /**
      * Sends a search request to the library service.
      * <p>
-     * Returned {@link BrowserResult} will only tell whether the attemp to search was successful.
+     * Returned {@link LibraryResult} will only tell whether the attemp to search was successful.
      * For getting the search result, waits for
      * {@link BrowserCallback#getSearchResult(String, int, int, LibraryParams)} the search result
      * and calls {@link #getSearchResult(String, int, int, LibraryParams)}} for getting the result.
@@ -231,7 +218,7 @@ public class MediaBrowser extends MediaController {
      * @see BrowserCallback#getSearchResult(String, int, int, LibraryParams)
      * @see #getSearchResult(String, int, int, LibraryParams)
      */
-    public @NonNull ListenableFuture<BrowserResult> search(@NonNull String query,
+    public @NonNull ListenableFuture<LibraryResult> search(@NonNull String query,
             @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(query)) {
             throw new IllegalArgumentException("query shouldn't be empty");
@@ -245,7 +232,7 @@ public class MediaBrowser extends MediaController {
     /**
      * Gets the search result from lhe library service.
      * <p>
-     * If it's successfully completed, {@link BrowserResult#getMediaItems()} will return the search
+     * If it's successfully completed, {@link LibraryResult#getMediaItems()} will return the search
      * result.
      *
      * @param query non-empty search query that you've specified with
@@ -253,9 +240,9 @@ public class MediaBrowser extends MediaController {
      * @param page page number to get search result. Starts from {@code 0}
      * @param pageSize page size. Should be greater or equal to {@code 1}
      * @param params library params
-     * @see BrowserResult#getMediaItems()
+     * @see LibraryResult#getMediaItems()
      */
-    public @NonNull ListenableFuture<BrowserResult> getSearchResult(final @NonNull String query,
+    public @NonNull ListenableFuture<LibraryResult> getSearchResult(final @NonNull String query,
             @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
             final @Nullable LibraryParams params) {
         if (TextUtils.isEmpty(query)) {
@@ -273,209 +260,21 @@ public class MediaBrowser extends MediaController {
         return createDisconnectedFuture();
     }
 
-    private static ListenableFuture<BrowserResult> createDisconnectedFuture() {
-        return BrowserResult.createFutureWithResult(BrowserResult.RESULT_CODE_DISCONNECTED);
-    }
-
-    /**
-     * Result class to be used with {@link ListenableFuture} for asynchronous calls.
-     */
-    // Specify full name to workaround build error 'cannot find symbol'
-    @androidx.versionedparcelable.VersionedParcelize(isCustom = true)
-    public static class BrowserResult extends androidx.versionedparcelable.CustomVersionedParcelable
-            implements RemoteResult {
-        /**
-         * @hide
-         */
-        @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
-                RESULT_CODE_SUCCESS,
-                RESULT_CODE_UNKNOWN_ERROR,
-                RESULT_CODE_INVALID_STATE,
-                RESULT_CODE_BAD_VALUE,
-                RESULT_CODE_PERMISSION_DENIED,
-                RESULT_CODE_IO_ERROR,
-                RESULT_CODE_SKIPPED,
-                RESULT_CODE_DISCONNECTED,
-                RESULT_CODE_NOT_SUPPORTED,
-                RESULT_CODE_AUTHENTICATION_EXPIRED,
-                RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED,
-                RESULT_CODE_CONCURRENT_STREAM_LIMIT,
-                RESULT_CODE_PARENTAL_CONTROL_RESTRICTED,
-                RESULT_CODE_NOT_AVAILABLE_IN_REGION,
-                RESULT_CODE_SKIP_LIMIT_REACHED,
-                RESULT_CODE_SETUP_REQUIRED})
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        public @interface ResultCode {}
-
-        @ParcelField(1)
-        int mResultCode;
-        @ParcelField(2)
-        long mCompletionTime;
-        @ParcelField(3)
-        MediaItem mItem;
-        @ParcelField(4)
-        LibraryParams mParams;
-        // Mark list of media items NonParcelField to send the list through the ParcelImpListSlice.
-        @NonParcelField
-        List<MediaItem> mItemList;
-        @ParcelField(5)
-        ParcelImplListSlice mItemListSlice;
-
-        // For versioned parcelable.
-        BrowserResult() {
-            // no-op
-        }
-
-        BrowserResult(@ResultCode int resultCode) {
-            this(resultCode, null, null, null);
-        }
-
-        BrowserResult(@ResultCode int resultCode, @Nullable MediaItem item,
-                @Nullable LibraryParams params) {
-            this(resultCode, item, null, params);
-        }
-
-        BrowserResult(@ResultCode int resultCode, @Nullable List<MediaItem> items,
-                @Nullable LibraryParams params) {
-            this(resultCode, null, items, params);
-        }
-
-        BrowserResult(@ResultCode int resultCode, @Nullable MediaItem item,
-                @Nullable List<MediaItem> items, @Nullable LibraryParams params) {
-            this(resultCode, item, items, params, SystemClock.elapsedRealtime());
-        }
-
-        BrowserResult(@ResultCode int resultCode, @Nullable MediaItem item,
-                @Nullable List<MediaItem> items, @Nullable LibraryParams params,
-                long elapsedTime) {
-            mResultCode = resultCode;
-            mItem = item;
-            mItemList = items;
-            mParams = params;
-            mCompletionTime = elapsedTime;
-        }
-
-        static ListenableFuture<BrowserResult> createFutureWithResult(@ResultCode int resultCode) {
-            ResolvableFuture<BrowserResult> result = ResolvableFuture.create();
-            result.set(new BrowserResult(resultCode));
-            return result;
-        }
-
-        static BrowserResult from(@Nullable LibraryResult result) {
-            if (result == null) {
-                return null;
-            }
-            return new BrowserResult(result.getResultCode(), result.getMediaItem(),
-                    result.getMediaItems(), result.getLibraryParams(), result.getCompletionTime());
-        }
-
-        /**
-         * Gets the result code.
-         *
-         * @return result code
-         * @see #RESULT_CODE_SUCCESS
-         * @see #RESULT_CODE_UNKNOWN_ERROR
-         * @see #RESULT_CODE_INVALID_STATE
-         * @see #RESULT_CODE_BAD_VALUE
-         * @see #RESULT_CODE_PERMISSION_DENIED
-         * @see #RESULT_CODE_IO_ERROR
-         * @see #RESULT_CODE_SKIPPED
-         * @see #RESULT_CODE_DISCONNECTED
-         * @see #RESULT_CODE_NOT_SUPPORTED
-         * @see #RESULT_CODE_AUTHENTICATION_EXPIRED
-         * @see #RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED
-         * @see #RESULT_CODE_CONCURRENT_STREAM_LIMIT
-         * @see #RESULT_CODE_PARENTAL_CONTROL_RESTRICTED
-         * @see #RESULT_CODE_NOT_AVAILABLE_IN_REGION
-         * @see #RESULT_CODE_SKIP_LIMIT_REACHED
-         * @see #RESULT_CODE_SETUP_REQUIRED
-         */
-        @Override
-        public @ResultCode int getResultCode() {
-            return mResultCode;
-        }
-
-        /**
-         * Gets the completion time of the command. Being more specific, it's the same as
-         * {@link android.os.SystemClock#elapsedRealtime()} when the command is completed.
-         *
-         * @return completion time of the command
-         */
-        @Override
-        public long getCompletionTime() {
-            return mCompletionTime;
-        }
-
-        /**
-         * Gets the media item.
-         * <p>
-         * Can be {@code null} if an error happened or the command doesn't return a media item.
-         *
-         * @return media item
-         * @see MediaBrowser#getLibraryRoot(LibraryParams)
-         * @see MediaBrowser#getItem(String)
-         */
-        @Override
-        public @Nullable MediaItem getMediaItem() {
-            return mItem;
-        }
-
-        /**
-         * Gets the list of media item.
-         * <p>
-         * Can be {@code null} if an error happened or the command doesn't return a list of media
-         * items.
-         *
-         * @return list of media item
-         * @see MediaBrowser#getSearchResult(String, int, int, LibraryParams)
-         * @see MediaBrowser#getChildren(String, int, int, LibraryParams)
-         **/
-        public @Nullable List<MediaItem> getMediaItems() {
-            return mItemList;
-        }
-
-        /**
-         * Gets the library params
-         *
-         * @return library params.
-         */
-        public @Nullable LibraryParams getLibraryParams() {
-            return mParams;
-        }
-
-        /**
-         * @hide
-         * @param isStream
-         */
-        @RestrictTo(LIBRARY)
-        @Override
-        public void onPreParceling(boolean isStream) {
-            mItemListSlice = MediaUtils.convertMediaItemListToParcelImplListSlice(mItemList);
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @Override
-        public void onPostParceling() {
-            mItemList = MediaUtils.convertParcelImplListSliceToMediaItemList(mItemListSlice);
-            mItemListSlice = null;
-        }
+    private static ListenableFuture<LibraryResult> createDisconnectedFuture() {
+        return LibraryResult.createFutureWithResult(LibraryResult.RESULT_CODE_DISCONNECTED);
     }
 
     interface MediaBrowserImpl extends MediaControllerImpl {
-        ListenableFuture<BrowserResult> getLibraryRoot(@Nullable LibraryParams rootHints);
-        ListenableFuture<BrowserResult> subscribe(@NonNull String parentId,
+        ListenableFuture<LibraryResult> getLibraryRoot(@Nullable LibraryParams rootHints);
+        ListenableFuture<LibraryResult> subscribe(@NonNull String parentId,
                 @Nullable LibraryParams params);
-        ListenableFuture<BrowserResult> unsubscribe(@NonNull String parentId);
-        ListenableFuture<BrowserResult> getChildren(@NonNull String parentId, int page,
+        ListenableFuture<LibraryResult> unsubscribe(@NonNull String parentId);
+        ListenableFuture<LibraryResult> getChildren(@NonNull String parentId, int page,
                 int pageSize, @Nullable LibraryParams params);
-        ListenableFuture<BrowserResult> getItem(@NonNull String mediaId);
-        ListenableFuture<BrowserResult> search(@NonNull String query,
+        ListenableFuture<LibraryResult> getItem(@NonNull String mediaId);
+        ListenableFuture<LibraryResult> search(@NonNull String query,
                 @Nullable LibraryParams params);
-        ListenableFuture<BrowserResult> getSearchResult(@NonNull String query, int page,
+        ListenableFuture<LibraryResult> getSearchResult(@NonNull String query, int page,
                 int pageSize, @Nullable LibraryParams params);
     }
 }

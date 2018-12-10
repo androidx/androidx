@@ -16,8 +16,8 @@
 
 package androidx.media2.widget;
 
-import static androidx.media2.MediaController.ControllerResult.RESULT_CODE_NOT_SUPPORTED;
-import static androidx.media2.MediaController.ControllerResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_NOT_SUPPORTED;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -71,6 +71,7 @@ import androidx.media2.MediaSession;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionPlayer;
+import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
 import androidx.media2.UriMediaItem;
 import androidx.mediarouter.app.MediaRouteButton;
@@ -2490,7 +2491,7 @@ public class MediaControlView extends BaseLayout {
             }
 
             @Override
-            public MediaController.ControllerResult onCustomCommand(
+            public SessionResult onCustomCommand(
                     @NonNull MediaController controller, @NonNull SessionCommand command,
                     @Nullable Bundle args) {
                 if (DEBUG) {
@@ -2584,10 +2585,10 @@ public class MediaControlView extends BaseLayout {
                         }
                         break;
                     default:
-                        return new MediaController.ControllerResult(
+                        return new SessionResult(
                                 RESULT_CODE_NOT_SUPPORTED, null);
                 }
-                return new MediaController.ControllerResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_CODE_SUCCESS, null);
             }
         }
     }

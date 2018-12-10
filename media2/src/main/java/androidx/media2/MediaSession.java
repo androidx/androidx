@@ -16,10 +16,9 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_NOT_SUPPORTED;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_NOT_SUPPORTED;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -30,35 +29,28 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
-import androidx.media2.MediaController.ControllerResult;
 import androidx.media2.MediaController.PlaybackInfo;
 import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaLibraryService.LibraryResult;
-import androidx.media2.MediaSession.SessionResult.ResultCode;
 import androidx.media2.SessionPlayer.BuffState;
 import androidx.media2.SessionPlayer.PlayerResult;
 import androidx.media2.SessionPlayer.PlayerState;
+import androidx.media2.SessionResult.ResultCode;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -1220,155 +1212,5 @@ public class MediaSession implements AutoCloseable {
          *      package.
          */
         @NonNull abstract T build();
-    }
-
-    /**
-     * Result class to be used with {@link ListenableFuture} for asynchronous calls.
-     */
-    // Specify full name to avoid build error 'cannot find symbol' for versioned parcelable.
-    @androidx.versionedparcelable.VersionedParcelize
-    public static class SessionResult implements RemoteResult,
-            androidx.versionedparcelable.VersionedParcelable {
-        /**
-         * @hide
-         */
-        @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
-                RESULT_CODE_SUCCESS,
-                RESULT_CODE_UNKNOWN_ERROR,
-                RESULT_CODE_INVALID_STATE,
-                RESULT_CODE_BAD_VALUE,
-                RESULT_CODE_PERMISSION_DENIED,
-                RESULT_CODE_IO_ERROR,
-                RESULT_CODE_SKIPPED,
-                RESULT_CODE_DISCONNECTED,
-                RESULT_CODE_NOT_SUPPORTED,
-                RESULT_CODE_AUTHENTICATION_EXPIRED,
-                RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED,
-                RESULT_CODE_CONCURRENT_STREAM_LIMIT,
-                RESULT_CODE_PARENTAL_CONTROL_RESTRICTED,
-                RESULT_CODE_NOT_AVAILABLE_IN_REGION,
-                RESULT_CODE_SKIP_LIMIT_REACHED,
-                RESULT_CODE_SETUP_REQUIRED})
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        public @interface ResultCode {}
-
-        @ParcelField(1)
-        int mResultCode;
-        @ParcelField(2)
-        long mCompletionTime;
-        @ParcelField(3)
-        Bundle mCustomCommandResult;
-        @ParcelField(4)
-        MediaItem mItem;
-
-        /**
-         * Constructor to be used by {@link SessionCallback#onCustomCommand(
-         * MediaSession, ControllerInfo, SessionCommand, Bundle)}.
-         *
-         * @param resultCode result code
-         * @param customCommandResult custom command result.
-         */
-        public SessionResult(@ResultCode int resultCode, @Nullable Bundle customCommandResult) {
-            this(resultCode, customCommandResult, null, SystemClock.elapsedRealtime());
-        }
-
-        // For versioned-parcelable
-        SessionResult() {
-            // no-op
-        }
-
-        SessionResult(@ResultCode int resultCode) {
-            this(resultCode, null);
-        }
-
-        SessionResult(@ResultCode int resultCode, @Nullable Bundle customCommandResult,
-                @Nullable MediaItem item, long completionTime) {
-            mResultCode = resultCode;
-            mCustomCommandResult = customCommandResult;
-            mItem = item;
-            mCompletionTime = completionTime;
-        }
-
-        static @Nullable SessionResult from(@Nullable PlayerResult result) {
-            if (result == null) {
-                return null;
-            }
-            return new SessionResult(result.getResultCode(), null, result.getMediaItem(),
-                    result.getCompletionTime());
-        }
-
-        static @Nullable SessionResult from(@Nullable ControllerResult result) {
-            if (result == null) {
-                return null;
-            }
-            return new SessionResult(result.getResultCode(), result.getCustomCommandResult(),
-                    result.getMediaItem(), result.getCompletionTime());
-        }
-
-        static ListenableFuture<SessionResult> createFutureWithResult(@ResultCode int resultCode) {
-            ResolvableFuture<SessionResult> result = ResolvableFuture.create();
-            result.set(new SessionResult(resultCode));
-            return result;
-        }
-
-        /**
-         * Gets the result code.
-         *
-         * @return result code
-         * @see #RESULT_CODE_SUCCESS
-         * @see #RESULT_CODE_UNKNOWN_ERROR
-         * @see #RESULT_CODE_INVALID_STATE
-         * @see #RESULT_CODE_BAD_VALUE
-         * @see #RESULT_CODE_PERMISSION_DENIED
-         * @see #RESULT_CODE_IO_ERROR
-         * @see #RESULT_CODE_SKIPPED
-         * @see #RESULT_CODE_DISCONNECTED
-         * @see #RESULT_CODE_NOT_SUPPORTED
-         * @see #RESULT_CODE_AUTHENTICATION_EXPIRED
-         * @see #RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED
-         * @see #RESULT_CODE_CONCURRENT_STREAM_LIMIT
-         * @see #RESULT_CODE_PARENTAL_CONTROL_RESTRICTED
-         * @see #RESULT_CODE_NOT_AVAILABLE_IN_REGION
-         * @see #RESULT_CODE_SKIP_LIMIT_REACHED
-         * @see #RESULT_CODE_SETUP_REQUIRED
-         */
-        @Override
-        public @ResultCode int getResultCode() {
-            return mResultCode;
-        }
-
-        /**
-         * Gets the result of {@link #sendCustomCommand(ControllerInfo, SessionCommand, Bundle)}.
-         * This is only valid when it's returned by the
-         * {@link #sendCustomCommand(ControllerInfo, SessionCommand, Bundle)} and will be
-         * {@code null} otherwise.
-         *
-         * @see #sendCustomCommand(ControllerInfo, SessionCommand, Bundle)
-         * @return result of send custom command
-         */
-        public @Nullable Bundle getCustomCommandResult() {
-            return mCustomCommandResult;
-        }
-
-        /**
-         * Gets the completion time of the command. Being more specific, it's the same as
-         * {@link android.os.SystemClock#elapsedRealtime()} when the command is completed.
-         *
-         * @return completion time of the command
-         */
-        @Override
-        public long getCompletionTime() {
-            return mCompletionTime;
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @Override
-        public MediaItem getMediaItem() {
-            return mItem;
-        }
     }
 }

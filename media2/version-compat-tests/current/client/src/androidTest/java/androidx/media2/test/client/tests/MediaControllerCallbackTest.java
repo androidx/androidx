@@ -19,7 +19,7 @@ package androidx.media2.test.client.tests;
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
 
 import static androidx.media.VolumeProviderCompat.VOLUME_CONTROL_ABSOLUTE;
-import static androidx.media2.MediaController.ControllerResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media2.test.common.CommonConstants.INDEX_FOR_NULL_ITEM;
 import static androidx.media2.test.common.CommonConstants.INDEX_FOR_UNKONWN_ITEM;
@@ -48,6 +48,7 @@ import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionPlayer;
+import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
@@ -785,12 +786,12 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
-            public MediaController.ControllerResult onCustomCommand(MediaController controller,
+            public SessionResult onCustomCommand(MediaController controller,
                     SessionCommand command, Bundle args) {
                 assertEquals(testCommand, command);
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
-                return new MediaController.ControllerResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_CODE_SUCCESS, null);
             }
         };
         MediaController controller = createController(mRemoteSession2.getToken(), true, callback);
