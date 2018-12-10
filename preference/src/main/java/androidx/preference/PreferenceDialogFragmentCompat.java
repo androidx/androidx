@@ -87,7 +87,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
 
         final String key = getArguments().getString(ARG_KEY);
         if (savedInstanceState == null) {
-            mPreference = (DialogPreference) fragment.findPreference(key);
+            mPreference = fragment.findPreference(key);
             mDialogTitle = mPreference.getDialogTitle();
             mPositiveButtonText = mPreference.getPositiveButtonText();
             mNegativeButtonText = mPreference.getNegativeButtonText();
@@ -174,7 +174,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
             final String key = getArguments().getString(ARG_KEY);
             final DialogPreference.TargetFragment fragment =
                     (DialogPreference.TargetFragment) getTargetFragment();
-            mPreference = (DialogPreference) fragment.findPreference(key);
+            mPreference = fragment.findPreference(key);
         }
         return mPreference;
     }
