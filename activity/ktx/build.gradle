@@ -32,8 +32,10 @@ android {
 }
 
 dependencies {
-    api(project(":activity"))
-    api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.0.0")
+    api(project(":activity")) {
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
+    }
+    api(project(":lifecycle:lifecycle-viewmodel-ktx"))
     api(KOTLIN_STDLIB)
     androidTestImplementation(JUNIT)
     androidTestImplementation(TRUTH)

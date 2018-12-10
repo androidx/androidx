@@ -18,10 +18,10 @@ package androidx.activity
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelLazy
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory
 import androidx.lifecycle.ViewModelProvider.Factory
-import kotlin.reflect.KClass
 
 /**
  * Returns a [Lazy] delegate to access the ComponentActivity's ViewModel, if [factoryProducer]
@@ -40,33 +40,13 @@ import kotlin.reflect.KClass
 @MainThread
 inline fun <reified VM : ViewModel> ComponentActivity.viewModels(
     noinline factoryProducer: (() -> Factory)? = null
-): Lazy<VM> = ActivityViewModelLazy(this, VM::class, factoryProducer)
+): Lazy<VM> {
+    val factoryPromise = factoryProducer ?: {
+        val application = application ?: throw IllegalArgumentException(
+            "ViewModel can be accessed only when Activity is attached"
+        )
+        AndroidViewModelFactory.getInstance(application)
+    }
 
-/**
- * An implementation of [Lazy] used by [ComponentActivity.viewModels] tied to the given [activity],
- * [viewModelClass], [factoryProducer]
- */
-class ActivityViewModelLazy<VM : ViewModel>(
-    private val activity: ComponentActivity,
-    private val viewModelClass: KClass<VM>,
-    private val factoryProducer: (() -> Factory)?
-) : Lazy<VM> {
-    private var cached: VM? = null
-
-    override val value: VM
-        get() {
-            var viewModel = cached
-            if (viewModel == null) {
-                val application = activity.application
-                        ?: throw IllegalArgumentException("ViewModel can be accessed " +
-                                "only when Activity is attached")
-                val resolvedFactory = factoryProducer?.invoke()
-                    ?: AndroidViewModelFactory.getInstance(application)
-                viewModel = ViewModelProvider(activity, resolvedFactory).get(viewModelClass.java)
-                cached = viewModel
-            }
-            return viewModel
-        }
-
-    override fun isInitialized() = cached != null
+    return ViewModelLazy(VM::class, { this }, factoryPromise)
 }
