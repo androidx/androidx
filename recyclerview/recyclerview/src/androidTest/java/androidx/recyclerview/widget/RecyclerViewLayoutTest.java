@@ -5181,16 +5181,6 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
     }
 
     @Test
-    public void jumpingJackSmoothScroller() throws Throwable {
-        jumpingJackSmoothScrollerTest(true);
-    }
-
-    @Test
-    public void jumpingJackSmoothScrollerGoesIdle() throws Throwable {
-        jumpingJackSmoothScrollerTest(false);
-    }
-
-    @Test
     public void testScrollByBeforeFirstLayout() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity());
         TestAdapter adapter = new TestAdapter(10);
@@ -5232,7 +5222,20 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         checkForMainThreadException();
     }
 
-    private void jumpingJackSmoothScrollerTest(final boolean succeed) throws Throwable {
+    @Test
+    public void smoothScrollToPosition_scrollerOnlyJumpsTargetFindable_targetFound()
+            throws Throwable {
+        smoothScrollToPosition_scrollerOnlyJumps(true);
+    }
+
+    @Test
+    public void smoothScrollToPosition_scrollerOnlyJumpsTargetNotFindable_goesIdle()
+            throws Throwable {
+        smoothScrollToPosition_scrollerOnlyJumps(false);
+    }
+
+    private void smoothScrollToPosition_scrollerOnlyJumps(final boolean canFindTarget)
+            throws Throwable {
         final List<Integer> receivedScrollToPositions = new ArrayList<>();
         final TestAdapter testAdapter = new TestAdapter(200);
         final AtomicBoolean mTargetFound = new AtomicBoolean(false);
@@ -5267,7 +5270,7 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
                             @Override
                             protected void updateActionForInterimTarget(Action action) {
-                                int limit = succeed ? getTargetPosition() : 100;
+                                int limit = canFindTarget ? getTargetPosition() : 100;
                                 if (pendingScrollPosition + 2 < limit) {
                                     if (pendingScrollPosition != NO_POSITION) {
                                         assertEquals(pendingScrollPosition,
@@ -5297,6 +5300,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
         setRecyclerView(rv);
         tlm.waitForLayout(2);
 
+        final ArrayList<Integer> scrollStates = new ArrayList<>();
+        rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                scrollStates.add(newState);
+            }
+        });
+
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -5314,8 +5325,9 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
             assertTrue("scroll positions must include " + i, receivedScrollToPositions.contains(i));
         }
 
-        assertEquals(succeed, mTargetFound.get());
-
+        assertThat(scrollStates.toArray(),
+                is(equalTo(new Object[]{SCROLL_STATE_SETTLING, SCROLL_STATE_IDLE})));
+        assertEquals(canFindTarget, mTargetFound.get());
     }
 
     private static class TestViewHolder2 extends RecyclerView.ViewHolder {
