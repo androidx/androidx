@@ -17,12 +17,15 @@
 package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
+import androidx.room.ext.L
+import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
+import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
+import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
-import androidx.room.solver.shortcut.binder.GuavaListenableFutureDeleteOrUpdateMethodBinder
 import javax.lang.model.type.DeclaredType
 
 /**
@@ -49,6 +52,13 @@ class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(
 
         val typeArg = declared.typeArguments.first()
         val adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(typeArg)
-        return GuavaListenableFutureDeleteOrUpdateMethodBinder(typeArg, adapter)
+        return createDeleteOrUpdateBinder(typeArg, adapter) { callableImpl, dbField ->
+            addStatement(
+                "return $T.createListenableFuture($N, $L)",
+                RoomGuavaTypeNames.GUAVA_ROOM,
+                dbField,
+                callableImpl
+            )
+        }
     }
 }

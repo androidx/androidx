@@ -21,7 +21,6 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
-import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 
 /**
@@ -49,7 +48,7 @@ class InstantQueryResultBinder(adapter: QueryResultAdapter?) : QueryResultBinder
                     AndroidTypeNames.CURSOR,
                     cursorVar,
                     RoomTypeNames.DB_UTIL,
-                    DaoWriter.dbField,
+                    dbField,
                     roomSQLiteQueryVar,
                     if (shouldCopyCursor) "true" else "false")
             beginControlFlow("try").apply {

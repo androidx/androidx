@@ -295,14 +295,14 @@ public final class UpdateDao_Impl implements UpdateDao {
   @Override
   public void ageUserByUid(final String uid) {
     final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserByUid.acquire();
+    int _argIndex = 1;
+    if (uid == null) {
+      _stmt.bindNull(_argIndex);
+    } else {
+      _stmt.bindString(_argIndex, uid);
+    }
     __db.beginTransaction();
     try {
-      int _argIndex = 1;
-      if (uid == null) {
-        _stmt.bindNull(_argIndex);
-      } else {
-        _stmt.bindString(_argIndex, uid);
-      }
       _stmt.executeUpdateDelete();
       __db.setTransactionSuccessful();
     } finally {
@@ -322,5 +322,62 @@ public final class UpdateDao_Impl implements UpdateDao {
       __db.endTransaction();
       __preparedStmtOfAgeUserAll.release(_stmt);
     }
+  }
+
+  @Override
+  public Completable ageUserAllCompletable() {
+    final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+    return Completable.fromCallable(new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        __db.beginTransaction();
+        try {
+          _stmt.executeUpdateDelete();
+          __db.setTransactionSuccessful();
+          return null;
+        } finally {
+          __db.endTransaction();
+          __preparedStmtOfAgeUserAll.release(_stmt);
+        }
+      }
+    });
+  }
+
+  @Override
+  public Single<Integer> ageUserAllSingle() {
+    final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+    return Single.fromCallable(new Callable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        __db.beginTransaction();
+        try {
+          final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          __db.setTransactionSuccessful();
+          return _result;
+        } finally {
+          __db.endTransaction();
+          __preparedStmtOfAgeUserAll.release(_stmt);
+        }
+      }
+    });
+  }
+
+  @Override
+  public Maybe<Integer> ageUserAllMaybe() {
+    final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
+    return Maybe.fromCallable(new Callable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        __db.beginTransaction();
+        try {
+          final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          __db.setTransactionSuccessful();
+          return _result;
+        } finally {
+          __db.endTransaction();
+          __preparedStmtOfAgeUserAll.release(_stmt);
+        }
+      }
+    });
   }
 }

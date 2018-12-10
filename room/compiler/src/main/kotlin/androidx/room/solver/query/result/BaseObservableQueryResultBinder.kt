@@ -22,7 +22,6 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
-import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import javax.lang.model.element.Modifier
@@ -63,7 +62,7 @@ abstract class BaseObservableQueryResultBinder(adapter: QueryResultAdapter?)
                     AndroidTypeNames.CURSOR,
                     cursorVar,
                     RoomTypeNames.DB_UTIL,
-                    DaoWriter.dbField,
+                    dbField,
                     roomSQLiteQueryVar,
                     if (shouldCopyCursor) "true" else "false")
             beginControlFlow("try").apply {

@@ -29,6 +29,7 @@ import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.hasAnnotation
 import androidx.room.ext.typeName
+import androidx.room.parser.QueryType
 import androidx.room.parser.Table
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
@@ -39,7 +40,9 @@ import androidx.room.solver.query.result.SingleEntityQueryResultAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Field
+import androidx.room.vo.WriteQueryMethod
 import androidx.room.vo.QueryMethod
+import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
@@ -101,7 +104,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testReadNoParams() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT * from User")
                 abstract public int[] foo();
@@ -115,7 +118,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testSingleParam() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT * from User where uid = :x")
                 abstract public long foo(int x);
@@ -133,7 +136,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testVarArgs() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT * from User where uid in (:ids)")
                 abstract public long foo(int... ids);
@@ -152,7 +155,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testParamBindingMatchingNoName() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT uid from User where uid = :id")
                 abstract public long getIdById(int id);
@@ -167,7 +170,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testParamBindingMatchingSimpleBind() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT uid from User where uid = :id")
                 abstract public long getIdById(int id);
@@ -183,7 +186,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testParamBindingTwoBindVarsIntoTheSameParameter() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT uid from User where uid = :id OR uid = :id")
                 abstract public long getIdById(int id);
@@ -201,7 +204,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testMissingParameterForBinding() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT uid from User where uid = :id OR uid = :uid")
                 abstract public long getIdById(int id);
@@ -222,7 +225,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun test2MissingParameterForBinding() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT uid from User where name = :bar AND uid = :id OR uid = :uid")
                 abstract public long getIdById(int id);
@@ -245,7 +248,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testUnusedParameters() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT uid from User where name = :bar")
                 abstract public long getIdById(int bar, int whyNotUseMe);
@@ -262,7 +265,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testNameWithUnderscore() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("select * from User where uid = :_blah")
                 abstract public long getSth(int _blah);
@@ -274,7 +277,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testGenericReturnType() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("select * from User")
                 abstract public <T> ${CommonTypeNames.LIST}<T> foo(int x);
@@ -288,7 +291,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testBadQuery() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("select * from :1 :2")
                 abstract public long foo(int x);
@@ -300,7 +303,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testLiveDataWithWithClause() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
                 + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable, User")
@@ -316,7 +319,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testLiveDataWithNothingToObserve() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("SELECT 1")
                 abstract public ${LifecyclesTypeNames.LIVE_DATA}<Integer> getOne();
@@ -328,7 +331,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testLiveDataWithWithClauseAndNothingToObserve() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("WITH RECURSIVE tempTable(n, fact) AS (SELECT 0, 1 UNION ALL SELECT n+1,"
                 + " (n+1)*fact FROM tempTable WHERE n < 9) SELECT fact FROM tempTable")
@@ -342,7 +345,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testBoundGeneric() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 static abstract class BaseModel<T> {
                     @Query("select COUNT(*) from User")
@@ -359,7 +362,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testBoundGenericParameter() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 static abstract class BaseModel<T> {
                     @Query("select COUNT(*) from User where :t")
@@ -377,19 +380,19 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testReadDeleteWithBadReturnType() {
-        singleQueryMethod(
+        singleQueryMethod<WriteQueryMethod>(
                 """
                 @Query("DELETE from User where uid = :id")
                 abstract public float foo(int id);
                 """) { _, _ ->
         }.failsToCompile().withErrorContaining(
-                ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
+            ProcessorErrors.cannotFindPreparedQueryResultAdapter("float", QueryType.DELETE)
         )
     }
 
     @Test
     fun testSimpleDelete() {
-        singleQueryMethod(
+        singleQueryMethod<WriteQueryMethod>(
                 """
                 @Query("DELETE from User where uid = :id")
                 abstract public int foo(int id);
@@ -402,7 +405,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testVoidDeleteQuery() {
-        singleQueryMethod(
+        singleQueryMethod<WriteQueryMethod>(
                 """
                 @Query("DELETE from User where uid = :id")
                 abstract public void foo(int id);
@@ -415,7 +418,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testVoidUpdateQuery() {
-        singleQueryMethod(
+        singleQueryMethod<WriteQueryMethod>(
                 """
                 @Query("update user set name = :name")
                 abstract public void updateAllNames(String name);
@@ -430,7 +433,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testVoidInsertQuery() {
-        singleQueryMethod(
+        singleQueryMethod<WriteQueryMethod>(
                 """
                 @Query("insert into user (name) values (:name)")
                 abstract public void insertUsername(String name);
@@ -445,7 +448,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testLongInsertQuery() {
-        singleQueryMethod(
+        singleQueryMethod<WriteQueryMethod>(
                 """
                 @Query("insert into user (name) values (:name)")
                 abstract public long insertUsername(String name);
@@ -460,20 +463,20 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testInsertQueryWithBadReturnType() {
-        singleQueryMethod(
+        singleQueryMethod<WriteQueryMethod>(
                 """
                 @Query("insert into user (name) values (:name)")
                 abstract public int insert(String name);
                 """) { parsedQuery, _ ->
             assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.INT))
         }.failsToCompile().withErrorContaining(
-            ProcessorErrors.PREPARED_INSERT_METHOD_INVALID_RETURN_TYPE
+            ProcessorErrors.cannotFindPreparedQueryResultAdapter("int", QueryType.INSERT)
         )
     }
 
     @Test
     fun testLiveDataQuery() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("select name from user where uid = :id")
                 abstract ${LifecyclesTypeNames.LIVE_DATA}<String> nameLiveData(String id);
@@ -488,20 +491,34 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
-    fun testNonSelectLiveData() {
-        singleQueryMethod(
+    fun testBadReturnForDeleteQuery() {
+        singleQueryMethod<WriteQueryMethod>(
                 """
                 @Query("delete from user where uid = :id")
                 abstract ${LifecyclesTypeNames.LIVE_DATA}<Integer> deleteLiveData(String id);
                 """
         ) { _, _ ->
         }.failsToCompile()
-                .withErrorContaining(ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT)
+                .withErrorContaining(ProcessorErrors.cannotFindPreparedQueryResultAdapter(
+                    "androidx.lifecycle.LiveData<java.lang.Integer>", QueryType.DELETE))
+    }
+
+    @Test
+    fun testBadReturnForUpdateQuery() {
+        singleQueryMethod<WriteQueryMethod>(
+            """
+                @Query("update user set name = :name")
+                abstract ${LifecyclesTypeNames.LIVE_DATA}<Integer> updateNameLiveData(String name);
+                """
+        ) { _, _ ->
+        }.failsToCompile()
+            .withErrorContaining(ProcessorErrors.cannotFindPreparedQueryResultAdapter(
+                "androidx.lifecycle.LiveData<java.lang.Integer>", QueryType.UPDATE))
     }
 
     @Test
     fun testDataSourceFactoryQuery() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("select name from user")
                 abstract ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, String>
@@ -522,7 +539,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun testMultiTableDataSourceFactoryQuery() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("select name from User u LEFT OUTER JOIN Book b ON u.uid == b.uid")
                 abstract ${PagingTypeNames.DATA_SOURCE_FACTORY}<Integer, String>
@@ -542,32 +559,8 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
     }
 
     @Test
-    fun query_detectTransaction_delete() {
-        singleQueryMethod(
-                """
-                @Query("delete from user where uid = :id")
-                abstract int deleteUser(String id);
-                """
-        ) { method, _ ->
-            assertThat(method.inTransaction, `is`(true))
-        }.compilesWithoutError()
-    }
-
-    @Test
-    fun query_detectTransaction_update() {
-        singleQueryMethod(
-                """
-                @Query("UPDATE user set uid = :id + 1 where uid = :id")
-                abstract int incrementId(String id);
-                """
-        ) { method, _ ->
-            assertThat(method.inTransaction, `is`(true))
-        }.compilesWithoutError()
-    }
-
-    @Test
     fun query_detectTransaction_select() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Query("select * from user")
                 abstract int loadUsers();
@@ -579,7 +572,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun query_detectTransaction_selectInTransaction() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @Transaction
                 @Query("select * from user")
@@ -592,7 +585,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun skipVerification() {
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
                 """
                 @SkipQueryVerification
                 @Query("SELECT foo from User")
@@ -607,7 +600,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
 
     @Test
     fun suppressWarnings() {
-        singleQueryMethod("""
+        singleQueryMethod<ReadQueryMethod>("""
                 @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
                 @Query("SELECT uid from User")
                 abstract public int[] foo();
@@ -629,7 +622,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         if (!enableVerification) {
             return
         }
-        singleQueryMethod(
+        singleQueryMethod<ReadQueryMethod>(
             """
                 static class Merged extends User {
                    @Relation(parentColumn = "name", entityColumn = "lastName",
@@ -830,7 +823,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         queryColumns: List<String>,
         handler: (PojoRowAdapter?, QueryMethod, TestInvocation) -> Unit
     ): CompileTester? {
-        val assertion = singleQueryMethod(
+        val assertion = singleQueryMethod<ReadQueryMethod>(
                 """
                 static class Pojo {
                     $pojoFields
@@ -859,9 +852,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
         }
     }
 
-    private fun singleQueryMethod(
+    private fun <T : QueryMethod> singleQueryMethod(
         vararg input: String,
-        handler: (QueryMethod, TestInvocation) -> Unit
+        handler: (T, TestInvocation) -> Unit
     ): CompileTester {
         return assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(
@@ -902,7 +895,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         dbVerifier = verifier
                     )
                     val parsedQuery = parser.process()
-                    handler(parsedQuery, invocation)
+                    handler(parsedQuery as T, invocation)
                     true
                 }
                 .build())

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.room.solver.shortcut.binderprovider
+package androidx.room.solver.prepared.binderprovider
 
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.L
@@ -22,19 +22,15 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.typeName
+import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
-import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
-import androidx.room.solver.shortcut.binder.InsertMethodBinder
-import androidx.room.vo.ShortcutQueryParameter
+import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
+import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import javax.lang.model.type.DeclaredType
 
-/**
- * Provider for Guava ListenableFuture binders.
- */
-class GuavaListenableFutureInsertMethodBinderProvider(
-    private val context: Context
-) : InsertMethodBinderProvider {
+class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Context)
+    : PreparedQueryResultBinderProvider {
 
     private val hasGuavaRoom by lazy {
         context.processingEnv.elementUtils
@@ -46,17 +42,15 @@ class GuavaListenableFutureInsertMethodBinderProvider(
                 context.processingEnv.typeUtils.erasure(declared).typeName() ==
                 GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
-    override fun provide(
-        declared: DeclaredType,
-        params: List<ShortcutQueryParameter>
-    ): InsertMethodBinder {
+    override fun provide(declared: DeclaredType, query: ParsedQuery): PreparedQueryResultBinder {
         if (!hasGuavaRoom) {
             context.logger.e(ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT)
         }
-
         val typeArg = declared.typeArguments.first()
-        val adapter = context.typeAdapterStore.findInsertAdapter(typeArg, params)
-        return createInsertBinder(typeArg, adapter) { callableImpl, dbField ->
+        return createPreparedBinder(
+            returnType = typeArg,
+            adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
+        ) { callableImpl, dbField ->
             addStatement(
                 "return $T.createListenableFuture($N, $L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
