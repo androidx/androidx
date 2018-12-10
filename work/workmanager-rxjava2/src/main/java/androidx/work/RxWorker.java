@@ -96,7 +96,7 @@ public abstract class RxWorker extends ListenableWorker {
 
     /**
      * Override this method to define your actual work and return a {@code Single} of
-     * {@link androidx.work.Result} which will be subscribed by the
+     * {@link Result} which will be subscribed by the
      * {@link WorkManager}.
      * <p>
      * If the returned {@code Single} fails, the worker will be considered as failed.
