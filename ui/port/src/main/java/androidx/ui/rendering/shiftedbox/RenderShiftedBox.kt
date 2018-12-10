@@ -17,6 +17,7 @@
 package androidx.ui.rendering.shiftedbox
 
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.gestures.hit_test.HitTestResult
 import androidx.ui.rendering.box.BoxParentData
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
@@ -80,11 +81,11 @@ abstract class RenderShiftedBox(
         }
     }
 
-//    override fun hitTestChildren(result: HitTestResult, position: Offset): Boolean {
-//        if (child != null) {
-//            val childParentData = child!!.parentData as BoxParentData;
-//            return child.hitTest(result, position = position - childParentData.offset);
-//        }
-//        return false;
-//    }
+    override fun hitTestChildren(result: HitTestResult, position: Offset): Boolean {
+        if (child != null) {
+            val childParentData = child!!.parentData as BoxParentData
+            return child!!.hitTest(result, position = position - childParentData.offset)
+        }
+        return false
+    }
 }

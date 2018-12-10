@@ -26,6 +26,8 @@ import androidx.ui.rendering.proxybox.RenderConstrainedBox
 import androidx.ui.rendering.shiftedbox.RenderPositionedBox
 import androidx.ui.widgets.binding.WidgetsBinding
 import androidx.ui.widgets.binding.WidgetsFlutterBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.TestCoroutineContext
 
 internal class TestRenderingFlutterBinding(
     val binding: WidgetsBinding
@@ -62,7 +64,13 @@ internal val renderer: TestRenderingFlutterBinding get() {
         val window = Window().apply {
             physicalSize = Size(800.0, 600.0)
         }
-        _renderer = TestRenderingFlutterBinding(WidgetsFlutterBinding.create(window))
+        _renderer = TestRenderingFlutterBinding(
+            WidgetsFlutterBinding.create(
+                window, CoroutineScope(
+                    TestCoroutineContext()
+                )
+            )
+        )
     }
     return _renderer!!
 }

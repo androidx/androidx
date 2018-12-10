@@ -44,6 +44,7 @@ class PointerCancelEvent(
     device = device,
     position = position,
     buttons = buttons,
+    down = false,
     obscured = obscured,
     pressureMin = pressureMin,
     pressureMax = pressureMax,

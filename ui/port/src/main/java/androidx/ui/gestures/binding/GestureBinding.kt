@@ -38,8 +38,8 @@ import androidx.ui.gestures.arena.GestureArenaManager
 import androidx.ui.gestures.converter.PointerEventConverter
 import androidx.ui.gestures.events.PointerEvent
 import androidx.ui.gestures.pointer_router.PointerRouter
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.consumeEach
 
 open class GestureMixinsWrapper(
@@ -51,13 +51,14 @@ open class GestureMixinsWrapper(
 class GestureBinding internal constructor(
     val window: Window,
     val base: BindingBase,
-    val hitTestDelegate: HitTestable
+    val hitTestDelegate: HitTestable,
+    var scope: CoroutineScope
 ) : GestureMixinsWrapper(base), HitTestable, HitTestDispatcher, HitTestTarget {
 
     // was initInstances
     init {
-        GlobalScope.launch(Dispatchers.Unconfined) {
-            window.onPointerDataPacket.openSubscription().consumeEach {
+        scope.launch {
+            window.onPointerDataPacket.consumeEach {
                 _handlePointerDataPacket(it)
             }
         }
@@ -74,7 +75,7 @@ class GestureBinding internal constructor(
         // We convert pointer data to logical pixels so that e.g. the touch slop can be
         // defined in a device-independent manner.
         _pendingPointerEvents.addAll(
-            PointerEventConverter.expand(packet.data, window.devicePixelRatio)
+            PointerEventConverter.expand(packet.data)
         )
         if (!locked)
             _flushPointerEventQueue()
@@ -198,9 +199,10 @@ class GestureBinding internal constructor(
         fun initInstance(
             window: Window,
             base: BindingBase,
-            hitTestDelegate: HitTestable
+            hitTestDelegate: HitTestable,
+            scope: CoroutineScope = CoroutineScope(Dispatchers.Main)
         ): GestureBinding {
-            instance = instance ?: GestureBinding(window, base, hitTestDelegate)
+            instance = instance ?: GestureBinding(window, base, hitTestDelegate, scope)
             return instance!!
         }
     }

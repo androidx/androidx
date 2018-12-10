@@ -108,7 +108,7 @@ import androidx.ui.foundation.Key
  *  * [InheritedWidget], for widgets that introduce ambient state that can
  *    be read by descendant widgets.
  */
-abstract class StatelessWidget(key: Key) : Widget(key) {
+abstract class StatelessWidget(key: Key?) : Widget(key) {
 
     /**
      * Creates a [StatelessElement] to manage this widget's location in the tree.

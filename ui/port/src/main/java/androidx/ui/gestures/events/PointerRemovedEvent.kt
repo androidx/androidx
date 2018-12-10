@@ -37,6 +37,8 @@ class PointerRemovedEvent(
     timeStamp = timeStamp,
     kind = kind,
     device = device,
+    // TODO(Migration/shepshapard): This nullability runs annoyingly deep. need to investigate.
+    // position = null,
     obscured = obscured,
     pressureMin = pressureMin,
     pressureMax = pressureMax,
