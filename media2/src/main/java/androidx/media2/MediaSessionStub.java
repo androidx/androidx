@@ -354,6 +354,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                         // connection.
                         allowedCommands = new SessionCommandGroup();
                     }
+                    SequencedFutureManager sequencedFutureManager;
                     synchronized (mLock) {
                         if (mConnectedControllersManager.isConnected(controllerInfo)) {
                             Log.w(TAG, "Controller " + controllerInfo + " has sent connection"
@@ -362,6 +363,8 @@ class MediaSessionStub extends IMediaSession.Stub {
                         mConnectingControllers.remove(callbackBinder);
                         mConnectedControllersManager.addController(
                                 callbackBinder, controllerInfo, allowedCommands);
+                        sequencedFutureManager = mConnectedControllersManager
+                                .getSequencedFutureManager(controllerInfo);
                     }
                     // If connection is accepted, notify the current state to the controller.
                     // It's needed because we cannot call synchronous calls between
@@ -379,7 +382,8 @@ class MediaSessionStub extends IMediaSession.Stub {
                         return;
                     }
                     try {
-                        caller.onConnected(MediaUtils.toParcelable(state));
+                        caller.onConnected(sequencedFutureManager.obtainNextSequenceNumber(),
+                                MediaUtils.toParcelable(state));
                     } catch (RemoteException e) {
                         // Controller may be died prematurely.
                     }
@@ -391,7 +395,7 @@ class MediaSessionStub extends IMediaSession.Stub {
                         Log.d(TAG, "Rejecting connection, controllerInfo=" + controllerInfo);
                     }
                     try {
-                        caller.onDisconnected();
+                        caller.onDisconnected(0);
                     } catch (RemoteException e) {
                         // Controller may be died prematurely.
                         // Not an issue because we'll ignore it anyway.
@@ -1258,13 +1262,14 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onPlaybackInfoChanged(PlaybackInfo info) throws RemoteException {
-            mIControllerCallback.onPlaybackInfoChanged(MediaUtils.toParcelable(info));
+        void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
+            mIControllerCallback.onPlaybackInfoChanged(seq, MediaUtils.toParcelable(info));
         }
 
         @Override
-        void onAllowedCommandsChanged(SessionCommandGroup commands) throws RemoteException {
-            mIControllerCallback.onAllowedCommandsChanged(MediaUtils.toParcelable(commands));
+        void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+                throws RemoteException {
+            mIControllerCallback.onAllowedCommandsChanged(seq, MediaUtils.toParcelable(commands));
         }
 
         @Override
@@ -1274,95 +1279,97 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
+        void onPlayerStateChanged(int seq, long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
-            mIControllerCallback.onPlayerStateChanged(eventTimeMs, positionMs, playerState);
+            mIControllerCallback.onPlayerStateChanged(seq, eventTimeMs, positionMs, playerState);
         }
 
         @Override
-        void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
+        void onPlaybackSpeedChanged(int seq, long eventTimeMs, long positionMs, float speed)
                 throws RemoteException {
-            mIControllerCallback.onPlaybackSpeedChanged(eventTimeMs, positionMs, speed);
+            mIControllerCallback.onPlaybackSpeedChanged(seq, eventTimeMs, positionMs, speed);
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem item, int bufferingState, long bufferedPositionMs,
-                long eventTimeMs, long positionMs) throws RemoteException {
-            mIControllerCallback.onBufferingStateChanged(MediaUtils.toParcelable(item),
+        void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+                long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
+            mIControllerCallback.onBufferingStateChanged(seq, MediaUtils.toParcelable(item),
                     bufferingState, bufferedPositionMs, eventTimeMs, positionMs);
         }
 
         @Override
-        void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs)
+        void onSeekCompleted(int seq, long eventTimeMs, long positionMs, long seekPositionMs)
                 throws RemoteException {
-            mIControllerCallback.onSeekCompleted(eventTimeMs, positionMs, seekPositionMs);
+            mIControllerCallback.onSeekCompleted(seq, eventTimeMs, positionMs, seekPositionMs);
         }
 
         @Override
-        void onCurrentMediaItemChanged(MediaItem item, int currentIdx, int previousIdx, int nextIdx)
-                throws RemoteException {
-            mIControllerCallback.onCurrentMediaItemChanged(MediaUtils.toParcelable(item),
+        void onCurrentMediaItemChanged(int seq, MediaItem item, int currentIdx, int previousIdx,
+                int nextIdx) throws RemoteException {
+            mIControllerCallback.onCurrentMediaItemChanged(seq, MediaUtils.toParcelable(item),
                     currentIdx, previousIdx, nextIdx);
         }
 
         @Override
-        void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata, int currentIdx,
-                int previousIdx, int nextIdx) throws RemoteException {
+        void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
+                int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             ControllerInfo controller = mConnectedControllersManager.getController(
                     getCallbackBinder());
             if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
-                mIControllerCallback.onPlaylistChanged(
+                mIControllerCallback.onPlaylistChanged(seq,
                         MediaUtils.convertMediaItemListToParcelImplListSlice(playlist),
                         MediaUtils.toParcelable(metadata), currentIdx, previousIdx, nextIdx);
             } else if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
-                mIControllerCallback.onPlaylistMetadataChanged(MediaUtils.toParcelable(metadata));
+                mIControllerCallback.onPlaylistMetadataChanged(seq,
+                        MediaUtils.toParcelable(metadata));
             }
         }
 
         @Override
-        void onPlaylistMetadataChanged(MediaMetadata metadata) throws RemoteException {
+        void onPlaylistMetadataChanged(int seq, MediaMetadata metadata) throws RemoteException {
             ControllerInfo controller = mConnectedControllersManager.getController(
                     getCallbackBinder());
             if (mConnectedControllersManager.isAllowedCommand(controller,
                     SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
-                mIControllerCallback.onPlaylistMetadataChanged(MediaUtils.toParcelable(metadata));
+                mIControllerCallback.onPlaylistMetadataChanged(seq,
+                        MediaUtils.toParcelable(metadata));
             }
         }
 
         @Override
-        void onShuffleModeChanged(int shuffleMode) throws RemoteException {
-            mIControllerCallback.onShuffleModeChanged(shuffleMode);
+        void onShuffleModeChanged(int seq, int shuffleMode) throws RemoteException {
+            mIControllerCallback.onShuffleModeChanged(seq, shuffleMode);
         }
 
         @Override
-        void onRepeatModeChanged(int repeatMode) throws RemoteException {
-            mIControllerCallback.onRepeatModeChanged(repeatMode);
+        void onRepeatModeChanged(int seq, int repeatMode) throws RemoteException {
+            mIControllerCallback.onRepeatModeChanged(seq, repeatMode);
         }
 
         @Override
-        void onPlaybackCompleted() throws RemoteException {
-            mIControllerCallback.onPlaybackCompleted();
+        void onPlaybackCompleted(int seq) throws RemoteException {
+            mIControllerCallback.onPlaybackCompleted(seq);
         }
 
         @Override
-        void onChildrenChanged(String parentId, int itemCount, LibraryParams params)
+        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
                 throws RemoteException {
-            mIControllerCallback.onChildrenChanged(parentId, itemCount,
+            mIControllerCallback.onChildrenChanged(seq, parentId, itemCount,
                     MediaUtils.toParcelable(params));
         }
 
         @Override
-        void onSearchResultChanged(String query, int itemCount, LibraryParams params)
+        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
                 throws RemoteException {
-            mIControllerCallback.onSearchResultChanged(query, itemCount,
+            mIControllerCallback.onSearchResultChanged(seq, query, itemCount,
                     MediaUtils.toParcelable(params));
         }
 
         @Override
-        void onDisconnected() throws RemoteException {
-            mIControllerCallback.onDisconnected();
+        void onDisconnected(int seq) throws RemoteException {
+            mIControllerCallback.onDisconnected(seq);
         }
 
         @Override

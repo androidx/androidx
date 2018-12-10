@@ -297,10 +297,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
             mPlayer.unregisterPlayerCallback(mPlayerCallback);
             mSessionCompat.release();
             mCallback.onSessionClosed(mInstance);
-            dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onDisconnected();
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onDisconnected(seq);
                 }
             });
             mHandler.removeCallbacksAndMessages(null);
@@ -370,10 +370,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
         if (mSessionStub.getConnectedControllersManager().isConnected(controller)) {
             mSessionStub.getConnectedControllersManager()
                     .updateAllowedCommands(controller, commands);
-            dispatchRemoteControllerCallbackTask(controller, new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTaskWithoutReturn(controller, new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onAllowedCommandsChanged(commands);
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onAllowedCommandsChanged(seq, commands);
                 }
             });
         } else {
@@ -385,7 +385,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
     @Override
     public void broadcastCustomCommand(@NonNull final SessionCommand command,
             @Nullable final Bundle args) {
-        dispatchRemoteControllerTask(new RemoteControllerTask() {
+        dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
             @Override
             public void run(ControllerCb controller, int seq) throws RemoteException {
                 controller.sendCustomCommand(seq, command, args);
@@ -934,10 +934,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
         List<MediaItem> oldPlaylist = oldPlayer.getPlaylist();
         final List<MediaItem> newPlaylist = getPlaylistOrNull();
         if (!ObjectsCompat.equals(oldPlaylist, newPlaylist)) {
-            dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onPlaylistChanged(
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onPlaylistChanged(seq,
                             newPlaylist, getPlaylistMetadata(), getCurrentMediaItemIndex(),
                             getPreviousMediaItemIndex(), getNextMediaItemIndex());
                 }
@@ -946,10 +946,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
             MediaMetadata oldMetadata = oldPlayer.getPlaylistMetadata();
             final MediaMetadata newMetadata = getPlaylistMetadata();
             if (!ObjectsCompat.equals(oldMetadata, newMetadata)) {
-                dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+                dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                     @Override
-                    public void run(ControllerCb callback) throws RemoteException {
-                        callback.onPlaylistMetadataChanged(newMetadata);
+                    public void run(ControllerCb callback, int seq) throws RemoteException {
+                        callback.onPlaylistMetadataChanged(seq, newMetadata);
                     }
                 });
             }
@@ -957,29 +957,30 @@ class MediaSessionImplBase implements MediaSessionImpl {
         MediaItem oldCurrentItem = oldPlayer.getCurrentMediaItem();
         final MediaItem newCurrentItem = getCurrentMediaItemOrNull();
         if (!ObjectsCompat.equals(oldCurrentItem, newCurrentItem)) {
-            dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onCurrentMediaItemChanged(newCurrentItem, getCurrentMediaItemIndex(),
-                            getPreviousMediaItemIndex(), getNextMediaItemIndex());
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onCurrentMediaItemChanged(seq, newCurrentItem,
+                            getCurrentMediaItemIndex(), getPreviousMediaItemIndex(),
+                            getNextMediaItemIndex());
                 }
             });
         }
         final @SessionPlayer.RepeatMode int repeatMode = getRepeatMode();
         if (oldPlayer.getRepeatMode() != repeatMode) {
-            dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onRepeatModeChanged(repeatMode);
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onRepeatModeChanged(seq, repeatMode);
                 }
             });
         }
         final @SessionPlayer.ShuffleMode int shuffleMode = getShuffleMode();
         if (oldPlayer.getShuffleMode() != shuffleMode) {
-            dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onShuffleModeChanged(shuffleMode);
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onShuffleModeChanged(seq, shuffleMode);
                 }
             });
         }
@@ -989,30 +990,30 @@ class MediaSessionImplBase implements MediaSessionImpl {
         final long currentTimeMs = SystemClock.elapsedRealtime();
         final long positionMs = getCurrentPosition();
         final int playerState = getPlayerState();
-        dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+        dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
             @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onPlayerStateChanged(currentTimeMs, positionMs, playerState);
+            public void run(ControllerCb callback, int seq) throws RemoteException {
+                callback.onPlayerStateChanged(seq, currentTimeMs, positionMs, playerState);
             }
         });
         final MediaItem item = getCurrentMediaItemOrNull();
         if (item != null) {
             final int bufferingState = getBufferingState();
             final long bufferedPositionMs = getBufferedPosition();
-            dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onBufferingStateChanged(item, bufferingState, bufferedPositionMs,
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onBufferingStateChanged(seq, item, bufferingState, bufferedPositionMs,
                             SystemClock.elapsedRealtime(), getCurrentPosition());
                 }
             });
         }
         final float speed = getPlaybackSpeed();
         if (speed != oldPlayer.getPlaybackSpeed()) {
-            dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onPlaybackSpeedChanged(currentTimeMs, positionMs, speed);
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onPlaybackSpeedChanged(seq, currentTimeMs, positionMs, speed);
                 }
             });
         }
@@ -1021,22 +1022,46 @@ class MediaSessionImplBase implements MediaSessionImpl {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void notifyPlaybackInfoChangedNotLocked(final PlaybackInfo info) {
-        dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+        dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
             @Override
-            public void run(ControllerCb callback) throws RemoteException {
-                callback.onPlaybackInfoChanged(info);
+            public void run(ControllerCb callback, int seq) throws RemoteException {
+                callback.onPlaybackInfoChanged(seq, info);
             }
         });
     }
 
-    void dispatchRemoteControllerCallbackTask(@NonNull ControllerInfo controller,
-            @NonNull RemoteControllerCallbackTask task) {
+    void dispatchRemoteControllerTaskWithoutReturn(@NonNull RemoteControllerTask task) {
+        List<ControllerInfo> controllers =
+                mSessionStub.getConnectedControllersManager().getConnectedControllers();
+        controllers.add(mSessionLegacyStub.getControllersForAll());
+        for (int i = 0; i < controllers.size(); i++) {
+            ControllerInfo controller = controllers.get(i);
+            dispatchRemoteControllerTaskWithoutReturn(controller, task);
+        }
+    }
+
+    void dispatchRemoteControllerTaskWithoutReturn(@NonNull ControllerInfo controller,
+            @NonNull RemoteControllerTask task) {
         if (!isConnected(controller)) {
             // Do not send command to an unconnected controller.
             return;
         }
         try {
-            task.run(controller.getControllerCb());
+            final int seq;
+            final SequencedFutureManager manager =
+                    mSessionStub.getConnectedControllersManager()
+                            .getSequencedFutureManager(controller);
+            if (manager != null) {
+                seq = manager.obtainNextSequenceNumber();
+            } else {
+                // Can be null in two cases. Use the 0 as sequence number in both cases because
+                //     Case 1) Controller is from the legacy stub
+                //             -> Sequence number isn't needed, so 0 is OK
+                //     Case 2) Controller is removed after the connection check above
+                //             -> Call will fail below or ignored by the controller, so 0 is OK.
+                seq = 0;
+            }
+            task.run(controller.getControllerCb(), seq);
         } catch (DeadObjectException e) {
             onDeadObjectException(controller, e);
         } catch (RemoteException e) {
@@ -1046,15 +1071,6 @@ class MediaSessionImplBase implements MediaSessionImpl {
             //     (e.g. add pagination or special way to deliver Bitmap)
             //   - DeadSystemException means that errors around it can be ignored.
             Log.w(TAG, "Exception in " + controller.toString(), e);
-        }
-    }
-
-    void dispatchRemoteControllerCallbackTask(@NonNull RemoteControllerCallbackTask task) {
-        List<ControllerInfo> controllers =
-                mSessionStub.getConnectedControllersManager().getConnectedControllers();
-        controllers.add(mSessionLegacyStub.getControllersForAll());
-        for (int i = 0; i < controllers.size(); i++) {
-            dispatchRemoteControllerCallbackTask(controllers.get(i), task);
         }
     }
 
@@ -1097,41 +1113,6 @@ class MediaSessionImplBase implements MediaSessionImpl {
         return SessionResult.createFutureWithResult(RESULT_CODE_UNKNOWN_ERROR);
     }
 
-    void dispatchRemoteControllerTask(@NonNull RemoteControllerTask task) {
-        List<ControllerInfo> controllers =
-                mSessionStub.getConnectedControllersManager().getConnectedControllers();
-        controllers.add(mSessionLegacyStub.getControllersForAll());
-        for (int i = 0; i < controllers.size(); i++) {
-            ControllerInfo controller = controllers.get(i);
-            try {
-                final int seq;
-                final SequencedFutureManager manager =
-                        mSessionStub.getConnectedControllersManager()
-                                .getSequencedFutureManager(controller);
-                if (manager != null) {
-                    seq = manager.obtainNextSequenceNumber();
-                } else {
-                    // Can be null in two cases. Use the 0 as sequence number in both cases because
-                    //     Case 1) Controller is from the legacy stub
-                    //             -> Sequence number isn't needed, so 0 is OK
-                    //     Case 2) Controller is removed after the connection check above
-                    //             -> Call will fail below or ignored by the controller, so 0 is OK.
-                    seq = 0;
-                }
-                task.run(controller.getControllerCb(), seq);
-            } catch (DeadObjectException e) {
-                onDeadObjectException(controller, e);
-            } catch (RemoteException e) {
-                // Currently it's TransactionTooLargeException or DeadSystemException.
-                // We'd better to leave log for those cases because
-                //   - TransactionTooLargeException means that we may need to fix our code.
-                //     (e.g. add pagination or special way to deliver Bitmap)
-                //   - DeadSystemException means that errors around it can be ignored.
-                Log.w(TAG, "Exception in " + controller.toString(), e);
-            }
-        }
-    }
-
     /**
      * Removes controller. Call this when DeadObjectException is happened with binder call.
      */
@@ -1155,11 +1136,6 @@ class MediaSessionImplBase implements MediaSessionImpl {
     @FunctionalInterface
     interface RemoteControllerTask {
         void run(ControllerCb controller, int seq) throws RemoteException;
-    }
-
-    @FunctionalInterface
-    interface RemoteControllerCallbackTask {
-        void run(ControllerCb controller) throws RemoteException;
     }
 
     private static class SessionPlayerCallback extends SessionPlayer.PlayerCallback {
@@ -1194,11 +1170,12 @@ class MediaSessionImplBase implements MediaSessionImpl {
 
             // Note: No sanity check whether the item is in the playlist.
             updateDurationIfNeeded(player, item);
-            session.dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+            session.dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onCurrentMediaItemChanged(item, session.getCurrentMediaItemIndex(),
-                            session.getPreviousMediaItemIndex(), session.getNextMediaItemIndex());
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onCurrentMediaItemChanged(seq, item,
+                            session.getCurrentMediaItemIndex(), session.getPreviousMediaItemIndex(),
+                            session.getNextMediaItemIndex());
                 }
             });
         }
@@ -1211,10 +1188,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
             }
             session.getCallback().onPlayerStateChanged(session.getInstance(), state);
             updateDurationIfNeeded(player, player.getCurrentMediaItem());
-            session.dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+            session.dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onPlayerStateChanged(SystemClock.elapsedRealtime(),
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onPlayerStateChanged(seq, SystemClock.elapsedRealtime(),
                             player.getCurrentPosition(), state);
                 }
             });
@@ -1224,10 +1201,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
         public void onBufferingStateChanged(final SessionPlayer player,
                 final MediaItem item, final int state) {
             updateDurationIfNeeded(player, item);
-            dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onBufferingStateChanged(item, state, player.getBufferedPosition(),
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onBufferingStateChanged(seq, item, state, player.getBufferedPosition(),
                             SystemClock.elapsedRealtime(), player.getCurrentPosition());
                 }
             });
@@ -1235,10 +1212,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
 
         @Override
         public void onPlaybackSpeedChanged(final SessionPlayer player, final float speed) {
-            dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onPlaybackSpeedChanged(SystemClock.elapsedRealtime(),
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onPlaybackSpeedChanged(seq, SystemClock.elapsedRealtime(),
                             player.getCurrentPosition(), speed);
                 }
             });
@@ -1246,10 +1223,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
 
         @Override
         public void onSeekCompleted(final SessionPlayer player, final long position) {
-            dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onSeekCompleted(SystemClock.elapsedRealtime(),
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onSeekCompleted(seq, SystemClock.elapsedRealtime(),
                             player.getCurrentPosition(), position);
                 }
             });
@@ -1277,11 +1254,12 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 mList = list;
             }
 
-            dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onPlaylistChanged(list, metadata, session.getCurrentMediaItemIndex(),
-                            session.getPreviousMediaItemIndex(), session.getNextMediaItemIndex());
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onPlaylistChanged(seq, list, metadata,
+                            session.getCurrentMediaItemIndex(), session.getPreviousMediaItemIndex(),
+                            session.getNextMediaItemIndex());
                 }
             });
         }
@@ -1289,40 +1267,40 @@ class MediaSessionImplBase implements MediaSessionImpl {
         @Override
         public void onPlaylistMetadataChanged(final SessionPlayer player,
                 final MediaMetadata metadata) {
-            dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onPlaylistMetadataChanged(metadata);
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onPlaylistMetadataChanged(seq, metadata);
                 }
             });
         }
 
         @Override
         public void onRepeatModeChanged(final SessionPlayer player, final int repeatMode) {
-            dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onRepeatModeChanged(repeatMode);
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onRepeatModeChanged(seq, repeatMode);
                 }
             });
         }
 
         @Override
         public void onShuffleModeChanged(final SessionPlayer player, final int shuffleMode) {
-            dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onShuffleModeChanged(shuffleMode);
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onShuffleModeChanged(seq, shuffleMode);
                 }
             });
         }
 
         @Override
         public void onPlaybackCompleted(SessionPlayer player) {
-            dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
+            dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
-                public void run(ControllerCb callback) throws RemoteException {
-                    callback.onPlaybackCompleted();
+                public void run(ControllerCb callback, int seq) throws RemoteException {
+                    callback.onPlaybackCompleted(seq);
                 }
             });
         }
@@ -1354,12 +1332,12 @@ class MediaSessionImplBase implements MediaSessionImpl {
         }
 
         private void dispatchRemoteControllerTask(@NonNull SessionPlayer player,
-                @NonNull RemoteControllerCallbackTask task) {
+                @NonNull RemoteControllerTask task) {
             final MediaSessionImplBase session = getSession();
             if (session == null || session.getPlayer() != player || player == null) {
                 return;
             }
-            session.dispatchRemoteControllerCallbackTask(task);
+            session.dispatchRemoteControllerTaskWithoutReturn(task);
         }
 
         private void updateDurationIfNeeded(@NonNull final SessionPlayer player,
@@ -1407,10 +1385,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
             if (metadata != null) {
                 final MediaSessionImplBase session = getSession();
                 item.setMetadata(metadata);
-                dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
+                dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                     @Override
-                    public void run(ControllerCb callback) throws RemoteException {
-                        callback.onPlaylistChanged(
+                    public void run(ControllerCb callback, int seq) throws RemoteException {
+                        callback.onPlaylistChanged(seq,
                                 player.getPlaylist(), player.getPlaylistMetadata(),
                                 session.getCurrentMediaItemIndex(),
                                 session.getPreviousMediaItemIndex(),
@@ -1436,10 +1414,10 @@ class MediaSessionImplBase implements MediaSessionImpl {
             }
             final MediaItem currentItem = session.getCurrentMediaItem();
             if (currentItem != null && item.equals(currentItem)) {
-                session.dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
+                session.dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                     @Override
-                    public void run(ControllerCb callback) throws RemoteException {
-                        callback.onCurrentMediaItemChanged(item,
+                    public void run(ControllerCb callback, int seq) throws RemoteException {
+                        callback.onCurrentMediaItemChanged(seq, item,
                                 session.getCurrentMediaItemIndex(),
                                 session.getPreviousMediaItemIndex(),
                                 session.getNextMediaItemIndex());
@@ -1468,16 +1446,16 @@ class MediaSessionImplBase implements MediaSessionImpl {
             }
             for (int i = 0; i < list.size(); i++) {
                 if (item.equals(list.get(i))) {
-                    session.dispatchRemoteControllerCallbackTask(
-                            new RemoteControllerCallbackTask() {
-                                @Override
-                                public void run(ControllerCb callback) throws RemoteException {
-                                    callback.onPlaylistChanged(list, session.getPlaylistMetadata(),
-                                            session.getCurrentMediaItemIndex(),
-                                            session.getPreviousMediaItemIndex(),
-                                            session.getNextMediaItemIndex());
-                                }
-                            });
+                    session.dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
+                        @Override
+                        public void run(ControllerCb callback, int seq) throws RemoteException {
+                            callback.onPlaylistChanged(seq, list,
+                                    session.getPlaylistMetadata(),
+                                    session.getCurrentMediaItemIndex(),
+                                    session.getPreviousMediaItemIndex(),
+                                    session.getNextMediaItemIndex());
+                        }
+                    });
                     return;
                 }
             }
