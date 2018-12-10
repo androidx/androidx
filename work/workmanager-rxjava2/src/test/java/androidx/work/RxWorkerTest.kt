@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit
 @RunWith(JUnit4::class)
 class RxWorkerTest {
     private val syncExecutor = SynchronousExecutor()
-    private val result = Result.success()
+    private val result = ListenableWorker.Result.success()
 
     @Test
     fun simple() {
@@ -48,7 +48,7 @@ class RxWorkerTest {
     fun cancelForwarding() {
         val latch = CountDownLatch(1)
         val worker = Single
-            .never<Result>()
+            .never<ListenableWorker.Result>()
             .doOnDispose {
                 latch.countDown()
             }.toWorker(createWorkerParams(syncExecutor))
@@ -63,7 +63,7 @@ class RxWorkerTest {
     fun failedWork() {
         val error: Throwable = RuntimeException("a random error")
         val worker = Single
-            .error<Result>(error)
+            .error<ListenableWorker.Result>(error)
             .toWorker(createWorkerParams(syncExecutor))
         val future = worker.startWork()
         try {
@@ -127,7 +127,7 @@ class RxWorkerTest {
         WorkerFactory.getDefaultWorkerFactory()
     )
 
-    private fun Single<Result>.toWorker(
+    private fun Single<ListenableWorker.Result>.toWorker(
         params: WorkerParameters = createWorkerParams()
     ): RxWorker {
         return object : RxWorker(Mockito.mock(Context::class.java), params) {

@@ -103,8 +103,10 @@ class CoroutineWorkerTest {
 
         assertThat(future.isDone, `is`(true))
         assertThat(future.isCancelled, `is`(false))
-        assertThat(result, `is`(instanceOf(Result.Success::class.java)))
-        assertThat((result as Result.Success).outputData.getLong("output", 0L), `is`(999L))
+        assertThat(result, `is`(instanceOf(ListenableWorker.Result.Success::class.java)))
+        assertThat((result as ListenableWorker.Result.Success).outputData.getLong(
+            "output", 0L),
+            `is`(999L))
     }
 
     @Test

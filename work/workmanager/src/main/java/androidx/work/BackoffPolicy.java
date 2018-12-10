@@ -20,9 +20,10 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * An enumeration of backoff policies when retrying work.  These policies are used when you have a
- * return {@link Result#retry()} from a worker to determine the correct backoff time.  Backoff
- * policies are set in {@link WorkRequest.Builder#setBackoffCriteria(BackoffPolicy, long, TimeUnit)}
- * or one of its variants.
+ * return {@link ListenableWorker.Result#retry()} from a worker to determine the correct backoff
+ * time.  Backoff policies are set in
+ * {@link WorkRequest.Builder#setBackoffCriteria(BackoffPolicy, long, TimeUnit)} or one of its
+ * variants.
  */
 
 public enum BackoffPolicy {
