@@ -252,7 +252,6 @@ fun digest(file: File, algorithm: String): File {
     val outputFile = File(parent, "${file.name}.${algorithm.toLowerCase()}")
     outputFile.deleteOnExit()
     outputFile.writeText(builder.toString())
-    outputFile.deleteOnExit()
     return outputFile
 }
 
@@ -281,9 +280,6 @@ fun copyArtifact(artifact: ResolvedArtifact, internal: Boolean = false) {
             digest(artifact.file, "MD5"),
             digest(artifact.file, "SHA1")
         )
-        into(location)
-    }
-    copy {
         into(location)
     }
     // Copy supporting artifacts
@@ -328,9 +324,6 @@ fun copyPomFile(
             digest(pomFile, "MD5"),
             digest(pomFile, "SHA1")
         )
-        into(location)
-    }
-    copy {
         into(location)
     }
 }
