@@ -36,6 +36,7 @@ import androidx.ui.painting.Image
 import androidx.ui.painting.alignment.Alignment
 import androidx.ui.widgets.basic.Align
 import androidx.ui.widgets.basic.RawImage
+import androidx.ui.widgets.binding.WidgetsFlutterBinding
 import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.State
 import androidx.ui.widgets.framework.StatefulWidget
@@ -45,6 +46,7 @@ class WoodPeckerDemo : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WidgetsFlutterBinding.useWoodPecker = true
         val metaData = MetaData(ViewConfiguration.get(this).scaledTouchSlop)
         val bitmap = BitmapFactory.decodeResource(resources, R.drawable.test)
         val widget = Gestures2App(Key.createKey("jetpack image widget!"), bitmap, metaData)

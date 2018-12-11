@@ -47,7 +47,7 @@ internal val transparentPaint = Paint().apply {
  */
 class RenderPhysicalShape(
     child: RenderBox? = null,
-    clipper: CustomClipper<Path>?,
+    clipper: CustomClipper<Path>,
     elevation: Double,
     color: Color,
     shadowColor: Color = Color(0xFF000000.toInt())

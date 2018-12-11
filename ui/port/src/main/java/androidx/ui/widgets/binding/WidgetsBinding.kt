@@ -10,7 +10,6 @@ import androidx.ui.engine.window.Locale
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.binding.BindingBase
-import androidx.ui.gestures2.GestureBinding2
 import androidx.ui.rendering.binding.RendererBinding
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
@@ -44,7 +43,8 @@ open class WidgetsMixinsWrapper(
 class WidgetsBindingImpl(
     window: Window,
     base: BindingBase,
-    gesture: GestureBinding2,
+//    TODO("Migration|Andrey: Not currently using gestureBinding here")
+//    gesture: GestureBinding2,
     renderer: RendererBinding
 ) : WidgetsMixinsWrapper(base, renderer), WidgetsBinding /* with GestureBinding */ {
 

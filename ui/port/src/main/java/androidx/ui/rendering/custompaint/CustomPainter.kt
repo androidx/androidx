@@ -67,6 +67,7 @@ import androidx.ui.painting.Canvas
  * This sample extends the same code shown for [RadialGradient] to create a
  * custom painter that paints a sky.
  *
+ * // TODO("Migration|Andrey: Change to kotlin if we will keep this class")
  * ```dart
  * class Sky extends CustomPainter {
  *   @override

@@ -47,16 +47,16 @@ enum class BorderStyle {
  * the text has a thick bar above it that is light blue, and a thick bar below
  * it that is a darker shade of blue.
  *
- * ```dart
- * new Container(
- *   padding: new EdgeInsets.all(8.0),
- *   decoration: new BoxDecoration(
- *     border: new Border(
- *       top: new BorderSide(width: 16.0, color: Colors.lightBlue.shade50),
- *       bottom: new BorderSide(width: 16.0, color: Colors.lightBlue.shade900),
- *     ),
+ * ```kotlin
+ * Container(
+ *   padding = EdgeInsets.all(8.0),
+ *   decoration = BoxDecoration(
+ *     border = Border(
+ *       top = BorderSide(width = 16.0, color = Colors.lightBlue.shade50),
+ *       bottom = BorderSide(width = 16.0, color = Colors.lightBlue.shade900)
+ *     )
  *   ),
- *   child: new Text('Flutter in the sky', textAlign: TextAlign.center),
+ *   child: Text("Text in the sky", textAlign = TextAlign.center)
  * )
  * ```
  *
@@ -112,7 +112,6 @@ data class BorderSide(
      * an [AnimationController].
      */
     fun scale(t: Double): BorderSide {
-        assert(t != null)
         return BorderSide(
             color = color,
             width = Math.max(0.0, width * t),

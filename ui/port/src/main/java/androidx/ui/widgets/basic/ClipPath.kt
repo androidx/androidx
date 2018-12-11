@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.rendering.proxybox
+package androidx.ui.widgets.basic
 
 import androidx.ui.assert
 import androidx.ui.engine.geometry.Offset
@@ -26,6 +26,8 @@ import androidx.ui.painting.Path
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.rendering.obj.RenderObject
+import androidx.ui.rendering.proxybox.CustomClipper
+import androidx.ui.rendering.proxybox.RenderCustomClip
 import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.SingleChildRenderObjectWidget
 import androidx.ui.widgets.framework.Widget
@@ -117,7 +119,9 @@ class RenderClipPath(
         if (child != null) {
             updateClip()
             context.pushClipPath(
-                needsCompositing, offset, Offset.zero and size,
+                needsCompositing,
+                offset,
+                Offset.zero and size,
                 clip!!
             ) { context, offset ->
                 super.paint(context, offset)

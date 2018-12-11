@@ -43,11 +43,11 @@ import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.custompaint.CustomPainter
 import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.rendering.obj.RenderObject
-import androidx.ui.rendering.proxybox.ClipPath
 import androidx.ui.rendering.proxybox.RenderProxyBox
 import androidx.ui.rendering.proxybox.ShapeBorderClipper
 import androidx.ui.scheduler.ticker.TickerProvider
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.widgets.basic.ClipPath
 import androidx.ui.widgets.basic.CustomPaint
 import androidx.ui.widgets.basic.Directionality
 import androidx.ui.widgets.basic.PhysicalShape
@@ -123,6 +123,10 @@ val MaterialEdges = mapOf(
     MaterialType.BUTTON to BorderRadius.circular(2.0),
     MaterialType.TRANSPARENCY to null
 )
+
+/** The default radius of an ink splash in logical pixels. */
+// TODO("Migration|Andrey:  Defined in dps, but will actually be drawn as pixels! Solve it!")
+const val DefaultSplashRadius: Double = 35.0
 
 /**
  * An interface for creating [InkSplash]s and [InkHighlight]s on a material.
@@ -234,7 +238,7 @@ interface MaterialInkController {
  * catch likely errors.
  */
 class Material(
-    key: Key,
+    key: Key? = null,
     /**
      * The kind of material to show (e.g., card or canvas). This
      * affects the shape of the widget, the roundness of its corners if
@@ -309,9 +313,7 @@ class Material(
         assert(type != MaterialType.CIRCLE && (borderRadius != null || shape != null))
     }
 
-    override fun createState(): State<out StatefulWidget> {
-        return MaterialState(this)
-    }
+    override fun createState(): State<out StatefulWidget> = MaterialState(this)
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
@@ -335,12 +337,6 @@ class Material(
             )
         )
     }
-
-    companion object {
-
-        /** The default radius of an ink splash in logical pixels. */
-        const val DefaultSplashRadius: Double = 35.0
-    }
 }
 
 /**
@@ -349,8 +345,8 @@ class Material(
  *
  * Typical usage is as follows:
  *
- * ```dart
- * MaterialInkController inkController = Material(context);
+ * ```kotlin
+ * val inkController = Material(context);
  * ```
  */
 fun Material(context: BuildContext): RenderInkFeatures {
@@ -505,9 +501,8 @@ private class ShapeBorderPainter(
         border.paint(canvas, Offset.zero and size, textDirection)
     }
 
-    override fun shouldRepaint(oldDelegate: CustomPainter): Boolean {
-        return (oldDelegate as ShapeBorderPainter).border != border
-    }
+    override fun shouldRepaint(oldDelegate: CustomPainter) =
+        (oldDelegate as ShapeBorderPainter).border != border
 }
 
 /**
@@ -540,9 +535,7 @@ class MaterialInterior(
     duration: Duration
 ) : ImplicitlyAnimatedWidget(key, curve, duration) {
 
-    override fun createState(): AnimatedWidgetBaseState<out ImplicitlyAnimatedWidget> {
-        return MaterialInteriorState(this)
-    }
+    override fun createState() = MaterialInteriorState(this)
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
@@ -568,6 +561,7 @@ class MaterialInteriorState(widget: MaterialInterior) :
     }
 
     override fun build(context: BuildContext): Widget {
+        // TODO("Migration|Andrey: find Kotlin friendly way of creating tweens w/o nulls.")
         val shape = border!!.evaluate(animation!!)
         return PhysicalShape(
             child = ShapeBorderPaint(
@@ -686,6 +680,8 @@ abstract class InkFeature constructor(
     val onRemoved: VoidCallback? = null
 ) {
 
+    // TODO("Migration|Andrey: Try to merge MaterialInkController with RenderInkFeatures and remove
+    // the backing field after it.")
     private var _controller: RenderInkFeatures = controller
     val controller: MaterialInkController get() = _controller
 

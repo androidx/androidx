@@ -443,12 +443,12 @@ class RenderCustomPaint(
             if (haveOldChildren) {
                 val key = newSemantics.key
                 if (key != null) {
-                    oldChild = oldKeyedChildren?.get(key)
+                    oldChild = oldKeyedChildren!!.get(key)
                     if (oldChild != null) {
                         if (canUpdateSemanticsChild(oldChild, newSemantics)) {
                             // we found a match!
                             // remove it from oldKeyedChildren so we don't unsync it later
-                            oldKeyedChildren!!.remove(key)
+                            oldKeyedChildren.remove(key)
                         } else {
                             // Not a match, let's pretend we didn't see it for now.
                             oldChild = null

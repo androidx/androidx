@@ -141,6 +141,11 @@ class BorderRadius(
 
     companion object {
 
+        // TODO("Migration|Andrey: This constructors are not following our guides. But it just
+        // will not work as we have two pairs of constructors (all and circular;
+        // vertical and horizontal) with the same set of parameters.
+        // To be discussed.
+
         /** Creates a border radius where all radii are [radius]. */
         fun all(radius: Radius) = BorderRadius(
             topLeft = radius,

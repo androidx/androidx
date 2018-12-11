@@ -17,6 +17,7 @@
 package androidx.ui.rendering.proxybox
 
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.gestures.hit_test.HitTestResult
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.rendering.obj.ParentData
@@ -83,10 +84,9 @@ abstract class RenderProxyBoxMixin : RenderBox() {
         }
     }
 
-    // TODO(Migration/Andrey): Needs HitTestResult
-//    override bool hitTestChildren(HitTestResult result, { Offset position }) {
-//        return child?.hitTest(result, position: position) ?? false;
-//    }
+    override fun hitTestChildren(result: HitTestResult, position: Offset): Boolean {
+        return child?.hitTest(result, position) ?: false
+    }
 
     override fun applyPaintTransform(child: RenderObject, transform: Matrix4) {}
 

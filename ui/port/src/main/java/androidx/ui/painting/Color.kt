@@ -250,7 +250,7 @@ class Color(colorValue: Int) {
      * A value of 0 means this color is fully transparent. A value of 255 means
      * this color is fully opaque.
      */
-    val alpha get() = (0xff000000.toInt() and value) shr 24
+    val alpha get() = (0xff000000.toInt() and value) ushr 24
 
     /**
      * The alpha channel of this color as a double.

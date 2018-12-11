@@ -7,7 +7,9 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.Paragraph
+import androidx.ui.painting.matrixutils.isIdentity
 import androidx.ui.skia.SkMatrix
+import androidx.ui.vectormath64.Matrix4
 
 // TODO(Migration/njawad): Copy the class here
 /**
@@ -281,13 +283,16 @@ class Canvas {
      * Multiply the current transform by the specified 4⨉4 transformation matrix
      * specified as a list of values in column-major order.
      */
-    // TODO(Migration/njawad framework canvas does not provide transform method given a matrix)
-//    void transform(Float64List matrix4) {
+    fun transform(matrix4: Matrix4) {
+        if (!matrix4.isIdentity()) {
+            TODO("Migration/njawad framework canvas does not provide transform method " +
+                    "given a matrix")
+        }
 //        assert(matrix4 != null);
 //        if (matrix4.length != 16)
 //            throw new ArgumentError('"matrix4" must have 16 entries.');
 //        _transform(matrix4);
-//    }
+    }
 //    void _transform(Float64List matrix4) native 'Canvas_transform';
 //
     /**

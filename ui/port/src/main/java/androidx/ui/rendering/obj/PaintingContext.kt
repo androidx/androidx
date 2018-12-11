@@ -419,12 +419,11 @@ class PaintingContext(
 //            pushLayer(ClipPathLayer(clipPath= offsetClipPath), painter, offset,
 //                childPaintBounds= offsetBounds);
         } else {
-            canvas.apply {
+            with(canvas) {
                 save()
                 clipPath(clipPath.shift(offset))
                 saveLayer(bounds.shift(offset), _defaultPaint)
                 painter(this@PaintingContext, offset)
-                canvas
                 restore()
                 restore()
             }
