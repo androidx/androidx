@@ -170,7 +170,7 @@ class Triager(object):
       "Linkify": ["siyamed", "toki"],
       "Spannable": ["siyamed"],
       "Minikin": ["nona"],
-      "Fonts": ["clarabayarri", "dougfelt"],
+      "Fonts": ["nona", "dougfelt"],
       "freetype": ["nona", "junkshik"],
       "harfbuzz": ["nona", "junkshik"],
       "slice": ["jmonk", "madym"]
