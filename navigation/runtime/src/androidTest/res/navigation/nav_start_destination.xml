@@ -18,5 +18,7 @@
             xmlns:app="http://schemas.android.com/apk/res-auto"
             app:startDestination="@+id/start_test">
 
-    <test android:id="@+id/start_test" />
+    <test android:id="@+id/start_test" >
+        <argument android:name="test" android:defaultValue="@null" app:argType="string"/>
+    </test>
 </navigation>
