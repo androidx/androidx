@@ -24,7 +24,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-@SuppressWarnings("BanParcelableUsage")
 @SuppressLint("BanParcelableUsage")
 final class FragmentState implements Parcelable {
     final String mClassName;

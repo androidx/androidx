@@ -42,7 +42,6 @@ import java.util.List;
  * {@link PlaybackStateCompat#STATE_PLAYING}, the current playback position,
  * and the current control capabilities.
  */
-@SuppressWarnings("BanParcelableUsage")
 @SuppressLint("BanParcelableUsage")
 public final class PlaybackStateCompat implements Parcelable {
 
@@ -880,7 +879,6 @@ public final class PlaybackStateCompat implements Parcelable {
      * extend the capabilities of the standard transport controls by exposing
      * app specific actions to {@link MediaControllerCompat Controllers}.
      */
-    @SuppressWarnings("BanParcelableUsage")
     public static final class CustomAction implements Parcelable {
         private final String mAction;
         private final CharSequence mName;

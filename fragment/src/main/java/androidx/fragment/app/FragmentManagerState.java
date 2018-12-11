@@ -16,12 +16,13 @@
 
 package androidx.fragment.app;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
 
-@SuppressWarnings("BanParcelableUsage")
+@SuppressLint("BanParcelableUsage")
 final class FragmentManagerState implements Parcelable {
     ArrayList<FragmentState> mActive;
     ArrayList<String> mAdded;

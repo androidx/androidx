@@ -42,7 +42,6 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@SuppressWarnings("BanParcelableUsage")
 @SuppressLint("BanParcelableUsage")
 public class ResultReceiver implements Parcelable {
     final boolean mLocal;

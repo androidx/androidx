@@ -28,7 +28,6 @@ import com.google.auto.value.AutoValue.CopyAnnotations;
 
 @AutoValue
 @Entity(tableName = "parcelable_entity")
-@SuppressWarnings("BanParcelableUsage")
 @SuppressLint("BanParcelableUsage")
 public abstract class ParcelableEntity implements Parcelable {
     @CopyAnnotations
