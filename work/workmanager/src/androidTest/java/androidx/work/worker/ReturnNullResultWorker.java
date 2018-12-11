@@ -24,7 +24,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 /**
- * A Worker that returns {@code null} for a {@link Result}.
+ * A Worker that returns {@code null} for a {@link androidx.work.ListenableWorker.Result}.
  */
 public class ReturnNullResultWorker extends Worker {
 
