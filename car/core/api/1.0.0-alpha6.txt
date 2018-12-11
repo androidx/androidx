@@ -49,18 +49,6 @@ package androidx.car.app {
 
 package androidx.car.drawer {
 
-  public class CarDrawerActivity extends androidx.appcompat.app.AppCompatActivity {
-    ctor public CarDrawerActivity();
-    method protected int getContentContainerId();
-    method protected androidx.car.drawer.CarDrawerController? getDrawerController();
-    method public void setMainContent(android.view.View!);
-    method public void setMainContent(@LayoutRes int);
-    method public void setToolbarAlwaysShow();
-    method public void setToolbarCollapsible();
-    method public void setToolbarElevation(float);
-    method public void setToolbarElevationWithAnimation(float);
-  }
-
   public abstract class CarDrawerAdapter extends androidx.recyclerview.widget.RecyclerView.Adapter<androidx.car.drawer.DrawerItemViewHolder> implements androidx.car.widget.PagedListView.ItemCap {
     ctor protected CarDrawerAdapter(android.content.Context!, boolean);
     method public void cleanup();
