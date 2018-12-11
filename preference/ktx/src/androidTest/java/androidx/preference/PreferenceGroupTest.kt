@@ -121,7 +121,9 @@ class PreferenceGroupTest {
         assertTrue(preferenceGroup.isNotEmpty())
     }
 
-    @Test fun forEach() {
+    // Temporarily disabled due to b/113042342
+    // @Test
+    fun forEach() {
         preferenceGroup.forEach {
             fail("Empty preference group should not invoke lambda")
         }
