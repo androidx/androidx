@@ -40,8 +40,9 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+// Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
 @TargetApi(28)
-@SuppressLint("SyntheticAccessor")
+@SuppressLint({"SyntheticAccessor", "BanTargetApiAnnotation"})
 public class BiometricFragment extends Fragment {
 
     private static final String TAG = "BiometricFragment";

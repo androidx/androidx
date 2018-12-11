@@ -262,6 +262,8 @@ public final class TextClassification {
      */
     @TargetApi(26)
     @SuppressWarnings("deprecation") //To support O
+    // Remove BanTargetApiAnnotation suppression once b/120625134 is addressed.
+    @SuppressLint("BanTargetApiAnnotation")
     @NonNull
     private static RemoteActionCompat createRemoteActionCompat(
             @NonNull Context context,
