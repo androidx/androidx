@@ -69,6 +69,7 @@ public class RowContent extends SliceContent {
     private SliceItem mRange;
     private boolean mIsHeader;
     private int mLineCount = 0;
+    private boolean mShowTitleItems;
     private boolean mShowBottomDivider;
     private boolean mShowActionDivider;
 
@@ -258,7 +259,7 @@ public class RowContent extends SliceContent {
      */
     @Nullable
     public SliceItem getStartItem() {
-        return mIsHeader ? null : mStartItem;
+        return mIsHeader && !mShowTitleItems ? null : mStartItem;
     }
 
     /**
@@ -315,6 +316,20 @@ public class RowContent extends SliceContent {
         return FORMAT_ACTION.equals(mSliceItem.getFormat())
                 && mSliceItem.getSlice().hasHint(HINT_SEE_MORE)
                 && mSliceItem.getSlice().getItems().isEmpty();
+    }
+
+    /**
+     * Set whether this row content needs to show the title items on the start.
+     */
+    public void showTitleItems(boolean enabled) {
+        mShowTitleItems = enabled;
+    }
+
+    /**
+     * @return whether this row content needs to show the title items on the start.
+     */
+    public boolean hasTitleItems() {
+        return mShowTitleItems;
     }
 
     /**

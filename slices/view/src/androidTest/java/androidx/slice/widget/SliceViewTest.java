@@ -16,11 +16,11 @@
 
 package androidx.slice.widget;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNull;
-import static junit.framework.Assert.assertTrue;
-
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -389,6 +389,48 @@ public class SliceViewTest {
     }
 
     @Test
+    public void testDefaultHideTitleItems() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder()
+                .setTitleItem(getAction("Action"))
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
+        Slice s = lb.build();
+
+        mSliceView.setSlice(s);
+
+        RowContent row = (RowContent) mSliceView.mListContent.getRowItems().get(0);
+        assertFalse(row.hasTitleItems());
+        assertNull(row.getStartItem());
+    }
+
+    @Test
+    public void testShowTitleItems() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder()
+                .setTitleItem(getAction("Action"))
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
+        Slice s = lb.build();
+
+        mSliceView.setSlice(s);
+        mSliceView.showTitleItems(true);
+
+        RowContent row = (RowContent) mSliceView.mListContent.getRowItems().get(0);
+        assertTrue(row.hasTitleItems());
+        assertNotNull(row.getStartItem());
+
+        mSliceView.showTitleItems(false);
+
+        assertFalse(row.hasTitleItems());
+        assertNull(row.getStartItem());
+    }
+
+    @Test
     public void testHideHeaderDividerWhenOnlyOneRow() {
         Uri uri = Uri.parse("content://pkg/slice");
         ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
@@ -422,6 +464,22 @@ public class SliceViewTest {
         mSliceView.showHeaderDivider(true);
 
         assertTrue(mSliceView.mListContent.getHeader().hasBottomDivider());
+    }
+
+    @Test
+    public void testDefaultHideActionDividers() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        lb.addRow(new ListBuilder.RowBuilder()
+                .setTitle("Title")
+                .setSubtitle("Subtitle")
+                .setPrimaryAction(getAction("Action")));
+        Slice s = lb.build();
+
+        mSliceView.setSlice(s);
+
+        RowContent row = (RowContent) mSliceView.mListContent.getRowItems().get(0);
+        assertFalse(row.hasActionDivider());
     }
 
     @Test
