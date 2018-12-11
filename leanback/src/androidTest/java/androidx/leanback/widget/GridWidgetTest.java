@@ -4672,7 +4672,8 @@ public class GridWidgetTest {
         assertEquals(1, mGridView.getSelectedPosition());
     }
 
-    @Test
+    // Temporarily disabled due to b/110377468
+    // @Test
     public void testAccessibilityBug77292190() throws Throwable {
         Intent intent = new Intent();
         final int numItems = 1000;
@@ -4908,7 +4909,8 @@ public class GridWidgetTest {
         assertEquals(1, mGridView.getSelectedPosition());
     }
 
-    @Test
+    // Temporarily disabled due to b/110377468
+    // @Test
     public void testAccessibilityRespondToLeftRightInvisible() throws Throwable {
         boolean isRTL = false;
         boolean isHorizontal = true;
@@ -4917,7 +4919,8 @@ public class GridWidgetTest {
         testScrollingAction(isRTL, isHorizontal);
     }
 
-    @Test
+    // Temporarily disabled due to b/110377468
+    // @Test
     public void testAccessibilityRespondToLeftRightPartiallyVisible() throws Throwable {
         boolean isRTL = false;
         boolean isHorizontal = true;
@@ -4926,7 +4929,8 @@ public class GridWidgetTest {
         testScrollingAction(isRTL, isHorizontal);
     }
 
-    @Test
+    // Temporarily disabled due to b/110377468
+    // @Test
     public void testAccessibilityRespondToLeftRightRtlInvisible()
             throws Throwable {
         boolean isRTL = true;
@@ -4936,7 +4940,8 @@ public class GridWidgetTest {
         testScrollingAction(isRTL, isHorizontal);
     }
 
-    @Test
+    // Temporarily disabled due to b/110377468
+    // @Test
     public void testAccessibilityRespondToLeftRightRtlPartiallyVisible() throws Throwable {
         boolean isRTL = true;
         boolean isHorizontal = true;
@@ -4945,7 +4950,8 @@ public class GridWidgetTest {
         testScrollingAction(isRTL, isHorizontal);
     }
 
-    @Test
+    // Temporarily disabled due to b/110377468
+    // @Test
     public void testAccessibilityRespondToScrollUpDownActionInvisible() throws Throwable {
         boolean isRTL = false;
         boolean isHorizontal = false;
@@ -4954,7 +4960,8 @@ public class GridWidgetTest {
         testScrollingAction(isRTL, isHorizontal);
     }
 
-    @Test
+    // Temporarily disabled due to b/110377468
+    // @Test
     public void testAccessibilityRespondToScrollUpDownActionPartiallyVisible() throws Throwable {
         boolean isRTL = false;
         boolean isHorizontal = false;
