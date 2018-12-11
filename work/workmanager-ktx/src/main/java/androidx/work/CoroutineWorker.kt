@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
  * overriding [coroutineContext].
  * <p>
  * A CoroutineWorker is given a maximum of ten minutes to finish its execution and return a
- * [Result].  After this time has expired, the worker will be signalled to stop.
+ * [ListenableWorker.Result].  After this time has expired, the worker will be signalled to stop.
  */
 abstract class CoroutineWorker(
     appContext: Context,
@@ -78,9 +78,10 @@ abstract class CoroutineWorker(
      * by [coroutineContext].
      * <p>
      * A CoroutineWorker is given a maximum of ten minutes to finish its execution and return a
-     * [Result].  After this time has expired, the worker will be signalled to stop.
+     * [ListenableWorker.Result].  After this time has expired, the worker will be signalled to
+     * stop.
      *
-     * @return The [Result] of the result of the background work; note that
+     * @return The [ListenableWorker.Result] of the result of the background work; note that
      *         dependent work will not execute if you return [Result.failure]
      */
     abstract suspend fun doWork(): Result
