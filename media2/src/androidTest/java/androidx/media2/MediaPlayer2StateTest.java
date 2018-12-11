@@ -904,8 +904,9 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
                 { sGetMetricsOperation, PLAYER_STATE_PLAYING, true },
                 { sGetMetricsOperation, PLAYER_STATE_ERROR, false },
 
-                { sSetPlaybackParamsOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sSetPlaybackParamsOperation, PLAYER_STATE_IDLE, true },
+                // Temporarily disabled due to b/120095263
+                // { sSetPlaybackParamsOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
+                // { sSetPlaybackParamsOperation, PLAYER_STATE_IDLE, true },
                 { sSetPlaybackParamsOperation, PLAYER_STATE_PREPARED, true },
                 { sSetPlaybackParamsOperation, PLAYER_STATE_PAUSED, true },
                 { sSetPlaybackParamsOperation, PLAYER_STATE_PLAYING, true },
@@ -918,8 +919,9 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
                 { sGetPlaybackParamsOperation, PLAYER_STATE_PLAYING, true },
                 { sGetPlaybackParamsOperation, PLAYER_STATE_ERROR, false },
 
-                { sGetTimestampOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
-                { sGetTimestampOperation, PLAYER_STATE_IDLE, true },
+                // Temporarily disabled due to b/120095263
+                // { sGetTimestampOperation, MEDIAPLAYER2_STATE_IDLE_NO_DATA_SOURCE, true },
+                // { sGetTimestampOperation, PLAYER_STATE_IDLE, true },
                 { sGetTimestampOperation, PLAYER_STATE_PREPARED, true },
                 { sGetTimestampOperation, PLAYER_STATE_PAUSED, true },
                 { sGetTimestampOperation, PLAYER_STATE_PLAYING, true },
