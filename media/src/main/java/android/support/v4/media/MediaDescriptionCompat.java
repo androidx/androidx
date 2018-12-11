@@ -36,7 +36,6 @@ import androidx.annotation.RestrictTo;
  * created using the Builder or retrieved from existing metadata using
  * {@link MediaMetadataCompat#getDescription()}.
  */
-@SuppressWarnings("BanParcelableUsage")
 @SuppressLint("BanParcelableUsage")
 public final class MediaDescriptionCompat implements Parcelable {
     /**

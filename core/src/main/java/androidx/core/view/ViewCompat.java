@@ -4009,7 +4009,6 @@ public class ViewCompat {
             }
             return null;
         }
-        @SuppressWarnings("BanUnlistedSDKVersionComparison")
         private boolean frameworkAvailable() {
             return Build.VERSION.SDK_INT >= mFrameworkMinimumSdk;
         }
