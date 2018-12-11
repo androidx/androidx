@@ -17,6 +17,7 @@ package android.support.v4.media.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.media.session.PlaybackState;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import java.util.List;
  * and the current control capabilities.
  */
 @SuppressWarnings("BanParcelableUsage")
+@SuppressLint("BanParcelableUsage")
 public final class PlaybackStateCompat implements Parcelable {
 
     /**

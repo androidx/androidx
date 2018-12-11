@@ -49,6 +49,7 @@ import static androidx.media.MediaBrowserProtocol.SERVICE_MSG_ON_CONNECT_FAILED;
 import static androidx.media.MediaBrowserProtocol.SERVICE_MSG_ON_LOAD_CHILDREN;
 import static androidx.media.MediaBrowserProtocol.SERVICE_VERSION_2;
 
+import android.annotation.SuppressLint;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -450,6 +451,7 @@ public final class MediaBrowserCompat {
      * right values.
      */
     @SuppressWarnings("BanParcelableUsage")
+    @SuppressLint("BanParcelableUsage")
     public static class MediaItem implements Parcelable {
         private final int mFlags;
         private final MediaDescriptionCompat mDescription;

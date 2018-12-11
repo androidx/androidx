@@ -1860,6 +1860,7 @@ public class MediaSessionCompat {
      * of the item and its id in the queue.
      */
     @SuppressWarnings("BanParcelableUsage")
+    @SuppressLint("BanParcelableUsage")
     public static final class QueueItem implements Parcelable {
         /**
          * This id is reserved. No items can be explicitly assigned this id.
@@ -2021,6 +2022,7 @@ public class MediaSessionCompat {
      */
     @RestrictTo(LIBRARY)
     @SuppressWarnings("BanParcelableUsage")
+    @SuppressLint("BanParcelableUsage")
     public static final class ResultReceiverWrapper implements Parcelable {
         ResultReceiver mResultReceiver;
 

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Parcel;
@@ -696,6 +697,7 @@ public class RecyclerViewBasicTest {
     }
 
     @SuppressWarnings("BanParcelableUsage")
+    @SuppressLint("BanParcelableUsage")
     static class LayoutManagerSavedState implements Parcelable {
 
         String mUuid;

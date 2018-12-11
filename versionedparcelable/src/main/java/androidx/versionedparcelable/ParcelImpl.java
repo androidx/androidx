@@ -16,6 +16,7 @@
 
 package androidx.versionedparcelable;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -25,6 +26,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@SuppressLint("BanParcelableUsage")
 @SuppressWarnings("BanParcelableUsage")
 public class ParcelImpl implements Parcelable {
 
