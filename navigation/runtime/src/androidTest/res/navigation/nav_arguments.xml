@@ -19,12 +19,16 @@
             app:startDestination="@+id/start_test">
 
     <test android:id="@+id/start_test">
-        <action android:id="@+id/second" app:destination="@+id/second_test" />
+        <action android:id="@+id/second" app:destination="@+id/second_test">
+            <argument android:name="test_action_overriden_value"
+                      android:defaultValue="override" />
+        </action>
     </test>
 
     <test android:id="@+id/second_test">
         <argument android:name="test_no_default_value" />
         <argument android:name="test_default_value" android:defaultValue="default" />
         <argument android:name="test_overridden_value" android:defaultValue="default" />
+        <argument android:name="test_action_overriden_value" android:defaultValue="default" />
     </test>
 </navigation>

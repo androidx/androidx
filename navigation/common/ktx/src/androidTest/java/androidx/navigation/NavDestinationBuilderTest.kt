@@ -16,7 +16,6 @@
 
 package androidx.navigation
 
-import android.os.Bundle
 import android.support.annotation.IdRes
 import androidx.test.filters.SmallTest
 import androidx.test.runner.AndroidJUnit4
@@ -52,13 +51,33 @@ class NavDestinationTest {
 
     @Test
     fun navDestinationDefaultArguments() {
-        val arguments = Bundle()
         val destination = provider.navDestination(DESTINATION_ID) {
-            defaultArguments = arguments
+            argument("testArg") {
+                defaultValue = "123"
+                type = NavType.StringType
+            }
+            argument("testArg2") {
+                type = NavType.StringType
+            }
         }
         assertWithMessage("NavDestination should have default arguments set")
-            .that(destination.defaultArguments)
-            .isEqualTo(arguments)
+            .that(destination.arguments.get("testArg")?.defaultValue)
+            .isEqualTo("123")
+        assertWithMessage("NavArgument shouldn't have a default value")
+                .that(destination.arguments.get("testArg2")?.isDefaultValuePresent)
+                .isFalse()
+    }
+
+    @Test
+    fun navDestinationDefaultArgumentsInferred() {
+        val destination = provider.navDestination(DESTINATION_ID) {
+            argument("testArg") {
+                defaultValue = 123
+            }
+        }
+        assertWithMessage("NavDestination should have default arguments set")
+            .that(destination.arguments.get("testArg")?.defaultValue)
+            .isEqualTo(123)
     }
 
     @Test

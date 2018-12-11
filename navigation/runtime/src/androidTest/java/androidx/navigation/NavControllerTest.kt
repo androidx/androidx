@@ -44,7 +44,9 @@ class NavControllerTest {
         private const val UNKNOWN_DESTINATION_ID = -1
         private const val TEST_ARG = "test"
         private const val TEST_ARG_VALUE = "value"
+        private const val TEST_ARG_VALUE_INT = 123
         private const val TEST_OVERRIDDEN_VALUE_ARG = "test_overriden_value"
+        private const val TEST_ACTION_OVERRIDDEN_VALUE_ARG = "test_action_overriden_value"
         private const val TEST_OVERRIDDEN_VALUE_ARG_VALUE = "override"
     }
 
@@ -68,6 +70,15 @@ class NavControllerTest {
         val foundArgs = navigator.current.second
         assertNotNull(foundArgs)
         assertEquals(TEST_ARG_VALUE, foundArgs?.getString(TEST_ARG))
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testStartDestinationWithWrongArgs() {
+        val navController = createNavController()
+        val args = Bundle().apply {
+            putInt(TEST_ARG, TEST_ARG_VALUE_INT)
+        }
+        navController.setGraph(R.navigation.nav_start_destination, args)
     }
 
     @Test
@@ -501,6 +512,10 @@ class NavControllerTest {
         // Test that default values can be overridden by programmatic values
         assertEquals(TEST_OVERRIDDEN_VALUE_ARG_VALUE,
                 returnedArgs.getString(TEST_OVERRIDDEN_VALUE_ARG))
+        // Test that default values can be overridden by action default values
+        assertEquals(
+            TEST_OVERRIDDEN_VALUE_ARG_VALUE,
+            returnedArgs.getString(TEST_ACTION_OVERRIDDEN_VALUE_ARG))
     }
 
     @Test

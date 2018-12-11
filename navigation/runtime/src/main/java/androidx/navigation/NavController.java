@@ -529,7 +529,27 @@ public class NavController {
             Pair<NavDestination, Bundle> matchingDeepLink = mGraph.matchDeepLink(intent.getData());
             if (matchingDeepLink != null) {
                 deepLink = matchingDeepLink.first.buildDeepLinkIds();
-                bundle.putAll(matchingDeepLink.second);
+                for (String argumentName: matchingDeepLink.second.keySet()) {
+                    NavArgument argument = matchingDeepLink.first.getArguments().get(argumentName);
+                    if (argument != null) {
+                        NavType type = argument.getType();
+                        try {
+                            type.parseAndPut(bundle,
+                                    argumentName,
+                                    matchingDeepLink.second.getString(argumentName));
+                        } catch (IllegalArgumentException e) {
+                            Log.i(TAG, "Deep link parameter "
+                                    + argumentName
+                                    + " cannot be parsed into navigation argument of type "
+                                    + argument.getType()
+                                    + ".");
+                            return false;
+                        }
+                    } else {
+                        bundle.putString(argumentName,
+                                matchingDeepLink.second.getString(argumentName));
+                    }
+                }
             }
         }
         if (deepLink == null || deepLink.length == 0) {
@@ -696,12 +716,26 @@ public class NavController {
         }
         @IdRes int destId = resId;
         final NavAction navAction = currentNode.getAction(resId);
+        Bundle combinedArgs = null;
         if (navAction != null) {
             if (navOptions == null) {
                 navOptions = navAction.getNavOptions();
             }
             destId = navAction.getDestinationId();
+            Bundle navActionArgs = navAction.getDefaultArguments();
+            if (navActionArgs != null) {
+                combinedArgs = new Bundle();
+                combinedArgs.putAll(navActionArgs);
+            }
         }
+
+        if (args != null) {
+            if (combinedArgs == null) {
+                combinedArgs = new Bundle();
+            }
+            combinedArgs.putAll(args);
+        }
+
         if (destId == 0 && navOptions != null && navOptions.getPopUpTo() != 0) {
             popBackStack(navOptions.getPopUpTo(), navOptions.isPopUpToInclusive());
             return;
@@ -721,7 +755,7 @@ public class NavController {
                     : "")
                     + " is unknown to this NavController");
         }
-        navigate(node, args, navOptions, navigatorExtras);
+        navigate(node, combinedArgs, navOptions, navigatorExtras);
     }
 
     private void navigate(@NonNull NavDestination node, @Nullable Bundle args,
