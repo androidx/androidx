@@ -81,7 +81,7 @@ public class PersonTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
+    @SdkSuppress(minSdkVersion = 22)
     public void persistableBundle() {
         Person person = new Person.Builder()
                 .setImportant(TEST_IS_IMPORTANT)
@@ -104,7 +104,7 @@ public class PersonTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 21)
+    @SdkSuppress(minSdkVersion = 22)
     public void persistableBundle_defaultValues() {
         Person person = new Person.Builder().build();
 
