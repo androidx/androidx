@@ -67,7 +67,8 @@ class SliceBuildersKtxTest {
         assertEquals(sliceKtx.toString(), slice.toString())
     }
 
-    @Test
+    // Temporarily disabled due to b/116146018.
+    // @Test
     fun allBuildersTogether() {
         val pendingIntent = pendingIntentToTestActivity()
         val tapAction = tapSliceAction(
@@ -94,7 +95,8 @@ class SliceBuildersKtxTest {
         assertEquals(slice.toString(), sliceKtx.toString())
     }
 
-    @Test
+    // Temporarily disabled due to b/116146018.
+    // @Test
     fun sanity_withGridRow() {
         val tapAction = tapSliceAction(
                 pendingIntentToTestActivity(),
