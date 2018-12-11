@@ -2074,9 +2074,10 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
      *  This test assumes the resources being tested are between 8 and 14 seconds long
      *  The ones being used here are 10 seconds long.
      */
-    @Test
-    @LargeTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    // This test is disabled due to a framework issue. b/79754424
+    //@Test
+    //@LargeTest
+    //@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testResumeAtEnd() throws Throwable {
         int testsRun = testResumeAtEnd(R.raw.loudsoftmp3)
                 + testResumeAtEnd(R.raw.loudsoftwav)
