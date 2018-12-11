@@ -58,7 +58,6 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
     @Override
     public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
         super.onInitializeAccessibilityNodeInfo(host, info);
-        info.setClassName(RecyclerView.class.getName());
         if (!shouldIgnore() && mRecyclerView.getLayoutManager() != null) {
             mRecyclerView.getLayoutManager().onInitializeAccessibilityNodeInfo(info);
         }
@@ -67,7 +66,6 @@ public class RecyclerViewAccessibilityDelegate extends AccessibilityDelegateComp
     @Override
     public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
         super.onInitializeAccessibilityEvent(host, event);
-        event.setClassName(RecyclerView.class.getName());
         if (host instanceof RecyclerView && !shouldIgnore()) {
             RecyclerView rv = (RecyclerView) host;
             if (rv.getLayoutManager() != null) {
