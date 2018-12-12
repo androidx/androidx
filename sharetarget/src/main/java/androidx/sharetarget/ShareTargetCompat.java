@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.core.content.pm;
+package androidx.sharetarget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 

@@ -158,6 +158,36 @@ public class ShortcutInfoCompatTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 26)
+    public void testBuilder_fromShortcutInfo() {
+        String longLabel = "Test long label";
+        ComponentName activity = new ComponentName("Package name", "Class name");
+        String disabledMessage = "Test disabled message";
+        Set<String> categories = new HashSet<>();
+        categories.add("cat1");
+        categories.add("cat2");
+
+        ShortcutInfo.Builder builder = new ShortcutInfo.Builder(mContext, TEST_SHORTCUT_ID);
+        ShortcutInfo shortcut = builder.setIntent(mAction)
+                .setShortLabel(TEST_SHORTCUT_SHORT_LABEL)
+                .setActivity(activity)
+                .setCategories(categories)
+                .setDisabledMessage(disabledMessage)
+                .setLongLabel(longLabel)
+                .build();
+
+        ShortcutInfoCompat compat = new ShortcutInfoCompat.Builder(mContext, shortcut).build();
+        assertEquals(TEST_SHORTCUT_ID, compat.getId());
+        assertEquals(TEST_SHORTCUT_SHORT_LABEL, compat.getShortLabel());
+        assertEquals(mAction.getPackage(), compat.getIntent().getPackage());
+        assertEquals(mAction.getAction(), compat.getIntent().getAction());
+        assertEquals(longLabel, compat.getLongLabel());
+        assertEquals(disabledMessage, compat.getDisabledMessage());
+        assertEquals(activity, compat.getActivity());
+        assertEquals(categories, compat.getCategories());
+    }
+
+    @Test
     public void testBuilder_getters() {
         String longLabel = "Test long label";
         ComponentName activity = new ComponentName("Package name", "Class name");
