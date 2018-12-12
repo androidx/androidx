@@ -20,6 +20,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.PositionAssertions.isCompletelyRightOf;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -27,6 +28,7 @@ import static junit.framework.TestCase.assertTrue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
@@ -35,6 +37,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.car.R;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
@@ -175,6 +178,40 @@ public class CarToolbarTest {
         assertTrue(clicked[0]);
     }
 
+    @Test
+    public void testSetTitleIconShowsAndHidesTitleIconView() throws Throwable {
+        mActivityRule.runOnUiThread(() -> mToolbar.setTitleIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon)));
+
+        onView(withId(R.id.title_icon)).check(matches(isDisplayed()));
+
+        mActivityRule.runOnUiThread(() -> mToolbar.setTitleIcon(null));
+
+        onView(withId(R.id.title_icon)).check(matches(not(isDisplayed())));
+    }
+
+    @Test
+    public void testTitleIconHasCorrectDefaultWidth() throws Throwable {
+        mActivityRule.runOnUiThread(() -> mToolbar.setTitleIcon(
+                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon)));
+
+        onView(withId(R.id.title_icon)).check(matches(withWidth(
+                mActivity.getResources()
+                        .getDimensionPixelSize(R.dimen.car_application_icon_size))));
+    }
+
+    @Test
+    public void testSetTitleIconSizeSetsCorrectSize() throws Throwable {
+        int size = mActivity.getResources().getDimensionPixelSize(R.dimen.car_avatar_icon_size);
+        mActivityRule.runOnUiThread(() -> {
+            mToolbar.setTitleIcon(Icon.createWithResource(mActivity,
+                    android.R.drawable.sym_def_app_icon));
+            mToolbar.setTitleIconSize(size);
+        });
+
+        onView(withId(R.id.title_icon)).check(matches(withWidth(size)));
+    }
+
     private ImageButton getNavigationIconView() {
         return mActivity.findViewById(R.id.nav_button);
     }
@@ -199,6 +236,27 @@ public class CarToolbarTest {
             @Override
             public void describeTo(Description description) {
                 description.appendText("is " + expected + " pixel to its parent");
+            }
+        };
+    }
+
+    /**
+     * Returns a {@link Matcher} that matches {@link View}s that have the given width.
+     *
+     * @param width The width in pixels to match to.
+     * @return A {@link Matcher} for verification.
+     */
+    @NonNull
+    public static Matcher<View> withWidth(int width) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public boolean matchesSafely(View view) {
+                return width == view.getWidth();
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("has width: " + width);
             }
         };
     }

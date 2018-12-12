@@ -17,15 +17,21 @@ limitations under the License.
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <!-- layout_width and layout_height are computed programmatically, set to 0dp -->
     <ImageButton
         android:id="@+id/nav_button"
-        android:layout_width="@dimen/car_primary_icon_size"
-        android:layout_height="@dimen/car_primary_icon_size"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:background="@drawable/car_unbounded_ripple_background"/>
+    <ImageView
+        android:id="@+id/title_icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"/>
     <TextView
         android:id="@+id/title"
-        android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:singleLine="true"
-        android:ellipsize="end" />
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:singleLine="true"/>
 </merge>

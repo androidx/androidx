@@ -24,5 +24,15 @@
         android:id="@+id/car_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:logo="@android:drawable/sym_def_app_icon"
         app:title="@string/car_toolbar_title"/>
+    <!-- A second toolbar for comparison purposes -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/car_card"
+        app:logo="@android:drawable/sym_def_app_icon"
+        app:title="@string/toolbar_title"/>
 </FrameLayout>
