@@ -52,7 +52,7 @@ public class TracingControllerTest {
 
     @Before
     public void setUp() {
-        AssumptionUtils.checkFeature(WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE);
+        WebkitUtils.checkFeature(WebViewFeature.TRACING_CONTROLLER_BASIC_USAGE);
 
         mWebViewOnUiThread = new androidx.webkit.WebViewOnUiThread();
         mSingleThreadExecutor = Executors.newSingleThreadExecutor(getCustomThreadFactory());

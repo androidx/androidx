@@ -148,8 +148,8 @@ public class ServiceWorkerClientCompatTest {
     // Test correct invocation of shouldInterceptRequest for Service Workers.
     @Test
     public void testServiceWorkerClientInterceptCallback() throws Exception {
-        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
-        AssumptionUtils.checkFeature(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST);
+        WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_BASIC_USAGE);
+        WebkitUtils.checkFeature(WebViewFeature.SERVICE_WORKER_SHOULD_INTERCEPT_REQUEST);
 
         final InterceptServiceWorkerClient mInterceptServiceWorkerClient =
                 new InterceptServiceWorkerClient();
