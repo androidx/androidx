@@ -38,6 +38,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.annotation.StyleRes;
 import androidx.car.R;
 
 /**
@@ -399,12 +400,15 @@ public class CarAlertDialog extends Dialog {
 
     /**
      * Returns the style that has been assigned to {@code carDialogTheme} in the
-     * current theme that is inflating this dialog.
+     * current theme that is inflating this dialog. If a style has not been defined, a default
+     * style will be returned.
      */
+    @StyleRes
     private static int getDialogTheme(Context context) {
         TypedValue outValue = new TypedValue();
-        context.getTheme().resolveAttribute(R.attr.carDialogTheme, outValue, true);
-        return outValue.resourceId;
+        boolean hasStyle =
+                context.getTheme().resolveAttribute(R.attr.carDialogTheme, outValue, true);
+        return hasStyle ? outValue.resourceId : R.style.Theme_Car_Dark_Dialog;
     }
 
     /**
