@@ -346,7 +346,7 @@ public class SpringTests {
                 }
             });
 
-            verify(mockListener, timeout(2000)).onAnimationEnd(springAnims[1], false, 0f, 0f);
+            verify(mockListener, timeout(4000)).onAnimationEnd(springAnims[1], false, 0f, 0f);
 
             if (springAnims[0].isRunning()) {
                 InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
