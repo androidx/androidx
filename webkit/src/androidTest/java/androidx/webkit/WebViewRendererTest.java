@@ -18,12 +18,13 @@ package androidx.webkit;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -40,9 +41,10 @@ import java.util.concurrent.Callable;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class WebViewRendererTest {
+    Handler mMainHandler = new Handler(Looper.getMainLooper());
     private <T> ListenableFuture<T> onMainThread(final Callable<T> callable)  {
         final ResolvableFuture<T> future = ResolvableFuture.create();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mMainHandler.post(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -78,7 +80,7 @@ public class WebViewRendererTest {
             final WebView webView) throws Throwable {
         final ResolvableFuture<WebViewRenderer> future = ResolvableFuture.create();
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mMainHandler.post(new Runnable() {
             @Override
             public void run() {
                 webView.setWebViewClient(new WebViewClient() {
@@ -98,7 +100,7 @@ public class WebViewRendererTest {
     ListenableFuture<Boolean> catchRendererTermination(final WebView webView) {
         final ResolvableFuture<Boolean> future = ResolvableFuture.create();
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        mMainHandler.post(new Runnable() {
             @Override
             public void run() {
                 webView.setWebViewClient(new WebViewClient() {
