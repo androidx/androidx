@@ -405,8 +405,8 @@ package androidx.recyclerview.widget {
     method public void invalidateItemDecorations();
     method public boolean isAnimating();
     method public boolean isComputingLayout();
-    method public boolean isLayoutFrozen();
-    method public boolean isLayoutSuppressed();
+    method @Deprecated public boolean isLayoutFrozen();
+    method public final boolean isLayoutSuppressed();
     method public void offsetChildrenHorizontal(@Px int);
     method public void offsetChildrenVertical(@Px int);
     method public void onChildAttachedToWindow(android.view.View);
@@ -427,8 +427,9 @@ package androidx.recyclerview.widget {
     method public void setHasFixedSize(boolean);
     method public void setItemAnimator(androidx.recyclerview.widget.RecyclerView.ItemAnimator?);
     method public void setItemViewCacheSize(int);
-    method public void setLayoutFrozen(boolean);
+    method @Deprecated public void setLayoutFrozen(boolean);
     method public void setLayoutManager(androidx.recyclerview.widget.RecyclerView.LayoutManager?);
+    method @Deprecated public void setLayoutTransition(android.animation.LayoutTransition!);
     method public void setOnFlingListener(androidx.recyclerview.widget.RecyclerView.OnFlingListener?);
     method @Deprecated public void setOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener?);
     method public void setPreserveFocusAfterLayout(boolean);
@@ -442,7 +443,7 @@ package androidx.recyclerview.widget {
     method public boolean startNestedScroll(int, int);
     method public void stopNestedScroll(int);
     method public void stopScroll();
-    method public void suppressLayout(boolean);
+    method public final void suppressLayout(boolean);
     method public void swapAdapter(androidx.recyclerview.widget.RecyclerView.Adapter?, boolean);
     field public static final int HORIZONTAL = 0; // 0x0
     field public static final int INVALID_TYPE = -1; // 0xffffffff

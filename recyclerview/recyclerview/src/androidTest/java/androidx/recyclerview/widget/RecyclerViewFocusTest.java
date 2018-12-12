@@ -73,9 +73,9 @@ public class RecyclerViewFocusTest {
     }
 
     @Test
-    public void focusSearch_layoutFrozen_onFocusSearchFailedNotCalled() throws Throwable {
+    public void focusSearch_layoutSuppressed_onFocusSearchFailedNotCalled() throws Throwable {
         setupRecyclerView(true, RecyclerView.VERTICAL, true);
-        mRecyclerView.setLayoutFrozen(true);
+        mRecyclerView.suppressLayout(true);
         View currentlyFocusedView = mRecyclerView.getChildAt(1);
 
         mRecyclerView.focusSearch(currentlyFocusedView, View.FOCUS_FORWARD);
