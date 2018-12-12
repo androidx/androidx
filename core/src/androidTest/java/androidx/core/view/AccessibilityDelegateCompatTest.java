@@ -177,57 +177,56 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 25)
     public void testPerformSpanAction() {
-        if (Build.VERSION.SDK_INT >= 19 && Build.VERSION.SDK_INT < 26) {
-            final ClickableSpan span1 = mock(ClickableSpan.class);
-            final ClickableSpan span2 = mock(ClickableSpan.class);
-            mView.setAccessibilityDelegate(new View.AccessibilityDelegate() {
-                @Override
-                public void onInitializeAccessibilityNodeInfo(View host,
-                        AccessibilityNodeInfo info) {
-                    super.onInitializeAccessibilityNodeInfo(host, info);
-                    SpannableString clickableSpannedString =
-                            new SpannableString("Spans the whole world");
-                    clickableSpannedString.setSpan(span1, 10, 13, 1);
-                    clickableSpannedString.setSpan(span2, 16, 18, 2);
-                    info.setText(clickableSpannedString);
-                }
-            });
-            ViewCompat.enableAccessibleClickableSpanSupport(mView);
-            AccessibilityNodeInfo nodeInfo = spy(AccessibilityNodeInfo.obtain());
-            mView.onInitializeAccessibilityNodeInfo(nodeInfo);
-            final Spanned text = (Spanned) AccessibilityNodeInfoCompat.wrap(nodeInfo).getText();
-            final ClickableSpan[] spans =
-                    text.getSpans(0, text.length(), ClickableSpan.class);
+        final ClickableSpan span1 = mock(ClickableSpan.class);
+        final ClickableSpan span2 = mock(ClickableSpan.class);
+        mView.setAccessibilityDelegate(new View.AccessibilityDelegate() {
+            @Override
+            public void onInitializeAccessibilityNodeInfo(View host,
+                    AccessibilityNodeInfo info) {
+                super.onInitializeAccessibilityNodeInfo(host, info);
+                SpannableString clickableSpannedString =
+                        new SpannableString("Spans the whole world");
+                clickableSpannedString.setSpan(span1, 10, 13, 1);
+                clickableSpannedString.setSpan(span2, 16, 18, 2);
+                info.setText(clickableSpannedString);
+            }
+        });
+        ViewCompat.enableAccessibleClickableSpanSupport(mView);
+        AccessibilityNodeInfo nodeInfo = spy(AccessibilityNodeInfo.obtain());
+        mView.onInitializeAccessibilityNodeInfo(nodeInfo);
+        final Spanned text = (Spanned) AccessibilityNodeInfoCompat.wrap(nodeInfo).getText();
+        final ClickableSpan[] spans =
+                text.getSpans(0, text.length(), ClickableSpan.class);
 
-            doReturn(true).when(nodeInfo).performAction(anyInt(), any(Bundle.class));
+        doReturn(true).when(nodeInfo).performAction(anyInt(), any(Bundle.class));
 
-            spans[1].onClick(null);
+        spans[1].onClick(null);
 
-            ArgumentCaptor<Integer> integerArgumentCaptor =
-                    ArgumentCaptor.forClass(Integer.class);
-            ArgumentCaptor<Bundle> bundleArgumentCaptor =
-                    ArgumentCaptor.forClass(Bundle.class);
-            verify(nodeInfo).performAction(
-                    integerArgumentCaptor.capture(), bundleArgumentCaptor.capture());
-            Bundle args = bundleArgumentCaptor.<Bundle>getValue();
-            int actionId = integerArgumentCaptor.<Integer>getValue();
+        ArgumentCaptor<Integer> integerArgumentCaptor =
+                ArgumentCaptor.forClass(Integer.class);
+        ArgumentCaptor<Bundle> bundleArgumentCaptor =
+                ArgumentCaptor.forClass(Bundle.class);
+        verify(nodeInfo).performAction(
+                integerArgumentCaptor.capture(), bundleArgumentCaptor.capture());
+        Bundle args = bundleArgumentCaptor.<Bundle>getValue();
+        int actionId = integerArgumentCaptor.<Integer>getValue();
 
-            //The service would end up calling the same thing ViewCompat calls
-            ViewCompat.performAccessibilityAction(mView, actionId, args);
-            verify(span2).onClick(mView);
-        }
+        //The service would end up calling the same thing ViewCompat calls
+        ViewCompat.performAccessibilityAction(mView, actionId, args);
+        verify(span2).onClick(mView);
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
     public void testAccessibilityActionPropagatesToNodeInfo() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
-            final CharSequence label = "Asad's action";
-            final int id = ViewCompat.addAccessibilityAction(mView, label, action);
-            assertTrue(nodeHasActionWithId(id, label));
-            ViewCompat.removeAccessibilityAction(mView, id);
-            assertFalse(nodeHasActionWithId(id, label));
-        }
+        final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
+        final CharSequence label = "Asad's action";
+        final int id = ViewCompat.addAccessibilityAction(mView, label, action);
+        assertTrue(nodeHasActionWithId(id, label));
+        ViewCompat.removeAccessibilityAction(mView, id);
+        assertFalse(nodeHasActionWithId(id, label));
     }
 
     private boolean nodeHasActionWithId(int id, CharSequence label) {
@@ -242,81 +241,98 @@ public class AccessibilityDelegateCompatTest extends
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21)
     public void testAccessibilityActionPerformIsCalled() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
-            final int id = ViewCompat.addAccessibilityAction(mView, "Asad's action", action);
-            ViewCompat.performAccessibilityAction(mView, id, null);
-            verify(action).perform(mView, null);
-        }
+        final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
+        final int id = ViewCompat.addAccessibilityAction(mView, "Asad's action", action);
+        ViewCompat.performAccessibilityAction(mView, id, null);
+        verify(action).perform(mView, null);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21)
     public void testAccessibilityActionIdsAreReusedIfActionIdIsRemoved() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            int actionIdToBeRemoved = -1;
-            for (int i = 0; i < 32; i++) {
-                AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
-                final int id = ViewCompat.addAccessibilityAction(mView,
-                        "Test" + Integer.valueOf(i).toString(), action);
-                ViewCompat.performAccessibilityAction(mView, id, null);
-                verify(action).perform(mView, null);
-                actionIdToBeRemoved = id;
-            }
-            ViewCompat.removeAccessibilityAction(mView, actionIdToBeRemoved);
-
+        int actionIdToBeRemoved = -1;
+        for (int i = 0; i < 32; i++) {
             AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
-            final int id = ViewCompat.addAccessibilityAction(mView, "Last test", action);
+            final int id = ViewCompat.addAccessibilityAction(mView,
+                    "Test" + Integer.valueOf(i).toString(), action);
             ViewCompat.performAccessibilityAction(mView, id, null);
             verify(action).perform(mView, null);
+            actionIdToBeRemoved = id;
         }
+        ViewCompat.removeAccessibilityAction(mView, actionIdToBeRemoved);
+
+        AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
+        final int id = ViewCompat.addAccessibilityAction(mView, "Last test", action);
+        ViewCompat.performAccessibilityAction(mView, id, null);
+        verify(action).perform(mView, null);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21)
     public void testReplaceActionPerformIsCalled() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
+        final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
 
-            ViewCompat.replaceAccessibilityAction(mView, AccessibilityActionCompat.ACTION_FOCUS,
-                    "Focus title", action);
+        ViewCompat.replaceAccessibilityAction(mView, AccessibilityActionCompat.ACTION_FOCUS,
+                "Focus title", action);
 
-            ViewCompat.performAccessibilityAction(mView,
-                    AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
-            verify(action).perform(mView, null);
-        }
+        ViewCompat.performAccessibilityAction(mView,
+                AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
+        verify(action).perform(mView, null);
+    }
+
+
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testReplaceActionPerformIsCalledWithTwoReplacements() {
+        final AccessibilityViewCommand action = mock(AccessibilityViewCommand.class);
+        final AccessibilityViewCommand action2 = mock(AccessibilityViewCommand.class);
+
+        ViewCompat.replaceAccessibilityAction(mView, AccessibilityActionCompat.ACTION_FOCUS,
+                "Focus title", action);
+
+        String expectedLabel = "Focus title 2";
+        ViewCompat.replaceAccessibilityAction(mView, AccessibilityActionCompat.ACTION_FOCUS,
+                expectedLabel, action2);
+
+        ViewCompat.performAccessibilityAction(mView,
+                AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
+        verify(action2).perform(mView, null);
+        verify(action, never()).perform(mView, null);
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 21)
     public void testReplaceActionPerformIsCalledWithArguments() {
-        if (Build.VERSION.SDK_INT >= 21) {
-            final AccessibilityViewCommand action =
-                    (AccessibilityViewCommand) mock(
-                            AccessibilityViewCommand.class);
+        final AccessibilityViewCommand action =
+                (AccessibilityViewCommand) mock(
+                        AccessibilityViewCommand.class);
 
-            ViewCompat.replaceAccessibilityAction(mView,
-                    AccessibilityActionCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY, "Move title",
-                    action);
+        ViewCompat.replaceAccessibilityAction(mView,
+                AccessibilityActionCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY, "Move title",
+                action);
 
 
-            final Bundle bundle = new Bundle();
-            final int granularity = AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER;
-            bundle.putInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT,
-                    granularity);
-            final boolean extendSelection = true;
-            bundle.putBoolean(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN,
-                    extendSelection);
-            ViewCompat.performAccessibilityAction(mView,
-                    AccessibilityNodeInfoCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY, bundle);
-            AccessibilityViewCommand.MoveAtGranularityArguments args =
-                    new AccessibilityViewCommand.MoveAtGranularityArguments();
-            args.setBundle(bundle);
+        final Bundle bundle = new Bundle();
+        final int granularity = AccessibilityNodeInfoCompat.MOVEMENT_GRANULARITY_CHARACTER;
+        bundle.putInt(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_MOVEMENT_GRANULARITY_INT,
+                granularity);
+        final boolean extendSelection = true;
+        bundle.putBoolean(AccessibilityNodeInfoCompat.ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN,
+                extendSelection);
+        ViewCompat.performAccessibilityAction(mView,
+                AccessibilityNodeInfoCompat.ACTION_NEXT_AT_MOVEMENT_GRANULARITY, bundle);
+        AccessibilityViewCommand.MoveAtGranularityArguments args =
+                new AccessibilityViewCommand.MoveAtGranularityArguments();
+        args.setBundle(bundle);
 
-            final ArgumentCaptor<MoveAtGranularityArguments> argCaptor = ArgumentCaptor.forClass(
-                    MoveAtGranularityArguments.class);
-            verify(action).perform(eq(mView), argCaptor.capture());
-            assertTrue(argCaptor.getValue().getGranularity() == granularity);
-            assertTrue(argCaptor.getValue().getExtendSelection() == extendSelection);
-        }
+        final ArgumentCaptor<MoveAtGranularityArguments> argCaptor = ArgumentCaptor.forClass(
+                MoveAtGranularityArguments.class);
+        verify(action).perform(eq(mView), argCaptor.capture());
+        assertTrue(argCaptor.getValue().getGranularity() == granularity);
+        assertTrue(argCaptor.getValue().getExtendSelection() == extendSelection);
     }
 
     @Test
