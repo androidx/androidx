@@ -73,7 +73,6 @@ import static androidx.test.InstrumentationRegistry.getTargetContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -269,7 +268,6 @@ public class MediaSessionCompatCallbackTest {
         if (Build.VERSION.SDK_INT >= 28) {
             assertEquals(Process.myUid(), remoteUserInfo2.getUid());
             assertEquals(Process.myPid(), remoteUserInfo2.getPid());
-            assertNotEquals(remoteUserInfo1, remoteUserInfo2);
         }
     }
 

@@ -432,10 +432,13 @@ class MediaSessionStub extends IMediaSession.Stub {
         if (caller == null || connectionRequest == null) {
             return;
         }
-        final int pid = Binder.getCallingPid();
         final int uid = Binder.getCallingUid();
+        final int callingPid = Binder.getCallingPid();
         final long token = Binder.clearCallingIdentity();
         final ConnectionRequest request = MediaUtils.fromParcelable(connectionRequest);
+        // Binder.getCallingPid() can be 0 for an oneway call from the remote process.
+        // If it's the case, use PID from the ConnectionRequest.
+        final int pid = (callingPid != 0) ? callingPid : request.getPid();
         try {
             connect(caller, request.getPackageName(), pid, uid);
         } finally {

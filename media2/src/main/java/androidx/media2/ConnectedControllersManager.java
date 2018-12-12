@@ -16,21 +16,17 @@
 
 package androidx.media2;
 
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
-import androidx.core.util.ObjectsCompat;
-import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.MediaSession.MediaSessionImpl;
 import androidx.media2.SessionCommand.CommandCode;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Manages connected {@link ControllerInfo}. This is thread-safe.
@@ -54,6 +50,7 @@ class ConnectedControllersManager<T> {
     ConnectedControllersManager(MediaSessionImpl session) {
         mSessionImpl = session;
     }
+
     public void addController(T controllerKey, ControllerInfo controllerInfo,
             SessionCommandGroup commands) {
         if (controllerKey == null || controllerInfo == null) {
@@ -71,7 +68,7 @@ class ConnectedControllersManager<T> {
                         controllerKey, new SequencedFutureManager(), commands));
             } else {
                 // already exist. Only update allowed commands.
-                ConnectedControllerRecord record = mControllerRecords.get(controllerInfo);
+                ConnectedControllerRecord record = mControllerRecords.get(savedInfo);
                 record.allowedCommands = commands;
             }
         }
@@ -193,24 +190,8 @@ class ConnectedControllersManager<T> {
 
     public ControllerInfo getController(T controllerKey) {
         synchronized (mLock) {
-            for (Map.Entry<T, ControllerInfo> e : mControllerInfoMap.entrySet()) {
-                if (e.getKey() instanceof RemoteUserInfo) {
-                    // Only checks the package name and UID to workaround two things.
-                    // 1. In MediaBrowserServiceCompat, RemoteUserInfo from onGetRoot and other
-                    //    methods are differ even for the same controller.
-                    // 2. For key presses, RemoteUserInfo differs for individual key events.
-                    RemoteUserInfo remoteUserInfo = (RemoteUserInfo) e.getKey();
-                    RemoteUserInfo other = (RemoteUserInfo) controllerKey;
-                    if (TextUtils.equals(remoteUserInfo.getPackageName(), other.getPackageName())
-                            && remoteUserInfo.getUid() == other.getUid()) {
-                        return e.getValue();
-                    }
-                } else if (ObjectsCompat.equals(e.getKey(), controllerKey)) {
-                    return e.getValue();
-                }
-            }
+            return mControllerInfoMap.get(controllerKey);
         }
-        return null;
     }
 
     private class ConnectedControllerRecord {
