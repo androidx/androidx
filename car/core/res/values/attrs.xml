@@ -86,9 +86,12 @@ limitations under the License.
         <!-- An optional vertical spacing between items in the list. In GridLayoutManager items in
              the last row would still have spacing at bottom. -->
         <attr name="itemSpacing" format="dimension" />
-        <!-- The amount of space before the first item in the list view. This space is
-             scrollable with the contents of the list. -->
+        <!-- The amount of space before the first item in the list view. This space is scrollable
+             with the contents of the list. -->
         <attr name="listContentTopOffset" format="reference" />
+        <!-- The amount of space after the last item in the list view. This space is scrollable with
+             the contents of the list. -->
+        <attr name="listContentBottomOffset" format="reference" />
         <!-- Vertically center the list contents when the number of items in the list does not take
              up the full height of the PagedListView. This value is "false" by default. -->
         <attr name="verticallyCenterListContent" format="boolean" />
