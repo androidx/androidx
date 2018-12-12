@@ -616,18 +616,21 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final int targetItemIndex = 0;
         final int testBufferingState = SessionPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
+        final long testPosition = 300;
+        final long testTimeDiff = 100;
 
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
             public void onBufferingStateChanged(MediaController controller, MediaItem item,
                     int state) {
-                controller.setTimeDiff(0L);
+                controller.setTimeDiff(testTimeDiff);
                 MediaTestUtils.assertNotMediaItemSubclass(item);
                 assertEquals(testPlaylist.get(targetItemIndex).getMediaId(), item.getMediaId());
                 assertEquals(testBufferingState, state);
                 assertEquals(testBufferingState, controller.getBufferingState());
                 assertEquals(testBufferingPosition, controller.getBufferedPosition());
+                assertEquals(testPosition + testTimeDiff, controller.getCurrentPosition());
                 latch.countDown();
             }
         };
@@ -636,6 +639,8 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
         RemoteMediaSession.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
         player.setBufferedPosition(testBufferingPosition);
+        player.setCurrentPosition(testPosition);
+        player.setPlayerState(SessionPlayer.PLAYER_STATE_PLAYING);
 
         MediaController controller = createController(mRemoteSession2.getToken(), true, callback);
         // Since we cannot pass the DataSourceDesc directly, send the item index so that the player
@@ -645,22 +650,91 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
-    public void testOnPlayerStateChanged() throws InterruptedException {
+    public void testOnBufferingStateChanged_bufferingAndStarved() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+
+        final List<MediaItem> testPlaylist = MediaTestUtils.createFileMediaItems(3);
+        final int targetItemIndex = 0;
+        final int testBufferingState = SessionPlayer.BUFFERING_STATE_BUFFERING_AND_STARVED;
+        final long testBufferingPosition = 300;
+        final long testPosition = 300;
+        final long testTimeDiff = 100;
+
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+            @Override
+            public void onBufferingStateChanged(MediaController controller, MediaItem item,
+                    int state) {
+                controller.setTimeDiff(testTimeDiff);
+                MediaTestUtils.assertNotMediaItemSubclass(item);
+                assertEquals(testPlaylist.get(targetItemIndex).getMediaId(), item.getMediaId());
+                assertEquals(testBufferingState, state);
+                assertEquals(testBufferingState, controller.getBufferingState());
+                assertEquals(testBufferingPosition, controller.getBufferedPosition());
+                assertEquals(testPosition, controller.getCurrentPosition());
+                latch.countDown();
+            }
+        };
+
+        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(testPlaylist);
+
+        RemoteMediaSession.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
+        player.setBufferedPosition(testBufferingPosition);
+        player.setCurrentPosition(testPosition);
+        player.setPlayerState(SessionPlayer.PLAYER_STATE_PLAYING);
+
+        MediaController controller = createController(mRemoteSession2.getToken(), true, callback);
+        // Since we cannot pass the DataSourceDesc directly, send the item index so that the player
+        // can select which item's state change should be notified.
+        player.notifyBufferingStateChanged(targetItemIndex, testBufferingState);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnPlayerStateChanged_playing() throws InterruptedException {
         prepareLooper();
         final int testPlayerState = SessionPlayer.PLAYER_STATE_PLAYING;
         final long testPosition = 500;
+        final long testTimeDiff = 100;
         final CountDownLatch latch = new CountDownLatch(1);
         final MediaController.ControllerCallback callback =
                 new MediaController.ControllerCallback() {
             @Override
             public void onPlayerStateChanged(MediaController controller, int state) {
-                controller.setTimeDiff(0L);
+                controller.setTimeDiff(testTimeDiff);
                 assertEquals(testPlayerState, state);
                 assertEquals(testPlayerState, controller.getPlayerState());
-                assertEquals(testPosition, controller.getCurrentPosition());
+                assertEquals(testPosition + testTimeDiff, controller.getCurrentPosition());
                 latch.countDown();
             }
         };
+
+        mRemoteSession2.getMockPlayer().setCurrentPosition(testPosition);
+
+        MediaController controller = createController(mRemoteSession2.getToken(), true, callback);
+        mRemoteSession2.getMockPlayer().notifyPlayerStateChanged(testPlayerState);
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void testOnPlayerStateChanged_paused() throws InterruptedException {
+        prepareLooper();
+        final int testPlayerState = SessionPlayer.PLAYER_STATE_PAUSED;
+        final long testPosition = 500;
+        final long testTimeDiff = 100;
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaController.ControllerCallback callback =
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onPlayerStateChanged(MediaController controller, int state) {
+                        controller.setTimeDiff(testTimeDiff);
+                        assertEquals(testPlayerState, state);
+                        assertEquals(testPlayerState, controller.getPlayerState());
+                        assertEquals(testPosition, controller.getCurrentPosition());
+                        latch.countDown();
+                    }
+                };
 
         mRemoteSession2.getMockPlayer().setCurrentPosition(testPosition);
 

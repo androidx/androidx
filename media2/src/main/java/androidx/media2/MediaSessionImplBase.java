@@ -1004,7 +1004,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
             dispatchRemoteControllerCallbackTask(new RemoteControllerCallbackTask() {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
-                    callback.onBufferingStateChanged(item, bufferingState, bufferedPositionMs);
+                    callback.onBufferingStateChanged(item, bufferingState, bufferedPositionMs,
+                            SystemClock.elapsedRealtime(), getCurrentPosition());
                 }
             });
         }
@@ -1228,7 +1229,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
             dispatchRemoteControllerTask(player, new RemoteControllerCallbackTask() {
                 @Override
                 public void run(ControllerCb callback) throws RemoteException {
-                    callback.onBufferingStateChanged(item, state, player.getBufferedPosition());
+                    callback.onBufferingStateChanged(item, state, player.getBufferedPosition(),
+                            SystemClock.elapsedRealtime(), player.getCurrentPosition());
                 }
             });
         }

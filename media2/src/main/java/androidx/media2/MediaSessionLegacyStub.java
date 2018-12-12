@@ -631,8 +631,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem item, int bufferingState, long bufferedPositionMs)
-                throws RemoteException {
+        void onBufferingStateChanged(MediaItem item, int bufferingState, long bufferedPositionMs,
+                long eventTimeMs, long positionMs) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
@@ -767,8 +767,8 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem item, int bufferingState, long bufferedPositionMs)
-                throws RemoteException {
+        void onBufferingStateChanged(MediaItem item, int bufferingState, long bufferedPositionMs,
+                long eventTimeMs, long positionMs) throws RemoteException {
             // Note: This method does not use any of the given arguments.
             mSessionImpl.getSessionCompat().setPlaybackState(
                     mSessionImpl.createPlaybackStateCompat());

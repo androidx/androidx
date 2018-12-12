@@ -433,7 +433,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
 
         @Override
         final void onBufferingStateChanged(MediaItem item, int bufferingState,
-                long bufferedPositionMs) throws RemoteException {
+                long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
