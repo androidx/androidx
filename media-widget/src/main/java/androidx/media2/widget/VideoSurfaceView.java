@@ -30,7 +30,7 @@ import androidx.core.content.ContextCompat;
 import androidx.media2.MediaPlayer;
 import androidx.media2.VideoSize;
 
-@RequiresApi(21)
+@RequiresApi(19)
 class VideoSurfaceView extends SurfaceView
         implements VideoViewInterface, SurfaceHolder.Callback {
     private static final String TAG = "VideoSurfaceView";

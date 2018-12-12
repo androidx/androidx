@@ -42,7 +42,7 @@ import java.util.Locale;
  *
  * @hide
  */
-@RequiresApi(28)
+@RequiresApi(19)
 @RestrictTo(LIBRARY_GROUP)
 public class SubtitleController {
     private MediaTimeProvider mTimeProvider;
