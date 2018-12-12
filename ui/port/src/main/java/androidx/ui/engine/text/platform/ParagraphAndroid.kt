@@ -15,7 +15,10 @@
  */
 package androidx.ui.engine.text.platform
 
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.TextPaint
+import android.text.style.ForegroundColorSpan
 import androidx.text.LayoutCompat.ALIGN_CENTER
 import androidx.text.LayoutCompat.ALIGN_LEFT
 import androidx.text.LayoutCompat.ALIGN_NORMAL
@@ -92,6 +95,9 @@ internal class ParagraphAndroid constructor(
             return tmpLayout
         }
 
+    val underlyingText: CharSequence
+        get() = ensureLayout.text
+
     fun layout(width: Double, force: Boolean = false) {
         val floorWidth = floor(width)
 
@@ -110,7 +116,7 @@ internal class ParagraphAndroid constructor(
             )
         }
 
-        val charSequence = text.toString() as CharSequence
+        val charSequence = applyTextStyle(text, textStyles)
         val alignment = when (paragraphStyle.textAlign) {
             TextAlign.LEFT -> ALIGN_LEFT
             TextAlign.RIGHT -> ALIGN_RIGHT
@@ -167,11 +173,50 @@ internal class ParagraphAndroid constructor(
 
     fun getLineBottom(index: Int): Double = ensureLayout.getLineBottom(index)
 
+    fun getLineAscent(index: Int): Double = ensureLayout.getLineAscent(index)
+
+    fun getLineDescent(index: Int): Double = ensureLayout.getLineDescent(index)
+
+    fun getLineBaseLine(index: Int): Double {
+        return getLineBottom(index) - getLineDescent(index)
+    }
+
     fun paint(canvas: Canvas, x: Double, y: Double) {
         val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
                 "called before layout() is called")
         canvas.translate(x, y)
         tmpLayout.paint(canvas.toFrameworkCanvas())
         canvas.translate(-x, -y)
+    }
+
+    private fun applyTextStyle(
+        text: StringBuilder,
+        textStyles: List<ParagraphBuilder.TextStyleIndex>
+    ): CharSequence {
+        if (textStyles.isEmpty()) return text
+        val spannableString = SpannableString(text)
+        for (textStyle in textStyles) {
+            val start = textStyle.start
+            val end = textStyle.end
+            val style = textStyle.textStyle
+
+            style.color?.let {
+                spannableString.setSpan(
+                    ForegroundColorSpan(it.value),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+            // TODO(Migration/haoyuchang): implement decoration, decorationStyle, decorationColor
+            // TODO(Migration/haoyuchang): implement fontWeight, fontStyle, fontFamily, fontSize
+            // TODO(Migration/haoyuchang): implement textBaseLine
+            // TODO(Migration/haoyuchang): implement letterSpacing, wordSpacing
+            // TODO(Migration/haoyuchang): implement height
+            // TODO(Migration/haoyuchang): implement locale
+            // TODO(Migration/haoyuchang): implement background
+            // TODO(Migration/haoyuchang): implement foreground or decide if we really need it
+        }
+        return spannableString
     }
 }

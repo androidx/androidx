@@ -142,6 +142,9 @@ class TextLayout constructor(
     val lineCount: Int
         get() = layout.lineCount
 
+    val text: CharSequence
+        get() = layout.text
+
     fun getLineLeft(index: Int): Double {
         return layout.getLineLeft(index).toDouble()
     }
@@ -156,6 +159,14 @@ class TextLayout constructor(
 
     fun getLineBottom(index: Int): Double {
         return layout.getLineBottom(index).toDouble()
+    }
+
+    fun getLineAscent(index: Int): Double {
+        return layout.getLineAscent(index).toDouble()
+    }
+
+    fun getLineDescent(index: Int): Double {
+        return layout.getLineDescent(index).toDouble()
     }
 
     fun getLineHeight(index: Int): Double {
