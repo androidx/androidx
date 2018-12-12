@@ -435,7 +435,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
         assertTrue(controllerCallback.await(MediaSessionTestBase.TIMEOUT_MS));
         assertTrue(controllerCallback.mOnMetadataChangedCalled);
         assertEquals(displayTitle, controllerCallback.mMediaMetadata
-                .getString(MediaMetadata.METADATA_KEY_DISPLAY_TITLE));
+                .getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE));
     }
 
     @Test
