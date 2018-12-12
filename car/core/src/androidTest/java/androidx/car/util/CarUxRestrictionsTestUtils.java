@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.utils;
+package androidx.car.util;
 
 import androidx.car.uxrestrictions.CarUxRestrictions;
 

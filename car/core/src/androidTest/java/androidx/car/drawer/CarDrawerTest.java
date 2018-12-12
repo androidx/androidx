@@ -29,7 +29,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 
 import androidx.car.test.R;
-import androidx.car.utils.CarUxRestrictionsTestUtils;
+import androidx.car.util.CarUxRestrictionsTestUtils;
 import androidx.car.widget.PagedListView;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.espresso.contrib.DrawerActions;
