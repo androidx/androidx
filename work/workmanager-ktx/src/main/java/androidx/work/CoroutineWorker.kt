@@ -30,6 +30,9 @@ import kotlinx.coroutines.launch
  * <p>
  * By default, CoroutineWorker runs on {@link Dispatchers#Default}; this can be modified by
  * overriding [coroutineContext].
+ * <p>
+ * A CoroutineWorker is given a maximum of ten minutes to finish its execution and return a
+ * [Result].  After this time has expired, the worker will be signalled to stop.
  */
 abstract class CoroutineWorker(
     appContext: Context,
@@ -73,6 +76,9 @@ abstract class CoroutineWorker(
     /**
      * A suspending method to do your work.  This function runs on the coroutine context specified
      * by [coroutineContext].
+     * <p>
+     * A CoroutineWorker is given a maximum of ten minutes to finish its execution and return a
+     * [Result].  After this time has expired, the worker will be signalled to stop.
      *
      * @return The [Result] of the result of the background work; note that
      *         dependent work will not execute if you return [Result.failure]
