@@ -696,7 +696,6 @@ public class RecyclerViewBasicTest {
         }
     }
 
-    @SuppressWarnings("BanParcelableUsage")
     @SuppressLint("BanParcelableUsage")
     static class LayoutManagerSavedState implements Parcelable {
 

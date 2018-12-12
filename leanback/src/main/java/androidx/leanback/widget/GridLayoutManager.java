@@ -3597,7 +3597,6 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         }
     }
 
-    @SuppressWarnings("BanParcelableUsage")
     @SuppressLint("BanParcelableUsage")
     final static class SavedState implements Parcelable {
 
