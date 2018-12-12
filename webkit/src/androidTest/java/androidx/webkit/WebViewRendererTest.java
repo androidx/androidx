@@ -18,8 +18,6 @@ package androidx.webkit;
 
 import android.annotation.SuppressLint;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
 import android.webkit.RenderProcessGoneDetail;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -41,25 +39,9 @@ import java.util.concurrent.Callable;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class WebViewRendererTest {
-    Handler mMainHandler = new Handler(Looper.getMainLooper());
-    private <T> ListenableFuture<T> onMainThread(final Callable<T> callable)  {
-        final ResolvableFuture<T> future = ResolvableFuture.create();
-        mMainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    future.set(callable.call());
-                } catch (Throwable t) {
-                    future.setException(t);
-                }
-            }
-        });
-        return future;
-    }
-
     private ListenableFuture<Boolean> terminateRendererOnUiThread(
             final WebViewRenderer renderer) {
-        return onMainThread(new Callable<Boolean>() {
+        return WebkitUtils.onMainThread(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 return renderer.terminate();
@@ -68,7 +50,7 @@ public class WebViewRendererTest {
     }
 
     ListenableFuture<WebViewRenderer> getRendererOnUiThread(final WebView webView) {
-        return onMainThread(new Callable<WebViewRenderer>() {
+        return WebkitUtils.onMainThread(new Callable<WebViewRenderer>() {
             @Override
             public WebViewRenderer call() {
                 return WebViewCompat.getWebViewRenderer(webView);
@@ -80,7 +62,7 @@ public class WebViewRendererTest {
             final WebView webView) throws Throwable {
         final ResolvableFuture<WebViewRenderer> future = ResolvableFuture.create();
 
-        mMainHandler.post(new Runnable() {
+        WebkitUtils.onMainThread(new Runnable() {
             @Override
             public void run() {
                 webView.setWebViewClient(new WebViewClient() {
@@ -100,7 +82,7 @@ public class WebViewRendererTest {
     ListenableFuture<Boolean> catchRendererTermination(final WebView webView) {
         final ResolvableFuture<Boolean> future = ResolvableFuture.create();
 
-        mMainHandler.post(new Runnable() {
+        WebkitUtils.onMainThread(new Runnable() {
             @Override
             public void run() {
                 webView.setWebViewClient(new WebViewClient() {
