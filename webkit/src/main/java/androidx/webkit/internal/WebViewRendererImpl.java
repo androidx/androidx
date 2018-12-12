@@ -16,7 +16,7 @@
 
 package androidx.webkit.internal;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.webkit.WebViewFeature;
 import androidx.webkit.WebViewRenderer;
 
@@ -41,8 +41,8 @@ public class WebViewRendererImpl extends WebViewRenderer {
     /**
      * Get a support library WebViewRenderer object that is 1:1 with the webview object.
      */
-    public static @NonNull WebViewRendererImpl forInvocationHandler(
-            InvocationHandler invocationHandler) throws Exception {
+    public static @Nullable WebViewRendererImpl forInvocationHandler(
+            InvocationHandler invocationHandler) {
         // Make a possibly temporary proxy object in order to call into WebView.
         final WebViewRendererBoundaryInterface boundaryInterface =
                 BoundaryInterfaceReflectionUtil.castToSuppLibClass(
