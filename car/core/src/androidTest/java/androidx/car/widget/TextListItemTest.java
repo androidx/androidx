@@ -50,7 +50,7 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 
 import androidx.car.test.R;
-import androidx.car.utils.CarUxRestrictionsTestUtils;
+import androidx.car.util.CarUxRestrictionsTestUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.espresso.UiController;

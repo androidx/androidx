@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.widget;
+package androidx.car.util;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.contrib.RecyclerViewActions.scrollToPosition;
@@ -30,6 +30,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.car.test.R;
+import androidx.car.widget.PagedListView;
+import androidx.car.widget.PagedListViewTestActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.InstrumentationRegistry;
