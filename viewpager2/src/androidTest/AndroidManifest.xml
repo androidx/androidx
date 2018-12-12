@@ -19,6 +19,7 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application android:supportsRtl="true">
-        <activity android:name="androidx.viewpager2.widget.swipe.TestActivity"/>
+        <activity android:name="androidx.viewpager2.widget.swipe.TestActivity"
+                  android:theme="@style/TestActivityTheme"/>
     </application>
 </manifest>
