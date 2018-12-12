@@ -43,6 +43,8 @@ import java.util.Locale;
 
 class AppCompatTextHelper {
 
+    private static final int TEXT_FONT_WEIGHT_UNSPECIFIED = -1;
+
     // Enum for the "typeface" XML parameter.
     private static final int SANS = 1;
     private static final int SERIF = 2;
@@ -61,6 +63,7 @@ class AppCompatTextHelper {
     private final AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
 
     private int mStyle = Typeface.NORMAL;
+    private int mFontWeight = TEXT_FONT_WEIGHT_UNSPECIFIED;
     private Typeface mFontTypeface;
     private boolean mAsyncFontPending;
 
@@ -210,7 +213,11 @@ class AppCompatTextHelper {
             setAllCaps(allCaps);
         }
         if (mFontTypeface != null) {
-            mView.setTypeface(mFontTypeface, mStyle);
+            if (mFontWeight == TEXT_FONT_WEIGHT_UNSPECIFIED) {
+                mView.setTypeface(mFontTypeface, mStyle);
+            } else {
+                mView.setTypeface(mFontTypeface);
+            }
         }
         if (fontVariation != null) {
             mView.setFontVariationSettings(fontVariation);
@@ -311,17 +318,33 @@ class AppCompatTextHelper {
     private void updateTypefaceAndStyle(Context context, TintTypedArray a) {
         mStyle = a.getInt(R.styleable.TextAppearance_android_textStyle, mStyle);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            mFontWeight = a.getInt(R.styleable.TextAppearance_android_textFontWeight,
+                    TEXT_FONT_WEIGHT_UNSPECIFIED);
+            if (mFontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
+                mStyle = Typeface.NORMAL | (mStyle & Typeface.ITALIC);
+            }
+        }
+
         if (a.hasValue(R.styleable.TextAppearance_android_fontFamily)
                 || a.hasValue(R.styleable.TextAppearance_fontFamily)) {
             mFontTypeface = null;
             int fontFamilyId = a.hasValue(R.styleable.TextAppearance_fontFamily)
                     ? R.styleable.TextAppearance_fontFamily
                     : R.styleable.TextAppearance_android_fontFamily;
+            final int fontWeight = mFontWeight;
+            final int style = mStyle;
             if (!context.isRestricted()) {
                 final WeakReference<TextView> textViewWeak = new WeakReference<>(mView);
                 ResourcesCompat.FontCallback replyCallback = new ResourcesCompat.FontCallback() {
                     @Override
                     public void onFontRetrieved(@NonNull Typeface typeface) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                            if (fontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
+                                typeface = Typeface.create(typeface, fontWeight,
+                                        (style & Typeface.ITALIC) != 0);
+                            }
+                        }
                         onAsyncTypefaceReceived(textViewWeak, typeface);
                     }
 
@@ -332,7 +355,17 @@ class AppCompatTextHelper {
                 };
                 try {
                     // Note the callback will be triggered on the UI thread.
-                    mFontTypeface = a.getFont(fontFamilyId, mStyle, replyCallback);
+                    final Typeface typeface = a.getFont(fontFamilyId, mStyle, replyCallback);
+                    if (typeface != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                                && mFontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
+                            mFontTypeface = Typeface.create(
+                                    Typeface.create(typeface, Typeface.NORMAL), mFontWeight,
+                                    (mStyle & Typeface.ITALIC) != 0);
+                        } else {
+                            mFontTypeface = typeface;
+                        }
+                    }
                     // If this call gave us an immediate result, ignore any pending callbacks.
                     mAsyncFontPending = mFontTypeface == null;
                 } catch (UnsupportedOperationException | Resources.NotFoundException e) {
@@ -343,7 +376,14 @@ class AppCompatTextHelper {
                 // Try with String. This is done by TextView JB+, but fails in ICS
                 String fontFamilyName = a.getString(fontFamilyId);
                 if (fontFamilyName != null) {
-                    mFontTypeface = Typeface.create(fontFamilyName, mStyle);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+                            && mFontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED) {
+                        mFontTypeface = Typeface.create(
+                                Typeface.create(fontFamilyName, Typeface.NORMAL), mFontWeight,
+                                (mStyle & Typeface.ITALIC) != 0);
+                    } else {
+                        mFontTypeface = Typeface.create(fontFamilyName, mStyle);
+                    }
                 }
             }
             return;
