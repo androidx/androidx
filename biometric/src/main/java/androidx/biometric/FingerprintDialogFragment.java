@@ -16,8 +16,6 @@
 
 package androidx.biometric;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -36,6 +34,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -268,9 +267,7 @@ public class FingerprintDialogFragment extends DialogFragment {
         return false;
     }
 
-    // Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
-    @TargetApi(21)
-    @SuppressLint("BanTargetApiAnnotation")
+    @RequiresApi(21)
     private Drawable getAnimationForTransition(int oldState, int newState) {
         int iconRes;
 
