@@ -164,8 +164,9 @@ public class DragStartHelperTest {
         mDragSource = mActivityRule.getActivity().findViewById(R.id.drag_source);
     }
 
-    @SmallTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @SmallTest
+    // @Test
     public void mouseClick() throws Throwable {
         final DragStartListener listener = createListener(true);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -178,8 +179,9 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
-    @SmallTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @SmallTest
+    // @Test
     public void mousePressWithSecondaryButton() throws Throwable {
         final DragStartListener listener = createListener(true);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -194,8 +196,9 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
-    @SmallTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @SmallTest
+    // @Test
     public void mouseDrag() throws Throwable {
         final DragStartListener listener = createListener(true);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -212,8 +215,9 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
-    @SmallTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @SmallTest
+    // @Test
     public void mouseDragWithNonprimaryButton() throws Throwable {
         final DragStartListener listener = createListener(true);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -231,8 +235,9 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
-    @SmallTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @SmallTest
+    // @Test
     public void mouseDragUsingTouchListener() throws Throwable {
         final DragStartListener listener = createListener(true);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -256,8 +261,9 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
-    @SmallTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @SmallTest
+    // @Test
     public void mouseDragWhenListenerReturnsFalse() throws Throwable {
         final DragStartListener listener = createListener(false);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -279,8 +285,9 @@ public class DragStartHelperTest {
         inOrder.verifyNoMoreInteractions();
     }
 
-    @LargeTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @LargeTest
+    // @Test
     public void mouseLongPress() throws Throwable {
         final DragStartListener listener = createListener(true);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -295,8 +302,9 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
-    @SmallTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @SmallTest
+    // @Test
     public void touchDrag() throws Throwable {
         final DragStartListener listener = createListener(false);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -311,8 +319,9 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
-    @SmallTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @SmallTest
+    // @Test
     public void touchTap() throws Throwable {
         final DragStartListener listener = createListener(false);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -325,8 +334,9 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
-    @LargeTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @LargeTest
+    // @Test
     public void touchLongPress() throws Throwable {
         final DragStartListener listener = createListener(true);
         final DragStartHelper helper = createDragStartHelper(listener);
@@ -341,8 +351,9 @@ public class DragStartHelperTest {
         verifyNoMoreInteractions(listener);
     }
 
-    @LargeTest
-    @Test
+    // Temporarily disabled due to b/110483469
+    // @LargeTest
+    // @Test
     public void touchLongPressUsingLongClickListener() throws Throwable {
         final DragStartListener listener = createListener(true);
 
