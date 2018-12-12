@@ -81,7 +81,8 @@ public class ExplodeTest extends BaseTransitionTest {
         });
     }
 
-    @Test
+    // Temporarily disabled due to b/118137165.
+    // @Test
     public void testExplode() throws Throwable {
         rule.runOnUiThread(new Runnable() {
             @Override
@@ -115,7 +116,8 @@ public class ExplodeTest extends BaseTransitionTest {
         assertEquals(View.INVISIBLE, mYellowSquare.getVisibility());
     }
 
-    @Test
+    // Temporarily disabled due to b/112005299.
+    // @Test
     public void testImplode() throws Throwable {
         rule.runOnUiThread(new Runnable() {
             @Override
