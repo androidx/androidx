@@ -45,7 +45,8 @@ import io.reactivex.schedulers.Schedulers;
  * method.
  * <p>
  * An RxWorker is given a maximum of ten minutes to finish its execution and return a
- * {@link Result}.  After this time has expired, the worker will be signalled to stop.
+ * {@link androidx.work.ListenableWorker.Result}.  After this time has expired, the worker will be
+ * signalled to stop.
  *
  * @see Worker
  */
@@ -96,7 +97,7 @@ public abstract class RxWorker extends ListenableWorker {
 
     /**
      * Override this method to define your actual work and return a {@code Single} of
-     * {@link Result} which will be subscribed by the
+     * {@link androidx.work.ListenableWorker.Result} which will be subscribed by the
      * {@link WorkManager}.
      * <p>
      * If the returned {@code Single} fails, the worker will be considered as failed.
@@ -108,9 +109,10 @@ public abstract class RxWorker extends ListenableWorker {
      * by overriding {@link #getBackgroundScheduler()}.
      * <p>
      * An RxWorker is given a maximum of ten minutes to finish its execution and return a
-     * {@link Result}.  After this time has expired, the worker will be signalled to stop.
+     * {@link androidx.work.ListenableWorker.Result}.  After this time has expired, the worker will
+     * be signalled to stop.
      *
-     * @return a {@code Single<Payload>} that represents the work.
+     * @return a {@code Single<Result>} that represents the work.
      */
     @MainThread
     public abstract Single<Result> createWork();

@@ -39,8 +39,9 @@ import com.google.common.util.concurrent.ListenableFuture;
  * means that {@link #doWork()} is called exactly once per Worker instance.  A new Worker is created
  * if a unit of work needs to be rerun.
  * <p>
- * A Worker is given a maximum of ten minutes to finish its execution and return a {@link Result}.
- * After this time has expired, the Worker will be signalled to stop.
+ * A Worker is given a maximum of ten minutes to finish its execution and return a
+ * {@link androidx.work.ListenableWorker.Result}.  After this time has expired, the Worker will be
+ * signalled to stop.
  */
 
 public abstract class Worker extends ListenableWorker {
@@ -57,15 +58,19 @@ public abstract class Worker extends ListenableWorker {
     /**
      * Override this method to do your actual background processing.  This method is called on a
      * background thread - you are required to <b>synchronously</b> do your work and return the
-     * {@link Result} from this method.  Once you return from this method, the Worker is considered
-     * to have finished what its doing and will be destroyed.  If you need to do your work
-     * asynchronously on a thread of your own choice, see {@link ListenableWorker}.
+     * {@link androidx.work.ListenableWorker.Result} from this method.  Once you return from this
+     * method, the Worker is considered to have finished what its doing and will be destroyed.  If
+     * you need to do your work asynchronously on a thread of your own choice, see
+     * {@link ListenableWorker}.
      * <p>
      * A Worker is given a maximum of ten minutes to finish its execution and return a
-     * {@link Result}.  After this time has expired, the Worker will be signalled to stop.
+     * {@link androidx.work.ListenableWorker.Result}.  After this time has expired, the Worker will
+     * be signalled to stop.
      *
-     * @return The {@link Result} of the computation; note that dependent work will
-     *         not execute if you use {@link Result#failure()} or {@link Result#failure(Data)}
+     * @return The {@link androidx.work.ListenableWorker.Result} of the computation; note that
+     *         dependent work will not execute if you use
+     *         {@link androidx.work.ListenableWorker.Result#failure()} or
+     *         {@link androidx.work.ListenableWorker.Result#failure(Data)}
      */
     @WorkerThread
     public abstract @NonNull Result doWork();
