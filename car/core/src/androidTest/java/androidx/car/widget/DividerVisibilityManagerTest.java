@@ -94,44 +94,43 @@ public final class DividerVisibilityManagerTest {
             throwable.printStackTrace();
             throw new RuntimeException(throwable);
         }
+
+        // Wait for the UI to lay itself out.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
     }
 
     @Test
     public void setCustomDividerVisibilityManager() throws Throwable {
-        final int itemCount = 8;
+        int itemCount = 8;
         setUpPagedListView(itemCount /* itemCount */);
         RecyclerView.LayoutManager layoutManager =
                 mPagedListView.getRecyclerView().getLayoutManager();
 
         // Fetch divider height.
-        final int dividerHeight = InstrumentationRegistry.getContext().getResources()
+        int dividerHeight = InstrumentationRegistry.getContext().getResources()
                 .getDimensionPixelSize(R.dimen.car_list_divider_height);
 
-
         // Initially, dividers are present between each two items.
-        final View[] views = new View[itemCount];
-        mActivityRule.runOnUiThread(() -> {
-            for (int i = 0; i < layoutManager.getChildCount(); i++) {
-                views[i] = layoutManager.getChildAt(i);
-            }
-        });
+        View[] views = new View[itemCount];
+
+        for (int i = 0; i < layoutManager.getChildCount(); i++) {
+            views[i] = layoutManager.getChildAt(i);
+        }
+
         for (int i = 0; i < itemCount - 1; i++) {
             assertThat((double) views[i + 1].getTop() - views[i].getBottom(),
                     is(closeTo(2 * (dividerHeight / 2), 1.0f)));
         }
 
-
         // Set DividerVisibilityManager on PagedListView.
-        final PagedListView.DividerVisibilityManager dvm = new TestDividerVisibilityManager();
-        mActivityRule.runOnUiThread(() -> {
-            mPagedListView.setDividerVisibilityManager(dvm);
-        });
+        PagedListView.DividerVisibilityManager dvm = new TestDividerVisibilityManager();
 
-        mActivityRule.runOnUiThread(() -> {
-            for (int i = 0; i < layoutManager.getChildCount(); i++) {
-                views[i] = layoutManager.getChildAt(i);
-            }
-        });
+        mActivityRule.runOnUiThread(() -> mPagedListView.setDividerVisibilityManager(dvm));
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        for (int i = 0; i < layoutManager.getChildCount(); i++) {
+            views[i] = layoutManager.getChildAt(i);
+        }
 
         for (int i = 0; i < itemCount - 1; i++) {
             int distance = views[i + 1].getTop() - views[i].getBottom();
@@ -176,9 +175,10 @@ public final class DividerVisibilityManagerTest {
         TextListItem item1 = new TextListItem(mActivity);
 
         ListItemProvider provider = new ListItemProvider.ListProvider(Arrays.asList(item0, item1));
-        mActivityRule.runOnUiThread(() -> {
-            mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider));
-        });
+        mActivityRule.runOnUiThread(
+                () -> mPagedListView.setAdapter(new ListItemAdapter(mActivity, provider)));
+
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
         assertFalse(item0.getShowDivider());
         assertTrue(item1.getShowDivider());
@@ -193,9 +193,9 @@ public final class DividerVisibilityManagerTest {
         // Then verify we can show divider by checking the space between items reserved by
         // divider decorator.
         item0.setShowDivider(true);
-        mActivityRule.runOnUiThread(() -> {
-            mPagedListView.getAdapter().notifyDataSetChanged();
-        });
+        mActivityRule.runOnUiThread(() -> mPagedListView.getAdapter().notifyDataSetChanged());
+
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
         assertTrue(dvm.getShowDivider(0));
         int upper = mPagedListView.getRecyclerView().getLayoutManager()
