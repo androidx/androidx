@@ -43,6 +43,12 @@ android {
     buildTypes.all {
         consumerProguardFiles new File(webviewBoundaryInterfacesDir, "proguard.flags") , 'proguard-rules.pro'
     }
+
+    lintOptions {
+        // This uses code in platform/external/webview_support_interfaces which uses @TargetApi.
+        // Disable the check here for now until b/120770118 is resolved.
+        disable("BanTargetApiAnnotation")
+    }
 }
 
 supportLibrary {

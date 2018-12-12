@@ -19,7 +19,6 @@ package androidx.textclassifier.widget;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -65,7 +64,6 @@ import java.util.Map;
  */
 @RestrictTo(LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.M)
-@TargetApi(Build.VERSION_CODES.M)
 @UiThread
 public final class ToolbarController {
 
