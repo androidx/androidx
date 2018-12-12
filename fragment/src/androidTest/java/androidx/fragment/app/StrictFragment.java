@@ -38,6 +38,7 @@ public class StrictFragment extends Fragment {
             mCalledOnStart, mCalledOnResume, mCalledOnSaveInstanceState,
             mCalledOnPause, mCalledOnStop, mCalledOnDestroy, mCalledOnDetach,
             mCalledOnAttachFragment;
+    Bundle mSavedInstanceState;
 
     static String stateToString(int state) {
         switch (state) {
@@ -106,6 +107,7 @@ public class StrictFragment extends Fragment {
             throw new IllegalStateException("onCreate called more than once with no onDestroy");
         }
         mCalledOnCreate = true;
+        mSavedInstanceState = savedInstanceState;
         checkState("onCreate", ATTACHED);
         mState = CREATED;
         onStateChanged(ATTACHED);
