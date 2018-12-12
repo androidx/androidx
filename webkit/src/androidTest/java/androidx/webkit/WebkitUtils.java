@@ -34,9 +34,15 @@ import java.util.concurrent.TimeoutException;
  */
 public final class WebkitUtils {
 
-    // Arbitrary timeout. Note that @SmallTest and @MediumTest are documented as both requiring
-    // execution times < 1000ms.
-    private static final long TEST_TIMEOUT_MS = 20000L; // 20s.
+    /**
+     * Arbitrary timeout for tests. This is intended to be used with {@link TimeUnit#MILLISECONDS}
+     * so that this can represent 20 seconds.
+     *
+     * <p class=note><b>Note:</b> only use this timeout value for the unexpected case, not for the
+     * correct case, as this exceeds the time recommendation for {@link
+     * androidx.test.filters.MediumTest}.
+     */
+    public static final long TEST_TIMEOUT_MS = 20000L; // 20s.
 
     /**
      * Throws {@link org.junit.AssumptionViolatedException} if the device does not support the

@@ -26,6 +26,7 @@ dependencies {
     api(project(":annotation"))
     api(project(':core'))
 
+    androidTestImplementation(OKHTTP_MOCKWEBSERVER)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(project(":concurrent:concurrent-futures"))
 }
