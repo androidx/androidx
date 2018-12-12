@@ -19,6 +19,7 @@ package androidx.core.view.accessibility;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.graphics.Rect;
+import android.graphics.Region;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.InputType;
@@ -31,7 +32,9 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityNodeInfo.TouchDelegateInfo;
 
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -52,6 +55,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Helper for accessing {@link android.view.accessibility.AccessibilityNodeInfo} in a backwards
@@ -1031,6 +1035,97 @@ public class AccessibilityNodeInfoCompat {
             } else {
                 return RANGE_TYPE_INT;
             }
+        }
+    }
+
+    /**
+     * Class with information of touch delegated views and regions.
+     */
+    public static final class TouchDelegateInfoCompat {
+        final TouchDelegateInfo mInfo;
+
+        /**
+         * Create a new instance of {@link TouchDelegateInfoCompat}.
+         *
+         * @param targetMap A map from regions (in view coordinates) to delegated views.
+         */
+        public TouchDelegateInfoCompat(@NonNull Map<Region, View> targetMap) {
+            if (BuildCompat.isAtLeastQ()) {
+                mInfo = new TouchDelegateInfo(targetMap);
+            } else {
+                mInfo = null;
+            }
+        }
+
+        TouchDelegateInfoCompat(@NonNull TouchDelegateInfo info) {
+            mInfo = info;
+        }
+
+        /**
+         * Returns the number of touch delegate target region.
+         * <p>
+         * Compatibility:
+         * <ul>
+         *     <li>API &lt; 29: Always returns {@code 0}</li>
+         * </ul>
+         *
+         * @return Number of touch delegate target region.
+         */
+        public @IntRange(from = 0) int getRegionCount() {
+            if (BuildCompat.isAtLeastQ()) {
+                return mInfo.getRegionCount();
+            }
+            return 0;
+        }
+
+        /**
+         * Return the {@link Region} at the given index.
+         * <p>
+         * Compatibility:
+         * <ul>
+         *     <li>API &lt; 29: Always returns {@code null}</li>
+         * </ul>
+         *
+         * @param index The desired index, must be between 0 and {@link #getRegionCount()}-1.
+         * @return Returns the {@link Region} stored at the given index.
+         */
+        @Nullable
+        public Region getRegionAt(@IntRange(from = 0) int index) {
+            if (BuildCompat.isAtLeastQ()) {
+                return mInfo.getRegionAt(index);
+            }
+            return null;
+        }
+
+        /**
+         * Return the target {@link AccessibilityNodeInfoCompat} for the given {@link Region}.
+         * <p>
+         *   <strong>Note:</strong> This api can only be called from
+         *   {@link android.accessibilityservice.AccessibilityService}.
+         * </p>
+         * <p>
+         *   <strong>Note:</strong> It is a client responsibility to recycle the
+         *     received info by calling {@link AccessibilityNodeInfo#recycle()}
+         *     to avoid creating of multiple instances.
+         * </p>
+         * <p>
+         * Compatibility:
+         * <ul>
+         *     <li>API &lt; 29: Always returns {@code null}</li>
+         * </ul>
+         *
+         * @param region The region retrieved from {@link #getRegionAt(int)}.
+         * @return The target node associates with the given region.
+         */
+        @Nullable
+        public AccessibilityNodeInfoCompat getTargetForRegion(@NonNull Region region) {
+            if (BuildCompat.isAtLeastQ()) {
+                AccessibilityNodeInfo info = mInfo.getTargetForRegion(region);
+                if (info != null) {
+                    return AccessibilityNodeInfoCompat.wrap(info);
+                }
+            }
+            return null;
         }
     }
 
@@ -3797,6 +3892,55 @@ public class AccessibilityNodeInfoCompat {
     public void setRoleDescription(@Nullable CharSequence roleDescription) {
         if (Build.VERSION.SDK_INT >= 19) {
             mInfo.getExtras().putCharSequence(ROLE_DESCRIPTION_KEY, roleDescription);
+        }
+    }
+
+    /**
+     * Get the {@link TouchDelegateInfoCompat} for touch delegate behavior with the represented
+     * view. It is possible for the same node to be pointed to by several regions. Use
+     * {@link TouchDelegateInfoCompat#getRegionAt(int)} to get touch delegate target
+     * {@link Region}, and {@link TouchDelegateInfoCompat#getTargetForRegion(Region)}
+     * for {@link AccessibilityNodeInfoCompat} from the given region.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 29: Always returns {@code null}</li>
+     * </ul>
+     *
+     * @return {@link TouchDelegateInfoCompat} or {@code null} if there are no touch delegates
+     * in this node.
+     */
+    @Nullable
+    public TouchDelegateInfoCompat getTouchDelegateInfo() {
+        if (BuildCompat.isAtLeastQ()) {
+            TouchDelegateInfo delegateInfo = mInfo.getTouchDelegateInfo();
+            if (delegateInfo != null) {
+                return new TouchDelegateInfoCompat(delegateInfo);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Set touch delegate info if the represented view has a {@link android.view.TouchDelegate}.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an
+     *   AccessibilityService.
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 29: No-op</li>
+     * </ul>
+     *
+     * @param delegatedInfo {@link TouchDelegateInfoCompat}
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setTouchDelegateInfo(@NonNull TouchDelegateInfoCompat delegatedInfo) {
+        if (BuildCompat.isAtLeastQ()) {
+            mInfo.setTouchDelegateInfo(delegatedInfo.mInfo);
         }
     }
 
