@@ -515,7 +515,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                             mSessionImpl.getInstance(), controller);
                     if (allowedCommands == null) {
                         try {
-                            controller.getControllerCb().onDisconnected();
+                            controller.getControllerCb().onDisconnected(0);
                         } catch (RemoteException ex) {
                             // Controller may have died prematurely.
                         }
@@ -603,12 +603,13 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlaybackInfoChanged(PlaybackInfo info) throws RemoteException {
+        void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onAllowedCommandsChanged(SessionCommandGroup commands) throws RemoteException {
+        void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+                throws RemoteException {
             // no-op
         }
 
@@ -619,74 +620,74 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
+        void onPlayerStateChanged(int seq, long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
+        void onPlaybackSpeedChanged(int seq, long eventTimeMs, long positionMs, float speed)
                 throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem item, int bufferingState, long bufferedPositionMs,
-                long eventTimeMs, long positionMs) throws RemoteException {
+        void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+                long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onSeekCompleted(long eventTimeMs, long positionMs, long position)
+        void onSeekCompleted(int seq, long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onCurrentMediaItemChanged(MediaItem item, int currentIdx, int previousIdx, int nextIdx)
-                throws RemoteException {
+        void onCurrentMediaItemChanged(int seq, MediaItem item, int currentIdx, int previousIdx,
+                int nextIdx) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata, int currentIdx,
-                int previousIdx, int nextIdx) throws RemoteException {
+        void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
+                int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onPlaylistMetadataChanged(MediaMetadata metadata) throws RemoteException {
+        void onPlaylistMetadataChanged(int seq, MediaMetadata metadata) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onShuffleModeChanged(int shuffleMode) throws RemoteException {
+        void onShuffleModeChanged(int seq, int shuffleMode) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onRepeatModeChanged(int repeatMode) throws RemoteException {
+        void onRepeatModeChanged(int seq, int repeatMode) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onPlaybackCompleted() throws RemoteException {
+        void onPlaybackCompleted(int seq) throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
         @Override
-        void onChildrenChanged(String parentId, int itemCount, LibraryParams params)
-                throws RemoteException {
-            // no-op
-        }
-        @Override
-        void onSearchResultChanged(String query, int itemCount, LibraryParams params)
+        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
                 throws RemoteException {
             // no-op
         }
+        @Override
+        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
+                throws RemoteException {
+            // no-op
+        }
 
         @Override
-        void onDisconnected() throws RemoteException {
+        void onDisconnected(int seq) throws RemoteException {
             // no-op
         }
 
@@ -734,13 +735,14 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlaybackInfoChanged(PlaybackInfo info) throws RemoteException {
+        void onPlaybackInfoChanged(int seq, PlaybackInfo info) throws RemoteException {
             // no-op. Calling MediaSessionCompat#setPlaybackToLocal/Remote
             // is already done in updatePlayerConnector().
         }
 
         @Override
-        void onAllowedCommandsChanged(SessionCommandGroup commands) throws RemoteException {
+        void onAllowedCommandsChanged(int seq, SessionCommandGroup commands)
+                throws RemoteException {
             throw new AssertionError("This shouldn't be called.");
         }
 
@@ -751,7 +753,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlayerStateChanged(long eventTimeMs, long positionMs, int playerState)
+        void onPlayerStateChanged(int seq, long eventTimeMs, long positionMs, int playerState)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
             mSessionImpl.getSessionCompat().setPlaybackState(
@@ -759,7 +761,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed)
+        void onPlaybackSpeedChanged(int seq, long eventTimeMs, long positionMs, float speed)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
             mSessionImpl.getSessionCompat().setPlaybackState(
@@ -767,15 +769,15 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onBufferingStateChanged(MediaItem item, int bufferingState, long bufferedPositionMs,
-                long eventTimeMs, long positionMs) throws RemoteException {
+        void onBufferingStateChanged(int seq, MediaItem item, int bufferingState,
+                long bufferedPositionMs, long eventTimeMs, long positionMs) throws RemoteException {
             // Note: This method does not use any of the given arguments.
             mSessionImpl.getSessionCompat().setPlaybackState(
                     mSessionImpl.createPlaybackStateCompat());
         }
 
         @Override
-        void onSeekCompleted(long eventTimeMs, long positionMs, long position)
+        void onSeekCompleted(int seq, long eventTimeMs, long positionMs, long position)
                 throws RemoteException {
             // Note: This method does not use any of the given arguments.
             mSessionImpl.getSessionCompat().setPlaybackState(
@@ -783,15 +785,15 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onCurrentMediaItemChanged(MediaItem item, int currentIdx, int previousIdx, int nextIdx)
-                throws RemoteException {
+        void onCurrentMediaItemChanged(int seq, MediaItem item, int currentIdx, int previousIdx,
+                int nextIdx) throws RemoteException {
             mSessionImpl.getSessionCompat().setMetadata(item == null ? null
                     : MediaUtils.convertToMediaMetadataCompat(item.getMetadata()));
         }
 
         @Override
-        void onPlaylistChanged(List<MediaItem> playlist, MediaMetadata metadata, int currentIdx,
-                int previousIdx, int nextIdx) throws RemoteException {
+        void onPlaylistChanged(int seq, List<MediaItem> playlist, MediaMetadata metadata,
+                int currentIdx, int previousIdx, int nextIdx) throws RemoteException {
             if (Build.VERSION.SDK_INT < 21) {
                 if (playlist == null) {
                     mSessionImpl.getSessionCompat().setQueue(null);
@@ -814,11 +816,11 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
                 mSessionImpl.getSessionCompat().setQueue(
                         MediaUtils.convertToQueueItemList(playlist));
             }
-            onPlaylistMetadataChanged(metadata);
+            onPlaylistMetadataChanged(seq, metadata);
         }
 
         @Override
-        void onPlaylistMetadataChanged(MediaMetadata metadata) throws RemoteException {
+        void onPlaylistMetadataChanged(int seq, MediaMetadata metadata) throws RemoteException {
             // Since there is no 'queue metadata', only set title of the queue.
             CharSequence oldTitle = mSessionImpl.getSessionCompat().getController().getQueueTitle();
             CharSequence newTitle = null;
@@ -836,17 +838,17 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onShuffleModeChanged(int shuffleMode) throws RemoteException {
+        void onShuffleModeChanged(int seq, int shuffleMode) throws RemoteException {
             mSessionImpl.getSessionCompat().setShuffleMode(shuffleMode);
         }
 
         @Override
-        void onRepeatModeChanged(int repeatMode) throws RemoteException {
+        void onRepeatModeChanged(int seq, int repeatMode) throws RemoteException {
             mSessionImpl.getSessionCompat().setRepeatMode(repeatMode);
         }
 
         @Override
-        void onPlaybackCompleted() throws RemoteException {
+        void onPlaybackCompleted(int seq) throws RemoteException {
             PlaybackStateCompat state = mSessionImpl.createPlaybackStateCompat();
             if (state.getState() != PlaybackStateCompat.STATE_PAUSED) {
                 state = new PlaybackStateCompat.Builder(state)
@@ -858,18 +860,18 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         }
 
         @Override
-        void onChildrenChanged(String parentId, int itemCount, LibraryParams params)
+        void onChildrenChanged(int seq, String parentId, int itemCount, LibraryParams params)
                 throws RemoteException {
             // no-op
         }
         @Override
-        void onSearchResultChanged(String query, int itemCount, LibraryParams params)
+        void onSearchResultChanged(int seq, String query, int itemCount, LibraryParams params)
                 throws RemoteException {
             // no-op
         }
 
         @Override
-        void onDisconnected() throws RemoteException {
+        void onDisconnected(int seq) throws RemoteException {
             // no-op. Calling MediaSessionCompat#release() is already done in close().
         }
     }

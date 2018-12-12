@@ -270,7 +270,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                                             + " Rejecting connection");
                                 }
                                 try {
-                                    caller.onDisconnected();
+                                    caller.onDisconnected(0);
                                 } catch (RemoteException e) {
                                     // Controller may be died prematurely.
                                     // Not an issue because we'll ignore it anyway.

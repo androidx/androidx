@@ -30,26 +30,26 @@ import androidx.versionedparcelable.ParcelImpl;
  * @hide
  */
 oneway interface IMediaController {
-    void onCurrentMediaItemChanged(in ParcelImpl item, int currentIdx, int previousIdx,
-        int nextIdx) = 0;
-    void onPlayerStateChanged(long eventTimeMs, long positionMs, int state) = 1;
-    void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed) = 2;
-    void onBufferingStateChanged(in ParcelImpl item, int state, long bufferedPositionMs,
-        long eventTimeMs, long positionMs) = 3;
-    void onPlaylistChanged(in ParcelImplListSlice listSlice, in ParcelImpl metadata, int currentIdx,
-        int previousIdx, int nextIdx) = 4;
-    void onPlaylistMetadataChanged(in ParcelImpl metadata) = 5;
-    void onPlaybackInfoChanged(in ParcelImpl playbackInfo) = 6;
-    void onRepeatModeChanged(int repeatMode) = 7;
-    void onShuffleModeChanged(int shuffleMode) = 8;
-    void onPlaybackCompleted() = 9;
-    void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs) = 10;
+    void onCurrentMediaItemChanged(int seq, in ParcelImpl item, int currentIdx, int previousIdx,
+            int nextIdx) = 0;
+    void onPlayerStateChanged(int seq, long eventTimeMs, long positionMs, int state) = 1;
+    void onPlaybackSpeedChanged(int seq, long eventTimeMs, long positionMs, float speed) = 2;
+    void onBufferingStateChanged(int seq, in ParcelImpl item, int state,
+            long bufferedPositionMs, long eventTimeMs, long positionMs) = 3;
+    void onPlaylistChanged(int seq, in ParcelImplListSlice listSlice, in ParcelImpl metadata,
+            int currentIdx, int previousIdx, int nextIdx) = 4;
+    void onPlaylistMetadataChanged(int seq, in ParcelImpl metadata) = 5;
+    void onPlaybackInfoChanged(int seq, in ParcelImpl playbackInfo) = 6;
+    void onRepeatModeChanged(int seq, int repeatMode) = 7;
+    void onShuffleModeChanged(int seq, int shuffleMode) = 8;
+    void onPlaybackCompleted(int seq) = 9;
+    void onSeekCompleted(int seq, long eventTimeMs, long positionMs, long seekPositionMs) = 10;
 
-    void onConnected(in ParcelImpl connectionResult) = 11;
-    void onDisconnected() = 12;
+    void onConnected(int seq, in ParcelImpl connectionResult) = 11;
+    void onDisconnected(int seq) = 12;
 
     void onSetCustomLayout(int seq, in List<ParcelImpl> commandButtonlist) = 13;
-    void onAllowedCommandsChanged(in ParcelImpl commandGroup) = 14;
+    void onAllowedCommandsChanged(int seq, in ParcelImpl commandGroup) = 14;
     void onCustomCommand(int seq, in ParcelImpl command, in Bundle args) = 15;
 
     void onSessionResult(int seq, in ParcelImpl sessionResult) = 16;
@@ -58,7 +58,9 @@ oneway interface IMediaController {
     //////////////////////////////////////////////////////////////////////////////////////////////
     // Browser sepcific
     //////////////////////////////////////////////////////////////////////////////////////////////
-    void onChildrenChanged(String parentId, int itemCount, in ParcelImpl libraryParams) = 18;
-    void onSearchResultChanged(String query, int itemCount, in ParcelImpl libraryParams) = 19;
+    void onChildrenChanged(int seq, String parentId, int itemCount,
+            in ParcelImpl libraryParams) = 18;
+    void onSearchResultChanged(int seq, String query, int itemCount,
+            in ParcelImpl libraryParams) = 19;
     // Next Id : 20
 }
