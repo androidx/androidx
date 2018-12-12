@@ -439,7 +439,8 @@ public class PreferenceManager {
      * @return The {@link Preference} with the key, or {@code null}
      * @see PreferenceGroup#findPreference(CharSequence)
      */
-    public Preference findPreference(CharSequence key) {
+    @SuppressWarnings("TypeParameterUnusedInFormals")
+    public <T extends Preference> T findPreference(CharSequence key) {
         if (mPreferenceScreen == null) {
             return null;
         }
