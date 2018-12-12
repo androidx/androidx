@@ -17,7 +17,6 @@
 package androidx.biometric;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CancellationSignal;
@@ -27,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.Fragment;
 
@@ -40,9 +40,8 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-// Remove BanTargetApiAnnotation suppression once b/120625123 is addressed.
-@TargetApi(28)
-@SuppressLint({"SyntheticAccessor", "BanTargetApiAnnotation"})
+@RequiresApi(28)
+@SuppressLint("SyntheticAccessor")
 public class BiometricFragment extends Fragment {
 
     private static final String TAG = "BiometricFragment";
