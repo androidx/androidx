@@ -16,6 +16,7 @@
 
 package androidx.work.impl;
 
+import static androidx.work.WorkInfo.State.BLOCKED;
 import static androidx.work.WorkInfo.State.CANCELLED;
 import static androidx.work.WorkInfo.State.ENQUEUED;
 import static androidx.work.WorkInfo.State.FAILED;
@@ -529,7 +530,8 @@ public class WorkerWrapper implements Runnable {
             long currentTimeMillis = System.currentTimeMillis();
             List<String> dependentWorkIds = mDependencyDao.getDependentWorkIds(mWorkSpecId);
             for (String dependentWorkId : dependentWorkIds) {
-                if (mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
+                if (mWorkSpecDao.getState(dependentWorkId) == BLOCKED
+                        && mDependencyDao.hasCompletedAllPrerequisites(dependentWorkId)) {
                     Logger.get().info(TAG,
                             String.format("Setting status to enqueued for %s", dependentWorkId));
                     mWorkSpecDao.setState(ENQUEUED, dependentWorkId);

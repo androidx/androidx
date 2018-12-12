@@ -30,6 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.isOneOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
@@ -448,6 +449,43 @@ public class WorkerWrapperTest extends DatabaseTest {
 
         WorkSpec workSpec = mWorkSpecDao.getWorkSpec(work.getStringId());
         assertThat(workSpec.periodStartTime, is(greaterThan(beforeUnblockedTime)));
+    }
+
+    @Test
+    @SmallTest
+    public void testDependencies_enqueuesBlockedDependentsOnSuccess() {
+        OneTimeWorkRequest prerequisiteWork =
+                new OneTimeWorkRequest.Builder(TestWorker.class).build();
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(BLOCKED)
+                .build();
+        OneTimeWorkRequest cancelledWork = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(CANCELLED)
+                .build();
+        Dependency dependency1 = new Dependency(work.getStringId(), prerequisiteWork.getStringId());
+        Dependency dependency2 =
+                new Dependency(cancelledWork.getStringId(), prerequisiteWork.getStringId());
+
+        mDatabase.beginTransaction();
+        try {
+            insertWork(prerequisiteWork);
+            insertWork(work);
+            insertWork(cancelledWork);
+            mDependencyDao.insertDependency(dependency1);
+            mDependencyDao.insertDependency(dependency2);
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
+        }
+
+        createBuilder(prerequisiteWork.getStringId())
+                .build()
+                .run();
+
+        assertThat(mWorkSpecDao.getState(prerequisiteWork.getStringId()), is(SUCCEEDED));
+        assertThat(mWorkSpecDao.getState(work.getStringId()),
+                isOneOf(ENQUEUED, RUNNING, SUCCEEDED));
+        assertThat(mWorkSpecDao.getState(cancelledWork.getStringId()), is(CANCELLED));
     }
 
     @Test
