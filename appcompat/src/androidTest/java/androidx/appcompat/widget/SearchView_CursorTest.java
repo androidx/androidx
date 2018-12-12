@@ -168,7 +168,8 @@ public class SearchView_CursorTest {
         verify(mockQueryTextListener, times(1)).onQueryTextChange("Di");
     }
 
-    @Test
+    // Temporarily disabled due to b/111852321
+    // @Test
     public void testSuggestionSelection() throws Throwable {
         final SearchView.OnSuggestionListener mockSuggestionListener =
                 spy(new MySuggestionListener());
