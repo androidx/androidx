@@ -16,9 +16,17 @@
 
 package androidx.webkit;
 
+import android.os.Handler;
+import android.os.Looper;
+
+import androidx.concurrent.futures.ResolvableFuture;
+
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.junit.Assume;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -37,6 +45,38 @@ public final class WebkitUtils {
     // Arbitrary timeout. Note that @SmallTest and @MediumTest are documented as both requiring
     // execution times < 1000ms.
     private static final long TEST_TIMEOUT_MS = 20000L; // 20s.
+
+    // A handler for the main thread.
+    private static final Handler sMainHandler = new Handler(Looper.getMainLooper());
+
+    /**
+     * Executes a callable asynchronously on the main thread, returning a future for the result.
+     *
+     * @param callable the {@link java.util.concurrent.Callable} to execute.
+     */
+    public static <T> ListenableFuture<T> onMainThread(final Callable<T> callable)  {
+        final ResolvableFuture<T> future = ResolvableFuture.create();
+        sMainHandler.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    future.set(callable.call());
+                } catch (Throwable t) {
+                    future.setException(t);
+                }
+            }
+        });
+        return future;
+    }
+
+    /**
+     * Executes a runnable asynchronously on the main thread.
+     *
+     * @param runnable the {@link Runnable} to execute.
+     */
+    public static void onMainThread(final Runnable runnable)  {
+        sMainHandler.post(runnable);
+    }
 
     /**
      * Throws {@link org.junit.AssumptionViolatedException} if the device does not support the
