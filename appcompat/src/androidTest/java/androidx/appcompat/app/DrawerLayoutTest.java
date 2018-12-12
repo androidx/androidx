@@ -191,8 +191,9 @@ public class DrawerLayoutTest {
         }
     }
 
-    @Test
-    @LargeTest
+    // Temporarily disabled due to b/77228907.
+    // @Test
+    // @LargeTest
     public void testDrawerOpenCloseViaSwipes() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
@@ -215,8 +216,9 @@ public class DrawerLayoutTest {
         }
     }
 
-    @Test
-    @LargeTest
+    // Temporarily disabled due to b/34178560.
+    // @Test
+    // @LargeTest
     public void testDrawerOpenCloseWithRedundancyViaSwipes() {
         assertFalse("Initial state", mDrawerLayout.isDrawerOpen(GravityCompat.START));
 
