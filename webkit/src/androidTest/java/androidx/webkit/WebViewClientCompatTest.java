@@ -37,15 +37,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+
+import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
+import okhttp3.mockwebserver.RecordedRequest;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class WebViewClientCompatTest {
     private WebViewOnUiThread mWebViewOnUiThread;
+    private MockWebServer mWebServer;
 
     private static final String TEST_URL = "http://www.example.com/";
     private static final String TEST_SAFE_BROWSING_URL =
@@ -57,9 +64,12 @@ public class WebViewClientCompatTest {
     }
 
     @After
-    public void cleanUp() {
+    public void cleanUp() throws IOException {
         if (mWebViewOnUiThread != null) {
             mWebViewOnUiThread.cleanUp();
+        }
+        if (mWebServer != null) {
+            mWebServer.shutdown();
         }
     }
 
@@ -207,6 +217,35 @@ public class WebViewClientCompatTest {
         Assert.assertNotNull(webViewClient.getOnReceivedResourceError());
         Assert.assertEquals(WebViewClient.ERROR_UNSUPPORTED_SCHEME,
                 webViewClient.getOnReceivedResourceError().getErrorCode());
+    }
+
+    /**
+     * This should remain functionally equivalent to
+     * android.webkit.cts.WebViewClientTest#testOnReceivedHttpError. Modifications to
+     * this test should be reflected in that test as necessary. See http://go/modifying-webview-cts.
+     */
+    @Test
+    public void testOnReceivedHttpError() throws Exception {
+        WebkitUtils.checkFeature(WebViewFeature.RECEIVE_HTTP_ERROR);
+
+        final MockWebViewClient webViewClient = new MockWebViewClient();
+        mWebViewOnUiThread.setWebViewClient(webViewClient);
+        mWebServer = new MockWebServer();
+        mWebServer.start();
+
+        Assert.assertNull(webViewClient.getOnReceivedHttpError());
+        String url = mWebServer.url("/non_existent_page").toString();
+        mWebServer.enqueue(new MockResponse().setResponseCode(404));
+
+        mWebViewOnUiThread.loadUrlAndWaitForCompletion(url);
+
+        RecordedRequest request = mWebServer.takeRequest(WebkitUtils.TEST_TIMEOUT_MS,
+                TimeUnit.MILLISECONDS);
+        Assert.assertNotNull("The server should receive an HTTP request", request);
+        Assert.assertEquals("/non_existent_page", request.getPath());
+
+        Assert.assertNotNull(webViewClient.getOnReceivedHttpError());
+        Assert.assertEquals(404, webViewClient.getOnReceivedHttpError().getStatusCode());
     }
 
     /**
