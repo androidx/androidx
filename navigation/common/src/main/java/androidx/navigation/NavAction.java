@@ -36,6 +36,7 @@ public final class NavAction {
     @IdRes
     private final int mDestinationId;
     private NavOptions mNavOptions;
+    private Bundle mDefaultArguments;
 
     /**
      * Creates a new NavAction for the given destination.
@@ -55,8 +56,23 @@ public final class NavAction {
      * @param navOptions special options for this action that should be used by default
      */
     public NavAction(@IdRes int destinationId, @Nullable NavOptions navOptions) {
+        this(destinationId, navOptions, null);
+    }
+
+    /**
+     * Creates a new NavAction for the given destination.
+     *
+     * @param destinationId the ID of the destination that should be navigated to when this
+     *                      action is used.
+     * @param navOptions special options for this action that should be used by default
+     * @param defaultArgs argument bundle to be used by default
+     */
+    public NavAction(@IdRes int destinationId,
+            @Nullable NavOptions navOptions,
+            @Nullable Bundle defaultArgs) {
         mDestinationId = destinationId;
         mNavOptions = navOptions;
+        mDefaultArguments = defaultArgs;
     }
 
     /**
@@ -81,5 +97,23 @@ public final class NavAction {
     @Nullable
     public NavOptions getNavOptions() {
         return mNavOptions;
+    }
+
+    /**
+     * Gets the argument bundle to be used by default when navigating to this action.
+     * @return bundle of default argument values
+     */
+    @Nullable
+    public Bundle getDefaultArguments() {
+        return mDefaultArguments;
+    }
+
+    /**
+     * Sets the argument bundle to be used by default when navigating to this action.
+     *
+     * @param defaultArgs argument bundle that should be used by default
+     */
+    public void setDefaultArguments(@Nullable Bundle defaultArgs) {
+        mDefaultArguments = defaultArgs;
     }
 }

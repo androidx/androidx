@@ -39,7 +39,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * NavDestination represents one node within an overall navigation graph.
@@ -135,9 +137,24 @@ public class NavDestination {
     private int mId;
     private String mIdName;
     private CharSequence mLabel;
-    private Bundle mDefaultArgs;
     private ArrayList<NavDeepLink> mDeepLinks;
     private SparseArrayCompat<NavAction> mActions;
+    private HashMap<String, NavArgument> mArguments;
+
+    /**
+     * Get the arguments supported by this destination. Returns a read-only map of argument names
+     * to {@link NavArgument} objects that can be used to check the type, default value
+     * and nullability of the argument.
+     * <p>
+     * To add and remove arguments for this NavDestination
+     * use {@link #addArgument(String, NavArgument)} and {@link #removeArgument(String)}.
+     * @return Read-only map of argument names to arguments.
+     */
+    @NonNull
+    public final Map<String, NavArgument> getArguments() {
+        return mArguments == null ? Collections.<String, NavArgument>emptyMap()
+                : Collections.unmodifiableMap(mArguments);
+    }
 
     /**
      * NavDestinations should be created via {@link Navigator#createDestination}.
@@ -240,38 +257,6 @@ public class NavDestination {
     @NonNull
     public final String getNavigatorName() {
         return mNavigatorName;
-    }
-
-    /**
-     * Returns the destination's default arguments bundle.
-     *
-     * @return the default arguments bundle
-     */
-    @NonNull
-    public final Bundle getDefaultArguments() {
-        if (mDefaultArgs == null) {
-            mDefaultArgs = new Bundle();
-        }
-        return mDefaultArgs;
-    }
-
-    /**
-     * Sets the destination's default arguments bundle.
-     *
-     * @param args the new bundle to set
-     */
-    public final void setDefaultArguments(@Nullable Bundle args) {
-        mDefaultArgs = args;
-    }
-
-    /**
-     * Merges a bundle of arguments into the current default arguments for this destination.
-     * New values with the same keys will replace old values with those keys.
-     *
-     * @param args arguments to add
-     */
-    public final void addDefaultArguments(@NonNull Bundle args) {
-        getDefaultArguments().putAll(args);
     }
 
     /**
@@ -422,21 +407,58 @@ public class NavDestination {
     }
 
     /**
-     * Combines the {@link #getDefaultArguments()} with the arguments provided
+     * Sets an argument type for an argument name
+     *
+     * @param argumentName argument object to associate with destination
+     */
+    public final void addArgument(@NonNull String argumentName, @NonNull NavArgument argument) {
+        if (mArguments == null) {
+            mArguments = new HashMap<>();
+        }
+        mArguments.put(argumentName, argument);
+    }
+
+    /**
+     * Unsets the argument type for an argument name.
+     *
+     * @param argumentName argument to remove
+     */
+    public final void removeArgument(@NonNull String argumentName) {
+        if (mArguments == null) {
+            return;
+        }
+        mArguments.remove(argumentName);
+    }
+
+    /**
+     * Combines the default arguments for this destination with the arguments provided
      * to construct the final set of arguments that should be used to navigate
      * to this destination.
      */
     @Nullable
     Bundle addInDefaultArgs(@Nullable Bundle args) {
-        Bundle defaultArgs = getDefaultArguments();
+        Bundle defaultArgs = new Bundle();
+        if (mArguments != null) {
+            for (Map.Entry<String, NavArgument> argument : mArguments.entrySet()) {
+                argument.getValue().putDefaultValue(argument.getKey(), defaultArgs);
+            }
+        }
         if (args == null && defaultArgs.isEmpty()) {
             return null;
         }
-        Bundle finalArgs = new Bundle();
-        finalArgs.putAll(defaultArgs);
         if (args != null) {
-            finalArgs.putAll(args);
+            defaultArgs.putAll(args);
+            if (mArguments != null) {
+                for (Map.Entry<String, NavArgument> argument : mArguments.entrySet()) {
+                    if (!argument.getValue().verify(argument.getKey(), args)) {
+                        throw new IllegalArgumentException(
+                                "Wrong argument type for '" + argument.getKey()
+                                        + "' in argument bundle. "
+                                        + argument.getValue().getType().getName() + " expected.");
+                    }
+                }
+            }
         }
-        return finalArgs;
+        return defaultArgs;
     }
 }

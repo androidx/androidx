@@ -180,4 +180,30 @@ class NavDestinationTest {
 
         assertThat(destination.getAction(ACTION_ID)).isNull()
     }
+
+    @Test
+    fun addArgument() {
+        val destination = NoOpNavigator().createDestination()
+        val stringArgument = NavArgument.Builder()
+            .setType(NavType.StringType)
+            .build()
+        destination.addArgument("stringArg", stringArgument)
+        assertThat(destination.arguments.size).isEqualTo(1)
+        assertThat(destination.arguments.get("stringArg")).isEqualTo(stringArgument)
+    }
+
+    @Test
+    fun removeArgument() {
+        val destination = NoOpNavigator().createDestination()
+        val stringArgument = NavArgument.Builder()
+            .setType(NavType.StringType)
+            .build()
+        destination.addArgument("stringArg", stringArgument)
+        assertThat(destination.arguments.size).isEqualTo(1)
+        assertThat(destination.arguments.get("stringArg")).isEqualTo(stringArgument)
+
+        destination.removeArgument("stringArg")
+        assertThat(destination.arguments.size).isEqualTo(0)
+        assertThat(destination.arguments.get("stringArg")).isNull()
+    }
 }
