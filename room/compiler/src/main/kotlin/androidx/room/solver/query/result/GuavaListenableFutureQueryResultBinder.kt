@@ -23,7 +23,6 @@ import androidx.room.ext.T
 import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
-import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.FieldSpec
 import javax.lang.model.type.TypeMirror
 
@@ -59,7 +58,7 @@ class GuavaListenableFutureQueryResultBinder(
             addStatement(
                 "return $T.createListenableFuture($N, $L, $L, $L)",
                 RoomGuavaTypeNames.GUAVA_ROOM,
-                DaoWriter.dbField,
+                dbField,
                 callableImpl,
                 roomSQLiteQueryVar,
                 canReleaseQuery

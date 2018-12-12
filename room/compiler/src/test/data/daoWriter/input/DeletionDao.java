@@ -54,6 +54,15 @@ abstract interface DeletionDao {
     @Query("DELETE FROM user where uid = :uid")
     int deleteByUid(int uid);
 
+    @Query("DELETE FROM user where uid = :uid")
+    Completable deleteByUidCompletable(int uid);
+
+    @Query("DELETE FROM user where uid = :uid")
+    Single<Integer> deleteByUidSingle(int uid);
+
+    @Query("DELETE FROM user where uid = :uid")
+    Maybe<Integer> deleteByUidMaybe(int uid);
+
     @Query("DELETE FROM user where uid IN(:uid)")
     int deleteByUidList(int... uid);
 

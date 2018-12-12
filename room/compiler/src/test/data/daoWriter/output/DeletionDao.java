@@ -262,10 +262,10 @@ public final class DeletionDao_Impl implements DeletionDao {
   @Override
   public int deleteByUid(final int uid) {
     final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
+    int _argIndex = 1;
+    _stmt.bindLong(_argIndex, uid);
     __db.beginTransaction();
     try {
-      int _argIndex = 1;
-      _stmt.bindLong(_argIndex, uid);
       final int _result = _stmt.executeUpdateDelete();
       __db.setTransactionSuccessful();
       return _result;
@@ -273,6 +273,69 @@ public final class DeletionDao_Impl implements DeletionDao {
       __db.endTransaction();
       __preparedStmtOfDeleteByUid.release(_stmt);
     }
+  }
+
+  @Override
+  public Completable deleteByUidCompletable(final int uid) {
+    final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
+    int _argIndex = 1;
+    _stmt.bindLong(_argIndex, uid);
+    return Completable.fromCallable(new Callable<Void>() {
+      @Override
+      public Void call() throws Exception {
+        __db.beginTransaction();
+        try {
+          _stmt.executeUpdateDelete();
+          __db.setTransactionSuccessful();
+          return null;
+        } finally {
+          __db.endTransaction();
+          __preparedStmtOfDeleteByUid.release(_stmt);
+        }
+      }
+    });
+  }
+
+  @Override
+  public Single<Integer> deleteByUidSingle(final int uid) {
+    final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
+    int _argIndex = 1;
+    _stmt.bindLong(_argIndex, uid);
+    return Single.fromCallable(new Callable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        __db.beginTransaction();
+        try {
+          final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          __db.setTransactionSuccessful();
+          return _result;
+        } finally {
+          __db.endTransaction();
+          __preparedStmtOfDeleteByUid.release(_stmt);
+        }
+      }
+    });
+  }
+
+  @Override
+  public Maybe<Integer> deleteByUidMaybe(final int uid) {
+    final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
+    int _argIndex = 1;
+    _stmt.bindLong(_argIndex, uid);
+    return Maybe.fromCallable(new Callable<Integer>() {
+      @Override
+      public Integer call() throws Exception {
+        __db.beginTransaction();
+        try {
+          final java.lang.Integer _result = _stmt.executeUpdateDelete();
+          __db.setTransactionSuccessful();
+          return _result;
+        } finally {
+          __db.endTransaction();
+          __preparedStmtOfDeleteByUid.release(_stmt);
+        }
+      }
+    });
   }
 
   @Override

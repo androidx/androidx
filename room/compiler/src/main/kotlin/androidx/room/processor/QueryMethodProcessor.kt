@@ -25,17 +25,18 @@ import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
-import androidx.room.solver.query.result.LiveDataQueryResultBinder
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.verifier.DatabaseVerificaitonErrors
 import androidx.room.verifier.DatabaseVerifier
+import androidx.room.vo.WriteQueryMethod
 import androidx.room.vo.QueryMethod
 import androidx.room.vo.QueryParameter
+import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
-import com.squareup.javapoet.TypeName
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.DeclaredType
 import javax.lang.model.type.TypeKind
+import javax.lang.model.type.TypeMirror
 
 class QueryMethodProcessor(
     baseContext: Context,
@@ -77,52 +78,12 @@ class QueryMethodProcessor(
         context.checker.notUnbound(returnTypeName, executableElement,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
 
-        if (query.type == QueryType.DELETE) {
-            context.checker.check(
-                returnTypeName == TypeName.VOID || returnTypeName == TypeName.INT,
-                executableElement,
-                ProcessorErrors.DELETION_METHODS_MUST_RETURN_VOID_OR_INT
-            )
-        } else if (query.type == QueryType.INSERT) {
-            context.checker.check(
-                returnTypeName == TypeName.VOID || returnTypeName == TypeName.LONG,
-                executableElement,
-                ProcessorErrors.PREPARED_INSERT_METHOD_INVALID_RETURN_TYPE
-            )
+        val isPreparedQuery = PREPARED_TYPES.contains(query.type)
+        val queryMethod = if (isPreparedQuery) {
+            getPreparedQueryMethod(delegate, returnType, query)
+        } else {
+            getQueryMethod(delegate, returnType, query)
         }
-        val resultBinder = delegate.findResultBinder(returnType, query)
-        context.checker.check(
-            resultBinder.adapter != null || query.type != QueryType.SELECT,
-                executableElement,
-            ProcessorErrors.cannotFindQueryResultAdapter(returnType.toString()))
-        if (resultBinder is LiveDataQueryResultBinder) {
-            context.checker.check(query.type == QueryType.SELECT, executableElement,
-                    ProcessorErrors.LIVE_DATA_QUERY_WITHOUT_SELECT)
-        }
-
-        val inTransaction = when (query.type) {
-            QueryType.SELECT -> executableElement.hasAnnotation(Transaction::class)
-            else -> true
-        }
-
-        if (query.type == QueryType.SELECT && !inTransaction) {
-            // put a warning if it is has relations and not annotated w/ transaction
-            resultBinder.adapter?.rowAdapter?.let { rowAdapter ->
-                if (rowAdapter is PojoRowAdapter && rowAdapter.relationCollectors.isNotEmpty()) {
-                    context.logger.w(Warning.RELATION_QUERY_WITHOUT_TRANSACTION,
-                        executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
-                }
-            }
-        }
-        val parameters = delegate.extractQueryParams()
-        val queryMethod = QueryMethod(
-                element = executableElement,
-                query = query,
-                name = executableElement.simpleName.toString(),
-                returnType = returnType,
-                parameters = parameters,
-                inTransaction = inTransaction,
-                queryResultBinder = resultBinder)
 
         val missing = queryMethod.sectionToParamMapping
                 .filter { it.second == null }
@@ -140,5 +101,65 @@ class QueryMethodProcessor(
             context.logger.e(executableElement, ProcessorErrors.unusedQueryMethodParameter(unused))
         }
         return queryMethod
+    }
+
+    private fun getPreparedQueryMethod(
+        delegate: MethodProcessorDelegate,
+        returnType: TypeMirror,
+        query: ParsedQuery
+    ): WriteQueryMethod {
+        val resultBinder = delegate.findPreparedResultBinder(returnType, query)
+        context.checker.check(
+            resultBinder.adapter != null,
+            executableElement,
+            ProcessorErrors.cannotFindPreparedQueryResultAdapter(returnType.toString(), query.type))
+
+        val parameters = delegate.extractQueryParams()
+
+        return WriteQueryMethod(
+            element = executableElement,
+            query = query,
+            name = executableElement.simpleName.toString(),
+            returnType = returnType,
+            parameters = parameters,
+            preparedQueryResultBinder = resultBinder)
+    }
+
+    private fun getQueryMethod(
+        delegate: MethodProcessorDelegate,
+        returnType: TypeMirror,
+        query: ParsedQuery
+    ): QueryMethod {
+        val resultBinder = delegate.findResultBinder(returnType, query)
+        context.checker.check(
+            resultBinder.adapter != null,
+            executableElement,
+            ProcessorErrors.cannotFindQueryResultAdapter(returnType.toString()))
+
+        val inTransaction = executableElement.hasAnnotation(Transaction::class)
+        if (query.type == QueryType.SELECT && !inTransaction) {
+            // put a warning if it is has relations and not annotated w/ transaction
+            resultBinder.adapter?.rowAdapter?.let { rowAdapter ->
+                if (rowAdapter is PojoRowAdapter && rowAdapter.relationCollectors.isNotEmpty()) {
+                    context.logger.w(Warning.RELATION_QUERY_WITHOUT_TRANSACTION,
+                        executableElement, ProcessorErrors.TRANSACTION_MISSING_ON_RELATION)
+                }
+            }
+        }
+
+        val parameters = delegate.extractQueryParams()
+
+        return ReadQueryMethod(
+            element = executableElement,
+            query = query,
+            name = executableElement.simpleName.toString(),
+            returnType = returnType,
+            parameters = parameters,
+            inTransaction = inTransaction,
+            queryResultBinder = resultBinder)
+    }
+
+    companion object {
+        val PREPARED_TYPES = arrayOf(QueryType.INSERT, QueryType.DELETE, QueryType.UPDATE)
     }
 }

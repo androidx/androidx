@@ -25,7 +25,6 @@ import androidx.room.ext.CallableTypeSpecBuilder
 import androidx.room.ext.arrayTypeName
 import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
-import androidx.room.writer.DaoWriter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import javax.lang.model.type.TypeMirror
@@ -60,7 +59,7 @@ class RxQueryResultBinder(
         scope.builder().apply {
             val tableNamesList = queryTableNames.joinToString(",") { "\"$it\"" }
             addStatement("return $T.$N($N, new $T{$L}, $L)",
-                    RoomRxJava2TypeNames.RX_ROOM, rxType.methodName, DaoWriter.dbField,
+                    RoomRxJava2TypeNames.RX_ROOM, rxType.methodName, dbField,
                     String::class.arrayTypeName(), tableNamesList, callableImpl)
         }
     }
