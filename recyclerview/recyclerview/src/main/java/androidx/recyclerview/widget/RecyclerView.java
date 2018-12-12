@@ -1748,6 +1748,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         if (mLayout == null) {
             return;
         }
+
+        // If we are jumping to a position, we are in fact scrolling the contents of the RV, so
+        // we should be sure that we are in the settling state.
+        setScrollState(SCROLL_STATE_SETTLING);
         mLayout.scrollToPosition(position);
         awakenScrollBars();
     }
