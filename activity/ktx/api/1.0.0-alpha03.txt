@@ -1,13 +1,6 @@
 // Signature format: 2.0
 package androidx.activity {
 
-  public final class ActivityViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
-    ctor public ActivityViewModelLazy(androidx.activity.ComponentActivity activity, kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
-    method public VM getValue();
-    method public boolean isInitialized();
-    property public VM value;
-  }
-
   public final class ActivityViewModelLazyKt {
     ctor public ActivityViewModelLazyKt();
   }

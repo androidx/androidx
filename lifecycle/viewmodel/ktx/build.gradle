@@ -38,6 +38,7 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(TEST_RUNNER)
+    testImplementation(TRUTH)
 
     androidTestImplementation(TRUTH)
     androidTestImplementation(TEST_RUNNER)

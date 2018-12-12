@@ -32,7 +32,9 @@ android {
 }
 
 dependencies {
-    api(project(":fragment"))
+    api(project(":fragment")) {
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-viewmodel'
+    }
     api(project(":activity-ktx")) {
         because 'Mirror fragment dependency graph for -ktx artifacts'
     }

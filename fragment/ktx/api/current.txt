@@ -8,15 +8,9 @@ package androidx.fragment.app {
     method @Deprecated public static void transaction(androidx.fragment.app.FragmentManager, boolean now = false, boolean allowStateLoss = false, kotlin.jvm.functions.Function1<? super androidx.fragment.app.FragmentTransaction,kotlin.Unit> body);
   }
 
-  public final class FragmentViewModelLazy<VM extends androidx.lifecycle.ViewModel> implements kotlin.Lazy<VM> {
-    ctor public FragmentViewModelLazy(androidx.fragment.app.Fragment fragment, kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
-    method public VM getValue();
-    method public boolean isInitialized();
-    property public VM value;
-  }
-
   public final class FragmentViewModelLazyKt {
     ctor public FragmentViewModelLazyKt();
+    method @MainThread public static <VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> createViewModelLazy(androidx.fragment.app.Fragment, kotlin.reflect.KClass<VM> viewModelClass, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelStoreOwner> ownerProducer, kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer = null);
   }
 
 }
