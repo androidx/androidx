@@ -28,7 +28,7 @@ import androidx.annotation.ColorRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.RestrictTo;
 import androidx.car.R;
-import androidx.car.widget.GridLayoutManagerUtils;
+import androidx.car.util.GridLayoutManagerUtils;
 import androidx.car.widget.PagedListView.DividerVisibilityManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;

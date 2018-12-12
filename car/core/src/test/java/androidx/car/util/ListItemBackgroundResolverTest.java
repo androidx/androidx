@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.utils;
+package androidx.car.util;
 
 
 import static org.mockito.Mockito.verify;
@@ -22,7 +22,6 @@ import static org.mockito.Mockito.verify;
 import android.view.View;
 
 import androidx.car.R;
-import androidx.car.util.ListItemBackgroundResolver;
 
 import org.junit.Rule;
 import org.junit.Test;

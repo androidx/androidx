@@ -22,7 +22,7 @@ import android.graphics.Rect;
 import android.view.View;
 
 import androidx.annotation.RestrictTo;
-import androidx.car.widget.GridLayoutManagerUtils;
+import androidx.car.util.GridLayoutManagerUtils;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
