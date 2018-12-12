@@ -40,7 +40,8 @@ class MediaControllerStub extends IMediaController.Stub {
     private static final boolean DEBUG = true; // TODO(jaewan): Change
 
     private final WeakReference<MediaControllerImplBase> mController;
-    private final SequencedFutureManager mSequencedFutureManager;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SequencedFutureManager mSequencedFutureManager;
 
     MediaControllerStub(MediaControllerImplBase controller, SequencedFutureManager manager) {
         mController = new WeakReference<>(controller);
@@ -48,275 +49,189 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onSessionResult(int seq, ParcelImpl sessionResult) {
+    public void onSessionResult(final int seq, final ParcelImpl sessionResult) {
         if (sessionResult == null) {
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                SessionResult result = MediaUtils.fromParcelable(sessionResult);
+                if (result == null) {
+                    return;
+                }
+                mSequencedFutureManager.setFutureResult(seq, ControllerResult.from(result));
             }
-            SessionResult result = MediaUtils.fromParcelable(sessionResult);
-            if (result == null) {
-                return;
-            }
-            mSequencedFutureManager.setFutureResult(seq, ControllerResult.from(result));
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onLibraryResult(int seq, ParcelImpl libraryResult) {
+    public void onLibraryResult(final int seq, final ParcelImpl libraryResult) {
         if (libraryResult == null) {
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            try {
-                final MediaBrowser browser = getBrowser();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchBrowserTask(new BrowserTask() {
+            @Override
+            public void run(MediaBrowserImplBase browser) {
+                LibraryResult result = MediaUtils.fromParcelable(libraryResult);
+                if (result == null) {
+                    return;
+                }
+                mSequencedFutureManager.setFutureResult(seq, BrowserResult.from(result));
             }
-            LibraryResult result = MediaUtils.fromParcelable(libraryResult);
-            if (result == null) {
-                return;
-            }
-            mSequencedFutureManager.setFutureResult(seq, BrowserResult.from(result));
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onCurrentMediaItemChanged(ParcelImpl item, int currentIdx, int previousIdx,
-            int nextIdx) {
+    public void onCurrentMediaItemChanged(final ParcelImpl item, final int currentIdx,
+            final int previousIdx, final int nextIdx) {
         if (item == null) {
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                controller.notifyCurrentMediaItemChanged(
+                        (MediaItem) MediaUtils.fromParcelable(item), currentIdx, previousIdx,
+                        nextIdx);
             }
-            controller.notifyCurrentMediaItemChanged((MediaItem) MediaUtils.fromParcelable(item),
-                    currentIdx, previousIdx, nextIdx);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onPlayerStateChanged(long eventTimeMs, long positionMs, int state) {
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+    public void onPlayerStateChanged(final long eventTimeMs, final long positionMs,
+            final int state) {
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                controller.notifyPlayerStateChanges(eventTimeMs, positionMs, state);
             }
-            controller.notifyPlayerStateChanges(eventTimeMs, positionMs, state);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onPlaybackSpeedChanged(long eventTimeMs, long positionMs, float speed) {
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+    public void onPlaybackSpeedChanged(final long eventTimeMs, final long positionMs,
+            final float speed) {
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                controller.notifyPlaybackSpeedChanges(eventTimeMs, positionMs, speed);
             }
-            controller.notifyPlaybackSpeedChanges(eventTimeMs, positionMs, speed);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onBufferingStateChanged(ParcelImpl item, @BuffState int state,
-            long bufferedPositionMs, long eventTimeMs, long positionMs) {
+    public void onBufferingStateChanged(final ParcelImpl item, @BuffState final int state,
+            final long bufferedPositionMs, final long eventTimeMs, final long positionMs) {
         if (item == null) {
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                MediaItem itemObj = MediaUtils.fromParcelable(item);
+                if (itemObj == null) {
+                    Log.w(TAG, "onBufferingStateChanged(): Ignoring null item");
+                    return;
+                }
+                controller.notifyBufferingStateChanged(itemObj, state, bufferedPositionMs,
+                        eventTimeMs, positionMs);
             }
-            MediaItem itemObj = MediaUtils.fromParcelable(item);
-            if (itemObj == null) {
-                Log.w(TAG, "onBufferingStateChanged(): Ignoring null item");
-                return;
-            }
-            controller.notifyBufferingStateChanged(itemObj, state, bufferedPositionMs, eventTimeMs,
-                    positionMs);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onPlaylistChanged(ParcelImplListSlice listSlice, ParcelImpl metadata,
-            int currentIdx, int previousIdx, int nextIdx) {
+    public void onPlaylistChanged(final ParcelImplListSlice listSlice, final ParcelImpl metadata,
+            final int currentIdx, final int previousIdx, final int nextIdx) {
         if (metadata == null) {
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                List<MediaItem> playlist =
+                        MediaUtils.convertParcelImplListSliceToMediaItemList(listSlice);
+                controller.notifyPlaylistChanges(playlist,
+                        (MediaMetadata) MediaUtils.fromParcelable(metadata), currentIdx,
+                        previousIdx, nextIdx);
             }
-            List<MediaItem> playlist =
-                    MediaUtils.convertParcelImplListSliceToMediaItemList(listSlice);
-            controller.notifyPlaylistChanges(playlist,
-                    (MediaMetadata) MediaUtils.fromParcelable(metadata), currentIdx, previousIdx,
-                    nextIdx);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onPlaylistMetadataChanged(ParcelImpl metadata) throws RuntimeException {
+    public void onPlaylistMetadataChanged(final ParcelImpl metadata) throws RuntimeException {
         if (metadata == null) {
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                controller.notifyPlaylistMetadataChanges(
+                        (MediaMetadata) MediaUtils.fromParcelable(metadata));
             }
-            controller.notifyPlaylistMetadataChanges(
-                    (MediaMetadata) MediaUtils.fromParcelable(metadata));
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onRepeatModeChanged(int repeatMode) {
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+    public void onRepeatModeChanged(final int repeatMode) {
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                controller.notifyRepeatModeChanges(repeatMode);
             }
-            controller.notifyRepeatModeChanges(repeatMode);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onShuffleModeChanged(int shuffleMode) {
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+    public void onShuffleModeChanged(final int shuffleMode) {
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                controller.notifyShuffleModeChanges(shuffleMode);
             }
-            controller.notifyShuffleModeChanges(shuffleMode);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
     public void onPlaybackCompleted() {
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                controller.notifyPlaybackCompleted();
             }
-            controller.notifyPlaybackCompleted();
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onPlaybackInfoChanged(ParcelImpl playbackInfo) throws RuntimeException {
+    public void onPlaybackInfoChanged(final ParcelImpl playbackInfo) throws RuntimeException {
         if (playbackInfo == null) {
             return;
         }
         if (DEBUG) {
             Log.d(TAG, "onPlaybackInfoChanged");
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                PlaybackInfo info = MediaUtils.fromParcelable(playbackInfo);
+                if (info == null) {
+                    Log.w(TAG, "onPlaybackInfoChanged(): Ignoring null playbackInfo");
+                    return;
+                }
+                controller.notifyPlaybackInfoChanges(info);
             }
-            PlaybackInfo info = MediaUtils.fromParcelable(playbackInfo);
-            if (info == null) {
-                Log.w(TAG, "onPlaybackInfoChanged(): Ignoring null playbackInfo");
-                return;
-            }
-            controller.notifyPlaybackInfoChanges(info);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onSeekCompleted(long eventTimeMs, long positionMs, long seekPositionMs) {
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+    public void onSeekCompleted(final long eventTimeMs, final long positionMs,
+            final long seekPositionMs) {
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                controller.notifySeekCompleted(eventTimeMs, positionMs, seekPositionMs);
             }
-            controller.notifySeekCompleted(eventTimeMs, positionMs, seekPositionMs);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
@@ -368,89 +283,60 @@ class MediaControllerStub extends IMediaController.Stub {
     }
 
     @Override
-    public void onSetCustomLayout(int seq, List<ParcelImpl> commandButtonList) {
+    public void onSetCustomLayout(final int seq, final List<ParcelImpl> commandButtonList) {
         if (commandButtonList == null) {
             Log.w(TAG, "setCustomLayout(): Ignoring null commandButtonList");
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
-            }
-            if (controller == null) {
-                // TODO(jaewan): Revisit here. Could be a bug
-                return;
-            }
-            List<CommandButton> layout = new ArrayList<>();
-            for (int i = 0; i < commandButtonList.size(); i++) {
-                CommandButton button = MediaUtils.fromParcelable(commandButtonList.get(i));
-                if (button != null) {
-                    layout.add(button);
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                List<CommandButton> layout = new ArrayList<>();
+                for (int i = 0; i < commandButtonList.size(); i++) {
+                    CommandButton button = MediaUtils.fromParcelable(commandButtonList.get(i));
+                    if (button != null) {
+                        layout.add(button);
+                    }
                 }
+                controller.onSetCustomLayout(seq, layout);
             }
-            controller.onSetCustomLayout(seq, layout);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onAllowedCommandsChanged(ParcelImpl commands) {
+    public void onAllowedCommandsChanged(final ParcelImpl commands) {
         if (commands == null) {
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                SessionCommandGroup commandGroup = MediaUtils.fromParcelable(commands);
+                if (commandGroup == null) {
+                    Log.w(TAG, "onAllowedCommandsChanged(): Ignoring null commands");
+                    return;
+                }
+                controller.onAllowedCommandsChanged(commandGroup);
             }
-            if (controller == null) {
-                // TODO(jaewan): Revisit here. Could be a bug
-                return;
-            }
-            SessionCommandGroup commandGroup = MediaUtils.fromParcelable(commands);
-            if (commandGroup == null) {
-                Log.w(TAG, "onAllowedCommandsChanged(): Ignoring null commands");
-                return;
-            }
-            controller.onAllowedCommandsChanged(commandGroup);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
-    public void onCustomCommand(int seq, ParcelImpl commandParcel, Bundle args) {
+    public void onCustomCommand(final int seq, final ParcelImpl commandParcel, final Bundle args) {
         if (commandParcel == null) {
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaControllerImplBase controller;
-            try {
-                controller = getController();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchControllerTask(new ControllerTask() {
+            @Override
+            public void run(MediaControllerImplBase controller) {
+                SessionCommand command = MediaUtils.fromParcelable(commandParcel);
+                if (command == null) {
+                    Log.w(TAG, "sendCustomCommand(): Ignoring null command");
+                    return;
+                }
+                controller.onCustomCommand(seq, command, args);
             }
-            SessionCommand command = MediaUtils.fromParcelable(commandParcel);
-            if (command == null) {
-                Log.w(TAG, "sendCustomCommand(): Ignoring null command");
-                return;
-            }
-            controller.onCustomCommand(seq, command, args);
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -470,28 +356,13 @@ class MediaControllerStub extends IMediaController.Stub {
             Log.w(TAG, "onSearchResultChanged(): Ignoring negative itemCount: " + itemCount);
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaBrowser browser;
-            try {
-                browser = getBrowser();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchBrowserTask(new BrowserTask() {
+            @Override
+            public void run(MediaBrowserImplBase browser) {
+                browser.notifySearchResultChanged(query, itemCount,
+                        (LibraryParams) MediaUtils.fromParcelable(libraryParams));
             }
-            if (browser == null) {
-                return;
-            }
-            browser.getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    browser.getCallback().onSearchResultChanged(browser, query, itemCount,
-                            (LibraryParams) MediaUtils.fromParcelable(libraryParams));
-                }
-            });
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     @Override
@@ -508,49 +379,52 @@ class MediaControllerStub extends IMediaController.Stub {
             Log.w(TAG, "onChildrenChanged(): Ignoring negative itemCount: " + itemCount);
             return;
         }
-        final long token = Binder.clearCallingIdentity();
-        try {
-            final MediaBrowser browser;
-            try {
-                browser = getBrowser();
-            } catch (IllegalStateException e) {
-                Log.w(TAG, "Don't fail silently here. Highly likely a bug");
-                return;
+        dispatchBrowserTask(new BrowserTask() {
+            @Override
+            public void run(MediaBrowserImplBase browser) {
+                browser.notifyChildrenChanged(parentId, itemCount,
+                        (LibraryParams) MediaUtils.fromParcelable(libraryParams));
             }
-            if (browser == null) {
-                return;
-            }
-            browser.getCallbackExecutor().execute(new Runnable() {
-                @Override
-                public void run() {
-                    // TODO (b/118472216): Find all ParcelUtils.fromParcelable usages,
-                    // and null check before calling it.
-                    browser.getCallback().onChildrenChanged(browser, parentId, itemCount,
-                            (LibraryParams) MediaUtils.fromParcelable(libraryParams));
-                }
-            });
-        } finally {
-            Binder.restoreCallingIdentity(token);
-        }
+        });
     }
 
     public void destroy() {
         mController.clear();
     }
 
-    private MediaControllerImplBase getController() throws IllegalStateException {
-        final MediaControllerImplBase controller = mController.get();
-        if (controller == null) {
-            throw new IllegalStateException("Controller is released");
+    private void dispatchControllerTask(ControllerTask task) {
+        final long token = Binder.clearCallingIdentity();
+        try {
+            final MediaControllerImplBase controller = mController.get();
+            if (controller == null || !controller.isConnected()) {
+                return;
+            }
+            task.run(controller);
+        } finally {
+            Binder.restoreCallingIdentity(token);
         }
-        return controller;
     }
 
-    private MediaBrowser getBrowser() throws IllegalStateException {
-        final MediaControllerImplBase controller = getController();
-        if (controller.getInstance() instanceof MediaBrowser) {
-            return (MediaBrowser) controller.getInstance();
+    private void dispatchBrowserTask(BrowserTask task) {
+        final long token = Binder.clearCallingIdentity();
+        try {
+            final MediaControllerImplBase browser = mController.get();
+            if (!(browser instanceof MediaBrowserImplBase) || !browser.isConnected()) {
+                return;
+            }
+            task.run((MediaBrowserImplBase) browser);
+        } finally {
+            Binder.restoreCallingIdentity(token);
         }
-        return null;
+    }
+
+    @FunctionalInterface
+    private interface ControllerTask {
+        void run(MediaControllerImplBase controller);
+    }
+
+    @FunctionalInterface
+    private interface BrowserTask {
+        void run(MediaBrowserImplBase browser);
     }
 }
