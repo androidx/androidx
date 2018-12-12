@@ -328,7 +328,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             mContent.setContentDescription(contentDescr);
         }
         mStartItem = mRowContent.getStartItem();
-        boolean showStart = mStartItem != null && mRowIndex > 0;
+        boolean showStart = mStartItem != null && (mRowIndex > 0 || mRowContent.hasTitleItems());
         if (showStart) {
             showStart = addItem(mStartItem, mTintColor, true /* isStart */);
         }
@@ -403,8 +403,10 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             // Use these if we have them instead
             endItems = mHeaderActions;
         }
-        // Add start item to end of row for the top row if end items are empty.
-        if (mRowIndex == 0 && mStartItem != null && endItems.isEmpty()) {
+        // Add start item to end of row for the top row if end items are empty and presenter
+        // doesn't show title items.
+        if (mRowIndex == 0 && mStartItem != null && endItems.isEmpty()
+                && !mRowContent.hasTitleItems()) {
             endItems.add(mStartItem);
         }
 
