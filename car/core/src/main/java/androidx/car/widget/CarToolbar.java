@@ -65,6 +65,7 @@ public class CarToolbar extends ViewGroup {
     private final ImageView mTitleIconView;
     private final int mToolbarHeight;
     private int mTitleIconSize;
+    private final int mTextVerticalPadding;
     // There is no actual container for nav button. This value is used to calculate a horizontal
     // space on both ends of nav button (so it's centered).
     // We use dedicated attribute over horizontal margin so that the API for setting space before
@@ -73,6 +74,9 @@ public class CarToolbar extends ViewGroup {
 
     private final TextView mTitleTextView;
     private CharSequence mTitleText;
+
+    private final TextView mSubtitleTextView;
+    private CharSequence mSubtitleText;
 
     public CarToolbar(Context context) {
         this(context, /* attrs= */ null);
@@ -93,6 +97,7 @@ public class CarToolbar extends ViewGroup {
         mToolbarHeight = res.getDimensionPixelSize(R.dimen.car_app_bar_height);
         mNavButtonIconSize = res.getDimensionPixelSize(R.dimen.car_primary_icon_size);
 
+        mTextVerticalPadding = getResources().getDimensionPixelSize(R.dimen.car_padding_1);
         LayoutInflater.from(context).inflate(R.layout.car_toolbar, this);
 
         // Ensure min touch target size for nav button.
@@ -103,6 +108,7 @@ public class CarToolbar extends ViewGroup {
 
         mTitleTextView = findViewById(R.id.title);
         mTitleIconView = findViewById(R.id.title_icon);
+        mSubtitleTextView = findViewById(R.id.subtitle);
 
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CarToolbar, defStyleAttr,
                 /* defStyleRes= */ 0);
@@ -123,6 +129,11 @@ public class CarToolbar extends ViewGroup {
 
             setTitleIconSize(a.getDimensionPixelSize(R.styleable.CarToolbar_titleIconSize,
                     res.getDimensionPixelSize(R.dimen.car_application_icon_size)));
+            CharSequence subtitle = a.getText(R.styleable.CarToolbar_subtitle);
+            setSubtitle(subtitle);
+
+            setSubtitleTextAppearance(a.getResourceId(R.styleable.CarToolbar_subtitleTextAppearance,
+                    R.style.TextAppearance_Car_Body2));
 
             mNavButtonContainerWidth = a.getDimensionPixelSize(
                     R.styleable.CarToolbar_navigationIconContainerWidth,
@@ -161,10 +172,18 @@ public class CarToolbar extends ViewGroup {
 
             width += mTitleIconView.getMeasuredWidth();
         }
+        int titleLength = 0;
+        int subtitleLength = 0;
         if (mTitleTextView.getVisibility() != GONE) {
             measureChild(mTitleTextView, widthMeasureSpec, width, childHeightMeasureSpec, 0);
-            width += mTitleTextView.getMeasuredWidth() + getHorizontalMargins(mTitleTextView);
+            titleLength = mTitleTextView.getMeasuredWidth() + getHorizontalMargins(mTitleTextView);
         }
+        if (mSubtitleTextView.getVisibility() != GONE) {
+            measureChild(mSubtitleTextView, widthMeasureSpec, width, childHeightMeasureSpec, 0);
+            subtitleLength = mSubtitleTextView.getMeasuredWidth()
+                    + getHorizontalMargins(mSubtitleTextView);
+        }
+        width += Math.max(titleLength, subtitleLength);
 
         setMeasuredDimension(resolveSize(width, widthMeasureSpec),
                 resolveSize(desiredHeight, heightMeasureSpec));
@@ -188,10 +207,17 @@ public class CarToolbar extends ViewGroup {
             layoutViewVerticallyCentered(mTitleIconView, layoutLeft, height);
             layoutLeft += mTitleIconView.getMeasuredWidth();
         }
-        if (mTitleTextView.getVisibility() != GONE) {
+
+        if (mTitleTextView.getVisibility() != GONE && mSubtitleTextView.getVisibility() != GONE) {
+            layoutTextViewsVerticallyCentered(mTitleTextView, mSubtitleTextView, layoutLeft,
+                    height);
+        } else if (mTitleTextView.getVisibility() != GONE) {
             layoutViewVerticallyCentered(mTitleTextView, layoutLeft, height);
+        } else if (mSubtitleTextView.getVisibility() != GONE) {
+            layoutViewVerticallyCentered(mSubtitleTextView, layoutLeft, height);
         }
     }
+
 
     /**
      * Set the icon to use for the toolbar's navigation button.
@@ -303,6 +329,40 @@ public class CarToolbar extends ViewGroup {
         mTitleTextView.setText(title);
         mTitleTextView.setVisibility(TextUtils.isEmpty(title) ? GONE : VISIBLE);
     }
+    /**
+     * Returns the subtitle of this toolbar.
+     *
+     * @return The current subtitle, or {@code null} if none has been set.
+     */
+    @Nullable
+    public CharSequence getSubtitle() {
+        return mSubtitleText;
+    }
+
+    /**
+     * Set the subtitle of this toolbar.
+     *
+     * <p>Subtitles should express extended information about the current content.
+     * Subtitle will appear underneath the title if the title exists.
+     * @param resId Resource ID of a string to set as the subtitle.
+     */
+    public void setSubtitle(@StringRes int resId) {
+        setSubtitle(getContext().getText(resId));
+    }
+
+    /**
+     * Set the subtitle of this toolbar.
+     *
+     * <p>Subtitle should express extended information about the current content.
+     * Subtitle will appear underneath the title if the title exists.
+     *
+     * @param subtitle Subtitle to set. {@code null} or empty string will hide the subtitle.
+     */
+    public void setSubtitle(@Nullable CharSequence subtitle) {
+        mSubtitleText = subtitle;
+        mSubtitleTextView.setText(subtitle);
+        mSubtitleTextView.setVisibility(TextUtils.isEmpty(subtitle) ? GONE : VISIBLE);
+    }
 
     /**
      * Sets the text color, size, style, hint color, and highlight color
@@ -312,6 +372,16 @@ public class CarToolbar extends ViewGroup {
      */
     public void setTitleTextAppearance(@StyleRes int resId) {
         mTitleTextView.setTextAppearance(resId);
+    }
+
+    /**
+     * Sets the text color, size, style, hint color, and highlight color
+     * from the specified TextAppearance resource.
+     *
+     * @param resId Resource id of TextAppearance.
+     */
+    public void setSubtitleTextAppearance(@StyleRes int resId) {
+        mSubtitleTextView.setTextAppearance(resId);
     }
 
     @Override
@@ -339,6 +409,21 @@ public class CarToolbar extends ViewGroup {
         int viewWidth = view.getMeasuredWidth();
         int viewTop = (height - viewHeight) / 2;
         view.layout(left, viewTop, left + viewWidth, viewTop + viewHeight);
+    }
+
+    private void layoutTextViewsVerticallyCentered(View title, View subtitle, int left,
+            int height) {
+        int titleHeight = title.getMeasuredHeight();
+        int titleWidth = title.getMeasuredWidth();
+
+        int subtitleHeight = subtitle.getMeasuredHeight();
+        int subtitleWidth = subtitle.getMeasuredWidth();
+
+        int titleTop = (height - titleHeight - subtitleHeight - mTextVerticalPadding) / 2;
+        title.layout(left, titleTop, left + titleWidth, titleTop + titleHeight);
+
+        int subtitleTop = title.getBottom() + mTextVerticalPadding;
+        subtitle.layout(left, subtitleTop, left + subtitleWidth, subtitleTop + subtitleHeight);
     }
 
     private int getHorizontalMargins(View v) {

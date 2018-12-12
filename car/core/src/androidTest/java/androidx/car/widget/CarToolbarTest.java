@@ -216,6 +216,31 @@ public class CarToolbarTest {
         return mActivity.findViewById(R.id.nav_button);
     }
 
+    @Test
+    public void testSubtitleGetAndSetMethod() throws Throwable {
+        mActivityRule.runOnUiThread(() -> mToolbar.setSubtitle("this is subtitle"));
+        CharSequence subtitle = mToolbar.getSubtitle();
+        assertEquals(subtitle, "this is subtitle");
+    }
+
+    @Test
+    public void testSubtitleDoesNotShowWhenContentIsEmpty() throws Throwable {
+        mActivityRule.runOnUiThread(() -> mToolbar.setSubtitle(""));
+        onView(withId(R.id.subtitle)).check(matches(not(isDisplayed())));
+    }
+
+    @Test
+    public void testSubtitleDoesNotShowWhenContentIsNull() throws Throwable {
+        mActivityRule.runOnUiThread(() -> mToolbar.setSubtitle(null));
+        onView(withId(R.id.subtitle)).check(matches(not(isDisplayed())));
+    }
+
+    @Test
+    public void testSubtitleShowsWhenContentNotEmpty() throws Throwable {
+        mActivityRule.runOnUiThread(() -> mToolbar.setSubtitle("this is subtitle"));
+        onView(withId(R.id.subtitle)).check(matches(isDisplayed()));
+    }
+
     private TextView getTitleView() {
         return mActivity.findViewById(R.id.title);
     }
