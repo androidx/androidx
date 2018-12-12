@@ -97,7 +97,7 @@ public class FlingTests {
                 anim.setStartValue(100).setStartVelocity(2000).start();
             }
         });
-        verify(listener, timeout(1000)).onAnimationEnd(eq(anim), eq(false), floatThat(
+        verify(listener, timeout(2000)).onAnimationEnd(eq(anim), eq(false), floatThat(
                 new GreaterThan(110f)), eq(0f));
     }
 
@@ -120,7 +120,7 @@ public class FlingTests {
                 anim.start();
             }
         });
-        verify(listener, timeout(1000)).onAnimationEnd(eq(anim), eq(false), floatThat(
+        verify(listener, timeout(2000)).onAnimationEnd(eq(anim), eq(false), floatThat(
                 new LessThan(-50f)), eq(0f));
     }
 
