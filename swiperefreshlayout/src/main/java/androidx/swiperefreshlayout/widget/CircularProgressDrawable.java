@@ -429,6 +429,8 @@ public class CircularProgressDrawable extends Drawable implements Animatable {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
+    // Remove suppression was b/120985527 is addressed.
     public int getOpacity() {
         return PixelFormat.TRANSLUCENT;
     }

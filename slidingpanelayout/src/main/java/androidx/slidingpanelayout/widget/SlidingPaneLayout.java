@@ -396,6 +396,8 @@ public class SlidingPaneLayout extends ViewGroup {
         }
     }
 
+    @SuppressWarnings("deprecation")
+    // Remove suppression once b/120984816 is addressed.
     private static boolean viewIsOpaque(View v) {
         if (v.isOpaque()) {
             return true;
