@@ -22,6 +22,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputDirectory
@@ -33,10 +34,10 @@ private const val MAPPING_FILE = "file_mappings.json"
 
 open class ArgumentsGenerationTask : DefaultTask() {
     @get:Input
-    lateinit var rFilePackage: String
+    lateinit var rFilePackage: Provider<String>
 
     @get:Input
-    lateinit var applicationId: String
+    lateinit var applicationId: Provider<String>
 
     @get:Input
     var useAndroidX: Boolean = false
@@ -45,13 +46,14 @@ open class ArgumentsGenerationTask : DefaultTask() {
     lateinit var outputDir: File
 
     @get:InputFiles
-    var navigationFiles: List<File> = emptyList()
+    lateinit var navigationFiles: Provider<List<File>>
 
     @get:OutputDirectory
     lateinit var incrementalFolder: File
 
     private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
-        val output = generateSafeArgs(rFilePackage, applicationId, file, out, useAndroidX)
+        val output =
+            generateSafeArgs(rFilePackage.get(), applicationId.get(), file, out, useAndroidX)
         Mapping(file.relativeTo(project.projectDir).path, output.fileNames) to output.errors
     }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 
@@ -87,7 +89,7 @@ open class ArgumentsGenerationTask : DefaultTask() {
         if (!outputDir.exists() && !outputDir.mkdirs()) {
             throw GradleException("Failed to create directory for navigation arguments")
         }
-        val (mappings, errors) = generateArgs(navigationFiles, outputDir)
+        val (mappings, errors) = generateArgs(navigationFiles.get(), outputDir)
         writeMappings(mappings)
         failIfErrors(errors)
     }
