@@ -76,6 +76,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressLint("ObsoleteSdkInt") // TODO: Remove once the minSdkVersion is lowered enough.
 class MediaSessionImplBase implements MediaSessionImpl {
     private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "androidx.media2.session.id";
     private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
