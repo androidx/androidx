@@ -20,25 +20,53 @@
 
     <test android:id="@+id/start_test">
         <argument android:name="test_int" android:defaultValue="12" />
+        <argument android:name="test_int2" app:argType="integer"
+                  android:defaultValue="@integer/test_integer_arg" />
+
         <argument android:name="test_dimen" android:defaultValue="@dimen/test_dimen_arg" />
+        <argument android:name="test_dimen2" app:argType="integer"
+                  android:defaultValue="@dimen/test_dimen_arg" />
+        <argument android:name="test_dimen3" app:argType="reference"
+                  android:defaultValue="@dimen/test_dimen_arg" />
+
+        <argument android:name="test_color" android:defaultValue="@color/test_color_arg" />
+
         <argument android:name="test_float" android:defaultValue="3.14" />
+
         <argument android:name="test_reference" android:defaultValue="@style/AppTheme" />
+        <argument android:name="test_reference2" app:argType="reference"
+                  android:defaultValue="@dimen/test_dimen_arg" />
+        <argument android:name="test_reference3" app:argType="reference"
+                  android:defaultValue="@integer/test_integer_arg" />
+        <argument android:name="test_reference4" app:argType="reference"
+                  android:defaultValue="@string/test_string_arg" />
+        <argument android:name="test_reference5" app:argType="reference"
+                  android:defaultValue="@bool/test_bool_arg" />
+
         <argument android:name="test_boolean" android:defaultValue="true" />
         <argument android:name="test_boolean2" android:defaultValue="false" />
         <argument app:argType="boolean" android:name="test_boolean3" android:defaultValue="true" />
         <argument app:argType="boolean" android:name="test_boolean4" android:defaultValue="false" />
+        <argument android:name="test_boolean5" android:defaultValue="@bool/test_bool_arg" />
+
         <argument android:name="test_string" android:defaultValue="abc" />
         <argument app:argType="string" android:name="test_string2" android:defaultValue="true" />
         <argument app:argType="string" android:name="test_string3" android:defaultValue="123L" />
         <argument app:argType="string" android:name="test_string4" android:defaultValue="123" />
+        <argument app:argType="string" android:name="test_string5"
+                  android:defaultValue="@string/test_string_arg" />
+        <argument android:name="test_string6" android:defaultValue="@string/test_string_arg" />
         <argument app:argType="string" android:name="test_string_no_default" />
+
         <argument app:argType="long" android:name="test_long" android:defaultValue="456789013456L" />
         <argument android:name="test_long2" android:defaultValue="456789013456L" />
         <argument android:name="test_long3" android:defaultValue="123L" />
+
         <argument android:name="test_enum" app:argType="androidx.navigation.test.TestEnum"
             android:defaultValue="VALUE_ONE"/>
         <argument android:name="test_relative_classname" app:argType=".TestEnum"
                   android:defaultValue="VALUE_TWO"/>
+
         <action android:id="@+id/my_action" app:destination="@+id/start_test">
             <argument android:name="test_action_arg" android:defaultValue="123L" />
         </action>

@@ -74,6 +74,8 @@ class NavInflaterTest {
 
         assertEquals(12, defaultArguments.get("test_int")?.defaultValue)
         assertEquals(NavType.IntType, defaultArguments.get("test_int")?.type)
+        assertEquals(2, defaultArguments.get("test_int2")?.defaultValue)
+        assertEquals(NavType.IntType, defaultArguments.get("test_int2")?.type)
     }
 
     @Test
@@ -84,6 +86,20 @@ class NavInflaterTest {
 
         assertEquals(expectedValue, defaultArguments.get("test_dimen")?.defaultValue)
         assertEquals(NavType.IntType, defaultArguments.get("test_dimen")?.type)
+        assertEquals(expectedValue, defaultArguments.get("test_dimen2")?.defaultValue)
+        assertEquals(NavType.IntType, defaultArguments.get("test_dimen2")?.type)
+        assertEquals(R.dimen.test_dimen_arg, defaultArguments.get("test_dimen3")?.defaultValue)
+        assertEquals(NavType.ReferenceType, defaultArguments.get("test_dimen3")?.type)
+    }
+
+    @Test
+    fun testDefaultArgumentsColor() {
+        val defaultArguments = inflateDefaultArgumentsFromGraph()
+        val context = InstrumentationRegistry.getTargetContext()
+        val expectedValue = context.resources.getColor(R.color.test_color_arg)
+
+        assertEquals(expectedValue, defaultArguments.get("test_color")?.defaultValue)
+        assertEquals(NavType.IntType, defaultArguments.get("test_color")?.type)
     }
 
     @Test
@@ -102,10 +118,12 @@ class NavInflaterTest {
         assertEquals(false, defaultArguments.get("test_boolean2")?.defaultValue)
         assertEquals(true, defaultArguments.get("test_boolean3")?.defaultValue)
         assertEquals(false, defaultArguments.get("test_boolean4")?.defaultValue)
+        assertEquals(true, defaultArguments.get("test_boolean5")?.defaultValue)
         assertEquals(NavType.BoolType, defaultArguments.get("test_boolean")?.type)
         assertEquals(NavType.BoolType, defaultArguments.get("test_boolean2")?.type)
         assertEquals(NavType.BoolType, defaultArguments.get("test_boolean3")?.type)
         assertEquals(NavType.BoolType, defaultArguments.get("test_boolean4")?.type)
+        assertEquals(NavType.BoolType, defaultArguments.get("test_boolean5")?.type)
     }
 
     @Test
@@ -137,6 +155,8 @@ class NavInflaterTest {
         assertEquals("true", defaultArguments.get("test_string2")?.defaultValue)
         assertEquals("123L", defaultArguments.get("test_string3")?.defaultValue)
         assertEquals("123", defaultArguments.get("test_string4")?.defaultValue)
+        assertEquals("test string", defaultArguments.get("test_string5")?.defaultValue)
+        assertEquals("test string", defaultArguments.get("test_string6")?.defaultValue)
         assertTrue(defaultArguments.containsKey("test_string_no_default"))
         assertEquals(false, defaultArguments.get("test_string_no_default")?.isDefaultValuePresent)
 
@@ -144,6 +164,8 @@ class NavInflaterTest {
         assertEquals(NavType.StringType, defaultArguments.get("test_string2")?.type)
         assertEquals(NavType.StringType, defaultArguments.get("test_string3")?.type)
         assertEquals(NavType.StringType, defaultArguments.get("test_string4")?.type)
+        assertEquals(NavType.StringType, defaultArguments.get("test_string5")?.type)
+        assertEquals(NavType.StringType, defaultArguments.get("test_string6")?.type)
         assertEquals(NavType.StringType, defaultArguments.get("test_string_no_default")?.type)
     }
 
@@ -153,6 +175,16 @@ class NavInflaterTest {
 
         assertEquals(R.style.AppTheme, defaultArguments.get("test_reference")?.defaultValue)
         assertEquals(NavType.IntType, defaultArguments.get("test_reference")?.type)
+        assertEquals(R.dimen.test_dimen_arg, defaultArguments.get("test_reference2")?.defaultValue)
+        assertEquals(NavType.ReferenceType, defaultArguments.get("test_reference2")?.type)
+        assertEquals(R.integer.test_integer_arg,
+            defaultArguments.get("test_reference3")?.defaultValue)
+        assertEquals(NavType.ReferenceType, defaultArguments.get("test_reference3")?.type)
+        assertEquals(R.string.test_string_arg,
+            defaultArguments.get("test_reference4")?.defaultValue)
+        assertEquals(NavType.ReferenceType, defaultArguments.get("test_reference4")?.type)
+        assertEquals(R.bool.test_bool_arg, defaultArguments.get("test_reference5")?.defaultValue)
+        assertEquals(NavType.ReferenceType, defaultArguments.get("test_reference5")?.type)
     }
 
     @Test

@@ -17,4 +17,8 @@
 
 <resources>
     <dimen name="test_dimen_arg">48dp</dimen>
+    <integer name="test_integer_arg">2</integer>
+    <string name="test_string_arg">test string</string>
+    <bool name="test_bool_arg">true</bool>
+    <color name="test_color_arg">#FF00FF</color>
 </resources>
