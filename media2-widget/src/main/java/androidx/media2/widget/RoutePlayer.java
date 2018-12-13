@@ -28,7 +28,6 @@ import android.os.SystemClock;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Pair;
@@ -58,7 +57,6 @@ import java.util.concurrent.Future;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@RequiresApi(19)
 public class RoutePlayer extends RemoteSessionPlayer {
     private static final String TAG = "RoutePlayer";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
