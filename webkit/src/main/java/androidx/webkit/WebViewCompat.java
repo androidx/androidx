@@ -503,11 +503,7 @@ public class WebViewCompat {
         final WebViewFeatureInternal feature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.GET_WEB_VIEW_RENDERER);
         if (feature.isSupportedByWebView()) {
-            try {
-                return getProvider(webview).getWebViewRenderer();
-            } catch (Exception e) {
-                throw WebViewFeatureInternal.getUnsupportedOperationException();
-            }
+            return getProvider(webview).getWebViewRenderer();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
