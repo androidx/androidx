@@ -68,40 +68,6 @@ public class GridLayoutManagerUtils {
     }
 
     /**
-     * Returns the span size of an item. {@code item} must be already laid out.
-     */
-    public static int getSpanSize(View item) {
-        GridLayoutManager.LayoutParams layoutParams =
-                ((GridLayoutManager.LayoutParams) item.getLayoutParams());
-        return layoutParams.getSpanSize();
-    }
-
-    /**
-     * Returns the index of the last item that is on the same row as {@code index}.
-     *
-     * @param index index of child {@code View} in {@code parent}.
-     * @param parent {@link RecyclerView} that contains the View {@code index} points to.
-     */
-    public static int getLastIndexOnSameRow(int index, RecyclerView parent) {
-        int spanCount = ((GridLayoutManager) parent.getLayoutManager()).getSpanCount();
-        int spanSum = GridLayoutManagerUtils.getSpanIndex(parent.getChildAt(index));
-        for (int i = index; i < parent.getChildCount(); i++) {
-            spanSum += GridLayoutManagerUtils.getSpanSize(parent.getChildAt(i));
-            if (spanSum > spanCount) {
-                // We have reached next row.
-
-                // Implicit constraint by grid layout manager:
-                // Initial spanSum + spanSize would not exceed spanCount, so it's safe to
-                // subtract 1.
-                return i - 1;
-            }
-        }
-        // Still have not reached row end. Assuming the list only scrolls vertically, we are at
-        // the last row.
-        return parent.getChildCount() - 1;
-    }
-
-    /**
      * Returns whether or not the given view is on the last row of a {@code RecyclerView} with a
      * {@link GridLayoutManager}.
      *
@@ -110,33 +76,32 @@ public class GridLayoutManagerUtils {
      * @return {@code true} if the given view is on the last row of the {@code RecyclerView}.
      */
     public static boolean isOnLastRow(View view, RecyclerView parent) {
+        return getLastItemPositionOnSameRow(view, parent) == parent.getAdapter().getItemCount() - 1;
+    }
+
+    /**
+     * Returns the position of the last item that is on the same row as input {@code view}.
+     *
+     * @param view The view to inspect.
+     * @param parent {@link RecyclerView} that contains the given view.
+     */
+    public static int getLastItemPositionOnSameRow(View view, RecyclerView parent) {
         GridLayoutManager layoutManager = ((GridLayoutManager) parent.getLayoutManager());
 
-        int lastChildPosition = parent.getAdapter().getItemCount() - 1;
-        int currentChildPosition = parent.getChildAdapterPosition(view);
-
-        // The last view is automatically on the last row.
-        if (currentChildPosition == lastChildPosition) {
-            return true;
-        }
-
         GridLayoutManager.SpanSizeLookup spanSizeLookup = layoutManager.getSpanSizeLookup();
-        int spanSum = getSpanIndex(view) + spanSizeLookup.getSpanSize(currentChildPosition);
         int spanCount = layoutManager.getSpanCount();
+        int lastItemPosition = parent.getAdapter().getItemCount() - 1;
 
+        int currentChildPosition = parent.getChildAdapterPosition(view);
+        int spanSum = getSpanIndex(view) + spanSizeLookup.getSpanSize(currentChildPosition);
         // Iterate to the end of the row starting from the current child position.
-        while (spanSum < spanCount) {
-            currentChildPosition++;
-
-            // Encountered the last child on the row, meaning the given View is on the last row.
-            if (currentChildPosition == lastChildPosition) {
-                return true;
+        while (currentChildPosition <= lastItemPosition && spanSum <= spanCount) {
+            spanSum += spanSizeLookup.getSpanSize(currentChildPosition + 1);
+            if (spanSum > spanCount) {
+                return currentChildPosition;
             }
-
-            spanSum += spanSizeLookup.getSpanSize(currentChildPosition);
+            currentChildPosition++;
         }
-
-        // Last child is not on the current row, meaning the current row is not the last row.
-        return false;
+        return lastItemPosition;
     }
 }
