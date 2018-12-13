@@ -184,6 +184,15 @@ public final class NavInflater {
         if (a.getValue(R.styleable.NavArgument_android_defaultValue, value)) {
             if (navType == NavType.StringType) {
                 defaultValue = a.getString(R.styleable.NavArgument_android_defaultValue);
+            } else if (navType == NavType.ReferenceType) {
+                if (value.resourceId != 0) {
+                    defaultValue = value.resourceId;
+                } else {
+                    throw new XmlPullParserException(
+                            "unsupported value '" + value.string
+                                    + "' for " + navType.getName()
+                                    + ". Must be a reference to a resource.");
+                }
             } else {
                 switch (value.type) {
                     case TypedValue.TYPE_STRING:

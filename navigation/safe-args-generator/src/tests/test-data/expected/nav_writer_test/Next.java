@@ -27,34 +27,22 @@ import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.SuppressWarnings;
+import java.util.HashMap;
 
 public static class Next implements NavDirections {
-    @NonNull
-    private String main;
-
-    private int mainInt;
-
-    @NonNull
-    private String optional = "bla";
-
-    private int optionalInt = 239;
-
-    @Nullable
-    private ActivityInfo optionalParcelable = null;
-
-    @NonNull
-    private ActivityInfo parcelable;
+    private final HashMap arguments = new HashMap();
 
     public Next(@NonNull String main, int mainInt, @NonNull ActivityInfo parcelable) {
-        this.main = main;
-        if (this.main == null) {
+        if (main == null) {
             throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
         }
-        this.mainInt = mainInt;
-        this.parcelable = parcelable;
-        if (this.parcelable == null) {
+        this.arguments.put("main", main);
+        this.arguments.put("mainInt", mainInt);
+        if (parcelable == null) {
             throw new IllegalArgumentException("Argument \"parcelable\" is marked as non-null but was passed a null value.");
         }
+        this.arguments.put("parcelable", parcelable);
     }
 
     @NonNull
@@ -62,13 +50,13 @@ public static class Next implements NavDirections {
         if (main == null) {
             throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
         }
-        this.main = main;
+        this.arguments.put("main", main);
         return this;
     }
 
     @NonNull
     public Next setMainInt(int mainInt) {
-        this.mainInt = mainInt;
+        this.arguments.put("mainInt", mainInt);
         return this;
     }
 
@@ -77,19 +65,19 @@ public static class Next implements NavDirections {
         if (optional == null) {
             throw new IllegalArgumentException("Argument \"optional\" is marked as non-null but was passed a null value.");
         }
-        this.optional = optional;
+        this.arguments.put("optional", optional);
         return this;
     }
 
     @NonNull
     public Next setOptionalInt(int optionalInt) {
-        this.optionalInt = optionalInt;
+        this.arguments.put("optionalInt", optionalInt);
         return this;
     }
 
     @NonNull
     public Next setOptionalParcelable(@Nullable ActivityInfo optionalParcelable) {
-        this.optionalParcelable = optionalParcelable;
+        this.arguments.put("optionalParcelable", optionalParcelable);
         return this;
     }
 
@@ -98,38 +86,91 @@ public static class Next implements NavDirections {
         if (parcelable == null) {
             throw new IllegalArgumentException("Argument \"parcelable\" is marked as non-null but was passed a null value.");
         }
-        this.parcelable = parcelable;
+        this.arguments.put("parcelable", parcelable);
         return this;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     @NonNull
     public Bundle getArguments() {
-        Bundle __outBundle = new Bundle();
-        __outBundle.putString("main", this.main);
-        __outBundle.putInt("mainInt", this.mainInt);
-        __outBundle.putString("optional", this.optional);
-        __outBundle.putInt("optionalInt", this.optionalInt);
-        if (Parcelable.class.isAssignableFrom(ActivityInfo.class) || this.optionalParcelable == null) {
-            __outBundle.putParcelable("optionalParcelable", Parcelable.class.cast(this.optionalParcelable));
-        } else if (Serializable.class.isAssignableFrom(ActivityInfo.class)) {
-            __outBundle.putSerializable("optionalParcelable", Serializable.class.cast(this.optionalParcelable));
-        } else {
-            throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
+        Bundle __result = new Bundle();
+        if (arguments.containsKey("main")) {
+            String main = (String) arguments.get("main");
+            __result.putString("main", main);
         }
-        if (Parcelable.class.isAssignableFrom(ActivityInfo.class) || this.parcelable == null) {
-            __outBundle.putParcelable("parcelable", Parcelable.class.cast(this.parcelable));
-        } else if (Serializable.class.isAssignableFrom(ActivityInfo.class)) {
-            __outBundle.putSerializable("parcelable", Serializable.class.cast(this.parcelable));
-        } else {
-            throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
+        if (arguments.containsKey("mainInt")) {
+            int mainInt = (int) arguments.get("mainInt");
+            __result.putInt("mainInt", mainInt);
         }
-        return __outBundle;
+        if (arguments.containsKey("optional")) {
+            String optional = (String) arguments.get("optional");
+            __result.putString("optional", optional);
+        }
+        if (arguments.containsKey("optionalInt")) {
+            int optionalInt = (int) arguments.get("optionalInt");
+            __result.putInt("optionalInt", optionalInt);
+        }
+        if (arguments.containsKey("optionalParcelable")) {
+            ActivityInfo optionalParcelable = (ActivityInfo) arguments.get("optionalParcelable");
+            if (Parcelable.class.isAssignableFrom(ActivityInfo.class) || optionalParcelable == null) {
+                __result.putParcelable("optionalParcelable", Parcelable.class.cast(optionalParcelable));
+            } else if (Serializable.class.isAssignableFrom(ActivityInfo.class)) {
+                __result.putSerializable("optionalParcelable", Serializable.class.cast(optionalParcelable));
+            } else {
+                throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
+            }
+        }
+        if (arguments.containsKey("parcelable")) {
+            ActivityInfo parcelable = (ActivityInfo) arguments.get("parcelable");
+            if (Parcelable.class.isAssignableFrom(ActivityInfo.class) || parcelable == null) {
+                __result.putParcelable("parcelable", Parcelable.class.cast(parcelable));
+            } else if (Serializable.class.isAssignableFrom(ActivityInfo.class)) {
+                __result.putSerializable("parcelable", Serializable.class.cast(parcelable));
+            } else {
+                throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
+            }
+        }
+        return __result;
     }
 
     @Override
     public int getActionId() {
         return a.b.R.id.next;
+    }
+
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public String getMain() {
+        return (String) arguments.get("main");
+    }
+
+    @SuppressWarnings("unchecked")
+    public int getMainInt() {
+        return (int) arguments.get("mainInt");
+    }
+
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public String getOptional() {
+        return (String) arguments.get("optional");
+    }
+
+    @SuppressWarnings("unchecked")
+    public int getOptionalInt() {
+        return (int) arguments.get("optionalInt");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public ActivityInfo getOptionalParcelable() {
+        return (ActivityInfo) arguments.get("optionalParcelable");
+    }
+
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public ActivityInfo getParcelable() {
+        return (ActivityInfo) arguments.get("parcelable");
     }
 
     @Override
@@ -141,22 +182,40 @@ public static class Next implements NavDirections {
             return false;
         }
         Next that = (Next) object;
-        if (main != null ? !main.equals(that.main) : that.main != null) {
+        if (arguments.containsKey("main") != that.arguments.containsKey("main")) {
             return false;
         }
-        if (mainInt != that.mainInt) {
+        if (getMain() != null ? !getMain().equals(that.getMain()) : that.getMain() != null) {
             return false;
         }
-        if (optional != null ? !optional.equals(that.optional) : that.optional != null) {
+        if (arguments.containsKey("mainInt") != that.arguments.containsKey("mainInt")) {
             return false;
         }
-        if (optionalInt != that.optionalInt) {
+        if (getMainInt() != that.getMainInt()) {
             return false;
         }
-        if (optionalParcelable != null ? !optionalParcelable.equals(that.optionalParcelable) : that.optionalParcelable != null) {
+        if (arguments.containsKey("optional") != that.arguments.containsKey("optional")) {
             return false;
         }
-        if (parcelable != null ? !parcelable.equals(that.parcelable) : that.parcelable != null) {
+        if (getOptional() != null ? !getOptional().equals(that.getOptional()) : that.getOptional() != null) {
+            return false;
+        }
+        if (arguments.containsKey("optionalInt") != that.arguments.containsKey("optionalInt")) {
+            return false;
+        }
+        if (getOptionalInt() != that.getOptionalInt()) {
+            return false;
+        }
+        if (arguments.containsKey("optionalParcelable") != that.arguments.containsKey("optionalParcelable")) {
+            return false;
+        }
+        if (getOptionalParcelable() != null ? !getOptionalParcelable().equals(that.getOptionalParcelable()) : that.getOptionalParcelable() != null) {
+            return false;
+        }
+        if (arguments.containsKey("parcelable") != that.arguments.containsKey("parcelable")) {
+            return false;
+        }
+        if (getParcelable() != null ? !getParcelable().equals(that.getParcelable()) : that.getParcelable() != null) {
             return false;
         }
         if (getActionId() != that.getActionId()) {
@@ -168,12 +227,12 @@ public static class Next implements NavDirections {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + (main != null ? main.hashCode() : 0);
-        result = 31 * result + mainInt;
-        result = 31 * result + (optional != null ? optional.hashCode() : 0);
-        result = 31 * result + optionalInt;
-        result = 31 * result + (optionalParcelable != null ? optionalParcelable.hashCode() : 0);
-        result = 31 * result + (parcelable != null ? parcelable.hashCode() : 0);
+        result = 31 * result + (getMain() != null ? getMain().hashCode() : 0);
+        result = 31 * result + getMainInt();
+        result = 31 * result + (getOptional() != null ? getOptional().hashCode() : 0);
+        result = 31 * result + getOptionalInt();
+        result = 31 * result + (getOptionalParcelable() != null ? getOptionalParcelable().hashCode() : 0);
+        result = 31 * result + (getParcelable() != null ? getParcelable().hashCode() : 0);
         result = 31 * result + getActionId();
         return result;
     }
@@ -181,12 +240,12 @@ public static class Next implements NavDirections {
     @Override
     public String toString() {
         return "Next(actionId=" + getActionId() + "){"
-                + "main=" + main
-                + ", mainInt=" + mainInt
-                + ", optional=" + optional
-                + ", optionalInt=" + optionalInt
-                + ", optionalParcelable=" + optionalParcelable
-                + ", parcelable=" + parcelable
+                + "main=" + getMain()
+                + ", mainInt=" + getMainInt()
+                + ", optional=" + getOptional()
+                + ", optionalInt=" + getOptionalInt()
+                + ", optionalParcelable=" + getOptionalParcelable()
+                + ", parcelable=" + getParcelable()
                 + "}";
     }
 }
