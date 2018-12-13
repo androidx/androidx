@@ -9,9 +9,9 @@ package androidx.navigation.ui {
 
   public final class AppBarConfigurationKt {
     ctor public AppBarConfigurationKt();
-    method public static androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(androidx.navigation.NavGraph navGraph, android.support.v4.widget.DrawerLayout? drawerLayout = null);
-    method public static androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(android.view.Menu topLevelMenu, android.support.v4.widget.DrawerLayout? drawerLayout = null);
-    method public static androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(java.util.Set<java.lang.Integer> topLevelDestinationIds, android.support.v4.widget.DrawerLayout? drawerLayout = null);
+    method public static androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(androidx.navigation.NavGraph navGraph, android.support.v4.widget.DrawerLayout? drawerLayout = null, kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener = { false });
+    method public static androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(android.view.Menu topLevelMenu, android.support.v4.widget.DrawerLayout? drawerLayout = null, kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener = { false });
+    method public static androidx.navigation.ui.AppBarConfiguration AppBarConfiguration(java.util.Set<java.lang.Integer> topLevelDestinationIds, android.support.v4.widget.DrawerLayout? drawerLayout = null, kotlin.jvm.functions.Function0<java.lang.Boolean> fallbackOnNavigateUpListener = { false });
   }
 
   public final class BottomNavigationViewKt {

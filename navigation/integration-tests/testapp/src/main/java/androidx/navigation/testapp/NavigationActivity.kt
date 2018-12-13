@@ -46,7 +46,8 @@ class NavigationActivity : AppCompatActivity() {
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
         toolbar.setupWithNavController(navController,
-            AppBarConfiguration(setOf(R.id.main, R.id.android), drawerLayout))
+            AppBarConfiguration(setOf(R.id.main, R.id.android), drawerLayout,
+                ::onSupportNavigateUp))
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         if (navigationView != null) {
