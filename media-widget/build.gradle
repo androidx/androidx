@@ -25,7 +25,7 @@ plugins {
 dependencies {
     api(project(":media2"))
     api(project(":mediarouter"))
-    api(project(":appcompat"))
+    api("androidx.appcompat:appcompat:1.1.0-alpha01")
     api("androidx.palette:palette:1.0.0")
     implementation(project(":concurrent:concurrent-futures"))
 
