@@ -37,6 +37,7 @@ import android.annotation.TargetApi;
 import android.media.MediaFormat;
 import android.os.Build;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media2.MediaPlayer2;
@@ -172,8 +173,10 @@ import java.util.List;
         TrackGroupArray textTrackGroups = mappedTrackInfo.getTrackGroups(TEXT_RENDERER_INDEX);
         for (int i = 0; i < textTrackGroups.length; i++) {
             TrackGroup trackGroup = textTrackGroups.get(i);
+            Format format = Preconditions.checkNotNull(trackGroup.getFormat(0));
+            int type = getTextTrackType(format.sampleMimeType);
             InternalTextTrackInfo internalTextTrackInfo =
-                    new InternalTextTrackInfo(i, trackGroup.getFormat(0));
+                    new InternalTextTrackInfo(i, type, format, UNSET);
             mInternalTextTrackInfos.add(internalTextTrackInfo);
             mTextTrackInfos.add(internalTextTrackInfo.mTrackInfo);
         }
@@ -191,7 +194,10 @@ import java.util.List;
             if (internalTextTrackInfo.mType == type && internalTextTrackInfo.mChannel == UNSET) {
                 // Associate the existing text track with this channel.
                 InternalTextTrackInfo replacementTextTrackInfo = new InternalTextTrackInfo(
-                        internalTextTrackInfo.mPlayerTrackIndex, type, channel);
+                        internalTextTrackInfo.mPlayerTrackIndex,
+                        type,
+                        internalTextTrackInfo.mFormat,
+                        channel);
                 mInternalTextTrackInfos.set(i, replacementTextTrackInfo);
                 if (mSelectedTextTrackIndex == i) {
                     mTextRenderer.select(type, channel);
@@ -201,8 +207,8 @@ import java.util.List;
             }
         }
         if (!populatedExistingTrack) {
-            InternalTextTrackInfo internalTextTrackInfo =
-                    new InternalTextTrackInfo(mPlayerTextTrackIndex, type, channel);
+            InternalTextTrackInfo internalTextTrackInfo = new InternalTextTrackInfo(
+                    mPlayerTextTrackIndex, type, /* format= */ null, channel);
             mInternalTextTrackInfos.add(internalTextTrackInfo);
             mTextTrackInfos.add(internalTextTrackInfo.mTrackInfo);
             mPendingMetadataUpdate = true;
@@ -325,6 +331,19 @@ import java.util.List;
         mSelectedTextTrackIndex = TRACK_INDEX_UNSET;
     }
 
+    private static int getTextTrackType(String sampleMimeType) {
+        switch (sampleMimeType) {
+            case MimeTypes.APPLICATION_CEA608:
+                return TRACK_TYPE_CEA608;
+            case MimeTypes.APPLICATION_CEA708:
+                return TRACK_TYPE_CEA708;
+            case MimeTypes.TEXT_VTT:
+                return TRACK_TYPE_WEBVTT;
+            default:
+                throw new IllegalArgumentException("Unexpected text MIME type " + sampleMimeType);
+        }
+    }
+
     public static final class InternalTextTrackInfo {
 
         public static final String MIMETYPE_TEXT_CEA_608 = "text/cea-608";
@@ -336,37 +355,28 @@ import java.util.List;
         public final TrackInfoImpl mTrackInfo;
         public final int mType;
         public final int mChannel;
+        @Nullable public final Format mFormat;
 
-        InternalTextTrackInfo(int playerTrackIndex, Format format) {
+        InternalTextTrackInfo(
+                int playerTrackIndex, int type, @Nullable Format format, int channel) {
             mPlayerTrackIndex = playerTrackIndex;
-            if (MimeTypes.APPLICATION_CEA608.equals(format.sampleMimeType)) {
-                mType = TRACK_TYPE_CEA608;
-            } else if (MimeTypes.APPLICATION_CEA708.equals(format.sampleMimeType)) {
-                mType = TRACK_TYPE_CEA708;
-            } else if (MimeTypes.TEXT_VTT.equals(format.sampleMimeType)) {
-                mType = TRACK_TYPE_WEBVTT;
+            @C.SelectionFlags int selectionFlags;
+            if (type == TRACK_TYPE_CEA608 && channel == 0) {
+                selectionFlags = C.SELECTION_FLAG_AUTOSELECT | C.SELECTION_FLAG_DEFAULT;
+            } else if (type == TRACK_TYPE_CEA708 && channel == 1) {
+                selectionFlags = C.SELECTION_FLAG_DEFAULT;
             } else {
-                throw new IllegalStateException();
+                selectionFlags = format == null ? 0 : format.selectionFlags;
             }
-            mTrackInfo = getTrackInfo(
-                    mType,
-                    (format.selectionFlags & C.SELECTION_FLAG_AUTOSELECT) != 0,
-                    (format.selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0);
-            mChannel = UNSET;
-        }
-
-        // TODO(b/80232248): Set flags for WebVTT.
-        InternalTextTrackInfo(int playerTrackIndex, int type, int channel) {
-            mPlayerTrackIndex = playerTrackIndex;
+            String language = format == null ? C.LANGUAGE_UNDETERMINED : format.language;
+            mTrackInfo = getTrackInfo(type, language, selectionFlags);
             mType = type;
             mChannel = channel;
-            mTrackInfo = getTrackInfo(
-                    mType,
-                    /* isDefaultAuto= */ mType == TRACK_TYPE_CEA608 && mChannel == 0,
-                    /* isDefaultOnly= */ mType == TRACK_TYPE_CEA708 && mChannel == 1);
+            mFormat = format;
         }
 
-        static TrackInfoImpl getTrackInfo(int type, boolean isDefaultAuto, boolean isDefaultOnly) {
+        static TrackInfoImpl getTrackInfo(
+                int type, String language, @C.SelectionFlags int selectionFlags) {
             MediaFormat mediaFormat = new MediaFormat();
             if (type == TRACK_TYPE_CEA608) {
                 mediaFormat.setString(MediaFormat.KEY_MIME, MIMETYPE_TEXT_CEA_608);
@@ -378,11 +388,19 @@ import java.util.List;
                 // Unexpected.
                 throw new IllegalStateException();
             }
-            mediaFormat.setString(MediaFormat.KEY_LANGUAGE, C.LANGUAGE_UNDETERMINED);
-            mediaFormat.setInteger(MediaFormat.KEY_IS_AUTOSELECT, isDefaultAuto ? 1 : 0);
+            mediaFormat.setString(MediaFormat.KEY_LANGUAGE, language);
+            mediaFormat.setInteger(MediaFormat.KEY_IS_FORCED_SUBTITLE,
+                    (selectionFlags & C.SELECTION_FLAG_FORCED) != 0 ? 1 : 0);
+            mediaFormat.setInteger(MediaFormat.KEY_IS_AUTOSELECT,
+                    (selectionFlags & C.SELECTION_FLAG_AUTOSELECT) != 0 ? 1 : 0);
             mediaFormat.setInteger(MediaFormat.KEY_IS_DEFAULT,
-                    isDefaultAuto || isDefaultOnly ? 1 : 0);
-            return new TrackInfoImpl(MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, mediaFormat);
+                    (selectionFlags & C.SELECTION_FLAG_DEFAULT) != 0 ? 1 : 0);
+            // Hide WebVTT tracks, like the NuPlayer-based implementation
+            // (see [internal: b/120081663]).
+            int trackInfoType =
+                    type == TRACK_TYPE_WEBVTT ? MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_UNKNOWN
+                            : MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
+            return new TrackInfoImpl(trackInfoType, mediaFormat);
         }
 
     }

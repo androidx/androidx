@@ -124,7 +124,8 @@ import java.util.TreeMap;
     public int supportsFormat(Format format) {
         String mimeType = format.sampleMimeType;
         if (MimeTypes.APPLICATION_CEA608.equals(mimeType)
-                || MimeTypes.APPLICATION_CEA708.equals(mimeType)) {
+                || MimeTypes.APPLICATION_CEA708.equals(mimeType)
+                || MimeTypes.TEXT_VTT.equals(mimeType)) {
             return FORMAT_HANDLED;
         } else {
             return FORMAT_UNSUPPORTED_TYPE;
