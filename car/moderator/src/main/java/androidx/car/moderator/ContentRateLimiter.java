@@ -40,7 +40,7 @@ import androidx.core.util.Preconditions;
  * <p>This class allows for the maximum number of permits that can be stored,the amount of permits
  * that are filled each second, as well as the delay before re-fill to be configured.
  */
-public class ContentRateLimiter {
+class ContentRateLimiter {
     private static final String TAG = "ContentRateLimiter";
 
     /** The maximum number of stored permits. */
