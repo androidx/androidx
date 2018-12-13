@@ -25,14 +25,18 @@ import groovy.util.XmlSlurper
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.resources.TextResource
 import java.io.File
+import javax.inject.Inject
+import kotlin.reflect.full.memberFunctions
 
 private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
 internal const val INCREMENTAL_PATH = "intermediates/incremental"
 
 @Suppress("unused")
-class SafeArgsPlugin : Plugin<Project> {
+class SafeArgsPlugin @Inject constructor(val providerFactory: ProviderFactory) : Plugin<Project> {
 
     private fun forEachVariant(extension: BaseExtension, action: (BaseVariant) -> Unit) {
         when {
@@ -52,36 +56,55 @@ class SafeArgsPlugin : Plugin<Project> {
         val extension = project.extensions.findByType(BaseExtension::class.java)
                 ?: throw GradleException("safeargs plugin must be used with android plugin")
         forEachVariant(extension) { variant ->
-            val task = project.tasks.create("generateSafeArgs${variant.name.capitalize()}",
-                    ArgumentsGenerationTask::class.java) { task ->
+            project.tasks.register(
+                "generateSafeArgs${variant.name.capitalize()}",
+                ArgumentsGenerationTask::class.java
+            ) { task ->
                 task.rFilePackage = variant.rFilePackage()
-                task.applicationId = variant.applicationId
+                task.applicationId = getApplicationId(variant)
                 task.navigationFiles = navigationFiles(variant)
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
                 task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
                 task.useAndroidX = (project.findProperty("android.useAndroidX") == "true")
+                variant.registerJavaGeneratingTask(task, task.outputDir)
             }
-            variant.registerJavaGeneratingTask(task, task.outputDir)
         }
     }
-}
 
-private fun navigationFiles(variant: BaseVariant) = variant.sourceSets
-        .flatMap { it.resDirectories }
-        .mapNotNull {
-            File(it, "navigation").let { navFolder ->
-                if (navFolder.exists() && navFolder.isDirectory) navFolder else null
+    private fun BaseVariant.rFilePackage() = providerFactory.provider {
+        val mainSourceSet = sourceSets.find { it.name == "main" }
+        val sourceSet = mainSourceSet ?: sourceSets[0]
+        val manifest = sourceSet.manifestFile
+        val parsed = XmlSlurper(false, false).parse(manifest)
+        parsed.getProperty("@package").toString()
+    }
+
+    /**
+     * Gets the android project application id.
+     *
+     * Safe Args depends on AGP 3.2 which doesn't declare getApplicationIdTextResource.
+     * However, on 3.3+ getApplicationIdTextResource() is recommended and on 3.4 getApplicationId
+     * is completely deprecated and will throw. Thus the need for this reflection call.
+     */
+    private fun getApplicationId(variant: BaseVariant) = providerFactory.provider {
+        variant::class.memberFunctions.firstOrNull {
+            it.name == "getApplicationIdTextResource"
+        }?.let {
+            (it.call(variant) as TextResource).asString()
+        } ?: variant.applicationId
+    }
+
+    private fun navigationFiles(variant: BaseVariant) = providerFactory.provider {
+        variant.sourceSets
+            .flatMap { it.resDirectories }
+            .mapNotNull {
+                File(it, "navigation").let { navFolder ->
+                    if (navFolder.exists() && navFolder.isDirectory) navFolder else null
+                }
             }
-        }
-        .flatMap { navFolder -> navFolder.listFiles().asIterable() }
-        .filter { file -> file.isFile }
-        .groupBy { file -> file.name }
-        .map { entry -> entry.value.last() }
-
-private fun BaseVariant.rFilePackage(): String {
-    val mainSourceSet = sourceSets.find { it.name == "main" }
-    val sourceSet = mainSourceSet ?: sourceSets[0]
-    val manifest = sourceSet.manifestFile
-    val parsed = XmlSlurper(false, false).parse(manifest)
-    return parsed.getProperty("@package").toString()
+            .flatMap { navFolder -> navFolder.listFiles().asIterable() }
+            .filter { file -> file.isFile }
+            .groupBy { file -> file.name }
+            .map { entry -> entry.value.last() }
+    }
 }
