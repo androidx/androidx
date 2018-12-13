@@ -28,6 +28,7 @@ import static androidx.textclassifier.widget.FloatingToolbarEspressoUtils.onFloa
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.os.Build;
@@ -84,8 +85,10 @@ public final class TextLinkSpanTest {
     private TextClassifier mTextClassifier;
 
     @Before
-    public void setUp() {
-        mContext = mActivityTestRule.getActivity();
+    public void setUp() throws Throwable {
+        Activity activity = mActivityTestRule.getActivity();
+        TestUtils.keepScreenOn(mActivityTestRule, activity);
+        mContext = activity;
         mReceiver = BlockingReceiver.registerForPendingIntent(mContext);
         final PendingIntent intent = mReceiver.getPendingIntent();
         mTextClassifier = new TextClassifier() {

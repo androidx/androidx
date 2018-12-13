@@ -67,6 +67,7 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.textclassifier.R;
+import androidx.textclassifier.TestUtils;
 
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -96,8 +97,9 @@ public final class FloatingToolbarTest {
     private View mWidget;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Throwable {
         final Activity activity = mActivityTestRule.getActivity();
+        TestUtils.keepScreenOn(mActivityTestRule, activity);
         mContext = activity;
         final SupportMenu menu = new MenuBuilder(mContext);
         menu.add("One");
