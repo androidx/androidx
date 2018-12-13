@@ -27,6 +27,12 @@ dependencies {
     androidTestImplementation(TEST_RUNNER)
 }
 
+android {
+    defaultConfig {
+        minSdkVersion 19
+    }
+}
+
 supportLibrary {
     toolingProject = true
 }

@@ -33,6 +33,7 @@ import static androidx.media2.SessionPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer.UNKNOWN_TIME;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.net.Uri;
@@ -76,6 +77,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 
 // TODO: Find better way to return listenable future.
+@SuppressLint("ObsoleteSdkInt") // TODO: Remove once the minSdkVersion is lowered enough.
 class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     private static final String TAG = "MC2ImplLegacy";
     private static final int ITEM_NONE = -1;
