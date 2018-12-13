@@ -31,6 +31,7 @@ import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.accessibility.AccessibilityEvent;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -112,7 +113,19 @@ public class ViewPager2 extends ViewGroup {
     }
 
     private void initialize(Context context, AttributeSet attrs) {
-        mRecyclerView = new RecyclerView(context);
+        mRecyclerView = new RecyclerView(context) {
+            @Override
+            public CharSequence getAccessibilityClassName() {
+                return "androidx.viewpager.widget.ViewPager";
+            }
+
+            @Override
+            public void onInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
+                super.onInitializeAccessibilityEvent(event);
+                event.setFromIndex(mCurrentItem);
+                event.setToIndex(mCurrentItem);
+            }
+        };
         mRecyclerView.setId(ViewCompat.generateViewId());
 
         mLayoutManager = new LinearLayoutManager(context);
