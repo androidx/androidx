@@ -41,6 +41,7 @@ public class EventInfo {
             ROW_TYPE_TOGGLE,
             ROW_TYPE_SLIDER,
             ROW_TYPE_PROGRESS,
+            ROW_TYPE_SELECTION,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SliceRowType {}
@@ -73,6 +74,10 @@ public class EventInfo {
      * Indicates the row represents a progress indicator.
      */
     public static final int ROW_TYPE_PROGRESS = 5;
+    /**
+     * Indicates the row represents a selection (drop-down list).
+     */
+    public static final int ROW_TYPE_SELECTION = 6;
 
     /**
      * @hide
@@ -80,7 +85,7 @@ public class EventInfo {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
             ACTION_TYPE_TOGGLE, ACTION_TYPE_BUTTON, ACTION_TYPE_SLIDER, ACTION_TYPE_CONTENT,
-            ACTION_TYPE_SEE_MORE
+            ACTION_TYPE_SEE_MORE, ACTION_TYPE_SELECTION,
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface SliceActionType{}
@@ -108,6 +113,10 @@ public class EventInfo {
      * Indicates the event was a tap on a see more button.
      */
     public static final int ACTION_TYPE_SEE_MORE = 4;
+    /**
+     * Indicates the event was a selection from a selection row.
+     */
+    public static final int ACTION_TYPE_SELECTION = 5;
 
     /**
      * @hide
@@ -276,6 +285,8 @@ public class EventInfo {
                 return "CONTENT";
             case ACTION_TYPE_SEE_MORE:
                 return "SEE MORE";
+            case ACTION_TYPE_SELECTION:
+                return "SELECTION";
             default:
                 return "unknown action: " + action;
         }
@@ -300,6 +311,8 @@ public class EventInfo {
                 return "SLIDER";
             case ROW_TYPE_PROGRESS:
                 return "PROGRESS";
+            case ROW_TYPE_SELECTION:
+                return "SELECTION";
             default:
                 return "unknown row type: " + type;
         }
