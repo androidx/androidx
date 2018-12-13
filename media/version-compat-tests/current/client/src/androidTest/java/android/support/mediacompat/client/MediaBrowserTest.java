@@ -79,6 +79,7 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 28)
+@FlakyTest(bugId = 120942333)
 public class MediaBrowserTest {
 
     private static final String TAG = "MediaBrowserTest";
