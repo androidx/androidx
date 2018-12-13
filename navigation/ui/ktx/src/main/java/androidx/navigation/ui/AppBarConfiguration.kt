@@ -34,13 +34,17 @@ import androidx.navigation.NavGraph
  * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
  *                     the Navigation button will show a drawer symbol when it is not being shown
  *                     as an Up button.
+ * @param fallbackOnNavigateUpListener Lambda that will be invoked if
+ * [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName") /* Acts like a constructor */
 inline fun AppBarConfiguration(
     navGraph: NavGraph,
-    drawerLayout: DrawerLayout? = null
+    drawerLayout: DrawerLayout? = null,
+    noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
 ) = AppBarConfiguration.Builder(navGraph)
     .setDrawerLayout(drawerLayout)
+    .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()
 
 /**
@@ -55,13 +59,17 @@ inline fun AppBarConfiguration(
  * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
  *                     the Navigation button will show a drawer symbol when it is not being shown
  *                     as an Up button.
+ * @param fallbackOnNavigateUpListener Lambda that will be invoked if
+ * [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName") /* Acts like a constructor */
 inline fun AppBarConfiguration(
     topLevelMenu: Menu,
-    drawerLayout: DrawerLayout? = null
+    drawerLayout: DrawerLayout? = null,
+    noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
 ) = AppBarConfiguration.Builder(topLevelMenu)
     .setDrawerLayout(drawerLayout)
+    .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()
 
 /**
@@ -76,11 +84,15 @@ inline fun AppBarConfiguration(
  * @param drawerLayout The DrawerLayout that should be toggled from the Navigation button. The
  *                     the Navigation button will show a drawer symbol when it is not being shown
  *                     as an Up button.
+ * @param fallbackOnNavigateUpListener Lambda that will be invoked if
+ * [androidx.navigation.NavController.navigateUp] returns `false`
  */
 @Suppress("FunctionName") /* Acts like a constructor */
 inline fun AppBarConfiguration(
     topLevelDestinationIds: Set<Int>,
-    drawerLayout: DrawerLayout? = null
+    drawerLayout: DrawerLayout? = null,
+    noinline fallbackOnNavigateUpListener: () -> Boolean = { false }
 ) = AppBarConfiguration.Builder(topLevelDestinationIds)
     .setDrawerLayout(drawerLayout)
+    .setFallbackOnNavigateUpListener(fallbackOnNavigateUpListener)
     .build()
