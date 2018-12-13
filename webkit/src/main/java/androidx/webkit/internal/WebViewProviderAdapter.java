@@ -91,7 +91,7 @@ public class WebViewProviderAdapter {
 
     /**
      */
-    public WebViewRenderer getWebViewRenderer() throws Exception {
+    public WebViewRenderer getWebViewRenderer() {
         return WebViewRendererImpl.forInvocationHandler(mImpl.getWebViewRenderer());
     }
 }
