@@ -645,7 +645,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                         + this + " would create a target cycle");
             }
         }
-        if (fragment != null && fragment.mFragmentManager != null) {
+        if (fragment == null) {
+            mTargetWho = null;
+            mTarget = null;
+        } else if (fragment.mFragmentManager != null) {
             // Just save the reference to the Fragment
             mTargetWho = fragment.mWho;
         } else {

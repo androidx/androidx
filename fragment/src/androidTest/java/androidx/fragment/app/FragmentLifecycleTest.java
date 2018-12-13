@@ -1121,6 +1121,46 @@ public class FragmentLifecycleTest {
         shutdownFragmentController(fc2, viewModelStore);
     }
 
+    @Test
+    @UiThreadTest
+    public void targetFragmentClearedWhenSetToNull() {
+        ViewModelStore viewModelStore = new ViewModelStore();
+        final FragmentController fc = startupFragmentController(null, viewModelStore);
+
+        final FragmentManager fm = fc.getSupportFragmentManager();
+
+        final Fragment target = new TargetFragment();
+        final Fragment referrer = new ReferrerFragment();
+        referrer.setTargetFragment(target, 0);
+
+        assertWithMessage("Target Fragment should be accessible before being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        fm.beginTransaction().add(target, "target").add(referrer, "referrer").commitNow();
+
+        assertWithMessage("Target Fragment should be accessible after being added")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
+
+        referrer.setTargetFragment(null, 0);
+
+        assertWithMessage("Target Fragment should cleared after setTargetFragment with null")
+                .that(referrer.getTargetFragment())
+                .isNull();
+
+        fm.beginTransaction()
+                .remove(referrer)
+                .commitNow();
+
+        assertWithMessage("Target Fragment should still be cleared after being removed")
+                .that(referrer.getTargetFragment())
+                .isNull();
+
+        shutdownFragmentController(fc, viewModelStore);
+    }
+
+
     /**
      * Test the availability of getTargetFragment() when the target fragment is
      * not retained and the referrer fragment is not retained.
