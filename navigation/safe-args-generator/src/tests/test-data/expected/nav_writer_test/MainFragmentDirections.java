@@ -23,6 +23,8 @@ import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
+import java.lang.SuppressWarnings;
+import java.util.HashMap;
 
 public class MainFragmentDirections {
     @NonNull
@@ -36,21 +38,17 @@ public class MainFragmentDirections {
     }
 
     public static class Previous implements NavDirections {
-        @NonNull
-        private String arg1;
-
-        @NonNull
-        private String arg2;
+        private final HashMap arguments = new HashMap();
 
         public Previous(@NonNull String arg1, @NonNull String arg2) {
-            this.arg1 = arg1;
-            if (this.arg1 == null) {
+            if (arg1 == null) {
                 throw new IllegalArgumentException("Argument \"arg1\" is marked as non-null but was passed a null value.");
             }
-            this.arg2 = arg2;
-            if (this.arg2 == null) {
+            this.arguments.put("arg1", arg1);
+            if (arg2 == null) {
                 throw new IllegalArgumentException("Argument \"arg2\" is marked as non-null but was passed a null value.");
             }
+            this.arguments.put("arg2", arg2);
         }
 
         @NonNull
@@ -58,7 +56,7 @@ public class MainFragmentDirections {
             if (arg1 == null) {
                 throw new IllegalArgumentException("Argument \"arg1\" is marked as non-null but was passed a null value.");
             }
-            this.arg1 = arg1;
+            this.arguments.put("arg1", arg1);
             return this;
         }
 
@@ -67,22 +65,41 @@ public class MainFragmentDirections {
             if (arg2 == null) {
                 throw new IllegalArgumentException("Argument \"arg2\" is marked as non-null but was passed a null value.");
             }
-            this.arg2 = arg2;
+            this.arguments.put("arg2", arg2);
             return this;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         @NonNull
         public Bundle getArguments() {
-            Bundle __outBundle = new Bundle();
-            __outBundle.putString("arg1", this.arg1);
-            __outBundle.putString("arg2", this.arg2);
-            return __outBundle;
+            Bundle __result = new Bundle();
+            if (arguments.containsKey("arg1")) {
+                String arg1 = (String) arguments.get("arg1");
+                __result.putString("arg1", arg1);
+            }
+            if (arguments.containsKey("arg2")) {
+                String arg2 = (String) arguments.get("arg2");
+                __result.putString("arg2", arg2);
+            }
+            return __result;
         }
 
         @Override
         public int getActionId() {
             return a.b.R.id.previous;
+        }
+
+        @SuppressWarnings("unchecked")
+        @NonNull
+        public String getArg1() {
+            return (String) arguments.get("arg1");
+        }
+
+        @SuppressWarnings("unchecked")
+        @NonNull
+        public String getArg2() {
+            return (String) arguments.get("arg2");
         }
 
         @Override
@@ -94,10 +111,16 @@ public class MainFragmentDirections {
                 return false;
             }
             Previous that = (Previous) object;
-            if (arg1 != null ? !arg1.equals(that.arg1) : that.arg1 != null) {
+            if (arguments.containsKey("arg1") != that.arguments.containsKey("arg1")) {
                 return false;
             }
-            if (arg2 != null ? !arg2.equals(that.arg2) : that.arg2 != null) {
+            if (getArg1() != null ? !getArg1().equals(that.getArg1()) : that.getArg1() != null) {
+                return false;
+            }
+            if (arguments.containsKey("arg2") != that.arguments.containsKey("arg2")) {
+                return false;
+            }
+            if (getArg2() != null ? !getArg2().equals(that.getArg2()) : that.getArg2() != null) {
                 return false;
             }
             if (getActionId() != that.getActionId()) {
@@ -109,8 +132,8 @@ public class MainFragmentDirections {
         @Override
         public int hashCode() {
             int result = super.hashCode();
-            result = 31 * result + (arg1 != null ? arg1.hashCode() : 0);
-            result = 31 * result + (arg2 != null ? arg2.hashCode() : 0);
+            result = 31 * result + (getArg1() != null ? getArg1().hashCode() : 0);
+            result = 31 * result + (getArg2() != null ? getArg2().hashCode() : 0);
             result = 31 * result + getActionId();
             return result;
         }
@@ -118,24 +141,20 @@ public class MainFragmentDirections {
         @Override
         public String toString() {
             return "Previous(actionId=" + getActionId() + "){"
-                    + "arg1=" + arg1
-                    + ", arg2=" + arg2
+                    + "arg1=" + getArg1()
+                    + ", arg2=" + getArg2()
                     + "}";
         }
     }
 
     public static class Next implements NavDirections {
-        @NonNull
-        private String main;
-
-        @NonNull
-        private String optional = "bla";
+        private final HashMap arguments = new HashMap();
 
         public Next(@NonNull String main) {
-            this.main = main;
-            if (this.main == null) {
+            if (main == null) {
                 throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
             }
+            this.arguments.put("main", main);
         }
 
         @NonNull
@@ -143,7 +162,7 @@ public class MainFragmentDirections {
             if (main == null) {
                 throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
             }
-            this.main = main;
+            this.arguments.put("main", main);
             return this;
         }
 
@@ -152,22 +171,41 @@ public class MainFragmentDirections {
             if (optional == null) {
                 throw new IllegalArgumentException("Argument \"optional\" is marked as non-null but was passed a null value.");
             }
-            this.optional = optional;
+            this.arguments.put("optional", optional);
             return this;
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         @NonNull
         public Bundle getArguments() {
-            Bundle __outBundle = new Bundle();
-            __outBundle.putString("main", this.main);
-            __outBundle.putString("optional", this.optional);
-            return __outBundle;
+            Bundle __result = new Bundle();
+            if (arguments.containsKey("main")) {
+                String main = (String) arguments.get("main");
+                __result.putString("main", main);
+            }
+            if (arguments.containsKey("optional")) {
+                String optional = (String) arguments.get("optional");
+                __result.putString("optional", optional);
+            }
+            return __result;
         }
 
         @Override
         public int getActionId() {
             return a.b.R.id.next;
+        }
+
+        @SuppressWarnings("unchecked")
+        @NonNull
+        public String getMain() {
+            return (String) arguments.get("main");
+        }
+
+        @SuppressWarnings("unchecked")
+        @NonNull
+        public String getOptional() {
+            return (String) arguments.get("optional");
         }
 
         @Override
@@ -179,10 +217,16 @@ public class MainFragmentDirections {
                 return false;
             }
             Next that = (Next) object;
-            if (main != null ? !main.equals(that.main) : that.main != null) {
+            if (arguments.containsKey("main") != that.arguments.containsKey("main")) {
                 return false;
             }
-            if (optional != null ? !optional.equals(that.optional) : that.optional != null) {
+            if (getMain() != null ? !getMain().equals(that.getMain()) : that.getMain() != null) {
+                return false;
+            }
+            if (arguments.containsKey("optional") != that.arguments.containsKey("optional")) {
+                return false;
+            }
+            if (getOptional() != null ? !getOptional().equals(that.getOptional()) : that.getOptional() != null) {
                 return false;
             }
             if (getActionId() != that.getActionId()) {
@@ -194,8 +238,8 @@ public class MainFragmentDirections {
         @Override
         public int hashCode() {
             int result = super.hashCode();
-            result = 31 * result + (main != null ? main.hashCode() : 0);
-            result = 31 * result + (optional != null ? optional.hashCode() : 0);
+            result = 31 * result + (getMain() != null ? getMain().hashCode() : 0);
+            result = 31 * result + (getOptional() != null ? getOptional().hashCode() : 0);
             result = 31 * result + getActionId();
             return result;
         }
@@ -203,8 +247,8 @@ public class MainFragmentDirections {
         @Override
         public String toString() {
             return "Next(actionId=" + getActionId() + "){"
-                    + "main=" + main
-                    + ", optional=" + optional
+                    + "main=" + getMain()
+                    + ", optional=" + getOptional()
                     + "}";
         }
     }

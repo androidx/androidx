@@ -182,7 +182,6 @@ object ReferenceType : NavType() {
     // it is internally the same as INT, but we don't want to allow to
     // assignment between int and reference args
     override fun typeName(): TypeName = TypeName.INT
-
     override fun bundlePutMethod() = "putInt"
     override fun bundleGetMethod() = "getInt"
     override fun toString() = "reference"
@@ -193,7 +192,6 @@ object ReferenceArrayType : NavType() {
     // it is internally the same as INT, but we don't want to allow to
     // assignment between int and reference args
     override fun typeName(): TypeName = ArrayTypeName.of(TypeName.INT)
-
     override fun bundlePutMethod() = "putIntArray"
     override fun bundleGetMethod() = "getIntArray"
     override fun toString() = "reference[]"
@@ -270,6 +268,7 @@ data class ObjectType(private val typeName: TypeName) : NavType() {
 }
 
 data class ObjectArrayType(private val typeName: TypeName) : NavType() {
+
     override fun typeName(): TypeName = ArrayTypeName.of(typeName)
     override fun bundlePutMethod() = "putParcelableArray"
     override fun bundleGetMethod() = "getParcelableArray"
