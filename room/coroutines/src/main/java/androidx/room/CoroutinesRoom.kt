@@ -32,6 +32,9 @@ class CoroutinesRoom {
     companion object {
         @JvmStatic
         suspend fun <R> execute(db: RoomDatabase, callable: Callable<R>): R {
+            if (db.isOpen && db.inTransaction()) {
+                return callable.call()
+            }
             return withContext(db.queryExecutor.asCoroutineDispatcher()) {
                 callable.call()
             }
