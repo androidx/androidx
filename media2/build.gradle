@@ -33,6 +33,9 @@ android {
         // remove when b/120615476 is fixed.
         disable("BanTargetApiAnnotation")
     }
+    defaultConfig {
+        minSdkVersion 19
+    }
 }
 
 supportLibrary {
