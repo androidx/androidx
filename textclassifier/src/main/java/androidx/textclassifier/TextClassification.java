@@ -17,7 +17,6 @@
 package androidx.textclassifier;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.app.RemoteAction;
 import android.content.Context;
@@ -260,10 +259,8 @@ public final class TextClassification {
      * Converts a given {@link TextClassification} object to a {@link RemoteActionCompat} object.
      * It is assumed that the intent and the label in the textclassification object are not null.
      */
-    @TargetApi(26)
+    @RequiresApi(26)
     @SuppressWarnings("deprecation") //To support O
-    // Remove BanTargetApiAnnotation suppression once b/120625134 is addressed.
-    @SuppressLint("BanTargetApiAnnotation")
     @NonNull
     private static RemoteActionCompat createRemoteActionCompat(
             @NonNull Context context,
