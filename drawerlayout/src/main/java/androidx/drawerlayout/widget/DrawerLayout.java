@@ -1023,6 +1023,8 @@ public class DrawerLayout extends ViewGroup {
     }
 
     @SuppressLint("WrongConstant")
+    // Remove deprecation suppression once b/120984242 is resolved.
+    @SuppressWarnings("deprecation")
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
@@ -1309,6 +1311,8 @@ public class DrawerLayout extends ViewGroup {
         }
     }
 
+    // Remove deprecation suppression once b/120984242 is resolved.
+    @SuppressWarnings("deprecation")
     private static boolean hasOpaqueBackground(View v) {
         final Drawable bg = v.getBackground();
         if (bg != null) {

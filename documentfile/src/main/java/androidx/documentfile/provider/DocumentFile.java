@@ -16,7 +16,7 @@
 
 package androidx.documentfile.provider;
 
-import android.content.ContentResolver;
+import android.content.ContentInterface;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -164,7 +164,7 @@ public abstract class DocumentFile {
      * @return file representing newly created document, or null if failed
      * @throws UnsupportedOperationException when working with a single document
      *             created from {@link #fromSingleUri(Context, Uri)}.
-     * @see android.provider.DocumentsContract#createDocument(ContentResolver,
+     * @see android.provider.DocumentsContract#createDocument(ContentInterface,
      *      Uri, String, String)
      */
     @Nullable
@@ -177,7 +177,7 @@ public abstract class DocumentFile {
      * @return file representing newly created directory, or null if failed
      * @throws UnsupportedOperationException when working with a single document
      *             created from {@link #fromSingleUri(Context, Uri)}.
-     * @see android.provider.DocumentsContract#createDocument(ContentResolver,
+     * @see android.provider.DocumentsContract#createDocument(ContentInterface,
      *      Uri, String, String)
      */
     @Nullable
@@ -300,7 +300,7 @@ public abstract class DocumentFile {
      * failure. Callers must check the return value.
      *
      * @return {@code true} if this file was deleted, {@code false} otherwise.
-     * @see android.provider.DocumentsContract#deleteDocument(ContentResolver,
+     * @see android.provider.DocumentsContract#deleteDocument(ContentInterface,
      *      Uri)
      */
     public abstract boolean delete();
@@ -360,7 +360,7 @@ public abstract class DocumentFile {
      * @return true on success.
      * @throws UnsupportedOperationException when working with a single document
      *             created from {@link #fromSingleUri(Context, Uri)}.
-     * @see android.provider.DocumentsContract#renameDocument(ContentResolver,
+     * @see android.provider.DocumentsContract#renameDocument(ContentInterface,
      *      Uri, String)
      */
     public abstract boolean renameTo(@NonNull String displayName);
