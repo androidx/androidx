@@ -33,7 +33,6 @@ class IsEqualBitmap(
         if (item == bitmap) {
             return true
         }
-        if (item == null || bitmap == null) return false
         return bitmap.sameAs(item)
     }
 

@@ -20,29 +20,31 @@ import androidx.ui.lerpInt
 import kotlin.math.roundToInt
 
 // The thickness of the glyphs used to draw the text
-class FontWeight private constructor(val index: Int) {
+// TODO(Migration/siyamed): Check if index can be removed or converted into a function since the
+// same thing can be calculated using weight
+class FontWeight private constructor(internal val index: Int, internal val weight: Int) {
 
     // TODO(Migration/siyamed): This is weird since it should actually be possible to create a font
     // weight that is not one of the items here. This decision changes the lerp behavior.
     companion object {
         // Thin, the least thick
-        val w100 = FontWeight(0)
+        val w100 = FontWeight(0, 100)
         // Extra-light
-        val w200 = FontWeight(1)
+        val w200 = FontWeight(1, 200)
         // Light
-        val w300 = FontWeight(2)
+        val w300 = FontWeight(2, 300)
         // Normal / regular / plain
-        val w400 = FontWeight(3)
+        val w400 = FontWeight(3, 400)
         // Medium
-        val w500 = FontWeight(4)
+        val w500 = FontWeight(4, 500)
         // Semi-bold
-        val w600 = FontWeight(5)
+        val w600 = FontWeight(5, 600)
         // Bold
-        val w700 = FontWeight(6)
+        val w700 = FontWeight(6, 700)
         // Extra-bold
-        val w800 = FontWeight(7)
+        val w800 = FontWeight(7, 800)
         // Black, the most thick
-        val w900 = FontWeight(8)
+        val w900 = FontWeight(8, 900)
         // The default font weight.
         val normal = w400
         // A commonly used font weight that is heavier than normal.
