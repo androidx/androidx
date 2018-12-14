@@ -16,7 +16,7 @@
 #
 
 
-import datetime, os, shutil, subprocess, sys
+import datetime, filecmp, os, shutil, subprocess, sys
 from collections import OrderedDict
 
 def usage():
@@ -97,7 +97,9 @@ class FileBacked_FileContent(FileContent):
   def equals(self, other):
     if not isinstance(other, FileBacked_FileContent):
       return False
-    return self.referencePath == other.referencePath
+    if self.referencePath == other.referencePath:
+      return True
+    return filecmp.cmp(self.referencePath, other.referencePath)
 
   def __str__(self):
     return self.referencePath
@@ -283,6 +285,7 @@ class DiffRunner(object):
     # minimal description of only the files that are supposed to need to be reset after each test
     self.resetTo_state = self.originalPassingState.expandedWithEmptyEntriesFor(self.originalFailingState).withoutDuplicatesFrom(self.originalFailingState)
     self.originalNumDifferences = self.resetTo_state.size()
+    print("Processing " + str(self.originalNumDifferences) + " file differences")
     # state we're trying to reach
     self.targetState = self.resetTo_state.withConflictsFrom(self.originalFailingState.expandedWithEmptyEntriesFor(self.resetTo_state))
     self.windowSize = self.resetTo_state.size()
@@ -369,18 +372,19 @@ class DiffRunner(object):
 
     print("double-checking results")
     fileIo.removePath(self.workPath)
+    wasSuccessful = True
     if not self.test(filesStateFromTree(self.bestState_path)):
       message = "Error: expected best state at " + self.bestState_path + " did not pass the second time. Could the test be non-deterministic?"
       if self.assumeNoSideEffects:
         message += " (it may help to remove the --assume-no-side-effects flag)"
       print(message)
-      return False
+      wasSuccessful = False
 
     print("")
     print("Done trying to transform the contents of passing path:\n " + self.originalPassingPath + "\ninto the contents of failing path:\n " + self.originalFailingPath)
     print("Of " + str(self.originalNumDifferences) + " differences, could not accept: " + str(self.targetState))
     print("The final accepted state can be seen at " + self.bestState_path)
-    return True
+    return wasSuccessful
 
 def main(args):
   assumeNoSideEffects = False
