@@ -79,4 +79,20 @@ class FontFamilyTest {
 
         assertThat(fontFamily).isNotEqualTo(otherFontFamily)
     }
+
+    @Test(expected = AssertionError::class)
+    fun `cannot add two fonts that have the same FontWeight and FontStyle`() {
+        FontFamily(
+            Font(
+                name = "fontName1",
+                weight = FontWeight.w900,
+                style = FontStyle.italic
+            ),
+            Font(
+                name = "fontName2",
+                weight = FontWeight.w900,
+                style = FontStyle.italic
+                )
+        )
+    }
 }
