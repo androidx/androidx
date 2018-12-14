@@ -554,6 +554,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     }
 
     @Override
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<SessionResult> setRating(@NonNull String mediaId,
             @NonNull Rating rating) {
         synchronized (mLock) {
@@ -929,6 +930,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         sendCommand(command, null, receiver);
     }
 
+    @SuppressLint("RestrictedApi")
     private void sendCommand(String command, Bundle args, ResultReceiver receiver) {
         if (args == null) {
             args = new Bundle();

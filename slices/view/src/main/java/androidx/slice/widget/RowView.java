@@ -39,6 +39,7 @@ import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
@@ -360,6 +361,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         populateViews(isUpdate);
     }
 
+    @SuppressLint("RestrictedApi")
     private void populateViews(boolean isUpdate) {
         boolean skipSliderUpdate = isUpdate && mIsRangeSliding;
         if (!skipSliderUpdate) {
@@ -727,6 +729,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
      * Adds simple items to a container. Simple items include actions with icons, images, or
      * timestamps.
      */
+    @SuppressLint("RestrictedApi")
     private boolean addItem(SliceItem sliceItem, int color, boolean isStart) {
         IconCompat icon = null;
         int imageMode = 0;
