@@ -49,12 +49,12 @@ android {
 }
 
 supportLibrary {
-    name = "Androidx Media Widget library"
+    name = "AndroidX Media2 Widget library"
     publish = true
-    mavenVersion = LibraryVersions.MEDIA_WIDGET
-    mavenGroup = LibraryGroups.MEDIA
+    mavenVersion = LibraryVersions.MEDIA2_WIDGET
+    mavenGroup = LibraryGroups.MEDIA2
     inceptionYear = "2018"
-    description = "Androidx Media Widget"
+    description = "AndroidX Media2 Widget"
     failOnUncheckedWarnings = false
     failOnDeprecationWarnings = false
 }
