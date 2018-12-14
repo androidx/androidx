@@ -46,7 +46,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Schedulers {
 
-    private static final String TAG = "Schedulers";
+    private static final String TAG = Logger.tagWithPrefix("Schedulers");
 
     /**
      * Schedules {@link WorkSpec}s while honoring the {@link Scheduler#MAX_SCHEDULER_LIMIT}.

@@ -42,7 +42,7 @@ import java.util.List;
 
 public class WorkConstraintsTracker implements ConstraintController.OnConstraintUpdatedCallback {
 
-    private static final String TAG = "WorkConstraintsTracker";
+    private static final String TAG = Logger.tagWithPrefix("WorkConstraintsTracker");
 
     @Nullable private final WorkConstraintsCallback mCallback;
     private final ConstraintController[] mConstraintControllers;

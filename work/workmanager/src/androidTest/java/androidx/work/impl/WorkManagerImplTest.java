@@ -77,6 +77,7 @@ import androidx.work.Constraints;
 import androidx.work.ContentUriTriggers;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.TestLifecycleOwner;
@@ -118,7 +119,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 public class WorkManagerImplTest {
 
-    private static final String TAG = "WorkManagerImplTest";
+    private static final String TAG = Logger.tagWithPrefix("WorkManagerImplTest");
 
     private static final long SLEEP_DURATION_SMALL_MILLIS = 500L;
 

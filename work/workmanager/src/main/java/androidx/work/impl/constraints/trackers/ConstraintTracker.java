@@ -35,7 +35,7 @@ import java.util.Set;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class ConstraintTracker<T> {
 
-    private static final String TAG = "ConstraintTracker";
+    private static final String TAG = Logger.tagWithPrefix("ConstraintTracker");
 
     protected final Context mAppContext;
     private final Object mLock = new Object();

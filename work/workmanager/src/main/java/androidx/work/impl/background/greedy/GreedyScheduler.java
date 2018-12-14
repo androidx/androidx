@@ -45,7 +45,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, ExecutionListener {
 
-    private static final String TAG = "GreedyScheduler";
+    private static final String TAG = Logger.tagWithPrefix("GreedyScheduler");
 
     private WorkManagerImpl mWorkManagerImpl;
     private WorkConstraintsTracker mWorkConstraintsTracker;
