@@ -20,7 +20,7 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":media-widget"))
+    implementation(project(":media2-widget"))
     implementation(project(":core"))
 }
 
