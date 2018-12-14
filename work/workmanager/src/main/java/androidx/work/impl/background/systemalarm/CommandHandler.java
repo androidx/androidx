@@ -43,7 +43,7 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CommandHandler implements ExecutionListener {
 
-    private static final String TAG = "CommandHandler";
+    private static final String TAG = Logger.tagWithPrefix("CommandHandler");
 
     // actions
     static final String ACTION_SCHEDULE_WORK = "ACTION_SCHEDULE_WORK";

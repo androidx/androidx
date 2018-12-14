@@ -66,7 +66,7 @@ import java.util.Set;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class EnqueueRunnable implements Runnable {
 
-    private static final String TAG = "EnqueueRunnable";
+    private static final String TAG = Logger.tagWithPrefix("EnqueueRunnable");
 
     private final WorkContinuationImpl mWorkContinuation;
     private final OperationImpl mOperation;

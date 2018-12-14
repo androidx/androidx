@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ForceStopRunnable implements Runnable {
 
-    private static final String TAG = "ForceStopRunnable";
+    private static final String TAG = Logger.tagWithPrefix("ForceStopRunnable");
 
     @VisibleForTesting
     static final String ACTION_FORCE_STOP_RESCHEDULE = "ACTION_FORCE_STOP_RESCHEDULE";
@@ -145,7 +145,7 @@ public class ForceStopRunnable implements Runnable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class BroadcastReceiver extends android.content.BroadcastReceiver {
-        private static final String TAG = "ForceStopRunnable$Rcvr";
+        private static final String TAG = Logger.tagWithPrefix("ForceStopRunnable$Rcvr");
 
         @Override
         public void onReceive(Context context, Intent intent) {

@@ -41,7 +41,7 @@ import androidx.work.impl.utils.IdGenerator;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class Alarms {
 
-    private static final String TAG = "Alarms";
+    private static final String TAG = Logger.tagWithPrefix("Alarms");
 
     /**
      * Sets an exact alarm after cancelling any existing alarms for the given id.

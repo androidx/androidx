@@ -46,7 +46,7 @@ public class DelayMetCommandHandler implements
         ExecutionListener,
         WorkTimer.TimeLimitExceededListener {
 
-    private static final String TAG = "DelayMetCommandHandler";
+    private static final String TAG = Logger.tagWithPrefix("DelayMetCommandHandler");
 
     private final Context mContext;
     private final int mStartId;

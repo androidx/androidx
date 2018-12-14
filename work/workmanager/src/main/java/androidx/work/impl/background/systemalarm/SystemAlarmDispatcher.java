@@ -46,7 +46,9 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmDispatcher implements ExecutionListener {
 
-    private static final String TAG = "SystemAlarmDispatcher";
+    // Synthetic accessor
+    static final String TAG = Logger.tagWithPrefix("SystemAlarmDispatcher");
+
     private static final String PROCESS_COMMAND_TAG = "ProcessCommand";
     private static final String KEY_START_ID = "KEY_START_ID";
     private static final int DEFAULT_START_ID = 0;

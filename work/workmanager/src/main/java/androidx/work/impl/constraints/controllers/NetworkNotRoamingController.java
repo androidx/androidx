@@ -32,7 +32,7 @@ import androidx.work.impl.model.WorkSpec;
  */
 
 public class NetworkNotRoamingController extends ConstraintController<NetworkState> {
-    private static final String TAG = "NetworkNotRoamingCtrlr";
+    private static final String TAG = Logger.tagWithPrefix("NetworkNotRoamingCtrlr");
 
     public NetworkNotRoamingController(Context context) {
         super(Trackers.getInstance(context).getNetworkStateTracker());

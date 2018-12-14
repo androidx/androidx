@@ -32,7 +32,7 @@ import java.lang.reflect.Constructor;
 
 public abstract class WorkerFactory {
 
-    private static final String TAG = "WorkerFactory";
+    private static final String TAG = Logger.tagWithPrefix("WorkerFactory");
 
     /**
      * Override this method to implement your custom worker-creation logic.  Use

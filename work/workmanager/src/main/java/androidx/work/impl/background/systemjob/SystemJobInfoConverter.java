@@ -44,7 +44,7 @@ import androidx.work.impl.model.WorkSpec;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(api = WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 class SystemJobInfoConverter {
-    private static final String TAG = "SystemJobInfoConverter";
+    private static final String TAG = Logger.tagWithPrefix("SystemJobInfoConverter");
 
     static final String EXTRA_WORK_SPEC_ID = "EXTRA_WORK_SPEC_ID";
     static final String EXTRA_IS_PERIODIC = "EXTRA_IS_PERIODIC";

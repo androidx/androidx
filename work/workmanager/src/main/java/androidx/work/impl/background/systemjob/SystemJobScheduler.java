@@ -45,7 +45,7 @@ import java.util.List;
 @RequiresApi(WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 public class SystemJobScheduler implements Scheduler {
 
-    private static final String TAG = "SystemJobScheduler";
+    private static final String TAG = Logger.tagWithPrefix("SystemJobScheduler");
 
     private final JobScheduler mJobScheduler;
     private final WorkManagerImpl mWorkManager;

@@ -27,7 +27,7 @@ import androidx.work.Logger;
  */
 
 public class PackageManagerHelper {
-    private static final String TAG = "PackageManagerHelper";
+    private static final String TAG = Logger.tagWithPrefix("PackageManagerHelper");
 
     private PackageManagerHelper() {
     }

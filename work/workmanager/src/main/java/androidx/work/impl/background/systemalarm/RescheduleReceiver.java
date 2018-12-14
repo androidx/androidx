@@ -29,7 +29,7 @@ import androidx.work.impl.WorkManagerImpl;
  */
 public class RescheduleReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "RescheduleReceiver";
+    private static final String TAG = Logger.tagWithPrefix("RescheduleReceiver");
 
     @Override
     public void onReceive(Context context, Intent intent) {

@@ -31,7 +31,7 @@ import androidx.work.Logger;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BatteryNotLowTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
-    private static final String TAG = "BatteryNotLowTracker";
+    private static final String TAG = Logger.tagWithPrefix("BatteryNotLowTracker");
 
     /**
      * {@see https://android.googlesource.com/platform/frameworks/base/+/oreo-release/services/core/java/com/android/server/BatteryService.java#111}
