@@ -25,6 +25,7 @@ apply plugin: androidx.build.SupportKotlinLibraryPlugin
 apply plugin: 'java-gradle-plugin'
 
 ext.generatedResources = "$buildDir/generated/resources"
+ext.prebuiltsRoot = "${project.projectDir.getParentFile()}/../../../prebuilts"
 
 sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
@@ -41,15 +42,21 @@ dependencies {
 }
 
 task generateSdkResource() {
+    inputs.property("prebuiltsRoot", prebuiltsRoot)
     inputs.property("compileSdkVersion", SupportConfig.TARGET_SDK_VERSION)
     inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
+    inputs.property("minSdkVersion", SupportConfig.DEFAULT_MIN_SDK_VERSION)
+    inputs.property("navigationCommon", SAFE_ARGS_NAVIGATION_COMMON)
     outputs.dir(generatedResources)
     doLast {
         // Properties.write will have a timestamp, that invalidates the task,
         // so we don't use it and write a file manually
         new File(generatedResources, "sdk.prop").withWriter('UTF-8') { writer ->
+            writer.write("prebuiltsRepo=$prebuiltsRoot\n")
             writer.write("compileSdkVersion=$SupportConfig.TARGET_SDK_VERSION\n")
             writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
+            writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")
+            writer.write("navigationCommon=$SAFE_ARGS_NAVIGATION_COMMON\n")
         }
     }
 }

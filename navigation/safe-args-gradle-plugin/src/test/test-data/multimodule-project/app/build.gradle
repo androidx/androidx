@@ -23,7 +23,7 @@ android {
     buildToolsVersion buildTools
     compileSdkVersion compileSdk
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion minSdk
     }
 
     dynamicFeatures = [":dynamic_feature"]
@@ -44,4 +44,5 @@ android {
 dependencies {
     implementation project(':feature')
     api project(':base')
+    implementation "$navigationCommonDep"
 }

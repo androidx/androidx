@@ -56,8 +56,11 @@ class PluginTest {
     val testProjectDir = TemporaryFolder()
 
     private var buildFile: File = File("")
+    private var prebuiltsRepo = ""
     private var compileSdkVersion = ""
     private var buildToolsVersion = ""
+    private var minSdkVersion = ""
+    private var navigationCommon = ""
 
     private fun projectRoot(): File = testProjectDir.root
 
@@ -99,8 +102,11 @@ class PluginTest {
         val stream = PluginTest::class.java.classLoader.getResourceAsStream("sdk.prop")
         val properties = Properties()
         properties.load(stream)
+        prebuiltsRepo = properties.getProperty("prebuiltsRepo")
         compileSdkVersion = properties.getProperty("compileSdkVersion")
         buildToolsVersion = properties.getProperty("buildToolsVersion")
+        minSdkVersion = properties.getProperty("minSdkVersion")
+        navigationCommon = properties.getProperty("navigationCommon")
     }
 
     private fun setupSimpleBuildGradle() {
@@ -111,9 +117,22 @@ class PluginTest {
                 id('androidx.navigation.safeargs')
             }
 
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
             android {
                 compileSdkVersion $compileSdkVersion
                 buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                }
+            }
+
+            dependencies {
+                implementation "$navigationCommon"
             }
         """.trimIndent())
     }
@@ -124,6 +143,15 @@ class PluginTest {
             buildscript {
                 ext.compileSdk = $compileSdkVersion
                 ext.buildTools = "$buildToolsVersion"
+                ext.minSdk = $minSdkVersion
+                ext.navigationCommonDep = "$navigationCommon"
+            }
+
+            allprojects {
+                repositories {
+                    maven { url "$prebuiltsRepo/androidx/external" }
+                    maven { url "$prebuiltsRepo/androidx/internal" }
+                }
             }
         """.trimIndent())
     }
@@ -135,6 +163,11 @@ class PluginTest {
             plugins {
                 id('com.android.application')
                 id('androidx.navigation.safeargs')
+            }
+
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
             }
 
             android {
@@ -151,12 +184,20 @@ class PluginTest {
                     }
 
                 }
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                }
+            }
+
+            dependencies {
+                implementation "$navigationCommon"
             }
         """.trimIndent())
 
-        runGradle("generateSafeArgsNotfooDebug", "generateSafeArgsFooDebug")
-                .assertSuccessfulTask("generateSafeArgsNotfooDebug")
-                .assertSuccessfulTask("generateSafeArgsFooDebug")
+        runGradle("assembleNotfooDebug", "assembleFooDebug")
+                .assertSuccessfulTask("assembleNotfooDebug")
+                .assertSuccessfulTask("assembleFooDebug")
 
         assertGenerated("notfoo/debug/$NEXT_DIRECTIONS")
         assertNotGenerated("foo/debug/$NEXT_DIRECTIONS")
@@ -166,7 +207,7 @@ class PluginTest {
     @Test
     fun incrementalAdd() {
         setupSimpleBuildGradle()
-        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
         val nextLastMod = assertGenerated("debug/$NEXT_DIRECTIONS").lastModified()
 
         testData("incremental-test-data/add_nav.xml").copyTo(navResource("add_nav.xml"))
@@ -174,7 +215,7 @@ class PluginTest {
         // lastModified has one second precision on certain platforms and jdk versions
         // so sleep for a second
         Thread.sleep(SEC)
-        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
         assertGenerated("debug/$ADDITIONAL_DIRECTIONS")
         val newNextLastMod = assertGenerated("debug/$NEXT_DIRECTIONS").lastModified()
         assertThat(newNextLastMod, `is`(nextLastMod))
@@ -185,7 +226,7 @@ class PluginTest {
         setupSimpleBuildGradle()
         testData("incremental-test-data/add_nav.xml").copyTo(navResource("add_nav.xml"))
 
-        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
         val mainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
         val additionalLastMod = assertGenerated("debug/$ADDITIONAL_DIRECTIONS").lastModified()
         assertGenerated("debug/$NEXT_DIRECTIONS")
@@ -195,7 +236,7 @@ class PluginTest {
         // lastModified has one second precision on certain platforms and jdk versions
         // so sleep for a second
         Thread.sleep(SEC)
-        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
         val newMainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
         // main directions were regenerated
         assertThat(newMainLastMod, not(mainLastMod))
@@ -213,7 +254,7 @@ class PluginTest {
         setupSimpleBuildGradle()
         testData("incremental-test-data/add_nav.xml").copyTo(navResource("add_nav.xml"))
 
-        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
         val mainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
         assertGenerated("debug/$ADDITIONAL_DIRECTIONS")
 
@@ -223,7 +264,7 @@ class PluginTest {
         // lastModified has one second precision on certain platforms and jdk versions
         // so sleep for a second
         Thread.sleep(SEC)
-        runGradle("generateSafeArgsDebug").assertSuccessfulTask("generateSafeArgsDebug")
+        runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
         val newMainLastMod = assertGenerated("debug/$MAIN_DIRECTIONS").lastModified()
         // main directions weren't touched
         assertThat(newMainLastMod, `is`(mainLastMod))
@@ -272,11 +313,11 @@ class PluginTest {
     fun generateForFeature() {
         setupMultiModuleBuildGradle()
         runGradle(
-                ":feature:generateSafeArgsFooDebug",
-                ":feature:generateSafeArgsNotfooDebug"
+                ":feature:assembleFooDebug",
+                ":feature:assembleNotfooDebug"
         )
-                .assertSuccessfulTask("feature:generateSafeArgsNotfooDebug")
-                .assertSuccessfulTask("feature:generateSafeArgsFooDebug")
+                .assertSuccessfulTask("feature:assembleNotfooDebug")
+                .assertSuccessfulTask("feature:assembleFooDebug")
 
         assertGenerated("foo/debug/$FEATURE_DIRECTIONS", "feature/")
         assertGenerated("notfoo/debug/$FEATURE_DIRECTIONS", "feature/")
@@ -286,11 +327,11 @@ class PluginTest {
     fun generateForLibrary() {
         setupMultiModuleBuildGradle()
         runGradle(
-                ":library:generateSafeArgsFooDebug",
-                ":library:generateSafeArgsNotfooDebug"
+                ":library:assembleFooDebug",
+                ":library:assembleNotfooDebug"
         )
-                .assertSuccessfulTask("library:generateSafeArgsNotfooDebug")
-                .assertSuccessfulTask("library:generateSafeArgsFooDebug")
+                .assertSuccessfulTask("library:assembleNotfooDebug")
+                .assertSuccessfulTask("library:assembleFooDebug")
 
         assertGenerated("foo/debug/$LIBRARY_DIRECTIONS", "library/")
         assertGenerated("notfoo/debug/$LIBRARY_DIRECTIONS", "library/")
@@ -300,11 +341,11 @@ class PluginTest {
     fun generateForBaseFeature() {
         setupMultiModuleBuildGradle()
         runGradle(
-                ":base:generateSafeArgsFooDebug",
-                ":base:generateSafeArgsNotfooDebug"
+                ":base:assembleFooDebug",
+                ":base:assembleNotfooDebug"
         )
-                .assertSuccessfulTask("base:generateSafeArgsNotfooDebug")
-                .assertSuccessfulTask("base:generateSafeArgsFooDebug")
+                .assertSuccessfulTask("base:assembleNotfooDebug")
+                .assertSuccessfulTask("base:assembleFooDebug")
 
         assertGenerated("foo/debug/$MAIN_DIRECTIONS", "base/")
         assertGenerated("notfoo/debug/$MAIN_DIRECTIONS", "base/")
@@ -316,11 +357,11 @@ class PluginTest {
     fun generateForDynamicFeature() {
         setupMultiModuleBuildGradle()
         runGradle(
-                ":dynamic_feature:generateSafeArgsFooDebug",
-                ":dynamic_feature:generateSafeArgsNotfooDebug"
+                ":dynamic_feature:assembleFooDebug",
+                ":dynamic_feature:assembleNotfooDebug"
         )
-                .assertSuccessfulTask("dynamic_feature:generateSafeArgsNotfooDebug")
-                .assertSuccessfulTask("dynamic_feature:generateSafeArgsFooDebug")
+                .assertSuccessfulTask("dynamic_feature:assembleNotfooDebug")
+                .assertSuccessfulTask("dynamic_feature:assembleFooDebug")
 
         assertGenerated("notfoo/debug/$NOTFOO_DYNAMIC_DIRECTIONS", "dynamic_feature/")
         assertNotGenerated("foo/debug/$NOTFOO_DYNAMIC_DIRECTIONS", "dynamic_feature/")
