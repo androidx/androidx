@@ -278,9 +278,9 @@ attr listItemBodyTextAppearance
 attr listItemSubheaderTextAppearance
 attr listItemTitleTextAppearance
 attr navigationIcon
-attr navigationIconBackground
 attr navigationIconContainerWidth
 attr offsetScrollBar
+attr overflowIcon
 attr pagedListViewStyle
 attr pagedScrollBarViewStyle
 attr scrollBarColor
@@ -290,7 +290,11 @@ attr scrollBarGravity
 attr scrollBarTopMargin
 attr showPagedListViewDivider
 attr showScrollBarThumb
+attr subtitle
+attr subtitleTextAppearance
 attr title
+attr titleIcon
+attr titleIconSize
 attr titleTextAppearance
 attr upButtonIcon
 attr verticallyCenterListContent

@@ -40,4 +40,11 @@ limitations under the License.
         android:layout_width="wrap_content"
         android:ellipsize="end"
         android:singleLine="true"/>
+    <ImageButton
+        android:id="@+id/overflow_menu"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@drawable/car_unbounded_ripple_background"
+        android:scaleType="fitXY"
+        android:visibility="gone"/>
 </merge>

@@ -157,19 +157,26 @@ limitations under the License.
         <attr name="carMenuBarThickness" format="dimension"/>
     </declare-styleable>
 
+    <!-- Attributes for the CarToolbar. -->
     <declare-styleable name="CarToolbar">
         <!-- Drawable to use for the navigation button located at the start of the toolbar. -->
-        <attr name="navigationIcon" format="reference" />
+        <attr name="navigationIcon" format="reference"/>
         <!-- The width of space in which navigation icon will be centered. -->
-        <attr name="navigationIconContainerWidth" format="dimension" />
+        <attr name="navigationIconContainerWidth" format="dimension"/>
         <!-- Drawable to use for the toolbar title icon. -->
-        <attr name="titleIcon" format="reference" />
+        <attr name="titleIcon" format="reference"/>
         <!-- The dimension size of the title icon. -->
-        <attr name="titleIconSize" format="dimension" />
-        <attr name="title" format="string" />
-        <attr name="subtitle" format="string" />
-        <attr name="titleTextAppearance" format="reference" />
-        <attr name="subtitleTextAppearance" format="reference" />
+        <attr name="titleIconSize" format="dimension"/>
+        <!-- Primary text shown on the CarToolbar. -->
+        <attr name="title" format="string"/>
+        <!-- Secondary text shown on the CarToolbar. -->
+        <attr name="subtitle" format="string"/>
+        <!-- TextAppearance of the title. -->
+        <attr name="titleTextAppearance" format="reference"/>
+        <!-- TextAppearance of the subtitle. -->
+        <attr name="subtitleTextAppearance" format="reference"/>
+        <!-- Icon to use for the overflow menu button. -->
+        <attr name="overflowIcon" format="reference"/>
     </declare-styleable>
 
     <!-- Attributes specifically related to modifying car themes. -->
