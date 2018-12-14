@@ -16,22 +16,29 @@
 
 package androidx.room.integration.kotlintestapp.test
 
+import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 object LiveDataTestUtil {
 
     @Throws(InterruptedException::class)
-    fun <T> getValue(liveData: LiveData<T>): T {
+    fun <T> awaitValue(liveData: LiveData<T>): T {
+        val latch = CountDownLatch(1)
         val data = arrayOfNulls<Any>(1)
         val observer = object : Observer<T> {
             override fun onChanged(o: T?) {
                 data[0] = o
                 liveData.removeObserver(this)
+                latch.countDown()
             }
         }
-        liveData.observeForever(observer)
-
+        ArchTaskExecutor.getMainThreadExecutor().execute {
+            liveData.observeForever(observer)
+        }
+        latch.await(10, TimeUnit.SECONDS)
         return data[0] as T
     }
 }
