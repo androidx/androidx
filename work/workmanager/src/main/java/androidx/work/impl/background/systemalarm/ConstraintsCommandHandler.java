@@ -38,7 +38,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ConstraintsCommandHandler {
 
-    private static final String TAG = "ConstraintsCmdHandler";
+    private static final String TAG = Logger.tagWithPrefix("ConstraintsCmdHandler");
 
     private final Context mContext;
     private final int mStartId;

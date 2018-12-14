@@ -37,7 +37,7 @@ import java.util.List;
 
 public abstract class InputMerger {
 
-    private static final String TAG = "InputMerger";
+    private static final String TAG = Logger.tagWithPrefix("InputMerger");
 
     /**
      * Merges a list of {@link Data} and outputs a single Data object.

@@ -50,7 +50,7 @@ import java.util.Set;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkContinuationImpl extends WorkContinuation {
 
-    private static final String TAG = "WorkContinuationImpl";
+    private static final String TAG = Logger.tagWithPrefix("WorkContinuationImpl");
 
     private final WorkManagerImpl mWorkManagerImpl;
     private final String mName;

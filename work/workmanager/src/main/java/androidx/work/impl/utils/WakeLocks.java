@@ -35,7 +35,7 @@ import java.util.WeakHashMap;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WakeLocks {
 
-    private static final String TAG = "WakeLocks";
+    private static final String TAG = Logger.tagWithPrefix("WakeLocks");
 
     private static final WeakHashMap<PowerManager.WakeLock, String> sWakeLocks =
             new WeakHashMap<>();

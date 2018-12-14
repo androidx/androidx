@@ -33,7 +33,7 @@ import androidx.work.impl.utils.PackageManagerHelper;
  * The {@link BroadcastReceiver} responsible for updating constraint proxies.
  */
 public class ConstraintProxyUpdateReceiver extends BroadcastReceiver {
-    private static final String TAG = "ConstrntProxyUpdtRecvr";
+    private static final String TAG = Logger.tagWithPrefix("ConstrntProxyUpdtRecvr");
 
     static final String ACTION = "androidx.work.impl.background.systemalarm.UpdateProxies";
 

@@ -32,7 +32,7 @@ import androidx.work.Logger;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class BatteryChargingTracker extends BroadcastReceiverConstraintTracker<Boolean> {
 
-    private static final String TAG = "BatteryChrgTracker";
+    private static final String TAG = Logger.tagWithPrefix("BatteryChrgTracker");
 
     /**
      * Create an instance of {@link BatteryChargingTracker}.

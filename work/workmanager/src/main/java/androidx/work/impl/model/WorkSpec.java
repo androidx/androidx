@@ -53,7 +53,7 @@ import java.util.UUID;
         indices = {@Index(value = {"schedule_requested_at"})}
 )
 public class WorkSpec {
-    private static final String TAG = "WorkSpec";
+    private static final String TAG = Logger.tagWithPrefix("WorkSpec");
     public static final long SCHEDULE_NOT_REQUESTED_YET = -1;
 
     @ColumnInfo(name = "id")

@@ -16,6 +16,7 @@
 
 package androidx.work;
 
+import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 import android.util.Log;
 
@@ -31,11 +32,33 @@ public abstract class Logger {
 
     private static Logger sLogger;
 
+    // tagging
+    private static final String TAG_PREFIX = "WM-";
+    private static final int MAX_TAG_LENGTH = 23;
+    private static final int MAX_PREFIXED_TAG_LENGTH = MAX_TAG_LENGTH - TAG_PREFIX.length();
+
     /**
      * @param logger The {@link Logger} to use for all {@link WorkManager} logging.
      */
     public static void setLogger(Logger logger) {
         sLogger = logger;
+    }
+
+    /**
+     * @param tag The {@link String} tag to use when logging
+     * @return The prefixed {@link String} tag to use when logging
+     */
+    public static String tagWithPrefix(@NonNull String tag) {
+        int length = tag.length();
+        StringBuilder withPrefix = new StringBuilder(MAX_TAG_LENGTH);
+        withPrefix.append(TAG_PREFIX);
+        if (length >= MAX_PREFIXED_TAG_LENGTH) {
+            // truncate
+            withPrefix.append(tag.substring(0, MAX_PREFIXED_TAG_LENGTH));
+        } else {
+            withPrefix.append(tag);
+        }
+        return withPrefix.toString();
     }
 
     /**

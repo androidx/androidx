@@ -48,7 +48,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ConstraintTrackingWorker extends ListenableWorker implements WorkConstraintsCallback {
 
-    private static final String TAG = "ConstraintTrkngWrkr";
+    private static final String TAG = Logger.tagWithPrefix("ConstraintTrkngWrkr");
 
     /**
      * The {@code className} of the {@link Worker} to delegate to.

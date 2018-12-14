@@ -41,7 +41,7 @@ import java.util.concurrent.ExecutionException;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class Processor implements ExecutionListener {
-    private static final String TAG = "Processor";
+    private static final String TAG = Logger.tagWithPrefix("Processor");
 
     private Context mAppContext;
     private Configuration mConfiguration;

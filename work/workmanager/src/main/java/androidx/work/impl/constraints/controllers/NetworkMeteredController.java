@@ -32,7 +32,7 @@ import androidx.work.impl.model.WorkSpec;
  */
 
 public class NetworkMeteredController extends ConstraintController<NetworkState> {
-    private static final String TAG = "NetworkMeteredCtrlr";
+    private static final String TAG = Logger.tagWithPrefix("NetworkMeteredCtrlr");
 
     public NetworkMeteredController(Context context) {
         super(Trackers.getInstance(context).getNetworkStateTracker());
