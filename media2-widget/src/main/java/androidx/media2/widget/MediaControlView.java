@@ -59,7 +59,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
@@ -111,7 +110,6 @@ import java.util.concurrent.Executor;
  * 2) Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}
  *
  */
-@RequiresApi(19) // TODO correct minSdk API use incompatibilities and remove before release.
 public class MediaControlView extends BaseLayout {
     private static final String TAG = "MediaControlView";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
