@@ -31,5 +31,7 @@
                   android:theme="@style/Theme.Car.Light.NoActionBar" />
         <activity android:name="androidx.car.widget.PagedListViewTestActivity"
                   android:theme="@style/Theme.Car.Light.NoActionBar" />
+        <activity android:name="androidx.car.widget.PagedListViewNoScrollBarActivity"
+                  android:theme="@style/Theme.Car.Dark.NoActionBar" />
     </application>
 </manifest>
