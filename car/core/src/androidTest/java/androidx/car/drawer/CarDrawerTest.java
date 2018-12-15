@@ -47,8 +47,8 @@ import org.junit.runner.RunWith;
 /**
  * Unit tests for classes under {@link androidx.car.drawer}.
  *
- * <p>{@code mActivity} is a subclass of {@link CarDrawerActivity}. To set content of drawer, use
- * {@link CarDrawerController#setRootAdapter(CarDrawerAdapter)}.
+ * <p>{@code mActivity} sets up a drawer using the common car drawer components. To set content of
+ * drawer, use {@link CarDrawerTestActivity#getDrawerController()}.
  */
 @RunWith(AndroidJUnit4.class)
 @MediumTest

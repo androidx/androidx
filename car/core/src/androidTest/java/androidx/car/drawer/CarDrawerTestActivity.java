@@ -16,20 +16,85 @@
 
 package androidx.car.drawer;
 
+import android.content.Context;
+import android.content.res.Configuration;
 import android.os.Bundle;
-import android.widget.FrameLayout;
+import android.view.MenuItem;
+
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.car.test.R;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 /**
- * Test activity for {@link CarDrawerActivity}.
+ * Test activity that sets up a drawer using the common drawer components provided by the car
+ * library.
  *
- * <p>This class sets MainContent as an empty {@link FrameLayout}, and does not provide drawer
- * content. To populate drawer, use {@link CarDrawerController#setRootAdapter(CarDrawerAdapter)}
- * to set implementation of {@link CarDrawerAdapter}.
+ * <p>This class does not provide actual drawer content. To populate the drawer, use
+ * {@link #getDrawerController()} to retrieve the controller.
  */
-public final class CarDrawerTestActivity extends CarDrawerActivity {
+public final class CarDrawerTestActivity extends AppCompatActivity {
+    private CarDrawerController mDrawerController;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setMainContent(new FrameLayout(this));
+        setContentView(R.layout.car_drawer_activity);
+
+        Toolbar toolbar = findViewById(R.id.drawer_toolbar);
+        setSupportActionBar(toolbar);
+
+        DrawerLayout drawerLayout = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+                /* activity= */ this,
+                drawerLayout,
+                R.string.car_drawer_open,
+                R.string.car_drawer_close);
+
+        mDrawerController = new CarDrawerController(drawerLayout, drawerToggle);
+    }
+
+    CarDrawerController getDrawerController() {
+        return mDrawerController;
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerController.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerController.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        return mDrawerController.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * The root drawer view that will delegate clicks to the a sub-drawer.
+     */
+    private class DrawerRootAdapter extends CarDrawerAdapter {
+        private static final int NUM_OF_ITEMS = 10;
+
+        DrawerRootAdapter(Context context) {
+            super(context, /* showDisabledListOnEmpty= */ true);
+            setTitle("Drawer title");
+        }
+
+        @Override
+        protected void populateViewHolder(DrawerItemViewHolder holder, int position) {
+            holder.getTitleView().setText("Item " + position);
+        }
+
+        @Override
+        protected int getActualItemCount() {
+            return NUM_OF_ITEMS;
+        }
     }
 }
