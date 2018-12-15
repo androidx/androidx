@@ -1,5 +1,6 @@
 package androidx.ui
 
+import android.os.Handler
 import android.os.Looper
 import kotlin.math.truncate
 
@@ -97,6 +98,10 @@ fun describeEnum(enumEntry: Enum<*>): String {
 
 fun requireMainThread() {
     require(Looper.myLooper() == Looper.getMainLooper())
+}
+
+fun scheduleMicrotask(task: () -> Unit) {
+    Handler().post(task)
 }
 
 // TODO(Migration/ryanmentley): Make these better (e.g., actual classes)?  Or eliminate them?
