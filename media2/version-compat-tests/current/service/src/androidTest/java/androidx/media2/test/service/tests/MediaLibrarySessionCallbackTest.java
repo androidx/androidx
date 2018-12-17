@@ -16,7 +16,7 @@
 
 package androidx.media2.test.service.tests;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -84,7 +84,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
                         assertEquals(testParentId, parentId);
                         MediaTestUtils.assertEqualLibraryParams(testParams, params);
                         latch.countDown();
-                        return RESULT_CODE_SUCCESS;
+                        return RESULT_SUCCESS;
                     }
         };
 
@@ -114,7 +114,7 @@ public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
                             MediaSession.ControllerInfo controller, String parentId) {
                         assertEquals(testParentId, parentId);
                         latch.countDown();
-                        return RESULT_CODE_SUCCESS;
+                        return RESULT_SUCCESS;
                     }
                 };
 

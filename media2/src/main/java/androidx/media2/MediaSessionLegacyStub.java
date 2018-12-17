@@ -21,7 +21,7 @@ import static androidx.media2.MediaMetadata.METADATA_KEY_TITLE;
 import static androidx.media2.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
 import static androidx.media2.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand.COMMAND_VERSION_CURRENT;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
 import android.content.Context;
 import android.net.Uri;
@@ -546,7 +546,7 @@ class MediaSessionLegacyStub extends MediaSessionCompat.Callback {
         if (command != null) {
             int resultCode = mSessionImpl.getCallback().onCommandRequest(
                     mSessionImpl.getInstance(), controller, command);
-            if (resultCode != RESULT_CODE_SUCCESS) {
+            if (resultCode != RESULT_SUCCESS) {
                 // Don't run rejected command.
                 if (DEBUG) {
                     Log.d(TAG, "Command (" + command + ") from "

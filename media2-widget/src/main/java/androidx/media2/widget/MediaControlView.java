@@ -16,8 +16,8 @@
 
 package androidx.media2.widget;
 
-import static androidx.media2.SessionResult.RESULT_CODE_NOT_SUPPORTED;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_ERROR_NOT_SUPPORTED;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -2584,9 +2584,9 @@ public class MediaControlView extends BaseLayout {
                         break;
                     default:
                         return new SessionResult(
-                                RESULT_CODE_NOT_SUPPORTED, null);
+                                RESULT_ERROR_NOT_SUPPORTED, null);
                 }
-                return new SessionResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_SUCCESS, null);
             }
         }
     }

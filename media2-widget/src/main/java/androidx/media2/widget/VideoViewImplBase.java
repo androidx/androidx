@@ -16,8 +16,8 @@
 
 package androidx.media2.widget;
 
-import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -1104,7 +1104,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
             }
             if (isRemotePlayback()) {
                 // TODO: call mRoutePlayer.onCommand()
-                return new SessionResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_SUCCESS, null);
             }
             switch (customCommand.getCustomCommand()) {
                 case MediaControlView.COMMAND_SHOW_SUBTITLE:
@@ -1134,7 +1134,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     }
                     break;
             }
-            return new SessionResult(RESULT_CODE_SUCCESS, null);
+            return new SessionResult(RESULT_SUCCESS, null);
         }
 
         @Override
@@ -1152,7 +1152,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     synchronized (mLock) {
                         if (!mCurrentView.hasAvailableSurface() && !mCurrentItemIsMusic) {
                             Log.d(TAG, "surface is not available");
-                            return RESULT_CODE_INVALID_STATE;
+                            return RESULT_ERROR_INVALID_STATE;
                         }
                     }
                     break;
@@ -1163,7 +1163,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     mSeekWhenPrepared = 0;
                     break;
             }
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
     }
 

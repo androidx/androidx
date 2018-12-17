@@ -17,13 +17,13 @@
 package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_BAD_VALUE;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_IO_ERROR;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_PERMISSION_DENIED;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_SKIPPED;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_SUCCESS;
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_UNKNOWN_ERROR;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_BAD_VALUE;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_IO_ERROR;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_PERMISSION_DENIED;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_INFO_SKIPPED;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -442,15 +442,15 @@ public class MediaPlayer extends SessionPlayer {
 
     static {
         sResultCodeMap = new ArrayMap<>();
-        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_NO_ERROR, RESULT_CODE_SUCCESS);
-        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN, RESULT_CODE_UNKNOWN_ERROR);
+        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_NO_ERROR, RESULT_SUCCESS);
+        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_ERROR_UNKNOWN, RESULT_ERROR_UNKNOWN_ERROR);
         sResultCodeMap.put(
-                MediaPlayer2.CALL_STATUS_INVALID_OPERATION, RESULT_CODE_INVALID_STATE);
-        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_BAD_VALUE, RESULT_CODE_BAD_VALUE);
+                MediaPlayer2.CALL_STATUS_INVALID_OPERATION, RESULT_ERROR_INVALID_STATE);
+        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_BAD_VALUE, RESULT_ERROR_BAD_VALUE);
         sResultCodeMap.put(
-                MediaPlayer2.CALL_STATUS_PERMISSION_DENIED, RESULT_CODE_PERMISSION_DENIED);
-        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_ERROR_IO, RESULT_CODE_IO_ERROR);
-        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_SKIPPED, RESULT_CODE_SKIPPED);
+                MediaPlayer2.CALL_STATUS_PERMISSION_DENIED, RESULT_ERROR_PERMISSION_DENIED);
+        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_ERROR_IO, RESULT_ERROR_IO_ERROR);
+        sResultCodeMap.put(MediaPlayer2.CALL_STATUS_SKIPPED, RESULT_INFO_SKIPPED);
 
         sErrorCodeMap = new ArrayMap<>();
         sErrorCodeMap.put(MediaPlayer2.MEDIA_ERROR_UNKNOWN, PLAYER_ERROR_UNKNOWN);
@@ -484,17 +484,17 @@ public class MediaPlayer extends SessionPlayer {
 
         sPrepareDrmStatusMap = new ArrayMap<>();
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_SUCCESS,
-                DrmResult.RESULT_CODE_SUCCESS);
+                DrmResult.RESULT_SUCCESS);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_PROVISIONING_NETWORK_ERROR,
-                DrmResult.RESULT_CODE_PROVISIONING_NETWORK_ERROR);
+                DrmResult.RESULT_ERROR_PROVISIONING_NETWORK_ERROR);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_PROVISIONING_SERVER_ERROR,
-                DrmResult.RESULT_CODE_PREPARATION_ERROR);
+                DrmResult.RESULT_ERROR_PREPARATION_ERROR);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_PREPARATION_ERROR,
-                DrmResult.RESULT_CODE_PREPARATION_ERROR);
+                DrmResult.RESULT_ERROR_PREPARATION_ERROR);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_UNSUPPORTED_SCHEME,
-                DrmResult.RESULT_CODE_UNSUPPORTED_SCHEME);
+                DrmResult.RESULT_ERROR_UNSUPPORTED_SCHEME);
         sPrepareDrmStatusMap.put(MediaPlayer2.PREPARE_DRM_STATUS_RESOURCE_BUSY,
-                DrmResult.RESULT_CODE_RESOURCE_BUSY);
+                DrmResult.RESULT_ERROR_RESOURCE_BUSY);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -581,7 +581,7 @@ public class MediaPlayer extends SessionPlayer {
                 try {
                     result = future.get();
                     int resultCode = result.getResultCode();
-                    if (resultCode != RESULT_CODE_SUCCESS && resultCode != RESULT_CODE_SKIPPED) {
+                    if (resultCode != RESULT_SUCCESS && resultCode != RESULT_INFO_SKIPPED) {
                         cancelFutures();
                         set(result);
                         return;
@@ -709,7 +709,7 @@ public class MediaPlayer extends SessionPlayer {
                         addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_PLAY, future, token);
                     }
                 } else {
-                    future = createFutureForResultCode(RESULT_CODE_UNKNOWN_ERROR);
+                    future = createFutureForResultCode(RESULT_ERROR_UNKNOWN_ERROR);
                 }
                 futures.add(future);
                 return futures;
@@ -961,7 +961,7 @@ public class MediaPlayer extends SessionPlayer {
                 if (curItem != null) {
                     return setMediaItemsInternal(curItem, nextItem);
                 }
-                return createFuturesForResultCode(RESULT_CODE_SUCCESS);
+                return createFuturesForResultCode(RESULT_SUCCESS);
             }
         };
         addPendingFuture(pendingFuture);
@@ -985,7 +985,7 @@ public class MediaPlayer extends SessionPlayer {
                 Pair<MediaItem, MediaItem> updatedCurNextItem;
                 synchronized (mPlaylistLock) {
                     if (mPlaylist.contains(item)) {
-                        return createFuturesForResultCode(RESULT_CODE_BAD_VALUE, item);
+                        return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE, item);
                     }
                     int clampedIndex = clamp(index, mPlaylist.size());
                     int addedShuffleIdx = clampedIndex;
@@ -1013,7 +1013,7 @@ public class MediaPlayer extends SessionPlayer {
                 });
 
                 if (updatedCurNextItem.second == null) {
-                    return createFuturesForResultCode(RESULT_CODE_SUCCESS);
+                    return createFuturesForResultCode(RESULT_SUCCESS);
                 }
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 futures.add(setNextMediaItemInternal(updatedCurNextItem.second));
@@ -1040,7 +1040,7 @@ public class MediaPlayer extends SessionPlayer {
                 Pair<MediaItem, MediaItem> updatedCurNextItem = null;
                 synchronized (mPlaylistLock) {
                     if (index >= mPlaylist.size()) {
-                        return createFuturesForResultCode(RESULT_CODE_BAD_VALUE);
+                        return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE);
                     }
                     MediaItem item = mPlaylist.remove(index);
                     removedItemShuffleIdx = mShuffledList.indexOf(item);
@@ -1070,7 +1070,7 @@ public class MediaPlayer extends SessionPlayer {
                         futures.add(setNextMediaItemInternal(nextItem));
                     }
                 } else {
-                    futures.add(createFutureForResultCode(RESULT_CODE_SUCCESS));
+                    futures.add(createFutureForResultCode(RESULT_SUCCESS));
                 }
                 return futures;
             }
@@ -1098,7 +1098,7 @@ public class MediaPlayer extends SessionPlayer {
                 Pair<MediaItem, MediaItem> updatedCurNextItem = null;
                 synchronized (mPlaylistLock) {
                     if (index >= mPlaylist.size() || mPlaylist.contains(item)) {
-                        return createFuturesForResultCode(RESULT_CODE_BAD_VALUE, item);
+                        return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE, item);
                     }
 
                     int shuffleIdx = mShuffledList.indexOf(mPlaylist.get(index));
@@ -1127,7 +1127,7 @@ public class MediaPlayer extends SessionPlayer {
                         futures.add(setNextMediaItemInternal(nextItem));
                     }
                 } else {
-                    futures.add(createFutureForResultCode(RESULT_CODE_SUCCESS));
+                    futures.add(createFutureForResultCode(RESULT_SUCCESS));
                 }
                 return futures;
             }
@@ -1146,14 +1146,14 @@ public class MediaPlayer extends SessionPlayer {
                 MediaItem nextItem;
                 synchronized (mPlaylistLock) {
                     if (mCurrentShuffleIdx < 0) {
-                        return createFuturesForResultCode(RESULT_CODE_INVALID_STATE);
+                        return createFuturesForResultCode(RESULT_ERROR_INVALID_STATE);
                     }
                     int prevShuffleIdx = mCurrentShuffleIdx - 1;
                     if (prevShuffleIdx < 0) {
                         if (mRepeatMode == REPEAT_MODE_ALL || mRepeatMode == REPEAT_MODE_GROUP) {
                             prevShuffleIdx = mShuffledList.size() - 1;
                         } else {
-                            return createFuturesForResultCode(RESULT_CODE_INVALID_STATE);
+                            return createFuturesForResultCode(RESULT_ERROR_INVALID_STATE);
                         }
                     }
                     mCurrentShuffleIdx = prevShuffleIdx;
@@ -1178,14 +1178,14 @@ public class MediaPlayer extends SessionPlayer {
                 MediaItem nextItem;
                 synchronized (mPlaylistLock) {
                     if (mCurrentShuffleIdx < 0) {
-                        return createFuturesForResultCode(RESULT_CODE_INVALID_STATE);
+                        return createFuturesForResultCode(RESULT_ERROR_INVALID_STATE);
                     }
                     int nextShuffleIdx = mCurrentShuffleIdx + 1;
                     if (nextShuffleIdx >= mShuffledList.size()) {
                         if (mRepeatMode == REPEAT_MODE_ALL || mRepeatMode == REPEAT_MODE_GROUP) {
                             nextShuffleIdx = 0;
                         } else {
-                            return createFuturesForResultCode(RESULT_CODE_INVALID_STATE);
+                            return createFuturesForResultCode(RESULT_ERROR_INVALID_STATE);
                         }
                     }
                     mCurrentShuffleIdx = nextShuffleIdx;
@@ -1219,7 +1219,7 @@ public class MediaPlayer extends SessionPlayer {
                 MediaItem nextItem;
                 synchronized (mPlaylistLock) {
                     if (index >= mPlaylist.size()) {
-                        return createFuturesForResultCode(RESULT_CODE_BAD_VALUE);
+                        return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE);
                     }
                     mCurrentShuffleIdx = mShuffledList.indexOf(mPlaylist.get(index));
                     updateAndGetCurrentNextItemIfNeededLocked();
@@ -1250,7 +1250,7 @@ public class MediaPlayer extends SessionPlayer {
                         callback.onPlaylistMetadataChanged(MediaPlayer.this, metadata);
                     }
                 });
-                return createFuturesForResultCode(RESULT_CODE_SUCCESS);
+                return createFuturesForResultCode(RESULT_SUCCESS);
             }
         };
         addPendingFuture(pendingFuture);
@@ -1265,7 +1265,7 @@ public class MediaPlayer extends SessionPlayer {
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 if (repeatMode < SessionPlayer.REPEAT_MODE_NONE
                         || repeatMode > SessionPlayer.REPEAT_MODE_GROUP) {
-                    return createFuturesForResultCode(RESULT_CODE_BAD_VALUE);
+                    return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE);
                 }
 
                 boolean changed;
@@ -1282,7 +1282,7 @@ public class MediaPlayer extends SessionPlayer {
                         }
                     });
                 }
-                return createFuturesForResultCode(RESULT_CODE_SUCCESS);
+                return createFuturesForResultCode(RESULT_SUCCESS);
             }
         };
         addPendingFuture(pendingFuture);
@@ -1297,7 +1297,7 @@ public class MediaPlayer extends SessionPlayer {
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 if (shuffleMode < SessionPlayer.SHUFFLE_MODE_NONE
                         || shuffleMode > SessionPlayer.SHUFFLE_MODE_GROUP) {
-                    return createFuturesForResultCode(RESULT_CODE_BAD_VALUE);
+                    return createFuturesForResultCode(RESULT_ERROR_BAD_VALUE);
                 }
 
                 boolean changed;
@@ -1314,7 +1314,7 @@ public class MediaPlayer extends SessionPlayer {
                         }
                     });
                 }
-                return createFuturesForResultCode(RESULT_CODE_SUCCESS);
+                return createFuturesForResultCode(RESULT_SUCCESS);
             }
         };
         addPendingFuture(pendingFuture);
@@ -1823,7 +1823,7 @@ public class MediaPlayer extends SessionPlayer {
     /**
      * Selects a track.
      * <p>
-     * If the player is in invalid state, {@link PlayerResult#RESULT_CODE_INVALID_STATE} will be
+     * If the player is in invalid state, {@link PlayerResult#RESULT_ERROR_INVALID_STATE} will be
      * reported with {@link PlayerResult}.
      * If a player is in <em>Playing</em> state, the selected track is presented immediately.
      * If a player is not in Playing state, it just marks the track to be played.
@@ -2436,11 +2436,11 @@ public class MediaPlayer extends SessionPlayer {
             }
         }
         if (what != MediaPlayer2.CALL_COMPLETED_PREPARE_DRM) {
-            Integer resultCode = sResultCodeMap.getOrDefault(status, RESULT_CODE_UNKNOWN_ERROR);
+            Integer resultCode = sResultCodeMap.getOrDefault(status, RESULT_ERROR_UNKNOWN_ERROR);
             expected.mFuture.set(new PlayerResult(resultCode, item));
         } else {
             Integer resultCode = sPrepareDrmStatusMap.getOrDefault(
-                    status, DrmResult.RESULT_CODE_PREPARATION_ERROR);
+                    status, DrmResult.RESULT_ERROR_PREPARATION_ERROR);
             expected.mFuture.set(new DrmResult(resultCode, item));
         }
         executePendingFutures();
@@ -2957,36 +2957,36 @@ public class MediaPlayer extends SessionPlayer {
         /**
          * The device required DRM provisioning but couldn't reach the provisioning server.
          */
-        public static final int RESULT_CODE_PROVISIONING_NETWORK_ERROR = -1001;
+        public static final int RESULT_ERROR_PROVISIONING_NETWORK_ERROR = -1001;
 
         /**
          * The device required DRM provisioning but the provisioning server denied the request.
          */
-        public static final int RESULT_CODE_PROVISIONING_SERVER_ERROR = -1002;
+        public static final int RESULT_ERROR_PROVISIONING_SERVER_ERROR = -1002;
 
         /**
          * The DRM preparation has failed.
          */
-        public static final int RESULT_CODE_PREPARATION_ERROR = -1003;
+        public static final int RESULT_ERROR_PREPARATION_ERROR = -1003;
 
         /**
          * The crypto scheme UUID that is not supported by the device.
          */
-        public static final int RESULT_CODE_UNSUPPORTED_SCHEME = -1004;
+        public static final int RESULT_ERROR_UNSUPPORTED_SCHEME = -1004;
 
         /**
          * The hardware resources are not available, due to being in use.
          */
-        public static final int RESULT_CODE_RESOURCE_BUSY = -1005;
+        public static final int RESULT_ERROR_RESOURCE_BUSY = -1005;
 
         /** @hide */
         @IntDef(flag = false, /*prefix = "PREPARE_DRM_STATUS",*/ value = {
-                RESULT_CODE_SUCCESS,
-                RESULT_CODE_PROVISIONING_NETWORK_ERROR,
-                RESULT_CODE_PROVISIONING_SERVER_ERROR,
-                RESULT_CODE_PREPARATION_ERROR,
-                RESULT_CODE_UNSUPPORTED_SCHEME,
-                RESULT_CODE_RESOURCE_BUSY,
+                RESULT_SUCCESS,
+                RESULT_ERROR_PROVISIONING_NETWORK_ERROR,
+                RESULT_ERROR_PROVISIONING_SERVER_ERROR,
+                RESULT_ERROR_PREPARATION_ERROR,
+                RESULT_ERROR_UNSUPPORTED_SCHEME,
+                RESULT_ERROR_RESOURCE_BUSY,
         })
         @Retention(RetentionPolicy.SOURCE)
         @RestrictTo(LIBRARY_GROUP)

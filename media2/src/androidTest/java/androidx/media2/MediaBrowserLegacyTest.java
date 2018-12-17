@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 import static androidx.media2.TestUtils.assertMediaItemWithId;
 import static androidx.media2.TestUtils.createLibraryParams;
 
@@ -177,7 +177,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         MediaBrowser browser = createBrowser(null);
         LibraryResult result = browser.getLibraryRoot(testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertMediaItemWithId(testMediaId, result.getMediaItem());
 
         assertEquals(testReturnedExtra.getBoolean(BrowserRoot.EXTRA_RECENT),
@@ -208,7 +208,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         MediaBrowser browser = createBrowser(null);
         LibraryResult result = browser.getItem(testMediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertItemEquals(testItem, result.getMediaItem());
     }
 
@@ -226,7 +226,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         MediaBrowser browser = createBrowser(null);
         LibraryResult result = browser.getItem(testMediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertNotEquals(RESULT_SUCCESS, result.getResultCode());
     }
 
     @Test
@@ -251,7 +251,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         ListenableFuture<LibraryResult> future = browser
                 .getChildren(testParentId, testPage, testPageSize, null);
         LibraryResult result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertItemsEquals(testPaginatedMediaItemList, result.getMediaItems());
     }
 
@@ -283,7 +283,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         MediaBrowser browser = createBrowser(null);
         LibraryResult result = browser.getChildren(testParentId, testPage, testPageSize, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertItemsEquals(testMediaItemList, result.getMediaItems());
         assertNull(result.getLibraryParams());
     }
@@ -311,7 +311,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         MediaBrowser browser = createBrowser(null);
         LibraryResult result = browser.getChildren(testParentId, testPage, testPageSize, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertItemsEquals(testMediaItemList, result.getMediaItems());
         assertNull(result.getLibraryParams());
     }
@@ -336,7 +336,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         MediaBrowser browser = createBrowser(null);
         LibraryResult result = browser.getChildren(testParentId, testPage, testPageSize, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertNotEquals(RESULT_SUCCESS, result.getResultCode());
         assertNull(result.getLibraryParams());
     }
 
@@ -383,12 +383,12 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
 
         LibraryResult result = browser.search(testQuery, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         result = browser.getSearchResult(testQuery, testPage, testPageSize, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertItemsEquals(testPaginatedSearchResult, result.getMediaItems());
     }
 
@@ -420,12 +420,12 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
 
         LibraryResult result = browser.search(testQuery, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         result = browser.getSearchResult(testQuery, testPage, testPageSize, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertNotEquals(RESULT_SUCCESS, result.getResultCode());
     }
 
     /**
@@ -476,13 +476,13 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         });
         LibraryResult result = browser.subscribe(testParentId, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertTrue(subscribeLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         MockMediaBrowserServiceCompat.getInstance().notifyChildrenChanged(testParentId);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
         result = browser.unsubscribe(testParentId).get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // Unsubscribe takes some time. Wait for some time.
         Thread.sleep(TIMEOUT_MS);

@@ -51,22 +51,22 @@ package androidx.media2 {
     method public androidx.media2.MediaItem? getMediaItem();
     method public java.util.List<androidx.media2.MediaItem>? getMediaItems();
     method public int getResultCode();
-    field public static final int RESULT_CODE_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
-    field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
-    field public static final int RESULT_CODE_CONCURRENT_STREAM_LIMIT = -104; // 0xffffff98
-    field public static final int RESULT_CODE_DISCONNECTED = -100; // 0xffffff9c
-    field public static final int RESULT_CODE_INVALID_STATE = -2; // 0xfffffffe
-    field public static final int RESULT_CODE_IO_ERROR = -5; // 0xfffffffb
-    field public static final int RESULT_CODE_NOT_AVAILABLE_IN_REGION = -106; // 0xffffff96
-    field public static final int RESULT_CODE_NOT_SUPPORTED = -6; // 0xfffffffa
-    field public static final int RESULT_CODE_PARENTAL_CONTROL_RESTRICTED = -105; // 0xffffff97
-    field public static final int RESULT_CODE_PERMISSION_DENIED = -4; // 0xfffffffc
-    field public static final int RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
-    field public static final int RESULT_CODE_SETUP_REQUIRED = -108; // 0xffffff94
-    field public static final int RESULT_CODE_SKIPPED = 1; // 0x1
-    field public static final int RESULT_CODE_SKIP_LIMIT_REACHED = -107; // 0xffffff95
-    field public static final int RESULT_CODE_SUCCESS = 0; // 0x0
-    field public static final int RESULT_CODE_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_ERROR_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
+    field public static final int RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
+    field public static final int RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT = -104; // 0xffffff98
+    field public static final int RESULT_ERROR_SESSION_DISCONNECTED = -100; // 0xffffff9c
+    field public static final int RESULT_ERROR_SESSION_NOT_AVAILABLE_IN_REGION = -106; // 0xffffff96
+    field public static final int RESULT_ERROR_SESSION_PARENTAL_CONTROL_RESTRICTED = -105; // 0xffffff97
+    field public static final int RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
+    field public static final int RESULT_ERROR_SESSION_SETUP_REQUIRED = -108; // 0xffffff94
+    field public static final int RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED = -107; // 0xffffff95
+    field public static final int RESULT_ERROR_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
+    field public static final int RESULT_SUCCESS = 0; // 0x0
   }
 
   public class MediaBrowser extends androidx.media2.MediaController {
@@ -642,14 +642,14 @@ package androidx.media2 {
     method public long getCompletionTime();
     method public androidx.media2.MediaItem? getMediaItem();
     method public int getResultCode();
-    field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
-    field public static final int RESULT_CODE_INVALID_STATE = -2; // 0xfffffffe
-    field public static final int RESULT_CODE_IO_ERROR = -5; // 0xfffffffb
-    field public static final int RESULT_CODE_NOT_SUPPORTED = -6; // 0xfffffffa
-    field public static final int RESULT_CODE_PERMISSION_DENIED = -4; // 0xfffffffc
-    field public static final int RESULT_CODE_SKIPPED = 1; // 0x1
-    field public static final int RESULT_CODE_SUCCESS = 0; // 0x0
-    field public static final int RESULT_CODE_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_ERROR_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
+    field public static final int RESULT_ERROR_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
+    field public static final int RESULT_SUCCESS = 0; // 0x0
   }
 
   public class SessionResult implements androidx.versionedparcelable.VersionedParcelable {
@@ -658,22 +658,22 @@ package androidx.media2 {
     method public android.os.Bundle? getCustomCommandResult();
     method public androidx.media2.MediaItem? getMediaItem();
     method public int getResultCode();
-    field public static final int RESULT_CODE_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
-    field public static final int RESULT_CODE_BAD_VALUE = -3; // 0xfffffffd
-    field public static final int RESULT_CODE_CONCURRENT_STREAM_LIMIT = -104; // 0xffffff98
-    field public static final int RESULT_CODE_DISCONNECTED = -100; // 0xffffff9c
-    field public static final int RESULT_CODE_INVALID_STATE = -2; // 0xfffffffe
-    field public static final int RESULT_CODE_IO_ERROR = -5; // 0xfffffffb
-    field public static final int RESULT_CODE_NOT_AVAILABLE_IN_REGION = -106; // 0xffffff96
-    field public static final int RESULT_CODE_NOT_SUPPORTED = -6; // 0xfffffffa
-    field public static final int RESULT_CODE_PARENTAL_CONTROL_RESTRICTED = -105; // 0xffffff97
-    field public static final int RESULT_CODE_PERMISSION_DENIED = -4; // 0xfffffffc
-    field public static final int RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
-    field public static final int RESULT_CODE_SETUP_REQUIRED = -108; // 0xffffff94
-    field public static final int RESULT_CODE_SKIPPED = 1; // 0x1
-    field public static final int RESULT_CODE_SKIP_LIMIT_REACHED = -107; // 0xffffff95
-    field public static final int RESULT_CODE_SUCCESS = 0; // 0x0
-    field public static final int RESULT_CODE_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RESULT_ERROR_BAD_VALUE = -3; // 0xfffffffd
+    field public static final int RESULT_ERROR_INVALID_STATE = -2; // 0xfffffffe
+    field public static final int RESULT_ERROR_IO_ERROR = -5; // 0xfffffffb
+    field public static final int RESULT_ERROR_NOT_SUPPORTED = -6; // 0xfffffffa
+    field public static final int RESULT_ERROR_PERMISSION_DENIED = -4; // 0xfffffffc
+    field public static final int RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED = -102; // 0xffffff9a
+    field public static final int RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT = -104; // 0xffffff98
+    field public static final int RESULT_ERROR_SESSION_DISCONNECTED = -100; // 0xffffff9c
+    field public static final int RESULT_ERROR_SESSION_NOT_AVAILABLE_IN_REGION = -106; // 0xffffff96
+    field public static final int RESULT_ERROR_SESSION_PARENTAL_CONTROL_RESTRICTED = -105; // 0xffffff97
+    field public static final int RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED = -103; // 0xffffff99
+    field public static final int RESULT_ERROR_SESSION_SETUP_REQUIRED = -108; // 0xffffff94
+    field public static final int RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED = -107; // 0xffffff95
+    field public static final int RESULT_ERROR_UNKNOWN_ERROR = -1; // 0xffffffff
+    field public static final int RESULT_INFO_SKIPPED = 1; // 0x1
+    field public static final int RESULT_SUCCESS = 0; // 0x0
   }
 
   public final class SessionToken implements androidx.versionedparcelable.VersionedParcelable {

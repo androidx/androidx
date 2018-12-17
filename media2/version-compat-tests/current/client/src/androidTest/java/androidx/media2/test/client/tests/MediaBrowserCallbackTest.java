@@ -16,8 +16,8 @@
 
 package androidx.media2.test.client.tests;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_BAD_VALUE;
-import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_ERROR_BAD_VALUE;
+import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.MOCK_MEDIA2_LIBRARY_SERVICE;
 import static androidx.media2.test.common.MediaBrowserConstants.CUSTOM_ACTION_ASSERT_PARAMS;
 import static androidx.media2.test.common.MediaBrowserConstants.LONG_LIST_COUNT;
@@ -151,7 +151,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         setExpectedLibraryParam(browser, params);
         LibraryResult result = browser.getLibraryRoot(params)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         MediaMetadata metadata = result.getMediaItem().getMetadata();
         assertEquals(ROOT_ID, metadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID));
         assertTrue(TestUtils.equals(ROOT_EXTRAS, result.getLibraryParams().getExtras()));
@@ -164,7 +164,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
 
         LibraryResult result = createBrowser().getItem(mediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         MediaTestUtils.assertMediaItemHasId(result.getMediaItem(), mediaId);
     }
 
@@ -175,7 +175,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
 
         LibraryResult result = createBrowser().getItem(mediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_BAD_VALUE, result.getResultCode());
+        assertEquals(RESULT_ERROR_BAD_VALUE, result.getResultCode());
         assertNull(result.getMediaItem());
     }
 
@@ -194,7 +194,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             LibraryResult result = createBrowser().getItem(mediaId)
                     .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
             // Case 1.
-            assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+            assertNotEquals(RESULT_SUCCESS, result.getResultCode());
         } catch (TimeoutException e) {
             // Case 2.
         }
@@ -215,7 +215,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
             LibraryResult result = createBrowser().getItem(mediaId)
                     .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
             // Case 1.
-            assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+            assertNotEquals(RESULT_SUCCESS, result.getResultCode());
         } catch (TimeoutException e) {
             // Case 2.
         }
@@ -234,7 +234,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
 
         LibraryResult result = browser.getChildren(parentId, page, pageSize, params)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertNull(result.getLibraryParams());
 
         MediaTestUtils.assertPaginatedListHasIds(
@@ -256,7 +256,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
 
         LibraryResult result = browser.getChildren(parentId, page, pageSize, params)
                 .get(10, TimeUnit.SECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertNull(result.getLibraryParams());
 
         List<MediaItem> list = result.getMediaItems();
@@ -274,7 +274,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         MediaBrowser browser = createBrowser();
         LibraryResult result = browser.getChildren(parentId, 1, 1, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         assertEquals(0, result.getMediaItems().size());
     }
 
@@ -286,7 +286,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         MediaBrowser browser = createBrowser();
         LibraryResult result = browser.getChildren(parentId, 1, 1, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertNotEquals(RESULT_SUCCESS, result.getResultCode());
         assertNull(result.getMediaItems());
     }
 
@@ -315,12 +315,12 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         setExpectedLibraryParam(browser, testParams);
         LibraryResult result = browser.search(query, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // Get the search result.
         result = browser.getSearchResult(query, page, pageSize, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         MediaTestUtils.assertPaginatedListHasIds(result.getMediaItems(),
                 MediaBrowserConstants.SEARCH_RESULT, page, pageSize);
     }
@@ -350,11 +350,11 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         setExpectedLibraryParam(browser, testParams);
         LibraryResult result = browser.search(query, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         result = browser.getSearchResult(query, page, pageSize, testParams)
                 .get(10, TimeUnit.SECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
         List<MediaItem> list = result.getMediaItems();
         for (int i = 0; i < list.size(); i++) {
             assertEquals(TestUtils.getMediaIdInDummyList(i), list.get(i).getMediaId());
@@ -385,7 +385,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         LibraryResult result = browser.search(query, testParams)
                 .get(MediaBrowserConstants.SEARCH_TIME_IN_MS + TIMEOUT_MS,
                         TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
     }
 
     @Test
@@ -410,7 +410,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         setExpectedLibraryParam(browser, testParams);
         LibraryResult result = browser.search(query, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
     }
 
     @Test
@@ -434,7 +434,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         LibraryResult result = createBrowser(controllerCallbackProxy)
                 .subscribe(expectedParentId, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // The MediaLibrarySession in MockMediaLibraryService is supposed to call
         // notifyChildrenChanged() in its callback onSubscribe().
@@ -462,7 +462,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         LibraryResult result = createBrowser(controllerCallbackProxy)
                 .subscribe(expectedParentId, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // The MediaLibrarySession in MockMediaLibraryService is supposed to call
         // notifyChildrenChanged(ControllerInfo) in its callback onSubscribe().
@@ -491,7 +491,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         LibraryResult result = createBrowser(controllerCallbackProxy)
                 .subscribe(subscribedMediaId, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // The MediaLibrarySession in MockMediaLibraryService is supposed to call
         // notifyChildrenChanged() in its callback onSubscribe(), but with a different media ID.
@@ -520,7 +520,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         LibraryResult result = createBrowser(controllerCallbackProxy)
                 .subscribe(subscribedMediaId, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
 
         // The MediaLibrarySession in MockMediaLibraryService is supposed to call
         // notifyChildrenChanged(ControllerInfo) in its callback onSubscribe(),
@@ -536,7 +536,7 @@ public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
         ParcelUtils.putVersionedParcelable(args, CUSTOM_ACTION_ASSERT_PARAMS, params);
         SessionResult result = browser.sendCustomCommand(command, args)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        assertEquals(SessionResult.RESULT_CODE_SUCCESS, result.getResultCode());
+        assertEquals(SessionResult.RESULT_SUCCESS, result.getResultCode());
     }
 
     public static class TestBrowserCallback extends BrowserCallback

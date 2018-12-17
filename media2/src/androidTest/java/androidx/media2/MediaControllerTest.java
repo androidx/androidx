@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -947,7 +947,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(command, customCommand.getCustomCommand());
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
-                return new SessionResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_SUCCESS, null);
             }
         };
         mSession.close();
@@ -1015,7 +1015,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
             public int onFastForward(MediaSession session, ControllerInfo controller) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -1036,7 +1036,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
             public int onRewind(MediaSession session, ControllerInfo controller) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -1064,7 +1064,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(request, query);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -1091,7 +1091,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(request, uri);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -1118,7 +1118,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(request, mediaId);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -1145,7 +1145,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(request, query);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -1172,7 +1172,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(request, uri);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -1199,7 +1199,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(request, mediaId);
                 assertTrue(TestUtils.equals(bundle, extras));
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
@@ -1227,7 +1227,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                 assertEquals(mediaId, mediaIdOut);
                 assertEquals(rating, ratingOut);
                 latch.countDown();
-                return RESULT_CODE_SUCCESS;
+                return RESULT_SUCCESS;
             }
         };
 
@@ -1387,7 +1387,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
                         if (testCommand.equals(command)) {
                             controllerLatch.countDown();
                         }
-                        return new SessionResult(RESULT_CODE_SUCCESS);
+                        return new SessionResult(RESULT_SUCCESS);
                     }
                 }
         );

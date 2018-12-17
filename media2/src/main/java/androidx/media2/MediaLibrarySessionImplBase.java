@@ -16,8 +16,8 @@
 
 package androidx.media2;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
-import static androidx.media2.LibraryResult.RESULT_CODE_UNKNOWN_ERROR;
+import static androidx.media2.LibraryResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -148,7 +148,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements MediaL
     private LibraryResult ensureNonNullResultWithValidList(LibraryResult returnedResult,
             int pageSize) {
         returnedResult = ensureNonNullResult(returnedResult);
-        if (returnedResult.getResultCode() == RESULT_CODE_SUCCESS) {
+        if (returnedResult.getResultCode() == RESULT_SUCCESS) {
             List<MediaItem> items = returnedResult.getMediaItems();
 
             if (items == null) {
@@ -161,7 +161,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements MediaL
             }
             for (MediaItem item : items) {
                 if (!isValidItem(item)) {
-                    return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+                    return new LibraryResult(RESULT_ERROR_UNKNOWN_ERROR);
                 }
             }
         }
@@ -170,9 +170,9 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements MediaL
 
     private LibraryResult ensureNonNullResultWithValidItem(LibraryResult returnedResult) {
         returnedResult = ensureNonNullResult(returnedResult);
-        if (returnedResult.getResultCode() == RESULT_CODE_SUCCESS) {
+        if (returnedResult.getResultCode() == RESULT_SUCCESS) {
             if (!isValidItem(returnedResult.getMediaItem())) {
-                return new LibraryResult(RESULT_CODE_UNKNOWN_ERROR);
+                return new LibraryResult(RESULT_ERROR_UNKNOWN_ERROR);
             }
         }
         return returnedResult;
@@ -251,7 +251,7 @@ class MediaLibrarySessionImplBase extends MediaSessionImplBase implements MediaL
         int resultCode = getCallback().onSubscribe(getInstance(), controller, parentId, params);
 
         // When error happens, remove from the subscription list.
-        if (resultCode != RESULT_CODE_SUCCESS) {
+        if (resultCode != RESULT_SUCCESS) {
             synchronized (mLock) {
                 mSubscriptions.remove(controller.getControllerCb());
             }

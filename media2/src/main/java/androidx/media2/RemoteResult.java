@@ -24,41 +24,41 @@ interface RemoteResult extends BaseResult {
     /**
      * Result code representing that the session and controller were disconnected.
      */
-    int RESULT_CODE_DISCONNECTED = -100;
+    int RESULT_ERROR_SESSION_DISCONNECTED = -100;
 
     /**
      * Result code representing that the authentication has expired.
      */
-    int RESULT_CODE_AUTHENTICATION_EXPIRED = -102;
+    int RESULT_ERROR_SESSION_AUTHENTICATION_EXPIRED = -102;
 
     /**
      * Result code representing that a premium account is required.
      */
-    int RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED = -103;
+    int RESULT_ERROR_SESSION_PREMIUM_ACCOUNT_REQUIRED = -103;
 
     /**
      * Result code representing that too many concurrent streams are detected.
      */
-    int RESULT_CODE_CONCURRENT_STREAM_LIMIT = -104;
+    int RESULT_ERROR_SESSION_CONCURRENT_STREAM_LIMIT = -104;
 
     /**
      * Result code representing that the content is blocked due to parental controls.
      */
-    int RESULT_CODE_PARENTAL_CONTROL_RESTRICTED = -105;
+    int RESULT_ERROR_SESSION_PARENTAL_CONTROL_RESTRICTED = -105;
 
     /**
      * Result code representing that the content is blocked due to being regionally unavailable.
      */
-    int RESULT_CODE_NOT_AVAILABLE_IN_REGION = -106;
+    int RESULT_ERROR_SESSION_NOT_AVAILABLE_IN_REGION = -106;
 
     /**
      * Result code representing that the application cannot skip any more because the skip limit is
      * reached.
      */
-    int RESULT_CODE_SKIP_LIMIT_REACHED = -107;
+    int RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED = -107;
 
     /**
      * Result code representing that the session needs user's manual intervention.
      */
-    int RESULT_CODE_SETUP_REQUIRED = -108;
+    int RESULT_ERROR_SESSION_SETUP_REQUIRED = -108;
 }
