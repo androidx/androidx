@@ -17,7 +17,42 @@
 package androidx.ui.port.matchers
 
 import android.graphics.Bitmap
+import org.hamcrest.Matcher
+import kotlin.reflect.KClass
 
-fun equalToBitmap(operand: Bitmap): org.hamcrest.Matcher<Bitmap> {
+/**
+ * Returns a matcher to check the equality of two [Bitmap]s.
+ *
+ * @param operand the [Bitmap] to be matched.
+ * @see IsEqualBitmap
+ */
+fun equalToBitmap(operand: Bitmap): Matcher<Bitmap> {
     return IsEqualBitmap(operand)
+}
+
+/**
+ * Returns a matcher to check if the given text contains a span matching the given class and
+ * position. Notice that the created matcher won't match if the given text is not an
+ * [android.text.Spanned] object.
+ *
+ * @param spanClazz the class of the expected span
+ * @param start start position of the expected span
+ * @param end end position of the expected span
+ * @see HasSpan
+ */
+fun hasSpan(spanClazz: KClass<out Any>, start: Int, end: Int): Matcher<CharSequence> {
+    return HasSpan(spanClazz, start, end)
+}
+
+/**
+ * Similar to [hasSpan], and the returned matcher will also check that the span is not covered by
+ * other spans.
+ *
+ * @param spanClazz the class of the expected span
+ * @param start start position of the expected span
+ * @param end end position of the expected span
+ * @see HasSpanOnTop
+ */
+fun hasSpanOnTop(spanClazz: KClass<out Any>, start: Int, end: Int): Matcher<CharSequence> {
+    return HasSpanOnTop(spanClazz, start, end)
 }
