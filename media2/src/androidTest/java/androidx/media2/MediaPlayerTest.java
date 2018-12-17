@@ -1071,6 +1071,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         mPlayer.play();
         mPlayer.close();
 
+        // Set the player to null so we don't try to close it again in tearDown().
+        mPlayer = null;
+
         // Tests whether the notification from the player after the close() doesn't crash.
         Thread.sleep(SLEEP_TIME);
     }
