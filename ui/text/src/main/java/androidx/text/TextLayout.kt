@@ -153,22 +153,6 @@ class TextLayout constructor(
         return layout.getLineRight(index).toDouble()
     }
 
-    fun getLineTop(index: Int): Double {
-        return layout.getLineTop(index).toDouble()
-    }
-
-    fun getLineBottom(index: Int): Double {
-        return layout.getLineBottom(index).toDouble()
-    }
-
-    fun getLineAscent(index: Int): Double {
-        return layout.getLineAscent(index).toDouble()
-    }
-
-    fun getLineDescent(index: Int): Double {
-        return layout.getLineDescent(index).toDouble()
-    }
-
     fun getLineHeight(index: Int): Double {
         return (layout.getLineBottom(index) - layout.getLineTop(index)).toDouble()
     }
