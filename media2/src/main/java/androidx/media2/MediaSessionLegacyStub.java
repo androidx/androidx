@@ -18,10 +18,10 @@ package androidx.media2;
 
 import static androidx.media2.MediaMetadata.METADATA_KEY_DISPLAY_TITLE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_TITLE;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
 import static androidx.media2.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand.COMMAND_VERSION_CURRENT;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 
 import android.content.Context;
 import android.net.Uri;
@@ -46,12 +46,10 @@ import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media2.MediaController.PlaybackInfo;
 import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaLibraryService.LibraryResult;
 import androidx.media2.MediaSession.CommandButton;
 import androidx.media2.MediaSession.ControllerCb;
 import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.MediaSession.MediaSessionImpl;
-import androidx.media2.MediaSession.SessionResult;
 import androidx.media2.SessionCommand.CommandCode;
 import androidx.media2.SessionPlayer.PlayerResult;
 

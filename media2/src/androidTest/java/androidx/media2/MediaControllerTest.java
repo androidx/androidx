@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -941,13 +941,13 @@ public class MediaControllerTest extends MediaSessionTestBase {
             }
 
             @Override
-            public MediaSession.SessionResult onCustomCommand(MediaSession session,
+            public SessionResult onCustomCommand(MediaSession session,
                     ControllerInfo controller, SessionCommand customCommand, Bundle args) {
                 assertEquals(mContext.getPackageName(), controller.getPackageName());
                 assertEquals(command, customCommand.getCustomCommand());
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
-                return new MediaSession.SessionResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_CODE_SUCCESS, null);
             }
         };
         mSession.close();
@@ -1382,12 +1382,12 @@ public class MediaControllerTest extends MediaSessionTestBase {
         mController = createController(TestUtils.getServiceToken(mContext, id), true,
                 new ControllerCallback() {
                     @Override
-                    public MediaController.ControllerResult onCustomCommand(
+                    public SessionResult onCustomCommand(
                             MediaController controller, SessionCommand command, Bundle args) {
                         if (testCommand.equals(command)) {
                             controllerLatch.countDown();
                         }
-                        return new MediaController.ControllerResult(RESULT_CODE_SUCCESS);
+                        return new SessionResult(RESULT_CODE_SUCCESS);
                     }
                 }
         );

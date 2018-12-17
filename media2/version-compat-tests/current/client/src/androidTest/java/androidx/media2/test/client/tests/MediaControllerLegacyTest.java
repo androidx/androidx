@@ -41,7 +41,6 @@ import android.util.Log;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaController;
 import androidx.media2.MediaController.ControllerCallback;
-import androidx.media2.MediaController.ControllerResult;
 import androidx.media2.MediaItem;
 import androidx.media2.MediaMetadata;
 import androidx.media2.MediaSession.CommandButton;
@@ -50,6 +49,7 @@ import androidx.media2.RemoteSessionPlayer;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionPlayer;
+import androidx.media2.SessionResult;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSessionCompat;
 import androidx.media2.test.common.MockActivity;
@@ -549,7 +549,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public MediaController.ControllerResult onCustomCommand(MediaController controller,
+            public SessionResult onCustomCommand(MediaController controller,
                     SessionCommand command, Bundle args) {
                 assertEquals(event, command.getCustomCommand());
                 assertTrue(TestUtils.equals(extras, args));
@@ -592,7 +592,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
                         break;
                 }
                 latch.countDown();
-                return ControllerResult.RESULT_CODE_SUCCESS;
+                return SessionResult.RESULT_CODE_SUCCESS;
             }
         };
         mSession.setPlaybackState(new PlaybackStateCompat.Builder()
@@ -694,12 +694,12 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
         final CountDownLatch latch = new CountDownLatch(1);
         final ControllerCallback callback = new ControllerCallback() {
             @Override
-            public ControllerResult onCustomCommand(MediaController controller,
+            public SessionResult onCustomCommand(MediaController controller,
                     SessionCommand command, Bundle args) {
                 assertEquals(sessionCommandOnCaptioningEnabledChanged, command.getCustomCommand());
                 assertEquals(true, args.getBoolean(argumentCaptioningEnabled, false));
                 latch.countDown();
-                return new ControllerResult(ControllerResult.RESULT_CODE_SUCCESS, null);
+                return new SessionResult(SessionResult.RESULT_CODE_SUCCESS, null);
             }
         };
         mController = createController(mSession.getSessionToken(), true, callback);

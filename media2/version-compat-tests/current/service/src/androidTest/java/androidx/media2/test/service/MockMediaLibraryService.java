@@ -16,8 +16,8 @@
 
 package androidx.media2.test.service;
 
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_BAD_VALUE;
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_CODE_BAD_VALUE;
+import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_MIXED;
 import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_NONE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_BROWSABLE;
@@ -64,6 +64,7 @@ import android.os.HandlerThread;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
+import androidx.media2.LibraryResult;
 import androidx.media2.MediaItem;
 import androidx.media2.MediaLibraryService;
 import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
@@ -72,6 +73,7 @@ import androidx.media2.MediaSession;
 import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
+import androidx.media2.SessionResult;
 import androidx.media2.test.common.TestUtils;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.versionedparcelable.ParcelUtils;
@@ -332,19 +334,19 @@ public class MockMediaLibraryService extends MediaLibraryService {
         }
 
         @Override
-        public MediaSession.SessionResult onCustomCommand(MediaSession session,
+        public SessionResult onCustomCommand(MediaSession session,
                 ControllerInfo controller, SessionCommand customCommand, Bundle args) {
             switch (customCommand.getCustomCommand()) {
                 case CUSTOM_ACTION:
-                    return new MediaSession.SessionResult(
+                    return new SessionResult(
                             RESULT_CODE_SUCCESS, CUSTOM_ACTION_EXTRAS);
                 case CUSTOM_ACTION_ASSERT_PARAMS:
                     LibraryParams params = ParcelUtils.getVersionedParcelable(args,
                             CUSTOM_ACTION_ASSERT_PARAMS);
                     setAssertLibraryParams(params);
-                    return new MediaSession.SessionResult(RESULT_CODE_SUCCESS, null);
+                    return new SessionResult(RESULT_CODE_SUCCESS, null);
             }
-            return new MediaSession.SessionResult(RESULT_CODE_BAD_VALUE, null);
+            return new SessionResult(RESULT_CODE_BAD_VALUE, null);
         }
 
         private void assertLibraryParams(LibraryParams params) {

@@ -16,7 +16,6 @@
 
 package androidx.media2.test.service.tests;
 
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.SessionCommand.COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM;
 import static androidx.media2.SessionCommand.COMMAND_CODE_PLAYER_PAUSE;
 import static androidx.media2.SessionCommand.COMMAND_CODE_PLAYER_PLAY;
@@ -42,6 +41,7 @@ import static androidx.media2.SessionCommand.COMMAND_CODE_SESSION_SKIP_BACKWARD;
 import static androidx.media2.SessionCommand.COMMAND_CODE_SESSION_SKIP_FORWARD;
 import static androidx.media2.SessionCommand.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
 import static androidx.media2.SessionCommand.COMMAND_CODE_VOLUME_SET_VOLUME;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;

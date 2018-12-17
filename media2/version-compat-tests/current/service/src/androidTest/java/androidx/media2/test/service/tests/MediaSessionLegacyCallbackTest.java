@@ -17,8 +17,8 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;
@@ -52,6 +52,7 @@ import androidx.media2.Rating;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionPlayer;
+import androidx.media2.SessionResult;
 import androidx.media2.test.common.MockActivity;
 import androidx.media2.test.common.PollingCheck;
 import androidx.media2.test.common.TestUtils;
@@ -477,13 +478,13 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
             }
 
             @Override
-            public MediaSession.SessionResult onCustomCommand(MediaSession session,
+            public SessionResult onCustomCommand(MediaSession session,
                     ControllerInfo controller, SessionCommand customCommand, Bundle args) {
                 assertEquals(EXPECTED_CONTROLLER_PACKAGE_NAME, controller.getPackageName());
                 assertEquals(testCommand, customCommand.getCustomCommand());
                 assertTrue(TestUtils.equals(testArgs, args));
                 latch.countDown();
-                return new MediaSession.SessionResult(RESULT_CODE_SUCCESS, null);
+                return new SessionResult(RESULT_CODE_SUCCESS, null);
             }
         };
         mSession.close();

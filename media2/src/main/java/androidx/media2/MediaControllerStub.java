@@ -21,13 +21,9 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
-import androidx.media2.MediaBrowser.BrowserResult;
-import androidx.media2.MediaController.ControllerResult;
 import androidx.media2.MediaController.PlaybackInfo;
 import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaLibraryService.LibraryResult;
 import androidx.media2.MediaSession.CommandButton;
-import androidx.media2.MediaSession.SessionResult;
 import androidx.media2.SessionPlayer.BuffState;
 import androidx.versionedparcelable.ParcelImpl;
 
@@ -60,7 +56,7 @@ class MediaControllerStub extends IMediaController.Stub {
                 if (result == null) {
                     return;
                 }
-                mSequencedFutureManager.setFutureResult(seq, ControllerResult.from(result));
+                mSequencedFutureManager.setFutureResult(seq, result);
             }
         });
     }
@@ -77,7 +73,7 @@ class MediaControllerStub extends IMediaController.Stub {
                 if (result == null) {
                     return;
                 }
-                mSequencedFutureManager.setFutureResult(seq, BrowserResult.from(result));
+                mSequencedFutureManager.setFutureResult(seq, result);
             }
         });
     }

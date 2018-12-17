@@ -53,11 +53,11 @@ import android.view.WindowManager;
 import androidx.core.content.ContextCompat;
 import androidx.media2.FileMediaItem;
 import androidx.media2.MediaController;
-import androidx.media2.MediaController.ControllerResult;
 import androidx.media2.MediaItem;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionPlayer;
+import androidx.media2.SessionResult;
 import androidx.media2.UriMediaItem;
 import androidx.media2.widget.test.R;
 import androidx.test.InstrumentationRegistry;
@@ -123,7 +123,7 @@ public class VideoViewTest {
                 nullable(MediaController.class),
                 nullable(SessionCommand.class),
                 nullable(Bundle.class))).thenReturn(
-                        new ControllerResult(ControllerResult.RESULT_CODE_SUCCESS, null));
+                        new SessionResult(SessionResult.RESULT_CODE_SUCCESS, null));
         mController = new MediaController(mVideoView.getContext(),
                 mVideoView.getSessionToken(), mMainHandlerExecutor, mControllerCallback);
     }
