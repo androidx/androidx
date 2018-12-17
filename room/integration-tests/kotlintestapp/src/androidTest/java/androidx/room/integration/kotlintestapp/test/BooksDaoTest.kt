@@ -29,7 +29,6 @@ import com.google.common.base.Optional
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subscribers.TestSubscriber
-import kotlinx.coroutines.runBlocking
 import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
@@ -39,12 +38,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.util.Date
-import kotlin.collections.ArrayList
-import kotlin.collections.List
-import kotlin.collections.arrayListOf
-import kotlin.collections.first
-import kotlin.collections.listOf
-import kotlin.collections.setOf
 
 @SmallTest
 class BooksDaoTest : TestDatabaseTest() {
@@ -56,32 +49,6 @@ class BooksDaoTest : TestDatabaseTest() {
         booksDao.addBooks(TestUtil.BOOK_1)
 
         assertThat(booksDao.getBook(TestUtil.BOOK_1.bookId), `is`<Book>(TestUtil.BOOK_1))
-    }
-
-    @Test
-    fun bookByIdSuspend() {
-        runBlocking {
-            booksDao.addAuthors(TestUtil.AUTHOR_1)
-            booksDao.addPublishers(TestUtil.PUBLISHER)
-            booksDao.addBooks(TestUtil.BOOK_1)
-
-            assertThat(booksDao.getBookSuspend(TestUtil.BOOK_1.bookId), `is`<Book>(TestUtil.BOOK_1))
-        }
-    }
-
-    @Test
-    fun allBookSuspend() {
-        runBlocking {
-            booksDao.addAuthors(TestUtil.AUTHOR_1)
-            booksDao.addPublishers(TestUtil.PUBLISHER)
-            booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
-
-            val books = booksDao.getBooksSuspend()
-
-            assertThat(books.size, `is`(2))
-            assertThat(books[0], `is`<Book>(TestUtil.BOOK_1))
-            assertThat(books[1], `is`<Book>(TestUtil.BOOK_2))
-        }
     }
 
     @SdkSuppress(minSdkVersion = 24)
@@ -162,7 +129,7 @@ class BooksDaoTest : TestDatabaseTest() {
                 booksDao.getBookOptionalFlowable(TestUtil.BOOK_1.bookId)
         flowable.observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))
                 .subscribeWith(subscriber)
-
+        drain()
         assertThat(subscriber.values().size, `is`(1))
         assertThat(subscriber.values()[0], `is`(Optional.of(TestUtil.BOOK_1)))
     }
@@ -174,7 +141,7 @@ class BooksDaoTest : TestDatabaseTest() {
                 booksDao.getBookOptionalFlowable(TestUtil.BOOK_1.bookId)
         flowable.observeOn(Schedulers.from(ArchTaskExecutor.getMainThreadExecutor()))
                 .subscribeWith(subscriber)
-
+        drain()
         assertThat(subscriber.values().size, `is`(1))
         assertThat(subscriber.values()[0], `is`(Optional.absent()))
     }

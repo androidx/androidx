@@ -46,6 +46,8 @@ dependencies {
     implementation(project(":room:room-runtime"))
     implementation(ARCH_CORE_RUNTIME)
     implementation(ARCH_LIFECYCLE_EXTENSIONS)
+    implementation(KOTLIN_STDLIB)
+    implementation(KOTLIN_COROUTINES)
     kaptAndroidTest project(":room:room-compiler")
 
     androidTestImplementation(TEST_RUNNER) {

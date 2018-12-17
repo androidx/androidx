@@ -29,9 +29,11 @@ class RxJava2QueryTest : TestDatabaseTest() {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
-
         booksDao.getBookFlowable(TestUtil.BOOK_1.bookId)
                 .test()
+                .also {
+                    drain()
+                }
                 .assertValue { book -> book == TestUtil.BOOK_1 }
     }
 
@@ -85,9 +87,11 @@ class RxJava2QueryTest : TestDatabaseTest() {
                 TestUtil.PUBLISHER)
         var expectedList = ArrayList<BookWithPublisher>()
         expectedList.add(expected)
-
         booksDao.getBooksWithPublisherFlowable()
                 .test()
+                .also {
+                    drain()
+                }
                 .assertValue(expectedList)
     }
 
@@ -96,14 +100,16 @@ class RxJava2QueryTest : TestDatabaseTest() {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
-
         booksDao.getPublisherWithBooksFlowable(TestUtil.PUBLISHER.publisherId)
                 .test()
+                .also {
+                    drain()
+                }
                 .assertValue {
-                    it.publisher == TestUtil.PUBLISHER
-                            && it.books?.size == 2
-                            && it.books?.get(0) == TestUtil.BOOK_1
-                            && it.books?.get(1) == TestUtil.BOOK_2
+                    it.publisher == TestUtil.PUBLISHER &&
+                            it.books?.size == 2 &&
+                            it.books?.get(0) == TestUtil.BOOK_1 &&
+                            it.books?.get(1) == TestUtil.BOOK_2
                 }
     }
 }
