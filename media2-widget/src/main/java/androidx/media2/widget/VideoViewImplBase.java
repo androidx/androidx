@@ -47,7 +47,6 @@ import android.widget.TextView;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.FileMediaItem;
@@ -80,7 +79,6 @@ import java.util.concurrent.Executor;
 /**
  * Base implementation of VideoView.
  */
-@RequiresApi(19)
 class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceListener {
     private static final String TAG = "VideoViewImplBase";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);

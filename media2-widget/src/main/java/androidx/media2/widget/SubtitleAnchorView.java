@@ -22,11 +22,9 @@ import android.os.Looper;
 import android.util.AttributeSet;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.media2.subtitle.SubtitleController.Anchor;
 import androidx.media2.subtitle.SubtitleTrack.RenderingWidget;
 
-@RequiresApi(19)
 class SubtitleAnchorView extends BaseLayout implements Anchor {
     private static final String TAG = "SubtitleAnchorView";
 

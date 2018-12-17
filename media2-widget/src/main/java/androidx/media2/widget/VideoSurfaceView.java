@@ -25,12 +25,10 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.media2.MediaPlayer;
 import androidx.media2.VideoSize;
 
-@RequiresApi(19)
 class VideoSurfaceView extends SurfaceView
         implements VideoViewInterface, SurfaceHolder.Callback {
     private static final String TAG = "VideoSurfaceView";

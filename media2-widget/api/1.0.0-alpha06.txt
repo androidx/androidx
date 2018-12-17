@@ -1,7 +1,7 @@
 // Signature format: 2.0
 package androidx.media2.widget {
 
-  @RequiresApi(19) public class MediaControlView extends android.view.ViewGroup {
+  public class MediaControlView extends android.view.ViewGroup {
     ctor public MediaControlView(android.content.Context);
     ctor public MediaControlView(android.content.Context, android.util.AttributeSet?);
     ctor public MediaControlView(android.content.Context, android.util.AttributeSet?, int);
@@ -15,7 +15,7 @@ package androidx.media2.widget {
     method public void onFullScreen(android.view.View, boolean);
   }
 
-  @RequiresApi(19) public class VideoView extends android.view.ViewGroup {
+  public class VideoView extends android.view.ViewGroup {
     ctor public VideoView(android.content.Context);
     ctor public VideoView(android.content.Context, android.util.AttributeSet?);
     ctor public VideoView(android.content.Context, android.util.AttributeSet?, int);
