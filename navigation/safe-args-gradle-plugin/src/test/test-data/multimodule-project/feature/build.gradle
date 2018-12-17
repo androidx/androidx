@@ -23,7 +23,7 @@ android {
     buildToolsVersion buildTools
     compileSdkVersion compileSdk
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion minSdk
     }
 
     flavorDimensions "mode"
@@ -40,4 +40,5 @@ android {
 
 dependencies {
     implementation project(':base')
+    implementation "$navigationCommonDep"
 }
