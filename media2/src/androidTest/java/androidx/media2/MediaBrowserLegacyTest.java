@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaBrowser.BrowserResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.TestUtils.assertMediaItemWithId;
 import static androidx.media2.TestUtils.createLibraryParams;
 
@@ -39,7 +39,6 @@ import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaBrowserServiceCompat.BrowserRoot;
 import androidx.media.MediaBrowserServiceCompat.Result;
 import androidx.media2.MediaBrowser.BrowserCallback;
-import androidx.media2.MediaBrowser.BrowserResult;
 import androidx.media2.MediaController.ControllerCallback;
 import androidx.media2.MediaLibraryService.LibraryParams;
 import androidx.media2.MockMediaBrowserServiceCompat.Proxy;
@@ -176,7 +175,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         });
 
         MediaBrowser browser = createBrowser(null);
-        BrowserResult result = browser.getLibraryRoot(testParams)
+        LibraryResult result = browser.getLibraryRoot(testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertMediaItemWithId(testMediaId, result.getMediaItem());
@@ -207,7 +206,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         });
 
         MediaBrowser browser = createBrowser(null);
-        BrowserResult result = browser.getItem(testMediaId)
+        LibraryResult result = browser.getItem(testMediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertItemEquals(testItem, result.getMediaItem());
@@ -225,7 +224,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
             }
         });
         MediaBrowser browser = createBrowser(null);
-        BrowserResult result = browser.getItem(testMediaId)
+        LibraryResult result = browser.getItem(testMediaId)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
     }
@@ -249,9 +248,9 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
             }
         });
         MediaBrowser browser = createBrowser(null);
-        ListenableFuture<BrowserResult> future = browser
+        ListenableFuture<LibraryResult> future = browser
                 .getChildren(testParentId, testPage, testPageSize, null);
-        BrowserResult result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        LibraryResult result = future.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertItemsEquals(testPaginatedMediaItemList, result.getMediaItems());
     }
@@ -282,7 +281,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         });
 
         MediaBrowser browser = createBrowser(null);
-        BrowserResult result = browser.getChildren(testParentId, testPage, testPageSize, null)
+        LibraryResult result = browser.getChildren(testParentId, testPage, testPageSize, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertItemsEquals(testMediaItemList, result.getMediaItems());
@@ -310,7 +309,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
             }
         });
         MediaBrowser browser = createBrowser(null);
-        BrowserResult result = browser.getChildren(testParentId, testPage, testPageSize, testParams)
+        LibraryResult result = browser.getChildren(testParentId, testPage, testPageSize, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertItemsEquals(testMediaItemList, result.getMediaItems());
@@ -335,7 +334,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
         });
 
         MediaBrowser browser = createBrowser(null);
-        BrowserResult result = browser.getChildren(testParentId, testPage, testPageSize, null)
+        LibraryResult result = browser.getChildren(testParentId, testPage, testPageSize, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertNotEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertNull(result.getLibraryParams());
@@ -382,7 +381,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
             }
         });
 
-        BrowserResult result = browser.search(testQuery, testParams)
+        LibraryResult result = browser.search(testQuery, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -419,7 +418,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
             }
         });
 
-        BrowserResult result = browser.search(testQuery, null)
+        LibraryResult result = browser.search(testQuery, null)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
@@ -475,7 +474,7 @@ public class MediaBrowserLegacyTest extends MediaSessionTestBase {
                 latch.countDown();
             }
         });
-        BrowserResult result = browser.subscribe(testParentId, testParams)
+        LibraryResult result = browser.subscribe(testParentId, testParams)
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertEquals(RESULT_CODE_SUCCESS, result.getResultCode());
         assertTrue(subscribeLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));

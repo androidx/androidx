@@ -16,8 +16,8 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_SUCCESS;
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_UNKNOWN_ERROR;
+import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_CODE_UNKNOWN_ERROR;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -30,7 +30,6 @@ import androidx.annotation.GuardedBy;
 import androidx.collection.ArrayMap;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media2.MediaLibraryService.LibraryParams;
-import androidx.media2.MediaLibraryService.LibraryResult;
 import androidx.media2.MediaLibraryService.MediaLibrarySession;
 import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionImpl;

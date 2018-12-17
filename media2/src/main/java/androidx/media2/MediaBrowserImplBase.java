@@ -16,9 +16,9 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaBrowser.BrowserResult.RESULT_CODE_DISCONNECTED;
-import static androidx.media2.MediaBrowser.BrowserResult.RESULT_CODE_PERMISSION_DENIED;
-import static androidx.media2.MediaBrowser.BrowserResult.RESULT_CODE_SKIPPED;
+import static androidx.media2.LibraryResult.RESULT_CODE_DISCONNECTED;
+import static androidx.media2.LibraryResult.RESULT_CODE_PERMISSION_DENIED;
+import static androidx.media2.LibraryResult.RESULT_CODE_SKIPPED;
 import static androidx.media2.SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN;
 import static androidx.media2.SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM;
 import static androidx.media2.SessionCommand.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT;
@@ -32,7 +32,6 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import androidx.media2.MediaBrowser.BrowserCallback;
-import androidx.media2.MediaBrowser.BrowserResult;
 import androidx.media2.MediaLibraryService.LibraryParams;
 import androidx.media2.SequencedFutureManager.SequencedFuture;
 
@@ -45,8 +44,8 @@ import java.util.concurrent.Executor;
  */
 class MediaBrowserImplBase extends MediaControllerImplBase implements
         MediaBrowser.MediaBrowserImpl {
-    private static final BrowserResult RESULT_WHEN_CLOSED =
-            new BrowserResult(RESULT_CODE_SKIPPED);
+    private static final LibraryResult RESULT_WHEN_CLOSED =
+            new LibraryResult(RESULT_CODE_SKIPPED);
 
     MediaBrowserImplBase(Context context, MediaController instance, SessionToken token,
             Executor executor, BrowserCallback callback) {
@@ -64,7 +63,7 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
     }
 
     @Override
-    public ListenableFuture<BrowserResult> getLibraryRoot(final LibraryParams params) {
+    public ListenableFuture<LibraryResult> getLibraryRoot(final LibraryParams params) {
         return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT,
                 new RemoteLibrarySessionTask() {
                     @Override
@@ -76,7 +75,7 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
     }
 
     @Override
-    public ListenableFuture<BrowserResult> subscribe(final String parentId,
+    public ListenableFuture<LibraryResult> subscribe(final String parentId,
             final LibraryParams params) {
         return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_SUBSCRIBE,
                 new RemoteLibrarySessionTask() {
@@ -89,7 +88,7 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
     }
 
     @Override
-    public ListenableFuture<BrowserResult> unsubscribe(final String parentId) {
+    public ListenableFuture<LibraryResult> unsubscribe(final String parentId) {
         return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_UNSUBSCRIBE,
                 new RemoteLibrarySessionTask() {
                     @Override
@@ -100,7 +99,7 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
     }
 
     @Override
-    public ListenableFuture<BrowserResult> getChildren(final String parentId, final int page,
+    public ListenableFuture<LibraryResult> getChildren(final String parentId, final int page,
             final int pageSize, final LibraryParams params) {
         return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_GET_CHILDREN,
                 new RemoteLibrarySessionTask() {
@@ -113,7 +112,7 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
     }
 
     @Override
-    public ListenableFuture<BrowserResult> getItem(final String mediaId) {
+    public ListenableFuture<LibraryResult> getItem(final String mediaId) {
         return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_GET_ITEM,
                 new RemoteLibrarySessionTask() {
                     @Override
@@ -124,7 +123,7 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
     }
 
     @Override
-    public ListenableFuture<BrowserResult> search(final String query, final LibraryParams params) {
+    public ListenableFuture<LibraryResult> search(final String query, final LibraryParams params) {
         return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_SEARCH,
                 new RemoteLibrarySessionTask() {
                     @Override
@@ -136,7 +135,7 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
     }
 
     @Override
-    public ListenableFuture<BrowserResult> getSearchResult(final String query, final int page,
+    public ListenableFuture<LibraryResult> getSearchResult(final String query, final int page,
             final int pageSize, final LibraryParams params) {
         return dispatchRemoteLibrarySessionTask(COMMAND_CODE_LIBRARY_GET_SEARCH_RESULT,
                 new RemoteLibrarySessionTask() {
@@ -168,24 +167,24 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
         });
     }
 
-    private ListenableFuture<BrowserResult> dispatchRemoteLibrarySessionTask(int commandCode,
+    private ListenableFuture<LibraryResult> dispatchRemoteLibrarySessionTask(int commandCode,
             RemoteLibrarySessionTask task) {
         final IMediaSession iSession = getSessionInterfaceIfAble(commandCode);
         if (iSession != null) {
-            final SequencedFuture<BrowserResult> result =
+            final SequencedFuture<LibraryResult> result =
                     mSequencedFutureManager.createSequencedFuture(RESULT_WHEN_CLOSED);
             try {
                 task.run(iSession, result.getSequenceNumber());
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-                result.set(new BrowserResult(RESULT_CODE_DISCONNECTED));
+                result.set(new LibraryResult(RESULT_CODE_DISCONNECTED));
             }
             return result;
         } else {
             // Don't create Future with SequencedFutureManager.
             // Otherwise session would receive discontinued sequence number, and it would make
             // future work item 'keeping call sequence when session execute commands' impossible.
-            return BrowserResult.createFutureWithResult(RESULT_CODE_PERMISSION_DENIED);
+            return LibraryResult.createFutureWithResult(RESULT_CODE_PERMISSION_DENIED);
         }
     }
 

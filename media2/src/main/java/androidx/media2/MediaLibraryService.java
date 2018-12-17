@@ -16,9 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_NOT_SUPPORTED;
+import static androidx.media2.LibraryResult.RESULT_CODE_NOT_SUPPORTED;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -26,27 +24,18 @@ import android.content.Intent;
 import android.media.browse.MediaBrowser;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.SystemClock;
 import android.text.TextUtils;
 
-import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
-import androidx.media2.MediaBrowser.BrowserResult.ResultCode;
+import androidx.media2.LibraryResult.ResultCode;
 import androidx.media2.MediaLibraryService.MediaLibrarySession.Builder;
-import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
@@ -636,155 +625,6 @@ public abstract class MediaLibraryService extends MediaSessionService {
             public @NonNull LibraryParams build() {
                 return new LibraryParams(mBundle, mRecent, mOffline, mSuggested);
             }
-        }
-    }
-
-    /**
-     * Result class to be used with {@link ListenableFuture} for asynchronous calls.
-     */
-    // Specify full class name to workaround build error 'cannot find symbol'.
-    @androidx.versionedparcelable.VersionedParcelize(isCustom = true)
-    public static class LibraryResult extends androidx.versionedparcelable.CustomVersionedParcelable
-            implements RemoteResult {
-        /**
-         * @hide
-         */
-        @IntDef(flag = false, /*prefix = "RESULT_CODE",*/ value = {
-                RESULT_CODE_SUCCESS,
-                RESULT_CODE_UNKNOWN_ERROR,
-                RESULT_CODE_INVALID_STATE,
-                RESULT_CODE_BAD_VALUE,
-                RESULT_CODE_PERMISSION_DENIED,
-                RESULT_CODE_IO_ERROR,
-                RESULT_CODE_SKIPPED,
-                RESULT_CODE_DISCONNECTED,
-                RESULT_CODE_NOT_SUPPORTED,
-                RESULT_CODE_AUTHENTICATION_EXPIRED,
-                RESULT_CODE_PREMIUM_ACCOUNT_REQUIRED,
-                RESULT_CODE_CONCURRENT_STREAM_LIMIT,
-                RESULT_CODE_PARENTAL_CONTROL_RESTRICTED,
-                RESULT_CODE_NOT_AVAILABLE_IN_REGION,
-                RESULT_CODE_SKIP_LIMIT_REACHED,
-                RESULT_CODE_SETUP_REQUIRED})
-        @Retention(RetentionPolicy.SOURCE)
-        @RestrictTo(LIBRARY_GROUP)
-        public @interface ResultCode {}
-
-        @ParcelField(1)
-        int mResultCode;
-        @ParcelField(2)
-        long mCompletionTime;
-        @ParcelField(3)
-        MediaItem mItem;
-        @ParcelField(4)
-        LibraryParams mParams;
-        // Mark list of media items NonParcelField to send the list through the ParcelImpListSlice.
-        @NonParcelField
-        List<MediaItem> mItemList;
-        @ParcelField(5)
-        ParcelImplListSlice mItemListSlice;
-
-        // For versioned parcelable
-        LibraryResult() {
-            // no-op.
-        }
-
-        /**
-         * Constructor only with the result code.
-         * <p>
-         * For success, use other constructor that you can also return the result.
-         *
-         * @param resultCode result code
-         */
-        public LibraryResult(@ResultCode int resultCode) {
-            this(resultCode, null, null, null);
-        }
-
-        /**
-         * Constructor with the result code and a media item.
-         *
-         * @param resultCode result code
-         * @param item a media item. Can be {@code null} for error
-         * @param params optional library params to describe the returned media item
-         */
-        public LibraryResult(@ResultCode int resultCode, @Nullable MediaItem item,
-                @Nullable LibraryParams params) {
-            this(resultCode, item, null, params);
-        }
-
-        /**
-         * Constructor with the result code and a list of media items.
-         *
-         * @param resultCode result code
-         * @param items list of media items. Can be {@code null} for error
-         * @param params optional library params to describe the returned list of media items.
-         */
-        public LibraryResult(@ResultCode int resultCode, @Nullable List<MediaItem> items,
-                @Nullable LibraryParams params) {
-            this(resultCode, null, items, params);
-        }
-
-        private LibraryResult(@ResultCode int resultCode, @Nullable MediaItem item,
-                @Nullable List<MediaItem> items, @Nullable LibraryParams params) {
-            mResultCode = resultCode;
-            mCompletionTime = SystemClock.elapsedRealtime();
-            mItem = item;
-            mItemList = items;
-            mParams = params;
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @Override
-        public int getResultCode() {
-            return mResultCode;
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @Override
-        public long getCompletionTime() {
-            return mCompletionTime;
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @Override
-        public MediaItem getMediaItem() {
-            return mItem;
-        }
-
-        List<MediaItem> getMediaItems() {
-            return mItemList;
-        }
-
-        LibraryParams getLibraryParams() {
-            return mParams;
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @Override
-        public void onPreParceling(boolean isStream) {
-            mItemListSlice = MediaUtils.convertMediaItemListToParcelImplListSlice(mItemList);
-        }
-
-        /**
-         * @hide
-         */
-        @RestrictTo(LIBRARY)
-        @Override
-        public void onPostParceling() {
-            mItemList = MediaUtils.convertParcelImplListSliceToMediaItemList(mItemListSlice);
-            mItemListSlice = null;
         }
     }
 }

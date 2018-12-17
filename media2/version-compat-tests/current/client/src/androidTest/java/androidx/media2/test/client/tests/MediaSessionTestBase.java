@@ -37,6 +37,7 @@ import androidx.media2.MediaMetadata;
 import androidx.media2.MediaSession.CommandButton;
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
+import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.test.InstrumentationRegistry;
@@ -301,7 +302,7 @@ abstract class MediaSessionTestBase {
         }
 
         @Override
-        public MediaController.ControllerResult onCustomCommand(MediaController controller,
+        public SessionResult onCustomCommand(MediaController controller,
                 SessionCommand command, Bundle args) {
             synchronized (this) {
                 if (mOnCustomCommandRunnable != null) {

@@ -89,7 +89,7 @@ public class MockControllerCallback extends MediaController.ControllerCallback
     }
 
     @Override
-    public MediaController.ControllerResult onCustomCommand(MediaController controller,
+    public SessionResult onCustomCommand(MediaController controller,
             SessionCommand command, Bundle args) {
         synchronized (this) {
             if (mOnCustomCommandRunnable != null) {
