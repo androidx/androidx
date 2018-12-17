@@ -17,8 +17,8 @@
 package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.media2.SessionResult.RESULT_CODE_NOT_SUPPORTED;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_ERROR_NOT_SUPPORTED;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
 import android.annotation.TargetApi;
 import android.app.PendingIntent;
@@ -398,14 +398,14 @@ public class MediaSession implements AutoCloseable {
          *  <li>{@link android.media.AudioManager}</li>
          * </ul>
          * <p>
-         * Return {@link SessionResult#RESULT_CODE_SUCCESS} to proceed the command. If something
+         * Return {@link SessionResult#RESULT_SUCCESS} to proceed the command. If something
          * else is returned, command wouldn't be sent and the controller would receive the code with
          * it.
          *
          * @param session the session for this event
          * @param controller controller information.
          * @param command a command. This method will be called for every single command.
-         * @return {@code RESULT_CODE_SUCCESS} if you want to proceed with incoming command.
+         * @return {@code RESULT_SUCCESS} if you want to proceed with incoming command.
          *         Another code for ignore.
          * @see SessionCommand#COMMAND_CODE_PLAYER_PLAY
          * @see SessionCommand#COMMAND_CODE_PLAYER_PAUSE
@@ -428,7 +428,7 @@ public class MediaSession implements AutoCloseable {
          */
         public @ResultCode int onCommandRequest(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull SessionCommand command) {
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         /**
@@ -493,7 +493,7 @@ public class MediaSession implements AutoCloseable {
         public @ResultCode int onSetRating(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId,
                 @NonNull Rating rating) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -516,7 +516,7 @@ public class MediaSession implements AutoCloseable {
         public @NonNull SessionResult onCustomCommand(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull SessionCommand customCommand,
                 @Nullable Bundle args) {
-            return new SessionResult(RESULT_CODE_NOT_SUPPORTED, null);
+            return new SessionResult(RESULT_ERROR_NOT_SUPPORTED, null);
         }
 
         /**
@@ -535,7 +535,7 @@ public class MediaSession implements AutoCloseable {
         public int onPlayFromMediaId(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId,
                 @Nullable Bundle extras) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -554,7 +554,7 @@ public class MediaSession implements AutoCloseable {
         public int onPlayFromSearch(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String query,
                 @Nullable Bundle extras) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -573,7 +573,7 @@ public class MediaSession implements AutoCloseable {
         public int onPlayFromUri(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull Uri uri,
                 @Nullable Bundle extras) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -602,7 +602,7 @@ public class MediaSession implements AutoCloseable {
         public int onPrepareFromMediaId(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String mediaId,
                 @Nullable Bundle extras) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -631,7 +631,7 @@ public class MediaSession implements AutoCloseable {
         public int onPrepareFromSearch(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull String query,
                 @Nullable Bundle extras) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -659,7 +659,7 @@ public class MediaSession implements AutoCloseable {
         @ResultCode
         public int onPrepareFromUri(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller, @NonNull Uri uri, @Nullable Bundle extras) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -673,7 +673,7 @@ public class MediaSession implements AutoCloseable {
          */
         public @ResultCode int onFastForward(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -687,7 +687,7 @@ public class MediaSession implements AutoCloseable {
          */
         public @ResultCode int onRewind(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -702,7 +702,7 @@ public class MediaSession implements AutoCloseable {
          */
         public @ResultCode int onSkipForward(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**
@@ -717,7 +717,7 @@ public class MediaSession implements AutoCloseable {
          */
         public @ResultCode int onSkipBackward(@NonNull MediaSession session,
                 @NonNull ControllerInfo controller) {
-            return RESULT_CODE_NOT_SUPPORTED;
+            return RESULT_ERROR_NOT_SUPPORTED;
         }
 
         /**

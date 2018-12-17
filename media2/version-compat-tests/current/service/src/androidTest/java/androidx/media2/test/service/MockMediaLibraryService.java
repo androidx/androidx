@@ -16,8 +16,8 @@
 
 package androidx.media2.test.service;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_BAD_VALUE;
-import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_ERROR_BAD_VALUE;
+import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_MIXED;
 import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_NONE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_BROWSABLE;
@@ -195,7 +195,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
         public LibraryResult onGetLibraryRoot(MediaLibrarySession session,
                 ControllerInfo controller, LibraryParams params) {
             assertLibraryParams(params);
-            return new LibraryResult(RESULT_CODE_SUCCESS, ROOT_ITEM, ROOT_PARAMS);
+            return new LibraryResult(RESULT_SUCCESS, ROOT_ITEM, ROOT_PARAMS);
         }
 
         @Override
@@ -203,19 +203,19 @@ public class MockMediaLibraryService extends MediaLibraryService {
                 String mediaId) {
             switch (mediaId) {
                 case MEDIA_ID_GET_ITEM:
-                    return new LibraryResult(RESULT_CODE_SUCCESS, createMediaItem(mediaId), null);
+                    return new LibraryResult(RESULT_SUCCESS, createMediaItem(mediaId), null);
                 case MEDIA_ID_GET_NULL_ITEM:
-                    return new LibraryResult(RESULT_CODE_SUCCESS);
+                    return new LibraryResult(RESULT_SUCCESS);
                 case MEDIA_ID_GET_INVALID_ITEM:
                     // No browsable
                     MediaMetadata metadata =  new MediaMetadata.Builder()
                             .putString(MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId)
                             .putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1)
                             .build();
-                    return new LibraryResult(RESULT_CODE_SUCCESS,
+                    return new LibraryResult(RESULT_SUCCESS,
                             new MediaItem.Builder().setMetadata(metadata).build(), null);
             }
-            return new LibraryResult(RESULT_CODE_BAD_VALUE);
+            return new LibraryResult(RESULT_ERROR_BAD_VALUE);
         }
 
         @Override
@@ -224,7 +224,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
                 LibraryParams params) {
             assertLibraryParams(params);
             if (PARENT_ID.equals(parentId)) {
-                return new LibraryResult(RESULT_CODE_SUCCESS,
+                return new LibraryResult(RESULT_SUCCESS,
                         getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize), null);
             } else if (PARENT_ID_LONG_LIST.equals(parentId)) {
                 List<MediaItem> list = new ArrayList<>(LONG_LIST_COUNT);
@@ -240,12 +240,12 @@ public class MockMediaLibraryService extends MediaLibraryService {
                                     .build())
                             .build());
                 }
-                return new LibraryResult(RESULT_CODE_SUCCESS, list, null);
+                return new LibraryResult(RESULT_SUCCESS, list, null);
             } else if (PARENT_ID_ERROR.equals(parentId)) {
-                return new LibraryResult(RESULT_CODE_BAD_VALUE);
+                return new LibraryResult(RESULT_ERROR_BAD_VALUE);
             }
             // Includes the case of PARENT_ID_NO_CHILDREN.
-            return new LibraryResult(RESULT_CODE_SUCCESS, new ArrayList<MediaItem>(), null);
+            return new LibraryResult(RESULT_SUCCESS, new ArrayList<MediaItem>(), null);
         }
 
         @Override
@@ -271,7 +271,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
                 // SEARCH_QUERY_EMPTY_RESULT and SEARCH_QUERY_ERROR will be handled here.
                 mSession.notifySearchResultChanged(controllerInfo, query, 0, params);
             }
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -280,7 +280,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
                 LibraryParams params) {
             assertLibraryParams(params);
             if (SEARCH_QUERY.equals(query)) {
-                return new LibraryResult(RESULT_CODE_SUCCESS,
+                return new LibraryResult(RESULT_SUCCESS,
                         getPaginatedResult(SEARCH_RESULT, page, pageSize), null);
             } else if (SEARCH_QUERY_LONG_LIST.equals(query)) {
                 List<MediaItem> list = new ArrayList<>(LONG_LIST_COUNT);
@@ -288,12 +288,12 @@ public class MockMediaLibraryService extends MediaLibraryService {
                 for (int i = 0; i < LONG_LIST_COUNT; i++) {
                     list.add(createMediaItem(TestUtils.getMediaIdInDummyList(i)));
                 }
-                return new LibraryResult(RESULT_CODE_SUCCESS, list, null);
+                return new LibraryResult(RESULT_SUCCESS, list, null);
             } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
-                return new LibraryResult(RESULT_CODE_SUCCESS, new ArrayList<MediaItem>(), null);
+                return new LibraryResult(RESULT_SUCCESS, new ArrayList<MediaItem>(), null);
             } else {
                 // SEARCH_QUERY_ERROR will be handled here.
-                return new LibraryResult(RESULT_CODE_BAD_VALUE);
+                return new LibraryResult(RESULT_ERROR_BAD_VALUE);
             }
         }
 
@@ -308,29 +308,29 @@ public class MockMediaLibraryService extends MediaLibraryService {
                             parentId,
                             NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
                             NOTIFY_CHILDREN_CHANGED_PARAMS);
-                    return RESULT_CODE_SUCCESS;
+                    return RESULT_SUCCESS;
                 case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE:
                     mSession.notifyChildrenChanged(
                             MediaTestUtils.getTestControllerInfo(mSession),
                             parentId,
                             NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
                             NOTIFY_CHILDREN_CHANGED_PARAMS);
-                    return RESULT_CODE_SUCCESS;
+                    return RESULT_SUCCESS;
                 case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ALL_WITH_NON_SUBSCRIBED_ID:
                     mSession.notifyChildrenChanged(
                             unsubscribedId,
                             NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
                             NOTIFY_CHILDREN_CHANGED_PARAMS);
-                    return RESULT_CODE_SUCCESS;
+                    return RESULT_SUCCESS;
                 case SUBSCRIBE_ID_NOTIFY_CHILDREN_CHANGED_TO_ONE_WITH_NON_SUBSCRIBED_ID:
                     mSession.notifyChildrenChanged(
                             MediaTestUtils.getTestControllerInfo(mSession),
                             unsubscribedId,
                             NOTIFY_CHILDREN_CHANGED_ITEM_COUNT,
                             NOTIFY_CHILDREN_CHANGED_PARAMS);
-                    return RESULT_CODE_SUCCESS;
+                    return RESULT_SUCCESS;
             }
-            return RESULT_CODE_BAD_VALUE;
+            return RESULT_ERROR_BAD_VALUE;
         }
 
         @Override
@@ -339,14 +339,14 @@ public class MockMediaLibraryService extends MediaLibraryService {
             switch (customCommand.getCustomCommand()) {
                 case CUSTOM_ACTION:
                     return new SessionResult(
-                            RESULT_CODE_SUCCESS, CUSTOM_ACTION_EXTRAS);
+                            RESULT_SUCCESS, CUSTOM_ACTION_EXTRAS);
                 case CUSTOM_ACTION_ASSERT_PARAMS:
                     LibraryParams params = ParcelUtils.getVersionedParcelable(args,
                             CUSTOM_ACTION_ASSERT_PARAMS);
                     setAssertLibraryParams(params);
-                    return new SessionResult(RESULT_CODE_SUCCESS, null);
+                    return new SessionResult(RESULT_SUCCESS, null);
             }
-            return new SessionResult(RESULT_CODE_BAD_VALUE, null);
+            return new SessionResult(RESULT_ERROR_BAD_VALUE, null);
         }
 
         private void assertLibraryParams(LibraryParams params) {

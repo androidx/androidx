@@ -41,7 +41,7 @@ import static androidx.media2.SessionCommand.COMMAND_CODE_SESSION_SKIP_BACKWARD;
 import static androidx.media2.SessionCommand.COMMAND_CODE_SESSION_SKIP_FORWARD;
 import static androidx.media2.SessionCommand.COMMAND_CODE_VOLUME_ADJUST_VOLUME;
 import static androidx.media2.SessionCommand.COMMAND_CODE_VOLUME_SET_VOLUME;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.CLIENT_PACKAGE_NAME;
 
 import static org.junit.Assert.assertEquals;
@@ -643,7 +643,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnFastForwardCalled = true;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -651,7 +651,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnRewindCalled = true;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -659,7 +659,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnSkipForwardCalled = true;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -667,7 +667,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             assertTrue(TextUtils.equals(CLIENT_PACKAGE_NAME, controller.getPackageName()));
             mOnSkipBackwardCalled = true;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -678,7 +678,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             mMediaId = mediaId;
             mExtras = extras;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -689,7 +689,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             mQuery = query;
             mExtras = extras;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -700,7 +700,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             mUri = uri;
             mExtras = extras;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -711,7 +711,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             mMediaId = mediaId;
             mExtras = extras;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -722,7 +722,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             mQuery = query;
             mExtras = extras;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -733,7 +733,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             mUri = uri;
             mExtras = extras;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -744,7 +744,7 @@ public class MediaSession_PermissionTest extends MediaSessionTestBase {
             mMediaId = mediaId;
             mRating = rating;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
     }
 }

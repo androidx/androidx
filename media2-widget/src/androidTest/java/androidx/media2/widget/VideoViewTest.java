@@ -123,7 +123,7 @@ public class VideoViewTest {
                 nullable(MediaController.class),
                 nullable(SessionCommand.class),
                 nullable(Bundle.class))).thenReturn(
-                        new SessionResult(SessionResult.RESULT_CODE_SUCCESS, null));
+                        new SessionResult(SessionResult.RESULT_SUCCESS, null));
         mController = new MediaController(mVideoView.getContext(),
                 mVideoView.getSessionToken(), mMainHandlerExecutor, mControllerCallback);
     }

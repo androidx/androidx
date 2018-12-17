@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_NOT_SUPPORTED;
+import static androidx.media2.LibraryResult.RESULT_ERROR_NOT_SUPPORTED;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -83,7 +83,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
              * Called to get the root information for browsing by a {@link MediaBrowser}.
              * <p>
              * To allow browsing media information, return the {@link LibraryResult} with the
-             * {@link LibraryResult#RESULT_CODE_SUCCESS} and the root media item with the valid
+             * {@link LibraryResult#RESULT_SUCCESS} and the root media item with the valid
              * {@link MediaMetadata#METADATA_KEY_MEDIA_ID media id}. The media id must be included
              * for the browser to get the children under it.
              * <p>
@@ -103,14 +103,14 @@ public abstract class MediaLibraryService extends MediaSessionService {
              */
             public @NonNull LibraryResult onGetLibraryRoot(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @Nullable LibraryParams params) {
-                return new LibraryResult(RESULT_CODE_NOT_SUPPORTED);
+                return new LibraryResult(RESULT_ERROR_NOT_SUPPORTED);
             }
 
             /**
              * Called to get an item.
              * <p>
              * To allow getting the item, return the {@link LibraryResult} with the
-             * {@link LibraryResult#RESULT_CODE_SUCCESS} and the media item.
+             * {@link LibraryResult#RESULT_SUCCESS} and the media item.
              *
              * @param session the session for this event
              * @param controller controller
@@ -121,14 +121,14 @@ public abstract class MediaLibraryService extends MediaSessionService {
              */
             public @NonNull LibraryResult onGetItem(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String mediaId) {
-                return new LibraryResult(RESULT_CODE_NOT_SUPPORTED);
+                return new LibraryResult(RESULT_ERROR_NOT_SUPPORTED);
             }
 
             /**
              * Called to get children of given parent id. Return the children here for the browser.
              * <p>
              * To allow getting the children, return the {@link LibraryResult} with the
-             * {@link LibraryResult#RESULT_CODE_SUCCESS} and the list of media item. Return an empty
+             * {@link LibraryResult#RESULT_SUCCESS} and the list of media item. Return an empty
              * list for no children rather than using result code for error.
              *
              * @param session the session for this event
@@ -146,7 +146,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
                     @NonNull ControllerInfo controller, @NonNull String parentId,
                     @IntRange(from = 0) int page, @IntRange(from = 1) int pageSize,
                     @Nullable LibraryParams params) {
-                return new LibraryResult(RESULT_CODE_NOT_SUPPORTED);
+                return new LibraryResult(RESULT_ERROR_NOT_SUPPORTED);
             }
 
             /**
@@ -172,7 +172,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
             public @ResultCode int onSubscribe(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId,
                     @Nullable LibraryParams params) {
-                return RESULT_CODE_NOT_SUPPORTED;
+                return RESULT_ERROR_NOT_SUPPORTED;
             }
 
             /**
@@ -190,7 +190,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
              */
             public @ResultCode int onUnsubscribe(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String parentId) {
-                return RESULT_CODE_NOT_SUPPORTED;
+                return RESULT_ERROR_NOT_SUPPORTED;
             }
 
             /**
@@ -214,14 +214,14 @@ public abstract class MediaLibraryService extends MediaSessionService {
             public @ResultCode int onSearch(@NonNull MediaLibrarySession session,
                     @NonNull ControllerInfo controller, @NonNull String query,
                     @Nullable LibraryParams params) {
-                return RESULT_CODE_NOT_SUPPORTED;
+                return RESULT_ERROR_NOT_SUPPORTED;
             }
 
             /**
              * Called to get the search result.
              * <p>
              * To allow getting the search result, return the {@link LibraryResult} with the
-             * {@link LibraryResult#RESULT_CODE_SUCCESS} and the list of media item. Return an empty
+             * {@link LibraryResult#RESULT_SUCCESS} and the list of media item. Return an empty
              * list for no search result rather than using result code for error.
              * <p>
              * This may be called with a query that hasn't called with {@link #onSearch}, especially
@@ -243,7 +243,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
                     @NonNull MediaLibrarySession session, @NonNull ControllerInfo controller,
                     @NonNull String query, @IntRange(from = 0) int page,
                     @IntRange(from = 1) int pageSize, @Nullable LibraryParams params) {
-                return new LibraryResult(RESULT_CODE_NOT_SUPPORTED);
+                return new LibraryResult(RESULT_ERROR_NOT_SUPPORTED);
             }
         }
 

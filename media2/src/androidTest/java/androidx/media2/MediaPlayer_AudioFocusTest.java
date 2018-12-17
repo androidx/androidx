@@ -168,7 +168,7 @@ public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     private void initPlayer(AudioAttributesCompat attr) throws Exception {
         loadResource(R.raw.loudsoftogg);
         mPlayer.setAudioAttributes(attr);
-        assertEquals(SessionPlayer.PlayerResult.RESULT_CODE_SUCCESS,
+        assertEquals(SessionPlayer.PlayerResult.RESULT_SUCCESS,
                 mPlayer.prepare().get(WAIT_TIME_MS, TimeUnit.MILLISECONDS).getResultCode());
     }
 

@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.SessionPlayer.PlayerResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -32,7 +32,7 @@ public class SyncListenableFuture implements ListenableFuture<SessionPlayer.Play
     private final SessionPlayer.PlayerResult mResult;
 
     SyncListenableFuture(MediaItem item) {
-        mResult = new SessionPlayer.PlayerResult(RESULT_CODE_SUCCESS, item);
+        mResult = new SessionPlayer.PlayerResult(RESULT_SUCCESS, item);
     }
 
     @Override

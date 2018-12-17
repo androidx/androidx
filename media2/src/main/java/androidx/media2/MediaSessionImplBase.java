@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.media2.BaseResult.RESULT_CODE_BAD_VALUE;
+import static androidx.media2.BaseResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_DURATION;
 import static androidx.media2.MediaMetadata.METADATA_KEY_MEDIA_ID;
 import static androidx.media2.MediaMetadata.METADATA_KEY_PLAYABLE;
@@ -26,11 +26,11 @@ import static androidx.media2.MediaSession.SessionCallback;
 import static androidx.media2.MediaUtils.DIRECT_EXECUTOR;
 import static androidx.media2.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer.UNKNOWN_TIME;
-import static androidx.media2.SessionResult.RESULT_CODE_DISCONNECTED;
-import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.SessionResult.RESULT_CODE_SKIPPED;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
-import static androidx.media2.SessionResult.RESULT_CODE_UNKNOWN_ERROR;
+import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
+import static androidx.media2.SessionResult.RESULT_ERROR_UNKNOWN_ERROR;
+import static androidx.media2.SessionResult.RESULT_INFO_SKIPPED;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 import static androidx.media2.SessionToken.TYPE_SESSION;
 
 import android.annotation.SuppressLint;
@@ -89,7 +89,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
     @GuardedBy("MediaSessionImplBase.class")
     private static final List<String> SESSION_ID_LIST = new ArrayList<>();
 
-    private static final SessionResult RESULT_WHEN_CLOSED = new SessionResult(RESULT_CODE_SKIPPED);
+    private static final SessionResult RESULT_WHEN_CLOSED = new SessionResult(RESULT_INFO_SKIPPED);
 
     private final Context mContext;
     private final HandlerThread mHandlerThread;
@@ -583,7 +583,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 }
                 final List<MediaItem> list = player.getPlaylist();
                 if (index >= list.size()) {
-                    return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
+                    return PlayerResult.createFuture(RESULT_ERROR_BAD_VALUE);
                 }
                 return player.skipToPlaylistItem(index);
             }
@@ -647,7 +647,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 }
                 final List<MediaItem> list = player.getPlaylist();
                 if (index >= list.size()) {
-                    return PlayerResult.createFuture(RESULT_CODE_BAD_VALUE);
+                    return PlayerResult.createFuture(RESULT_ERROR_BAD_VALUE);
                 }
                 return player.removePlaylistItem(index);
             }
@@ -903,7 +903,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
     private ListenableFuture<PlayerResult> dispatchPlayerTask(
             @NonNull PlayerTask<ListenableFuture<PlayerResult>> command) {
         ResolvableFuture<PlayerResult> result = ResolvableFuture.create();
-        result.set(new PlayerResult(RESULT_CODE_INVALID_STATE, null));
+        result.set(new PlayerResult(RESULT_ERROR_INVALID_STATE, null));
         return dispatchPlayerTask(command, result);
     }
 
@@ -1077,7 +1077,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
     private ListenableFuture<SessionResult> dispatchRemoteControllerTask(
             @NonNull ControllerInfo controller, @NonNull RemoteControllerTask task) {
         if (!isConnected(controller)) {
-            return SessionResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);
+            return SessionResult.createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
         }
         try {
             final ListenableFuture<SessionResult> future;
@@ -1095,13 +1095,13 @@ class MediaSessionImplBase implements MediaSessionImpl {
                 //     Case 2) Controller is removed after the connection check above
                 //             -> Call will fail below or ignored by the controller, so 0 is OK.
                 seq = 0;
-                future = SessionResult.createFutureWithResult(RESULT_CODE_SUCCESS);
+                future = SessionResult.createFutureWithResult(RESULT_SUCCESS);
             }
             task.run(controller.getControllerCb(), seq);
             return future;
         } catch (DeadObjectException e) {
             onDeadObjectException(controller, e);
-            return SessionResult.createFutureWithResult(RESULT_CODE_DISCONNECTED);
+            return SessionResult.createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
         } catch (RemoteException e) {
             // Currently it's TransactionTooLargeException or DeadSystemException.
             // We'd better to leave log for those cases because
@@ -1110,7 +1110,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
             //   - DeadSystemException means that errors around it can be ignored.
             Log.w(TAG, "Exception in " + controller.toString(), e);
         }
-        return SessionResult.createFutureWithResult(RESULT_CODE_UNKNOWN_ERROR);
+        return SessionResult.createFutureWithResult(RESULT_ERROR_UNKNOWN_ERROR);
     }
 
     /**
@@ -1483,8 +1483,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
                         try {
                             T result = mFutures[cur].get();
                             int resultCode = result.getResultCode();
-                            if (resultCode != RESULT_CODE_SUCCESS
-                                    && resultCode != RESULT_CODE_SKIPPED) {
+                            if (resultCode != RESULT_SUCCESS
+                                    && resultCode != RESULT_INFO_SKIPPED) {
                                 for (int j = 0; j < mFutures.length; ++j) {
                                     if (!mFutures[j].isCancelled() && !mFutures[j].isDone()
                                             && cur != j) {
