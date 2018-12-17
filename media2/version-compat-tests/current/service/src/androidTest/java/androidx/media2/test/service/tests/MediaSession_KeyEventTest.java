@@ -17,7 +17,7 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.SERVICE_PACKAGE_NAME;
 
 import static org.junit.Assert.assertFalse;

@@ -23,14 +23,14 @@ import static androidx.media2.MediaMetadata.METADATA_KEY_PLAYABLE;
 import static androidx.media2.MediaSession.ControllerCb;
 import static androidx.media2.MediaSession.ControllerInfo;
 import static androidx.media2.MediaSession.SessionCallback;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_DISCONNECTED;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SKIPPED;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_SUCCESS;
-import static androidx.media2.MediaSession.SessionResult.RESULT_CODE_UNKNOWN_ERROR;
 import static androidx.media2.MediaUtils.DIRECT_EXECUTOR;
 import static androidx.media2.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer.UNKNOWN_TIME;
+import static androidx.media2.SessionResult.RESULT_CODE_DISCONNECTED;
+import static androidx.media2.SessionResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.SessionResult.RESULT_CODE_SKIPPED;
+import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_CODE_UNKNOWN_ERROR;
 import static androidx.media2.SessionToken.TYPE_SESSION;
 
 import android.annotation.SuppressLint;
@@ -64,7 +64,6 @@ import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.VolumeProviderCompat;
 import androidx.media2.MediaController.PlaybackInfo;
 import androidx.media2.MediaSession.MediaSessionImpl;
-import androidx.media2.MediaSession.SessionResult;
 import androidx.media2.SequencedFutureManager.SequencedFuture;
 import androidx.media2.SessionPlayer.PlayerResult;
 

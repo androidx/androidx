@@ -16,7 +16,7 @@
 
 package androidx.media2.test.service.tests;
 
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

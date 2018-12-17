@@ -16,9 +16,9 @@
 
 package androidx.media2;
 
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_BAD_VALUE;
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.MediaLibraryService.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_CODE_BAD_VALUE;
+import static androidx.media2.LibraryResult.RESULT_CODE_INVALID_STATE;
+import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
 import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_MIXED;
 import static androidx.media2.MediaMetadata.METADATA_KEY_BROWSABLE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_MEDIA_ID;
