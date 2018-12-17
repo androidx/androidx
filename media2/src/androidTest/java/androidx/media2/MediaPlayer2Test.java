@@ -659,9 +659,10 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
         playVideoTest(R.raw.testvideo, 352, 288);
     }
 
-    @Test
-    @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+//    Temporarily disabled for being flaky, bug b/121070831 filed to keep track
+//    @Test
+//    @SmallTest
+//    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetDuration() throws Exception {
         if (!checkLoadResource(R.raw.testvideo)) {
             return;

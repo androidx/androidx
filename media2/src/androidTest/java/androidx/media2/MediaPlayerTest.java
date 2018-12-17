@@ -258,9 +258,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         }
     }
 
-    @Test
-    @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+//    Temporarily disabled for being flaky, bug b/121078676 filed.
+//    @Test
+//    @SmallTest
+//    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetDuration() throws Exception {
         if (!loadResource(R.raw.testvideo)) {
             fail();
