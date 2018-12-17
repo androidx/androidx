@@ -22,7 +22,7 @@ android {
     buildToolsVersion buildTools
     compileSdkVersion compileSdk
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion minSdk
     }
     baseFeature true
 
@@ -42,4 +42,5 @@ dependencies {
     application project(':app')
     feature project(':feature')
     implementation project(":library")
+    implementation "$navigationCommonDep"
 }

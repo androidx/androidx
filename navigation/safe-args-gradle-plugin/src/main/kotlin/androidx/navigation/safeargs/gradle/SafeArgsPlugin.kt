@@ -56,18 +56,40 @@ class SafeArgsPlugin @Inject constructor(val providerFactory: ProviderFactory) :
         val extension = project.extensions.findByType(BaseExtension::class.java)
                 ?: throw GradleException("safeargs plugin must be used with android plugin")
         forEachVariant(extension) { variant ->
-            project.tasks.register(
+            val task = project.tasks.create(
                 "generateSafeArgs${variant.name.capitalize()}",
                 ArgumentsGenerationTask::class.java
             ) { task ->
+                setApplicationId(task, variant)
                 task.rFilePackage = variant.rFilePackage()
-                task.applicationId = getApplicationId(variant)
                 task.navigationFiles = navigationFiles(variant)
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
                 task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
                 task.useAndroidX = (project.findProperty("android.useAndroidX") == "true")
-                variant.registerJavaGeneratingTask(task, task.outputDir)
             }
+            task.applicationIdResource?.let { task.dependsOn(it) }
+            variant.registerJavaGeneratingTask(task, task.outputDir)
+        }
+    }
+
+    /**
+     * Sets the android project application id into the task.
+     *
+     * Safe Args depends on AGP 3.2 which doesn't declare getApplicationIdTextResource.
+     * However, on 3.3+ getApplicationIdTextResource() is recommended and on 3.4 getApplicationId
+     * is completely deprecated and will throw. Thus the need for this method to get
+     * the app id resource via a reflection call.
+     */
+    private fun setApplicationId(task: ArgumentsGenerationTask, variant: BaseVariant) {
+        val appIdTextResource = variant::class.memberFunctions.firstOrNull {
+            it.name == "getApplicationIdTextResource"
+        }?.let {
+            it.call(variant) as TextResource
+        }
+        if (appIdTextResource != null) {
+            task.applicationIdResource = appIdTextResource
+        } else {
+            task.applicationId = variant.applicationId
         }
     }
 
@@ -77,21 +99,6 @@ class SafeArgsPlugin @Inject constructor(val providerFactory: ProviderFactory) :
         val manifest = sourceSet.manifestFile
         val parsed = XmlSlurper(false, false).parse(manifest)
         parsed.getProperty("@package").toString()
-    }
-
-    /**
-     * Gets the android project application id.
-     *
-     * Safe Args depends on AGP 3.2 which doesn't declare getApplicationIdTextResource.
-     * However, on 3.3+ getApplicationIdTextResource() is recommended and on 3.4 getApplicationId
-     * is completely deprecated and will throw. Thus the need for this reflection call.
-     */
-    private fun getApplicationId(variant: BaseVariant) = providerFactory.provider {
-        variant::class.memberFunctions.firstOrNull {
-            it.name == "getApplicationIdTextResource"
-        }?.let {
-            (it.call(variant) as TextResource).asString()
-        } ?: variant.applicationId
     }
 
     private fun navigationFiles(variant: BaseVariant) = providerFactory.provider {
