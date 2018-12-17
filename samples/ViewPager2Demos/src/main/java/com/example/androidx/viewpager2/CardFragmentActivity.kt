@@ -40,11 +40,11 @@ class CardFragmentActivity : BaseCardActivity() {
 
         viewPager.adapter = object : FragmentStateAdapter(supportFragmentManager) {
             override fun getItem(position: Int): Fragment {
-                return CardFragment.create(BaseCardActivity.cards[position])
+                return CardFragment.create(cards[position])
             }
 
             override fun getItemCount(): Int {
-                return BaseCardActivity.cards.size
+                return cards.size
             }
         }
     }

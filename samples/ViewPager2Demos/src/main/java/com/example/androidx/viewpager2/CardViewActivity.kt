@@ -43,11 +43,11 @@ class CardViewActivity : BaseCardActivity() {
             }
 
             override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
-                holder.bind(BaseCardActivity.cards[position])
+                holder.bind(cards[position])
             }
 
             override fun getItemCount(): Int {
-                return BaseCardActivity.cards.size
+                return cards.size
             }
         }
     }

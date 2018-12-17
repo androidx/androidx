@@ -22,7 +22,7 @@
         android:icon="@drawable/app_sample_code"
         android:label="@string/activity_sample_code"
         android:supportsRtl="true"
-        android:theme="@style/android:Theme.Holo.Light">
+        android:theme="@style/Theme.AppCompat.Light">
 
         <activity android:name=".CardViewActivity" android:label="CardsDemo">
             <intent-filter>
