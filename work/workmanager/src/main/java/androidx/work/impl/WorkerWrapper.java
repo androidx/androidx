@@ -67,7 +67,7 @@ import java.util.concurrent.ExecutionException;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkerWrapper implements Runnable {
 
-    private static final String TAG = "WorkerWrapper";
+    private static final String TAG = Logger.tagWithPrefix("WorkerWrapper");
 
     private Context mAppContext;
     private String mWorkSpecId;

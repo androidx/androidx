@@ -45,7 +45,7 @@ import java.util.Map;
 
 public final class Data {
 
-    private static final String TAG = "Data";
+    private static final String TAG = Logger.tagWithPrefix("Data");
 
     /**
      * An empty Data object with no elements.

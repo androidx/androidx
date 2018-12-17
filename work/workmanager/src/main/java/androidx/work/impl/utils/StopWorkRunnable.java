@@ -32,7 +32,7 @@ import androidx.work.impl.model.WorkSpecDao;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StopWorkRunnable implements Runnable {
 
-    private static final String TAG = "StopWorkRunnable";
+    private static final String TAG = Logger.tagWithPrefix("StopWorkRunnable");
 
     private WorkManagerImpl mWorkManagerImpl;
     private String mWorkSpecId;

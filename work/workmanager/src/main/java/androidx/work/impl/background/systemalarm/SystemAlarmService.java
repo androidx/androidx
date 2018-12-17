@@ -34,7 +34,7 @@ import androidx.work.impl.utils.WakeLocks;
 public class SystemAlarmService extends LifecycleService
         implements SystemAlarmDispatcher.CommandsCompletedListener {
 
-    private static final String TAG = "SystemAlarmService";
+    private static final String TAG = Logger.tagWithPrefix("SystemAlarmService");
 
     private SystemAlarmDispatcher mDispatcher;
 

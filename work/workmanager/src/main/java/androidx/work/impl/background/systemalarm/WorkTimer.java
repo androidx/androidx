@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class WorkTimer {
 
-    private static final String TAG = "WorkTimer";
+    private static final String TAG = Logger.tagWithPrefix("WorkTimer");
 
     private final ThreadFactory mBackgroundThreadFactory = new ThreadFactory() {
 

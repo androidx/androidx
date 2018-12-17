@@ -28,7 +28,7 @@ import androidx.work.impl.model.WorkSpec;
 import java.util.List;
 
 abstract class ConstraintProxy extends BroadcastReceiver {
-    private static final String TAG = "ConstraintProxy";
+    private static final String TAG = Logger.tagWithPrefix("ConstraintProxy");
 
     @Override
     public void onReceive(Context context, Intent intent) {

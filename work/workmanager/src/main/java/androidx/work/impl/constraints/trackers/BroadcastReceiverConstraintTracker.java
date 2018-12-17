@@ -33,7 +33,7 @@ import androidx.work.Logger;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class BroadcastReceiverConstraintTracker<T> extends ConstraintTracker<T> {
-    private static final String TAG = "BrdcstRcvrCnstrntTrckr";
+    private static final String TAG = Logger.tagWithPrefix("BrdcstRcvrCnstrntTrckr");
 
     private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override

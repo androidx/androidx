@@ -33,7 +33,7 @@ import androidx.work.impl.model.WorkSpec;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmScheduler implements Scheduler {
 
-    private static final String TAG = "SystemAlarmScheduler";
+    private static final String TAG = Logger.tagWithPrefix("SystemAlarmScheduler");
 
     private final Context mContext;
 
