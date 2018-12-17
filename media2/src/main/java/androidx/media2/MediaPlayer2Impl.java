@@ -1869,6 +1869,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         }
 
         synchronized MediaTimestamp getTimestamp() {
+            Preconditions.checkState(getFirst().mMp2State != PLAYER_STATE_IDLE);
             android.media.MediaTimestamp t = getCurrentPlayer().getTimestamp();
             return (t == null) ? null : new MediaTimestamp(t);
         }
