@@ -40,7 +40,7 @@ public abstract class Logger {
     /**
      * @param logger The {@link Logger} to use for all {@link WorkManager} logging.
      */
-    public static void setLogger(Logger logger) {
+    public static synchronized void setLogger(Logger logger) {
         sLogger = logger;
     }
 
@@ -65,6 +65,15 @@ public abstract class Logger {
      * @return The current {@link Logger}.
      */
     public static synchronized Logger get() {
+        // Logger may not be explicitly initialized by some tests which do not instantiate
+        // WorkManagerImpl directly.
+        //
+        // This is not being initialized on the field directly to avoid a
+        // class loading deadlock; when the parent class, Logger tries to reference an inner
+        // class, LogcatLogger and there might be another Thread trying to do the same.
+        if (sLogger == null) {
+            sLogger = new LogcatLogger(Log.DEBUG);
+        }
         return sLogger;
     }
 
