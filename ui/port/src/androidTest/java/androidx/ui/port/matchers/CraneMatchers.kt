@@ -17,6 +17,9 @@
 package androidx.ui.port.matchers
 
 import android.graphics.Bitmap
+import android.graphics.Typeface
+import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontWeight
 import org.hamcrest.Matcher
 import kotlin.reflect.KClass
 
@@ -55,4 +58,14 @@ fun hasSpan(spanClazz: KClass<out Any>, start: Int, end: Int): Matcher<CharSeque
  */
 fun hasSpanOnTop(spanClazz: KClass<out Any>, start: Int, end: Int): Matcher<CharSequence> {
     return HasSpanOnTop(spanClazz, start, end)
+}
+
+/**
+ * Verifies that [Typeface] object has the given [FontWeight] and [FontStyle].
+ *
+ * @param [fontWeight] expected [FontWeight]
+ * @param [fontStyle] expected [FontStyle]
+ */
+fun isTypefaceOf(fontWeight: FontWeight, fontStyle: FontStyle): Matcher<Typeface> {
+    return IsTypefaceOf(fontWeight, fontStyle)
 }

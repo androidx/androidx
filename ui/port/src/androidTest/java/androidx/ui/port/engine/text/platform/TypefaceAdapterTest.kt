@@ -23,10 +23,39 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
+import androidx.ui.engine.text.font.Font
+import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.engine.text.font.FontMatcher
+import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.text.platform.TypefaceAdapter
 import androidx.ui.port.bitmap
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_100_ITALIC
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_100_REGULAR
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_200_ITALIC
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_200_REGULAR
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_300_ITALIC
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_300_REGULAR
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_400_ITALIC
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_400_REGULAR
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_500_ITALIC
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_500_REGULAR
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_600_ITALIC
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_600_REGULAR
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_700_ITALIC
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_700_REGULAR
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_800_ITALIC
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_800_REGULAR
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_900_ITALIC
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_900_REGULAR
 import androidx.ui.port.matchers.equalToBitmap
+import androidx.ui.port.matchers.isTypefaceOf
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
+import com.nhaarman.mockitokotlin2.whenever
 import org.hamcrest.CoreMatchers.not
 import org.junit.Assert
 import org.junit.Before
@@ -94,9 +123,7 @@ class TypefaceAdapterTest {
 
         assertThat(typefaceSans).isNotNull()
         assertThat(typefaceSans).isNotNull()
-        Assert.assertThat(
-            typefaceSans.bitmap(), not(equalToBitmap(typefaceSerif.bitmap()))
-        )
+        Assert.assertThat(typefaceSans.bitmap(), not(equalToBitmap(typefaceSerif.bitmap())))
     }
 
     @Test
@@ -214,5 +241,107 @@ class TypefaceAdapterTest {
                 assertThat(typeface.isItalic).isEqualTo(fontStyle == FontStyle.italic)
             }
         }
+    }
+
+    @Test
+    fun customSingleFont() {
+        val context = instrumentation.context
+        val resources = context.resources
+        val defaultTypeface = TypefaceAdapter().create()
+
+        val typeface = TypefaceAdapter().create(
+            fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily(),
+            context = context
+        )
+
+        assertThat(typeface).isNotNull()
+        Assert.assertThat(typeface.bitmap(), not(equalToBitmap(defaultTypeface.bitmap())))
+
+        assertThat(typeface.isItalic).isFalse()
+        assertThat(typeface.isBold).isFalse()
+    }
+
+    @Test
+    fun customSingleFontBoldItalic() {
+        val defaultTypeface = TypefaceAdapter().create()
+
+        val typeface = TypefaceAdapter().create(
+            fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily(),
+            context = context,
+            fontStyle = FontStyle.italic,
+            fontWeight = FontWeight.bold
+        )
+
+        assertThat(typeface).isNotNull()
+        Assert.assertThat(typeface.bitmap(), not(equalToBitmap(defaultTypeface.bitmap())))
+        assertThat(typeface.isItalic).isTrue()
+        assertThat(typeface.isBold).isTrue()
+    }
+
+    @Test
+    fun customSingleFontFamilyExactMatch() {
+        val fontFamily = FontFamily(
+            FONT_100_REGULAR,
+            FONT_100_ITALIC,
+            FONT_200_REGULAR,
+            FONT_200_ITALIC,
+            FONT_300_REGULAR,
+            FONT_300_ITALIC,
+            FONT_400_REGULAR,
+            FONT_400_ITALIC,
+            FONT_500_REGULAR,
+            FONT_500_ITALIC,
+            FONT_600_REGULAR,
+            FONT_600_ITALIC,
+            FONT_700_REGULAR,
+            FONT_700_ITALIC,
+            FONT_800_REGULAR,
+            FONT_800_ITALIC,
+            FONT_900_REGULAR,
+            FONT_900_ITALIC
+        )
+
+        for (fontWeight in FontWeight.values) {
+            for (fontStyle in FontStyle.values()) {
+                val typeface = TypefaceAdapter().create(
+                    fontWeight = fontWeight,
+                    fontStyle = fontStyle,
+                    fontFamily = fontFamily,
+                    context = context
+                )
+
+                assertThat(typeface).isNotNull()
+                Assert.assertThat(
+                    typeface,
+                    isTypefaceOf(fontWeight = fontWeight, fontStyle = fontStyle)
+                )
+            }
+        }
+    }
+
+    @Test
+    fun fontMatcherCalledForCustomFont() {
+        // customSingleFontFamilyExactMatch tests all the possible outcomes that FontMatcher
+        // might return. Therefore for the best effort matching we just make sure that FontMatcher
+        // is called.
+        val fontWeight = FontWeight.w300
+        val fontStyle = FontStyle.italic
+        val fontFamily = FontFamily(FONT_200_ITALIC)
+
+        val fontMatcher = mock<FontMatcher>()
+        whenever(fontMatcher.matchFont(any(), any(), any()))
+            .thenReturn(FONT_200_ITALIC)
+        TypefaceAdapter(fontMatcher).create(
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontFamily = fontFamily,
+            context = context
+        )
+
+        verify(fontMatcher, times(1)).matchFont(
+            eq(fontFamily),
+            eq(fontWeight),
+            eq(fontStyle)
+        )
     }
 }
