@@ -26,6 +26,9 @@ plugins {
 dependencies {
     api(project(":fragment"))
     api(project(":recyclerview"))
+    implementation(SUPPORT_DESIGN, libs.exclude_for_material)
+    implementation(project(":appcompat"))
+    implementation(project(":cardview"))
 
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
