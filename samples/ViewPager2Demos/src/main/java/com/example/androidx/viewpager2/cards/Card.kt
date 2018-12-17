@@ -17,23 +17,14 @@
 package com.example.androidx.viewpager2.cards
 
 import android.os.Bundle
-import java.util.ArrayList
 
 /**
  * Playing card
  */
-class Card(suit: String, value: String) {
-
-    val suit: String
-    val value: String
+class Card private constructor(val suit: String, val value: String) {
 
     val cornerLabel: String
         get() = value + "\n" + suit
-
-    init {
-        this.suit = checkValidValue(suit, SUITS)
-        this.value = checkValidValue(value, VALUES)
-    }
 
     /** Use in conjunction with [Card.fromBundle]  */
     fun toBundle(): Bundle {
@@ -42,11 +33,8 @@ class Card(suit: String, value: String) {
         return args
     }
 
-    private fun checkValidValue(value: String, allowed: Set<String>): String {
-        if (allowed.contains(value)) {
-            return value
-        }
-        throw IllegalArgumentException("Illegal argument: $value")
+    override fun toString(): String {
+        return "$value $suit"
     }
 
     companion object {
@@ -54,23 +42,14 @@ class Card(suit: String, value: String) {
 
         val SUITS = setOf("♣" /* clubs*/, "♦" /* diamonds*/, "♥" /* hearts*/, "♠" /*spades*/)
         val VALUES = setOf("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")
+        val DECK = SUITS.flatMap { suit ->
+            VALUES.map { value -> Card(suit, value) }
+        }
 
         /** Use in conjunction with [Card.toBundle]  */
         fun fromBundle(bundle: Bundle): Card {
             val spec = bundle.getStringArray(ARGS_BUNDLE)
             return Card(spec[0], spec[1])
-        }
-
-        /**
-         * Creates a deck of all allowed cards
-         */
-        fun createDeck52(): List<Card> {
-            val result = ArrayList<Card>(52)
-            SUITS.forEach { suit -> VALUES.forEach { value -> result.add(Card(suit, value)) } }
-            if (result.size != 52) {
-                throw IllegalStateException()
-            }
-            return result
         }
     }
 }

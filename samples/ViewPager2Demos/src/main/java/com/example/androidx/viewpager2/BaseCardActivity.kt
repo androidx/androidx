@@ -37,8 +37,7 @@ import com.example.androidx.viewpager2.cards.Card
 abstract class BaseCardActivity : FragmentActivity() {
 
     lateinit var viewPager: ViewPager2
-    private lateinit var valueSelector: Spinner
-    private lateinit var suitSelector: Spinner
+    private lateinit var cardSelector: Spinner
     private lateinit var smoothScrollCheckBox: CheckBox
     private lateinit var rotateCheckBox: CheckBox
     private lateinit var translateCheckBox: CheckBox
@@ -51,6 +50,8 @@ abstract class BaseCardActivity : FragmentActivity() {
             translateCheckBox.isChecked
     private val translateY get() = orientation == ORIENTATION_HORIZONTAL &&
             translateCheckBox.isChecked
+
+    private val layoutId: Int = R.layout.activity_no_tablayout
 
     private val mAnimator = ViewPager2.PageTransformer { page, position ->
         val absPos = Math.abs(position)
@@ -71,12 +72,11 @@ abstract class BaseCardActivity : FragmentActivity() {
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_card_layout)
+        setContentView(layoutId)
 
         viewPager = findViewById(R.id.view_pager)
         orientationSelector = findViewById(R.id.orientation_spinner)
-        valueSelector = findViewById(R.id.value_spinner)
-        suitSelector = findViewById(R.id.suit_spinner)
+        cardSelector = findViewById(R.id.card_spinner)
         smoothScrollCheckBox = findViewById(R.id.smooth_scroll_checkbox)
         rotateCheckBox = findViewById(R.id.rotate_checkbox)
         translateCheckBox = findViewById(R.id.translate_checkbox)
@@ -84,8 +84,7 @@ abstract class BaseCardActivity : FragmentActivity() {
         gotoPage = findViewById(R.id.jump_button)
 
         orientationSelector.adapter = createOrientationAdapter()
-        valueSelector.adapter = createAdapter(Card.VALUES)
-        suitSelector.adapter = createAdapter(Card.SUITS)
+        cardSelector.adapter = createCardAdapter()
 
         viewPager.setPageTransformer(mAnimator)
 
@@ -107,17 +106,21 @@ abstract class BaseCardActivity : FragmentActivity() {
         }
 
         gotoPage.setOnClickListener {
-            val suit = suitSelector.selectedItemPosition
-            val value = valueSelector.selectedItemPosition
-            val targetPosition = suit * Card.VALUES.size + value
+            val card = cardSelector.selectedItemPosition
             val smoothScroll = smoothScrollCheckBox.isChecked
-            viewPager.setCurrentItem(targetPosition, smoothScroll)
+            viewPager.setCurrentItem(card, smoothScroll)
         }
     }
 
     private fun createAdapter(values: Set<String>): SpinnerAdapter {
         val adapter = ArrayAdapter(
                 this, android.R.layout.simple_spinner_item, values.toTypedArray())
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        return adapter
+    }
+
+    private fun createCardAdapter(): SpinnerAdapter {
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, Card.DECK)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         return adapter
     }
@@ -130,7 +133,7 @@ abstract class BaseCardActivity : FragmentActivity() {
     }
 
     companion object {
-        val cards = Card.createDeck52()
+        val cards = Card.DECK
         private const val HORIZONTAL = "horizontal"
         private const val VERTICAL = "vertical"
     }
