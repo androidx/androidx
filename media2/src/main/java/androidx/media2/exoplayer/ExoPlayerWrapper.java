@@ -229,7 +229,6 @@ import java.util.Map;
     }
 
     public long getCurrentPosition() {
-        Preconditions.checkState(getState() != MediaPlayer2.PLAYER_STATE_IDLE);
         long position = mPlayer.getCurrentPosition();
         MediaItem mediaItem = mMediaItemQueue.getCurrentMediaItem();
         if (mediaItem != null) {
@@ -336,7 +335,9 @@ import java.util.Map;
         // TODO(b/80232248): Decide how to handle fallback modes, which ExoPlayer doesn't support.
         mPlaybackParams = playbackParams2;
         mPlayer.setPlaybackParameters(ExoPlayerUtils.getPlaybackParameters(mPlaybackParams));
-        mListener.onMediaTimeDiscontinuity(getCurrentMediaItem(), getTimestamp());
+        if (getState() == MediaPlayer2.PLAYER_STATE_PLAYING) {
+            mListener.onMediaTimeDiscontinuity(getCurrentMediaItem(), getTimestamp());
+        }
     }
 
     public PlaybackParams getPlaybackParams() {
@@ -409,10 +410,10 @@ import java.util.Map;
     }
 
     public MediaTimestamp getTimestamp() {
-        boolean isPlaying =
-                mPlayer.getPlaybackState() == Player.STATE_READY && mPlayer.getPlayWhenReady();
-        float speed = isPlaying ? mPlaybackParams.getSpeed() : 0f;
-        return new MediaTimestamp(C.msToUs(getCurrentPosition()), System.nanoTime(), speed);
+        return new MediaTimestamp(
+                C.msToUs(getCurrentPosition()),
+                System.nanoTime(),
+                mPlaybackParams.getSpeed());
     }
 
     public void reset() {
@@ -548,6 +549,7 @@ import java.util.Map;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void handlePlayerError(ExoPlaybackException exception) {
+        mListener.onMediaTimeDiscontinuity(getCurrentMediaItem(), getTimestamp());
         mListener.onError(getCurrentMediaItem(), ExoPlayerUtils.getError(exception));
     }
 
