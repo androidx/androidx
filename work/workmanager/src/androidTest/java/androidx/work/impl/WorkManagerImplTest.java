@@ -937,8 +937,10 @@ public class WorkManagerImplTest {
         assertThat(workInfo, is(nullValue()));
     }
 
-    @Test
-    @SmallTest
+    // Temporarily disabled due to b/121002352.
+    // bug b/121090948 filed to keep track.
+    // @Test
+    // @SmallTest
     @SuppressWarnings("unchecked")
     public void testGetWorkInfoById() {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
