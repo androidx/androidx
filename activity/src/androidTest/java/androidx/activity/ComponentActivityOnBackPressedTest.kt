@@ -16,8 +16,8 @@
 
 package androidx.activity
 
-import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.test.annotation.UiThreadTest
@@ -201,7 +201,7 @@ class CountingOnBackPressedCallback(val returnValue: Boolean = true) :
 
 class OnBackPressedComponentActivity : ComponentActivity() {
     val activityCallbackLifecycleOwner: LifecycleOwner = mock(LifecycleOwner::class.java)
-    val lifecycleObserver: GenericLifecycleObserver = mock(GenericLifecycleObserver::class.java)
+    val lifecycleObserver: LifecycleEventObserver = mock(LifecycleEventObserver::class.java)
     val destroyCountDownLatch = CountDownLatch(1)
 
     init {

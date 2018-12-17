@@ -55,8 +55,8 @@ import androidx.annotation.StringRes;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.util.DebugUtils;
 import androidx.core.view.LayoutInflaterCompat;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.LiveData;
@@ -415,9 +415,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     private void initLifecycle() {
         mLifecycleRegistry = new LifecycleRegistry(this);
         if (Build.VERSION.SDK_INT >= 19) {
-            mLifecycleRegistry.addObserver(new GenericLifecycleObserver() {
+            mLifecycleRegistry.addObserver(new LifecycleEventObserver() {
                 @Override
-                public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+                public void onStateChanged(@NonNull LifecycleOwner source,
+                        @NonNull Lifecycle.Event event) {
                     if (event == Lifecycle.Event.ON_STOP) {
                         if (mView != null) {
                             mView.cancelPendingInputEvents();
