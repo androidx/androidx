@@ -35,44 +35,44 @@ interface BaseResult {
     /**
      * Result code representing that the command is successfully completed.
      */
-    int RESULT_CODE_SUCCESS = 0;
+    int RESULT_SUCCESS = 0;
 
     /**
      * Result code represents that call is ended with an unknown error.
      */
-    int RESULT_CODE_UNKNOWN_ERROR = -1;
+    int RESULT_ERROR_UNKNOWN_ERROR = -1;
 
     /**
      * Result code representing that the command cannot be completed because the current state is
      * not valid for the command.
      */
-    int RESULT_CODE_INVALID_STATE = -2;
+    int RESULT_ERROR_INVALID_STATE = -2;
 
     /**
      * Result code representing that an argument is illegal.
      */
-    int RESULT_CODE_BAD_VALUE = -3;
+    int RESULT_ERROR_BAD_VALUE = -3;
 
     /**
      * Result code representing that the command is not allowed.
      */
-    int RESULT_CODE_PERMISSION_DENIED = -4;
+    int RESULT_ERROR_PERMISSION_DENIED = -4;
 
     /**
      * Result code representing a file or network related command error.
      */
-    int RESULT_CODE_IO_ERROR = -5;
+    int RESULT_ERROR_IO_ERROR = -5;
 
     /**
      * Result code representing that the command is not supported nor implemented.
      */
-    int RESULT_CODE_NOT_SUPPORTED = -6;
+    int RESULT_ERROR_NOT_SUPPORTED = -6;
 
     /**
      * Result code representing that the command is skipped or canceled. For an example, a seek
      * command can be skipped if it is followed by another seek command.
      */
-    int RESULT_CODE_SKIPPED = 1;
+    int RESULT_INFO_SKIPPED = 1;
 
     // Subclasses should write its own documentation with @IntDef annotation at the return type.
     int getResultCode();

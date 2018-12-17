@@ -19,7 +19,7 @@ package androidx.media2;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE;
 import static android.support.v4.media.MediaBrowserCompat.EXTRA_PAGE_SIZE;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 import static androidx.media2.MediaUtils.TRANSACTION_SIZE_LIMIT_IN_BYTES;
 
 import android.content.Context;
@@ -97,7 +97,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
                     mLibrarySessionImpl.getContext(), rootHints);
             LibraryResult result = mLibrarySessionImpl.getCallback().onGetLibraryRoot(
                     mLibrarySessionImpl.getInstance(), controller, params);
-            if (result != null && result.getResultCode() == RESULT_CODE_SUCCESS
+            if (result != null && result.getResultCode() == RESULT_SUCCESS
                     && result.getMediaItem() != null) {
                 MediaMetadata metadata = result.getMediaItem().getMetadata();
                 String id = metadata != null
@@ -209,7 +209,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
                                     .onGetChildren(mLibrarySessionImpl.getInstance(), controller,
                                             parentId, page, pageSize, params);
                             if (libraryResult == null
-                                    || libraryResult.getResultCode() != RESULT_CODE_SUCCESS) {
+                                    || libraryResult.getResultCode() != RESULT_SUCCESS) {
                                 result.sendResult(null);
                             } else {
                                 result.sendResult(MediaUtils.truncateListBySize(
@@ -232,7 +232,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
                                 0 /* page */, Integer.MAX_VALUE /* pageSize*/,
                                 null /* extras */);
                 if (libraryResult == null
-                        || libraryResult.getResultCode() != RESULT_CODE_SUCCESS) {
+                        || libraryResult.getResultCode() != RESULT_SUCCESS) {
                     result.sendResult(null);
                 } else {
                     result.sendResult(MediaUtils.truncateListBySize(
@@ -266,7 +266,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
                 }
                 LibraryResult libraryResult = mLibrarySessionImpl.getCallback().onGetItem(
                         mLibrarySessionImpl.getInstance(), controller, itemId);
-                if (libraryResult == null || libraryResult.getResultCode() != RESULT_CODE_SUCCESS) {
+                if (libraryResult == null || libraryResult.getResultCode() != RESULT_SUCCESS) {
                     result.sendResult(null);
                 } else {
                     result.sendResult(MediaUtils.convertToMediaItem(libraryResult.getMediaItem()));
@@ -555,7 +555,7 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
                                         request.mController, request.mQuery, page, pageSize,
                                         params);
                         if (libraryResult == null
-                                || libraryResult.getResultCode() != RESULT_CODE_SUCCESS) {
+                                || libraryResult.getResultCode() != RESULT_SUCCESS) {
                             request.mResult.sendResult(null);
                         } else {
                             request.mResult.sendResult(

@@ -403,7 +403,7 @@ public class MediaPlayerDrmTest {
         Log.v(TAG, "playLoadedVideo: setMediaItem()");
         ListenableFuture<PlayerResult> future =
                 mPlayer.setMediaItem(new UriMediaItem.Builder(mContext, file).build());
-        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
+        assertEquals(PlayerResult.RESULT_SUCCESS, future.get().getResultCode());
 
         SurfaceHolder surfaceHolder = mActivity.getSurfaceHolder();
         surfaceHolder.setKeepScreenOn(true);
@@ -461,7 +461,7 @@ public class MediaPlayerDrmTest {
     private void preparePlayerAndDrm_V0_syncDrmSetup() throws Exception {
         Log.v(TAG, "preparePlayerAndDrm_V0: calling prepare()");
         ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
+        assertEquals(PlayerResult.RESULT_SUCCESS, future.get().getResultCode());
 
         DrmInfo drmInfo = mPlayer.getDrmInfo();
         if (drmInfo != null) {
@@ -496,7 +496,7 @@ public class MediaPlayerDrmTest {
 
         Log.v(TAG, "preparePlayerAndDrm_V1: calling prepare()");
         ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
+        assertEquals(PlayerResult.RESULT_SUCCESS, future.get().getResultCode());
 
         mOnDrmInfoCalled.waitForSignal();
 
@@ -531,7 +531,7 @@ public class MediaPlayerDrmTest {
 
         Log.v(TAG, "preparePlayerAndDrm_V2: calling prepare()");
         ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
+        assertEquals(PlayerResult.RESULT_SUCCESS, future.get().getResultCode());
 
         DrmInfo drmInfo = mPlayer.getDrmInfo();
         if (drmInfo != null) {
@@ -578,7 +578,7 @@ public class MediaPlayerDrmTest {
                                     + result.getResultCode());
 
                             assertTrue("preparePlayerAndDrm_V3: onDrmPrepared did not succeed",
-                                    result.getResultCode() == DrmResult.RESULT_CODE_SUCCESS);
+                                    result.getResultCode() == DrmResult.RESULT_SUCCESS);
 
                             DrmInfo drmInfo = mPlayer.getDrmInfo();
 
@@ -612,7 +612,7 @@ public class MediaPlayerDrmTest {
 
         Log.v(TAG, "preparePlayerAndDrm_V3: calling prepare()");
         ListenableFuture<PlayerResult> future = mPlayer.prepare();
-        assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
+        assertEquals(PlayerResult.RESULT_SUCCESS, future.get().getResultCode());
 
         // Unlike v3, onDrmPrepared is not synced to onPrepared b/c of its own thread handler
         mOnDrmPreparedCalled.waitForSignal();
@@ -650,7 +650,7 @@ public class MediaPlayerDrmTest {
 
                 Log.v(TAG, "playLoadedVideo: prepare()");
                 ListenableFuture<PlayerResult> future = mPlayer.prepare();
-                assertEquals(PlayerResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
+                assertEquals(PlayerResult.RESULT_SUCCESS, future.get().getResultCode());
 
                 // but preparing the DRM every time with proper key request type
                 drmInfo = mPlayer.getDrmInfo();
@@ -775,7 +775,7 @@ public class MediaPlayerDrmTest {
 
                     if (prepareDrm) {
                         ListenableFuture<DrmResult> future = mPlayer.prepareDrm(drmScheme);
-                        assertEquals(DrmResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
+                        assertEquals(DrmResult.RESULT_SUCCESS, future.get().getResultCode());
                     }
 
                     byte[] psshData = drmInfo.getPssh().get(drmScheme);
@@ -858,7 +858,7 @@ public class MediaPlayerDrmTest {
                 Log.d(TAG, "setupDrmRestore: selected " + drmScheme);
 
                 ListenableFuture<DrmResult> future = mPlayer.prepareDrm(drmScheme);
-                assertEquals(DrmResult.RESULT_CODE_SUCCESS, future.get().getResultCode());
+                assertEquals(DrmResult.RESULT_SUCCESS, future.get().getResultCode());
             }
 
             if (mKeySetId == null) {

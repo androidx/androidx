@@ -19,7 +19,7 @@ package androidx.media2;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_DURATION;
 import static android.support.v4.media.MediaMetadataCompat.METADATA_KEY_MEDIA_ID;
 
-import static androidx.media2.BaseResult.RESULT_CODE_BAD_VALUE;
+import static androidx.media2.BaseResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.MediaConstants.ARGUMENT_COMMAND_CODE;
 import static androidx.media2.MediaConstants.ARGUMENT_ICONTROLLER_CALLBACK;
 import static androidx.media2.MediaConstants.ARGUMENT_PACKAGE_NAME;
@@ -29,9 +29,9 @@ import static androidx.media2.MediaConstants.CONTROLLER_COMMAND_BY_COMMAND_CODE;
 import static androidx.media2.SessionPlayer.BUFFERING_STATE_UNKNOWN;
 import static androidx.media2.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.SessionPlayer.UNKNOWN_TIME;
-import static androidx.media2.SessionResult.RESULT_CODE_DISCONNECTED;
-import static androidx.media2.SessionResult.RESULT_CODE_NOT_SUPPORTED;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_ERROR_NOT_SUPPORTED;
+import static androidx.media2.SessionResult.RESULT_ERROR_SESSION_DISCONNECTED;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
 import android.annotation.SuppressLint;
 import android.app.PendingIntent;
@@ -268,11 +268,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().play();
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -280,11 +280,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().pause();
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -292,11 +292,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().prepare();
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -304,11 +304,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().fastForward();
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -316,23 +316,23 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().rewind();
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
     public ListenableFuture<SessionResult> skipForward() {
         // Unsupported action
-        return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
+        return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
 
     @Override
     public ListenableFuture<SessionResult> skipBackward() {
         // Unsupported action
-        return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
+        return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
 
     @Override
@@ -340,11 +340,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().seekTo(pos);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -353,11 +353,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().playFromMediaId(mediaId, extras);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -366,11 +366,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().playFromSearch(query, extras);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -379,11 +379,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().playFromUri(uri, extras);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -392,11 +392,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().prepareFromMediaId(mediaId, extras);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -405,11 +405,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().prepareFromSearch(query, extras);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -418,11 +418,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().prepareFromUri(uri, extras);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -430,11 +430,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.setVolumeTo(value, flags);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -443,11 +443,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.adjustVolume(direction, flags);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -515,7 +515,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     @Override
     public ListenableFuture<SessionResult> setPlaybackSpeed(float speed) {
         // Unsupported action
-        return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
+        return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
 
     @Override
@@ -559,14 +559,14 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             if (mCurrentMediaItem != null && mediaId.equals(mCurrentMediaItem.getMediaId())) {
                 mControllerCompat.getTransportControls().setRating(
                         MediaUtils.convertToRatingCompat(rating));
             }
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -575,12 +575,12 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             if (mAllowedCommands.hasCommand(command)) {
                 mControllerCompat.getTransportControls().sendCustomAction(
                         command.getCustomCommand(), args);
-                return createFutureWithResult(RESULT_CODE_SUCCESS);
+                return createFutureWithResult(RESULT_SUCCESS);
             }
             final ResolvableFuture<SessionResult> result = ResolvableFuture.create();
             ResultReceiver cb = new ResultReceiver(mHandler) {
@@ -608,18 +608,18 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
     @Override
     public ListenableFuture<SessionResult> setPlaylist(@NonNull List<String> list,
             @Nullable MediaMetadata metadata) {
-        return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
+        return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
 
     @Override
     public ListenableFuture<SessionResult> setMediaItem(String mediaId) {
-        return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
+        return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
 
     @Override
     public ListenableFuture<SessionResult> updatePlaylistMetadata(
             @Nullable MediaMetadata metadata) {
-        return createFutureWithResult(RESULT_CODE_NOT_SUPPORTED);
+        return createFutureWithResult(RESULT_ERROR_NOT_SUPPORTED);
     }
 
     @Override
@@ -638,12 +638,12 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.addQueueItem(
                     MediaUtils.createMediaDescriptionCompat(mediaId), index);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -651,14 +651,14 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             if (mQueue == null || index < 0 || index >= mQueue.size()) {
-                return createFutureWithResult(RESULT_CODE_BAD_VALUE);
+                return createFutureWithResult(RESULT_ERROR_BAD_VALUE);
             }
             mControllerCompat.removeQueueItem(mQueue.get(index).getDescription());
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -667,15 +667,15 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             if (mPlaylist == null || index < 0 || mPlaylist.size() <= index) {
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             removePlaylistItem(index);
             addPlaylistItem(index, mediaId);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -709,11 +709,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().skipToPrevious();
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -721,11 +721,11 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mControllerCompat.getTransportControls().skipToNext();
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -733,13 +733,13 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             mSkipToPlaylistIndex = index;
             mControllerCompat.getTransportControls().skipToQueueItem(
                     mQueue.get(index).getQueueId());
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -758,13 +758,13 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             // SessionPlayer.RepeatMode has the same values with
             // PlaybackStateCompat.RepeatMode.
             mControllerCompat.getTransportControls().setRepeatMode(repeatMode);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override
@@ -783,13 +783,13 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
         synchronized (mLock) {
             if (!mConnected) {
                 Log.w(TAG, "Session isn't active", new IllegalStateException());
-                return createFutureWithResult(RESULT_CODE_DISCONNECTED);
+                return createFutureWithResult(RESULT_ERROR_SESSION_DISCONNECTED);
             }
             // SessionPlayer.ShuffleMode has the same values with
             // PlaybackStateCompat.ShuffleMode.
             mControllerCompat.getTransportControls().setShuffleMode(shuffleMode);
         }
-        return createFutureWithResult(RESULT_CODE_SUCCESS);
+        return createFutureWithResult(RESULT_SUCCESS);
     }
 
     @Override

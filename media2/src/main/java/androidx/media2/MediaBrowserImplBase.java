@@ -16,9 +16,9 @@
 
 package androidx.media2;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_DISCONNECTED;
-import static androidx.media2.LibraryResult.RESULT_CODE_PERMISSION_DENIED;
-import static androidx.media2.LibraryResult.RESULT_CODE_SKIPPED;
+import static androidx.media2.LibraryResult.RESULT_ERROR_PERMISSION_DENIED;
+import static androidx.media2.LibraryResult.RESULT_ERROR_SESSION_DISCONNECTED;
+import static androidx.media2.LibraryResult.RESULT_INFO_SKIPPED;
 import static androidx.media2.SessionCommand.COMMAND_CODE_LIBRARY_GET_CHILDREN;
 import static androidx.media2.SessionCommand.COMMAND_CODE_LIBRARY_GET_ITEM;
 import static androidx.media2.SessionCommand.COMMAND_CODE_LIBRARY_GET_LIBRARY_ROOT;
@@ -45,7 +45,7 @@ import java.util.concurrent.Executor;
 class MediaBrowserImplBase extends MediaControllerImplBase implements
         MediaBrowser.MediaBrowserImpl {
     private static final LibraryResult RESULT_WHEN_CLOSED =
-            new LibraryResult(RESULT_CODE_SKIPPED);
+            new LibraryResult(RESULT_INFO_SKIPPED);
 
     MediaBrowserImplBase(Context context, MediaController instance, SessionToken token,
             Executor executor, BrowserCallback callback) {
@@ -177,14 +177,14 @@ class MediaBrowserImplBase extends MediaControllerImplBase implements
                 task.run(iSession, result.getSequenceNumber());
             } catch (RemoteException e) {
                 Log.w(TAG, "Cannot connect to the service or the session is gone", e);
-                result.set(new LibraryResult(RESULT_CODE_DISCONNECTED));
+                result.set(new LibraryResult(RESULT_ERROR_SESSION_DISCONNECTED));
             }
             return result;
         } else {
             // Don't create Future with SequencedFutureManager.
             // Otherwise session would receive discontinued sequence number, and it would make
             // future work item 'keeping call sequence when session execute commands' impossible.
-            return LibraryResult.createFutureWithResult(RESULT_CODE_PERMISSION_DENIED);
+            return LibraryResult.createFutureWithResult(RESULT_ERROR_PERMISSION_DENIED);
         }
     }
 

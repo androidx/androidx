@@ -592,7 +592,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
                         break;
                 }
                 latch.countDown();
-                return SessionResult.RESULT_CODE_SUCCESS;
+                return SessionResult.RESULT_SUCCESS;
             }
         };
         mSession.setPlaybackState(new PlaybackStateCompat.Builder()
@@ -699,7 +699,7 @@ public class MediaControllerLegacyTest extends MediaSessionTestBase {
                 assertEquals(sessionCommandOnCaptioningEnabledChanged, command.getCustomCommand());
                 assertEquals(true, args.getBoolean(argumentCaptioningEnabled, false));
                 latch.countDown();
-                return new SessionResult(SessionResult.RESULT_CODE_SUCCESS, null);
+                return new SessionResult(SessionResult.RESULT_SUCCESS, null);
             }
         };
         mController = createController(mSession.getSessionToken(), true, callback);

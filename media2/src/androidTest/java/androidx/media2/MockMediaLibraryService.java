@@ -16,9 +16,9 @@
 
 package androidx.media2;
 
-import static androidx.media2.LibraryResult.RESULT_CODE_BAD_VALUE;
-import static androidx.media2.LibraryResult.RESULT_CODE_INVALID_STATE;
-import static androidx.media2.LibraryResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.LibraryResult.RESULT_ERROR_BAD_VALUE;
+import static androidx.media2.LibraryResult.RESULT_ERROR_INVALID_STATE;
+import static androidx.media2.LibraryResult.RESULT_SUCCESS;
 import static androidx.media2.MediaMetadata.BROWSABLE_TYPE_MIXED;
 import static androidx.media2.MediaMetadata.METADATA_KEY_BROWSABLE;
 import static androidx.media2.MediaMetadata.METADATA_KEY_MEDIA_ID;
@@ -177,16 +177,16 @@ public class MockMediaLibraryService extends MediaLibraryService {
         public LibraryResult onGetLibraryRoot(MediaLibrarySession session,
                 ControllerInfo controller, LibraryParams params) {
             assertLibraryParams(params);
-            return new LibraryResult(RESULT_CODE_SUCCESS, ROOT_ITEM, ROOT_PARAMS);
+            return new LibraryResult(RESULT_SUCCESS, ROOT_ITEM, ROOT_PARAMS);
         }
 
         @Override
         public LibraryResult onGetItem(MediaLibrarySession session, ControllerInfo controller,
                 String mediaId) {
             if (MEDIA_ID_GET_ITEM.equals(mediaId)) {
-                return new LibraryResult(RESULT_CODE_SUCCESS, createMediaItem(mediaId), null);
+                return new LibraryResult(RESULT_SUCCESS, createMediaItem(mediaId), null);
             } else {
-                return new LibraryResult(RESULT_CODE_BAD_VALUE);
+                return new LibraryResult(RESULT_ERROR_BAD_VALUE);
             }
         }
 
@@ -196,13 +196,13 @@ public class MockMediaLibraryService extends MediaLibraryService {
                 LibraryParams params) {
             assertLibraryParams(params);
             if (PARENT_ID.equals(parentId)) {
-                return new LibraryResult(RESULT_CODE_SUCCESS,
+                return new LibraryResult(RESULT_SUCCESS,
                         getPaginatedResult(GET_CHILDREN_RESULT, page, pageSize), null);
             } else if (PARENT_ID_ERROR.equals(parentId)) {
-                return new LibraryResult(RESULT_CODE_BAD_VALUE);
+                return new LibraryResult(RESULT_ERROR_BAD_VALUE);
             }
             // Includes the case of PARENT_ID_NO_CHILDREN.
-            return new LibraryResult(RESULT_CODE_SUCCESS, new ArrayList<MediaItem>(), null);
+            return new LibraryResult(RESULT_SUCCESS, new ArrayList<MediaItem>(), null);
         }
 
         @Override
@@ -226,9 +226,9 @@ public class MockMediaLibraryService extends MediaLibraryService {
             } else if (SEARCH_QUERY_EMPTY_RESULT.equals(query)) {
                 mSession.notifySearchResultChanged(controllerInfo, query, 0, params);
             } else {
-                return RESULT_CODE_BAD_VALUE;
+                return RESULT_ERROR_BAD_VALUE;
             }
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
@@ -238,13 +238,13 @@ public class MockMediaLibraryService extends MediaLibraryService {
             assertLibraryParams(params);
             if (!TextUtils.equals(mLastQuery, query)) {
                 // Ensure whether onSearch() has called before
-                return new LibraryResult(RESULT_CODE_INVALID_STATE);
+                return new LibraryResult(RESULT_ERROR_INVALID_STATE);
             }
             if (SEARCH_QUERY.equals(query) || SEARCH_QUERY_TAKES_TIME.equals(query)) {
-                return new LibraryResult(RESULT_CODE_SUCCESS,
+                return new LibraryResult(RESULT_SUCCESS,
                         getPaginatedResult(SEARCH_RESULT, page, pageSize), null);
             } else {
-                return new LibraryResult(RESULT_CODE_BAD_VALUE);
+                return new LibraryResult(RESULT_ERROR_BAD_VALUE);
             }
         }
 

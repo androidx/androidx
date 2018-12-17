@@ -17,7 +17,7 @@
 package androidx.media2.test.service.tests;
 
 import static androidx.media.MediaSessionManager.RemoteUserInfo.LEGACY_CONTROLLER;
-import static androidx.media2.SessionResult.RESULT_CODE_SUCCESS;
+import static androidx.media2.SessionResult.RESULT_SUCCESS;
 import static androidx.media2.test.common.CommonConstants.SERVICE_PACKAGE_NAME;
 
 import static org.junit.Assert.assertFalse;
@@ -233,14 +233,14 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
         public int onFastForward(MediaSession session, ControllerInfo controller) {
             mFastForwardCalled = true;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
 
         @Override
         public int onRewind(MediaSession session, ControllerInfo controller) {
             mRewindCalled = true;
             mCountDownLatch.countDown();
-            return RESULT_CODE_SUCCESS;
+            return RESULT_SUCCESS;
         }
     }
 }
