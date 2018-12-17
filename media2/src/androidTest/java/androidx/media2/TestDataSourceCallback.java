@@ -32,7 +32,6 @@ public class TestDataSourceCallback extends DataSourceCallback {
 
     private Long mThrowFromReadAtPosition;
     private boolean mThrowFromGetSize;
-    private Integer mReturnFromReadAt;
     private Long mReturnFromGetSize;
     private boolean mIsClosed;
 
@@ -43,7 +42,7 @@ public class TestDataSourceCallback extends DataSourceCallback {
             final int size = (int) afd.getDeclaredLength();
             byte[] data = new byte[size];
             int writeIndex = 0;
-            int numRead = 0;
+            int numRead;
             do {
                 numRead = in.read(data, writeIndex, size - writeIndex);
                 writeIndex += numRead;
@@ -65,9 +64,6 @@ public class TestDataSourceCallback extends DataSourceCallback {
                 && position <= mThrowFromReadAtPosition
                 && position + size > mThrowFromReadAtPosition) {
             throw new IOException("Test exception from readAt()");
-        }
-        if (mReturnFromReadAt != null) {
-            return mReturnFromReadAt;
         }
 
         // Clamp reads past the end of the source.
@@ -112,10 +108,6 @@ public class TestDataSourceCallback extends DataSourceCallback {
 
     public synchronized void throwFromGetSize() {
         mThrowFromGetSize = true;
-    }
-
-    public synchronized void returnFromReadAt(int numRead) {
-        mReturnFromReadAt = numRead;
     }
 
     public synchronized void returnFromGetSize(long size) {
