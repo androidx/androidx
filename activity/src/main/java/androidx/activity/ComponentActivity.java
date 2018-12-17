@@ -27,8 +27,8 @@ import android.view.Window;
 import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
@@ -78,9 +78,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                     + "initialization.");
         }
         if (Build.VERSION.SDK_INT >= 19) {
-            getLifecycle().addObserver(new GenericLifecycleObserver() {
+            getLifecycle().addObserver(new LifecycleEventObserver() {
                 @Override
-                public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+                public void onStateChanged(@NonNull LifecycleOwner source,
+                        @NonNull Lifecycle.Event event) {
                     if (event == Lifecycle.Event.ON_STOP) {
                         Window window = getWindow();
                         final View decor = window != null ? window.peekDecorView() : null;
@@ -91,9 +92,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             });
         }
-        getLifecycle().addObserver(new GenericLifecycleObserver() {
+        getLifecycle().addObserver(new LifecycleEventObserver() {
             @Override
-            public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+            public void onStateChanged(@NonNull LifecycleOwner source,
+                    @NonNull Lifecycle.Event event) {
                 if (event == Lifecycle.Event.ON_DESTROY) {
                     if (!isChangingConfigurations()) {
                         getViewModelStore().clear();
@@ -346,7 +348,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     private class LifecycleAwareOnBackPressedCallback implements
             OnBackPressedCallback,
-            GenericLifecycleObserver {
+            LifecycleEventObserver {
         private final Lifecycle mLifecycle;
         private final OnBackPressedCallback mOnBackPressedCallback;
 
@@ -374,7 +376,8 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
 
         @Override
-        public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+        public void onStateChanged(@NonNull LifecycleOwner source,
+                @NonNull Lifecycle.Event event) {
             if (event == Lifecycle.Event.ON_DESTROY) {
                 synchronized (mOnBackPressedCallbacks) {
                     mLifecycle.removeObserver(this);
