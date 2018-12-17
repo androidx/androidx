@@ -229,6 +229,7 @@ import java.util.Map;
     }
 
     public long getCurrentPosition() {
+        Preconditions.checkState(getState() != MediaPlayer2.PLAYER_STATE_IDLE);
         long position = mPlayer.getCurrentPosition();
         MediaItem mediaItem = mMediaItemQueue.getCurrentMediaItem();
         if (mediaItem != null) {
@@ -410,10 +411,11 @@ import java.util.Map;
     }
 
     public MediaTimestamp getTimestamp() {
-        return new MediaTimestamp(
-                C.msToUs(getCurrentPosition()),
-                System.nanoTime(),
-                mPlaybackParams.getSpeed());
+        long positionUs = mPlayer.getPlaybackState() == Player.STATE_IDLE
+                ? 0L : C.msToUs(getCurrentPosition());
+        float speed = mPlayer.getPlaybackState() == Player.STATE_READY && mPlayer.getPlayWhenReady()
+                ? mPlaybackParams.getSpeed() : 0f;
+        return new MediaTimestamp(positionUs, System.nanoTime(), speed);
     }
 
     public void reset() {
