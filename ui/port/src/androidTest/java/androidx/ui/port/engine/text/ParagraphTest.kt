@@ -23,12 +23,14 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.Paragraph
+import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphConstraints
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
+import androidx.ui.engine.text.TextStyle
 import androidx.ui.engine.window.Locale
 import androidx.ui.port.bitmap
 import androidx.ui.port.matchers.equalToBitmap
@@ -769,6 +771,76 @@ class ParagraphTest {
         )
     }
 
+    @Test
+    fun textStyle_setFontSizeOnWholeText() {
+        val text = "abcde"
+        val fontSize = 20.0
+        val textStyle = TextStyle(fontSize = fontSize)
+        val paragraphWidth = fontSize * text.length
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        paragraph.layout(ParagraphConstraints(width = paragraphWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        // Make sure there is only one line, so that we can use getLineRight to test fontSize.
+        assertThat(paragraphImpl.lineCount, equalTo(1))
+        // Notice that in this test font, the width of character equals to fontSize.
+        assertThat(paragraphImpl.getLineWidth(0), equalTo(fontSize * text.length))
+    }
+
+    @Test
+    fun textStyle_setFontSizeOnPartOfText() {
+        val text = "abcde"
+        val fontSize = 20.0
+        val textStyleFontSize = 30.0
+        val textStyle = TextStyle(fontSize = textStyleFontSize)
+        val paragraphWidth = textStyleFontSize * text.length
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length)),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = paragraphWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        // Make sure there is only one line, so that we can use getLineRight to test fontSize.
+        assertThat(paragraphImpl.lineCount, equalTo(1))
+        // Notice that in this test font, the width of character equals to fontSize.
+        val expectedLineRight = "abc".length * textStyleFontSize + "de".length * fontSize
+        assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedLineRight))
+    }
+
+    @Test
+    fun textStyle_seFontSizeTwice_lastOneOverwrite() {
+        val text = "abcde"
+        val fontSize = 20.0
+        val textStyle = TextStyle(fontSize = fontSize)
+
+        val fontSizeOverwrite = 30.0
+        val textStyleOverwrite = TextStyle(fontSize = fontSizeOverwrite)
+        val paragraphWidth = fontSizeOverwrite * text.length
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+            )
+        )
+        paragraph.layout(ParagraphConstraints(width = paragraphWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        // Make sure there is only one line, so that we can use getLineRight to test fontSize.
+        assertThat(paragraphImpl.lineCount, equalTo(1))
+        // Notice that in this test font, the width of character equals to fontSize.
+        val expectedWidth = "abc".length * fontSizeOverwrite + "de".length * fontSize
+        assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
+    }
+
     // TODO(migration/siyamed) add test
     @Test
     fun getWordBoundary() {
@@ -780,11 +852,12 @@ class ParagraphTest {
         textDirection: TextDirection? = null,
         fontSize: Double? = null,
         maxLines: Int? = null,
-        lineHeight: Double? = null
+        lineHeight: Double? = null,
+        textStyles: List<ParagraphBuilder.TextStyleIndex> = listOf()
     ): Paragraph {
         return Paragraph(
             text = StringBuilder(text),
-            textStyles = listOf(),
+            textStyles = textStyles,
             paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
                 textDirection = textDirection,

@@ -157,6 +157,10 @@ class TextLayout constructor(
         return (layout.getLineBottom(index) - layout.getLineTop(index)).toDouble()
     }
 
+    fun getLineWidth(index: Int): Double {
+        return layout.getLineWidth(index).toDouble()
+    }
+
     fun paint(canvas: Canvas) {
         layout.draw(canvas)
     }

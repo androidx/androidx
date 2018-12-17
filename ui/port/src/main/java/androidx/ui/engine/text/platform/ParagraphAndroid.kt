@@ -18,6 +18,7 @@ package androidx.ui.engine.text.platform
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
+import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import androidx.text.LayoutCompat.ALIGN_CENTER
 import androidx.text.LayoutCompat.ALIGN_LEFT
@@ -43,6 +44,7 @@ import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.Canvas
 import java.util.Locale
 import kotlin.math.floor
+import kotlin.math.roundToInt
 
 internal class ParagraphAndroid constructor(
     val text: StringBuilder,
@@ -169,6 +171,8 @@ internal class ParagraphAndroid constructor(
 
     fun getLineHeight(index: Int): Double = ensureLayout.getLineHeight(index)
 
+    fun getLineWidth(index: Int): Double = ensureLayout.getLineWidth(index)
+
     fun paint(canvas: Canvas, x: Double, y: Double) {
         val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
                 "called before layout() is called")
@@ -197,7 +201,15 @@ internal class ParagraphAndroid constructor(
                 )
             }
             // TODO(Migration/haoyuchang): implement decoration, decorationStyle, decorationColor
-            // TODO(Migration/haoyuchang): implement fontWeight, fontStyle, fontFamily, fontSize
+            style.fontSize?.let {
+                spannableString.setSpan(
+                    AbsoluteSizeSpan(it.roundToInt()),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+            // TODO(Migration/haoyuchang): implement fontWeight, fontStyle, fontFamily
             // TODO(Migration/haoyuchang): implement textBaseLine
             // TODO(Migration/haoyuchang): implement letterSpacing, wordSpacing
             // TODO(Migration/haoyuchang): implement height
