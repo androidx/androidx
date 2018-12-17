@@ -14,5 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
+    <string name="car_drawer_open" translatable="false">Open drawer</string>
+    <string name="car_drawer_close" translatable="false">Close drawer</string>
     <string name="over_uxr_text_length_limit">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</string>
 </resources>
