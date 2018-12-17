@@ -17,8 +17,8 @@
 package androidx.activity
 
 import android.os.Bundle
-import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
@@ -83,7 +83,7 @@ class ComponentActivityLifecycleTest {
 
 class LifecycleComponentActivity : ComponentActivity() {
     val activityCallbackLifecycleOwner: LifecycleOwner = mock(LifecycleOwner::class.java)
-    val lifecycleObserver: GenericLifecycleObserver = mock(GenericLifecycleObserver::class.java)
+    val lifecycleObserver: LifecycleEventObserver = mock(LifecycleEventObserver::class.java)
     val destroyCountDownLatch = CountDownLatch(1)
 
     init {
