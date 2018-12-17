@@ -811,33 +811,6 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertTrue(mOnErrorCalled.waitForSignal());
     }
 
-    // Temporarily disable test due to b/120622976.
-    // @Test
-    // @LargeTest
-    // @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testPlaybackFailsIfMedia2DataSourceReturnsAnError() throws Exception {
-        final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
-
-        TestDataSourceCallback dataSource =
-                TestDataSourceCallback.fromAssetFd(mResources.openRawResourceFd(resid));
-        mPlayer.setMediaItem(new CallbackMediaItem.Builder(dataSource).build());
-
-        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
-            @Override
-            public void onError(
-                    MediaPlayer mp, MediaItem dsd, int what, int extra) {
-                mOnErrorCalled.signal();
-            }
-        };
-        mPlayer.registerPlayerCallback(mExecutor, callback);
-
-        mPlayer.prepare().get();
-
-        dataSource.returnFromReadAt(-2);
-        mPlayer.play();
-        assertTrue(mOnErrorCalled.waitForSignal());
-    }
-
     @Test
     @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
