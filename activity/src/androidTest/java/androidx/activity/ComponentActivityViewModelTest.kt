@@ -17,8 +17,8 @@
 package androidx.activity
 
 import android.os.Bundle
-import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -83,7 +83,7 @@ class ComponentActivityViewModelTest {
     fun testActivityOnCleared() {
         val activity = activityRule.activity
         val latch = CountDownLatch(1)
-        val observer = GenericLifecycleObserver { _, event ->
+        val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_DESTROY) {
                 activity.window.decorView.post {
                     try {

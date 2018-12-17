@@ -22,15 +22,16 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.MainThread;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.lifecycle.GenericLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.lang.reflect.Field;
 
 @RequiresApi(19)
-final class ImmLeaksCleaner implements GenericLifecycleObserver {
+final class ImmLeaksCleaner implements LifecycleEventObserver {
     private static final int NOT_INITIALIAZED = 0;
     private static final int INIT_SUCCESS = 1;
     private static final int INIT_FAILED = 2;
@@ -46,7 +47,7 @@ final class ImmLeaksCleaner implements GenericLifecycleObserver {
     }
 
     @Override
-    public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
+    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
         if (event != Lifecycle.Event.ON_DESTROY) {
             return;
         }
