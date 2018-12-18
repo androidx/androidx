@@ -4,6 +4,7 @@ import android.app.Instrumentation
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.TextPaint
+import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -74,7 +75,7 @@ class ParagraphAndroidTest {
     fun textStyle_setColorOnWholeText() {
         val text = "abcde"
         val fontSize = 20.0
-        val layoutWidth = text.length * fontSize
+        val paragraphWidth = text.length * fontSize
         val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
 
         val paragraph = simpleParagraph(
@@ -82,7 +83,7 @@ class ParagraphAndroidTest {
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length)),
             fontSize = fontSize
         )
-        paragraph.layout(layoutWidth)
+        paragraph.layout(paragraphWidth)
 
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, text.length))
     }
@@ -91,7 +92,7 @@ class ParagraphAndroidTest {
     fun textStyle_setColorOnPartOfText() {
         val text = "abcde"
         val fontSize = 20.0
-        val layoutWidth = text.length * fontSize
+        val paragraphWidth = text.length * fontSize
         val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
 
         val paragraph = simpleParagraph(
@@ -99,7 +100,7 @@ class ParagraphAndroidTest {
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length)),
             fontSize = fontSize
         )
-        paragraph.layout(layoutWidth)
+        paragraph.layout(paragraphWidth)
 
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, "abc".length))
     }
@@ -108,7 +109,7 @@ class ParagraphAndroidTest {
     fun textStyle_setColorTwice_lastOneOverwrite() {
         val text = "abcde"
         val fontSize = 20.0
-        val layoutWidth = text.length * fontSize
+        val paragraphWidth = text.length * fontSize
         val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
         val textStyleOverwrite = TextStyle(color = Color(0xFF00FF00.toInt()))
 
@@ -120,13 +121,71 @@ class ParagraphAndroidTest {
             ),
             fontSize = fontSize
         )
-        paragraph.layout(layoutWidth)
+        paragraph.layout(paragraphWidth)
 
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, text.length))
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, "abc".length))
         assertThat(
             paragraph.underlyingText,
             hasSpanOnTop(ForegroundColorSpan::class, 0, "abc".length)
+        )
+    }
+
+    @Test
+    fun textStyle_setFontSizeOnWholeText() {
+        val text = "abcde"
+        val fontSize = 20.0
+        val paragraphWidth = text.length * fontSize
+        val textStyle = TextStyle(fontSize = fontSize)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        paragraph.layout(paragraphWidth)
+
+        assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, text.length))
+    }
+
+    @Test
+    fun textStyle_setFontSizeOnPartText() {
+        val text = "abcde"
+        val fontSize = 20.0
+        val paragraphWidth = text.length * fontSize
+        val textStyle = TextStyle(fontSize = fontSize)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        paragraph.layout(paragraphWidth)
+
+        assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, "abc".length))
+    }
+
+    @Test
+    fun textStyle_setFontSizeTwice_lastOneOverwrite() {
+        val text = "abcde"
+        val fontSize = 20.0
+        val fontSizeOverwrite = 30.0
+        val paragraphWidth = text.length * fontSizeOverwrite
+        val textStyle = TextStyle(fontSize = fontSize)
+        val textStyleOverwrite = TextStyle(fontSize = fontSizeOverwrite)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+            )
+        )
+        paragraph.layout(paragraphWidth)
+
+        assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, text.length))
+        assertThat(paragraph.underlyingText, hasSpan(AbsoluteSizeSpan::class, 0, "abc".length))
+        assertThat(
+            paragraph.underlyingText,
+            hasSpanOnTop(AbsoluteSizeSpan::class, 0, "abc".length)
         )
     }
 
