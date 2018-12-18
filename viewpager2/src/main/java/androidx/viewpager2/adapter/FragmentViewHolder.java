@@ -36,6 +36,7 @@ class FragmentViewHolder extends RecyclerView.ViewHolder {
                 new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                         ViewGroup.LayoutParams.MATCH_PARENT));
         container.setId(ViewCompat.generateViewId());
+        container.setSaveEnabled(false);
         return new FragmentViewHolder(container);
     }
 

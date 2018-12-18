@@ -124,8 +124,9 @@ open class BaseTest {
 
         val viewPager: ViewPager2 get() = activity.findViewById(R.id.view_pager)
 
-        val isRtl get() = ViewCompat.getLayoutDirection(viewPager) ==
-                ViewCompat.LAYOUT_DIRECTION_RTL
+        val isRtl
+            get() = ViewCompat.getLayoutDirection(viewPager) ==
+                    ViewCompat.LAYOUT_DIRECTION_RTL
 
         fun peekForward() {
             peek(adjustForRtl(-50f))
@@ -198,17 +199,22 @@ open class BaseTest {
 
         private fun peek(offset: Float) {
             onView(allOf(isDisplayed(), isAssignableFrom(ViewPager2::class.java)))
-                .perform(actionWithAssertions(
-                    GeneralSwipeAction(Swipe.SLOW, GeneralLocation.CENTER,
-                        CoordinatesProvider { view ->
-                            val coordinates = GeneralLocation.CENTER.calculateCoordinates(view)
-                            if (viewPager.orientation == ORIENTATION_HORIZONTAL) {
-                                coordinates[0] += offset
-                            } else {
-                                coordinates[1] += offset
-                            }
-                            coordinates
-                        }, Press.FINGER)))
+                .perform(
+                    actionWithAssertions(
+                        GeneralSwipeAction(
+                            Swipe.SLOW, GeneralLocation.CENTER,
+                            CoordinatesProvider { view ->
+                                val coordinates = GeneralLocation.CENTER.calculateCoordinates(view)
+                                if (viewPager.orientation == ORIENTATION_HORIZONTAL) {
+                                    coordinates[0] += offset
+                                } else {
+                                    coordinates[1] += offset
+                                }
+                                coordinates
+                            }, Press.FINGER
+                        )
+                    )
+                )
         }
     }
 
@@ -344,17 +350,22 @@ open class BaseTest {
      * 3. Internal activity state is valid (as per activity self-test)
      */
     fun Context.assertBasicState(pageIx: Int, value: String) {
-        assertThat<Int>("viewPager.getCurrentItem() should return $pageIx",
-            viewPager.currentItem, equalTo(pageIx))
+        assertThat<Int>(
+            "viewPager.getCurrentItem() should return $pageIx",
+            viewPager.currentItem, equalTo(pageIx)
+        )
         onView(allOf<View>(withId(R.id.text_view), isDisplayed())).check(
-                matches(withText(value)))
+            matches(withText(value))
+        )
 
         // FIXME: too tight coupling
         if (viewPager.adapter is FragmentAdapter) {
             val adapter = viewPager.adapter as FragmentAdapter
-            assertThat("Number of fragment attaches minus fragment destroys must be " +
-                    "between 1 and 4 (inclusive)",
-                adapter.attachCount.get() - adapter.destroyCount.get(), isBetweenInIn(1, 4))
+            assertThat(
+                "Number of fragment attaches minus fragment destroys must be " +
+                        "between 1 and 4 (inclusive)",
+                adapter.attachCount.get() - adapter.destroyCount.get(), isBetweenInIn(1, 4)
+            )
         }
     }
 
@@ -418,6 +429,7 @@ val fragmentAdapterProvider: AdapterProviderForItems = { items ->
 /**
  * Same as [fragmentAdapterProvider] but with a custom implementation of
  * [FragmentStateAdapter.getItemId] and [FragmentStateAdapter.containsItem].
+ * Not suitable for testing [RecyclerView.Adapter.notifyDataSetChanged].
  */
 val fragmentAdapterProviderCustomIds: AdapterProviderForItems = { items ->
     { activity ->
@@ -430,6 +442,45 @@ val fragmentAdapterProviderCustomIds: AdapterProviderForItems = { items ->
                 val position = itemId - offset
                 position in (0 until adapter.itemCount)
             }
+        }
+    }
+}
+
+/**
+ * Same as [fragmentAdapterProvider] but with a custom implementation of
+ * [FragmentStateAdapter.getItemId] and [FragmentStateAdapter.containsItem].
+ * Suitable for testing [RecyclerView.Adapter.notifyDataSetChanged].
+ */
+val fragmentAdapterProviderValueId: AdapterProviderForItems = { items ->
+    { activity ->
+        fragmentAdapterProvider(items)(activity).also {
+            val adapter = it as FragmentAdapter
+            adapter.positionToItemId = { position -> items[position].getId() }
+            adapter.itemIdToContains = { itemId -> items.any { item -> item.getId() == itemId } }
+        }
+    }
+}
+
+/** Extracts the sole number from a [String] and converts it to a [Long] */
+private fun (String).getId(): Long {
+    val matches = Regex("[0-9]+").findAll(this).toList()
+    if (matches.size != 1) {
+        throw IllegalStateException("There should be exactly one number in the input string")
+    }
+    return matches.first().value.toLong()
+}
+
+/**
+ * Same as [viewAdapterProvider] but with a custom implementation of
+ * [RecyclerView.Adapter.getItemId].
+ * Suitable for testing [RecyclerView.Adapter.notifyDataSetChanged].mu
+ */
+val viewAdapterProviderValueId: AdapterProviderForItems = { items ->
+    { activity ->
+        viewAdapterProvider(items)(activity).also {
+            val adapter = it as ViewAdapter
+            adapter.positionToItemId = { position -> items[position].getId() }
+            adapter.setHasStableIds(true)
         }
     }
 }
