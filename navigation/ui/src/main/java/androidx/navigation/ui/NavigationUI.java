@@ -60,6 +60,10 @@ public final class NavigationUI {
      * <p>Importantly, it assumes the {@link MenuItem#getItemId() menu item id} matches a valid
      * {@link NavDestination#getAction(int) action id} or
      * {@link NavDestination#getId() destination id} to be navigated to.</p>
+     * <p>
+     * By default, the back stack will be popped back to the navigation graph's start destination.
+     * Menu items that have <code>android:menuCategory="secondary"</code> will not pop the back
+     * stack.
      *
      * @param item The selected MenuItem.
      * @param navController The NavController that hosts the destination.
@@ -68,19 +72,13 @@ public final class NavigationUI {
      */
     public static boolean onNavDestinationSelected(@NonNull MenuItem item,
             @NonNull NavController navController) {
-        return onNavDestinationSelected(item, navController, false);
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    static boolean onNavDestinationSelected(@NonNull MenuItem item,
-            @NonNull NavController navController, boolean popUp) {
         NavOptions.Builder builder = new NavOptions.Builder()
                 .setLaunchSingleTop(true)
                 .setEnterAnim(R.anim.nav_default_enter_anim)
                 .setExitAnim(R.anim.nav_default_exit_anim)
                 .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
                 .setPopExitAnim(R.anim.nav_default_pop_exit_anim);
-        if (popUp) {
+        if ((item.getOrder() & Menu.CATEGORY_SECONDARY) == 0) {
             builder.setPopUpTo(findStartDestination(navController.getGraph()).getId(), false);
         }
         NavOptions options = builder.build();
@@ -403,10 +401,6 @@ public final class NavigationUI {
      * The selected item in the NavigationView will automatically be updated when the destination
      * changes.
      * <p>
-     * By default, the back stack will be popped back to the navigation graph's start destination.
-     * Menu items that have <code>android:menuCategory="secondary"</code> will not pop the back
-     * stack.
-     * <p>
      * If the {@link NavigationView} is directly contained with a {@link DrawerLayout},
      * the drawer will be closed when a menu item is selected.
      * <p>
@@ -426,9 +420,7 @@ public final class NavigationUI {
                 new NavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        boolean handled = onNavDestinationSelected(item, navController,
-                                /* pop up unless the MenuItem has menuCategory="secondary" */
-                                (item.getOrder() & Menu.CATEGORY_SECONDARY) == 0);
+                        boolean handled = onNavDestinationSelected(item, navController);
                         if (handled) {
                             ViewParent parent = navigationView.getParent();
                             if (parent instanceof DrawerLayout) {
@@ -492,10 +484,6 @@ public final class NavigationUI {
      * {@link #onNavDestinationSelected(MenuItem, NavController)} when a menu item is selected. The
      * selected item in the BottomNavigationView will automatically be updated when the destination
      * changes.
-     * <p>
-     * By default, the back stack will be popped back to the navigation graph's start destination.
-     * Menu items that have <code>android:menuCategory="secondary"</code> will not pop the back
-     * stack.
      *
      * @param bottomNavigationView The BottomNavigationView that should be kept in sync with
      *                             changes to the NavController.
@@ -510,9 +498,7 @@ public final class NavigationUI {
                 new BottomNavigationView.OnNavigationItemSelectedListener() {
                     @Override
                     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                        return onNavDestinationSelected(item, navController,
-                                /* pop up unless the MenuItem has menuCategory="secondary" */
-                                (item.getOrder() & Menu.CATEGORY_SECONDARY) == 0);
+                        return onNavDestinationSelected(item, navController);
                     }
                 });
         final WeakReference<BottomNavigationView> weakReference =
