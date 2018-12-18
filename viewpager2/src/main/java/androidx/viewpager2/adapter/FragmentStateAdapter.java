@@ -18,6 +18,7 @@ package androidx.viewpager2.adapter;
 
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
@@ -57,11 +58,33 @@ public abstract class FragmentStateAdapter extends
     private final LongSparseArray<Fragment> mFragments = new LongSparseArray<>();
     private final LongSparseArray<Fragment.SavedState> mSavedStates = new LongSparseArray<>();
 
+    private final RecyclerView.AdapterDataObserver mDataObserver =
+            new RecyclerView.AdapterDataObserver() {
+                @Override
+                public void onChanged() {
+                    // TODO: implement more efficiently
+                    /** Below effectively removes all Fragments and state of no longer used items.
+                     * See {@link FragmentStateAdapter#containsItem(long)} */
+                    Parcelable state = FragmentStateAdapter.this.saveState();
+                    FragmentStateAdapter.this.restoreState(state);
+                }
+            };
+
     private final FragmentManager mFragmentManager;
 
     public FragmentStateAdapter(FragmentManager fragmentManager) {
         mFragmentManager = fragmentManager;
-        setHasStableIds(true);
+        super.setHasStableIds(true);
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        registerAdapterDataObserver(mDataObserver);
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        unregisterAdapterDataObserver(mDataObserver);
     }
 
     /**
@@ -76,16 +99,27 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FragmentViewHolder holder, int position) {
-        if (ViewCompat.isAttachedToWindow(holder.getContainer())) {
-            // this should never happen; if it does, it breaks our assumption that attaching
-            // a Fragment can reliably happen inside onViewAttachedToWindow
-            throw new IllegalStateException(
-                    String.format("View %s unexpectedly attached to a window.",
-                            holder.getContainer()));
-        }
-
+    public void onBindViewHolder(final @NonNull FragmentViewHolder holder, int position) {
         holder.mFragment = getFragment(position);
+
+        /** Special case when {@link RecyclerView} decides to keep the {@link container}
+         * attached to the window, but not to the view hierarchy (i.e. parent is null) */
+        final FrameLayout container = holder.getContainer();
+        if (ViewCompat.isAttachedToWindow(container)) {
+            if (container.getParent() != null) {
+                throw new IllegalStateException("Design assumption violated.");
+            }
+            container.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                        int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                    if (container.getParent() != null) {
+                        container.removeOnLayoutChangeListener(this);
+                        onViewAttachedToWindow(holder);
+                    }
+                }
+            });
+        }
     }
 
     private Fragment getFragment(int position) {
@@ -102,7 +136,7 @@ public abstract class FragmentStateAdapter extends
             return;
         }
         mFragmentManager.beginTransaction().add(holder.getContainer().getId(),
-                holder.mFragment).commitNowAllowingStateLoss();
+                holder.mFragment).commitNow();
     }
 
     @Override
@@ -121,17 +155,17 @@ public abstract class FragmentStateAdapter extends
     }
 
     private void removeFragment(@NonNull FragmentViewHolder holder) {
-        removeFragment(holder.mFragment, holder.getAdapterPosition());
+        removeFragment(holder.mFragment, holder.getItemId());
         holder.mFragment = null;
     }
 
     /**
      * Removes a Fragment and commits the operation.
      */
-    private void removeFragment(Fragment fragment, int position) {
+    private void removeFragment(Fragment fragment, long itemId) {
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
-        removeFragment(fragment, getItemId(position), fragmentTransaction);
-        fragmentTransaction.commitNowAllowingStateLoss();
+        removeFragment(fragment, itemId, fragmentTransaction);
+        fragmentTransaction.commitNow();
     }
 
     /**
@@ -143,7 +177,7 @@ public abstract class FragmentStateAdapter extends
             return;
         }
 
-        if (fragment.isAdded()) {
+        if (fragment.isAdded() && containsItem(itemId)) {
             mSavedStates.put(itemId, mFragmentManager.saveFragmentInstanceState(fragment));
         }
 
@@ -154,6 +188,7 @@ public abstract class FragmentStateAdapter extends
     /**
      * Default implementation works for collections that don't add, move, remove items.
      * <p>
+     * TODO: add lint rule
      * When overriding, also override {@link #containsItem(long)}.
      * <p>
      * If the item is not a part of the collection, return {@link RecyclerView#NO_ID}.
@@ -169,6 +204,7 @@ public abstract class FragmentStateAdapter extends
     /**
      * Default implementation works for collections that don't add, move, remove items.
      * <p>
+     * TODO: add lint rule
      * When overriding, also override {@link #getItemId(int)}
      */
     public boolean containsItem(long itemId) {
@@ -176,12 +212,10 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public void setHasStableIds(boolean hasStableIds) {
-        if (!hasStableIds) {
-            throw new IllegalStateException(
-                    "Stable Ids are required for the adapter to function properly.");
-        }
-        super.setHasStableIds(true);
+    public final void setHasStableIds(boolean hasStableIds) {
+        throw new UnsupportedOperationException(
+                "Stable Ids are required for the adapter to function properly, and the adapter "
+                        + "takes care of setting the flag.");
     }
 
     @Override
@@ -196,6 +230,7 @@ public abstract class FragmentStateAdapter extends
             for (Long itemId : toRemove) {
                 removeFragment(mFragments.get(itemId), itemId, fragmentTransaction);
             }
+            // TODO: add a recovery step / handle in a more graceful manner
             fragmentTransaction.commitNowAllowingStateLoss();
         }
 
@@ -211,6 +246,7 @@ public abstract class FragmentStateAdapter extends
             }
         }
 
+        /** TODO: use custom {@link Parcelable} instead of {@link Bundle} to save space */
         Bundle savedState = new Bundle(2);
         savedState.putLongArray(STATE_ARG_KEYS, keys);
         savedState.putParcelableArray(STATE_ARG_VALUES, values);
