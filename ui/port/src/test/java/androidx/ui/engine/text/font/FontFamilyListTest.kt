@@ -32,57 +32,33 @@ class FontFamilyListTest {
 
     @Test
     fun `two equal family list declarations are equal`() {
-        val fontFamilyList = FontFamilyList(
-            FontFamily(
-                Font(
-                    name = "fontName",
-                    weight = FontWeight.w900,
-                    style = FontStyle.italic,
-                    ttcIndex = 1,
-                    fontVariationSettings = "'wdth' 150"
-                )
-            )
+        val font = Font(
+            name = "fontName",
+            weight = FontWeight.w900,
+            style = FontStyle.italic,
+            ttcIndex = 1,
+            fontVariationSettings = "'wdth' 150"
         )
+        val fontFamilyList = FontFamilyList(FontFamily(font))
 
-        val otherFontFamilyList = FontFamilyList(
-            FontFamily(
-                Font(
-                    name = "fontName",
-                    weight = FontWeight.w900,
-                    style = FontStyle.italic,
-                    ttcIndex = 1,
-                    fontVariationSettings = "'wdth' 150"
-                )
-            )
-        )
+        val otherFontFamilyList = FontFamilyList(FontFamily(font.copy()))
 
         assertThat(fontFamilyList).isEqualTo(otherFontFamilyList)
     }
 
     @Test
     fun `two non equal family list declarations are not equal`() {
-        val fontFamilyList = FontFamilyList(
-            FontFamily(
-                Font(
-                    name = "fontName",
-                    weight = FontWeight.w900,
-                    style = FontStyle.italic,
-                    ttcIndex = 1,
-                    fontVariationSettings = "'wdth' 150"
-                )
-            )
+        val font = Font(
+            name = "fontName",
+            weight = FontWeight.w900,
+            style = FontStyle.italic,
+            ttcIndex = 1,
+            fontVariationSettings = "'wdth' 150"
         )
+        val fontFamilyList = FontFamilyList(FontFamily(font))
 
         val otherFontFamilyList = FontFamilyList(
-            FontFamily(
-                Font(
-                    name = "fontName",
-                    weight = FontWeight.w900,
-                    style = FontStyle.italic,
-                    ttcIndex = 1,
-                    fontVariationSettings = "'wdth' 151" // this is different
-                )
-            )
+            FontFamily(font.copy(fontVariationSettings = "'wdth' 151"))
         )
 
         assertThat(fontFamilyList).isNotEqualTo(otherFontFamilyList)

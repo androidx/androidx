@@ -22,5 +22,9 @@ data class FontFamily(val fonts: List<Font>) : List<Font> by fonts {
 
     init {
         assert(fonts.size > 0) { "At least one font is required in FontFamily" }
+        assert(fonts.distinctBy { Pair(it.weight, it.style) }.size == fonts.size) {
+            "There cannot be two fonts with the same FontWeight and FontStyle in the same " +
+                    "FontFamily"
+        }
     }
 }

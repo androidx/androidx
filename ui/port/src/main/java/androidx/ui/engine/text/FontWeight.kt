@@ -22,7 +22,8 @@ import kotlin.math.roundToInt
 // The thickness of the glyphs used to draw the text
 // TODO(Migration/siyamed): Check if index can be removed or converted into a function since the
 // same thing can be calculated using weight
-class FontWeight private constructor(internal val index: Int, internal val weight: Int) {
+class FontWeight private constructor(internal val index: Int, internal val weight: Int) :
+    Comparable<FontWeight> {
 
     // TODO(Migration/siyamed): This is weird since it should actually be possible to create a font
     // weight that is not one of the items here. This decision changes the lerp behavior.
@@ -81,6 +82,10 @@ class FontWeight private constructor(internal val index: Int, internal val weigh
                 t
             ).roundToInt().clamp(0, 8)]
         }
+    }
+
+    override fun compareTo(other: FontWeight): Int {
+        return weight.compareTo(other.weight)
     }
 
     override fun toString(): String {
