@@ -538,6 +538,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         MediaRouteActionProvider mediaRouteActionProvider =
                 (MediaRouteActionProvider) MenuItemCompat.getActionProvider(mediaRouteMenuItem);
         mediaRouteActionProvider.setRouteSelector(mSelector);
+        mediaRouteActionProvider.enableDynamicGroup();
         mediaRouteActionProvider.setDialogFactory(new MediaRouteDialogFactory() {
             @Override
             public MediaRouteControllerDialogFragment onCreateControllerDialogFragment() {

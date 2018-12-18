@@ -22,7 +22,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
@@ -37,11 +36,7 @@ import androidx.mediarouter.media.MediaRouteSelector;
  */
 public class MediaRouteControllerDialogFragment extends DialogFragment {
     private static final String ARGUMENT_SELECTOR = "selector";
-    // Intermediate constant for development purpose
-    // TODO: Remove this before official release
-    private static final boolean USE_SUPPORT_DYNAMIC_GROUP =
-            Log.isLoggable("UseSupportDynamicGroup", Log.DEBUG);
-
+    private boolean mUseDynamicGroup = false;
     private Dialog mDialog;
     private MediaRouteSelector mSelector;
 
@@ -80,6 +75,20 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     }
 
     /**
+     * Sets whether it creates dialog for dynamic group or not.
+     * This method must be called before a dialog is created,
+     * otherwise, this will throw {@link IllegalStateException}
+     *
+     * @param useDynamicGroup true if this should create the dialog for dynamic group
+     */
+    void setUseDynamicGroup(boolean useDynamicGroup) {
+        if (mDialog != null) {
+            throw new IllegalStateException("This must be called before creating dialog");
+        }
+        mUseDynamicGroup = useDynamicGroup;
+    }
+
+    /**
      * Sets the media route selector for filtering the routes that the user can select.
      * This method must be called before the fragment is added.
      *
@@ -104,7 +113,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
             setArguments(args);
 
             if (mDialog != null) {
-                if (USE_SUPPORT_DYNAMIC_GROUP) {
+                if (mUseDynamicGroup) {
                     ((MediaRouteCastDialog) mDialog).setRouteSelector(selector);
                 }
             }
@@ -133,7 +142,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if (USE_SUPPORT_DYNAMIC_GROUP) {
+        if (mUseDynamicGroup) {
             mDialog = onCreateCastDialog(getContext());
             ((MediaRouteCastDialog) mDialog).setRouteSelector(mSelector);
         } else {
@@ -145,10 +154,8 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (mDialog != null) {
-            if (!USE_SUPPORT_DYNAMIC_GROUP) {
-                ((MediaRouteControllerDialog) mDialog).clearGroupListAnimation(false);
-            }
+        if (mDialog != null && !mUseDynamicGroup) {
+            ((MediaRouteControllerDialog) mDialog).clearGroupListAnimation(false);
         }
     }
 
@@ -156,7 +163,7 @@ public class MediaRouteControllerDialogFragment extends DialogFragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         if (mDialog != null) {
-            if (USE_SUPPORT_DYNAMIC_GROUP) {
+            if (mUseDynamicGroup) {
                 ((MediaRouteCastDialog) mDialog).updateLayout();
             } else {
                 ((MediaRouteControllerDialog) mDialog).updateLayout();

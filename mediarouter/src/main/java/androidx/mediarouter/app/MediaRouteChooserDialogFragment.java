@@ -22,7 +22,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.annotation.RestrictTo;
 import androidx.fragment.app.DialogFragment;
@@ -37,11 +36,7 @@ import androidx.mediarouter.media.MediaRouteSelector;
  */
 public class MediaRouteChooserDialogFragment extends DialogFragment {
     private static final String ARGUMENT_SELECTOR = "selector";
-    // Intermediate constant for development purpose
-    // TODO: Remove this before official release
-    private static final boolean USE_SUPPORT_DYNAMIC_GROUP =
-            Log.isLoggable("UseSupportDynamicGroup", Log.DEBUG);
-
+    private boolean mUseDynamicGroup = false;
     private Dialog mDialog;
     private MediaRouteSelector mSelector;
 
@@ -78,6 +73,20 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
     }
 
     /**
+     * Sets whether it creates dialog for dynamic group or not.
+     * This method must be called before a dialog is created,
+     * otherwise, this will throw {@link IllegalStateException}
+     *
+     * @param useDynamicGroup true if this should create the dialog for dynamic group
+     */
+    void setUseDynamicGroup(boolean useDynamicGroup) {
+        if (mDialog != null) {
+            throw new IllegalStateException("This must be called before creating dialog");
+        }
+        mUseDynamicGroup = useDynamicGroup;
+    }
+
+    /**
      * Sets the media route selector for filtering the routes that the user can select.
      * This method must be called before the fragment is added.
      *
@@ -100,7 +109,7 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
             setArguments(args);
 
             if (mDialog != null) {
-                if (USE_SUPPORT_DYNAMIC_GROUP) {
+                if (mUseDynamicGroup) {
                     ((MediaRouteDevicePickerDialog) mDialog).setRouteSelector(selector);
                 } else {
                     ((MediaRouteChooserDialog) mDialog).setRouteSelector(selector);
@@ -131,7 +140,7 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if (USE_SUPPORT_DYNAMIC_GROUP) {
+        if (mUseDynamicGroup) {
             mDialog = onCreateDevicePickerDialog(getContext());
             ((MediaRouteDevicePickerDialog) mDialog).setRouteSelector(getRouteSelector());
         } else {
@@ -147,7 +156,7 @@ public class MediaRouteChooserDialogFragment extends DialogFragment {
         if (mDialog == null) {
             return;
         }
-        if (USE_SUPPORT_DYNAMIC_GROUP) {
+        if (mUseDynamicGroup) {
             ((MediaRouteDevicePickerDialog) mDialog).updateLayout();
         } else {
             ((MediaRouteChooserDialog) mDialog).updateLayout();
