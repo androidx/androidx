@@ -54,9 +54,9 @@ import java.util.Map;
  * on different destinations that fill similar roles allow application code to navigate based
  * on semantic intent.</p>
  *
- * <p>Each destination has a set of {@link #getDefaultArguments() default arguments} that will
+ * <p>Each destination has a set of {@link #getArguments() arguments} that will
  * be applied when {@link NavController#navigate(int, Bundle) navigating} to that destination.
- * These arguments can be overridden at the time of navigation.</p>
+ * Any default values for those arguments can be overridden at the time of navigation.</p>
  */
 public class NavDestination {
     /**
