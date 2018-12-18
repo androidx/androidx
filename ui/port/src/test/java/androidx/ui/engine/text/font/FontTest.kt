@@ -80,4 +80,19 @@ class FontTest {
 
         assertThat(font).isNotEqualTo(otherFont)
     }
+
+    @Test
+    fun `asFontFamilyList returns a FontFamily`() {
+        val font = Font(
+            name = "fontName1",
+            weight = FontWeight.w900,
+            style = FontStyle.italic
+        )
+
+        val fontFamily = font.asFontFamily()
+
+        assertThat(fontFamily).isNotNull()
+        assertThat(fontFamily).isNotEmpty()
+        assertThat(fontFamily[0]).isSameAs(font)
+    }
 }

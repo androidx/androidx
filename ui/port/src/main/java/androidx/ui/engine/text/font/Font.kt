@@ -21,9 +21,7 @@ import androidx.ui.engine.text.FontWeight
 
 data class Font(
     val name: String,
-    // TODO(Migration/siyamed): add test
     val weight: FontWeight = FontWeight.w400,
-    // TODO(Migration/siyamed): add test
     val style: FontStyle = FontStyle.normal,
     // TODO(Migration/siyamed): add test
     val ttcIndex: Int = 0,
@@ -33,4 +31,8 @@ data class Font(
     init {
         assert(name.isNotEmpty()) { "Font name cannot be empty" }
     }
+}
+
+fun Font.asFontFamily(): FontFamily {
+    return FontFamily(this)
 }

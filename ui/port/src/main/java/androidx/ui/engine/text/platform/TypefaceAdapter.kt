@@ -16,16 +16,25 @@
 
 package androidx.ui.engine.text.platform
 
+import android.content.Context
+import android.content.res.Resources
 import android.graphics.Typeface
 import android.os.Build
+import androidx.core.content.res.ResourcesCompat
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
+import androidx.ui.engine.text.font.Font
 import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.engine.text.font.FontMatcher
 
 /**
  * Creates a Typeface based on generic font family or a custom [FontFamily].
+ *
+ * @param fontMatcher [FontMatcher] class to be used to match given [FontWeight] and [FontStyle]
+ *                    constraints to select a [Font] from a [FontFamily]
  */
-internal class TypefaceAdapter {
+// TODO: functions here can also be extension functions on Typeface too
+internal class TypefaceAdapter constructor(val fontMatcher: FontMatcher = FontMatcher()) {
 
     /**
      * Creates a Typeface object based on the system installed fonts. [genericFontFamily] is used
@@ -53,9 +62,9 @@ internal class TypefaceAdapter {
 
         // TODO(Migration/siyamed): ideally we should not have platform dependent if's here.
         // will think more and move to ui-text later.
-        if (Build.VERSION.SDK_INT < 28) {
+        val result = if (Build.VERSION.SDK_INT < 28) {
             val targetStyle = getTypefaceStyle(fontWeight, fontStyle)
-            return if (genericFontFamily.isNullOrEmpty()) {
+            if (genericFontFamily.isNullOrEmpty()) {
                 Typeface.defaultFromStyle(targetStyle)
             } else {
                 Typeface.create(genericFontFamily, targetStyle)
@@ -68,12 +77,76 @@ internal class TypefaceAdapter {
                 familyTypeface = Typeface.create(genericFontFamily, Typeface.NORMAL)
             }
 
-            return Typeface.create(
+            Typeface.create(
                 familyTypeface,
                 fontWeight.weight,
                 fontStyle == FontStyle.italic
             )
         }
+
+        // TODO(Migration/siyamed): cache the result
+        // On different framework versions Typeface might not be cached, therefore it is safer
+        // to cache this result on our code and the cost is minimal.
+        return result
+    }
+
+    /**
+     * Creates a [Typeface] based on the [fontFamily] the requested [FontWeight], [FontStyle]. If
+     * the requested [FontWeight] and [FontStyle] exists in the [FontFamily], the exact match is
+     * returned. If it does not, the matching is defined based on CSS Font Matching. See
+     * [FontMatcher] for more information.
+     *
+     * @param fontWeight the font weight to create the typeface in
+     * @param fontStyle the font style to create the typeface in
+     * @param fontFamily [FontFamily] that contains the list of [Font]s
+     * @param context [Context] instance
+     * @param resources [Resources] instance
+     */
+    fun create(
+        fontStyle: FontStyle = FontStyle.normal,
+        fontWeight: FontWeight = FontWeight.normal,
+        fontFamily: FontFamily,
+        context: Context
+    ): Typeface {
+        // TODO(Migration/siyamed): add genericFontFamily : String? = null for fallback
+        // TODO(Migration/siyamed): add support for multiple font families
+        // TODO(Migration/siyamed): add font synthesis
+
+        val font = fontMatcher.matchFont(fontFamily, fontWeight, fontStyle)
+
+        // TODO(Migration/siyamed): This is an expensive operation and discouraged in the API Docs
+        // remove when alternative resource loading system is defined.
+        val resId = context.resources.getIdentifier(
+            font.name.substringBefore("."),
+            "font",
+            context.packageName
+        )
+
+        val typeface = ResourcesCompat.getFont(context, resId)
+            ?: throw IllegalStateException(
+                "Cannot create Typeface from $font with resource id $resId"
+            )
+
+        // TODO(Migration/siyamed): This part includes synthesis, recheck when it is implemented
+        val result = if (Build.VERSION.SDK_INT < 28) {
+            val targetStyle = getTypefaceStyle(fontWeight, fontStyle)
+            if (targetStyle != typeface.style) {
+                Typeface.create(typeface, targetStyle)
+            } else {
+                typeface
+            }
+        } else {
+            if (typeface.weight != fontWeight.weight ||
+                typeface.isItalic != (fontStyle == FontStyle.italic)
+            ) {
+                Typeface.create(typeface, fontWeight.weight, fontStyle == FontStyle.italic)
+            } else {
+                typeface
+            }
+        }
+
+        // TODO(Migration/siyamed): cache the result
+        return result
     }
 
     /**
@@ -83,6 +156,7 @@ internal class TypefaceAdapter {
      */
     fun getTypefaceStyle(fontWeight: FontWeight, fontStyle: FontStyle): Int {
         // This code accepts anything at and above 600 to be bold.
+        // 600 comes from FontFamily.cpp#computeFakery function in minikin
         val isBold = fontWeight.weight >= 600
         val isItalic = fontStyle == FontStyle.italic
         return if (isItalic && isBold) {
