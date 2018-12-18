@@ -76,7 +76,7 @@ import androidx.ui.widgets.framework.LeafRenderObjectWidget
  *   If this is 1, text will not wrap. Otherwise, text will be wrapped at the edge of the box.
  */
 class RichText(
-    key: Key,
+    key: Key? = null,
     val text: TextSpan,
     val textAlign: TextAlign = TextAlign.START,
     val textDirection: TextDirection? = null,

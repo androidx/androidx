@@ -7,6 +7,23 @@ import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
 import androidx.ui.runtimeType
 
 /**
+ * Signature for a function that creates a widget, e.g. [StatelessWidget.build] or [State.build].
+ */
+typealias WidgetBuilder = (BuildContext) -> Widget
+
+/**
+ * Signature for a function that creates a widget for a given index, e.g., in a list.
+ */
+typealias IndexedWidgetBuilder = (BuildContext, Int) -> Widget
+
+/**
+ * A builder that builds a widget given a child.
+ *
+ * The child should typically be part of the returned widget tree.
+ */
+typealias TransitionBuilder = (BuildContext, Widget) -> Widget
+
+/**
  * Describes the configuration for an [Element].
  *
  * Widgets are the central class hierarchy in the Flutter framework. A widget

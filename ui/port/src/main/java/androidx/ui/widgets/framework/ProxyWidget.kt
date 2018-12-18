@@ -23,11 +23,11 @@ import androidx.ui.foundation.Key
  *  * [Widget], for an overview of widgets in general.
  */
 abstract class ProxyWidget(
-    key: Key,
+    key: Key? = null,
     /**
      * The widget below this widget in the tree.
      *
      * {@macro flutter.widgets.child}
      */
-    val child: Widget
+    val child: Widget?
 ) : Widget(key)
