@@ -67,7 +67,7 @@ public class EditTextPreferenceTest {
         PreferenceFragmentCompat fragment = mActivityRule.getActivity().setupPreferenceHierarchy(
                 R.xml.test_edit_text_preference);
         PreferenceScreen screen = fragment.getPreferenceScreen();
-        mEditTextPreference = (EditTextPreference) screen.findPreference(PREFERENCE);
+        mEditTextPreference = screen.findPreference(PREFERENCE);
     }
 
     @Test
