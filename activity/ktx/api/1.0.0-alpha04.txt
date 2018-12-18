@@ -1,0 +1,9 @@
+// Signature format: 2.0
+package androidx.activity {
+
+  public final class ActivityViewModelLazyKt {
+    ctor public ActivityViewModelLazyKt();
+  }
+
+}
+
