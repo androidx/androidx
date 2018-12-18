@@ -19,7 +19,9 @@ package androidx.car.widget;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.PositionAssertions.isCompletelyRightOf;
+import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -32,6 +34,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Icon;
 import android.view.View;
 import android.widget.ImageButton;
@@ -46,11 +49,13 @@ import androidx.test.runner.AndroidJUnit4;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 /**
@@ -68,6 +73,7 @@ public class CarToolbarTest {
 
     @Before
     public void setUp() {
+        Assume.assumeTrue(isAutoDevice());
         mActivity = mActivityRule.getActivity();
         mToolbar = mActivity.findViewById(R.id.car_toolbar);
     }
@@ -270,8 +276,79 @@ public class CarToolbarTest {
         onView(withId(R.id.overflow_menu)).check(matches(not(isDisplayed())));
     }
 
+    @Test
+    public void testOverflowMenuDisplaysNeverItem() throws Throwable {
+        String overflowItemText = "overflow_item_text";
+        CarMenuItem overflowItem = new CarMenuItem
+                .Builder()
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
+                .setStyle(1) // Style is required for now until b/120920382
+                .setTitle(overflowItemText)
+                .build();
+        mActivityRule.runOnUiThread(() ->
+                mToolbar.setMenuItems(Collections.singletonList(overflowItem)));
+        // Open overflow menu.
+        onView(withId(R.id.overflow_menu)).perform(click());
+
+        onView(withText(overflowItemText)).inRoot(isDialog()).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testOverflowMenuDoesNotDisplayAlwaysItem() throws Throwable {
+        String overflowItemText = "overflow_item_text";
+        CarMenuItem overflowItem = new CarMenuItem
+                .Builder()
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
+                .setStyle(1) // Style is required for now until b/120920382
+                .setTitle(overflowItemText)
+                .build();
+
+        String alwaysItemText = "always_item_text";
+        CarMenuItem alwaysItem = new CarMenuItem
+                .Builder()
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Overflow menu item
+                .setStyle(1) // Style is required for now until b/120920382
+                .setTitle(alwaysItemText)
+                .build();
+        mActivityRule.runOnUiThread(() ->
+                mToolbar.setMenuItems(Arrays.asList(overflowItem, alwaysItem)));
+        // Open overflow menu.
+        onView(withId(R.id.overflow_menu)).perform(click());
+
+        onView(withText(alwaysItemText)).inRoot(isDialog()).check(doesNotExist());
+    }
+
+    @Test
+    public void testOverflowMenuClickInvokesItemOnClickListener() throws Throwable {
+        boolean[] clicked = new boolean[] {false};
+
+        String overflowItemText = "overflow_item_text";
+        CarMenuItem overflowItem = new CarMenuItem
+                .Builder()
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
+                .setStyle(1) // Style is required for now until b/120920382
+                .setTitle(overflowItemText)
+                .setOnClickListener(item -> clicked[0] = true)
+                .build();
+        mActivityRule.runOnUiThread(() ->
+                mToolbar.setMenuItems(Collections.singletonList(overflowItem)));
+        // Open overflow menu.
+        onView(withId(R.id.overflow_menu)).perform(click());
+
+        // Click overflow menu item.
+        onView(withText(overflowItemText)).perform(click());
+
+        assertTrue(clicked[0]);
+    }
+
     private TextView getTitleView() {
         return mActivity.findViewById(R.id.title);
+    }
+
+    /** Returns {@code true} if the testing device has the automotive feature flag. */
+    private boolean isAutoDevice() {
+        PackageManager packageManager = mActivityRule.getActivity().getPackageManager();
+        return packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE);
     }
 
     /**
@@ -301,7 +378,7 @@ public class CarToolbarTest {
      * @return A {@link Matcher} for verification.
      */
     @NonNull
-    public static Matcher<View> withWidth(int width) {
+    private static Matcher<View> withWidth(int width) {
         return new TypeSafeMatcher<View>() {
             @Override
             public boolean matchesSafely(View view) {

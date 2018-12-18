@@ -17,7 +17,6 @@
 package androidx.car.widget;
 
 import android.graphics.drawable.Icon;
-import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,7 +28,7 @@ import androidx.annotation.StyleRes;
  * <p>The following properties can be specified:
  * <ul>
  *     <li>Title - Primary text that is shown on the item.
- *     <li>{@link View.OnClickListener} - Listener that handles the clicks on the item.
+ *     <li>{@link CarMenuItem.OnClickListener} - Listener that handles the clicks on the item.
  *     <li>Icon - An {@link Icon} shown before the title.
  *     <li>Style - A Resource Id that specifies the style of the item, must be specified.
  *     <li>Enabled - A boolean that specifies whether the item is enabled or disabled.
@@ -43,6 +42,19 @@ import androidx.annotation.StyleRes;
  *
  */
 public class CarMenuItem {
+    /**
+     * Interface definition for a callback to be invoked when a {@code CarMenuItem} is clicked.
+     */
+    public interface OnClickListener {
+        /**
+         * Called when a {@code CarMenuItem} has been clicked, the CarMenuItem is passed
+         * in to support using one OnClickListener
+         *
+         * @param item The {@code CarMenuItem} that was clicked.
+         */
+        void onClick(CarMenuItem item);
+    }
+
     /**
      * Display behaviors for {@code CarMenuItem}s. describes whether the items
      * will be displayed on the toolbar or in the overflow menu.
@@ -68,7 +80,7 @@ public class CarMenuItem {
     @StyleRes
     private final int mStyleResId;
     @Nullable
-    private final View.OnClickListener mOnClickListener;
+    private final OnClickListener mOnClickListener;
     @Nullable
     private final Icon mIcon;
     private final boolean mIsCheckable;
@@ -109,7 +121,7 @@ public class CarMenuItem {
      * Sets whether the {@code CarMenuItem} is checked or not.
      *
      * This method will only have an effect if this {@code CarMenuItem} was built
-     * with {@link CarMenuItem.Builder#setCheckable(boolean)} set to {@code true}.
+     * with {@link Builder#setCheckable(boolean)} set to {@code true}.
      *
      * @param checked {@code true} if the {@code CarMenuItem} is checked.
      */
@@ -171,10 +183,10 @@ public class CarMenuItem {
     }
 
     /**
-     * Returns the {@link View.OnClickListener} of the {@code CarMenuItem}.
+     * Returns the {@link OnClickListener} of the {@code CarMenuItem}.
      */
     @Nullable
-    public View.OnClickListener getOnClickListener() {
+    public OnClickListener getOnClickListener() {
         return mOnClickListener;
     }
 
@@ -184,7 +196,7 @@ public class CarMenuItem {
     public static final class Builder {
         CharSequence mTitle;
         @Nullable
-        View.OnClickListener mOnClickListener;
+        OnClickListener mOnClickListener;
         @Nullable
         Icon mIcon;
         int mStyleResId;
@@ -207,13 +219,13 @@ public class CarMenuItem {
         }
 
         /**
-         * Sets {@link View.OnClickListener} of the {@code CarMenuItem}.
+         * Sets {@link OnClickListener} of the {@code CarMenuItem}.
          *
          * @param listener OnClick listener of the {@code CarMenuItem}.
          * @return This {@code Builder} object to allow call chaining.
          */
         @NonNull
-        public Builder setOnClickListener(@NonNull View.OnClickListener listener) {
+        public Builder setOnClickListener(@NonNull OnClickListener listener) {
             mOnClickListener = listener;
             return this;
         }
