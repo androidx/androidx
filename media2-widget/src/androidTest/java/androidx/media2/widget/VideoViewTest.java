@@ -46,7 +46,6 @@ import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -145,12 +144,6 @@ public class VideoViewTest {
 
     @Test
     public void testPlayVideo() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec()) {
-            Log.i(TAG, "SKIPPING testPlayVideo(): codec is not supported");
-            return;
-        }
-
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -169,11 +162,6 @@ public class VideoViewTest {
 
     @Test
     public void testSetMediaItem2() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec()) {
-            Log.i(TAG, "SKIPPING testPlayVideo(): codec is not supported");
-            return;
-        }
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -191,13 +179,6 @@ public class VideoViewTest {
 
     @Test
     public void testPlayVideoWithMediaItemFromFileDescriptor() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec()) {
-            Log.i(TAG, "SKIPPING testPlayVideoWithMediaItemFromFileDescriptor(): "
-                    + "codec is not supported");
-            return;
-        }
-
         AssetFileDescriptor afd = mContext.getResources()
                 .openRawResourceFd(R.raw.testvideo_with_2_subtitle_tracks);
         final MediaItem item = new FileMediaItem.Builder(
@@ -222,12 +203,6 @@ public class VideoViewTest {
 
     @Test
     public void testPlayVideoOnTextureView() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec()) {
-            Log.i(TAG, "SKIPPING testPlayVideoOnTextureView(): codec is not supported");
-            return;
-        }
-
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
 
@@ -256,12 +231,6 @@ public class VideoViewTest {
 
     @Test
     public void testSetViewType() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec()) {
-            Log.i(TAG, "SKIPPING testPlayVideoOnTextureView(): codec is not supported");
-            return;
-        }
-
         final VideoView.OnViewTypeChangedListener mockViewTypeListener =
                 mock(VideoView.OnViewTypeChangedListener.class);
 
@@ -290,10 +259,6 @@ public class VideoViewTest {
 
     @Test
     public void testSubtitleSelection() throws Throwable {
-        if (!hasCodec()) {
-            Log.i(TAG, "SKIPPING testSubtitleSelection(): codec is not supported");
-            return;
-        }
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -395,10 +360,6 @@ public class VideoViewTest {
             mVideoView.addOnAttachStateChangeListener(mockAttachListener);
             verify(mockAttachListener, timeout(TIME_OUT)).onViewAttachedToWindow(same(mVideoView));
         }
-    }
-
-    private boolean hasCodec() {
-        return TestUtils.hasCodecsForResource(mActivity, R.raw.testvideo_with_2_subtitle_tracks);
     }
 
     private MediaItem createTestMediaItem2() {
