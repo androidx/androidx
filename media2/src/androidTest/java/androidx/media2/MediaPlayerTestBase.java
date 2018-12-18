@@ -31,7 +31,7 @@ import android.util.Log;
 import android.view.WindowManager;
 
 import androidx.annotation.CallSuper;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;

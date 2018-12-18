@@ -28,10 +28,10 @@ import android.net.Uri;
 import android.os.Process;
 
 import androidx.slice.compat.CompatPermissionManager;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,7 +44,7 @@ import org.junit.runner.RunWith;
 public class SlicePermissionTest {
 
     private static final Uri BASE_URI = Uri.parse("content://androidx.slice.core.permission/");
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
     private String mTestPkg;
     private int mTestUid;
     private int mTestPid;

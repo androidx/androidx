@@ -24,9 +24,9 @@ import static org.mockito.Mockito.verify;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
@@ -47,7 +47,7 @@ public class ProcessorTest extends DatabaseTest {
 
     @Before
     public void setUp() {
-        Context appContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
+        Context appContext = ApplicationProvider.getApplicationContext().getApplicationContext();
         Configuration configuration = new Configuration.Builder().build();
         mMockScheduler = mock(Scheduler.class);
         mProcessor = new Processor(

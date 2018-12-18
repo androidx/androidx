@@ -26,10 +26,10 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.hamcrest.CoreMatchers;
 import org.junit.After;
@@ -59,7 +59,7 @@ public class CollationTest {
 
     private void initDao(Locale systemLocale) {
         Locale.setDefault(systemLocale);
-        mDb = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getTargetContext(),
+        mDb = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(),
                 CollateDb.class).build();
         mDao = mDb.dao();
         mDao.insert(mItem1);

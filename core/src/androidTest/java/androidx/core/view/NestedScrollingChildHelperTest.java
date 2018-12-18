@@ -31,9 +31,9 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.widget.NestedScrollView;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -50,12 +50,12 @@ public class NestedScrollingChildHelperTest {
     @Before
     public void setup() {
         mNestedScrollingParentImpl =
-                spy(new NestedScrollingParentImpl(InstrumentationRegistry.getContext()));
+                spy(new NestedScrollingParentImpl(ApplicationProvider.getApplicationContext()));
         mNestedScrollingParentImpl.setLayoutParams(
                 new FrameLayout.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
-        mNestedScrollingChild = spy(new View(InstrumentationRegistry.getContext()));
+        mNestedScrollingChild = spy(new View(ApplicationProvider.getApplicationContext()));
         mNestedScrollingChild.setLayoutParams(
                 new NestedScrollView.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));

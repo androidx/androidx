@@ -23,9 +23,9 @@ import static org.mockito.Mockito.when;
 
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

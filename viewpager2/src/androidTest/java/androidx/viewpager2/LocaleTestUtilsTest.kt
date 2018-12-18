@@ -16,14 +16,15 @@
 
 package androidx.viewpager2
 
+import android.content.Context
 import android.content.res.Configuration
 import android.os.Build
 import androidx.core.os.ConfigurationCompat
 import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR
 import androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL
-import androidx.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.runner.AndroidJUnit4
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.Matchers
 import org.junit.After
@@ -40,7 +41,7 @@ private val DEFAULT_LANGUAGE = Locale.getDefault().toString()
 @LargeTest
 class LocaleTestUtilsTest {
     private val configuration: Configuration get() =
-        InstrumentationRegistry.getTargetContext().resources.configuration
+        (ApplicationProvider.getApplicationContext() as Context).resources.configuration
     private val Configuration.language: String get() =
         ConfigurationCompat.getLocales(this).get(0).toString()
 
@@ -49,7 +50,8 @@ class LocaleTestUtilsTest {
 
     @Before
     fun setUp() {
-        localeUtil = LocaleTestUtils(InstrumentationRegistry.getTargetContext())
+        localeUtil =
+                LocaleTestUtils(ApplicationProvider.getApplicationContext() as android.content.Context)
         determineDefaultLayoutDirection()
     }
 

@@ -29,10 +29,10 @@ import androidx.lifecycle.LifecycleRegistry;
 import androidx.loader.app.test.DelayLoader;
 import androidx.loader.app.test.DummyLoaderCallbacks;
 import androidx.loader.content.Loader;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;

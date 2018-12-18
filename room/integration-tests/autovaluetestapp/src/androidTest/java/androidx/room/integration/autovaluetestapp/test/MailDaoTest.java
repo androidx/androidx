@@ -25,10 +25,10 @@ import android.os.Build;
 import androidx.room.Room;
 import androidx.room.integration.autovaluetestapp.FtsTestDatabase;
 import androidx.room.integration.autovaluetestapp.vo.Mail;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +47,7 @@ public class MailDaoTest {
 
     @Before
     public void setup() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         mDatabase = Room.inMemoryDatabaseBuilder(context, FtsTestDatabase.class).build();
         mMailDao = mDatabase.getMailDao();
     }

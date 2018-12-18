@@ -28,10 +28,10 @@ import android.os.Build;
 import android.os.LocaleList;
 import android.telephony.mbms.ServiceInfo;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +55,7 @@ public class MbmsHelperTest{
                 Locale.forLanguageTag("es-us"));
         ServiceInfo sampleService = makeServiceInfoWithLocales(
                 Locale.forLanguageTag("en-us"), Locale.forLanguageTag("es-us"));
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         context.getResources().getConfiguration().setLocales(userPreferredLocales);
         assertEquals(getServiceNameForLocale(Locale.forLanguageTag("es-us")),
                 MbmsHelper.getBestNameForService(context, sampleService));
@@ -70,7 +70,7 @@ public class MbmsHelperTest{
                 Locale.forLanguageTag("es-us"));
         ServiceInfo sampleService = makeServiceInfoWithLocales(
                 Locale.forLanguageTag("en-us"), Locale.forLanguageTag("en-uk"));
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         context.getResources().getConfiguration().setLocales(userPreferredLocales);
 
         assertNull(MbmsHelper.getBestNameForService(context, sampleService));

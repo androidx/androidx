@@ -26,7 +26,8 @@ dependencies {
     implementation(project(":annotation"))
     implementation(project(":core"))
     implementation(project(":animation"))
-    implementation(TEST_RUNNER)
+    implementation(TEST_EXT_JUNIT)
+    implementation(TEST_CORE)
 }
 
 supportLibrary {

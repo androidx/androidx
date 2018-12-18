@@ -65,12 +65,12 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.work.BackoffPolicy;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
@@ -149,7 +149,7 @@ public class WorkManagerImplTest {
                 return true;
             }
         });
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
         mConfiguration = new Configuration.Builder()
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .setMinimumLoggingLevel(Log.DEBUG)
@@ -1359,7 +1359,7 @@ public class WorkManagerImplTest {
     @Test
     @MediumTest
     public void testCancelAllWork_updatesLastCancelAllTime() {
-        Preferences preferences = new Preferences(InstrumentationRegistry.getTargetContext());
+        Preferences preferences = new Preferences(ApplicationProvider.getApplicationContext());
         preferences.setLastCancelAllTimeMillis(0L);
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -1373,7 +1373,7 @@ public class WorkManagerImplTest {
     @SmallTest
     @SuppressWarnings("unchecked")
     public void testCancelAllWork_updatesLastCancelAllTimeLiveData() throws InterruptedException {
-        Preferences preferences = new Preferences(InstrumentationRegistry.getTargetContext());
+        Preferences preferences = new Preferences(ApplicationProvider.getApplicationContext());
         preferences.setLastCancelAllTimeMillis(0L);
 
         TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
@@ -1529,7 +1529,7 @@ public class WorkManagerImplTest {
             throws ExecutionException, InterruptedException {
 
         final PackageManager packageManager = mock(PackageManager.class);
-        mContext = new ContextWrapper(InstrumentationRegistry.getTargetContext()) {
+        mContext = new ContextWrapper(ApplicationProvider.getApplicationContext()) {
             @Override
             public Context getApplicationContext() {
                 return this;

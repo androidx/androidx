@@ -27,9 +27,10 @@ import androidx.arch.core.util.Function;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.integration.testapp.TestDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -114,7 +115,7 @@ public class MainThreadCheckTest {
     }
 
     private Throwable test(boolean allowMainThread, final Function<TestDatabase, Void> fun) {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         final RoomDatabase.Builder<TestDatabase> builder = Room.inMemoryDatabaseBuilder(
                 context, TestDatabase.class);
         if (allowMainThread) {

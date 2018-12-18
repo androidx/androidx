@@ -53,10 +53,10 @@ import androidx.annotation.Nullable;
 import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontInfo;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -82,7 +82,7 @@ public class FontRequestEmojiCompatConfigTest {
 
     @Before
     public void setup() {
-        mContext = InstrumentationRegistry.getContext();
+        mContext = ApplicationProvider.getApplicationContext();
         mFontRequest = new FontRequest("authority", "package", "query",
                 new ArrayList<List<byte[]>>());
         mFontProviderHelper = mock(FontRequestEmojiCompatConfig.FontProviderHelper.class);

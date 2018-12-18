@@ -35,9 +35,9 @@ import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.content.pm.ShortcutInfoCompatSaver;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.sharetarget.test.R;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -75,7 +75,7 @@ public class ShortcutInfoCompatSaverTest {
 
     @Before
     public void setup() {
-        mContext = spy(new ContextWrapper(InstrumentationRegistry.getContext()));
+        mContext = spy(new ContextWrapper(ApplicationProvider.getApplicationContext()));
         mCacheUpdateService = ShortcutInfoCompatSaverImpl.createExecutorService();
         mDiskIoService = ShortcutInfoCompatSaverImpl.createExecutorService();
         mShortcutInfoSaver = new ShortcutInfoCompatSaverImpl(mContext, mCacheUpdateService,

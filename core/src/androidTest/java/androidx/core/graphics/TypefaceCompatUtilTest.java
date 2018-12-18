@@ -24,8 +24,8 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.provider.MockFontProvider;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;

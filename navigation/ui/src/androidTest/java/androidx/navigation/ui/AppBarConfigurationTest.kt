@@ -23,8 +23,8 @@ import androidx.navigation.createGraph
 import androidx.navigation.plusAssign
 import androidx.navigation.testing.TestNavigator
 import androidx.navigation.testing.test
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.runner.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

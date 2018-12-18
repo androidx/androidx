@@ -19,7 +19,7 @@ package androidx.heifwriter;
 import static androidx.heifwriter.HeifWriter.INPUT_MODE_BITMAP;
 import static androidx.heifwriter.HeifWriter.INPUT_MODE_BUFFER;
 import static androidx.heifwriter.HeifWriter.INPUT_MODE_SURFACE;
-import static androidx.test.InstrumentationRegistry.getContext;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -43,9 +43,9 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.heifwriter.test.R;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -122,7 +122,8 @@ public class HeifWriterTest {
             InputStream inputStream = null;
             FileOutputStream outputStream = null;
             try {
-                inputStream = getContext().getResources().openRawResource(IMAGE_RESOURCES[i]);
+                inputStream = getApplicationContext()
+                        .getResources().openRawResource(IMAGE_RESOURCES[i]);
                 outputStream = new FileOutputStream(outputPath);
                 copy(inputStream, outputStream);
             } finally {

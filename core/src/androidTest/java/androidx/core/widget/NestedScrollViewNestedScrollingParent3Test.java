@@ -36,9 +36,9 @@ import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -222,9 +222,9 @@ public class NestedScrollViewNestedScrollingParent3Test {
     @SuppressWarnings("SameParameterValue")
     private void setupNestedScrollViewWithChild(int nestedScrollViewHeight, int childHeight) {
 
-        mNestedScrollView = new NestedScrollView(InstrumentationRegistry.getContext());
+        mNestedScrollView = new NestedScrollView(ApplicationProvider.getApplicationContext());
 
-        mChild = new View(InstrumentationRegistry.getContext());
+        mChild = new View(ApplicationProvider.getApplicationContext());
         mChild.setMinimumHeight(childHeight);
         mChild.setLayoutParams(
                 new NestedScrollView.LayoutParams(
@@ -242,16 +242,16 @@ public class NestedScrollViewNestedScrollingParent3Test {
     private void setupNestedScrollViewWithParentAndChild(int parentHeight,
             int nestedScrollViewHeight, int childHeight) {
 
-        mParent = spy(new NestedScrollingSpyView(InstrumentationRegistry.getContext()));
+        mParent = spy(new NestedScrollingSpyView(ApplicationProvider.getApplicationContext()));
         mParent.setMinimumHeight(parentHeight);
 
-        mNestedScrollView = new NestedScrollView(InstrumentationRegistry.getContext());
+        mNestedScrollView = new NestedScrollView(ApplicationProvider.getApplicationContext());
         mNestedScrollView.setMinimumHeight(nestedScrollViewHeight);
         mNestedScrollView.setLayoutParams(
                 new ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.MATCH_PARENT, nestedScrollViewHeight));
 
-        mChild = new View(InstrumentationRegistry.getContext());
+        mChild = new View(ApplicationProvider.getApplicationContext());
         mChild.setMinimumHeight(childHeight);
         mChild.setLayoutParams(
                 new NestedScrollView.LayoutParams(

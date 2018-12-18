@@ -62,6 +62,8 @@ dependencies {
     androidTestImplementation(FINDBUGS)
     androidTestImplementation(GUAVA_ANDROID)
     androidTestImplementation(RX_JAVA)
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)

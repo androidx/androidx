@@ -17,6 +17,8 @@ dependencies {
     api(CONSTRAINT_LAYOUT, { transitive = true })
     api(SUPPORT_DESIGN, libs.exclude_for_material)
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
@@ -25,6 +27,8 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
 
     testImplementation(JUNIT)
+    testImplementation(TEST_EXT_JUNIT)
+    testImplementation(TEST_CORE)
     testImplementation(TEST_RUNNER)
     testImplementation(MOCKITO_CORE)
 

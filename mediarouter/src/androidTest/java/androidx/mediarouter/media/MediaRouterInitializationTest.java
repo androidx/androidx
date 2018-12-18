@@ -16,17 +16,17 @@
 
 package androidx.mediarouter.media;
 
-import static androidx.test.InstrumentationRegistry.getContext;
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Build;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,7 +46,7 @@ public class MediaRouterInitializationTest {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                final Context context = getContext();
+                final Context context = getApplicationContext();
                 android.media.MediaRouter router =
                         (android.media.MediaRouter) context.getSystemService(
                                 Context.MEDIA_ROUTER_SERVICE);

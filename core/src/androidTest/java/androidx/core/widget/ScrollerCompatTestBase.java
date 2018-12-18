@@ -22,9 +22,9 @@ import static org.junit.Assert.assertTrue;
 import android.util.Log;
 import android.view.animation.Interpolator;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,7 +45,7 @@ public class ScrollerCompatTestBase {
     protected void createScroller(Interpolator interpolator)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException,
             InstantiationException {
-        mScroller = new ScrollerCompat(InstrumentationRegistry.getContext(), interpolator);
+        mScroller = new ScrollerCompat(ApplicationProvider.getApplicationContext(), interpolator);
     }
 
     @Test

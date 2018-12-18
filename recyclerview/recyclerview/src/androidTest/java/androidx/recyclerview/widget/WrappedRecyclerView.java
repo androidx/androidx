@@ -20,7 +20,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 
 import androidx.core.view.ViewCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;

@@ -23,10 +23,10 @@ import static org.mockito.Mockito.verify;
 import android.content.Context;
 import android.os.Parcelable;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -57,7 +57,7 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
     @UiThreadTest
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
         mPreferenceManager = new PreferenceManager(mContext);
         mScreen = mPreferenceManager.createPreferenceScreen(mContext);
         mScreen.setKey(PREFERENCE_KEY);

@@ -27,9 +27,9 @@ import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.vo.User;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -100,7 +100,7 @@ public class IdentityDetectionTest {
     }
 
     private void openDb() {
-        mTestDatabase = Room.databaseBuilder(InstrumentationRegistry.getTargetContext(),
+        mTestDatabase = Room.databaseBuilder(ApplicationProvider.getApplicationContext(),
                 TestDatabase.class, DB_FILE_NAME).build();
     }
 
@@ -118,7 +118,7 @@ public class IdentityDetectionTest {
     }
 
     private void deleteDbFile() {
-        File testDb = InstrumentationRegistry.getTargetContext().getDatabasePath(DB_FILE_NAME);
+        File testDb = ApplicationProvider.getApplicationContext().getDatabasePath(DB_FILE_NAME);
         testDb.delete();
     }
 }

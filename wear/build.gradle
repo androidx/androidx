@@ -13,6 +13,8 @@ dependencies {
     api(project(":recyclerview"))
     api(CONSTRAINT_LAYOUT, { transitive = true })
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)

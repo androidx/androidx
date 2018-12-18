@@ -17,6 +17,8 @@ dependencies {
     api("androidx.vectordrawable:vectordrawable-animated:1.0.0")
     api("androidx.drawerlayout:drawerlayout:1.0.0")
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(TRUTH)

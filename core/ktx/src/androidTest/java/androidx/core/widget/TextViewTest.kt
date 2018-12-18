@@ -17,10 +17,10 @@
 package androidx.core.widget
 
 import android.widget.TextView
-import androidx.test.InstrumentationRegistry
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.runner.AndroidJUnit4
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 @SmallTest
 class TextViewTest {
 
-    private val context = InstrumentationRegistry.getContext()
+    private val context = ApplicationProvider.getApplicationContext() as android.content.Context
     private val view = TextView(context)
 
     @UiThreadTest

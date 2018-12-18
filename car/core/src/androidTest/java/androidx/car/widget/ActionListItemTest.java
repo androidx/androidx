@@ -42,12 +42,12 @@ import android.view.ViewGroup;
 import androidx.car.test.R;
 import androidx.car.util.CarUxRestrictionsTestUtils;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.hamcrest.Matcher;
 import org.junit.Assume;
@@ -158,7 +158,7 @@ public class ActionListItemTest {
         for (int i = 0; i < items.size(); i++) {
             ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(i);
 
-            int expected = InstrumentationRegistry.getContext().getResources()
+            int expected = ApplicationProvider.getApplicationContext().getResources()
                     .getDimensionPixelSize(expectedStartMargin.get(i));
             assertThat(((ViewGroup.MarginLayoutParams) viewHolder.getTitle().getLayoutParams())
                     .getMarginStart(), is(equalTo(expected)));
@@ -436,13 +436,14 @@ public class ActionListItemTest {
 
         // String wouldn't fit in one line.
         ActionListItem item3 = new ActionListItem(mActivity);
-        item3.setTitle(InstrumentationRegistry.getContext().getResources().getString(
+        item3.setTitle(ApplicationProvider.getApplicationContext().getResources().getString(
                 R.string.over_uxr_text_length_limit));
 
         List<ActionListItem> items = Arrays.asList(item0, item1, item2, item3);
         setupPagedListView(items);
 
-        double singleLineHeight = InstrumentationRegistry.getContext().getResources().getDimension(
+        double singleLineHeight =
+                ApplicationProvider.getApplicationContext().getResources().getDimension(
                 R.dimen.car_single_line_list_item_height);
 
         LinearLayoutManager layoutManager =
@@ -465,14 +466,14 @@ public class ActionListItemTest {
 
         // String wouldn't fit in one line.
         ActionListItem item2 = new ActionListItem(mActivity);
-        item2.setBody(InstrumentationRegistry.getContext().getResources().getString(
+        item2.setBody(ApplicationProvider.getApplicationContext().getResources().getString(
                 R.string.over_uxr_text_length_limit));
 
         List<ActionListItem> items = Arrays.asList(item0, item1, item2);
         setupPagedListView(items);
 
         final int doubleLineHeight =
-                (int) InstrumentationRegistry.getContext().getResources().getDimension(
+                (int) ApplicationProvider.getApplicationContext().getResources().getDimension(
                         R.dimen.car_double_line_list_item_height);
 
         LinearLayoutManager layoutManager =
@@ -485,7 +486,7 @@ public class ActionListItemTest {
 
     @Test
     public void testPrimaryIconDrawable() {
-        Drawable drawable = InstrumentationRegistry.getContext().getResources().getDrawable(
+        Drawable drawable = ApplicationProvider.getApplicationContext().getResources().getDrawable(
                 android.R.drawable.sym_def_app_icon, null);
 
         ActionListItem item0 = new ActionListItem(mActivity);
@@ -553,7 +554,8 @@ public class ActionListItemTest {
         List<ActionListItem> items = Arrays.asList(item0, item1);
         setupPagedListView(items);
 
-        int expected = InstrumentationRegistry.getContext().getResources().getDimensionPixelSize(
+        int expected =
+                ApplicationProvider.getApplicationContext().getResources().getDimensionPixelSize(
                 R.dimen.car_keyline_1);
 
         ActionListItem.ViewHolder viewHolder = getViewHolderAtPosition(0);
@@ -567,7 +569,8 @@ public class ActionListItemTest {
 
     @Test
     public void testSmallPrimaryIconTopMarginRemainsTheSameRegardlessOfTextLength() {
-        final String longText = InstrumentationRegistry.getContext().getResources().getString(
+        final String longText =
+                ApplicationProvider.getApplicationContext().getResources().getString(
                 R.string.over_uxr_text_length_limit);
 
         // Single line item.
@@ -727,7 +730,7 @@ public class ActionListItemTest {
         // Custom binder interacts with body but has no effect.
         // Expect card height to remain single line.
         assertThat((double) viewHolder.itemView.getHeight(), is(closeTo(
-                InstrumentationRegistry.getContext().getResources().getDimension(
+                ApplicationProvider.getApplicationContext().getResources().getDimension(
                         R.dimen.car_single_line_list_item_height), 1.0d)));
     }
 

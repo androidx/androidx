@@ -30,9 +30,9 @@ import androidx.media2.SessionCommandGroup;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.MockRemotePlayer;
 import androidx.media2.test.service.RemoteMediaController;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;

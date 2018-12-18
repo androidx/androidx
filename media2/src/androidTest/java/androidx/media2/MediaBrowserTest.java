@@ -44,10 +44,10 @@ import androidx.media2.MediaLibraryService.LibraryParams;
 import androidx.media2.MediaLibraryService.MediaLibrarySession;
 import androidx.media2.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback;
 import androidx.media2.MediaSession.ControllerInfo;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

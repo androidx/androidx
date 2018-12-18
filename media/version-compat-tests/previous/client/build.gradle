@@ -24,5 +24,7 @@ dependencies {
     androidTestImplementation project(':support-media-compat-test-lib')
     androidTestImplementation "com.android.support:support-media-compat:27.1.0"
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
 }

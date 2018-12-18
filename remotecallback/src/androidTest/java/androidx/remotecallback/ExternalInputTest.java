@@ -16,15 +16,15 @@
 
 package androidx.remotecallback;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +42,7 @@ public class ExternalInputTest {
     private static int sArg1;
     private static int sArg2;
 
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Test
     public void testArg() throws Exception {

@@ -19,10 +19,11 @@ package androidx.webkit;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Assert;
 import org.junit.Assume;
@@ -93,7 +94,7 @@ public class WebViewApkTest {
     }
 
     private WebViewVersion getInstalledWebViewVersionFromPackage() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         // Before M42, we used the major version number, followed by other text wrapped in
         // parentheses.
         final Pattern oldVersionNameFormat =

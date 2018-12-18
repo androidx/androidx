@@ -48,11 +48,11 @@ import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.MediaSession.SessionCallback;
 import androidx.media2.TestServiceRegistry.SessionServiceCallback;
 import androidx.media2.TestUtils.SyncHandler;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.testutils.PollingCheck;
 
 import org.junit.After;

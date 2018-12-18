@@ -16,10 +16,10 @@
 
 package androidx.navigation
 
-import androidx.test.InstrumentationRegistry
-import androidx.test.filters.SmallTest
-import androidx.test.runner.AndroidJUnit4
 import android.view.View
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
@@ -30,8 +30,9 @@ import org.junit.runner.RunWith
 class ViewTest {
 
     @Test fun findNavController() {
-        val view = View(InstrumentationRegistry.getTargetContext())
-        val navController = NavController(InstrumentationRegistry.getTargetContext())
+        val view = View(ApplicationProvider.getApplicationContext() as android.content.Context)
+        val navController =
+            NavController(ApplicationProvider.getApplicationContext() as android.content.Context)
         Navigation.setViewNavController(view, navController)
 
         val foundNavController = view.findNavController()
@@ -40,7 +41,7 @@ class ViewTest {
     }
 
     @Test fun findNavControllerNull() {
-        val view = View(InstrumentationRegistry.getTargetContext())
+        val view = View(ApplicationProvider.getApplicationContext() as android.content.Context)
         try {
             view.findNavController()
             fail("findNavController should throw IllegalStateException if a NavController" +

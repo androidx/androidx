@@ -26,9 +26,9 @@ import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.UserDao;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
 import androidx.room.integration.testapp.vo.User;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class PojoTest {
 
     @Before
     public void createDb() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
         mUserDao = db.getUserDao();
     }

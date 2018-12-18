@@ -44,6 +44,8 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)

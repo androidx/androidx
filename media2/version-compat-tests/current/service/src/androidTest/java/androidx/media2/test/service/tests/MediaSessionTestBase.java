@@ -27,7 +27,7 @@ import androidx.media2.SessionToken;
 import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.media2.test.service.RemoteMediaBrowser;
 import androidx.media2.test.service.RemoteMediaController;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -111,7 +111,7 @@ abstract class MediaSessionTestBase extends MediaTestBase {
 
     @CallSuper
     public void setUp() throws Exception {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
     }
 
     @CallSuper

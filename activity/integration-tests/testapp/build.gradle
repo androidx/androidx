@@ -31,6 +31,8 @@ dependencies {
     implementation(project(":activity"))
     androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE)

@@ -20,7 +20,7 @@ import androidx.arch.core.executor.testing.CountingTaskExecutorRule
 import androidx.room.Room
 import androidx.room.integration.kotlintestapp.TestDatabase
 import androidx.room.integration.kotlintestapp.dao.BooksDao
-import androidx.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -36,7 +36,8 @@ abstract class TestDatabaseTest {
     @Before
     @Throws(Exception::class)
     fun setUp() {
-        database = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getContext(),
+        database = Room.inMemoryDatabaseBuilder(
+            ApplicationProvider.getApplicationContext(),
                 TestDatabase::class.java)
                 .build()
 

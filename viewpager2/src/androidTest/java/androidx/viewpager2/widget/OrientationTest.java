@@ -27,9 +27,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.viewpager2.test.R;
 
 import org.junit.Test;
@@ -40,13 +40,13 @@ import org.junit.runner.RunWith;
 public class OrientationTest {
     @Test
     public void test_orientation_noAttrs() {
-        ViewPager2 viewPager = new ViewPager2(InstrumentationRegistry.getContext());
+        ViewPager2 viewPager = new ViewPager2(ApplicationProvider.getApplicationContext());
         assertThat(viewPager.getOrientation(), equalTo(ViewPager2.ORIENTATION_HORIZONTAL));
     }
 
     @Test
     public void test_orientation_nullAttrs() {
-        ViewPager2 viewPager = new ViewPager2(InstrumentationRegistry.getContext(), null);
+        ViewPager2 viewPager = new ViewPager2(ApplicationProvider.getApplicationContext(), null);
         assertThat(viewPager.getOrientation(), equalTo(ViewPager2.ORIENTATION_HORIZONTAL));
     }
 
@@ -73,8 +73,9 @@ public class OrientationTest {
     }
 
     private void assertOrientationCorrect(int layoutId, int expectedOrientation) {
-        LayoutInflater layoutInflater = (LayoutInflater) checkNotNull(InstrumentationRegistry
-                .getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+        LayoutInflater layoutInflater = (LayoutInflater) checkNotNull(
+                ApplicationProvider.getApplicationContext().getSystemService(
+                        Context.LAYOUT_INFLATER_SERVICE));
         ViewPager2 viewPager = (ViewPager2) layoutInflater.inflate(layoutId, null);
         assertThat(viewPager.getOrientation(), equalTo(expectedOrientation));
     }

@@ -17,11 +17,12 @@
 package androidx.navigation
 
 import androidx.navigation.test.R
+import android.content.Context
 import androidx.navigation.testing.TestNavigator
 import androidx.navigation.testing.test
-import androidx.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.runner.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -30,7 +31,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class NavDeepLinkBuilderTest {
 
-    private val targetContext get() = InstrumentationRegistry.getTargetContext()
+    private val targetContext get() = ApplicationProvider.getApplicationContext() as Context
 
     @Test
     fun fromContextSetGraphXml() {

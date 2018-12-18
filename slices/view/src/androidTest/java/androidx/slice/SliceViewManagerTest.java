@@ -40,10 +40,10 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.SliceLiveData;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ import java.util.concurrent.Executor;
 @SdkSuppress(minSdkVersion = 19)
 public class SliceViewManagerTest {
 
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
     private SliceProvider mSliceProvider;
     private SliceViewManager mViewManager;
     private SliceManager mManager;

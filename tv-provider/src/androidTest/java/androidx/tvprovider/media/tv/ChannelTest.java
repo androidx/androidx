@@ -26,10 +26,10 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.tvprovider.media.tv.TvContractCompat.Channels;
 
 import org.junit.After;
@@ -46,10 +46,10 @@ import org.junit.runner.RunWith;
 public class ChannelTest {
     @After
     public void tearDown() {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
-        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        ContentResolver resolver = ApplicationProvider.getApplicationContext().getContentResolver();
         resolver.delete(Channels.CONTENT_URI, null, null);
     }
 
@@ -94,12 +94,12 @@ public class ChannelTest {
 
     @Test
     public void testChannelWithSystemContentProvider() {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         Channel fullyPopulatedChannel = createFullyPopulatedChannel();
         ContentValues contentValues = fullyPopulatedChannel.toContentValues();
-        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        ContentResolver resolver = ApplicationProvider.getApplicationContext().getContentResolver();
         Uri channelUri = resolver.insert(Channels.CONTENT_URI, contentValues);
         assertNotNull(channelUri);
 
@@ -109,13 +109,13 @@ public class ChannelTest {
 
     @Test
     public void testChannelUpdateWithContentProvider() {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
 
         Channel fullyPopulatedChannel = createFullyPopulatedChannel();
         ContentValues contentValues = fullyPopulatedChannel.toContentValues();
-        ContentResolver resolver = InstrumentationRegistry.getContext().getContentResolver();
+        ContentResolver resolver = ApplicationProvider.getApplicationContext().getContentResolver();
         Uri channelUri = resolver.insert(Channels.CONTENT_URI, contentValues);
         assertNotNull(channelUri);
 

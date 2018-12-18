@@ -32,8 +32,8 @@ import android.text.SpannableString;
 import android.widget.EditText;
 
 import androidx.emoji.text.EmojiCompat;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

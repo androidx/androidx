@@ -32,7 +32,8 @@ import android.webkit.WebViewClient;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import java.util.concurrent.Callable;
 
@@ -71,7 +72,7 @@ class WebViewOnUiThread {
         WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
-                mWebView = new WebView(InstrumentationRegistry.getTargetContext());
+                mWebView = new WebView(ApplicationProvider.getApplicationContext());
                 mWebView.setWebViewClient(new WaitForLoadedClient(WebViewOnUiThread.this));
                 mWebView.setWebChromeClient(new WaitForProgressClient(WebViewOnUiThread.this));
             }
@@ -84,7 +85,7 @@ class WebViewOnUiThread {
 
     public static WebView createWebView() {
         final Holder h = new Holder();
-        final Context ctx = InstrumentationRegistry.getTargetContext();
+        final Context ctx = ApplicationProvider.getApplicationContext();
         WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {

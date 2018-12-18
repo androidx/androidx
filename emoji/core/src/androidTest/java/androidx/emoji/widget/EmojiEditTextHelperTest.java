@@ -33,10 +33,10 @@ import android.view.inputmethod.InputConnection;
 import android.widget.EditText;
 
 import androidx.emoji.text.EmojiCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class EmojiEditTextHelperTest {
     @Before
     public void setup() {
         EmojiCompat.reset(mock(EmojiCompat.class));
-        mEditText = new EditText(InstrumentationRegistry.getTargetContext());
+        mEditText = new EditText(ApplicationProvider.getApplicationContext());
         mEmojiEditTextHelper = new EmojiEditTextHelper(mEditText);
     }
 

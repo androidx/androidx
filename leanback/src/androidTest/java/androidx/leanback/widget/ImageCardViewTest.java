@@ -33,8 +33,8 @@ import android.widget.ImageView;
 import androidx.leanback.R;
 import androidx.leanback.app.TestActivity;
 import androidx.leanback.testutils.PollingCheck;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;

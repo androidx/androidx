@@ -22,8 +22,8 @@ import android.app.Instrumentation;
 import android.view.View;
 
 import androidx.coordinatorlayout.testutils.CoordinatorLayoutUtils;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;

@@ -32,10 +32,10 @@ import android.text.SpannableString;
 
 import androidx.collection.ArrayMap;
 import androidx.core.os.LocaleListCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -166,7 +166,7 @@ public final class TextLinksTest {
         SpannableString text = new SpannableString(FULL_TEXT);
         TextLinks textLinks = new TextLinks.Builder(text).build();
 
-        Context context = InstrumentationRegistry.getContext();
+        Context context = ApplicationProvider.getApplicationContext();
         TextClassifier textClassifier = TextClassificationManager.of(context).getTextClassifier();
         int status = textLinks.apply(text, textClassifier, TextLinksParams.DEFAULT_PARAMS);
         assertThat(status).isEqualTo(TextLinks.STATUS_NO_LINKS_FOUND);
@@ -183,7 +183,7 @@ public final class TextLinksTest {
                 .addLink(START, END, Collections.singletonMap(TextClassifier.TYPE_PHONE, 1.0f))
                 .build();
 
-        Context context = InstrumentationRegistry.getContext();
+        Context context = ApplicationProvider.getApplicationContext();
         TextClassifier textClassifier = TextClassificationManager.of(context).getTextClassifier();
         int status = textLinks.apply(text, textClassifier, TextLinksParams.DEFAULT_PARAMS);
         assertThat(status).isEqualTo(TextLinks.STATUS_LINKS_APPLIED);

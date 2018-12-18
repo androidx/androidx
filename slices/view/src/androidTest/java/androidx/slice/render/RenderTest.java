@@ -30,11 +30,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -53,7 +54,7 @@ import java.util.concurrent.TimeUnit;
 @SdkSuppress(minSdkVersion = 19)
 public class RenderTest {
 
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Rule
     public GrantPermissionRule mRuntimePermissionRule =

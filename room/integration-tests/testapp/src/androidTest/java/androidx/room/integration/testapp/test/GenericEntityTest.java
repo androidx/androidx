@@ -28,9 +28,9 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,7 +46,7 @@ public class GenericEntityTest {
     @Before
     public void init() {
         mDb = Room.inMemoryDatabaseBuilder(
-                InstrumentationRegistry.getTargetContext(),
+                ApplicationProvider.getApplicationContext(),
                 GenericDb.class
         ).build();
         mDao = mDb.getDao();
