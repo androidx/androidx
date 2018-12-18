@@ -450,6 +450,42 @@ public class AccessibilityNodeInfoCompat {
                         android.R.id.accessibilityActionScrollRight, null, null, null);
 
         /**
+         * Action to move to the page above.
+         */
+        @NonNull
+        public static final AccessibilityActionCompat ACTION_PAGE_UP =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 29
+                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_UP : null,
+                        android.R.id.accessibilityActionPageUp, null, null, null);
+
+        /**
+         * Action to move to the page below.
+         */
+        @NonNull
+        public static final AccessibilityActionCompat ACTION_PAGE_DOWN =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 29
+                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_DOWN : null,
+                        android.R.id.accessibilityActionPageDown, null, null, null);
+
+        /**
+         * Action to move to the page left.
+         */
+        @NonNull
+        public static final AccessibilityActionCompat ACTION_PAGE_LEFT =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 29
+                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_LEFT : null,
+                        android.R.id.accessibilityActionPageLeft, null, null, null);
+
+        /**
+         * Action to move to the page right.
+         */
+        @NonNull
+        public static final AccessibilityActionCompat ACTION_PAGE_RIGHT =
+                new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 29
+                        ?  AccessibilityNodeInfo.AccessibilityAction.ACTION_PAGE_RIGHT : null,
+                        android.R.id.accessibilityActionPageRight, null, null, null);
+
+        /**
          * Action that context clicks the node.
          */
         public static final AccessibilityActionCompat ACTION_CONTEXT_CLICK =
