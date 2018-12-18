@@ -370,7 +370,7 @@ public class MediaRouteCastDialog extends AppCompatDialog {
      * Sets the width of the dialog. Also called when configuration changes.
      */
     void updateLayout() {
-        int width = MediaRouteDialogHelper.getDialogWidth(mContext);
+        int width = MediaRouteDialogHelper.getDialogWidthForDynamicGroup(mContext);
         int height = MediaRouteDialogHelper.getDialogHeight(mContext);
         getWindow().setLayout(width, height);
 
