@@ -2485,10 +2485,6 @@ public final class MediaRouter {
                     final String id = routeDescriptor.getId();
                     final int sourceIndex = provider.findRouteIndexByDescriptorId(id);
 
-                    boolean isDynamicGroup =
-                            (mSelectedRouteController instanceof DynamicGroupRouteController)
-                            && id.equals(mSelectedRoute.mDescriptorId);
-
                     if (sourceIndex < 0) {
                         // 1. Add the route to the list.
                         String uniqueId = assignRouteUniqueId(provider, id);
@@ -2512,15 +2508,13 @@ public final class MediaRouter {
                                 + routeDescriptor);
                     } else {
                         RouteInfo route = provider.mRoutes.get(sourceIndex);
-                        // 1. Replace route if a group route becomes a normal route
-                        // or vice versa.
-                        // 2. Reorder the route within the list.
+                        // 1. Reorder the route within the list.
                         Collections.swap(provider.mRoutes, sourceIndex, targetIndex++);
-                        // 3. Update the route's contents.
+                        // 2. Update the route's contents.
                         if (routeDescriptor.getGroupMemberIds().size() > 0) {
                             updatedGroups.add(new Pair<>(route, routeDescriptor));
                         } else {
-                            // 4. Notify clients about changes.
+                            // 3. Notify clients about changes.
                             if (updateRouteDescriptorAndNotify(route, routeDescriptor) != 0) {
                                 if (route == mSelectedRoute) {
                                     selectedRouteDescriptorChanged = true;

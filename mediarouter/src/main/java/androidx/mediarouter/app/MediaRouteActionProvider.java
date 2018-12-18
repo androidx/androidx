@@ -137,6 +137,7 @@ public class MediaRouteActionProvider extends ActionProvider {
     private MediaRouteSelector mSelector = MediaRouteSelector.EMPTY;
     private MediaRouteDialogFactory mDialogFactory = MediaRouteDialogFactory.getDefault();
     private MediaRouteButton mButton;
+    private boolean mUseDynamicGroup;
 
     /**
      * Creates the action provider.
@@ -192,6 +193,16 @@ public class MediaRouteActionProvider extends ActionProvider {
             if (mButton != null) {
                 mButton.setRouteSelector(selector);
             }
+        }
+    }
+
+    /**
+     * Enables dynamic group feature.
+     */
+    public void enableDynamicGroup() {
+        mUseDynamicGroup = true;
+        if (mButton != null) {
+            mButton.enableDynamicGroup();
         }
     }
 
@@ -256,6 +267,9 @@ public class MediaRouteActionProvider extends ActionProvider {
         mButton = onCreateMediaRouteButton();
         mButton.setCheatSheetEnabled(true);
         mButton.setRouteSelector(mSelector);
+        if (mUseDynamicGroup) {
+            mButton.enableDynamicGroup();
+        }
         mButton.setDialogFactory(mDialogFactory);
         mButton.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,

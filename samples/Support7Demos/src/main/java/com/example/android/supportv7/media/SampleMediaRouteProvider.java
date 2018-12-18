@@ -331,6 +331,7 @@ class SampleMediaRouteProvider extends MediaRouteProvider {
                         .build();
                 mRouteDescriptors.put(mRouteId, groupDescriptor);
             }
+            publishRoutes();
         }
 
         public void onSetVolume(int volume) {

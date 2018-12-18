@@ -97,7 +97,6 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
 
         String newRouteId = generateNewRouteId();
         MediaRouteDescriptor changedDescriptor = new MediaRouteDescriptor.Builder(routeDescriptor)
-
                 .setId(newRouteId)
                 .build();
         mRouteDescriptors.put(newRouteId, changedDescriptor);
