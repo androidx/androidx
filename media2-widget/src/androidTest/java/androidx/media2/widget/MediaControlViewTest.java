@@ -32,7 +32,6 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Build;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -127,12 +126,6 @@ public class MediaControlViewTest {
 
     @Test
     public void testPlayPauseButtonClick() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec(mFileSchemeUri)) {
-            Log.i(TAG, "SKIPPING testPlayPauseButtonClick(): codec is not supported");
-            return;
-        }
-
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForPlayingState = new CountDownLatch(1);
         final MediaController controller =
@@ -160,12 +153,6 @@ public class MediaControlViewTest {
 
     @Test
     public void testFfwdButtonClick() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec(mFileSchemeUri)) {
-            Log.i(TAG, "SKIPPING testFfwdButtonClick(): codec is not supported");
-            return;
-        }
-
         final CountDownLatch latchForPausedState = new CountDownLatch(1);
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
         final MediaController controller =
@@ -199,12 +186,6 @@ public class MediaControlViewTest {
 
     @Test
     public void testRewButtonClick() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec(mFileSchemeUri)) {
-            Log.i(TAG, "SKIPPING testRewButtonClick(): codec is not supported");
-            return;
-        }
-
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
         final CountDownLatch latchForRew = new CountDownLatch(1);
         final MediaController controller =
@@ -248,12 +229,6 @@ public class MediaControlViewTest {
 
     @Test
     public void testGetMetadata() throws Throwable {
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec(mFileSchemeUri)) {
-            Log.i(TAG, "SKIPPING testGetMetadata(): codec is not supported");
-            return;
-        }
-
         final long duration = 49056L;
         final String title = "BigBuckBunny";
         final CountDownLatch latch = new CountDownLatch(2);
@@ -293,12 +268,6 @@ public class MediaControlViewTest {
         Uri uri = Uri.parse("android.resource://" + mContext.getPackageName() + "/"
                 + R.raw.test_music);
         AssetFileDescriptor afd = mContext.getResources().openRawResourceFd(R.raw.test_music);
-
-        // Don't run the test if the codec isn't supported.
-        if (!hasCodec(uri) || !hasCodec(afd)) {
-            Log.i(TAG, "SKIPPING testGetMetadataFromMusic(): codec is not supported");
-            return;
-        }
 
         final long duration = 4206L;
         final String title = "Chimey Phone";
@@ -444,14 +413,6 @@ public class MediaControlViewTest {
 
     private MediaItem createTestMediaItem2(Uri uri) {
         return new UriMediaItem.Builder(mVideoView.getContext(), uri).build();
-    }
-
-    private boolean hasCodec(Uri uri) {
-        return TestUtils.hasCodecsForUri(mActivity, uri);
-    }
-
-    private boolean hasCodec(AssetFileDescriptor afd) {
-        return TestUtils.hasCodecsForFileDescriptor(afd);
     }
 
     private MediaController createController(MediaController.ControllerCallback callback) {
