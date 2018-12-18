@@ -169,18 +169,6 @@ internal class ParagraphAndroid constructor(
 
     fun getLineHeight(index: Int): Double = ensureLayout.getLineHeight(index)
 
-    fun getLineTop(index: Int): Double = ensureLayout.getLineTop(index)
-
-    fun getLineBottom(index: Int): Double = ensureLayout.getLineBottom(index)
-
-    fun getLineAscent(index: Int): Double = ensureLayout.getLineAscent(index)
-
-    fun getLineDescent(index: Int): Double = ensureLayout.getLineDescent(index)
-
-    fun getLineBaseLine(index: Int): Double {
-        return getLineBottom(index) - getLineDescent(index)
-    }
-
     fun paint(canvas: Canvas, x: Double, y: Double) {
         val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
                 "called before layout() is called")

@@ -144,7 +144,7 @@ class TextLayoutTest {
         val lastLine = layout.lineCount - 1
         assertThat(lastLine, greaterThanOrEqualTo(1))
 
-        val actualHeight = layout.getLineBottom(lastLine) - layout.getLineTop(lastLine)
+        val actualHeight = layout.getLineHeight(lastLine)
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
         assertThat(actualHeight, equalTo(textSize * 1.2))
