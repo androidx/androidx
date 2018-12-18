@@ -58,7 +58,7 @@ public class LeanbackPreferenceDialogFragmentCompat extends Fragment {
             final String key = getArguments().getString(ARG_KEY);
             final DialogPreference.TargetFragment fragment =
                     (DialogPreference.TargetFragment) getTargetFragment();
-            mPreference = (DialogPreference) fragment.findPreference(key);
+            mPreference = fragment.findPreference(key);
         }
         return mPreference;
     }

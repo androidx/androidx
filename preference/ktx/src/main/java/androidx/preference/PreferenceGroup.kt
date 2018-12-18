@@ -23,7 +23,7 @@ package androidx.preference
  *
  * @throws NullPointerException if no preference is found with that key.
  */
-inline operator fun PreferenceGroup.get(key: CharSequence): Preference = findPreference(key)
+inline operator fun <T : Preference> PreferenceGroup.get(key: CharSequence): T = findPreference(key)
 
 /**
  * Returns the preference at `index`.
