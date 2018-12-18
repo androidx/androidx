@@ -20,6 +20,7 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.LocaleSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import androidx.annotation.VisibleForTesting
@@ -280,7 +281,15 @@ internal class ParagraphAndroid constructor(
                 )
             }
             // TODO(Migration/haoyuchang): implement height
-            // TODO(Migration/haoyuchang): implement locale
+            style.locale?.let {
+                spannableString.setSpan(
+                    // TODO(Migration/haoyuchang): support locale fallback in the framework
+                    LocaleSpan(Locale(it.languageCode, it.countryCode)),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
             // TODO(Migration/haoyuchang): implement background
             // TODO(Migration/haoyuchang): implement foreground or decide if we really need it
         }
