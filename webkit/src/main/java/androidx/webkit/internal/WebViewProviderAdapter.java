@@ -25,6 +25,7 @@ import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewRenderer;
+import androidx.webkit.WebViewRendererClient;
 
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -90,8 +91,27 @@ public class WebViewProviderAdapter {
     }
 
     /**
+     * Adapter method for {@link WebViewCompat#getWebViewRenderer()}.
      */
     public WebViewRenderer getWebViewRenderer() {
         return WebViewRendererImpl.forInvocationHandler(mImpl.getWebViewRenderer());
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#getWebViewRendererClient()}.
+     */
+    public WebViewRendererClient getWebViewRendererClient() {
+        InvocationHandler handler = mImpl.getWebViewRendererClient();
+        if (handler == null) return null;
+        return (WebViewRendererClient)
+                BoundaryInterfaceReflectionUtil.getDelegateFromInvocationHandler(handler);
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#setWebViewRendererClient(WebViewRendererClient)}.
+     */
+    public void setWebViewRendererClient(WebViewRendererClient webViewRendererClient) {
+        mImpl.setWebViewRendererClient(
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(webViewRendererClient));
     }
 }

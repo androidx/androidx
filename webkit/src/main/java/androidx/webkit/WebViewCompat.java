@@ -509,6 +509,59 @@ public class WebViewCompat {
         }
     }
 
+    /**
+     * Sets the renderer client object associated with this WebView.
+     *
+     * <p>The renderer client encapsulates callbacks relevant to WebView renderer
+     * state. See {@link WebViewRendererClient} for details.
+     *
+     * <p>Although many WebView instances may share a single underlying renderer, and renderers may
+     * live either in the application process, or in a sandboxed process that is isolated from
+     * the application process, instances of {@link WebViewRendererClient} are set per-WebView.
+     * Callbacks represent renderer events from the perspective of this WebView, and may or may
+     * not be correlated with renderer events affecting other WebViews.
+     *
+     * <p>This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE}.
+     */
+    @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setWebViewRendererClient(
+            @NonNull WebView webview, @Nullable WebViewRendererClient webViewRendererClient) {
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
+                WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
+        if (feature.isSupportedByWebView()) {
+            getProvider(webview).setWebViewRendererClient(webViewRendererClient);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets the renderer client object associated with this WebView.
+     *
+     * <p>This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE}.
+     *
+     * @return the {@link WebViewRendererClient} object associated with this WebView, if one has
+     * been set via {@link #setWebViewRendererClient(WebView,WebViewRendererClient)} or {@code null}
+     * otherwise.
+     */
+    @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static @Nullable WebViewRendererClient getWebViewRendererClient(
+            @NonNull WebView webview) {
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
+                WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
+        if (feature.isSupportedByWebView()) {
+            return getProvider(webview).getWebViewRendererClient();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
     private static WebViewProviderFactory getFactory() {
         return WebViewGlueCommunicator.getFactory();
     }
