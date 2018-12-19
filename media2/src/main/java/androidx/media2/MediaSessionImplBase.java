@@ -971,7 +971,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
             dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onRepeatModeChanged(seq, repeatMode);
+                    callback.onRepeatModeChanged(seq, repeatMode, getCurrentMediaItemIndex(),
+                            getPreviousMediaItemIndex(), getNextMediaItemIndex());
                 }
             });
         }
@@ -980,7 +981,8 @@ class MediaSessionImplBase implements MediaSessionImpl {
             dispatchRemoteControllerTaskWithoutReturn(new RemoteControllerTask() {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onShuffleModeChanged(seq, shuffleMode);
+                    callback.onShuffleModeChanged(seq, shuffleMode, getCurrentMediaItemIndex(),
+                            getPreviousMediaItemIndex(), getNextMediaItemIndex());
                 }
             });
         }
@@ -1154,7 +1156,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
         @Override
         public void onCurrentMediaItemChanged(final SessionPlayer player, final MediaItem item) {
             final MediaSessionImplBase session = getSession();
-            if (session == null || session.getPlayer() != player || player == null) {
+            if (session == null || player == null || session.getPlayer() != player) {
                 return;
             }
             synchronized (session.mLock) {
@@ -1183,7 +1185,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
         @Override
         public void onPlayerStateChanged(final SessionPlayer player, final int state) {
             final MediaSessionImplBase session = getSession();
-            if (session == null || session.getPlayer() != player || player == null) {
+            if (session == null || player == null || session.getPlayer() != player) {
                 return;
             }
             session.getCallback().onPlayerStateChanged(session.getInstance(), state);
@@ -1236,7 +1238,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
         public void onPlaylistChanged(final SessionPlayer player, final List<MediaItem> list,
                 final MediaMetadata metadata) {
             final MediaSessionImplBase session = getSession();
-            if (session == null || session.getPlayer() != player || player == null) {
+            if (session == null || player == null || session.getPlayer() != player) {
                 return;
             }
             synchronized (session.mLock) {
@@ -1277,20 +1279,28 @@ class MediaSessionImplBase implements MediaSessionImpl {
 
         @Override
         public void onRepeatModeChanged(final SessionPlayer player, final int repeatMode) {
+            final MediaSessionImplBase session = getSession();
             dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onRepeatModeChanged(seq, repeatMode);
+                    callback.onRepeatModeChanged(seq, repeatMode,
+                            session.getCurrentMediaItemIndex(),
+                            session.getPreviousMediaItemIndex(),
+                            session.getNextMediaItemIndex());
                 }
             });
         }
 
         @Override
         public void onShuffleModeChanged(final SessionPlayer player, final int shuffleMode) {
+            final MediaSessionImplBase session = getSession();
             dispatchRemoteControllerTask(player, new RemoteControllerTask() {
                 @Override
                 public void run(ControllerCb callback, int seq) throws RemoteException {
-                    callback.onShuffleModeChanged(seq, shuffleMode);
+                    callback.onShuffleModeChanged(seq, shuffleMode,
+                            session.getCurrentMediaItemIndex(),
+                            session.getPreviousMediaItemIndex(),
+                            session.getNextMediaItemIndex());
                 }
             });
         }
@@ -1309,7 +1319,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
         public void onAudioAttributesChanged(final SessionPlayer player,
                 final AudioAttributesCompat attributes) {
             final MediaSessionImplBase session = getSession();
-            if (session == null || session.getPlayer() != player || player == null) {
+            if (session == null || player == null || session.getPlayer() != player) {
                 return;
             }
             PlaybackInfo newInfo = session.createPlaybackInfo(player, attributes);
@@ -1334,7 +1344,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
         private void dispatchRemoteControllerTask(@NonNull SessionPlayer player,
                 @NonNull RemoteControllerTask task) {
             final MediaSessionImplBase session = getSession();
-            if (session == null || session.getPlayer() != player || player == null) {
+            if (session == null || player == null || session.getPlayer() != player) {
                 return;
             }
             session.dispatchRemoteControllerTaskWithoutReturn(task);

@@ -1338,13 +1338,17 @@ class MediaSessionStub extends IMediaSession.Stub {
         }
 
         @Override
-        void onShuffleModeChanged(int seq, int shuffleMode) throws RemoteException {
-            mIControllerCallback.onShuffleModeChanged(seq, shuffleMode);
+        void onShuffleModeChanged(int seq, int shuffleMode, int currentIdx, int previousIdx,
+                int nextIdx) throws RemoteException {
+            mIControllerCallback.onShuffleModeChanged(seq, shuffleMode, currentIdx, previousIdx,
+                    nextIdx);
         }
 
         @Override
-        void onRepeatModeChanged(int seq, int repeatMode) throws RemoteException {
-            mIControllerCallback.onRepeatModeChanged(seq, repeatMode);
+        void onRepeatModeChanged(int seq, int repeatMode, int currentIdx, int previousIdx,
+                int nextIdx) throws RemoteException {
+            mIControllerCallback.onRepeatModeChanged(seq, repeatMode, currentIdx, previousIdx,
+                    nextIdx);
         }
 
         @Override
