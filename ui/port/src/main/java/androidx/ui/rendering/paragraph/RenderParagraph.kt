@@ -95,7 +95,8 @@ class RenderParagraph(
     maxLines: Int? = null
 ) : RenderBox() {
     @VisibleForTesting
-    internal var textPainter: TextPainter
+    // TODO(migration/qqd): Should be internal. Removed internal due to hacking reason for now.
+    var textPainter: TextPainter
 
     private var overflowShader: Shader? = null
     private var hasVisualOverflow = false
@@ -202,8 +203,7 @@ class RenderParagraph(
             return textPainter.maxLines
         }
 
-    @VisibleForTesting
-    internal fun layoutText(minWidth: Double = 0.0, maxWidth: Double = Double.POSITIVE_INFINITY) {
+    fun layoutText(minWidth: Double = 0.0, maxWidth: Double = Double.POSITIVE_INFINITY) {
         val widthMatters = softWrap || overflow == TextOverflow.ELLIPSIS
         textPainter.layout(
             minWidth = minWidth, maxWidth =
@@ -211,8 +211,7 @@ class RenderParagraph(
         )
     }
 
-    @VisibleForTesting
-    internal fun layoutTextWithConstraints(constraints: BoxConstraints) {
+    fun layoutTextWithConstraints(constraints: BoxConstraints) {
         layoutText(minWidth = constraints.minWidth, maxWidth = constraints.maxWidth)
     }
 

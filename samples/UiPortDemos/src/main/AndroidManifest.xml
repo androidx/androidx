@@ -93,6 +93,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="androidx.r4a.CraneTextActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Crane Text Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".RowsAndColumnsActivity"
                   android:configChanges="orientation|screenSize"
                   android:label="Rows and Columns Activity">
