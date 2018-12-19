@@ -138,13 +138,13 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
         }
 
         setMeasuredDimension(
-            root.width.toPx(context).roundToInt(),
-            root.height.toPx(context).roundToInt()
+            root.size.width.toPx(context).roundToInt(),
+            root.size.height.toPx(context).roundToInt()
         )
 
         adjustedLayouts.forEach { layout ->
-            val layoutWidth = layout.width.toPx(context).roundToInt()
-            val layoutHeight = layout.height.toPx(context).roundToInt()
+            val layoutWidth = layout.size.width.toPx(context).roundToInt()
+            val layoutHeight = layout.size.height.toPx(context).roundToInt()
             val width = View.MeasureSpec.makeMeasureSpec(layoutWidth, View.MeasureSpec.EXACTLY)
             val height = View.MeasureSpec.makeMeasureSpec(layoutHeight, View.MeasureSpec.EXACTLY)
             layout.androidData.view.measure(width, height)
@@ -171,8 +171,8 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
         adjustedLayouts.forEach { layout ->
             val left = layout.x.toPx(context).roundToInt()
             val top = layout.y.toPx(context).roundToInt()
-            val right = left + layout.width.toPx(context).roundToInt()
-            val bottom = top + layout.height.toPx(context).roundToInt()
+            val right = left + layout.size.width.toPx(context).roundToInt()
+            val bottom = top + layout.size.height.toPx(context).roundToInt()
             layout.androidData.view.layout(left, top, right, bottom)
         }
         adjustedLayouts.clear()
@@ -193,7 +193,7 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
     private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
         node.visitChildren { child ->
             if (child is DrawNode) {
-                child.onPaint(canvas)
+                child.onPaint(canvas, root.size.toPx(context))
                 child.needsPaint = false
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view
@@ -221,7 +221,7 @@ private class ConstraintRange(val min: Dimension, val max: Dimension)
  * This will be replaced with using RenderNodes instead.
  */
 @SuppressLint("ViewConstructor")
-private class NodeView(container: ViewGroup, val node: ComponentNode) :
+private class NodeView(container: ViewGroup, val node: LayoutNode) :
     ViewGroup(container.context) {
     init {
         container.addView(this)
@@ -255,7 +255,7 @@ private class NodeView(container: ViewGroup, val node: ComponentNode) :
     private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
         node.visitChildren { child ->
             if (child is DrawNode) {
-                child.onPaint(canvas)
+                child.onPaint(canvas, this.node.size.toPx(context))
                 child.needsPaint = false
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view

@@ -42,8 +42,8 @@ class Measurable internal constructor(private val measureBox: MeasureBox) {
  */
 // TODO(mount): Make this an inline class when private constructors are possible
 class Placeable internal constructor(private val measureBox: MeasureBox) {
-    val width = measureBox.layoutNode.width
-    val height = measureBox.layoutNode.height
+    val width = measureBox.layoutNode.size.width
+    val height = measureBox.layoutNode.size.height
 
     fun place(x: Dimension, y: Dimension) {
         measureBox.moveTo(x, y)

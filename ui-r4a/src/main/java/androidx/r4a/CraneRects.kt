@@ -25,9 +25,8 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
 import androidx.ui.core.Draw
 import androidx.ui.core.MeasureBox
-import androidx.ui.core.SizeBias
+import androidx.ui.core.PixelSize
 import androidx.ui.core.coerceAtLeast
-import androidx.ui.core.compareTo
 import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.hasBoundedHeight
@@ -37,7 +36,6 @@ import androidx.ui.core.minus
 import androidx.ui.core.plus
 import androidx.ui.core.tightConstraints
 import androidx.ui.core.times
-import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
@@ -85,23 +83,14 @@ fun FourQuadrants(bust: Double) {
         val resources = context.resources
         val image =
             BitmapFactory.decodeResource(resources, androidx.ui.port.R.drawable.four_quadrants)
-        val pxToDP = 1 / 1.dp.toPx(context)
-        val imageWidthDp = (image.width * pxToDP).dp
-        val imageHeightDp = (image.height * pxToDP).dp
         val maxHeight = constraints.maxHeight
         val maxWidth = constraints.maxWidth
-        val imageScale = if ((constraints.hasBoundedHeight || constraints.hasBoundedWidth) &&
-            (maxWidth > imageWidthDp || maxHeight > imageHeightDp)
-        ) {
-            min(maxWidth / imageWidthDp, maxHeight / imageHeightDp)
-        } else {
-            1f
-        }
+        val aspectRatio = image.width.toFloat()/image.height.toFloat()
+        val height = min(maxHeight, maxWidth * aspectRatio)
+        val width = min(maxWidth, maxHeight / aspectRatio)
 
-        val width = imageWidthDp * imageScale
-        val height = imageHeightDp * imageScale
         measureOperations.collect {
-            <DrawImage bitmap=image scale=imageScale />
+            <DrawImage bitmap=image/>
         }
 
         measureOperations.layout(width, height) {
@@ -110,11 +99,15 @@ fun FourQuadrants(bust: Double) {
 }
 
 @Composable
-fun DrawImage(bitmap: Bitmap, scale: Float) {
-    val onPaint: (Canvas) -> Unit = { canvas ->
+fun DrawImage(bitmap: Bitmap) {
+    val context = composer.composer.context
+    val onPaint: (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
         val paint = Paint()
         canvas.save()
-        canvas.scale(scale.toDouble(), scale.toDouble())
+        val width = parentSize.width.toDouble()
+        val height = parentSize.height.toDouble()
+        val scale = min(width/bitmap.width.toDouble(), height/bitmap.height.toDouble())
+        canvas.scale(scale, scale)
         canvas.drawImage(Image(bitmap), Offset(0.0, 0.0), paint)
         canvas.restore()
     }
@@ -122,13 +115,13 @@ fun DrawImage(bitmap: Bitmap, scale: Float) {
 }
 
 @Composable
-fun DrawRectangle(width: Dimension, height: Dimension, color: Color) {
+fun DrawRectangle(color: Color) {
     val context = composer.composer.context
-    val widthPx = width.toPx(context).toDouble()
-    val heightPx = height.toPx(context).toDouble()
     val paint = Paint()
     paint.color = color
-    val onPaint: (Canvas) -> Unit = { canvas ->
+    val onPaint: (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
+        val widthPx = parentSize.width.toDouble()
+        val heightPx = parentSize.height.toDouble()
         canvas.drawRect(Rect(0.0, 0.0, widthPx, heightPx), paint)
     }
     <Draw onPaint />
@@ -138,7 +131,7 @@ fun DrawRectangle(width: Dimension, height: Dimension, color: Color) {
 fun Rectangle(width: Dimension, height: Dimension, color: Color) {
     <MeasureBox bust=Math.random()> _, measureOperations ->
         measureOperations.collect {
-            <DrawRectangle width height color />
+            <DrawRectangle color />
         }
         measureOperations.layout(width, height) {}
     </MeasureBox>

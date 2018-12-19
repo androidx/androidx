@@ -72,15 +72,19 @@ val Hairline = Dimension(dp = 0f)
 
 inline operator fun Float.div(by: Dimension) =
     DimensionInverse(this / by.dp)
+
 inline operator fun Double.div(by: Dimension) =
     DimensionInverse(this.toFloat() / by.dp)
+
 inline operator fun Int.div(by: Dimension) =
     DimensionInverse(this / by.dp)
 
 inline operator fun Float.times(by: Dimension) =
     Dimension(this * by.dp)
+
 inline operator fun Double.times(by: Dimension) =
     Dimension(this.toFloat() * by.dp)
+
 inline operator fun Int.times(by: Dimension) =
     Dimension(this * by.dp)
 
@@ -101,6 +105,7 @@ inline operator fun Dimension.minus(dimension: Dimension) =
  */
 inline operator fun Dimension.div(by: Float): Dimension =
     Dimension(dp = dp / by)
+
 inline operator fun Dimension.div(by: Int): Dimension =
     Dimension(dp = dp / by)
 
@@ -120,6 +125,7 @@ inline operator fun Dimension.div(by: DimensionSquared): DimensionInverse =
  */
 inline operator fun Dimension.times(by: Float): Dimension =
     Dimension(dp = dp * by)
+
 inline operator fun Dimension.times(by: Int): Dimension =
     Dimension(dp = dp * by)
 
@@ -164,8 +170,10 @@ inline fun max(dimension1: Dimension, dimension2: Dimension): Dimension {
  */
 fun Dimension.coerceIn(minimumValue: Dimension, maximumValue: Dimension): Dimension {
     if (minimumValue > maximumValue) {
-        throw IllegalArgumentException("Cannot coerce value to an empty range: maximum " +
-                "$maximumValue is less than minimum $minimumValue.")
+        throw IllegalArgumentException(
+            "Cannot coerce value to an empty range: maximum " +
+                    "$maximumValue is less than minimum $minimumValue."
+        )
     }
     return when {
         this < minimumValue -> minimumValue
@@ -390,3 +398,14 @@ inline operator fun DimensionInverse.times(by: DimensionCubed): DimensionSquared
  * Support comparing DimensionInverse with comparison operators.
  */
 inline operator fun DimensionInverse.compareTo(other: DimensionInverse) = idp.compareTo(other.idp)
+
+/**
+ * A size in Pixels
+ */
+data class PixelSize(val width: Float, val height: Float)
+
+/**
+ * Convert a [Size] to a [PixelSize].
+ */
+fun Size.toPx(context: Context): PixelSize =
+    PixelSize(width.toPx(context), height.toPx(context))
