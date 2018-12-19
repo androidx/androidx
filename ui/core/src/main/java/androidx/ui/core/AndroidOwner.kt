@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,11 @@ import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.Context
 import android.os.Build
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.ui.core.pointerinput.PointerInputEventProcessor
+import androidx.ui.core.pointerinput.toPointerInputEvent
 import androidx.ui.painting.Canvas
 import kotlin.math.roundToInt
 
@@ -44,6 +47,8 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
                 value[0] = this
             }
         }
+
+    val pointerInputEventProcessor = PointerInputEventProcessor(context, root)
 
     var constraints = tightConstraints(width = 0.dp, height = 0.dp)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
@@ -176,6 +181,12 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
             layout.androidData.view.layout(left, top, right, bottom)
         }
         adjustedLayouts.clear()
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        pointerInputEventProcessor.process(event.toPointerInputEvent())
+        // TODO(shepshapard): Only return if a child was hit.
+        return true
     }
 
     private fun convertMeasureSpec(measureSpec: Int): ConstraintRange {

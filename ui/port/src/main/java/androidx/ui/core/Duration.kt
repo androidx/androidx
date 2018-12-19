@@ -86,6 +86,7 @@ data class Duration(private val microseconds: Long) : Comparable<Duration> {
     companion object {
         val zero = Duration(0)
 
+        @JvmStatic
         fun create(
             days: Long = 0,
             hours: Long = 0,
