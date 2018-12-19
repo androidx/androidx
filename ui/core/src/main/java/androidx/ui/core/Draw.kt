@@ -18,28 +18,23 @@ package androidx.ui.core
 import androidx.ui.painting.Canvas
 import com.google.r4a.Children
 import com.google.r4a.Component
-import com.google.r4a.Composable
 
 /**
  * Use Draw to get a [Canvas] to paint into the parent. Components with constructor parameters
  * over-memoize, so we must use a property instead. We can't currently use the children aspect
  * of [onPaint] because of a bug in R4A. That said, it should end up used like this:
- *     <Draw> canvas ->
+ *     <Draw> canvas, parentSize ->
  *         val paint = Paint()
  *         paint.color = Color(0xFF000000.toInt())
- *         canvas.drawRect(Rect(0.0, 0.0, 10.0, 10.0, paint)
+ *         canvas.drawRect(Rect(0.0, 0.0, parentSize.width, parentSize.height, paint)
  *     </Draw>
  */
 class Draw() : Component() {
-    @Children(composable = false) var onPaint: (canvas: Canvas) -> Unit = { _ -> }
+    @Children(composable = false)
+    var onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit = { _, _ -> }
+
     override fun compose() {
         // Hide the internals of DrawNode
         <DrawNode onPaint />
     }
-}
-
-@Composable
-fun Draw(@Children(composable = false) onPaint: (canvas: Canvas) -> Unit) {
-    // Hide the internals of DrawNode
-    <DrawNode onPaint />
 }

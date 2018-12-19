@@ -54,23 +54,23 @@ class ComponentNodeTest {
     @Test
     fun layoutNodeChildrenOrder() {
         val (node, child1, child2) = createSimpleLayout()
-        assertEquals(2, node.size)
+        assertEquals(2, node.count)
         assertEquals(child1, node[0])
         assertEquals(child2, node[1])
-        assertEquals(0, child1.size)
-        assertEquals(0, child2.size)
+        assertEquals(0, child1.count)
+        assertEquals(0, child2.count)
 
         node.emitRemoveAt(index = 0, count = 1)
-        assertEquals(1, node.size)
+        assertEquals(1, node.count)
         assertEquals(child2, node[0])
 
         node.emitInsertAt(index = 0, instance = child1)
-        assertEquals(2, node.size)
+        assertEquals(2, node.count)
         assertEquals(child1, node[0])
         assertEquals(child2, node[1])
 
         node.emitRemoveAt(index = 0, count = 2)
-        assertEquals(0, node.size)
+        assertEquals(0, node.count)
 
         val child3 = DrawNode()
         val child4 = DrawNode()
@@ -80,21 +80,21 @@ class ComponentNodeTest {
         node.emitInsertAt(2, child3)
         node.emitInsertAt(3, child4)
 
-        assertEquals(4, node.size)
+        assertEquals(4, node.count)
         assertEquals(child1, node[0])
         assertEquals(child2, node[1])
         assertEquals(child3, node[2])
         assertEquals(child4, node[3])
 
         node.emitMove(from = 3, count = 1, to = 0)
-        assertEquals(4, node.size)
+        assertEquals(4, node.count)
         assertEquals(child4, node[0])
         assertEquals(child1, node[1])
         assertEquals(child2, node[2])
         assertEquals(child3, node[3])
 
         node.emitMove(from = 0, count = 2, to = 2)
-        assertEquals(4, node.size)
+        assertEquals(4, node.count)
         assertEquals(child2, node[0])
         assertEquals(child3, node[1])
         assertEquals(child4, node[2])
@@ -175,9 +175,9 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun drawNodeChildSizes() {
+    fun drawNodeChildcounts() {
         val node = DrawNode()
-        assertEquals(0, node.size)
+        assertEquals(0, node.count)
     }
 
     @Test
@@ -218,17 +218,17 @@ class ComponentNodeTest {
         val child = DrawNode()
         node.emitInsertAt(0, child)
         verify(owner, times(1)).onAttach(child)
-        assertEquals(1, node.size)
+        assertEquals(1, node.count)
         assertEquals(node, child.parent)
         assertEquals(owner, child.owner)
     }
 
     @Test
-    fun singleChildSizes() {
+    fun singleChildcounts() {
         val node = GestureNode()
-        assertEquals(0, node.size)
+        assertEquals(0, node.count)
         node.emitInsertAt(0, GestureNode())
-        assertEquals(1, node.size)
+        assertEquals(1, node.count)
     }
 
     @Test
@@ -256,7 +256,7 @@ class ComponentNodeTest {
         node.emitInsertAt(0, child)
         node.emitRemoveAt(index = 0, count = 1)
         verify(owner, times(1)).onDetach(child)
-        assertEquals(0, node.size)
+        assertEquals(0, node.count)
         assertEquals(null, child.parent)
         assertNull(child.owner)
     }
@@ -340,7 +340,7 @@ class ComponentNodeTest {
     }
 
     @Test
-    fun sizeChange() {
+    fun countChange() {
         val (node, _, _) = createSimpleLayout()
         val owner = mock(Owner::class.java)
         node.attach(owner)

@@ -93,7 +93,7 @@ internal sealed class ComponentNode : Emittable {
     /**
      * Returns the number of children in this ComponentNode.
      */
-    abstract val size: Int
+    abstract val count: Int
 
     /**
      * Execute [block] on all children of this ComponentNode. There is no single concept for
@@ -146,8 +146,10 @@ internal sealed class ComponentNode : Emittable {
     open fun attach(owner: Owner) {
         ErrorMessages.OwnerAlreadyAttached.validateState(this.owner == null)
         val parent = parent
-        ErrorMessages.ParentOwnerMustMatchChild.validateState(parent == null ||
-                parent.owner == owner)
+        ErrorMessages.ParentOwnerMustMatchChild.validateState(
+            parent == null ||
+                    parent.owner == owner
+        )
         this.owner = owner
         this.depth = (parent?.depth ?: -1) + 1
         owner.onAttach(this)
@@ -181,7 +183,7 @@ internal open class SingleChildComponentNode() : ComponentNode() {
      */
     var child: ComponentNode? = null
 
-    override val size: Int
+    override val count: Int
         get() = if (child == null) 0 else 1
 
     override fun emitInsertAt(index: Int, instance: Emittable) {
@@ -223,13 +225,13 @@ internal class GestureNode() : SingleChildComponentNode()
  * Backing node for the [Draw] component.
  */
 internal class DrawNode() : ComponentNode() {
-    var onPaint: (canvas: Canvas) -> Unit = {}
+    var onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit = { _, _ -> }
         set(value) {
             field = value
             invalidate()
         }
 
-    override val size: Int
+    override val count: Int
         get() = 0
 
     var needsPaint = true
@@ -284,24 +286,18 @@ internal class LayoutNode() : ComponentNode() {
      */
     var constraints: Constraints = tightConstraints(0.dp, 0.dp)
 
-    var ref: Ref<LayoutNode>? = null
+    var ref: Ref<LayoutNode>?
+        get() = null
         set(value) {
             value?.value = this
-            field = value
         }
 
     var measureBox: Any? = null
 
     /**
-     * The width of this layout
+     * The size of this layout
      */
-    var width = 0.dp
-        private set
-
-    /**
-     * The height of this layout
-     */
-    var height = 0.dp
+    var size = Size(0.dp, 0.dp)
         private set
 
     /**
@@ -334,7 +330,7 @@ internal class LayoutNode() : ComponentNode() {
      */
     var visible = true
 
-    override val size: Int
+    override val count: Int
         get() = children.size
 
     override fun get(index: Int): ComponentNode = children.get(index)
@@ -414,21 +410,10 @@ internal class LayoutNode() : ComponentNode() {
     }
 
     fun resize(width: Dimension, height: Dimension) {
-        if (width != this.width || height != this.height) {
-            this.width = width
-            this.height = height
+        if (width != size.width || height != size.height) {
+            size = Size(width = width, height = height)
             owner?.onSizeChange(this)
         }
-    }
-}
-
-/**
- * Removes all the children within the hierarchy
- */
-internal fun ComponentNode.removeChildren() {
-    for (i in size - 1 downTo 0) {
-        get(i).removeChildren()
-        emitRemoveAt(i, count = 1)
     }
 }
 
@@ -437,7 +422,7 @@ internal fun ComponentNode.removeChildren() {
  * then [child] will become [attach]ed also. [child] must have a `null` [parent].
  */
 internal fun ComponentNode.add(child: ComponentNode) {
-    emitInsertAt(size, child)
+    emitInsertAt(count, child)
 }
 
 class Ref<T>() {

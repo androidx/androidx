@@ -16,7 +16,6 @@
 package androidx.ui.core.test
 
 import android.app.Activity
-import androidx.ui.core.*
 import android.app.Instrumentation
 import android.graphics.Bitmap
 import android.os.Handler
@@ -27,11 +26,24 @@ import android.view.ViewTreeObserver
 import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import androidx.ui.core.AndroidCraneView
+import androidx.ui.core.Constraints
+import androidx.ui.core.CraneWrapper
+import androidx.ui.core.Dimension
+import androidx.ui.core.Draw
+import androidx.ui.core.MeasureBox
+import androidx.ui.core.PixelSize
+import androidx.ui.core.coerceAtLeast
+import androidx.ui.core.dp
+import androidx.ui.core.max
+import androidx.ui.core.minus
+import androidx.ui.core.plus
+import androidx.ui.core.times
+import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import androidx.ui.vectormath64.max
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composeInto
@@ -46,7 +58,6 @@ import java.lang.Math.round
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
-import kotlin.math.max
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -78,27 +89,28 @@ class ContainingViewTest {
     @Suppress("PLUGIN_ERROR")
     fun simpleDrawTest() {
         val drawLatch = CountDownLatch(1)
-        val totalSize = 30.dp.toPx(activity).toDouble()
-        val rectPaintSize = 10.dp.toPx(activity).toDouble()
         val runnable: Runnable = object : Runnable {
             override fun run() {
                 activity.composeInto {
                     <CraneWrapper>
-                        val background : (Canvas) -> Unit = { canvas ->
+                        val background : (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
                             val paint = Paint()
                             paint.color = Color(0xFFFFFF00.toInt())
-                            canvas.drawRect(Rect(0.0, 0.0, totalSize, totalSize), paint)
+                            canvas.drawRect(Rect(0.0, 0.0,
+                                parentSize.width.toDouble(), parentSize.height.toDouble()), paint)
                         }
                         // Component constructor parameters over-memoize, so use a property instead
                         <Draw onPaint=background/>
                         <Padding size=10.dp>
                             <AtLeastSize size=10.dp>
-                                val foreground : (Canvas) -> Unit = { canvas ->
+                                val foreground : (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
                                     drawLatch.countDown()
                                     val paint = Paint()
                                     paint.color = Color(0xFF0000FF.toInt())
+                                    val width = parentSize.width.toDouble()
+                                    val height = parentSize.height.toDouble()
                                     canvas.drawRect(
-                                        Rect(0.0, 0.0, rectPaintSize, rectPaintSize),
+                                        Rect(0.0, 0.0, width, height),
                                         paint
                                     )
                                 }
@@ -113,6 +125,7 @@ class ContainingViewTest {
         activityTestRule.runOnUiThread(runnable)
         drawLatch.await(1, TimeUnit.SECONDS)
         val bitmap = waitAndScreenShot()
+        val totalSize = 30.dp.toPx(activity).toDouble()
         assertEquals(ceil(totalSize).toInt(), bitmap.width)
         assertEquals(ceil(totalSize).toInt(), bitmap.height)
 
