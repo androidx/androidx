@@ -56,11 +56,13 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
     /**
      * @param dividerStartMargin The start offset of the dividing line. This offset will be
      *     relative to {@code dividerStartId} if that value is given.
+     * @param dividerEndMargin The end offset of the dividing line. This offset will be
+     *     relative to {@code dividerEndId} if that value is given.
      * @param dividerStartId A child view id whose starting edge will be used as the starting
      *     edge of the dividing line. If this value is {@link #INVALID_RESOURCE_ID}, the top
      *     container of each child view will be used.
      * @param dividerEndId A child view id whose ending edge will be used as the starting edge
-     *     of the dividing lin.e If this value is {@link #INVALID_RESOURCE_ID}, then the top
+     *     of the dividing line. If this value is {@link #INVALID_RESOURCE_ID}, then the top
      *     container view of each child will be used.
      */
     public DividerDecoration(Context context, int dividerStartMargin,
@@ -109,8 +111,10 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
             View nextVerticalContainer;
             if (usesGridLayoutManager) {
                 // Find an item in next row to calculate vertical space.
-                int lastItem = GridLayoutManagerUtils.getLastIndexOnSameRow(i, parent);
-                nextVerticalContainer = parent.getChildAt(lastItem + 1);
+                int lastItemPosition =
+                        GridLayoutManagerUtils.getLastItemPositionOnSameRow(container, parent);
+                nextVerticalContainer =
+                        parent.getLayoutManager().findViewByPosition(lastItemPosition + 1);
             } else {
                 nextVerticalContainer = parent.getChildAt(i + 1);
             }
@@ -164,7 +168,7 @@ public class DividerDecoration extends RecyclerView.ItemDecoration {
 
         int left = container.getLeft() + mDividerStartMargin
                 + (startRect.left - containerRect.left);
-        int right = container.getRight()  - mDividerEndMargin
+        int right = container.getRight() - mDividerEndMargin
                 - (endRect.right - containerRect.right);
         // "(spacing + divider height) / 2" aligns the center of divider to that of spacing
         // between two items.
