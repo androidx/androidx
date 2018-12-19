@@ -173,6 +173,34 @@ class WebViewOnUiThread {
         });
     }
 
+    public void setWebViewRendererClient(final WebViewRendererClient webViewRendererClient) {
+        setWebViewRendererClient(mWebView, webViewRendererClient);
+    }
+
+    public static void setWebViewRendererClient(
+            final WebView webView, final WebViewRendererClient webViewRendererClient) {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                WebViewCompat.setWebViewRendererClient(webView, webViewRendererClient);
+            }
+        });
+    }
+
+    public WebViewRendererClient getWebViewRendererClient() {
+        return getWebViewRendererClient(mWebView);
+    }
+
+    public static WebViewRendererClient getWebViewRendererClient(
+            final WebView webView) {
+        return getValue(new ValueGetter<WebViewRendererClient>() {
+            @Override
+            public WebViewRendererClient capture() {
+                return WebViewCompat.getWebViewRendererClient(webView);
+            }
+        });
+    }
+
     public WebMessagePortCompat[] createWebMessageChannelCompat() {
         return getValue(new ValueGetter<WebMessagePortCompat[]>() {
             @Override
