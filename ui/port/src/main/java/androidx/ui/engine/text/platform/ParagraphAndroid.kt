@@ -20,6 +20,8 @@ import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.UnderlineSpan
 import androidx.text.LayoutCompat.ALIGN_CENTER
 import androidx.text.LayoutCompat.ALIGN_LEFT
 import androidx.text.LayoutCompat.ALIGN_NORMAL
@@ -39,6 +41,7 @@ import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextAlign
+import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.painting.Canvas
@@ -200,7 +203,29 @@ internal class ParagraphAndroid constructor(
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
-            // TODO(Migration/haoyuchang): implement decoration, decorationStyle, decorationColor
+            // TODO(Migration/haoyuchang): implement decorationStyle, decorationColor
+            style.decoration?.let {
+                if (it.contains(TextDecoration.underline)) {
+                    spannableString.setSpan(
+                        UnderlineSpan(),
+                        start,
+                        end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                if (it.contains(TextDecoration.overline)) {
+                    // TODO(Migration/haoyuchang): implement overline
+                }
+                if (it.contains(TextDecoration.lineThrough)) {
+                    spannableString.setSpan(
+                        StrikethroughSpan(),
+                        start,
+                        end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
+
             style.fontSize?.let {
                 spannableString.setSpan(
                     AbsoluteSizeSpan(it.roundToInt()),

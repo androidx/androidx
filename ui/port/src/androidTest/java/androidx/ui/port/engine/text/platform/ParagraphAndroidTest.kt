@@ -6,6 +6,8 @@ import android.graphics.Typeface
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.StrikethroughSpan
+import android.text.style.UnderlineSpan
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.StaticLayoutCompat
@@ -13,6 +15,7 @@ import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
+import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextStyle
 import androidx.ui.engine.text.platform.ParagraphAndroid
 import androidx.ui.painting.Color
@@ -20,6 +23,7 @@ import androidx.ui.port.bitmap
 import androidx.ui.port.matchers.equalToBitmap
 import androidx.ui.port.matchers.hasSpan
 import androidx.ui.port.matchers.hasSpanOnTop
+import org.hamcrest.Matchers.equalTo
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -129,6 +133,86 @@ class ParagraphAndroidTest {
             paragraph.underlyingText,
             hasSpanOnTop(ForegroundColorSpan::class, 0, "abc".length)
         )
+    }
+
+    @Test
+    fun testStyle_setTextDecorationOnWholeText_withLineThrough() {
+        val text = "abcde"
+        val textStyle = TextStyle(decoration = TextDecoration.lineThrough)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText, hasSpan(StrikethroughSpan::class, 0, text.length))
+    }
+
+    @Test
+    fun testStyle_setTextDecorationOnWholeText_withUnderline() {
+        val text = "abcde"
+        val textStyle = TextStyle(decoration = TextDecoration.underline)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText, hasSpan(UnderlineSpan::class, 0, text.length))
+    }
+
+    @Test
+    fun testStyle_setTextDecorationOnPartText_withLineThrough() {
+        val text = "abcde"
+        val textStyle = TextStyle(decoration = TextDecoration.lineThrough)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText, hasSpan(StrikethroughSpan::class, 0, "abc".length))
+    }
+
+    @Test
+    fun testStyle_setTextDecorationOnPartText_withUnderline() {
+        val text = "abcde"
+        val textStyle = TextStyle(decoration = TextDecoration.underline)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText, hasSpan(UnderlineSpan::class, 0, "abc".length))
+    }
+
+    @Test
+    fun testStyle_setTextDecoration_withLineThroughAndUnderline() {
+        val text = "abcde"
+        val textStyle = TextStyle(
+            decoration = TextDecoration.combine(
+                listOf(TextDecoration.lineThrough, TextDecoration.underline)
+            )
+        )
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText, hasSpan(UnderlineSpan::class, 0, "abc".length))
+        assertThat(paragraph.underlyingText, hasSpan(StrikethroughSpan::class, 0, "abc".length))
     }
 
     @Test
