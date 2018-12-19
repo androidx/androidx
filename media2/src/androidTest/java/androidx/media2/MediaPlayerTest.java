@@ -1162,7 +1162,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
-    public void testSetAndGetShuflleMode() throws Exception {
+    public void testSetAndGetShuffleMode() throws Exception {
         final TestUtils.Monitor onShuffleModeChangedMonitor = new TestUtils.Monitor();
         MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
             @Override

@@ -69,6 +69,12 @@ class ConnectionResult extends CustomVersionedParcelable {
     ParcelImplListSlice mPlaylistSlice;
     @ParcelField(13)
     SessionCommandGroup mAllowedCommands;
+    @ParcelField(14)
+    int mCurrentMediaItemIndex;
+    @ParcelField(15)
+    int mPreviousMediaItemIndex;
+    @ParcelField(16)
+    int mNextMediaItemIndex;
 
     // For versioned parcelable
     ConnectionResult() {
@@ -88,6 +94,9 @@ class ConnectionResult extends CustomVersionedParcelable {
         mRepeatMode = sessionImpl.getRepeatMode();
         mShuffleMode = sessionImpl.getShuffleMode();
         mSessionActivity = sessionImpl.getSessionActivity();
+        mCurrentMediaItemIndex = sessionImpl.getCurrentMediaItemIndex();
+        mPreviousMediaItemIndex = sessionImpl.getPreviousMediaItemIndex();
+        mNextMediaItemIndex = sessionImpl.getNextMediaItemIndex();
         if (allowedCommands != null
                 && allowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
             List<MediaItem> playlist = sessionImpl.getPlaylist();
@@ -153,6 +162,18 @@ class ConnectionResult extends CustomVersionedParcelable {
 
     public int getVersion() {
         return mVersion;
+    }
+
+    public int getCurrentMediaItemIndex() {
+        return mCurrentMediaItemIndex;
+    }
+
+    public int getPreviousMediaItemIndex() {
+        return mPreviousMediaItemIndex;
+    }
+
+    public int getNextMediaItemIndex() {
+        return mNextMediaItemIndex;
     }
 
     @Override

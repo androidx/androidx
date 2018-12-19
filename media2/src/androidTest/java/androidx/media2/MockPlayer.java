@@ -52,6 +52,8 @@ public class MockPlayer extends SessionPlayer {
     public MediaItem mCurrentMediaItem;
     public MediaItem mItem;
     public int mIndex = -1;
+    public int mPrevMediaItemIndex;
+    public int mNextMediaItemIndex;
     public @RepeatMode int mRepeatMode = -1;
     public @ShuffleMode int mShuffleMode = -1;
 
@@ -312,22 +314,12 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     public int getPreviousMediaItemIndex() {
-        // TODO: reflect repeat & shuffle modes
-        int currentIdx = getCurrentMediaItemIndex();
-        if (currentIdx == ITEM_NONE || currentIdx == 0) {
-            return ITEM_NONE;
-        }
-        return currentIdx--;
+        return mPrevMediaItemIndex;
     }
 
     @Override
     public int getNextMediaItemIndex() {
-        // TODO: reflect repeat & shuffle modes
-        int currentIdx = getCurrentMediaItemIndex();
-        if (currentIdx == ITEM_NONE || currentIdx == mPlaylist.size() - 1) {
-            return ITEM_NONE;
-        }
-        return currentIdx++;
+        return mNextMediaItemIndex;
     }
 
     @Override
@@ -374,7 +366,6 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     public ListenableFuture<PlayerResult> skipToPreviousPlaylistItem() {
-        // TODO: reflect repeat & shuffle modes
         mSkipToPreviousItemCalled = true;
         mCountDownLatch.countDown();
         return new SyncListenableFuture(mCurrentMediaItem);
@@ -382,7 +373,6 @@ public class MockPlayer extends SessionPlayer {
 
     @Override
     public ListenableFuture<PlayerResult> skipToNextPlaylistItem() {
-        // TODO: reflect repeat & shuffle modes
         mSkipToNextItemCalled = true;
         mCountDownLatch.countDown();
         return new SyncListenableFuture(mCurrentMediaItem);

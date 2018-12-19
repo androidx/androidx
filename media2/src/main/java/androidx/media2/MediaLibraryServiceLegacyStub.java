@@ -461,12 +461,14 @@ class MediaLibraryServiceLegacyStub extends MediaSessionServiceLegacyStub {
         }
 
         @Override
-        final void onShuffleModeChanged(int seq, int shuffleMode) throws RemoteException {
+        final void onShuffleModeChanged(int seq, int shuffleMode, int currentIdx, int previousIdx,
+                int nextIdx) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
         @Override
-        final void onRepeatModeChanged(int seq, int repeatMode) throws RemoteException {
+        final void onRepeatModeChanged(int seq, int repeatMode, int currentIdx, int previousIdx,
+                int nextIdx) throws RemoteException {
             // No-op. BrowserCompat doesn't understand Controller features.
         }
 
