@@ -2923,10 +2923,10 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
 
         mPlayer.reset();
     }
-
-    @Test
-    @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+//    Temporarily disabled for being flaky: b/121254745
+//    @Test
+//    @SmallTest
+//    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSkipUnnecessarySeek() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final TestDataSourceCallback source =
