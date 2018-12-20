@@ -95,5 +95,11 @@ data class PointerData(
     // /// perpendicular to the input surface (thus 0.0 indicates the stylus is
     // /// orthogonal to the plane of the input surface, while pi/2 indicates that
     // /// the stylus is flat on that surface).
-    val tilt: Double = 0.0
+    val tilt: Double = 0.0,
+    /**
+     * Unique identifier for the individual pointer being tracked.  This will be consistent from
+     * the point a pointer goes down, till it goes up.  Pointer IDs may be reused but all pointers
+     * down on the screen at the same time will have different pointer IDs.
+     */
+    val pointerId: Int
 )

@@ -10,7 +10,7 @@ import androidx.ui.engine.window.Locale
 import androidx.ui.engine.window.Window
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.binding.BindingBase
-import androidx.ui.gestures.binding.GestureBinding
+import androidx.ui.gestures2.GestureBinding2
 import androidx.ui.rendering.binding.RendererBinding
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
@@ -18,6 +18,7 @@ import androidx.ui.scheduler.binding.SchedulerBinding
 import androidx.ui.services.ServicesBinding
 import androidx.ui.services.SystemChannels
 import androidx.ui.services.SystemNavigator
+import androidx.ui.services.SystemNavigator.Companion.pop
 import androidx.ui.widgets.framework.BuildOwner
 import androidx.ui.widgets.framework.Element
 import androidx.ui.widgets.framework.Widget
@@ -28,7 +29,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.launch
-import androidx.ui.services.SystemNavigator.Companion.pop
 
 interface WidgetsBinding : RendererBinding, SchedulerBinding, ServicesBinding {
     fun attachRootWidget(app: Widget)
@@ -44,7 +44,7 @@ open class WidgetsMixinsWrapper(
 class WidgetsBindingImpl(
     window: Window,
     base: BindingBase,
-    gesture: GestureBinding,
+    gesture: GestureBinding2,
     renderer: RendererBinding
 ) : WidgetsMixinsWrapper(base, renderer), WidgetsBinding /* with GestureBinding */ {
 
