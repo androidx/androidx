@@ -467,7 +467,7 @@ public class ShortcutInfoCompat {
         /**
          * Sets if a shortcut would be valid even if it has been unpublished/invisible by the app
          * (as a dynamic or pinned shortcut). If it is long lived, it can be cached by various
-         * system services even after if has been unpublished as a dynamic shortcut.
+         * system services even after it has been unpublished as a dynamic shortcut.
          */
         @NonNull
         public Builder setLongLived() {
