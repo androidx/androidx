@@ -68,7 +68,7 @@ class WebViewOnUiThread {
     private WebView mWebView;
 
     public WebViewOnUiThread() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 mWebView = new WebView(InstrumentationRegistry.getTargetContext());
@@ -85,7 +85,7 @@ class WebViewOnUiThread {
     public static WebView createWebView() {
         final Holder h = new Holder();
         final Context ctx = InstrumentationRegistry.getTargetContext();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 h.mView = new WebView(ctx);
@@ -99,7 +99,7 @@ class WebViewOnUiThread {
      * the tests.
      */
     public void cleanUp() {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 mWebView.clearHistory();
@@ -137,7 +137,7 @@ class WebViewOnUiThread {
     }
 
     public static void destroy(final WebView webView) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 webView.destroy();
@@ -151,7 +151,7 @@ class WebViewOnUiThread {
 
     public static void setWebViewClient(
             final WebView webView, final WebViewClient webviewClient) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 webView.setWebViewClient(webviewClient);
@@ -165,7 +165,7 @@ class WebViewOnUiThread {
 
     public static void setWebChromeClient(
             final WebView webView, final WebChromeClient webChromeClient) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 webView.setWebChromeClient(webChromeClient);
@@ -183,7 +183,7 @@ class WebViewOnUiThread {
     }
 
     public void postWebMessageCompat(final WebMessageCompat message, final Uri targetOrigin) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 WebViewCompat.postWebMessage(mWebView, message, targetOrigin);
@@ -192,7 +192,7 @@ class WebViewOnUiThread {
     }
 
     public void addJavascriptInterface(final Object object, final String name) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 mWebView.addJavascriptInterface(object, name);
@@ -216,7 +216,7 @@ class WebViewOnUiThread {
     }
 
     public void loadUrl(final String url) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 mWebView.loadUrl(url);
@@ -307,7 +307,7 @@ class WebViewOnUiThread {
 
     public void postVisualStateCallbackCompat(final long requestId,
             final WebViewCompat.VisualStateCallback callback) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 WebViewCompat.postVisualStateCallback(mWebView, requestId, callback);
@@ -316,7 +316,7 @@ class WebViewOnUiThread {
     }
 
     void evaluateJavascript(final String script, final ValueCallback<String> result) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 mWebView.evaluateJavascript(script, result);
@@ -355,7 +355,7 @@ class WebViewOnUiThread {
     }
 
     private static <T> T getValue(ValueGetter<T> getter) {
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(getter);
+        WebkitUtils.onMainThreadSync(getter);
         return getter.getValue();
     }
 
@@ -403,7 +403,7 @@ class WebViewOnUiThread {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             call.run();
         } else {
-            InstrumentationRegistry.getInstrumentation().runOnMainSync(call);
+            WebkitUtils.onMainThreadSync(call);
             waitForLoadCompletion();
         }
     }
