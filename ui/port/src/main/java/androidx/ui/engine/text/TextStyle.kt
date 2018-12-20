@@ -32,7 +32,7 @@ import androidx.ui.painting.Paint
  * * `fontStyle`: The typeface variant to use when drawing the letters (e.g., italics).
  * * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
  * * `fontSize`: The size of glyphs (in logical pixels) to use when painting the text.
- * * `letterSpacing`: The amount of space (in logical pixels) to add between each letter.
+ * * `letterSpacing`: The amount of space (in EM) to add between each letter.
  * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word).
  * * `textBaseline`: The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
  * * `height`: The height of this text span, as a multiple of the font size.
