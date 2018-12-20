@@ -56,6 +56,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -628,7 +629,7 @@ public class MediaPlayer extends SessionPlayer {
     final Object mPlaylistLock = new Object();
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    ArrayList<MediaItem> mPlaylist = new ArrayList<>();
+    MediaItemList mPlaylist = new MediaItemList();
     @GuardedBy("mPlaylistLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     ArrayList<MediaItem> mShuffledList = new ArrayList<>();
@@ -904,6 +905,11 @@ public class MediaPlayer extends SessionPlayer {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
         }
+        if (item instanceof FileMediaItem) {
+            if (((FileMediaItem) item).isClosed()) {
+                throw new IllegalArgumentException("File descriptor is closed. " + item);
+            }
+        }
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
             List<ResolvableFuture<PlayerResult>> onExecute() {
@@ -933,6 +939,11 @@ public class MediaPlayer extends SessionPlayer {
         for (MediaItem item : playlist) {
             if (item == null) {
                 throw new IllegalArgumentException("playlist shouldn't contain null item");
+            }
+            if (item instanceof FileMediaItem) {
+                if (((FileMediaItem) item).isClosed()) {
+                    throw new IllegalArgumentException("File descriptor is closed. " + item);
+                }
             }
         }
 
@@ -974,6 +985,11 @@ public class MediaPlayer extends SessionPlayer {
             final int index, @NonNull final MediaItem item) {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
+        }
+        if (item instanceof FileMediaItem) {
+            if (((FileMediaItem) item).isClosed()) {
+                throw new IllegalArgumentException("File descriptor is closed. " + item);
+            }
         }
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
@@ -1085,6 +1101,11 @@ public class MediaPlayer extends SessionPlayer {
             final int index, @NonNull final MediaItem item) {
         if (item == null) {
             throw new IllegalArgumentException("item shouldn't be null");
+        }
+        if (item instanceof FileMediaItem) {
+            if (((FileMediaItem) item).isClosed()) {
+                throw new IllegalArgumentException("File descriptor is closed. " + item);
+            }
         }
         if (index < 0) {
             throw new IllegalArgumentException("index shouldn't be negative");
@@ -1325,7 +1346,7 @@ public class MediaPlayer extends SessionPlayer {
     @Nullable
     public List<MediaItem> getPlaylist() {
         synchronized (mPlaylistLock) {
-            return mPlaylist.isEmpty() ? null : new ArrayList<>(mPlaylist);
+            return mPlaylist.isEmpty() ? null : new ArrayList<>(mPlaylist.getCollection());
         }
     }
 
@@ -2312,7 +2333,7 @@ public class MediaPlayer extends SessionPlayer {
     @SuppressWarnings({"GuardedBy", "WeakerAccess"}) /* synthetic access */
     void applyShuffleModeLocked() {
         mShuffledList.clear();
-        mShuffledList.addAll(mPlaylist);
+        mShuffledList.addAll(mPlaylist.getCollection());
         if (mShuffleMode == SessionPlayer.SHUFFLE_MODE_ALL
                 || mShuffleMode == SessionPlayer.SHUFFLE_MODE_GROUP) {
             Collections.shuffle(mShuffledList);
@@ -3012,6 +3033,82 @@ public class MediaPlayer extends SessionPlayer {
         @DrmResultCode
         public int getResultCode() {
             return super.getResultCode();
+        }
+    }
+
+    /**
+     * List for {@link MediaItem} which manages the resource life cycle of
+     * {@link android.os.ParcelFileDescriptor} in {@link FileMediaItem}.
+     */
+    static class MediaItemList {
+        private ArrayList<MediaItem> mList = new ArrayList<>();
+
+        void add(int index, MediaItem item) {
+            if (item instanceof FileMediaItem) {
+                ((FileMediaItem) item).addParcelFileDescriptorClient(this);
+            }
+            mList.add(index, item);
+        }
+
+        boolean addAll(Collection<MediaItem> c) {
+            for (MediaItem item : c) {
+                if (item instanceof FileMediaItem) {
+                    ((FileMediaItem) item).addParcelFileDescriptorClient(this);
+                }
+            }
+            return mList.addAll(c);
+        }
+
+        MediaItem remove(int index) {
+            MediaItem item = mList.remove(index);
+            if (item instanceof FileMediaItem) {
+                ((FileMediaItem) item).removeParcelFileDescriptorClient(this);
+            }
+            return item;
+        }
+
+        MediaItem get(int index) {
+            return mList.get(index);
+        }
+
+        MediaItem set(int index, MediaItem item) {
+            if (item instanceof FileMediaItem) {
+                ((FileMediaItem) item).addParcelFileDescriptorClient(this);
+            }
+            MediaItem removed = mList.set(index, item);
+            if (removed instanceof FileMediaItem) {
+                ((FileMediaItem) removed).removeParcelFileDescriptorClient(this);
+            }
+            return removed;
+        }
+
+        void clear() {
+            for (MediaItem item : mList) {
+                if (item instanceof FileMediaItem) {
+                    ((FileMediaItem) item).removeParcelFileDescriptorClient(this);
+                }
+            }
+            mList.clear();
+        }
+
+        int size() {
+            return mList.size();
+        }
+
+        boolean contains(Object o) {
+            return mList.contains(o);
+        }
+
+        int indexOf(Object o) {
+            return mList.indexOf(o);
+        }
+
+        boolean isEmpty() {
+            return mList.isEmpty();
+        }
+
+        Collection<MediaItem> getCollection() {
+            return mList;
         }
     }
 }

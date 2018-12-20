@@ -1162,6 +1162,8 @@ public class MediaPlayer2StateTest extends MediaPlayer2TestBase {
         } else if (!mIsValidOperation) {
             fail();
         }
+        // Clear the resource for resource leak checking in {@link MediaPlayer2TestBase#tearDown}.
+        mPlayer.reset();
     }
 
     interface PlayerOperation {

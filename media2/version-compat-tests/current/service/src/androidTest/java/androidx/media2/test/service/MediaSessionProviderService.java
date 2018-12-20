@@ -43,6 +43,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -65,7 +66,6 @@ import androidx.media2.test.common.TestUtils.SyncHandler;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
-import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -359,7 +359,7 @@ public class MediaSessionProviderService extends Service {
             switch (index) {
                 case INDEX_FOR_UNKONWN_ITEM:
                     player.notifyCurrentMediaItemChanged(
-                            new FileMediaItem.Builder(new FileDescriptor()).build());
+                            new FileMediaItem.Builder(ParcelFileDescriptor.adoptFd(-1)).build());
                     break;
                 case INDEX_FOR_NULL_ITEM:
                     player.notifyCurrentMediaItemChanged(null);
@@ -416,7 +416,7 @@ public class MediaSessionProviderService extends Service {
             List<MediaItem> list = new ArrayList<>();
             for (ParcelImpl parcel : playlist) {
                 MediaItem item = MediaUtils.fromParcelable(parcel);
-                list.add(new FileMediaItem.Builder(new FileDescriptor())
+                list.add(new FileMediaItem.Builder(ParcelFileDescriptor.adoptFd(-1))
                         .setMetadata(item.getMetadata())
                         .build());
             }

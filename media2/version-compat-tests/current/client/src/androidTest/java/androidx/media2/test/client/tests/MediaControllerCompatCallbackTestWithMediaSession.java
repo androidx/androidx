@@ -23,6 +23,7 @@ import static org.junit.Assert.assertTrue;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat.QueueItem;
@@ -48,7 +49,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.FileDescriptor;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -416,7 +416,7 @@ public class MediaControllerCompatCallbackTestWithMediaSession extends MediaSess
         String displayTitle = "displayTitle";
         MediaMetadata metadata = new MediaMetadata.Builder()
                 .putText(MediaMetadata.METADATA_KEY_DISPLAY_TITLE, displayTitle).build();
-        MediaItem currentMediaItem = new FileMediaItem.Builder(new FileDescriptor())
+        MediaItem currentMediaItem = new FileMediaItem.Builder(ParcelFileDescriptor.adoptFd(-1))
                 .setMetadata(metadata)
                 .build();
 
