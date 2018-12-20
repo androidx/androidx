@@ -1008,6 +1008,10 @@ package androidx.core.graphics {
     method @RequiresApi(26) public static java.util.Collection<androidx.core.graphics.PathSegment> flatten(android.graphics.Path, @FloatRange(from=0) float);
   }
 
+  public class TypefaceCompat {
+    method public static android.graphics.Typeface create(android.content.Context, android.graphics.Typeface?, int);
+  }
+
 }
 
 package androidx.core.graphics.drawable {
