@@ -39,9 +39,9 @@ import java.util.concurrent.Callable;
 @MediumTest
 @RunWith(AndroidJUnit4.class)
 public class WebViewRendererTest {
-    private ListenableFuture<Boolean> terminateRendererOnUiThread(
+    private boolean terminateRendererOnUiThread(
             final WebViewRenderer renderer) {
-        return WebkitUtils.onMainThread(new Callable<Boolean>() {
+        return WebkitUtils.onMainThreadSync(new Callable<Boolean>() {
             @Override
             public Boolean call() {
                 return renderer.terminate();
@@ -49,8 +49,8 @@ public class WebViewRendererTest {
         });
     }
 
-    ListenableFuture<WebViewRenderer> getRendererOnUiThread(final WebView webView) {
-        return WebkitUtils.onMainThread(new Callable<WebViewRenderer>() {
+    WebViewRenderer getRendererOnUiThread(final WebView webView) {
+        return WebkitUtils.onMainThreadSync(new Callable<WebViewRenderer>() {
             @Override
             public WebViewRenderer call() {
                 return WebViewCompat.getWebViewRenderer(webView);
@@ -125,13 +125,13 @@ public class WebViewRendererTest {
 
         final WebView webView = WebViewOnUiThread.createWebView();
 
-        final WebViewRenderer preStartRenderer = getRendererOnUiThread(webView).get();
+        final WebViewRenderer preStartRenderer = getRendererOnUiThread(webView);
         Assert.assertNotNull(
                 "Should be possible to obtain a renderer handle before the renderer has started.",
                 preStartRenderer);
         Assert.assertFalse(
                 "Should not be able to terminate an unstarted renderer.",
-                terminateRendererOnUiThread(preStartRenderer).get());
+                terminateRendererOnUiThread(preStartRenderer));
 
         final WebViewRenderer renderer = startAndGetRenderer(webView).get();
         Assert.assertSame(
@@ -145,14 +145,14 @@ public class WebViewRendererTest {
         ListenableFuture<Boolean> terminationFuture = catchRendererTermination(webView);
         Assert.assertTrue(
                 "A started renderer should be able to be terminated.",
-                terminateRendererOnUiThread(renderer).get());
+                terminateRendererOnUiThread(renderer));
         Assert.assertTrue(
                 "Terminating a renderer should result in onRenderProcessGone being called.",
                 terminationFuture.get());
 
         Assert.assertFalse(
                 "It should not be possible to terminate a renderer that has already terminated.",
-                terminateRendererOnUiThread(renderer).get());
+                terminateRendererOnUiThread(renderer));
 
         final WebView webView2 = WebViewOnUiThread.createWebView();
         Assert.assertNotSame(

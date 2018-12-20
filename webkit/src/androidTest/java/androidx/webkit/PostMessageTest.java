@@ -24,7 +24,6 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
 import androidx.webkit.WebMessagePortCompat.WebMessageCallbackCompat;
@@ -182,7 +181,7 @@ public class PostMessageTest {
         mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
         final int messageCount = 3;
         final BlockingQueue<String> queue = new ArrayBlockingQueue<>(messageCount);
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThread(new Runnable() {
             @Override
             public void run() {
                 for (int i = 0; i < messageCount; i++) {
@@ -225,7 +224,7 @@ public class PostMessageTest {
         WebMessageCompat message =
                 new WebMessageCompat(WEBVIEW_MESSAGE, new WebMessagePortCompat[]{channel[1]});
         mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -276,7 +275,7 @@ public class PostMessageTest {
         WebMessageCompat message =
                 new WebMessageCompat(WEBVIEW_MESSAGE, new WebMessagePortCompat[]{channel[1]});
         mOnUiThread.postWebMessageCompat(message, Uri.parse(BASE_URI));
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 channel[0].setWebMessageCallback(new WebMessageCallbackCompat() {
@@ -317,7 +316,7 @@ public class PostMessageTest {
         messageHandlerThread.start();
         final Handler messageHandler = new Handler(messageHandlerThread.getLooper());
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
@@ -355,7 +354,7 @@ public class PostMessageTest {
         final int messageCount = 1;
         final ResolvableFuture<Boolean> messageMainLooperFuture = ResolvableFuture.create();
 
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThread(new Runnable() {
             @Override
             public void run() {
                 channel[0].postMessage(new WebMessageCompat(WEBVIEW_MESSAGE));
