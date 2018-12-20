@@ -34,6 +34,7 @@ import android.graphics.Typeface;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.content.res.FontResourcesParserCompat.FamilyResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.ProviderResourceEntry;
@@ -452,5 +453,48 @@ public class TypefaceCompatTest {
         assertNotNull(cachedTypeface);
         assertEquals(typeface, cachedTypeface);
         assertEquals(R.font.large_b, getSelectedFontResourceId(typeface));
+    }
+
+    @Test
+    public void testApplyFontFromFamilyUsingStyle() {
+        // Test we get the correct font from the family when specifying a style instead of
+        // applying the style to the "normal" font. The fonts used have a specific property.
+        // The first font has glyph "a" of 3em width, and all the other glyphs 1em
+        // and the second one has glyph "c" of 3em width, and all the other glyphs 1em.
+        final Typeface family = ResourcesCompat.getFont(mContext, R.font.styletestfont);
+        assertNotNull(family);
+
+        final AppCompatTextView appCompatTextView = new AppCompatTextView(mContext);
+        assertNotNull(appCompatTextView);
+
+        appCompatTextView.setTypeface(family, Typeface.NORMAL);
+        final Typeface large_a = appCompatTextView.getTypeface();
+        assertEquals(R.font.large_a, getSelectedFontResourceId(large_a));
+
+        appCompatTextView.setTypeface(family, Typeface.BOLD);
+        final Typeface large_c = appCompatTextView.getTypeface();
+        assertEquals(R.font.large_c, getSelectedFontResourceId(large_c));
+
+        appCompatTextView.setTypeface(family, Typeface.NORMAL);
+        final Typeface large_a2 = appCompatTextView.getTypeface();
+        assertEquals(R.font.large_a, getSelectedFontResourceId(large_a2));
+    }
+
+    @Test
+    public void testTypeFaceCompatCreate() {
+        final Typeface family = ResourcesCompat.getFont(mContext, R.font.styletestfont);
+        assertNotNull(family);
+
+        final Typeface large_a = TypefaceCompat.create(mContext, family, Typeface.NORMAL);
+        assertEquals(R.font.large_a, getSelectedFontResourceId(large_a));
+
+        final Typeface large_c = TypefaceCompat.create(mContext, family, Typeface.BOLD);
+        assertEquals(R.font.large_c, getSelectedFontResourceId(large_c));
+
+        final Typeface large_a2 = TypefaceCompat.create(mContext, family, Typeface.NORMAL);
+        assertEquals(R.font.large_a, getSelectedFontResourceId(large_a2));
+
+        final Typeface defaultTypeface = TypefaceCompat.create(mContext, null, Typeface.NORMAL);
+        assertNotNull(defaultTypeface);
     }
 }

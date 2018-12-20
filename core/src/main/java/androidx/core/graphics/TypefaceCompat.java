@@ -36,11 +36,10 @@ import androidx.core.content.res.FontResourcesParserCompat.ProviderResourceEntry
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.FontsContractCompat.FontInfo;
+
 /**
  * Helper for accessing features in {@link Typeface}.
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
 public class TypefaceCompat {
     private static final TypefaceCompatBaseImpl sTypefaceCompatImpl;
     static {
@@ -69,8 +68,10 @@ public class TypefaceCompat {
      * Find from internal cache.
      *
      * @return null if not found.
+     * @hide
      */
     @Nullable
+    @RestrictTo(LIBRARY_GROUP)
     public static Typeface findFromCache(@NonNull Resources resources, int id, int style) {
         return sTypefaceCache.get(createResourceUid(resources, id, style));
     }
@@ -91,8 +92,10 @@ public class TypefaceCompat {
      * Create Typeface from XML resource which root node is font-family.
      *
      * @return null if failed to create.
+     * @hide
      */
     @Nullable
+    @RestrictTo(LIBRARY_GROUP)
     public static Typeface createFromResourcesFamilyXml(
             @NonNull Context context, @NonNull FamilyResourceEntry entry,
             @NonNull Resources resources, int id, int style,
@@ -130,8 +133,10 @@ public class TypefaceCompat {
 
     /**
      * Used by Resources to load a font resource of type font file.
+     * @hide
      */
     @Nullable
+    @RestrictTo(LIBRARY_GROUP)
     public static Typeface createFromResourcesFontFile(
             @NonNull Context context, @NonNull Resources resources, int id, String path,
             int style) {
@@ -146,10 +151,54 @@ public class TypefaceCompat {
 
     /**
      * Create a Typeface from a given FontInfo list and a map that matches them to ByteBuffers.
+     * @hide
      */
     @Nullable
+    @RestrictTo(LIBRARY_GROUP)
     public static Typeface createFromFontInfo(@NonNull Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts, int style) {
         return sTypefaceCompatImpl.createFromFontInfo(context, cancellationSignal, fonts, style);
+    }
+
+    /**
+     * Retrieves the best matching font from the family specified by the {@link Typeface} object
+     */
+    @Nullable
+    private static Typeface getBestFontFromFamily(final Context context, final Typeface typeface,
+            final int style) {
+        final FontFamilyFilesResourceEntry families = sTypefaceCompatImpl.getFontFamily(typeface);
+        if (families == null) {
+            return null;
+        }
+
+        return sTypefaceCompatImpl.createFromFontFamilyFilesResourceEntry(context, families,
+                context.getResources(), style);
+    }
+
+    /**
+     * Retrieves the best matching typeface given the family, style and context.
+     * If null is passed for the family, then the "default" font will be chosen.
+     *
+     * @param family The font family. May be null.
+     * @param style  The style of the typeface. e.g. NORMAL, BOLD, ITALIC, BOLD_ITALIC
+     * @param context The context used to retrieve the font.
+     * @return The best matching typeface.
+     */
+    @NonNull
+    public static Typeface create(@NonNull final Context context, @Nullable final Typeface family,
+            final int style) {
+        if (context == null) {
+            throw new IllegalArgumentException("Context cannot be null");
+        }
+
+        Typeface typefaceFromFamily = null;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            typefaceFromFamily = TypefaceCompat.getBestFontFromFamily(context, family, style);
+            if (typefaceFromFamily != null) {
+                return typefaceFromFamily;
+            }
+        }
+
+        return Typeface.create(family, style);
     }
 }
