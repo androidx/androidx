@@ -16,8 +16,8 @@
 
 package androidx.leanback.media;
 
-import static androidx.test.InstrumentationRegistry.getContext;
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -35,10 +35,10 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 
 import androidx.leanback.widget.PlaybackControlsRow;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +70,7 @@ public class MediaControllerAdapterTest {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override
             public void run() {
-                mSession = new MediaSessionCompat(getContext(), SESSION_TAG);
+                mSession = new MediaSessionCompat(getApplicationContext(), SESSION_TAG);
                 mSession.setCallback(mCallback, mHandler);
                 mSession.setFlags(MediaSessionCompat.FLAG_HANDLES_QUEUE_COMMANDS);
                 mControllerCompat = new MediaControllerCompat(mContext, mSession);

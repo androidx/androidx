@@ -22,9 +22,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +64,7 @@ public class TitleViewAdapterTest {
 
     @Test
     public void customTitle() {
-        CustomTitle t = new CustomTitle(InstrumentationRegistry.getTargetContext(), null);
+        CustomTitle t = new CustomTitle(ApplicationProvider.getApplicationContext(), null);
         TitleViewAdapter adapter = t.getTitleViewAdapter();
         adapter.setTitle("title");
         adapter.setBadgeDrawable(new GradientDrawable());

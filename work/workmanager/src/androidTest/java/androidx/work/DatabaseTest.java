@@ -16,7 +16,7 @@
 
 package androidx.work;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.work.impl.WorkDatabase;
 
 import org.junit.After;
@@ -30,7 +30,7 @@ public abstract class DatabaseTest extends WorkManagerTest {
 
     @Before
     public void initializeDb() {
-        mDatabase = WorkDatabase.create(InstrumentationRegistry.getTargetContext(), true);
+        mDatabase = WorkDatabase.create(ApplicationProvider.getApplicationContext(), true);
     }
 
     @After

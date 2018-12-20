@@ -21,7 +21,7 @@ import android.content.res.AssetManager;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 
 import java.util.concurrent.CountDownLatch;
 
@@ -101,7 +101,7 @@ public class TestConfigBuilder {
                     if (sMetadataRepo == null) {
                         try {
                             final AssetManager assetManager =
-                                    InstrumentationRegistry.getContext().getAssets();
+                                    ApplicationProvider.getApplicationContext().getAssets();
                             sMetadataRepo = MetadataRepo.create(assetManager,
                                     "NotoColorEmojiCompat.ttf");
                         } catch (Throwable e) {

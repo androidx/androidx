@@ -27,9 +27,9 @@ import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.app.test.FragmentTestActivity.ChildFragment;
 import androidx.fragment.app.test.FragmentTestActivity.ChildFragment.OnAttachListener;
 import androidx.fragment.app.test.FragmentTestActivity.ParentFragment;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.Test;

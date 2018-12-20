@@ -16,17 +16,17 @@
 
 package androidx.mediarouter.media;
 
-import static androidx.test.InstrumentationRegistry.getContext;
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 
-import android.support.v4.media.session.MediaControllerCompat;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -53,7 +53,7 @@ public class MediaRouterTest {
        getInstrumentation().runOnMainSync(new Runnable() {
            @Override
            public void run() {
-               mContext = getContext();
+               mContext = getApplicationContext();
                mRouter = MediaRouter.getInstance(mContext);
                mSession = new MediaSessionCompat(mContext, SESSION_TAG);
            }

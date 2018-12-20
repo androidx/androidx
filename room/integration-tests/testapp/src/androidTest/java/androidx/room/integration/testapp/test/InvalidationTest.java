@@ -32,9 +32,9 @@ import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.dao.UserDao;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.User;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -60,7 +60,7 @@ public class InvalidationTest {
 
     @Before
     public void createDb() throws TimeoutException, InterruptedException {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         mDb = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
         mUserDao = mDb.getUserDao();
         mPetDao = mDb.getPetDao();

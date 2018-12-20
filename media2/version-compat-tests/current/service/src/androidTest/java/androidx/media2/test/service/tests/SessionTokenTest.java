@@ -26,10 +26,10 @@ import android.os.Process;
 import androidx.media2.SessionToken;
 import androidx.media2.test.service.MockMediaLibraryService;
 import androidx.media2.test.service.MockMediaSessionService;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ public class SessionTokenTest {
 
     @Before
     public void setUp() throws Exception {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
     }
 
     @Test

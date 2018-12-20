@@ -31,8 +31,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 
 import androidx.leanback.testutils.PollingCheck;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.Test;

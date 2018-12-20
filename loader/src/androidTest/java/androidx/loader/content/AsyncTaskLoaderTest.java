@@ -19,9 +19,9 @@ package androidx.loader.content;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,7 +91,7 @@ public class AsyncTaskLoaderTest {
         int mGetExecutorCallCount = 0;
 
         TestAsyncTaskLoader(int latchCount) {
-            super(InstrumentationRegistry.getContext());
+            super(ApplicationProvider.getApplicationContext());
             mLoadInBackgoundLatch = new CountDownLatch(latchCount);
         }
 

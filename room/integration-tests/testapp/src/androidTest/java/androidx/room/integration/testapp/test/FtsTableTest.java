@@ -29,10 +29,10 @@ import androidx.room.integration.testapp.dao.SongDao;
 import androidx.room.integration.testapp.vo.Mail;
 import androidx.room.integration.testapp.vo.Song;
 import androidx.room.integration.testapp.vo.SongDescription;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.google.common.collect.Lists;
 
@@ -53,7 +53,7 @@ public class FtsTableTest {
 
     @Before
     public void setup() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         mDatabase = Room.inMemoryDatabaseBuilder(context, FtsTestDatabase.class).build();
         mMailDao = mDatabase.getMailDao();
         mSongDao = mDatabase.getSongDao();

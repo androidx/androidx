@@ -39,10 +39,11 @@ import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.support.annotation.NonNull;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkDatabaseMigrations;
 import androidx.work.impl.WorkManagerImpl;
@@ -99,8 +100,8 @@ public class WorkDatabaseMigrationTest {
     @Before
     public void setUp() {
         // Delete the database if it exists.
-        mContext = InstrumentationRegistry.getTargetContext();
-        mDatabasePath = InstrumentationRegistry.getContext().getDatabasePath(TEST_DATABASE);
+        mContext = ApplicationProvider.getApplicationContext();
+        mDatabasePath = ApplicationProvider.getApplicationContext().getDatabasePath(TEST_DATABASE);
         if (mDatabasePath.exists()) {
             mDatabasePath.delete();
         }

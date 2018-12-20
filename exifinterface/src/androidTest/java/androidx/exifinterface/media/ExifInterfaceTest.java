@@ -16,7 +16,7 @@
 
 package androidx.exifinterface.media;
 
-import static androidx.test.InstrumentationRegistry.getContext;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -31,9 +31,9 @@ import android.util.Log;
 import android.util.Pair;
 
 import androidx.exifinterface.test.R;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -310,7 +310,8 @@ public class ExifInterfaceTest {
             InputStream inputStream = null;
             FileOutputStream outputStream = null;
             try {
-                inputStream = getContext().getResources().openRawResource(IMAGE_RESOURCES[i]);
+                inputStream = getApplicationContext()
+                        .getResources().openRawResource(IMAGE_RESOURCES[i]);
                 outputStream = new FileOutputStream(outputPath);
                 copy(inputStream, outputStream);
             } finally {
@@ -816,7 +817,7 @@ public class ExifInterfaceTest {
     private void testExifInterfaceForJpeg(String fileName, int typedArrayResourceId)
             throws IOException {
         ExpectedValue expectedValue = new ExpectedValue(
-                getContext().getResources().obtainTypedArray(typedArrayResourceId));
+                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
 
         // Test for reading from external data storage.
         testExifInterfaceCommon(fileName, expectedValue);
@@ -828,7 +829,7 @@ public class ExifInterfaceTest {
     private void testExifInterfaceForRaw(String fileName, int typedArrayResourceId)
             throws IOException {
         ExpectedValue expectedValue = new ExpectedValue(
-                getContext().getResources().obtainTypedArray(typedArrayResourceId));
+                getApplicationContext().getResources().obtainTypedArray(typedArrayResourceId));
 
         // Test for reading from external data storage.
         testExifInterfaceCommon(fileName, expectedValue);

@@ -26,9 +26,9 @@ import androidx.room.util.ViewInfo;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Test;
@@ -81,7 +81,7 @@ public class ViewInfoTest {
     private static SupportSQLiteDatabase createDatabase(final String... queries) {
         return new FrameworkSQLiteOpenHelperFactory().create(
                 SupportSQLiteOpenHelper.Configuration
-                        .builder(InstrumentationRegistry.getTargetContext())
+                        .builder(ApplicationProvider.getApplicationContext())
                         .name(null)
                         .callback(new SupportSQLiteOpenHelper.Callback(1) {
                             @Override

@@ -28,9 +28,9 @@ import static org.junit.Assert.assertThat;
 import android.content.pm.PackageManager;
 
 import androidx.car.test.R;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Assume;
 import org.junit.Before;

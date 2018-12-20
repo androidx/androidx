@@ -60,12 +60,13 @@ import androidx.media2.SessionPlayer;
 import androidx.media2.SessionResult;
 import androidx.media2.UriMediaItem;
 import androidx.media2.widget.test.R;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -107,7 +108,7 @@ public class VideoViewTest {
 
     @Before
     public void setup() throws Throwable {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
         mMainHandlerExecutor = ContextCompat.getMainExecutor(mContext);
         mInstrumentation = InstrumentationRegistry.getInstrumentation();
 

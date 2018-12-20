@@ -19,7 +19,7 @@ package androidx.core.database.sqlite
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
-import androidx.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import org.junit.Assert.assertEquals
@@ -27,7 +27,7 @@ import org.junit.Test
 
 @SmallTest
 class SQLiteDatabaseTest {
-    private val context = InstrumentationRegistry.getContext()
+    private val context = ApplicationProvider.getApplicationContext() as android.content.Context
     private val openHelper = object : SQLiteOpenHelper(context, null, null, 1) {
         override fun onCreate(db: SQLiteDatabase) {
             db.execSQL("CREATE TABLE test(name TEXT)")

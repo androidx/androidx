@@ -22,9 +22,9 @@ import androidx.lifecycle.Lifecycle.State.CREATED
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.savedstate.SavedStateRegistry
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import androidx.test.runner.AndroidJUnit4
 import androidx.testutils.FragmentActivityUtils.recreateActivity
 import androidx.testutils.RecreatedActivity
 import com.google.common.truth.Truth.assertThat

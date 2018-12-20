@@ -30,7 +30,7 @@ import static org.mockito.Mockito.verify;
 
 import android.view.View;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -82,7 +82,7 @@ public class BaseCardViewTest {
 
     @Test
     public void infoOver_InfoVisibleAlways() {
-        BaseCardView cardView = new BaseCardView(InstrumentationRegistry.getContext());
+        BaseCardView cardView = new BaseCardView(ApplicationProvider.getApplicationContext());
         View main = new View(cardView.getContext());
         main.setLayoutParams(createLayoutParams(VIEW_TYPE_MAIN, 500, 500));
         cardView.addView(main);
@@ -129,7 +129,7 @@ public class BaseCardViewTest {
 
     @Test
     public void infoUnder_InfoVisibleAlways() {
-        BaseCardView cardView = new BaseCardView(InstrumentationRegistry.getContext());
+        BaseCardView cardView = new BaseCardView(ApplicationProvider.getApplicationContext());
         View main = new View(cardView.getContext());
         main.setLayoutParams(createLayoutParams(VIEW_TYPE_MAIN, 500, 500));
         cardView.addView(main);
@@ -176,7 +176,7 @@ public class BaseCardViewTest {
 
     @Test
     public void infoUnder_InfoVisibleActivated() {
-        BaseCardView cardView = new BaseCardView(InstrumentationRegistry.getContext());
+        BaseCardView cardView = new BaseCardView(ApplicationProvider.getApplicationContext());
         View main = new View(cardView.getContext());
         main.setLayoutParams(createLayoutParams(VIEW_TYPE_MAIN, 500, 500));
         cardView.addView(main);
@@ -221,7 +221,7 @@ public class BaseCardViewTest {
 
     @Test
     public void infoUnder_InfoVisibleSelected() {
-        final BaseCardView cardView = new BaseCardView(InstrumentationRegistry.getContext());
+        final BaseCardView cardView = new BaseCardView(ApplicationProvider.getApplicationContext());
         View main = new View(cardView.getContext());
         main.setLayoutParams(createLayoutParams(VIEW_TYPE_MAIN, 500, 500));
         cardView.addView(main);
@@ -262,7 +262,7 @@ public class BaseCardViewTest {
 
     @Test
     public void infoOver_InfoVisibleSelected() {
-        final BaseCardView cardView = new BaseCardView(InstrumentationRegistry.getContext());
+        final BaseCardView cardView = new BaseCardView(ApplicationProvider.getApplicationContext());
         View main = new View(cardView.getContext());
         main.setLayoutParams(createLayoutParams(VIEW_TYPE_MAIN, 500, 500));
         cardView.addView(main);

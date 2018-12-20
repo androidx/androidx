@@ -35,9 +35,9 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,9 +62,9 @@ public class SwipeRefreshLayoutNestedScrollingParent3Test {
 
     @Before
     public void instantiateMembers() {
-        mSwipeRefreshLayout = new SwipeRefreshLayout(InstrumentationRegistry.getContext());
-        mParent = spy(new NestedScrollingSpyView(InstrumentationRegistry.getContext()));
-        mChild = spy(new View(InstrumentationRegistry.getContext()));
+        mSwipeRefreshLayout = new SwipeRefreshLayout(ApplicationProvider.getApplicationContext());
+        mParent = spy(new NestedScrollingSpyView(ApplicationProvider.getApplicationContext()));
+        mChild = spy(new View(ApplicationProvider.getApplicationContext()));
     }
 
     @Test

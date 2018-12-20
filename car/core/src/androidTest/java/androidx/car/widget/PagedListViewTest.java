@@ -52,15 +52,16 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.OrientationHelper;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -340,7 +341,7 @@ public final class PagedListViewTest {
 
     @Test
     public void testDefaultScrollBarTopMargin() {
-        Resources res = InstrumentationRegistry.getContext().getResources();
+        Resources res = ApplicationProvider.getApplicationContext().getResources();
         int defaultTopMargin = res.getDimensionPixelSize(R.dimen.car_padding_4);
 
         // Just need enough items to ensure the scroll bar is showing.
@@ -400,7 +401,7 @@ public final class PagedListViewTest {
 
         waitForIdleSync();
 
-        Resources res = InstrumentationRegistry.getContext().getResources();
+        Resources res = ApplicationProvider.getApplicationContext().getResources();
         int gutterSize = res.getDimensionPixelSize(R.dimen.car_margin);
 
         assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(gutterSize)));
@@ -418,7 +419,7 @@ public final class PagedListViewTest {
         mActivityRule.runOnUiThread(() -> mPagedListView.setGutter(PagedListView.Gutter.END));
         waitForIdleSync();
 
-        Resources res = InstrumentationRegistry.getContext().getResources();
+        Resources res = ApplicationProvider.getApplicationContext().getResources();
         int gutterSize = res.getDimensionPixelSize(R.dimen.car_margin);
 
         assertThat(mRecyclerViewLayoutParams.getMarginStart(),
@@ -434,7 +435,7 @@ public final class PagedListViewTest {
         mActivityRule.runOnUiThread(() -> mPagedListView.setGutter(PagedListView.Gutter.BOTH));
         waitForIdleSync();
 
-        Resources res = InstrumentationRegistry.getContext().getResources();
+        Resources res = ApplicationProvider.getApplicationContext().getResources();
         int gutterSize = res.getDimensionPixelSize(R.dimen.car_margin);
 
         assertThat(mRecyclerViewLayoutParams.getMarginStart(), is(equalTo(gutterSize)));
@@ -523,7 +524,7 @@ public final class PagedListViewTest {
         // Just need enough items to ensure the scroll bar is showing.
         setUpPagedListView(ITEMS_PER_PAGE * 10);
 
-        Resources res = InstrumentationRegistry.getContext().getResources();
+        Resources res = ApplicationProvider.getApplicationContext().getResources();
         int defaultWidth = res.getDimensionPixelSize(R.dimen.car_margin);
 
         onView(withId(R.id.paged_scroll_view)).check(matches(withWidth(defaultWidth)));

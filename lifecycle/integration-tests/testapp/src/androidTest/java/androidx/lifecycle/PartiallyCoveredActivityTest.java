@@ -46,8 +46,9 @@ import androidx.lifecycle.testapp.CollectingSupportActivity;
 import androidx.lifecycle.testapp.CollectingSupportFragment;
 import androidx.lifecycle.testapp.NavigationDialogActivity;
 import androidx.lifecycle.testapp.TestEvent;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
@@ -97,7 +98,7 @@ public class PartiallyCoveredActivityTest {
                 @Override
                 protected Intent getActivityIntent() {
                     // helps with less flaky API 16 tests
-                    Intent intent = new Intent(InstrumentationRegistry.getTargetContext(),
+                    Intent intent = new Intent(ApplicationProvider.getApplicationContext(),
                             CollectingSupportActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

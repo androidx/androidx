@@ -30,9 +30,9 @@ import androidx.preference.DropDownPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 import androidx.preference.TwoStatePreference;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class PreferenceComparisonCallbackTest {
 
     @Before
     public void setup() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         mPref1 = new Preference(context);
         mPref2 = new Preference(context);
         mComparisonCallback = new PreferenceManager.SimplePreferenceComparisonCallback();
@@ -72,7 +72,7 @@ public class PreferenceComparisonCallbackTest {
     @Test
     public void testClassComparison() {
         final Preference checkboxPreference =
-                new CheckBoxPreference(InstrumentationRegistry.getTargetContext());
+                new CheckBoxPreference(ApplicationProvider.getApplicationContext());
         assertFalse("Compare class",
                 mComparisonCallback.arePreferenceContentsTheSame(mPref1, checkboxPreference));
     }
@@ -220,9 +220,9 @@ public class PreferenceComparisonCallbackTest {
     @Test
     public void testTwoStateComparison() {
         final TwoStatePreference checkbox1 =
-                new CheckBoxPreference(InstrumentationRegistry.getTargetContext());
+                new CheckBoxPreference(ApplicationProvider.getApplicationContext());
         final TwoStatePreference checkbox2 =
-                new CheckBoxPreference(InstrumentationRegistry.getTargetContext());
+                new CheckBoxPreference(ApplicationProvider.getApplicationContext());
 
         checkbox1.setChecked(true);
         checkbox2.setChecked(true);
@@ -250,9 +250,9 @@ public class PreferenceComparisonCallbackTest {
     @Test
     public void testDropDownComparison() {
         final Preference dropdown1 =
-                new DropDownPreference(InstrumentationRegistry.getTargetContext());
+                new DropDownPreference(ApplicationProvider.getApplicationContext());
         final Preference dropdown2 =
-                new DropDownPreference(InstrumentationRegistry.getTargetContext());
+                new DropDownPreference(ApplicationProvider.getApplicationContext());
 
         assertTrue("Compare aliased drop down pref",
                 mComparisonCallback.arePreferenceContentsTheSame(dropdown1, dropdown1));

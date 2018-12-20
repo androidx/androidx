@@ -30,9 +30,9 @@ import android.content.Intent;
 import androidx.collection.ArraySet;
 import androidx.core.app.RemoteActionCompat;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +69,7 @@ public final class LegacyTextClassifierTest {
     @Before
     public void setUp() {
         mPendingIntent = PendingIntent.getActivity(
-                InstrumentationRegistry.getTargetContext(), 0, new Intent(), 0);
+                ApplicationProvider.getApplicationContext(), 0, new Intent(), 0);
 
         mMatchMaker = mock(MatchMaker.class);
         when(mMatchMaker.getActions(anyString(), any(CharSequence.class)))

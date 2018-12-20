@@ -28,9 +28,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,7 +47,8 @@ public class RecycledViewPoolTest {
     }
 
     private RecyclerView.ViewHolder makeHolder(int viewType) {
-        RecyclerView.ViewHolder holder = new MockViewHolder(InstrumentationRegistry.getContext());
+        RecyclerView.ViewHolder holder = new MockViewHolder(
+                ApplicationProvider.getApplicationContext());
         holder.mItemViewType = viewType;
         return holder;
     }

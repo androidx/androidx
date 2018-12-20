@@ -25,9 +25,9 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -43,9 +43,11 @@ public class NestedScrollingHelperIntegrationTest {
 
     @Before
     public void setup() {
-        mNestedScrollingImpl3 = new NestedScrollingImpl3(InstrumentationRegistry.getContext());
-        mNestedScrollingImpl2 = new NestedScrollingImpl2(InstrumentationRegistry.getContext());
-        mNestedScrollingImpl = new NestedScrollingImpl(InstrumentationRegistry.getContext());
+        mNestedScrollingImpl3 = new NestedScrollingImpl3(
+                ApplicationProvider.getApplicationContext());
+        mNestedScrollingImpl2 = new NestedScrollingImpl2(
+                ApplicationProvider.getApplicationContext());
+        mNestedScrollingImpl = new NestedScrollingImpl(ApplicationProvider.getApplicationContext());
     }
 
     @Test

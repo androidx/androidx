@@ -25,7 +25,7 @@ import androidx.test.runner.MonitoringInstrumentation;
 public class TestActivity extends Activity {
     // This is not great but the only way to do this until test runner adds support to not kill
     // activities after tests.
-    private static final String TEST_RUNNER =
+    private static final String TEST_EXT_JUNIT =
             MonitoringInstrumentation.class.getCanonicalName() + "$" + MonitoringInstrumentation
                     .ActivityFinisher.class.getSimpleName();
     private volatile TestedFrameLayout mContainer;
@@ -67,7 +67,7 @@ public class TestActivity extends Activity {
             // this is terrible but easy workaround for selective finishing
             for (StackTraceElement element : stackTrace) {
 
-                if (TEST_RUNNER.equals(element.getClassName())) {
+                if (TEST_EXT_JUNIT.equals(element.getClassName())) {
                     // don't allow activity finisher to finish this.
                     return;
                 }

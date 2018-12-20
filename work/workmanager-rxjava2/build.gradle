@@ -29,6 +29,8 @@ dependencies {
     api(RX_JAVA)
     testImplementation(KOTLIN_STDLIB)
     testImplementation(TEST_EXT_JUNIT)
+    testImplementation(TEST_CORE)
+    testImplementation(TEST_RUNNER)
     testImplementation(MOCKITO_CORE)
 }
 

@@ -36,9 +36,9 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.TypefaceSpan;
 
 import androidx.core.text.PrecomputedTextCompat.Params;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

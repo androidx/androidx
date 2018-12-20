@@ -27,9 +27,9 @@ import android.graphics.Color;
 import android.os.Build;
 
 import androidx.annotation.ColorRes;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +67,7 @@ public class CustomTabsIntentTest {
     @Test
     public void testToolbarColorIsNotAResource() {
         @ColorRes int colorId = android.R.color.background_dark;
-        int color = InstrumentationRegistry.getContext().getResources().getColor(colorId);
+        int color = ApplicationProvider.getApplicationContext().getResources().getColor(colorId);
         Intent intent = new CustomTabsIntent.Builder().setToolbarColor(colorId).build().intent;
         assertFalse("The color should not be a resource ID",
                 color == intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_COLOR, 0));

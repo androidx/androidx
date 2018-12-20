@@ -29,7 +29,7 @@ import android.media.tv.TvContentRating;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -259,13 +259,13 @@ public class PreviewChannelHelperTest {
 
     @Before
     public void setUp() throws Exception {
-        mContext = InstrumentationRegistry.getContext();
+        mContext = ApplicationProvider.getApplicationContext();
 
     }
 
     @After
     public void tearDown() {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         mContext.getContentResolver().delete(
@@ -279,7 +279,7 @@ public class PreviewChannelHelperTest {
      */
     @Test
     public void testPreviewChannelCreation() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -291,7 +291,7 @@ public class PreviewChannelHelperTest {
 
     @Test
     public void testLogoRequiredForChannelCreation() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -310,7 +310,7 @@ public class PreviewChannelHelperTest {
      */
     @Test
     public void testPreviewChannelCreationWithNullProviderId() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannel.Builder builder = createFullyPopulatedPreviewChannel();
@@ -352,7 +352,7 @@ public class PreviewChannelHelperTest {
      */
     @Test
     public void testAllPublishedChannelsRead() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -375,7 +375,7 @@ public class PreviewChannelHelperTest {
      */
     @Test
     public void testPreviewChannelUpdate() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -400,7 +400,7 @@ public class PreviewChannelHelperTest {
      */
     @Test
     public void testDefensiveUpdatePreviewChannel() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         final int[] channelUpdateCount = {0};
@@ -429,7 +429,7 @@ public class PreviewChannelHelperTest {
 
     @Test
     public void testPreviewResolverChannelDeletion() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -445,7 +445,7 @@ public class PreviewChannelHelperTest {
 
     @Test
     public void testPreviewProgramCreation() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -459,7 +459,7 @@ public class PreviewChannelHelperTest {
 
     @Test
     public void testPreviewProgramUpdate() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -480,7 +480,7 @@ public class PreviewChannelHelperTest {
      */
     @Test
     public void testDefensivePreviewProgramUpdateRequests() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         final int[] programUpdateCount = {0};
@@ -506,7 +506,7 @@ public class PreviewChannelHelperTest {
 
     @Test
     public void testDeletePreviewProgram() throws IOException {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -522,7 +522,7 @@ public class PreviewChannelHelperTest {
 
     @Test
     public void testWatchNextProgramCreation() {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -534,7 +534,7 @@ public class PreviewChannelHelperTest {
 
     @Test
     public void testUpdateWatchNextProgram() {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         PreviewChannelHelper helper = new PreviewChannelHelper(mContext);
@@ -552,7 +552,7 @@ public class PreviewChannelHelperTest {
      */
     @Test
     public void testDefensiveUpdateWatchNextProgram() {
-        if (!Utils.hasTvInputFramework(InstrumentationRegistry.getContext())) {
+        if (!Utils.hasTvInputFramework(ApplicationProvider.getApplicationContext())) {
             return;
         }
         final int[] programUpdateCount = {0};

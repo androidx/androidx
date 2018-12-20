@@ -52,10 +52,10 @@ import android.os.Looper;
 import androidx.annotation.GuardedBy;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.test.R;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

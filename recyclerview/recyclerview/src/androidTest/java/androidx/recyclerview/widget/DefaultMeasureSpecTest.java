@@ -24,7 +24,7 @@ import static android.view.View.MeasureSpec.makeMeasureSpec;
 import android.graphics.Rect;
 import android.view.View;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
 import org.hamcrest.CoreMatchers;
@@ -49,7 +49,7 @@ public class DefaultMeasureSpecTest {
 
     @Before
     public void setUp() throws Exception {
-        mRecyclerView = new RecyclerView(InstrumentationRegistry.getContext());
+        mRecyclerView = new RecyclerView(ApplicationProvider.getApplicationContext());
         if (mPadding != null) {
             mRecyclerView.setPadding(mPadding.left, mPadding.top, mPadding.right, mPadding.bottom);
         }

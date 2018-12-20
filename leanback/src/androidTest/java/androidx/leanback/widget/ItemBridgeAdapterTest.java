@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -81,7 +81,7 @@ public class ItemBridgeAdapterTest {
         mAdapter.setItems(populateData(), null);
         mItemBridgeAdapter.setAdapter(mAdapter);
 
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         mRecyclerView = new RecyclerView(context);
         mRecyclerView.setItemViewCacheSize(0);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(context,

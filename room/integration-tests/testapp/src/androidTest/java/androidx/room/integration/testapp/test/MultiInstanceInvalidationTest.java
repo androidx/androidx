@@ -41,11 +41,12 @@ import androidx.room.integration.testapp.database.Customer;
 import androidx.room.integration.testapp.database.CustomerDao;
 import androidx.room.integration.testapp.database.Product;
 import androidx.room.integration.testapp.database.SampleDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ServiceTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -88,7 +89,7 @@ public class MultiInstanceInvalidationTest {
 
     @Before
     public void setUp() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase(SampleDatabaseService.DATABASE_NAME);
     }
 
@@ -315,7 +316,7 @@ public class MultiInstanceInvalidationTest {
 
     private long measure(boolean multiInstanceInvalidation, boolean bulk,
             List<Customer> customers) {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase(SampleDatabaseService.DATABASE_NAME);
         final SampleDatabase db = openDatabase(multiInstanceInvalidation);
         final CustomerDao dao = db.getCustomerDao();
@@ -348,7 +349,7 @@ public class MultiInstanceInvalidationTest {
     }
 
     private SampleDatabase openDatabase(boolean multiInstanceInvalidation) {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         final RoomDatabase.Builder<SampleDatabase> builder = Room
                 .databaseBuilder(context, SampleDatabase.class,
                         SampleDatabaseService.DATABASE_NAME);
@@ -361,7 +362,7 @@ public class MultiInstanceInvalidationTest {
     }
 
     private void bindTestService() throws TimeoutException {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         mService = ISampleDatabaseService.Stub.asInterface(
                 serviceRule.bindService(new Intent(context, SampleDatabaseService.class)));
     }

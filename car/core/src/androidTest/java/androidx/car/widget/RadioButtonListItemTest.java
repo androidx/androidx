@@ -33,13 +33,13 @@ import android.graphics.drawable.Icon;
 import android.view.View;
 
 import androidx.car.test.R;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.contrib.RecyclerViewActions;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.hamcrest.Matcher;
 import org.junit.Assume;
@@ -107,7 +107,7 @@ public class RadioButtonListItemTest {
 
         setupPagedListView(Arrays.asList(item));
 
-        int expected = InstrumentationRegistry.getContext().getResources()
+        int expected = ApplicationProvider.getApplicationContext().getResources()
                 .getDimensionPixelSize(R.dimen.car_keyline_3);
         assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(expected)));
     }
@@ -122,7 +122,7 @@ public class RadioButtonListItemTest {
 
         setupPagedListView(Arrays.asList(item));
 
-        int expected = InstrumentationRegistry.getContext().getResources()
+        int expected = ApplicationProvider.getApplicationContext().getResources()
                 .getDimensionPixelSize(R.dimen.car_keyline_3);
         assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(expected)));
     }
@@ -137,7 +137,7 @@ public class RadioButtonListItemTest {
 
         setupPagedListView(Arrays.asList(item));
 
-        int expected = InstrumentationRegistry.getContext().getResources()
+        int expected = ApplicationProvider.getApplicationContext().getResources()
                 .getDimensionPixelSize(R.dimen.car_keyline_4);
         assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(expected)));
     }
@@ -161,7 +161,7 @@ public class RadioButtonListItemTest {
 
         setupPagedListView(Arrays.asList(item));
 
-        int expected = InstrumentationRegistry.getContext().getResources()
+        int expected = ApplicationProvider.getApplicationContext().getResources()
                 .getDimensionPixelSize(R.dimen.car_keyline_1);
         assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(expected)));
     }
@@ -177,10 +177,10 @@ public class RadioButtonListItemTest {
 
         setupPagedListView(Arrays.asList(item));
 
-        int margin = InstrumentationRegistry.getContext().getResources()
+        int margin = ApplicationProvider.getApplicationContext().getResources()
                 .getDimensionPixelSize(R.dimen.car_keyline_1);
         // Offset is determined by icon size - small icon uses keyline 3.
-        int offset = InstrumentationRegistry.getContext().getResources()
+        int offset = ApplicationProvider.getApplicationContext().getResources()
                 .getDimensionPixelSize(R.dimen.car_keyline_3);
         assertThat(getViewHolderAtPosition(0).getText().getLeft(), is(equalTo(offset + margin)));
     }

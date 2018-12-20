@@ -40,7 +40,7 @@ import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionResult;
 import androidx.media2.SessionToken;
 import androidx.media2.test.common.TestUtils.SyncHandler;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -137,7 +137,7 @@ abstract class MediaSessionTestBase {
 
     @CallSuper
     public void setUp() throws Exception {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
     }
 
     @CallSuper

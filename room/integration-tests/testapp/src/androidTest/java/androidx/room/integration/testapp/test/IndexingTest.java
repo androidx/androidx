@@ -31,9 +31,9 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,7 +95,7 @@ public class IndexingTest {
 
     @Test
     public void verifyIndices() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         IndexingDb db = Room.inMemoryDatabaseBuilder(context, IndexingDb.class).build();
         List<IndexInfo> indices = db.sqlMasterDao().loadIndices();
         assertThat(indices.size(), is(4));
@@ -114,7 +114,7 @@ public class IndexingTest {
 
     @Test
     public void indexedByQuery() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         IndexingDb db = Room.inMemoryDatabaseBuilder(context, IndexingDb.class).build();
         db.entity1Dao().insert(new Entity1(1, "a", "b", "c"));
         List<Entity1> result = db.entity1Dao().indexedBy("b");

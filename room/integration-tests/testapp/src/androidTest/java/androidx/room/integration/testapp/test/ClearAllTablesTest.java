@@ -39,11 +39,12 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -116,7 +117,7 @@ public class ClearAllTablesTest {
 
     @Before
     public void setUp() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         mDatabase = Room.inMemoryDatabaseBuilder(context, ClearAllTablesDatabase.class).build();
         mDao = mDatabase.dao();
     }
@@ -203,7 +204,7 @@ public class ClearAllTablesTest {
     }
 
     private void clearsDataFromDisk(RoomDatabase.JournalMode journalMode) throws IOException {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         final String dbName = "clear.db";
         context.deleteDatabase(dbName);
         ClearAllTablesDatabase db;

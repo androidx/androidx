@@ -41,9 +41,9 @@ import androidx.media2.MediaUtils;
 import androidx.media2.Rating;
 import androidx.media2.ThumbRating;
 import androidx.media2.test.common.TestUtils;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.versionedparcelable.ParcelImpl;
 import androidx.versionedparcelable.ParcelUtils;
 
