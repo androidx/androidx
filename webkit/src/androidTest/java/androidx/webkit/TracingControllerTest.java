@@ -16,7 +16,6 @@
 
 package androidx.webkit;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -84,7 +83,7 @@ public class TracingControllerTest {
     @Test
     public void testTracingControllerCallbacksOnUI() throws Throwable {
         final TracingReceiver tracingReceiver = new TracingReceiver();
-        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+        WebkitUtils.onMainThreadSync(new Runnable() {
             @Override
             public void run() {
                 runTracingTestWithCallbacks(tracingReceiver, mSingleThreadExecutor);

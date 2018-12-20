@@ -58,7 +58,8 @@ public final class WebkitUtils {
     /**
      * Executes a callable asynchronously on the main thread, returning a future for the result.
      *
-     * @param callable the {@link java.util.concurrent.Callable} to execute.
+     * @param callable the {@link Callable} to execute.
+     * @return a {@link ListenableFuture} representing the result of {@code callable}.
      */
     public static <T> ListenableFuture<T> onMainThread(final Callable<T> callable)  {
         final ResolvableFuture<T> future = ResolvableFuture.create();
@@ -85,6 +86,53 @@ public final class WebkitUtils {
     }
 
     /**
+     * Executes a callable synchronously on the main thread, returning its result. This rethrows any
+     * exceptions on the thread this is called from. This means callers may use {@link
+     * org.junit.Assert} methods within the {@link Callable} if they invoke this method from the
+     * instrumentation thread.
+     *
+     * <p class="note"><b>Note:</b> this should not be called from the UI thread.
+     *
+     * @param callable the {@link Callable} to execute.
+     * @return the result of the {@link Callable}.
+     */
+    public static <T> T onMainThreadSync(final Callable<T> callable) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw new IllegalStateException("This cannot be called from the UI thread.");
+        }
+        return waitForFuture(onMainThread(callable));
+    }
+
+    /**
+     * Executes a {@link Runnable} synchronously on the main thread. This is similar to {@link
+     * android.app.Instrumentation#runOnMainSync(Runnable)}, with the main difference that this
+     * re-throws exceptions on the calling thread. This is useful if {@code runnable} contains any
+     * {@link org.junit.Assert} methods, or otherwise throws an Exception.
+     *
+     * <p class="note"><b>Note:</b> this should not be called from the UI thread.
+     *
+     * @param Runnable the {@link Runnable} to execute.
+     */
+    public static void onMainThreadSync(final Runnable runnable) {
+        if (Looper.myLooper() == Looper.getMainLooper()) {
+            throw new IllegalStateException("This cannot be called from the UI thread.");
+        }
+        final ResolvableFuture<Void> exceptionPropagatingFuture = ResolvableFuture.create();
+        onMainThread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    runnable.run();
+                    exceptionPropagatingFuture.set(null);
+                } catch (Throwable t) {
+                    exceptionPropagatingFuture.setException(t);
+                }
+            }
+        });
+        waitForFuture(exceptionPropagatingFuture);
+    }
+
+    /**
      * Throws {@link org.junit.AssumptionViolatedException} if the device does not support the
      * particular feature, otherwise returns.
      *
@@ -105,28 +153,44 @@ public final class WebkitUtils {
     /**
      * Waits for {@code future} and returns its value (or times out).
      */
-    public static <T> T waitForFuture(Future<T> future) throws InterruptedException,
-             ExecutionException,
-             TimeoutException {
-        // TODO(ntfschr): consider catching ExecutionException and throwing e.getCause().
-        return future.get(TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    public static <T> T waitForFuture(Future<T> future) {
+        try {
+            return future.get(TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException e) {
+            // Try to throw the cause itself, to avoid unnecessarily wrapping an unchecked
+            // throwable.
+            Throwable cause = e.getCause();
+            if (cause instanceof Error) throw (Error) cause;
+            if (cause instanceof RuntimeException) throw (RuntimeException) cause;
+            throw new RuntimeException(cause);
+        } catch (InterruptedException | TimeoutException e) {
+            // Don't handle InterruptedException specially, since it indicates that a different
+            // Thread was interrupted, not this one.
+            throw new RuntimeException(e.getCause());
+        }
     }
 
     /**
      * Takes an element out of the {@link BlockingQueue} (or times out).
      */
-    public static <T> T waitForNextQueueElement(BlockingQueue<T> queue) throws InterruptedException,
-             TimeoutException {
-        T value = queue.poll(TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        if (value == null) {
-            // {@code null} is the special value which means {@link BlockingQueue#poll} has timed
-            // out (also: there's no risk for collision with real values, because BlockingQueue does
-            // not allow null entries). Instead of returning this special value, let's throw a
-            // proper TimeoutException to stay consistent with {@link #waitForFuture}.
-            throw new TimeoutException(
-                    "Timeout while trying to take next entry from BlockingQueue");
+    public static <T> T waitForNextQueueElement(BlockingQueue<T> queue) {
+        try {
+            T value = queue.poll(TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            if (value == null) {
+                // {@code null} is the special value which means {@link BlockingQueue#poll} has
+                // timed out (also: there's no risk for collision with real values, because
+                // BlockingQueue does not allow null entries). Instead of returning this special
+                // value, let's throw a proper TimeoutException to stay consistent with {@link
+                // #waitForFuture}.
+                throw new TimeoutException(
+                        "Timeout while trying to take next entry from BlockingQueue");
+            }
+            return value;
+        } catch (TimeoutException | InterruptedException e) {
+            // Don't handle InterruptedException specially, since it indicates that a different
+            // Thread was interrupted, not this one.
+            throw new RuntimeException(e.getCause());
         }
-        return value;
     }
 
     // Do not instantiate this class.
