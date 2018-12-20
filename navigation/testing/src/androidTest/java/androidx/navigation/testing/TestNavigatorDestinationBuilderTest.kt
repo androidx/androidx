@@ -16,11 +16,11 @@
 
 package androidx.navigation.testing
 
-import androidx.test.filters.SmallTest
-import androidx.test.runner.AndroidJUnit4
 import androidx.navigation.contains
 import androidx.navigation.get
 import androidx.navigation.navigation
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test

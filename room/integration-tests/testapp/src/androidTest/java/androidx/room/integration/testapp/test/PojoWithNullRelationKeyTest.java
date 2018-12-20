@@ -30,9 +30,9 @@ import androidx.room.Relation;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.Transaction;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class PojoWithNullRelationKeyTest {
 
     @Before
     public void setup() {
-        mDatabase = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getContext(),
+        mDatabase = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(),
                 NullRelationDatabase.class).build();
         mDao = mDatabase.getDao();
     }

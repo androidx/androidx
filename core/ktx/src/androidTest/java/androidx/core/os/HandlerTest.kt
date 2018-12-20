@@ -22,9 +22,9 @@ import android.os.Looper
 import android.os.SystemClock
 import android.os.TestLooperManager
 import androidx.annotation.RequiresApi
-import androidx.test.InstrumentationRegistry
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

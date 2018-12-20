@@ -29,9 +29,9 @@ import android.widget.FrameLayout;
 
 import androidx.leanback.R;
 import androidx.leanback.app.HeadersFragment;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class PresenterTest {
 
     @Before
     public void setup() throws Exception {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
     }
 
     @Test

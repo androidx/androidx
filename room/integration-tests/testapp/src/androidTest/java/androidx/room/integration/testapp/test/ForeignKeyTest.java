@@ -40,9 +40,9 @@ import androidx.room.PrimaryKey;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -208,7 +208,7 @@ public class ForeignKeyTest {
 
     @Before
     public void openDb() {
-        mDb = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getTargetContext(),
+        mDb = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(),
                 ForeignKeyDb.class).build();
         mDao = mDb.dao();
     }

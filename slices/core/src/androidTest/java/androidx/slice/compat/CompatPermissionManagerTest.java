@@ -34,10 +34,10 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Process;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,7 +49,7 @@ import org.mockito.stubbing.Answer;
 @SdkSuppress(minSdkVersion = 19)
 public class CompatPermissionManagerTest {
 
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Test
     public void testAutoGrant() {

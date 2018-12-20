@@ -28,10 +28,10 @@ import android.widget.LinearLayout;
 import androidx.preference.AndroidResources;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceViewHolder;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +51,7 @@ public class PreferenceIconSpaceTest {
 
     @Before
     public void setUp() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
 
         mImageView = new ImageView(context);
         mImageFrame = new View(context);

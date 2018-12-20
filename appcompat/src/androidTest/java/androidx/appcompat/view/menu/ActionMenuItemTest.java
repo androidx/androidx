@@ -22,9 +22,9 @@ import android.content.Context;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ public final class ActionMenuItemTest {
 
     @Test
     public void setShowAsActionNever() throws Exception {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         final ActionMenuItem item = new ActionMenuItem(
                 context, Menu.NONE, Menu.NONE, 0, 0, "item");
 

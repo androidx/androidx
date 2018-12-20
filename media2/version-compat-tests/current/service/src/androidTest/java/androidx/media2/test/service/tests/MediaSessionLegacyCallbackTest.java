@@ -61,9 +61,9 @@ import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.MockRemotePlayer;
 import androidx.media2.test.service.RemoteMediaControllerCompat;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;

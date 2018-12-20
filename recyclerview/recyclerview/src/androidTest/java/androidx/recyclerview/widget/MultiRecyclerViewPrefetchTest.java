@@ -25,10 +25,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -101,7 +101,7 @@ public class MultiRecyclerViewPrefetchTest {
     }
 
     private Context getContext() {
-        return InstrumentationRegistry.getContext();
+        return ApplicationProvider.getApplicationContext();
     }
 
     private void clearCachesAndPool() {

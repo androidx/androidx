@@ -40,10 +40,10 @@ import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.testutils.Direction;
 import androidx.testutils.SimpleGestureGeneratorKt;
 
@@ -209,7 +209,7 @@ public class RecyclerViewNestedScrollingTest {
     public void fling_fullyParticipatesInNestedScrolling() throws Throwable {
         setup();
         attachToActivity();
-        final Context context = InstrumentationRegistry.getContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         final int targetVelocity = (int) Math.ceil(
                 SimpleGestureGeneratorKt.generateFlingData(context).getVelocity() * 1000);
 

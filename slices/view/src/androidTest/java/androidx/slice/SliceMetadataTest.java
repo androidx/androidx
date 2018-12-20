@@ -53,10 +53,10 @@ import androidx.slice.core.SliceHints;
 import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.SliceLiveData;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -78,7 +78,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SdkSuppress(minSdkVersion = 19)
 public class SliceMetadataTest {
 
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Before
     public void setup() {

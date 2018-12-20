@@ -9,6 +9,8 @@ plugins {
 dependencies {
     api(project(":annotation"))
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
 }
 

@@ -20,7 +20,8 @@ import android.content.Context;
 import android.media.AudioManager;
 import android.os.Looper;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.BeforeClass;
 
@@ -60,7 +61,7 @@ abstract class MediaTestBase {
                 // Without posting this, audio focus listeners wouldn't be called because the
                 // listeners would be posted to the test thread (here) where it waits until the
                 // tests are finished.
-                Context context = InstrumentationRegistry.getTargetContext();
+                Context context = ApplicationProvider.getApplicationContext();
                 AudioManager manager =
                         (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
             }

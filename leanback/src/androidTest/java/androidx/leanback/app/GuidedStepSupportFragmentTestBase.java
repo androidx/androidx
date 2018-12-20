@@ -25,7 +25,7 @@ import android.view.View;
 
 import androidx.leanback.R;
 import androidx.leanback.testutils.PollingCheck;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;

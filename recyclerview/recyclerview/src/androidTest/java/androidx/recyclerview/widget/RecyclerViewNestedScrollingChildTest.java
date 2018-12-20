@@ -41,9 +41,9 @@ import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.testutils.Direction;
 import androidx.testutils.FlingData;
 import androidx.testutils.MotionEventData;
@@ -71,7 +71,7 @@ public class RecyclerViewNestedScrollingChildTest {
 
     private void setup(boolean vertical, int scrollDistance, boolean parentAccepts) {
 
-        Context context = InstrumentationRegistry.getContext();
+        Context context = ApplicationProvider.getApplicationContext();
 
         // Create views
 
@@ -187,7 +187,8 @@ public class RecyclerViewNestedScrollingChildTest {
     public void uiFingerScroll_scrollsBeyondLimitVertical_parentOnNestedScrollCalledCorrectly() {
         setup(true, 100, true);
         int touchSlop =
-                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300 - touchSlop, 0);
@@ -203,7 +204,8 @@ public class RecyclerViewNestedScrollingChildTest {
     public void uiFingerScroll_scrollsBeyondLimitHorizontal_parentOnNestedScrollCalledCorrectly() {
         setup(false, 100, true);
         int touchSlop =
-                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 300 - touchSlop, 500, 0);
@@ -219,7 +221,8 @@ public class RecyclerViewNestedScrollingChildTest {
     public void uiFingerScroll_scrollsWithinLimitVertical_parentOnNestedScrollCalledCorrectly() {
         setup(true, 100, true);
         int touchSlop =
-                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 450 - touchSlop, 0);
@@ -235,7 +238,8 @@ public class RecyclerViewNestedScrollingChildTest {
     public void uiFingerScroll_scrollsWithinLimitHorizontal_parentOnNestedScrollCalledCorrectly() {
         setup(false, 100, true);
         int touchSlop =
-                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 450 - touchSlop, 500, 0);
@@ -259,7 +263,8 @@ public class RecyclerViewNestedScrollingChildTest {
         }).when(mParentSpy)
                 .onNestedPreScroll(any(View.class), anyInt(), anyInt(), any(int[].class), anyInt());
         int touchSlop =
-                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300, 0);
@@ -290,7 +295,8 @@ public class RecyclerViewNestedScrollingChildTest {
         }).when(mParentSpy)
                 .onNestedPreScroll(any(View.class), anyInt(), anyInt(), any(int[].class), anyInt());
         int touchSlop =
-                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 300, 500, 0);
@@ -360,7 +366,7 @@ public class RecyclerViewNestedScrollingChildTest {
 
         setup(true, 1000, true);
 
-        final Context context = InstrumentationRegistry.getContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         FlingData flingData = SimpleGestureGeneratorKt.generateFlingData(context);
 
         final long firstDownTime = SystemClock.uptimeMillis();

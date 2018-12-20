@@ -33,8 +33,8 @@ import android.widget.EdgeEffect;
 
 import androidx.annotation.NonNull;
 import androidx.core.view.InputDeviceCompat;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

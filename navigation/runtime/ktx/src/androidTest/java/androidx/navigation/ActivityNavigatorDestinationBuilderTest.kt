@@ -17,9 +17,9 @@
 package androidx.navigation
 
 import android.net.Uri
-import androidx.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.runner.AndroidJUnit4
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -28,7 +28,8 @@ import org.junit.runner.RunWith
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class ActivityNavigatorDestinationBuilderTest {
-    private val navController = NavController(InstrumentationRegistry.getTargetContext())
+    private val navController =
+        NavController(ApplicationProvider.getApplicationContext() as android.content.Context)
 
     @Test
     fun activity() {

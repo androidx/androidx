@@ -18,6 +18,8 @@ dependencies {
     api(project(":savedstate:savedstate-common"))
 
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(TRUTH)

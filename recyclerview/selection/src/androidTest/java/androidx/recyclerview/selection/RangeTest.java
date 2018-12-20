@@ -22,8 +22,8 @@ import static androidx.recyclerview.selection.Range.TYPE_PROVISIONAL;
 import static org.junit.Assert.assertEquals;
 
 import androidx.recyclerview.selection.testing.TestData;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -10,6 +10,8 @@ dependencies {
     api(project(":annotation"))
     api(project(":core"))
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(MOCKITO_CORE)

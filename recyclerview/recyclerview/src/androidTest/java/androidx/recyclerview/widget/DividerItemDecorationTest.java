@@ -24,9 +24,9 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.test.R;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +41,7 @@ public class DividerItemDecorationTest {
 
     @Test
     public void testNullListDivider() {
-        final Context context = InstrumentationRegistry.getContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         RecyclerView rv = new RecyclerView(context);
         rv.setLayoutManager(new LinearLayoutManager(context));
         rv.setAdapter(new MyAdapter(STRINGS));

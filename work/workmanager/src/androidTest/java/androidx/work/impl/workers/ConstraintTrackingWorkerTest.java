@@ -28,10 +28,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Data;
@@ -93,7 +93,7 @@ public class ConstraintTrackingWorkerTest extends DatabaseTest {
 
     @Before
     public void setUp() {
-        mContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
+        mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
         mHandler = new Handler(Looper.getMainLooper());
         mConfiguration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())

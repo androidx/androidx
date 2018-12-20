@@ -41,10 +41,11 @@ import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.UserDao;
 import androidx.room.integration.testapp.vo.User;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -71,7 +72,7 @@ public class WriteAheadLoggingTest {
 
     @Before
     public void openDatabase() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase(DATABASE_NAME);
         mDatabase = Room.databaseBuilder(context, TestDatabase.class, DATABASE_NAME)
                 .setJournalMode(RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
@@ -81,7 +82,7 @@ public class WriteAheadLoggingTest {
     @After
     public void closeDatabase() {
         mDatabase.close();
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase(DATABASE_NAME);
     }
 
@@ -103,7 +104,7 @@ public class WriteAheadLoggingTest {
 
     @Test
     public void disableWal() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         mDatabase.close();
         mDatabase = Room.databaseBuilder(context, TestDatabase.class, DATABASE_NAME)
                 .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)

@@ -33,10 +33,11 @@ import android.widget.TextView;
 
 import androidx.car.test.R;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Assume;
 import org.junit.Before;
@@ -107,7 +108,7 @@ public final class DividerVisibilityManagerTest {
                 mPagedListView.getRecyclerView().getLayoutManager();
 
         // Fetch divider height.
-        int dividerHeight = InstrumentationRegistry.getContext().getResources()
+        int dividerHeight = ApplicationProvider.getApplicationContext().getResources()
                 .getDimensionPixelSize(R.dimen.car_list_divider_height);
 
         // Initially, dividers are present between each two items.

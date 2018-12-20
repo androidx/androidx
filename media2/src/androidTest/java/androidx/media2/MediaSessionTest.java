@@ -43,9 +43,9 @@ import androidx.media2.MediaController.PlaybackInfo;
 import androidx.media2.MediaSession.CommandButton;
 import androidx.media2.MediaSession.ControllerInfo;
 import androidx.media2.MediaSession.SessionCallback;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import junit.framework.Assert;
 

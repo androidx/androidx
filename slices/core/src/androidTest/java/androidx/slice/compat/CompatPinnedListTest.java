@@ -27,10 +27,10 @@ import android.net.Uri;
 
 import androidx.collection.ArraySet;
 import androidx.slice.SliceSpec;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import junit.framework.AssertionFailedError;
 
@@ -48,7 +48,7 @@ import java.util.Set;
 @SdkSuppress(minSdkVersion = 19)
 public class CompatPinnedListTest {
 
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
     private CompatPinnedList mCompatPinnedList;
     private Set<SliceSpec> mSpecs;
 

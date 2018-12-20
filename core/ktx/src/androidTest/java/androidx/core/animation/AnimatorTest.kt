@@ -19,11 +19,11 @@ package androidx.core.animation
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.view.View
-import androidx.test.InstrumentationRegistry
 import androidx.test.annotation.UiThreadTest
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
-import androidx.test.runner.AndroidJUnit4
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class AnimatorTest {
-    private val context = InstrumentationRegistry.getContext()
+    private val context = ApplicationProvider.getApplicationContext() as android.content.Context
     private val view = View(context)
 
     private lateinit var animator: Animator

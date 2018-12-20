@@ -23,9 +23,9 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 
 import androidx.media2.test.service.RemoteMediaBrowserCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +40,7 @@ public class RemoteMediaBrowserCompatTest extends MediaSessionTestBase {
 
     @Before
     public void setUp() throws Exception {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
         mRemoteBrowserCompat = new RemoteMediaBrowserCompat(mContext, MOCK_MEDIA2_LIBRARY_SERVICE);
     }
 

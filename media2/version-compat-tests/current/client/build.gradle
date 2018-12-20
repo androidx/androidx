@@ -24,6 +24,8 @@ dependencies {
     androidTestImplementation(project(":media2"))
     androidTestImplementation(project(":support-media2-test-common"))
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
 }
 

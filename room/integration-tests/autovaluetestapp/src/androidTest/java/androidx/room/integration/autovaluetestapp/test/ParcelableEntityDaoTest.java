@@ -23,8 +23,8 @@ import static org.hamcrest.CoreMatchers.is;
 import android.os.Bundle;
 
 import androidx.room.integration.autovaluetestapp.vo.ParcelableEntity;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

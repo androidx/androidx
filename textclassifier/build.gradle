@@ -12,6 +12,8 @@ dependencies {
     api("androidx.collection:collection:1.0.0")
     api("androidx.core:core:1.1.0-alpha01")
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(TRUTH)

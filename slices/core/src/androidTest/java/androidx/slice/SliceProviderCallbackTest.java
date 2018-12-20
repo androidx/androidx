@@ -28,10 +28,10 @@ import android.net.Uri;
 
 import androidx.remotecallback.RemoteCallable;
 import androidx.remotecallback.RemoteCallback;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,7 +52,7 @@ public class SliceProviderCallbackTest {
     private static Integer sNullableInt;
     private static CountDownLatch sLatch;
 
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Test
     public void testRemoteCallback() {

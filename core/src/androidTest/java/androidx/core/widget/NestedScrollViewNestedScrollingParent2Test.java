@@ -39,9 +39,9 @@ import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingChild2;
 import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,9 +61,9 @@ public class NestedScrollViewNestedScrollingParent2Test {
 
     @Before
     public void instantiateMembers() {
-        mNestedScrollView = new NestedScrollView(InstrumentationRegistry.getContext());
-        mParent = spy(new NestedScrollingSpyView(InstrumentationRegistry.getContext()));
-        mChild = new View(InstrumentationRegistry.getContext());
+        mNestedScrollView = new NestedScrollView(ApplicationProvider.getApplicationContext());
+        mParent = spy(new NestedScrollingSpyView(ApplicationProvider.getApplicationContext()));
+        mChild = new View(ApplicationProvider.getApplicationContext());
     }
 
     @Test
@@ -514,7 +514,7 @@ public class NestedScrollViewNestedScrollingParent2Test {
     private void setupNestedScrollViewWithParentAndChild(int nestedScrollViewHeight,
             int childHeight) {
 
-        final ViewGroup viewGroup = new FrameLayout(InstrumentationRegistry.getContext());
+        final ViewGroup viewGroup = new FrameLayout(ApplicationProvider.getApplicationContext());
 
         mNestedScrollView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, nestedScrollViewHeight));

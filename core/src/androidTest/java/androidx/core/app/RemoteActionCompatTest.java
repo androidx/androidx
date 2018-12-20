@@ -24,9 +24,9 @@ import android.content.Intent;
 import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +44,8 @@ public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestActi
         IconCompat icon = IconCompat.createWithContentUri("content://test");
         String title = "title";
         String description = "description";
-        PendingIntent action = PendingIntent.getBroadcast(InstrumentationRegistry.getContext(), 0,
+        PendingIntent action = PendingIntent.getBroadcast(
+                ApplicationProvider.getApplicationContext(), 0,
                 new Intent("TESTACTION"), 0);
         RemoteActionCompat reference = new RemoteActionCompat(icon, title, description, action);
         reference.setEnabled(false);
@@ -65,7 +66,8 @@ public class RemoteActionCompatTest extends BaseInstrumentationTestCase<TestActi
         IconCompat icon = IconCompat.createWithContentUri("content://test");
         String title = "title";
         String description = "description";
-        PendingIntent action = PendingIntent.getBroadcast(InstrumentationRegistry.getContext(), 0,
+        PendingIntent action = PendingIntent.getBroadcast(
+                ApplicationProvider.getApplicationContext(), 0,
                 new Intent("TESTACTION"), 0);
         RemoteActionCompat reference = new RemoteActionCompat(icon, title, description, action);
         reference.setEnabled(false);

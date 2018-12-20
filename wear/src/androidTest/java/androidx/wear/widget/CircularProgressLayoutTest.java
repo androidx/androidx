@@ -22,9 +22,9 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Intent;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.wear.test.R;
 
 import org.junit.Before;

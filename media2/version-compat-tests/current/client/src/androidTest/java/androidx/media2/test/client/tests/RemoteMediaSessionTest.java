@@ -27,9 +27,9 @@ import android.content.Context;
 import androidx.media2.MediaController;
 import androidx.media2.SessionToken;
 import androidx.media2.test.client.RemoteMediaSession;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -47,7 +47,7 @@ public class RemoteMediaSessionTest {
 
     @Before
     public void setUp() {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
         mRemoteSession2 = new RemoteMediaSession(DEFAULT_TEST_NAME, mContext);
     }
 

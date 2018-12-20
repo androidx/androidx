@@ -29,7 +29,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 
 import androidx.fragment.app.test.FragmentTestActivity;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import java.lang.ref.WeakReference;

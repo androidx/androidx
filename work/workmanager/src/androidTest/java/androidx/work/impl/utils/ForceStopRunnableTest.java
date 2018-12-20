@@ -28,9 +28,9 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpecDao;
@@ -52,7 +52,7 @@ public class ForceStopRunnableTest {
 
     @Before
     public void setUp() {
-        mContext = InstrumentationRegistry.getTargetContext().getApplicationContext();
+        mContext = ApplicationProvider.getApplicationContext().getApplicationContext();
         mWorkManager = mock(WorkManagerImpl.class);
         mWorkDatabase = mock(WorkDatabase.class);
         mWorkSpecDao = mock(WorkSpecDao.class);

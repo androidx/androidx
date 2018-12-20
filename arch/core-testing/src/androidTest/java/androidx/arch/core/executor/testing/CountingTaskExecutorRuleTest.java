@@ -19,10 +19,9 @@ package androidx.arch.core.executor.testing;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
-
 import androidx.arch.core.executor.ArchTaskExecutor;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 
 import org.junit.Rule;
 import org.junit.Test;

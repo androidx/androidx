@@ -17,9 +17,9 @@
 package androidx.fragment.app;
 
 import androidx.fragment.app.test.HangingFragmentActivity;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.testutils.FragmentActivityUtils;
 
 import org.junit.Assert;

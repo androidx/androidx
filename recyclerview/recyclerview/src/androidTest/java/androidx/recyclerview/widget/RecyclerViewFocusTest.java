@@ -25,11 +25,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -234,7 +234,7 @@ public class RecyclerViewFocusTest {
         mTestLinearLayoutManager = new TestLinearLayoutManager(testContentViewActivity,
                 orientation, false);
 
-        mRecyclerView = new RecyclerView(InstrumentationRegistry.getContext());
+        mRecyclerView = new RecyclerView(ApplicationProvider.getApplicationContext());
         if (!ltr) {
             mRecyclerView.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
         }

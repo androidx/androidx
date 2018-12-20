@@ -16,7 +16,7 @@
 
 package androidx.tvprovider.media.tv;
 
-import static androidx.test.InstrumentationRegistry.getContext;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -32,9 +32,9 @@ import android.media.tv.TvContract;
 import android.net.Uri;
 import android.os.SystemClock;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.Suppress;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.tvprovider.test.R;
 
 import org.junit.After;
@@ -54,7 +54,7 @@ public class ChannelLogoUtilsTest {
 
     @Before
     public void setUp() throws Exception {
-        mContentResolver = getContext().getContentResolver();
+        mContentResolver = getApplicationContext().getContentResolver();
         ContentValues contentValues = new Channel.Builder()
                 .setInputId(FAKE_INPUT_ID)
                 .setType(TvContractCompat.Channels.TYPE_OTHER).build().toContentValues();
@@ -69,32 +69,32 @@ public class ChannelLogoUtilsTest {
 
     @Test
     public void testStoreChannelLogo_fromBitmap() {
-        assertNull(ChannelLogoUtils.loadChannelLogo(getContext(), mChannelId));
-        Bitmap logo = BitmapFactory.decodeResource(getContext().getResources(),
+        assertNull(ChannelLogoUtils.loadChannelLogo(getApplicationContext(), mChannelId));
+        Bitmap logo = BitmapFactory.decodeResource(getApplicationContext().getResources(),
                 R.drawable.test_icon);
         assertNotNull(logo);
-        assertTrue(ChannelLogoUtils.storeChannelLogo(getContext(), mChannelId, logo));
+        assertTrue(ChannelLogoUtils.storeChannelLogo(getApplicationContext(), mChannelId, logo));
         // Workaround: the file status is not consistent between openInputStream/openOutputStream,
         // wait 10 secs to make sure that the logo file is written into the disk.
         SystemClock.sleep(10000);
-        assertNotNull(ChannelLogoUtils.loadChannelLogo(getContext(), mChannelId));
+        assertNotNull(ChannelLogoUtils.loadChannelLogo(getApplicationContext(), mChannelId));
     }
 
     @Test
     public void testStoreChannelLogo_fromResUri() {
-        assertNull(ChannelLogoUtils.loadChannelLogo(getContext(), mChannelId));
+        assertNull(ChannelLogoUtils.loadChannelLogo(getApplicationContext(), mChannelId));
         int resId = R.drawable.test_icon;
-        Resources res = getContext().getResources();
+        Resources res = getApplicationContext().getResources();
         Uri logoUri = new Uri.Builder()
                 .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
                 .authority(res.getResourcePackageName(resId))
                 .appendPath(res.getResourceTypeName(resId))
                 .appendPath(res.getResourceEntryName(resId))
                 .build();
-        assertTrue(ChannelLogoUtils.storeChannelLogo(getContext(), mChannelId, logoUri));
+        assertTrue(ChannelLogoUtils.storeChannelLogo(getApplicationContext(), mChannelId, logoUri));
         // Workaround: the file status is not consistent between openInputStream/openOutputStream,
         // wait 10 secs to make sure that the logo file is written into the disk.
         SystemClock.sleep(10000);
-        assertNotNull(ChannelLogoUtils.loadChannelLogo(getContext(), mChannelId));
+        assertNotNull(ChannelLogoUtils.loadChannelLogo(getApplicationContext(), mChannelId));
     }
 }

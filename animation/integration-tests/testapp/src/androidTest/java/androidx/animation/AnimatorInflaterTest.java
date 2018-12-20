@@ -16,17 +16,17 @@
 
 package androidx.animation;
 
-import android.content.Context;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
+
 import androidx.animation.testapp.test.R;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -44,7 +44,7 @@ public class AnimatorInflaterTest {
     @UiThreadTest
     @Test
     public void testLoadAnimator() {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = ApplicationProvider.getApplicationContext();
         Animator anim = AnimatorInflater.loadAnimator(context, R.animator.animator_set_with_dimens);
         assertEquals(100, anim.getTotalDuration());
 
@@ -68,7 +68,7 @@ public class AnimatorInflaterTest {
     @UiThreadTest
     @Test
     public void testLoadAnimatorAlongPath() {
-        Context context = InstrumentationRegistry.getContext();
+        Context context = ApplicationProvider.getApplicationContext();
         Animator anim = AnimatorInflater.loadAnimator(context, R.animator.animator_along_path);
         assertTrue(anim.getInterpolator() instanceof LinearInterpolator);
         assertEquals(100, anim.getDuration());

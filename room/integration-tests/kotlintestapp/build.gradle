@@ -50,6 +50,8 @@ dependencies {
     implementation(KOTLIN_COROUTINES)
     kaptAndroidTest project(":room:room-compiler")
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER) {
         exclude module: 'support-annotations'
         exclude module: 'hamcrest-core'

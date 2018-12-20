@@ -19,7 +19,7 @@ package androidx.core.view
 import android.view.Menu.NONE
 import android.view.MenuItem
 import android.widget.Toolbar
-import androidx.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
@@ -34,7 +34,8 @@ import org.junit.Test
 @SdkSuppress(minSdkVersion = 21)
 @SmallTest
 class MenuTest {
-    private val menu = Toolbar(InstrumentationRegistry.getContext()).menu
+    private val menu =
+        Toolbar(ApplicationProvider.getApplicationContext() as android.content.Context).menu
 
     @Test fun get() {
         val item = menu.add("")

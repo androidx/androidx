@@ -40,10 +40,11 @@ import androidx.slice.SliceItem;
 import androidx.slice.SliceUtils;
 import androidx.slice.SliceViewManager;
 import androidx.slice.SliceViewManager.SliceCallback;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -67,7 +68,7 @@ public class CachedSliceLiveDataTest {
     private static final Intent INTENT_TWO = new Intent("intent2");
     private static final Intent INTENT_THREE = new Intent("intent3");
 
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     private SliceViewManager mManager = mock(SliceViewManager.class);

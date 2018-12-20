@@ -35,10 +35,10 @@ import androidx.room.RoomDatabase;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.vo.User;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +55,7 @@ public class DatabaseCallbackTest {
     @Test
     @MediumTest
     public void createAndOpen() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         TestDatabaseCallback callback1 = new TestDatabaseCallback();
         TestDatabase db1 = null;
         TestDatabase db2 = null;
@@ -94,7 +94,7 @@ public class DatabaseCallbackTest {
     @Test
     @SmallTest
     public void writeOnCreate() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
                 .addCallback(new RoomDatabase.Callback() {
                     @Override
@@ -123,7 +123,7 @@ public class DatabaseCallbackTest {
     @Test
     @SmallTest
     public void exceptionOnCreate() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
                 .addCallback(new RoomDatabase.Callback() {
                     boolean mIsBadInsertDone;
@@ -154,7 +154,7 @@ public class DatabaseCallbackTest {
     @Test
     @MediumTest
     public void corruptExceptionOnCreate() throws IOException {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
 
         TestDatabaseCallback callback = new TestDatabaseCallback();
 

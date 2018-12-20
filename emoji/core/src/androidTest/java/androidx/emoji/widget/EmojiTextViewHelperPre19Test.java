@@ -24,10 +24,10 @@ import android.text.InputFilter;
 import android.text.method.TransformationMethod;
 import android.widget.TextView;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class EmojiTextViewHelperPre19Test {
 
     @Before
     public void setup() {
-        mTextView = new TextView(InstrumentationRegistry.getTargetContext());
+        mTextView = new TextView(ApplicationProvider.getApplicationContext());
         mTextViewHelper = new EmojiTextViewHelper(mTextView);
     }
 

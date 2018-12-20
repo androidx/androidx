@@ -24,8 +24,8 @@ import static org.mockito.Mockito.verify;
 
 import android.support.annotation.NonNull;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

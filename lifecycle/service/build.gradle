@@ -32,6 +32,8 @@ android {
 dependencies {
     api(project(":lifecycle:lifecycle-runtime"))
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(SUPPORT_CORE_UTILS, libs.support_exclude_config)
 }

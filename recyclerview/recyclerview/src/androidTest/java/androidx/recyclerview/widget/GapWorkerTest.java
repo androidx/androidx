@@ -24,10 +24,10 @@ import static org.junit.Assert.assertTrue;
 import android.content.Context;
 import android.os.Build;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +40,7 @@ import java.util.Collections;
 public class GapWorkerTest {
 
     private Context getContext() {
-        return InstrumentationRegistry.getContext();
+        return ApplicationProvider.getApplicationContext();
     }
 
     @Test
