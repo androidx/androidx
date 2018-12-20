@@ -20,15 +20,15 @@ package androidx.media2 {
   }
 
   public class FileMediaItem extends androidx.media2.MediaItem {
-    method public java.io.FileDescriptor getFileDescriptor();
     method public long getFileDescriptorLength();
     method public long getFileDescriptorOffset();
+    method public android.os.ParcelFileDescriptor getParcelFileDescriptor();
     field public static final long FD_LENGTH_UNKNOWN = 576460752303423487L; // 0x7ffffffffffffffL
   }
 
   public static final class FileMediaItem.Builder {
-    ctor public FileMediaItem.Builder(java.io.FileDescriptor);
-    ctor public FileMediaItem.Builder(java.io.FileDescriptor, long, long);
+    ctor public FileMediaItem.Builder(android.os.ParcelFileDescriptor);
+    ctor public FileMediaItem.Builder(android.os.ParcelFileDescriptor, long, long);
     method public androidx.media2.FileMediaItem build();
     method public androidx.media2.FileMediaItem.Builder! setEndPosition(long);
     method public androidx.media2.FileMediaItem.Builder! setMetadata(androidx.media2.MediaMetadata!);

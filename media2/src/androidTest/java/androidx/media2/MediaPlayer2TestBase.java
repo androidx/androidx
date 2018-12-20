@@ -30,6 +30,7 @@ import android.content.res.Resources;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.PowerManager;
 import android.view.SurfaceHolder;
@@ -45,6 +46,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
+import java.io.IOException;
 import java.net.HttpCookie;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,7 +99,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             new ActivityTestRule<>(MediaStubActivity.class);
     public PowerManager.WakeLock mScreenLock;
     private KeyguardManager mKeyguardManager;
-    private List<AssetFileDescriptor> mFdsToClose = new ArrayList<>();
+    private List<FileMediaItem> mFileMediaItems = new ArrayList<>();
 
     // convenience functions to create MediaPlayer2
     protected MediaPlayer2 createMediaPlayer2(Context context, Uri uri) {
@@ -162,13 +164,7 @@ public class MediaPlayer2TestBase extends MediaTestBase {
 
     protected MediaPlayer2 createMediaPlayer2(Context context, int resid,
             AudioAttributesCompat audioAttributes, int audioSessionId) {
-        try {
-            AssetFileDescriptor afd = context.getResources().openRawResourceFd(resid);
-            if (afd == null) {
-                return null;
-            }
-            mFdsToClose.add(afd);
-
+        try (AssetFileDescriptor afd = context.getResources().openRawResourceFd(resid)) {
             MediaPlayer2 mp = createMediaPlayer2OnUiThread();
 
             final AudioAttributesCompat aa = audioAttributes != null ? audioAttributes :
@@ -177,7 +173,9 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             mp.setAudioSessionId(audioSessionId);
 
             mp.setMediaItem(new FileMediaItem.Builder(
-                    afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build());
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
+                    afd.getStartOffset(),
+                    afd.getLength()).build());
 
             final Monitor onPrepareCalled = new Monitor();
             ExecutorService executor = Executors.newFixedThreadPool(1);
@@ -197,13 +195,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             mp.clearEventCallback();
             executor.shutdown();
             return mp;
-        } catch (IllegalArgumentException ex) {
-            LOG.warning("create failed:" + ex);
-            // fall through
-        } catch (SecurityException ex) {
-            LOG.warning("create failed:" + ex);
-            // fall through
-        } catch (InterruptedException ex) {
+        } catch (IllegalArgumentException | SecurityException | InterruptedException
+                | IOException ex) {
             LOG.warning("create failed:" + ex);
             // fall through
         }
@@ -279,8 +272,8 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         }
         mExecutor.shutdown();
         mActivity = null;
-        for (AssetFileDescriptor afd :  mFdsToClose) {
-            afd.close();
+        for (FileMediaItem fitem : mFileMediaItems) {
+            assertTrue(fitem.isClosed());
         }
     }
 
@@ -372,13 +365,12 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         }
         */
 
-        AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
-        try {
-            mPlayer.setMediaItem(new FileMediaItem.Builder(
-                    afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build());
-        } finally {
-            // Close descriptor later when test finishes since setMediaItem is async operation.
-            mFdsToClose.add(afd);
+        try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
+            FileMediaItem item = new FileMediaItem.Builder(
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
+                    afd.getStartOffset(), afd.getLength()).build();
+            mFileMediaItems.add(item);
+            mPlayer.setMediaItem(item);
         }
         return true;
     }
@@ -390,10 +382,13 @@ public class MediaPlayer2TestBase extends MediaTestBase {
         }
         */
 
-        AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
-        mFdsToClose.add(afd);
-        return new FileMediaItem.Builder(
-                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build();
+        try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
+            FileMediaItem item = new FileMediaItem.Builder(
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
+                    afd.getStartOffset(), afd.getLength()).build();
+            mFileMediaItems.add(item);
+            return item;
+        }
     }
 
     protected boolean checkLoadResource(int resid) throws Exception {

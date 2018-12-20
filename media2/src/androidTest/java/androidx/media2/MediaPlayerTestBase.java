@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.util.Log;
 import android.view.WindowManager;
 
@@ -106,13 +107,10 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
     }
 
     boolean loadResource(int resid) throws Exception {
-        AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
-        try {
+        try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
             mPlayer.setMediaItem(new FileMediaItem.Builder(
-                    afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build());
-        } finally {
-            // Close descriptor later when test finishes since setMediaItem is async operation.
-            mFdsToClose.add(afd);
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
+                    afd.getStartOffset(), afd.getLength()).build());
         }
         return true;
     }

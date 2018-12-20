@@ -27,6 +27,7 @@ import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.MediaFormat;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.view.Surface;
 
@@ -387,6 +388,9 @@ public abstract class MediaPlayer2 {
 
     /**
      * Sets the media item as described by a MediaItem.
+     * <p>
+     * When the media item is a {@link FileMediaItem}, the {@link ParcelFileDescriptor}
+     * in the {@link FileMediaItem} will be closed by the player.
      *
      * @param item the descriptor of media item you want to play
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
@@ -397,6 +401,9 @@ public abstract class MediaPlayer2 {
     /**
      * Sets a single media item as described by a MediaItem which will be played
      * after current media item is finished.
+     * <p>
+     * When the media item is a {@link FileMediaItem}, the {@link ParcelFileDescriptor}
+     * in the {@link FileMediaItem} will be closed by the player.
      *
      * @param item the descriptor of media item you want to play after current one
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
@@ -406,6 +413,9 @@ public abstract class MediaPlayer2 {
 
     /**
      * Sets a list of media items to be played sequentially after current media item is done.
+     * <p>
+     * If a media item in the list is a {@link FileMediaItem}, the {@link ParcelFileDescriptor}
+     * in the {@link FileMediaItem} will be closed by the player.
      *
      * @param items the list of media items you want to play after current one
      * @return a token which can be used to cancel the operation later with {@link #cancel}.
