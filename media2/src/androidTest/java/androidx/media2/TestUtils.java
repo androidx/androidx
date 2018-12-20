@@ -32,11 +32,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
 
 import androidx.core.util.ObjectsCompat;
 import androidx.media2.MediaLibraryService.LibraryParams;
 
-import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -119,7 +119,7 @@ public final class TestUtils {
         final List<MediaItem> list = new ArrayList<>();
         String caller = Thread.currentThread().getStackTrace()[3].getMethodName();
         for (int i = 0; i < size; i++) {
-            MediaItem item = new FileMediaItem.Builder(new FileDescriptor())
+            MediaItem item = new FileMediaItem.Builder(ParcelFileDescriptor.adoptFd(-1))
                     .setMetadata(new MediaMetadata.Builder()
                             .putString(METADATA_KEY_MEDIA_ID, caller + "_item_" + (i + 1))
                             .putLong(METADATA_KEY_BROWSABLE, BROWSABLE_TYPE_NONE)
@@ -155,7 +155,7 @@ public final class TestUtils {
      * @see #createMetadata()
      */
     public static MediaItem createMediaItemWithMetadata() {
-        return new FileMediaItem.Builder(new FileDescriptor())
+        return new FileMediaItem.Builder(ParcelFileDescriptor.adoptFd(-1))
                 .setMetadata(createMetadata()).build();
     }
 

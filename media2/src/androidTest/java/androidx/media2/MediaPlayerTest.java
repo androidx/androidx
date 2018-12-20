@@ -32,6 +32,7 @@ import static org.junit.Assert.fail;
 import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 
 import androidx.media.AudioAttributesCompat;
@@ -126,10 +127,12 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final int tolerance = 70;
         final int seekDuration = 100;
 
-        AssetFileDescriptor afd = mResources.openRawResourceFd(resid);
-        mPlayer.setMediaItem(new FileMediaItem.Builder(
-                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength())
-                .build());
+        try (AssetFileDescriptor afd = mResources.openRawResourceFd(resid)) {
+            mPlayer.setMediaItem(new FileMediaItem.Builder(
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
+                    afd.getStartOffset(), afd.getLength())
+                    .build());
+        }
         AudioAttributesCompat attributes = new AudioAttributesCompat.Builder()
                 .setLegacyStreamType(AudioManager.STREAM_MUSIC)
                 .build();
@@ -176,6 +179,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final int height = 288;
         final float volume = 0.5f;
 
+        MediaItem item = mPlayer.getCurrentMediaItem();
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         final TestUtils.Monitor onVideoSizeChangedCalled = new TestUtils.Monitor();
@@ -256,6 +260,8 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 fail("MediaMetricsSet.keys() missing: " + MediaPlayer2.MetricsConstants.PLAYING);
             }
         }
+        mPlayer.close();
+        assertTrue(((FileMediaItem) item).isClosed());
     }
 
 //    Temporarily disabled for being flaky, bug b/121078676 filed.
@@ -819,22 +825,28 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final int resid1 = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final long start1 = 6000;
         final long end1 = 7000;
-        AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1);
-        MediaItem dsd1 = new FileMediaItem.Builder(
-                afd1.getFileDescriptor(), afd1.getStartOffset(), afd1.getLength())
-                .setStartPosition(start1)
-                .setEndPosition(end1)
-                .build();
+        MediaItem dsd1;
+        try (AssetFileDescriptor afd1 = mResources.openRawResourceFd(resid1)) {
+            dsd1 = new FileMediaItem.Builder(
+                    ParcelFileDescriptor.dup(afd1.getFileDescriptor()),
+                    afd1.getStartOffset(), afd1.getLength())
+                    .setStartPosition(start1)
+                    .setEndPosition(end1)
+                    .build();
+        }
 
         final int resid2 = R.raw.testvideo;
         final long start2 = 3000;
         final long end2 = 4000;
-        AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2);
-        MediaItem dsd2 = new FileMediaItem.Builder(
-                afd2.getFileDescriptor(), afd2.getStartOffset(), afd2.getLength())
-                .setStartPosition(start2)
-                .setEndPosition(end2)
-                .build();
+        MediaItem dsd2;
+        try (AssetFileDescriptor afd2 = mResources.openRawResourceFd(resid2)) {
+            dsd2 = new FileMediaItem.Builder(
+                    ParcelFileDescriptor.dup(afd2.getFileDescriptor()),
+                    afd2.getStartOffset(), afd2.getLength())
+                    .setStartPosition(start2)
+                    .setEndPosition(end2)
+                    .build();
+        }
 
         List<MediaItem> items = new ArrayList<>();
         items.add(dsd1);
@@ -859,9 +871,6 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         onCompletionCalled.waitForSignal();
         assertEquals(dsd2, mPlayer.getCurrentMediaItem());
         assertEquals(2.0f, mPlayer.getPlaybackParams().getSpeed(), 0.001f);
-
-        afd1.close();
-        afd2.close();
     }
 
     @Test
@@ -1302,6 +1311,48 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    public void testSetFileMediaItem() throws Exception {
+        MediaItem closedItem = createMediaItem(0);
+        ((FileMediaItem) closedItem).close();
+        try {
+            mPlayer.setMediaItem(closedItem);
+            fail();
+        } catch (Exception e) {
+            // Expected.
+        }
+
+        List<MediaItem> closedPlaylist = createPlaylist(1);
+        ((FileMediaItem) closedPlaylist.get(0)).close();
+        try {
+            mPlayer.setPlaylist(closedPlaylist, null);
+            fail();
+        } catch (Exception e) {
+            // Expected.
+        }
+
+        List<MediaItem> playlist = createPlaylist(2);
+        ListenableFuture<PlayerResult> future = mPlayer.setPlaylist(playlist, null);
+        PlayerResult result = future.get();
+        assertEquals(RESULT_SUCCESS, result.getResultCode());
+
+        try {
+            mPlayer.addPlaylistItem(0, closedItem);
+            fail();
+        } catch (Exception e) {
+            // Expected.
+        }
+
+        try {
+            mPlayer.replacePlaylistItem(0, closedItem);
+            fail();
+        } catch (Exception e) {
+            // Expected.
+        }
+    }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSkipToPlaylistItems() throws Exception {
         int listSize = 5;
         List<MediaItem> playlist = createPlaylist(listSize);
@@ -1496,9 +1547,11 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     }
 
     private MediaItem createMediaItem(int key) throws Exception {
-        AssetFileDescriptor afd = mResources.openRawResourceFd(R.raw.testvideo);
-        return new FileMediaItem.Builder(
-                afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength()).build();
+        try (AssetFileDescriptor afd = mResources.openRawResourceFd(R.raw.testvideo)) {
+            return new FileMediaItem.Builder(
+                    ParcelFileDescriptor.dup(afd.getFileDescriptor()),
+                    afd.getStartOffset(), afd.getLength()).build();
+        }
     }
 
     private List<MediaItem> createPlaylist(int size) throws Exception {

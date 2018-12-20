@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.ParcelFileDescriptor;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -273,8 +274,10 @@ public class MediaControlViewTest {
         final String title = "Chimey Phone";
         final String artist = "Android";
         final MediaItem uriMediaItem = createTestMediaItem2(uri);
-        final MediaItem fileMediaItem = new FileMediaItem.Builder(afd.getFileDescriptor(),
+        final MediaItem fileMediaItem = new FileMediaItem.Builder(
+                ParcelFileDescriptor.dup(afd.getFileDescriptor()),
                 afd.getStartOffset(), afd.getLength()).build();
+        afd.close();
         final CountDownLatch latchForUri = new CountDownLatch(3);
         final CountDownLatch latchForFile = new CountDownLatch(3);
         final MediaController controller =

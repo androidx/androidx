@@ -287,12 +287,30 @@ import java.util.Map;
     }
 
     public void setNextMediaItem(MediaItem mediaItem) {
-        Preconditions.checkState(!mMediaItemQueue.isEmpty());
+        if (mMediaItemQueue.isEmpty()) {
+            if (mediaItem instanceof FileMediaItem) {
+                try {
+                    ((FileMediaItem) mediaItem).close();
+                } catch (IOException e) {
+                    Log.w(TAG, "Failed to close FileMediaItem " + mediaItem, e);
+                }
+            }
+            throw new IllegalStateException();
+        }
         mMediaItemQueue.setNextMediaItems(Collections.singletonList(mediaItem));
     }
 
     public void setNextMediaItems(List<MediaItem> mediaItems) {
-        Preconditions.checkState(!mMediaItemQueue.isEmpty());
+        if (mMediaItemQueue.isEmpty()) {
+            for (MediaItem item: mediaItems) {
+                try {
+                    ((FileMediaItem) item).close();
+                } catch (IOException e) {
+                    Log.w(TAG, "Failed to close FileMediaItem " + item, e);
+                }
+            }
+            throw new IllegalStateException();
+        }
         mMediaItemQueue.setNextMediaItems(Preconditions.checkNotNull(mediaItems));
     }
 
@@ -711,16 +729,12 @@ import java.util.Map;
         final MediaItem mMediaItem;
         @Nullable
         final DurationProvidingMediaSource mDurationProvidingMediaSource;
-        @Nullable
-        final FileDescriptor mFileDescriptor;
 
         MediaItemInfo(
                 MediaItem mediaItem,
-                @Nullable DurationProvidingMediaSource durationProvidingMediaSource,
-                @Nullable FileDescriptor fileDescriptor) {
+                @Nullable DurationProvidingMediaSource durationProvidingMediaSource) {
             mMediaItem = mediaItem;
             mDurationProvidingMediaSource = durationProvidingMediaSource;
-            mFileDescriptor = fileDescriptor;
         }
 
     }
@@ -915,15 +929,14 @@ import java.util.Map;
                 Collection<MediaSource> mediaSources) throws IOException {
             DataSource.Factory dataSourceFactory = mDataSourceFactory;
             // Create a data source for reading from the file descriptor, if needed.
-            FileDescriptor fileDescriptor = null;
             if (mediaItem instanceof FileMediaItem) {
                 FileMediaItem fileMediaItem = (FileMediaItem) mediaItem;
-                // TODO(b/68398926): Remove dup'ing the file descriptor once FileMediaItem does it.
-                Object lock = mFileDescriptorRegistry.registerMediaItemAndGetLock(
-                        fileMediaItem.getFileDescriptor());
-                fileDescriptor = FileDescriptorUtil.dup(fileMediaItem.getFileDescriptor());
+                fileMediaItem.addParcelFileDescriptorClient(this);
+                FileDescriptor fileDescriptor =
+                        fileMediaItem.getParcelFileDescriptor().getFileDescriptor();
                 long offset = fileMediaItem.getFileDescriptorOffset();
                 long length = fileMediaItem.getFileDescriptorLength();
+                Object lock = mFileDescriptorRegistry.registerMediaItemAndGetLock(fileDescriptor);
                 dataSourceFactory =
                         FileDescriptorDataSource.getFactory(fileDescriptor, offset, length, lock);
             }
@@ -951,18 +964,18 @@ import java.util.Map;
 
             mediaSources.add(mediaSource);
             mediaItemInfos.add(
-                    new MediaItemInfo(mediaItem, durationProvidingMediaSource, fileDescriptor));
+                    new MediaItemInfo(mediaItem, durationProvidingMediaSource));
         }
 
         private void releaseMediaItem(MediaItemInfo mediaItemInfo) {
             MediaItem mediaItem = mediaItemInfo.mMediaItem;
             try {
                 if (mediaItem instanceof FileMediaItem) {
-                    FileDescriptorUtil.close(mediaItemInfo.mFileDescriptor);
-                    // TODO(b/68398926): Remove separate file descriptors once FileMediaItem dup's.
                     FileDescriptor fileDescriptor =
-                            ((FileMediaItem) mediaItem).getFileDescriptor();
+                            ((FileMediaItem) mediaItem).getParcelFileDescriptor()
+                                    .getFileDescriptor();
                     mFileDescriptorRegistry.unregisterMediaItem(fileDescriptor);
+                    ((FileMediaItem) mediaItem).removeParcelFileDescriptorClient(this);
                 } else if (mediaItem instanceof CallbackMediaItem) {
                     ((CallbackMediaItem) mediaItemInfo.mMediaItem)
                             .getDataSourceCallback().close();
