@@ -209,6 +209,8 @@ fun Dimension.coerceAtMost(maximumValue: Dimension): Dimension {
 fun Dimension.toPx(context: Context): Float =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics)
 
+fun Double.toDp(context: Context): Dimension = (this / 1.dp.toPx(context)).dp
+
 /**
  * A two dimensional size using [Dimension] for units
  */
