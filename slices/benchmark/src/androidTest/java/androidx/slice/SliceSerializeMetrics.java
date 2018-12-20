@@ -37,10 +37,11 @@ import androidx.benchmark.BenchmarkState;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.benchmark.test.R;
 import androidx.slice.core.SliceHints;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -65,7 +66,7 @@ public class SliceSerializeMetrics {
     @Rule
     public BenchmarkRule mBenchmarkRule = new BenchmarkRule();
 
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Test
     public void testSerialization() throws Exception {

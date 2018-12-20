@@ -40,10 +40,11 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -139,7 +140,8 @@ public class JournalDbPostMigrationTest {
     private void copyAsset(String path, File outFile) throws IOException {
         byte[] buffer = new byte[1024];
         int length;
-        InputStream fis = InstrumentationRegistry.getContext().getAssets().open(path);
+        InputStream fis =
+                InstrumentationRegistry.getInstrumentation().getContext().getAssets().open(path);
         OutputStream out = new FileOutputStream(outFile, false);
         //noinspection TryFinallyCanBeTryWithResources
         try {
@@ -155,20 +157,20 @@ public class JournalDbPostMigrationTest {
     @After
     public void deleteDb() {
         mAppDatabase.close();
-        InstrumentationRegistry.getTargetContext().deleteDatabase(DB_NAME);
+        ApplicationProvider.getApplicationContext().deleteDatabase(DB_NAME);
     }
 
     @Before
     public void copyDbFromAssets() throws IOException {
-        Context testContext = InstrumentationRegistry.getContext();
-        Context targetContext = InstrumentationRegistry.getTargetContext();
+        Context testContext = InstrumentationRegistry.getInstrumentation().getContext();
+        Context targetContext = ApplicationProvider.getApplicationContext();
         String[] walModificationDbs = testContext.getAssets().list(DB_NAME);
         File databasePath = targetContext.getDatabasePath(DB_NAME);
         for (String file : walModificationDbs) {
             copyAsset(DB_NAME + "/" + file,
                     new File(databasePath.getParentFile(), file));
         }
-        mAppDatabase = Room.databaseBuilder(InstrumentationRegistry.getTargetContext(),
+        mAppDatabase = Room.databaseBuilder(ApplicationProvider.getApplicationContext(),
                 AppDatabase.class, "journal-db")
                 .addMigrations(sMigrationV1toV2, sMigrationV2toV3)
                 .addCallback(new RoomDatabase.Callback() {

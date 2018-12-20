@@ -47,12 +47,12 @@ import androidx.media2.MediaPlayer.DrmInfo;
 import androidx.media2.MediaPlayer.DrmResult;
 import androidx.media2.SessionPlayer.PlayerResult;
 import androidx.media2.TestUtils.Monitor;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.google.common.util.concurrent.ListenableFuture;
 

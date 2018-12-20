@@ -24,9 +24,9 @@ import android.os.Build;
 
 import androidx.media2.SessionCommand;
 import androidx.media2.SessionCommandGroup;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Ignore;
 import org.junit.Test;

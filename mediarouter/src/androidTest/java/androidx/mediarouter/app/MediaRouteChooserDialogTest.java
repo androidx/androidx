@@ -20,15 +20,15 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.test.annotation.UiThreadTest;
-import androidx.test.filters.LargeTest;
-import androidx.test.filters.SmallTest;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 import androidx.mediarouter.media.TestUtils;
 import androidx.mediarouter.test.R;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
+import androidx.test.filters.SmallTest;
+import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
 import org.junit.Rule;

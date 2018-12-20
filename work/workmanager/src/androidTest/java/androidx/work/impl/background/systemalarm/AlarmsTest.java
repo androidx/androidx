@@ -25,9 +25,9 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.work.DatabaseTest;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.impl.WorkManagerImpl;
@@ -50,7 +50,7 @@ public class AlarmsTest extends DatabaseTest {
 
     @Before
     public void setUp() {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
         mWorkManager = mock(WorkManagerImpl.class);
         // Set it to sometime in the future so as to avoid triggering real alarms.
         mTriggerAt = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);

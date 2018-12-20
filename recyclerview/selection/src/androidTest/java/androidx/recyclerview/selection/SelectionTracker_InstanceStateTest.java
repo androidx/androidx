@@ -22,8 +22,8 @@ import android.os.Bundle;
 
 import androidx.recyclerview.selection.testing.Bundles;
 import androidx.recyclerview.selection.testing.SelectionTrackers;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;

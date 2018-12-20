@@ -34,10 +34,10 @@ import android.view.ViewGroup;
 
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,8 +62,8 @@ public class DrawerInteractionTest {
     public void setUp() throws Throwable {
         final Activity activity = mActivityTestRule.getActivity();
 
-        Context context = InstrumentationRegistry.getContext();
-        mDrawerLayout = new TestDrawerLayout(InstrumentationRegistry.getContext());
+        Context context = ApplicationProvider.getApplicationContext();
+        mDrawerLayout = new TestDrawerLayout(ApplicationProvider.getApplicationContext());
         mContentView = new MockView(context);
         mStartDrawer = new MockView(context);
 

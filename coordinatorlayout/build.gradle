@@ -11,6 +11,8 @@ dependencies {
     api("androidx.core:core:1.1.0-alpha01")
     api("androidx.customview:customview:1.0.0")
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)

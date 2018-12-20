@@ -21,14 +21,14 @@ import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import androidx.core.graphics.createBitmap
-import androidx.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @SmallTest
 class DrawableTest {
-    private val context = InstrumentationRegistry.getContext()
+    private val context = ApplicationProvider.getApplicationContext() as android.content.Context
     private val resources = context.resources
 
     @Test fun bitmapDrawableNoSizeNoConfig() {

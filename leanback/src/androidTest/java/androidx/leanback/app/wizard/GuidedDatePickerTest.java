@@ -30,10 +30,10 @@ import androidx.leanback.widget.GuidedAction;
 import androidx.leanback.widget.GuidedDatePickerAction;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.leanback.widget.picker.DatePicker;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;

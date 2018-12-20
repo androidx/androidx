@@ -48,10 +48,10 @@ import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.BaseTestActivity;
 import androidx.appcompat.view.ActionMode;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Rule;
 import org.junit.Test;

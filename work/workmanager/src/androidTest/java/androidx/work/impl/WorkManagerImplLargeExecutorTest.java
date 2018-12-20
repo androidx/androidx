@@ -32,10 +32,10 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.TestLifecycleOwner;
@@ -101,7 +101,7 @@ public class WorkManagerImplLargeExecutorTest {
             }
         });
 
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
         Executor executor = new ThreadPoolExecutor(
                 MIN_POOL_SIZE, MAX_POOL_SIZE, KEEP_ALIVE_TIME, SECONDS, queue);

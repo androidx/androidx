@@ -29,9 +29,9 @@ import android.content.res.TypedArray;
 import android.os.Build;
 
 import androidx.appcompat.test.R;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +59,7 @@ public class ContextThemeWrapperTest {
 
     @Before
     public void setup() {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
     }
 
     @Test

@@ -19,8 +19,8 @@ package androidx.navigation.fragment
 import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.test.R
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.runner.AndroidJUnit4
 import org.junit.runner.RunWith
 
 @SmallTest

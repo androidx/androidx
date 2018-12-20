@@ -51,12 +51,12 @@ import androidx.test.espresso.action.GeneralLocation;
 import androidx.test.espresso.action.GeneralSwipeAction;
 import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Swipe;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.Suppress;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Rule;

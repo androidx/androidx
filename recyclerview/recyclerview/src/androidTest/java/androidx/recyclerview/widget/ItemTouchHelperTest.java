@@ -32,10 +32,10 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.Suppress;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.testutils.PollingCheck;
 
 import org.junit.Test;

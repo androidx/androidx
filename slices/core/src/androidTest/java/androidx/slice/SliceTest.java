@@ -46,10 +46,10 @@ import android.text.style.AbsoluteSizeSpan;
 
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.slice.core.test.R;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +67,7 @@ public class SliceTest {
     public static boolean sFlag = false;
 
     private static final Uri BASE_URI = Uri.parse("content://androidx.slice.core.test/");
-    private final Context mContext = InstrumentationRegistry.getContext();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Test
     public void testProcess() {

@@ -30,9 +30,9 @@ import androidx.room.integration.testapp.vo.IntAutoIncPKeyEntity;
 import androidx.room.integration.testapp.vo.IntegerAutoIncPKeyEntity;
 import androidx.room.integration.testapp.vo.IntegerPKeyEntity;
 import androidx.room.integration.testapp.vo.ObjectPKeyEntity;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -48,7 +48,7 @@ public class PrimaryKeyTest {
 
     @Before
     public void setup() {
-        mDatabase = Room.inMemoryDatabaseBuilder(InstrumentationRegistry.getTargetContext(),
+        mDatabase = Room.inMemoryDatabaseBuilder(ApplicationProvider.getApplicationContext(),
                 PKeyTestDatabase.class).build();
     }
 

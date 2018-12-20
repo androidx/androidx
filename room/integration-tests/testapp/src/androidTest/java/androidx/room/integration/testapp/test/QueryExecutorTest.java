@@ -16,7 +16,7 @@
 
 package androidx.room.integration.testapp.test;
 
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -29,9 +29,9 @@ import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.PetDao;
 import androidx.room.integration.testapp.vo.Pet;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -90,7 +90,7 @@ public class QueryExecutorTest {
 
         mRecordingExecutor = new RecordingExecutor();
         mTestDatabase = Room.inMemoryDatabaseBuilder(
-                InstrumentationRegistry.getContext(),
+                ApplicationProvider.getApplicationContext(),
                 TestDatabase.class)
                 .setQueryExecutor(mRecordingExecutor)
                 .build();

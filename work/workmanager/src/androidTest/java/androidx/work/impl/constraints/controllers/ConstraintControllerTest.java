@@ -26,9 +26,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 
 import android.support.annotation.NonNull;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Constraints;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManagerTest;

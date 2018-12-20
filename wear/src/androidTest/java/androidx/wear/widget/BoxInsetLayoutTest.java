@@ -37,10 +37,10 @@ import android.content.Intent;
 import android.util.DisplayMetrics;
 import android.view.View;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
 
@@ -67,7 +67,7 @@ public class BoxInsetLayoutTest {
     public void testCase1() throws Throwable {
         mActivityRule.launchActivity(new Intent().putExtra(LayoutTestActivity
                 .EXTRA_LAYOUT_RESOURCE_ID, R.layout.box_inset_layout_testcase_1));
-        DisplayMetrics dm = InstrumentationRegistry.getTargetContext().getResources()
+        DisplayMetrics dm = ApplicationProvider.getApplicationContext().getResources()
                 .getDisplayMetrics();
         int boxInset = (int) (FACTOR * Math.min(dm.widthPixels, dm.heightPixels));
 
@@ -118,7 +118,7 @@ public class BoxInsetLayoutTest {
                 new Intent().putExtra(LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
                         R.layout.box_inset_layout_testcase_2));
         DisplayMetrics dm =
-                InstrumentationRegistry.getTargetContext().getResources().getDisplayMetrics();
+                ApplicationProvider.getApplicationContext().getResources().getDisplayMetrics();
         int boxInset = (int) (FACTOR * Math.min(dm.widthPixels, dm.heightPixels));
 
         int desiredPadding = 0;
@@ -228,7 +228,7 @@ public class BoxInsetLayoutTest {
                 new Intent().putExtra(LayoutTestActivity.EXTRA_LAYOUT_RESOURCE_ID,
                         R.layout.box_inset_layout_testcase_3));
         DisplayMetrics dm =
-                InstrumentationRegistry.getTargetContext().getResources().getDisplayMetrics();
+                ApplicationProvider.getApplicationContext().getResources().getDisplayMetrics();
         int boxInset = (int) (FACTOR * Math.min(dm.widthPixels, dm.heightPixels));
 
         int desiredPadding = 0;
@@ -327,7 +327,7 @@ public class BoxInsetLayoutTest {
     public void testCase4() throws Throwable {
         mActivityRule.launchActivity(new Intent().putExtra(LayoutTestActivity
                 .EXTRA_LAYOUT_RESOURCE_ID, R.layout.box_inset_layout_testcase_4));
-        DisplayMetrics dm = InstrumentationRegistry.getTargetContext().getResources()
+        DisplayMetrics dm = ApplicationProvider.getApplicationContext().getResources()
                 .getDisplayMetrics();
         int boxInset = (int) (FACTOR * Math.min(dm.widthPixels, dm.heightPixels));
 

@@ -41,11 +41,12 @@ import androidx.room.integration.testapp.vo.PetsToys;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.integration.testapp.vo.UserAndAllPets;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -308,7 +309,7 @@ public class LiveDataQueryTest extends TestDatabaseTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     public void withFtsTable() throws ExecutionException, InterruptedException, TimeoutException {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         final FtsTestDatabase db = Room.inMemoryDatabaseBuilder(context, FtsTestDatabase.class)
                 .build();
         final MailDao mailDao = db.getMailDao();

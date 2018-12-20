@@ -18,6 +18,8 @@ dependencies {
 
     annotationProcessor(NULLAWAY)
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
 }
 

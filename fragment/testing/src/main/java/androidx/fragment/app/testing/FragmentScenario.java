@@ -45,7 +45,7 @@ import androidx.test.core.app.ActivityScenario;
  * framework.
  * <p>
  * FragmentScenario only supports {@link androidx.fragment.app.Fragment}. If you are using a
- * deprecated fragment class such as {@link android.support.v4.app.Fragment} or
+ * deprecated fragment class such as {@code android.support.v4.app.Fragment} or
  * {@link android.app.Fragment}, please update your code to {@link androidx.fragment.app.Fragment}.
  *
  * @param <F> The Fragment class being tested

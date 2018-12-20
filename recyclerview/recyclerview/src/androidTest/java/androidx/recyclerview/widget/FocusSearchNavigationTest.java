@@ -39,8 +39,8 @@ import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.test.R;
 import androidx.recyclerview.test.RecyclerViewTestActivity;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.hamcrest.BaseMatcher;

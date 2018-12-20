@@ -31,6 +31,8 @@ dependencies {
 
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(JUNIT)
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     testImplementation(project(":arch:core-testing"))

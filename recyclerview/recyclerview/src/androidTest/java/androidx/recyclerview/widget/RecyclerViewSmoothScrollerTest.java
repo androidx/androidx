@@ -25,9 +25,9 @@ import static org.mockito.Mockito.verify;
 
 import android.view.View;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ public class RecyclerViewSmoothScrollerTest {
 
     @Test
     public void stop_whileRunning_isRunningIsFalseInOnStop() {
-        RecyclerView recyclerView = new RecyclerView(InstrumentationRegistry.getContext());
+        RecyclerView recyclerView = new RecyclerView(ApplicationProvider.getApplicationContext());
         RecyclerView.LayoutManager layoutManager = mock(RecyclerView.LayoutManager.class);
         recyclerView.setLayoutManager(layoutManager);
         MockSmoothScroller mockSmoothScroller = spy(new MockSmoothScroller());

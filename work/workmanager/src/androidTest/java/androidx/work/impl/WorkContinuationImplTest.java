@@ -35,10 +35,10 @@ import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Configuration;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
@@ -100,7 +100,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
         lifecycleOwner.mLifecycleRegistry.markState(Lifecycle.State.CREATED);
 
         mScheduler = mock(Scheduler.class);
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         mConfiguration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
                 .build();
@@ -290,7 +290,7 @@ public class WorkContinuationImplTest extends WorkManagerTest {
 
         // TODO(sumir): I can't seem to get this kicked off automatically, so I'm running it myself.
         // Figure out what's going on here.
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         new WorkerWrapper.Builder(
                 context,
                 mConfiguration,

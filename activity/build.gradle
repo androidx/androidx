@@ -23,6 +23,8 @@ dependencies {
     api(project(":savedstate:savedstate-bundle"))
 
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(TRUTH)

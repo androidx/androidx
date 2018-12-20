@@ -30,9 +30,9 @@ import androidx.media2.MediaController;
 import androidx.media2.MediaController.ControllerCallback;
 import androidx.media2.SessionCommandGroup;
 import androidx.media2.SessionToken;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.runner.RunWith;
 

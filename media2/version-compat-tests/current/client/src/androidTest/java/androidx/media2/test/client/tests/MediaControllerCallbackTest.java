@@ -24,8 +24,7 @@ import static androidx.media2.test.common.CommonConstants.DEFAULT_TEST_NAME;
 import static androidx.media2.test.common.CommonConstants.INDEX_FOR_NULL_ITEM;
 import static androidx.media2.test.common.CommonConstants.INDEX_FOR_UNKONWN_ITEM;
 import static androidx.media2.test.common.CommonConstants.MOCK_MEDIA2_LIBRARY_SERVICE;
-import static androidx.media2.test.common.MediaSessionConstants
-        .TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
+import static androidx.media2.test.common.MediaSessionConstants.TEST_CONTROLLER_CALLBACK_SESSION_REJECTS;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -53,10 +52,10 @@ import androidx.media2.SessionToken;
 import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.TestUtils;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;

@@ -17,18 +17,18 @@
 package androidx.navigation
 
 import android.app.Instrumentation
+import android.content.Context
 import android.net.Uri
-
 import androidx.navigation.test.R
 import androidx.navigation.test.TestEnum
 import androidx.navigation.testing.TestNavigatorProvider
-import androidx.test.InstrumentationRegistry
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.runner.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
-
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,7 +45,7 @@ class NavInflaterTest {
 
     @Test
     fun testInflateSimple() {
-        val context = InstrumentationRegistry.getTargetContext()
+        val context = ApplicationProvider.getApplicationContext() as Context
         val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_simple)
 
@@ -55,7 +55,7 @@ class NavInflaterTest {
 
     @Test
     fun testInflateDeepLinkWithApplicationId() {
-        val context = InstrumentationRegistry.getTargetContext()
+        val context = ApplicationProvider.getApplicationContext() as Context
         val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_simple)
 
@@ -81,7 +81,7 @@ class NavInflaterTest {
     @Test
     fun testDefaultArgumentsDimen() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
-        val context = InstrumentationRegistry.getTargetContext()
+        val context = ApplicationProvider.getApplicationContext() as Context
         val expectedValue = context.resources.getDimensionPixelSize(R.dimen.test_dimen_arg)
 
         assertEquals(expectedValue, defaultArguments.get("test_dimen")?.defaultValue)
@@ -95,7 +95,7 @@ class NavInflaterTest {
     @Test
     fun testDefaultArgumentsColor() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
-        val context = InstrumentationRegistry.getTargetContext()
+        val context = ApplicationProvider.getApplicationContext() as Context
         val expectedValue = context.resources.getColor(R.color.test_color_arg)
 
         assertEquals(expectedValue, defaultArguments.get("test_color")?.defaultValue)
@@ -196,7 +196,7 @@ class NavInflaterTest {
 
     @Test
     fun testActionArguments() {
-        val context = InstrumentationRegistry.getTargetContext()
+        val context = ApplicationProvider.getApplicationContext() as Context
         val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_default_arguments)
         val startDestination = graph.findNode(graph.startDestination)
@@ -205,7 +205,7 @@ class NavInflaterTest {
     }
 
     private fun inflateDefaultArgumentsFromGraph(): Map<String, NavArgument> {
-        val context = InstrumentationRegistry.getTargetContext()
+        val context = ApplicationProvider.getApplicationContext() as Context
         val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_default_arguments)
 

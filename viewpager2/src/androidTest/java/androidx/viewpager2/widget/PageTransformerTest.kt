@@ -19,15 +19,15 @@ package androidx.viewpager2.widget
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.runner.AndroidJUnit4
 import androidx.viewpager2.widget.BaseTest.SortOrder.ASC
 import androidx.viewpager2.widget.BaseTest.SortOrder.DESC
 import androidx.viewpager2.widget.PageTransformerTest.Event.OnPageScrolledEvent
 import androidx.viewpager2.widget.PageTransformerTest.Event.TransformPageEvent
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeListener
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeListener
 import androidx.viewpager2.widget.ViewPager2.PageTransformer
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf

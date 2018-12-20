@@ -21,9 +21,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import android.content.Context;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
@@ -52,7 +52,7 @@ public class TestSchedulerTest {
 
     @Before
     public void setUp() {
-        Context context = InstrumentationRegistry.getTargetContext();
+        Context context = ApplicationProvider.getApplicationContext();
         WorkManagerTestInitHelper.initializeTestWorkManager(context);
         mTestDriver = WorkManagerTestInitHelper.getTestDriver();
         CountingTestWorker.COUNT.set(0);

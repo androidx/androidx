@@ -21,21 +21,19 @@ import static android.support.mediacompat.testlib.MediaBrowserConstants.EXTRAS_V
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_CHILDREN;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_CHILDREN_DELAYED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_INVALID;
-import static android.support.mediacompat.testlib.MediaBrowserConstants
-        .MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED;
+import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_ON_LOAD_ITEM_NOT_IMPLEMENTED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.MEDIA_ID_ROOT;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.NOTIFY_CHILDREN_CHANGED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SEND_DELAYED_ITEM_LOADED;
-import static android.support.mediacompat.testlib.MediaBrowserConstants
-        .SEND_DELAYED_NOTIFY_CHILDREN_CHANGED;
+import static android.support.mediacompat.testlib.MediaBrowserConstants.SEND_DELAYED_NOTIFY_CHILDREN_CHANGED;
 import static android.support.mediacompat.testlib.MediaBrowserConstants.SET_SESSION_TOKEN;
 import static android.support.mediacompat.testlib.VersionConstants.KEY_SERVICE_VERSION;
 import static android.support.mediacompat.testlib.util.IntentUtil.SERVICE_PACKAGE_NAME;
 import static android.support.mediacompat.testlib.util.IntentUtil.callMediaBrowserServiceMethod;
 
-import static androidx.test.InstrumentationRegistry.getArguments;
-import static androidx.test.InstrumentationRegistry.getContext;
-import static androidx.test.InstrumentationRegistry.getInstrumentation;
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.test.platform.app.InstrumentationRegistry.getArguments;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -55,11 +53,11 @@ import android.support.mediacompat.testlib.util.PollingCheck;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
@@ -313,7 +311,8 @@ public class MediaBrowserTest {
 
         // Test MediaBrowserService.notifyChildrenChanged()
         mSubscriptionCallback.reset(1);
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
+                getApplicationContext());
         mSubscriptionCallback.await(TIME_OUT_MS);
         assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
 
@@ -323,7 +322,8 @@ public class MediaBrowserTest {
 
         // After unsubscribing, make StubMediaBrowserService notify that the children are
         // changed.
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
+                getApplicationContext());
         mSubscriptionCallback.await(WAIT_TIME_FOR_NO_RESPONSE_MS);
 
         // onChildrenLoaded should not be called.
@@ -362,7 +362,8 @@ public class MediaBrowserTest {
 
             // Test MediaBrowserService.notifyChildrenChanged()
             mSubscriptionCallback.reset(page + 1);
-            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
+                    getApplicationContext());
             mSubscriptionCallback.await(TIME_OUT_MS);
             assertEquals(page + 1, mSubscriptionCallback.mChildrenLoadedWithOptionCount);
         }
@@ -373,7 +374,8 @@ public class MediaBrowserTest {
 
         // After unsubscribing, make StubMediaBrowserService notify that the children are
         // changed.
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
+                getApplicationContext());
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
@@ -395,7 +397,8 @@ public class MediaBrowserTest {
         assertEquals(0, mSubscriptionCallback.mChildrenLoadedCount);
 
         callMediaBrowserServiceMethod(
-                SEND_DELAYED_NOTIFY_CHILDREN_CHANGED, MEDIA_ID_CHILDREN_DELAYED, getContext());
+                SEND_DELAYED_NOTIFY_CHILDREN_CHANGED, MEDIA_ID_CHILDREN_DELAYED,
+                getApplicationContext());
         mSubscriptionCallback.await(TIME_OUT_MS);
         assertEquals(1, mSubscriptionCallback.mChildrenLoadedCount);
     }
@@ -466,7 +469,8 @@ public class MediaBrowserTest {
 
         // After unsubscribing, make StubMediaBrowserService notify that the children are
         // changed.
-        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+        callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
+                getApplicationContext());
         try {
             Thread.sleep(SLEEP_MS);
         } catch (InterruptedException e) {
@@ -517,7 +521,8 @@ public class MediaBrowserTest {
                     subscriptionCallbacks.get(orderOfRemovingCallbacks[i]));
 
             // Make StubMediaBrowserService notify that the children are changed.
-            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT, getContext());
+            callMediaBrowserServiceMethod(NOTIFY_CHILDREN_CHANGED, MEDIA_ID_ROOT,
+                    getApplicationContext());
             try {
                 Thread.sleep(SLEEP_MS);
             } catch (InterruptedException e) {
@@ -561,7 +566,8 @@ public class MediaBrowserTest {
             assertNull(mItemCallback.mLastMediaItem);
 
             mItemCallback.reset();
-            callMediaBrowserServiceMethod(SEND_DELAYED_ITEM_LOADED, new Bundle(), getContext());
+            callMediaBrowserServiceMethod(SEND_DELAYED_ITEM_LOADED, new Bundle(),
+                    getApplicationContext());
             mItemCallback.mWaitLock.wait(TIME_OUT_MS);
             assertNotNull(mItemCallback.mLastMediaItem);
             assertEquals(MEDIA_ID_CHILDREN_DELAYED, mItemCallback.mLastMediaItem.getMediaId());
@@ -623,7 +629,7 @@ public class MediaBrowserTest {
             callback.mWaitLock.wait(WAIT_TIME_FOR_NO_RESPONSE_MS);
             assertEquals(0, callback.mConnectedCount);
 
-            callMediaBrowserServiceMethod(SET_SESSION_TOKEN, new Bundle(), getContext());
+            callMediaBrowserServiceMethod(SET_SESSION_TOKEN, new Bundle(), getApplicationContext());
             callback.mWaitLock.wait(TIME_OUT_MS);
             assertEquals(1, callback.mConnectedCount);
         }

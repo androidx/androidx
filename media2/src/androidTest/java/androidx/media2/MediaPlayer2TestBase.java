@@ -39,7 +39,7 @@ import android.view.WindowManager;
 import androidx.annotation.CallSuper;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.TestUtils.Monitor;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;

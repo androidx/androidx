@@ -12,6 +12,8 @@ dependencies {
     api(project(":core"))
     api("androidx.customview:customview:1.0.0")
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)
@@ -23,6 +25,8 @@ dependencies {
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
+    testImplementation(TEST_EXT_JUNIT)
+    testImplementation(TEST_CORE)
     testImplementation(TEST_RUNNER)
 }
 

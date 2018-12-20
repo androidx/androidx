@@ -16,8 +16,7 @@
 
 package androidx.vectordrawable.graphics.drawable.tests;
 
-import static androidx.vectordrawable.graphics.drawable.tests.DrawableUtils
-        .saveVectorDrawableIntoPNG;
+import static androidx.vectordrawable.graphics.drawable.tests.DrawableUtils.saveVectorDrawableIntoPNG;
 
 import static org.junit.Assert.assertTrue;
 
@@ -27,8 +26,8 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 
-import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;

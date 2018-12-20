@@ -22,8 +22,8 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.LayoutParams
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.runner.AndroidJUnit4
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import org.hamcrest.Matchers.containsString
 import org.junit.Assert.assertThat

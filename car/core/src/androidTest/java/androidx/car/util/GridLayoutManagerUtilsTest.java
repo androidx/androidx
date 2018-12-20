@@ -35,12 +35,12 @@ import androidx.car.widget.PagedListView;
 import androidx.car.widget.PagedListViewTestActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingResource;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Assume;

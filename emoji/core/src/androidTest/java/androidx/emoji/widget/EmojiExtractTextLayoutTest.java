@@ -40,11 +40,11 @@ import android.view.inputmethod.EditorInfo;
 
 import androidx.emoji.R;
 import androidx.emoji.text.EmojiCompat;
-import androidx.test.InstrumentationRegistry;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -70,7 +70,7 @@ public class EmojiExtractTextLayoutTest {
     @Test
     @UiThreadTest
     public void testInflate() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
                 .inflate(androidx.emoji.test.R.layout.extract_view, null);
 
@@ -90,7 +90,7 @@ public class EmojiExtractTextLayoutTest {
     @Test
     @UiThreadTest
     public void testSetKeyListener_withNull() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
                 .inflate(androidx.emoji.test.R.layout.extract_view, null);
 
@@ -105,7 +105,7 @@ public class EmojiExtractTextLayoutTest {
     @Test
     @UiThreadTest
     public void testSetEmojiReplaceStrategy() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
 
         final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
                 .inflate(androidx.emoji.test.R.layout.extract_view_with_attrs, null);
@@ -127,7 +127,7 @@ public class EmojiExtractTextLayoutTest {
     @UiThreadTest
     @SdkSuppress(minSdkVersion = 19)
     public void testSetEmojiReplaceStrategyCallEmojiCompatWithCorrectStrategy() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
 
         final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
                 .inflate(androidx.emoji.test.R.layout.extract_view_with_attrs, null);
@@ -152,7 +152,7 @@ public class EmojiExtractTextLayoutTest {
     @Test
     @UiThreadTest
     public void testOnUpdateExtractingViews() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
                 .inflate(androidx.emoji.test.R.layout.extract_view, null);
 
@@ -180,7 +180,7 @@ public class EmojiExtractTextLayoutTest {
     @Test
     @UiThreadTest
     public void testOnUpdateExtractingViews_hidesAccessoriesIfNoAction() {
-        final Context context = InstrumentationRegistry.getTargetContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         final EmojiExtractTextLayout layout = (EmojiExtractTextLayout) LayoutInflater.from(context)
                 .inflate(androidx.emoji.test.R.layout.extract_view, null);
 

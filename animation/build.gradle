@@ -26,7 +26,7 @@ dependencies {
     implementation(project(":annotation"))
     implementation(project(":core"))
 
-    androidTestImplementation(TEST_RUNNER, libs.exclude_for_espresso)
+    androidTestImplementation(TEST_EXT_JUNIT, libs.exclude_for_espresso)
     androidTestImplementation(TEST_RULES, libs.exclude_for_espresso)
 }
 

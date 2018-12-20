@@ -28,6 +28,8 @@ dependencies {
     androidTestImplementation(project(":slice-builders"))
     androidTestImplementation(project(":benchmark"))
     androidTestImplementation(JUNIT)
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(ESPRESSO_CORE, libs.exclude_for_espresso)

@@ -27,6 +27,8 @@ dependencies {
     api(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.concurrent:concurrent-futures:1.0.0-alpha02")
 
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker

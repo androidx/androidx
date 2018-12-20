@@ -27,6 +27,8 @@ dependencies {
     androidTestImplementation(project(":navigation:navigation-runtime"))
     androidTestImplementation(project(":navigation:navigation-testing"))
     androidTestImplementation(JUNIT)
+    androidTestImplementation(TEST_EXT_JUNIT)
+    androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
     androidTestImplementation(KOTLIN_STDLIB)

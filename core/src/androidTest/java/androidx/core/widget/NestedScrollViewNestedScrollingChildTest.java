@@ -40,9 +40,9 @@ import androidx.annotation.Nullable;
 import androidx.core.view.NestedScrollingChild3;
 import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
-import androidx.test.runner.AndroidJUnit4;
 import androidx.testutils.Direction;
 import androidx.testutils.FlingData;
 import androidx.testutils.MotionEventData;
@@ -74,15 +74,16 @@ public class NestedScrollViewNestedScrollingChildTest {
 
         // Create views
 
-        View child = new View(InstrumentationRegistry.getContext());
+        View child = new View(ApplicationProvider.getApplicationContext());
         child.setMinimumWidth(1000);
         child.setMinimumHeight(1100);
 
-        mNestedScrollView = new NestedScrollView(InstrumentationRegistry.getContext());
+        mNestedScrollView = new NestedScrollView(ApplicationProvider.getApplicationContext());
         mNestedScrollView.setMinimumWidth(1000);
         mNestedScrollView.setMinimumHeight(1000);
 
-        mParentSpy = Mockito.spy(new NestedScrollingSpyView(InstrumentationRegistry.getContext()));
+        mParentSpy = Mockito.spy(
+                new NestedScrollingSpyView(ApplicationProvider.getApplicationContext()));
         mParentSpy.setMinimumWidth(1000);
         mParentSpy.setMinimumHeight(1000);
 
@@ -159,7 +160,8 @@ public class NestedScrollViewNestedScrollingChildTest {
         when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
                 .thenReturn(true);
         int touchSlop =
-                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300 - touchSlop, 0);
@@ -176,7 +178,8 @@ public class NestedScrollViewNestedScrollingChildTest {
         when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
                 .thenReturn(true);
         int touchSlop =
-                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 450 - touchSlop, 0);
@@ -201,7 +204,8 @@ public class NestedScrollViewNestedScrollingChildTest {
         when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
                 .thenReturn(true);
         int touchSlop =
-                ViewConfiguration.get(InstrumentationRegistry.getContext()).getScaledTouchSlop();
+                ViewConfiguration.get(
+                        ApplicationProvider.getApplicationContext()).getScaledTouchSlop();
         MotionEvent down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500, 500, 0);
         MotionEvent move =
                 MotionEvent.obtain(0, 100, MotionEvent.ACTION_MOVE, 500, 300, 0);
@@ -255,7 +259,7 @@ public class NestedScrollViewNestedScrollingChildTest {
         when(mParentSpy.onStartNestedScroll(any(View.class), any(View.class), anyInt(), anyInt()))
                 .thenReturn(true);
 
-        final Context context = InstrumentationRegistry.getContext();
+        final Context context = ApplicationProvider.getApplicationContext();
         FlingData flingData = SimpleGestureGeneratorKt.generateFlingData(context);
 
         final long firstDownTime = SystemClock.uptimeMillis();

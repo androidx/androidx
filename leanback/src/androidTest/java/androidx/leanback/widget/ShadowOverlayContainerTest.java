@@ -24,9 +24,9 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import androidx.test.InstrumentationRegistry;
+import androidx.test.core.app.ApplicationProvider;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,7 @@ public class ShadowOverlayContainerTest {
 
     @Before
     public void setup() throws Exception {
-        mContext = InstrumentationRegistry.getTargetContext();
+        mContext = ApplicationProvider.getApplicationContext();
     }
 
     @Test
