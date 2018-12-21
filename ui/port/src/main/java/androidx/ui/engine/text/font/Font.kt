@@ -19,9 +19,11 @@ package androidx.ui.engine.text.font
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
 
+// TODO(Migration/siyamed): might need nullable defaults for FontWeight and FontStyle which
+// would mean read the weight and style from the font.
 data class Font(
     val name: String,
-    val weight: FontWeight = FontWeight.w400,
+    val weight: FontWeight = FontWeight.normal,
     val style: FontStyle = FontStyle.normal,
     // TODO(Migration/siyamed): add test
     val ttcIndex: Int = 0,

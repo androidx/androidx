@@ -16,12 +16,23 @@
 
 package androidx.ui.engine.text.font
 
-data class FontFamily(val fonts: List<Font>) : List<Font> by fonts {
-    constructor(font: Font) : this(listOf(font))
-    constructor(vararg fonts: Font) : this(fonts.asList())
+import android.content.Context
+
+// TODO(migration/siyamed): ADD COMMON GENERIC FONT FAMILY NAMES ENUMS
+data class FontFamily private constructor(val genericFamily: String?, val fonts: List<Font>) :
+    List<Font> by fonts {
+    constructor(genericFamily: String) : this(genericFamily, listOf())
+    constructor(font: Font) : this(null, listOf(font))
+    constructor(fonts: List<Font>) : this(null, fonts)
+    constructor(vararg fonts: Font) : this(null, fonts.asList())
+
+    // TODO(migration/siyamed) this should be in an subclass or platform actual class
+    lateinit var context: Context
 
     init {
-        assert(fonts.size > 0) { "At least one font is required in FontFamily" }
+        assert(genericFamily != null || fonts.size > 0) {
+            "Either genericFamily or at least one font should be passed to FontFamily"
+        }
         assert(fonts.distinctBy { Pair(it.weight, it.style) }.size == fonts.size) {
             "There cannot be two fonts with the same FontWeight and FontStyle in the same " +
                     "FontFamily"

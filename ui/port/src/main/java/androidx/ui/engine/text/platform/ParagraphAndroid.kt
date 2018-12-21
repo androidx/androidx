@@ -22,6 +22,7 @@ import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
+import androidx.annotation.VisibleForTesting
 import androidx.text.LayoutCompat.ALIGN_CENTER
 import androidx.text.LayoutCompat.ALIGN_LEFT
 import androidx.text.LayoutCompat.ALIGN_NORMAL
@@ -38,6 +39,8 @@ import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
 import androidx.text.style.LetterSpacingSpan
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAffinity
@@ -53,10 +56,12 @@ import kotlin.math.roundToInt
 internal class ParagraphAndroid constructor(
     val text: StringBuilder,
     val paragraphStyle: ParagraphStyle,
-    val textStyles: List<ParagraphBuilder.TextStyleIndex>
+    val textStyles: List<ParagraphBuilder.TextStyleIndex>,
+    val typefaceAdapter: TypefaceAdapter = TypefaceAdapter()
 ) {
 
-    private val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+    @VisibleForTesting
+    internal val textPaint = TextPaint(android.graphics.Paint.ANTI_ALIAS_FLAG)
     private var layout: TextLayout? = null
 
     // TODO(Migration/siyamed): width having -1 but others having 0 as default value is counter
@@ -111,8 +116,15 @@ internal class ParagraphAndroid constructor(
             textPaint.textSize = it.toFloat()
         }
 
-        paragraphStyle.fontFamily?.typeface?.let {
-            textPaint.typeface = it
+        // TODO: This default values are problem here. If the user just gives a single font
+        // in the family, and does not provide any fontWeight, TypefaceAdapter will still get the
+        // call as FontWeight.normal (which is the default value)
+        if (paragraphStyle.hasFontAttributes()) {
+            textPaint.typeface = typefaceAdapter.create(
+                fontFamily = paragraphStyle.fontFamily,
+                fontWeight = paragraphStyle.fontWeight ?: FontWeight.normal,
+                fontStyle = paragraphStyle.fontStyle ?: FontStyle.normal
+            )
         }
 
         paragraphStyle.locale?.let {

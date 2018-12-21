@@ -28,7 +28,6 @@ import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.FontMatcher
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.text.platform.TypefaceAdapter
-import androidx.ui.port.bitmap
 import androidx.ui.port.engine.text.FontTestData.Companion.FONT_100_ITALIC
 import androidx.ui.port.engine.text.FontTestData.Companion.FONT_100_REGULAR
 import androidx.ui.port.engine.text.FontTestData.Companion.FONT_200_ITALIC

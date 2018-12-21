@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.engine.text
+package androidx.ui.port.engine.text
 
-import android.graphics.Typeface
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import androidx.ui.engine.text.Paragraph
+import kotlin.math.ceil
 
-// TODO(Migration/siyamed): shall this accept a string?
-// TODO(Migration/siyamed): can we have access to context?
-class FontFallback(val typeface: Typeface? = null) {
-    override fun toString(): String {
-        return "FontFallback(${if (typeface == null) "unspecified" else typeface.toString()})"
-    }
+// TODO(Migration/siyamed): This should return platform independent bitmap but we dont have it yet
+fun Paragraph.bitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(
+        ceil(this.width).toInt(),
+        ceil(this.height).toInt(),
+        Bitmap.Config.ARGB_8888
+    )
+    this.paint(androidx.ui.painting.Canvas(Canvas(bitmap)), 0.0, 0.0)
+    return bitmap
 }

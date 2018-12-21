@@ -14,17 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.ui.port.engine.text
+package androidx.ui.engine.text.font
 
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
-import androidx.ui.engine.text.font.Font
 
 class FontTestData {
     companion object {
         val BASIC_MEASURE_FONT = Font(
             name = "sample_font.ttf",
-            weight = FontWeight.normal,
+            weight = FontWeight.w100,
             style = FontStyle.normal
         )
 

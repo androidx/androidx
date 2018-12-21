@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Typeface
 import android.os.Build
+import androidx.annotation.VisibleForTesting
 import androidx.core.content.res.ResourcesCompat
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
@@ -34,7 +35,38 @@ import androidx.ui.engine.text.font.FontMatcher
  *                    constraints to select a [Font] from a [FontFamily]
  */
 // TODO: functions here can also be extension functions on Typeface too
-internal class TypefaceAdapter constructor(val fontMatcher: FontMatcher = FontMatcher()) {
+// TODO: font matcher should be at an upper layer such as PAragraph, whoever will call
+// TypefaceAdapter can know about a single font
+internal open class TypefaceAdapter constructor(val fontMatcher: FontMatcher = FontMatcher()) {
+
+    /**
+     * Creates a Typeface based on the [fontFamily] and the selection constraints [fontStyle] and
+     * [fontWeight].
+     *
+     * @param fontFamily [FontFamily] that defines the system family or a set of custom fonts
+     * @param fontWeight the font weight to create the typeface in
+     * @param fontStyle the font style to create the typeface in
+     */
+    open fun create(
+        fontFamily: FontFamily?,
+        fontWeight: FontWeight = FontWeight.normal,
+        fontStyle: FontStyle = FontStyle.normal
+    ): Typeface {
+        return if (fontFamily != null && fontFamily.isNotEmpty()) {
+            create(
+                fontFamily = fontFamily,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle,
+                context = fontFamily.context
+            )
+        } else {
+            create(
+                genericFontFamily = fontFamily?.genericFamily,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle
+            )
+        }
+    }
 
     /**
      * Creates a Typeface object based on the system installed fonts. [genericFontFamily] is used
@@ -48,7 +80,8 @@ internal class TypefaceAdapter constructor(val fontMatcher: FontMatcher = FontMa
      * @param fontWeight the font weight to create the typeface in
      * @param fontStyle the font style to create the typeface in
      */
-    fun create(
+    @VisibleForTesting
+    internal fun create(
         genericFontFamily: String? = null,
         fontWeight: FontWeight = FontWeight.normal,
         fontStyle: FontStyle = FontStyle.normal
@@ -102,7 +135,8 @@ internal class TypefaceAdapter constructor(val fontMatcher: FontMatcher = FontMa
      * @param context [Context] instance
      * @param resources [Resources] instance
      */
-    fun create(
+    @VisibleForTesting
+    internal fun create(
         fontStyle: FontStyle = FontStyle.normal,
         fontWeight: FontWeight = FontWeight.normal,
         fontFamily: FontFamily,

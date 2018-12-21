@@ -13,28 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.port
+
+package androidx.ui.port.engine.text.platform
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Typeface
 import android.text.Layout
-import androidx.ui.engine.text.FontFallback
-import androidx.ui.engine.text.Paragraph
-import androidx.ui.engine.text.ParagraphConstraints
-import androidx.ui.engine.text.ParagraphStyle
+import android.text.TextPaint
+import androidx.text.TextLayout
 import androidx.ui.engine.text.platform.ParagraphAndroid
 import kotlin.math.ceil
-
-fun Paragraph.bitmap(): Bitmap {
-    val bitmap = Bitmap.createBitmap(
-        ceil(this.width).toInt(),
-        ceil(this.height).toInt(),
-        Bitmap.Config.ARGB_8888
-    )
-    this.paint(androidx.ui.painting.Canvas(Canvas(bitmap)), 0.0, 0.0)
-    return bitmap
-}
 
 internal fun ParagraphAndroid.bitmap(): Bitmap {
     val bitmap = Bitmap.createBitmap(
@@ -61,16 +50,15 @@ fun Typeface.bitmap(): Bitmap {
 }
 
 fun Typeface.bitmap(text: String): Bitmap {
-    val fontSize = 10.0
-    val paragraph = Paragraph(
-        text = StringBuilder(text),
-        textStyles = listOf(),
-        paragraphStyle = ParagraphStyle(
-            fontSize = fontSize,
-            fontFamily = FontFallback(this)
-        )
-    )
+    val fontSize = 10.0f
+    val paint = TextPaint()
+    paint.textSize = fontSize
+    paint.typeface = this
     // 1.5 is a random number to increase the size of bitmap a little
-    paragraph.layout(ParagraphConstraints(width = text.length * fontSize * 1.5))
-    return paragraph.bitmap()
+    val layout = TextLayout(
+        charSequence = text,
+        textPaint = paint,
+        width = text.length * fontSize * 1.5
+    )
+    return layout.layout.bitmap()
 }

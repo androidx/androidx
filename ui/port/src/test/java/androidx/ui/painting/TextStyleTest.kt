@@ -16,8 +16,6 @@
 
 package androidx.ui.painting
 
-import android.graphics.Typeface
-import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphStyle
@@ -26,6 +24,7 @@ import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDecorationStyle
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.painting.basictypes.RenderComparison
 import com.google.common.truth.Truth.assertThat
@@ -193,7 +192,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized fontFamily`() {
-        val fontFamily = FontFallback(typeface = Typeface.SANS_SERIF)
+        val fontFamily = FontFamily(genericFamily = "sans-serif")
 
         val textStyle = TextStyle(fontFamily = fontFamily)
 
@@ -267,7 +266,7 @@ class TextStyleTest {
     @Test
     fun `apply with fontFamily`() {
         val textStyle = TextStyle()
-        val fontFamily = FontFallback(typeface = Typeface.SANS_SERIF)
+        val fontFamily = FontFamily(genericFamily = "sans-serif")
 
         val newTextStyle = textStyle.apply(fontFamily = fontFamily)
 
@@ -388,7 +387,7 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontFamily is null should use this' fontFamily`() {
-        val fontFamily = FontFallback(Typeface.SANS_SERIF)
+        val fontFamily = FontFamily(genericFamily = "sans-serif")
         val textStyle = TextStyle(fontFamily = fontFamily)
         val otherTextStyle = TextStyle()
 
@@ -399,8 +398,8 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's fontFamily is set should use other's fontFamily`() {
-        val fontFamily = FontFallback(Typeface.SANS_SERIF)
-        val otherFontFamily = FontFallback(Typeface.SERIF)
+        val fontFamily = FontFamily(genericFamily = "sans-serif")
+        val otherFontFamily = FontFamily(genericFamily = "serif")
         val textStyle = TextStyle(fontFamily = fontFamily)
         val otherTextStyle = TextStyle(fontFamily = otherFontFamily)
 
@@ -812,7 +811,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontFamily with a is Null and t is smaller than half`() {
-        val fontFamily = FontFallback(typeface = Typeface.SANS_SERIF)
+        val fontFamily = FontFamily(genericFamily = "sans-serif")
         val t = 0.3
         val textStyle = TextStyle(fontFamily = fontFamily)
 
@@ -823,7 +822,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontFamily with a is Null and t is larger than half`() {
-        val fontFamily = FontFallback(typeface = Typeface.SANS_SERIF)
+        val fontFamily = FontFamily(genericFamily = "sans-serif")
         val t = 0.7
         val textStyle = TextStyle(fontFamily = fontFamily)
 
@@ -834,7 +833,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontFamily with b is Null and t is smaller than half`() {
-        val fontFamily = FontFallback(typeface = Typeface.SANS_SERIF)
+        val fontFamily = FontFamily(genericFamily = "sans-serif")
         val t = 0.3
         val textStyle = TextStyle(fontFamily = fontFamily)
 
@@ -845,7 +844,7 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontFamily with b is Null and t is larger than half`() {
-        val fontFamily = FontFallback(typeface = Typeface.SANS_SERIF)
+        val fontFamily = FontFamily(genericFamily = "sans-serif")
         val t = 0.7
         val textStyle = TextStyle(fontFamily = fontFamily)
 
@@ -856,8 +855,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontFamily with a and b are not Null and t is smaller than half`() {
-        val fontFamily1 = FontFallback(typeface = Typeface.SANS_SERIF)
-        val fontFamily2 = FontFallback(typeface = Typeface.SERIF)
+        val fontFamily1 = FontFamily(genericFamily = "sans-serif")
+        val fontFamily2 = FontFamily(genericFamily = "serif")
         val t = 0.3
         val textStyle1 = TextStyle(
             fontFamily = fontFamily1,
@@ -881,8 +880,8 @@ class TextStyleTest {
 
     @Test
     fun `lerp fontFamily with a and b are not Null and t is larger than half`() {
-        val fontFamily1 = FontFallback(typeface = Typeface.SANS_SERIF)
-        val fontFamily2 = FontFallback(typeface = Typeface.SERIF)
+        val fontFamily1 = FontFamily(genericFamily = "sans-serif")
+        val fontFamily2 = FontFamily(genericFamily = "serif")
         val t = 0.8
         val textStyle1 = TextStyle(
             fontFamily = fontFamily1,
@@ -2136,7 +2135,7 @@ class TextStyleTest {
             decorationColor = color,
             decorationStyle = TextDecorationStyle.dashed,
             debugLabel = "foo",
-            fontFamily = FontFallback(typeface = Typeface.SANS_SERIF)
+            fontFamily = FontFamily(genericFamily = "sans-serif")
         )
 
         assertThat(
@@ -2145,7 +2144,7 @@ class TextStyleTest {
             .isEqualTo(RenderComparison.LAYOUT)
         assertThat(
             textStyle.compareTo(
-                textStyle.copy(fontFamily = FontFallback(typeface = Typeface.MONOSPACE))
+                textStyle.copy(fontFamily = FontFamily(genericFamily = "monospace"))
             )
         )
             .isEqualTo(RenderComparison.LAYOUT)
@@ -2205,7 +2204,7 @@ class TextStyleTest {
             decorationColor = color1,
             decorationStyle = TextDecorationStyle.dashed,
             debugLabel = "foo",
-            fontFamily = FontFallback(typeface = Typeface.SANS_SERIF)
+            fontFamily = FontFamily(genericFamily = "sans-serif")
         )
 
         assertThat(

@@ -15,13 +15,10 @@
  */
 package androidx.ui.port.engine.text
 
-import android.app.Instrumentation
-import android.graphics.Typeface
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Offset
-import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.Paragraph
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphConstraints
@@ -31,8 +28,10 @@ import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.text.TextStyle
+import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.window.Locale
-import androidx.ui.port.bitmap
+import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.port.matchers.equalToBitmap
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
@@ -47,18 +46,16 @@ import org.junit.runners.JUnit4
 class ParagraphTest {
     // TODO(Migration/haoyuchang): These native calls should be removed after the
     // counterparts are implemented in crane.
-    private lateinit var instrumentation: Instrumentation
-    private lateinit var fontFallback: FontFallback
+    private lateinit var fontFamily: FontFamily
 
     @Before
     fun setup() {
-        instrumentation = InstrumentationRegistry.getInstrumentation()
         // This sample font provides the following features:
         // 1. The width of most of visible characters equals to font size.
         // 2. The LTR/RTL characters are rendered as ▶/◀.
         // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
-        val font = Typeface.createFromAsset(instrumentation.context.assets, "sample_font.ttf")!!
-        fontFallback = FontFallback(font)
+        fontFamily = BASIC_MEASURE_FONT.asFontFamily()
+        fontFamily.context = InstrumentationRegistry.getInstrumentation().context
     }
 
     @Test
@@ -942,7 +939,7 @@ class ParagraphTest {
                 textAlign = textAlign,
                 textDirection = textDirection,
                 maxLines = maxLines,
-                fontFamily = fontFallback,
+                fontFamily = fontFamily,
                 fontSize = fontSize,
                 lineHeight = lineHeight
             )

@@ -16,15 +16,15 @@
 
 package androidx.ui.port.rendering
 
-import android.app.Instrumentation
-import android.graphics.Typeface
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Size
-import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
+import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.rendering.paragraph.RenderParagraph
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -37,21 +37,19 @@ import kotlin.math.floor
 @RunWith(JUnit4::class)
 @SmallTest
 class RenderParagraphTest {
-    private lateinit var instrumentation: Instrumentation
-    private lateinit var fontFallback: FontFallback
+    private lateinit var fontFamily: FontFamily
 
     @Before
     fun setup() {
-        instrumentation = InstrumentationRegistry.getInstrumentation()
-        val font = Typeface.createFromAsset(instrumentation.context.assets, "sample_font.ttf")!!
-        fontFallback = FontFallback(font)
+        fontFamily = BASIC_MEASURE_FONT.asFontFamily()
+        fontFamily.context = InstrumentationRegistry.getInstrumentation().context
     }
 
     @Test
     fun computeMinIntrinsicWidth_returnMinWidth() {
         val fontSize = 20.0
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
 
@@ -62,7 +60,7 @@ class RenderParagraphTest {
     fun computeMaxIntrinsicWidth_returnParagraphWidth() {
         val fontSize = 20.0
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
 
@@ -73,7 +71,7 @@ class RenderParagraphTest {
     fun computeIntrinsicHeight_wrap() {
         val fontSize = 16.8
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
         val maxWidth = 38.0
@@ -93,7 +91,7 @@ class RenderParagraphTest {
     fun computeIntrinsicHeight_not_wrap() {
         val fontSize = 20.0
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph =
             RenderParagraph(text = textSpan, textDirection = TextDirection.LTR, softWrap = false)
@@ -106,7 +104,7 @@ class RenderParagraphTest {
     fun textSizeGetter() {
         val fontSize = 20.0
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
 

@@ -15,6 +15,7 @@
  */
 package androidx.ui.engine.text
 
+import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
@@ -58,7 +59,7 @@ class ParagraphStyleTest {
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val maxLines = 2
-        val fontFamily = FontFallback()
+        val fontFamily = FontFamily("sans-serif")
         val fontSize = 1.0
         val lineHeight = 2.0
         val ellipsis = "dot dot"
@@ -121,7 +122,7 @@ class ParagraphStyleTest {
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val maxLines = 2
-        val fontFamily = FontFallback()
+        val fontFamily = FontFamily("sans-serif")
         val fontSize = 1.0
         val lineHeight = 2.0
         val ellipsis = "dot dot"

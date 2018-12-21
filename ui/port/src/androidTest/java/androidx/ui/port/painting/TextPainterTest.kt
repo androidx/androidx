@@ -16,17 +16,17 @@
 
 package androidx.ui.port.painting
 
-import android.app.Instrumentation
-import android.graphics.Typeface
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Size
-import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.painting.TextPainter
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
+import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -37,21 +37,19 @@ import org.junit.runners.JUnit4
 @SmallTest
 class TextPainterTest {
 
-    private lateinit var instrumentation: Instrumentation
-    private lateinit var fontFallback: FontFallback
+    private lateinit var fontFamily: FontFamily
 
     @Before
     fun setup() {
-        instrumentation = InstrumentationRegistry.getInstrumentation()
-        val font = Typeface.createFromAsset(instrumentation.context.assets, "sample_font.ttf")!!
-        fontFallback = FontFallback(font)
+        fontFamily = BASIC_MEASURE_FONT.asFontFamily()
+        fontFamily.context = InstrumentationRegistry.getInstrumentation().context
     }
 
     @Test
     fun preferredLineHeight_style_set() {
         val fontSize = 20.0
         val scaleFactor = 3.0
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = "Hello", style = textStyle)
         val textPainter = TextPainter(text = textSpan, textScaleFactor = scaleFactor)
 
@@ -77,7 +75,7 @@ class TextPainterTest {
     fun minIntrinsicWidth_getter() {
         val fontSize = 20.0
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
 
@@ -90,7 +88,7 @@ class TextPainterTest {
     fun maxIntrinsicWidth_getter() {
         val fontSize = 20.0
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
 
@@ -103,7 +101,7 @@ class TextPainterTest {
     fun width_getter() {
         val fontSize = 20.0
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
 
@@ -115,7 +113,7 @@ class TextPainterTest {
     @Test
     fun height_getter() {
         val fontSize = 20.0
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = "Hello", style = textStyle)
         val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
 
@@ -128,7 +126,7 @@ class TextPainterTest {
     fun size_getter() {
         val fontSize = 20.0
         val text = "Hello"
-        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFallback)
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
 
@@ -140,7 +138,7 @@ class TextPainterTest {
 
     @Test
     fun computeDistanceToActualBaseline_alphabetic() {
-        val textStyle = TextStyle(fontFamily = fontFallback)
+        val textStyle = TextStyle(fontFamily = fontFamily)
         val textSpan = TextSpan(style = textStyle)
         val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
 
@@ -152,7 +150,7 @@ class TextPainterTest {
 
     @Test
     fun computeDistanceToActualBaseline_ideographic() {
-        val textStyle = TextStyle(fontFamily = fontFallback)
+        val textStyle = TextStyle(fontFamily = fontFamily)
         val textSpan = TextSpan(style = textStyle)
         val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
 

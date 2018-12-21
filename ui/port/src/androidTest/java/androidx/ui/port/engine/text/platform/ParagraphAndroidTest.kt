@@ -1,8 +1,6 @@
 package androidx.ui.port.engine.text.platform
 
-import android.app.Instrumentation
 import android.graphics.Paint
-import android.graphics.Typeface
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
@@ -12,19 +10,33 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.StaticLayoutCompat
 import androidx.text.style.LetterSpacingSpan
-import androidx.ui.engine.text.FontFallback
+import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextStyle
+import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.text.platform.ParagraphAndroid
+import androidx.ui.engine.text.platform.TypefaceAdapter
 import androidx.ui.painting.Color
-import androidx.ui.port.bitmap
+import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.port.matchers.equalToBitmap
 import androidx.ui.port.matchers.hasSpan
 import androidx.ui.port.matchers.hasSpanOnTop
+import androidx.ui.port.matchers.isTypefaceOf
+import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.eq
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.never
+import com.nhaarman.mockitokotlin2.spy
+import com.nhaarman.mockitokotlin2.times
+import com.nhaarman.mockitokotlin2.verify
 import org.hamcrest.Matchers.equalTo
+import org.hamcrest.Matchers.not
+import org.hamcrest.Matchers.nullValue
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -35,18 +47,16 @@ import kotlin.math.ceil
 @RunWith(JUnit4::class)
 @SmallTest
 class ParagraphAndroidTest {
-    private lateinit var instrumentation: Instrumentation
-    private lateinit var fontFallback: FontFallback
+    private lateinit var fontFamily: FontFamily
 
     @Before
     fun setup() {
-        instrumentation = InstrumentationRegistry.getInstrumentation()
         // This sample font provides the following features:
         // 1. The width of most of visible characters equals to font size.
         // 2. The LTR/RTL characters are rendered as ▶/◀.
         // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
-        val font = Typeface.createFromAsset(instrumentation.context.assets, "sample_font.ttf")!!
-        fontFallback = FontFallback(font)
+        fontFamily = BASIC_MEASURE_FONT.asFontFamily()
+        fontFamily.context = InstrumentationRegistry.getInstrumentation().context
     }
 
     @Test
@@ -55,7 +65,8 @@ class ParagraphAndroidTest {
         for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
             val paragraphAndroid = simpleParagraph(
                 text = StringBuilder(text),
-                fontSize = fontSize
+                fontSize = fontSize,
+                fontFamily = fontFamily
             )
 
             // 2 chars width
@@ -63,7 +74,7 @@ class ParagraphAndroidTest {
 
             val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
             textPaint.textSize = fontSize.toFloat()
-            textPaint.typeface = fontFallback.typeface
+            textPaint.typeface = TypefaceAdapter().create(fontFamily)
 
             val staticLayout = StaticLayoutCompat.Builder(
                 text,
@@ -326,21 +337,135 @@ class ParagraphAndroidTest {
         )
     }
 
+    fun testEmptyFontFamily() {
+        val typefaceAdapter = mock<TypefaceAdapter>()
+        val paragraph = simpleParagraph(
+            text = "abc",
+            typefaceAdapter = typefaceAdapter
+        )
+        paragraph.layout(Double.MAX_VALUE)
+
+        verify(typefaceAdapter, never()).create(
+            fontFamily = any(),
+            fontWeight = any(),
+            fontStyle = any()
+        )
+        assertThat(paragraph.textPaint.typeface, nullValue())
+    }
+
+    @Test
+    fun testEmptyFontFamily_withBoldFontWeightSelection() {
+        val typefaceAdapter = spy(TypefaceAdapter())
+
+        val paragraph = simpleParagraph(
+            text = "abc",
+            fontFamily = null,
+            fontWeight = FontWeight.bold,
+            typefaceAdapter = typefaceAdapter
+        )
+        paragraph.layout(Double.MAX_VALUE)
+
+        verify(typefaceAdapter, times(1)).create(
+            fontFamily = eq(null),
+            fontWeight = eq(FontWeight.bold),
+            fontStyle = eq(FontStyle.normal)
+        )
+
+        val typeface = paragraph.textPaint.typeface
+        assertThat(typeface, not(nullValue()))
+        assertThat(typeface.isBold, equalTo(true))
+        assertThat(typeface.isItalic, equalTo(false))
+    }
+
+    @Test
+    fun testEmptyFontFamily_withFontStyleSelection() {
+        val typefaceAdapter = spy(TypefaceAdapter())
+        val paragraph = simpleParagraph(
+            text = "abc",
+            fontFamily = null,
+            fontStyle = FontStyle.italic,
+            typefaceAdapter = typefaceAdapter
+        )
+        paragraph.layout(Double.MAX_VALUE)
+
+        verify(typefaceAdapter, times(1)).create(
+            fontFamily = eq(null),
+            fontWeight = eq(FontWeight.normal),
+            fontStyle = eq(FontStyle.italic)
+        )
+
+        val typeface = paragraph.textPaint.typeface
+        assertThat(typeface, not(nullValue()))
+        assertThat(typeface.isBold, equalTo(false))
+        assertThat(typeface.isItalic, equalTo(true))
+    }
+
+    @Test
+    fun testFontFamily_withGenericFamilyName() {
+        val typefaceAdapter = spy(TypefaceAdapter())
+        val fontFamily = FontFamily("sans-serif")
+
+        val paragraph = simpleParagraph(
+            text = "abc",
+            fontFamily = fontFamily,
+            typefaceAdapter = typefaceAdapter
+        )
+        paragraph.layout(Double.MAX_VALUE)
+
+        verify(typefaceAdapter, times(1)).create(
+            fontFamily = eq(fontFamily),
+            fontWeight = eq(FontWeight.normal),
+            fontStyle = eq(FontStyle.normal)
+        )
+
+        val typeface = paragraph.textPaint.typeface
+        assertThat(typeface, not(nullValue()))
+        assertThat(typeface.isBold, equalTo(false))
+        assertThat(typeface.isItalic, equalTo(false))
+    }
+
+    @Test
+    fun testFontFamily_withCustomFont() {
+        val typefaceAdapter = spy(TypefaceAdapter())
+        val paragraph = simpleParagraph(
+            text = "abc",
+            fontFamily = fontFamily,
+            typefaceAdapter = typefaceAdapter
+        )
+        paragraph.layout(Double.MAX_VALUE)
+
+        verify(typefaceAdapter, times(1)).create(
+            fontFamily = eq(fontFamily),
+            fontWeight = eq(FontWeight.normal),
+            fontStyle = eq(FontStyle.normal)
+        )
+        val typeface = paragraph.textPaint.typeface
+        assertThat(typeface.isBold, equalTo(false))
+        assertThat(typeface.isItalic, equalTo(false))
+    }
+
     private fun simpleParagraph(
         text: CharSequence = "",
         textStyles: List<ParagraphBuilder.TextStyleIndex> = listOf(),
         textAlign: TextAlign? = null,
         fontSize: Double? = null,
-        maxLines: Int? = null
+        maxLines: Int? = null,
+        fontFamily: FontFamily? = null,
+        fontWeight: FontWeight? = null,
+        fontStyle: FontStyle? = null,
+        typefaceAdapter: TypefaceAdapter = TypefaceAdapter()
     ): ParagraphAndroid {
         return ParagraphAndroid(
             text = StringBuilder(text),
             textStyles = textStyles,
+            typefaceAdapter = typefaceAdapter,
             paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
                 maxLines = maxLines,
-                fontFamily = fontFallback,
-                fontSize = fontSize
+                fontFamily = fontFamily,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle
             )
         )
     }

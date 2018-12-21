@@ -19,7 +19,6 @@ package androidx.ui.painting
 import androidx.ui.assert
 import androidx.ui.clamp
 import androidx.ui.describeEnum
-import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphStyle
@@ -28,6 +27,7 @@ import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDecorationStyle
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.foundation.diagnostics.DiagnosticLevel
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
@@ -92,7 +92,7 @@ data class TextStyle(
     val decorationStyle: TextDecorationStyle? = null,
     val debugLabel: String? = null,
     // TODO(Migration/qqd): fontFamily was String
-    var fontFamily: FontFallback? = null
+    var fontFamily: FontFamily? = null
 ) : Diagnosticable {
 
     init {
@@ -127,7 +127,7 @@ data class TextStyle(
         decoration: TextDecoration? = null,
         decorationColor: Color? = null,
         decorationStyle: TextDecorationStyle? = null,
-        fontFamily: FontFallback? = null,
+        fontFamily: FontFamily? = null,
         fontSizeFactor: Double = 1.0,
         fontSizeDelta: Double = 0.0,
         fontWeightDelta: Int = 0,

@@ -15,6 +15,7 @@
  */
 package androidx.ui.engine.text
 
+import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -49,7 +50,7 @@ data class TextStyle constructor(
     val fontStyle: FontStyle? = null,
     val textBaseline: TextBaseline? = null,
     // TODO(Migration/siyamed): fontFamily was String
-    val fontFamily: FontFallback? = null,
+    val fontFamily: FontFamily? = null,
     val fontSize: Double? = null,
     val letterSpacing: Double? = null,
     val wordSpacing: Double? = null,
@@ -58,16 +59,12 @@ data class TextStyle constructor(
     val background: Paint? = null,
     val foreground: Paint? = null
 ) {
-    val _fontFamily: FontFallback
-
     init {
         assert(color == null || foreground == null) {
             "Cannot provide both a color and a foreground\n" +
                 "The color argument is just a shorthand for " +
                 "'foreground: new Paint()..color = color'."
         }
-
-        _fontFamily = fontFamily ?: FontFallback()
     }
 
     override fun toString(): String {

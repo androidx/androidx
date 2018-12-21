@@ -241,7 +241,6 @@ class ParagraphBuilderTest {
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val maxLines = 2
-        val fontFamily = FontFallback()
         val fontSize = 1.0
         val lineHeight = 2.0
         val ellipsis = "dot dot"
@@ -253,7 +252,6 @@ class ParagraphBuilderTest {
             fontWeight = fontWeight,
             fontStyle = fontStyle,
             maxLines = maxLines,
-            fontFamily = fontFamily,
             fontSize = fontSize,
             lineHeight = lineHeight,
             ellipsis = ellipsis,

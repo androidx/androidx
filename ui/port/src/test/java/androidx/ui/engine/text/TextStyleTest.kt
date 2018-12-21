@@ -15,6 +15,7 @@
  */
 package androidx.ui.engine.text
 
+import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -73,7 +74,7 @@ class TextStyleTest {
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val textBaseline = TextBaseline.alphabetic
-        val fontFamily = FontFallback()
+        val fontFamily = FontFamily("sans-serif")
         val fontSize = 1.0
         val letterSpacing = 2.0
         val wordSpacing = 3.0

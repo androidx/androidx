@@ -15,6 +15,7 @@
  */
 package androidx.ui.core
 
+import android.content.Context
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.TextSpan
@@ -27,10 +28,18 @@ import com.google.r4a.composer
  * Text Widget Crane version.
  */
 class Text() : Component() {
+    lateinit var text: TextSpan
+
     override fun compose() {
+        assert(text != null)
         <MeasureBox> constraints, measureOperations ->
             val renderParagraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
             val context = composer.composer.context
+
+            // TODO(Migration/siyamed): This is temporary and should be removed when resource
+            // system is resolved.
+            attachContextToFont(text, context)
+
             val boxConstraints = BoxConstraints(
                     constraints.minWidth.toPx(context).toDouble(),
                     constraints.maxWidth.toPx(context).toDouble(),
@@ -48,5 +57,15 @@ class Text() : Component() {
         </MeasureBox>
     }
 
-    var text: TextSpan = TextSpan()
+    private fun attachContextToFont(
+        text: TextSpan,
+        context: Context
+    ) {
+        text.visitTextSpan() {
+            it.style?.fontFamily?.let {
+                it.context = context
+            }
+            true
+        }
+    }
 }
