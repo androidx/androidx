@@ -936,15 +936,28 @@ public class MediaPlayer extends SessionPlayer {
         if (playlist == null || playlist.isEmpty()) {
             throw new IllegalArgumentException("playlist shouldn't be null or empty");
         }
+        String errorString = null;
         for (MediaItem item : playlist) {
             if (item == null) {
-                throw new IllegalArgumentException("playlist shouldn't contain null item");
+                errorString = "playlist shouldn't contain null item";
+                break;
             }
             if (item instanceof FileMediaItem) {
                 if (((FileMediaItem) item).isClosed()) {
-                    throw new IllegalArgumentException("File descriptor is closed. " + item);
+                    errorString = "File descriptor is closed. " + item;
+                    break;
                 }
             }
+        }
+        if (errorString != null) {
+            // Close all the given FileMediaItems on error case.
+            for (MediaItem item : playlist) {
+                if (item instanceof FileMediaItem) {
+                    ((FileMediaItem) item).increaseRefCount();
+                    ((FileMediaItem) item).decreaseRefCount();
+                }
+            }
+            throw new IllegalArgumentException(errorString);
         }
 
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -954,8 +967,7 @@ public class MediaPlayer extends SessionPlayer {
                 MediaItem nextItem;
                 synchronized (mPlaylistLock) {
                     mPlaylistMetadata = metadata;
-                    mPlaylist.clear();
-                    mPlaylist.addAll(playlist);
+                    mPlaylist.replaceAll(playlist);
                     applyShuffleModeLocked();
                     mCurrentShuffleIdx = 0;
                     updateAndGetCurrentNextItemIfNeededLocked();
@@ -3045,24 +3057,25 @@ public class MediaPlayer extends SessionPlayer {
 
         void add(int index, MediaItem item) {
             if (item instanceof FileMediaItem) {
-                ((FileMediaItem) item).addParcelFileDescriptorClient(this);
+                ((FileMediaItem) item).increaseRefCount();
             }
             mList.add(index, item);
         }
 
-        boolean addAll(Collection<MediaItem> c) {
+        boolean replaceAll(Collection<MediaItem> c) {
             for (MediaItem item : c) {
                 if (item instanceof FileMediaItem) {
-                    ((FileMediaItem) item).addParcelFileDescriptorClient(this);
+                    ((FileMediaItem) item).increaseRefCount();
                 }
             }
+            clear();
             return mList.addAll(c);
         }
 
         MediaItem remove(int index) {
             MediaItem item = mList.remove(index);
             if (item instanceof FileMediaItem) {
-                ((FileMediaItem) item).removeParcelFileDescriptorClient(this);
+                ((FileMediaItem) item).decreaseRefCount();
             }
             return item;
         }
@@ -3073,11 +3086,11 @@ public class MediaPlayer extends SessionPlayer {
 
         MediaItem set(int index, MediaItem item) {
             if (item instanceof FileMediaItem) {
-                ((FileMediaItem) item).addParcelFileDescriptorClient(this);
+                ((FileMediaItem) item).increaseRefCount();
             }
             MediaItem removed = mList.set(index, item);
             if (removed instanceof FileMediaItem) {
-                ((FileMediaItem) removed).removeParcelFileDescriptorClient(this);
+                ((FileMediaItem) removed).decreaseRefCount();
             }
             return removed;
         }
@@ -3085,7 +3098,7 @@ public class MediaPlayer extends SessionPlayer {
         void clear() {
             for (MediaItem item : mList) {
                 if (item instanceof FileMediaItem) {
-                    ((FileMediaItem) item).removeParcelFileDescriptorClient(this);
+                    ((FileMediaItem) item).decreaseRefCount();
                 }
             }
             mList.clear();
