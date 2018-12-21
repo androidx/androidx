@@ -217,7 +217,7 @@ package androidx.car.widget {
   public class CarMenuItem {
     method public androidx.car.widget.CarMenuItem.DisplayBehavior getDisplayBehavior();
     method public android.graphics.drawable.Icon? getIcon();
-    method public android.view.View.OnClickListener? getOnClickListener();
+    method public androidx.car.widget.CarMenuItem.OnClickListener? getOnClickListener();
     method @StyleRes public int getStyleResId();
     method public CharSequence? getTitle();
     method public boolean isCheckable();
@@ -236,7 +236,7 @@ package androidx.car.widget {
     method public androidx.car.widget.CarMenuItem.Builder setDisplayBehavior(androidx.car.widget.CarMenuItem.DisplayBehavior);
     method public androidx.car.widget.CarMenuItem.Builder setEnabled(boolean);
     method public androidx.car.widget.CarMenuItem.Builder setIcon(android.graphics.drawable.Icon);
-    method public androidx.car.widget.CarMenuItem.Builder setOnClickListener(android.view.View.OnClickListener);
+    method public androidx.car.widget.CarMenuItem.Builder setOnClickListener(androidx.car.widget.CarMenuItem.OnClickListener);
     method public androidx.car.widget.CarMenuItem.Builder setStyle(@StyleRes int);
     method public androidx.car.widget.CarMenuItem.Builder setTitle(CharSequence);
   }
@@ -245,6 +245,10 @@ package androidx.car.widget {
     enum_constant public static final androidx.car.widget.CarMenuItem.DisplayBehavior ALWAYS;
     enum_constant public static final androidx.car.widget.CarMenuItem.DisplayBehavior IF_ROOM;
     enum_constant public static final androidx.car.widget.CarMenuItem.DisplayBehavior NEVER;
+  }
+
+  public static interface CarMenuItem.OnClickListener {
+    method public void onClick(androidx.car.widget.CarMenuItem!);
   }
 
   public class CarToolbar extends android.view.ViewGroup {
