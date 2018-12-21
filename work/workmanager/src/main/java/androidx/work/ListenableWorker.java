@@ -373,6 +373,22 @@ public abstract class ListenableWorker {
             public Data getOutputData() {
                 return mOutputData;
             }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                Success success = (Success) o;
+
+                return mOutputData.equals(success.mOutputData);
+            }
+
+            @Override
+            public int hashCode() {
+                String name = Success.class.getName();
+                return 31 * name.hashCode() + mOutputData.hashCode();
+            }
         }
 
         /**
@@ -407,6 +423,22 @@ public abstract class ListenableWorker {
             public Data getOutputData() {
                 return mOutputData;
             }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+
+                Failure failure = (Failure) o;
+
+                return mOutputData.equals(failure.mOutputData);
+            }
+
+            @Override
+            public int hashCode() {
+                String name = Failure.class.getName();
+                return 31 * name.hashCode() + mOutputData.hashCode();
+            }
         }
 
         /**
@@ -420,6 +452,19 @@ public abstract class ListenableWorker {
         public static final class Retry extends Result {
             public Retry() {
                 super();
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                // We are treating all instances of Retry as equivalent.
+                return o != null && getClass() == o.getClass();
+            }
+
+            @Override
+            public int hashCode() {
+                String name = Retry.class.getName();
+                return name.hashCode();
             }
         }
     }
