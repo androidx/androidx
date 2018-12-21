@@ -41,12 +41,12 @@ class RenderParagraphTest {
         assertThat(paragraph.textDirection).isEqualTo(TextDirection.LTR)
         assertThat(paragraph.softWrap).isTrue()
         assertThat(paragraph.overflow).isEqualTo(TextOverflow.CLIP)
-        assertThat(paragraph.textScaleFactor).isEqualTo(1.0)
+        assertThat(paragraph.textScaleFactor).isEqualTo(1.0f)
         assertThat(paragraph.maxLines).isNull()
         assertThat(paragraph.textPainter.text).isEqualTo(text)
         assertThat(paragraph.textPainter.textAlign).isEqualTo(TextAlign.START)
         assertThat(paragraph.textPainter.textDirection).isEqualTo(TextDirection.LTR)
-        assertThat(paragraph.textPainter.textScaleFactor).isEqualTo(1.0)
+        assertThat(paragraph.textPainter.textScaleFactor).isEqualTo(1.0f)
         assertThat(paragraph.textPainter.maxLines).isNull()
         assertThat(paragraph.textPainter.ellipsis).isNull()
     }
@@ -54,7 +54,7 @@ class RenderParagraphTest {
     @Test
     fun `RenderParagraph constructor with customized values`() {
         val text = TextSpan()
-        val textScaleFactor = 5.0
+        val textScaleFactor = 5.0f
         val maxLines = 7
         val defaultEllipsis = "\u2026"
 
@@ -99,7 +99,7 @@ class RenderParagraphTest {
     fun `RenderParagraph text set different color causes RenderComparison PAINT`() {
         val initText = TextSpan()
         val paragraph = RenderParagraph(text = initText, textDirection = TextDirection.LTR)
-        val newText = TextSpan(TextStyle(color = Color(0x0111.toInt())))
+        val newText = TextSpan(TextStyle(color = Color(0x0111)))
 
         paragraph.text = newText
 
@@ -110,7 +110,7 @@ class RenderParagraphTest {
     fun `RenderParagraph text set different letterSpacing causes RenderComparison LAYOUT`() {
         val initText = TextSpan()
         val paragraph = RenderParagraph(text = initText, textDirection = TextDirection.LTR)
-        val newText = TextSpan(TextStyle(letterSpacing = 5.0))
+        val newText = TextSpan(TextStyle(letterSpacing = 5.0f))
 
         paragraph.text = newText
 
@@ -174,7 +174,7 @@ class RenderParagraphTest {
     fun `RenderParagraph textScaleFactor setter`() {
         val text = TextSpan()
         val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
-        val textScaleFactor = 5.0
+        val textScaleFactor = 5.0f
 
         paragraph.textScaleFactor = textScaleFactor
 

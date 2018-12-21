@@ -71,27 +71,27 @@ internal class ParagraphAndroid constructor(
 
     // TODO(Migration/siyamed): width having -1 but others having 0 as default value is counter
     // intuitive
-    var width: Double = -1.0
-        get() = layout?.let { field } ?: -1.0
+    var width: Float = -1.0f
+        get() = layout?.let { field } ?: -1.0f
 
-    val height: Double
-        get() = layout?.let { it.layout.height.toDouble() } ?: 0.0
+    val height: Float
+        get() = layout?.let { it.layout.height.toFloat() } ?: 0.0f
 
     // TODO(Migration/siyamed): we do not have this concept. they limit to the max word size.
     // it didn't make sense to me. I believe we might be able to do it. if we can use
     // wordbreaker.
-    val minIntrinsicWidth: Double
-        get() = 0.0
+    val minIntrinsicWidth: Float
+        get() = 0.0f
 
-    val maxIntrinsicWidth: Double
-        get() = layout?.let { it.maxIntrinsicWidth } ?: 0.0
+    val maxIntrinsicWidth: Float
+        get() = layout?.let { it.maxIntrinsicWidth } ?: 0.0f
 
-    val alphabeticBaseline: Double
-        get() = layout?.let { it.layout.getLineBaseline(0).toDouble() } ?: Double.MAX_VALUE
+    val alphabeticBaseline: Float
+        get() = layout?.let { it.layout.getLineBaseline(0).toFloat() } ?: Float.MAX_VALUE
 
     // TODO(Migration/siyamed):  (metrics.fUnderlinePosition - metrics.fAscent) * style.height;
-    val ideographicBaseline: Double
-        get() = Double.MAX_VALUE
+    val ideographicBaseline: Float
+        get() = Float.MAX_VALUE
 
     val didExceedMaxLines: Boolean
         get() = layout?.let { it.didExceedMaxLines } ?: false
@@ -114,11 +114,11 @@ internal class ParagraphAndroid constructor(
     val underlyingText: CharSequence
         get() = ensureLayout.text
 
-    fun layout(width: Double, force: Boolean = false) {
+    fun layout(width: Float, force: Boolean = false) {
         val floorWidth = floor(width)
 
         paragraphStyle.fontSize?.let {
-            textPaint.textSize = it.toFloat()
+            textPaint.textSize = it
         }
 
         // TODO: This default values are problem here. If the user just gives a single font
@@ -164,7 +164,7 @@ internal class ParagraphAndroid constructor(
         }
 
         val lineSpacingMultiplier =
-            paragraphStyle.lineHeight ?: DEFAULT_LINESPACING_MULTIPLIER.toDouble()
+            paragraphStyle.lineHeight ?: DEFAULT_LINESPACING_MULTIPLIER
 
         layout = TextLayout(
             charSequence = charSequence,
@@ -182,21 +182,21 @@ internal class ParagraphAndroid constructor(
     fun getPositionForOffset(offset: Offset): TextPosition {
         val line = ensureLayout.layout.getLineForVertical(offset.dy.toInt())
         return TextPosition(
-            offset = ensureLayout.layout.getOffsetForHorizontal(line, offset.dx.toFloat()),
+            offset = ensureLayout.layout.getOffsetForHorizontal(line, offset.dx),
             // TODO(Migration/siyamed): we provide a default value
             affinity = TextAffinity.upstream
         )
     }
 
-    fun getLineLeft(index: Int): Double = ensureLayout.getLineLeft(index)
+    fun getLineLeft(index: Int): Float = ensureLayout.getLineLeft(index)
 
-    fun getLineRight(index: Int): Double = ensureLayout.getLineRight(index)
+    fun getLineRight(index: Int): Float = ensureLayout.getLineRight(index)
 
-    fun getLineHeight(index: Int): Double = ensureLayout.getLineHeight(index)
+    fun getLineHeight(index: Int): Float = ensureLayout.getLineHeight(index)
 
-    fun getLineWidth(index: Int): Double = ensureLayout.getLineWidth(index)
+    fun getLineWidth(index: Int): Float = ensureLayout.getLineWidth(index)
 
-    fun paint(canvas: Canvas, x: Double, y: Double) {
+    fun paint(canvas: Canvas, x: Float, y: Float) {
         val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
                 "called before layout() is called")
         canvas.translate(x, y)
@@ -275,7 +275,7 @@ internal class ParagraphAndroid constructor(
             // TODO(Migration/haoyuchang): support letter spacing with pixel.
             style.letterSpacing?.let {
                 spannableString.setSpan(
-                    LetterSpacingSpan(it.toFloat()),
+                    LetterSpacingSpan(it),
                     start,
                     end,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE

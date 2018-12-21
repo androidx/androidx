@@ -66,7 +66,7 @@ class MultiTapTest {
         tap.onTapCancel = { pointer -> log.add("tap-cancel $pointer") }
 
         val pointer5 = TestPointer(5)
-        val down5 = pointer5.down(Offset(10.0, 10.0))
+        val down5 = pointer5.down(Offset(10.0f, 10.0f))
         tap.addPointer(down5)
         gestureArena.close(5)
         assertThat(log, `is`(equalTo(mutableListOf("tap-down 5"))))
@@ -75,7 +75,7 @@ class MultiTapTest {
         assertThat(log, `is`(equalTo(mutableListOf())))
 
         val pointer6 = TestPointer(6)
-        val down6 = pointer6.down(Offset(15.0, 15.0))
+        val down6 = pointer6.down(Offset(15.0f, 15.0f))
         tap.addPointer(down6)
         gestureArena.close(6)
         assertThat(log, `is`(equalTo(mutableListOf("tap-down 6"))))
@@ -83,10 +83,10 @@ class MultiTapTest {
         pointerRouter.route(down6)
         assertThat(log, `is`(equalTo(mutableListOf())))
 
-        pointerRouter.route(pointer5.move(Offset(11.0, 12.0)))
+        pointerRouter.route(pointer5.move(Offset(11.0f, 12.0f)))
         assertThat(log, `is`(equalTo(mutableListOf())))
 
-        pointerRouter.route(pointer6.move(Offset(14.0, 13.0)))
+        pointerRouter.route(pointer6.move(Offset(14.0f, 13.0f)))
         assertThat(log, `is`(equalTo(mutableListOf())))
 
         pointerRouter.route(pointer5.up())
@@ -99,7 +99,7 @@ class MultiTapTest {
         log.clear()*/
 
         // move more than kTouchSlop from 15.0,15.0
-        pointerRouter.route(pointer6.move(Offset(40.0, 30.0)))
+        pointerRouter.route(pointer6.move(Offset(40.0f, 30.0f)))
         assertThat(log, `is`(equalTo(mutableListOf("tap-cancel 6"))))
         log.clear()
 

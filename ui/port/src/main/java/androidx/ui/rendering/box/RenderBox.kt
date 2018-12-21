@@ -446,13 +446,13 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
             child.parentData = BoxParentData()
     }
 
-    var _cachedIntrinsicDimensions: MutableMap<_IntrinsicDimensionsCacheEntry, Double>? = null
+    var _cachedIntrinsicDimensions: MutableMap<_IntrinsicDimensionsCacheEntry, Float>? = null
 
     fun _computeIntrinsicDimension(
         dimension: _IntrinsicDimension,
-        argument: Double,
-        computer: (Double) -> Double
-    ): Double {
+        argument: Float,
+        computer: (Float) -> Float
+    ): Float {
         // performResize should not depend on anything except the incoming constraints
         assert(RenderObject.debugCheckingIntrinsics || !debugDoingThisResize)
         var shouldCache = true
@@ -493,22 +493,22 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * Do not override this method. Instead, implement [computeMinIntrinsicWidth].
      */
     @CallSuper
-    fun getMinIntrinsicWidth(height: Double?): Double {
+    fun getMinIntrinsicWidth(height: Float?): Float {
         assert {
             if (height == null) {
                 throw FlutterError(
                     "The height argument to getMinIntrinsicWidth was null.\n" +
                             "The argument to getMinIntrinsicWidth must not be " +
                             "negative or null. If you do not have a specific height in mind, " +
-                            "then pass double.infinity instead."
+                            "then pass Float.POSITIVE_INFINITY instead."
                 )
             }
-            if (height < 0.0) {
+            if (height < 0.0f) {
                 throw FlutterError(
                     "The height argument to getMinIntrinsicWidth was negative.\n" +
                             "The argument to getMinIntrinsicWidth must not be negative or null. " +
                             "If you perform computations on another height before passing it to " +
-                            "getMinIntrinsicWidth, consider using math.max() or double.clamp() " +
+                            "getMinIntrinsicWidth, consider using math.max() or Float.clamp() " +
                             "to force the value into the valid range."
                 )
             }
@@ -614,8 +614,8 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * When the incoming argument is not finite, then they should return the
      * actual intrinsic dimensions based on the contents, as any other box would.
      */
-    protected open fun computeMinIntrinsicWidth(height: Double): Double {
-        return 0.0
+    protected open fun computeMinIntrinsicWidth(height: Float): Float {
+        return 0.0f
     }
 
     /**
@@ -639,22 +639,22 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * [computeMaxIntrinsicWidth].
      */
     @CallSuper
-    fun getMaxIntrinsicWidth(height: Double?): Double {
+    fun getMaxIntrinsicWidth(height: Float?): Float {
         assert {
             if (height == null) {
                 throw FlutterError(
                     "The height argument to getMaxIntrinsicWidth was null.\n" +
                             "The argument to getMaxIntrinsicWidth must not be negative or null. " +
                             "If you do not have a specific height in mind, " +
-                            "then pass double.infinity instead."
+                            "then pass Float.POSITIVE_INFINITY instead."
                 )
             }
-            if (height < 0.0) {
+            if (height < 0.0f) {
                 throw FlutterError(
                     "The height argument to getMaxIntrinsicWidth was negative.\n" +
                             "The argument to getMaxIntrinsicWidth must not be negative or null. " +
                             "If you perform computations on another height before passing it to " +
-                            "getMaxIntrinsicWidth, consider using math.max() or double.clamp() " +
+                            "getMaxIntrinsicWidth, consider using max() or coerceIn() " +
                             "to force the value into the valid range."
                 )
             }
@@ -698,8 +698,8 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      *
      * See also examples in the definition of [computeMinIntrinsicWidth].
      */
-    protected open fun computeMaxIntrinsicWidth(height: Double): Double {
-        return 0.0
+    protected open fun computeMaxIntrinsicWidth(height: Float): Float {
+        return 0.0f
     }
 
     /** Returns the minimum height that this box could be without failing to
@@ -721,22 +721,22 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * [computeMinIntrinsicHeight].
      */
     @CallSuper
-    fun getMinIntrinsicHeight(width: Double?): Double {
+    fun getMinIntrinsicHeight(width: Float?): Float {
         assert {
             if (width == null) {
                 throw FlutterError(
                     "The width argument to getMinIntrinsicHeight was null.\n" +
                             "The argument to getMinIntrinsicHeight must not be negative or null. " +
                             "If you do not have a specific width in mind, " +
-                            "then pass double.infinity instead."
+                            "then pass Float.POSITIVE_INFINITY instead."
                 )
             }
-            if (width < 0.0) {
+            if (width < 0.0f) {
                 throw FlutterError(
                     "The width argument to getMinIntrinsicHeight was negative.\n" +
                             "The argument to getMinIntrinsicHeight must not be negative or null. " +
                             "If you perform computations on another width before passing it to " +
-                            "getMinIntrinsicHeight, consider using math.max() or double.clamp() " +
+                            "getMinIntrinsicHeight, consider using math.max() or Float.clamp() " +
                             "to force the value into the valid range."
                 )
             }
@@ -776,8 +776,8 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      *
      * See also examples in the definition of [computeMinIntrinsicWidth].
      */
-    protected open fun computeMinIntrinsicHeight(width: Double): Double {
-        return 0.0
+    protected open fun computeMinIntrinsicHeight(width: Float): Float {
+        return 0.0f
     }
 
     /**
@@ -801,22 +801,22 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * [computeMaxIntrinsicHeight].
      */
     @CallSuper
-    fun getMaxIntrinsicHeight(width: Double?): Double {
+    fun getMaxIntrinsicHeight(width: Float?): Float {
         assert {
             if (width == null) {
                 throw FlutterError(
                     "The width argument to getMaxIntrinsicHeight was null.\n" +
                             "The argument to getMaxIntrinsicHeight must not be negative or null. " +
                             "If you do not have a specific width in mind, " +
-                            "then pass double.infinity instead."
+                            "then pass Float.POSITIVE_INFINITY instead."
                 )
             }
-            if (width < 0.0) {
+            if (width < 0.0f) {
                 throw FlutterError(
                     "The width argument to getMaxIntrinsicHeight was negative.\n" +
                             "The argument to getMaxIntrinsicHeight must not be negative or null. " +
                             "If you perform computations on another width before passing it to " +
-                            "getMaxIntrinsicHeight, consider using math.max() or double.clamp() " +
+                            "getMaxIntrinsicHeight, consider using math.max() or Float.clamp() " +
                             "to force the value into the valid range."
                 )
             }
@@ -860,8 +860,8 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      *
      * See also examples in the definition of [computeMinIntrinsicWidth].
      */
-    protected open fun computeMaxIntrinsicHeight(width: Double): Double {
-        return 0.0
+    protected open fun computeMaxIntrinsicHeight(width: Float): Float {
+        return 0.0f
     }
 
     // Whether this render object has undergone layout and has a [size].
@@ -1029,7 +1029,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         size = size
     }
 
-    private var _cachedBaselines: MutableMap<TextBaseline, Double?>? = null
+    private var _cachedBaselines: MutableMap<TextBaseline, Float?>? = null
 
     companion object {
         var _debugDoingBaseline = false
@@ -1052,7 +1052,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * Only call this function after calling [layout] on this box. You are only allowed to call this
      * from the parent of this box during that parent's [performLayout] or [paint] functions.
      */
-    fun getDistanceToBaseline(baseline: TextBaseline, onlyReal: Boolean = false): Double? {
+    fun getDistanceToBaseline(baseline: TextBaseline, onlyReal: Boolean = false): Float? {
         assert(!debugNeedsLayout)
         assert(!_debugDoingBaseline)
         assert {
@@ -1082,7 +1082,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      * methods.
      */
     @CallSuper
-    protected fun getDistanceToActualBaseline(baseline: TextBaseline): Double? {
+    protected fun getDistanceToActualBaseline(baseline: TextBaseline): Float? {
         assert(_debugDoingBaseline)
         val cachedBaselinesTemp = _cachedBaselines ?: mutableMapOf()
         cachedBaselinesTemp.getOrPut(baseline) { computeDistanceToActualBaseline(baseline) }
@@ -1101,7 +1101,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
      *
      * Subclasses should override this method to supply the distances to their baselines.
      */
-    protected open fun computeDistanceToActualBaseline(baseline: TextBaseline): Double? {
+    protected open fun computeDistanceToActualBaseline(baseline: TextBaseline): Float? {
         assert(_debugDoingBaseline)
         return null
     }
@@ -1192,10 +1192,10 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
                 var failureCount = 0
 
                 fun testIntrinsic(
-                    function: (Double) -> Double,
+                    function: (Float) -> Float,
                     name: String,
-                    constraint: Double
-                ): Double {
+                    constraint: Float
+                ): Float {
                     val result = function(constraint)
                     if (result < 0) {
                         failures.appendln(
@@ -1213,10 +1213,10 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
                 }
 
                 fun testIntrinsicsForValues(
-                    getMin: (Double) -> Double,
-                    getMax: (Double) -> Double,
+                    getMin: (Float) -> Float,
+                    getMax: (Float) -> Float,
                     name: String,
-                    constraint: Double
+                    constraint: Float
                 ) {
                     val min = testIntrinsic(getMin, "getMinIntrinsic$name", constraint)
                     val max = testIntrinsic(getMax, "getMaxIntrinsic$name", constraint)
@@ -1231,11 +1231,11 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
 
                 testIntrinsicsForValues(
                     ::getMinIntrinsicWidth, ::getMaxIntrinsicWidth, "Width",
-                    Double.POSITIVE_INFINITY
+                    Float.POSITIVE_INFINITY
                 )
                 testIntrinsicsForValues(
                     ::getMinIntrinsicHeight, ::getMaxIntrinsicHeight, "Height",
-                    Double.POSITIVE_INFINITY
+                    Float.POSITIVE_INFINITY
                 )
                 if (constraints!!.hasBoundedWidth)
                     testIntrinsicsForValues(
@@ -1448,7 +1448,7 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
     fun globalToLocal(point: Offset, ancestor: RenderObject? = null): Offset {
         val transform = getTransformTo(ancestor)
         val det = transform.invert()
-        if (det == 0.0)
+        if (det == 0.0f)
             return Offset.zero
         return transform.transformPoint(point)
     }
@@ -1563,10 +1563,10 @@ abstract class RenderBox : RenderObjectWithChildMixin<RenderBox>() {
         assert {
             val paint = Paint().apply {
                 style = PaintingStyle.stroke
-                strokeWidth = 1.0
+                strokeWidth = 1.0f
                 color = Color(0xFF00FFFF.toInt())
             }
-            context.canvas.drawRect((offset.and(size)).deflate(0.5), paint)
+            context.canvas.drawRect((offset.and(size)).deflate(0.5f), paint)
             true
         }
     }

@@ -43,8 +43,8 @@ import kotlin.math.floor
 internal val UnconfirmedSplashDuration = Duration.create(seconds = 1)
 internal val SplashFadeDuration = Duration.create(milliseconds = 200)
 
-internal val SplashInitialSize = 0.0; // logical pixels
-internal val SplashConfirmedVelocity = 1.0; // logical pixels per millisecond
+internal val SplashInitialSize = 0.0f; // logical pixels
+internal val SplashConfirmedVelocity = 1.0f; // logical pixels per millisecond
 
 internal fun getSplashClipCallback(
     referenceBox: RenderBox,
@@ -65,7 +65,7 @@ internal fun getSplashTargetRadius(
     containedInkWell: Boolean,
     rectCallback: RectCallback?,
     position: Offset
-): Double {
+): Float {
     if (containedInkWell) {
         val size = rectCallback?.invoke()?.getSize() ?: referenceBox.size
         return getSplashRadiusForPositionInSize(size, position)
@@ -73,7 +73,7 @@ internal fun getSplashTargetRadius(
     return DefaultSplashRadius
 }
 
-private fun getSplashRadiusForPositionInSize(bounds: Size, position: Offset): Double {
+private fun getSplashRadiusForPositionInSize(bounds: Size, position: Offset): Float {
     val d1 = (position - bounds.topLeft(Offset.zero)).getDistance()
     val d2 = (position - bounds.topRight(Offset.zero)).getDistance()
     val d3 = (position - bounds.bottomLeft(Offset.zero)).getDistance()
@@ -91,7 +91,7 @@ private class InkSplashFactory : InteractiveInkFeatureFactory() {
         containedInkWell: Boolean,
         rectCallback: RectCallback?,
         borderRadius: BorderRadius?,
-        radius: Double?,
+        radius: Float?,
         onRemoved: VoidCallback?
     ): InteractiveInkFeature {
         return InkSplash(
@@ -154,19 +154,19 @@ class InkSplash(
     containedInkWell: Boolean = false,
     rectCallback: RectCallback? = null,
     borderRadius: BorderRadius? = null,
-    radiusParam: Double? = null,
+    radiusParam: Float? = null,
     onRemoved: VoidCallback? = null
 //    private val shape: BoxShape = BoxShape.RECTANGLE,
 ) : InteractiveInkFeature(controller, referenceBox, color, onRemoved) {
 
     private val borderRadius: BorderRadius = borderRadius ?: BorderRadius.Zero
-    private val targetRadius: Double =
+    private val targetRadius: Float =
         radiusParam ?: getSplashTargetRadius(referenceBox, containedInkWell, rectCallback, position)
     private val clipCallback: RectCallback? =
         getSplashClipCallback(referenceBox, containedInkWell, rectCallback)
     private val repositionToReferenceBox: Boolean = !containedInkWell
 
-    private val radius: Animation<Double>
+    private val radius: Animation<Float>
     private val radiusController: AnimationController
 
     private val alpha: Animation<Int>

@@ -25,13 +25,13 @@ class FontWeightTest {
 
     @Test
     fun `lerp with null parameters`() {
-        assertThat(FontWeight.lerp(null, null, 0.0)).isEqualTo(FontWeight.normal)
+        assertThat(FontWeight.lerp(null, null, 0.0f)).isEqualTo(FontWeight.normal)
     }
 
     @Test
     fun `lerp with one null parameter should use normal for null value`() {
-        assertThat(FontWeight.lerp(FontWeight.w200, null, 0.5)).isEqualTo(FontWeight.w300)
-        assertThat(FontWeight.lerp(null, FontWeight.w200, 0.5)).isEqualTo(FontWeight.w300)
+        assertThat(FontWeight.lerp(FontWeight.w200, null, 0.5f)).isEqualTo(FontWeight.w300)
+        assertThat(FontWeight.lerp(null, FontWeight.w200, 0.5f)).isEqualTo(FontWeight.w300)
     }
 
     @Test
@@ -40,7 +40,7 @@ class FontWeightTest {
             FontWeight.lerp(
                 FontWeight.w200,
                 FontWeight.w400,
-                0.0
+                0.0f
             )
         ).isEqualTo(FontWeight.w200)
     }
@@ -51,7 +51,7 @@ class FontWeightTest {
             FontWeight.lerp(
                 FontWeight.w200,
                 FontWeight.w400,
-                1.0
+                1.0f
             )
         ).isEqualTo(FontWeight.w400)
     }
@@ -62,7 +62,7 @@ class FontWeightTest {
             FontWeight.lerp(
                 FontWeight.w200,
                 FontWeight.w800,
-                0.5
+                0.5f
             )
         ).isEqualTo(FontWeight.w500)
     }
@@ -73,7 +73,7 @@ class FontWeightTest {
             FontWeight.lerp(
                 FontWeight.w200,
                 FontWeight.w900,
-                0.5
+                0.5f
             )
         ).isEqualTo(FontWeight.w600)
     }

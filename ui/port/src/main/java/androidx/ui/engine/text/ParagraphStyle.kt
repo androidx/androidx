@@ -77,8 +77,8 @@ data class ParagraphStyle constructor(
     val fontStyle: FontStyle? = null,
     val maxLines: Int? = null,
     val fontFamily: FontFamily? = null,
-    val fontSize: Double? = null,
-    val lineHeight: Double? = null,
+    val fontSize: Float? = null,
+    val lineHeight: Float? = null,
     // TODO(Migration/siyamed): pass to TextLayout
     val ellipsis: String? = null,
     val locale: Locale? = null,

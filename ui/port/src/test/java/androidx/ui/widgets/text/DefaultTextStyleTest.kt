@@ -102,7 +102,7 @@ class DefaultTextStyleTest {
         val oldDefaultTextStyle = DefaultTextStyle()
         val newDefaultTextStyle = DefaultTextStyle(
             key = oldDefaultTextStyle.key,
-            style = TextStyle(fontSize = 15.0), // style is different.
+            style = TextStyle(fontSize = 15.0f), // style is different.
             textAlign = oldDefaultTextStyle.textAlign,
             softWrap = oldDefaultTextStyle.softWrap,
             overflow = oldDefaultTextStyle.overflow,

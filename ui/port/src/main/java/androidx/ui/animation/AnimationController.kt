@@ -21,7 +21,7 @@ import androidx.ui.assert
 import androidx.ui.clamp
 import androidx.ui.core.Duration
 import androidx.ui.foundation.assertions.FlutterError
-import androidx.ui.lerpDouble
+import androidx.ui.lerpFloat
 import androidx.ui.physics.Simulation
 import androidx.ui.runtimeType
 import androidx.ui.scheduler.ticker.Ticker
@@ -98,7 +98,7 @@ class AnimationController(
      * * [value] is the initial value of the animation. If defaults to the lower
      *   bound.
      */
-    value: Double? = null,
+    value: Float? = null,
     /** * [duration] is the length of time this animation should last. */
     var duration: Duration? = null,
     /**
@@ -111,20 +111,20 @@ class AnimationController(
      *   value at which this animation is deemed to be DISMISSED. It cannot be
      *   null.
      */
-    private val lowerBound: Double = 0.0,
+    private val lowerBound: Float = 0.0f,
     /**
      * * [upperBound] is the largest value this animation can obtain and the
      *   value at which this animation is deemed to be completed. It cannot be
      *   null.
      */
-    private val upperBound: Double = 1.0,
+    private val upperBound: Float = 1.0f,
     /**
      * * `vsync` is the [TickerProvider] for the current context. It can be
      *   changed by calling [resync]. It is required and must not be null. See
      *   [TickerProvider] for advice on obtaining a ticker provider.
      */
     vsync: TickerProvider
-) : AnimationEagerListenerMixin<Double>() {
+) : AnimationEagerListenerMixin<Float>() {
 
     private var ticker: Ticker?
 
@@ -142,7 +142,7 @@ class AnimationController(
      * running; if this happens, it also notifies all the status
      * listeners.
      */
-    private var _value: Double = 0.0
+    private var _value: Float = 0.0f
         set(value) {
             field = value.clamp(lowerBound, upperBound)
             _status = if (field == lowerBound) {
@@ -176,7 +176,7 @@ class AnimationController(
      *  * [forward], [reverse], [animateTo], [animateWith], [fling], and [repeat],
      *    which start the animation controller.
      */
-    override var value: Double
+    override var value: Float
         get() = _value
         set(newValue) {
             stop()
@@ -193,11 +193,11 @@ class AnimationController(
     }
 
     /**
-     * Returns an [Animation<double>] for this animation controller, so that a
+     * Returns an [Animation<Float>] for this animation controller, so that a
      * pointer to this object can be passed around without allowing users of that
      * pointer to mutate the [AnimationController] state.
      */
-    val view: Animation<Double> = this
+    val view: Animation<Float> = this
 
     /** Recreates the [Ticker] with the new [TickerProvider]. */
     fun resync(vsync: TickerProvider) {
@@ -233,12 +233,12 @@ class AnimationController(
      * If [isAnimating] is false, then [value] is not changing and the rate of
      * change is zero.
      */
-    val velocity: Double
+    val velocity: Float
         get() {
             if (!isAnimating)
-                return 0.0
+                return 0.0f
             return simulation!!.dx(
-                lastElapsedDuration!!.inMicroseconds.toDouble() /
+                lastElapsedDuration!!.inMicroseconds.toFloat() /
                         Duration.microsecondsPerSecond
             )
         }
@@ -278,7 +278,7 @@ class AnimationController(
      * which switches to [AnimationStatus.COMPLETED] when [upperBound] is
      * reached at the end of the animation.
      */
-    fun forward(from: Double? = null): TickerFuture {
+    fun forward(from: Float? = null): TickerFuture {
         assert {
             if (duration == null) {
                 throw FlutterError(
@@ -308,7 +308,7 @@ class AnimationController(
      * which switches to [AnimationStatus.DISMISSED] when [lowerBound] is
      * reached at the end of the animation.
      */
-    fun reverse(from: Double? = null): TickerFuture {
+    fun reverse(from: Float? = null): TickerFuture {
         assert {
             if (duration == null) {
                 throw FlutterError(
@@ -340,7 +340,7 @@ class AnimationController(
      * [AnimationStatus.COMPLETED].
      */
     fun animateTo(
-        target: Double,
+        target: Float,
         duration: Duration? = null,
         curve: Curve = Curves.linear
     ): TickerFuture {
@@ -349,7 +349,7 @@ class AnimationController(
     }
 
     private fun animateToInternal(
-        target: Double,
+        target: Float,
         duration: Duration? = null,
         curve: Curve = Curves.linear
     ): TickerFuture {
@@ -369,7 +369,7 @@ class AnimationController(
             }
             val range = upperBound - lowerBound
             val remainingFraction =
-                if (range.isFinite()) (target - _value).absoluteValue / range else 1.0
+                if (range.isFinite()) (target - _value).absoluteValue / range else 1.0f
             simulationDuration = this.duration!! * remainingFraction.toInt()
         } else if (target == value) {
             // Already at target, don't animate.
@@ -412,7 +412,7 @@ class AnimationController(
      * canceled, meaning the future never completes and its [TickerFuture.orCancel]
      * derivative future completes with a [TickerCanceled] error.
      */
-    fun repeat(min: Double? = null, max: Double? = null, period: Duration? = null): TickerFuture {
+    fun repeat(min: Float? = null, max: Float? = null, period: Duration? = null): TickerFuture {
         val finalMin = min ?: lowerBound
         val finalMax = max ?: upperBound
         val finalPeriod = period ?: duration
@@ -444,7 +444,7 @@ class AnimationController(
      * canceled, meaning the future never completes and its [TickerFuture.orCancel]
      * derivative future completes with a [TickerCanceled] error.
      */
-    fun fling(velocity: Double = 1.0): TickerFuture {
+    fun fling(velocity: Float = 1.0f): TickerFuture {
         TODO("Migration|Andrey. Needs SpringSimulation")
 //        direction = if (velocity < 0.0) AnimationDirection.REVERSE else AnimationDirection.FORWARD
 //        val target = if (velocity < 0.0) lowerBound - _kFlingTolerance.distance
@@ -473,7 +473,7 @@ class AnimationController(
         assert(!isAnimating)
         this.simulation = simulation
         lastElapsedDuration = Duration.zero
-        _value = simulation.x(0.0).clamp(lowerBound, upperBound)
+        _value = simulation.x(0.0f).clamp(lowerBound, upperBound)
         val result = ticker!!.start()
         _status = if (direction == AnimationDirection.FORWARD)
             AnimationStatus.FORWARD else
@@ -544,8 +544,8 @@ class AnimationController(
 
     private fun tick(elapsed: Duration) {
         lastElapsedDuration = elapsed
-        val elapsedInSeconds = elapsed.inMicroseconds.toDouble() / Duration.microsecondsPerSecond
-        assert(elapsedInSeconds >= 0.0)
+        val elapsedInSeconds = elapsed.inMicroseconds.toFloat() / Duration.microsecondsPerSecond
+        assert(elapsedInSeconds >= 0.0f)
         val sim = simulation!!
         _value = sim.x(elapsedInSeconds).clamp(lowerBound, upperBound)
         if (sim.isDone(elapsedInSeconds)) {
@@ -588,7 +588,7 @@ class AnimationController(
          * pre-determined bounds.
          */
         fun unbounded(
-            value: Double = 0.0,
+            value: Float = 0.0f,
             duration: Duration? = null,
             debugLabel: String? = null,
             vsync: TickerProvider
@@ -598,16 +598,16 @@ class AnimationController(
                 duration = duration,
                 debugLabel = debugLabel,
                 vsync = vsync,
-                lowerBound = Double.NEGATIVE_INFINITY,
-                upperBound = Double.POSITIVE_INFINITY
+                lowerBound = Float.NEGATIVE_INFINITY,
+                upperBound = Float.POSITIVE_INFINITY
             )
         }
     }
 }
 
 private class InterpolationSimulation(
-    private val begin: Double,
-    private val end: Double,
+    private val begin: Float,
+    private val end: Float,
     duration: Duration,
     private val curve: Curve
 ) : Simulation() {
@@ -617,46 +617,46 @@ private class InterpolationSimulation(
     }
 
     private val durationInSeconds =
-        duration.inMicroseconds.toDouble() / Duration.microsecondsPerSecond
+        duration.inMicroseconds.toFloat() / Duration.microsecondsPerSecond
 
-    override fun x(timeInSeconds: Double): Double {
-        val t = (timeInSeconds / durationInSeconds).clamp(0.0, 1.0)
+    override fun x(timeInSeconds: Float): Float {
+        val t = (timeInSeconds / durationInSeconds).clamp(0.0f, 1.0f)
         return when (t) {
-            0.0 -> begin
-            1.0 -> end
+            0.0f -> begin
+            1.0f -> end
             else -> begin + (end - begin) * curve.transform(t)
         }
     }
 
-    override fun dx(timeInSeconds: Double): Double {
+    override fun dx(timeInSeconds: Float): Float {
         val epsilon = tolerance.time
         return (x(timeInSeconds + epsilon) -
                 x(timeInSeconds - epsilon)) / (2 * epsilon)
     }
 
-    override fun isDone(timeInSeconds: Double) = timeInSeconds >= durationInSeconds
+    override fun isDone(timeInSeconds: Float) = timeInSeconds >= durationInSeconds
 }
 
 private class RepeatingSimulation(
-    private val min: Double,
-    private val max: Double,
+    private val min: Float,
+    private val max: Float,
     period: Duration
 ) : Simulation() {
 
     private val periodInSeconds =
-        period.inMicroseconds.toDouble() / Duration.microsecondsPerSecond
+        period.inMicroseconds.toFloat() / Duration.microsecondsPerSecond
 
     init {
-        assert(periodInSeconds > 0.0)
+        assert(periodInSeconds > 0.0f)
     }
 
-    override fun x(timeInSeconds: Double): Double {
-        assert(timeInSeconds >= 0.0)
-        val t = (timeInSeconds / periodInSeconds) % 1.0
-        return lerpDouble(min, max, t)
+    override fun x(timeInSeconds: Float): Float {
+        assert(timeInSeconds >= 0.0f)
+        val t = (timeInSeconds / periodInSeconds) % 1.0f
+        return lerpFloat(min, max, t)
     }
 
-    override fun dx(timeInSeconds: Double): Double = (max - min) / periodInSeconds
+    override fun dx(timeInSeconds: Float): Float = (max - min) / periodInSeconds
 
-    override fun isDone(timeInSeconds: Double) = false
+    override fun isDone(timeInSeconds: Float) = false
 }

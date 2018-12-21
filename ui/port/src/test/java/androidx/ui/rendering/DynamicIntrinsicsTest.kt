@@ -35,17 +35,17 @@ import org.junit.runners.JUnit4
 class DynamicIntrinsicsTest {
 
     class RenderFixedSize : RenderBox() {
-        var dimension = 100.0
+        var dimension = 100.0f
 
         fun grow() {
-            dimension *= 2.0
+            dimension *= 2.0f
             markNeedsLayout()
         }
 
-        override fun computeMinIntrinsicWidth(height: Double) = dimension
-        override fun computeMaxIntrinsicWidth(height: Double) = dimension
-        override fun computeMinIntrinsicHeight(width: Double) = dimension
-        override fun computeMaxIntrinsicHeight(width: Double) = dimension
+        override fun computeMinIntrinsicWidth(height: Float) = dimension
+        override fun computeMaxIntrinsicWidth(height: Float) = dimension
+        override fun computeMinIntrinsicHeight(width: Float) = dimension
+        override fun computeMaxIntrinsicHeight(width: Float) = dimension
 
         override fun performLayout() {
             size = Size.square(dimension)
@@ -70,8 +70,8 @@ class DynamicIntrinsicsTest {
         override fun performLayout() {
             child!!.layout(constraints!!)
             size = Size(
-                    child!!.getMinIntrinsicWidth(Double.POSITIVE_INFINITY),
-                    child!!.getMinIntrinsicHeight(Double.POSITIVE_INFINITY)
+                    child!!.getMinIntrinsicWidth(Float.POSITIVE_INFINITY),
+                    child!!.getMinIntrinsicHeight(Float.POSITIVE_INFINITY)
             )
         }
     }
@@ -99,10 +99,10 @@ class DynamicIntrinsicsTest {
         )
         layout(root,
                 constraints = BoxConstraints(
-                        minWidth = 0.0,
-                        minHeight = 0.0,
-                        maxWidth = 1000.0,
-                        maxHeight = 1000.0
+                        minWidth = 0.0f,
+                        minHeight = 0.0f,
+                        maxWidth = 1000.0f,
+                        maxHeight = 1000.0f
                 )
         )
         assertEquals(root.size, inner.size)

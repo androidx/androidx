@@ -19,7 +19,10 @@ package androidx.ui.animation
 import androidx.ui.clamp
 import androidx.ui.runtimeType
 import androidx.ui.toStringAsFixed
+import androidx.ui.vectormath64.PI
 import kotlin.math.absoluteValue
+import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.truncate
 
 /**
@@ -39,7 +42,7 @@ abstract class Curve {
      *
      * A curve must map t=0.0 to 0.0 and t=1.0 to 1.0.
      */
-    abstract fun transform(t: Double): Double
+    abstract fun transform(t: Float): Float
 
     /**
      * Returns a new curve that is the reversed inversion of this one.
@@ -65,7 +68,7 @@ abstract class Curve {
  * See [Curves.linear] for an instance of this class.
  */
 private class Linear : Curve() {
-    override fun transform(t: Double) = t
+    override fun transform(t: Float) = t
 }
 
 /**
@@ -81,10 +84,10 @@ class SawTooth(
     private val count: Int
 ) : Curve() {
 
-    override fun transform(t: Double): Double {
+    override fun transform(t: Float): Float {
         assert(t in 0.0..1.0)
-        if (t == 1.0)
-            return 1.0
+        if (t == 1.0f)
+            return 1.0f
         val newT = t * count
         return newT - truncate(newT)
     }
@@ -109,28 +112,28 @@ class Interval(
      *
      * From t=0.0 to t=`begin`, the interval's value is 0.0.
      */
-    private val begin: Double,
+    private val begin: Float,
     /**
      * The smallest value for which this interval is 1.0.
      *
      * From t=`end` to t=1.0, the interval's value is 1.0.
      */
-    private val end: Double,
+    private val end: Float,
     /** The curve to apply between [begin] and [end]. */
     private val curve: Curve = Curves.linear
 ) : Curve() {
 
-    override fun transform(t: Double): Double {
+    override fun transform(t: Float): Float {
         assert(t in 0.0..1.0)
         assert(begin >= 0.0)
         assert(begin <= 1.0)
         assert(end >= 0.0)
         assert(end <= 1.0)
         assert(end >= begin)
-        if (t == 0.0 || t == 1.0)
+        if (t == 0.0f || t == 1.0f)
             return t
-        val newT = ((t - begin) / (end - begin)).clamp(0.0, 1.0)
-        if (newT == 0.0 || newT == 1.0)
+        val newT = ((t - begin) / (end - begin)).clamp(0.0f, 1.0f)
+        if (newT == 0.0f || newT == 1.0f)
             return newT
         return curve.transform(newT)
     }
@@ -155,20 +158,20 @@ class Threshold(
      *
      * When t is exactly [threshold], the curve has the value 1.0.
      */
-    private val threshold: Double
+    private val threshold: Float
 ) : Curve() {
 
-    override fun transform(t: Double): Double {
+    override fun transform(t: Float): Float {
         assert(t in 0.0..1.0)
         assert(threshold >= 0.0)
         assert(threshold <= 1.0)
-        if (t == 0.0 || t == 1.0)
+        if (t == 0.0f || t == 1.0f)
             return t
-        return if (t < threshold) 0.0 else 1.0
+        return if (t < threshold) 0.0f else 1.0f
     }
 }
 
-private const val CUBIC_ERROR_BOUND: Double = 0.001
+private const val CUBIC_ERROR_BOUND: Float = 0.001f
 
 /**
  * A cubic polynomial mapPIng of the unit interval.
@@ -197,40 +200,40 @@ class Cubic(
      * The line through the point (0, 0) and the first control point is tangent
      * to the curve at the point (0, 0).
      */
-    private val a: Double,
+    private val a: Float,
     /**
      * The y coordinate of the first control point.
      *
      * The line through the point (0, 0) and the first control point is tangent
      * to the curve at the point (0, 0).
      */
-    private val b: Double,
+    private val b: Float,
     /**
      * The x coordinate of the second control point.
      *
      * The line through the point (1, 1) and the second control point is tangent
      * to the curve at the point (1, 1).
      */
-    private val c: Double,
+    private val c: Float,
     /**
      * The y coordinate of the second control point.
      *
      * The line through the point (1, 1) and the second control point is tangent
      * to the curve at the point (1, 1).
      */
-    private val d: Double
+    private val d: Float
 ) : Curve() {
 
-    private fun evaluateCubic(a: Double, b: Double, m: Double): Double {
+    private fun evaluateCubic(a: Float, b: Float, m: Float): Float {
         return 3 * a * (1 - m) * (1 - m) * m +
                 3 * b * (1 - m) * /*    */ m * m +
                 /*                      */ m * m * m
     }
 
-    override fun transform(t: Double): Double {
-        assert(t in 0.0..1.0)
-        var start = 0.0
-        var end = 1.0
+    override fun transform(t: Float): Float {
+        assert(t in 0.0f..1.0f)
+        var start = 0.0f
+        var end = 1.0f
         while (true) {
             val midpoint = (start + end) / 2
             val estimate = evaluateCubic(a, c, midpoint)
@@ -267,7 +270,7 @@ class FlippedCurve(
     private val curve: Curve
 ) : Curve() {
 
-    override fun transform(t: Double) = 1.0 - curve.transform(1.0 - t)
+    override fun transform(t: Float) = 1.0f - curve.transform(1.0f - t)
 
     override fun toString() = "${runtimeType()}($curve)"
 }
@@ -283,32 +286,32 @@ class FlippedCurve(
  */
 private class DecelerateCurve : Curve() {
 
-    override fun transform(t: Double): Double {
-        assert(t in 0.0..1.0)
+    override fun transform(t: Float): Float {
+        assert(t in 0.0f..1.0f)
         // Intended to match the behavior of:
         // https://android.googlesource.com/platform/frameworks/base/+/master/core/
         // java/android/view/animation/DecelerateInterpolator.java
         // ...as of December 2016.
-        val newT = 1.0 - t
-        return 1.0 - newT * newT
+        val newT = 1.0f - t
+        return 1.0f - newT * newT
     }
 }
 
 // BOUNCE CURVES
 
-internal fun bounce(origT: Double): Double {
+internal fun bounce(origT: Float): Float {
     var t = origT
-    if (t < 1.0 / 2.75) {
-        return 7.5625 * t * t
-    } else if (t < 2 / 2.75) {
-        t -= 1.5 / 2.75
-        return 7.5625 * t * t + 0.75
+    if (t < 1.0f / 2.75f) {
+        return 7.5625f * t * t
+    } else if (t < 2f / 2.75f) {
+        t -= 1.5f / 2.75f
+        return 7.5625f * t * t + 0.75f
     } else if (t < 2.5 / 2.75) {
-        t -= 2.25 / 2.75
-        return 7.5625 * t * t + 0.9375
+        t -= 2.25f / 2.75f
+        return 7.5625f * t * t + 0.9375f
     }
-    t -= 2.625 / 2.75
-    return 7.5625 * t * t + 0.984375
+    t -= 2.625f / 2.75f
+    return 7.5625f * t * t + 0.984375f
 }
 
 /**
@@ -318,9 +321,9 @@ internal fun bounce(origT: Double): Double {
  */
 private class BounceInCurve : Curve() {
 
-    override fun transform(t: Double): Double {
+    override fun transform(t: Float): Float {
         assert(t in 0.0..1.0)
-        return 1.0 - bounce(1.0 - t)
+        return 1.0f - bounce(1.0f - t)
     }
 }
 
@@ -331,7 +334,7 @@ private class BounceInCurve : Curve() {
  */
 private class BounceOutCurve : Curve() {
 
-    override fun transform(t: Double): Double {
+    override fun transform(t: Float): Float {
         assert(t in 0.0..1.0)
         return bounce(t)
     }
@@ -344,12 +347,12 @@ private class BounceOutCurve : Curve() {
  */
 private class BounceInOutCurve : Curve() {
 
-    override fun transform(t: Double): Double {
-        assert(t in 0.0..1.0)
-        return if (t < 0.5)
-            (1.0 - bounce(1.0 - t)) * 0.5
+    override fun transform(t: Float): Float {
+        assert(t in 0.0f..1.0f)
+        return if (t < 0.5f)
+            (1.0f - bounce(1.0f - t)) * 0.5f
         else
-            bounce(t * 2.0 - 1.0) * 0.5 + 0.5
+            bounce(t * 2.0f - 1.0f) * 0.5f + 0.5f
     }
 }
 
@@ -367,14 +370,14 @@ private class BounceInOutCurve : Curve() {
  */
 class ElasticInCurve(
     /** The duration of the oscillation. */
-    private val period: Double = 0.4
+    private val period: Float = 0.4f
 ) : Curve() {
 
-    override fun transform(t: Double): Double {
-        assert(t in 0.0..1.0)
-        val s = period / 4.0
-        val newT = t - 1.0
-        return -Math.pow(2.0, 10.0 * newT) * Math.sin((newT - s) * (Math.PI * 2.0) / period)
+    override fun transform(t: Float): Float {
+        assert(t in 0.0f..1.0f)
+        val s = period / 4.0f
+        val newT = t - 1.0f
+        return (-(2.0f.pow(10.0f * newT)) * sin((newT - s) * (PI * 2.0f) / period))
     }
 
     override fun toString() = "${runtimeType()}($period)"
@@ -392,13 +395,13 @@ class ElasticInCurve(
  */
 class ElasticOutCurve(
     /** The duration of the oscillation. */
-    private val period: Double = 0.4
+    private val period: Float = 0.4f
 ) : Curve() {
 
-    override fun transform(t: Double): Double {
-        assert(t in 0.0..1.0)
-        val s = period / 4.0
-        return Math.pow(2.0, -10 * t) * Math.sin((t - s) * (Math.PI * 2.0) / period) + 1.0
+    override fun transform(t: Float): Float {
+        assert(t in 0.0f..1.0f)
+        val s = period / 4.0f
+        return (2f.pow(-10f * t) * sin((t - s) * (PI * 2f) / period) + 1f)
     }
 
     override fun toString() = "${runtimeType()}($period)"
@@ -417,20 +420,18 @@ class ElasticOutCurve(
  */
 class ElasticInOutCurve(
     /** The duration of the oscillation. */
-    private val period: Double = 0.4
+    private val period: Float = 0.4f
 ) : Curve() {
 
-    override fun transform(t: Double): Double {
+    override fun transform(t: Float): Float {
         assert(t in 0.0..1.0)
-        val s = period / 4.0
-        val newT = 2.0 * t - 1.0
-        return if (newT < 0.0)
-            -0.5 * Math.pow(2.0, 10.0 * newT) * Math.sin((newT - s) * (Math.PI * 2.0) / period)
+        val s = period / 4.0f
+        val newT = 2.0f * t - 1.0f
+        return if (newT < 0.0f)
+            (-0.5f * 2.0f.pow(10.0f * newT) * sin((newT - s) * (PI * 2.0f) / period))
         else
-            Math.pow(
-                2.0,
-                -10.0 * newT
-            ) * Math.sin((newT - s) * (Math.PI * 2.0) / period) * 0.5 + 1.0
+            (2.0f.pow(-10.0f * newT) *
+                    sin((newT - s) * (PI * 2.0f) / period) * 0.5f + 1.0f)
     }
 
     override fun toString() = "${runtimeType()}($period)"
@@ -490,28 +491,28 @@ class Curves {
          *
          * ![](https://flutter.github.io/assets-for-aPI-docs/assets/animation/curve_ease.png)
          */
-        val ease = Cubic(0.25, 0.1, 0.25, 1.0)
+        val ease = Cubic(0.25f, 0.1f, 0.25f, 1.0f)
 
         /**
          * A cubic animation curve that starts slowly and ends quickly.
          *
          * ![](https://flutter.github.io/assets-for-aPI-docs/assets/animation/curve_ease_in.png)
          */
-        val easeIn = Cubic(0.42, 0.0, 1.0, 1.0)
+        val easeIn = Cubic(0.42f, 0.0f, 1.0f, 1.0f)
 
         /**
          * A cubic animation curve that starts quickly and ends slowly.
          *
          * ![](https://flutter.github.io/assets-for-aPI-docs/assets/animation/curve_ease_out.png)
          */
-        val easeOut = Cubic(0.0, 0.0, 0.58, 1.0)
+        val easeOut = Cubic(0.0f, 0.0f, 0.58f, 1.0f)
 
         /**
          * A cubic animation curve that starts slowly, speeds up, and then and ends slowly.
          *
          * ![](https://flutter.github.io/assets-for-aPI-docs/assets/animation/curve_ease_in_out.png)
          */
-        val easeInOut = Cubic(0.42, 0.0, 0.58, 1.0)
+        val easeInOut = Cubic(0.42f, 0.0f, 0.58f, 1.0f)
 
         /**
          * A curve that starts quickly and eases into its val position.
@@ -522,7 +523,7 @@ class Curves {
          *
          * ![](https://flutter.github.io/assets-for-aPI-docs/assets/animation/curve_fast_out_slow_in.png)
          */
-        val fastOutSlowIn = Cubic(0.4, 0.0, 0.2, 1.0)
+        val fastOutSlowIn = Cubic(0.4f, 0.0f, 0.2f, 1.0f)
 
         /**
          * An oscillating curve that grows in magnitude.

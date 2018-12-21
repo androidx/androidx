@@ -24,33 +24,33 @@ import kotlinx.coroutines.Deferred
 /**
  * A ViewportOffset implementation for the fixed pixel.
  */
-internal class FixedViewportOffset(pixels: Double) : ViewportOffset() {
+internal class FixedViewportOffset(pixels: Float) : ViewportOffset() {
     companion object {
         fun zero(): FixedViewportOffset {
-            return FixedViewportOffset(0.0)
+            return FixedViewportOffset(0.0f)
         }
     }
 
-    override var pixels: Double = pixels
+    override var pixels: Float = pixels
         get() = field
-        private set(pixels: Double) {
+        private set(pixels: Float) {
             field = pixels
         }
 
-    override fun applyContentDimensions(minScrollExtent: Double, maxScrollExtent: Double): Boolean =
+    override fun applyContentDimensions(minScrollExtent: Float, maxScrollExtent: Float): Boolean =
         true
 
-    override fun applyViewportDimension(viewportDimension: Double): Boolean = true
+    override fun applyViewportDimension(viewportDimension: Float): Boolean = true
 
-    override fun correctBy(correction: Double) {
+    override fun correctBy(correction: Float) {
         pixels += correction
     }
 
-    override fun jumpTo(pixels: Double) {
+    override fun jumpTo(pixels: Float) {
         // Do nothing, viewport is fixed.
     }
 
-    override fun animateTo(to: Double, duration: Duration?, curve: Curve?): Deferred<Unit> {
+    override fun animateTo(to: Float, duration: Duration?, curve: Curve?): Deferred<Unit> {
         return CompletableDeferred(Unit)
     }
 

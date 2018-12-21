@@ -16,13 +16,13 @@
 package androidx.ui.vectormath64
 
 data class Matrix2(
-    var x: Vector2 = Vector2(x = 1.0),
-    var y: Vector2 = Vector2(y = 1.0)
+    var x: Vector2 = Vector2(x = 1.0f),
+    var y: Vector2 = Vector2(y = 1.0f)
 ) {
     constructor(m: Matrix2) : this(m.x.copy(), m.y.copy())
 
     companion object {
-        fun of(vararg a: Double): Matrix2 {
+        fun of(vararg a: Float): Matrix2 {
             require(a.size >= 4)
             return Matrix2(
                     Vector2(a[0], a[2]),
@@ -33,7 +33,7 @@ data class Matrix2(
         fun identity() = Matrix2()
     }
 
-    inline val m2storage: List<Double>
+    inline val m2storage: List<Float>
         get() = x.v2storage + y.v2storage
 
     operator fun get(column: Int) = when (column) {
@@ -53,7 +53,7 @@ data class Matrix2(
     operator fun set(column: Int, v: Vector2) {
         this[column].xy = v
     }
-    operator fun set(column: Int, row: Int, v: Double) {
+    operator fun set(column: Int, row: Int, v: Float) {
         this[column][row] = v
     }
 
@@ -67,10 +67,10 @@ data class Matrix2(
         --y
     }
 
-    operator fun plus(v: Double) = Matrix2(x + v, y + v)
-    operator fun minus(v: Double) = Matrix2(x - v, y - v)
-    operator fun times(v: Double) = Matrix2(x * v, y * v)
-    operator fun div(v: Double) = Matrix2(x / v, y / v)
+    operator fun plus(v: Float) = Matrix2(x + v, y + v)
+    operator fun minus(v: Float) = Matrix2(x - v, y - v)
+    operator fun times(v: Float) = Matrix2(x * v, y * v)
+    operator fun div(v: Float) = Matrix2(x / v, y / v)
 
     operator fun times(m: Matrix2): Matrix2 {
         val t = transpose(this)
@@ -85,7 +85,7 @@ data class Matrix2(
         return Vector2(dot(t.x, v), dot(t.y, v))
     }
 
-    fun toDoubleArray() = doubleArrayOf(
+    fun toFloatArray() = floatArrayOf(
             x.x, y.x,
             x.y, y.y
     )

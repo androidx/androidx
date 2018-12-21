@@ -3,7 +3,7 @@ package androidx.ui.widgets.basic
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.painting.alignment.Alignment
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.shiftedbox.RenderPositionedBox
@@ -63,19 +63,19 @@ open class Align(
      *
      * Can be both greater and less than 1.0 but must be non-negative.
      */
-    val widthFactor: Double? = null,
+    val widthFactor: Float? = null,
     /**
      * If non-null, sets its height to the child's height multiplied by this factor.
      *
      * Can be both greater and less than 1.0 but must be non-negative.
      */
-    val heightFactor: Double? = null,
+    val heightFactor: Float? = null,
     child: Widget
 ) : SingleChildRenderObjectWidget(key = key, child = child) {
 
     init {
-        assert(widthFactor == null || widthFactor >= 0.0)
-        assert(heightFactor == null || heightFactor >= 0.0)
+        assert(widthFactor == null || widthFactor >= 0.0f)
+        assert(heightFactor == null || heightFactor >= 0.0f)
     }
 
     override fun createRenderObject(context: BuildContext): RenderPositionedBox {
@@ -100,7 +100,7 @@ open class Align(
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
         properties.add(DiagnosticsProperty.create("alignment", alignment))
-        properties.add(DoubleProperty.create("widthFactor", widthFactor, defaultValue = null))
-        properties.add(DoubleProperty.create("heightFactor", heightFactor, defaultValue = null))
+        properties.add(FloatProperty.create("widthFactor", widthFactor, defaultValue = null))
+        properties.add(FloatProperty.create("heightFactor", heightFactor, defaultValue = null))
     }
 }

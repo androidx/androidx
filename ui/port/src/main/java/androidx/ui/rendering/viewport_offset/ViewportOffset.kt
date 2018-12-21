@@ -51,7 +51,7 @@ abstract class ViewportOffset : ChangeNotifier() {
          *
          * The [pixels] value does not change unless the viewport issues a correction.
          */
-        fun fixed(value: Double): ViewportOffset {
+        fun fixed(value: Float): ViewportOffset {
             return FixedViewportOffset(value)
         }
 
@@ -76,7 +76,7 @@ abstract class ViewportOffset : ChangeNotifier() {
      * This object notifies its listeners when this value changes (except when the value changes due
      * to [correctBy]).
      */
-    abstract val pixels: Double
+    abstract val pixels: Float
 
     /**
      * Called when the viewport's extents are established.
@@ -101,7 +101,7 @@ abstract class ViewportOffset : ChangeNotifier() {
      * these viewport dimensions unconditionally?"; if the new dimensions change the
      * [ViewportOffset]'s actual [pixels] value, then the viewport will need to be laid out again.)
      */
-    abstract fun applyViewportDimension(viewportDimension: Double): Boolean
+    abstract fun applyViewportDimension(viewportDimension: Float): Boolean
 
     /**
      * Called when the viewport's content extents are established.
@@ -125,7 +125,7 @@ abstract class ViewportOffset : ChangeNotifier() {
      * returns false). This is always called after [applyViewportDimension], if that method is
      * called.
      */
-    abstract fun applyContentDimensions(minScrollExtent: Double, maxScrollExtent: Double): Boolean
+    abstract fun applyContentDimensions(minScrollExtent: Float, maxScrollExtent: Float): Boolean
 
     /**
      * Apply a layout-time correction to the scroll offset.
@@ -140,7 +140,7 @@ abstract class ViewportOffset : ChangeNotifier() {
      *  * [jumpTo], for also changing the scroll position when not in layout.
      *    [jumpTo] applies the change immediately and notifies its listeners.
      */
-    abstract fun correctBy(correction: Double)
+    abstract fun correctBy(correction: Float)
 
     /**
      * Jumps [pixels] from its current value to the given value, without animation, and without
@@ -151,7 +151,7 @@ abstract class ViewportOffset : ChangeNotifier() {
      *  * [correctBy], for changing the current offset in the middle of layout and that defers the
      *    notification of its listeners until after layout.
      */
-    abstract fun jumpTo(pixels: Double)
+    abstract fun jumpTo(pixels: Float)
 
     /**
      * Animates [pixels] from its current value to the given value.
@@ -162,7 +162,7 @@ abstract class ViewportOffset : ChangeNotifier() {
      * The duration must not be zero. To jump to a particular value without an animation, use
      * [jumpTo].
      */
-    abstract fun animateTo(to: Double, duration: Duration?, curve: Curve?): Deferred<Unit>
+    abstract fun animateTo(to: Float, duration: Duration?, curve: Curve?): Deferred<Unit>
 
     /**
      * Calls [jumpTo] if duration is null or [Duration.zero], otherwise [animateTo] is called.
@@ -172,7 +172,7 @@ abstract class ViewportOffset : ChangeNotifier() {
      * adjusting [to] to prevent over or underscroll.
      */
     fun moveTo(
-        to: Double,
+        to: Float,
         duration: Duration? = null,
         curve: Curve? = null,
         clamp: Boolean? = null

@@ -40,7 +40,7 @@ class ComponentNodeTest {
     // Ensure that attach and detach work properly
     @Test
     fun componentNodeAttachDetach() {
-        val node = LayoutNode { _, _ -> Size(0.0, 0.0) }
+        val node = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
         assertNull(node.owner)
 
         val owner = mock(Owner::class.java)
@@ -268,7 +268,7 @@ class ComponentNodeTest {
     // Ensure that depth is as expected
     @Test
     fun depth() {
-        val root = LayoutNode { _, _ -> Size(0.0, 0.0) }
+        val root = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
         val (child, grand1, grand2) = createSimpleLayout()
         root.add(0, child)
 
@@ -284,8 +284,8 @@ class ComponentNodeTest {
     // layoutNode hierarchy should be set properly when a LayoutNode is a child of a LayoutNode
     @Test
     fun directLayoutNodeHierarchy() {
-        val layoutNode = LayoutNode { _, _ -> Size(0.0, 0.0) }
-        val childLayoutNode = LayoutNode { _, _ -> Size(0.0, 0.0) }
+        val layoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
+        val childLayoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
         layoutNode.add(0, childLayoutNode)
 
         val owner = mock(Owner::class.java)
@@ -305,9 +305,9 @@ class ComponentNodeTest {
     // layoutNode hierarchy should be set properly when a LayoutNode is a grandchild of a LayoutNode
     @Test
     fun indirectLayoutNodeHierarchy() {
-        val layoutNode = LayoutNode { _, _ -> Size(0.0, 0.0) }
+        val layoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
         val intermediate = GestureNode()
-        val childLayoutNode = LayoutNode { _, _ -> Size(0.0, 0.0) }
+        val childLayoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
         layoutNode.add(0, intermediate)
         intermediate.add(0, childLayoutNode)
 
@@ -349,7 +349,7 @@ class ComponentNodeTest {
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(1)).onRequestLayout(node)
-        LayoutNode.measure(node, BoxConstraints.tightFor(0.0, 0.0), false)
+        LayoutNode.measure(node, BoxConstraints.tightFor(0.0f, 0.0f), false)
         reset(owner)
 
         node.dirtyLayout()
@@ -367,10 +367,10 @@ class ComponentNodeTest {
         val (parent, child) = createNestedLayout()
         val owner = mock(Owner::class.java)
         parent.attach(owner)
-        val constraints = BoxConstraints.tightFor(width = 20.0, height = 25.0)
+        val constraints = BoxConstraints.tightFor(width = 20.0f, height = 25.0f)
         LayoutNode.measure(parent, constraints, true)
         assertEquals(constraints, parent.constraints)
-        val childConstraints = BoxConstraints.tightFor(width = 10.0, height = 15.0)
+        val childConstraints = BoxConstraints.tightFor(width = 10.0f, height = 15.0f)
         assertEquals(childConstraints, child.constraints)
         assertTrue(parent.parentUsesSize)
         assertFalse(child.parentUsesSize)
@@ -468,9 +468,9 @@ class ComponentNodeTest {
     }
 
     private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {
-        val layoutNode = LayoutNode { _, _ -> Size(0.0, 0.0) }
-        val child1 = LayoutNode { _, _ -> Size(0.0, 0.0) }
-        val child2 = LayoutNode { _, _ -> Size(0.0, 0.0) }
+        val layoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
+        val child1 = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
+        val child2 = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
         layoutNode.add(0, child1)
         layoutNode.add(1, child2)
         return Triple(layoutNode, child1, child2)
@@ -480,7 +480,8 @@ class ComponentNodeTest {
         val parent = LayoutNode { c, _ ->
             val child = layoutChildren.values.first()!!
             c as BoxConstraints
-            val constraints = BoxConstraints.tightFor(c.minWidth - 10.0, c.minHeight - 10.0)
+            val constraints = BoxConstraints.tightFor(c.minWidth - 10.0f,
+                c.minHeight - 10.0f)
             measure(child, constraints, false)
             position(child, 5, 4)
             Size(c.minWidth, c.minHeight)

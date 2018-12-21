@@ -62,9 +62,9 @@ class Vertices(
             val pointIndex = i / 2
             val point = points[pointIndex]
             if (i % 2 == 0) {
-                point.dx.toFloat()
+                point.dx
             } else {
-                point.dy.toFloat()
+                point.dy
             }
         }
     }

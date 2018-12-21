@@ -48,10 +48,10 @@ data class Velocity(
      * If the magnitude of this Velocity is within the specified bounds then
      * just return this.
      */
-    fun clampMagnitude(minValue: Double, maxValue: Double): Velocity {
-        assert(minValue >= 0.0)
-        assert((maxValue >= 0.0) && (maxValue >= minValue))
-        val valueSquared: Double = pixelsPerSecond.getDistanceSquared()
+    fun clampMagnitude(minValue: Float, maxValue: Float): Velocity {
+        assert(minValue >= 0.0f)
+        assert((maxValue >= 0.0f) && (maxValue >= minValue))
+        val valueSquared: Float = pixelsPerSecond.getDistanceSquared()
         if (valueSquared > maxValue * maxValue) {
             return Velocity(
                 pixelsPerSecond = (pixelsPerSecond / pixelsPerSecond.getDistance()) * maxValue

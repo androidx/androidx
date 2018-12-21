@@ -29,21 +29,21 @@ class BoxFitTest {
     fun `applyBoxFit`() {
         var result: FittedSizes
 
-        result = applyBoxFit(BoxFit.scaleDown, Size(100.0, 1000.0), Size(200.0, 2000.0))
-        assertEquals(result.source, Size(100.0, 1000.0))
-        assertEquals(result.destination, Size(100.0, 1000.0))
+        result = applyBoxFit(BoxFit.scaleDown, Size(100.0f, 1000.0f), Size(200.0f, 2000.0f))
+        assertEquals(result.source, Size(100.0f, 1000.0f))
+        assertEquals(result.destination, Size(100.0f, 1000.0f))
 
-        result = applyBoxFit(BoxFit.scaleDown, Size(300.0, 3000.0), Size(200.0, 2000.0))
-        assertEquals(result.source, Size(300.0, 3000.0))
-        assertEquals(result.destination, Size(200.0, 2000.0))
+        result = applyBoxFit(BoxFit.scaleDown, Size(300.0f, 3000.0f), Size(200.0f, 2000.0f))
+        assertEquals(result.source, Size(300.0f, 3000.0f))
+        assertEquals(result.destination, Size(200.0f, 2000.0f))
 
-        result = applyBoxFit(BoxFit.fitWidth, Size(2000.0, 400.0), Size(1000.0, 100.0))
-        assertEquals(result.source, Size(2000.0, 200.0))
-        assertEquals(result.destination, Size(1000.0, 100.0))
+        result = applyBoxFit(BoxFit.fitWidth, Size(2000.0f, 400.0f), Size(1000.0f, 100.0f))
+        assertEquals(result.source, Size(2000.0f, 200.0f))
+        assertEquals(result.destination, Size(1000.0f, 100.0f))
 
-        result = applyBoxFit(BoxFit.fitHeight, Size(400.0, 2000.0), Size(100.0, 1000.0))
-        assertEquals(result.source, Size(200.0, 2000.0))
-        assertEquals(result.destination, Size(100.0, 1000.0))
+        result = applyBoxFit(BoxFit.fitHeight, Size(400.0f, 2000.0f), Size(100.0f, 1000.0f))
+        assertEquals(result.source, Size(200.0f, 2000.0f))
+        assertEquals(result.destination, Size(100.0f, 1000.0f))
 
         _testZeroAndNegativeSizes(BoxFit.fill)
         _testZeroAndNegativeSizes(BoxFit.contain)
@@ -57,35 +57,35 @@ class BoxFitTest {
     private fun _testZeroAndNegativeSizes(fit: BoxFit) {
         var result: FittedSizes
 
-        result = applyBoxFit(fit, Size(-400.0, 2000.0), Size(100.0, 1000.0))
+        result = applyBoxFit(fit, Size(-400.0f, 2000.0f), Size(100.0f, 1000.0f))
         assertEquals(Size.zero, result.source)
         assertEquals(Size.zero, result.destination)
 
-        result = applyBoxFit(fit, Size(400.0, -2000.0), Size(100.0, 1000.0))
+        result = applyBoxFit(fit, Size(400.0f, -2000.0f), Size(100.0f, 1000.0f))
         assertEquals(Size.zero, result.source)
         assertEquals(Size.zero, result.destination)
 
-        result = applyBoxFit(fit, Size(400.0, 2000.0), Size(-100.0, 1000.0))
+        result = applyBoxFit(fit, Size(400.0f, 2000.0f), Size(-100.0f, 1000.0f))
         assertEquals(Size.zero, result.source)
         assertEquals(Size.zero, result.destination)
 
-        result = applyBoxFit(fit, Size(400.0, 2000.0), Size(100.0, -1000.0))
+        result = applyBoxFit(fit, Size(400.0f, 2000.0f), Size(100.0f, -1000.0f))
         assertEquals(Size.zero, result.source)
         assertEquals(Size.zero, result.destination)
 
-        result = applyBoxFit(fit, Size(0.0, 2000.0), Size(100.0, 1000.0))
+        result = applyBoxFit(fit, Size(0.0f, 2000.0f), Size(100.0f, 1000.0f))
         assertEquals(Size.zero, result.source)
         assertEquals(Size.zero, result.destination)
 
-        result = applyBoxFit(fit, Size(400.0, 0.0), Size(100.0, 1000.0))
+        result = applyBoxFit(fit, Size(400.0f, 0.0f), Size(100.0f, 1000.0f))
         assertEquals(Size.zero, result.source)
         assertEquals(Size.zero, result.destination)
 
-        result = applyBoxFit(fit, Size(400.0, 2000.0), Size(0.0, 1000.0))
+        result = applyBoxFit(fit, Size(400.0f, 2000.0f), Size(0.0f, 1000.0f))
         assertEquals(Size.zero, result.source)
         assertEquals(Size.zero, result.destination)
 
-        result = applyBoxFit(fit, Size(400.0, 2000.0), Size(100.0, 0.0))
+        result = applyBoxFit(fit, Size(400.0f, 2000.0f), Size(100.0f, 0.0f))
         assertEquals(Size.zero, result.source)
         assertEquals(Size.zero, result.destination)
     }

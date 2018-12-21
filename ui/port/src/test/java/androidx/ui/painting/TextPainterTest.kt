@@ -35,7 +35,7 @@ class TextPainterTest() {
         assertThat(textPainter.text).isNull()
         assertThat(textPainter.textAlign).isEqualTo(TextAlign.START)
         assertThat(textPainter.textDirection).isNull()
-        assertThat(textPainter.textScaleFactor).isEqualTo(1.0)
+        assertThat(textPainter.textScaleFactor).isEqualTo(1.0f)
         assertThat(textPainter.maxLines).isNull()
         assertThat(textPainter.ellipsis).isNull()
         assertThat(textPainter.locale).isNull()
@@ -66,7 +66,7 @@ class TextPainterTest() {
 
     @Test
     fun `constructor with customized textScaleFactor`() {
-        val scaleFactor = 2.0
+        val scaleFactor = 2.0f
 
         val textPainter = TextPainter(textScaleFactor = scaleFactor)
 
@@ -138,7 +138,7 @@ class TextPainterTest() {
     @Test
     fun `textScaleFactor setter`() {
         val textPainter = TextPainter()
-        val scaleFactor = 3.0
+        val scaleFactor = 3.0f
 
         textPainter.textScaleFactor = scaleFactor
 
@@ -186,8 +186,8 @@ class TextPainterTest() {
 
     @Test
     fun `createParagraphStyle with TextStyle in TextSpan`() {
-        val fontSize = 15.0
-        val scaleFactor = 3.0
+        val fontSize = 15.0f
+        val scaleFactor = 3.0f
         val maxLines = 5
         val ellipsis = "..."
         val locale = Locale("en", "US")
@@ -215,7 +215,7 @@ class TextPainterTest() {
 
     @Test
     fun `createParagraphStyle without TextStyle in TextSpan`() {
-        val scaleFactor = 3.0
+        val scaleFactor = 3.0f
         val maxLines = 5
         val ellipsis = "..."
         val locale = Locale("en", "US")
@@ -242,8 +242,8 @@ class TextPainterTest() {
 
     @Test
     fun `createParagraphStyle with defaultTextDirection`() {
-        val fontSize = 15.0
-        val scaleFactor = 3.0
+        val fontSize = 15.0f
+        val scaleFactor = 3.0f
         val maxLines = 5
         val ellipsis = "..."
         val locale = Locale("en", "US")
@@ -270,17 +270,17 @@ class TextPainterTest() {
 
     @Test
     fun `applyFloatingPointHack with value is integer toDouble`() {
-        assertThat(applyFloatingPointHack(2.toDouble())).isEqualTo(2.0)
+        assertThat(applyFloatingPointHack(2f)).isEqualTo(2.0f)
     }
 
     @Test
     fun `applyFloatingPointHack with value smaller than half`() {
-        assertThat(applyFloatingPointHack(2.2)).isEqualTo(3.0)
+        assertThat(applyFloatingPointHack(2.2f)).isEqualTo(3.0f)
     }
 
     @Test
     fun `applyFloatingPointHack with value larger than half`() {
-        assertThat(applyFloatingPointHack(2.8)).isEqualTo(3.0)
+        assertThat(applyFloatingPointHack(2.8f)).isEqualTo(3.0f)
     }
 
     @Test(expected = AssertionError::class)
@@ -338,7 +338,7 @@ class TextPainterTest() {
             TextPainter(text = TextSpan(text = "Hello"), textDirection = TextDirection.LTR)
         textPainter.needsLayout = false
 
-        textPainter.layout(0.0, 0.0)
+        textPainter.layout(0.0f, 0.0f)
 
         assertThat(textPainter.paragraph).isNull()
     }
@@ -348,6 +348,6 @@ class TextPainterTest() {
         val textPainter = TextPainter()
         val canvas = mock<Canvas>()
 
-        textPainter.paint(canvas, Offset(0.0, 0.0))
+        textPainter.paint(canvas, Offset(0.0f, 0.0f))
     }
 }

@@ -19,8 +19,9 @@ package androidx.ui.rendering.shiftedbox
 import androidx.ui.assert
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Size
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
@@ -30,7 +31,7 @@ import androidx.ui.painting.alignment.AlignmentGeometry
 import androidx.ui.rendering.box.BoxParentData
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
-import androidx.ui.engine.text.TextDirection
+import kotlin.math.min
 
 /**
  * Positions its child using a [AlignmentGeometry].
@@ -46,8 +47,8 @@ import androidx.ui.engine.text.TextDirection
  */
 class RenderPositionedBox(
     child: RenderBox? = null,
-    widthFactor: Double? = null,
-    heightFactor: Double? = null,
+    widthFactor: Float? = null,
+    heightFactor: Float? = null,
     alignment: AlignmentGeometry = Alignment.center,
     textDirection: TextDirection? = null
 ) : RenderAligningShiftedBox(
@@ -57,22 +58,22 @@ class RenderPositionedBox(
 ) {
 
     init {
-        assert(widthFactor == null || widthFactor >= 0.0)
-        assert(heightFactor == null || heightFactor >= 0.0)
+        assert(widthFactor == null || widthFactor >= 0.0f)
+        assert(heightFactor == null || heightFactor >= 0.0f)
     }
 
-    var _widthFactor: Double? = widthFactor
-    var _heightFactor: Double? = heightFactor
+    var _widthFactor: Float? = widthFactor
+    var _heightFactor: Float? = heightFactor
 
     /**
      * If non-null, sets its width to the child's width multiplied by this factor.
      *
      * Can be both greater and less than 1.0 but must be positive.
      */
-    var widthFactor: Double?
+    var widthFactor: Float?
         get() = _widthFactor
         set(value) {
-            assert(value == null || value >= 0.0)
+            assert(value == null || value >= 0.0f)
             if (_widthFactor == value)
                 return
             _widthFactor = value
@@ -84,10 +85,10 @@ class RenderPositionedBox(
      *
      * Can be both greater and less than 1.0 but must be positive.
      */
-    var heightFactor: Double?
+    var heightFactor: Float?
         get() = _heightFactor
         set(value) {
-            assert(value == null || value >= 0.0)
+            assert(value == null || value >= 0.0f)
             if (_heightFactor == value)
                 return
             _heightFactor = value
@@ -96,31 +97,31 @@ class RenderPositionedBox(
 
     override fun performLayout() {
         val shrinkWrapWidth = _widthFactor != null ||
-                constraints!!.maxWidth == Double.POSITIVE_INFINITY
+                constraints!!.maxWidth == Float.POSITIVE_INFINITY
         val shrinkWrapHeight = _heightFactor != null ||
-                constraints!!.maxHeight == Double.POSITIVE_INFINITY
+                constraints!!.maxHeight == Float.POSITIVE_INFINITY
 
         if (child != null) {
             child!!.layout(constraints!!.loosen(), parentUsesSize = true)
             size = constraints!!.constrain(
                     Size(
                         if (shrinkWrapWidth) {
-                            child!!.size.width * (_widthFactor ?: 1.0)
+                            child!!.size.width * (_widthFactor ?: 1.0f)
                         } else {
-                            Double.POSITIVE_INFINITY
+                            Float.POSITIVE_INFINITY
                         },
                         if (shrinkWrapHeight) {
-                            child!!.size.height * (_heightFactor ?: 1.0)
+                            child!!.size.height * (_heightFactor ?: 1.0f)
                         } else {
-                            Double.POSITIVE_INFINITY
+                            Float.POSITIVE_INFINITY
                         }
                     ))
             alignChild()
         } else {
             size = constraints!!.constrain(
                     Size(
-                            if (shrinkWrapWidth) 0.0 else Double.POSITIVE_INFINITY,
-                            if (shrinkWrapHeight) 0.0 else Double.POSITIVE_INFINITY
+                            if (shrinkWrapWidth) 0.0f else Float.POSITIVE_INFINITY,
+                            if (shrinkWrapHeight) 0.0f else Float.POSITIVE_INFINITY
                     ))
         }
     }
@@ -132,16 +133,16 @@ class RenderPositionedBox(
             if (child != null && !child!!.size.isEmpty()) {
                 paint = Paint().let {
                     it.style = PaintingStyle.stroke
-                    it.strokeWidth = 1.0
+                    it.strokeWidth = 1.0f
                     it.color = Color(0xFFFFFF00.toInt())
                     it
                 }
 
                 var path = Path()
                 val childParentData = child!!.parentData as BoxParentData
-                if (childParentData.offset.dy > 0.0) {
+                if (childParentData.offset.dy > 0.0f) {
                     // vertical alignment arrows
-                    val headSize: Double = Math.min(childParentData.offset.dy * 0.2, 10.0)
+                    val headSize: Float = min(childParentData.offset.dy * 0.2f, 10.0f)
                     TODO("Migration/Filip: Wait for Path to be migrated")
 //                    path
 //                    ..moveTo(offset.dx + size.width / 2.0, offset.dy)
@@ -158,9 +159,9 @@ class RenderPositionedBox(
 //                    ..relativeLineTo(headSize, 0.0);
                     context.canvas.drawPath(path, paint)
                 }
-                if (childParentData.offset.dx > 0.0) {
+                if (childParentData.offset.dx > 0.0f) {
                     // horizontal alignment arrows
-                    val headSize: Double = Math.min(childParentData.offset.dx * 0.2, 10.0)
+                    val headSize: Float = min(childParentData.offset.dx * 0.2f, 10.0f)
                     TODO("Migration/Filip: Wait for Path to be migrated")
 //                    path
 //                    ..moveTo(offset.dx, offset.dy + size.height / 2.0)
@@ -190,7 +191,7 @@ class RenderPositionedBox(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DoubleProperty.create("widthFactor", _widthFactor, ifNull = "expand"))
-        properties.add(DoubleProperty.create("heightFactor", _heightFactor, ifNull = "expand"))
+        properties.add(FloatProperty.create("widthFactor", _widthFactor, ifNull = "expand"))
+        properties.add(FloatProperty.create("heightFactor", _heightFactor, ifNull = "expand"))
     }
 }

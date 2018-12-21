@@ -113,7 +113,7 @@ public class StaticLayoutCompat {
 
         private float mLineSpacingExtra;
 
-        @FloatRange(from = 0.0)
+        @FloatRange(from = 0.0f)
         float mLineSpacingMultiplier;
 
         boolean mIncludePadding;
@@ -314,7 +314,7 @@ public class StaticLayoutCompat {
          */
         @NonNull
         public Builder setLineSpacingMultiplier(
-                @FloatRange(from = 0.0) float lineSpacingMultiplier) {
+                @FloatRange(from = 0.0f) float lineSpacingMultiplier) {
             mLineSpacingMultiplier = Preconditions.checkArgumentInRange(lineSpacingMultiplier,
                     0.0f, Float.MAX_VALUE, "LineSpacingMultiplier");
             return this;

@@ -18,6 +18,7 @@ package androidx.ui.painting
 
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.PI
 
 // A shader (as used by [Paint.shader]) that renders a color gradient.
 //
@@ -52,15 +53,15 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
             from: Offset,
             to: Offset,
             colors: List<Color>,
-            colorStops: List<Double>? = null,
+            colorStops: List<Float>? = null,
             tileMode: TileMode = TileMode.clamp
         ): Gradient {
             _validateColorStops(colors, colorStops)
             val linearGradient = android.graphics.LinearGradient(
-                    from.dx.toFloat(),
-                    from.dy.toFloat(),
-                    to.dx.toFloat(),
-                    to.dy.toFloat(),
+                    from.dx,
+                    from.dy,
+                    to.dx,
+                    to.dy,
                     toIntArray(colors),
                     toFloatArray(colorStops),
                     toFrameworkTileMode(tileMode)
@@ -104,23 +105,23 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
         @SuppressWarnings("SyntheticAccessor")
         fun radial(
             center: Offset,
-            radius: Double,
+            radius: Float,
             color: List<Color>,
-            colorStops: List<Double>?,
+            colorStops: List<Float>?,
             tileMode: TileMode = TileMode.clamp,
             matrix4: Matrix4,
             focal: Offset?,
-            focalRadius: Double
+            focalRadius: Float
         ): Gradient {
             _validateColorStops(color, colorStops)
-            if (focal == null || (focal == center && focalRadius == 0.0)) {
+            if (focal == null || (focal == center && focalRadius == 0.0f)) {
                 TODO("Migration/njawad: add focal support to RadialGradient in framework")
             } else {
                 // TODO(Migration/njawad use matrix parameter in creation of RadialGradient)
                 val radial = android.graphics.RadialGradient(
-                        center.dx.toFloat(),
-                        center.dy.toFloat(),
-                        radius.toFloat(),
+                    center.dx,
+                    center.dy,
+                    radius,
                         toIntArray(color),
                         toFloatArray(colorStops),
                         toFrameworkTileMode(tileMode)
@@ -163,18 +164,18 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
         fun sweep(
             center: Offset,
             colors: List<Color>,
-            colorStops: List<Double>,
+            colorStops: List<Float>,
             tileMode: TileMode = TileMode.clamp,
-            startAngle: Double,
-            endAngle: Double = Math.PI * 2,
+            startAngle: Float,
+            endAngle: Float = PI * 2,
             matrix4: Matrix4
         ): Gradient {
             _validateColorStops(colors, colorStops)
             // TODO(Migration/njawad framework SweepGradient does not support angle ranges/TileModes)
             val sweep = android.graphics.SweepGradient(
-                    center.dx.toFloat(), center.dy.toFloat(),
-                    toIntArray(colors),
-                    toFloatArray(colorStops)
+                center.dx, center.dy,
+                toIntArray(colors),
+                toFloatArray(colorStops)
             )
             return Gradient(sweep)
         }
@@ -187,10 +188,10 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
             }
         }
 
-        private fun toFloatArray(stops: List<Double>?): FloatArray? {
+        private fun toFloatArray(stops: List<Float>?): FloatArray? {
             return if (stops != null) {
-                FloatArray(stops.size) {
-                    i -> stops[i].toFloat()
+                FloatArray(stops.size) { i ->
+                    stops[i]
                 }
             } else {
                 return null
@@ -203,7 +204,7 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
             }
         }
 
-        private fun _validateColorStops(colors: List<Color>, colorStops: List<Double>?) {
+        private fun _validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
             if (colorStops == null && colors.size != 2) {
                 throw IllegalArgumentException("colors must have length 2 if colorStops " +
                         "is omitted.")

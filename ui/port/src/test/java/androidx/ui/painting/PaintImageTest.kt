@@ -38,19 +38,19 @@ class PaintImageTest {
         val canvas = mock<Canvas>()
         paintImage(
                 canvas = canvas,
-                rect = Rect.fromLTWH(50.0, 75.0, 200.0, 100.0),
+                rect = Rect.fromLTWH(50.0f, 75.0f, 200.0f, 100.0f),
                 image = image,
                 fit = BoxFit.cover,
-                alignment = Alignment(-1.0, 0.0)
+                alignment = Alignment(-1.0f, 0.0f)
         )
 
         val srcCaptor = argumentCaptor<Rect>()
         val dstCaptor = argumentCaptor<Rect>()
         verify(canvas).drawImageRect(eq(image), srcCaptor.capture(), dstCaptor.capture(), any())
 
-        assertEquals(Rect.fromLTWH(0.0, 75.0, 300.0, 150.0),
+        assertEquals(Rect.fromLTWH(0.0f, 75.0f, 300.0f, 150.0f),
                 srcCaptor.firstValue)
-        assertEquals(Rect.fromLTWH(50.0, 75.0, 200.0, 100.0),
+        assertEquals(Rect.fromLTWH(50.0f, 75.0f, 200.0f, 100.0f),
                 dstCaptor.firstValue)
     }
 }

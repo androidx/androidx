@@ -29,13 +29,13 @@ import androidx.ui.animation.animations.AnimationWithParentMixin
 abstract class Animatable<T> {
 
     /** The current value of this object for the given animation. */
-    abstract fun evaluate(animation: Animation<Double>): T
+    abstract fun evaluate(animation: Animation<Float>): T
 
     /**
      * Returns a new Animation that is driven by the given animation but that
      * takes on values determined by this object.
      */
-    fun animate(parent: Animation<Double>): Animation<T> {
+    fun animate(parent: Animation<Float>): Animation<T> {
         return AnimatedEvaluation(parent, this)
     }
 
@@ -43,13 +43,13 @@ abstract class Animatable<T> {
      * Returns a new Animatable whose value is determined by first evaluating
      * the given parent and then evaluating this object.
      */
-    fun chain(parent: Animatable<Double>): Animatable<T> {
+    fun chain(parent: Animatable<Float>): Animatable<T> {
         return ChainedEvaluation(parent, this)
     }
 }
 
 private class AnimatedEvaluation<T>(
-    parent: Animation<Double>,
+    parent: Animation<Float>,
     private val evaluatable: Animatable<T>
 ) : AnimationWithParentMixin<T>(parent) {
 
@@ -61,11 +61,11 @@ private class AnimatedEvaluation<T>(
 }
 
 private class ChainedEvaluation<T>(
-    private val parent: Animatable<Double>,
+    private val parent: Animatable<Float>,
     private val evaluatable: Animatable<T>
 ) : Animatable<T>() {
 
-    override fun evaluate(animation: Animation<Double>): T {
+    override fun evaluate(animation: Animation<Float>): T {
         val value = parent.evaluate(animation)
         return evaluatable.evaluate(AlwaysStoppedAnimation(value))
     }

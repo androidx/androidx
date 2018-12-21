@@ -1,5 +1,8 @@
 package androidx.ui.engine.geometry
 
+import kotlin.math.cos
+import kotlin.math.sin
+
 /**
  * A transform consisting of a translation, a rotation, and a uniform scale.
  *
@@ -36,34 +39,34 @@ package androidx.ui.engine.geometry
  */
 data class RSTransform(
     // The cosine of the rotation multiplied by the scale factor.
-    val scos: Double,
+    val scos: Float,
     /** The sine of the rotation multiplied by that same scale factor. */
-    val ssin: Double,
+    val ssin: Float,
     /**
      * The x coordinate of the translation, minus [scos] multiplied by the
      * x-coordinate of the rotation point, plus [ssin] multiplied by the
      * y-coordinate of the rotation point.
      */
-    val tx: Double,
+    val tx: Float,
     /**
      * The y coordinate of the translation, minus [ssin] multiplied by the
      * x-coordinate of the rotation point, minus [scos] multiplied by the
      * y-coordinate of the rotation point.
      */
-    val ty: Double
+    val ty: Float
 ) {
 
     companion object {
         fun fromComponents(
-            rotation: Double,
-            scale: Double,
-            anchorX: Double,
-            anchorY: Double,
-            translateX: Double,
-            translateY: Double
+            rotation: Float,
+            scale: Float,
+            anchorX: Float,
+            anchorY: Float,
+            translateX: Float,
+            translateY: Float
         ): RSTransform {
-            val scos = Math.cos(rotation) * scale
-            val ssin = Math.sin(rotation) * scale
+            val scos = cos(rotation) * scale
+            val ssin = sin(rotation) * scale
             val tx = translateX + -scos * anchorX + ssin * anchorY
             val ty = translateY + -ssin * anchorX - scos * anchorY
             return RSTransform(scos, ssin, tx, ty)

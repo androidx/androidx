@@ -43,7 +43,7 @@ val kHoverTapTimeout: Duration = Duration.create(milliseconds = 150)
  * which TapGestureRecognizer inherits from, uses [kTouchSlop].)
  */
 // TODO(ianh): Remove this or implement it correctly.
-const val kHoverTapSlop: Double = 20.0 // Logical pixels
+const val kHoverTapSlop: Float = 20.0f // Logical pixels
 
 /** The time before a long press gesture attempts to win. */
 val kLongPressTimeout: Duration = Duration.create(milliseconds = 500)
@@ -72,21 +72,21 @@ val kDoubleTapMinTime: Duration = Duration.create(milliseconds = 40)
  */
 // This value was empirically derived. We started at 8.0 and increased it to
 // 18.0 after getting complaints that it was too difficult to hit targets.
-const val kTouchSlop: Double = 18.0 // Logical pixels
+const val kTouchSlop: Float = 18.0f // Logical pixels
 
 /**
  * The maximum distance that the first touch in a double-tap gesture can travel
  * before deciding that it is not part of a double-tap gesture.
  * DoubleTapGestureRecognizer also restricts the second touch to this distance.
  */
-const val kDoubleTapTouchSlop: Double = kTouchSlop // Logical pixels
+const val kDoubleTapTouchSlop: Float = kTouchSlop // Logical pixels
 
 /**
  * Distance between the initial position of the first touch and the start
  * position of a potential second touch for the second touch to be considered
  * the second touch of a double-tap gesture.
  */
-const val kDoubleTapSlop: Double = 100.0 // Logical pixels
+const val kDoubleTapSlop: Float = 100.0f // Logical pixels
 
 /**
  * The time for which zoom controls (e.g. in a map interface) are to be
@@ -101,38 +101,38 @@ val kZoomControlsTimeout: Duration = Duration.create(milliseconds = 3000)
  */
 // TODO(ianh): Create variants of HorizontalDragGestureRecognizer et al for
 // paging, which use this constant.
-const val kPagingTouchSlop: Double = kTouchSlop * 2.0 // Logical pixels
+const val kPagingTouchSlop: Float = kTouchSlop * 2.0f // Logical pixels
 
 /**
  * The distance a touch has to travel for the framework to be confident that
  * the gesture is a panning gesture.
  */
-const val kPanSlop: Double = kTouchSlop * 2.0 // Logical pixels
+const val kPanSlop: Float = kTouchSlop * 2.0f // Logical pixels
 
 /**
  * The distance a touch has to travel for the framework to be confident that
  * the gesture is a scale gesture.
  */
-const val kScaleSlop: Double = kTouchSlop // Logical pixels
+const val kScaleSlop: Float = kTouchSlop // Logical pixels
 
 /**
  * The margin around a dialog, popup menu, or other window-like widget inside
  * which we do not consider a tap to dismiss the widget. (Not currently used.)
  */
 // TODO(ianh): Make ModalBarrier support this.
-const val kWindowTouchSlop: Double = 16.0 // Logical pixels
+const val kWindowTouchSlop: Float = 16.0f // Logical pixels
 
 /**
  * The minimum velocity for a touch to consider that touch to trigger a fling
  * gesture.
  */
 // TODO(ianh): Make sure nobody has their own version of this.
-const val kMinFlingVelocity: Double = 50.0 // Logical pixels / second
+const val kMinFlingVelocity: Float = 50.0f // Logical pixels / second
 // const Velocity kMinFlingVelocity = const Velocity(pixelsPerSecond: 50.0)
 
 /** Drag gesture fling velocities are clipped to this value. */
 // TODO(ianh): Make sure nobody has their own version of this.
-const val kMaxFlingVelocity: Double = 8000.0 // Logical pixels / second
+const val kMaxFlingVelocity: Float = 8000.0f // Logical pixels / second
 
 /**
  * The maximum time from the start of the first tap to the start of the second

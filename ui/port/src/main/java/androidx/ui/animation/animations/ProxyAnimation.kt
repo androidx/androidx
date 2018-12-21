@@ -35,17 +35,17 @@ class ProxyAnimation(
      * If the animation argument is omitted, the proxy animation will have the
      * status [AnimationStatus.DISMISSED] and a value of 0
      */
-    animation: Animation<Double>? = null
-) : AnimationLazyListenerMixin<Double>() {
+    animation: Animation<Float>? = null
+) : AnimationLazyListenerMixin<Float>() {
 
-    private var _parent: Animation<Double>?
+    private var _parent: Animation<Float>?
     /**
      * The animation whose value this animation will proxy.
      *
      * This value is mutable. When mutated, the listeners on the proxy animation
      * will be transparently updated to be listening to the new parent animation.
      */
-    var parent: Animation<Double>?
+    var parent: Animation<Float>?
         get() = _parent
         set(newParent) {
             val oldParent = _parent
@@ -78,15 +78,15 @@ class ProxyAnimation(
     override val status: AnimationStatus
         get() = _parent?.status ?: _status!!
 
-    private var _value: Double? = null
-    override val value: Double
+    private var _value: Float? = null
+    override val value: Float
         get() = _parent?.value ?: _value!!
 
     init {
         _parent = animation
         if (_parent == null) {
             _status = AnimationStatus.DISMISSED
-            _value = 0.0
+            _value = 0.0f
         }
     }
 

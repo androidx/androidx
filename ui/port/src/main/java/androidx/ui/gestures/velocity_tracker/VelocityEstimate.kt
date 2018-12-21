@@ -44,7 +44,7 @@ open class VelocityEstimate(
      *
      * The value of this property is 1.0 for a perfect fit, 0.0 for a poor fit.
      */
-    val confidence: Double,
+    val confidence: Float,
     /**
      * The time that elapsed between the first and last position sample used
      * to compute [pixelsPerSecond].

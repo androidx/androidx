@@ -27,7 +27,7 @@ class ParagraphConstraintsTest {
 
     @Test
     fun `toString with values`() {
-        val paragraphConstraints = ParagraphConstraints(width = 101.0)
+        val paragraphConstraints = ParagraphConstraints(width = 101.0f)
         assertThat(
             paragraphConstraints.toString(),
             `is`(equalTo("ParagraphConstraints(width: 101.0)"))

@@ -31,7 +31,7 @@ class ViewportOffsetTest {
 
     @Test
     fun `moveTo call jumpTo if duration is null test`() {
-        val testValue = 123.4
+        val testValue = 123.4f
 
         val viewportOffset: ViewportOffset = mock()
         whenever(viewportOffset.moveTo(testValue)).thenCallRealMethod()
@@ -43,7 +43,7 @@ class ViewportOffsetTest {
 
     @Test
     fun `moveTo call jumpTo if duration is zero test`() {
-        val testValue = 123.4
+        val testValue = 123.4f
 
         val viewportOffset: ViewportOffset = mock()
         whenever(viewportOffset.moveTo(testValue, Duration.zero)).thenCallRealMethod()
@@ -55,7 +55,7 @@ class ViewportOffsetTest {
 
     @Test
     fun `moveTo call animateTo if Duration has time`() {
-        val testValue = 123.4
+        val testValue = 123.4f
         val duration = Duration(100)
 
         val viewportOffset: ViewportOffset = mock()

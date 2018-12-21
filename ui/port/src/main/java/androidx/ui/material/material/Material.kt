@@ -31,7 +31,7 @@ import androidx.ui.engine.text.TextStyle
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
@@ -118,15 +118,15 @@ enum class MaterialType {
  */
 val MaterialEdges = mapOf(
     MaterialType.CANVAS to null,
-    MaterialType.CARD to BorderRadius.circular(2.0),
+    MaterialType.CARD to BorderRadius.circular(2.0f),
     MaterialType.CIRCLE to null,
-    MaterialType.BUTTON to BorderRadius.circular(2.0),
+    MaterialType.BUTTON to BorderRadius.circular(2.0f),
     MaterialType.TRANSPARENCY to null
 )
 
 /** The default radius of an ink splash in logical pixels. */
 // TODO("Migration|Andrey:  Defined in dps, but will actually be drawn as pixels! Solve it!")
-const val DefaultSplashRadius: Double = 35.0
+const val DefaultSplashRadius: Float = 35.0f
 
 /**
  * An interface for creating [InkSplash]s and [InkHighlight]s on a material.
@@ -255,7 +255,7 @@ class Material(
      * Defaults to 0. Changing this value will cause the shadow to animate over
      * [animationDuration].
      */
-    val elevation: Double = 0.0,
+    val elevation: Float = 0.0f,
     /**
      * The color to paint the material.
      *
@@ -318,7 +318,7 @@ class Material(
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
         properties.add(EnumProperty("type", type))
-        properties.add(DoubleProperty.create("elevation", elevation, defaultValue = 0.0))
+        properties.add(FloatProperty.create("elevation", elevation, defaultValue = 0.0f))
         properties.add(DiagnosticsProperty.create("color", color, defaultValue = null))
         properties.add(
             DiagnosticsProperty.create(
@@ -526,7 +526,7 @@ class MaterialInterior(
      */
     val shape: ShapeBorder,
     /** The target z-coordinate at which to place this physical object. */
-    val elevation: Double,
+    val elevation: Float,
     /** The target background color. */
     val color: Color,
     /** The target shadow color. */
@@ -540,7 +540,7 @@ class MaterialInterior(
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
         properties.add(DiagnosticsProperty.create("shape", shape))
-        properties.add(DoubleProperty.create("elevation", elevation))
+        properties.add(FloatProperty.create("elevation", elevation))
         properties.add(DiagnosticsProperty.create("color", color))
         properties.add(DiagnosticsProperty.create("shadowColor", shadowColor))
     }
@@ -549,12 +549,12 @@ class MaterialInterior(
 class MaterialInteriorState(widget: MaterialInterior) :
     AnimatedWidgetBaseState<MaterialInterior>(widget) {
 
-    private var elevation: Tween<Double>? = null
+    private var elevation: Tween<Float>? = null
     private var shadowColor: Tween<Color>? = null
     private var border: Tween<ShapeBorder>? = null
 
     override fun forEachTween(visitor: TweenVisitor) {
-        elevation = visitor(elevation, widget.elevation) { value: Double -> Tween(begin = value) }
+        elevation = visitor(elevation, widget.elevation) { value: Float -> Tween(begin = value) }
         shadowColor =
                 visitor(shadowColor, widget.shadowColor) { value: Color -> Tween(begin = value) }
         border = visitor(border, widget.shape) { value: ShapeBorder -> Tween(begin = value) }

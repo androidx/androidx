@@ -26,8 +26,8 @@ import androidx.ui.widgets.framework.Widget
  */
 class Center(
     key: Key,
-    widthFactor: Double?,
-    heightFactor: Double?,
+    widthFactor: Float?,
+    heightFactor: Float?,
     child: Widget
 ) : Align(
         key = key,

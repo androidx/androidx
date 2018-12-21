@@ -25,65 +25,65 @@ import org.junit.runners.JUnit4
 class CachedIntrinsicsTest {
 
     companion object {
-        private const val DELTA = 0.01
+        private const val DELTA = 0.01f
     }
 
     private class RenderTestBox : RenderBox() {
-        var value: Double = 0.0
+        var value: Float = 0.0f
 
-        fun next(): Double {
-            value += 1.0; return value; }
+        fun next(): Float {
+            value += 1.0f; return value; }
 
-        override fun computeMinIntrinsicWidth(height: Double) = next()
-        override fun computeMaxIntrinsicWidth(height: Double) = next()
-        override fun computeMinIntrinsicHeight(width: Double) = next()
-        override fun computeMaxIntrinsicHeight(width: Double) = next()
+        override fun computeMinIntrinsicWidth(height: Float) = next()
+        override fun computeMaxIntrinsicWidth(height: Float) = next()
+        override fun computeMinIntrinsicHeight(width: Float) = next()
+        override fun computeMaxIntrinsicHeight(width: Float) = next()
     }
 
     @Test
     fun `Intrinsics cache`() {
         val test = RenderTestBox()
 
-        assertEquals(1.0, test.getMinIntrinsicWidth(0.0), DELTA)
-        assertEquals(2.0, test.getMinIntrinsicWidth(100.0), DELTA)
-        assertEquals(3.0, test.getMinIntrinsicWidth(200.0), DELTA)
-        assertEquals(1.0, test.getMinIntrinsicWidth(0.0), DELTA)
-        assertEquals(2.0, test.getMinIntrinsicWidth(100.0), DELTA)
-        assertEquals(3.0, test.getMinIntrinsicWidth(200.0), DELTA)
+        assertEquals(1.0f, test.getMinIntrinsicWidth(0.0f), DELTA)
+        assertEquals(2.0f, test.getMinIntrinsicWidth(100.0f), DELTA)
+        assertEquals(3.0f, test.getMinIntrinsicWidth(200.0f), DELTA)
+        assertEquals(1.0f, test.getMinIntrinsicWidth(0.0f), DELTA)
+        assertEquals(2.0f, test.getMinIntrinsicWidth(100.0f), DELTA)
+        assertEquals(3.0f, test.getMinIntrinsicWidth(200.0f), DELTA)
 
-        assertEquals(4.0, test.getMaxIntrinsicWidth(0.0), DELTA)
-        assertEquals(5.0, test.getMaxIntrinsicWidth(100.0), DELTA)
-        assertEquals(6.0, test.getMaxIntrinsicWidth(200.0), DELTA)
-        assertEquals(4.0, test.getMaxIntrinsicWidth(0.0), DELTA)
-        assertEquals(5.0, test.getMaxIntrinsicWidth(100.0), DELTA)
-        assertEquals(6.0, test.getMaxIntrinsicWidth(200.0), DELTA)
+        assertEquals(4.0f, test.getMaxIntrinsicWidth(0.0f), DELTA)
+        assertEquals(5.0f, test.getMaxIntrinsicWidth(100.0f), DELTA)
+        assertEquals(6.0f, test.getMaxIntrinsicWidth(200.0f), DELTA)
+        assertEquals(4.0f, test.getMaxIntrinsicWidth(0.0f), DELTA)
+        assertEquals(5.0f, test.getMaxIntrinsicWidth(100.0f), DELTA)
+        assertEquals(6.0f, test.getMaxIntrinsicWidth(200.0f), DELTA)
 
-        assertEquals(7.0, test.getMinIntrinsicHeight(0.0), DELTA)
-        assertEquals(8.0, test.getMinIntrinsicHeight(100.0), DELTA)
-        assertEquals(9.0, test.getMinIntrinsicHeight(200.0), DELTA)
-        assertEquals(7.0, test.getMinIntrinsicHeight(0.0), DELTA)
-        assertEquals(8.0, test.getMinIntrinsicHeight(100.0), DELTA)
-        assertEquals(9.0, test.getMinIntrinsicHeight(200.0), DELTA)
+        assertEquals(7.0f, test.getMinIntrinsicHeight(0.0f), DELTA)
+        assertEquals(8.0f, test.getMinIntrinsicHeight(100.0f), DELTA)
+        assertEquals(9.0f, test.getMinIntrinsicHeight(200.0f), DELTA)
+        assertEquals(7.0f, test.getMinIntrinsicHeight(0.0f), DELTA)
+        assertEquals(8.0f, test.getMinIntrinsicHeight(100.0f), DELTA)
+        assertEquals(9.0f, test.getMinIntrinsicHeight(200.0f), DELTA)
 
-        assertEquals(10.0, test.getMaxIntrinsicHeight(0.0), DELTA)
-        assertEquals(11.0, test.getMaxIntrinsicHeight(100.0), DELTA)
-        assertEquals(12.0, test.getMaxIntrinsicHeight(200.0), DELTA)
-        assertEquals(10.0, test.getMaxIntrinsicHeight(0.0), DELTA)
-        assertEquals(11.0, test.getMaxIntrinsicHeight(100.0), DELTA)
-        assertEquals(12.0, test.getMaxIntrinsicHeight(200.0), DELTA)
+        assertEquals(10.0f, test.getMaxIntrinsicHeight(0.0f), DELTA)
+        assertEquals(11.0f, test.getMaxIntrinsicHeight(100.0f), DELTA)
+        assertEquals(12.0f, test.getMaxIntrinsicHeight(200.0f), DELTA)
+        assertEquals(10.0f, test.getMaxIntrinsicHeight(0.0f), DELTA)
+        assertEquals(11.0f, test.getMaxIntrinsicHeight(100.0f), DELTA)
+        assertEquals(12.0f, test.getMaxIntrinsicHeight(200.0f), DELTA)
 
         // now read them all again backwards
-        assertEquals(12.0, test.getMaxIntrinsicHeight(200.0), DELTA)
-        assertEquals(11.0, test.getMaxIntrinsicHeight(100.0), DELTA)
-        assertEquals(10.0, test.getMaxIntrinsicHeight(0.0), DELTA)
-        assertEquals(9.0, test.getMinIntrinsicHeight(200.0), DELTA)
-        assertEquals(8.0, test.getMinIntrinsicHeight(100.0), DELTA)
-        assertEquals(7.0, test.getMinIntrinsicHeight(0.0), DELTA)
-        assertEquals(6.0, test.getMaxIntrinsicWidth(200.0), DELTA)
-        assertEquals(5.0, test.getMaxIntrinsicWidth(100.0), DELTA)
-        assertEquals(4.0, test.getMaxIntrinsicWidth(0.0), DELTA)
-        assertEquals(3.0, test.getMinIntrinsicWidth(200.0), DELTA)
-        assertEquals(2.0, test.getMinIntrinsicWidth(100.0), DELTA)
-        assertEquals(1.0, test.getMinIntrinsicWidth(0.0), DELTA)
+        assertEquals(12.0f, test.getMaxIntrinsicHeight(200.0f), DELTA)
+        assertEquals(11.0f, test.getMaxIntrinsicHeight(100.0f), DELTA)
+        assertEquals(10.0f, test.getMaxIntrinsicHeight(0.0f), DELTA)
+        assertEquals(9.0f, test.getMinIntrinsicHeight(200.0f), DELTA)
+        assertEquals(8.0f, test.getMinIntrinsicHeight(100.0f), DELTA)
+        assertEquals(7.0f, test.getMinIntrinsicHeight(0.0f), DELTA)
+        assertEquals(6.0f, test.getMaxIntrinsicWidth(200.0f), DELTA)
+        assertEquals(5.0f, test.getMaxIntrinsicWidth(100.0f), DELTA)
+        assertEquals(4.0f, test.getMaxIntrinsicWidth(0.0f), DELTA)
+        assertEquals(3.0f, test.getMinIntrinsicWidth(200.0f), DELTA)
+        assertEquals(2.0f, test.getMinIntrinsicWidth(100.0f), DELTA)
+        assertEquals(1.0f, test.getMinIntrinsicWidth(0.0f), DELTA)
     }
 }

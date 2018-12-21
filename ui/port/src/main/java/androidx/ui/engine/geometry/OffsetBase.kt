@@ -13,22 +13,22 @@ package androidx.ui.engine.geometry
 // TODO(Migration/Filip): Made OffsetBase to be an interface so we can have ancestors as data classes.
 interface OffsetBase {
 
-    val dx: Double
-    val dy: Double
+    val dx: Float
+    val dy: Float
 
     /**
-     * Returns true if either component is [double.infinity], and false if both
+     * Returns true if either component is [Float.POSITIVE_INFINITY], and false if both
      * are finite (or negative infinity, or NaN).
      *
      * This is different than comparing for equality with an instance that has
-     * _both_ components set to [double.infinity].
+     * _both_ components set to [Float.POSITIVE_INFINITY].
      *
      * See also:
      *
      *  * [isFinite], which is true if both components are finite (and not NaN).
      */
     // TODO(Migration/Filip): Verify that this is valid in java world.
-    fun isInfinite() = dx >= Double.POSITIVE_INFINITY || dy >= Double.POSITIVE_INFINITY
+    fun isInfinite() = dx >= Float.POSITIVE_INFINITY || dy >= Float.POSITIVE_INFINITY
 
     /**
      * Whether both components are finite (neither infinite nor NaN).

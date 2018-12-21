@@ -27,7 +27,7 @@ class CraneTextActivity : Activity() {
                                 style = TextStyle(
                                         fontFamily = FontFamily("sans-serif"),
                                         color = Color(0xFFFF0000.toInt()),
-                                        fontSize = 100.0,
+                                        fontSize = 100.0f,
                                         fontWeight = FontWeight.w700
                                 )
                         )
@@ -35,7 +35,7 @@ class CraneTextActivity : Activity() {
                         textDirection=TextDirection.LTR
                         softWrap=true
                         overflow=TextOverflow.FADE
-                        textScaleFactor=2.3
+                        textScaleFactor=2.3f
                         maxLines=3 />
                 </CraneWrapper>
             </ScrollView>

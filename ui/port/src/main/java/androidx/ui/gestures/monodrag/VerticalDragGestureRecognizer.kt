@@ -47,7 +47,7 @@ class VerticalDragGestureRecognizer(debugOwner: Any? = null) : DragGestureRecogn
     override fun _hasSufficientPendingDragDeltaToAccept() =
         (_pendingDragOffset!!.dy.absoluteValue) > kTouchSlop
 
-    override fun _getDeltaForDetails(delta: Offset) = Offset(0.0, delta.dy)
+    override fun _getDeltaForDetails(delta: Offset) = Offset(0.0f, delta.dy)
 
     override fun _getPrimaryValueFromOffset(value: Offset) = value.dy
 

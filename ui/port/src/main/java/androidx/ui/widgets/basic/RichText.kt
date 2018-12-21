@@ -20,7 +20,7 @@ import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.foundation.diagnostics.IntProperty
@@ -82,7 +82,7 @@ class RichText(
     val textDirection: TextDirection? = null,
     val softWrap: Boolean = true,
     val overflow: TextOverflow = TextOverflow.CLIP,
-    val textScaleFactor: Double = 1.0,
+    val textScaleFactor: Float = 1.0f,
     val maxLines: Int? = null
 ) : LeafRenderObjectWidget(key = key) {
     init {
@@ -148,10 +148,10 @@ class RichText(
             )
         )
         properties.add(
-            DoubleProperty.create(
+            FloatProperty.create(
                 "textScaleFactor",
                 textScaleFactor,
-                defaultValue = 1.0
+                defaultValue = 1.0f
             )
         )
         properties.add(IntProperty("maxLines", maxLines, ifNull = "unlimited"))

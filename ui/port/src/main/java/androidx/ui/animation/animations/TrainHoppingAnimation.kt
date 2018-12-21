@@ -41,13 +41,13 @@ private enum class TrainHoppingMode {
  */
 class TrainHoppingAnimation(
     /** The animation that is current driving this animation. */
-    currentTrain: Animation<Double>,
-    private var nextTrain: Animation<Double>?,
+    currentTrain: Animation<Float>,
+    private var nextTrain: Animation<Float>?,
     /** Called when this animation switches to be driven by a different animation. */
     private val onSwitchedTrain: VoidCallback? = null
-) : AnimationEagerListenerMixin<Double>() {
+) : AnimationEagerListenerMixin<Float>() {
 
-    var currentTrain: Animation<Double> = currentTrain
+    var currentTrain: Animation<Float> = currentTrain
         private set
 
     private var mode: TrainHoppingMode? = null
@@ -61,7 +61,7 @@ class TrainHoppingAnimation(
         assert(lastStatus != null)
     }
 
-    private var lastValue: Double? = null
+    private var lastValue: Float? = null
     private val valueChangeHandler = { onValueChanged() }
 
     private fun onValueChanged() {
@@ -113,7 +113,7 @@ class TrainHoppingAnimation(
     override val status: AnimationStatus
         get() = currentTrain.status
 
-    override val value: Double
+    override val value: Float
         get() = currentTrain.value
 
     /**

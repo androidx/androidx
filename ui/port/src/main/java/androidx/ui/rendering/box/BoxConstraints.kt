@@ -5,7 +5,7 @@ import androidx.ui.clamp
 import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.assertions.InformationCollector
-import androidx.ui.lerpDouble
+import androidx.ui.lerpFloat
 import androidx.ui.rendering.obj.Constraints
 import androidx.ui.toStringAsFixed
 import androidx.ui.truncDiv
@@ -20,10 +20,10 @@ import androidx.ui.truncDiv
  *
  * The constraints themselves must satisfy these relations:
  *
- * * 0.0 <= [minWidth] <= [maxWidth] <= [Double.POSITIVE_INFINITY]
- * * 0.0 <= [minHeight] <= [maxHeight] <= [Double.POSITIVE_INFINITY]
+ * * 0.0 <= [minWidth] <= [maxWidth] <= [Float.POSITIVE_INFINITY]
+ * * 0.0 <= [minHeight] <= [maxHeight] <= [Float.POSITIVE_INFINITY]
  *
- * [Double.POSITIVE_INFINITY] is a legal value for each constraint.
+ * [Float.POSITIVE_INFINITY] is a legal value for each constraint.
  *
  * ## The box layout model
  *
@@ -74,15 +74,15 @@ import androidx.ui.truncDiv
 // Creates box constraints with the given constraints.
 data class BoxConstraints(
         // The minimum width that satisfies the constraints.
-    val minWidth: Double = 0.0,
+    val minWidth: Float = 0.0f,
         // The maximum width that satisfies the constraints.
-        // Might be [Double.POSITIVE_INFINITY].
-    val maxWidth: Double = Double.POSITIVE_INFINITY,
+        // Might be [Float.POSITIVE_INFINITY].
+    val maxWidth: Float = Float.POSITIVE_INFINITY,
         // The minimum height that satisfies the constraints.
-    val minHeight: Double = 0.0,
+    val minHeight: Float = 0.0f,
         // The maximum height that satisfies the constraints.
-        // Might be [Double.POSITIVE_INFINITY].
-    val maxHeight: Double = Double.POSITIVE_INFINITY
+        // Might be [Float.POSITIVE_INFINITY].
+    val maxHeight: Float = Float.POSITIVE_INFINITY
 ) : Constraints() {
 
     companion object {
@@ -100,11 +100,11 @@ data class BoxConstraints(
          *    being tight if the value is non-null, is tight if the value is not
          *    infinite.
          */
-        fun tightFor(width: Double? = null, height: Double? = null): BoxConstraints {
-            return BoxConstraints(minWidth = width ?: 0.0,
-                    maxWidth = width ?: Double.POSITIVE_INFINITY,
-                    minHeight = height ?: 0.0,
-                    maxHeight = height ?: Double.POSITIVE_INFINITY
+        fun tightFor(width: Float? = null, height: Float? = null): BoxConstraints {
+            return BoxConstraints(minWidth = width ?: 0.0f,
+                    maxWidth = width ?: Float.POSITIVE_INFINITY,
+                    minHeight = height ?: 0.0f,
+                    maxHeight = height ?: Float.POSITIVE_INFINITY
             )
         }
 
@@ -118,16 +118,16 @@ data class BoxConstraints(
          *    tight if the value is not infinite, is tight if the value is non-null.
          */
         fun tightForFinite(
-            width: Double = Double.POSITIVE_INFINITY,
-            height: Double = Double.POSITIVE_INFINITY
+            width: Float = Float.POSITIVE_INFINITY,
+            height: Float = Float.POSITIVE_INFINITY
         ): BoxConstraints {
-            return BoxConstraints(minWidth = if (width != Double.POSITIVE_INFINITY) width else 0.0,
-                    maxWidth = if (width != Double.POSITIVE_INFINITY) width
-                    else Double.POSITIVE_INFINITY,
-                    minHeight = if (height != Double.POSITIVE_INFINITY) height
-                    else 0.0,
-                    maxHeight = if (height != Double.POSITIVE_INFINITY) height
-                    else Double.POSITIVE_INFINITY
+            return BoxConstraints(minWidth = if (width != Float.POSITIVE_INFINITY) width else 0.0f,
+                    maxWidth = if (width != Float.POSITIVE_INFINITY) width
+                    else Float.POSITIVE_INFINITY,
+                    minHeight = if (height != Float.POSITIVE_INFINITY) height
+                    else 0.0f,
+                    maxHeight = if (height != Float.POSITIVE_INFINITY) height
+                    else Float.POSITIVE_INFINITY
             )
         }
 
@@ -135,9 +135,9 @@ data class BoxConstraints(
          * Creates box constraints that forbid sizes larger than the given size.
          */
         fun loose(size: Size): BoxConstraints {
-            return BoxConstraints(minWidth = 0.0,
+            return BoxConstraints(minWidth = 0.0f,
                     maxWidth = size.width,
-                    minHeight = 0.0,
+                    minHeight = 0.0f,
                     maxHeight = size.height)
         }
 
@@ -147,11 +147,11 @@ data class BoxConstraints(
          * If width or height is given, the constraints will require exactly the
          * given value in the given dimension.
          */
-        fun expand(width: Double? = null, height: Double? = null): BoxConstraints {
-            return BoxConstraints(minWidth = width ?: Double.POSITIVE_INFINITY,
-                    maxWidth = width ?: Double.POSITIVE_INFINITY,
-                    minHeight = height ?: Double.POSITIVE_INFINITY,
-                    maxHeight = height ?: Double.POSITIVE_INFINITY
+        fun expand(width: Float? = null, height: Float? = null): BoxConstraints {
+            return BoxConstraints(minWidth = width ?: Float.POSITIVE_INFINITY,
+                    maxWidth = width ?: Float.POSITIVE_INFINITY,
+                    minHeight = height ?: Float.POSITIVE_INFINITY,
+                    maxHeight = height ?: Float.POSITIVE_INFINITY
             )
         }
 
@@ -170,43 +170,43 @@ data class BoxConstraints(
          * 1.0, so negative values and values greater than 1.0 are valid (and can
          * easily be generated by curves such as [Curves.elasticInOut]).
          *
-         * Values for `t` are usually obtained from an [Animation<double>], such as
+         * Values for `t` are usually obtained from an [Animation<Float>], such as
          * an [AnimationController].
          */
-        fun lerp(a: BoxConstraints?, b: BoxConstraints?, t: Double): BoxConstraints? {
+        fun lerp(a: BoxConstraints?, b: BoxConstraints?, t: Float): BoxConstraints? {
             if (a == null && b == null)
                 return null
             if (a == null)
                 return b!! * t
             if (b == null)
-                return a * (1.0 - t)
+                return a * (1.0f - t)
             assert(a.debugAssertIsValid())
             assert(b.debugAssertIsValid())
             assert((a.minWidth.isFinite() && b.minWidth.isFinite()) ||
-                    (a.minWidth == Double.POSITIVE_INFINITY &&
-                            b.minWidth == Double.POSITIVE_INFINITY)
+                    (a.minWidth == Float.POSITIVE_INFINITY &&
+                            b.minWidth == Float.POSITIVE_INFINITY)
             ) { "Cannot interpolate between finite constraints and unbounded constraints." }
             assert((a.maxWidth.isFinite() && b.maxWidth.isFinite()) ||
-                    (a.maxWidth == Double.POSITIVE_INFINITY &&
-                            b.maxWidth == Double.POSITIVE_INFINITY)
+                    (a.maxWidth == Float.POSITIVE_INFINITY &&
+                            b.maxWidth == Float.POSITIVE_INFINITY)
             ) { "Cannot interpolate between finite constraints and unbounded constraints." }
             assert((a.minHeight.isFinite() && b.minHeight.isFinite()) ||
-                    (a.minHeight == Double.POSITIVE_INFINITY &&
-                            b.minHeight == Double.POSITIVE_INFINITY)
+                    (a.minHeight == Float.POSITIVE_INFINITY &&
+                            b.minHeight == Float.POSITIVE_INFINITY)
             ) { "Cannot interpolate between finite constraints and unbounded constraints." }
             assert((a.maxHeight.isFinite() && b.maxHeight.isFinite()) ||
-                    (a.maxHeight == Double.POSITIVE_INFINITY &&
-                            b.maxHeight == Double.POSITIVE_INFINITY)
+                    (a.maxHeight == Float.POSITIVE_INFINITY &&
+                            b.maxHeight == Float.POSITIVE_INFINITY)
             ) { "Cannot interpolate between finite constraints and unbounded constraints." }
             return BoxConstraints(
-                    minWidth = if (a.minWidth.isFinite()) lerpDouble(a.minWidth, b.minWidth,
-                            t) else Double.POSITIVE_INFINITY,
-                    maxWidth = if (a.maxWidth.isFinite()) lerpDouble(a.maxWidth, b.maxWidth,
-                            t) else Double.POSITIVE_INFINITY,
-                    minHeight = if (a.minHeight.isFinite()) lerpDouble(a.minHeight, b.minHeight,
-                            t) else Double.POSITIVE_INFINITY,
-                    maxHeight = if (a.maxHeight.isFinite()) lerpDouble(a.maxHeight, b.maxHeight,
-                            t) else Double.POSITIVE_INFINITY
+                    minWidth = if (a.minWidth.isFinite()) lerpFloat(a.minWidth, b.minWidth,
+                            t) else Float.POSITIVE_INFINITY,
+                    maxWidth = if (a.maxWidth.isFinite()) lerpFloat(a.maxWidth, b.maxWidth,
+                            t) else Float.POSITIVE_INFINITY,
+                    minHeight = if (a.minHeight.isFinite()) lerpFloat(a.minHeight, b.minHeight,
+                            t) else Float.POSITIVE_INFINITY,
+                    maxHeight = if (a.maxHeight.isFinite()) lerpFloat(a.maxHeight, b.maxHeight,
+                            t) else Float.POSITIVE_INFINITY
             )
         }
     }
@@ -215,10 +215,10 @@ data class BoxConstraints(
      * Creates a copy of this box constraints but with the given fields replaced with the new values.
      */
     fun copyWith(
-        minWidth: Double? = null,
-        maxWidth: Double? = null,
-        minHeight: Double? = null,
-        maxHeight: Double? = null
+        minWidth: Float? = null,
+        maxWidth: Float? = null,
+        minHeight: Float? = null,
+        maxHeight: Float? = null
     ): BoxConstraints {
         return BoxConstraints(
                 minWidth = minWidth ?: this.minWidth,
@@ -251,9 +251,9 @@ data class BoxConstraints(
     fun loosen(): BoxConstraints {
         assert(debugAssertIsValid())
         return BoxConstraints(
-                minWidth = 0.0,
+                minWidth = 0.0f,
                 maxWidth = maxWidth,
-                minHeight = 0.0,
+                minHeight = 0.0f,
                 maxHeight = maxHeight
         )
     }
@@ -276,7 +276,7 @@ data class BoxConstraints(
      * the given width and height as possible while still respecting the original
      * box constraints.
      */
-    fun tighten(width: Double? = null, height: Double? = null): BoxConstraints {
+    fun tighten(width: Float? = null, height: Float? = null): BoxConstraints {
         return BoxConstraints(minWidth = width?.clamp(minWidth, maxWidth) ?: minWidth,
                 maxWidth = width?.clamp(minWidth, maxWidth) ?: maxWidth,
                 minHeight = height?.clamp(minHeight, maxHeight) ?: minHeight,
@@ -316,7 +316,7 @@ data class BoxConstraints(
      * Returns the width that both satisfies the constraints and is as close as
      * possible to the given width.
      */
-    fun constrainWidth(width: Double = Double.POSITIVE_INFINITY): Double {
+    fun constrainWidth(width: Float = Float.POSITIVE_INFINITY): Float {
         assert(debugAssertIsValid())
         return width.clamp(minWidth, maxWidth)
     }
@@ -325,7 +325,7 @@ data class BoxConstraints(
      * Returns the height that both satisfies the constraints and is as close as
      * possible to the given height.
      */
-    fun constrainHeight(height: Double = Double.POSITIVE_INFINITY): Double {
+    fun constrainHeight(height: Float = Float.POSITIVE_INFINITY): Float {
         assert(debugAssertIsValid())
         return height.clamp(minHeight, maxHeight)
     }
@@ -363,7 +363,7 @@ data class BoxConstraints(
      * When you already have a [Size], prefer [constrain], which applies the same
      * algorithm to a [Size] directly.
      */
-    fun constrainDimensions(width: Double, height: Double): Size {
+    fun constrainDimensions(width: Float, height: Float): Size {
         return Size(constrainWidth(width), constrainHeight(height))
     }
 
@@ -385,8 +385,8 @@ data class BoxConstraints(
 
         var width = size.width
         var height = size.height
-        assert(width > 0.0)
-        assert(height > 0.0)
+        assert(width > 0.0f)
+        assert(height > 0.0f)
         val aspectRatio = width / height
 
         if (width > maxWidth) {
@@ -422,7 +422,7 @@ data class BoxConstraints(
     /**
      * The smallest size that satisfies the constraints.
      */
-    val smallest get() = Size(constrainWidth(0.0), constrainHeight(0.0))
+    val smallest get() = Size(constrainWidth(0.0f), constrainHeight(0.0f))
 
     /**
      * Whether there is exactly one width value that satisfies the constraints.
@@ -443,12 +443,12 @@ data class BoxConstraints(
     /**
      * Whether there is an upper bound on the maximum width.
      */
-    val hasBoundedWidth get() = maxWidth < Double.POSITIVE_INFINITY
+    val hasBoundedWidth get() = maxWidth < Float.POSITIVE_INFINITY
 
     /**
      * Whether there is an upper bound on the maximum height.
      */
-    val hasBoundedHeight get() = maxHeight < Double.POSITIVE_INFINITY
+    val hasBoundedHeight get() = maxHeight < Float.POSITIVE_INFINITY
 
     /**
      * Whether the given size satisfies the constraints.
@@ -462,7 +462,7 @@ data class BoxConstraints(
     /**
      * Scales each constraint parameter by the given factor.
      */
-    operator fun times(factor: Double) = BoxConstraints(
+    operator fun times(factor: Float) = BoxConstraints(
             minWidth = minWidth * factor,
             maxWidth = maxWidth * factor,
             minHeight = minHeight * factor,
@@ -472,7 +472,7 @@ data class BoxConstraints(
     /**
      * Scales each constraint parameter by the inverse of the given factor.
      */
-    operator fun div(factor: Double) = BoxConstraints(
+    operator fun div(factor: Float) = BoxConstraints(
             minWidth = minWidth / factor,
             maxWidth = maxWidth / factor,
             minHeight = minHeight / factor,
@@ -483,17 +483,17 @@ data class BoxConstraints(
      * Scales each constraint parameter by the inverse of the given factor, rounded to the nearest integer.
      */
     // TODO(Migration/Andrey): Original operator ~/ could not be overriden in Kotlin
-    fun truncDiv(factor: Double) = BoxConstraints(
-            minWidth = minWidth.truncDiv(factor).toDouble(),
-            maxWidth = maxWidth.truncDiv(factor).toDouble(),
-            minHeight = minHeight.truncDiv(factor).toDouble(),
-            maxHeight = maxHeight.truncDiv(factor).toDouble()
+    fun truncDiv(factor: Float) = BoxConstraints(
+            minWidth = minWidth.truncDiv(factor).toFloat(),
+            maxWidth = maxWidth.truncDiv(factor).toFloat(),
+            minHeight = minHeight.truncDiv(factor).toFloat(),
+            maxHeight = maxHeight.truncDiv(factor).toFloat()
     )
 
     /**
      * Computes the remainder of each constraint parameter by the given value.
      */
-    operator fun rem(value: Double) = BoxConstraints(
+    operator fun rem(value: Float) = BoxConstraints(
             minWidth = minWidth % value,
             maxWidth = maxWidth % value,
             minHeight = minHeight % value,
@@ -514,9 +514,9 @@ data class BoxConstraints(
      * are not normalized.
      */
     override val isNormalized: Boolean
-        get() = minWidth >= 0.0 &&
+        get() = minWidth >= 0.0f &&
                 minWidth <= maxWidth &&
-                minHeight >= 0.0 &&
+                minHeight >= 0.0f &&
                 minHeight <= maxHeight
 
     override fun debugAssertIsValid(
@@ -557,12 +557,12 @@ data class BoxConstraints(
                         "BoxConstraints has ${(if (affectedFieldsList.size == 1) " a NaN value "
                         else " NaN values")} in $whichFields.")
             }
-            if (minWidth < 0.0 && minHeight < 0.0)
+            if (minWidth < 0.0f && minHeight < 0.0f)
                 throwError("BoxConstraints has both a negative minimum width " +
                         "and a negative minimum height.")
-            if (minWidth < 0.0)
+            if (minWidth < 0.0f)
                 throwError("BoxConstraints has a negative minimum width.")
-            if (minHeight < 0.0)
+            if (minHeight < 0.0f)
                 throwError("BoxConstraints has a negative minimum height.")
             if (maxWidth < minWidth && maxHeight < minHeight)
                 throwError("BoxConstraints has both width and height constraints non-normalized.")
@@ -593,8 +593,8 @@ data class BoxConstraints(
     fun normalize(): BoxConstraints {
         if (isNormalized)
             return this
-        val minWidth = if (this.minWidth >= 0.0) this.minWidth else 0.0
-        val minHeight = if (this.minHeight >= 0.0) this.minHeight else 0.0
+        val minWidth = if (this.minWidth >= 0.0f) this.minWidth else 0.0f
+        val minHeight = if (this.minHeight >= 0.0f) this.minHeight else 0.0f
         return BoxConstraints(
                 minWidth = minWidth,
                 maxWidth = if (minWidth > maxWidth) minWidth else maxWidth,
@@ -627,12 +627,12 @@ data class BoxConstraints(
 
     override fun toString(): String {
         val annotation = if (isNormalized) "" else "; NOT NORMALIZED"
-        if (minWidth == Double.POSITIVE_INFINITY && minHeight == Double.POSITIVE_INFINITY)
+        if (minWidth == Float.POSITIVE_INFINITY && minHeight == Float.POSITIVE_INFINITY)
             return "BoxConstraints(biggest$annotation)"
-        if (minWidth == 0.0 && maxWidth == Double.POSITIVE_INFINITY &&
-                minHeight == 0.0 && maxHeight == Double.POSITIVE_INFINITY)
+        if (minWidth == 0.0f && maxWidth == Float.POSITIVE_INFINITY &&
+                minHeight == 0.0f && maxHeight == Float.POSITIVE_INFINITY)
             return "BoxConstraints(unconstrained$annotation)"
-        val describe: (Double, Double, String) -> String = { min, max, dim ->
+        val describe: (Float, Float, String) -> String = { min, max, dim ->
             if (min == max)
                 "$dim=${min.toStringAsFixed(1)}"
             else

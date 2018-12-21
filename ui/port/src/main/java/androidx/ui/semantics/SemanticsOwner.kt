@@ -143,7 +143,7 @@ class SemanticsOwner : ChangeNotifier() {
         var position = position
         node.transform?.let {
             val inverse = Matrix4.identity()
-            if (inverse.copyInverse(it) == 0.0)
+            if (inverse.copyInverse(it) == 0.0f)
                 return null
             position = inverse.transformPoint(position)
         }

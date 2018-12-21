@@ -39,12 +39,12 @@ package androidx.ui.gestures.lsq_solver
 class PolynomialFit(degree: Int) {
 
     /** The polynomial coefficients of the fit. */
-    val coefficients: Array<Double> = Array(degree + 1) { 0.0 }
+    val coefficients: Array<Float> = Array(degree + 1) { 0.0f }
 
     /**
      * An indicator of the quality of the fit.
      *
      * Larger values indicate greater quality.
      */
-    var confidence: Double = 0.0
+    var confidence: Float = 0.0f
 }

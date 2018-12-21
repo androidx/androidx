@@ -39,9 +39,9 @@ class Picture(val frameworkPicture: android.graphics.Picture) {
     }
 
     fun cullRect(): Rect {
-        return Rect(0.0,
-                0.0,
-                frameworkPicture.width.toDouble(),
-                frameworkPicture.height.toDouble())
+        return Rect(0.0f,
+                0.0f,
+                frameworkPicture.width.toFloat(),
+                frameworkPicture.height.toFloat())
     }
 }

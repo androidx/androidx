@@ -30,14 +30,14 @@ class PointerAddedEvent(
     device: Int = 0,
     position: Offset = Offset.zero,
     obscured: Boolean = false,
-    pressureMin: Double = 1.0,
-    pressureMax: Double = 1.0,
-    distance: Double = 0.0,
-    distanceMax: Double = 0.0,
-    radiusMin: Double = 0.0,
-    radiusMax: Double = 0.0,
-    orientation: Double = 0.0,
-    tilt: Double = 0.0
+    pressureMin: Float = 1.0f,
+    pressureMax: Float = 1.0f,
+    distance: Float = 0.0f,
+    distanceMax: Float = 0.0f,
+    radiusMin: Float = 0.0f,
+    radiusMax: Float = 0.0f,
+    orientation: Float = 0.0f,
+    tilt: Float = 0.0f
 ) : PointerEvent(
     timeStamp = timeStamp,
     kind = kind,

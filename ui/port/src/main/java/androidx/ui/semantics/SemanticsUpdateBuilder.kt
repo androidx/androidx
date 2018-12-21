@@ -16,7 +16,6 @@
 
 package androidx.ui.semantics
 
-import androidx.ui.Float64List
 import androidx.ui.Int32List
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.TextDirection
@@ -88,9 +87,9 @@ class SemanticsUpdateBuilder /* TODO(Migration): NativeFieldWrapperClass2 */ {
         actions: Int,
         textSelectionBase: Int,
         textSelectionExtent: Int,
-        scrollPosition: Double,
-        scrollExtentMax: Double,
-        scrollExtentMin: Double,
+        scrollPosition: Float,
+        scrollExtentMax: Float,
+        scrollExtentMin: Float,
         rect: Rect,
         label: String,
         hint: String,
@@ -98,7 +97,7 @@ class SemanticsUpdateBuilder /* TODO(Migration): NativeFieldWrapperClass2 */ {
         increasedValue: String,
         decreasedValue: String,
         textDirection: TextDirection?,
-        transform: Float64List,
+        transform: FloatArray,
         childrenInTraversalOrder: Int32List,
         childrenInHitTestOrder: Int32List
     ) {
@@ -136,20 +135,20 @@ class SemanticsUpdateBuilder /* TODO(Migration): NativeFieldWrapperClass2 */ {
         actions: Int,
         textSelectionBase: Int,
         textSelectionExtent: Int,
-        scrollPosition: Double,
-        scrollExtentMax: Double,
-        scrollExtentMin: Double,
-        left: Double,
-        top: Double,
-        right: Double,
-        bottom: Double,
+        scrollPosition: Float,
+        scrollExtentMax: Float,
+        scrollExtentMin: Float,
+        left: Float,
+        top: Float,
+        right: Float,
+        bottom: Float,
         label: String,
         hInt: String,
         value: String,
         increasedValue: String,
         decreasedValue: String,
         textDirection: Int,
-        transform: Float64List,
+        transform: FloatArray,
         childrenIntraversalOrder: Int32List,
         childrenInHitTestOrder: Int32List
     ) {

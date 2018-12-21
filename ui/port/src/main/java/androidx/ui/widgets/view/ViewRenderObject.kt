@@ -50,8 +50,8 @@ class ViewRenderObject(var view: View) : RenderBox() {
         val layoutParams = view.layoutParams
         var widthMode: Int
         var heightMode: Int
-        var width: Double
-        var height: Double
+        var width: Float
+        var height: Float
 
         width = obtainDimension(largest.width, layoutParams?.width)
         height = obtainDimension(largest.height, layoutParams?.height)
@@ -62,12 +62,12 @@ class ViewRenderObject(var view: View) : RenderBox() {
         height = boxConstraints.constrainHeight(height)
 
         if (width.isInfinite()) {
-            width = 0.0
+            width = 0.0f
             widthMode = View.MeasureSpec.UNSPECIFIED
         }
 
         if (height.isInfinite()) {
-            height = 0.0
+            height = 0.0f
             heightMode = View.MeasureSpec.UNSPECIFIED
         }
 
@@ -79,19 +79,19 @@ class ViewRenderObject(var view: View) : RenderBox() {
         // Constrain the Size in case the measured View dimensions do not fit within
         // the given constraints
         this.size = Size(
-            boxConstraints.constrainWidth(view.measuredWidth.toDouble()),
-            boxConstraints.constrainHeight(view.measuredHeight.toDouble())
+            boxConstraints.constrainWidth(view.measuredWidth.toFloat()),
+            boxConstraints.constrainHeight(view.measuredHeight.toFloat())
         )
     }
 
-    private fun obtainDimension(maxDimen: Double, viewLayoutParam: Int?): Double {
+    private fun obtainDimension(maxDimen: Float, viewLayoutParam: Int?): Float {
         val shouldMatchConstrainedWidth = viewLayoutParam == null ||
                 viewLayoutParam == MATCH_PARENT ||
                 viewLayoutParam == WRAP_CONTENT
         return if (shouldMatchConstrainedWidth) {
             maxDimen
         } else {
-            viewLayoutParam!!.toDouble()
+            viewLayoutParam!!.toFloat()
         }
     }
 
@@ -119,8 +119,8 @@ class ViewRenderObject(var view: View) : RenderBox() {
         }
 
         val canvas = context.canvas.toFrameworkCanvas()
-        val dx = offset.dx.toFloat()
-        val dy = offset.dy.toFloat()
+        val dx = offset.dx
+        val dy = offset.dy
         canvas.translate(dx, dy)
         view.draw(canvas)
         canvas.translate(-dx, -dy)

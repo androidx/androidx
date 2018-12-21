@@ -38,7 +38,7 @@ import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.runtimeType
 import kotlin.math.max
 
-internal typealias ChildSizingFunction = (child: RenderBox, extent: Double) -> Double
+internal typealias ChildSizingFunction = (child: RenderBox, extent: Float) -> Float
 
 internal fun startIsTopLeft(
     direction: Axis,
@@ -310,7 +310,7 @@ class RenderFlex(
 //    }
 
     // Set during layout if overflow occurred on the main axis.
-    private var overflow: Double = 0.0
+    private var overflow: Float = 0.0f
 
     override fun setupParentData(child: RenderObject) {
         if (child.parentData !is FlexParentData) {
@@ -320,16 +320,16 @@ class RenderFlex(
 
     internal fun getIntrinsicSize(
         sizingDirection: Axis,
-        extent: Double, // the extent in the direction that isn't the sizing direction
+        extent: Float, // the extent in the direction that isn't the sizing direction
         childSize: ChildSizingFunction // a method to find the size in the sizing direction
-    ): Double {
+    ): Float {
         if (_direction == sizingDirection) {
             // INTRINSIC MAIN SIZE
             // Intrinsic main size is the smallest size the flex container can take
             // while maintaining the min/max-content contributions of its flex items.
-            var totalFlex = 0.0
-            var inflexibleSpace = 0.0
-            var maxFlexFractionSoFar = 0.0
+            var totalFlex = 0.0f
+            var inflexibleSpace = 0.0f
+            var maxFlexFractionSoFar = 0.0f
             var child = firstChild
             while (child != null) {
                 val flex = getFlex(child)
@@ -356,23 +356,23 @@ class RenderFlex(
             // Get inflexible space using the max intrinsic dimensions of fixed children in the main direction.
             val availableMainSpace = extent
             var totalFlex = 0
-            var inflexibleSpace = 0.0
-            var maxCrossSize = 0.0
+            var inflexibleSpace = 0.0f
+            var maxCrossSize = 0.0f
             var child = firstChild
             while (child != null) {
                 val flex = getFlex(child)
                 totalFlex += flex
-                val mainSize: Double
-                val crossSize: Double
+                val mainSize: Float
+                val crossSize: Float
                 if (flex == 0) {
                     when (_direction) {
                         Axis.HORIZONTAL -> {
-                            mainSize = child.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)
+                            mainSize = child.getMaxIntrinsicWidth(Float.POSITIVE_INFINITY)
                             crossSize = childSize(child, mainSize)
                         }
                         Axis.VERTICAL -> {
                             mainSize = child
-                                .getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)
+                                .getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)
                             crossSize = childSize(child, mainSize)
                         }
                     }
@@ -386,7 +386,7 @@ class RenderFlex(
             }
 
             // Determine the spacePerFlex by allocating the remaining available space.
-            val spacePerFlex = max(0.0, (availableMainSpace - inflexibleSpace) / totalFlex)
+            val spacePerFlex = max(0.0f, (availableMainSpace - inflexibleSpace) / totalFlex)
 
             // Size remaining (flexible) items, find the maximum cross size.
             child = firstChild
@@ -407,25 +407,25 @@ class RenderFlex(
         }
     }
 
-    override fun computeMinIntrinsicWidth(height: Double) = getIntrinsicSize(
+    override fun computeMinIntrinsicWidth(height: Float) = getIntrinsicSize(
         sizingDirection = Axis.HORIZONTAL,
         extent = height,
         childSize = { child, extent -> child.getMinIntrinsicWidth(extent) }
     )
 
-    override fun computeMaxIntrinsicWidth(height: Double) = getIntrinsicSize(
+    override fun computeMaxIntrinsicWidth(height: Float) = getIntrinsicSize(
         sizingDirection = Axis.HORIZONTAL,
         extent = height,
         childSize = { child, extent -> child.getMaxIntrinsicWidth(extent) }
     )
 
-    override fun computeMinIntrinsicHeight(width: Double) = getIntrinsicSize(
+    override fun computeMinIntrinsicHeight(width: Float) = getIntrinsicSize(
         sizingDirection = Axis.VERTICAL,
         extent = width,
         childSize = { child, extent -> child.getMinIntrinsicHeight(extent) }
     )
 
-    override fun computeMaxIntrinsicHeight(width: Double) = getIntrinsicSize(
+    override fun computeMaxIntrinsicHeight(width: Float) = getIntrinsicSize(
         sizingDirection = Axis.VERTICAL,
         extent = width,
         childSize = { child, extent -> child.getMaxIntrinsicHeight(extent) }
@@ -472,9 +472,9 @@ class RenderFlex(
             constraints!!.maxHeight
         }
 
-        val canFlex = maxMainSize < Double.POSITIVE_INFINITY
-        var crossSize = 0.0
-        var allocatedSize = 0.0; // Sum of the sizes of the non-flexible children.
+        val canFlex = maxMainSize < Float.POSITIVE_INFINITY
+        var crossSize = 0.0f
+        var allocatedSize = 0.0f // Sum of the sizes of the non-flexible children.
         var child = firstChild
         var lastFlexChild: RenderBox? = null
         while (child != null) {
@@ -580,14 +580,14 @@ class RenderFlex(
         }
 
         // Distribute free space to flexible children, and determine baseline.
-        val freeSpace = max(0.0, (if (canFlex) maxMainSize else 0.0) - allocatedSize)
-        var allocatedFlexSpace = 0.0
-        var maxBaselineDistance = 0.0
+        val freeSpace = max(0.0f, (if (canFlex) maxMainSize else 0.0f) - allocatedSize)
+        var allocatedFlexSpace = 0.0f
+        var maxBaselineDistance = 0.0f
         if (totalFlex > 0 || crossAxisAlignment == CrossAxisAlignment.BASELINE) {
             val spacePerFlex = if (canFlex && totalFlex > 0) {
                 (freeSpace / totalFlex)
             } else {
-                Double.NaN
+                Float.NaN
             }
 
             child = firstChild
@@ -601,16 +601,16 @@ class RenderFlex(
                             spacePerFlex * flex
                         }
                     } else {
-                        Double.POSITIVE_INFINITY
+                        Float.POSITIVE_INFINITY
                     }
-                    val minChildExtent: Double
+                    val minChildExtent: Float
                     when (getFit(child)) {
                         FlexFit.TIGHT -> {
-                            assert(maxChildExtent < Double.POSITIVE_INFINITY)
+                            assert(maxChildExtent < Float.POSITIVE_INFINITY)
                             minChildExtent = maxChildExtent
                         }
                         FlexFit.LOOSE -> {
-                            minChildExtent = 0.0
+                            minChildExtent = 0.0f
                         }
                     }
 
@@ -681,8 +681,8 @@ class RenderFlex(
         // Align items along the main axis.
         val idealSize =
             if (canFlex && mainAxisSize == MainAxisSize.MAX) maxMainSize else allocatedSize
-        val actualSize: Double
-        val actualSizeDelta: Double
+        val actualSize: Float
+        val actualSizeDelta: Float
         when (_direction) {
             Axis.HORIZONTAL -> {
                 size = constraints!!.constrain(Size(idealSize, crossSize))
@@ -696,11 +696,11 @@ class RenderFlex(
             }
         }
         actualSizeDelta = actualSize - allocatedSize
-        overflow = max(0.0, -actualSizeDelta)
+        overflow = max(0.0f, -actualSizeDelta)
 
-        val remainingSpace = max(0.0, actualSizeDelta)
-        val leadingSpace: Double
-        val betweenSpace: Double
+        val remainingSpace = max(0.0f, actualSizeDelta)
+        val leadingSpace: Float
+        val betweenSpace: Float
         // flipMainAxis is used to decide whether to lay out left-to-right/top-to-bottom (false), or
         // right-to-left/bottom-to-top (true). The _startIsTopLeft will return null if there's only
         // one child and the relevant direction is null, in which case we arbitrarily decide not to
@@ -708,27 +708,27 @@ class RenderFlex(
         val flipMainAxis = !(startIsTopLeft(direction, textDirection, verticalDirection) ?: true)
         when (_mainAxisAlignment) {
             MainAxisAlignment.START -> {
-                leadingSpace = 0.0
-                betweenSpace = 0.0
+                leadingSpace = 0.0f
+                betweenSpace = 0.0f
             }
             MainAxisAlignment.END -> {
             leadingSpace = remainingSpace
-                betweenSpace = 0.0
+                betweenSpace = 0.0f
             }
             MainAxisAlignment.CENTER -> {
-                leadingSpace = remainingSpace / 2.0
-                betweenSpace = 0.0
+                leadingSpace = remainingSpace / 2.0f
+                betweenSpace = 0.0f
             }
             MainAxisAlignment.SPACE_BETWEEN -> {
-                leadingSpace = 0.0
-                betweenSpace = if (totalChildren > 1) remainingSpace / (totalChildren - 1) else 0.0
+                leadingSpace = 0.0f
+                betweenSpace = if (totalChildren > 1) remainingSpace / (totalChildren - 1) else 0.0f
             }
             MainAxisAlignment.SPACE_AROUND -> {
-                betweenSpace = if (totalChildren > 0) remainingSpace / totalChildren else 0.0
-                leadingSpace = betweenSpace / 2.0
+                betweenSpace = if (totalChildren > 0) remainingSpace / totalChildren else 0.0f
+                leadingSpace = betweenSpace / 2.0f
             }
             MainAxisAlignment.SPACE_EVENLY -> {
-                betweenSpace = if (totalChildren > 0) remainingSpace / (totalChildren + 1) else 0.0
+                betweenSpace = if (totalChildren > 0) remainingSpace / (totalChildren + 1) else 0.0f
                 leadingSpace = betweenSpace
             }
         }
@@ -738,25 +738,25 @@ class RenderFlex(
         child = firstChild
         while (child != null) {
             val childParentData = child.parentData
-            var childCrossPosition: Double
+            var childCrossPosition: Float
             when (_crossAxisAlignment) {
                 CrossAxisAlignment.START, CrossAxisAlignment.END -> {
                     childCrossPosition = if (
                         startIsTopLeft(direction.flip(), textDirection, verticalDirection) ==
                         (_crossAxisAlignment == CrossAxisAlignment.START)) {
-                        0.0
+                        0.0f
                     } else {
                         crossSize - getCrossSize(child)
                     }
                 }
                 CrossAxisAlignment.CENTER -> {
-                    childCrossPosition = crossSize / 2.0 - getCrossSize(child) / 2.0
+                    childCrossPosition = crossSize / 2.0f - getCrossSize(child) / 2.0f
                 }
                 CrossAxisAlignment.STRETCH -> {
-                    childCrossPosition = 0.0
+                    childCrossPosition = 0.0f
                 }
                 CrossAxisAlignment.BASELINE -> {
-                    childCrossPosition = 0.0
+                    childCrossPosition = 0.0f
                     if (_direction == Axis.HORIZONTAL) {
                         assert(textBaseline != null)
                         TODO("Migration/Mihai: baselines")
@@ -831,11 +831,11 @@ class RenderFlex(
             when (_direction) {
                 Axis.HORIZONTAL -> {
                     overflowChildRect =
-                            Rect.fromLTWH(0.0, 0.0, size.width + overflow, 0.0)
+                            Rect.fromLTWH(0.0f, 0.0f, size.width + overflow, 0.0f)
                 }
                 Axis.VERTICAL -> {
                     overflowChildRect =
-                            Rect.fromLTWH(0.0, 0.0, 0.0, size.height + overflow)
+                            Rect.fromLTWH(0.0f, 0.0f, 0.0f, size.height + overflow)
                 }
             }
             // TODO(migration/Mihai): overflow indicator

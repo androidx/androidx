@@ -21,18 +21,18 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 data class Matrix4(
-    var x: Vector4 = Vector4(x = 1.0),
-    var y: Vector4 = Vector4(y = 1.0),
-    var z: Vector4 = Vector4(z = 1.0),
-    var w: Vector4 = Vector4(w = 1.0)
+    var x: Vector4 = Vector4(x = 1.0f),
+    var y: Vector4 = Vector4(y = 1.0f),
+    var z: Vector4 = Vector4(z = 1.0f),
+    var w: Vector4 = Vector4(w = 1.0f)
 ) {
     constructor(right: Vector3, up: Vector3, forward: Vector3, position: Vector3 = Vector3()) :
-            this(Vector4(right), Vector4(up), Vector4(forward), Vector4(position, 1.0))
+            this(Vector4(right), Vector4(up), Vector4(forward), Vector4(position, 1.0f))
 
     constructor(m: Matrix4) : this(m.x.copy(), m.y.copy(), m.z.copy(), m.w.copy())
 
     companion object {
-        fun of(vararg a: Double): Matrix4 {
+        fun of(vararg a: Float): Matrix4 {
             require(a.size >= 16)
             return Matrix4(
                 Vector4(a[0], a[4], a[8], a[12]),
@@ -42,7 +42,7 @@ data class Matrix4(
             )
         }
 
-        fun zero() = diagonal3Values(0.0, 0.0, 0.0)
+        fun zero() = diagonal3Values(0.0f, 0.0f, 0.0f)
 
         fun identity() = Matrix4()
 
@@ -50,29 +50,29 @@ data class Matrix4(
             return diagonal3Values(x = scale.x, y = scale.y, z = scale.z)
         }
 
-        fun diagonal3Values(x: Double, y: Double, z: Double): Matrix4 {
+        fun diagonal3Values(x: Float, y: Float, z: Float): Matrix4 {
             return Matrix4(
-                Vector4(x, 0.0, 0.0, 0.0),
-                Vector4(0.0, y, 0.0, 0.0),
-                Vector4(0.0, 0.0, z, 0.0),
-                Vector4(0.0, 0.0, 0.0, 1.0)
+                Vector4(x, 0.0f, 0.0f, 0.0f),
+                Vector4(0.0f, y, 0.0f, 0.0f),
+                Vector4(0.0f, 0.0f, z, 0.0f),
+                Vector4(0.0f, 0.0f, 0.0f, 1.0f)
             )
         }
 
         /** Rotation of [radians_] around X. */
-        fun rotationX(radians: Double) = Matrix4.zero().apply {
-            set(3, 3, 1.0)
+        fun rotationX(radians: Float) = Matrix4.zero().apply {
+            set(3, 3, 1.0f)
             rotateX(radians)
         }
 
         /** Rotation of [radians_] around Y. */
-        fun rotationY(radians: Double) = Matrix4.zero().apply {
-            set(3, 3, 1.0)
+        fun rotationY(radians: Float) = Matrix4.zero().apply {
+            set(3, 3, 1.0f)
             rotateY(radians)
         }
 
-        fun rotationZ(radians: Double) = Matrix4.zero().apply {
-            set(3, 3, 1.0)
+        fun rotationZ(radians: Float) = Matrix4.zero().apply {
+            set(3, 3, 1.0f)
             rotateZ(radians)
         }
 
@@ -81,11 +81,11 @@ data class Matrix4(
             setTranslationRaw(x = translation.x, y = translation.y, z = translation.z)
         }
 
-        fun translationValues(x: Double, y: Double, z: Double) =
+        fun translationValues(x: Float, y: Float, z: Float) =
             Matrix4.identity().apply { setTranslationRaw(x, y, z) }
     }
 
-    inline val m4storage: List<Double>
+    inline val m4storage: List<Float>
         get() = x.v4storage + y.v4storage + z.v4storage + w.v4storage
 
     inline var right: Vector3
@@ -120,8 +120,8 @@ data class Matrix4(
             val z = normalize(forward)
 
             return when {
-                z.y <= -1.0f -> Vector3(degrees(-HALF_PI), 0.0, degrees(atan2(x.z, y.z)))
-                z.y >= 1.0f -> Vector3(degrees(HALF_PI), 0.0, degrees(atan2(-x.z, -y.z)))
+                z.y <= -1.0f -> Vector3(degrees(-HALF_PI), 0.0f, degrees(atan2(x.z, y.z)))
+                z.y >= 1.0f -> Vector3(degrees(HALF_PI), 0.0f, degrees(atan2(-x.z, -y.z)))
                 else -> Vector3(
                     degrees(-asin(z.y)), degrees(-atan2(z.x, z.z)), degrees(atan2(x.y, y.y))
                 )
@@ -158,7 +158,7 @@ data class Matrix4(
         this[column].xyzw = v
     }
 
-    operator fun set(column: Int, row: Int, v: Double) {
+    operator fun set(column: Int, row: Int, v: Float) {
         this[column][row] = v
     }
 
@@ -177,10 +177,10 @@ data class Matrix4(
         --w
     }
 
-    operator fun plus(v: Double) = Matrix4(x + v, y + v, z + v, w + v)
-    operator fun minus(v: Double) = Matrix4(x - v, y - v, z - v, w - v)
-    operator fun times(v: Double) = Matrix4(x * v, y * v, z * v, w * v)
-    operator fun div(v: Double) = Matrix4(x / v, y / v, z / v, w / v)
+    operator fun plus(v: Float) = Matrix4(x + v, y + v, z + v, w + v)
+    operator fun minus(v: Float) = Matrix4(x - v, y - v, z - v, w - v)
+    operator fun times(v: Float) = Matrix4(x * v, y * v, z * v, w * v)
+    operator fun div(v: Float) = Matrix4(x / v, y / v, z / v, w / v)
 
     operator fun times(m: Matrix4): Matrix4 {
         val t = transpose(this)
@@ -208,7 +208,7 @@ data class Matrix4(
         this.w = other.w
     }
 
-    fun assignFromStorage(storage: List<Double>) {
+    fun assignFromStorage(storage: List<Float>) {
         assert(storage.size == 16)
         x.assignFromStorage(storage.subList(0, 4))
         y.assignFromStorage(storage.subList(4, 8))
@@ -216,7 +216,7 @@ data class Matrix4(
         w.assignFromStorage(storage.subList(12, 16))
     }
 
-    fun toDoubleArray() = doubleArrayOf(
+    fun toFloatArray() = floatArrayOf(
         x.x, y.x, z.x, w.x,
         x.y, y.y, z.y, w.y,
         x.z, y.z, z.z, w.z,
@@ -252,18 +252,18 @@ data class Matrix4(
                 m4storage[6] * argStorage[1] +
                 m4storage[10] * argStorage[2] +
                 m4storage[14]
-        val w_ = 1.0 / (m4storage[3] * argStorage[0] +
+        val w_ = 1.0f / (m4storage[3] * argStorage[0] +
                 m4storage[7] * argStorage[1] +
                 m4storage[11] * argStorage[2] +
                 m4storage[15])
-        arg.x = x_ * w_.toDouble()
-        arg.y = y_ * w_.toDouble()
-        arg.z = z_ * w_.toDouble()
+        arg.x = x_ * w_
+        arg.y = y_ * w_
+        arg.z = z_ * w_
         return arg
     }
 
     /** Returns the determinant of this matrix. */
-    val determinant: Double
+    val determinant: Float
         get() {
             val det2_01_01 = m4storage[0] * m4storage[5] - m4storage[1] * m4storage[4]
             val det2_01_02 = m4storage[0] * m4storage[6] - m4storage[2] * m4storage[4]
@@ -280,14 +280,14 @@ data class Matrix4(
             val det3_201_123 = m4storage[9] * det2_01_23 - m4storage[10] * det2_01_13 +
                     m4storage[11] * det2_01_12
             return -det3_201_123 * m4storage[12] + det3_201_023 * m4storage[13] -
-                    det3_201_013 * m4storage[14] + det3_201_012 * m4storage[15].toDouble()
+                    det3_201_013 * m4storage[14] + det3_201_012 * m4storage[15]
         }
 
     /** Invert [this]. */
     fun invert() = copyInverse(this)
 
     /** Set this matrix to be the inverse of [arg] */
-    fun copyInverse(arg: Matrix4): Double {
+    fun copyInverse(arg: Matrix4): Float {
         val argStorage = arg.m4storage
         val a00 = argStorage[0]
         val a01 = argStorage[1]
@@ -319,12 +319,12 @@ data class Matrix4(
         val b11 = a22 * a33 - a23 * a32
         val det =
             (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06)
-        if (det == 0.0) {
+        if (det == 0.0f) {
             setFrom(arg)
-            return 0.0
+            return 0.0f
         }
-        val invDet = 1.0 / det
-        val newStorage = MutableList(16) { 0.0 }
+        val invDet = 1.0f / det
+        val newStorage = MutableList(16) { 0.0f }
         newStorage[0] = ((a11 * b11 - a12 * b10 + a13 * b09) * invDet)
         newStorage[1] = ((-a01 * b11 + a02 * b10 - a03 * b09) * invDet)
         newStorage[2] = ((a31 * b05 - a32 * b04 + a33 * b03) * invDet)
@@ -350,78 +350,78 @@ data class Matrix4(
         assignFromStorage(arg.m4storage)
     }
 
-    fun rotateX(radians: Double) {
+    fun rotateX(radians: Float) {
         val c = cos(radians)
         val s = sin(radians)
         val newStorage = m4storage.toMutableList()
-        newStorage[0] = 1.0
-        newStorage[1] = 0.0
-        newStorage[2] = 0.0
-        newStorage[4] = 0.0
+        newStorage[0] = 1.0f
+        newStorage[1] = 0.0f
+        newStorage[2] = 0.0f
+        newStorage[4] = 0.0f
         newStorage[5] = c
         newStorage[6] = s
-        newStorage[8] = 0.0
+        newStorage[8] = 0.0f
         newStorage[9] = -s
         newStorage[10] = c
-        newStorage[3] = 0.0
-        newStorage[7] = 0.0
-        newStorage[11] = 0.0
+        newStorage[3] = 0.0f
+        newStorage[7] = 0.0f
+        newStorage[11] = 0.0f
         assignFromStorage(newStorage)
     }
 
     /** Sets the upper 3x3 to a rotation of [radians] around Y */
-    fun rotateY(radians: Double) {
+    fun rotateY(radians: Float) {
         val c = cos(radians)
         val s = sin(radians)
         val newStorage = m4storage.toMutableList()
         newStorage[0] = c
-        newStorage[1] = 0.0
+        newStorage[1] = 0.0f
         newStorage[2] = -s
-        newStorage[4] = 0.0
-        newStorage[5] = 1.0
-        newStorage[6] = 0.0
+        newStorage[4] = 0.0f
+        newStorage[5] = 1.0f
+        newStorage[6] = 0.0f
         newStorage[8] = s
-        newStorage[9] = 0.0
+        newStorage[9] = 0.0f
         newStorage[10] = c
-        newStorage[3] = 0.0
-        newStorage[7] = 0.0
-        newStorage[11] = 0.0
+        newStorage[3] = 0.0f
+        newStorage[7] = 0.0f
+        newStorage[11] = 0.0f
         assignFromStorage(newStorage)
     }
 
     /** Sets the upper 3x3 to a rotation of [radians] around Z */
-    fun rotateZ(radians: Double) {
+    fun rotateZ(radians: Float) {
         val c = cos(radians)
         val s = sin(radians)
         val newStorage = m4storage.toMutableList()
         newStorage[0] = c
         newStorage[1] = s
-        newStorage[2] = 0.0
+        newStorage[2] = 0.0f
         newStorage[4] = -s
         newStorage[5] = c
-        newStorage[6] = 0.0
-        newStorage[8] = 0.0
-        newStorage[9] = 0.0
-        newStorage[10] = 1.0
-        newStorage[3] = 0.0
-        newStorage[7] = 0.0
-        newStorage[11] = 0.0
+        newStorage[6] = 0.0f
+        newStorage[8] = 0.0f
+        newStorage[9] = 0.0f
+        newStorage[10] = 1.0f
+        newStorage[3] = 0.0f
+        newStorage[7] = 0.0f
+        newStorage[11] = 0.0f
         assignFromStorage(newStorage)
     }
 
     /** Sets the translation vector in this homogeneous transformation matrix. */
-    fun setTranslationRaw(x: Double, y: Double, z: Double) {
+    fun setTranslationRaw(x: Float, y: Float, z: Float) {
         set(3, 0, x)
         set(3, 1, y)
         set(3, 2, z)
     }
 
     /** Scale this matrix by a [Vector3], [Vector4], or x,y,z */
-    fun scale(x: Any, y: Double? = null, z: Double? = null) {
-        var sx: Double? = null
-        var sy: Double? = null
-        var sz: Double? = null
-        val sw = if (x is Vector4) x.w else 1.0
+    fun scale(x: Any, y: Float? = null, z: Float? = null) {
+        var sx: Float? = null
+        var sy: Float? = null
+        var sz: Float? = null
+        val sw = if (x is Vector4) x.w else 1.0f
         if (x is Vector3) {
             sx = x.x
             sy = x.y
@@ -430,14 +430,14 @@ data class Matrix4(
             sx = x.x
             sy = x.y
             sz = x.z
-        } else if (x is Double) {
+        } else if (x is Float) {
             sx = x
             sy = if (y != null) y else x
             sz = if (z != null) z else x
         }
-        sx as Double
-        sy as Double
-        sz as Double
+        sx as Float
+        sy as Float
+        sz as Float
         val newStorage = m4storage.toMutableList()
         newStorage[0] *= sx
         newStorage[1] *= sx
@@ -459,11 +459,11 @@ data class Matrix4(
     }
 
     /** Translate this matrix by a [Vector3], [Vector4], or x,y,z */
-    fun translate(x: Any, y: Double = 0.0, z: Double = 0.0) {
-        var tx: Double? = null
-        var ty: Double? = null
-        var tz: Double? = null
-        var tw = if (x is Vector4) x.w else 1.0
+    fun translate(x: Any, y: Float = 0.0f, z: Float = 0.0f) {
+        var tx: Float? = null
+        var ty: Float? = null
+        var tz: Float? = null
+        var tw = if (x is Vector4) x.w else 1.0f
         if (x is Vector3) {
             tx = x.x
             ty = x.y
@@ -472,14 +472,14 @@ data class Matrix4(
             tx = x.x
             ty = x.y
             tz = x.z
-        } else if (x is Double) {
+        } else if (x is Float) {
             tx = x
             ty = y
             tz = z
         }
-        tx as Double
-        ty as Double
-        tz as Double
+        tx as Float
+        ty as Float
+        tz as Float
         val newStorage = m4storage.toMutableList()
         val t1 = newStorage[0] * tx +
                 newStorage[4] * ty +

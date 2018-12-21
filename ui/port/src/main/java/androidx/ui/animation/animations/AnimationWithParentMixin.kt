@@ -39,7 +39,7 @@ abstract class AnimationWithParentMixin<T>(
      * you wish to proxy a different animation at different times, consider using
      * [ProxyAnimation].
      */
-    protected val parent: Animation<Double>
+    protected val parent: Animation<Float>
 ) : Animation<T>() {
 
     // keep these next five dartdocs in sync with the dartdocs in Animation<T>

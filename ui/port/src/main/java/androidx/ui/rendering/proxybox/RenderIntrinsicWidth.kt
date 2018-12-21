@@ -17,9 +17,10 @@
 package androidx.ui.rendering.proxybox
 
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
+import kotlin.math.ceil
 
 /**
  * Sizes its child to the child's intrinsic width.
@@ -39,14 +40,14 @@ import androidx.ui.rendering.box.RenderBox
  * depth of the tree.
  */
 class RenderIntrinsicWidth(
-    private var _stepWidth: Double? = null,
-    private var _stepHeight: Double? = null,
+    private var _stepWidth: Float? = null,
+    private var _stepHeight: Float? = null,
     child: RenderBox? = null
 ) : RenderProxyBox(child) {
 /** Creates a render object that sizes itself to its child's intrinsic width. */
 
     /** If non-null, force the child's width to be a multiple of this value. */
-    var stepWidth: Double?
+    var stepWidth: Float?
         get() { return _stepWidth }
     set(value) {
         if (value == _stepWidth)
@@ -56,7 +57,7 @@ class RenderIntrinsicWidth(
     }
 
     /** If non-null, force the child's height to be a multiple of this value. */
-    var stepHeight: Double?
+    var stepHeight: Float?
         get() { return _stepHeight }
         set(value) {
             if (value == _stepHeight)
@@ -66,40 +67,40 @@ class RenderIntrinsicWidth(
         }
 
     companion object {
-        internal fun _applyStep(input: Double, step: Double?): Double {
+        internal fun _applyStep(input: Float, step: Float?): Float {
             assert(input.isFinite())
             if (step == null)
                 return input
-            return Math.ceil(input / step) * step
+            return ceil(input / step) * step
         }
     }
 
-    override fun computeMinIntrinsicWidth(height: Double) = computeMaxIntrinsicWidth(height)
+    override fun computeMinIntrinsicWidth(height: Float) = computeMaxIntrinsicWidth(height)
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
         if (child == null)
-            return 0.0
+            return 0.0f
         val width = child!!.getMaxIntrinsicWidth(height)
         return _applyStep(width, _stepWidth)
     }
 
-    override fun computeMinIntrinsicHeight(width: Double): Double {
+    override fun computeMinIntrinsicHeight(width: Float): Float {
         var resultWidth = width
         if (child == null)
-            return 0.0
+            return 0.0f
         if (!resultWidth.isFinite())
-            resultWidth = computeMaxIntrinsicWidth(Double.POSITIVE_INFINITY)
+            resultWidth = computeMaxIntrinsicWidth(Float.POSITIVE_INFINITY)
         assert(resultWidth.isFinite())
         val height = child!!.getMinIntrinsicHeight(resultWidth)
         return _applyStep(height, _stepHeight)
     }
 
-    override fun computeMaxIntrinsicHeight(width: Double): Double {
+    override fun computeMaxIntrinsicHeight(width: Float): Float {
         var resultWidth = width
         if (child == null)
-            return 0.0
+            return 0.0f
         if (!resultWidth.isFinite())
-            resultWidth = computeMaxIntrinsicWidth(Double.POSITIVE_INFINITY)
+            resultWidth = computeMaxIntrinsicWidth(Float.POSITIVE_INFINITY)
         assert(resultWidth.isFinite())
         val height = child!!.getMaxIntrinsicHeight(resultWidth)
         return _applyStep(height, _stepHeight)
@@ -128,7 +129,7 @@ class RenderIntrinsicWidth(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DoubleProperty.create("stepWidth", stepWidth))
-        properties.add(DoubleProperty.create("stepHeight", stepHeight))
+        properties.add(FloatProperty.create("stepWidth", stepWidth))
+        properties.add(FloatProperty.create("stepHeight", stepHeight))
     }
 }

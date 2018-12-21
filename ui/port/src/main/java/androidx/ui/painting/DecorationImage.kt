@@ -112,7 +112,7 @@ fun paintImage(
     if (rect.isEmpty())
         return
     var outputSize = rect.getSize()
-    var inputSize = Size(image.width.toDouble(), image.height.toDouble())
+    var inputSize = Size(image.width.toFloat(), image.height.toFloat())
     val sliceBorder: Offset?
     if (centerSlice != null) {
         sliceBorder = Offset(
@@ -154,8 +154,8 @@ fun paintImage(
         // to nearest-neighbor.
         paint.filterQuality = FilterQuality.low
     }
-    val halfWidthDelta = (outputSize.width - destinationSize.width) / 2.0
-    val halfHeightDelta = (outputSize.height - destinationSize.height) / 2.0
+    val halfWidthDelta = (outputSize.width - destinationSize.width) / 2.0f
+    val halfHeightDelta = (outputSize.height - destinationSize.height) / 2.0f
     val dx = halfWidthDelta + (if (flipHorizontally) -alignment.x else alignment.x) * halfWidthDelta
     val dy = halfHeightDelta + alignment.y * halfHeightDelta
     val destinationPosition = rect.getTopLeft().translate(dx, dy)
@@ -166,10 +166,10 @@ fun paintImage(
     if (resolvedRepeat != ImageRepeat.noRepeat)
         canvas.clipRect(rect)
     if (flipHorizontally) {
-        val dx2 = -(rect.left + rect.width / 2.0)
-        canvas.translate(-dx2, 0.0)
-        canvas.scale(-1.0, 1.0)
-        canvas.translate(dx2, 0.0)
+        val dx2 = -(rect.left + rect.width / 2.0f)
+        canvas.translate(-dx2, 0.0f)
+        canvas.scale(-1.0f, 1.0f)
+        canvas.translate(dx2, 0.0f)
     }
     if (centerSlice == null) {
         val sourceRect = alignment.inscribe(fittedSizes.source, Offset.zero.and(inputSize))

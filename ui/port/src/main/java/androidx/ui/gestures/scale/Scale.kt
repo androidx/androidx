@@ -79,7 +79,7 @@ class ScaleUpdateDetails(
      * The scale implied by the pointers in contact with the screen. A value
      * greater than or equal to zero.
      */
-    val scale: Double = 1.0
+    val scale: Float = 1.0f
 ) {
     override fun toString() = "ScaleUpdateDetails(focalPoint: $focalPoint, scale: $scale)"
 }
@@ -108,7 +108,7 @@ typealias GestureScaleUpdateCallback = (ScaleUpdateDetails) -> Unit
 typealias GestureScaleEndCallback = (ScaleEndDetails) -> Unit
 
 internal fun isFlingGesture(velocity: Velocity): Boolean {
-    val speedSquared: Double = velocity.pixelsPerSecond.getDistanceSquared()
+    val speedSquared: Float = velocity.pixelsPerSecond.getDistanceSquared()
     return (speedSquared > kMinFlingVelocity * kMinFlingVelocity)
 }
 
@@ -142,20 +142,20 @@ class ScaleGestureRecognizer(debugOwner: Any? = null) : OneSequenceGestureRecogn
 
     private var initialFocalPoint: Offset? = null
     private var currentFocalPoint: Offset? = null
-    private var initialSpan: Double = 0.0
-    private var currentSpan: Double = 0.0
+    private var initialSpan: Float = 0.0f
+    private var currentSpan: Float = 0.0f
     private var pointerLocations: MutableMap<Int, Offset>? = null
     private val velocityTrackers: MutableMap<Int, VelocityTracker> = mutableMapOf()
 
-    private fun scaleFactor() = if (initialSpan > 0.0) currentSpan / initialSpan else 1.0
+    private fun scaleFactor() = if (initialSpan > 0.0f) currentSpan / initialSpan else 1.0f
 
     override fun addPointer(event: PointerDownEvent) {
         startTrackingPointer(event.pointer)
         velocityTrackers[event.pointer] = VelocityTracker()
         if (state == ScaleState.READY) {
             state = ScaleState.POSSIBLE
-            initialSpan = 0.0
-            currentSpan = 0.0
+            initialSpan = 0.0f
+            currentSpan = 0.0f
             pointerLocations = mutableMapOf()
         }
     }
@@ -197,14 +197,14 @@ class ScaleGestureRecognizer(debugOwner: Any? = null) : OneSequenceGestureRecogn
             focalPoint += it
         }
 
-        currentFocalPoint = if (count > 0) focalPoint / count.toDouble() else Offset.zero
+        currentFocalPoint = if (count > 0) focalPoint / count.toFloat() else Offset.zero
 
         // Span is the average deviation from focal point
-        var totalDeviation = 0.0
+        var totalDeviation = 0.0f
         pointerLocations!!.values.forEach {
             totalDeviation += (currentFocalPoint!! - it).getDistance()
         }
-        currentSpan = if (count > 0) totalDeviation / count else 0.0
+        currentSpan = if (count > 0) totalDeviation / count else 0.0f
     }
 
     private fun reconfigure(pointer: Int): Boolean {

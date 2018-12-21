@@ -54,8 +54,8 @@ class RowsAndColumnsActivity : Activity() {
                     RawImage(
                         key = Key.createKey("image $columnIndex $rowIndex"),
                         image = Image(bitmap),
-                        width = 100.0,
-                        height = 100.0
+                        width = 100.0f,
+                        height = 100.0f
                     )
                 }
                 Column(key = Key.createKey("column $columnIndex"), children = images)

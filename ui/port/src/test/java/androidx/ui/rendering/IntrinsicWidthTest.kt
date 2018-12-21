@@ -39,22 +39,22 @@ class IntrinsicWidthTest {
     // before using this, consider using RenderSizedBox from rendering_tester.dart
     class RenderTestBox(private val _intrinsicDimensions: BoxConstraints) : RenderBox() {
 
-        override fun computeMinIntrinsicWidth(height: Double) = _intrinsicDimensions.minWidth
+        override fun computeMinIntrinsicWidth(height: Float) = _intrinsicDimensions.minWidth
 
-        override fun computeMaxIntrinsicWidth(height: Double) = _intrinsicDimensions.maxWidth
+        override fun computeMaxIntrinsicWidth(height: Float) = _intrinsicDimensions.maxWidth
 
-        override fun computeMinIntrinsicHeight(width: Double) = _intrinsicDimensions.minHeight
+        override fun computeMinIntrinsicHeight(width: Float) = _intrinsicDimensions.minHeight
 
-        override fun computeMaxIntrinsicHeight(width: Double) = _intrinsicDimensions.maxHeight
+        override fun computeMaxIntrinsicHeight(width: Float) = _intrinsicDimensions.maxHeight
 
         override val sizedByParent = true
 
         override fun performResize() {
             size = constraints!!.constrain(
                     Size(_intrinsicDimensions.minWidth +
-                            (_intrinsicDimensions.maxWidth - _intrinsicDimensions.minWidth) / 2.0,
+                            (_intrinsicDimensions.maxWidth - _intrinsicDimensions.minWidth) / 2.0f,
                             _intrinsicDimensions.minHeight + (_intrinsicDimensions.maxHeight -
-                                    _intrinsicDimensions.minHeight) / 2.0))
+                                    _intrinsicDimensions.minHeight) / 2.0f))
         }
     }
 
@@ -74,39 +74,39 @@ class IntrinsicWidthTest {
     @Test
     fun `Shrink-wrapping width`() {
         val child = RenderTestBox(
-                BoxConstraints(minWidth = 10.0, maxWidth = 100.0, minHeight = 20.0,
-                        maxHeight = 200.0))
+                BoxConstraints(minWidth = 10.0f, maxWidth = 100.0f, minHeight = 20.0f,
+                        maxHeight = 200.0f))
         val parent = RenderIntrinsicWidth(child = child)
         layout(parent,
                 constraints = BoxConstraints(
-                        minWidth = 5.0,
-                        minHeight = 8.0,
-                        maxWidth = 500.0,
-                        maxHeight = 800.0
+                        minWidth = 5.0f,
+                        minHeight = 8.0f,
+                        maxWidth = 500.0f,
+                        maxHeight = 800.0f
                 )
         )
-        assertThat(100.0, MoreOrLessEquals(parent.size.width))
-        assertThat(110.0, MoreOrLessEquals(parent.size.height))
+        assertThat(100.0f, MoreOrLessEquals(parent.size.width))
+        assertThat(110.0f, MoreOrLessEquals(parent.size.height))
 
-        assertThat(100.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0)))
-        assertThat(20.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0f)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0f)))
+        assertThat(20.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0f)))
 
-        assertThat(100.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0)))
-        assertThat(20.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0f)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0f)))
+        assertThat(20.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0f)))
 
-        assertThat(100.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0)))
-        assertThat(20.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0f)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0f)))
+        assertThat(20.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0f)))
 
-        assertThat(100.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(20.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(Double.POSITIVE_INFINITY)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(20.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(Float.POSITIVE_INFINITY)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)))
     }
 
     @Test
@@ -114,194 +114,194 @@ class IntrinsicWidthTest {
         val parent = RenderIntrinsicWidth()
         layout(parent,
                 constraints = BoxConstraints(
-                        minWidth = 5.0,
-                        minHeight = 8.0,
-                        maxWidth = 500.0,
-                        maxHeight = 800.0
+                        minWidth = 5.0f,
+                        minHeight = 8.0f,
+                        maxWidth = 500.0f,
+                        maxHeight = 800.0f
                 )
         )
-        assertThat(5.0, MoreOrLessEquals(parent.size.width))
-        assertThat(8.0, MoreOrLessEquals(parent.size.height))
+        assertThat(5.0f, MoreOrLessEquals(parent.size.width))
+        assertThat(8.0f, MoreOrLessEquals(parent.size.height))
 
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0f)))
 
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0f)))
 
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0f)))
 
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(Double.POSITIVE_INFINITY)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(Float.POSITIVE_INFINITY)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)))
     }
 
     @Test
     fun `Shrink-wrapping width (stepped width)`() {
         val child = RenderTestBox(
-                BoxConstraints(minWidth = 10.0, maxWidth = 100.0, minHeight = 20.0,
-                        maxHeight = 200.0))
-        val parent = RenderIntrinsicWidth(child = child, _stepWidth = 47.0)
+                BoxConstraints(minWidth = 10.0f, maxWidth = 100.0f, minHeight = 20.0f,
+                        maxHeight = 200.0f))
+        val parent = RenderIntrinsicWidth(child = child, _stepWidth = 47.0f)
         layout(parent,
                 constraints = BoxConstraints(
-                        minWidth = 5.0,
-                        minHeight = 8.0,
-                        maxWidth = 500.0,
-                        maxHeight = 800.0
+                        minWidth = 5.0f,
+                        minHeight = 8.0f,
+                        maxWidth = 500.0f,
+                        maxHeight = 800.0f
                 )
         )
-        assertThat(3.0 * 47.0, MoreOrLessEquals(parent.size.width))
-        assertThat(110.0, MoreOrLessEquals(parent.size.height))
+        assertThat(3.0f * 47.0f, MoreOrLessEquals(parent.size.width))
+        assertThat(110.0f, MoreOrLessEquals(parent.size.height))
 
-        assertThat(3.0 * 47.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0)))
-        assertThat(3.0 * 47.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0)))
-        assertThat(20.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0)))
+        assertThat(3.0f * 47.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0f)))
+        assertThat(3.0f * 47.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0f)))
+        assertThat(20.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0f)))
 
-        assertThat(3.0 * 47.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0)))
-        assertThat(3.0 * 47.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0)))
-        assertThat(20.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0)))
+        assertThat(3.0f * 47.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0f)))
+        assertThat(3.0f * 47.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0f)))
+        assertThat(20.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0f)))
 
-        assertThat(3.0 * 47.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0)))
-        assertThat(3.0 * 47.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0)))
-        assertThat(20.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0)))
+        assertThat(3.0f * 47.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0f)))
+        assertThat(3.0f * 47.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0f)))
+        assertThat(20.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0f)))
 
-        assertThat(3.0 * 47.0,
-                MoreOrLessEquals(parent.getMinIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(3.0 * 47.0,
-                MoreOrLessEquals(parent.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(20.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(Double.POSITIVE_INFINITY)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)))
+        assertThat(3.0f * 47.0f,
+                MoreOrLessEquals(parent.getMinIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(3.0f * 47.0f,
+                MoreOrLessEquals(parent.getMaxIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(20.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(Float.POSITIVE_INFINITY)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)))
     }
 
     @Test
     fun `Shrink-wrapping width (stepped height)`() {
         val child = RenderTestBox(
-                BoxConstraints(minWidth = 10.0, maxWidth = 100.0, minHeight = 20.0,
-                        maxHeight = 200.0))
-        val parent = RenderIntrinsicWidth(child = child, _stepHeight = 47.0)
+                BoxConstraints(minWidth = 10.0f, maxWidth = 100.0f, minHeight = 20.0f,
+                        maxHeight = 200.0f))
+        val parent = RenderIntrinsicWidth(child = child, _stepHeight = 47.0f)
         layout(parent,
                 constraints = BoxConstraints(
-                        minWidth = 5.0,
-                        minHeight = 8.0,
-                        maxWidth = 500.0,
-                        maxHeight = 800.0
+                        minWidth = 5.0f,
+                        minHeight = 8.0f,
+                        maxWidth = 500.0f,
+                        maxHeight = 800.0f
                 )
         )
-        assertThat(100.0, MoreOrLessEquals(parent.size.width))
-        assertThat(235.0, MoreOrLessEquals(parent.size.height))
+        assertThat(100.0f, MoreOrLessEquals(parent.size.width))
+        assertThat(235.0f, MoreOrLessEquals(parent.size.height))
 
-        assertThat(100.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0)))
-        assertThat(1.0 * 47.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0)))
-        assertThat(5.0 * 47.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0f)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0f)))
+        assertThat(1.0f * 47.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0f)))
+        assertThat(5.0f * 47.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0f)))
 
-        assertThat(100.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0)))
-        assertThat(1.0 * 47.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0)))
-        assertThat(5.0 * 47.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0f)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0f)))
+        assertThat(1.0f * 47.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0f)))
+        assertThat(5.0f * 47.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0f)))
 
-        assertThat(100.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0)))
-        assertThat(1.0 * 47.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0)))
-        assertThat(5.0 * 47.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0f)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0f)))
+        assertThat(1.0f * 47.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0f)))
+        assertThat(5.0f * 47.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0f)))
 
-        assertThat(100.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(1.0 * 47.0,
-                MoreOrLessEquals(parent.getMinIntrinsicHeight(Double.POSITIVE_INFINITY)))
-        assertThat(5.0 * 47.0,
-                MoreOrLessEquals(parent.getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(1.0f * 47.0f,
+                MoreOrLessEquals(parent.getMinIntrinsicHeight(Float.POSITIVE_INFINITY)))
+        assertThat(5.0f * 47.0f,
+                MoreOrLessEquals(parent.getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)))
     }
 
     @Test
     fun `Shrink-wrapping width (stepped everything)`() {
         val child = RenderTestBox(
-                BoxConstraints(minWidth = 10.0, maxWidth = 100.0, minHeight = 20.0,
-                        maxHeight = 200.0))
-        val parent = RenderIntrinsicWidth(child = child, _stepHeight = 47.0, _stepWidth = 37.0)
+                BoxConstraints(minWidth = 10.0f, maxWidth = 100.0f, minHeight = 20.0f,
+                        maxHeight = 200.0f))
+        val parent = RenderIntrinsicWidth(child = child, _stepHeight = 47.0f, _stepWidth = 37.0f)
         layout(parent,
                 constraints = BoxConstraints(
-                        minWidth = 5.0,
-                        minHeight = 8.0,
-                        maxWidth = 500.0,
-                        maxHeight = 800.0
+                        minWidth = 5.0f,
+                        minHeight = 8.0f,
+                        maxWidth = 500.0f,
+                        maxHeight = 800.0f
                 )
         )
-        assertThat(3.0 * 37.0, MoreOrLessEquals(parent.size.width))
-        assertThat(235.0, MoreOrLessEquals(parent.size.height))
+        assertThat(3.0f * 37.0f, MoreOrLessEquals(parent.size.width))
+        assertThat(235.0f, MoreOrLessEquals(parent.size.height))
 
-        assertThat(3.0 * 37.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0)))
-        assertThat(3.0 * 37.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0)))
-        assertThat(1.0 * 47.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0)))
-        assertThat(5.0 * 47.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0)))
+        assertThat(3.0f * 37.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0f)))
+        assertThat(3.0f * 37.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0f)))
+        assertThat(1.0f * 47.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0f)))
+        assertThat(5.0f * 47.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0f)))
 
-        assertThat(3.0 * 37.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0)))
-        assertThat(3.0 * 37.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0)))
-        assertThat(1.0 * 47.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0)))
-        assertThat(5.0 * 47.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0)))
+        assertThat(3.0f * 37.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0f)))
+        assertThat(3.0f * 37.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0f)))
+        assertThat(1.0f * 47.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0f)))
+        assertThat(5.0f * 47.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0f)))
 
-        assertThat(3.0 * 37.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0)))
-        assertThat(3.0 * 37.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0)))
-        assertThat(1.0 * 47.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0)))
-        assertThat(5.0 * 47.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0)))
+        assertThat(3.0f * 37.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0f)))
+        assertThat(3.0f * 37.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0f)))
+        assertThat(1.0f * 47.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0f)))
+        assertThat(5.0f * 47.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0f)))
 
-        assertThat(3.0 * 37.0,
-                MoreOrLessEquals(parent.getMinIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(3.0 * 37.0,
-                MoreOrLessEquals(parent.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(1.0 * 47.0,
-                MoreOrLessEquals(parent.getMinIntrinsicHeight(Double.POSITIVE_INFINITY)))
-        assertThat(5.0 * 47.0,
-                MoreOrLessEquals(parent.getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)))
+        assertThat(3.0f * 37.0f,
+                MoreOrLessEquals(parent.getMinIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(3.0f * 37.0f,
+                MoreOrLessEquals(parent.getMaxIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(1.0f * 47.0f,
+                MoreOrLessEquals(parent.getMinIntrinsicHeight(Float.POSITIVE_INFINITY)))
+        assertThat(5.0f * 47.0f,
+                MoreOrLessEquals(parent.getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)))
     }
 
     @Test
     fun `Shrink-wrapping height`() {
         val child = RenderTestBox(
-                BoxConstraints(minWidth = 10.0, maxWidth = 100.0, minHeight = 20.0,
-                        maxHeight = 200.0))
+                BoxConstraints(minWidth = 10.0f, maxWidth = 100.0f, minHeight = 20.0f,
+                        maxHeight = 200.0f))
         val parent = RenderIntrinsicHeight(child = child)
         layout(parent,
                 constraints = BoxConstraints(
-                        minWidth = 5.0,
-                        minHeight = 8.0,
-                        maxWidth = 500.0,
-                        maxHeight = 800.0
+                        minWidth = 5.0f,
+                        minHeight = 8.0f,
+                        maxWidth = 500.0f,
+                        maxHeight = 800.0f
                 )
         )
-        assertThat(55.0, MoreOrLessEquals(parent.size.width))
-        assertThat(200.0, MoreOrLessEquals(parent.size.height))
+        assertThat(55.0f, MoreOrLessEquals(parent.size.width))
+        assertThat(200.0f, MoreOrLessEquals(parent.size.height))
 
-        assertThat(10.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0)))
+        assertThat(10.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0f)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0f)))
 
-        assertThat(10.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0)))
+        assertThat(10.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0f)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0f)))
 
-        assertThat(10.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0)))
+        assertThat(10.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0f)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0f)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0f)))
 
-        assertThat(10.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(100.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(Double.POSITIVE_INFINITY)))
-        assertThat(200.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)))
+        assertThat(10.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(100.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(Float.POSITIVE_INFINITY)))
+        assertThat(200.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)))
     }
 
     @Test
@@ -309,34 +309,34 @@ class IntrinsicWidthTest {
         val parent = RenderIntrinsicHeight()
         layout(parent,
                 constraints = BoxConstraints(
-                        minWidth = 5.0,
-                        minHeight = 8.0,
-                        maxWidth = 500.0,
-                        maxHeight = 800.0
+                        minWidth = 5.0f,
+                        minHeight = 8.0f,
+                        maxWidth = 500.0f,
+                        maxHeight = 800.0f
                 )
         )
-        assertThat(5.0, MoreOrLessEquals(parent.size.width))
-        assertThat(8.0, MoreOrLessEquals(parent.size.height))
+        assertThat(5.0f, MoreOrLessEquals(parent.size.width))
+        assertThat(8.0f, MoreOrLessEquals(parent.size.height))
 
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(0.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(0.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(0.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(0.0f)))
 
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(10.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(10.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(10.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(10.0f)))
 
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(80.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(80.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(80.0f)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(80.0f)))
 
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Double.POSITIVE_INFINITY)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMinIntrinsicHeight(Double.POSITIVE_INFINITY)))
-        assertThat(0.0, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicWidth(Float.POSITIVE_INFINITY)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMinIntrinsicHeight(Float.POSITIVE_INFINITY)))
+        assertThat(0.0f, MoreOrLessEquals(parent.getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)))
     }
 
     // TODO("Migration/Andrey: Next tests needs RenderPadding class")

@@ -25,36 +25,36 @@ import org.junit.runners.JUnit4
 class RectTest {
 
     companion object {
-        private const val DELTA = 0.01
+        private const val DELTA = 0.01f
     }
 
     @Test
     fun `rect accessors`() {
-        val r = Rect.fromLTRB(1.0, 3.0, 5.0, 7.0)
-        assertEquals(1.0, r.left, DELTA)
-        assertEquals(3.0, r.top, DELTA)
-        assertEquals(5.0, r.right, DELTA)
-        assertEquals(7.0, r.bottom, DELTA)
+        val r = Rect.fromLTRB(1.0f, 3.0f, 5.0f, 7.0f)
+        assertEquals(1.0f, r.left, DELTA)
+        assertEquals(3.0f, r.top, DELTA)
+        assertEquals(5.0f, r.right, DELTA)
+        assertEquals(7.0f, r.bottom, DELTA)
     }
 
     @Test
     fun `rect created by width and height`() {
-        val r = Rect.fromLTWH(1.0, 3.0, 5.0, 7.0)
-        assertEquals(1.0, r.left, DELTA)
-        assertEquals(3.0, r.top, DELTA)
-        assertEquals(6.0, r.right, DELTA)
-        assertEquals(10.0, r.bottom, DELTA)
+        val r = Rect.fromLTWH(1.0f, 3.0f, 5.0f, 7.0f)
+        assertEquals(1.0f, r.left, DELTA)
+        assertEquals(3.0f, r.top, DELTA)
+        assertEquals(6.0f, r.right, DELTA)
+        assertEquals(10.0f, r.bottom, DELTA)
     }
 
     @Test
     fun `rect intersection`() {
-        val r1 = Rect.fromLTRB(0.0, 0.0, 100.0, 100.0)
-        val r2 = Rect.fromLTRB(50.0, 50.0, 200.0, 200.0)
+        val r1 = Rect.fromLTRB(0.0f, 0.0f, 100.0f, 100.0f)
+        val r2 = Rect.fromLTRB(50.0f, 50.0f, 200.0f, 200.0f)
         val r3 = r1.intersect(r2)
-        assertEquals(50.0, r3.left, DELTA)
-        assertEquals(50.0, r3.top, DELTA)
-        assertEquals(100.0, r3.right, DELTA)
-        assertEquals(100.0, r3.bottom, DELTA)
+        assertEquals(50.0f, r3.left, DELTA)
+        assertEquals(50.0f, r3.top, DELTA)
+        assertEquals(100.0f, r3.right, DELTA)
+        assertEquals(100.0f, r3.bottom, DELTA)
         val r4 = r2.intersect(r1)
         assertEquals(r3, r4)
     }

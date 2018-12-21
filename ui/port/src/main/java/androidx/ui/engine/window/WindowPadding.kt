@@ -20,17 +20,17 @@ package androidx.ui.engine.window
  */
 data class WindowPadding(
         // The distance from the left edge to the first unpadded pixel, in physical pixels.
-    val left: Double,
+    val left: Float,
         // The distance from the top edge to the first unpadded pixel, in physical pixels.
-    val top: Double,
+    val top: Float,
         // The distance from the right edge to the first unpadded pixel, in physical pixels.
-    val right: Double,
+    val right: Float,
         // The distance from the bottom edge to the first unpadded pixel, in physical pixels.
-    val bottom: Double
+    val bottom: Float
 ) {
 
     companion object {
         /** A window padding that has zeros for each edge. */
-        val zero = WindowPadding(0.0, 0.0, 0.0, 0.0)
+        val zero = WindowPadding(0.0f, 0.0f, 0.0f, 0.0f)
     }
 }

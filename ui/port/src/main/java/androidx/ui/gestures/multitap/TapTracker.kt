@@ -62,7 +62,7 @@ internal open class TapTracker(val event: PointerDownEvent, val entry: GestureAr
         }
     }
 
-    fun isWithinTolerance(event: PointerEvent, tolerance: Double): Boolean {
+    fun isWithinTolerance(event: PointerEvent, tolerance: Float): Boolean {
         val offset: Offset = event.position - initialPosition
         return (offset.getDistance() <= tolerance)
     }

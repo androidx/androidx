@@ -31,7 +31,7 @@ internal fun ParagraphAndroid.bitmap(): Bitmap {
         ceil(this.height).toInt(),
         Bitmap.Config.ARGB_8888
     )
-    this.paint(androidx.ui.painting.Canvas(Canvas(bitmap)), 0.0, 0.0)
+    this.paint(androidx.ui.painting.Canvas(Canvas(bitmap)), 0.0f, 0.0f)
     return bitmap
 }
 
@@ -58,7 +58,7 @@ fun Typeface.bitmap(text: String): Bitmap {
     val layout = TextLayout(
         charSequence = text,
         textPaint = paint,
-        width = text.length * fontSize * 1.5
+        width = text.length * fontSize * 1.5f
     )
     return layout.layout.bitmap()
 }

@@ -20,7 +20,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.painting.BlendMode
@@ -60,20 +60,20 @@ class RawImage(
      * If null, the image will pick a size that best preserves its intrinsic
      * aspect ratio.
      */
-    val width: Double? = null,
+    val width: Float? = null,
     /**
      * If non-null, require the image to have this height.
      *
      * If null, the image will pick a size that best preserves its intrinsic
      * aspect ratio.
      */
-    val height: Double? = null,
+    val height: Float? = null,
     /**
      * Specifies the image's scale.
      *
      * Used when determining the best display size for the image.
      */
-    val scale: Double = 1.0,
+    val scale: Float = 1.0f,
     /** If non-null, this color is blended with each image pixel using [colorBlendMode]. */
     val color: Color? = null,
     /**
@@ -195,9 +195,9 @@ class RawImage(
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
         properties.add(DiagnosticsProperty.create("image", image))
-        properties.add(DoubleProperty.create("width", width, defaultValue = null))
-        properties.add(DoubleProperty.create("height", height, defaultValue = null))
-        properties.add(DoubleProperty.create("scale", scale, defaultValue = 1.0))
+        properties.add(FloatProperty.create("width", width, defaultValue = null))
+        properties.add(FloatProperty.create("height", height, defaultValue = null))
+        properties.add(FloatProperty.create("scale", scale, defaultValue = 1.0f))
         properties.add(DiagnosticsProperty.create("color", color, defaultValue = null))
         properties.add(EnumProperty("colorBlendMode", colorBlendMode, defaultValue = null))
         properties.add(EnumProperty("fit", fit, defaultValue = null))

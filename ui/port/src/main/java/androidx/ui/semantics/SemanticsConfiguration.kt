@@ -811,7 +811,7 @@ class SemanticsConfiguration {
      *
      *  * [ScrollPosition.pixels], from where this value is usually taken.
      */
-    var scrollPosition: Double? by NonNullAnnotationProperty(null)
+    var scrollPosition: Float? by NonNullAnnotationProperty(null)
 
     /**
      * Indicates the maximum in-range value for [scrollPosition] if the node is
@@ -823,7 +823,7 @@ class SemanticsConfiguration {
      *
      *  * [ScrollPosition.maxScrollExtent], from where this value is usually taken.
      */
-    var scrollExtentMax: Double? by NonNullAnnotationProperty(null)
+    var scrollExtentMax: Float? by NonNullAnnotationProperty(null)
 
     /**
      * Indicates the minimum in-range value for [scrollPosition] if the node is
@@ -835,7 +835,7 @@ class SemanticsConfiguration {
      *
      *  * [ScrollPosition.minScrollExtent], from where this value is usually taken.
      */
-    var scrollExtentMin: Double? by NonNullAnnotationProperty(null)
+    var scrollExtentMin: Float? by NonNullAnnotationProperty(null)
 
     // TAGS
 

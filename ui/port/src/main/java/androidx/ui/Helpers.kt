@@ -1,29 +1,31 @@
 package androidx.ui
 
 import android.os.Looper
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.truncate
 
 // These are purely Crane helpers for flutter migration. Feel free to add more.
 
 // Copied from Dart
-fun lerpDouble(a: Double, b: Double, t: Double): Double {
+fun lerpFloat(a: Float, b: Float, t: Float): Float {
     return a + (b - a) * t
 }
 
-fun lerpInt(a: Int, b: Int, t: Double): Double {
+fun lerpInt(a: Int, b: Int, t: Float): Float {
     return a + (b - a) * t
 }
 
 // Copied from Dart
-fun Double.toStringAsFixed(digits: Int) = java.lang.String.format("%.${digits}f", this)!!
+fun Float.toStringAsFixed(digits: Int) = java.lang.String.format("%.${digits}f", this)!!
 
 // Copied from Dart
-fun Double.truncDiv(other: Double) = truncate(this / other).toInt()
+fun Float.truncDiv(other: Float) = truncate(this / other).toInt()
 
 // Dart spec: If both operands are ints then a ~/ b performs the truncating integer division.
 fun Int.truncDiv(other: Int) = this / other
 
-fun Double.clamp(min: Double, max: Double) = Math.max(min, Math.min(max, this))
+fun Float.clamp(min: Float, max: Float) = coerceIn(min, max)
 
 fun Int.clamp(min: Int, max: Int) = Math.max(min, Math.min(max, this))
 

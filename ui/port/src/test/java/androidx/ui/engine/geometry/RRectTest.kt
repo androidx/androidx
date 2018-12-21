@@ -28,40 +28,40 @@ class RRectTest {
     @Test
     fun `RRect_contains()`() {
         val rrect = RRect(
-                Rect.fromLTRB(1.0, 1.0, 2.0, 2.0),
-                topLeft = Radius.circular(0.5),
-                topRight = Radius.circular(0.25),
-                bottomRight = Radius.elliptical(0.25, 0.75),
+                Rect.fromLTRB(1.0f, 1.0f, 2.0f, 2.0f),
+                topLeft = Radius.circular(0.5f),
+                topRight = Radius.circular(0.25f),
+                bottomRight = Radius.elliptical(0.25f, 0.75f),
                 bottomLeft = Radius.zero
         )
 
-        assertFalse(rrect.contains(Offset(1.0, 1.0)))
-        assertFalse(rrect.contains(Offset(1.1, 1.1)))
-        assertTrue(rrect.contains(Offset(1.15, 1.15)))
-        assertFalse(rrect.contains(Offset(2.0, 1.0)))
-        assertFalse(rrect.contains(Offset(1.93, 1.07)))
-        assertFalse(rrect.contains(Offset(1.97, 1.7)))
-        assertTrue(rrect.contains(Offset(1.7, 1.97)))
-        assertTrue(rrect.contains(Offset(1.0, 1.99)))
+        assertFalse(rrect.contains(Offset(1.0f, 1.0f)))
+        assertFalse(rrect.contains(Offset(1.1f, 1.1f)))
+        assertTrue(rrect.contains(Offset(1.15f, 1.15f)))
+        assertFalse(rrect.contains(Offset(2.0f, 1.0f)))
+        assertFalse(rrect.contains(Offset(1.93f, 1.07f)))
+        assertFalse(rrect.contains(Offset(1.97f, 1.7f)))
+        assertTrue(rrect.contains(Offset(1.7f, 1.97f)))
+        assertTrue(rrect.contains(Offset(1.0f, 1.99f)))
     }
 
     @Test
     fun `RRect_contains() large radii`() {
         val rrect = RRect(
-                Rect.fromLTRB(1.0, 1.0, 2.0, 2.0),
-                topLeft = Radius.circular(5000.0),
-                topRight = Radius.circular(2500.0),
-                bottomRight = Radius.elliptical(2500.0, 7500.0),
+                Rect.fromLTRB(1.0f, 1.0f, 2.0f, 2.0f),
+                topLeft = Radius.circular(5000.0f),
+                topRight = Radius.circular(2500.0f),
+                bottomRight = Radius.elliptical(2500.0f, 7500.0f),
                 bottomLeft = Radius.zero
         )
 
-        assertFalse(rrect.contains(Offset(1.0, 1.0)))
-        assertFalse(rrect.contains(Offset(1.1, 1.1)))
-        assertTrue(rrect.contains(Offset(1.15, 1.15)))
-        assertFalse(rrect.contains(Offset(2.0, 1.0)))
-        assertFalse(rrect.contains(Offset(1.93, 1.07)))
-        assertFalse(rrect.contains(Offset(1.97, 1.7)))
-        assertTrue(rrect.contains(Offset(1.7, 1.97)))
-        assertTrue(rrect.contains(Offset(1.0, 1.99)))
+        assertFalse(rrect.contains(Offset(1.0f, 1.0f)))
+        assertFalse(rrect.contains(Offset(1.1f, 1.1f)))
+        assertTrue(rrect.contains(Offset(1.15f, 1.15f)))
+        assertFalse(rrect.contains(Offset(2.0f, 1.0f)))
+        assertFalse(rrect.contains(Offset(1.93f, 1.07f)))
+        assertFalse(rrect.contains(Offset(1.97f, 1.7f)))
+        assertTrue(rrect.contains(Offset(1.7f, 1.97f)))
+        assertTrue(rrect.contains(Offset(1.0f, 1.99f)))
     }
 }

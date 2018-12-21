@@ -117,7 +117,7 @@ abstract class PrimaryPointerGestureRecognizer(
         timer = null
     }
 
-    private fun _getDistance(event: PointerEvent): Double {
+    private fun _getDistance(event: PointerEvent): Float {
         val offset: Offset = event.position - initialPosition!!
         return offset.getDistance()
     }

@@ -64,7 +64,7 @@ class RenderConstrainedBox(
             markNeedsLayout()
         }
 
-    override fun computeMinIntrinsicWidth(height: Double): Double {
+    override fun computeMinIntrinsicWidth(height: Float): Float {
         if (_additionalConstraints.hasBoundedWidth && _additionalConstraints.hasTightWidth)
             return _additionalConstraints.minWidth
         val width = super.computeMinIntrinsicWidth(height)
@@ -73,7 +73,7 @@ class RenderConstrainedBox(
         return width
     }
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
         if (_additionalConstraints.hasBoundedWidth && _additionalConstraints.hasTightWidth)
             return _additionalConstraints.minWidth
         val width = super.computeMaxIntrinsicWidth(height)
@@ -82,7 +82,7 @@ class RenderConstrainedBox(
         return width
     }
 
-    override fun computeMinIntrinsicHeight(width: Double): Double {
+    override fun computeMinIntrinsicHeight(width: Float): Float {
         if (_additionalConstraints.hasBoundedHeight && _additionalConstraints.hasTightHeight)
             return _additionalConstraints.minHeight
         val height = super.computeMinIntrinsicHeight(width)
@@ -91,7 +91,7 @@ class RenderConstrainedBox(
         return height
     }
 
-    override fun computeMaxIntrinsicHeight(width: Double): Double {
+    override fun computeMaxIntrinsicHeight(width: Float): Float {
         if (_additionalConstraints.hasBoundedHeight && _additionalConstraints.hasTightHeight)
             return _additionalConstraints.minHeight
         val height = super.computeMaxIntrinsicHeight(width)

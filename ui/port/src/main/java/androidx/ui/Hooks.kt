@@ -37,17 +37,17 @@ import androidx.ui.engine.window.Window
 import androidx.ui.engine.window.WindowPadding
 
 fun Window.updateWindowMetrics(
-    devicePixelRatio: Double,
-    width: Double,
-    height: Double,
-    paddingTop: Double,
-    paddingRight: Double,
-    paddingBottom: Double,
-    paddingLeft: Double,
-    viewInsetTop: Double,
-    viewInsetRight: Double,
-    viewInsetBottom: Double,
-    viewInsetLeft: Double
+    devicePixelRatio: Float,
+    width: Float,
+    height: Float,
+    paddingTop: Float,
+    paddingRight: Float,
+    paddingBottom: Float,
+    paddingLeft: Float,
+    viewInsetTop: Float,
+    viewInsetRight: Float,
+    viewInsetBottom: Float,
+    viewInsetLeft: Float
 ) {
     this.devicePixelRatio = devicePixelRatio
     this.physicalSize = Size(width, height)

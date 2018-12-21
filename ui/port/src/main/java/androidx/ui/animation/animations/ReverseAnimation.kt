@@ -34,8 +34,8 @@ import androidx.ui.runtimeType
  */
 class ReverseAnimation(
     /** The animation whose value and direction this animation is reversing. */
-    private val parent: Animation<Double>
-) : AnimationLazyListenerMixin<Double>() {
+    private val parent: Animation<Float>
+) : AnimationLazyListenerMixin<Float>() {
 
     override val status: AnimationStatus
         get() = when (parent.status) {
@@ -45,8 +45,8 @@ class ReverseAnimation(
             AnimationStatus.DISMISSED -> AnimationStatus.COMPLETED
         }
 
-    override val value: Double
-        get() = 1.0 - parent.value
+    override val value: Float
+        get() = 1.0f - parent.value
 
     override fun didStartListening() {
         parent.addStatusListener(statusChangeHandler)

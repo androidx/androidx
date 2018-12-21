@@ -16,14 +16,14 @@
 package androidx.ui.vectormath64
 
 data class Matrix3(
-    var x: Vector3 = Vector3(x = 1.0),
-    var y: Vector3 = Vector3(y = 1.0),
-    var z: Vector3 = Vector3(z = 1.0)
+    var x: Vector3 = Vector3(x = 1.0f),
+    var y: Vector3 = Vector3(y = 1.0f),
+    var z: Vector3 = Vector3(z = 1.0f)
 ) {
     constructor(m: Matrix3) : this(m.x.copy(), m.y.copy(), m.z.copy())
 
     companion object {
-        fun of(vararg a: Double): Matrix3 {
+        fun of(vararg a: Float): Matrix3 {
             require(a.size >= 9)
             return Matrix3(
                     Vector3(a[0], a[3], a[6]),
@@ -35,7 +35,7 @@ data class Matrix3(
         fun identity() = Matrix3()
     }
 
-    inline val m3storage: List<Double>
+    inline val m3storage: List<Float>
         get() = x.v3storage + y.v3storage + z.v3storage
 
     operator fun get(column: Int) = when (column) {
@@ -57,7 +57,7 @@ data class Matrix3(
     operator fun set(column: Int, v: Vector3) {
         this[column].xyz = v
     }
-    operator fun set(column: Int, row: Int, v: Double) {
+    operator fun set(column: Int, row: Int, v: Float) {
         this[column][row] = v
     }
 
@@ -73,10 +73,10 @@ data class Matrix3(
         --z
     }
 
-    operator fun plus(v: Double) = Matrix3(x + v, y + v, z + v)
-    operator fun minus(v: Double) = Matrix3(x - v, y - v, z - v)
-    operator fun times(v: Double) = Matrix3(x * v, y * v, z * v)
-    operator fun div(v: Double) = Matrix3(x / v, y / v, z / v)
+    operator fun plus(v: Float) = Matrix3(x + v, y + v, z + v)
+    operator fun minus(v: Float) = Matrix3(x - v, y - v, z - v)
+    operator fun times(v: Float) = Matrix3(x * v, y * v, z * v)
+    operator fun div(v: Float) = Matrix3(x / v, y / v, z / v)
 
     operator fun times(m: Matrix3): Matrix3 {
         val t = transpose(this)
@@ -92,7 +92,7 @@ data class Matrix3(
         return Vector3(dot(t.x, v), dot(t.y, v), dot(t.z, v))
     }
 
-    fun toDoubleArray() = doubleArrayOf(
+    fun toFloatArray() = floatArrayOf(
             x.x, y.x, z.x,
             x.y, y.y, z.y,
             x.z, y.z, z.z

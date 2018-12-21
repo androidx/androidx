@@ -54,7 +54,7 @@ class NonRenderObjectRootTest {
         }
 
         fun layout() {
-            child?.layout(BoxConstraints.tight(Size(500.0, 500.0)))
+            child?.layout(BoxConstraints.tight(Size(500.0f, 500.0f)))
         }
     }
 
@@ -62,7 +62,7 @@ class NonRenderObjectRootTest {
     fun `non-RenderObject roots`() {
         val child = RenderPositionedBox(
         alignment = Alignment.center,
-        child = RenderSizedBox(Size(100.0, 100.0))
+        child = RenderSizedBox(Size(100.0f, 100.0f))
         )
         val root = RealRoot(child = child)
         root.attach(PipelineOwner())

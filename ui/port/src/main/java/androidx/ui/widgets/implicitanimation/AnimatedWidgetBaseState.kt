@@ -53,7 +53,7 @@ abstract class AnimatedWidgetBaseState<T : ImplicitlyAnimatedWidget>(
     private var controller: AnimationController? = null
 
     /** The animation driving this widget's implicit animations. */
-    var animation: Animation<Double>? = null
+    var animation: Animation<Float>? = null
     private set
 
     override fun initState() {
@@ -88,7 +88,7 @@ abstract class AnimatedWidgetBaseState<T : ImplicitlyAnimatedWidget>(
                 }
             })
             controller.apply {
-                value = 0.0
+                value = 0.0f
                 forward()
             }
         }

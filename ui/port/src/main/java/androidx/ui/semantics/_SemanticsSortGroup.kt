@@ -17,7 +17,7 @@ internal data class _SemanticsSortGroup(
      * This value is equal to the [_BoxEdge.offset] of the first node in the
      * [nodes] list being considered.
      */
-    val startOffset: Double,
+    val startOffset: Float,
 
     val textDirection: TextDirection?
 

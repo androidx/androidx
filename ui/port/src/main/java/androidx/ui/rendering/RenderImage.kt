@@ -21,7 +21,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.painting.BlendMode
@@ -56,9 +56,9 @@ import androidx.ui.engine.text.TextDirection
  */
 class RenderImage(
     image: Image? = null,
-    width: Double? = null,
-    height: Double? = null,
-    scale: Double = 1.0,
+    width: Float? = null,
+    height: Float? = null,
+    scale: Float = 1.0f,
     color: Color? = null,
     colorBlendMode: BlendMode? = null,
     fit: BoxFit? = null,
@@ -120,7 +120,7 @@ class RenderImage(
      * If null, the image will pick a size that best preserves its intrinsic
      * aspect ratio.
      */
-    var width: Double?
+    var width: Float?
         get() = _width
         set(value) = run {
             if (value == _width)
@@ -135,7 +135,7 @@ class RenderImage(
      * If null, the image will pick a size that best preserves its intrinsic
      * aspect ratio.
      */
-    var height: Double?
+    var height: Float?
         get() = _height
         set(value) = run {
             if (value == _height)
@@ -149,7 +149,7 @@ class RenderImage(
      *
      * Used when determining the best display size for the image.
      */
-    var scale: Double
+    var scale: Float
         get() = _scale
         set(value) = run {
             if (value == _scale)
@@ -318,32 +318,32 @@ class RenderImage(
             return cons.smallest
 
         return cons.constrainSizeAndAttemptToPreserveAspectRatio(Size(
-                _image!!.width.toDouble() / _scale,
-                _image!!.height.toDouble() / _scale
+                _image!!.width / _scale,
+                _image!!.height / _scale
         ))
     }
 
-    override fun computeMinIntrinsicWidth(height: Double): Double {
-        assert(height >= 0.0)
+    override fun computeMinIntrinsicWidth(height: Float): Float {
+        assert(height >= 0.0f)
         if (_width == null && _height == null)
-            return 0.0
+            return 0.0f
         return _sizeForConstraints(BoxConstraints.tightForFinite(height = height)).width
     }
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
-        assert(height >= 0.0)
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
+        assert(height >= 0.0f)
         return _sizeForConstraints(BoxConstraints.tightForFinite(height = height)).width
     }
 
-    override fun computeMinIntrinsicHeight(width: Double): Double {
-        assert(width >= 0.0)
+    override fun computeMinIntrinsicHeight(width: Float): Float {
+        assert(width >= 0.0f)
         if (_width == null && _height == null)
-            return 0.0
+            return 0.0f
         return _sizeForConstraints(BoxConstraints.tightForFinite(width = width)).height
     }
 
-    override fun computeMaxIntrinsicHeight(width: Double): Double {
-        assert(width >= 0.0)
+    override fun computeMaxIntrinsicHeight(width: Float): Float {
+        assert(width >= 0.0f)
         return _sizeForConstraints(BoxConstraints.tightForFinite(width = width)).height
     }
 
@@ -376,9 +376,9 @@ class RenderImage(
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
         properties.add(DiagnosticsProperty.create("image", image))
-        properties.add(DoubleProperty.create("width", width, defaultValue = null))
-        properties.add(DoubleProperty.create("height", height, defaultValue = null))
-        properties.add(DoubleProperty.create("scale", scale, defaultValue = 1.0))
+        properties.add(FloatProperty.create("width", width, defaultValue = null))
+        properties.add(FloatProperty.create("height", height, defaultValue = null))
+        properties.add(FloatProperty.create("scale", scale, defaultValue = 1.0f))
         properties.add(DiagnosticsProperty.create("color", color, defaultValue = null))
         properties.add(EnumProperty("colorBlendMode", colorBlendMode, defaultValue = null))
         properties.add(EnumProperty("fit", fit, defaultValue = null))

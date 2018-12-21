@@ -57,12 +57,12 @@ class ImageTest {
         var image = RenderImage(image = squareImage)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 25.0,
-        minHeight = 25.0,
-        maxWidth = 100.0,
-        maxHeight = 100.0))
-        assertThat(image.size.width, MoreOrLessEquals(25.0))
-        assertThat(image.size.height, MoreOrLessEquals(25.0))
+                minWidth = 25.0f,
+        minHeight = 25.0f,
+        maxWidth = 100.0f,
+        maxHeight = 100.0f))
+        assertThat(image.size.width, MoreOrLessEquals(25.0f))
+        assertThat(image.size.height, MoreOrLessEquals(25.0f))
 
         assertThat(image, HasGoodToStringDeep)
         assertThat(
@@ -80,82 +80,82 @@ class ImageTest {
         image = RenderImage(image = wideImage)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 5.0,
-        minHeight = 30.0,
-        maxWidth = 100.0,
-        maxHeight = 100.0))
-        assertThat(image.size.width, MoreOrLessEquals(60.0))
-        assertThat(image.size.height, MoreOrLessEquals(30.0))
+                minWidth = 5.0f,
+        minHeight = 30.0f,
+        maxWidth = 100.0f,
+        maxHeight = 100.0f))
+        assertThat(image.size.width, MoreOrLessEquals(60.0f))
+        assertThat(image.size.height, MoreOrLessEquals(30.0f))
 
         image = RenderImage(image = tallImage)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 50.0,
-        minHeight = 5.0,
-        maxWidth = 75.0,
-        maxHeight = 75.0))
-        assertThat(image.size.width, MoreOrLessEquals(50.0))
-        assertThat(image.size.height, MoreOrLessEquals(75.0))
+                minWidth = 50.0f,
+        minHeight = 5.0f,
+        maxWidth = 75.0f,
+        maxHeight = 75.0f))
+        assertThat(image.size.width, MoreOrLessEquals(50.0f))
+        assertThat(image.size.height, MoreOrLessEquals(75.0f))
 
         image = RenderImage(image = wideImage)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 5.0,
-        minHeight = 5.0,
-        maxWidth = 100.0,
-        maxHeight = 100.0))
-        assertThat(image.size.width, MoreOrLessEquals(20.0))
-        assertThat(image.size.height, MoreOrLessEquals(10.0))
+                minWidth = 5.0f,
+        minHeight = 5.0f,
+        maxWidth = 100.0f,
+        maxHeight = 100.0f))
+        assertThat(image.size.width, MoreOrLessEquals(20.0f))
+        assertThat(image.size.height, MoreOrLessEquals(10.0f))
 
         image = RenderImage(image = wideImage)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 5.0,
-        minHeight = 5.0,
-        maxWidth = 16.0,
-        maxHeight = 16.0))
-        assertThat(image.size.width, MoreOrLessEquals(16.0))
-        assertThat(image.size.height, MoreOrLessEquals(8.0))
+                minWidth = 5.0f,
+        minHeight = 5.0f,
+        maxWidth = 16.0f,
+        maxHeight = 16.0f))
+        assertThat(image.size.width, MoreOrLessEquals(16.0f))
+        assertThat(image.size.height, MoreOrLessEquals(8.0f))
 
         image = RenderImage(image = tallImage)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 5.0,
-        minHeight = 5.0,
-        maxWidth = 16.0,
-        maxHeight = 16.0))
-        assertThat(image.size.width, MoreOrLessEquals(8.0))
-        assertThat(image.size.height, MoreOrLessEquals(16.0))
+                minWidth = 5.0f,
+        minHeight = 5.0f,
+        maxWidth = 16.0f,
+        maxHeight = 16.0f))
+        assertThat(image.size.width, MoreOrLessEquals(8.0f))
+        assertThat(image.size.height, MoreOrLessEquals(16.0f))
 
         image = RenderImage(image = squareImage)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 4.0,
-        minHeight = 4.0,
-        maxWidth = 8.0,
-        maxHeight = 8.0))
-        assertThat(image.size.width, MoreOrLessEquals(8.0))
-        assertThat(image.size.height, MoreOrLessEquals(8.0))
+                minWidth = 4.0f,
+        minHeight = 4.0f,
+        maxWidth = 8.0f,
+        maxHeight = 8.0f))
+        assertThat(image.size.width, MoreOrLessEquals(8.0f))
+        assertThat(image.size.height, MoreOrLessEquals(8.0f))
 
         image = RenderImage(image = wideImage)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 20.0,
-        minHeight = 20.0,
-        maxWidth = 30.0,
-        maxHeight = 30.0))
-        assertThat(image.size.width, MoreOrLessEquals(30.0))
-        assertThat(image.size.height, MoreOrLessEquals(20.0))
+                minWidth = 20.0f,
+        minHeight = 20.0f,
+        maxWidth = 30.0f,
+        maxHeight = 30.0f))
+        assertThat(image.size.width, MoreOrLessEquals(30.0f))
+        assertThat(image.size.height, MoreOrLessEquals(20.0f))
 
         image = RenderImage(image = tallImage)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 20.0,
-        minHeight = 20.0,
-        maxWidth = 30.0,
-        maxHeight = 30.0))
-        assertThat(image.size.width, MoreOrLessEquals(20.0))
-        assertThat(image.size.height, MoreOrLessEquals(30.0))
+                minWidth = 20.0f,
+        minHeight = 20.0f,
+        maxWidth = 30.0f,
+        maxHeight = 30.0f))
+        assertThat(image.size.width, MoreOrLessEquals(20.0f))
+        assertThat(image.size.height, MoreOrLessEquals(30.0f))
     }
 
     @Test
@@ -163,42 +163,42 @@ class ImageTest {
         var image = RenderImage()
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 25.0,
-        minHeight = 25.0,
-        maxWidth = 100.0,
-        maxHeight = 100.0))
-        assertThat(image.size.width, MoreOrLessEquals(25.0))
-        assertThat(image.size.height, MoreOrLessEquals(25.0))
+                minWidth = 25.0f,
+        minHeight = 25.0f,
+        maxWidth = 100.0f,
+        maxHeight = 100.0f))
+        assertThat(image.size.width, MoreOrLessEquals(25.0f))
+        assertThat(image.size.height, MoreOrLessEquals(25.0f))
 
-        image = RenderImage(width = 50.0)
+        image = RenderImage(width = 50.0f)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 25.0,
-        minHeight = 25.0,
-        maxWidth = 100.0,
-        maxHeight = 100.0))
-        assertThat(image.size.width, MoreOrLessEquals(50.0))
-        assertThat(image.size.height, MoreOrLessEquals(25.0))
+                minWidth = 25.0f,
+        minHeight = 25.0f,
+        maxWidth = 100.0f,
+        maxHeight = 100.0f))
+        assertThat(image.size.width, MoreOrLessEquals(50.0f))
+        assertThat(image.size.height, MoreOrLessEquals(25.0f))
 
-        image = RenderImage(height = 50.0)
+        image = RenderImage(height = 50.0f)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 25.0,
-        minHeight = 25.0,
-        maxWidth = 100.0,
-        maxHeight = 100.0))
-        assertThat(image.size.width, MoreOrLessEquals(25.0))
-        assertThat(image.size.height, MoreOrLessEquals(50.0))
+                minWidth = 25.0f,
+        minHeight = 25.0f,
+        maxWidth = 100.0f,
+        maxHeight = 100.0f))
+        assertThat(image.size.width, MoreOrLessEquals(25.0f))
+        assertThat(image.size.height, MoreOrLessEquals(50.0f))
 
-        image = RenderImage(width = 100.0, height = 100.0)
+        image = RenderImage(width = 100.0f, height = 100.0f)
         layout(image,
                 constraints = BoxConstraints(
-                minWidth = 25.0,
-        minHeight = 25.0,
-        maxWidth = 75.0,
-        maxHeight = 75.0))
-        assertThat(image.size.width, MoreOrLessEquals(75.0))
-        assertThat(image.size.height, MoreOrLessEquals(75.0))
+                minWidth = 25.0f,
+        minHeight = 25.0f,
+        maxWidth = 75.0f,
+        maxHeight = 75.0f))
+        assertThat(image.size.width, MoreOrLessEquals(75.0f))
+        assertThat(image.size.height, MoreOrLessEquals(75.0f))
     }
 
     @Test

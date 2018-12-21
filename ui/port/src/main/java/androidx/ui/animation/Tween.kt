@@ -82,7 +82,7 @@ data class Tween<T>(
      * operators on `T`. The [begin] and [end] properties must therefore be
      * non-null by the time this method is called.
      */
-    fun lerp(t: Double): T {
+    fun lerp(t: Float): T {
         assert(begin != null)
         assert(end != null)
         return evaluator.invoke(begin!!, end!!, t)
@@ -101,11 +101,11 @@ data class Tween<T>(
      * properties may be null when this is called. It varies from subclass to
      * subclass.
      */
-    override fun evaluate(animation: Animation<Double>): T {
+    override fun evaluate(animation: Animation<Float>): T {
         val t = animation.value
-        if (t == 0.0)
+        if (t == 0.0f)
             return begin!!
-        if (t == 1.0)
+        if (t == 1.0f)
             return end!!
         return lerp(t)
     }

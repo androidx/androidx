@@ -19,7 +19,7 @@ package androidx.ui.painting.borders
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.lerpDouble
+import androidx.ui.lerpFloat
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Path
@@ -54,14 +54,14 @@ data class RoundedRectangleBorder(
 //        return new EdgeInsets.all(side.width);
 //    }
 
-    override fun scale(t: Double): ShapeBorder {
+    override fun scale(t: Float): ShapeBorder {
         return RoundedRectangleBorder(
             side = side.scale(t),
             borderRadius = borderRadius * t
         )
     }
 
-    override fun lerpFrom(a: ShapeBorder?, t: Double): ShapeBorder? {
+    override fun lerpFrom(a: ShapeBorder?, t: Float): ShapeBorder? {
         if (a is RoundedRectangleBorder) {
             return RoundedRectangleBorder(
                 side = lerp(a.side, side, t),
@@ -72,13 +72,13 @@ data class RoundedRectangleBorder(
             return RoundedRectangleToCircleBorder(
                 side = lerp(a.side, side, t),
                 borderRadius = borderRadius,
-                circleness = 1.0 - t
+                circleness = 1.0f - t
             )
         }
         return super.lerpFrom(a, t)
     }
 
-    override fun lerpTo(b: ShapeBorder?, t: Double): ShapeBorder? {
+    override fun lerpTo(b: ShapeBorder?, t: Float): ShapeBorder? {
         if (b is RoundedRectangleBorder) {
             return RoundedRectangleBorder(
                 side = lerp(side, b.side, t),
@@ -113,7 +113,7 @@ data class RoundedRectangleBorder(
             }
             BorderStyle.SOLID -> {
                 val width = side.width
-                if (width == 0.0) {
+                if (width == 0.0f) {
                     canvas.drawRRect(
                         borderRadius.resolve(textDirection).toRRect(rect),
                         side.toPaint()
@@ -132,7 +132,7 @@ data class RoundedRectangleBorder(
 }
 
 private data class RoundedRectangleToCircleBorder(
-    val circleness: Double,
+    val circleness: Float,
     val side: BorderSide = BorderSide.None,
     val borderRadius: BorderRadius = BorderRadius.Zero
 ) : ShapeBorder() {
@@ -143,7 +143,7 @@ private data class RoundedRectangleToCircleBorder(
 //        return new EdgeInsets.all(side.width);
 //    }
 
-    override fun scale(t: Double): ShapeBorder {
+    override fun scale(t: Float): ShapeBorder {
         return RoundedRectangleToCircleBorder(
             circleness = t,
             side = side.scale(t),
@@ -151,7 +151,7 @@ private data class RoundedRectangleToCircleBorder(
         )
     }
 
-    override fun lerpFrom(a: ShapeBorder?, t: Double): ShapeBorder? {
+    override fun lerpFrom(a: ShapeBorder?, t: Float): ShapeBorder? {
         if (a is RoundedRectangleBorder) {
             return RoundedRectangleToCircleBorder(
                 side = lerp(a.side, side, t),
@@ -163,49 +163,49 @@ private data class RoundedRectangleToCircleBorder(
             return RoundedRectangleToCircleBorder(
                 side = lerp(a.side, side, t),
                 borderRadius = borderRadius,
-                circleness = circleness + (1.0 - circleness) * (1.0 - t)
+                circleness = circleness + (1.0f - circleness) * (1.0f - t)
             )
         }
         if (a is RoundedRectangleToCircleBorder) {
             return RoundedRectangleToCircleBorder(
                 side = lerp(a.side, side, t),
                 borderRadius = lerp(a.borderRadius, borderRadius, t)!!,
-                circleness = lerpDouble(a.circleness, circleness, t)
+                circleness = lerpFloat(a.circleness, circleness, t)
             )
         }
         return super.lerpFrom(a, t)
     }
 
-    override fun lerpTo(b: ShapeBorder?, t: Double): ShapeBorder? {
+    override fun lerpTo(b: ShapeBorder?, t: Float): ShapeBorder? {
         if (b is RoundedRectangleBorder) {
             return RoundedRectangleToCircleBorder(
                 side = lerp(side, b.side, t),
                 borderRadius = lerp(borderRadius, b.borderRadius, t)!!,
-                circleness = circleness * (1.0 - t)
+                circleness = circleness * (1.0f - t)
             )
         }
         if (b is CircleBorder) {
             return RoundedRectangleToCircleBorder(
                 side = lerp(side, b.side, t),
                 borderRadius = borderRadius,
-                circleness = circleness + (1.0 - circleness) * t
+                circleness = circleness + (1.0f - circleness) * t
             )
         }
         if (b is RoundedRectangleToCircleBorder) {
             return RoundedRectangleToCircleBorder(
                 side = lerp(side, b.side, t),
                 borderRadius = lerp(borderRadius, b.borderRadius, t)!!,
-                circleness = lerpDouble(circleness, b.circleness, t)
+                circleness = lerpFloat(circleness, b.circleness, t)
             )
         }
         return super.lerpTo(b, t)
     }
 
     private fun adjustRect(rect: Rect): Rect {
-        if (circleness == 0.0 || rect.width == rect.height)
+        if (circleness == 0.0f || rect.width == rect.height)
             return rect
         if (rect.width < rect.height) {
-            val delta = circleness * (rect.height - rect.width) / 2.0
+            val delta = circleness * (rect.height - rect.width) / 2.0f
             return Rect.fromLTRB(
                 rect.left,
                 rect.top + delta,
@@ -213,7 +213,7 @@ private data class RoundedRectangleToCircleBorder(
                 rect.bottom - delta
             )
         } else {
-            val delta = circleness * (rect.width - rect.height) / 2.0
+            val delta = circleness * (rect.width - rect.height) / 2.0f
             return Rect.fromLTRB(
                 rect.left + delta,
                 rect.top,
@@ -224,11 +224,11 @@ private data class RoundedRectangleToCircleBorder(
     }
 
     private fun adjustBorderRadius(rect: Rect): BorderRadius {
-        if (circleness == 0.0)
+        if (circleness == 0.0f)
             return borderRadius
         return lerp(
             borderRadius,
-            BorderRadius.circular(rect.getShortestSide() / 2.0),
+            BorderRadius.circular(rect.getShortestSide() / 2.0f),
             circleness
         )!!
     }
@@ -251,7 +251,7 @@ private data class RoundedRectangleToCircleBorder(
             }
             BorderStyle.SOLID -> {
                 val width = side.width
-                if (width == 0.0) {
+                if (width == 0.0f) {
                     canvas.drawRRect(
                         adjustBorderRadius(rect).toRRect(adjustRect(rect)),
                         side.toPaint()

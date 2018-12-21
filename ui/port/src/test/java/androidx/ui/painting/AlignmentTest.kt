@@ -57,25 +57,25 @@ class AlignmentTest {
 
     @Test
     fun `Alignment control test`() {
-        val alignment = Alignment(0.5, 0.25)
+        val alignment = Alignment(0.5f, 0.25f)
 
         assertThat(alignment, HasOneLineDescription)
-        assertEquals(alignment.hashCode(), Alignment(0.5, 0.25).hashCode())
+        assertEquals(alignment.hashCode(), Alignment(0.5f, 0.25f).hashCode())
 
-        assertEquals(alignment / 2.0, Alignment(0.25, 0.125))
-        assertEquals(alignment.truncDiv(2.0), Alignment(0.0, 0.0))
-        assertEquals(alignment % 5.0, Alignment(0.5, 0.25))
+        assertEquals(alignment / 2.0f, Alignment(0.25f, 0.125f))
+        assertEquals(alignment.truncDiv(2.0f), Alignment(0.0f, 0.0f))
+        assertEquals(alignment % 5.0f, Alignment(0.5f, 0.25f))
     }
 
     @Test
     fun `Alignment_lerp()`() {
         val a = Alignment.topLeft
         val b = Alignment.topCenter
-        assertEquals(Alignment.lerp(a, b, 0.25), Alignment(-0.75, -1.0))
+        assertEquals(Alignment.lerp(a, b, 0.25f), Alignment(-0.75f, -1.0f))
 
-        assertNull(Alignment.lerp(null, null, 0.25))
-        assertEquals(Alignment.lerp(null, b, 0.25), Alignment(0.0, -0.25))
-        assertEquals(Alignment.lerp(a, null, 0.25), Alignment(-0.75, -0.75))
+        assertNull(Alignment.lerp(null, null, 0.25f))
+        assertEquals(Alignment.lerp(null, b, 0.25f), Alignment(0.0f, -0.25f))
+        assertEquals(Alignment.lerp(a, null, 0.25f), Alignment(-0.75f, -0.75f))
     }
 
     @Test
@@ -85,10 +85,10 @@ class AlignmentTest {
         val center = Alignment.center
         val topLeft = Alignment.topLeft
         val topRight = Alignment.topRight
-        val numbers = listOf(0.0, 1.0, -1.0, 2.0, 0.25, 0.5, 100.0, -999.75)
+        val numbers = listOf(0.0f, 1.0f, -1.0f, 2.0f, 0.25f, 0.5f, 100.0f, -999.75f)
 
-        assertEquals(center, (topEnd * 0.0).add(topRight * 0.0))
-        assertEquals((topEnd * 0.0).add(topRight * 0.0), topEnd.add(topRight) * 0.0)
+        assertEquals(center, (topEnd * 0.0f).add(topRight * 0.0f))
+        assertEquals((topEnd * 0.0f).add(topRight * 0.0f), topEnd.add(topRight) * 0.0f)
         assertEquals(topLeft.add(topStart), topStart.add(topLeft))
         assertEquals((topStart.resolve(TextDirection.LTR)) + topLeft,
                 (topStart.add(topLeft)).resolve(TextDirection.LTR))
@@ -100,28 +100,28 @@ class AlignmentTest {
                 (topStart.add(topLeft)).resolve(TextDirection.RTL))
         assertEquals(topLeft, topStart.resolve(TextDirection.LTR))
         assertEquals(topRight, topStart.resolve(TextDirection.RTL))
-        assertEquals(center, topEnd * 0.0)
-        assertEquals(center, topLeft * 0.0)
-        assertEquals(topStart, topStart * 1.0)
-        assertEquals(topEnd, topEnd * 1.0)
-        assertEquals(topLeft, topLeft * 1.0)
-        assertEquals(topRight, topRight * 1.0)
+        assertEquals(center, topEnd * 0.0f)
+        assertEquals(center, topLeft * 0.0f)
+        assertEquals(topStart, topStart * 1.0f)
+        assertEquals(topEnd, topEnd * 1.0f)
+        assertEquals(topLeft, topLeft * 1.0f)
+        assertEquals(topRight, topRight * 1.0f)
         for (n in numbers) {
-            assertEquals(topStart * (n + 1.0), (topStart * n).add(topStart))
-            assertEquals(topEnd * (n + 1.0), (topEnd * n).add(topEnd))
+            assertEquals(topStart * (n + 1.0f), (topStart * n).add(topStart))
+            assertEquals(topEnd * (n + 1.0f), (topEnd * n).add(topEnd))
             for (m in numbers)
                 assertEquals(topStart * (n + m), (topStart * n).add(topStart * m))
         }
-        assertEquals(topStart + topStart + topStart, topStart * 3.0) // without using "add"
+        assertEquals(topStart + topStart + topStart, topStart * 3.0f) // without using "add"
         for (x in TextDirection.values()) {
             assertEquals(center.add(center).resolve(x),
-                    (topEnd * 0.0).add(topRight * 0.0).resolve(x))
-            assertEquals(center.add(topLeft).resolve(x), (topEnd * 0.0).add(topLeft).resolve(x))
+                    (topEnd * 0.0f).add(topRight * 0.0f).resolve(x))
+            assertEquals(center.add(topLeft).resolve(x), (topEnd * 0.0f).add(topLeft).resolve(x))
             assertEquals((center.resolve(x)).add(topLeft.resolve(x)),
-                    ((topEnd * 0.0).resolve(x)).add(topLeft.resolve(x)))
+                    ((topEnd * 0.0f).resolve(x)).add(topLeft.resolve(x)))
             assertEquals((center.resolve(x)).add(topLeft),
-                    ((topEnd * 0.0).resolve(x)).add(topLeft))
-            assertEquals(center.resolve(x), (topEnd * 0.0).resolve(x))
+                    ((topEnd * 0.0f).resolve(x)).add(topLeft))
+            assertEquals(center.resolve(x), (topEnd * 0.0f).resolve(x))
         }
         assertNotEquals(topLeft, topStart)
         assertNotEquals(topLeft, topEnd)
@@ -133,61 +133,61 @@ class AlignmentTest {
 
     @Test
     fun `AlignmentGeometry_resolve()`() {
-        assertEquals(AlignmentDirectional(0.25, 0.3).resolve(TextDirection.LTR),
-                Alignment(0.25, 0.3))
-        assertEquals(AlignmentDirectional(0.25, 0.3).resolve(TextDirection.RTL),
-                Alignment(-0.25, 0.3))
-        assertEquals(AlignmentDirectional(-0.25, 0.3).resolve(TextDirection.LTR),
-                Alignment(-0.25, 0.3))
-        assertEquals(AlignmentDirectional(-0.25, 0.3).resolve(TextDirection.RTL),
-                Alignment(0.25, 0.3))
-        assertEquals(AlignmentDirectional(1.25, 0.3).resolve(TextDirection.LTR),
-                Alignment(1.25, 0.3))
-        assertEquals(AlignmentDirectional(1.25, 0.3).resolve(TextDirection.RTL),
-                Alignment(-1.25, 0.3))
-        assertEquals(AlignmentDirectional(0.5, -0.3).resolve(TextDirection.LTR),
-                Alignment(0.5, -0.3))
-        assertEquals(AlignmentDirectional(0.5, -0.3).resolve(TextDirection.RTL),
-                Alignment(-0.5, -0.3))
-        assertEquals(AlignmentDirectional(0.0, 0.0).resolve(TextDirection.LTR),
-                Alignment(0.0, 0.0))
-        assertEquals(AlignmentDirectional(0.0, 0.0).resolve(TextDirection.RTL),
-                Alignment(0.0, 0.0))
-        assertEquals(AlignmentDirectional(1.0, 1.0).resolve(TextDirection.LTR),
-                Alignment(1.0, 1.0))
-        assertEquals(AlignmentDirectional(1.0, 1.0).resolve(TextDirection.RTL),
-                Alignment(-1.0, 1.0))
-        assertEquals(AlignmentDirectional(1.0, 2.0),
-                AlignmentDirectional(1.0, 2.0))
-        assertNotEquals(AlignmentDirectional(1.0, 2.0),
-                AlignmentDirectional(2.0, 1.0))
-        assertEquals(AlignmentDirectional(-1.0, 0.0).resolve(TextDirection.LTR),
-                AlignmentDirectional(1.0, 0.0).resolve(TextDirection.RTL))
-        assertNotEquals(AlignmentDirectional(-1.0, 0.0).resolve(TextDirection.LTR),
-                AlignmentDirectional(1.0, 0.0).resolve(TextDirection.LTR))
-        assertNotEquals(AlignmentDirectional(1.0, 0.0).resolve(TextDirection.LTR),
-                AlignmentDirectional(1.0, 0.0).resolve(TextDirection.RTL))
+        assertEquals(AlignmentDirectional(0.25f, 0.3f).resolve(TextDirection.LTR),
+                Alignment(0.25f, 0.3f))
+        assertEquals(AlignmentDirectional(0.25f, 0.3f).resolve(TextDirection.RTL),
+                Alignment(-0.25f, 0.3f))
+        assertEquals(AlignmentDirectional(-0.25f, 0.3f).resolve(TextDirection.LTR),
+                Alignment(-0.25f, 0.3f))
+        assertEquals(AlignmentDirectional(-0.25f, 0.3f).resolve(TextDirection.RTL),
+                Alignment(0.25f, 0.3f))
+        assertEquals(AlignmentDirectional(1.25f, 0.3f).resolve(TextDirection.LTR),
+                Alignment(1.25f, 0.3f))
+        assertEquals(AlignmentDirectional(1.25f, 0.3f).resolve(TextDirection.RTL),
+                Alignment(-1.25f, 0.3f))
+        assertEquals(AlignmentDirectional(0.5f, -0.3f).resolve(TextDirection.LTR),
+                Alignment(0.5f, -0.3f))
+        assertEquals(AlignmentDirectional(0.5f, -0.3f).resolve(TextDirection.RTL),
+                Alignment(-0.5f, -0.3f))
+        assertEquals(AlignmentDirectional(0.0f, 0.0f).resolve(TextDirection.LTR),
+                Alignment(0.0f, 0.0f))
+        assertEquals(AlignmentDirectional(0.0f, 0.0f).resolve(TextDirection.RTL),
+                Alignment(0.0f, 0.0f))
+        assertEquals(AlignmentDirectional(1.0f, 1.0f).resolve(TextDirection.LTR),
+                Alignment(1.0f, 1.0f))
+        assertEquals(AlignmentDirectional(1.0f, 1.0f).resolve(TextDirection.RTL),
+                Alignment(-1.0f, 1.0f))
+        assertEquals(AlignmentDirectional(1.0f, 2.0f),
+                AlignmentDirectional(1.0f, 2.0f))
+        assertNotEquals(AlignmentDirectional(1.0f, 2.0f),
+                AlignmentDirectional(2.0f, 1.0f))
+        assertEquals(AlignmentDirectional(-1.0f, 0.0f).resolve(TextDirection.LTR),
+                AlignmentDirectional(1.0f, 0.0f).resolve(TextDirection.RTL))
+        assertNotEquals(AlignmentDirectional(-1.0f, 0.0f).resolve(TextDirection.LTR),
+                AlignmentDirectional(1.0f, 0.0f).resolve(TextDirection.LTR))
+        assertNotEquals(AlignmentDirectional(1.0f, 0.0f).resolve(TextDirection.LTR),
+                AlignmentDirectional(1.0f, 0.0f).resolve(TextDirection.RTL))
     }
 
     @Test
     fun `AlignmentGeometry_lerp ad hoc tests`() {
-        val mixed1 = Alignment(10.0, 20.0).add(AlignmentDirectional(30.0, 50.0))
-        val mixed2 = Alignment(70.0, 110.0).add(AlignmentDirectional(130.0, 170.0))
-        val mixed3 = Alignment(25.0, 42.5).add(AlignmentDirectional(55.0, 80.0))
+        val mixed1 = Alignment(10.0f, 20.0f).add(AlignmentDirectional(30.0f, 50.0f))
+        val mixed2 = Alignment(70.0f, 110.0f).add(AlignmentDirectional(130.0f, 170.0f))
+        val mixed3 = Alignment(25.0f, 42.5f).add(AlignmentDirectional(55.0f, 80.0f))
 
         for (direction in TextDirection.values()) {
             assertEquals(mixed1.resolve(direction),
-                    AlignmentGeometry.lerp(mixed1, mixed2, 0.0)!!.resolve(direction))
+                    AlignmentGeometry.lerp(mixed1, mixed2, 0.0f)!!.resolve(direction))
             assertEquals(mixed2.resolve(direction),
-                    AlignmentGeometry.lerp(mixed1, mixed2, 1.0)!!.resolve(direction))
+                    AlignmentGeometry.lerp(mixed1, mixed2, 1.0f)!!.resolve(direction))
             assertEquals(mixed3.resolve(direction),
-                    AlignmentGeometry.lerp(mixed1, mixed2, 0.25)!!.resolve(direction))
+                    AlignmentGeometry.lerp(mixed1, mixed2, 0.25f)!!.resolve(direction))
         }
     }
 
     @Test
     fun `lerp commutes with resolve`() {
-        val offsets = listOf(
+        val ofsets = listOf(
                 Alignment.topLeft,
                 Alignment.topCenter,
                 Alignment.topRight,
@@ -206,39 +206,39 @@ class AlignmentTest {
                 AlignmentDirectional.bottomStart,
                 AlignmentDirectional.bottomCenter,
                 AlignmentDirectional.bottomEnd,
-                Alignment(-1.0, 0.65),
-                AlignmentDirectional(-1.0, 0.45),
-                AlignmentDirectional(0.125, 0.625),
-                Alignment(0.25, 0.875),
-                Alignment(0.0625, 0.5625).add(AlignmentDirectional(0.1875, 0.6875)),
-                AlignmentDirectional(2.0, 3.0),
-                Alignment(2.0, 3.0),
-                Alignment(2.0, 3.0).add(AlignmentDirectional(5.0, 3.0)),
-                Alignment(10.0, 20.0).add(AlignmentDirectional(30.0, 50.0)),
-                Alignment(70.0, 110.0).add(AlignmentDirectional(130.0, 170.0)),
-                Alignment(25.0, 42.5).add(AlignmentDirectional(55.0, 80.0)),
+                Alignment(-1.0f, 0.65f),
+                AlignmentDirectional(-1.0f, 0.45f),
+                AlignmentDirectional(0.125f, 0.625f),
+                Alignment(0.25f, 0.875f),
+                Alignment(0.0625f, 0.5625f).add(AlignmentDirectional(0.1875f, 0.6875f)),
+                AlignmentDirectional(2.0f, 3.0f),
+                Alignment(2.0f, 3.0f),
+                Alignment(2.0f, 3.0f).add(AlignmentDirectional(5.0f, 3.0f)),
+                Alignment(10.0f, 20.0f).add(AlignmentDirectional(30.0f, 50.0f)),
+                Alignment(70.0f, 110.0f).add(AlignmentDirectional(130.0f, 170.0f)),
+                Alignment(25.0f, 42.5f).add(AlignmentDirectional(55.0f, 80.0f)),
                 null
         )
 
-        val times = listOf(0.25, 0.5, 0.75)
+        val times = listOf(0.25f, 0.5f, 0.75f)
 
         for (direction in TextDirection.values()) {
             val defaultValue = AlignmentDirectional.center.resolve(direction)
-            for (a in offsets) {
+            for (a in ofsets) {
                 val resolvedA = a?.resolve(direction) ?: defaultValue
-                for (b in offsets) {
+                for (b in ofsets) {
                     val resolvedB = b?.resolve(direction) ?: defaultValue
-                    approxExpect(Alignment.lerp(resolvedA, resolvedB, 0.0)!!, resolvedA)
-                    approxExpect(Alignment.lerp(resolvedA, resolvedB, 1.0)!!, resolvedB)
-                    approxExpect((AlignmentGeometry.lerp(a, b, 0.0) ?: defaultValue)
+                    approxExpect(Alignment.lerp(resolvedA, resolvedB, 0.0f)!!, resolvedA)
+                    approxExpect(Alignment.lerp(resolvedA, resolvedB, 1.0f)!!, resolvedB)
+                    approxExpect((AlignmentGeometry.lerp(a, b, 0.0f) ?: defaultValue)
                             .resolve(direction),
                             resolvedA)
                     approxExpect(
-                            (AlignmentGeometry.lerp(a, b, 1.0) ?: defaultValue).resolve(direction),
+                            (AlignmentGeometry.lerp(a, b, 1.0f) ?: defaultValue).resolve(direction),
                             resolvedB)
                     for (t in times) {
-                        assert(t > 0.0)
-                        assert(t < 1.0)
+                        assert(t > 0.0f)
+                        assert(t < 1.0f)
                         val value = (AlignmentGeometry.lerp(a, b, t) ?: defaultValue).resolve(
                                 direction)
                         approxExpect(value, Alignment.lerp(resolvedA, resolvedB, t)!!)
@@ -256,71 +256,71 @@ class AlignmentTest {
 
     @Test
     fun `AlignmentGeometry add_subtract`() {
-        val directional = AlignmentDirectional(1.0, 2.0)
-        val normal = Alignment(3.0, 5.0)
-        assertEquals(directional.add(normal).resolve(TextDirection.LTR), Alignment(4.0, 7.0))
-        assertEquals(directional.add(normal).resolve(TextDirection.RTL), Alignment(2.0, 7.0))
-        assertEquals(normal * 2.0, normal.add(normal))
-        assertEquals(directional * 2.0, directional.add(directional))
+        val directional = AlignmentDirectional(1.0f, 2.0f)
+        val normal = Alignment(3.0f, 5.0f)
+        assertEquals(directional.add(normal).resolve(TextDirection.LTR), Alignment(4.0f, 7.0f))
+        assertEquals(directional.add(normal).resolve(TextDirection.RTL), Alignment(2.0f, 7.0f))
+        assertEquals(normal * 2.0f, normal.add(normal))
+        assertEquals(directional * 2.0f, directional.add(directional))
     }
 
     @Test
     fun `AlignmentGeometry operators`() {
-        assertEquals(AlignmentDirectional(1.0, 2.0) * 2.0,
-                AlignmentDirectional(2.0, 4.0))
-        assertEquals(AlignmentDirectional(1.0, 2.0) / 2.0,
-                AlignmentDirectional(0.5, 1.0))
-        assertEquals(AlignmentDirectional(1.0, 2.0) % 2.0,
-                AlignmentDirectional(1.0, 0.0))
-        assertEquals(AlignmentDirectional(1.0, 2.0).truncDiv(2.0),
-                AlignmentDirectional(0.0, 1.0))
+        assertEquals(AlignmentDirectional(1.0f, 2.0f) * 2.0f,
+                AlignmentDirectional(2.0f, 4.0f))
+        assertEquals(AlignmentDirectional(1.0f, 2.0f) / 2.0f,
+                AlignmentDirectional(0.5f, 1.0f))
+        assertEquals(AlignmentDirectional(1.0f, 2.0f) % 2.0f,
+                AlignmentDirectional(1.0f, 0.0f))
+        assertEquals(AlignmentDirectional(1.0f, 2.0f).truncDiv(2.0f),
+                AlignmentDirectional(0.0f, 1.0f))
         for (direction in TextDirection.values()) {
             assertEquals(
-                    Alignment.center.add(AlignmentDirectional(1.0, 2.0) * 2.0).resolve(direction),
-                    AlignmentDirectional(2.0, 4.0).resolve(direction))
+                    Alignment.center.add(AlignmentDirectional(1f, 2f) * 2f).resolve(direction),
+                    AlignmentDirectional(2.0f, 4.0f).resolve(direction))
             assertEquals(
-                    Alignment.center.add(AlignmentDirectional(1.0, 2.0) / 2.0).resolve(direction),
-                    AlignmentDirectional(0.5, 1.0).resolve(direction))
+                    Alignment.center.add(AlignmentDirectional(1f, 2f) / 2f).resolve(direction),
+                    AlignmentDirectional(0.5f, 1.0f).resolve(direction))
             assertEquals(
-                    Alignment.center.add(AlignmentDirectional(1.0, 2.0) % 2.0).resolve(direction),
-                    AlignmentDirectional(1.0, 0.0).resolve(direction))
-            assertEquals(Alignment.center.add(AlignmentDirectional(1.0, 2.0)
-                    .truncDiv(2.0)).resolve(
-                    direction), AlignmentDirectional(0.0, 1.0).resolve(direction))
+                    Alignment.center.add(AlignmentDirectional(1f, 2f) % 2f).resolve(direction),
+                    AlignmentDirectional(1.0f, 0.0f).resolve(direction))
+            assertEquals(Alignment.center.add(AlignmentDirectional(1.0f, 2.0f)
+                    .truncDiv(2.0f)).resolve(
+                    direction), AlignmentDirectional(0.0f, 1.0f).resolve(direction))
         }
-        assertEquals(Alignment(1.0, 2.0) * 2.0, Alignment(2.0, 4.0))
-        assertEquals(Alignment(1.0, 2.0) / 2.0, Alignment(0.5, 1.0))
-        assertEquals(Alignment(1.0, 2.0) % 2.0, Alignment(1.0, 0.0))
-        assertEquals(Alignment(1.0, 2.0).truncDiv(2.0), Alignment(0.0, 1.0))
+        assertEquals(Alignment(1.0f, 2.0f) * 2.0f, Alignment(2.0f, 4.0f))
+        assertEquals(Alignment(1.0f, 2.0f) / 2.0f, Alignment(0.5f, 1.0f))
+        assertEquals(Alignment(1.0f, 2.0f) % 2.0f, Alignment(1.0f, 0.0f))
+        assertEquals(Alignment(1.0f, 2.0f).truncDiv(2.0f), Alignment(0.0f, 1.0f))
     }
 
     @Test
     fun `AlignmentGeometry operators2`() {
-        assertEquals(Alignment(1.0, 2.0) + Alignment(3.0, 5.0),
-                Alignment(4.0, 7.0))
-        assertEquals(Alignment(1.0, 2.0) - Alignment(3.0, 5.0),
-                Alignment(-2.0, -3.0))
-        assertEquals(AlignmentDirectional(1.0, 2.0) +
-                AlignmentDirectional(3.0, 5.0),
-                AlignmentDirectional(4.0, 7.0))
-        assertEquals(AlignmentDirectional(1.0, 2.0) -
-                AlignmentDirectional(3.0, 5.0),
-                AlignmentDirectional(-2.0, -3.0))
+        assertEquals(Alignment(1.0f, 2.0f) + Alignment(3.0f, 5.0f),
+                Alignment(4.0f, 7.0f))
+        assertEquals(Alignment(1.0f, 2.0f) - Alignment(3.0f, 5.0f),
+                Alignment(-2.0f, -3.0f))
+        assertEquals(AlignmentDirectional(1.0f, 2.0f) +
+                AlignmentDirectional(3.0f, 5.0f),
+                AlignmentDirectional(4.0f, 7.0f))
+        assertEquals(AlignmentDirectional(1.0f, 2.0f) -
+                AlignmentDirectional(3.0f, 5.0f),
+                AlignmentDirectional(-2.0f, -3.0f))
     }
 
     @Test
     fun `AlignmentGeometry toString`() {
-        assertEquals(Alignment(1.0001, 2.0001).toString(), "Alignment(1.0, 2.0)")
-        assertEquals(Alignment(0.0, 0.0).toString(), "center")
-        assertEquals(Alignment(-1.0, 1.0)
-                .add(AlignmentDirectional(1.0, 0.0)).toString(),
+        assertEquals(Alignment(1.0001f, 2.0001f).toString(), "Alignment(1.0, 2.0)")
+        assertEquals(Alignment(0.0f, 0.0f).toString(), "center")
+        assertEquals(Alignment(-1.0f, 1.0f)
+                .add(AlignmentDirectional(1.0f, 0.0f)).toString(),
                 "bottomLeft + AlignmentDirectional.centerEnd")
-        assertEquals(Alignment(0.0001, 0.0001).toString(), "Alignment(0.0, 0.0)")
-        assertEquals(Alignment(0.0, 0.0).toString(), "center")
-        assertEquals(AlignmentDirectional(0.0, 0.0).toString(),
+        assertEquals(Alignment(0.0001f, 0.0001f).toString(), "Alignment(0.0, 0.0)")
+        assertEquals(Alignment(0.0f, 0.0f).toString(), "center")
+        assertEquals(AlignmentDirectional(0.0f, 0.0f).toString(),
                 "AlignmentDirectional.center")
-        assertEquals(Alignment(1.0, 1.0)
-                .add(AlignmentDirectional(1.0, 1.0)).toString(),
+        assertEquals(Alignment(1.0f, 1.0f)
+                .add(AlignmentDirectional(1.0f, 1.0f)).toString(),
                 "Alignment(1.0, 2.0) + AlignmentDirectional.centerEnd")
     }
 }

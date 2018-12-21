@@ -45,7 +45,7 @@ internal val FadeOutDuration = Duration.create(milliseconds = 375)
 internal val CancelDuration = Duration.create(milliseconds = 75)
 
 // The fade out begins 225ms after the _fadeOutController starts. See confirm().
-private val FadeOutIntervalStart = 225.0 / 375.0
+private val FadeOutIntervalStart = 225.0f / 375.0f
 
 internal fun getRippleClipCallback(
     referenceBox: RenderBox,
@@ -64,11 +64,11 @@ internal fun getRippleClipCallback(
 internal fun getRippleTargetRadius(
     referenceBox: RenderBox,
     rectCallback: RectCallback?
-): Double {
+): Float {
     val size = rectCallback?.invoke()?.getSize() ?: referenceBox.size
     val d1 = size.bottomRight(Offset.zero).getDistance()
     val d2 = (size.topRight(Offset.zero) - size.bottomLeft(Offset.zero)).getDistance()
-    return Math.max(d1, d2) / 2.0
+    return Math.max(d1, d2) / 2.0f
 }
 
 private class InkRippleFactory : InteractiveInkFeatureFactory() {
@@ -81,7 +81,7 @@ private class InkRippleFactory : InteractiveInkFeatureFactory() {
         containedInkWell: Boolean,
         rectCallback: RectCallback?,
         borderRadius: BorderRadius?,
-        radius: Double?,
+        radius: Float?,
         onRemoved: VoidCallback?
     ): InteractiveInkFeature {
         return InkRipple(
@@ -146,17 +146,17 @@ class InkRipple(
     containedInkWell: Boolean = false,
     rectCallback: RectCallback? = null,
     borderRadius: BorderRadius? = null,
-    radiusParam: Double? = null,
+    radiusParam: Float? = null,
     onRemoved: VoidCallback? = null
 ) : InteractiveInkFeature(controller, referenceBox, color, onRemoved) {
 
     private val borderRadius: BorderRadius = borderRadius ?: BorderRadius.Zero
-    private val targetRadius: Double =
+    private val targetRadius: Float =
         radiusParam ?: getRippleTargetRadius(referenceBox, rectCallback)
     private val clipCallback: RectCallback? =
         getRippleClipCallback(referenceBox, containedInkWell, rectCallback)
 
-    private val radius: Animation<Double>
+    private val radius: Animation<Float>
     private val radiusController: AnimationController
 
     private val fadeIn: Animation<Int>
@@ -192,8 +192,8 @@ class InkRipple(
         // Initial splash diameter is 60% of the target diameter, final
         // diameter is 10dps larger than the target diameter.
         radius = Tween(
-            begin = targetRadius * 0.30,
-            end = targetRadius + 5.0
+            begin = targetRadius * 0.30f,
+            end = targetRadius + 5.0f
         ).animate(
             CurvedAnimation(
                 parent = radiusController,
@@ -217,7 +217,7 @@ class InkRipple(
         ).animate(
             CurvedAnimation(
                 parent = fadeOutController,
-                curve = Interval(FadeOutIntervalStart, 1.0)
+                curve = Interval(FadeOutIntervalStart, 1.0f)
             )
         )
 
@@ -229,7 +229,7 @@ class InkRipple(
         radiusController.forward()
         // This confirm may have been preceded by a cancel.
         fadeInController.forward()
-        fadeOutController.animateTo(1.0, duration = FadeOutDuration)
+        fadeOutController.animateTo(1.0f, duration = FadeOutDuration)
     }
 
     override fun cancel() {
@@ -237,10 +237,10 @@ class InkRipple(
         // Watch out: setting _fadeOutController's value to 1.0 will
         // trigger a call to _handleAlphaStatusChanged() which will
         // dispose _fadeOutController.
-        val fadeOutValue = 1.0 - fadeInController.value
+        val fadeOutValue = 1.0f - fadeInController.value
         fadeOutController.value = fadeOutValue
-        if (fadeOutValue < 1.0) {
-            fadeOutController.animateTo(1.0, duration = CancelDuration)
+        if (fadeOutValue < 1.0f) {
+            fadeOutController.animateTo(1.0f, duration = CancelDuration)
         }
     }
 

@@ -18,7 +18,7 @@ package androidx.ui.widgets.basic
 
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.proxybox.RenderAspectRatio
 import androidx.ui.widgets.framework.BuildContext
@@ -67,7 +67,7 @@ class AspectRatio(
     // ///
     // /// The aspect ratio is expressed as a ratio of width to height. For example,
     // /// a 16:9 width:height aspect ratio would have a value of 16.0/9.0.
-    val aspectRatio: Double,
+    val aspectRatio: Float,
     child: Widget? = null
 ) : SingleChildRenderObjectWidget(key, child) {
 
@@ -81,6 +81,6 @@ class AspectRatio(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DoubleProperty.create("aspectRatio", aspectRatio))
+        properties.add(FloatProperty.create("aspectRatio", aspectRatio))
     }
 }

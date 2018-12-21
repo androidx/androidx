@@ -48,15 +48,14 @@ class DragEndDetails(
      *
      * Defaults to null if not specified in the constructor.
      */
-    val primaryVelocity: Double? = null
+    val primaryVelocity: Float? = null
 ) {
     init {
         assert(
-            primaryVelocity == null
-                    || primaryVelocity == velocity.pixelsPerSecond.dx
-                    || primaryVelocity == velocity.pixelsPerSecond.dy
+            primaryVelocity == null || primaryVelocity == velocity.pixelsPerSecond.dx ||
+                    primaryVelocity == velocity.pixelsPerSecond.dy
         )
     }
 
-    override fun toString() = "${runtimeType()}(${velocity})"
+    override fun toString() = "${runtimeType()}($velocity)"
 }

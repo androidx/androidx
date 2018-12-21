@@ -77,10 +77,10 @@ class TextStyleTest {
         val fontStyle = FontStyle.italic
         val textBaseline = TextBaseline.alphabetic
         val fontFamily = FontFamily("sans-serif")
-        val fontSize = 1.0
-        val letterSpacing = 2.0
-        val wordSpacing = 3.0
-        val height = 4.0
+        val fontSize = 1.0f
+        val letterSpacing = 2.0f
+        val wordSpacing = 3.0f
+        val height = 4.0f
         val locale = Locale("en")
         val background = Color(0xFF000000.toInt())
         val fontSynthesis = FontSynthesis.style

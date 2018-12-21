@@ -48,7 +48,7 @@ import kotlin.math.roundToInt
  */
 class CurvedAnimation(
     /** The animation to which this animation applies a curve. */
-    parent: Animation<Double>,
+    parent: Animation<Float>,
     /** The curve to use in the forward direction. */
     private val curve: Curve,
     /**
@@ -67,7 +67,7 @@ class CurvedAnimation(
      * If this field is null, uses [curve] in both directions.
      */
     private val reverseCurve: Curve? = null
-) : AnimationWithParentMixin<Double>(parent) {
+) : AnimationWithParentMixin<Float>(parent) {
 
     /**
      * The direction used to select the current curve.
@@ -102,20 +102,20 @@ class CurvedAnimation(
         get() = reverseCurve == null ||
                 (curveDirection ?: parent.status) != AnimationStatus.REVERSE
 
-    override val value: Double
+    override val value: Float
         get() {
             val activeCurve = if (useForwardCurve) curve else reverseCurve
 
             val t = parent.value
-            if (t == Double.NaN) {
+            if (t == Float.NaN) {
                 toString()
             }
             if (activeCurve == null)
                 return t
-            if (t == 0.0 || t == 1.0) {
+            if (t == 0.0f || t == 1.0f) {
                 assert {
                     val transformedValue = activeCurve.transform(t)
-                    val roundedTransformedValue = transformedValue.roundToInt().toDouble()
+                    val roundedTransformedValue = transformedValue.roundToInt().toFloat()
                     if (roundedTransformedValue != t) {
                         throw FlutterError(
                             "Invalid curve endpoint at $t.\n" +

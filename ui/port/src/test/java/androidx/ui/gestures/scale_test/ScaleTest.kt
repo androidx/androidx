@@ -31,6 +31,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.nullValue
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -66,7 +67,7 @@ class ScaleTest {
             updatedFocalPoint = details.focalPoint
         }
 
-        var updatedScale: Double? = null
+        var updatedScale: Float? = null
         scale.onUpdate = { details ->
             updatedScale = details.scale
             updatedFocalPoint = details.focalPoint
@@ -84,7 +85,7 @@ class ScaleTest {
 
         val pointer1 = TestPointer(1)
 
-        val down = pointer1.down(Offset(0.0, 0.0))
+        val down = pointer1.down(Offset(0.0f, 0.0f))
         scale.addPointer(down)
         tap.addPointer(down)
 
@@ -103,19 +104,19 @@ class ScaleTest {
         assertThat(didEndScale, `is`(false))
         assertThat(didTap, `is`(false))
 
-        pointerRouter.route(pointer1.move(Offset(20.0, 30.0)))
+        pointerRouter.route(pointer1.move(Offset(20.0f, 30.0f)))
         assertThat(didStartScale, `is`(true))
         didStartScale = false
-        assertThat(updatedFocalPoint, `is`(equalTo(Offset(20.0, 30.0))))
+        assertThat(updatedFocalPoint, `is`(equalTo(Offset(20.0f, 30.0f))))
         updatedFocalPoint = null
-        assertThat(updatedScale, `is`(1.0))
+        assertThat(updatedScale, `is`(1.0f))
         updatedScale = null
         assertThat(didEndScale, `is`(false))
         assertThat(didTap, `is`(false))
 
         // Two-finger scaling
         val pointer2 = TestPointer(2)
-        val down2 = pointer2.down(Offset(10.0, 20.0))
+        val down2 = pointer2.down(Offset(10.0f, 20.0f))
         scale.addPointer(down2)
         tap.addPointer(down2)
         gestureArena.close(2)
@@ -128,27 +129,27 @@ class ScaleTest {
         assertThat(didStartScale, `is`(false))
 
         // Zoom in
-        pointerRouter.route(pointer2.move(Offset(0.0, 10.0)))
+        pointerRouter.route(pointer2.move(Offset(0.0f, 10.0f)))
         assertThat(didStartScale, `is`(true))
         didStartScale = false
-        assertThat(updatedFocalPoint, `is`(equalTo(Offset(10.0, 20.0))))
+        assertThat(updatedFocalPoint, `is`(equalTo(Offset(10.0f, 20.0f))))
         updatedFocalPoint = null
-        assertThat(updatedScale, `is`(equalTo(2.0)))
+        assertThat(updatedScale, `is`(equalTo(2.0f)))
         updatedScale = null
         assertThat(didEndScale, `is`(false))
         assertThat(didTap, `is`(false))
 
         // Zoom out
-        pointerRouter.route(pointer2.move(Offset(15.0, 25.0)))
-        assertThat(updatedFocalPoint, `is`(equalTo(Offset(17.5, 27.5))))
+        pointerRouter.route(pointer2.move(Offset(15.0f, 25.0f)))
+        assertThat(updatedFocalPoint, `is`(equalTo(Offset(17.5f, 27.5f))))
         updatedFocalPoint = null
-        assertThat(updatedScale, `is`(equalTo(0.5)))
+        assertThat(updatedScale, `is`(equalTo(0.5f)))
         updatedScale = null
         assertThat(didTap, `is`(false))
 
         // Three-finger scaling
         val pointer3 = TestPointer(3)
-        val down3 = pointer3.down(Offset(25.0, 35.0))
+        val down3 = pointer3.down(Offset(25.0f, 35.0f))
         scale.addPointer(down3)
         tap.addPointer(down3)
         gestureArena.close(3)
@@ -161,24 +162,24 @@ class ScaleTest {
         assertThat(didStartScale, `is`(false))
 
         // Zoom in
-        pointerRouter.route(pointer3.move(Offset(55.0, 65.0)))
+        pointerRouter.route(pointer3.move(Offset(55.0f, 65.0f)))
         assertThat(didStartScale, `is`(true))
         didStartScale = false
-        assertThat(updatedFocalPoint, `is`(equalTo(Offset(30.0, 40.0))))
+        assertThat(updatedFocalPoint, `is`(equalTo(Offset(30.0f, 40.0f))))
         updatedFocalPoint = null
-        assertThat(updatedScale, `is`(equalTo(5.0)))
+        assertEquals(5.0f, updatedScale!!, 0.001f)
         updatedScale = null
         assertThat(didEndScale, `is`(false))
         assertThat(didTap, `is`(false))
 
         // Return to original positions but with different fingers
-        pointerRouter.route(pointer1.move(Offset(25.0, 35.0)))
-        pointerRouter.route(pointer2.move(Offset(20.0, 30.0)))
-        pointerRouter.route(pointer3.move(Offset(15.0, 25.0)))
+        pointerRouter.route(pointer1.move(Offset(25.0f, 35.0f)))
+        pointerRouter.route(pointer2.move(Offset(20.0f, 30.0f)))
+        pointerRouter.route(pointer3.move(Offset(15.0f, 25.0f)))
         assertThat(didStartScale, `is`(false))
-        assertThat(updatedFocalPoint, `is`(equalTo(Offset(20.0, 30.0))))
+        assertThat(updatedFocalPoint, `is`(equalTo(Offset(20.0f, 30.0f))))
         updatedFocalPoint = null
-        assertThat(updatedScale, `is`(equalTo(1.0)))
+        assertThat(updatedScale, `is`(equalTo(1.0f)))
         updatedScale = null
         assertThat(didEndScale, `is`(false))
         assertThat(didTap, `is`(false))
@@ -192,12 +193,12 @@ class ScaleTest {
         assertThat(didTap, `is`(false))
 
         // Continue scaling with two fingers
-        pointerRouter.route(pointer3.move(Offset(10.0, 20.0)))
+        pointerRouter.route(pointer3.move(Offset(10.0f, 20.0f)))
         assertThat(didStartScale, `is`(true))
         didStartScale = false
-        assertThat(updatedFocalPoint, `is`(equalTo(Offset(15.0, 25.0))))
+        assertThat(updatedFocalPoint, `is`(equalTo(Offset(15.0f, 25.0f))))
         updatedFocalPoint = null
-        assertThat(updatedScale, `is`(equalTo(2.0)))
+        assertThat(updatedScale, `is`(equalTo(2.0f)))
         updatedScale = null
 
         pointerRouter.route(pointer2.up())
@@ -209,12 +210,12 @@ class ScaleTest {
         assertThat(didTap, `is`(false))
 
         // Continue panning with one finger
-        pointerRouter.route(pointer3.move(Offset(0.0, 0.0)))
+        pointerRouter.route(pointer3.move(Offset(0.0f, 0.0f)))
         assertThat(didStartScale, `is`(true))
         didStartScale = false
-        assertThat(updatedFocalPoint, `is`(equalTo(Offset(0.0, 0.0))))
+        assertThat(updatedFocalPoint, `is`(equalTo(Offset(0.0f, 0.0f))))
         updatedFocalPoint = null
-        assertThat(updatedScale, `is`(equalTo(1.0)))
+        assertThat(updatedScale, `is`(equalTo(1.0f)))
         updatedScale = null
 
         // We are done
