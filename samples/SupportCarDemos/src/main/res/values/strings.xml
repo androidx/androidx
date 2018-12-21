@@ -119,10 +119,14 @@
     <string name="test_link">Click to visit <a href="https://www.google.com">Google</a>.</string>
 
     <!-- Strings for CarToolbarActivity Demo. -->
-    <string name="car_toolbar_title">CarToolbar demo title</string>
+    <string name="car_toolbar_title">Why is this title unnecessarily long? Could it be for layout testing purposes?</string>
+    <string name="car_toolbar_subtitle">Well if that is the case, then why is the subtitle also pretty long? This is nonsensical!</string>
     <string name="toolbar_title">Toolbar demo title</string>
-    <string name="car_toolbar_subtitle">CarToolbar demo subtitle</string>
     <string name="toolbar_subtitle">Toolbar demo subtitle</string>
+    <string name="button_add_action">Add action item</string>
+    <string name="button_add_if_room">Add if_room item</string>
+    <string name="button_add_overflow">Add overflow item</string>
+    <string name="button_clear_menu">Clear menu items</string>
 
     <!-- Spinner sample entries -->
     <string-array name="spinner_entries">
