@@ -46,7 +46,7 @@ limitations under the License.
     <dimen name="car_radius_1">4dp</dimen>
     <dimen name="car_radius_2">8dp</dimen>
     <dimen name="car_radius_3">16dp</dimen>
-    <dimen name="car_radius_5">100dp</dimen>
+    <dimen name="car_radius_4">100dp</dimen>
 
     <!-- Car Component Dimensions -->
     <!-- Type Sizings -->

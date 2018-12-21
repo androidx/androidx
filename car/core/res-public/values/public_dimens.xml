@@ -46,7 +46,7 @@
     <public type="dimen" name="car_radius_1"/>
     <public type="dimen" name="car_radius_2"/>
     <public type="dimen" name="car_radius_3" />
-    <public type="dimen" name="car_radius_5" />
+    <public type="dimen" name="car_radius_4" />
 
     <!-- Car Component Dimensions -->
     <!-- Type Sizings -->
