@@ -19,5 +19,5 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
     <solid android:color="@color/car_scrollbar_thumb" />
-    <corners android:radius="@dimen/car_radius_5"/>
+    <corners android:radius="@dimen/car_radius_4"/>
 </shape>
