@@ -36,6 +36,7 @@ import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
+import androidx.text.style.LetterSpacingSpan
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
@@ -236,7 +237,16 @@ internal class ParagraphAndroid constructor(
             }
             // TODO(Migration/haoyuchang): implement fontWeight, fontStyle, fontFamily
             // TODO(Migration/haoyuchang): implement textBaseLine
-            // TODO(Migration/haoyuchang): implement letterSpacing, wordSpacing
+            // TODO(Migration/haoyuchang): implement wordSpacing
+            // TODO(Migration/haoyuchang): support letter spacing with pixel.
+            style.letterSpacing?.let {
+                spannableString.setSpan(
+                    LetterSpacingSpan(it.toFloat()),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
             // TODO(Migration/haoyuchang): implement height
             // TODO(Migration/haoyuchang): implement locale
             // TODO(Migration/haoyuchang): implement background

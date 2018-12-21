@@ -11,6 +11,7 @@ import android.text.style.UnderlineSpan
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.StaticLayoutCompat
+import androidx.text.style.LetterSpacingSpan
 import androidx.ui.engine.text.FontFallback
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
@@ -270,6 +271,58 @@ class ParagraphAndroidTest {
         assertThat(
             paragraph.underlyingText,
             hasSpanOnTop(AbsoluteSizeSpan::class, 0, "abc".length)
+        )
+    }
+
+    @Test
+    fun textStyle_setLetterSpacingOnWholeText() {
+        val text = "abcde"
+        val letterSpacing = 2.0
+        val textStyle = TextStyle(letterSpacing = letterSpacing)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        paragraph.layout(100.0)
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText, hasSpan(LetterSpacingSpan::class, 0, text.length))
+    }
+
+    @Test
+    fun textStyle_setLetterSpacingOnPartText() {
+        val text = "abcde"
+        val textStyle = TextStyle(letterSpacing = 2.0)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        paragraph.layout(100.0)
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText, hasSpan(LetterSpacingSpan::class, 0, "abc".length))
+    }
+
+    @Test
+    fun textStyle_setLetterTwice_lastOneOverwrite() {
+        val text = "abcde"
+        val textStyle = TextStyle(letterSpacing = 2.0)
+        val textStyleOverwrite = TextStyle(letterSpacing = 3.0)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+            )
+        )
+        paragraph.layout(100.0)
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText, hasSpan(LetterSpacingSpan::class, 0, text.length))
+        assertThat(paragraph.underlyingText, hasSpan(LetterSpacingSpan::class, 0, "abc".length))
+        assertThat(
+            paragraph.underlyingText,
+            hasSpanOnTop(LetterSpacingSpan::class, 0, "abc".length)
         )
     }
 
