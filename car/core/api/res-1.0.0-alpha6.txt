@@ -198,7 +198,7 @@ dimen car_primary_icon_size
 dimen car_radius_1
 dimen car_radius_2
 dimen car_radius_3
-dimen car_radius_5
+dimen car_radius_4
 color car_scrollbar_thumb
 color car_scrollbar_thumb_dark
 color car_scrollbar_thumb_light
