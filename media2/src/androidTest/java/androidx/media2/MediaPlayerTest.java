@@ -179,7 +179,6 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         final int height = 288;
         final float volume = 0.5f;
 
-        MediaItem item = mPlayer.getCurrentMediaItem();
         mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
 
         final TestUtils.Monitor onVideoSizeChangedCalled = new TestUtils.Monitor();
@@ -260,6 +259,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
                 fail("MediaMetricsSet.keys() missing: " + MediaPlayer2.MetricsConstants.PLAYING);
             }
         }
+        MediaItem item = mPlayer.getCurrentMediaItem();
         mPlayer.close();
         assertTrue(((FileMediaItem) item).isClosed());
     }
