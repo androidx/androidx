@@ -485,7 +485,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
                     fitem.getParcelFileDescriptor().getFileDescriptor(),
                     fitem.getFileDescriptorOffset(),
                     fitem.getFileDescriptorLength());
-            fitem.removeParcelFileDescriptorClient(src);
+            fitem.decreaseRefCount();
         } else if (item instanceof UriMediaItem) {
             UriMediaItem uitem = (UriMediaItem) item;
             player.setDataSource(
@@ -1372,7 +1372,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             mDSD = item;
             setUpListeners(this);
             if (mDSD instanceof FileMediaItem) {
-                ((FileMediaItem) mDSD).addParcelFileDescriptorClient(this);
+                ((FileMediaItem) mDSD).increaseRefCount();
             }
         }
 
@@ -1391,7 +1391,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             clearListeners(this);
             mPlayer.release();
             if (mDSD instanceof FileMediaItem) {
-                ((FileMediaItem) mDSD).removeParcelFileDescriptorClient(this);
+                ((FileMediaItem) mDSD).decreaseRefCount();
             }
         }
 
@@ -1449,7 +1449,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         synchronized void setFirst(MediaItem item) throws IOException {
             if (!mQueue.isEmpty() && getFirst().mMp2State != PLAYER_STATE_IDLE) {
                 if (item instanceof FileMediaItem) {
-                    ((FileMediaItem) item).close();
+                    ((FileMediaItem) item).increaseRefCount();
+                    ((FileMediaItem) item).decreaseRefCount();
                 }
                 throw new IllegalStateException();
             }
@@ -1465,11 +1466,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         synchronized DataSourceError setNext(MediaItem item) {
             if (mQueue.isEmpty() || getFirst().getDSD() == null) {
                 if (item instanceof FileMediaItem) {
-                    try {
-                        ((FileMediaItem) item).close();
-                    } catch (IOException e) {
-                        Log.w(TAG, "Failed to close FileMediaItem " + item, e);
-                    }
+                    ((FileMediaItem) item).increaseRefCount();
+                    ((FileMediaItem) item).decreaseRefCount();
                 }
                 throw new IllegalStateException();
             }
@@ -1486,11 +1484,8 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
         synchronized DataSourceError setNextMultiple(List<MediaItem> descs) {
             if (mQueue.isEmpty() || getFirst().getDSD() == null) {
                 for (MediaItem item: descs) {
-                    try {
-                        ((FileMediaItem) item).close();
-                    } catch (IOException e) {
-                        Log.w(TAG, "Failed to close FileMediaItem " + item, e);
-                    }
+                    ((FileMediaItem) item).increaseRefCount();
+                    ((FileMediaItem) item).decreaseRefCount();
                 }
                 throw new IllegalStateException();
             }

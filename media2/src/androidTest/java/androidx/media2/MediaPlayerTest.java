@@ -54,6 +54,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
@@ -1332,8 +1333,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         List<MediaItem> playlist = createPlaylist(2);
         ListenableFuture<PlayerResult> future = mPlayer.setPlaylist(playlist, null);
-        PlayerResult result = future.get();
-        assertEquals(RESULT_SUCCESS, result.getResultCode());
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
 
         try {
             mPlayer.addPlaylistItem(0, closedItem);
@@ -1348,6 +1348,11 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         } catch (Exception e) {
             // Expected.
         }
+
+        List<MediaItem> reversedList = new ArrayList<>(
+                Arrays.asList(playlist.get(1), playlist.get(0)));
+        future = mPlayer.setPlaylist(playlist, null);
+        assertEquals(RESULT_SUCCESS, future.get().getResultCode());
     }
 
     @Test

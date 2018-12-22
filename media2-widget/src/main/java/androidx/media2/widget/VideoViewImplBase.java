@@ -343,11 +343,11 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
     public void setMediaItem(@NonNull MediaItem mediaItem) {
         mSeekWhenPrepared = 0;
         if (mMediaItem instanceof FileMediaItem) {
-            ((FileMediaItem) mMediaItem).removeParcelFileDescriptorClient(this);
+            ((FileMediaItem) mMediaItem).decreaseRefCount();
         }
         mMediaItem = mediaItem;
         if (mMediaItem instanceof FileMediaItem) {
-            ((FileMediaItem) mMediaItem).addParcelFileDescriptorClient(this);
+            ((FileMediaItem) mMediaItem).increaseRefCount();
         }
         openVideo();
     }
@@ -445,7 +445,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
         mMediaPlayer = null;
         mMediaSession = null;
         if (mMediaItem != null && mMediaItem instanceof FileMediaItem) {
-            ((FileMediaItem) mMediaItem).removeParcelFileDescriptorClient(this);
+            ((FileMediaItem) mMediaItem).decreaseRefCount();
         }
         mMediaItem = null;
     }
