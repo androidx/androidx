@@ -23,14 +23,13 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Preconditions;
 import androidx.versionedparcelable.NonParcelField;
 import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelize;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Structure for media item for a file.
@@ -62,7 +61,7 @@ public class FileMediaItem extends MediaItem {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     long mFDLength = FD_LENGTH_UNKNOWN;
     @NonParcelField
-    Set<Object> mClientMap = new HashSet<Object>();
+    Integer mRefCount = new Integer(0);
     @NonParcelField
     boolean mClosed;
 
@@ -107,32 +106,33 @@ public class FileMediaItem extends MediaItem {
     }
 
     /**
-     * Adds a client in the client list so that ParcelFileDescriptor can be closed when the list
-     * becomes empty. No-op if ParcelFileDescriptor is already closed.
-     * @param client an object instance for identifying the client.
+     * Increases reference count for underlying ParcelFileDescriptor.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void addParcelFileDescriptorClient(Object client) {
-        synchronized (mClientMap) {
+    public void increaseRefCount() {
+        synchronized (mRefCount) {
             if (mClosed) {
                 Log.w(TAG, "ParcelFileDescriptorClient is already closed.");
                 return;
             }
-            mClientMap.add(client);
+            mRefCount++;
         }
     }
 
     /**
-     * Removes a client from the client list. The ParcelFileDescriptor will be closed when the list
-     * becomes empty.
-     * @param client an object instance for identifying the client.
+     * Increases reference count for underlying ParcelFileDescriptor. The ParcelFileDescriptor will
+     * be closed when the count becomes zero.
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    public void removeParcelFileDescriptorClient(Object client) {
-        synchronized (mClientMap) {
-            if (mClientMap.remove(client) && mClientMap.isEmpty() && !mClosed) {
+    public void decreaseRefCount() {
+        synchronized (mRefCount) {
+            if (mClosed) {
+                Log.w(TAG, "ParcelFileDescriptorClient is already closed.");
+                return;
+            }
+            if (--mRefCount <= 0) {
                 try {
                     if (mPFD != null) {
                         mPFD.close();
@@ -150,18 +150,17 @@ public class FileMediaItem extends MediaItem {
      * @return whether the underlying {@link ParcelFileDescriptor} is closed or not.
      */
     boolean isClosed() {
-        synchronized (mClientMap) {
+        synchronized (mRefCount) {
             return mClosed;
         }
     }
 
     /**
      * Close the {@link ParcelFileDescriptor} of this {@link FileMediaItem}.
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public void close() throws IOException {
-        synchronized (mClientMap) {
+    @VisibleForTesting
+    void close() throws IOException {
+        synchronized (mRefCount) {
             if (mPFD != null) {
                 mPFD.close();
             }

@@ -289,11 +289,8 @@ import java.util.Map;
     public void setNextMediaItem(MediaItem mediaItem) {
         if (mMediaItemQueue.isEmpty()) {
             if (mediaItem instanceof FileMediaItem) {
-                try {
-                    ((FileMediaItem) mediaItem).close();
-                } catch (IOException e) {
-                    Log.w(TAG, "Failed to close FileMediaItem " + mediaItem, e);
-                }
+                ((FileMediaItem) mediaItem).increaseRefCount();
+                ((FileMediaItem) mediaItem).decreaseRefCount();
             }
             throw new IllegalStateException();
         }
@@ -303,11 +300,8 @@ import java.util.Map;
     public void setNextMediaItems(List<MediaItem> mediaItems) {
         if (mMediaItemQueue.isEmpty()) {
             for (MediaItem item: mediaItems) {
-                try {
-                    ((FileMediaItem) item).close();
-                } catch (IOException e) {
-                    Log.w(TAG, "Failed to close FileMediaItem " + item, e);
-                }
+                ((FileMediaItem) item).increaseRefCount();
+                ((FileMediaItem) item).decreaseRefCount();
             }
             throw new IllegalStateException();
         }
@@ -931,7 +925,7 @@ import java.util.Map;
             // Create a data source for reading from the file descriptor, if needed.
             if (mediaItem instanceof FileMediaItem) {
                 FileMediaItem fileMediaItem = (FileMediaItem) mediaItem;
-                fileMediaItem.addParcelFileDescriptorClient(this);
+                fileMediaItem.increaseRefCount();
                 FileDescriptor fileDescriptor =
                         fileMediaItem.getParcelFileDescriptor().getFileDescriptor();
                 long offset = fileMediaItem.getFileDescriptorOffset();
@@ -975,7 +969,7 @@ import java.util.Map;
                             ((FileMediaItem) mediaItem).getParcelFileDescriptor()
                                     .getFileDescriptor();
                     mFileDescriptorRegistry.unregisterMediaItem(fileDescriptor);
-                    ((FileMediaItem) mediaItem).removeParcelFileDescriptorClient(this);
+                    ((FileMediaItem) mediaItem).decreaseRefCount();
                 } else if (mediaItem instanceof CallbackMediaItem) {
                     ((CallbackMediaItem) mediaItemInfo.mMediaItem)
                             .getDataSourceCallback().close();
