@@ -15,7 +15,6 @@
  */
 package androidx.ui.port.engine.text.platform
 
-import android.app.Instrumentation
 import android.content.Context
 import android.graphics.Typeface
 import androidx.test.filters.SdkSuppress
@@ -67,13 +66,11 @@ import org.mockito.junit.MockitoJUnitRunner
 class TypefaceAdapterTest {
     // TODO(Migration/siyamed): These native calls should be removed after the
     // counterparts are implemented in crane.
-    private lateinit var instrumentation: Instrumentation
     private lateinit var context: Context
 
     @Before
     fun setup() {
-        instrumentation = InstrumentationRegistry.getInstrumentation()
-        context = instrumentation.context
+        context = InstrumentationRegistry.getInstrumentation().context
     }
 
     @Test
@@ -117,8 +114,8 @@ class TypefaceAdapterTest {
 
     @Test
     fun serifAndSansSerifPaintsDifferent() {
-        val typefaceSans = TypefaceAdapter().create(genericFontFamily = "sans-serif")
-        val typefaceSerif = TypefaceAdapter().create(genericFontFamily = "serif")
+        val typefaceSans = TypefaceAdapter().create(FontFamily("sans-serif"))
+        val typefaceSerif = TypefaceAdapter().create(FontFamily("serif"))
 
         assertThat(typefaceSans).isNotNull()
         assertThat(typefaceSans).isNotNull()
@@ -244,14 +241,12 @@ class TypefaceAdapterTest {
 
     @Test
     fun customSingleFont() {
-        val context = instrumentation.context
-        val resources = context.resources
         val defaultTypeface = TypefaceAdapter().create()
 
-        val typeface = TypefaceAdapter().create(
-            fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily(),
-            context = context
-        )
+        val fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily()
+        fontFamily.context = context
+
+        val typeface = TypefaceAdapter().create(fontFamily = fontFamily)
 
         assertThat(typeface).isNotNull()
         Assert.assertThat(typeface.bitmap(), not(equalToBitmap(defaultTypeface.bitmap())))
@@ -264,9 +259,11 @@ class TypefaceAdapterTest {
     fun customSingleFontBoldItalic() {
         val defaultTypeface = TypefaceAdapter().create()
 
+        val fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily()
+        fontFamily.context = context
+
         val typeface = TypefaceAdapter().create(
-            fontFamily = Font(name = FONT_100_REGULAR.name).asFontFamily(),
-            context = context,
+            fontFamily = fontFamily,
             fontStyle = FontStyle.italic,
             fontWeight = FontWeight.bold
         )
@@ -299,14 +296,14 @@ class TypefaceAdapterTest {
             FONT_900_REGULAR,
             FONT_900_ITALIC
         )
+        fontFamily.context = context
 
         for (fontWeight in FontWeight.values) {
             for (fontStyle in FontStyle.values()) {
                 val typeface = TypefaceAdapter().create(
                     fontWeight = fontWeight,
                     fontStyle = fontStyle,
-                    fontFamily = fontFamily,
-                    context = context
+                    fontFamily = fontFamily
                 )
 
                 assertThat(typeface).isNotNull()
@@ -326,6 +323,7 @@ class TypefaceAdapterTest {
         val fontWeight = FontWeight.w300
         val fontStyle = FontStyle.italic
         val fontFamily = FontFamily(FONT_200_ITALIC)
+        fontFamily.context = context
 
         val fontMatcher = mock<FontMatcher>()
         whenever(fontMatcher.matchFont(any(), any(), any()))
@@ -333,8 +331,7 @@ class TypefaceAdapterTest {
         TypefaceAdapter(fontMatcher).create(
             fontWeight = fontWeight,
             fontStyle = fontStyle,
-            fontFamily = fontFamily,
-            context = context
+            fontFamily = fontFamily
         )
 
         verify(fontMatcher, times(1)).matchFont(
@@ -342,5 +339,66 @@ class TypefaceAdapterTest {
             eq(fontWeight),
             eq(fontStyle)
         )
+    }
+
+    @Test
+    fun resultsAreCached_defaultTypeface() {
+        val typefaceAdapter = TypefaceAdapter()
+        val typeface = typefaceAdapter.create()
+
+        // getting typeface with same parameters should hit the cache
+        // therefore return the same typeface
+        val otherTypeface = typefaceAdapter.create()
+
+        assertThat(typeface).isSameAs(otherTypeface)
+    }
+
+    @Test
+    fun resultsNotSame_forDifferentFontWeight() {
+        val typefaceAdapter = TypefaceAdapter()
+        val typeface = typefaceAdapter.create(fontWeight = FontWeight.normal)
+
+        // getting typeface with different parameters should not hit the cache
+        // therefore return some other typeface
+        val otherTypeface = typefaceAdapter.create(fontWeight = FontWeight.bold)
+
+        assertThat(typeface).isNotSameAs(otherTypeface)
+    }
+
+    @Test
+    fun resultsNotSame_forDifferentFontStyle() {
+        val typefaceAdapter = TypefaceAdapter()
+
+        val typeface = typefaceAdapter.create(fontStyle = FontStyle.normal)
+        val otherTypeface = typefaceAdapter.create(fontStyle = FontStyle.italic)
+
+        assertThat(typeface).isNotSameAs(otherTypeface)
+    }
+
+    @Test
+    fun resultsAreCached_withCustomTypeface() {
+        val fontFamily = FontFamily("sans-serif")
+        val fontWeight = FontWeight.normal
+        val fontStyle = FontStyle.italic
+
+        val typefaceAdapter = TypefaceAdapter()
+        val typeface = typefaceAdapter.create(fontFamily, fontWeight, fontStyle)
+        val otherTypeface = typefaceAdapter.create(fontFamily, fontWeight, fontStyle)
+
+        assertThat(typeface).isSameAs(otherTypeface)
+    }
+
+    @Test
+    fun cacheCanHoldTwoResults() {
+        val typefaceAdapter = TypefaceAdapter()
+
+        val serifTypeface = typefaceAdapter.create(FontFamily("serif"))
+        val otherSerifTypeface = typefaceAdapter.create(FontFamily("serif"))
+        val sansTypeface = typefaceAdapter.create(FontFamily("sans-serif"))
+        val otherSansTypeface = typefaceAdapter.create(FontFamily("sans-serif"))
+
+        assertThat(serifTypeface).isSameAs(otherSerifTypeface)
+        assertThat(sansTypeface).isSameAs(otherSansTypeface)
+        assertThat(sansTypeface).isNotSameAs(serifTypeface)
     }
 }
