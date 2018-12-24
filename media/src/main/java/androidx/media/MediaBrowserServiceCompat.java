@@ -184,7 +184,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
     private @interface ResultFlags {
     }
 
-    final ConnectionRecord mUnknownConnectionFromFwk = new ConnectionRecord(
+    final ConnectionRecord mConnectionFromFwk = new ConnectionRecord(
             LEGACY_CONTROLLER, UNKNOWN_PID, UNKNOWN_UID, null, null);
     final ArrayList<ConnectionRecord> mPendingConnections = new ArrayList<>();
     final ArrayMap<IBinder, ConnectionRecord> mConnections = new ArrayMap<>();
@@ -421,18 +421,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
                             resultWrapper.detach();
                         }
                     };
-            setCurrentConnectionFromFramework(true);
+            mCurConnection = mConnectionFromFwk;
             MediaBrowserServiceCompat.this.onLoadChildren(parentId, result);
-            setCurrentConnectionFromFramework(false);
-        }
-
-        void setCurrentConnectionFromFramework(boolean set) {
-            if (set) {
-                // In API < 28, we cannot get the remote user info.
-                mCurConnection = mUnknownConnectionFromFwk;
-            } else {
-                mCurConnection = null;
-            }
+            mCurConnection = null;
         }
 
         void notifyChildrenChangedForFramework(final String parentId, final Bundle options) {
@@ -554,9 +545,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
                             resultWrapper.detach();
                         }
                     };
-            setCurrentConnectionFromFramework(true);
+            mCurConnection = mConnectionFromFwk;
             MediaBrowserServiceCompat.this.onLoadItem(itemId, result);
-            setCurrentConnectionFromFramework(false);
+            mCurConnection = null;
         }
 
         class MediaBrowserServiceApi23 extends MediaBrowserServiceApi21 {
@@ -611,9 +602,9 @@ public abstract class MediaBrowserServiceCompat extends Service {
                             resultWrapper.detach();
                         }
                     };
-            setCurrentConnectionFromFramework(true);
+            mCurConnection = mConnectionFromFwk;
             MediaBrowserServiceCompat.this.onLoadChildren(parentId, result, options);
-            setCurrentConnectionFromFramework(false);
+            mCurConnection = null;
         }
 
         @Override
@@ -622,7 +613,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 throw new IllegalStateException("This should be called inside of onGetRoot,"
                         + " onLoadChildren, onLoadItem, onSearch, or onCustomAction methods");
             }
-            if (mCurConnection == mUnknownConnectionFromFwk) {
+            if (mCurConnection == mConnectionFromFwk) {
                 return mServiceFwk.getBrowserRootHints();
             }
             return mCurConnection.rootHints == null ? null : new Bundle(mCurConnection.rootHints);
@@ -646,33 +637,24 @@ public abstract class MediaBrowserServiceCompat extends Service {
             public void onLoadChildren(String parentId, Result<List<MediaBrowser.MediaItem>> result,
                     Bundle options) {
                 MediaSessionCompat.ensureClassLoader(options);
-                setCurrentConnectionFromFramework(true);
+                mCurConnection = mConnectionFromFwk;
                 MediaBrowserServiceImplApi26.this.onLoadChildren(parentId,
                         new ResultWrapper<List<Parcel>>(result), options);
-                setCurrentConnectionFromFramework(false);
+                mCurConnection = null;
             }
         }
     }
 
     @RequiresApi(28)
     class MediaBrowserServiceImplApi28 extends MediaBrowserServiceImplApi26 {
-
-        @Override
-        void setCurrentConnectionFromFramework(boolean set) {
-            if (set) {
-                RemoteUserInfo info = new RemoteUserInfo(mServiceFwk.getCurrentBrowserInfo());
-                mCurConnection = new ConnectionRecord(info.getPackageName(), info.getPid(),
-                        info.getUid(), getBrowserRootHints(), null);
-            } else {
-                mCurConnection = null;
-            }
-        }
-
         @Override
         public RemoteUserInfo getCurrentBrowserInfo() {
             if (mCurConnection == null) {
                 throw new IllegalStateException("This should be called inside of onGetRoot,"
                         + " onLoadChildren, onLoadItem, onSearch, or onCustomAction methods");
+            }
+            if (mCurConnection == mConnectionFromFwk) {
+                return new RemoteUserInfo(mServiceFwk.getCurrentBrowserInfo());
             }
             return mCurConnection.browserInfo;
         }
