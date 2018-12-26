@@ -41,6 +41,7 @@ import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
@@ -125,7 +126,9 @@ internal class ParagraphAndroid constructor(
             textPaint.typeface = typefaceAdapter.create(
                 fontFamily = paragraphStyle.fontFamily,
                 fontWeight = paragraphStyle.fontWeight ?: FontWeight.normal,
-                fontStyle = paragraphStyle.fontStyle ?: FontStyle.normal
+                fontStyle = paragraphStyle.fontStyle ?: FontStyle.normal,
+                fontSynthesis = paragraphStyle.fontSynthesis ?: FontSynthesis.all
+
             )
         }
 

@@ -73,7 +73,7 @@
          will be recalculated by the compiler -->
     <version value="3"/>
     <xAvgCharWidth value="594"/>
-    <usWeightClass value="400"/>
+    <usWeightClass value="700"/>
     <usWidthClass value="5"/>
     <fsType value="00000000 00001000"/>
     <ySubscriptXSize value="650"/>
@@ -203,7 +203,7 @@
 
   <post>
     <formatType value="3.0"/>
-    <italicAngle value="0.0"/>
+    <italicAngle value="-45.0"/>
     <underlinePosition value="-75"/>
     <underlineThickness value="50"/>
     <isFixedPitch value="0"/>

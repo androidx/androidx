@@ -17,10 +17,12 @@ package androidx.ui.port.engine.text.platform
 
 import android.content.Context
 import android.graphics.Typeface
+import android.os.Build
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.font.Font
 import androidx.ui.engine.text.font.FontFamily
@@ -400,5 +402,153 @@ class TypefaceAdapterTest {
         assertThat(serifTypeface).isSameAs(otherSerifTypeface)
         assertThat(sansTypeface).isSameAs(otherSansTypeface)
         assertThat(sansTypeface).isNotSameAs(serifTypeface)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun throwsExceptionIfFontIsNotIncludedInTheApp() {
+        val fontFamily = FontFamily(Font("nonexistent.ttf"))
+        fontFamily.context = context
+
+        TypefaceAdapter().create(fontFamily)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun throwsExceptionIfFontIsNotReadable() {
+        val fontFamily = FontFamily(Font("invalid_font.ttf"))
+        fontFamily.context = context
+
+        TypefaceAdapter().create(fontFamily)
+    }
+
+    @Test
+    fun fontSynthesisDefault_synthesizeTheFontToItalicBold() {
+        val fontFamily = FONT_100_REGULAR.asFontFamily()
+        fontFamily.context = context
+
+        val typeface = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.bold,
+            fontStyle = FontStyle.italic,
+            fontSynthesis = FontSynthesis.all
+        )
+
+        // since 100 regular is not bold and not italic, passing FontWeight.bold and
+        // FontStyle.italic should create a Typeface that is fake bold and fake italic
+        assertThat(typeface.isBold).isTrue()
+        assertThat(typeface.isItalic).isTrue()
+    }
+
+    @Test
+    fun fontSynthesisStyle_synthesizeTheFontToItalic() {
+        val fontFamily = FONT_100_REGULAR.asFontFamily()
+        fontFamily.context = context
+
+        val typeface = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.bold,
+            fontStyle = FontStyle.italic,
+            fontSynthesis = FontSynthesis.style
+        )
+
+        // since 100 regular is not bold and not italic, passing FontWeight.bold and
+        // FontStyle.italic should create a Typeface that is only fake italic
+        assertThat(typeface.isBold).isFalse()
+        assertThat(typeface.isItalic).isTrue()
+    }
+
+    @Test
+    fun fontSynthesisWeight_synthesizeTheFontToBold() {
+        val fontFamily = FONT_100_REGULAR.asFontFamily()
+        fontFamily.context = context
+
+        val typeface = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.bold,
+            fontStyle = FontStyle.italic,
+            fontSynthesis = FontSynthesis.weight
+        )
+
+        // since 100 regular is not bold and not italic, passing FontWeight.bold and
+        // FontStyle.italic should create a Typeface that is only fake bold
+        assertThat(typeface.isBold).isTrue()
+        assertThat(typeface.isItalic).isFalse()
+    }
+
+    @Test
+    fun fontSynthesisStyle_forMatchingItalicDoesNotSynthesize() {
+        val fontFamily = FONT_100_ITALIC.asFontFamily()
+        fontFamily.context = context
+
+        val typeface = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.w700,
+            fontStyle = FontStyle.italic,
+            fontSynthesis = FontSynthesis.style
+        )
+
+        assertThat(typeface.isBold).isFalse()
+        assertThat(typeface.isItalic).isFalse()
+    }
+
+    @Test
+    fun fontSynthesisAll_doesNotSynthesizeIfFontIsTheSame_beforeApi28() {
+        val fontFamily = FONT_700_ITALIC.asFontFamily()
+        fontFamily.context = context
+
+        val typeface = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.w700,
+            fontStyle = FontStyle.italic,
+            fontSynthesis = FontSynthesis.all
+        )
+        assertThat(typeface.isItalic).isFalse()
+
+        // TODO((Migration/siyamed)) ask this to Nona.
+        if (Build.VERSION.SDK_INT < 23) {
+            assertThat(typeface.isBold).isFalse()
+        } else if (Build.VERSION.SDK_INT < 28) {
+            assertThat(typeface.isBold).isTrue()
+        } else {
+            assertThat(typeface.isBold).isTrue()
+            assertThat(typeface.weight).isEqualTo(700)
+        }
+    }
+
+    @Test
+    fun fontSynthesisNone_doesNotSynthesize() {
+        val fontFamily = FONT_100_REGULAR.asFontFamily()
+        fontFamily.context = context
+
+        val typeface = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.bold,
+            fontStyle = FontStyle.italic,
+            fontSynthesis = FontSynthesis.none
+        )
+
+        assertThat(typeface.isBold).isFalse()
+        assertThat(typeface.isItalic).isFalse()
+    }
+
+    @Test
+    fun fontSynthesisWeight_doesNotSynthesizeIfRequestedWeightIsLessThan600() {
+        val fontFamily = FONT_100_REGULAR.asFontFamily()
+        fontFamily.context = context
+
+        // Less than 600 is not synthesized
+        val typeface500 = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.w500,
+            fontSynthesis = FontSynthesis.weight
+        )
+        // 600 or more is synthesized
+        val typeface600 = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontWeight = FontWeight.w600,
+            fontSynthesis = FontSynthesis.weight
+        )
+
+        assertThat(typeface500.isBold).isFalse()
+        assertThat(typeface600.isBold).isTrue()
     }
 }

@@ -93,15 +93,19 @@ class IsTypefaceOf(
     override fun matches(typeface: Any?): Boolean {
         if (typeface == null || typeface !is Typeface) return false
 
-        if (Build.VERSION.SDK_INT >= 28) {
-            return typeface.weight == fontWeight.weight &&
-                    typeface.isItalic == (fontStyle == FontStyle.italic)
-        } else {
-            val charInfo = DEFINED_CHARACTERS.find {
-                it.fontWeight == fontWeight && it.fontStyle == fontStyle
-            }!!
+        val charInfo = DEFINED_CHARACTERS.find {
+            it.fontWeight == fontWeight && it.fontStyle == fontStyle
+        }!!
 
-            return isSelectedFont(typeface, charInfo.character)
+        val isSelectedFont = isSelectedFont(typeface, charInfo.character)
+
+        if (Build.VERSION.SDK_INT >= 28) {
+            return isSelectedFont && typeface.weight == fontWeight.weight
+            // cannot check typeface.isItalic == (fontStyle == FontStyle.italic) since it is for
+            // fake italic, and for cases where synthesis is disable this does not give correct
+            // signal
+        } else {
+            return isSelectedFont
         }
     }
 

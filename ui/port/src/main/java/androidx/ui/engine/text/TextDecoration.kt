@@ -35,11 +35,9 @@ data class TextDecoration internal constructor(val mask: Int) {
 
         /** Creates a decoration that paints the union of all the given decorations. */
         fun combine(decorations: List<TextDecoration>): TextDecoration {
-            var mask = 0
-            for (decoration in decorations) {
-                mask = mask or decoration.mask
+            val mask = decorations.fold(0) { acc, decoration ->
+                acc or decoration.mask
             }
-
             return TextDecoration(mask)
         }
     }

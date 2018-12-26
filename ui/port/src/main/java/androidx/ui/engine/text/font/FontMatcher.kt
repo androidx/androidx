@@ -40,8 +40,6 @@ internal open class FontMatcher {
      * @param fontStyle desired [FontStyle]
      */
     open fun matchFont(fontFamily: FontFamily, fontWeight: FontWeight, fontStyle: FontStyle): Font {
-        // TODO : implement synthesis: Boolean = false
-
         // check for exact match first
         fontFamily.filter { it.weight == fontWeight && it.style == fontStyle }.let {
             if (it.isNotEmpty()) return it[0]

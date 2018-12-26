@@ -23,10 +23,15 @@ import android.os.Build
 import androidx.collection.LruCache
 import androidx.core.content.res.ResourcesCompat
 import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.font.Font
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.FontMatcher
+
+// Accept FontWeights at and above 600 to be bold. 600 comes from FontFamily.cpp#computeFakery
+// function in minikin
+private val ANDROID_BOLD = FontWeight.w600
 
 /**
  * Creates a Typeface based on generic font family or a custom [FontFamily].
@@ -43,7 +48,8 @@ internal open class TypefaceAdapter constructor(
     data class CacheKey(
         val fontFamily: FontFamily? = null,
         val fontWeight: FontWeight,
-        val fontStyle: FontStyle
+        val fontStyle: FontStyle,
+        val fontSynthesis: FontSynthesis
     )
 
     companion object {
@@ -62,9 +68,10 @@ internal open class TypefaceAdapter constructor(
     open fun create(
         fontFamily: FontFamily? = null,
         fontWeight: FontWeight = FontWeight.normal,
-        fontStyle: FontStyle = FontStyle.normal
+        fontStyle: FontStyle = FontStyle.normal,
+        fontSynthesis: FontSynthesis = FontSynthesis.all
     ): Typeface {
-        val cacheKey = CacheKey(fontFamily, fontWeight, fontStyle)
+        val cacheKey = CacheKey(fontFamily, fontWeight, fontStyle, fontSynthesis)
         val cachedTypeface = typefaceCache.get(cacheKey)
         if (cachedTypeface != null) return cachedTypeface
 
@@ -73,9 +80,11 @@ internal open class TypefaceAdapter constructor(
                 fontFamily = fontFamily,
                 fontWeight = fontWeight,
                 fontStyle = fontStyle,
+                fontSynthesis = fontSynthesis,
                 context = fontFamily.context
             )
         } else {
+            // there is no option to control fontSynthesis in framework for system fonts
             create(
                 genericFontFamily = fontFamily?.genericFamily,
                 fontWeight = fontWeight,
@@ -157,11 +166,11 @@ internal open class TypefaceAdapter constructor(
         fontStyle: FontStyle = FontStyle.normal,
         fontWeight: FontWeight = FontWeight.normal,
         fontFamily: FontFamily,
-        context: Context
+        context: Context,
+        fontSynthesis: FontSynthesis = FontSynthesis.all
     ): Typeface {
         // TODO(Migration/siyamed): add genericFontFamily : String? = null for fallback
         // TODO(Migration/siyamed): add support for multiple font families
-        // TODO(Migration/siyamed): add font synthesis
 
         val font = fontMatcher.matchFont(fontFamily, fontWeight, fontStyle)
 
@@ -173,30 +182,66 @@ internal open class TypefaceAdapter constructor(
             context.packageName
         )
 
-        val typeface = ResourcesCompat.getFont(context, resId)
-            ?: throw IllegalStateException(
-                "Cannot create Typeface from $font with resource id $resId"
-            )
-
-        // TODO(Migration/siyamed): This part includes synthesis, recheck when it is implemented
-        val result = if (Build.VERSION.SDK_INT < 28) {
-            val targetStyle = getTypefaceStyle(fontWeight, fontStyle)
-            if (targetStyle != typeface.style) {
-                Typeface.create(typeface, targetStyle)
-            } else {
-                typeface
-            }
-        } else {
-            if (typeface.weight != fontWeight.weight ||
-                typeface.isItalic != (fontStyle == FontStyle.italic)
-            ) {
-                Typeface.create(typeface, fontWeight.weight, fontStyle == FontStyle.italic)
-            } else {
-                typeface
-            }
+        val typeface = try {
+            ResourcesCompat.getFont(context, resId)
+        } catch (e: Throwable) {
+            null
         }
 
-        return result
+        if (typeface == null) {
+            throw IllegalStateException(
+                "Cannot create Typeface from $font with resource id $resId"
+            )
+        }
+
+        val loadedFontIsSameAsRequest = fontWeight == font.weight && fontStyle == font.style
+        // if synthesis is not requested or there is an exact match we don't need synthesis
+        if (fontSynthesis == FontSynthesis.none || loadedFontIsSameAsRequest) {
+            return typeface
+        }
+
+        return synthesize(typeface, font, fontWeight, fontStyle, fontSynthesis)
+    }
+
+    fun synthesize(
+        typeface: Typeface,
+        font: Font,
+        fontWeight: FontWeight,
+        fontStyle: FontStyle,
+        fontSynthesis: FontSynthesis
+    ): Typeface {
+
+        val synthesizeWeight = fontSynthesis.isWeightOn &&
+                (fontWeight >= ANDROID_BOLD && font.weight < ANDROID_BOLD)
+
+        val synthesizeStyle = fontSynthesis.isStyleOn && fontStyle != font.style
+
+        if (!synthesizeStyle && !synthesizeWeight) return typeface
+
+        return if (Build.VERSION.SDK_INT < 28) {
+            val targetStyle = getTypefaceStyle(
+                isBold = synthesizeWeight,
+                isItalic = synthesizeStyle && fontStyle == FontStyle.italic)
+            Typeface.create(typeface, targetStyle)
+        } else {
+            val finalFontWeight = if (synthesizeWeight) {
+                // if we want to synthesize weight, we send the requested fontWeight
+                fontWeight.weight
+            } else {
+                // if we do not want to synthesize weight, we keep the loaded font weight
+                font.weight.weight
+            }
+
+            val finalFontStyle = if (synthesizeStyle) {
+                // if we want to synthesize style, we send the requested fontStyle
+                fontStyle == FontStyle.italic
+            } else {
+                // if we do not want to synthesize style, we keep the loaded font style
+                font.style == FontStyle.italic
+            }
+
+            Typeface.create(typeface, finalFontWeight, finalFontStyle)
+        }
     }
 
     /**
@@ -205,10 +250,10 @@ internal open class TypefaceAdapter constructor(
      * since at those API levels system does not accept [FontWeight].
      */
     fun getTypefaceStyle(fontWeight: FontWeight, fontStyle: FontStyle): Int {
-        // This code accepts anything at and above 600 to be bold.
-        // 600 comes from FontFamily.cpp#computeFakery function in minikin
-        val isBold = fontWeight.weight >= 600
-        val isItalic = fontStyle == FontStyle.italic
+        return getTypefaceStyle(fontWeight >= ANDROID_BOLD, fontStyle == FontStyle.italic)
+    }
+
+    fun getTypefaceStyle(isBold: Boolean, isItalic: Boolean): Int {
         return if (isItalic && isBold) {
             Typeface.BOLD_ITALIC
         } else if (isBold) {

@@ -70,6 +70,9 @@ import androidx.ui.engine.window.Locale
  *   considered equivalent and turn off this behavior.
  *
  * * `locale`: The locale used to select region-specific glyphs.
+ *
+ * * `fontSynthesis`: Whether to synthesize font weight and/or style when the requested weight or
+ *                   style cannot be found in the provided custom font family.
  */
 data class ParagraphStyle constructor(
     val textAlign: TextAlign? = null,
@@ -83,7 +86,8 @@ data class ParagraphStyle constructor(
     val lineHeight: Double? = null,
     // TODO(Migration/siyamed): pass to TextLayout
     val ellipsis: String? = null,
-    val locale: Locale? = null
+    val locale: Locale? = null,
+    val fontSynthesis: FontSynthesis? = null
 ) {
 
     override fun toString(): String {
@@ -97,7 +101,8 @@ data class ParagraphStyle constructor(
             "fontSize: ${fontSize ?: "unspecified"}, " +
             "lineHeight: ${if (lineHeight != null) "${lineHeight}x" else "unspecified"}, " +
             "ellipsis: ${if (ellipsis != null) "\"$ellipsis\"" else "unspecified"}, " +
-            "locale: ${locale ?: "unspecified"}" +
+            "locale: ${locale ?: "unspecified"}, " +
+            "fontSynthesis: ${fontSynthesis ?: "unspecified"}" +
             ")"
     }
 
@@ -108,7 +113,8 @@ data class ParagraphStyle constructor(
             fontFamily = fontFamily,
             fontSize = fontSize,
             locale = locale,
-            height = lineHeight
+            height = lineHeight,
+            fontSynthesis = fontSynthesis
         )
     }
 }
