@@ -249,6 +249,10 @@ public abstract class MediaLibraryService extends MediaSessionService {
 
         /**
          * Builder for {@link MediaLibrarySession}.
+         * <p>
+         * Any incoming event from the {@link MediaController} will be handled on the callback
+         * executor. If it's not set, {@link ContextCompat#getMainExecutor(Context)} will be used by
+         * default.
          */
         // Override all methods just to show them with the type instead of generics in Javadoc.
         // This workarounds javadoc issue described in the MediaSession.BuilderBase.
