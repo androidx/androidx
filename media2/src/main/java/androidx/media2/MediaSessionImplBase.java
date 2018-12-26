@@ -84,11 +84,6 @@ class MediaSessionImplBase implements MediaSessionImpl {
     static final String TAG = "MSImplBase";
     static final boolean DEBUG = true; //Log.isLoggable(TAG, Log.DEBUG);
 
-    // Note: This checks the uniqueness of a session ID only in single process.
-    // When the framework becomes able to check the uniqueness, this logic should be removed.
-    @GuardedBy("MediaSessionImplBase.class")
-    private static final List<String> SESSION_ID_LIST = new ArrayList<>();
-
     private static final SessionResult RESULT_WHEN_CLOSED = new SessionResult(RESULT_INFO_SKIPPED);
 
     private final Context mContext;
@@ -136,12 +131,6 @@ class MediaSessionImplBase implements MediaSessionImpl {
 
         mPlayerCallback = new SessionPlayerCallback(this);
 
-        synchronized (MediaSessionImplBase.class) {
-            if (SESSION_ID_LIST.contains(id)) {
-                throw new IllegalArgumentException("Session ID must be unique. ID=" + id);
-            }
-            SESSION_ID_LIST.add(id);
-        }
         mSessionId = id;
         mSessionToken = new SessionToken(new SessionTokenImplBase(Process.myUid(),
                 TYPE_SESSION, context.getPackageName(), mSessionStub));
@@ -290,9 +279,6 @@ class MediaSessionImplBase implements MediaSessionImpl {
             }
             if (DEBUG) {
                 Log.d(TAG, "Closing session, id=" + getId() + ", token=" + getToken());
-            }
-            synchronized (MediaSessionImplBase.class) {
-                SESSION_ID_LIST.remove(mSessionId);
             }
             mPlayer.unregisterPlayerCallback(mPlayerCallback);
             mSessionCompat.release();

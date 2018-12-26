@@ -102,6 +102,9 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
         mIntent = PendingIntent.getActivity(mContext, 0, sessionActivity, 0);
 
         mPlayer = new MockPlayer(1);
+        if (mSession != null && !mSession.isClosed()) {
+            mSession.close();
+        }
         mSession = new MediaSession.Builder(mContext, mPlayer)
                 .setId(TAG)
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
@@ -121,7 +124,7 @@ public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
                     }
                 })
                 .setSessionActivity(mIntent)
-                .setId(TAG).build();
+                .build();
         mController = new RemoteMediaControllerCompat(
                 mContext, mSession.getSessionCompat().getSessionToken(), true);
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
