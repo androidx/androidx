@@ -759,14 +759,14 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
     }
 
     // TODO: move this method inside callback to make sure it runs inside the callback thread.
-    MediaMetadata extractMetadata() {
+    MediaMetadata extractMetadata(MediaItem mediaItem) {
         MediaMetadataRetriever retriever = null;
         String path = "";
         try {
-            if (mMediaItem == null) {
+            if (mediaItem == null) {
                 return null;
-            } else if (mMediaItem instanceof UriMediaItem) {
-                Uri uri = ((UriMediaItem) mMediaItem).getUri();
+            } else if (mediaItem instanceof UriMediaItem) {
+                Uri uri = ((UriMediaItem) mediaItem).getUri();
 
                 // Save file name as title since the file may not have a title Metadata.
                 if (UriUtil.isFromNetwork(uri)) {
@@ -778,21 +778,28 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                 }
                 retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(mInstance.getContext(), uri);
-            } else if (mMediaItem instanceof FileMediaItem) {
+            } else if (mediaItem instanceof FileMediaItem) {
                 retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(
-                        ((FileMediaItem) mMediaItem).getParcelFileDescriptor().getFileDescriptor(),
-                        ((FileMediaItem) mMediaItem).getFileDescriptorOffset(),
-                        ((FileMediaItem) mMediaItem).getFileDescriptorLength());
+                        ((FileMediaItem) mediaItem).getParcelFileDescriptor().getFileDescriptor(),
+                        ((FileMediaItem) mediaItem).getFileDescriptorOffset(),
+                        ((FileMediaItem) mediaItem).getFileDescriptorLength());
             }
         } catch (IllegalArgumentException e) {
             Log.v(TAG, "Cannot retrieve metadata for this media file.");
             retriever = null;
         }
 
-        MediaMetadata metadata = mMediaItem.getMetadata();
+        MediaMetadata metadata = mediaItem.getMetadata();
 
         synchronized (mLock) {
+            // Do not extract metadata of a media item which is not the current item.
+            if (mediaItem != mMediaItem) {
+                if (retriever != null) {
+                    retriever.release();
+                }
+                return null;
+            }
             if (!mCurrentItemIsMusic) {
                 mTitle = extractString(metadata,
                         MediaMetadata.METADATA_KEY_TITLE, retriever,
@@ -826,7 +833,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
             builder.putLong(
                     MediaMetadata.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
             builder.putString(
-                    MediaMetadata.METADATA_KEY_MEDIA_ID, mMediaItem.getMediaId());
+                    MediaMetadata.METADATA_KEY_MEDIA_ID, mediaItem.getMediaId());
             builder.putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1);
             return builder.build();
         }
@@ -927,6 +934,12 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                         }
                         return;
                     }
+                    if (dsd != mMediaItem) {
+                        if (DEBUG) {
+                            Log.w(TAG, "onVideoSizeChanged() is ignored. Media item is changed.");
+                        }
+                        return;
+                    }
                     mTextureView.forceLayout();
                     mSurfaceView.forceLayout();
                     mInstance.requestLayout();
@@ -941,6 +954,12 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     if (mp != mMediaPlayer) {
                         if (DEBUG) {
                             Log.w(TAG, "onInfo() is ignored. mp is already gone.");
+                        }
+                        return;
+                    }
+                    if (dsd != mMediaItem) {
+                        if (DEBUG) {
+                            Log.w(TAG, "onInfo() is ignored. Media item is changed.");
                         }
                         return;
                     }
@@ -966,6 +985,12 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                         }
                         return;
                     }
+                    if (dsd != mMediaItem) {
+                        if (DEBUG) {
+                            Log.w(TAG, "onError() is ignored. Media item is changed.");
+                        }
+                        return;
+                    }
                     if (mCurrentState != STATE_ERROR) {
                         mCurrentState = STATE_ERROR;
                         mTargetState = STATE_ERROR;
@@ -986,6 +1011,12 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     if (mp != mMediaPlayer) {
                         if (DEBUG) {
                             Log.w(TAG, "onSubtitleData() is ignored. mp is already gone.");
+                        }
+                        return;
+                    }
+                    if (dsd != mMediaItem) {
+                        if (DEBUG) {
+                            Log.w(TAG, "onSubtitleData() is ignored. Media item is changed.");
                         }
                         return;
                     }
@@ -1040,7 +1071,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                         // Run extractMetadata() in another thread to prevent StrictMode violation.
                         // extractMetadata() contains file IO indirectly,
                         // via MediaMetadataRetriever.
-                        MetadataExtractTask task = new MetadataExtractTask();
+                        MetadataExtractTask task = new MetadataExtractTask(mMediaItem);
                         task.execute();
                     }
 
@@ -1183,23 +1214,25 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
     }
 
     private class MetadataExtractTask extends AsyncTask<Void, Void, MediaMetadata> {
-        MetadataExtractTask() {
+        private MediaItem mItem;
+        MetadataExtractTask(MediaItem mediaItem) {
+            mItem = mediaItem;
         }
 
         @Override
         protected MediaMetadata doInBackground(Void... params) {
-            return extractMetadata();
+            return extractMetadata(mItem);
         }
 
         @Override
         @SuppressLint("SyntheticAccessor")
         protected void onPostExecute(MediaMetadata metadata) {
             if (metadata != null) {
-                mMediaItem.setMetadata(metadata);
+                mItem.setMetadata(metadata);
             }
 
             synchronized (mLock) {
-                if (mCurrentItemIsMusic) {
+                if (mCurrentItemIsMusic && mMediaItem == mItem) {
                     // Update Music View to reflect the new metadata
                     mInstance.removeView(mSurfaceView);
                     mInstance.removeView(mTextureView);
