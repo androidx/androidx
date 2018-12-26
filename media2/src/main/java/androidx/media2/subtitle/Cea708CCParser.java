@@ -19,8 +19,6 @@ package androidx.media2.subtitle;
 import android.graphics.Color;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
-
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -94,7 +92,6 @@ import java.util.Arrays;
  * <p>Most of the extended code groups are being skipped.
  *
  */
-@RequiresApi(19)
 class Cea708CCParser {
     private static final String TAG = "Cea708CCParser";
     private static final boolean DEBUG = false;

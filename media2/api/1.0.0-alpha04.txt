@@ -495,6 +495,7 @@ package androidx.media2 {
 
   public static final class PlaybackParams.Builder {
     ctor public PlaybackParams.Builder();
+    ctor public PlaybackParams.Builder(androidx.media2.PlaybackParams);
     method public androidx.media2.PlaybackParams build();
     method public androidx.media2.PlaybackParams.Builder setAudioFallbackMode(int);
     method public androidx.media2.PlaybackParams.Builder setPitch(float);

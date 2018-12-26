@@ -18,9 +18,7 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -42,7 +40,7 @@ public class TimedMetaData {
     /**
      * @hide
      */
-    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(23)
     @RestrictTo(LIBRARY_GROUP)
     public TimedMetaData(android.media.TimedMetaData timedMetaData) {
         mTimestampUs = timedMetaData.getTimestamp();

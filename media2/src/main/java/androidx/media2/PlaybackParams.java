@@ -89,7 +89,7 @@ public final class PlaybackParams {
         mSpeed = speed;
     }
 
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(23)
     PlaybackParams(android.media.PlaybackParams playbackParams) {
         mPlaybackParams = playbackParams;
     }
@@ -98,7 +98,7 @@ public final class PlaybackParams {
      * Returns the audio fallback mode. {@code null} if a value is not set.
      */
     public @AudioFallbackMode @Nullable Integer getAudioFallbackMode() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 23) {
             try {
                 return mPlaybackParams.getAudioFallbackMode();
             } catch (IllegalStateException e) {
@@ -113,7 +113,7 @@ public final class PlaybackParams {
      * Returns the pitch factor. {@code null} if a value is not set.
      */
     public @Nullable Float getPitch() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 23) {
             try {
                 return mPlaybackParams.getPitch();
             } catch (IllegalStateException e) {
@@ -128,7 +128,7 @@ public final class PlaybackParams {
      * Returns the speed factor. {@code null} if a value is not set.
      */
     public @Nullable Float getSpeed() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 23) {
             try {
                 return mPlaybackParams.getSpeed();
             } catch (IllegalStateException e) {
@@ -149,9 +149,9 @@ public final class PlaybackParams {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(23)
     public android.media.PlaybackParams getPlaybackParams() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 23) {
             return mPlaybackParams;
         } else {
             return null;
@@ -169,16 +169,26 @@ public final class PlaybackParams {
         private android.media.PlaybackParams mPlaybackParams;
 
         public Builder() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= 23) {
                 mPlaybackParams = new android.media.PlaybackParams();
             }
         }
 
         /** @hide */
         @RestrictTo(LIBRARY_GROUP)
-        @RequiresApi(Build.VERSION_CODES.M)
+        @RequiresApi(23)
         public Builder(android.media.PlaybackParams playbackParams) {
             mPlaybackParams = playbackParams;
+        }
+
+        public Builder(@NonNull PlaybackParams playbackParams) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                mPlaybackParams = playbackParams.getPlaybackParams();
+            } else {
+                mAudioFallbackMode = playbackParams.getAudioFallbackMode();
+                mPitch = playbackParams.getPitch();
+                mSpeed = playbackParams.getSpeed();
+            }
         }
 
         /**
@@ -187,7 +197,7 @@ public final class PlaybackParams {
          * @return this <code>Builder</code> instance.
          */
         public @NonNull Builder setAudioFallbackMode(@AudioFallbackMode int audioFallbackMode) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= 23) {
                 mPlaybackParams.setAudioFallbackMode(audioFallbackMode);
             } else {
                 mAudioFallbackMode = audioFallbackMode;
@@ -205,7 +215,7 @@ public final class PlaybackParams {
             if (pitch < 0.f) {
                 throw new IllegalArgumentException("pitch must not be negative");
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= 23) {
                 mPlaybackParams.setPitch(pitch);
             } else {
                 mPitch = pitch;
@@ -219,7 +229,7 @@ public final class PlaybackParams {
          * @return this <code>Builder</code> instance.
          */
         public @NonNull Builder setSpeed(float speed) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= 23) {
                 mPlaybackParams.setSpeed(speed);
             } else {
                 mSpeed = speed;
@@ -232,7 +242,7 @@ public final class PlaybackParams {
          * @return PlaybackParams object with values from the Builder.
          */
         public @NonNull PlaybackParams build() {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (Build.VERSION.SDK_INT >= 23) {
                 return new PlaybackParams(mPlaybackParams);
             } else {
                 return new PlaybackParams(mAudioFallbackMode, mPitch, mSpeed);

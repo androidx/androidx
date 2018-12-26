@@ -19,10 +19,8 @@ package androidx.media2.exoplayer;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.media.MediaDrm;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.PersistableBundle;
@@ -33,6 +31,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.ObjectsCompat;
@@ -61,7 +60,6 @@ import java.util.concurrent.RejectedExecutionException;
  *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
 @RestrictTo(LIBRARY_GROUP)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
@@ -527,11 +525,8 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @RequiresApi(21)
     public PersistableBundle getMetrics() {
-        if (Build.VERSION.SDK_INT < 21) {
-            return null;
-        }
         return runPlayerCallableBlocking(new Callable<PersistableBundle>() {
             @Override
             public PersistableBundle call() throws Exception {

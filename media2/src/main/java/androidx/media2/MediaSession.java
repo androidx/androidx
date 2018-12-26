@@ -20,12 +20,10 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media2.SessionResult.RESULT_ERROR_NOT_SUPPORTED;
 import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -127,7 +125,6 @@ import java.util.concurrent.Executor;
  * </table>
  * @see MediaSessionService
  */
-@TargetApi(Build.VERSION_CODES.P)
 public class MediaSession implements AutoCloseable {
     static final String TAG = "MediaSession";
 

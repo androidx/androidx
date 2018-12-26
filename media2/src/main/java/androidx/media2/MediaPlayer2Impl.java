@@ -17,7 +17,6 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.media.AudioAttributes;
 import android.media.DeniedByServerException;
 import android.media.MediaDataSource;
@@ -26,7 +25,6 @@ import android.media.MediaFormat;
 import android.media.MediaPlayer;
 import android.media.ResourceBusyException;
 import android.media.UnsupportedSchemeException;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -40,6 +38,7 @@ import android.view.Surface;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
 import androidx.core.util.ObjectsCompat;
@@ -66,7 +65,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * MediaPlayer2 implementation for platform version P (28).
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.P)
+@RequiresApi(28)
 @RestrictTo(LIBRARY_GROUP)
 public final class MediaPlayer2Impl extends MediaPlayer2 {
 

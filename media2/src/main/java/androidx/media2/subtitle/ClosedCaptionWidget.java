@@ -24,12 +24,9 @@ import android.view.accessibility.CaptioningManager;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
 import android.view.accessibility.CaptioningManager.CaptioningChangeListener;
 
-import androidx.annotation.RequiresApi;
-
 /**
  * Abstract widget class to render a closed caption track.
  */
-@RequiresApi(19)
 abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.RenderingWidget {
 
     interface ClosedCaptionLayout {

@@ -34,11 +34,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.accessibility.CaptioningManager.CaptionStyle;
 
-import androidx.annotation.RequiresApi;
 import androidx.media2.R;
 
 /** Copied from frameworks/base/core/java/com/android/internal/widget/SubtitleView.java */
-@RequiresApi(19)
 class SubtitleView extends View {
     // Ratio of inner padding to font size.
     private static final float INNER_PADDING_RATIO = 0.125f;

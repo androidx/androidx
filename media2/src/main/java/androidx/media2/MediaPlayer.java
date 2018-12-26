@@ -25,14 +25,12 @@ import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN_ER
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_INFO_SKIPPED;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.DeniedByServerException;
 import android.media.MediaDrm;
 import android.media.MediaDrmException;
 import android.media.MediaFormat;
-import android.os.Build;
 import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.Surface;
@@ -42,6 +40,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
@@ -130,7 +129,6 @@ import java.util.concurrent.Executors;
  * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">Managing audio focus</a>
  * <p>
  */
-@TargetApi(Build.VERSION_CODES.P)
 public class MediaPlayer extends SessionPlayer {
     private static final String TAG = "MediaPlayer";
 
@@ -802,7 +800,7 @@ public class MediaPlayer extends SessionPlayer {
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
                 synchronized (mPendingCommands) {
                     Object token = mPlayer.setPlaybackParams(new PlaybackParams.Builder(
-                            mPlayer.getPlaybackParams().getPlaybackParams())
+                            mPlayer.getPlaybackParams())
                             .setSpeed(playbackSpeed).build());
                     addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SET_PLAYBACK_PARAMS,
                             future, token);
@@ -1593,6 +1591,7 @@ public class MediaPlayer extends SessionPlayer {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @RequiresApi(21)
     public PersistableBundle getMetrics() {
         return mPlayer.getMetrics();
     }
@@ -1664,7 +1663,8 @@ public class MediaPlayer extends SessionPlayer {
             List<ResolvableFuture<PlayerResult>> onExecute() {
                 ArrayList<ResolvableFuture<PlayerResult>> futures = new ArrayList<>();
                 ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
-                int mp2SeekMode = sSeekModeMap.getOrDefault(mode, SEEK_NEXT_SYNC);
+                int mp2SeekMode = sSeekModeMap.containsKey(mode)
+                        ? sSeekModeMap.get(mode) : MediaPlayer2.SEEK_NEXT_SYNC;
                 synchronized (mPendingCommands) {
                     Object token = mPlayer.seekTo(msec, mp2SeekMode);
                     addPendingCommandLocked(MediaPlayer2.CALL_COMPLETED_SEEK_TO, future, token);
@@ -2470,11 +2470,12 @@ public class MediaPlayer extends SessionPlayer {
             }
         }
         if (what != MediaPlayer2.CALL_COMPLETED_PREPARE_DRM) {
-            Integer resultCode = sResultCodeMap.getOrDefault(status, RESULT_ERROR_UNKNOWN_ERROR);
+            Integer resultCode = sResultCodeMap.containsKey(status)
+                    ? sResultCodeMap.get(status) : RESULT_ERROR_UNKNOWN_ERROR;
             expected.mFuture.set(new PlayerResult(resultCode, item));
         } else {
-            Integer resultCode = sPrepareDrmStatusMap.getOrDefault(
-                    status, DrmResult.RESULT_ERROR_PREPARATION_ERROR);
+            Integer resultCode = sPrepareDrmStatusMap.containsKey(status)
+                    ? sPrepareDrmStatusMap.get(status) : DrmResult.RESULT_ERROR_PREPARATION_ERROR;
             expected.mFuture.set(new DrmResult(resultCode, item));
         }
         executePendingFutures();
@@ -2586,7 +2587,8 @@ public class MediaPlayer extends SessionPlayer {
                     });
                     break;
             }
-            final int what = sInfoCodeMap.getOrDefault(mp2What, MEDIA_INFO_UNKNOWN);
+            final int what = sInfoCodeMap.containsKey(mp2What)
+                    ? sInfoCodeMap.get(mp2What) : MEDIA_INFO_UNKNOWN;
             notifyMediaPlayerCallback(new MediaPlayerCallbackNotifier() {
                 @Override
                 public void callCallback(PlayerCallback callback) {
