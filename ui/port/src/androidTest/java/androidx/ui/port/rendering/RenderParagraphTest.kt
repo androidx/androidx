@@ -113,4 +113,30 @@ class RenderParagraphTest {
         assertThat(paragraph.textSize)
             .isEqualTo(Size(width = fontSize * text.length, height = fontSize))
     }
+
+    @Test
+    fun textWidthGetter() {
+        val fontSize = 20.0
+        val text = "Hello"
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val textSpan = TextSpan(text = text, style = textStyle)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+
+        paragraph.layoutText()
+
+        assertThat(paragraph.width).isEqualTo(fontSize * text.length)
+    }
+
+    @Test
+    fun textHeightGetter() {
+        val fontSize = 20.0
+        val text = "Hello"
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val textSpan = TextSpan(text = text, style = textStyle)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+
+        paragraph.layoutText()
+
+        assertThat(paragraph.height).isEqualTo(fontSize)
+    }
 }
