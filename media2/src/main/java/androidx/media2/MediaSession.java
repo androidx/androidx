@@ -749,8 +749,8 @@ public class MediaSession implements AutoCloseable {
     /**
      * Builder for {@link MediaSession}.
      * <p>
-     * Any incoming event from the {@link MediaController} will be handled on the thread
-     * that created session with the {@link Builder#build()}.
+     * Any incoming event from the {@link MediaController} will be handled on the callback executor.
+     * If it's not set, {@link ContextCompat#getMainExecutor(Context)} will be used by default.
      */
     public static final class Builder extends BuilderBase<MediaSession, Builder, SessionCallback> {
         public Builder(@NonNull Context context, @NonNull SessionPlayer player) {
