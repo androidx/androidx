@@ -50,8 +50,8 @@ class LocaleTestUtilsTest {
 
     @Before
     fun setUp() {
-        localeUtil =
-                LocaleTestUtils(ApplicationProvider.getApplicationContext() as android.content.Context)
+        localeUtil = LocaleTestUtils(
+            ApplicationProvider.getApplicationContext() as android.content.Context)
         determineDefaultLayoutDirection()
     }
 
