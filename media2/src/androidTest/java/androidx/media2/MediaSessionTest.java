@@ -79,6 +79,9 @@ public class MediaSessionTest extends MediaSessionTestBase {
         super.setUp();
         mPlayer = new MockPlayer(1);
 
+        if (mSession != null && !mSession.isClosed()) {
+            mSession.close();
+        }
         mSession = new MediaSession.Builder(mContext, mPlayer)
                 .setId(TAG)
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
