@@ -2263,7 +2263,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             mFlag &= ~PF_FAST_RELAYOUT;
             // layoutInit() has detached all views, so start from scratch
             mFlag = (mFlag & ~PF_IN_LAYOUT_SEARCH_FOCUS)
-                    | (hadFocus ? PF_IN_LAYOUT_SEARCH_FOCUS : 0);
+                    | (scrollToFocus ? PF_IN_LAYOUT_SEARCH_FOCUS : 0);
             int startFromPosition, endPos;
             if (scrollToFocus && (firstVisibleIndex < 0 || mFocusPosition > lastVisibleIndex
                     || mFocusPosition < firstVisibleIndex)) {
