@@ -20,7 +20,7 @@ import android.content.Context
 import android.content.res.Resources
 import android.graphics.Typeface
 import android.os.Build
-import androidx.annotation.VisibleForTesting
+import androidx.collection.LruCache
 import androidx.core.content.res.ResourcesCompat
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
@@ -34,10 +34,22 @@ import androidx.ui.engine.text.font.FontMatcher
  * @param fontMatcher [FontMatcher] class to be used to match given [FontWeight] and [FontStyle]
  *                    constraints to select a [Font] from a [FontFamily]
  */
-// TODO: functions here can also be extension functions on Typeface too
-// TODO: font matcher should be at an upper layer such as PAragraph, whoever will call
-// TypefaceAdapter can know about a single font
-internal open class TypefaceAdapter constructor(val fontMatcher: FontMatcher = FontMatcher()) {
+// TODO(Migration/siyamed): font matcher should be at an upper layer such as Paragraph, whoever
+// will call TypefaceAdapter can know about a single font
+internal open class TypefaceAdapter constructor(
+    val fontMatcher: FontMatcher = FontMatcher()
+) {
+
+    data class CacheKey(
+        val fontFamily: FontFamily? = null,
+        val fontWeight: FontWeight,
+        val fontStyle: FontStyle
+    )
+
+    companion object {
+        // 16 is a random number and is not based on any strong logic
+        val typefaceCache = LruCache<CacheKey, Typeface>(16)
+    }
 
     /**
      * Creates a Typeface based on the [fontFamily] and the selection constraints [fontStyle] and
@@ -48,11 +60,15 @@ internal open class TypefaceAdapter constructor(val fontMatcher: FontMatcher = F
      * @param fontStyle the font style to create the typeface in
      */
     open fun create(
-        fontFamily: FontFamily?,
+        fontFamily: FontFamily? = null,
         fontWeight: FontWeight = FontWeight.normal,
         fontStyle: FontStyle = FontStyle.normal
     ): Typeface {
-        return if (fontFamily != null && fontFamily.isNotEmpty()) {
+        val cacheKey = CacheKey(fontFamily, fontWeight, fontStyle)
+        val cachedTypeface = typefaceCache.get(cacheKey)
+        if (cachedTypeface != null) return cachedTypeface
+
+        val typeface = if (fontFamily != null && fontFamily.isNotEmpty()) {
             create(
                 fontFamily = fontFamily,
                 fontWeight = fontWeight,
@@ -66,6 +82,12 @@ internal open class TypefaceAdapter constructor(val fontMatcher: FontMatcher = F
                 fontStyle = fontStyle
             )
         }
+
+        // For system Typeface, on different framework versions Typeface might not be cached,
+        // therefore it is safer to cache this result on our code and the cost is minimal.
+        typefaceCache.put(cacheKey, typeface)
+
+        return typeface
     }
 
     /**
@@ -80,8 +102,7 @@ internal open class TypefaceAdapter constructor(val fontMatcher: FontMatcher = F
      * @param fontWeight the font weight to create the typeface in
      * @param fontStyle the font style to create the typeface in
      */
-    @VisibleForTesting
-    internal fun create(
+    private fun create(
         genericFontFamily: String? = null,
         fontWeight: FontWeight = FontWeight.normal,
         fontStyle: FontStyle = FontStyle.normal
@@ -117,9 +138,6 @@ internal open class TypefaceAdapter constructor(val fontMatcher: FontMatcher = F
             )
         }
 
-        // TODO(Migration/siyamed): cache the result
-        // On different framework versions Typeface might not be cached, therefore it is safer
-        // to cache this result on our code and the cost is minimal.
         return result
     }
 
@@ -135,8 +153,7 @@ internal open class TypefaceAdapter constructor(val fontMatcher: FontMatcher = F
      * @param context [Context] instance
      * @param resources [Resources] instance
      */
-    @VisibleForTesting
-    internal fun create(
+    private fun create(
         fontStyle: FontStyle = FontStyle.normal,
         fontWeight: FontWeight = FontWeight.normal,
         fontFamily: FontFamily,
@@ -179,7 +196,6 @@ internal open class TypefaceAdapter constructor(val fontMatcher: FontMatcher = F
             }
         }
 
-        // TODO(Migration/siyamed): cache the result
         return result
     }
 
