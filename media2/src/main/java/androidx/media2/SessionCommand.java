@@ -284,7 +284,7 @@ public final class SessionCommand implements VersionedParcelable {
     public static final int COMMAND_CODE_PLAYER_ADD_PLAYLIST_ITEM = 10013;
 
     /**
-     * Command code for {@link MediaController#addPlaylistItem(int, String)}.
+     * Command code for {@link MediaController#removePlaylistItem(int)}.
      * <p>
      * Command would be sent directly to the player if the session doesn't reject the request
      * through the

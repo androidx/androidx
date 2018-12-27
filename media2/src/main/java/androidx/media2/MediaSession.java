@@ -31,6 +31,7 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
 
+import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -49,6 +50,7 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -128,10 +130,21 @@ import java.util.concurrent.Executor;
 public class MediaSession implements AutoCloseable {
     static final String TAG = "MediaSession";
 
+    // Note: This checks the uniqueness of a session ID only in single process.
+    // When the framework becomes able to check the uniqueness, this logic should be removed.
+    @GuardedBy("MediaSession.class")
+    private static final List<String> SESSION_ID_LIST = new ArrayList<>();
+
     private final MediaSessionImpl mImpl;
 
     MediaSession(Context context, String id, SessionPlayer player,
             PendingIntent sessionActivity, Executor callbackExecutor, SessionCallback callback) {
+        synchronized (MediaSession.class) {
+            if (SESSION_ID_LIST.contains(id)) {
+                throw new IllegalStateException("Session ID must be unique. ID=" + id);
+            }
+            SESSION_ID_LIST.add(id);
+        }
         mImpl = createImpl(context, id, player, sessionActivity, callbackExecutor,
                 callback);
     }
@@ -164,6 +177,9 @@ public class MediaSession implements AutoCloseable {
     @Override
     public void close() {
         try {
+            synchronized (MediaSession.class) {
+                SESSION_ID_LIST.remove(mImpl.getId());
+            }
             mImpl.close();
         } catch (Exception e) {
             // Should not be here.
@@ -1165,13 +1181,13 @@ public class MediaSession implements AutoCloseable {
         }
 
         /**
-         * Set ID of the session. If it's not set, an empty string with used to create a session.
+         * Set ID of the session. If it's not set, an empty string will be used to create a session.
          * <p>
          * Use this if and only if your app supports multiple playback at the same time and also
          * wants to provide external apps to have finer controls of them.
          *
          * @param id id of the session. Must be unique per package.
-         * @throws IllegalArgumentException if id is {@code null}
+         * @throws IllegalArgumentException if id is {@code null}.
          * @return
          */
         @NonNull U setId(@NonNull String id) {
