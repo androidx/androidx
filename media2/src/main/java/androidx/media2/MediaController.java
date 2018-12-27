@@ -23,12 +23,10 @@ import static androidx.media2.SessionPlayer.REPEAT_MODE_NONE;
 import static androidx.media2.SessionPlayer.SHUFFLE_MODE_NONE;
 import static androidx.media2.SessionPlayer.UNKNOWN_TIME;
 
-import android.annotation.TargetApi;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.media.AudioManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
@@ -97,7 +95,6 @@ import java.util.concurrent.Executor;
  * @see MediaSession
  * @see MediaSessionService
  */
-@TargetApi(Build.VERSION_CODES.P)
 public class MediaController implements AutoCloseable {
     /**
      * @hide

@@ -27,7 +27,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.view.accessibility.CaptioningManager;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media2.subtitle.SubtitleTrack.RenderingWidget;
 
@@ -42,7 +41,6 @@ import java.util.Locale;
  *
  * @hide
  */
-@RequiresApi(19)
 @RestrictTo(LIBRARY_GROUP)
 public class SubtitleController {
     private MediaTimeProvider mTimeProvider;

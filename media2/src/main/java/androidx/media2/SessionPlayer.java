@@ -18,8 +18,6 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.os.SystemClock;
 import android.util.Log;
@@ -145,7 +143,6 @@ import java.util.concurrent.Executor;
 // Players can extend this directly (e.g. MediaPlayer) or create wrapper and control underlying
 // player.
 // Preferably it can be interface, but API guideline requires to use abstract class.
-@TargetApi(Build.VERSION_CODES.P)
 public abstract class SessionPlayer implements AutoCloseable {
     private static final String TAG = "SessionPlayer";
 

@@ -26,7 +26,6 @@ import android.util.Log;
 import android.util.LongSparseArray;
 import android.util.Pair;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media2.SubtitleData;
 
@@ -43,7 +42,6 @@ import java.util.TreeMap;
  *
  * @hide
  */
-@RequiresApi(19)
 @RestrictTo(LIBRARY_GROUP)
 public abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
     private static final String TAG = "SubtitleTrack";

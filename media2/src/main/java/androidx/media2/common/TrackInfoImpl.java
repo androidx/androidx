@@ -18,9 +18,7 @@ package androidx.media2.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.media.MediaFormat;
-import android.os.Build;
 
 import androidx.annotation.RestrictTo;
 import androidx.media2.MediaPlayer2;
@@ -32,7 +30,6 @@ import androidx.media2.MediaPlayer2;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@TargetApi(Build.VERSION_CODES.KITKAT)
 public final class TrackInfoImpl extends MediaPlayer2.TrackInfo {
     private final int mTrackType;
     private final MediaFormat mFormat;
