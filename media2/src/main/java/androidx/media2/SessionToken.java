@@ -113,11 +113,11 @@ public final class SessionToken implements VersionedParcelable {
 
     /**
      * Constructor for the token. You can create token of {@link MediaSessionService},
-     * {@link MediaLibraryService} nor {@link MediaBrowserServiceCompat} for
+     * {@link MediaLibraryService} or {@link MediaBrowserServiceCompat} for
      * {@link MediaController} or {@link MediaBrowser}.
      *
      * @param context The context.
-     * @param serviceComponent The component name of the media browser service.
+     * @param serviceComponent The component name of the service.
      */
     public SessionToken(@NonNull Context context, @NonNull ComponentName serviceComponent) {
         final PackageManager manager = context.getPackageManager();
@@ -189,14 +189,14 @@ public final class SessionToken implements VersionedParcelable {
     }
 
     /**
-     * @return package name
+     * @return package name of the session
      */
     public @NonNull String getPackageName() {
         return mImpl.getPackageName();
     }
 
     /**
-     * @return service name. Can be {@code null} for TYPE_SESSION.
+     * @return service name of the session. Can be {@code null} for {@link #TYPE_SESSION}.
      */
     public @Nullable String getServiceName() {
         return mImpl.getServiceName();
@@ -204,7 +204,7 @@ public final class SessionToken implements VersionedParcelable {
 
     /**
      * @hide
-     * @return component name of this session token. Can be null for TYPE_SESSION.
+     * @return component name of the session. Can be {@code null} for {@link #TYPE_SESSION}.
      */
     @RestrictTo(LIBRARY_GROUP)
     public ComponentName getComponentName() {
