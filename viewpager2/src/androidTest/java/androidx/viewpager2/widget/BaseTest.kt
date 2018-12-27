@@ -71,8 +71,8 @@ open class BaseTest {
 
     @Before
     open fun setUp() {
-        localeUtil =
-                LocaleTestUtils(ApplicationProvider.getApplicationContext() as android.content.Context)
+        localeUtil = LocaleTestUtils(
+            ApplicationProvider.getApplicationContext() as android.content.Context)
         // Ensure a predictable test environment by explicitly setting a locale
         localeUtil.setLocale(LocaleTestUtils.DEFAULT_TEST_LANGUAGE)
     }
