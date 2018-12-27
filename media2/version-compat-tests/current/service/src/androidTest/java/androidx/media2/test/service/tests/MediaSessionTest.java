@@ -70,6 +70,9 @@ public class MediaSessionTest extends MediaSessionTestBase {
         super.setUp();
         mPlayer = new MockPlayer(1);
 
+        if (mSession != null && !mSession.isClosed()) {
+            mSession.close();
+        }
         mSession = new MediaSession.Builder(mContext, mPlayer)
                 .setId(TAG)
                 .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {
@@ -354,7 +357,7 @@ public class MediaSessionTest extends MediaSessionTestBase {
                     .setSessionCallback(sHandlerExecutor, new MediaSession.SessionCallback() {})
                     .build();
             fail("Creating a new session with the same ID in a process should not be allowed");
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalStateException e) {
             // expected. pass-through
         }
 
