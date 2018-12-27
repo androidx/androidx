@@ -16,8 +16,6 @@
 
 package androidx.media2;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -34,7 +32,6 @@ import java.util.List;
 /**
  * Manages {@link SequencedFuture} that contains sequence number to be shared across the process.
  */
-@TargetApi(Build.VERSION_CODES.P)
 class SequencedFutureManager implements AutoCloseable {
     private static final boolean DEBUG = false;
     private static final String TAG = "SequencedFutureManager";

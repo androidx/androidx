@@ -47,7 +47,6 @@ import android.view.accessibility.CaptioningManager.CaptionStyle;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.nio.charset.Charset;
@@ -58,7 +57,6 @@ import java.util.List;
 
 // Note: This is forked from android.media.Cea708CaptionRenderer since P
 /** @hide */
-@RequiresApi(19)
 @RestrictTo(LIBRARY_GROUP)
 public class Cea708CaptionRenderer extends SubtitleController.Renderer {
     private final Context mContext;

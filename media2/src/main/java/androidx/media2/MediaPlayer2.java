@@ -19,7 +19,6 @@ package androidx.media2;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.DeniedByServerException;
@@ -34,6 +33,7 @@ import android.view.Surface;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.exoplayer.ExoPlayerMediaPlayer2Impl;
@@ -225,7 +225,6 @@ import java.util.concurrent.Executor;
  *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
 @RestrictTo(LIBRARY)
 public abstract class MediaPlayer2 {
 
@@ -242,7 +241,7 @@ public abstract class MediaPlayer2 {
      * @return A MediaPlayer2 object created
      */
     public static final MediaPlayer2 create(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1 || DEBUG_USE_EXOPLAYER) {
+        if (Build.VERSION.SDK_INT <= 27 || DEBUG_USE_EXOPLAYER) {
             return new ExoPlayerMediaPlayer2Impl(context);
         } else {
             return new MediaPlayer2Impl();
@@ -558,6 +557,7 @@ public abstract class MediaPlayer2 {
      *  Additional vendor-specific fields may also be present in
      *  the return value.
      */
+    @RequiresApi(21)
     public abstract PersistableBundle getMetrics();
 
     /**

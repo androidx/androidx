@@ -18,10 +18,8 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
-import android.os.Build;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
@@ -87,7 +85,7 @@ public final class MediaTimestamp {
     }
 
     /** @hide */
-    @TargetApi(Build.VERSION_CODES.M)
+    @RequiresApi(23)
     @RestrictTo(LIBRARY_GROUP)
     MediaTimestamp(android.media.MediaTimestamp timestamp) {
         mMediaTimeUs = timestamp.getAnchorMediaTimeUs();

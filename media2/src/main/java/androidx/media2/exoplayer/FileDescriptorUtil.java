@@ -19,13 +19,13 @@ package androidx.media2.exoplayer;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.os.Build;
 import android.system.Os;
 import android.system.OsConstants;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.io.FileDescriptor;
@@ -38,7 +38,6 @@ import java.lang.reflect.Method;
  *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
 @RestrictTo(LIBRARY_GROUP)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class FileDescriptorUtil {
@@ -85,7 +84,7 @@ import java.lang.reflect.Method;
         }
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     private static FileDescriptor dupV21(FileDescriptor fileDescriptor) throws IOException {
         try {
             return Os.dup(fileDescriptor);
@@ -110,7 +109,7 @@ import java.lang.reflect.Method;
         }
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     private static void seekV21(FileDescriptor fileDescriptor, long position) throws IOException {
         try {
             Os.lseek(fileDescriptor, position, /* whence= */ OsConstants.SEEK_SET);
@@ -135,7 +134,7 @@ import java.lang.reflect.Method;
         }
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     private static void closeV21(FileDescriptor fileDescriptor) throws IOException {
         try {
             Os.close(fileDescriptor);

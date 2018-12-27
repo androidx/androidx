@@ -19,8 +19,6 @@ package androidx.media2.exoplayer;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.os.Build;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -38,7 +36,6 @@ import androidx.media2.exoplayer.external.upstream.TransferListener;
  *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
 @RestrictTo(LIBRARY_GROUP)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class DurationProvidingMediaSource extends CompositeMediaSource<Void> {

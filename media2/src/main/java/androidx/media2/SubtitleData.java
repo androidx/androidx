@@ -18,9 +18,8 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.TargetApi;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.util.concurrent.Executor;
@@ -91,7 +90,7 @@ public final class SubtitleData {
     private byte[] mData;
 
     /** @hide */
-    @TargetApi(28)
+    @RequiresApi(28)
     @RestrictTo(LIBRARY_GROUP)
     public SubtitleData(android.media.SubtitleData subtitleData) {
         mTrackIndex = subtitleData.getTrackIndex();

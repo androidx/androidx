@@ -33,9 +33,7 @@ import static androidx.media2.exoplayer.TextRenderer.TRACK_TYPE_WEBVTT;
 import static androidx.media2.exoplayer.TrackSelector.InternalTextTrackInfo.UNSET;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.media.MediaFormat;
-import android.os.Build;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -62,7 +60,6 @@ import java.util.List;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@TargetApi(Build.VERSION_CODES.KITKAT)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class TrackSelector {
 

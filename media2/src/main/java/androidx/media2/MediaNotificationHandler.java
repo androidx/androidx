@@ -131,8 +131,7 @@ public class MediaNotificationHandler extends
         }
         // Calling stopForeground(true) is a workaround for pre-L devices which prevents
         // the media notification from being undismissable.
-        boolean shouldRemoveNotification =
-                Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP;
+        boolean shouldRemoveNotification = Build.VERSION.SDK_INT < 21;
         mServiceInstance.stopForeground(shouldRemoveNotification);
     }
 
@@ -198,7 +197,7 @@ public class MediaNotificationHandler extends
         intent.setComponent(new ComponentName(mServiceInstance, mServiceInstance.getClass()));
         intent.putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && action != ACTION_PAUSE) {
+        if (Build.VERSION.SDK_INT >= 26 && action != ACTION_PAUSE) {
             return PendingIntent.getForegroundService(
                     mServiceInstance, keyCode /* requestCode */, intent, 0 /* flags */);
         } else {
@@ -208,7 +207,7 @@ public class MediaNotificationHandler extends
     }
 
     private void ensureNotificationChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+        if (Build.VERSION.SDK_INT < 26
                 || mNotificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) != null) {
             return;
         }
