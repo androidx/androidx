@@ -31,10 +31,8 @@ import static androidx.media2.SubtitleData.MIMETYPE_TEXT_CEA_608;
 import static androidx.media2.SubtitleData.MIMETYPE_TEXT_CEA_708;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.media.MediaFormat;
 import android.net.Uri;
-import android.os.Build;
 
 import androidx.annotation.RestrictTo;
 import androidx.media.AudioAttributesCompat;
@@ -72,7 +70,6 @@ import java.net.SocketTimeoutException;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-@TargetApi(Build.VERSION_CODES.KITKAT)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ class ExoPlayerUtils {
 

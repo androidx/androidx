@@ -21,7 +21,6 @@ import static androidx.media2.MediaPlayer2.MEDIA_ERROR_UNKNOWN;
 import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Looper;
@@ -30,6 +29,7 @@ import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
@@ -86,7 +86,6 @@ import java.util.Map;
  *
  * @hide
  */
-@TargetApi(Build.VERSION_CODES.KITKAT)
 @RestrictTo(LIBRARY_GROUP)
 @SuppressLint("RestrictedApi") // TODO(b/68398926): Remove once RestrictedApi checks are fixed.
 /* package */ final class ExoPlayerWrapper {
@@ -393,7 +392,7 @@ import java.util.Map;
         mTrackSelector.deselectTrack(index);
     }
 
-    @TargetApi(21)
+    @RequiresApi(21)
     public PersistableBundle getMetricsV21() {
         TrackGroupArray trackGroupArray = mPlayer.getCurrentTrackGroups();
         long durationMs = mPlayer.getDuration();

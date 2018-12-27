@@ -18,10 +18,8 @@ package androidx.media2;
 
 import static android.app.Service.START_STICKY;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -197,7 +195,6 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.P)
     private static final class MediaSessionServiceStub extends IMediaSessionService.Stub
             implements AutoCloseable {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
