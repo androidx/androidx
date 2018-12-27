@@ -38,13 +38,22 @@ fun equalToBitmap(operand: Bitmap): Matcher<Bitmap> {
  * position. Notice that the created matcher won't match if the given text is not an
  * [android.text.Spanned] object.
  *
+ * When [predicate] function is provided, for the span that is found, predicate will be called
+ * to further validate the span object.
+ *
  * @param spanClazz the class of the expected span
  * @param start start position of the expected span
  * @param end end position of the expected span
+ * @param predicate function to further assert the span object
  * @see HasSpan
  */
-fun hasSpan(spanClazz: KClass<out Any>, start: Int, end: Int): Matcher<CharSequence> {
-    return HasSpan(spanClazz, start, end)
+fun <T : Any> hasSpan(
+    spanClazz: KClass<out T>,
+    start: Int,
+    end: Int,
+    predicate: ((T) -> Boolean)? = null
+): Matcher<CharSequence> {
+    return HasSpan(spanClazz, start, end, predicate)
 }
 
 /**

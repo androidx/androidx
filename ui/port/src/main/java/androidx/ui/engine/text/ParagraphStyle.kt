@@ -111,8 +111,18 @@ data class ParagraphStyle constructor(
             height = lineHeight
         )
     }
+}
 
-    internal fun hasFontAttributes(): Boolean {
-        return fontFamily != null || fontStyle != null || fontWeight != null
-    }
+/**
+ * Returns true if this [ParagraphStyle] contains any font style attributes set.
+ */
+internal fun ParagraphStyle.hasFontAttributes(): Boolean {
+    return fontFamily != null || fontStyle != null || fontWeight != null
+}
+
+/**
+ * Returns true if this [TextStyle] contains any font style attributes set.
+ */
+internal fun TextStyle.hasFontAttributes(): Boolean {
+    return fontFamily != null || fontStyle != null || fontWeight != null
 }

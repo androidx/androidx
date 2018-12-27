@@ -32,6 +32,8 @@ import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_100_REGULAR
+import androidx.ui.port.engine.text.FontTestData.Companion.FONT_200_REGULAR
 import androidx.ui.port.matchers.equalToBitmap
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
@@ -46,7 +48,9 @@ import org.junit.runners.JUnit4
 class ParagraphTest {
     // TODO(Migration/haoyuchang): These native calls should be removed after the
     // counterparts are implemented in crane.
-    private lateinit var fontFamily: FontFamily
+    private lateinit var fontFamilyMeasureFont: FontFamily
+    private lateinit var fontFamilyCustom100: FontFamily
+    private lateinit var fontFamilyCustom200: FontFamily
 
     @Before
     fun setup() {
@@ -54,8 +58,12 @@ class ParagraphTest {
         // 1. The width of most of visible characters equals to font size.
         // 2. The LTR/RTL characters are rendered as ▶/◀.
         // 3. The fontMetrics passed to TextPaint has descend - ascend equal to 1.2 * fontSize.
-        fontFamily = BASIC_MEASURE_FONT.asFontFamily()
-        fontFamily.context = InstrumentationRegistry.getInstrumentation().context
+        fontFamilyMeasureFont = BASIC_MEASURE_FONT.asFontFamily()
+        fontFamilyMeasureFont.context = InstrumentationRegistry.getInstrumentation().context
+        fontFamilyCustom100 = FONT_100_REGULAR.asFontFamily()
+        fontFamilyCustom200 = FONT_200_REGULAR.asFontFamily()
+        fontFamilyCustom100.context = fontFamilyMeasureFont.context
+        fontFamilyCustom200.context = fontFamilyMeasureFont.context
     }
 
     @Test
@@ -918,6 +926,32 @@ class ParagraphTest {
         assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
     }
 
+    @Test
+    fun textStyle_fontFamily_changesMeasurement() {
+        val text = "ad"
+        val fontSize = 20.0
+        // custom 100 regular font has b as the wide glyph
+        // custom 200 regular font has d as the wide glyph
+        val textStyle = TextStyle(fontFamily = fontFamilyCustom200)
+        // a is rendered in paragraphStyle font (custom 100), it will not have wide glyph
+        // d is rendered in textStyle font (custom 200), and it will be wide glyph
+        val expectedWidth = fontSize + fontSize * 3
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, "a".length, text.length)
+            ),
+            fontSize = fontSize,
+            fontFamily = fontFamilyCustom100
+        )
+        paragraph.layout(ParagraphConstraints(width = Double.MAX_VALUE))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        assertThat(paragraphImpl.lineCount, equalTo(1))
+        assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
+    }
+
     // TODO(migration/siyamed) add test
     @Test
     fun getWordBoundary() {
@@ -930,7 +964,8 @@ class ParagraphTest {
         fontSize: Double? = null,
         maxLines: Int? = null,
         lineHeight: Double? = null,
-        textStyles: List<ParagraphBuilder.TextStyleIndex> = listOf()
+        textStyles: List<ParagraphBuilder.TextStyleIndex> = listOf(),
+        fontFamily: FontFamily = fontFamilyMeasureFont
     ): Paragraph {
         return Paragraph(
             text = StringBuilder(text),
