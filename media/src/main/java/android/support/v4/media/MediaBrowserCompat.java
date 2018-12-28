@@ -211,6 +211,7 @@ public final class MediaBrowserCompat {
      * </p>
      */
     public void connect() {
+        Log.d(TAG, "Connecting to a MediaBrowserService.");
         mImpl.connect();
     }
 
@@ -253,6 +254,7 @@ public final class MediaBrowserCompat {
     /**
      * Gets any extras for the media service.
      *
+     * @return The extra bundle if it is connected and set, and {@code null} otherwise.
      * @throws IllegalStateException if not connected.
      */
     public @Nullable
@@ -1890,7 +1892,14 @@ public final class MediaBrowserCompat {
 
         @Override
         public void onConnected() {
-            Bundle extras = mBrowserFwk.getExtras();
+            Bundle extras;
+            try {
+                extras = mBrowserFwk.getExtras();
+            } catch (IllegalStateException e) {
+                // Should not be here since onConnected() will be called in a connected state.
+                Log.e(TAG, "Unexpected IllegalStateException", e);
+                return;
+            }
             if (extras == null) {
                 return;
             }
