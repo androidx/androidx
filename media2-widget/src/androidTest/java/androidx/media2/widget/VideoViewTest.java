@@ -63,6 +63,7 @@ import androidx.media2.widget.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -263,6 +264,7 @@ public class VideoViewTest {
     }
 
     @Test
+    @FlakyTest(bugId = 121389895)
     public void testSubtitleSelection() throws Throwable {
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
