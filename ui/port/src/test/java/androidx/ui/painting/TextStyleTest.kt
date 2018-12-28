@@ -17,6 +17,7 @@
 package androidx.ui.painting
 
 import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
@@ -221,6 +222,7 @@ class TextStyleTest {
         assertThat(textStyle.decorationStyle).isNull()
         assertThat(textStyle.debugLabel).isNull()
         assertThat(textStyle.fontFamily).isNull()
+        assertThat(textStyle.fontSynthesis).isNull()
     }
 
     @Test
@@ -475,6 +477,30 @@ class TextStyleTest {
         val newTextStyle = textStyle.merge(otherTextStyle)
 
         assertThat(newTextStyle.fontStyle).isEqualTo(otherFontStyle)
+    }
+
+    @Test
+    fun `merge with other's fontSynthesis is null should use this' fontSynthesis`() {
+        val fontSynthesis = FontSynthesis.style
+        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
+        val otherTextStyle = TextStyle()
+
+        val newTextStyle = textStyle.merge(otherTextStyle)
+
+        assertThat(newTextStyle.fontSynthesis).isEqualTo(fontSynthesis)
+    }
+
+    @Test
+    fun `merge with other's fontSynthesis is set should use other's fontSynthesis`() {
+        val fontSynthesis = FontSynthesis.style
+        val otherFontSynthesis = FontSynthesis.weight
+
+        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
+        val otherTextStyle = TextStyle(fontSynthesis = otherFontSynthesis)
+
+        val newTextStyle = textStyle.merge(otherTextStyle)
+
+        assertThat(newTextStyle.fontSynthesis).isEqualTo(otherFontSynthesis)
     }
 
     @Test
@@ -1089,6 +1115,7 @@ class TextStyleTest {
         val fontStyle1 = FontStyle.italic
         val fontStyle2 = FontStyle.normal
         val t = 0.3
+        // attributes other than fontStyle are required for lerp not to throw an exception
         val textStyle1 = TextStyle(
             fontStyle = fontStyle1,
             fontSize = 4.0,
@@ -1114,6 +1141,7 @@ class TextStyleTest {
         val fontStyle1 = FontStyle.italic
         val fontStyle2 = FontStyle.normal
         val t = 0.8
+        // attributes other than fontStyle are required for lerp not to throw an exception
         val textStyle1 = TextStyle(
             fontStyle = fontStyle1,
             fontSize = 4.0,
@@ -1132,6 +1160,104 @@ class TextStyleTest {
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
 
         assertThat(newTextStyle?.fontStyle).isEqualTo(fontStyle2)
+    }
+
+    @Test
+    fun `lerp fontSynthesis with a is Null and t is smaller than half`() {
+        val fontSynthesis = FontSynthesis.style
+        val t = 0.3
+        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
+
+        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
+
+        assertThat(newTextStyle?.fontSynthesis).isNull()
+    }
+
+    @Test
+    fun `lerp fontSynthesis with a is Null and t is larger than half`() {
+        val fontSynthesis = FontSynthesis.style
+        val t = 0.8
+        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
+
+        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
+
+        assertThat(newTextStyle?.fontSynthesis).isEqualTo(fontSynthesis)
+    }
+
+    @Test
+    fun `lerp fontSynthesis with b is Null and t is smaller than half`() {
+        val fontSynthesis = FontSynthesis.style
+        val t = 0.3
+        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
+
+        assertThat(newTextStyle?.fontSynthesis).isEqualTo(fontSynthesis)
+    }
+
+    @Test
+    fun `lerp fontSynthesis with b is Null and t is larger than half`() {
+        val fontSynthesis = FontSynthesis.style
+        val t = 0.8
+        val textStyle = TextStyle(fontSynthesis = fontSynthesis)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
+
+        assertThat(newTextStyle?.fontSynthesis).isNull()
+    }
+
+    @Test
+    fun `lerp fontSynthesis with a and b are not Null and t is smaller than half`() {
+        val fontSynthesis1 = FontSynthesis.style
+        val fontSynthesis2 = FontSynthesis.weight
+
+        val t = 0.3
+        // attributes other than fontSynthesis are required for lerp not to throw an exception
+        val textStyle1 = TextStyle(
+            fontSynthesis = fontSynthesis1,
+            fontSize = 1.0,
+            wordSpacing = 1.0,
+            letterSpacing = 1.0,
+            height = 1.0
+        )
+        val textStyle2 = TextStyle(
+            fontSynthesis = fontSynthesis2,
+            fontSize = 1.0,
+            wordSpacing = 1.0,
+            letterSpacing = 1.0,
+            height = 1.0
+        )
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        assertThat(newTextStyle?.fontSynthesis).isEqualTo(fontSynthesis1)
+    }
+
+    @Test
+    fun `lerp fontSynthesis with a and b are not Null and t is larger than half`() {
+        val fontSynthesis1 = FontSynthesis.style
+        val fontSynthesis2 = FontSynthesis.weight
+
+        val t = 0.8
+        // attributes other than fontSynthesis are required for lerp not to throw an exception
+        val textStyle1 = TextStyle(
+            fontSynthesis = fontSynthesis1,
+            fontSize = 1.0,
+            wordSpacing = 1.0,
+            letterSpacing = 1.0,
+            height = 1.0
+        )
+        val textStyle2 = TextStyle(
+            fontSynthesis = fontSynthesis2,
+            fontSize = 1.0,
+            wordSpacing = 1.0,
+            letterSpacing = 1.0,
+            height = 1.0
+        )
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        assertThat(newTextStyle?.fontSynthesis).isEqualTo(fontSynthesis2)
     }
 
     @Test
@@ -1999,11 +2125,13 @@ class TextStyleTest {
         val fontSize = 10.0
         val height = 123.0
         val color = Color(0xFF00FF00.toInt())
+        val fontSynthesis = FontSynthesis.style
         val textStyle = TextStyle(
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
             color = color,
-            height = height
+            height = height,
+            fontSynthesis = fontSynthesis
         )
 
         assertThat(textStyle.fontFamily).isNull()
@@ -2019,7 +2147,8 @@ class TextStyleTest {
                 color = color,
                 fontWeight = FontWeight.w800,
                 fontSize = fontSize,
-                height = height
+                height = height,
+                fontSynthesis = fontSynthesis
             )
         )
     }
@@ -2029,11 +2158,13 @@ class TextStyleTest {
         val fontSize = 10.0
         val height = 123.0
         val color = Color(0xFF00FF00.toInt())
+        val fontSynthesis = FontSynthesis.style
         val textStyle = TextStyle(
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
             color = color,
-            height = height
+            height = height,
+            fontSynthesis = fontSynthesis
         )
 
         assertThat(textStyle.fontFamily).isNull()
@@ -2049,7 +2180,8 @@ class TextStyleTest {
                 textAlign = TextAlign.CENTER,
                 fontWeight = FontWeight.w800,
                 fontSize = fontSize,
-                lineHeight = height
+                lineHeight = height,
+                fontSynthesis = fontSynthesis
             )
         )
     }
@@ -2140,45 +2272,39 @@ class TextStyleTest {
 
         assertThat(
             textStyle.compareTo(textStyle.copy(inherit = true))
-        )
-            .isEqualTo(RenderComparison.LAYOUT)
+        ).isEqualTo(RenderComparison.LAYOUT)
+
         assertThat(
             textStyle.compareTo(
                 textStyle.copy(fontFamily = FontFamily(genericFamily = "monospace"))
             )
-        )
+        ).isEqualTo(RenderComparison.LAYOUT)
+
+        assertThat(textStyle.compareTo(textStyle.copy(fontSize = 20.0)))
             .isEqualTo(RenderComparison.LAYOUT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(fontSize = 20.0))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(fontWeight = FontWeight.w100)))
             .isEqualTo(RenderComparison.LAYOUT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(fontWeight = FontWeight.w100))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(fontStyle = FontStyle.normal)))
             .isEqualTo(RenderComparison.LAYOUT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(fontStyle = FontStyle.normal))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(fontSynthesis = FontSynthesis.style)))
             .isEqualTo(RenderComparison.LAYOUT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(letterSpacing = 2.0))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(letterSpacing = 2.0)))
             .isEqualTo(RenderComparison.LAYOUT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(wordSpacing = 4.0))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(wordSpacing = 4.0)))
             .isEqualTo(RenderComparison.LAYOUT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(textBaseline = TextBaseline.ideographic))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(textBaseline = TextBaseline.ideographic)))
             .isEqualTo(RenderComparison.LAYOUT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(height = 20.0))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(height = 20.0)))
             .isEqualTo(RenderComparison.LAYOUT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(locale = Locale("ja", "JP")))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(locale = Locale("ja", "JP"))))
             .isEqualTo(RenderComparison.LAYOUT)
     }
 
@@ -2207,21 +2333,17 @@ class TextStyleTest {
             fontFamily = FontFamily(genericFamily = "sans-serif")
         )
 
-        assertThat(
-            textStyle.compareTo(textStyle.copy(color = color2))
-        )
+        assertThat(textStyle.compareTo(textStyle.copy(color = color2)))
             .isEqualTo(RenderComparison.PAINT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(decoration = TextDecoration.lineThrough))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(decoration = TextDecoration.lineThrough)))
             .isEqualTo(RenderComparison.PAINT)
-        assertThat(
-            textStyle.compareTo(textStyle.copy(decorationColor = color2))
-        )
+
+        assertThat(textStyle.compareTo(textStyle.copy(decorationColor = color2)))
             .isEqualTo(RenderComparison.PAINT)
+
         assertThat(
             textStyle.compareTo(textStyle.copy(decorationStyle = TextDecorationStyle.dotted))
-        )
-            .isEqualTo(RenderComparison.PAINT)
+        ).isEqualTo(RenderComparison.PAINT)
     }
 }

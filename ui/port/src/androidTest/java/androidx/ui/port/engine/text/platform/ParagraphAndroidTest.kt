@@ -351,20 +351,65 @@ class ParagraphAndroidTest {
             fontStyle = FontStyle.italic,
             fontWeight = FontWeight.bold
         )
+        val expectedStart = 0
+        val expectedEnd = "abc".length
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(
+                    textStyle,
+                    expectedStart,
+                    expectedEnd
+                )
+            )
         )
         paragraph.layout(100.0)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(
             paragraph.underlyingText,
-            hasSpan(TypefaceSpan::class, 0, "abc".length) { span ->
+            hasSpan(TypefaceSpan::class, expectedStart, expectedEnd) { span ->
                 span.typeface == expectedTypeface
-            }
+            })
+    }
+
+    @Test
+    fun textStyle_fontFamily_whenFontSynthesizeTurnedOff() {
+        val text = "abcde"
+        val textStyle = TextStyle(
+            fontFamily = fontFamily,
+            fontStyle = FontStyle.italic,
+            fontWeight = FontWeight.bold,
+            fontSynthesis = FontSynthesis.none
         )
+        val expectedTypeface = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontStyle = FontStyle.italic,
+            fontWeight = FontWeight.bold,
+            fontSynthesis = FontSynthesis.none
+        )
+        val expectedStart = 0
+        val expectedEnd = "abc".length
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(
+                    textStyle,
+                    expectedStart,
+                    expectedEnd
+                )
+            )
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(TypefaceSpan::class, expectedStart, expectedEnd) { span ->
+                span.typeface == expectedTypeface
+            })
     }
 
     @Test

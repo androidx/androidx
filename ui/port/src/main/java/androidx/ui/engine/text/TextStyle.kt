@@ -54,7 +54,6 @@ data class TextStyle constructor(
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
     val textBaseline: TextBaseline? = null,
-    // TODO(Migration/siyamed): fontFamily was String
     val fontFamily: FontFamily? = null,
     val fontSize: Double? = null,
     val letterSpacing: Double? = null,

@@ -20,6 +20,7 @@ import androidx.ui.assert
 import androidx.ui.clamp
 import androidx.ui.describeEnum
 import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
@@ -79,6 +80,7 @@ data class TextStyle(
     val fontSize: Double? = null,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
+    val fontSynthesis: FontSynthesis? = null,
     val letterSpacing: Double? = null,
     val wordSpacing: Double? = null,
     val textBaseline: TextBaseline? = null,
@@ -91,7 +93,6 @@ data class TextStyle(
     val decorationColor: Color? = null,
     val decorationStyle: TextDecorationStyle? = null,
     val debugLabel: String? = null,
-    // TODO(Migration/qqd): fontFamily was String
     var fontFamily: FontFamily? = null
 ) : Diagnosticable {
 
@@ -173,6 +174,7 @@ data class TextStyle(
                 ]
             },
             fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
             letterSpacing = if (letterSpacing == null) null else {
                 letterSpacing * letterSpacingFactor + letterSpacingDelta
             },
@@ -222,6 +224,7 @@ data class TextStyle(
             fontSize = other.fontSize ?: this.fontSize,
             fontWeight = other.fontWeight ?: this.fontWeight,
             fontStyle = other.fontStyle ?: this.fontStyle,
+            fontSynthesis = other.fontSynthesis ?: this.fontSynthesis,
             letterSpacing = other.letterSpacing ?: this.letterSpacing,
             wordSpacing = other.wordSpacing ?: this.wordSpacing,
             textBaseline = other.textBaseline ?: this.textBaseline,
@@ -277,6 +280,7 @@ data class TextStyle(
                     fontSize = b?.fontSize,
                     fontWeight = b?.fontWeight,
                     fontStyle = b?.fontStyle,
+                    fontSynthesis = b?.fontSynthesis,
                     letterSpacing = b?.letterSpacing,
                     wordSpacing = b?.wordSpacing,
                     textBaseline = b?.textBaseline,
@@ -304,6 +308,7 @@ data class TextStyle(
                         fontSize = newB.fontSize,
                         fontWeight = FontWeight.lerp(null, newB.fontWeight, t),
                         fontStyle = newB.fontStyle,
+                        fontSynthesis = newB.fontSynthesis,
                         letterSpacing = newB.letterSpacing,
                         wordSpacing = newB.wordSpacing,
                         textBaseline = newB.textBaseline,
@@ -327,6 +332,7 @@ data class TextStyle(
                         fontSize = a.fontSize,
                         fontWeight = FontWeight.lerp(a.fontWeight, null, t),
                         fontStyle = a.fontStyle,
+                        fontSynthesis = a.fontSynthesis,
                         letterSpacing = a.letterSpacing,
                         wordSpacing = a.wordSpacing,
                         textBaseline = a.textBaseline,
@@ -360,6 +366,7 @@ data class TextStyle(
                 fontSize = lerpDouble(a.fontSize ?: b.fontSize!!, b.fontSize ?: a.fontSize!!, t),
                 fontWeight = FontWeight.lerp(a.fontWeight, b.fontWeight, t),
                 fontStyle = if (t < 0.5) a.fontStyle else b.fontStyle,
+                fontSynthesis = if (t < 0.5) a.fontSynthesis else b.fontSynthesis,
                 letterSpacing = lerpDouble(
                     a.letterSpacing ?: b.letterSpacing!!,
                     b.letterSpacing ?: a.letterSpacing!!,
@@ -385,20 +392,21 @@ data class TextStyle(
     /** The style information for text runs, encoded for use by ui. */
     fun getTextStyle(textScaleFactor: Double = 1.0): androidx.ui.engine.text.TextStyle {
         return androidx.ui.engine.text.TextStyle(
-            color,
-            decoration,
-            decorationColor,
-            decorationStyle,
-            fontWeight,
-            fontStyle,
-            textBaseline,
-            fontFamily,
-            if (fontSize == null) null else (fontSize * textScaleFactor),
-            letterSpacing,
-            wordSpacing,
-            height,
-            locale,
-            background
+            color = color,
+            decoration = decoration,
+            decorationColor = decorationColor,
+            decorationStyle = decorationStyle,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
+            textBaseline = textBaseline,
+            fontFamily = fontFamily,
+            fontSize = if (fontSize == null) null else (fontSize * textScaleFactor),
+            letterSpacing = letterSpacing,
+            wordSpacing = wordSpacing,
+            height = height,
+            locale = locale,
+            background = background
         )
     }
 
@@ -422,16 +430,17 @@ data class TextStyle(
         assert(textScaleFactor != null)
         assert(maxLines == null || maxLines > 0)
         return ParagraphStyle(
-            textAlign,
-            textDirection,
-            fontWeight,
-            fontStyle,
-            maxLines,
-            fontFamily,
-            (fontSize ?: _defaultFontSize) * textScaleFactor,
-            height,
-            ellipsis,
-            locale
+            textAlign = textAlign,
+            textDirection = textDirection,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            maxLines = maxLines,
+            fontFamily = fontFamily,
+            fontSize = (fontSize ?: _defaultFontSize) * textScaleFactor,
+            lineHeight = height,
+            ellipsis = ellipsis,
+            locale = locale,
+            fontSynthesis = fontSynthesis
         )
     }
 
@@ -452,6 +461,7 @@ data class TextStyle(
             fontSize != other.fontSize ||
             fontWeight != other.fontWeight ||
             fontStyle != other.fontStyle ||
+            fontSynthesis != other.fontSynthesis ||
             letterSpacing != other.letterSpacing ||
             wordSpacing != other.wordSpacing ||
             textBaseline != other.textBaseline ||
@@ -515,6 +525,7 @@ data class TextStyle(
             )
         )
         styles.add(EnumProperty<FontStyle>("style", fontStyle, defaultValue = null))
+        styles.add(StringProperty("fontSynthesis", fontSynthesis?.toString(), defaultValue = null))
         styles.add(DoubleProperty.create("letterSpacing", letterSpacing, defaultValue = null))
         styles.add(DoubleProperty.create("wordSpacing", wordSpacing, defaultValue = null))
         styles.add(EnumProperty<TextBaseline>("baseline", textBaseline, defaultValue = null))
