@@ -21,7 +21,7 @@
 
     <LinearLayout
         android:id="@+id/title_bar"
-        android:background="@layout/title_bar_gradient"
+        android:background="@drawable/title_bar_gradient"
         style="@style/TitleBar">
 
         <LinearLayout
