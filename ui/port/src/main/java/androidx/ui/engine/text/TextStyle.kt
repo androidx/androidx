@@ -25,7 +25,8 @@ import androidx.ui.painting.Paint
  *
  * Creates a new TextStyle object.
  *
- * * `color`: The color to use when painting the text. If this is specified, `foreground` must be null.
+ * * `color`: The color to use when painting the text. If this is specified, `foreground` must be
+ *             null.
  * * `decoration`: The decorations to paint near the text (e.g., an underline).
  * * `decorationColor`: The color in which to paint the text decorations.
  * * `decorationStyle`: The style in which to paint the text decorations (e.g., dashed).
@@ -34,12 +35,16 @@ import androidx.ui.painting.Paint
  * * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
  * * `fontSize`: The size of glyphs (in logical pixels) to use when painting the text.
  * * `letterSpacing`: The amount of space (in EM) to add between each letter.
- * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word).
- * * `textBaseline`: The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
+ * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space
+ *                  (i.e. between each word).
+ * * `textBaseline`: The common baseline that should be aligned between this text span and its
+ *                   parent text span, or, for the root text spans, with the line box.
  * * `height`: The height of this text span, as a multiple of the font size.
  * * `locale`: The locale used to select region-specific glyphs.
  * * `background`: The paint drawn as a background for the text.
  * * `foreground`: The paint used to draw the text. If this is specified, `color` must be null.
+ * * `fontSynthesis`: Whether to synthesize font weight and/or style when the requested weight or
+ *                    style cannot be found in the provided custom font family.
  */
 data class TextStyle constructor(
     val color: Color? = null,
@@ -57,7 +62,8 @@ data class TextStyle constructor(
     val height: Double? = null,
     val locale: Locale? = null,
     val background: Paint? = null,
-    val foreground: Paint? = null
+    val foreground: Paint? = null,
+    val fontSynthesis: FontSynthesis? = null
 ) {
     init {
         assert(color == null || foreground == null) {
@@ -83,7 +89,8 @@ data class TextStyle constructor(
         "height: ${if (height != null) "${height}x" else "unspecified"}, " +
         "locale: ${locale ?: "unspecified"}, " +
         "background: ${background ?: "unspecified"}, " +
-        "foreground: ${foreground ?: "unspecified"}" +
+        "foreground: ${foreground ?: "unspecified"}, " +
+        "fontSynthesis: ${fontSynthesis ?: "unspecified"}" +
         ")"
     }
 }

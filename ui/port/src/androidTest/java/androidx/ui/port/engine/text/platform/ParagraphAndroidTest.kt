@@ -12,6 +12,7 @@ import androidx.text.StaticLayoutCompat
 import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.TypefaceSpan
 import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.ParagraphStyle
@@ -378,7 +379,8 @@ class ParagraphAndroidTest {
         verify(typefaceAdapter, never()).create(
             fontFamily = any(),
             fontWeight = any(),
-            fontStyle = any()
+            fontStyle = any(),
+            fontSynthesis = any()
         )
         assertThat(paragraph.textPaint.typeface, nullValue())
     }
@@ -398,7 +400,8 @@ class ParagraphAndroidTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(null),
             fontWeight = eq(FontWeight.bold),
-            fontStyle = eq(FontStyle.normal)
+            fontStyle = eq(FontStyle.normal),
+            fontSynthesis = eq(FontSynthesis.all)
         )
 
         val typeface = paragraph.textPaint.typeface
@@ -421,7 +424,8 @@ class ParagraphAndroidTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(null),
             fontWeight = eq(FontWeight.normal),
-            fontStyle = eq(FontStyle.italic)
+            fontStyle = eq(FontStyle.italic),
+            fontSynthesis = eq(FontSynthesis.all)
         )
 
         val typeface = paragraph.textPaint.typeface
@@ -445,7 +449,8 @@ class ParagraphAndroidTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(fontFamily),
             fontWeight = eq(FontWeight.normal),
-            fontStyle = eq(FontStyle.normal)
+            fontStyle = eq(FontStyle.normal),
+            fontSynthesis = eq(FontSynthesis.all)
         )
 
         val typeface = paragraph.textPaint.typeface
@@ -467,7 +472,8 @@ class ParagraphAndroidTest {
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(fontFamily),
             fontWeight = eq(FontWeight.normal),
-            fontStyle = eq(FontStyle.normal)
+            fontStyle = eq(FontStyle.normal),
+            fontSynthesis = eq(FontSynthesis.all)
         )
         val typeface = paragraph.textPaint.typeface
         assertThat(typeface.isBold, equalTo(false))

@@ -59,7 +59,9 @@ class TextStyleTest {
                         "height: unspecified, " +
                         "locale: unspecified, " +
                         "background: unspecified, " +
-                        "foreground: unspecified)"
+                        "foreground: unspecified, " +
+                        "fontSynthesis: unspecified" +
+                        ")"
                 )
             )
         )
@@ -81,6 +83,7 @@ class TextStyleTest {
         val height = 4.0
         val locale = Locale("en")
         val background = Paint()
+        val fontSynthesis = FontSynthesis.style
 
         val textStyle = TextStyle(
             color = color,
@@ -97,7 +100,8 @@ class TextStyleTest {
             height = height,
             locale = locale,
             background = background,
-            foreground = null
+            foreground = null,
+            fontSynthesis = fontSynthesis
         )
 
         assertThat(
@@ -119,7 +123,9 @@ class TextStyleTest {
                         "height: ${height}x, " +
                         "locale: $locale, " +
                         "background: $background, " +
-                        "foreground: unspecified)"
+                        "foreground: unspecified, " +
+                        "fontSynthesis: $fontSynthesis" +
+                        ")"
                 )
             )
         )

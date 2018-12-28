@@ -45,7 +45,8 @@ class ParagraphStyleTest {
                         "fontSize: unspecified, " +
                         "lineHeight: unspecified, " +
                         "ellipsis: unspecified, " +
-                        "locale: unspecified" +
+                        "locale: unspecified, " +
+                        "fontSynthesis: unspecified" +
                         ")"
                 )
             )
@@ -64,6 +65,7 @@ class ParagraphStyleTest {
         val lineHeight = 2.0
         val ellipsis = "dot dot"
         val locale = Locale("en")
+        val fontSynthesis = FontSynthesis.style
 
         val paragraphStyle = ParagraphStyle(
             textAlign = textAlign,
@@ -75,7 +77,8 @@ class ParagraphStyleTest {
             fontSize = fontSize,
             lineHeight = lineHeight,
             ellipsis = ellipsis,
-            locale = locale
+            locale = locale,
+            fontSynthesis = fontSynthesis
         )
 
         val textStyle = paragraphStyle.getTextStyle()
@@ -87,6 +90,7 @@ class ParagraphStyleTest {
         assertThat(textStyle.fontSize, equalTo(paragraphStyle.fontSize))
         assertThat(textStyle.locale, equalTo(paragraphStyle.locale))
         assertThat(textStyle.height, equalTo(paragraphStyle.lineHeight))
+        assertThat(textStyle.fontSynthesis, equalTo(paragraphStyle.fontSynthesis))
     }
 
     @Test
@@ -101,7 +105,8 @@ class ParagraphStyleTest {
             fontSize = null,
             lineHeight = null,
             ellipsis = null,
-            locale = null
+            locale = null,
+            fontSynthesis = null
         )
 
         val textStyle = paragraphStyle.getTextStyle()
@@ -113,6 +118,7 @@ class ParagraphStyleTest {
         assertThat(textStyle.fontSize, `is`(nullValue()))
         assertThat(textStyle.locale, `is`(nullValue()))
         assertThat(textStyle.height, `is`(nullValue()))
+        assertThat(textStyle.fontSynthesis, `is`(nullValue()))
     }
 
     @Test
@@ -127,6 +133,7 @@ class ParagraphStyleTest {
         val lineHeight = 2.0
         val ellipsis = "dot dot"
         val locale = Locale("en")
+        val fontSynthesis = FontSynthesis.style
 
         val paragraphStyle = ParagraphStyle(
             textAlign = textAlign,
@@ -138,7 +145,8 @@ class ParagraphStyleTest {
             fontSize = fontSize,
             lineHeight = lineHeight,
             ellipsis = ellipsis,
-            locale = locale
+            locale = locale,
+            fontSynthesis = fontSynthesis
         )
 
         assertThat(
@@ -154,7 +162,8 @@ class ParagraphStyleTest {
                         "fontSize: $fontSize, " +
                         "lineHeight: ${lineHeight}x, " +
                         "ellipsis: \"$ellipsis\", " +
-                        "locale: $locale" +
+                        "locale: $locale, " +
+                        "fontSynthesis: $fontSynthesis" +
                         ")"
                 )
             )
