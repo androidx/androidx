@@ -1,0 +1,33 @@
+2018-12-17
+e3aa7ed693f13a4caf29817cb0ee925901884fbc:activity:1.0.0-alpha03
+e3aa7ed693f13a4caf29817cb0ee925901884fbc:activity-ktx:1.0.0-alpha03
+82b61c231e74262ac499b9788e8af46e2c4bf779:biometric:1.0.0-alpha03
+033f65978071d72164b3707a61d342844c9f2811:concurrent-futures:1.0.0-alpha03
+9cadb6e2e40e67757017a34fb7759f002e44ac2f:core:1.1.0-alpha03
+76130e35523668bce943b1c8e19ba8ccb7f62ed4:core-ktx:1.1.0-alpha02, 1.1.0-alpha03
+e3aa7ed693f13a4caf29817cb0ee925901884fbc:fragment:1.1.0-alpha03
+e3aa7ed693f13a4caf29817cb0ee925901884fbc:fragment-ktx:1.1.0-alpha03
+e3aa7ed693f13a4caf29817cb0ee925901884fbc:fragment-testing:1.1.0-alpha03
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-common:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-compiler:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-extensions:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-livedata:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-livedata-ktx:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-livedata-core:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-livedata-core-ktx:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-process:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-reactivestreams:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-reactivestreams-ktx:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-runtime:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-service:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-viewmodel:2.1.0-alpha01
+9622f948dcd372606615e9f0b16cc3cb819481b0:lifecycle-viewmodel-ktx:2.1.0-alpha01
+86267e31251cdaf875674004b9937ff3da0c3f24:localbroadcastmanager:1.1.0-alpha01
+8e813b6c352c407073baca8a2e8b1f1cc9f5d5bb:media2:1.0.0-alpha04
+8e813b6c352c407073baca8a2e8b1f1cc9f5d5bb:media2-exoplayer:1.0.0-alpha01
+8dd07019a906b7551ce49b17565eb677d236fa3d:media-media-widget :1.0.0-alpha06
+45c7bc13b59b1ea280a53bcbd4cbb40727b96fd2:preference:1.1.0-alpha02
+45c7bc13b59b1ea280a53bcbd4cbb40727b96fd2:preference-ktx:1.1.0-alpha02
+86267e31251cdaf875674004b9937ff3da0c3f24:savedstate-common:1.0.0-alpha01
+86267e31251cdaf875674004b9937ff3da0c3f24:savedstate-bundle:1.0.0-alpha01
