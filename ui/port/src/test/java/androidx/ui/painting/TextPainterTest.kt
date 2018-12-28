@@ -270,22 +270,16 @@ class TextPainterTest() {
 
     @Test
     fun `applyFloatingPointHack with value is integer toDouble`() {
-        val textPainter = TextPainter()
-
         assertThat(applyFloatingPointHack(2.toDouble())).isEqualTo(2.0)
     }
 
     @Test
     fun `applyFloatingPointHack with value smaller than half`() {
-        val textPainter = TextPainter()
-
         assertThat(applyFloatingPointHack(2.2)).isEqualTo(3.0)
     }
 
     @Test
     fun `applyFloatingPointHack with value larger than half`() {
-        val textPainter = TextPainter()
-
         assertThat(applyFloatingPointHack(2.8)).isEqualTo(3.0)
     }
 

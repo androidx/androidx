@@ -96,13 +96,6 @@ class RenderParagraph(
     private var hasVisualOverflow = false
 
     init {
-        assert(text != null)
-        assert(text.debugAssertIsValid())
-        assert(textAlign != null)
-        assert(textDirection != null)
-        assert(softWrap != null)
-        assert(overflow != null)
-        assert(textScaleFactor != null)
         assert(maxLines == null || maxLines > 0)
         textPainter = TextPainter(
             text = text,
@@ -116,7 +109,6 @@ class RenderParagraph(
 
     var text: TextSpan
         set(value) {
-            assert(value != null)
             when (textPainter.text!!.compareTo(value)) {
                 RenderComparison.IDENTICAL, RenderComparison.METADATA -> return
                 RenderComparison.PAINT -> {
@@ -136,7 +128,6 @@ class RenderParagraph(
 
     var textAlign: TextAlign
         set(value) {
-            assert(value != null)
             if (textPainter.textAlign == value) return
             textPainter.textAlign = value
             markNeedsPaint()
@@ -147,7 +138,6 @@ class RenderParagraph(
 
     var textDirection: TextDirection
         set(value) {
-            assert(value != null)
             if (textPainter.textDirection == value) return
             textPainter.textDirection = value
             markNeedsLayout()
@@ -158,7 +148,6 @@ class RenderParagraph(
 
     var softWrap: Boolean = softWrap
         set(value) {
-            assert(value != null)
             if (field == value) return
             field = value
             markNeedsLayout()
@@ -166,7 +155,6 @@ class RenderParagraph(
 
     var overflow: TextOverflow = overflow
         set(value) {
-            assert(value != null)
             if (field == value) return
             field = value
             textPainter.ellipsis = if (value === TextOverflow.ELLIPSIS) ELLIPSIS else null
@@ -175,7 +163,6 @@ class RenderParagraph(
 
     var textScaleFactor: Double
         set(value) {
-            assert(value != null)
             if (textPainter.textScaleFactor == value) return
             textPainter.textScaleFactor = value
             overflowShader = null
@@ -298,7 +285,6 @@ class RenderParagraph(
             when (overflow) {
                 TextOverflow.CLIP, TextOverflow.ELLIPSIS -> overflowShader = null
                 TextOverflow.FADE -> {
-                    assert(textDirection != null)
                     val fadeSizePainter = TextPainter(
                         text = TextSpan(style = textPainter.text?.style, text = "\u2026"),
                         textDirection = textDirection,
@@ -306,8 +292,8 @@ class RenderParagraph(
                     )
                     fadeSizePainter.layout()
                     if (didOverflowWidth) {
-                        var fadeEnd: Double
-                        var fadeStart: Double
+                        val fadeEnd: Double
+                        val fadeStart: Double
                         when (textDirection) {
                             TextDirection.RTL -> {
                                 fadeEnd = 0.0
@@ -355,10 +341,10 @@ class RenderParagraph(
 //        layoutTextWithConstraints(constraints!!)
         assert {
             if (debugRepaintTextRainbowEnabled) {
-                val paint = Paint()
                 TODO("(Migration/qqd): Needs HSVColor")
+//                val paint = Paint()
 //                paint.color = debugCurrentRepaintColor.toColor()
-                canvas.drawRect(offset.and(size), paint)
+//                canvas.drawRect(offset.and(size), paint)
             }
             true
         }
@@ -461,7 +447,7 @@ class RenderParagraph(
 
     override fun describeSemanticsConfiguration(config: SemanticsConfiguration) {
         super.describeSemanticsConfiguration(config)
-        text?.let { text -> config.label = text.toPlainText() }
+        config.label = text.toPlainText()
         config.textDirection = textDirection
     }
 

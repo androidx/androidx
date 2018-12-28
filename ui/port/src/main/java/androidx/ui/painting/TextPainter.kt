@@ -106,9 +106,6 @@ class TextPainter(
     locale: Locale? = null
 ) {
     init {
-        assert(text == null || text.debugAssertIsValid())
-        assert(textAlign != null)
-        assert(textScaleFactor != null)
         assert(maxLines == null || maxLines > 0)
     }
 
@@ -118,7 +115,6 @@ class TextPainter(
 
     var text: TextSpan? = text
         set(value) {
-            assert(value == null || value.debugAssertIsValid())
             if (field == value) return
             if (field?.style != value?.style) layoutTemplate = null
             field = value
@@ -128,7 +124,6 @@ class TextPainter(
 
     var textAlign: TextAlign = textAlign
         set(value) {
-            assert(value != null)
             if (field == value) return
             field = value
             paragraph = null
@@ -146,7 +141,6 @@ class TextPainter(
 
     var textScaleFactor: Double = textScaleFactor
         set(value) {
-            assert(value != null)
             if (field == value) return
             field = value
             paragraph = null
@@ -183,7 +177,6 @@ class TextPainter(
     fun createParagraphStyle(defaultTextDirection: TextDirection? = null): ParagraphStyle {
         // The defaultTextDirection argument is used for preferredLineHeight in case
         // textDirection hasn't yet been set.
-        assert(textAlign != null)
         assert(textDirection != null || defaultTextDirection != null) {
             "TextPainter.textDirection must be set to a non-null value before using the " +
                     "TextPainter."
@@ -234,7 +227,7 @@ class TextPainter(
             return layoutTemplate!!.height
         }
 
-    inline fun assertNeedsLayout(name: String) {
+    private fun assertNeedsLayout(name: String) {
         assert(!needsLayout) {
             "TextPainter.$name should only be called after layout has been called."
         }
@@ -303,7 +296,6 @@ class TextPainter(
      */
     fun computeDistanceToActualBaseline(baseline: TextBaseline): Double {
         assertNeedsLayout("computeDistanceToActualBaseline")
-        assert(baseline != null)
         return when (baseline) {
             TextBaseline.alphabetic -> paragraph!!.alphabeticBaseline
             TextBaseline.ideographic -> paragraph!!.ideographicBaseline

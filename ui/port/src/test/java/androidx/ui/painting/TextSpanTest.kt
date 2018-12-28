@@ -144,7 +144,7 @@ class TextSpanTest {
     fun `visitTextSpan with neither text nor children should return true`() {
         val textSpan = TextSpan()
 
-        val result = textSpan.visitTextSpan { span: TextSpan -> false }
+        val result = textSpan.visitTextSpan { _: TextSpan -> false }
 
         assertThat(result).isTrue()
     }
@@ -153,7 +153,7 @@ class TextSpanTest {
     fun `visitTextSpan with text and visitor always returns true`() {
         val textSpan = TextSpan(text = "Hello")
 
-        val result = textSpan.visitTextSpan { span: TextSpan -> true }
+        val result = textSpan.visitTextSpan { _: TextSpan -> true }
 
         assertThat(result).isTrue()
     }
@@ -162,7 +162,7 @@ class TextSpanTest {
     fun `visitTextSpan with text and visitor always returns false`() {
         val textSpan = TextSpan(text = "Hello")
 
-        val result = textSpan.visitTextSpan { span: TextSpan -> false }
+        val result = textSpan.visitTextSpan { _: TextSpan -> false }
 
         assertThat(result).isFalse()
     }
@@ -172,7 +172,7 @@ class TextSpanTest {
         val textSpan1 = spy(TextSpan(text = "Hello"))
         val textSpan2 = spy(TextSpan(text = "World"))
         val textSpan = spy(TextSpan(children = listOf(textSpan1, textSpan2)))
-        val returnTrueFunction = { span: TextSpan -> true }
+        val returnTrueFunction = { _: TextSpan -> true }
 
         val result = textSpan.visitTextSpan(returnTrueFunction)
 
@@ -186,7 +186,7 @@ class TextSpanTest {
         val textSpan1 = spy(TextSpan(text = "Hello"))
         val textSpan2 = spy(TextSpan(text = "World"))
         val textSpan = TextSpan(children = listOf(textSpan1, textSpan2))
-        val returnFalseFunction = { span: TextSpan -> false }
+        val returnFalseFunction = { _: TextSpan -> false }
 
         val result = textSpan.visitTextSpan(returnFalseFunction)
 

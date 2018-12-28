@@ -128,7 +128,6 @@ class Text(
         textScaleFactor: Double? = null,
         maxLines: Int? = null
     ) : this(key, style, textAlign, textDirection, softWrap, overflow, textScaleFactor, maxLines) {
-        assert(data != null)
         this.data = data
         textSpan = null
     }
@@ -145,7 +144,6 @@ class Text(
         textScaleFactor: Double? = null,
         maxLines: Int? = null
     ) : this(key, style, textAlign, textDirection, softWrap, overflow, textScaleFactor, maxLines) {
-        assert(textSpan != null)
         this.textSpan = textSpan
         data = null
     }

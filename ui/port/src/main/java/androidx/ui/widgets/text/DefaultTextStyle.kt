@@ -157,9 +157,9 @@ class DefaultTextStyle(
          * constructor, which contains fallback values.
          */
         fun of(context: BuildContext): DefaultTextStyle {
-            return context.inheritFromWidgetOfExactType(Type(DefaultTextStyle::class.java))
-                    as DefaultTextStyle
-                ?: DefaultTextStyle()
+            val result = context.inheritFromWidgetOfExactType(Type(DefaultTextStyle::class.java))
+            if (result != null) return result as DefaultTextStyle
+            return DefaultTextStyle()
         }
     }
 

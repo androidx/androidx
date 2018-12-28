@@ -66,7 +66,6 @@ data class TextSpan(
      * [TextSpan] objects onto [Canvas] objects.
      */
     fun build(builder: ParagraphBuilder, textScaleFactor: Double = 1.0) {
-        assert(debugAssertIsValid())
         val hasStyle: Boolean = style != null
         if (hasStyle) {
             builder.pushStyle(style!!.getTextStyle(textScaleFactor))
@@ -76,7 +75,6 @@ data class TextSpan(
         }
         if (children != null) {
             for (child in children) {
-                assert(child != null)
                 child.build(builder, textScaleFactor)
             }
         }
@@ -107,7 +105,6 @@ data class TextSpan(
 
     /** Returns the text span that contains the given position in the text. */
     fun getSpanForPosition(position: TextPosition): TextSpan? {
-        assert(debugAssertIsValid())
         val affinity: TextAffinity = position.affinity
         val targetOffset: Int = position.offset
         var offset = 0
@@ -120,7 +117,6 @@ data class TextSpan(
                 targetOffset > offset && targetOffset < endOffset ||
                 targetOffset == endOffset && affinity == TextAffinity.upstream) {
                 result = span
-                false
             }
             offset = endOffset
             true
@@ -134,7 +130,6 @@ data class TextSpan(
      * Styles are not honored in this process.
      */
     fun toPlainText(): String {
-        assert(debugAssertIsValid())
         val buffer = StringBuilder()
         visitTextSpan {
                 span: TextSpan ->
@@ -171,28 +166,6 @@ data class TextSpan(
 //        }
 //        return result
 //    }
-
-    /**
-     * In checked mode, throws an exception if the object is not in a valid configuration.
-     * Otherwise, returns true.
-     */
-    fun debugAssertIsValid(): Boolean {
-        assert(visitTextSpan { span: TextSpan ->
-            if (span.children != null) {
-                for (child in span.children) {
-                    if (child == null) false
-                }
-            }
-            true
-        }) {
-            "TextSpan contains a null child.\n" +
-                    "A TextSpan object with a non-null child list should not have any nulls in " +
-                    "its child list.\n" +
-                    "The full text in question was:\n" +
-                    "${toStringDeep(prefixLineOne = "  ")}"
-        }
-        return true
-    }
 
     /**
      * Describe the difference between this text span and another, in terms ofhow much damage it
@@ -260,11 +233,7 @@ data class TextSpan(
             return defaultList
         }
         return children.map { child: TextSpan ->
-            if (child != null) {
-                child.toDiagnosticsNode()
-            } else {
-                DiagnosticsNode.message("<null child>")
-            }
+            child.toDiagnosticsNode()
         }.toList()
     }
 }
