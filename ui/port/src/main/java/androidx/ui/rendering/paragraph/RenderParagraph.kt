@@ -33,13 +33,7 @@ import androidx.ui.foundation.diagnostics.DoubleProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.foundation.diagnostics.IntProperty
-import androidx.ui.painting.BlendMode
-import androidx.ui.painting.Color
-import androidx.ui.painting.Gradient
-import androidx.ui.painting.Paint
-import androidx.ui.painting.Shader
-import androidx.ui.painting.TextPainter
-import androidx.ui.painting.TextSpan
+import androidx.ui.painting.*
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.rendering.box.BoxConstraints
@@ -203,6 +197,12 @@ class RenderParagraph(
             return textPainter.maxLines
         }
 
+    val width: Double
+        get() = textPainter.width
+
+    val height: Double
+        get() = textPainter.height
+
     fun layoutText(minWidth: Double = 0.0, maxWidth: Double = Double.POSITIVE_INFINITY) {
         val widthMatters = softWrap || overflow == TextOverflow.ELLIPSIS
         textPainter.layout(
@@ -339,7 +339,7 @@ class RenderParagraph(
         }
     }
 
-    override fun paint(context: PaintingContext, offset: Offset) {
+    fun paint(canvas: Canvas, offset: Offset) {
         // Ideally we could compute the min/max intrinsic width/height with a
         // non-destructive operation. However, currently, computing these values
         // will destroy state inside the painter. If that happens, we need to
@@ -351,10 +351,8 @@ class RenderParagraph(
         // If you remove this call, make sure that changing the textAlign still
         // works properly.
         // TODO(Migration/qqd): Need to figure out where this constraints come from and how to make
-        // it non-null.
-        layoutTextWithConstraints(constraints!!)
-        val canvas = context.canvas
-
+        // it non-null. For now Crane Text version does not need to layout text again. Comment it.
+//        layoutTextWithConstraints(constraints!!)
         assert {
             if (debugRepaintTextRainbowEnabled) {
                 val paint = Paint()
@@ -387,6 +385,10 @@ class RenderParagraph(
             }
             canvas.restore()
         }
+    }
+
+    override fun paint(context: PaintingContext, offset: Offset) {
+        paint(context.canvas, offset)
     }
 
     /**
