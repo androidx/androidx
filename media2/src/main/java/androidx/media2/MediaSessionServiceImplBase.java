@@ -79,7 +79,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                 return getServiceBinder();
             }
             case MediaBrowserServiceCompat.SERVICE_INTERFACE: {
-                final MediaSession session = service.onGetSession();
+                final MediaSession session = service.onGetPrimarySession();
                 addSession(session);
                 // Return a specific session's legacy binder although the Android framework caches
                 // the returned binder here and next binding request may reuse cached binder even
@@ -111,7 +111,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
             old = mSessions.get(session.getId());
             if (old != null && old != session) {
                 // TODO(b/112114183): Also check the uniqueness before sessions're returned by
-                //                    onGetSession.
+                //                    onGetPrimarySession.
                 throw new IllegalArgumentException("Session ID should be unique.");
             }
             mSessions.put(session.getId(), session);
@@ -146,7 +146,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                 if (instance == null) {
                     Log.wtf(TAG, "Service hasn't created");
                 }
-                final MediaSession session = instance.onGetSession();
+                final MediaSession session = instance.onGetPrimarySession();
                 if (session == null) {
                     Log.w(TAG, "No session for handling media key");
                     break;
@@ -249,7 +249,7 @@ class MediaSessionServiceImplBase implements MediaSessionServiceImpl {
                             }
                             final MediaSession session;
                             try {
-                                session = service.onGetSession();
+                                session = service.onGetPrimarySession();
                                 service.addSession(session);
                                 shouldNotifyDisconnected = false;
 
