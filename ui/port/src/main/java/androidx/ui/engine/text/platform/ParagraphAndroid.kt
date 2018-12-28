@@ -38,6 +38,7 @@ import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
 import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.TypefaceSpan
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
@@ -48,6 +49,7 @@ import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
+import androidx.ui.engine.text.hasFontAttributes
 import androidx.ui.painting.Canvas
 import java.util.Locale
 import kotlin.math.floor
@@ -247,7 +249,21 @@ internal class ParagraphAndroid constructor(
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
-            // TODO(Migration/haoyuchang): implement fontWeight, fontStyle, fontFamily
+
+            if (style.hasFontAttributes()) {
+                val typeface = typefaceAdapter.create(
+                    fontFamily = style.fontFamily,
+                    fontWeight = style.fontWeight ?: FontWeight.normal,
+                    fontStyle = style.fontStyle ?: FontStyle.normal
+                )
+                spannableString.setSpan(
+                    TypefaceSpan(typeface),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
             // TODO(Migration/haoyuchang): implement textBaseLine
             // TODO(Migration/haoyuchang): implement wordSpacing
             // TODO(Migration/haoyuchang): support letter spacing with pixel.

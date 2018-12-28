@@ -25,14 +25,19 @@ import kotlin.reflect.KClass
  * Matcher to check if the given text contains a span matching the given class and position.
  * Notice that the matcher won't match if the given text is not an [Spanned] object.
  *
+ * When [predicate] function is provided, for the span that is found, predicate will be called
+ * to further validate the span object.
+ *
  * @param spanClazz the class of the expected span
  * @param start start position of the expected span
  * @param end end position of the expected span
+ * @param predicate function to further assert the span object
  */
-class HasSpan(
-    private val spanClazz: KClass<out Any>,
+class HasSpan<T : Any>(
+    private val spanClazz: KClass<out T>,
     private val start: Int,
-    private val end: Int
+    private val end: Int,
+    private val predicate: ((T) -> Boolean)? = null
 ) : BaseMatcher<CharSequence>() {
     override fun matches(item: Any?): Boolean {
         if (item !is Spanned) return false
@@ -41,7 +46,7 @@ class HasSpan(
             if (item.getSpanStart(span) == start &&
                 item.getSpanEnd(span) == end
             ) {
-                return true
+                return predicate?.invoke(span) ?: true
             }
         }
         return false

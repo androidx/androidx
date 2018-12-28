@@ -10,6 +10,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.StaticLayoutCompat
 import androidx.text.style.LetterSpacingSpan
+import androidx.text.style.TypefaceSpan
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.ParagraphBuilder
@@ -26,7 +27,6 @@ import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.port.matchers.equalToBitmap
 import androidx.ui.port.matchers.hasSpan
 import androidx.ui.port.matchers.hasSpanOnTop
-import androidx.ui.port.matchers.isTypefaceOf
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.mock
@@ -337,6 +337,36 @@ class ParagraphAndroidTest {
         )
     }
 
+    @Test
+    fun textStyle_fontFamily_addsTypefaceSpanWithCorrectTypeface() {
+        val text = "abcde"
+        val textStyle = TextStyle(
+            fontFamily = fontFamily,
+            fontStyle = FontStyle.italic,
+            fontWeight = FontWeight.bold
+        )
+        val expectedTypeface = TypefaceAdapter().create(
+            fontFamily = fontFamily,
+            fontStyle = FontStyle.italic,
+            fontWeight = FontWeight.bold
+        )
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(
+            paragraph.underlyingText,
+            hasSpan(TypefaceSpan::class, 0, "abc".length) { span ->
+                span.typeface == expectedTypeface
+            }
+        )
+    }
+
+    @Test
     fun testEmptyFontFamily() {
         val typefaceAdapter = mock<TypefaceAdapter>()
         val paragraph = simpleParagraph(
