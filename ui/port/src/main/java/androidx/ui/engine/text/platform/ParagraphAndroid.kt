@@ -257,7 +257,8 @@ internal class ParagraphAndroid constructor(
                 val typeface = typefaceAdapter.create(
                     fontFamily = style.fontFamily,
                     fontWeight = style.fontWeight ?: FontWeight.normal,
-                    fontStyle = style.fontStyle ?: FontStyle.normal
+                    fontStyle = style.fontStyle ?: FontStyle.normal,
+                    fontSynthesis = style.fontSynthesis ?: FontSynthesis.all
                 )
                 spannableString.setSpan(
                     TypefaceSpan(typeface),
