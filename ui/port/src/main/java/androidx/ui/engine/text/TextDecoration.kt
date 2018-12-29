@@ -26,7 +26,6 @@ data class TextDecoration internal constructor(val mask: Int) {
 
         // TODO(Migration/siyamed): We do not currently support this, either need custom span
         // implementation or we wont support it
-
         /** Draw a line above each line of text */
         val overline: TextDecoration = TextDecoration(0x2)
 
@@ -67,15 +66,4 @@ data class TextDecoration internal constructor(val mask: Int) {
         }
         return "TextDecoration.combine([${values.joinToString(separator = ", ")}])"
     }
-
-// TODO(Migration/siyamed): removed the following since converted into data class
-//    override fun equals(other: Any?): Boolean {
-//        if (this === other) return true
-//        if (javaClass != other?.javaClass) return false
-//        return mask == (other as TextDecoration).mask
-//    }
-//
-//    override fun hashCode(): Int {
-//        return mask.hashCode()
-//    }
 }
