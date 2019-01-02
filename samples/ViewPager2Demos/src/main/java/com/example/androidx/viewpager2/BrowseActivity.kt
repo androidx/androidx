@@ -39,10 +39,14 @@ class BrowseActivity : ListActivity() {
     private fun getData(): List<Map<String, Any>> {
         val myData = mutableListOf<Map<String, Any>>()
 
-        myData.add(hashMapOf("title" to "ViewPager with Views",
+        myData.add(mapOf("title" to "ViewPager2 with Views",
                 "intent" to activityToIntent(CardViewActivity::class.java.name)))
-        myData.add(hashMapOf("title" to "ViewPager with Fragments",
+        myData.add(mapOf("title" to "ViewPager2 with Fragments",
                 "intent" to activityToIntent(CardFragmentActivity::class.java.name)))
+        myData.add(mapOf("title" to "ViewPager2 with a Mutable Collection (Views)",
+                "intent" to activityToIntent(MutableCollectionViewActivity::class.java.name)))
+        myData.add(mapOf("title" to "ViewPager2 with a Mutable Collection (Fragments)",
+                "intent" to activityToIntent(MutableCollectionFragmentActivity::class.java.name)))
 
         return myData
     }
