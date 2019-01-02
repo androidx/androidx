@@ -4,6 +4,7 @@ import android.graphics.Paint
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.LocaleSpan
 import android.text.style.StrikethroughSpan
 import android.text.style.UnderlineSpan
 import androidx.test.filters.SmallTest
@@ -23,6 +24,7 @@ import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.text.platform.ParagraphAndroid
 import androidx.ui.engine.text.platform.TypefaceAdapter
+import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
 import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.port.matchers.equalToBitmap
@@ -91,16 +93,13 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setColorOnWholeText() {
         val text = "abcde"
-        val fontSize = 20.0
-        val paragraphWidth = text.length * fontSize
         val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length)),
-            fontSize = fontSize
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
         )
-        paragraph.layout(paragraphWidth)
+        paragraph.layout(100.0)
 
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, text.length))
     }
@@ -108,16 +107,13 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setColorOnPartOfText() {
         val text = "abcde"
-        val fontSize = 20.0
-        val paragraphWidth = text.length * fontSize
         val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
 
         val paragraph = simpleParagraph(
             text = text,
-            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length)),
-            fontSize = fontSize
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
         )
-        paragraph.layout(paragraphWidth)
+        paragraph.layout(100.0)
 
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, "abc".length))
     }
@@ -125,8 +121,6 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setColorTwice_lastOneOverwrite() {
         val text = "abcde"
-        val fontSize = 20.0
-        val paragraphWidth = text.length * fontSize
         val textStyle = TextStyle(color = Color(0xFF0000FF.toInt()))
         val textStyleOverwrite = TextStyle(color = Color(0xFF00FF00.toInt()))
 
@@ -135,10 +129,9 @@ class ParagraphAndroidTest {
             textStyles = listOf(
                 ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
                 ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
-            ),
-            fontSize = fontSize
+            )
         )
-        paragraph.layout(paragraphWidth)
+        paragraph.layout(100.0)
 
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, text.length))
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, "abc".length))
@@ -316,7 +309,7 @@ class ParagraphAndroidTest {
     }
 
     @Test
-    fun textStyle_setLetterTwice_lastOneOverwrite() {
+    fun textStyle_setLetterSpacingTwice_lastOneOverwrite() {
         val text = "abcde"
         val textStyle = TextStyle(letterSpacing = 2.0)
         val textStyleOverwrite = TextStyle(letterSpacing = 3.0)
@@ -335,6 +328,59 @@ class ParagraphAndroidTest {
         assertThat(
             paragraph.underlyingText,
             hasSpanOnTop(LetterSpacingSpan::class, 0, "abc".length)
+        )
+    }
+
+    @Test
+    fun textStyle_setLocaleOnWholeText() {
+        val text = "abcde"
+        val locale = Locale("en", "US")
+        val textStyle = TextStyle(locale = locale)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText, hasSpan(LocaleSpan::class, 0, text.length))
+    }
+
+    @Test
+    fun textStyle_setLocaleOnPartText() {
+        val text = "abcde"
+        val locale = Locale("en", "US")
+        val textStyle = TextStyle(locale = locale)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText, hasSpan(LocaleSpan::class, 0, "abc".length))
+    }
+
+    @Test
+    fun textStyle_setLocaleTwice_lastOneOverwrite() {
+        val text = "abcde"
+        val textStyle = TextStyle(locale = Locale("en", "US"))
+        val textStyleOverwrite = TextStyle(locale = Locale("ja", "JP"))
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+            )
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText, hasSpan(LocaleSpan::class, 0, text.length))
+        assertThat(paragraph.underlyingText, hasSpan(LocaleSpan::class, 0, "abc".length))
+        assertThat(
+            paragraph.underlyingText,
+            hasSpanOnTop(LocaleSpan::class, 0, "abc".length)
         )
     }
 
