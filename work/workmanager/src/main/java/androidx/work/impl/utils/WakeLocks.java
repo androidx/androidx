@@ -56,8 +56,11 @@ public class WakeLocks {
 
         String tagWithPrefix = "WorkManager: " + tag;
         PowerManager.WakeLock wakeLock = powerManager.newWakeLock(PARTIAL_WAKE_LOCK, tagWithPrefix);
-        // All wakelocks are only created on the command handler thread. No need to synchronize.
-        sWakeLocks.put(wakeLock, tagWithPrefix);
+        // Wakelocks are created on the command processor thread, but we check if they are still
+        // being held on the main thread.
+        synchronized (sWakeLocks) {
+            sWakeLocks.put(wakeLock, tagWithPrefix);
+        }
         return wakeLock;
     }
 
@@ -67,10 +70,18 @@ public class WakeLocks {
      * pending commands have been drained in the command queue.
      */
     public static void checkWakeLocks() {
-        for (PowerManager.WakeLock wakeLock : sWakeLocks.keySet()) {
-            if (wakeLock.isHeld()) {
-                String message = String.format("WakeLock held for %s", sWakeLocks.get(wakeLock));
-                Logger.get().warning(TAG, message);
+        // There is a small chance that while we are checking if all the commands in the queue are
+        // drained and wake locks are no longer being held, a new command comes along and we end up
+        // with a ConcurrentModificationException. The addition of commands happens on the command
+        // processor thread and this check is done on the main thread.
+        synchronized (sWakeLocks) {
+            for (PowerManager.WakeLock wakeLock : sWakeLocks.keySet()) {
+                if (wakeLock.isHeld()) {
+                    String message = String.format(
+                            "WakeLock held for %s",
+                            sWakeLocks.get(wakeLock));
+                    Logger.get().warning(TAG, message);
+                }
             }
         }
     }
