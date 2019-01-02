@@ -65,8 +65,13 @@ fun <T : Any> hasSpan(
  * @param end end position of the expected span
  * @see HasSpanOnTop
  */
-fun hasSpanOnTop(spanClazz: KClass<out Any>, start: Int, end: Int): Matcher<CharSequence> {
-    return HasSpanOnTop(spanClazz, start, end)
+fun <T : Any> hasSpanOnTop(
+    spanClazz: KClass<out T>,
+    start: Int,
+    end: Int,
+    predicate: ((T) -> Boolean)? = null
+): Matcher<CharSequence> {
+    return HasSpanOnTop(spanClazz, start, end, predicate)
 }
 
 /**

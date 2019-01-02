@@ -3,6 +3,7 @@ package androidx.ui.port.engine.text.platform
 import android.graphics.Paint
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
+import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.LocaleSpan
 import android.text.style.StrikethroughSpan
@@ -328,6 +329,82 @@ class ParagraphAndroidTest {
         assertThat(
             paragraph.underlyingText,
             hasSpanOnTop(LetterSpacingSpan::class, 0, "abc".length)
+        )
+    }
+
+    @Test
+    fun textStyle_setBackgroundOnWholeText() {
+        val text = "abcde"
+        val color = Color(0xFF0000FF.toInt())
+        val textStyle = TextStyle(color = color)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText,
+            hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
+                span.backgroundColor == color.value
+            }
+        )
+    }
+
+    @Test
+    fun textStyle_setBackgroundOnPartText() {
+        val text = "abcde"
+        val color = Color(0xFF0000FF.toInt())
+        val textStyle = TextStyle(color = color)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText,
+            hasSpan(BackgroundColorSpan::class, 0, "abc".length) { span ->
+                span.backgroundColor == color.value
+            }
+        )
+    }
+
+    @Test
+    fun textStyle_setBackgroundTwice_lastOneOverwrite() {
+        val text = "abcde"
+        val color = Color(0xFF0000FF.toInt())
+        val textStyle = TextStyle(color = color)
+        val colorOverwrite = Color(0xFF00FF00.toInt())
+        val textStyleOverwrite = TextStyle(color = colorOverwrite)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+            )
+        )
+        paragraph.layout(100.0)
+
+        assertThat(paragraph.underlyingText.toString(), equalTo(text))
+        assertThat(paragraph.underlyingText,
+            hasSpan(BackgroundColorSpan::class, 0, text.length) { span ->
+                span.backgroundColor == color.value
+            }
+        )
+        assertThat(paragraph.underlyingText,
+            hasSpan(BackgroundColorSpan::class, 0, "abc".length) { span ->
+                span.backgroundColor == colorOverwrite.value
+            }
+        )
+        assertThat(
+            paragraph.underlyingText,
+            hasSpanOnTop(BackgroundColorSpan::class, 0, "abc".length) { span ->
+                span.backgroundColor == colorOverwrite.value
+            }
         )
     }
 

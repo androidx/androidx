@@ -63,7 +63,7 @@ private const val _defaultFontSize: Double = 14.0
  * * `textBaseline`: The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
  * * `height`: The height of this text span, as a multiple of the font size.
  * * `locale`: The locale used to select region-specific glyphs.
- * * `background`: The paint drawn as a background for the text.
+ * * `background`: The background color for the text.
  * * `decoration`: The decorations to paint near the text (e.g., an underline).
  * * `decorationColor`: The color in which to paint the text decorations.
  * * `decorationStyle`: The style in which to paint the text decorations (e.g., dashed).
@@ -85,7 +85,8 @@ data class TextStyle(
     val textBaseline: TextBaseline? = null,
     val height: Double? = null,
     val locale: Locale? = null,
-    val background: Paint? = null,
+    // TODO(Migration/haoyuchang): Changed from Paint to Color.
+    val background: Color? = null,
     // TODO(Migration/qqd): The flutter version we are implementing does not have "foreground" in
     // painting/TextStyle, but has it in engine/TextStyle.
     val decoration: TextDecoration? = null,

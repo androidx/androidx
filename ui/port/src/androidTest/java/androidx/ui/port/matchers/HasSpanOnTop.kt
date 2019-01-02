@@ -29,10 +29,11 @@ import kotlin.reflect.KClass
  * @param start start position of the expected span
  * @param end end position of the expected span
  */
-class HasSpanOnTop(
-    private val spanClazz: KClass<out Any>,
+class HasSpanOnTop<T : Any>(
+    private val spanClazz: KClass<out T>,
     private val start: Int,
-    private val end: Int
+    private val end: Int,
+    private val predicate: ((T) -> Boolean)?
 ) : BaseMatcher<CharSequence>() {
     override fun matches(item: Any?): Boolean {
         if (item !is Spanned) return false
@@ -43,7 +44,7 @@ class HasSpanOnTop(
             val spanEnd = item.getSpanEnd(span)
             if (spanStart == start || spanEnd == end) {
                 // Find the target span
-                return true
+                return predicate?.invoke(span) ?: true
             } else if (start in spanStart until spanEnd || end in (spanStart + 1)..spanEnd) {
                 // Find a span covers the given range.
                 // Impossible to find the target span on top.

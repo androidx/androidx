@@ -147,12 +147,11 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized background`() {
-        val paint = Paint()
-        paint.color = Color(0xFF00FF00.toInt())
+        val color = Color(0xFF00FF00.toInt())
 
-        val textStyle = TextStyle(background = paint)
+        val textStyle = TextStyle(background = color)
 
-        assertThat(textStyle.background).isEqualTo(paint)
+        assertThat(textStyle.background).isEqualTo(color)
     }
 
     @Test
@@ -597,25 +596,25 @@ class TextStyleTest {
 
     @Test
     fun `merge with other's background is null should use this' background`() {
-        val paint = Paint()
-        val textStyle = TextStyle(background = paint)
+        val color = Color(0xFF00FF00.toInt())
+        val textStyle = TextStyle(background = color)
         val otherTextStyle = TextStyle()
 
         val newTextStyle = textStyle.merge(otherTextStyle)
 
-        assertThat(newTextStyle.background).isEqualTo(paint)
+        assertThat(newTextStyle.background).isEqualTo(color)
     }
 
     @Test
     fun `merge with other's background is set should use other's background`() {
-        val paint = Paint()
-        val otherPaint = Paint()
-        val textStyle = TextStyle(background = paint)
-        val otherTextStyle = TextStyle(background = otherPaint)
+        val color = Color(0xFF00FF00.toInt())
+        val otherColor = Color(0xFF0000FF.toInt())
+        val textStyle = TextStyle(background = color)
+        val otherTextStyle = TextStyle(background = otherColor)
 
         val newTextStyle = textStyle.merge(otherTextStyle)
 
-        assertThat(newTextStyle.background).isEqualTo(otherPaint)
+        assertThat(newTextStyle.background).isEqualTo(otherColor)
     }
 
     @Test
@@ -1654,9 +1653,9 @@ class TextStyleTest {
 
     @Test
     fun `lerp background with a is Null and t is smaller than half`() {
-        val paint = Paint()
+        val color = Color(0xFF00FF00.toInt())
         val t = 0.2
-        val textStyle = TextStyle(background = paint)
+        val textStyle = TextStyle(background = color)
 
         val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
 
@@ -1665,31 +1664,31 @@ class TextStyleTest {
 
     @Test
     fun `lerp background with a is Null and t is larger than half`() {
-        val paint = Paint()
+        val color = Color(0xFF00FF00.toInt())
         val t = 0.8
-        val textStyle = TextStyle(background = paint)
+        val textStyle = TextStyle(background = color)
 
         val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
 
-        assertThat(newTextStyle?.background).isEqualTo(paint)
+        assertThat(newTextStyle?.background).isEqualTo(color)
     }
 
     @Test
     fun `lerp background with b is Null and t is smaller than half`() {
-        val paint = Paint()
+        val color = Color(0xFF00FF00.toInt())
         val t = 0.2
-        val textStyle = TextStyle(background = paint)
+        val textStyle = TextStyle(background = color)
 
         val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
 
-        assertThat(newTextStyle?.background).isEqualTo(paint)
+        assertThat(newTextStyle?.background).isEqualTo(color)
     }
 
     @Test
     fun `lerp background with b is Null and t is larger than half`() {
         val paint = Paint()
         val t = 0.8
-        val textStyle = TextStyle(background = paint)
+        val textStyle = TextStyle(background = Color(0xFF00FF00.toInt()))
 
         val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
 
@@ -1698,56 +1697,52 @@ class TextStyleTest {
 
     @Test
     fun `lerp background with a and b are not Null and t is smaller than half`() {
-        val paint1 = Paint()
-        paint1.color = Color(0x0)
-        val paint2 = Paint()
-        paint2.color = Color(0xf)
+        val color1 = Color(0x0)
+        val color2 = Color(0xf)
         val t = 0.2
         val textStyle1 = TextStyle(
             fontSize = 4.0,
             wordSpacing = 1.0,
             letterSpacing = 2.0,
             height = 123.0,
-            background = paint1
+            background = color1
         )
         val textStyle2 = TextStyle(
             fontSize = 7.0,
             wordSpacing = 2.0,
             letterSpacing = 4.0,
             height = 20.0,
-            background = paint2
+            background = color2
         )
 
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
 
-        assertThat(newTextStyle?.background).isEqualTo(paint1)
+        assertThat(newTextStyle?.background).isEqualTo(color1)
     }
 
     @Test
     fun `lerp background with a and b are not Null and t is larger than half`() {
-        val paint1 = Paint()
-        paint1.color = Color(0x0)
-        val paint2 = Paint()
-        paint2.color = Color(0xf)
+        val color1 = Color(0x0)
+        val color2 = Color(0xf)
         val t = 0.8
         val textStyle1 = TextStyle(
             fontSize = 4.0,
             wordSpacing = 1.0,
             letterSpacing = 2.0,
             height = 123.0,
-            background = paint1
+            background = color1
         )
         val textStyle2 = TextStyle(
             fontSize = 7.0,
             wordSpacing = 2.0,
             letterSpacing = 4.0,
             height = 20.0,
-            background = paint2
+            background = color2
         )
 
         val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
 
-        assertThat(newTextStyle?.background).isEqualTo(paint2)
+        assertThat(newTextStyle?.background).isEqualTo(color2)
     }
 
     @Test
@@ -2248,8 +2243,7 @@ class TextStyleTest {
         val fontSize = 10.0
         val height = 123.0
         val color = Color(0xFF00FF00.toInt())
-        val bgPaint = Paint()
-        bgPaint.color = Color(0x00FFFF00.toInt())
+        val bgColor = Color(0xFFFFFF00.toInt())
 
         val textStyle = TextStyle(
             inherit = false,
@@ -2262,7 +2256,7 @@ class TextStyleTest {
             textBaseline = TextBaseline.alphabetic,
             height = height,
             locale = Locale("en", "US"),
-            background = bgPaint,
+            background = bgColor,
             decoration = TextDecoration.overline,
             decorationColor = color,
             decorationStyle = TextDecorationStyle.dashed,

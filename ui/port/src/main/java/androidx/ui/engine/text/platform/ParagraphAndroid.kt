@@ -19,6 +19,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
+import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
 import android.text.style.LocaleSpan
 import android.text.style.StrikethroughSpan
@@ -290,7 +291,15 @@ internal class ParagraphAndroid constructor(
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
-            // TODO(Migration/haoyuchang): implement background
+            // TODO(Migration/haoyuchang): framework only support background color now
+            style.color?.let {
+                spannableString.setSpan(
+                    BackgroundColorSpan(it.value),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
             // TODO(Migration/haoyuchang): implement foreground or decide if we really need it
         }
         return spannableString
