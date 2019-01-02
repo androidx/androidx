@@ -287,9 +287,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertEquals(expectedDuration, mPlayer.getDuration(), tolerance);
     }
 
-    @Test
-    @SmallTest
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+//    Temporarily disabled for being flaky: b/121271468
+//    @Test
+//    @SmallTest
+//    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetCurrentPosition() throws Exception {
         assertEquals(MediaPlayer.PLAYER_STATE_IDLE, mPlayer.getPlayerState());
         assertEquals(MediaPlayer.UNKNOWN_TIME, mPlayer.getCurrentPosition());
