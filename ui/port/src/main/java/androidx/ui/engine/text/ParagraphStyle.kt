@@ -28,10 +28,6 @@ import androidx.ui.engine.window.Locale
  *   paragraph. If the last line is ellipsized (see `ellipsis` below), the
  *   alignment is applied to that line after it has been truncated but before
  *   the ellipsis has been added.
- */
-// TODO(Migration/siyamed): we should search for flutter in the code space and remove them
-//   See: https://github.com/flutter/flutter/issues/9819
-/**
  *
  * * `textDirection`: The directionality of the text, left-to-right (e.g.
  *   Norwegian) or right-to-left (e.g. Hebrew). This controls the overall

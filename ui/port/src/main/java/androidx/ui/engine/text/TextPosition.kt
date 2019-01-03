@@ -41,16 +41,3 @@ data class TextPosition(val offset: Int, val affinity: TextAffinity) {
         return "TextPosition(offset: $offset, affinity: $affinity)"
     }
 }
-
-// TODO(Migration/siyamed): removed the following since converted into data class
-//    @override
-//    int get hashCode => hashValues(offset, affinity);
-
-//    @override
-//    bool operator ==(dynamic other) {
-//        if (other.runtimeType != runtimeType)
-//            return false;
-//        final TextPosition typedOther = other;
-//        return typedOther.offset == offset
-//                && typedOther.affinity == affinity;
-//    }

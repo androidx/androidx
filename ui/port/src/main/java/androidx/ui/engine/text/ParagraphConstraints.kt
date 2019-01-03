@@ -50,15 +50,3 @@ data class ParagraphConstraints(val width: Double) {
         return "ParagraphConstraints(width: $width)"
     }
 }
-
-// TODO(Migration/siyamed): removed since changed it to a data class.
-// @override
-// bool operator ==(dynamic other) {
-//     if (other.runtimeType != runtimeType)
-//         return false;
-//     final ParagraphConstraints typedOther = other;
-//     return typedOther.width == width;
-// }
-//
-// @override
-// int get hashCode => width.hashCode;

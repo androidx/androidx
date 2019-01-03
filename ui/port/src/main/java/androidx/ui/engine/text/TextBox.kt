@@ -29,15 +29,19 @@ data class TextBox(
      * To get the leading edge (which may depend on the [direction]), consider [start].
      */
     val left: Double,
+
     /** The top edge of the text box. */
     val top: Double,
+
     /**
      * The right edge of the text box, irrespective of direction.
      * To get the trailing edge (which may depend on the [direction]), consider [end].
      */
     val right: Double,
+
     /** The bottom edge of the text box. */
     val bottom: Double,
+
     /** The direction in which text inside this box flows. */
     val direction: TextDirection
 ) {
@@ -71,7 +75,6 @@ data class TextBox(
     }
 
     companion object {
-
         fun fromLTRBD(
             left: Double,
             top: Double,
@@ -83,45 +86,3 @@ data class TextBox(
         }
     }
 }
-
-// TODO(Migration/siyamed): removed the following since converted into data class
-//    @override
-//    bool operator ==(dynamic other) {
-//        if (identical(this, other))
-//            return true;
-//        if (other.runtimeType != runtimeType)
-//            return false;
-//        final TextBox typedOther = other;
-//        return typedOther.left == left
-//                && typedOther.top == top
-//                && typedOther.right == right
-//                && typedOther.bottom == bottom
-//                && typedOther.direction == direction;
-//    }
-//
-//    @override
-//    int get hashCode => hashValues(left, top, right, bottom, direction);
-//
-//    open override fun ==(other : Any) : Boolean {
-//        if (identical(this, other)) {
-//            return true
-//        }
-//        if (!(other.runtimeType == runtimeType())) {
-//            return false
-//        }
-//        var typedOther : TextBox = other as TextBox
-//        return (((((typedOther.left == left) && (typedOther.top == top)) && (typedOther.right == right)) && (typedOther.bottom == bottom)) && (typedOther.direction == direction))
-//    }
-//    open override fun hashCode() : Int {
-//        return hashValues(left, top, right, bottom, direction)
-//    }
-
-// TODO(Migration/siyamed): I do not know what this is
-//    @pragma('vm:entry-point')
-//    TextBox._(
-//    this.left,
-//    this.top,
-//    this.right,
-//    this.bottom,
-//    int directionIndex,
-//    ) : direction = TextDirection.values[directionIndex];
