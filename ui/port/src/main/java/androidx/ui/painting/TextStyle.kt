@@ -37,7 +37,6 @@ import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.foundation.diagnostics.DoubleProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
-import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.foundation.diagnostics.MessageProperty
 import androidx.ui.foundation.diagnostics.StringProperty
 import androidx.ui.foundation.diagnostics.describeIdentity
@@ -139,20 +138,10 @@ data class TextStyle(
         heightFactor: Double = 1.0,
         heightDelta: Double = 0.0
     ): TextStyle {
-        assert(fontSizeFactor != null)
-        assert(fontSizeDelta != null)
         assert(fontSize != null || (fontSizeFactor == 1.0 && fontSizeDelta == 0.0))
-        assert(fontWeightDelta != null)
         assert(fontWeight != null || fontWeightDelta == 0)
-        assert(letterSpacingFactor != null)
-        assert(letterSpacingDelta != null)
         assert(letterSpacing != null || (letterSpacingFactor == 1.0 && letterSpacingDelta == 0.0))
-        assert(wordSpacingFactor != null)
-        assert(wordSpacingDelta != null)
         assert(wordSpacing != null || (wordSpacingFactor == 1.0 && wordSpacingDelta == 0.0))
-        assert(heightFactor != null)
-        assert(heightDelta != null)
-        assert(heightFactor != null || (heightFactor == 1.0 && heightDelta == 0.0))
 
         var modifiedDebugLabel = ""
 
@@ -256,7 +245,6 @@ data class TextStyle(
      */
     companion object {
         fun lerp(a: TextStyle? = null, b: TextStyle? = null, t: Double): TextStyle? {
-            assert(t != null)
             val aIsNull = a == null
             val bIsNull = b == null
             val inheritEqual = a?.inherit == b?.inherit
@@ -427,7 +415,6 @@ data class TextStyle(
         maxLines: Int? = null,
         locale: Locale? = null
     ): ParagraphStyle {
-        assert(textScaleFactor != null)
         assert(maxLines == null || maxLines > 0)
         return ParagraphStyle(
             textAlign = textAlign,
@@ -590,30 +577,13 @@ data class TextStyle(
             )
         }
 
-        val styleSpecified = styles.filter { n -> n.getLevel() != DiagnosticLevel.info }
         properties.add(
             DiagnosticsProperty.create(
                 "inherit",
                 inherit,
-                level =
-                if (styleSpecified == null && inherit!!) {
-                    DiagnosticLevel.fine
-                } else {
-                    DiagnosticLevel.info
-                }
+                level = DiagnosticLevel.info
             )
         )
         styles.iterator().forEach { properties.add(it) }
-
-        if (styleSpecified == null) {
-            properties.add(
-                FlagProperty(
-                    "inherit",
-                    value = inherit!!,
-                    ifTrue = "<all styles inherited>",
-                    ifFalse = "<no style specified>"
-                )
-            )
-        }
     }
 }
