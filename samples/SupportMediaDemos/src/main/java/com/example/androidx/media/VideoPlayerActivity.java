@@ -16,7 +16,6 @@
 
 package com.example.androidx.media;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -49,7 +48,6 @@ import java.util.concurrent.Executor;
 /**
  * Test application for VideoView/MediaControlView
  */
-@SuppressLint("NewApi")
 public class VideoPlayerActivity extends FragmentActivity {
     public static final String LOOPING_EXTRA_NAME =
             "com.example.androidx.media.VideoPlayerActivity.IsLooping";
