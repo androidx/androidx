@@ -261,7 +261,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
             }
         }
         MediaItem item = mPlayer.getCurrentMediaItem();
-        mPlayer.close();
+        mPlayer.reset();
         assertTrue(((FileMediaItem) item).isClosed());
     }
 
