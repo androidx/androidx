@@ -47,7 +47,7 @@ import java.util.TreeMap;
  * Start activity for the VideoViewTest application.  This class manages the UI
  * which allows a user to select a video to play back.
  */
-public class VideoSelector extends Activity {
+public class VideoSelectorActivity extends Activity {
     private ListView      mSelectList;
     private VideoItemList mSelectItems;
     private EditText      mUrlText;
@@ -59,14 +59,14 @@ public class VideoSelector extends Activity {
     private static final int EXTERNAL_STORAGE_PERMISSION_REQUEST_CODE = 100;
 
     private Intent createLaunchIntent(Context ctx, String url) {
-        Intent ret_val = new Intent(ctx, VideoViewTest.class);
+        Intent ret_val = new Intent(ctx, VideoPlayerActivity.class);
         ret_val.setData(Uri.parse(url));
         ret_val.putExtra(
-                VideoViewTest.LOOPING_EXTRA_NAME, mLoopingCheckbox.isChecked());
+                VideoPlayerActivity.LOOPING_EXTRA_NAME, mLoopingCheckbox.isChecked());
         ret_val.putExtra(
-                VideoViewTest.USE_TEXTURE_VIEW_EXTRA_NAME, mTextureViewCheckbox.isChecked());
+                VideoPlayerActivity.USE_TEXTURE_VIEW_EXTRA_NAME, mTextureViewCheckbox.isChecked());
         ret_val.putExtra(
-                VideoViewTest.MEDIA_TYPE_ADVERTISEMENT, mAdvertisementCheckBox.isChecked());
+                VideoPlayerActivity.MEDIA_TYPE_ADVERTISEMENT, mAdvertisementCheckBox.isChecked());
         return ret_val;
     }
 
@@ -78,7 +78,7 @@ public class VideoSelector extends Activity {
                 .penaltyDeath()
                 .build());
 
-        setContentView(R.layout.video_selector);
+        setContentView(R.layout.activity_video_selector);
 
         mSelectList  = (ListView) findViewById(R.id.select_list);
         final Button playButton = (Button) findViewById(R.id.play_button);
@@ -101,7 +101,7 @@ public class VideoSelector extends Activity {
             @Override
             public void onClick(View v) {
                 Intent launch = createLaunchIntent(
-                        VideoSelector.this,
+                        VideoSelectorActivity.this,
                         mUrlText.getText().toString());
                 startActivity(launch);
             }
@@ -212,7 +212,7 @@ public class VideoSelector extends Activity {
                     new VideoItemListTask(item.getUrl()).execute();
                 } else {
                     Intent launch = createLaunchIntent(
-                            VideoSelector.this,
+                            VideoSelectorActivity.this,
                             item.getUrl());
                     startActivity(launch);
                 }
@@ -229,7 +229,7 @@ public class VideoSelector extends Activity {
         private final boolean mIsRoot;
 
         private VideoItemList(String path, boolean isRoot) {
-            super(VideoSelector.this,
+            super(VideoSelectorActivity.this,
                   R.layout.video_list_item,
                   R.id.video_list_item);
             mPath = path;

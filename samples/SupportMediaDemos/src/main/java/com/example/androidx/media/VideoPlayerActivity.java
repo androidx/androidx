@@ -50,14 +50,14 @@ import java.util.concurrent.Executor;
  * Test application for VideoView/MediaControlView
  */
 @SuppressLint("NewApi")
-public class VideoViewTest extends FragmentActivity {
+public class VideoPlayerActivity extends FragmentActivity {
     public static final String LOOPING_EXTRA_NAME =
-            "com.example.androidx.media.VideoViewTest.IsLooping";
+            "com.example.androidx.media.VideoPlayerActivity.IsLooping";
     public static final String USE_TEXTURE_VIEW_EXTRA_NAME =
-            "com.example.androidx.media.VideoViewTest.UseTextureView";
+            "com.example.androidx.media.VideoPlayerActivity.UseTextureView";
     public static final String MEDIA_TYPE_ADVERTISEMENT =
-            "com.example.androidx.media.VideoViewTest.MediaTypeAdvertisement";
-    private static final String TAG = "VideoViewTest";
+            "com.example.androidx.media.VideoPlayerActivity.MediaTypeAdvertisement";
+    private static final String TAG = "VideoPlayerActivity";
 
     private MyVideoView mVideoView = null;
     private float mSpeed = 1.0f;
@@ -76,7 +76,7 @@ public class VideoViewTest extends FragmentActivity {
         //Remove title bar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        setContentView(R.layout.video_activity);
+        setContentView(R.layout.activity_video_player);
 
         mVideoView = findViewById(R.id.video_view);
         mVideoView.setActivity(this);
