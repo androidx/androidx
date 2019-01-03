@@ -690,6 +690,11 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
+    public void onBufferingUpdate(MediaItem mediaItem, int bufferingPercentage) {
+        notifyOnInfo(mediaItem, MEDIA_INFO_BUFFERING_UPDATE, bufferingPercentage);
+    }
+
+    @Override
     public void onBandwidthSample(MediaItem mediaItem, int bitrateKbps) {
         notifyOnInfo(mediaItem, MEDIA_INFO_NETWORK_BANDWIDTH, bitrateKbps);
     }
