@@ -488,7 +488,7 @@ val viewAdapterProviderValueId: AdapterProviderForItems = { items ->
 
 val viewAdapterProvider: AdapterProviderForItems = { items -> { ViewAdapter(items) } }
 
-fun stringSequence(pageCount: Int) = (1..pageCount).mapIndexed { ix, _ -> ix.toString() }
+fun stringSequence(pageCount: Int) = (0 until pageCount).map { it.toString() }
 
 val AdapterProviderForItems.supportsMutations: Boolean
     get() {
