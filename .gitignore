@@ -30,3 +30,6 @@ jacoco.exec
 
 # Mac Desktop Services Store files.
 .DS_Store
+
+# Layout Inspector creates it.
+captures/
