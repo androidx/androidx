@@ -23,6 +23,7 @@ import static androidx.media2.MediaPlayer2.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -41,6 +42,7 @@ import androidx.media2.MediaTimestamp;
 import androidx.media2.PlaybackParams;
 import androidx.media2.SubtitleData;
 import androidx.media2.TimedMetaData;
+import androidx.media2.UriMediaItem;
 import androidx.media2.exoplayer.external.C;
 import androidx.media2.exoplayer.external.DefaultLoadControl;
 import androidx.media2.exoplayer.external.ExoPlaybackException;
@@ -110,6 +112,9 @@ import java.util.Map;
         /** Called when the player becomes ready again after rebuffering. */
         void onBufferingEnded(MediaItem mediaItem);
 
+        /** Called periodically with the player's buffered position as a percentage. */
+        void onBufferingUpdate(MediaItem mediaItem, int bufferingPercentage);
+
         /** Called when a sample of the available bandwidth is known. */
         void onBandwidthSample(MediaItem mediaItem2, int bitrateKbps);
 
@@ -147,10 +152,14 @@ import java.util.Map;
 
     private static final String USER_AGENT_NAME = "MediaPlayer2";
 
+    private static final int POLL_BUFFER_INTERVAL_MS = 1000;
+
     private final Context mContext;
     private final Listener mListener;
     private final Looper mLooper;
+    private final Handler mHandler;
     private final DefaultBandwidthMeter mBandwidthMeter;
+    private final Runnable mPollBufferRunnable;
 
     private SimpleExoPlayer mPlayer;
     private DefaultAudioSink mAudioSink;
@@ -180,8 +189,10 @@ import java.util.Map;
         mContext = context.getApplicationContext();
         mListener = listener;
         mLooper = looper;
+        mHandler = new Handler(looper);
         // Use the same bandwidth meter for all playbacks via this wrapper.
         mBandwidthMeter = new DefaultBandwidthMeter();
+        mPollBufferRunnable = new PollBufferRunnable();
     }
 
     public Looper getLooper() {
@@ -475,6 +486,7 @@ import java.util.Map;
 
     public void close() {
         if (mPlayer != null) {
+            mHandler.removeCallbacks(mPollBufferRunnable);
             mPlayer.release();
             mPlayer = null;
             mMediaItemQueue.clear();
@@ -512,6 +524,12 @@ import java.util.Map;
             maybeUpdateTimerForStopped();
         }
 
+        if (state == Player.STATE_READY || state == Player.STATE_BUFFERING) {
+            mHandler.post(mPollBufferRunnable);
+        } else {
+            mHandler.removeCallbacks(mPollBufferRunnable);
+        }
+
         switch (state) {
             case Player.STATE_BUFFERING:
                 maybeNotifyBufferingEvents();
@@ -523,9 +541,10 @@ import java.util.Map;
                 mMediaItemQueue.onPlayerEnded();
                 break;
             case Player.STATE_IDLE:
-            default:
                 // Do nothing.
                 break;
+            default:
+                throw new IllegalStateException();
         }
     }
 
@@ -590,6 +609,15 @@ import java.util.Map;
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void updateBufferingAndScheduleNextPollBuffer() {
+        if (mMediaItemQueue.getCurrentMediaItemIsRemote()) {
+            mListener.onBufferingUpdate(getCurrentMediaItem(), mPlayer.getBufferedPercentage());
+        }
+        mHandler.removeCallbacks(mPollBufferRunnable);
+        mHandler.postDelayed(mPollBufferRunnable, POLL_BUFFER_INTERVAL_MS);
+    }
+
     private void maybeUpdateTimerForPlaying() {
         mMediaItemQueue.onPlaying();
     }
@@ -601,8 +629,10 @@ import java.util.Map;
     private void maybeNotifyBufferingEvents() {
         if (mPrepared && !mRebuffering) {
             mRebuffering = true;
-            mListener.onBandwidthSample(
-                    getCurrentMediaItem(), (int) (mBandwidthMeter.getBitrateEstimate() / 1000));
+            if (mMediaItemQueue.getCurrentMediaItemIsRemote()) {
+                mListener.onBandwidthSample(
+                        getCurrentMediaItem(), (int) (mBandwidthMeter.getBitrateEstimate() / 1000));
+            }
             mListener.onBufferingStarted(getCurrentMediaItem());
         }
     }
@@ -626,8 +656,10 @@ import java.util.Map;
             mListener.onSeekCompleted(getCurrentPosition());
         } else if (mRebuffering) {
             mRebuffering = false;
-            mListener.onBandwidthSample(
-                    getCurrentMediaItem(), (int) (mBandwidthMeter.getBitrateEstimate() / 1000));
+            if (mMediaItemQueue.getCurrentMediaItemIsRemote()) {
+                mListener.onBandwidthSample(
+                        getCurrentMediaItem(), (int) (mBandwidthMeter.getBitrateEstimate() / 1000));
+            }
             mListener.onBufferingEnded(getCurrentMediaItem());
         }
     }
@@ -717,17 +749,28 @@ import java.util.Map;
 
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final class PollBufferRunnable implements Runnable {
+        @Override
+        public void run() {
+            updateBufferingAndScheduleNextPollBuffer();
+        }
+    }
+
     private static final class MediaItemInfo {
 
         final MediaItem mMediaItem;
         @Nullable
         final DurationProvidingMediaSource mDurationProvidingMediaSource;
+        final boolean mIsRemote;
 
         MediaItemInfo(
                 MediaItem mediaItem,
-                @Nullable DurationProvidingMediaSource durationProvidingMediaSource) {
+                @Nullable DurationProvidingMediaSource durationProvidingMediaSource,
+                boolean isRemote) {
             mMediaItem = mediaItem;
             mDurationProvidingMediaSource = durationProvidingMediaSource;
+            mIsRemote = isRemote;
         }
 
     }
@@ -823,14 +866,10 @@ import java.util.Map;
                     mListener.onError(/* mediaItem= */ null, MEDIA_ERROR_UNKNOWN);
                     return;
                 }
-                try {
-                    appendMediaItem(
-                            mediaItem,
-                            mMediaItemInfos,
-                            mediaSources);
-                } catch (IOException e) {
-                    mListener.onError(mediaItem, MEDIA_ERROR_UNKNOWN);
-                }
+                appendMediaItem(
+                        mediaItem,
+                        mMediaItemInfos,
+                        mediaSources);
             }
             mConcatenatingMediaSource.addMediaSources(mediaSources);
         }
@@ -856,6 +895,10 @@ import java.util.Map;
 
         public long getCurrentMediaItemPlayingTimeMs() {
             return C.usToMs(mCurrentMediaItemPlayingTimeUs);
+        }
+
+        public boolean getCurrentMediaItemIsRemote() {
+            return mMediaItemInfos.isEmpty() ? false : mMediaItemInfos.peekFirst().mIsRemote;
         }
 
         public void skipToNext() {
@@ -919,7 +962,7 @@ import java.util.Map;
         private void appendMediaItem(
                 MediaItem mediaItem,
                 Collection<MediaItemInfo> mediaItemInfos,
-                Collection<MediaSource> mediaSources) throws IOException {
+                Collection<MediaSource> mediaSources) {
             DataSource.Factory dataSourceFactory = mDataSourceFactory;
             // Create a data source for reading from the file descriptor, if needed.
             if (mediaItem instanceof FileMediaItem) {
@@ -955,9 +998,11 @@ import java.util.Map;
                         /* relativeToDefaultPosition= */ true);
             }
 
+            boolean isRemote = mediaItem instanceof UriMediaItem
+                    && !Util.isLocalFileUri(((UriMediaItem) mediaItem).getUri());
             mediaSources.add(mediaSource);
             mediaItemInfos.add(
-                    new MediaItemInfo(mediaItem, durationProvidingMediaSource));
+                    new MediaItemInfo(mediaItem, durationProvidingMediaSource, isRemote));
         }
 
         private void releaseMediaItem(MediaItemInfo mediaItemInfo) {
