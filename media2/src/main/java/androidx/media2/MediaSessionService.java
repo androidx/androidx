@@ -72,7 +72,7 @@ import java.util.List;
  * <h3>Service Lifecycle</h3>
  * <p>
  * Session service is bound service. When a {@link MediaController} is created for the
- * session service, the controller binds to the session service. {@link #onGetSession()}
+ * session service, the controller binds to the session service. {@link #onGetPrimarySession()}
  * would be called inside of the {@link #onBind(Intent)}.
  * <p>
  * After the binding, session's
@@ -102,9 +102,9 @@ import java.util.List;
  * sessions and add to this service with {@link #addSession(MediaSession)}.
  * <p>
  * Note that {@link MediaController} can be created with {@link SessionToken} for
- * connecting any session in this service. In that case, {@link #onGetSession()} will be called
- * to know which session to handle incoming connection request. Pick the best session among added
- * sessions, or create new one and return from the {@link #onGetSession()}.
+ * connecting any session in this service. In that case, {@link #onGetPrimarySession()} will be
+ * called to know which session to handle incoming connection request. Pick the best session among
+ * added sessions, or create new one and return from the {@link #onGetPrimarySession()}.
  */
 public abstract class MediaSessionService extends Service {
     /**
@@ -138,7 +138,20 @@ public abstract class MediaSessionService extends Service {
     }
 
     /**
-     * Called when another app has requested to get {@link MediaSession}.
+     * Called when a {@link MediaController} is created with the this service's
+     * {@link SessionToken}. Return the primary session for telling the controller which session to
+     * connect.
+     * <p>
+     * Primary session is the highest priority session that this service manages. Here's some
+     * recommendations of the primary session.
+     * <ol>
+     * <li>When there's no {@link MediaSession}, create and return a new session. Resume the
+     * playback that the app has the lastly played with the new session. The behavior is what
+     * framework expects when the framework sends key events to the service.</li>
+     * <li>When there's multiple {@link MediaSession}s, pick the session that has the lastly started
+     * the playback. This is the same way as the framework prioritize sessions to receive media key
+     * events.</li>
+     * </ol>
      * <p>
      * Session returned here will be added to this service automatically. You don't need to call
      * {@link #addSession(MediaSession)} for that.
@@ -152,7 +165,7 @@ public abstract class MediaSessionService extends Service {
      * @see MediaSession.Builder
      * @see #getSessions()
      */
-    public @NonNull abstract MediaSession onGetSession();
+    public @NonNull abstract MediaSession onGetPrimarySession();
 
     /**
      * Adds a session to this service.

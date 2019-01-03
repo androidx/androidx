@@ -67,7 +67,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
 
     /**
      * Session for the {@link MediaLibraryService}. Build this object with
-     * {@link Builder} and return in {@link #onGetSession()}.
+     * {@link Builder} and return in {@link #onGetPrimarySession()}.
      */
     public static final class MediaLibrarySession extends MediaSession {
         /**
@@ -448,7 +448,7 @@ public abstract class MediaLibraryService extends MediaSessionService {
      * @see #getSessions()
      */
     @Override
-    public @NonNull abstract MediaLibrarySession onGetSession();
+    public @NonNull abstract MediaLibrarySession onGetPrimarySession();
 
     /**
      * Contains information that the library service needs to send to the client.
