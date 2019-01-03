@@ -229,7 +229,7 @@ import java.util.Map;
 
     public long getCurrentPosition() {
         Preconditions.checkState(getState() != MediaPlayer2.PLAYER_STATE_IDLE);
-        long position = mPlayer.getCurrentPosition();
+        long position = Math.max(0, mPlayer.getCurrentPosition());
         MediaItem mediaItem = mMediaItemQueue.getCurrentMediaItem();
         if (mediaItem != null) {
             position += mediaItem.getStartPosition();
