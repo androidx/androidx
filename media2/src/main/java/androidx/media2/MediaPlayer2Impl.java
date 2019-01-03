@@ -1458,6 +1458,7 @@ public final class MediaPlayer2Impl extends MediaPlayer2 {
             } else {
                 MediaPlayerSource previous = mQueue.set(0, new MediaPlayerSource(item));
                 previous.release();
+                applyProperties();
             }
             handleDataSource(mQueue.get(0));
         }
