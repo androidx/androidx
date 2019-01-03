@@ -57,7 +57,7 @@ limitations under the License.
         <item name="android:fontFamily">sans-serif-medium</item>
     </style>
 
-    <!-- Title2 text that is permanently a light color. -->
+    <!-- Body1 text that is permanently a light color. -->
     <style name="TextAppearance.Car.Body1.Light">
         <item name="android:textColor">@color/car_body1_light</item>
     </style>
@@ -66,9 +66,9 @@ limitations under the License.
         <item name="android:textColor">@color/car_body1_light</item>
     </style>
 
-    <!-- Title2 text that is permanently a dark color. -->
+    <!-- Body1 text that is permanently a dark color. -->
     <style name="TextAppearance.Car.Body1.Dark">
-        <item name="android:textColor">@color/car_body2_dark</item>
+        <item name="android:textColor">@color/car_body1_dark</item>
     </style>
 
     <style name="TextAppearance.Car.Body1.Medium.Dark">
@@ -427,16 +427,19 @@ limitations under the License.
 
     <style name="Widget.Car.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox">
         <item name="android:textAppearance">@style/TextAppearance.Car.Body1</item>
+        <item name="android:textColor">@color/car_body1</item>
         <item name="android:buttonTint">?android:attr/colorAccent</item>
         <item name="buttonTint">?android:attr/colorAccent</item>
     </style>
 
     <style name="Widget.Car.CheckBox.Light">
         <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Light</item>
+        <item name="android:textColor">@color/car_body1_light</item>
     </style>
 
     <style name="Widget.Car.CheckBox.Dark">
         <item name="android:textAppearance">@style/TextAppearance.Car.Body1.Dark</item>
+        <item name="android:textColor">@color/car_body1_dark</item>
     </style>
 
     <!-- ============= -->

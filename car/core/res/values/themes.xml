@@ -27,7 +27,7 @@ limitations under the License.
         <item name="android:colorForeground">@color/car_body2_light</item>
         <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="android:buttonStyle">@style/Widget.Car.Button.DarkText</item>
-        <item name="android:checkboxStyle">@style/Widget.Car.CheckBox</item>
+        <item name="android:checkboxStyle">@style/Widget.Car.CheckBox.Light</item>
         <item name="android:colorButtonNormal">@color/car_accent_light</item>
         <item name="android:colorControlHighlight">@color/car_card_ripple_background_light</item>
         <item name="android:colorControlNormal">@color/car_body2_light</item>
