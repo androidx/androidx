@@ -39,7 +39,7 @@ public class MockMediaSessionService extends MediaSessionService {
     }
 
     @Override
-    public MediaSession onGetSession() {
+    public MediaSession onGetPrimarySession() {
         TestServiceRegistry registry = TestServiceRegistry.getInstance();
         TestServiceRegistry.OnGetSessionHandler onGetSessionHandler =
                 registry.getOnGetSessionHandler();

@@ -125,13 +125,34 @@ public class MediaController implements AutoCloseable {
     Long mTimeDiff;
 
     /**
-     * Create a {@link MediaController} from the {@link SessionToken}.
-     * This connects to the session and may wake up the service if it's not available.
+     * Create a {@link MediaController} from the {@link SessionToken}. Detailed behavior differs
+     * according to the type of the token as follows.
+     * <p>
+     * <ol>
+     * <li>Connected to a {@link SessionToken#TYPE_SESSION} token
+     * <p>
+     * The controller connects to the specified session directly. It's recommended when you're sure
+     * which session to control, or a you've got token directly from the session app.
+     * <p>
+     * This can be used only when the session for the token is running. Once the session is closed,
+     * the token becomes unusable.</li>
+     * <li>Connected to a {@link SessionToken#TYPE_SESSION_SERVICE} or
+     * {@link SessionToken#TYPE_LIBRARY_SERVICE}
+     * <p>The controller connects to the session provided by the
+     * {@link MediaSessionService#onGetPrimarySession()}. It's up to the service's decision which
+     * session would be returned for the connection. Use the {@link #getConnectedSessionToken()} to
+     * know the connected session.
+     * <p>
+     * This can be used regardless of the session app is running or not. The controller would bind
+     * to the service while connected to wake up and keep the service process running.</li>
+     * </ol>
      *
      * @param context Context
      * @param token token to connect to
      * @param executor executor to run callbacks on.
      * @param callback controller callback to receive changes in
+     * @see MediaSessionService#onGetPrimarySession()
+     * @see #getConnectedSessionToken()
      */
     public MediaController(@NonNull final Context context, @NonNull final SessionToken token,
             @NonNull final Executor executor, @NonNull final ControllerCallback callback) {
@@ -154,7 +175,6 @@ public class MediaController implements AutoCloseable {
 
     /**
      * Create a {@link MediaController} from the {@link MediaSessionCompat.Token}.
-     * This connects to the session and may wake up the service if it's not available.
      *
      * @param context Context
      * @param token token to connect to
