@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.StringRes;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 import android.text.TextUtils;
@@ -66,7 +67,7 @@ abstract class AbstractAppBarOnDestinationChangedListener
 
     protected abstract void setTitle(CharSequence title);
 
-    protected abstract void setNavigationIcon(Drawable icon);
+    protected abstract void setNavigationIcon(Drawable icon, @StringRes int contentDescription);
 
     @Override
     public void onDestinationChanged(@NonNull NavController controller,
@@ -101,7 +102,7 @@ abstract class AbstractAppBarOnDestinationChangedListener
         boolean isTopLevelDestination = NavigationUI.matchDestinations(destination,
                 mTopLevelDestinations);
         if (drawerLayout == null && isTopLevelDestination) {
-            setNavigationIcon(null);
+            setNavigationIcon(null, 0);
         } else {
             setActionBarUpIndicator(drawerLayout != null && isTopLevelDestination);
         }
@@ -114,7 +115,9 @@ abstract class AbstractAppBarOnDestinationChangedListener
             // We're setting the initial state, so skip the animation
             animate = false;
         }
-        setNavigationIcon(mArrowDrawable);
+        setNavigationIcon(mArrowDrawable, showAsDrawerIndicator
+                ? R.string.nav_app_bar_open_drawer_description
+                : R.string.nav_app_bar_navigate_up_description);
         float endValue = showAsDrawerIndicator ? 0f : 1f;
         if (animate) {
             float startValue = mArrowDrawable.getProgress();
