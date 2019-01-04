@@ -363,6 +363,35 @@ public class SliceViewTest {
     }
 
     @Test
+    public void testHeightMin() {
+        Uri uri = Uri.parse("content://pkg/slice");
+        SliceViewPolicy p = new SliceViewPolicy();
+        mSliceView.setMode(SliceView.MODE_SMALL);
+        mSliceView.setSliceViewPolicy(p);
+
+        mSliceView.setSlice(new ListBuilder(mContext, uri, ListBuilder.INFINITY)
+                .addInputRange(new ListBuilder.InputRangeBuilder()
+                        .setTitle("Title")
+                        .setSubtitle("Subtitle")
+                        .setPrimaryAction(SliceAction.createToggle(getIntent(""), "Switch", true))
+                        .setMin(0)
+                        .setMax(5)
+                        .setInputAction(getIntent("")))
+                .build());
+
+        // Test a height between min and max heights, full width because that doesn't matter.
+        int width = mContext.getResources().getDisplayMetrics().widthPixels;
+        int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 48,
+                mContext.getResources().getDisplayMetrics());
+        mSliceView.setLayoutParams(new ViewGroup.LayoutParams(width, height));
+        mSliceView.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
+                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
+
+        assertEquals(height, mSliceView.getMeasuredHeight());
+        assertEquals(height, p.getMaxSmallHeight());
+    }
+
+    @Test
     public void testHeightBetweenMinAndMax() {
         Uri uri = Uri.parse("content://pkg/slice");
         SliceViewPolicy p = new SliceViewPolicy();
@@ -370,11 +399,13 @@ public class SliceViewTest {
         mSliceView.setSliceViewPolicy(p);
 
         mSliceView.setSlice(new ListBuilder(mContext, uri, ListBuilder.INFINITY)
-                .setHeader(new ListBuilder.HeaderBuilder()
+                .addInputRange(new ListBuilder.InputRangeBuilder()
                         .setTitle("Title")
-                        .setSummary("Summary")
                         .setSubtitle("Subtitle")
-                        .setPrimaryAction(SliceAction.createToggle(getIntent(""), "Switch", true)))
+                        .setPrimaryAction(SliceAction.createToggle(getIntent(""), "Switch", true))
+                        .setMin(0)
+                        .setMax(5)
+                        .setInputAction(getIntent("")))
                 .build());
 
         // Test a height between min and max heights, full width because that doesn't matter.
@@ -385,6 +416,7 @@ public class SliceViewTest {
         mSliceView.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY));
 
+        assertEquals(height, mSliceView.getMeasuredHeight());
         assertEquals(height, p.getMaxSmallHeight());
     }
 
