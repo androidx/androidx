@@ -497,6 +497,11 @@ public class NotificationCompat {
     public static final String CATEGORY_CALL = Notification.CATEGORY_CALL;
 
     /**
+     * Notification category: map turn-by-turn navigation.
+     */
+    public static final String CATEGORY_NAVIGATION = Notification.CATEGORY_NAVIGATION;
+
+    /**
      * Notification category: incoming direct message (SMS, instant message, etc.).
      */
     public static final String CATEGORY_MESSAGE = Notification.CATEGORY_MESSAGE;
