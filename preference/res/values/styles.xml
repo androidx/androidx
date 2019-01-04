@@ -163,20 +163,6 @@
         <item name="iconSpaceReserved">@bool/config_materialPreferenceIconSpaceReserved</item>
     </style>
 
-    <style name="Preference_TextAppearanceMaterialBody2">
-        <item name="android:textSize">14sp</item>
-        <item tools:ignore="NewApi" name="android:fontFamily">sans-serif</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textStyle">normal</item>
-    </style>
-
-    <style name="Preference_TextAppearanceMaterialSubhead">
-        <item name="android:textSize">16sp</item>
-        <item tools:ignore="NewApi" name="android:fontFamily">sans-serif</item>
-        <item name="android:textColor">?android:attr/textColorPrimary</item>
-        <item name="android:textStyle">normal</item>
-    </style>
-
     <style name="PreferenceFragment.Material">
         <item name="android:divider">@drawable/preference_list_divider_material</item>
         <item name="allowDividerAfterLastItem">false</item>
