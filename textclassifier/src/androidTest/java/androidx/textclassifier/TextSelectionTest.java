@@ -68,10 +68,10 @@ public final class TextSelectionTest {
         assertEquals(ID, result.getId());
         assertEquals(BUNDLE_VALUE, result.getExtras().getString(BUNDLE_KEY));
 
-        assertThat(result.getEntityCount()).isEqualTo(3);
-        assertThat(result.getEntity(0)).isEqualTo(TextClassifier.TYPE_ADDRESS);
-        assertThat(result.getEntity(1)).isEqualTo(TextClassifier.TYPE_PHONE);
-        assertThat(result.getEntity(2)).isEqualTo(TextClassifier.TYPE_URL);
+        assertThat(result.getEntityTypeCount()).isEqualTo(3);
+        assertThat(result.getEntityType(0)).isEqualTo(TextClassifier.TYPE_ADDRESS);
+        assertThat(result.getEntityType(1)).isEqualTo(TextClassifier.TYPE_PHONE);
+        assertThat(result.getEntityType(2)).isEqualTo(TextClassifier.TYPE_URL);
         assertThat(result.getConfidenceScore(TextClassifier.TYPE_ADDRESS))
                 .isWithin(EPSILON).of(ADDRESS_SCORE);
         assertThat(result.getConfidenceScore(TextClassifier.TYPE_PHONE))
@@ -194,10 +194,10 @@ public final class TextSelectionTest {
     }
 
     private void assertTextSelection(TextSelection textSelection) {
-        assertThat(textSelection.getEntityCount()).isEqualTo(3);
-        assertThat(textSelection.getEntity(0)).isEqualTo(TextClassifier.TYPE_ADDRESS);
-        assertThat(textSelection.getEntity(1)).isEqualTo(TextClassifier.TYPE_PHONE);
-        assertThat(textSelection.getEntity(2)).isEqualTo(TextClassifier.TYPE_URL);
+        assertThat(textSelection.getEntityTypeCount()).isEqualTo(3);
+        assertThat(textSelection.getEntityType(0)).isEqualTo(TextClassifier.TYPE_ADDRESS);
+        assertThat(textSelection.getEntityType(1)).isEqualTo(TextClassifier.TYPE_PHONE);
+        assertThat(textSelection.getEntityType(2)).isEqualTo(TextClassifier.TYPE_URL);
         assertThat(textSelection.getConfidenceScore(TextClassifier.TYPE_ADDRESS))
                 .isWithin(EPSILON).of(ADDRESS_SCORE);
         assertThat(textSelection.getConfidenceScore(TextClassifier.TYPE_PHONE))

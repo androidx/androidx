@@ -198,7 +198,7 @@ public final class TextLinksTest {
         TextLinks.TextLinkSpan span = spans[0];
         assertThat(spannable.getSpanStart(span)).isEqualTo(START);
         assertThat(spannable.getSpanEnd(span)).isEqualTo(END);
-        assertThat(span.getTextLinkSpanData().getTextLink().getEntity(0))
+        assertThat(span.getTextLinkSpanData().getTextLink().getEntityType(0))
                 .isEqualTo(TextClassifier.TYPE_PHONE);
     }
 
@@ -222,15 +222,15 @@ public final class TextLinksTest {
         assertEquals(2, resultList.size());
         assertEquals(0, resultList.get(0).getStart());
         assertEquals(4, resultList.get(0).getEnd());
-        assertEquals(1, resultList.get(0).getEntityCount());
-        assertEquals(TYPE_OTHER, resultList.get(0).getEntity(0));
+        assertEquals(1, resultList.get(0).getEntityTypeCount());
+        assertEquals(TYPE_OTHER, resultList.get(0).getEntityType(0));
         assertEquals(1.f, resultList.get(0).getConfidenceScore(TYPE_OTHER), epsilon);
         assertEquals(5, resultList.get(1).getStart());
         assertEquals(12, resultList.get(1).getEnd());
-        assertEquals(3, resultList.get(1).getEntityCount());
-        assertEquals(TYPE_ADDRESS, resultList.get(1).getEntity(0));
-        assertEquals(TYPE_OTHER, resultList.get(1).getEntity(1));
-        assertEquals(TYPE_PHONE, resultList.get(1).getEntity(2));
+        assertEquals(3, resultList.get(1).getEntityTypeCount());
+        assertEquals(TYPE_ADDRESS, resultList.get(1).getEntityType(0));
+        assertEquals(TYPE_OTHER, resultList.get(1).getEntityType(1));
+        assertEquals(TYPE_PHONE, resultList.get(1).getEntityType(2));
         assertEquals(.8f, resultList.get(1).getConfidenceScore(TYPE_ADDRESS), epsilon);
         assertEquals(.5f, resultList.get(1).getConfidenceScore(TYPE_OTHER), epsilon);
         assertEquals(.1f, resultList.get(1).getConfidenceScore(TYPE_PHONE), epsilon);

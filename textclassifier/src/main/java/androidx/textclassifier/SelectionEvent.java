@@ -362,8 +362,8 @@ public final class SelectionEvent {
             int start, int end, @NonNull TextSelection selection) {
         Preconditions.checkArgument(end >= start, "end cannot be less than start");
         Preconditions.checkNotNull(selection);
-        final String entityType = selection.getEntityCount() > 0
-                ? selection.getEntity(0)
+        final String entityType = selection.getEntityTypeCount() > 0
+                ? selection.getEntityType(0)
                 : TextClassifier.TYPE_UNKNOWN;
         SelectionEvent selectionEvent = new SelectionEvent(
                 start, end, SelectionEvent.EVENT_AUTO_SELECTION,
