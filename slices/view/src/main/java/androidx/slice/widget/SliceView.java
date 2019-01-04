@@ -404,7 +404,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
                 // TODO: consider scaling the shortcut to fit if too small
                 height = mShortcutSize;
             } else if (height <= mMinTemplateHeight) {
-                height = sliceHeight;
+                height = mMinTemplateHeight;
             }
         }
 
