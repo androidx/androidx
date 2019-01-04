@@ -1265,10 +1265,8 @@ public class ViewCompat {
             @NonNull AccessibilityActionCompat action) {
         if (Build.VERSION.SDK_INT >= 21) {
             getOrCreateAccessibilityDelegateCompat(view);
-            List<AccessibilityActionCompat> actions = getActionList(view);
-
-            actions.remove(action);
-            actions.add(action);
+            removeActionWithId(action.getId(), view);
+            getActionList(view).add(action);
             notifyViewAccessibilityStateChangedIfNeeded(
                     view, AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED);
         }
@@ -1283,15 +1281,19 @@ public class ViewCompat {
      */
     public static void removeAccessibilityAction(@NonNull View view, int actionId) {
         if (Build.VERSION.SDK_INT >= 21) {
-            List<AccessibilityActionCompat> actions = getActionList(view);
-            for (int i = 0; i < actions.size(); i++) {
-                if (actions.get(i).getId() == actionId) {
-                    actions.remove(i);
-                    break;
-                }
-            }
+            removeActionWithId(actionId, view);
             notifyViewAccessibilityStateChangedIfNeeded(
                     view, AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED);
+        }
+    }
+
+    private static void removeActionWithId(int actionId, View view) {
+        List<AccessibilityActionCompat> actions = getActionList(view);
+        for (int i = 0; i < actions.size(); i++) {
+            if (actions.get(i).getId() == actionId) {
+                actions.remove(i);
+                break;
+            }
         }
     }
 
