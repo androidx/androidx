@@ -16,7 +16,6 @@
 
 package com.example.androidx.media;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,7 +25,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,7 +75,6 @@ public class VideoPlayerActivity extends FragmentActivity {
         setContentView(R.layout.activity_video_player);
 
         mVideoView = findViewById(R.id.video_view);
-        mVideoView.setActivity(this);
 
         String errorString = null;
         Intent intent = getIntent();
@@ -202,7 +199,6 @@ public class VideoPlayerActivity extends FragmentActivity {
     public static class MyVideoView extends VideoView {
         private float mDX;
         private float mDY;
-        private Activity mActivity;
 
         public MyVideoView(Context context) {
             super(context);
@@ -234,18 +230,6 @@ public class VideoPlayerActivity extends FragmentActivity {
                     return true;
             }
             return super.onTouchEvent(ev);
-        }
-
-        @Override
-        public boolean onKeyDown(int keyCode, KeyEvent event)  {
-            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-                mActivity.finish();
-            }
-            return false;
-        }
-
-        public void setActivity(Activity activity) {
-            mActivity = activity;
         }
     }
 
