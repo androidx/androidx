@@ -39,6 +39,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.ObjectsCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.VolumeProviderCompat;
@@ -149,13 +150,24 @@ public class MediaController implements AutoCloseable {
      *
      * @param context Context
      * @param token token to connect to
+     */
+    public MediaController(@NonNull final Context context, @NonNull final SessionToken token) {
+        this(context, token, ContextCompat.getMainExecutor(context), new ControllerCallback() {});
+    }
+
+    /**
+     * Create a {@link MediaController} from the {@link SessionToken}.
+     * This connects to the session and may wake up the service if it's not available.
+     *
+     * @param context Context
+     * @param token token to connect to
      * @param executor executor to run callbacks on.
      * @param callback controller callback to receive changes in
      * @see MediaSessionService#onGetPrimarySession()
      * @see #getConnectedSessionToken()
      */
     public MediaController(@NonNull final Context context, @NonNull final SessionToken token,
-            @NonNull final Executor executor, @NonNull final ControllerCallback callback) {
+            @NonNull Executor executor, @NonNull ControllerCallback callback) {
         if (context == null) {
             throw new IllegalArgumentException("context shouldn't be null");
         }
@@ -171,6 +183,17 @@ public class MediaController implements AutoCloseable {
         synchronized (mLock) {
             mImpl = createImpl(context, token, executor, callback);
         }
+    }
+
+    /**
+     * Create a {@link MediaController} from the {@link MediaSessionCompat.Token}.
+     *
+     * @param context Context
+     * @param token token to connect to
+     */
+    public MediaController(@NonNull final Context context,
+            @NonNull final MediaSessionCompat.Token token) {
+        this(context, token, ContextCompat.getMainExecutor(context), new ControllerCallback() {});
     }
 
     /**
@@ -800,7 +823,7 @@ public class MediaController implements AutoCloseable {
     }
 
     /**
-     * Gets the lastly cached playlist playlist metadata either from
+     * Gets the lastly cached playlist metadata either from
      * {@link ControllerCallback#onPlaylistMetadataChanged} or
      * {@link ControllerCallback#onPlaylistChanged}.
      *
@@ -1146,7 +1169,7 @@ public class MediaController implements AutoCloseable {
          * @param allowedCommands commands that's allowed by the session.
          */
         public void onConnected(@NonNull MediaController controller,
-                @NonNull SessionCommandGroup allowedCommands) { }
+                @NonNull SessionCommandGroup allowedCommands) {}
 
         /**
          * Called when the session refuses the controller or the controller is disconnected from
@@ -1158,7 +1181,7 @@ public class MediaController implements AutoCloseable {
          *
          * @param controller the controller for this event
          */
-        public void onDisconnected(@NonNull MediaController controller) { }
+        public void onDisconnected(@NonNull MediaController controller) {}
 
         /**
          * Called when the session set the custom layout through the
@@ -1198,7 +1221,7 @@ public class MediaController implements AutoCloseable {
          * @param info new playback info
          */
         public void onPlaybackInfoChanged(@NonNull MediaController controller,
-                @NonNull PlaybackInfo info) { }
+                @NonNull PlaybackInfo info) {}
 
         /**
          * Called when the allowed commands are changed by session.
@@ -1207,7 +1230,7 @@ public class MediaController implements AutoCloseable {
          * @param commands newly allowed commands
          */
         public void onAllowedCommandsChanged(@NonNull MediaController controller,
-                @NonNull SessionCommandGroup commands) { }
+                @NonNull SessionCommandGroup commands) {}
 
         /**
          * Called when the session sent a custom command. Returns a {@link SessionResult} for
@@ -1234,7 +1257,7 @@ public class MediaController implements AutoCloseable {
          * @param state the new player state
          */
         public void onPlayerStateChanged(@NonNull MediaController controller,
-                @SessionPlayer.PlayerState int state) { }
+                @SessionPlayer.PlayerState int state) {}
 
         /**
          * Called when playback speed is changed.
@@ -1243,7 +1266,7 @@ public class MediaController implements AutoCloseable {
          * @param speed speed
          */
         public void onPlaybackSpeedChanged(@NonNull MediaController controller,
-                float speed) { }
+                float speed) {}
 
         /**
          * Called to report buffering events for a media item.
@@ -1255,7 +1278,7 @@ public class MediaController implements AutoCloseable {
          * @param state the new buffering state.
          */
         public void onBufferingStateChanged(@NonNull MediaController controller,
-                @NonNull MediaItem item, @SessionPlayer.BuffState int state) { }
+                @NonNull MediaItem item, @SessionPlayer.BuffState int state) {}
 
         /**
          * Called to indicate that seeking is completed.
@@ -1263,7 +1286,7 @@ public class MediaController implements AutoCloseable {
          * @param controller the controller for this event.
          * @param position the previous seeking request.
          */
-        public void onSeekCompleted(@NonNull MediaController controller, long position) { }
+        public void onSeekCompleted(@NonNull MediaController controller, long position) {}
 
         /**
          * Called when the player's currently playing item is changed
@@ -1275,7 +1298,7 @@ public class MediaController implements AutoCloseable {
          * @param item new item
          */
         public void onCurrentMediaItemChanged(@NonNull MediaController controller,
-                @Nullable MediaItem item) { }
+                @Nullable MediaItem item) {}
 
         /**
          * Called when a playlist is changed.
@@ -1287,7 +1310,7 @@ public class MediaController implements AutoCloseable {
          * @param metadata new metadata
          */
         public void onPlaylistChanged(@NonNull MediaController controller,
-                @Nullable List<MediaItem> list, @Nullable MediaMetadata metadata) { }
+                @Nullable List<MediaItem> list, @Nullable MediaMetadata metadata) {}
 
         /**
          * Called when a playlist metadata is changed.
@@ -1296,7 +1319,7 @@ public class MediaController implements AutoCloseable {
          * @param metadata new metadata
          */
         public void onPlaylistMetadataChanged(@NonNull MediaController controller,
-                @Nullable MediaMetadata metadata) { }
+                @Nullable MediaMetadata metadata) {}
 
         /**
          * Called when the shuffle mode is changed.
@@ -1308,7 +1331,7 @@ public class MediaController implements AutoCloseable {
          * @see SessionPlayer#SHUFFLE_MODE_GROUP
          */
         public void onShuffleModeChanged(@NonNull MediaController controller,
-                @SessionPlayer.ShuffleMode int shuffleMode) { }
+                @SessionPlayer.ShuffleMode int shuffleMode) {}
 
         /**
          * Called when the repeat mode is changed.
@@ -1321,14 +1344,14 @@ public class MediaController implements AutoCloseable {
          * @see SessionPlayer#REPEAT_MODE_GROUP
          */
         public void onRepeatModeChanged(@NonNull MediaController controller,
-                @SessionPlayer.RepeatMode int repeatMode) { }
+                @SessionPlayer.RepeatMode int repeatMode) {}
 
         /**
          * Called when the playback is completed.
          *
          * @param controller the controller for this event
          */
-        public void onPlaybackCompleted(@NonNull MediaController controller) { }
+        public void onPlaybackCompleted(@NonNull MediaController controller) {}
     }
 
     /**
