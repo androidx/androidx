@@ -30,6 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,19 +51,16 @@ import java.util.concurrent.Executor;
 public class VideoPlayerActivity extends FragmentActivity {
     public static final String LOOPING_EXTRA_NAME =
             "com.example.androidx.media.VideoPlayerActivity.IsLooping";
-    public static final String USE_TEXTURE_VIEW_EXTRA_NAME =
-            "com.example.androidx.media.VideoPlayerActivity.UseTextureView";
     public static final String MEDIA_TYPE_ADVERTISEMENT =
             "com.example.androidx.media.VideoPlayerActivity.MediaTypeAdvertisement";
     private static final String TAG = "VideoPlayerActivity";
 
-    private MyVideoView mVideoView = null;
+    MyVideoView mVideoView;
     private float mSpeed = 1.0f;
 
     private MediaControlView mMediaControlView = null;
     private MediaController mMediaController = null;
 
-    private boolean mUseTextureView = false;
     private int mPrevWidth;
     private int mPrevHeight;
 
@@ -76,16 +75,34 @@ public class VideoPlayerActivity extends FragmentActivity {
 
         mVideoView = findViewById(R.id.video_view);
 
+        mVideoView.setOnViewTypeChangedListener(new VideoView.OnViewTypeChangedListener() {
+            @Override
+            public void onViewTypeChanged(@NonNull View view, int viewType) {
+                String type = getViewTypeString(viewType);
+                Toast.makeText(VideoPlayerActivity.this, "switched to " + type, Toast.LENGTH_SHORT)
+                        .show();
+                setTitle(type);
+            }
+        });
+
+        CheckBox useTextureView = findViewById(R.id.use_textureview_checkbox);
+        useTextureView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mVideoView.setViewType(VideoView.VIEW_TYPE_TEXTUREVIEW);
+                } else {
+                    mVideoView.setViewType(VideoView.VIEW_TYPE_SURFACEVIEW);
+                }
+            }
+        });
+
         String errorString = null;
         Intent intent = getIntent();
         Uri videoUri;
         if (intent == null || (videoUri = intent.getData()) == null || !videoUri.isAbsolute()) {
             errorString = "Invalid intent";
         } else {
-            mUseTextureView = intent.getBooleanExtra(USE_TEXTURE_VIEW_EXTRA_NAME, false);
-            if (mUseTextureView) {
-                mVideoView.setViewType(VideoView.VIEW_TYPE_TEXTUREVIEW);
-            }
             UriMediaItem mediaItem = new UriMediaItem.Builder(this, videoUri).build();
             mVideoView.setMediaItem(mediaItem);
 
@@ -101,12 +118,6 @@ public class VideoPlayerActivity extends FragmentActivity {
         if (errorString != null) {
             showErrorDialog(errorString);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setTitle(getViewTypeString(mVideoView));
     }
 
     @Override
@@ -234,27 +245,14 @@ public class VideoPlayerActivity extends FragmentActivity {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (mVideoView.getViewType() == VideoView.VIEW_TYPE_SURFACEVIEW) {
-            mVideoView.setViewType(VideoView.VIEW_TYPE_TEXTUREVIEW);
-            Toast.makeText(this, "switch to TextureView", Toast.LENGTH_SHORT).show();
-            setTitle(getViewTypeString(mVideoView));
-        } else if (mVideoView.getViewType() == VideoView.VIEW_TYPE_TEXTUREVIEW) {
-            mVideoView.setViewType(VideoView.VIEW_TYPE_SURFACEVIEW);
-            Toast.makeText(this, "switch to SurfaceView", Toast.LENGTH_SHORT).show();
-            setTitle(getViewTypeString(mVideoView));
-        }
     }
 
-    private String getViewTypeString(VideoView videoView) {
-        if (videoView == null) {
-            return "Unknown";
-        }
-        int type = videoView.getViewType();
-        if (type == VideoView.VIEW_TYPE_SURFACEVIEW) {
+    String getViewTypeString(int viewType) {
+        if (viewType == VideoView.VIEW_TYPE_SURFACEVIEW) {
             return "SurfaceView";
-        } else if (type == VideoView.VIEW_TYPE_TEXTUREVIEW) {
+        } else if (viewType == VideoView.VIEW_TYPE_TEXTUREVIEW) {
             return "TextureView";
         }
         return "Unknown";

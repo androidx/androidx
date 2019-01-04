@@ -51,7 +51,6 @@ public class VideoSelectorActivity extends Activity {
     private ListView      mSelectList;
     private VideoItemList mSelectItems;
     private EditText      mUrlText;
-    private CheckBox      mTextureViewCheckbox;
     private CheckBox      mLoopingCheckbox;
     private CheckBox      mAdvertisementCheckBox;
 
@@ -63,8 +62,6 @@ public class VideoSelectorActivity extends Activity {
         ret_val.setData(Uri.parse(url));
         ret_val.putExtra(
                 VideoPlayerActivity.LOOPING_EXTRA_NAME, mLoopingCheckbox.isChecked());
-        ret_val.putExtra(
-                VideoPlayerActivity.USE_TEXTURE_VIEW_EXTRA_NAME, mTextureViewCheckbox.isChecked());
         ret_val.putExtra(
                 VideoPlayerActivity.MEDIA_TYPE_ADVERTISEMENT, mAdvertisementCheckBox.isChecked());
         return ret_val;
@@ -108,8 +105,6 @@ public class VideoSelectorActivity extends Activity {
         });
         mLoopingCheckbox = findViewById(R.id.looping_checkbox);
         mLoopingCheckbox.setChecked(false);
-        mTextureViewCheckbox = findViewById(R.id.use_textureview_checkbox);
-        mTextureViewCheckbox.setChecked(false);
         mAdvertisementCheckBox = findViewById(R.id.media_type_advertisement);
         mAdvertisementCheckBox.setChecked(false);
     }
