@@ -59,6 +59,9 @@ public class ChooserTargetServiceCompat extends ChooserTargetService {
         List<ShareTargetCompat> targets = ShareTargetXmlParser.getShareTargets(context);
         List<ShareTargetCompat> matchedTargets = new ArrayList<>();
         for (ShareTargetCompat target : targets) {
+            if (!target.mTargetClass.equals(targetActivityName.getClassName())) {
+                continue;
+            }
             for (ShareTargetCompat.TargetData data : target.mTargetData) {
                 if (matchedFilter.hasDataType(data.mMimeType)) {
                     // Matched at least with one data type (OR operation)
@@ -106,7 +109,7 @@ public class ChooserTargetServiceCompat extends ChooserTargetService {
                 continue;
             }
             Bundle extras = new Bundle();
-            extras.putCharSequence(ShortcutManagerCompat.EXTRA_SHORTCUT_ID, shortcut.getId());
+            extras.putString(ShortcutManagerCompat.EXTRA_SHORTCUT_ID, shortcut.getId());
             chooserTargets.add(new ChooserTarget(
                     // The name of this target.
                     shortcut.getShortLabel(),
