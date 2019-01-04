@@ -55,6 +55,7 @@ public final class NavDeepLinkBuilder {
 
     private NavGraph mGraph;
     private int mDestId;
+    private Bundle mArgs;
 
     /**
      * Construct a new NavDeepLinkBuilder.
@@ -188,6 +189,7 @@ public final class NavDeepLinkBuilder {
      */
     @NonNull
     public NavDeepLinkBuilder setArguments(@Nullable Bundle args) {
+        mArgs = args;
         mIntent.putExtra(NavController.KEY_DEEP_LINK_EXTRAS, args);
         return this;
     }
@@ -245,8 +247,16 @@ public final class NavDeepLinkBuilder {
      */
     @NonNull
     public PendingIntent createPendingIntent() {
+        int requestCode = 0;
+        if (mArgs != null) {
+            for (String key: mArgs.keySet()) {
+                Object value = mArgs.get(key);
+                requestCode = 31 * requestCode + (value != null ? value.hashCode() : 0);
+            }
+        }
+        requestCode = 31 * requestCode + mDestId;
         return createTaskStackBuilder()
-                .getPendingIntent(mDestId, PendingIntent.FLAG_UPDATE_CURRENT);
+                .getPendingIntent(requestCode, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     /**
