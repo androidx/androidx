@@ -226,13 +226,13 @@ public class VideoView extends BaseLayout {
     }
 
     @Override
-    public void onAttachedToWindow() {
+    protected void onAttachedToWindow() {
         super.onAttachedToWindow();
         mImpl.onAttachedToWindowImpl();
     }
 
     @Override
-    public void onDetachedFromWindow() {
+    protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         mImpl.onDetachedFromWindowImpl();
     }
@@ -266,7 +266,7 @@ public class VideoView extends BaseLayout {
     }
 
     @Override
-    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         mImpl.onMeasureImpl(widthMeasureSpec, heightMeasureSpec);
     }

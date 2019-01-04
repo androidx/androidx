@@ -77,7 +77,7 @@ class BaseLayout extends ViewGroup {
     }
 
     @Override
-    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int count = getChildCount();
 
         final boolean measureMatchParentChildren =
