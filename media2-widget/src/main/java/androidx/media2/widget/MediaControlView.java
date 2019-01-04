@@ -381,7 +381,7 @@ public class MediaControlView extends BaseLayout {
     }
 
     @Override
-    public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         // Update layout when this view's width changes in order to avoid any UI overlap between
         // transport controls.
