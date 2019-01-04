@@ -19,6 +19,7 @@ package androidx.navigation.ui;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
+import android.support.annotation.StringRes;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -47,14 +48,15 @@ class ActionBarOnDestinationChangedListener extends
     }
 
     @Override
-    protected void setNavigationIcon(Drawable icon) {
+    protected void setNavigationIcon(Drawable icon,
+            @StringRes int contentDescription) {
         ActionBar actionBar = mActivity.getSupportActionBar();
         if (icon == null) {
             actionBar.setDisplayHomeAsUpEnabled(false);
         } else {
             actionBar.setDisplayHomeAsUpEnabled(true);
             ActionBarDrawerToggle.Delegate delegate = mActivity.getDrawerToggleDelegate();
-            delegate.setActionBarUpIndicator(icon, 0);
+            delegate.setActionBarUpIndicator(icon, contentDescription);
         }
     }
 }
