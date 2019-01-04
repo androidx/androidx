@@ -20,6 +20,9 @@
 
     <uses-sdk tools:overrideLibrary="androidx.media2.widget" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application android:label="Video View Test"
                  android:supportsRtl="true">
 
@@ -49,7 +52,5 @@
         </receiver>
 
     </application>
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
 </manifest>
