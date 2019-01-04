@@ -87,7 +87,9 @@ package androidx.media2 {
   }
 
   public class MediaController implements java.lang.AutoCloseable {
+    ctor public MediaController(android.content.Context, androidx.media2.SessionToken);
     ctor public MediaController(android.content.Context, androidx.media2.SessionToken, java.util.concurrent.Executor, androidx.media2.MediaController.ControllerCallback);
+    ctor public MediaController(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token);
     ctor public MediaController(android.content.Context, android.support.v4.media.session.MediaSessionCompat.Token, java.util.concurrent.Executor, androidx.media2.MediaController.ControllerCallback);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionResult> addPlaylistItem(@IntRange(from=0) int, String);
     method public com.google.common.util.concurrent.ListenableFuture<androidx.media2.SessionResult> adjustVolume(int, int);

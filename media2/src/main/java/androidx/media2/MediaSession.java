@@ -401,7 +401,7 @@ public class MediaSession implements AutoCloseable {
          * @param controller controller information
          */
         public void onDisconnected(@NonNull MediaSession session,
-                @NonNull ControllerInfo controller) { }
+                @NonNull ControllerInfo controller) {}
 
         /**
          * Called when a controller sent a command which will be sent directly to one of the
@@ -754,8 +754,8 @@ public class MediaSession implements AutoCloseable {
         }
 
         abstract static class ForegroundServiceEventCallback {
-            public void onPlayerStateChanged(MediaSession session, @PlayerState int state) { }
-            public void onSessionClosed(MediaSession session) { }
+            public void onPlayerStateChanged(MediaSession session, @PlayerState int state) {}
+            public void onSessionClosed(MediaSession session) {}
         }
     }
 
