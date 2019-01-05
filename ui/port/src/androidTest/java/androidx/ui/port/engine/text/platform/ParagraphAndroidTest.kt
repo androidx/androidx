@@ -336,7 +336,7 @@ class ParagraphAndroidTest {
     fun textStyle_setBackgroundOnWholeText() {
         val text = "abcde"
         val color = Color(0xFF0000FF.toInt())
-        val textStyle = TextStyle(color = color)
+        val textStyle = TextStyle(background = color)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -356,7 +356,7 @@ class ParagraphAndroidTest {
     fun textStyle_setBackgroundOnPartText() {
         val text = "abcde"
         val color = Color(0xFF0000FF.toInt())
-        val textStyle = TextStyle(color = color)
+        val textStyle = TextStyle(background = color)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -376,9 +376,9 @@ class ParagraphAndroidTest {
     fun textStyle_setBackgroundTwice_lastOneOverwrite() {
         val text = "abcde"
         val color = Color(0xFF0000FF.toInt())
-        val textStyle = TextStyle(color = color)
+        val textStyle = TextStyle(background = color)
         val colorOverwrite = Color(0xFF00FF00.toInt())
-        val textStyleOverwrite = TextStyle(color = colorOverwrite)
+        val textStyleOverwrite = TextStyle(background = colorOverwrite)
 
         val paragraph = simpleParagraph(
             text = text,
