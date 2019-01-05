@@ -41,7 +41,7 @@ import androidx.ui.painting.Paint
  *                   parent text span, or, for the root text spans, with the line box.
  * * `height`: The height of this text span, as a multiple of the font size.
  * * `locale`: The locale used to select region-specific glyphs.
- * * `background`: The paint drawn as a background for the text.
+ * * `background`: The background color for the text.
  * * `foreground`: The paint used to draw the text. If this is specified, `color` must be null.
  * * `fontSynthesis`: Whether to synthesize font weight and/or style when the requested weight or
  *                    style cannot be found in the provided custom font family.
@@ -60,7 +60,8 @@ data class TextStyle constructor(
     val wordSpacing: Double? = null,
     val height: Double? = null,
     val locale: Locale? = null,
-    val background: Paint? = null,
+    // TODO(Migration/haoyuchang): background is changed to color from paint.
+    val background: Color? = null,
     val foreground: Paint? = null,
     val fontSynthesis: FontSynthesis? = null
 ) {

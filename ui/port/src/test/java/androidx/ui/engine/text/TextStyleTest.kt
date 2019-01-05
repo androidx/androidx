@@ -82,7 +82,7 @@ class TextStyleTest {
         val wordSpacing = 3.0
         val height = 4.0
         val locale = Locale("en")
-        val background = Paint()
+        val background = Color(0xFF000000.toInt())
         val fontSynthesis = FontSynthesis.style
 
         val textStyle = TextStyle(
