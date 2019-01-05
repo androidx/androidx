@@ -15,6 +15,7 @@
  */
 package androidx.ui.port.engine.text
 
+import androidx.core.os.BuildCompat
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -924,6 +925,91 @@ class ParagraphTest {
         val expectedWidth = "abc".length * (1 + letterSpacingOverwrite) * fontSize +
                 "de".length * (1 + letterSpacing) * fontSize
         assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
+    }
+
+    @Test
+    fun textStyle_setWordSpacingOnWholeText() {
+        if (!BuildCompat.isAtLeastQ()) return
+        val text = "ab cd"
+        val fontSize = 20.0f
+        val wordSpacing = 5.0f
+        val textStyle = TextStyle(wordSpacing = wordSpacing)
+        val paragraphWidth = fontSize * (1 + text.length)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length)),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = paragraphWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        // Make sure there is only one line, so that we can use getLineWidth to test fontSize.
+        assertThat(paragraphImpl.lineCount, equalTo(1))
+        // Notice that in this test font, the width of character equals to fontSize.
+        assertThat(
+            paragraphImpl.getLineWidth(0),
+            equalTo(fontSize * text.length + wordSpacing)
+        )
+    }
+
+    @Test
+    fun textStyle_setWordSpacingOnPartText() {
+        if (!BuildCompat.isAtLeastQ()) return
+        val text = "a b c"
+        val fontSize = 20.0f
+        val wordSpacing = 5.0f
+        val textStyle = TextStyle(wordSpacing = wordSpacing)
+        val paragraphWidth = fontSize * (1 + text.length)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "a b".length)),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = paragraphWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        // Make sure there is only one line, so that we can use getLineWidth to test fontSize.
+        assertThat(paragraphImpl.lineCount, equalTo(1))
+        // Notice that in this test font, the width of character equals to fontSize.
+        assertThat(
+            paragraphImpl.getLineWidth(0),
+            equalTo(fontSize * text.length + wordSpacing)
+        )
+    }
+
+    @Test
+    fun textStyle_setWordSpacingTwice_lastOneOverwrite() {
+        if (!BuildCompat.isAtLeastQ()) return
+        val text = "a b c"
+        val fontSize = 20.0f
+
+        val wordSpacing = 2.0f
+        val textStyle = TextStyle(wordSpacing = wordSpacing)
+
+        val wordSpacingOverwrite = 5.0f
+        val textStyleOverwrite = TextStyle(wordSpacing = wordSpacingOverwrite)
+        val paragraphWidth = fontSize * (1 + text.length)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "a b".length)
+            ),
+            fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = paragraphWidth))
+        val paragraphImpl = paragraph.paragraphImpl
+
+        // Make sure there is only one line, so that we can use getLineWidth to test fontSize.
+        assertThat(paragraphImpl.lineCount, equalTo(1))
+        // Notice that in this test font, the width of character equals to fontSize.
+        assertThat(
+            paragraphImpl.getLineWidth(0),
+            equalTo(fontSize * text.length + wordSpacing + wordSpacingOverwrite)
+        )
     }
 
     @Test
