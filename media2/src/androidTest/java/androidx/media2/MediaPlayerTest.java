@@ -265,10 +265,9 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
         assertTrue(((FileMediaItem) item).isClosed());
     }
 
-//    Temporarily disabled for being flaky, bug b/121078676 filed.
-//    @Test
-//    @SmallTest
-//    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetDuration() throws Exception {
         if (!loadResource(R.raw.testvideo)) {
             fail();
@@ -891,10 +890,10 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
         mPlayer.reset();
     }
-//    Temporarily disabled for being flaky: b/121255910
-//    @Test
-//    @SmallTest
-//    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSkipUnnecessarySeek() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
         final TestDataSourceCallback source =
