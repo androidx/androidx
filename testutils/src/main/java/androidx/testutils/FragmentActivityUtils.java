@@ -18,8 +18,11 @@ package androidx.testutils;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Activity;
+import android.os.Build;
 import android.os.Looper;
+import android.view.View;
 
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 import androidx.test.rule.ActivityTestRule;
 
@@ -88,6 +91,31 @@ public class FragmentActivityUtils {
 
         RecreatedActivity.clearState();
         return newActivity;
+    }
+
+    /**
+     * Waits until the activity is (re)drawn.
+     *
+     * @param activity An Activity
+     */
+    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
+    public static <T extends FragmentActivity> void waitForActivityDrawn(final T activity) {
+        final CountDownLatch latch = new CountDownLatch(1);
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                View view = activity.getWindow().getDecorView();
+                view.getViewTreeObserver().addOnDrawListener(new CountOnDraw(latch, view));
+                view.invalidate();
+            }
+        });
+
+        try {
+            assertTrue("Draw pass did not occur within 5 seconds",
+                    latch.await(5, TimeUnit.SECONDS));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private FragmentActivityUtils() {
