@@ -116,6 +116,7 @@ open class BaseTest {
             }
             activity = FragmentActivityUtils.recreateActivity(activityTestRule, activity)
             TestActivity.onCreateCallback = { }
+            waitForActivityDrawn(activity)
         }
 
         var activity: TestActivity = activityTestRule.activity
