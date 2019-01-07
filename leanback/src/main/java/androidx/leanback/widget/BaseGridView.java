@@ -154,6 +154,8 @@ public abstract class BaseGridView extends RecyclerView {
      */
     public static final int SAVE_ALL_CHILD = 3;
 
+    private static final int PFLAG_RETAIN_FOCUS_FOR_CHILD = 1 << 0;
+
     /**
      * Listener for intercepting touch dispatch events.
      */
@@ -212,6 +214,8 @@ public abstract class BaseGridView extends RecyclerView {
      * Number of items to prefetch when first coming on screen with new data.
      */
     int mInitialPrefetchItemCount = 4;
+
+    private int mPrivateFlag;
 
     BaseGridView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
@@ -836,6 +840,10 @@ public abstract class BaseGridView extends RecyclerView {
 
     @Override
     public boolean onRequestFocusInDescendants(int direction, Rect previouslyFocusedRect) {
+        if ((mPrivateFlag & PFLAG_RETAIN_FOCUS_FOR_CHILD) == PFLAG_RETAIN_FOCUS_FOR_CHILD) {
+            // dont focus to child if GridView itself retains focus for child
+            return false;
+        }
         return mLayoutManager.gridOnRequestFocusInDescendants(this, direction,
                 previouslyFocusedRect);
     }
@@ -1199,5 +1207,35 @@ public abstract class BaseGridView extends RecyclerView {
      */
     public int getInitialPrefetchItemCount() {
         return mInitialPrefetchItemCount;
+    }
+
+    @Override
+    public void removeView(View view) {
+        boolean retainFocusForChild = view.hasFocus() && isFocusable();
+        if (retainFocusForChild) {
+            // When animation or scrolling removes a focused child, focus to GridView itself to
+            // avoid losing focus.
+            mPrivateFlag |= PFLAG_RETAIN_FOCUS_FOR_CHILD;
+            requestFocus();
+        }
+        super.removeView(view);
+        if (retainFocusForChild) {
+            mPrivateFlag ^= (~PFLAG_RETAIN_FOCUS_FOR_CHILD);
+        }
+    }
+
+    @Override
+    public void removeViewAt(int index) {
+        boolean retainFocusForChild = getChildAt(index).hasFocus();
+        if (retainFocusForChild) {
+            // When animation or scrolling removes a focused child, focus to GridView itself to
+            // avoid losing focus.
+            mPrivateFlag |= PFLAG_RETAIN_FOCUS_FOR_CHILD;
+            requestFocus();
+        }
+        super.removeViewAt(index);
+        if (retainFocusForChild) {
+            mPrivateFlag ^= (~PFLAG_RETAIN_FOCUS_FOR_CHILD);
+        }
     }
 }
