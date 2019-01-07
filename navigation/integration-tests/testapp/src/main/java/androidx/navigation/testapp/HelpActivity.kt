@@ -28,8 +28,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.ActivityNavigator
 import androidx.navigation.NavController
-import androidx.navigation.NavOptions
 import androidx.navigation.createGraph
 import androidx.navigation.testing.TestNavigator
 import androidx.navigation.testing.test
@@ -67,13 +67,13 @@ class HelpActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         finish()
-        NavOptions.applyPopAnimationsToPendingTransition(this)
+        ActivityNavigator.applyPopAnimationsToPendingTransition(this)
         return true
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
-        NavOptions.applyPopAnimationsToPendingTransition(this)
+        ActivityNavigator.applyPopAnimationsToPendingTransition(this)
     }
 }
 
