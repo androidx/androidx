@@ -14,18 +14,8 @@
      limitations under the License.
 -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="vid_status_codec_tag">Video Codec:</string>
-    <string name="vid_status_bitrate_tag">Avg. Bitrate:</string>
-    <string name="vid_status_mode_tag">Video Mode:</string>
-    <string name="vid_status_outrect_tag">Dest Rect:</string>
-    <string name="aud_status_codec_tag">Audio Codec:</string>
-    <string name="vid_status_stereo_mode_tag">Stereo Mode:</string>
-    <string name="aud_status_bitrate_tag">Bitrate:</string>
-    <string name="aud_status_mode_tag">Audio Mode:</string>
-    <string name="buf_status_fmt_string">Buffering: %d%%</string>
+<resources>
     <string name="select_video_prompt">Select Video</string>
-    <string name="select_button_text">Select</string>
     <string name="play_button_text">Play</string>
     <string name="looping_text">Looping</string>
     <string name="texture_view_text">Use TextureView</string>
