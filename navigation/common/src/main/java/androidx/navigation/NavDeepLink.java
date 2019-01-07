@@ -22,6 +22,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,7 +71,8 @@ class NavDeepLink {
     }
 
     @Nullable
-    Bundle getMatchingArguments(@NonNull Uri deepLink) {
+    Bundle getMatchingArguments(@NonNull Uri deepLink,
+            @NonNull Map<String, NavArgument> arguments) {
         Matcher matcher = mPattern.matcher(deepLink.toString());
         if (!matcher.matches()) {
             return null;
@@ -78,8 +80,22 @@ class NavDeepLink {
         Bundle bundle = new Bundle();
         int size = mArguments.size();
         for (int index = 0; index < size; index++) {
-            String argument = mArguments.get(index);
-            bundle.putString(argument, Uri.decode(matcher.group(index + 1)));
+            String argumentName = mArguments.get(index);
+            String value = Uri.decode(matcher.group(index + 1));
+            NavArgument argument = arguments.get(argumentName);
+            if (argument != null) {
+                NavType type = argument.getType();
+                try {
+                    type.parseAndPut(bundle, argumentName, value);
+                } catch (IllegalArgumentException e) {
+                    // Failed to parse means this isn't a valid deep link
+                    // for the given URI - i.e., the URI contains a non-integer
+                    // value for an integer argument
+                    return null;
+                }
+            } else {
+                bundle.putString(argumentName, value);
+            }
         }
         return bundle;
     }

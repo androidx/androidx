@@ -305,7 +305,7 @@ public class NavDestination {
             return null;
         }
         for (NavDeepLink deepLink : mDeepLinks) {
-            Bundle matchingArguments = deepLink.getMatchingArguments(uri);
+            Bundle matchingArguments = deepLink.getMatchingArguments(uri, getArguments());
             if (matchingArguments != null) {
                 return Pair.create(this, matchingArguments);
             }

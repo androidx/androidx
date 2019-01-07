@@ -529,27 +529,7 @@ public class NavController {
             Pair<NavDestination, Bundle> matchingDeepLink = mGraph.matchDeepLink(intent.getData());
             if (matchingDeepLink != null) {
                 deepLink = matchingDeepLink.first.buildDeepLinkIds();
-                for (String argumentName: matchingDeepLink.second.keySet()) {
-                    NavArgument argument = matchingDeepLink.first.getArguments().get(argumentName);
-                    if (argument != null) {
-                        NavType type = argument.getType();
-                        try {
-                            type.parseAndPut(bundle,
-                                    argumentName,
-                                    matchingDeepLink.second.getString(argumentName));
-                        } catch (IllegalArgumentException e) {
-                            Log.i(TAG, "Deep link parameter "
-                                    + argumentName
-                                    + " cannot be parsed into navigation argument of type "
-                                    + argument.getType()
-                                    + ".");
-                            return false;
-                        }
-                    } else {
-                        bundle.putString(argumentName,
-                                matchingDeepLink.second.getString(argumentName));
-                    }
-                }
+                bundle.putAll(matchingDeepLink.second);
             }
         }
         if (deepLink == null || deepLink.length == 0) {
