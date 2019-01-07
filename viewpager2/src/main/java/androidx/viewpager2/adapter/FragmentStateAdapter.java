@@ -136,7 +136,7 @@ public abstract class FragmentStateAdapter extends
             return;
         }
         mFragmentManager.beginTransaction().add(holder.getContainer().getId(),
-                holder.mFragment).commitNow();
+                holder.mFragment).commit(); // TODO: review transaction commit type usage
     }
 
     @Override
