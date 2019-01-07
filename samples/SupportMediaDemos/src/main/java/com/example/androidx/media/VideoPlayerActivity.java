@@ -16,8 +16,6 @@
 
 package com.example.androidx.media;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -27,7 +25,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,15 +46,14 @@ import java.util.concurrent.Executor;
 /**
  * Test application for VideoView/MediaControlView
  */
-@SuppressLint("NewApi")
-public class VideoViewTest extends FragmentActivity {
+public class VideoPlayerActivity extends FragmentActivity {
     public static final String LOOPING_EXTRA_NAME =
-            "com.example.androidx.media.VideoViewTest.IsLooping";
+            "com.example.androidx.media.VideoPlayerActivity.IsLooping";
     public static final String USE_TEXTURE_VIEW_EXTRA_NAME =
-            "com.example.androidx.media.VideoViewTest.UseTextureView";
+            "com.example.androidx.media.VideoPlayerActivity.UseTextureView";
     public static final String MEDIA_TYPE_ADVERTISEMENT =
-            "com.example.androidx.media.VideoViewTest.MediaTypeAdvertisement";
-    private static final String TAG = "VideoViewTest";
+            "com.example.androidx.media.VideoPlayerActivity.MediaTypeAdvertisement";
+    private static final String TAG = "VideoPlayerActivity";
 
     private MyVideoView mVideoView = null;
     private float mSpeed = 1.0f;
@@ -76,10 +72,9 @@ public class VideoViewTest extends FragmentActivity {
         //Remove title bar
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-        setContentView(R.layout.video_activity);
+        setContentView(R.layout.activity_video_player);
 
         mVideoView = findViewById(R.id.video_view);
-        mVideoView.setActivity(this);
 
         String errorString = null;
         Intent intent = getIntent();
@@ -204,7 +199,6 @@ public class VideoViewTest extends FragmentActivity {
     public static class MyVideoView extends VideoView {
         private float mDX;
         private float mDY;
-        private Activity mActivity;
 
         public MyVideoView(Context context) {
             super(context);
@@ -236,18 +230,6 @@ public class VideoViewTest extends FragmentActivity {
                     return true;
             }
             return super.onTouchEvent(ev);
-        }
-
-        @Override
-        public boolean onKeyDown(int keyCode, KeyEvent event)  {
-            if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-                mActivity.finish();
-            }
-            return false;
-        }
-
-        public void setActivity(Activity activity) {
-            mActivity = activity;
         }
     }
 

@@ -26,16 +26,4 @@
     <style name="video_list_item_text" parent="@style/basic_text">
         <item name="android:textSize">24sp</item>
     </style>
-
-    <style name="status_text" parent="@style/basic_text">
-        <item name="android:textSize">24sp</item>
-    </style>
-    <style name="status_value" parent="@style/status_text">
-        <item name="android:gravity">left</item>
-    </style>
-    <style name="status_tag" parent="@style/status_text">
-        <item name="android:paddingRight">5dp</item>
-        <item name="android:gravity">right</item>
-    </style>
 </resources>
-

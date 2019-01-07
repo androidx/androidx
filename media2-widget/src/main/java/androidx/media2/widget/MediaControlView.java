@@ -1231,11 +1231,9 @@ public class MediaControlView extends BaseLayout {
     private final OnClickListener mBackListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
-            View parent = (View) getParent();
-            if (parent != null) {
-                parent.onKeyDown(KeyEvent.KEYCODE_BACK,
-                        new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
-            }
+            View root = v.getRootView();
+            root.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
+            root.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
         }
     };
 
