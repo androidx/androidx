@@ -292,7 +292,7 @@ internal class ParagraphAndroid constructor(
                 )
             }
             // TODO(Migration/haoyuchang): framework only support background color now
-            style.color?.let {
+            style.background?.let {
                 spannableString.setSpan(
                     BackgroundColorSpan(it.value),
                     start,
