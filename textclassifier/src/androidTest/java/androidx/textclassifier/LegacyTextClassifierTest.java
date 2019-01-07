@@ -248,7 +248,7 @@ public final class LegacyTextClassifierTest {
         Iterator<TextLinks.TextLink> iterator = links.iterator();
         while (iterator.hasNext()) {
             TextLinks.TextLink textLink = iterator.next();
-            String entityType = textLink.getEntity(0);
+            String entityType = textLink.getEntityType(0);
             assertThat(expectedEntities).contains(entityType);
             assertThat(textLink.getConfidenceScore(entityType)).isEqualTo(1.0f);
             expectedEntities.remove(entityType);
