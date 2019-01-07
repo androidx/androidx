@@ -170,8 +170,8 @@ package androidx.textclassifier {
     method public static androidx.textclassifier.TextLinks.TextLink createFromBundle(android.os.Bundle);
     method @FloatRange(from=0.0, to=1.0) public float getConfidenceScore(String!);
     method public int getEnd();
-    method public String getEntity(int);
-    method public int getEntityCount();
+    method public String getEntityType(int);
+    method public int getEntityTypeCount();
     method public int getStart();
     method public android.os.Bundle toBundle();
   }
@@ -202,8 +202,8 @@ package androidx.textclassifier {
   public final class TextSelection {
     method public static androidx.textclassifier.TextSelection createFromBundle(android.os.Bundle);
     method @FloatRange(from=0.0, to=1.0) public float getConfidenceScore(String!);
-    method public String getEntity(int);
-    method @IntRange(from=0) public int getEntityCount();
+    method public String getEntityType(int);
+    method @IntRange(from=0) public int getEntityTypeCount();
     method public android.os.Bundle getExtras();
     method public String? getId();
     method public int getSelectionEndIndex();

@@ -262,9 +262,9 @@ public final class TextLinks {
         /**
          * Returns the number of entity types that have confidence scores.
          *
-         * @return the entity count.
+         * @return the entity type count.
          */
-        public int getEntityCount() {
+        public int getEntityTypeCount() {
             return mEntityScores.getEntities().size();
         }
 
@@ -273,7 +273,7 @@ public final class TextLinks {
          *
          * @return the entity type at the provided index.
          */
-        @NonNull public @EntityType String getEntity(int index) {
+        @NonNull public @EntityType String getEntityType(int index) {
             return mEntityScores.getEntities().get(index);
         }
 
