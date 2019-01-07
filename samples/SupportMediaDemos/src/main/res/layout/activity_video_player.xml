@@ -36,6 +36,13 @@
             android:checked="true"
         />
 
+        <CheckBox
+            android:id="@+id/transformable_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/transformable_text"
+        />
+
     </LinearLayout>
 
     <!-- MediaControlView will be created manually in code -->
@@ -44,7 +51,8 @@
         class="com.example.androidx.media.VideoPlayerActivity$MyVideoView"
         android:layout_width="300dp"
         android:layout_height="300dp"
-        android:layout_gravity="center"
+        android:layout_marginLeft="40dp"
+        android:layout_marginTop="40dp"
         android:background="#000000"
         widget:enableControlView="false"
         widget:viewType="textureView"

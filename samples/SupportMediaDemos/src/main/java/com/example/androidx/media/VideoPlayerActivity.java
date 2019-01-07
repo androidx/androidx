@@ -61,9 +61,6 @@ public class VideoPlayerActivity extends FragmentActivity {
     private MediaControlView mMediaControlView = null;
     private MediaController mMediaController = null;
 
-    private int mPrevWidth;
-    private int mPrevHeight;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +91,14 @@ public class VideoPlayerActivity extends FragmentActivity {
                 } else {
                     mVideoView.setViewType(VideoView.VIEW_TYPE_SURFACEVIEW);
                 }
+            }
+        });
+
+        CheckBox transformable = findViewById(R.id.transformable_checkbox);
+        transformable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                mVideoView.setTransformable(isChecked);
             }
         });
 
@@ -165,51 +170,51 @@ public class VideoPlayerActivity extends FragmentActivity {
         }
     }
 
-    private class FullScreenListener
-            implements MediaControlView.OnFullScreenListener {
+    class FullScreenListener implements MediaControlView.OnFullScreenListener {
+        private int mPrevWidth;
+        private int mPrevHeight;
+        private int mPrevLeft;
+        private int mPrevTop;
+
         @Override
-        public void onFullScreen(View view, boolean fullScreen) {
+        public void onFullScreen(@NonNull View view, boolean fullScreen) {
             // TODO: Remove bottom controls after adding back button functionality.
-            if (mPrevHeight == 0 && mPrevWidth == 0) {
-                ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
+            ViewGroup.MarginLayoutParams params =
+                    (ViewGroup.MarginLayoutParams) mVideoView.getLayoutParams();
+            if (fullScreen) {
                 mPrevWidth = params.width;
                 mPrevHeight = params.height;
-            }
+                mPrevLeft = params.leftMargin;
+                mPrevTop = params.topMargin;
 
-            if (fullScreen) {
                 // Remove notification bar
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-                ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
                 params.width = ViewGroup.LayoutParams.MATCH_PARENT;
                 params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                params.leftMargin = 0;
+                params.topMargin = 0;
                 mVideoView.setLayoutParams(params);
             } else {
                 // Restore notification bar
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-                ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
                 params.width = mPrevWidth;
                 params.height = mPrevHeight;
+                params.leftMargin = mPrevLeft;
+                params.topMargin = mPrevTop;
                 mVideoView.setLayoutParams(params);
             }
             mVideoView.requestLayout();
-            mVideoView.invalidate();
         }
     }
 
-    /**
-     * Extension of the stock android video view used to hook and override
-     * keypress behavior.  Mainly used to make sure that certain keystrokes
-     * don't automatically bring up the andriod MediaController widget (which
-     * then steals focus)
-     *
-     * @author johngro@google.com (John Grossman)
-     */
-    public static class MyVideoView extends VideoView {
-        private float mDX;
-        private float mDY;
+    // Overrides touch event to transform VideoView
+    static class MyVideoView extends VideoView {
+        private boolean mTransformable;
+        private int mDX;
+        private int mDY;
 
         public MyVideoView(Context context) {
             super(context);
@@ -223,21 +228,32 @@ public class VideoPlayerActivity extends FragmentActivity {
             super(context, attrs, defStyle);
         }
 
+        public void setTransformable(boolean transformable) {
+            mTransformable = transformable;
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(MotionEvent ev) {
+            if (!mTransformable) {
+                return super.onInterceptTouchEvent(ev);
+            }
+            return true;
+        }
+
         @Override
         public boolean onTouchEvent(MotionEvent ev) {
+            int rawX = (int) ev.getRawX();
+            int rawY = (int) ev.getRawY();
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) getLayoutParams();
             switch (ev.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    mDX = ev.getRawX() - getX();
-                    mDY = ev.getRawY() - getY();
-                    super.onTouchEvent(ev);
+                    mDX = rawX - params.leftMargin;
+                    mDY = rawY - params.topMargin;
                     return true;
                 case MotionEvent.ACTION_MOVE:
-                    animate()
-                            .x(ev.getRawX() - mDX)
-                            .y(ev.getRawY() - mDY)
-                            .setDuration(0)
-                            .start();
-                    super.onTouchEvent(ev);
+                    params.leftMargin = rawX - mDX;
+                    params.topMargin = rawY - mDY;
+                    setLayoutParams(params);
                     return true;
             }
             return super.onTouchEvent(ev);
