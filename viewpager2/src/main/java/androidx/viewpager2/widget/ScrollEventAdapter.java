@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.viewpager2;
+package androidx.viewpager2.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
 import static androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING;
@@ -30,24 +29,19 @@ import android.view.View;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.ViewPager2;
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeListener;
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
 
 import java.lang.annotation.Retention;
 import java.util.Locale;
 
 /**
- * Translates {@link RecyclerView.OnScrollListener} events to {@link OnPageChangeListener} events
+ * Translates {@link RecyclerView.OnScrollListener} events to {@link OnPageChangeCallback} events
  * for {@link ViewPager2}. As part of this process, it keeps track of the current scroll position
  * relative to the pages and exposes this position via ({@link #getRelativeScrollPosition()}.
- *
- * @hide
  */
-@RestrictTo(LIBRARY)
-public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
+final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     @Retention(SOURCE)
     @IntDef({STATE_IDLE, STATE_IN_PROGRESS_MANUAL_DRAG, STATE_IN_PROGRESS_SMOOTH_SCROLL,
             STATE_IN_PROGRESS_IMMEDIATE_SCROLL})
@@ -61,7 +55,7 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
 
     private static final int NO_POSITION = -1;
 
-    private OnPageChangeListener mListener;
+    private OnPageChangeCallback mCallback;
     private final @NonNull LinearLayoutManager mLayoutManager;
 
     // state related fields
@@ -73,7 +67,7 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     private boolean mDispatchSelected;
     private boolean mScrollHappened;
 
-    public ScrollEventAdapter(@NonNull LinearLayoutManager layoutManager) {
+    ScrollEventAdapter(@NonNull LinearLayoutManager layoutManager) {
         mLayoutManager = layoutManager;
         mScrollValues = new ScrollEventValues();
         resetState();
@@ -165,7 +159,6 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
                 dispatchStateChanged(SCROLL_STATE_IDLE);
                 resetState();
             }
-            return;
         }
     }
 
@@ -249,7 +242,7 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     /**
      * Let the adapter know a programmatic scroll was initiated.
      */
-    public void notifyProgrammaticScroll(int target, boolean smooth) {
+    void notifyProgrammaticScroll(int target, boolean smooth) {
         mAdapterState = smooth
                 ? STATE_IN_PROGRESS_SMOOTH_SCROLL
                 : STATE_IN_PROGRESS_IMMEDIATE_SCROLL;
@@ -264,7 +257,7 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
     /**
      * Let the adapter know that mCurrentItem was restored in onRestoreInstanceState
      */
-    public void notifyRestoreCurrentItem(int currentItem) {
+    void notifyRestoreCurrentItem(int currentItem) {
         // Don't send page selected event for page 0 for consistency with ViewPager
         if (currentItem != 0) {
             dispatchSelected(currentItem);
@@ -275,14 +268,14 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         return mLayoutManager.getLayoutDirection() == LAYOUT_DIRECTION_RTL;
     }
 
-    public void setOnPageChangeListener(OnPageChangeListener listener) {
-        mListener = listener;
+    void setOnPageChangeCallback(OnPageChangeCallback callback) {
+        mCallback = callback;
     }
 
     /**
      * @return true if there is no known scroll in progress
      */
-    public boolean isIdle() {
+    boolean isIdle() {
         return mAdapterState == STATE_IDLE;
     }
 
@@ -296,13 +289,13 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
      *
      * @return The current scroll position of the ViewPager, relative to its width
      */
-    public float getRelativeScrollPosition() {
+    float getRelativeScrollPosition() {
         updateScrollEventValues();
         return mScrollValues.mPosition + mScrollValues.mOffset;
     }
 
     private void dispatchStateChanged(@ScrollState int state) {
-        // Listener contract for immediate-scroll requires not having state change notifications,
+        // Callback contract for immediate-scroll requires not having state change notifications,
         // but only when there was no smooth scroll in progress.
         // By putting a suppress statement in here (rather than next to dispatch calls) we are
         // simplifying the code of the class and enforcing the contract in one place.
@@ -315,20 +308,20 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         }
 
         mScrollState = state;
-        if (mListener != null) {
-            mListener.onPageScrollStateChanged(state);
+        if (mCallback != null) {
+            mCallback.onPageScrollStateChanged(state);
         }
     }
 
     private void dispatchSelected(int target) {
-        if (mListener != null) {
-            mListener.onPageSelected(target);
+        if (mCallback != null) {
+            mCallback.onPageSelected(target);
         }
     }
 
     private void dispatchScrolled(int position, float offset, int offsetPx) {
-        if (mListener != null) {
-            mListener.onPageScrolled(position, offset, offsetPx);
+        if (mCallback != null) {
+            mCallback.onPageScrolled(position, offset, offsetPx);
         }
     }
 
@@ -336,10 +329,14 @@ public class ScrollEventAdapter extends RecyclerView.OnScrollListener {
         return mLayoutManager.findFirstVisibleItemPosition();
     }
 
-    static class ScrollEventValues {
+    private static final class ScrollEventValues {
         int mPosition;
         float mOffset;
         int mOffsetPx;
+
+        // to avoid a synthetic accessor
+        ScrollEventValues() {
+        }
 
         ScrollEventValues reset() {
             mPosition = RecyclerView.NO_POSITION;
