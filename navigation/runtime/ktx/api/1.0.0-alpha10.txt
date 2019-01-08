@@ -6,6 +6,10 @@ package androidx.navigation {
     method public static androidx.navigation.NavController findNavController(android.app.Activity, @IdRes int viewId);
   }
 
+  public final class ActivityNavArgsLazyKt {
+    ctor public ActivityNavArgsLazyKt();
+  }
+
   public final class ActivityNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.ActivityNavigator.Destination> {
     ctor public ActivityNavigatorDestinationBuilder(androidx.navigation.ActivityNavigator navigator, @IdRes int id);
     method public androidx.navigation.ActivityNavigator.Destination build();

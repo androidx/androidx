@@ -12,6 +12,9 @@ package androidx.navigation {
     method public void setNavOptions(androidx.navigation.NavOptions?);
   }
 
+  public interface NavArgs {
+  }
+
   public final class NavArgument {
     method public Object? getDefaultValue();
     method public androidx.navigation.NavType<?> getType();
