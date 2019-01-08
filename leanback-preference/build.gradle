@@ -6,11 +6,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":collection"))
-    api(project(":appcompat"))
-    api(project(":recyclerview"))
-    api(project(":preference"))
-    api(project(":leanback"))
+    api("androidx.collection:collection:1.0.0")
+    api("androidx.appcompat:appcompat:1.0.0")
+    api("androidx.recyclerview:recyclerview:1.0.0")
+    api("androidx.preference:preference:1.0.0")
+    api("androidx.leanback:leanback:1.0.0")
 }
 
 android {

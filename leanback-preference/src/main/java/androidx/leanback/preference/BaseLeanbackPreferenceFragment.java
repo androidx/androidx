@@ -37,6 +37,7 @@ import androidx.recyclerview.widget.RecyclerView;
 @Deprecated
 public abstract class BaseLeanbackPreferenceFragment extends PreferenceFragment {
 
+    @SuppressWarnings("RestrictedApi")
     @Override
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {

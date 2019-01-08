@@ -7,11 +7,11 @@ plugins {
 }
 
 dependencies {
-    api(project(":core"))
-    api(project(":legacy-support-core-ui"))
-    api(project(":media"))
-    api(project(":fragment"))
-    api(project(":recyclerview"))
+    api("androidx.interpolator:interpolator:1.0.0")
+    api("androidx.core:core:1.0.0")
+    api("androidx.media:media:1.0.0")
+    api("androidx.fragment:fragment:1.0.0")
+    api("androidx.recyclerview:recyclerview:1.0.0")
 
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
