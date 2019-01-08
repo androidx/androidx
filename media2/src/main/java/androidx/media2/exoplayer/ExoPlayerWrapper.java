@@ -813,6 +813,7 @@ import java.util.Map;
 
     private static final class MediaItemQueue {
 
+        private final Context mContext;
         private final Listener mListener;
         private final SimpleExoPlayer mPlayer;
         private final DataSource.Factory mDataSourceFactory;
@@ -824,6 +825,7 @@ import java.util.Map;
         private long mCurrentMediaItemPlayingTimeUs;
 
         MediaItemQueue(Context context, SimpleExoPlayer player, Listener listener) {
+            mContext = context;
             mPlayer = player;
             mListener = listener;
             String userAgent = Util.getUserAgent(context, USER_AGENT_NAME);
@@ -898,7 +900,7 @@ import java.util.Map;
         }
 
         public boolean getCurrentMediaItemIsRemote() {
-            return mMediaItemInfos.isEmpty() ? false : mMediaItemInfos.peekFirst().mIsRemote;
+            return !mMediaItemInfos.isEmpty() && mMediaItemInfos.peekFirst().mIsRemote;
         }
 
         public void skipToNext() {
@@ -978,8 +980,8 @@ import java.util.Map;
             }
 
             // Create a source for the item.
-            MediaSource mediaSource =
-                    ExoPlayerUtils.createUnclippedMediaSource(dataSourceFactory, mediaItem);
+            MediaSource mediaSource = ExoPlayerUtils.createUnclippedMediaSource(
+                    mContext, dataSourceFactory, mediaItem);
 
             // Apply clipping if needed. Because ExoPlayer doesn't expose the unclipped duration, we
             // wrap the child source in an intermediate source that lets us access its duration.

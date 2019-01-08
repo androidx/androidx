@@ -31,10 +31,13 @@ import static androidx.media2.SubtitleData.MIMETYPE_TEXT_CEA_608;
 import static androidx.media2.SubtitleData.MIMETYPE_TEXT_CEA_708;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.Context;
 import android.media.MediaFormat;
 import android.net.Uri;
 
 import androidx.annotation.RestrictTo;
+import androidx.core.util.Preconditions;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.CallbackMediaItem;
 import androidx.media2.FileMediaItem;
@@ -58,6 +61,7 @@ import androidx.media2.exoplayer.external.source.MediaSource;
 import androidx.media2.exoplayer.external.source.hls.HlsMediaSource;
 import androidx.media2.exoplayer.external.upstream.DataSource;
 import androidx.media2.exoplayer.external.upstream.HttpDataSource;
+import androidx.media2.exoplayer.external.upstream.RawResourceDataSource;
 import androidx.media2.exoplayer.external.util.MimeTypes;
 import androidx.media2.exoplayer.external.util.Util;
 
@@ -81,7 +85,7 @@ import java.net.SocketTimeoutException;
      * set as the tag of the source.
      */
     public static MediaSource createUnclippedMediaSource(
-            DataSource.Factory dataSourceFactory, MediaItem mediaItem) {
+            Context context, DataSource.Factory dataSourceFactory, MediaItem mediaItem) {
         if (mediaItem instanceof UriMediaItem) {
             Uri uri = ((UriMediaItem) mediaItem).getUri();
             if (Util.inferContentType(uri) == C.TYPE_HLS) {
@@ -89,6 +93,21 @@ import java.net.SocketTimeoutException;
                         .setTag(mediaItem)
                         .createMediaSource(uri);
             } else {
+                if (ContentResolver.SCHEME_ANDROID_RESOURCE.equals(uri.getScheme())) {
+                    String path = Preconditions.checkNotNull(uri.getPath());
+                    int resourceIdentifier;
+                    if (uri.getPathSegments().size() == 1
+                            && uri.getPathSegments().get(0).matches("\\d+")) {
+                        resourceIdentifier = Integer.parseInt(uri.getPathSegments().get(0));
+                    } else {
+                        String host = uri.getHost();
+                        String resourceName = (host != null ? host + ":" : "") + path;
+                        resourceIdentifier = context.getResources()
+                                .getIdentifier(resourceName, "raw", context.getPackageName());
+                    }
+                    Preconditions.checkState(resourceIdentifier != 0);
+                    uri = RawResourceDataSource.buildRawResourceUri(resourceIdentifier);
+                }
                 return new ExtractorMediaSource.Factory(dataSourceFactory)
                         .setExtractorsFactory(sExtractorsFactory)
                         .setTag(mediaItem)
