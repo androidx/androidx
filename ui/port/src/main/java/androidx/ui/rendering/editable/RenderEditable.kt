@@ -906,7 +906,7 @@ class RenderEditable : RenderBox() {
 //        return null;
 //    }
 
-    fun _getMaxScrollExtent(contentSize: Size): Double {
+    fun _getMaxScrollExtent(contentSize: Size): Float {
         TODO("Not yet implemented")
 //        assert(hasSize);
 //        switch (_viewportAxis) {
@@ -998,13 +998,13 @@ class RenderEditable : RenderBox() {
 //        return Rect.fromLTWH(0.0, 0.0, cursorWidth, preferredLineHeight).shift(caretOffset + _paintOffset);
     }
 
-    override fun computeMinIntrinsicWidth(height: Double): Double {
+    override fun computeMinIntrinsicWidth(height: Float): Float {
         TODO("Not yet implemented")
 //        _layoutText(double.infinity);
 //        return _textPainter.minIntrinsicWidth;
     }
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
         TODO("Not yet implemented")
 //        _layoutText(double.infinity);
 //        return _textPainter.maxIntrinsicWidth;
@@ -1016,7 +1016,7 @@ class RenderEditable : RenderBox() {
      */
 //    double get preferredLineHeight => _textPainter.preferredLineHeight;
 
-    fun _preferredHeight(width: Double): Double {
+    fun _preferredHeight(width: Float): Float {
         TODO("Not yet implemented")
 //        if (maxLines != null)
 //            return preferredLineHeight * maxLines;
@@ -1033,17 +1033,17 @@ class RenderEditable : RenderBox() {
 //        return math.max(preferredLineHeight, _textPainter.height);
     }
 
-    override fun computeMinIntrinsicHeight(width: Double): Double {
+    override fun computeMinIntrinsicHeight(width: Float): Float {
         TODO("Not yet implemented")
 //        return _preferredHeight(width);
     }
 
-    override fun computeMaxIntrinsicHeight(width: Double): Double {
+    override fun computeMaxIntrinsicHeight(width: Float): Float {
         TODO("Not yet implemented")
 //        return _preferredHeight(width);
     }
 
-    override fun computeDistanceToActualBaseline(baseline: TextBaseline): Double? {
+    override fun computeDistanceToActualBaseline(baseline: TextBaseline): Float? {
         TODO("Not yet implemented")
 //        _layoutText(constraints.maxWidth);
 //        return _textPainter.computeDistanceToActualBaseline(baseline);
@@ -1194,7 +1194,7 @@ class RenderEditable : RenderBox() {
 
 //    Rect _caretPrototype;
 
-    fun _layoutText(constraintWidth: Double) {
+    fun _layoutText(constraintWidth: Float) {
         TODO("Not yet implemented")
 //        assert(constraintWidth != null);
 //        if (_textLayoutLastWidth == constraintWidth)
@@ -1298,7 +1298,7 @@ class RenderEditable : RenderBox() {
 //        properties.add(DiagnosticsProperty<ValueNotifier<bool>>('showCursor', showCursor));
 //        properties.add(IntProperty('maxLines', maxLines));
 //        properties.add(DiagnosticsProperty<Color>('selectionColor', selectionColor));
-//        properties.add(DoubleProperty('textScaleFactor', textScaleFactor));
+//        properties.add(FloatProperty('textScaleFactor', textScaleFactor));
 //        properties.add(DiagnosticsProperty<Locale>('locale', locale, defaultValue: null));
 //        properties.add(DiagnosticsProperty<TextSelection>('selection', selection));
 //        properties.add(DiagnosticsProperty<ViewportOffset>('offset', offset));

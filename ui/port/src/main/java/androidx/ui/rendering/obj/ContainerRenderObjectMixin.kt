@@ -327,7 +327,7 @@ abstract class ContainerRenderObjectMixin<
      * Useful when the children are displayed vertically in the same order they
      * appear in the child list.
      */
-    fun defaultComputeDistanceToFirstActualBaseline(baseline: TextBaseline): Double {
+    fun defaultComputeDistanceToFirstActualBaseline(baseline: TextBaseline): Float {
         TODO("Migration/Mihai: baselines")
 //        assert(!debugNeedsLayout);
 //        ChildType child = firstChild;
@@ -347,7 +347,7 @@ abstract class ContainerRenderObjectMixin<
      * Useful when the vertical position of the children isn't determined by the
      * order in the child list.
      */
-    fun defaultComputeDistanceToHighestActualBaseline(baseline: TextBaseline): Double {
+    fun defaultComputeDistanceToHighestActualBaseline(baseline: TextBaseline): Float {
         TODO("Migration/Mihai: baselines")
 //        assert(!debugNeedsLayout);
 //        double result;

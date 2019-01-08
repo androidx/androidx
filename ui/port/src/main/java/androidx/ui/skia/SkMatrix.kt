@@ -45,8 +45,8 @@ class SkMatrix(val frameworkMatrix: Matrix) {
                     // 0, 4, 12,
                     // 1, 5, 13,
                     // 3, 7, 15,
-                    val array = matrix4.toDoubleArray()
-                    val map = { i: Int -> array[i].toFloat() }
+                    val array = matrix4.toFloatArray()
+                    val map = { i: Int -> array[i] }
                     setValues(floatArrayOf(
                             map(0), map(4), map(12),
                             map(1), map(5), map(13),
@@ -85,10 +85,10 @@ class SkMatrix(val frameworkMatrix: Matrix) {
         val dstF = RectF()
         frameworkMatrix.mapRect(dstF, srcF)
         return Rect(
-                dstF.left.toDouble(),
-                dstF.top.toDouble(),
-                dstF.right.toDouble(),
-                dstF.bottom.toDouble()
+                dstF.left,
+                dstF.top,
+                dstF.right,
+                dstF.bottom
         )
     }
 }

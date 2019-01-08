@@ -30,7 +30,7 @@ internal data class _BoxEdge(
      * The offset from the start edge of the parent [SemanticsNode] in the
      * direction of the traversal.
      */
-    val offset: Double,
+    val offset: Float,
 
     /** The node to whom this edge belongs. */
     val node: SemanticsNode

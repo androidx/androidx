@@ -25,9 +25,9 @@ import androidx.ui.animation.Animation
  * [first] and [next].
  */
 class AnimationMax(
-    first: Animation<Double>,
-    next: Animation<Double>
-) : CompoundAnimation<Double>(first, next) {
+    first: Animation<Float>,
+    next: Animation<Float>
+) : CompoundAnimation<Float>(first, next) {
 
     override val value = Math.max(first.value, next.value)
 }

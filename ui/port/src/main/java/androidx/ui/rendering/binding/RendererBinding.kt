@@ -207,7 +207,7 @@ class RendererBindingImpl(
      * using `flutter run`.
      */
     fun createViewConfiguration(): ViewConfiguration {
-        val devicePixelRatio: Double = window.devicePixelRatio
+        val devicePixelRatio: Float = window.devicePixelRatio
         // TODO(Migration/ njawad revisit window class as sizing is relative to CraneView
         // dimensions not the window size of the device
         return ViewConfiguration(

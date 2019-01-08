@@ -43,7 +43,7 @@ class RichTextTest {
         assertThat(richText.textDirection).isNull()
         assertThat(richText.softWrap).isTrue()
         assertThat(richText.overflow).isEqualTo(TextOverflow.CLIP)
-        assertThat(richText.textScaleFactor).isEqualTo(1.0)
+        assertThat(richText.textScaleFactor).isEqualTo(1.0f)
         assertThat(richText.maxLines).isNull()
     }
 
@@ -51,7 +51,7 @@ class RichTextTest {
     fun `RichText constructor with all customized values`() {
         val key = Key.createKey("Hello")
         val textSpan = TextSpan(text = "Hello", style = TextStyle())
-        val textScaleFactor = 3.0
+        val textScaleFactor = 3.0f
         val maxLines = 5
 
         val richText = RichText(
@@ -79,7 +79,7 @@ class RichTextTest {
     fun `RichText createRenderObject`() {
         val key = Key.createKey("Hello")
         val textSpan = TextSpan(text = "Hello", style = TextStyle())
-        val textScaleFactor = 3.0
+        val textScaleFactor = 3.0f
         val maxLines = 5
         val richText = RichText(
             key = key,
@@ -107,7 +107,7 @@ class RichTextTest {
     fun `RichText updateRenderObject`() {
         val key = Key.createKey("Hello")
         val textSpan = TextSpan(text = "Hello", style = TextStyle())
-        val textScaleFactor = 3.0
+        val textScaleFactor = 3.0f
         val maxLines = 5
         val richText = RichText(
             key = key,

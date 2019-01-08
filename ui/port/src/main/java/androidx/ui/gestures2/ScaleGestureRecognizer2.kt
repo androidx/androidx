@@ -18,6 +18,7 @@ package androidx.ui.gestures2
 
 import androidx.ui.engine.geometry.Offset
 import kotlin.math.absoluteValue
+import kotlin.math.hypot
 
 enum class ScaleDirection {
     EXPAND_X, CONTRACT_X, EXPAND_Y, CONTRACT_Y
@@ -28,7 +29,7 @@ interface ScaleGestureRecognizerCallback {
     fun onScaleStop() {}
     fun onCanScale(direction: ScaleDirection) = false
     fun onAveragePointMove(offset: Offset) = Offset.zero
-    fun onScaleRatio(ratio: Double) = 0.0
+    fun onScaleRatio(ratio: Float) = 0.0f
 }
 
 class ScaleGestureRecognizer2(
@@ -37,11 +38,11 @@ class ScaleGestureRecognizer2(
     private val callback: ScaleGestureRecognizerCallback
 ) : GestureRecognizer2 {
 
-    var accumulatedAverageSpanDiff = 0.0
+    var accumulatedAverageSpanDiff = 0.0f
     var passedSlop = false
     var points = HashMap<Int, Offset>()
     var averagePoint = Offset.zero
-    var averageSpan = 0.0
+    var averageSpan = 0.0f
 
     override fun handleEvent(event: PointerEvent2, pass: PointerEventPass): PointerEvent2 {
         var pointerEvent = event
@@ -104,8 +105,8 @@ class ScaleGestureRecognizer2(
     }
 
     private fun averageOffset(offsets: Map<Int, Offset>, toIgnore: Int? = null): Offset {
-        var totalX = 0.0
-        var totalY = 0.0
+        var totalX = 0.0f
+        var totalY = 0.0f
         offsets.forEach {
             if (it.key != toIgnore) {
                 totalX += it.value.dx
@@ -122,10 +123,10 @@ class ScaleGestureRecognizer2(
         offsets: Map<Int, Offset>,
         focalPoint: Offset,
         toIgnore: Int? = null
-    ): Double {
+    ): Float {
         // Determine average deviation from focal point
-        var devSumX = 0.0
-        var devSumY = 0.0
+        var devSumX = 0.0f
+        var devSumY = 0.0f
         offsets.forEach {
             if (it.key != toIgnore) {
                 // Convert the resulting diameter into a radius.
@@ -142,6 +143,6 @@ class ScaleGestureRecognizer2(
         // the focal point.
         val spanX = devX * 2
         val spanY = devY * 2
-        return Math.hypot(spanX, spanY)
+        return hypot(spanX, spanY)
     }
 }

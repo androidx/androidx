@@ -308,7 +308,7 @@ internal class LayoutNode(
     /**
      * The constraints used the last time [layout] was called.
      */
-    var constraints: Constraints = BoxConstraints.tight(Size(0.0, 0.0))
+    var constraints: Constraints = BoxConstraints.tight(Size(0.0f, 0.0f))
 
     /**
      * The `parentUsesSize` from the last time [layout] was called.
@@ -494,7 +494,7 @@ internal class LayoutNode(
                 }
             }
 
-            return Size(child.width.toDouble(), child.height.toDouble())
+            return Size(child.width.toFloat(), child.height.toFloat())
         }
     }
 }

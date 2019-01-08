@@ -22,27 +22,27 @@ import kotlin.math.sqrt
 internal class _Vector internal constructor(
     val _length: Int,
     val _offset: Int = 0,
-    val _elements: Array<Double> = Array(_length) { 0.0 }
+    val _elements: Array<Float> = Array(_length) { 0.0f }
 ) {
 
     operator fun get(i: Int) = _elements.get((i + _offset))
 
-    operator fun set(i: Int, value: Double) {
+    operator fun set(i: Int, value: Float) {
         _elements[(i + _offset)] = value
     }
 
-    operator fun times(a: _Vector): Double {
-        var result = 0.0
+    operator fun times(a: _Vector): Float {
+        var result = 0.0f
         for (i in 0 until _length) {
             result += this[i] * a[i]
         }
         return result
     }
 
-    fun norm(): Double = sqrt(this * this)
+    fun norm(): Float = sqrt(this * this)
 
     companion object {
-        internal fun fromVOL(values: Array<Double>, offset: Int, length: Int) =
+        internal fun fromVOL(values: Array<Float>, offset: Int, length: Int) =
             _Vector(length, offset, values)
     }
 }

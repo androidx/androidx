@@ -29,67 +29,67 @@ class LeastSquaresSolverTest {
 
     @Test
     fun `Least-squares fit, linear polynomial to line`() {
-        val x = doubleArrayOf(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
-        val y = doubleArrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-        val w = doubleArrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        val x = floatArrayOf(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f)
+        val y = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f)
+        val w = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f)
 
         val solver = LeastSquaresSolver(x, y, w)
         val fit = solver.solve(1)
 
         assertThat(fit, `is`(notNullValue()))
         assertThat(fit!!.coefficients.size, `is`(2))
-        assertThat(fit.coefficients[0], MoreOrLessEquals(1.0))
-        assertThat(fit.coefficients[1], MoreOrLessEquals(0.0))
-        assertThat(fit.confidence, MoreOrLessEquals(1.0))
+        assertThat(fit.coefficients[0], MoreOrLessEquals(1.0f))
+        assertThat(fit.coefficients[1], MoreOrLessEquals(0.0f))
+        assertThat(fit.confidence, MoreOrLessEquals(1.0f))
     }
 
     @Test
     fun `Least-squares fit, linear polynomial to sloped line`() {
-        val x = doubleArrayOf(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
-        val y = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
-        val w = doubleArrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        val x = floatArrayOf(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f)
+        val y = floatArrayOf(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f)
+        val w = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f)
 
         val solver = LeastSquaresSolver(x, y, w)
         val fit = solver.solve(1)
 
         assertThat(fit, `is`(notNullValue()))
         assertThat(fit!!.coefficients.size, `is`(2))
-        assertThat(fit.coefficients[0], MoreOrLessEquals(1.0))
-        assertThat(fit.coefficients[1], MoreOrLessEquals(1.0))
-        assertThat(fit.confidence, MoreOrLessEquals(1.0))
+        assertThat(fit.coefficients[0], MoreOrLessEquals(1.0f))
+        assertThat(fit.coefficients[1], MoreOrLessEquals(1.0f))
+        assertThat(fit.confidence, MoreOrLessEquals(1.0f))
     }
 
     @Test
     fun `Least-squares fit, quadratic polynomial to line`() {
-        val x = doubleArrayOf(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
-        val y = doubleArrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
-        val w = doubleArrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        val x = floatArrayOf(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f)
+        val y = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f)
+        val w = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f)
 
         val solver = LeastSquaresSolver(x, y, w)
         val fit = solver.solve(2)
 
         assertThat(fit, `is`(notNullValue()))
         assertThat(fit!!.coefficients.size, `is`(3))
-        assertThat(fit.coefficients[0], MoreOrLessEquals(1.0))
-        assertThat(fit.coefficients[1], MoreOrLessEquals(0.0))
-        assertThat(fit.coefficients[2], MoreOrLessEquals(0.0))
-        assertThat(fit.confidence, MoreOrLessEquals(1.0))
+        assertThat(fit.coefficients[0], MoreOrLessEquals(1.0f))
+        assertThat(fit.coefficients[1], MoreOrLessEquals(0.0f))
+        assertThat(fit.coefficients[2], MoreOrLessEquals(0.0f))
+        assertThat(fit.confidence, MoreOrLessEquals(1.0f))
     }
 
     @Test
     fun `Least-squares fit, quadratic polynomial to sloped line`() {
-        val x = doubleArrayOf(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)
-        val y = doubleArrayOf(1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0)
-        val w = doubleArrayOf(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0)
+        val x = floatArrayOf(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f)
+        val y = floatArrayOf(1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f)
+        val w = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f)
 
         val solver = LeastSquaresSolver(x, y, w)
         val fit = solver.solve(2)
 
         assertThat(fit, `is`(notNullValue()))
         assertThat(fit!!.coefficients.size, `is`(3))
-        assertThat(fit.coefficients[0], MoreOrLessEquals(1.0))
-        assertThat(fit.coefficients[1], MoreOrLessEquals(1.0))
-        assertThat(fit.coefficients[2], MoreOrLessEquals(0.0))
-        assertThat(fit.confidence, MoreOrLessEquals(1.0))
+        assertThat(fit.coefficients[0], MoreOrLessEquals(1.0f))
+        assertThat(fit.coefficients[1], MoreOrLessEquals(1.0f))
+        assertThat(fit.coefficients[2], MoreOrLessEquals(0.0f))
+        assertThat(fit.confidence, MoreOrLessEquals(1.0f))
     }
 }

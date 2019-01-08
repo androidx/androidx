@@ -62,29 +62,29 @@ class Path {
     }
 
     /** Starts a new subpath at the given coordinate. */
-    fun moveTo(dx: Double, dy: Double) {
-        internalPath.moveTo(dx.toFloat(), dy.toFloat())
+    fun moveTo(dx: Float, dy: Float) {
+        internalPath.moveTo(dx, dy)
     }
 
     /** Starts a new subpath at the given offset from the current point. */
-    fun relativeMoveTo(dx: Double, dy: Double) {
-        internalPath.rMoveTo(dx.toFloat(), dy.toFloat())
+    fun relativeMoveTo(dx: Float, dy: Float) {
+        internalPath.rMoveTo(dx, dy)
     }
 
     /**
      * Adds a straight line segment from the current point to the given
      * point.
      */
-    fun lineTo(dx: Double, dy: Double) {
-        internalPath.lineTo(dx.toFloat(), dy.toFloat())
+    fun lineTo(dx: Float, dy: Float) {
+        internalPath.lineTo(dx, dy)
     }
 
     /**
      * Adds a straight line segment from the current point to the point
      * at the given offset from the current point.
      */
-    fun relativeLineTo(dx: Double, dy: Double) {
-        internalPath.rLineTo(dx.toFloat(), dy.toFloat())
+    fun relativeLineTo(dx: Float, dy: Float) {
+        internalPath.rLineTo(dx, dy)
     }
 
     /**
@@ -92,8 +92,8 @@ class Path {
      * point to the given point (x2,y2), using the control point
      * (x1,y1).
      */
-    fun quadraticBezierTo(x1: Double, y1: Double, x2: Double, y2: Double) {
-        internalPath.quadTo(x1.toFloat(), y1.toFloat(), x2.toFloat(), y2.toFloat())
+    fun quadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float) {
+        internalPath.quadTo(x1, y1, x2, y2)
     }
 
     /**
@@ -102,8 +102,8 @@ class Path {
      * using the control point at the offset (x1,y1) from the current
      * point.
      */
-    fun relativeQuadraticBezierTo(x1: Double, y1: Double, x2: Double, y2: Double) {
-        internalPath.rQuadTo(x1.toFloat(), y1.toFloat(), x2.toFloat(), y2.toFloat())
+    fun relativeQuadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float) {
+        internalPath.rQuadTo(x1, y1, x2, y2)
     }
 
     /**
@@ -111,11 +111,11 @@ class Path {
      * to the given point (x3,y3), using the control points (x1,y1) and
      * (x2,y2).
      */
-    fun cubicTo(x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double) {
+    fun cubicTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
         internalPath.cubicTo(
-                x1.toFloat(), y1.toFloat(),
-                x2.toFloat(), y2.toFloat(),
-                x3.toFloat(), y3.toFloat()
+            x1, y1,
+            x2, y2,
+            x3, y3
         )
     }
 
@@ -125,11 +125,11 @@ class Path {
      * the control points at the offsets (x1,y1) and (x2,y2) from the
      * current point.
      */
-    fun relativeCubicTo(x1: Double, y1: Double, x2: Double, y2: Double, x3: Double, y3: Double) {
+    fun relativeCubicTo(x1: Float, y1: Float, x2: Float, y2: Float, x3: Float, y3: Float) {
         internalPath.rCubicTo(
-                x1.toFloat(), y1.toFloat(),
-                x2.toFloat(), y2.toFloat(),
-                x3.toFloat(), y3.toFloat()
+            x1, y1,
+            x2, y2,
+            x3, y3
         )
     }
 
@@ -140,7 +140,7 @@ class Path {
      * hyperbola; if the weight equals 1, it's a parabola; and if it is
      * less than 1, it is an ellipse.
      */
-    fun conicTo(x1: Double, y1: Double, x2: Double, y2: Double, w: Double) {
+    fun conicTo(x1: Float, y1: Float, x2: Float, y2: Float, w: Float) {
         // TODO(Migration/njawad) figure out how to handle unsupported framework Path operations
         throw UnsupportedOperationException("conicTo not supported in framework Path")
     }
@@ -153,7 +153,7 @@ class Path {
      * a hyperbola; if the weight equals 1, it's a parabola; and if it
      * is less than 1, it is an ellipse.
      */
-    fun relativeConicTo(x1: Double, y1: Double, x2: Double, y2: Double, w: Double) {
+    fun relativeConicTo(x1: Float, y1: Float, x2: Float, y2: Float, w: Float) {
         // TODO(Migration/njawad) figure out how to handle unsupported framework Path operations
         throw UnsupportedOperationException("relativeConicTo not supported in framework Path")
     }
@@ -176,17 +176,17 @@ class Path {
      * The line segment added if `forceMoveTo` is false starts at the
      * current point and ends at the start of the arc.
      */
-    fun arcTo(rect: Rect, startAngle: Double, sweepAngle: Double, forceMoveTo: Boolean) {
-        val left = rect.left.toFloat()
-        val top = rect.top.toFloat()
-        val right = rect.right.toFloat()
-        val bottom = rect.bottom.toFloat()
+    fun arcTo(rect: Rect, startAngle: Float, sweepAngle: Float, forceMoveTo: Boolean) {
+        val left = rect.left
+        val top = rect.top
+        val right = rect.right
+        val bottom = rect.bottom
         rectF.set(left, top, right, bottom)
         internalPath.arcTo(
-                rectF,
-                startAngle.toFloat(),
-                sweepAngle.toFloat(),
-                forceMoveTo
+            rectF,
+            startAngle,
+            sweepAngle,
+            forceMoveTo
         )
     }
 
@@ -207,7 +207,7 @@ class Path {
     fun arcToPoint(
         arcEnd: Offset,
         radius: Radius = Radius.zero,
-        rotation: Double = 0.0,
+        rotation: Float = 0.0f,
         largeArc: Boolean = false,
         clockwise: Boolean = true
     ) {
@@ -216,11 +216,11 @@ class Path {
     }
 
     private fun _arcToPoint(
-        arcEndX: Double,
-        arcEndY: Double,
-        radius: Double,
-        radiusY: Double,
-        rotation: Double,
+        arcEndX: Float,
+        arcEndY: Float,
+        radius: Float,
+        radiusY: Float,
+        rotation: Float,
         largeArc: Boolean,
         clockwise: Boolean
     ) {
@@ -249,7 +249,7 @@ class Path {
     fun relativeArcToPoint(
         arcEndDelta: Offset,
         radius: Radius = Radius.zero,
-        rotation: Double = 0.0,
+        rotation: Float = 0.0f,
         largeArc: Boolean = false,
         clockwise: Boolean = true
     ) {
@@ -265,11 +265,11 @@ class Path {
     }
 
     private fun _relativeArcToPoint(
-        arcEndX: Double,
-        arcEndY: Double,
-        radius: Double,
-        radiusY: Double,
-        rotation: Double,
+        arcEndX: Float,
+        arcEndY: Float,
+        radius: Float,
+        radiusY: Float,
+        rotation: Float,
         largeArc: Boolean,
         clockwise: Boolean
     ) {
@@ -292,7 +292,7 @@ class Path {
     }
 
     // Not necessary as wrapping platform Path
-    fun _addRect(left: Double, top: Double, right: Double, bottom: Double) {
+    fun _addRect(left: Float, top: Float, right: Float, bottom: Float) {
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_addRect';
@@ -314,7 +314,7 @@ class Path {
     }
 
     // Not necessary as wrapping platform Path
-    private fun _addOval(left: Double, top: Double, right: Double, bottom: Double) {
+    private fun _addOval(left: Float, top: Float, right: Float, bottom: Float) {
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_addOval';
@@ -330,14 +330,14 @@ class Path {
      * rectangle and with positive angles going clockwise around the
      * oval.
      */
-    fun addArc(oval: Rect, startAngle: Double, sweepAngle: Double) {
+    fun addArc(oval: Rect, startAngle: Float, sweepAngle: Float) {
         assert(_rectIsValid(oval))
         rectF.set(oval.toFrameworkRect())
-        internalPath.addArc(rectF, startAngle.toFloat(), sweepAngle.toFloat())
+        internalPath.addArc(rectF, startAngle, sweepAngle)
     }
 
     // Not necessary as wrapping platform Path
-    private fun _addArc(left: Double, top: Double, right: Double, bottom: Double) {
+    private fun _addArc(left: Float, top: Float, right: Float, bottom: Float) {
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_addArc'
@@ -365,19 +365,18 @@ class Path {
     }
 
     fun addRRect(rrect: RRect) {
-        rectF.set(rrect.left.toFloat(), rrect.top.toFloat(), rrect.right.toFloat(),
-                rrect.bottom.toFloat())
-        radii[0] = rrect.topLeftRadiusX.toFloat()
-        radii[1] = rrect.topLeftRadiusY.toFloat()
+        rectF.set(rrect.left, rrect.top, rrect.right, rrect.bottom)
+        radii[0] = rrect.topLeftRadiusX
+        radii[1] = rrect.topLeftRadiusY
 
-        radii[2] = rrect.topRightRadiusX.toFloat()
-        radii[3] = rrect.topRightRadiusY.toFloat()
+        radii[2] = rrect.topRightRadiusX
+        radii[3] = rrect.topRightRadiusY
 
-        radii[4] = rrect.bottomRightRadiusX.toFloat()
-        radii[5] = rrect.bottomRightRadiusY.toFloat()
+        radii[4] = rrect.bottomRightRadiusX
+        radii[5] = rrect.bottomRightRadiusY
 
-        radii[6] = rrect.bottomLeftRadiusX.toFloat()
-        radii[7] = rrect.bottomLeftRadiusY.toFloat()
+        radii[6] = rrect.bottomLeftRadiusX
+        radii[7] = rrect.bottomLeftRadiusY
         internalPath.addRoundRect(rectF, radii, android.graphics.Path.Direction.CCW)
     }
 
@@ -403,19 +402,19 @@ class Path {
             TODO("Refactor to convert Matrix4 to framework Matrix when Matrix4 is ported")
             // internalPath.addPath(path.toFrameworkPath(), matrix);
         } else {
-            internalPath.addPath(path.toFrameworkPath(), offset.dx.toFloat(), offset.dy.toFloat())
+            internalPath.addPath(path.toFrameworkPath(), offset.dx, offset.dy)
         }
     }
 
     // Not necessary as wrapping platform Path
-    private fun _addPath(path: Path, dx: Double, dy: Double) {
+    private fun _addPath(path: Path, dx: Float, dy: Float) {
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_addPath';
     }
 
     // Not necessary as wrapping platform Path
-    private fun _addPathWithMatrix(path: Path, dx: Double, dy: Double, matrix4: Matrix4) {
+    private fun _addPathWithMatrix(path: Path, dx: Float, dy: Float, matrix4: Matrix4) {
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_addPathWithMatrix';
@@ -431,14 +430,14 @@ class Path {
 //        }
     }
 
-    private fun _extendWithPath(path: Path, dx: Double, dy: Double) {
+    private fun _extendWithPath(path: Path, dx: Float, dy: Float) {
         // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
         TODO()
         // Flutter calls into native Path logic here
         // native 'Path_extendWithPath';
     }
 
-    private fun _extendWithPathAndMatrix(path: Path, dx: Double, dy: Double, matrix: Matrix4) {
+    private fun _extendWithPathAndMatrix(path: Path, dx: Float, dy: Float, matrix: Matrix4) {
         // TODO(Migration/njawad: figure out how to handle unsupported framework Path operations)
         TODO()
         // Flutter calls into native Path logic here
@@ -482,9 +481,13 @@ class Path {
 
         // TODO(Migration/Andrey: temporary non-efficient implementation)
         val path = android.graphics.Path()
-        path.addRect(offset.dx.toFloat() - 0.01f, offset.dy.toFloat() - 0.01f,
-            offset.dx.toFloat() + 0.01f, offset.dy.toFloat() + 0.01f,
-            android.graphics.Path.Direction.CW)
+        path.addRect(
+            offset.dx - 0.01f,
+            offset.dy - 0.01f,
+            offset.dx + 0.01f,
+            offset.dy + 0.01f,
+            android.graphics.Path.Direction.CW
+        )
         if (path.op(internalPath, android.graphics.Path.Op.INTERSECT)) {
             return !path.isEmpty
         }
@@ -500,7 +503,7 @@ class Path {
     fun shift(offset: Offset): androidx.ui.painting.Path {
         return clone().apply {
             mMatrix.reset()
-            mMatrix.setTranslate(offset.dx.toFloat(), offset.dy.toFloat())
+            mMatrix.setTranslate(offset.dx, offset.dy)
             internalPath.transform(mMatrix)
         }
     }
@@ -543,10 +546,10 @@ class Path {
     fun getBounds(): Rect {
         internalPath.computeBounds(rectF, true)
         return Rect(
-                rectF.left.toDouble(),
-                rectF.top.toDouble(),
-                rectF.right.toDouble(),
-                rectF.bottom.toDouble()
+                rectF.left,
+                rectF.top,
+                rectF.right,
+                rectF.bottom
         )
     }
 
@@ -555,7 +558,7 @@ class Path {
         TODO()
         // Flutter calls into native code here
         // native 'Path_getBounds';
-        return Rect(0.0, 0.0, 0.0, 0.0)
+        return Rect(0.0f, 0.0f, 0.0f, 0.0f)
     }
 
     companion object {
@@ -628,16 +631,16 @@ class Path {
 //    }
 
     private fun _rectIsValid(rect: Rect): Boolean {
-        assert(Double.NaN != rect.left) {
+        assert(Float.NaN != rect.left) {
             "Rect.left is NaN"
         }
-        assert(Double.NaN != rect.top) {
+        assert(Float.NaN != rect.top) {
             "Rect.top is NaN"
         }
-        assert(Double.NaN != rect.right) {
+        assert(Float.NaN != rect.right) {
             "Rect.right is NaN"
         }
-        assert(Double.NaN != rect.bottom) {
+        assert(Float.NaN != rect.bottom) {
             "Rect.bottom is NaN"
         }
         return true

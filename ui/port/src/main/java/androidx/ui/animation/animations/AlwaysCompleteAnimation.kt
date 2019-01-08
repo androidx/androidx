@@ -28,7 +28,7 @@ import androidx.ui.animation.AnimationStatusListener
  * [AnimationController] with an initial value of 1.0. This is useful when an
  * API expects an animation but you don't actually want to animate anything.
  */
-object AlwaysCompleteAnimation : Animation<Double>() {
+object AlwaysCompleteAnimation : Animation<Float>() {
 
     override fun addListener(listener: VoidCallback) {}
 
@@ -40,7 +40,7 @@ object AlwaysCompleteAnimation : Animation<Double>() {
 
     override val status = AnimationStatus.COMPLETED
 
-    override val value = 1.0
+    override val value = 1.0f
 
     override fun toString() = "AlwaysCompleteAnimation"
 }

@@ -20,6 +20,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Path
+import kotlin.math.max
 
 /**
  * A border that fits a circle within the available space.
@@ -47,15 +48,15 @@ data class CircleBorder(
 //        return new EdgeInsets.all(side.width);
 //    }
 
-    override fun scale(t: Double) = CircleBorder(side = side.scale(t))
+    override fun scale(t: Float) = CircleBorder(side = side.scale(t))
 
-    override fun lerpFrom(a: ShapeBorder?, t: Double): ShapeBorder? {
+    override fun lerpFrom(a: ShapeBorder?, t: Float): ShapeBorder? {
         if (a is CircleBorder)
             return CircleBorder(side = lerp(a.side, side, t))
         return super.lerpFrom(a, t)
     }
 
-    override fun lerpTo(b: ShapeBorder?, t: Double): ShapeBorder? {
+    override fun lerpTo(b: ShapeBorder?, t: Float): ShapeBorder? {
         if (b is CircleBorder)
             return CircleBorder(side = lerp(side, b.side, t))
         return super.lerpTo(b, t)
@@ -66,7 +67,7 @@ data class CircleBorder(
             addOval(
                 Rect.fromCircle(
                     center = rect.getCenter(),
-                    radius = Math.max(0.0, rect.getShortestSide() / 2.0 - side.width)
+                    radius = max(0.0f, rect.getShortestSide() / 2.0f - side.width)
                 )
             )
         }
@@ -77,7 +78,7 @@ data class CircleBorder(
             addOval(
                 Rect.fromCircle(
                     center = rect.getCenter(),
-                    radius = rect.getShortestSide() / 2.0
+                    radius = rect.getShortestSide() / 2.0f
                 )
             )
         }
@@ -90,7 +91,7 @@ data class CircleBorder(
             BorderStyle.SOLID ->
                 canvas.drawCircle(
                     rect.getCenter(),
-                    (rect.getShortestSide() - side.width) / 2.0,
+                    (rect.getShortestSide() - side.width) / 2.0f,
                     side.toPaint()
                 )
         }

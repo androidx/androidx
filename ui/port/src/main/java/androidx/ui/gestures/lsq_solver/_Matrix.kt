@@ -19,13 +19,13 @@ package androidx.ui.gestures.lsq_solver
 // TODO(abarth): Consider using vector_math.
 internal class _Matrix(rows: Int, cols: Int) {
     private val _columns: Int = cols
-    private val _elements: Array<Double> = Array(rows * cols) { 0.0 }
+    private val _elements: Array<Float> = Array(rows * cols) { 0.0f }
 
-    fun get(row: Int, col: Int): Double {
+    fun get(row: Int, col: Int): Float {
         return _elements[(row * _columns) + col]
     }
 
-    fun set(row: Int, col: Int, value: Double) {
+    fun set(row: Int, col: Int, value: Float) {
         _elements[(row * _columns) + col] = value
     }
 

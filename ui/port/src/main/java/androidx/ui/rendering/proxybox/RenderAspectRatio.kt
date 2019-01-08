@@ -22,7 +22,7 @@ import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 
 // /// Attempts to size the child to a specific aspect ratio.
 // ///
@@ -57,40 +57,40 @@ class RenderAspectRatio(
     // /// The aspect ratio is expressed as a ratio of width to height. For example,
     // /// a 16:9 width:height aspect ratio would have a value of 16.0/9.0. It must
     // /// be a finite, positive value.
-    aspectRatio: Double
+    aspectRatio: Float
 ) : RenderProxyBox(child) {
     init {
-        assert(aspectRatio > 0.0)
+        assert(aspectRatio > 0.0f)
         assert(aspectRatio.isFinite())
     }
 
-    var aspectRatio: Double = aspectRatio
+    var aspectRatio: Float = aspectRatio
         set(value) {
-            assert(value > 0.0)
+            assert(value > 0.0f)
             assert(value.isFinite())
             if (field == value) return
             field = value
             markNeedsLayout()
         }
 
-    override fun computeMinIntrinsicWidth(height: Double): Double {
+    override fun computeMinIntrinsicWidth(height: Float): Float {
         if (height.isFinite()) return height * aspectRatio
-        return child?.getMinIntrinsicWidth(height) ?: 0.0
+        return child?.getMinIntrinsicWidth(height) ?: 0.0f
     }
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
         if (height.isFinite()) return height * aspectRatio
-        return child?.getMaxIntrinsicWidth(height) ?: 0.0
+        return child?.getMaxIntrinsicWidth(height) ?: 0.0f
     }
 
-    override fun computeMinIntrinsicHeight(width: Double): Double {
+    override fun computeMinIntrinsicHeight(width: Float): Float {
         if (width.isFinite()) return width / aspectRatio
-        return child?.getMinIntrinsicHeight(width) ?: 0.0
+        return child?.getMinIntrinsicHeight(width) ?: 0.0f
     }
 
-    override fun computeMaxIntrinsicHeight(width: Double): Double {
+    override fun computeMaxIntrinsicHeight(width: Float): Float {
         if (width.isFinite()) return width / aspectRatio
-        return child?.getMaxIntrinsicHeight(width) ?: 0.0
+        return child?.getMaxIntrinsicHeight(width) ?: 0.0f
     }
 
     private fun applyAspectRatio(constraints: BoxConstraints): Size {
@@ -111,8 +111,8 @@ class RenderAspectRatio(
 
         if (constraints.isTight) return constraints.smallest
 
-        var width: Double = constraints.maxWidth
-        var height: Double
+        var width: Float = constraints.maxWidth
+        var height: Float
 
         // We default to picking the height based on the width, but if the width
         // would be infinite, that's not sensible so we try to infer the height
@@ -159,6 +159,6 @@ class RenderAspectRatio(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DoubleProperty.create("aspectRatio", aspectRatio))
+        properties.add(FloatProperty.create("aspectRatio", aspectRatio))
     }
 }

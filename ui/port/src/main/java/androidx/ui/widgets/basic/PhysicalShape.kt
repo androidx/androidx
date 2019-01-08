@@ -19,7 +19,7 @@ package androidx.ui.widgets.basic
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.painting.Color
 import androidx.ui.painting.Path
 import androidx.ui.rendering.obj.RenderObject
@@ -54,7 +54,7 @@ class PhysicalShape(
      */
     val clipper: CustomClipper<Path>,
     /** The z-coordinate at which to place this physical object. */
-    val elevation: Double = 0.0,
+    val elevation: Float = 0.0f,
     /** The background color. */
     val color: Color,
     /** When elevation is non zero the color to use for the shadow color. */
@@ -83,7 +83,7 @@ class PhysicalShape(
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
         properties.add(DiagnosticsProperty.create("clipper", clipper))
-        properties.add(DoubleProperty.create("elevation", elevation))
+        properties.add(FloatProperty.create("elevation", elevation))
         properties.add(DiagnosticsProperty.create("color", color))
         properties.add(DiagnosticsProperty.create("shadowColor", shadowColor))
     }

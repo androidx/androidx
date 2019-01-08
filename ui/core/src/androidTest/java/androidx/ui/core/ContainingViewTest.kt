@@ -96,8 +96,8 @@ class ContainingViewTest {
                         val background : (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
                             val paint = Paint()
                             paint.color = Color(0xFFFFFF00.toInt())
-                            canvas.drawRect(Rect(0.0, 0.0,
-                                parentSize.width.toDouble(), parentSize.height.toDouble()), paint)
+                            canvas.drawRect(Rect(0.0f, 0.0f,
+                                parentSize.width, parentSize.height), paint)
                         }
                         // Component constructor parameters over-memoize, so use a property instead
                         <Draw onPaint=background/>
@@ -107,10 +107,10 @@ class ContainingViewTest {
                                     drawLatch.countDown()
                                     val paint = Paint()
                                     paint.color = Color(0xFF0000FF.toInt())
-                                    val width = parentSize.width.toDouble()
-                                    val height = parentSize.height.toDouble()
+                                    val width = parentSize.width
+                                    val height = parentSize.height
                                     canvas.drawRect(
-                                        Rect(0.0, 0.0, width, height),
+                                        Rect(0.0f, 0.0f, width, height),
                                         paint
                                     )
                                 }

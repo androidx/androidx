@@ -26,15 +26,15 @@ class FixedViewportOffsetTest {
 
     @Test
     fun `correctBy() test`() {
-        val fixedViewportOffset = FixedViewportOffset(100.0)
-        fixedViewportOffset.correctBy(50.0)
-        assertThat(fixedViewportOffset.pixels).isEqualTo(150.0)
+        val fixedViewportOffset = FixedViewportOffset(100.0f)
+        fixedViewportOffset.correctBy(50.0f)
+        assertThat(fixedViewportOffset.pixels).isEqualTo(150.0f)
     }
 
     @Test
     fun `animateTo should be finished`() {
-        val fixedViewportOffset = FixedViewportOffset(100.0)
-        val job = fixedViewportOffset.animateTo(200.0, null, null)
+        val fixedViewportOffset = FixedViewportOffset(100.0f)
+        val job = fixedViewportOffset.animateTo(200.0f, null, null)
         assertThat(job.isCompleted).isTrue()
     }
 }

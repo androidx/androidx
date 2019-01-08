@@ -50,7 +50,7 @@ class Paragraph internal constructor(
      *
      * Valid only after [layout] has been called.
      */
-    val width: Double
+    val width: Float
         get() = paragraphImpl.width
 
     /**
@@ -58,7 +58,7 @@ class Paragraph internal constructor(
      *
      * Valid only after [layout] has been called.
      */
-    val height: Double
+    val height: Float
         get() = paragraphImpl.height
 
     /**
@@ -76,21 +76,21 @@ class Paragraph internal constructor(
      *
      * Valid only after [layout] has been called.
      */
-    val maxIntrinsicWidth: Double
+    val maxIntrinsicWidth: Float
         get() = paragraphImpl.maxIntrinsicWidth
 
     /**
      * The distance from the top of the paragraph to the alphabetic
      * baseline of the first line, in logical pixels.
      */
-    val alphabeticBaseline: Double
+    val alphabeticBaseline: Float
         get() = paragraphImpl.alphabeticBaseline
 
     /**
      * The distance from the top of the paragraph to the ideographic
      * baseline of the first line, in logical pixels.
      */
-    val ideographicBaseline: Double
+    val ideographicBaseline: Float
         get() = paragraphImpl.ideographicBaseline
 
     /**
@@ -105,7 +105,7 @@ class Paragraph internal constructor(
         get() = paragraphImpl.didExceedMaxLines
 
     init {
-        if (paragraphStyle.lineHeight != null && paragraphStyle.lineHeight < 0.0) {
+        if (paragraphStyle.lineHeight != null && paragraphStyle.lineHeight < 0.0f) {
             throw IllegalArgumentException("lineHeight can't be negative")
         }
         paragraphImpl = ParagraphAndroid(text, paragraphStyle, textStyles)
@@ -130,7 +130,7 @@ class Paragraph internal constructor(
         _layout(constraints.width)
     }
 
-    private fun _layout(width: Double, force: Boolean = false) {
+    private fun _layout(width: Float, force: Boolean = false) {
         // TODO(migration/siyamed) the comparison should be floor(width) since it is
         // floored in paragraphImpl, or the comparison should be moved to there.
         if (!needsLayout && this.width == width && !force) return
@@ -184,7 +184,7 @@ class Paragraph internal constructor(
     // Redirecting the paint function in this way solves some dependency problems
     // in the C++ code. If we straighten out the C++ dependencies, we can remove
     // this indirection.
-    fun paint(canvas: Canvas, x: Double, y: Double) {
+    fun paint(canvas: Canvas, x: Float, y: Float) {
         paragraphImpl.paint(canvas, x, y)
     }
 }

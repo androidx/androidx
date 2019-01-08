@@ -28,7 +28,7 @@ import androidx.ui.animation.AnimationStatusListener
  * [AnimationController] with an initial value of 0.0. This is useful when an
  * API expects an animation but you don't actually want to animate anything.
  */
-object AlwaysDismissedAnimation : Animation<Double>() {
+object AlwaysDismissedAnimation : Animation<Float>() {
 
     override fun addListener(listener: VoidCallback) {}
 
@@ -40,7 +40,7 @@ object AlwaysDismissedAnimation : Animation<Double>() {
 
     override val status = AnimationStatus.DISMISSED
 
-    override val value = 0.0
+    override val value = 0.0f
 
     override fun toString() = "AlwaysDismissedAnimation"
 }

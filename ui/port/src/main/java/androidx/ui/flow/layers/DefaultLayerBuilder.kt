@@ -26,7 +26,7 @@ class DefaultLayerBuilder : LayerBuilder() {
 
     companion object {
 
-        val kGiantRect: Rect = Rect.fromLTRB(-1E9, -1E9, 1E9, 1E9)
+        val kGiantRect: Rect = Rect.fromLTRB(-1E7f, -1E7f, 1E7f, 1E7f)
     }
 
     override fun PushTransform(matrix: SkMatrix) {

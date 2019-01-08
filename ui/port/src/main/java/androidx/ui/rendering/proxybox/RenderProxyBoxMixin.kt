@@ -52,20 +52,20 @@ abstract class RenderProxyBoxMixin : RenderBox() {
         }
     }
 
-    override fun computeMinIntrinsicWidth(height: Double): Double {
-        return child?.getMinIntrinsicWidth(height) ?: 0.0
+    override fun computeMinIntrinsicWidth(height: Float): Float {
+        return child?.getMinIntrinsicWidth(height) ?: 0.0f
     }
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
-        return child?.getMaxIntrinsicWidth(height) ?: 0.0
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
+        return child?.getMaxIntrinsicWidth(height) ?: 0.0f
     }
 
-    override fun computeMinIntrinsicHeight(width: Double): Double {
-        return child?.getMinIntrinsicHeight(width) ?: 0.0
+    override fun computeMinIntrinsicHeight(width: Float): Float {
+        return child?.getMinIntrinsicHeight(width) ?: 0.0f
     }
 
-    override fun computeMaxIntrinsicHeight(width: Double): Double {
-        return child?.getMaxIntrinsicHeight(width) ?: 0.0
+    override fun computeMaxIntrinsicHeight(width: Float): Float {
+        return child?.getMaxIntrinsicHeight(width) ?: 0.0f
     }
 
     // TODO(Migration/Andrey): Needs TextBaseline

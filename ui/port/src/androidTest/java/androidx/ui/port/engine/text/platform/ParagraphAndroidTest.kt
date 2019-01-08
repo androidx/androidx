@@ -65,7 +65,7 @@ class ParagraphAndroidTest {
 
     @Test
     fun draw_with_newline_and_line_break_default_values() {
-        val fontSize = 50.0
+        val fontSize = 50.0f
         for (text in arrayOf("abc\ndef", "\u05D0\u05D1\u05D2\n\u05D3\u05D4\u05D5")) {
             val paragraphAndroid = simpleParagraph(
                 text = StringBuilder(text),
@@ -77,7 +77,7 @@ class ParagraphAndroidTest {
             paragraphAndroid.layout(width = 2 * fontSize)
 
             val textPaint = TextPaint(Paint.ANTI_ALIAS_FLAG)
-            textPaint.textSize = fontSize.toFloat()
+            textPaint.textSize = fontSize
             textPaint.typeface = TypefaceAdapter().create(fontFamily)
 
             val staticLayout = StaticLayoutCompat.Builder(
@@ -100,7 +100,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, text.length))
     }
@@ -114,7 +114,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, "abc".length))
     }
@@ -132,7 +132,7 @@ class ParagraphAndroidTest {
                 ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
             )
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, text.length))
         assertThat(paragraph.underlyingText, hasSpan(ForegroundColorSpan::class, 0, "abc".length))
@@ -151,7 +151,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText, hasSpan(StrikethroughSpan::class, 0, text.length))
@@ -166,7 +166,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText, hasSpan(UnderlineSpan::class, 0, text.length))
@@ -181,7 +181,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText, hasSpan(StrikethroughSpan::class, 0, "abc".length))
@@ -196,7 +196,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText, hasSpan(UnderlineSpan::class, 0, "abc".length))
@@ -215,7 +215,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText, hasSpan(UnderlineSpan::class, 0, "abc".length))
@@ -225,7 +225,7 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setFontSizeOnWholeText() {
         val text = "abcde"
-        val fontSize = 20.0
+        val fontSize = 20.0f
         val paragraphWidth = text.length * fontSize
         val textStyle = TextStyle(fontSize = fontSize)
 
@@ -241,7 +241,7 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setFontSizeOnPartText() {
         val text = "abcde"
-        val fontSize = 20.0
+        val fontSize = 20.0f
         val paragraphWidth = text.length * fontSize
         val textStyle = TextStyle(fontSize = fontSize)
 
@@ -257,8 +257,8 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setFontSizeTwice_lastOneOverwrite() {
         val text = "abcde"
-        val fontSize = 20.0
-        val fontSizeOverwrite = 30.0
+        val fontSize = 20.0f
+        val fontSizeOverwrite = 30.0f
         val paragraphWidth = text.length * fontSizeOverwrite
         val textStyle = TextStyle(fontSize = fontSize)
         val textStyleOverwrite = TextStyle(fontSize = fontSizeOverwrite)
@@ -283,14 +283,14 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setLetterSpacingOnWholeText() {
         val text = "abcde"
-        val letterSpacing = 2.0
+        val letterSpacing = 2.0f
         val textStyle = TextStyle(letterSpacing = letterSpacing)
 
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText, hasSpan(LetterSpacingSpan::class, 0, text.length))
     }
@@ -298,13 +298,13 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setLetterSpacingOnPartText() {
         val text = "abcde"
-        val textStyle = TextStyle(letterSpacing = 2.0)
+        val textStyle = TextStyle(letterSpacing = 2.0f)
 
         val paragraph = simpleParagraph(
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText, hasSpan(LetterSpacingSpan::class, 0, "abc".length))
     }
@@ -312,8 +312,8 @@ class ParagraphAndroidTest {
     @Test
     fun textStyle_setLetterSpacingTwice_lastOneOverwrite() {
         val text = "abcde"
-        val textStyle = TextStyle(letterSpacing = 2.0)
-        val textStyleOverwrite = TextStyle(letterSpacing = 3.0)
+        val textStyle = TextStyle(letterSpacing = 2.0f)
+        val textStyleOverwrite = TextStyle(letterSpacing = 3.0f)
 
         val paragraph = simpleParagraph(
             text = text,
@@ -322,7 +322,7 @@ class ParagraphAndroidTest {
                 ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
             )
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText, hasSpan(LetterSpacingSpan::class, 0, text.length))
         assertThat(paragraph.underlyingText, hasSpan(LetterSpacingSpan::class, 0, "abc".length))
@@ -342,7 +342,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText,
@@ -362,7 +362,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText,
@@ -387,7 +387,7 @@ class ParagraphAndroidTest {
                 ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
             )
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(paragraph.underlyingText,
@@ -418,7 +418,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText, hasSpan(LocaleSpan::class, 0, text.length))
     }
@@ -433,7 +433,7 @@ class ParagraphAndroidTest {
             text = text,
             textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText, hasSpan(LocaleSpan::class, 0, "abc".length))
     }
@@ -451,7 +451,7 @@ class ParagraphAndroidTest {
                 ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
             )
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText, hasSpan(LocaleSpan::class, 0, text.length))
         assertThat(paragraph.underlyingText, hasSpan(LocaleSpan::class, 0, "abc".length))
@@ -487,7 +487,7 @@ class ParagraphAndroidTest {
                 )
             )
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(
@@ -525,7 +525,7 @@ class ParagraphAndroidTest {
                 )
             )
         )
-        paragraph.layout(100.0)
+        paragraph.layout(100.0f)
 
         assertThat(paragraph.underlyingText.toString(), equalTo(text))
         assertThat(
@@ -542,7 +542,7 @@ class ParagraphAndroidTest {
             text = "abc",
             typefaceAdapter = typefaceAdapter
         )
-        paragraph.layout(Double.MAX_VALUE)
+        paragraph.layout(Float.MAX_VALUE)
 
         verify(typefaceAdapter, never()).create(
             fontFamily = any(),
@@ -563,7 +563,7 @@ class ParagraphAndroidTest {
             fontWeight = FontWeight.bold,
             typefaceAdapter = typefaceAdapter
         )
-        paragraph.layout(Double.MAX_VALUE)
+        paragraph.layout(Float.MAX_VALUE)
 
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(null),
@@ -587,7 +587,7 @@ class ParagraphAndroidTest {
             fontStyle = FontStyle.italic,
             typefaceAdapter = typefaceAdapter
         )
-        paragraph.layout(Double.MAX_VALUE)
+        paragraph.layout(Float.MAX_VALUE)
 
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(null),
@@ -612,7 +612,7 @@ class ParagraphAndroidTest {
             fontFamily = fontFamily,
             typefaceAdapter = typefaceAdapter
         )
-        paragraph.layout(Double.MAX_VALUE)
+        paragraph.layout(Float.MAX_VALUE)
 
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(fontFamily),
@@ -635,7 +635,7 @@ class ParagraphAndroidTest {
             fontFamily = fontFamily,
             typefaceAdapter = typefaceAdapter
         )
-        paragraph.layout(Double.MAX_VALUE)
+        paragraph.layout(Float.MAX_VALUE)
 
         verify(typefaceAdapter, times(1)).create(
             fontFamily = eq(fontFamily),
@@ -652,7 +652,7 @@ class ParagraphAndroidTest {
         text: CharSequence = "",
         textStyles: List<ParagraphBuilder.TextStyleIndex> = listOf(),
         textAlign: TextAlign? = null,
-        fontSize: Double? = null,
+        fontSize: Float? = null,
         maxLines: Int? = null,
         fontFamily: FontFamily? = null,
         fontWeight: FontWeight? = null,

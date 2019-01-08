@@ -30,50 +30,50 @@ import androidx.ui.vectormath64.Matrix4
 fun Matrix4.getAsTranslation(): Offset? {
     val values = m4storage
     // Values are stored in column-major order.
-    return if (values[0] == 1.0 && // col 1
-            values[1] == 0.0 &&
-            values[2] == 0.0 &&
-            values[3] == 0.0 &&
-            values[4] == 0.0 && // col 2
-            values[5] == 1.0 &&
-            values[6] == 0.0 &&
-            values[7] == 0.0 &&
-            values[8] == 0.0 && // col 3
-            values[9] == 0.0 &&
-            values[10] == 1.0 &&
-            values[11] == 0.0 &&
-            values[14] == 0.0 && // bottom of col 4 (values 12 and 13 are the x and y offsets)
+    return if (values[0] == 1.0f && // col 1
+            values[1] == 0.0f &&
+            values[2] == 0.0f &&
+            values[3] == 0.0f &&
+            values[4] == 0.0f && // col 2
+            values[5] == 1.0f &&
+            values[6] == 0.0f &&
+            values[7] == 0.0f &&
+            values[8] == 0.0f && // col 3
+            values[9] == 0.0f &&
+            values[10] == 1.0f &&
+            values[11] == 0.0f &&
+            values[14] == 0.0f && // bottom of col 4 (values 12 and 13 are the x and y offsets)
 
-            values[15] == 1.0) {
+            values[15] == 1.0f) {
         Offset(values[12], values[13])
     } else null
 }
 
 /**
- * Returns the given [transform] matrix as a [double] describing a uniform
+ * Returns the given [transform] matrix as a [Float] describing a uniform
  * scale, if the matrix is nothing but a symmetric 2D scale transform.
  *
  * Otherwise, returns null.
  */
-fun Matrix4.getAsScale(): Double? {
+fun Matrix4.getAsScale(): Float? {
     val values = m4storage
     // Values are stored in column-major order.
-    return if (values[1] == 0.0 && // col 1 (value 0 is the scale)
-            values[2] == 0.0 &&
-            values[3] == 0.0 &&
-            values[4] == 0.0 && // col 2 (value 5 is the scale)
-            values[6] == 0.0 &&
-            values[7] == 0.0 &&
-            values[8] == 0.0 && // col 3
-            values[9] == 0.0 &&
-            values[10] == 1.0 &&
-            values[11] == 0.0 &&
-            values[12] == 0.0 && // col 4
-            values[13] == 0.0 &&
-            values[14] == 0.0 &&
-            values[15] == 1.0 &&
+    return if (values[1] == 0.0f && // col 1 (value 0 is the scale)
+            values[2] == 0.0f &&
+            values[3] == 0.0f &&
+            values[4] == 0.0f && // col 2 (value 5 is the scale)
+            values[6] == 0.0f &&
+            values[7] == 0.0f &&
+            values[8] == 0.0f && // col 3
+            values[9] == 0.0f &&
+            values[10] == 1.0f &&
+            values[11] == 0.0f &&
+            values[12] == 0.0f && // col 4
+            values[13] == 0.0f &&
+            values[14] == 0.0f &&
+            values[15] == 1.0f &&
             values[0] == values[5]) { // uniform scale
-        values[0].toDouble()
+        values[0]
     } else null
 }
 
@@ -98,22 +98,22 @@ fun matrixEquals(a: Matrix4?, b: Matrix4?): Boolean {
 /** Whether the given matrix is the identity matrix. */
 fun Matrix4.isIdentity(): Boolean {
     val storage = m4storage
-    return (storage[0] == 1.0 && // col 1
-            storage[1] == 0.0 &&
-            storage[2] == 0.0 &&
-            storage[3] == 0.0 &&
-            storage[4] == 0.0 && // col 2
-            storage[5] == 1.0 &&
-            storage[6] == 0.0 &&
-            storage[7] == 0.0 &&
-            storage[8] == 0.0 && // col 3
-            storage[9] == 0.0 &&
-            storage[10] == 1.0 &&
-            storage[11] == 0.0 &&
-            storage[12] == 0.0 && // col 4
-            storage[13] == 0.0 &&
-            storage[14] == 0.0 &&
-            storage[15] == 1.0)
+    return (storage[0] == 1.0f && // col 1
+            storage[1] == 0.0f &&
+            storage[2] == 0.0f &&
+            storage[3] == 0.0f &&
+            storage[4] == 0.0f && // col 2
+            storage[5] == 1.0f &&
+            storage[6] == 0.0f &&
+            storage[7] == 0.0f &&
+            storage[8] == 0.0f && // col 3
+            storage[9] == 0.0f &&
+            storage[10] == 1.0f &&
+            storage[11] == 0.0f &&
+            storage[12] == 0.0f && // col 4
+            storage[13] == 0.0f &&
+            storage[14] == 0.0f &&
+            storage[15] == 1.0f)
 }
 
 /**
@@ -123,7 +123,7 @@ fun Matrix4.isIdentity(): Boolean {
  * z-coordinate of the result is ignored.
  */
 fun Matrix4.transformPoint(point: Offset): Offset {
-    val position3 = Vector3(point.dx, point.dy, 0.0)
+    val position3 = Vector3(point.dx, point.dy, 0.0f)
     val transformed3 = perspectiveTransform(position3)
     return Offset(transformed3.x, transformed3.y)
 }
@@ -149,11 +149,11 @@ fun Matrix4.transformRect(rect: Rect): Rect {
     )
 }
 
-fun _min4(a: Double, b: Double, c: Double, d: Double): Double {
+fun _min4(a: Float, b: Float, c: Float, d: Float): Float {
     return minOf(a, minOf(b, minOf(c, d)))
 }
 
-fun _max4(a: Double, b: Double, c: Double, d: Double): Double {
+fun _max4(a: Float, b: Float, c: Float, d: Float): Float {
     return maxOf(a, maxOf(b, maxOf(c, d)))
 }
 
@@ -166,7 +166,7 @@ fun _max4(a: Double, b: Double, c: Double, d: Double): Double {
  * 0.0 before computing its bounding rect.
  */
 fun inverseTransformRect(transform: Matrix4, rect: Rect): Rect {
-    assert(transform.determinant != 0.0)
+    assert(transform.determinant != 0.0f)
     if (transform.isIdentity())
         return rect
     val inverted = Matrix4(transform).apply { invert() }
@@ -208,9 +208,9 @@ fun inverseTransformRect(transform: Matrix4, rect: Rect): Rect {
  * or the back side of the transformed plane before π / 2 when perspective > 0.
  */
 fun createCylindricalProjectionTransform(
-    radius: Double,
-    angle: Double,
-    perspective: Double = 0.001,
+    radius: Float,
+    angle: Float,
+    perspective: Float = 0.001f,
     orientation: Axis = Axis.VERTICAL
 ): Matrix4 {
     assert(perspective >= 0 && perspective <= 1.0)
@@ -235,7 +235,7 @@ fun createCylindricalProjectionTransform(
     val result = Matrix4.identity().apply {
         set(2, 3, -perspective)
         set(3, 2, -radius)
-        set(3, 3, perspective * radius + 1.0)
+        set(3, 3, perspective * radius + 1.0f)
     }
 
     // Model matrix by first translating the object from the origin of the world
@@ -243,7 +243,7 @@ fun createCylindricalProjectionTransform(
     result *=
             (if (orientation == Axis.HORIZONTAL)
                 Matrix4.rotationY(angle) else Matrix4.rotationX(angle)) *
-            Matrix4.translationValues(0.0, 0.0, radius)
+            Matrix4.translationValues(0.0f, 0.0f, radius)
 
     // Essentially perspective * view * model.
     return result

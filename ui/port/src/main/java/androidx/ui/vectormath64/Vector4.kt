@@ -17,55 +17,55 @@
 package androidx.ui.vectormath64
 
 data class Vector4(
-    var x: Double = 0.0,
-    var y: Double = 0.0,
-    var z: Double = 0.0,
-    var w: Double = 0.0
+    var x: Float = 0.0f,
+    var y: Float = 0.0f,
+    var z: Float = 0.0f,
+    var w: Float = 0.0f
 ) {
-    constructor(v: Vector2, z: Double = 0.0, w: Double = 0.0) : this(v.x, v.y, z, w)
-    constructor(v: Vector3, w: Double = 0.0) : this(v.x, v.y, v.z, w)
+    constructor(v: Vector2, z: Float = 0.0f, w: Float = 0.0f) : this(v.x, v.y, z, w)
+    constructor(v: Vector3, w: Float = 0.0f) : this(v.x, v.y, v.z, w)
     constructor(v: Vector4) : this(v.x, v.y, v.z, v.w)
 
-    inline val v4storage: List<Double>
+    inline val v4storage: List<Float>
         get() = listOf(x, y, z, w)
 
-    inline var r: Double
+    inline var r: Float
         get() = x
         set(value) {
             x = value
         }
-    inline var g: Double
+    inline var g: Float
         get() = y
         set(value) {
             y = value
         }
-    inline var b: Double
+    inline var b: Float
         get() = z
         set(value) {
             z = value
         }
-    inline var a: Double
+    inline var a: Float
         get() = w
         set(value) {
             w = value
         }
 
-    inline var s: Double
+    inline var s: Float
         get() = x
         set(value) {
             x = value
         }
-    inline var t: Double
+    inline var t: Float
         get() = y
         set(value) {
             y = value
         }
-    inline var p: Double
+    inline var p: Float
         get() = z
         set(value) {
             z = value
         }
-    inline var q: Double
+    inline var q: Float
         get() = w
         set(value) {
             w = value
@@ -179,7 +179,7 @@ data class Vector4(
         return Vector4(get(index1), get(index2), get(index3), get(index4))
     }
 
-    operator fun set(index: Int, v: Double) = when (index) {
+    operator fun set(index: Int, v: Float) = when (index) {
         0 -> x = v
         1 -> y = v
         2 -> z = v
@@ -187,32 +187,32 @@ data class Vector4(
         else -> throw IllegalArgumentException("index must be in 0..3")
     }
 
-    operator fun set(index1: Int, index2: Int, v: Double) {
+    operator fun set(index1: Int, index2: Int, v: Float) {
         set(index1, v)
         set(index2, v)
     }
 
-    operator fun set(index1: Int, index2: Int, index3: Int, v: Double) {
+    operator fun set(index1: Int, index2: Int, index3: Int, v: Float) {
         set(index1, v)
         set(index2, v)
         set(index3, v)
     }
 
-    operator fun set(index1: Int, index2: Int, index3: Int, index4: Int, v: Double) {
+    operator fun set(index1: Int, index2: Int, index3: Int, index4: Int, v: Float) {
         set(index1, v)
         set(index2, v)
         set(index3, v)
         set(index4, v)
     }
 
-    operator fun set(index: VectorComponent, v: Double) = when (index) {
+    operator fun set(index: VectorComponent, v: Float) = when (index) {
         VectorComponent.X, VectorComponent.R, VectorComponent.S -> x = v
         VectorComponent.Y, VectorComponent.G, VectorComponent.T -> y = v
         VectorComponent.Z, VectorComponent.B, VectorComponent.P -> z = v
         VectorComponent.W, VectorComponent.A, VectorComponent.Q -> w = v
     }
 
-    operator fun set(index1: VectorComponent, index2: VectorComponent, v: Double) {
+    operator fun set(index1: VectorComponent, index2: VectorComponent, v: Float) {
         set(index1, v)
         set(index2, v)
     }
@@ -221,7 +221,7 @@ data class Vector4(
         index1: VectorComponent,
         index2: VectorComponent,
         index3: VectorComponent,
-        v: Double
+        v: Float
     ) {
         set(index1, v)
         set(index2, v)
@@ -233,7 +233,7 @@ data class Vector4(
         index2: VectorComponent,
         index3: VectorComponent,
         index4: VectorComponent,
-        v: Double
+        v: Float
     ) {
         set(index1, v)
         set(index2, v)
@@ -255,10 +255,10 @@ data class Vector4(
         --w
     }
 
-    inline operator fun plus(v: Double) = Vector4(x + v, y + v, z + v, w + v)
-    inline operator fun minus(v: Double) = Vector4(x - v, y - v, z - v, w - v)
-    inline operator fun times(v: Double) = Vector4(x * v, y * v, z * v, w * v)
-    inline operator fun div(v: Double) = Vector4(x / v, y / v, z / v, w / v)
+    inline operator fun plus(v: Float) = Vector4(x + v, y + v, z + v, w + v)
+    inline operator fun minus(v: Float) = Vector4(x - v, y - v, z - v, w - v)
+    inline operator fun times(v: Float) = Vector4(x * v, y * v, z * v, w * v)
+    inline operator fun div(v: Float) = Vector4(x / v, y / v, z / v, w / v)
 
     inline operator fun plus(v: Vector2) = Vector4(x + v.x, y + v.y, z, w)
     inline operator fun minus(v: Vector2) = Vector4(x - v.x, y - v.y, z, w)
@@ -275,7 +275,7 @@ data class Vector4(
     inline operator fun times(v: Vector4) = Vector4(x * v.x, y * v.y, z * v.z, w * v.w)
     inline operator fun div(v: Vector4) = Vector4(x / v.x, y / v.y, z / v.z, w / v.w)
 
-    inline fun transform(block: (Double) -> Double): Vector4 {
+    inline fun transform(block: (Float) -> Float): Vector4 {
         x = block(x)
         y = block(y)
         z = block(z)
@@ -283,7 +283,7 @@ data class Vector4(
         return this
     }
 
-    fun assignFromStorage(storage: List<Double>) {
+    fun assignFromStorage(storage: List<Float>) {
         assert(storage.size >= 4)
         x = storage[0]
         y = storage[1]

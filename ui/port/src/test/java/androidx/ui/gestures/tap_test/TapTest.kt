@@ -389,55 +389,55 @@ class TapTest {
         // Down/up pair 1: normal tap sequence
         val down1 = PointerDownEvent(
             pointer = 1,
-            position = Offset(10.0, 10.0)
+            position = Offset(10.0f, 10.0f)
         )
 
         val up1 = PointerUpEvent(
             pointer = 1,
-            position = Offset(11.0, 9.0)
+            position = Offset(11.0f, 9.0f)
         )
 
         // Down/up pair 2: normal tap sequence far away from pair 1
         val down2 = PointerDownEvent(
             pointer = 2,
-            position = Offset(30.0, 30.0)
+            position = Offset(30.0f, 30.0f)
         )
 
         val up2 = PointerUpEvent(
             pointer = 2,
-            position = Offset(31.0, 29.0)
+            position = Offset(31.0f, 29.0f)
         )
 
         // Down/move/up sequence 3: intervening motion, more than kTouchSlop. (~21px)
         val down3 = PointerDownEvent(
             pointer = 3,
-            position = Offset(10.0, 10.0)
+            position = Offset(10.0f, 10.0f)
         )
 
         val move3 = PointerMoveEvent(
             pointer = 3,
-            position = Offset(25.0, 25.0)
+            position = Offset(25.0f, 25.0f)
         )
 
         val up3 = PointerUpEvent(
             pointer = 3,
-            position = Offset(25.0, 25.0)
+            position = Offset(25.0f, 25.0f)
         )
 
         // Down/move/up sequence 4: intervening motion, less than kTouchSlop. (~17px)
         val down4 = PointerDownEvent(
             pointer = 4,
-            position = Offset(10.0, 10.0)
+            position = Offset(10.0f, 10.0f)
         )
 
         val move4 = PointerMoveEvent(
             pointer = 4,
-            position = Offset(22.0, 22.0)
+            position = Offset(22.0f, 22.0f)
         )
 
         val up4 = PointerUpEvent(
             pointer = 4,
-            position = Offset(22.0, 22.0)
+            position = Offset(22.0f, 22.0f)
         )
     }
 }

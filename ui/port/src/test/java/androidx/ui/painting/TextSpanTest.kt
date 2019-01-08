@@ -46,7 +46,7 @@ class TextSpanTest {
 
     @Test
     fun `constructor with customized style`() {
-        val textStyle = TextStyle(fontSize = 10.0, height = 123.0)
+        val textStyle = TextStyle(fontSize = 10.0f, height = 123.0f)
         val textSpan = TextSpan(style = textStyle)
 
         assertThat(textSpan.style).isEqualTo(textStyle)
@@ -94,7 +94,7 @@ class TextSpanTest {
 
     @Test
     fun `build with style`() {
-        val textStyle = TextStyle(fontSize = 10.0, height = 123.0)
+        val textStyle = TextStyle(fontSize = 10.0f, height = 123.0f)
         val textSpan = TextSpan(style = textStyle)
         val mockBuilder = spy(ParagraphBuilder(ParagraphStyle()))
 
@@ -332,7 +332,7 @@ class TextSpanTest {
     @Test
     fun `compareTo with one null style should return LAYOUT`() {
         val textSpan1 = TextSpan()
-        val textSpan2 = TextSpan(style = TextStyle(height = 123.0))
+        val textSpan2 = TextSpan(style = TextStyle(height = 123.0f))
 
         assertThat(textSpan1.compareTo(textSpan2)).isEqualTo(RenderComparison.LAYOUT)
     }
@@ -359,7 +359,7 @@ class TextSpanTest {
     @Test
     fun `compareTo with different TextStyle with different fontSize should return LAYOUT`() {
         val textStyle1 = TextStyle()
-        val textStyle2 = TextStyle(fontSize = 10.0)
+        val textStyle2 = TextStyle(fontSize = 10.0f)
         val textSpan1 = TextSpan(style = textStyle1)
         val textSpan2 = TextSpan(style = textStyle2)
 
@@ -389,7 +389,7 @@ class TextSpanTest {
     @Test
     fun `compareTo with different children with different fontSize should return LAYOUT`() {
         val textStyle1 = TextStyle()
-        val textStyle2 = TextStyle(fontSize = 10.0)
+        val textStyle2 = TextStyle(fontSize = 10.0f)
         val childTextSpan1 = TextSpan(style = textStyle1)
         val childTextSpan2 = TextSpan(style = textStyle2)
         val textSpan1 = TextSpan(children = listOf(childTextSpan1))

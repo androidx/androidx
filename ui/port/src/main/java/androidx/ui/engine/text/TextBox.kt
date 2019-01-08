@@ -28,20 +28,16 @@ data class TextBox(
      * The left edge of the text box, irrespective of direction.
      * To get the leading edge (which may depend on the [direction]), consider [start].
      */
-    val left: Double,
-
+    val left: Float,
     /** The top edge of the text box. */
-    val top: Double,
-
+    val top: Float,
     /**
      * The right edge of the text box, irrespective of direction.
      * To get the trailing edge (which may depend on the [direction]), consider [end].
      */
-    val right: Double,
-
+    val right: Float,
     /** The bottom edge of the text box. */
-    val bottom: Double,
-
+    val bottom: Float,
     /** The direction in which text inside this box flows. */
     val direction: TextDirection
 ) {
@@ -56,7 +52,7 @@ data class TextBox(
      * See also:
      *  * [direction], which specifies the text direction.
      */
-    fun start(): Double {
+    fun start(): Float {
         return if ((direction == TextDirection.LTR)) left else right
     }
 
@@ -65,7 +61,7 @@ data class TextBox(
      * See also:
      *  * [direction], which specifies the text direction.
      */
-    fun end(): Double {
+    fun end(): Float {
         return if ((direction == TextDirection.LTR)) right else left
     }
 
@@ -76,10 +72,10 @@ data class TextBox(
 
     companion object {
         fun fromLTRBD(
-            left: Double,
-            top: Double,
-            right: Double,
-            bottom: Double,
+            left: Float,
+            top: Float,
+            right: Float,
+            bottom: Float,
             direction: TextDirection
         ): TextBox {
             return TextBox(left, top, right, bottom, direction)

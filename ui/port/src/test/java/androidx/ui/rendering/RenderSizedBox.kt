@@ -22,19 +22,19 @@ import androidx.ui.rendering.box.RenderBox
 
 class RenderSizedBox(private val forcedSize: Size) : RenderBox() {
 
-    override fun computeMinIntrinsicWidth(height: Double): Double {
+    override fun computeMinIntrinsicWidth(height: Float): Float {
         return forcedSize.width
     }
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
         return forcedSize.width
     }
 
-    override fun computeMinIntrinsicHeight(width: Double): Double {
+    override fun computeMinIntrinsicHeight(width: Float): Float {
         return forcedSize.height
     }
 
-    override fun computeMaxIntrinsicHeight(width: Double): Double {
+    override fun computeMaxIntrinsicHeight(width: Float): Float {
         return forcedSize.height
     }
 

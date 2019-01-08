@@ -12,7 +12,7 @@ import androidx.ui.engine.window.Window
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.timelineWhitelistArguments
 import androidx.ui.gestures.hit_test.HitTestEntry
 import androidx.ui.gestures.hit_test.HitTestResult
@@ -198,7 +198,7 @@ class RenderView(
         }
         properties.add(DiagnosticsProperty.create("window size",
                 window.physicalSize, tooltip = "in physical pixels"))
-        properties.add(DoubleProperty.create("device pixel ratio",
+        properties.add(FloatProperty.create("device pixel ratio",
                 window.devicePixelRatio, tooltip = "physical pixels per logical pixel"))
         properties.add(DiagnosticsProperty.create("configuration",
                 configuration, tooltip = "in logical pixels"))

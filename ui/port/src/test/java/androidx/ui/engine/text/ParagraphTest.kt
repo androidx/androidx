@@ -31,42 +31,42 @@ class ParagraphTest {
     fun `width default value`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.width, equalTo(-1.0))
+        assertThat(paragraph.width, equalTo(-1.0f))
     }
 
     @Test
     fun `height default value`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.height, equalTo(0.0))
+        assertThat(paragraph.height, equalTo(0.0f))
     }
 
     @Test
     fun `minIntrinsicWidth default value`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.minIntrinsicWidth, equalTo(0.0))
+        assertThat(paragraph.minIntrinsicWidth, equalTo(0.0f))
     }
 
     @Test
     fun `maxIntrinsicWidth  default value`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.maxIntrinsicWidth, equalTo(0.0))
+        assertThat(paragraph.maxIntrinsicWidth, equalTo(0.0f))
     }
 
     @Test
     fun `alphabeticBaseline default value`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.alphabeticBaseline, equalTo(Double.MAX_VALUE))
+        assertThat(paragraph.alphabeticBaseline, equalTo(Float.MAX_VALUE))
     }
 
     @Test
     fun `ideographicBaseline default value`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        assertThat(paragraph.ideographicBaseline, equalTo(Double.MAX_VALUE))
+        assertThat(paragraph.ideographicBaseline, equalTo(Float.MAX_VALUE))
     }
 
     @Test
@@ -80,14 +80,14 @@ class ParagraphTest {
     fun `paint throws exception if layout is not called`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        paragraph.paint(mock(), 0.0, 0.0)
+        paragraph.paint(mock(), 0.0f, 0.0f)
     }
 
     @Test(expected = IllegalStateException::class)
     fun `getPositionForOffset throws exception if layout is not called`() {
         val paragraphStyle = createParagraphStyle()
         val paragraph = Paragraph(StringBuilder(), paragraphStyle, listOf())
-        paragraph.getPositionForOffset(Offset(0.0, 0.0))
+        paragraph.getPositionForOffset(Offset(0.0f, 0.0f))
     }
 
     private fun createParagraphStyle(): ParagraphStyle {
@@ -96,8 +96,8 @@ class ParagraphTest {
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val maxLines = 2
-        val fontSize = 1.0
-        val lineHeight = 2.0
+        val fontSize = 1.0f
+        val lineHeight = 2.0f
         val ellipsis = "dot dot"
         val locale = Locale("en")
 

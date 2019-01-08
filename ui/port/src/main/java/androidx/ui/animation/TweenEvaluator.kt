@@ -28,7 +28,7 @@ import androidx.ui.painting.borders.lerp
 /**
  * Provides "begin + (end - begin) * t" implementation for type T
  */
-typealias TweenEvaluator<T> = (begin: T, end: T, t: Double) -> T
+typealias TweenEvaluator<T> = (begin: T, end: T, t: Float) -> T
 
 fun Tween(begin: Float? = null, end: Float? = null) = Tween(begin, end, FloatTweenEvaluator)
 
@@ -48,49 +48,49 @@ fun Tween(begin: ShapeBorder? = null, end: ShapeBorder? = null) =
     Tween(begin, end, ShapeBorderEvaluator)
 
 private object FloatTweenEvaluator : TweenEvaluator<Float> {
-    override fun invoke(begin: Float, end: Float, t: Double): Float {
-        return begin + ((end - begin) * t).toFloat()
+    override fun invoke(begin: Float, end: Float, t: Float): Float {
+        return begin + ((end - begin) * t)
     }
 }
 
 private object DoubleTweenEvaluator : TweenEvaluator<Double> {
-    override fun invoke(begin: Double, end: Double, t: Double): Double {
+    override fun invoke(begin: Double, end: Double, t: Float): Double {
         return begin + (end - begin) * t
     }
 }
 
 private object IntTweenEvaluator : TweenEvaluator<Int> {
-    override fun invoke(begin: Int, end: Int, t: Double): Int {
+    override fun invoke(begin: Int, end: Int, t: Float): Int {
         return begin + ((end - begin) * t).toInt()
     }
 }
 
 private object LongTweenEvaluator : TweenEvaluator<Long> {
-    override fun invoke(begin: Long, end: Long, t: Double): Long {
+    override fun invoke(begin: Long, end: Long, t: Float): Long {
         return begin + ((end - begin) * t).toLong()
     }
 }
 
 private object ColorTweenEvaluator : TweenEvaluator<Color> {
-    override fun invoke(begin: Color, end: Color, t: Double): Color {
+    override fun invoke(begin: Color, end: Color, t: Float): Color {
         return Color.lerp(begin, end, t)!!
     }
 }
 
 private object SizeTweenEvaluator : TweenEvaluator<Size> {
-    override fun invoke(begin: Size, end: Size, t: Double): Size {
+    override fun invoke(begin: Size, end: Size, t: Float): Size {
         return Size.lerp(begin, end, t)!!
     }
 }
 
 private object RectTweenEvaluator : TweenEvaluator<Rect> {
-    override fun invoke(begin: Rect, end: Rect, t: Double): Rect {
+    override fun invoke(begin: Rect, end: Rect, t: Float): Rect {
         return Rect.lerp(begin, end, t)!!
     }
 }
 
 private object ShapeBorderEvaluator : TweenEvaluator<ShapeBorder> {
-    override fun invoke(begin: ShapeBorder, end: ShapeBorder, t: Double): ShapeBorder {
+    override fun invoke(begin: ShapeBorder, end: ShapeBorder, t: Float): ShapeBorder {
         return lerp(begin, end, t)!!
     }
 }

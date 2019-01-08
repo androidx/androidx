@@ -125,7 +125,7 @@ class DiagnosticsTest {
         validatePropertyJsonSerializationHelper(json, property)
     }
 
-    fun validateDoublePropertyJsonSerialization(property: DoubleProperty) {
+    fun validateDoublePropertyJsonSerialization(property: FloatProperty) {
         val json: Map<String, Any> = simulateJsonSerialization(property)
         if (property.unit != null) {
             assertEquals(property.unit, json["unit"])
@@ -353,8 +353,8 @@ class DiagnosticsTest {
         val tree = TestTree(
                 properties = listOf(
                         StringProperty("stringProperty1", "value1", quoted = false),
-                        DoubleProperty.create("doubleProperty1", 42.5),
-                        DoubleProperty.create("roundedProperty", 1.0 / 3.0),
+                        FloatProperty.create("doubleProperty1", 42.5f),
+                        FloatProperty.create("roundedProperty", 1.0f / 3.0f),
                         StringProperty("DO_NOT_SHOW", "DO_NOT_SHOW", level = DiagnosticLevel.hidden,
                                 quoted = false),
                         DiagnosticsProperty.create("DO_NOT_SHOW_NULL", null, defaultValue = null),
@@ -864,56 +864,56 @@ class DiagnosticsTest {
     }
 
     @Test
-    fun `double property test`() {
-        val doubleProperty = DoubleProperty.create(
+    fun `Float property test`() {
+        val doubleProperty = FloatProperty.create(
                 "name",
-                42.0
+                42.0f
         )
         assertEquals("name: 42.0", doubleProperty.toString())
         assertFalse(doubleProperty.isFiltered(DiagnosticLevel.info))
-        assertEquals(42.0, doubleProperty.getValue())
+        assertEquals(42.0f, doubleProperty.getValue())
         validateDoublePropertyJsonSerialization(doubleProperty)
 
-        assertEquals("name: 1.3", DoubleProperty.create("name", 1.3333).toString())
+        assertEquals("name: 1.3", FloatProperty.create("name", 1.3333f).toString())
 
-        assertEquals("name: null", DoubleProperty.create("name", null).toString())
-        assertEquals(false, DoubleProperty.create("name", null).isFiltered(DiagnosticLevel.info))
+        assertEquals("name: null", FloatProperty.create("name", null).toString())
+        assertEquals(false, FloatProperty.create("name", null).isFiltered(DiagnosticLevel.info))
 
         assertEquals(
-                DoubleProperty.create("name", null, ifNull = "missing").toString(),
+                FloatProperty.create("name", null, ifNull = "missing").toString(),
                 "name: missing"
         )
 
-        val doubleWithUnit = DoubleProperty.create("name", 42.0, unit = "px")
+        val doubleWithUnit = FloatProperty.create("name", 42.0f, unit = "px")
         assertEquals("name: 42.0px", doubleWithUnit.toString())
         validateDoublePropertyJsonSerialization(doubleWithUnit)
     }
 
     @Test
-    fun `unsafe double property test`() {
-        val safe = DoubleProperty.createLazy(
+    fun `unsafe Float property test`() {
+        val safe = FloatProperty.createLazy(
                 "name",
-                { 42.0 }
+                { 42.0f }
         )
         assertEquals("name: 42.0", safe.toString())
         assertFalse(safe.isFiltered(DiagnosticLevel.info))
-        assertEquals(42.0, safe.getValue())
+        assertEquals(42.0f, safe.getValue())
         validateDoublePropertyJsonSerialization(safe)
         assertEquals(
-                DoubleProperty.createLazy("name", { 1.3333 }).toString(),
+                FloatProperty.createLazy("name", { 1.3333f }).toString(),
                 "name: 1.3"
         )
 
         assertEquals(
-                DoubleProperty.createLazy("name", { null }).toString(),
+                FloatProperty.createLazy("name", { null }).toString(),
                 "name: null"
         )
         assertEquals(
-                DoubleProperty.createLazy("name", { null }).isFiltered(DiagnosticLevel.info),
+                FloatProperty.createLazy("name", { null }).isFiltered(DiagnosticLevel.info),
                 false
         )
 
-        val throwingProperty = DoubleProperty.createLazy(
+        val throwingProperty = FloatProperty.createLazy(
                 "name",
                 { throw FlutterError("Invalid constraints") }
         )
@@ -932,11 +932,11 @@ class DiagnosticsTest {
     @Test
     fun `percent property`() {
         assertEquals(
-                PercentProperty("name", 0.4).toString(),
+                PercentProperty("name", 0.4f).toString(),
                 "name: 40.0%"
         )
 
-        val complexPercentProperty = PercentProperty("name", 0.99, unit = "invisible",
+        val complexPercentProperty = PercentProperty("name", 0.99f, unit = "invisible",
                 tooltip = "almost transparent")
         assertEquals(
                 complexPercentProperty.toString(),
@@ -950,23 +950,23 @@ class DiagnosticsTest {
         )
 
         assertEquals(
-                PercentProperty("name", 0.4).getValue(),
-                0.4
+                PercentProperty("name", 0.4f).getValue(),
+                0.4f
         )
         assertEquals(
-                PercentProperty("name", 0.0).toString(),
+                PercentProperty("name", 0.0f).toString(),
                 "name: 0.0%"
         )
         assertEquals(
-                PercentProperty("name", -10.0).toString(),
+                PercentProperty("name", -10.0f).toString(),
                 "name: 0.0%"
         )
         assertEquals(
-                PercentProperty("name", 1.0).toString(),
+                PercentProperty("name", 1.0f).toString(),
                 "name: 100.0%"
         )
         assertEquals(
-                PercentProperty("name", 3.0).toString(),
+                PercentProperty("name", 3.0f).toString(),
                 "name: 100.0%"
         )
         assertEquals(
@@ -993,7 +993,7 @@ class DiagnosticsTest {
         assertEquals(
                 PercentProperty(
                         "name",
-                        0.5,
+                        0.5f,
                         showName = false
                 ).toString(),
                 "50.0%"
@@ -1247,7 +1247,7 @@ class DiagnosticsTest {
 
     @Test
     fun `Any property test`() {
-        val rect = Rect.fromLTRB(0.0, 0.0, 20.0, 20.0)
+        val rect = Rect.fromLTRB(0.0f, 0.0f, 20.0f, 20.0f)
         val simple = DiagnosticsProperty.create(
                 "name",
                 rect
@@ -1323,7 +1323,7 @@ class DiagnosticsTest {
 
     @Test
     fun `lazy Any property test`() {
-        val rect = Rect.fromLTRB(0.0, 0.0, 20.0, 20.0)
+        val rect = Rect.fromLTRB(0.0f, 0.0f, 20.0f, 20.0f)
         val simple = DiagnosticsProperty.createLazy(
                 "name",
                 { rect },
@@ -1502,7 +1502,7 @@ class DiagnosticsTest {
 
         // TODO(Migration/Andrey): Replaced Color class usages with ColorInt
         val objects = listOf(
-                Rect.fromLTRB(0.0, 0.0, 20.0, 20.0),
+                Rect.fromLTRB(0.0f, 0.0f, 20.0f, 20.0f),
                 Color.fromARGB(255, 255, 255, 255)
         )
         val objectsProperty = IterableProperty(

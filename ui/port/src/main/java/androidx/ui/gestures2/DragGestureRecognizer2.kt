@@ -27,7 +27,7 @@ interface DragGestureRecognizerCallback {
     fun onDragStop() {}
     fun onDragCancelled() {}
     fun canDrag(direction: Direction) = false
-    fun drag(dx: Double, dy: Double) = Offset(dx, dy)
+    fun drag(dx: Float, dy: Float) = Offset(dx, dy)
 }
 
 class DragGestureRecognizer2(
@@ -104,17 +104,17 @@ class DragGestureRecognizer2(
 
     private fun dragAndConsume(
         pointerEvent2: PointerEvent2,
-        dx: Double,
-        dy: Double
+        dx: Float,
+        dy: Float
     ): PointerEvent2 {
         val (consumedDx, consumedDY) = callback.drag(dx, dy)
         return pointerEvent2.consumePositionChange(consumedDx, consumedDY)
     }
 
-    private fun clampToZero(clampToZero: Boolean, value: Double) =
+    private fun clampToZero(clampToZero: Boolean, value: Float) =
         if (clampToZero) 0.0 else value
 
-    private fun clampToAbsLimit(limit: Double, value: Double): Double {
+    private fun clampToAbsLimit(limit: Float, value: Float): Float {
         val absLimit = Math.abs(limit)
         val absValue = Math.abs(value)
 

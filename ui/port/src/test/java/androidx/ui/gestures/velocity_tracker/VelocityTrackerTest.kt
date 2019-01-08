@@ -40,19 +40,19 @@ class VelocityTrackerTest {
     fun `Velocity tracker gives expected results`() {
 
         val expected: List<Offset> = listOf(
-            Offset(219.59280094228163, 1304.701682306001),
-            Offset(355.71046950050845, 967.2112857054104),
-            Offset(12.657970884022308, -36.90447839251946),
-            Offset(714.1399654786744, -2561.534447931869),
-            Offset(-19.668121066218564, -2910.105747052462),
-            Offset(646.8690114934209, 2976.977762577527),
-            Offset(396.6988447819592, 2106.225572911095),
-            Offset(298.31594440044495, -3660.8315955215294),
-            Offset(-1.7334232785165882, -3288.13174127454),
-            Offset(384.6361280392334, -2645.6612524779835),
-            Offset(176.37900397918557, 2711.2542876273264),
-            Offset(396.9328560260098, 4280.651578291764),
-            Offset(-71.51939428321249, 3716.7385187526947)
+            Offset(219.59280094228163f, 1304.701682306001f),
+            Offset(355.71046950050845f, 967.2112857054104f),
+            Offset(12.657970884022308f, -36.90447839251946f),
+            Offset(714.1399654786744f, -2561.534447931869f),
+            Offset(-19.668121066218564f, -2910.105747052462f),
+            Offset(646.8690114934209f, 2976.977762577527f),
+            Offset(396.6988447819592f, 2106.225572911095f),
+            Offset(298.31594440044495f, -3660.8315955215294f),
+            Offset(-1.7334232785165882f, -3288.13174127454f),
+            Offset(384.6361280392334f, -2645.6612524779835f),
+            Offset(176.37900397918557f, 2711.2542876273264f),
+            Offset(396.9328560260098f, 4280.651578291764f),
+            Offset(-71.51939428321249f, 3716.7385187526947f)
         )
 
         val tracker = VelocityTracker()
@@ -70,18 +70,18 @@ class VelocityTrackerTest {
 
     @Test
     fun `Velocity control test`() {
-        val velocity1 = Velocity(pixelsPerSecond = Offset(7.0, 0.0))
-        val velocity2 = Velocity(pixelsPerSecond = Offset(12.0, 0.0))
-        assertThat(velocity1, `is`(equalTo(Velocity(pixelsPerSecond = Offset(7.0, 0.0)))))
+        val velocity1 = Velocity(pixelsPerSecond = Offset(7.0f, 0.0f))
+        val velocity2 = Velocity(pixelsPerSecond = Offset(12.0f, 0.0f))
+        assertThat(velocity1, `is`(equalTo(Velocity(pixelsPerSecond = Offset(7.0f, 0.0f)))))
         assertThat(velocity1, `is`(not(equalTo(velocity2))))
         assertThat(
             velocity2 - velocity1,
-            `is`(equalTo(Velocity(pixelsPerSecond = Offset(5.0, 0.0))))
+            `is`(equalTo(Velocity(pixelsPerSecond = Offset(5.0f, 0.0f))))
         )
-        assertThat((-velocity1).pixelsPerSecond, `is`(equalTo(Offset(-7.0, 0.0))))
+        assertThat((-velocity1).pixelsPerSecond, `is`(equalTo(Offset(-7.0f, 0.0f))))
         assertThat(
             velocity1 + velocity2,
-            `is`(equalTo(Velocity(pixelsPerSecond = Offset(19.0, 0.0))))
+            `is`(equalTo(Velocity(pixelsPerSecond = Offset(19.0f, 0.0f))))
         )
         assertThat(velocity1.hashCode(), `is`(not(equalTo(velocity2.hashCode()))))
         assertThat(velocity1, HasOneLineDescription)
@@ -95,7 +95,7 @@ class VelocityTrackerTest {
             if (it is PointerDownEvent || it is PointerMoveEvent)
                 tracker.addPosition(it.timeStamp, it.position)
             if (it is PointerUpEvent) {
-                _checkVelocity(tracker.getVelocity(), Offset(649.4893210274806, 3890.3050558907644))
+                _checkVelocity(tracker.getVelocity(), Offset(649.48932102748f, 3890.30505589076f))
             }
         }
     }
@@ -107,7 +107,7 @@ class VelocityTrackerTest {
     }
 
     private fun _checkVelocity(actual: Velocity, expected: Offset) {
-        assertThat(actual.pixelsPerSecond.dx, MoreOrLessEquals(expected.dx, 0.001))
-        assertThat(actual.pixelsPerSecond.dy, MoreOrLessEquals(expected.dy, 0.001))
+        assertThat(actual.pixelsPerSecond.dx, MoreOrLessEquals(expected.dx, 0.1f))
+        assertThat(actual.pixelsPerSecond.dy, MoreOrLessEquals(expected.dy, 0.1f))
     }
 }

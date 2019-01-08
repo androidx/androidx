@@ -45,7 +45,7 @@ package androidx.ui.engine.text
  * alignment described in the [ParagraphStyle] used when building the
  * [Paragraph] with a [ParagraphBuilder].
  */
-data class ParagraphConstraints(val width: Double) {
+data class ParagraphConstraints(val width: Float) {
     override fun toString(): String {
         return "ParagraphConstraints(width: $width)"
     }

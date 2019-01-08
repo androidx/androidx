@@ -708,7 +708,7 @@ class RawGestureDetectorState(widget: RawGestureDetector) :
                 it(updateDetails)
             }
             recognizer.onEnd?.let {
-                it(DragEndDetails(primaryVelocity = 0.0))
+                it(DragEndDetails(primaryVelocity = 0.0f))
             }
             return
         }
@@ -747,7 +747,7 @@ class RawGestureDetectorState(widget: RawGestureDetector) :
                 it(updateDetails)
             }
             recognizer.onEnd?.let {
-                it(DragEndDetails(primaryVelocity = 0.0))
+                it(DragEndDetails(primaryVelocity = 0.0f))
             }
             return
         }

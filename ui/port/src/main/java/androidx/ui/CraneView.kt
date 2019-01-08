@@ -110,8 +110,8 @@ class CraneView(
     private fun processInput(event: MotionEvent, pointerIndex: Int, change: PointerChange) {
         val pointerDataPacket = PointerDataPacket()
         val id = event.getPointerId(pointerIndex)
-        val x = event.getX(pointerIndex).toDouble()
-        val y = event.getY(pointerIndex).toDouble()
+        val x = event.getX(pointerIndex)
+        val y = event.getY(pointerIndex)
         pointerDataPacket.data.add(
             PointerData(
                 timeStamp = Duration.create(milliseconds = event.eventTime),
@@ -127,10 +127,10 @@ class CraneView(
     }
 
     private fun updateMetrics() {
-        val devicePixelRatio = resources.displayMetrics.density.toDouble()
-        val size = Size(measuredWidth.toDouble(), measuredHeight.toDouble())
-        val padding = WindowPadding(paddingLeft.toDouble(), paddingTop.toDouble(),
-                paddingRight.toDouble(), paddingBottom.toDouble())
+        val devicePixelRatio = resources.displayMetrics.density
+        val size = Size(measuredWidth.toFloat(), measuredHeight.toFloat())
+        val padding = WindowPadding(paddingLeft.toFloat(), paddingTop.toFloat(),
+            paddingRight.toFloat(), paddingBottom.toFloat())
         if (window.devicePixelRatio != devicePixelRatio ||
                 window.physicalSize != size ||
                 window.padding != padding) {
@@ -142,10 +142,10 @@ class CraneView(
                     paddingRight = padding.right,
                     paddingBottom = padding.bottom,
                     paddingLeft = padding.left,
-                    viewInsetTop = 0.0,
-                    viewInsetRight = 0.0,
-                    viewInsetBottom = 0.0,
-                    viewInsetLeft = 0.0
+                    viewInsetTop = 0.0f,
+                    viewInsetRight = 0.0f,
+                    viewInsetBottom = 0.0f,
+                    viewInsetLeft = 0.0f
             )
         }
     }

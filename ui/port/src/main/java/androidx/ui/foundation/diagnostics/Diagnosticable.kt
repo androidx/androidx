@@ -112,9 +112,9 @@ interface Diagnosticable {
      *
      *  * [StringProperty], which supports automatically enclosing a [String]
      *    value in quotes.
-     *  * [DoubleProperty], which supports specifying a unit of measurement for
-     *    a [double] value.
-     *  * [PercentProperty], which clamps a [double] to between 0 and 1 and
+     *  * [FloatProperty], which supports specifying a unit of measurement for
+     *    a [Float] value.
+     *  * [PercentProperty], which clamps a [Float] to between 0 and 1 and
      *    formats it as a percentage.
      *  * [IntProperty], which supports specifying a unit of measurement for an
      *    [int] value.
@@ -161,18 +161,18 @@ interface Diagnosticable {
      *     // as it would just add visual noise.
      *     properties.add(new StringProperty('message', message, showName: false));
      *
-     *     properties.add(new DoubleProperty('stepWidth', stepWidth));
+     *     properties.add(new FloatProperty('stepWidth', stepWidth));
      *
      *     // A scale of 1.0 does nothing so should be hidden.
-     *     properties.add(new DoubleProperty('scale', scale, defaultValue: 1.0));
+     *     properties.add(new FloatProperty('scale', scale, defaultValue: 1.0));
      *
      *     // If the hitTestExtent matches the paintExtent, it is just set to its
      *     // default value so is not relevant.
-     *     properties.add(new DoubleProperty('hitTestExtent', hitTestExtent, defaultValue: paintExtent));
+     *     properties.add(new FloatProperty('hitTestExtent', hitTestExtent, defaultValue: paintExtent));
      *
-     *     // maxWidth of double.infinity indicates the width is unconstrained and
+     *     // maxWidth of Float.POSITIVE_INFINITY indicates the width is unconstrained and
      *     // so maxWidth has no impact.,
-     *     properties.add(new DoubleProperty('maxWidth', maxWidth, defaultValue: double.infinity));
+     *     properties.add(new FloatProperty('maxWidth', maxWidth, defaultValue: Float.POSITIVE_INFINITY));
      *
      *     // Progress is a value between 0 and 1 or null. Showing it as a
      *     // percentage makes the meaning clear enough that the name can be
@@ -194,7 +194,7 @@ interface Diagnosticable {
      *     // Tooltip is used instead of unit for this case as a unit should be a
      *     // terse description appropriate to display directly after a number
      *     // without a space.
-     *     properties.add(new DoubleProperty(
+     *     properties.add(new FloatProperty(
      *       'device pixel ratio',
      *       ui.window.devicePixelRatio,
      *       tooltip: 'physical pixels per logical pixel',

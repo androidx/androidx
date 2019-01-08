@@ -32,13 +32,13 @@ class SizeTest {
     @Test
     fun `Stack can layout with top, right, bottom, left 0,0`() {
         val box = RenderConstrainedBox(_additionalConstraints = BoxConstraints.tight(
-                Size(100.0, 100.0)))
+                Size(100.0f, 100.0f)))
 
         box.layout(constraints = BoxConstraints())
 
-        assertEquals(box.size.width, 100.0, 0.1)
-        assertEquals(box.size.height, 100.0, 0.1)
-        assertEquals(box.size, Size(100.0, 100.0))
+        assertEquals(box.size.width, 100.0f, 0.1f)
+        assertEquals(box.size.height, 100.0f, 0.1f)
+        assertEquals(box.size, Size(100.0f, 100.0f))
         assertTrue(box.size is _DebugSize)
     }
 }

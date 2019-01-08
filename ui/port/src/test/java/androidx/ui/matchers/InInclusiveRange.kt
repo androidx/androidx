@@ -36,12 +36,12 @@ import org.hamcrest.BaseMatcher
 import org.hamcrest.Description
 
 class InInclusiveRange(
-    private val min: Double,
-    private val max: Double
-) : BaseMatcher<Double>() {
+    private val min: Float,
+    private val max: Float
+) : BaseMatcher<Float>() {
 
     override fun matches(item: Any?): Boolean {
-        return item is Double && item >= min && item <= max
+        return item is Float && item >= min && item <= max
     }
 
     override fun describeTo(description: Description?) {

@@ -19,18 +19,18 @@ package androidx.ui.animation.animations
 import androidx.ui.animation.Animation
 
 /**
- * An animation of [double]s that tracks the mean of two other animations.
+ * An animation of [Float]s that tracks the mean of two other animations.
  *
  * The [status] of this animation is the status of the `right` animation if it is
  * moving, and the `left` animation otherwise.
  *
- * The [value] of this animation is the [double] that represents the mean value
+ * The [value] of this animation is the [Float] that represents the mean value
  * of the values of the `left` and `right` animations.
  */
 class AnimationMean(
-    left: Animation<Double>,
-    right: Animation<Double>
-) : CompoundAnimation<Double>(left, right) {
+    left: Animation<Float>,
+    right: Animation<Float>
+) : CompoundAnimation<Float>(left, right) {
 
-    override val value = (left.value + right.value) / 2.0
+    override val value = (left.value + right.value) / 2.0f
 }

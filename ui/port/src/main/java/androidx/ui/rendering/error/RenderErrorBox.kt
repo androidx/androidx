@@ -21,8 +21,8 @@ import androidx.ui.engine.geometry.Size
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.obj.PaintingContext
 
-const val _kMaxWidth: Double = 100000.0
-const val _kMaxHeight: Double = 100000.0
+const val _kMaxWidth: Float = 100000.0f
+const val _kMaxHeight: Float = 100000.0f
 
 // Line length to fit small phones without dynamically checking size.
 const val _kLine: String = "\n\n────────────────────\n\n"
@@ -92,11 +92,11 @@ class RenderErrorBox(
 
 //    var _paragraph: ui.Paragraph? = null;
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
         return _kMaxWidth
     }
 
-    override fun computeMaxIntrinsicHeight(width: Double): Double {
+    override fun computeMaxIntrinsicHeight(width: Float): Float {
         return _kMaxHeight
     }
 

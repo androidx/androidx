@@ -5,7 +5,7 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.IterableProperty
 import androidx.ui.foundation.diagnostics.MessageProperty
@@ -101,7 +101,7 @@ data class SemanticsData(
      *
      *  * [ScrollPosition.pixels], from where this value is usually taken.
      */
-    val scrollPosition: Double?,
+    val scrollPosition: Float?,
 
     /**
      * Indicates the maximum in-range value for [scrollPosition] if the node is
@@ -113,7 +113,7 @@ data class SemanticsData(
      *
      *  * [ScrollPosition.maxScrollExtent], from where this value is usually taken.
      */
-    val scrollExtentMax: Double?,
+    val scrollExtentMax: Float?,
 
     /**
      * Indicates the minimum in-range value for [scrollPosition] if the node is
@@ -125,7 +125,7 @@ data class SemanticsData(
      *
      *  * [ScrollPosition.minScrollExtent], from where this value is usually taken.
      */
-    val scrollExtentMin: Double?,
+    val scrollExtentMin: Float?,
 
     /** The set of [SemanticsTag]s associated with this node. */
     val tags: Set<SemanticsTag>,
@@ -210,21 +210,21 @@ data class SemanticsData(
                 )
             )
         properties.add(
-            DoubleProperty.create(
+            FloatProperty.create(
                 "scrollExtentMin",
                 scrollExtentMin,
                 defaultValue = null
             )
         )
         properties.add(
-            DoubleProperty.create(
+            FloatProperty.create(
                 "scrollPosition",
                 scrollPosition,
                 defaultValue = null
             )
         )
         properties.add(
-            DoubleProperty.create(
+            FloatProperty.create(
                 "scrollExtentMax",
                 scrollExtentMax,
                 defaultValue = null

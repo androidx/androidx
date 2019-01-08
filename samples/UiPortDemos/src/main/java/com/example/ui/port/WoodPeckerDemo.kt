@@ -65,9 +65,9 @@ class WoodPeckerDemo : Activity() {
         private val metaData: MetaData
     ) : State<Gestures2App>(widget) {
 
-        var xTranslation = 0.0
-        var yTranslation = 0.0
-        var scale = 1.0
+        var xTranslation = 0.0f
+        var yTranslation = 0.0f
+        var scale = 1.0f
 
         override fun build(context: BuildContext): Widget {
             val bitmap: Bitmap =
@@ -84,7 +84,7 @@ class WoodPeckerDemo : Activity() {
                 ),
                 dragCallback = object : DragGestureRecognizerCallback {
                     override fun canDrag(direction: Direction) = true
-                    override fun drag(dx: Double, dy: Double): Offset {
+                    override fun drag(dx: Float, dy: Float): Offset {
                         setState {
                             this@Gestures2AppState.xTranslation += dx
                             this@Gestures2AppState.yTranslation += dy
@@ -94,13 +94,13 @@ class WoodPeckerDemo : Activity() {
                 },
                 onTap = {
                     setState {
-                        this@Gestures2AppState.scale = 1.0
-                        this@Gestures2AppState.xTranslation = 0.0
-                        this@Gestures2AppState.yTranslation = 0.0
+                        this@Gestures2AppState.scale = 1.0f
+                        this@Gestures2AppState.xTranslation = 0.0f
+                        this@Gestures2AppState.yTranslation = 0.0f
                     }
                 },
                 scaleCallback = object : ScaleGestureRecognizerCallback {
-                    override fun onScaleRatio(ratio: Double): Double {
+                    override fun onScaleRatio(ratio: Float): Float {
                         setState {
                             this@Gestures2AppState.scale *= ratio
                         }
@@ -119,12 +119,12 @@ class WoodPeckerDemo : Activity() {
             )
         }
 
-        private fun Bitmap.mod(dx: Double, dy: Double, scaleRatio: Double): Bitmap {
+        private fun Bitmap.mod(dx: Float, dy: Float, scaleRatio: Float): Bitmap {
             val m = Matrix().apply {
-                preTranslate(-dx.toFloat(), -dy.toFloat())
+                preTranslate(-dx, -dy)
                 preScale(
-                    scaleRatio.toFloat(),
-                    scaleRatio.toFloat(),
+                    scaleRatio,
+                    scaleRatio,
                     width.toFloat() / 2,
                     height.toFloat() / 2)
             }

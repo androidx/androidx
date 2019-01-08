@@ -139,8 +139,8 @@ enum class BoxFit {
  *    provide access to [paintImage] at the widgets layer.
  */
 fun applyBoxFit(fit: BoxFit, inputSize: Size, outputSize: Size): FittedSizes {
-    if (inputSize.height <= 0.0 || inputSize.width <= 0.0 ||
-            outputSize.height <= 0.0 || outputSize.width <= 0.0)
+    if (inputSize.height <= 0.0f || inputSize.width <= 0.0f ||
+            outputSize.height <= 0.0f || outputSize.width <= 0.0f)
         return FittedSizes(Size.zero, Size.zero)
 
     val sourceSize: Size

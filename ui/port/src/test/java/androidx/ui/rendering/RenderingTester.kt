@@ -62,7 +62,7 @@ private var _renderer: TestRenderingFlutterBinding? = null
 internal val renderer: TestRenderingFlutterBinding get() {
     if (_renderer == null) {
         val window = Window().apply {
-            physicalSize = Size(800.0, 600.0)
+            physicalSize = Size(800.0f, 600.0f)
         }
         _renderer = TestRenderingFlutterBinding(
             WidgetsFlutterBinding.create(

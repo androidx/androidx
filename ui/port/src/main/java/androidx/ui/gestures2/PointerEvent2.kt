@@ -46,7 +46,7 @@ fun PointerEvent2.positionChange(ignoreConsumed: Boolean = false): Offset {
 
     val offset =
         if (previousPosition == null || currentPosition == null) {
-            Offset(0.0, 0.0)
+            Offset(0.0f, 0.0f)
         } else {
             previousPosition - currentPosition
         }
@@ -65,14 +65,14 @@ fun PointerEvent2.positionChanged(ignoreConsumed: Boolean = false): Boolean {
 // Consumption querying functions
 
 fun PointerEvent2.anyPositionChangeConsumed() =
-    consumed.positionChange.dx != 0.0 || consumed.positionChange.dy != 0.0
+    consumed.positionChange.dx != 0.0f || consumed.positionChange.dy != 0.0f
 
 // Consume functions
 
 fun PointerEvent2.consumeDownChange() =
     copy(consumed = this.consumed.copy(downChange = true))
 
-fun PointerEvent2.consumePositionChange(consumedDx: Double, consumedDy: Double): PointerEvent2 {
+fun PointerEvent2.consumePositionChange(consumedDx: Float, consumedDy: Float): PointerEvent2 {
     val newConsumedDx = consumedDx + consumed.positionChange.dx
     val newConsumedDy = consumedDy + consumed.positionChange.dy
     // TODO(shepshapard): Handle error if over consumed
@@ -109,6 +109,6 @@ private fun PointerData(pointerEvent: PointerEvent): PointerData {
 }
 
 data class ConsumedData(
-    val positionChange: Offset = Offset(0.0, 0.0),
+    val positionChange: Offset = Offset(0.0f, 0.0f),
     val downChange: Boolean = false
 )

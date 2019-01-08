@@ -37,7 +37,7 @@ import org.hamcrest.Description
 import kotlin.math.absoluteValue
 
 /**
- * Asserts that two [Double]s are equal, within some tolerated error.
+ * Asserts that two [Float]s are equal, within some tolerated error.
  *
  * Two values are considered equal if the difference between them is within
  * 1e-10 of the larger one. This is an arbitrary value which can be adjusted
@@ -53,12 +53,12 @@ import kotlin.math.absoluteValue
  *    range.
  */
 class MoreOrLessEquals(
-    private val value: Double,
-    private val epsilon: Double = 1e-7
-) : BaseMatcher<Double>() {
+    private val value: Float,
+    private val epsilon: Float = 1e-4f
+) : BaseMatcher<Float>() {
 
     override fun matches(item: Any?): Boolean {
-        if (item !is Double) {
+        if (item !is Float) {
             return false
         }
         if (item == value) {

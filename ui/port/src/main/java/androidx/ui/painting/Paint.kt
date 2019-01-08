@@ -203,10 +203,10 @@ class Paint {
     // the direction orthogonal to the direction of the path.
     //
     // Defaults to 0.0, which correspond to a hairline width.
-    var strokeWidth: Double
-        get() = internalPaint.strokeWidth.toDouble()
+    var strokeWidth: Float
+        get() = internalPaint.strokeWidth
         set(value) {
-            internalPaint.strokeWidth = value.toFloat()
+            internalPaint.strokeWidth = value
         }
 
     // The kind of finish to place on the end of lines drawn when
@@ -264,10 +264,10 @@ class Paint {
     //
     // Defaults to 4.0.  Using zero as a limit will cause a [StrokeJoin.bevel]
     // join to be used all the time.
-    var strokeMiterLimit: Double
-        get() = internalPaint.strokeMiter.toDouble()
+    var strokeMiterLimit: Float
+        get() = internalPaint.strokeMiter
         set(value) {
-            internalPaint.strokeMiter = value.toFloat()
+            internalPaint.strokeMiter = value
         }
 
     // A mask filter (for example, a blur) to apply to a shape after it has been
@@ -283,7 +283,7 @@ class Paint {
                 android.graphics.BlurMaskFilter.Blur.INNER -> BlurStyle.inner
             }
             // sigma is equivalent to roughly half the radius: sigma = radius / 2
-            return MaskFilter(style, blurRadius / 2.0)
+            return MaskFilter(style, blurRadius / 2.0f)
         }
         set(value) {
             val blur = when (value.style) {
@@ -295,7 +295,7 @@ class Paint {
 
             // radius is equivalent to roughly twice the sigma: radius = sigma * 2
             // TODO(Migration/njawad: Add support for framework EmbossMaskFilter?)
-            internalPaint.maskFilter = BlurMaskFilter((value.sigma * 2).toFloat(), blur)
+            internalPaint.maskFilter = BlurMaskFilter((value.sigma * 2), blur)
         }
 
     // Controls the performance vs quality trade-off to use when applying

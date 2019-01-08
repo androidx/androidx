@@ -524,61 +524,61 @@ class DoubleTapTest {
         // Down/up pair 1: normal tap sequence
         val down1 = PointerDownEvent(
             pointer = 1,
-            position = Offset(10.0, 10.0)
+            position = Offset(10.0f, 10.0f)
         )
 
         val up1 = PointerUpEvent(
             pointer = 1,
-            position = Offset(11.0, 9.0)
+            position = Offset(11.0f, 9.0f)
         )
 
         // Down/up pair 2: normal tap sequence close to pair 1
         val down2 = PointerDownEvent(
             pointer = 2,
-            position = Offset(12.0, 12.0)
+            position = Offset(12.0f, 12.0f)
         )
 
         val up2 = PointerUpEvent(
             pointer = 2,
-            position = Offset(13.0, 11.0)
+            position = Offset(13.0f, 11.0f)
         )
 
         // Down/up pair 3: normal tap sequence far away from pair 1
         val down3 = PointerDownEvent(
             pointer = 3,
-            position = Offset(130.0, 130.0)
+            position = Offset(130.0f, 130.0f)
         )
 
         val up3 = PointerUpEvent(
             pointer = 3,
-            position = Offset(131.0, 129.0)
+            position = Offset(131.0f, 129.0f)
         )
 
         // Down/move/up sequence 4: intervening motion
         val down4 = PointerDownEvent(
             pointer = 4,
-            position = Offset(10.0, 10.0)
+            position = Offset(10.0f, 10.0f)
         )
 
         val move4 = PointerMoveEvent(
             pointer = 4,
-            position = Offset(25.0, 25.0)
+            position = Offset(25.0f, 25.0f)
         )
 
         val up4 = PointerUpEvent(
             pointer = 4,
-            position = Offset(25.0, 25.0)
+            position = Offset(25.0f, 25.0f)
         )
 
         // Down/up pair 5: normal tap sequence identical to pair 1 with different pointer
         val down5 = PointerDownEvent(
             pointer = 5,
-            position = Offset(10.0, 10.0)
+            position = Offset(10.0f, 10.0f)
         )
 
         val up5 = PointerUpEvent(
             pointer = 5,
-            position = Offset(11.0, 9.0)
+            position = Offset(11.0f, 9.0f)
         )
     }
 }

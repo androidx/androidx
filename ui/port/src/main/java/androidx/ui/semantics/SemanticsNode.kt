@@ -1,13 +1,13 @@
 package androidx.ui.semantics
 
 import android.annotation.SuppressLint
-import androidx.ui.Float64List
 import androidx.ui.Int32List
 import androidx.ui.VoidCallback
 import androidx.ui.assert
 import androidx.ui.describeEnum
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.foundation.AbstractNode
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.assertions.FlutterError
@@ -17,9 +17,9 @@ import androidx.ui.foundation.diagnostics.DiagnosticableTree
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
-import androidx.ui.foundation.diagnostics.DoubleProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.IterableProperty
 import androidx.ui.foundation.diagnostics.MessageProperty
 import androidx.ui.foundation.diagnostics.StringProperty
@@ -28,14 +28,13 @@ import androidx.ui.painting.matrixutils.getAsTranslation
 import androidx.ui.painting.matrixutils.isIdentity
 import androidx.ui.painting.matrixutils.matrixEquals
 import androidx.ui.runtimeType
-import androidx.ui.engine.text.TextDirection
 import androidx.ui.services.text_editing.TextSelection
 import androidx.ui.toStringAsFixed
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.Vector3
 
-fun _initIdentityTransform(): Float64List {
-    return Matrix4.identity().m4storage.toDoubleArray()
+fun _initIdentityTransform(): FloatArray {
+    return Matrix4.identity().m4storage.toFloatArray()
 }
 
 private val _kEmptyChildList: Int32List = Int32List(0)
@@ -46,7 +45,7 @@ fun _pointInParentCoordinates(node: SemanticsNode, point: Offset): Offset {
     if (node.transform == null) {
         return point
     }
-    val vector: Vector3 = Vector3(point.dx, point.dy, 0.0)
+    val vector: Vector3 = Vector3(point.dx, point.dy, 0.0f)
     TODO("Needs Matrix4.transform3")
 //    node.transform.transform3(vector);
     return Offset(vector.x, vector.y)
@@ -657,7 +656,7 @@ class SemanticsNode internal constructor(
      *
      *  * [ScrollPosition.pixels], from where this value is usually taken.
      */
-    var scrollPosition: Double? = null
+    var scrollPosition: Float? = null
         private set
 
     /**
@@ -670,7 +669,7 @@ class SemanticsNode internal constructor(
      *
      *  * [ScrollPosition.maxScrollExtent], from where this value is usually taken.
      */
-    var scrollExtentMax: Double? = null
+    var scrollExtentMax: Float? = null
         private set
 
     /**
@@ -683,7 +682,7 @@ class SemanticsNode internal constructor(
      *
      *  * [ScrollPosition.minScrollExtent] from where this value is usually taken.
      */
-    var scrollExtentMin: Double? = null
+    var scrollExtentMin: Float? = null
         private set
 
     internal fun _canPerformAction(action: SemanticsAction) = _actions.containsKey(action)
@@ -872,10 +871,10 @@ class SemanticsNode internal constructor(
             } else {
                 -1
             },
-            scrollPosition = data.scrollPosition ?: Double.NaN,
-            scrollExtentMax = data.scrollExtentMax ?: Double.NaN,
-            scrollExtentMin = data.scrollExtentMin ?: Double.NaN,
-            transform = data.transform?.m4storage?.toDoubleArray() ?: _kIdentityTransform,
+            scrollPosition = data.scrollPosition ?: Float.NaN,
+            scrollExtentMax = data.scrollExtentMax ?: Float.NaN,
+            scrollExtentMin = data.scrollExtentMin ?: Float.NaN,
+            transform = data.transform?.m4storage?.toFloatArray() ?: _kIdentityTransform,
             childrenInTraversalOrder = childrenInTraversalOrder,
             childrenInHitTestOrder = childrenInHitTestOrder
         )
@@ -1091,13 +1090,13 @@ class SemanticsNode internal constructor(
             }
         }
         properties.add(
-            DoubleProperty.create("scrollExtentMin", scrollExtentMin, defaultValue = null)
+            FloatProperty.create("scrollExtentMin", scrollExtentMin, defaultValue = null)
         )
         properties.add(
-            DoubleProperty.create("scrollPosition", scrollPosition, defaultValue = null)
+            FloatProperty.create("scrollPosition", scrollPosition, defaultValue = null)
         )
         properties.add(
-            DoubleProperty.create("scrollExtentMax", scrollExtentMax, defaultValue = null)
+            FloatProperty.create("scrollExtentMax", scrollExtentMax, defaultValue = null)
         )
     }
 

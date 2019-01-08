@@ -1,6 +1,6 @@
 package androidx.ui.engine.geometry
 
-import androidx.ui.lerpDouble
+import androidx.ui.lerpFloat
 import androidx.ui.toStringAsFixed
 import kotlin.math.absoluteValue
 
@@ -9,29 +9,29 @@ import kotlin.math.absoluteValue
  */
 data class RRect(
     /** The offset of the left edge of this rectangle from the x axis */
-    val left: Double,
+    val left: Float,
     /** The offset of the top edge of this rectangle from the y axis */
-    val top: Double,
+    val top: Float,
     /** The offset of the right edge of this rectangle from the x axis */
-    val right: Double,
+    val right: Float,
     /** The offset of the bottom edge of this rectangle from the y axis */
-    val bottom: Double,
+    val bottom: Float,
     /** The top-left horizontal radius */
-    val topLeftRadiusX: Double,
+    val topLeftRadiusX: Float,
     /** The top-left vertical radius */
-    val topLeftRadiusY: Double,
+    val topLeftRadiusY: Float,
     /** The top-right horizontal radius */
-    val topRightRadiusX: Double,
+    val topRightRadiusX: Float,
     /** The top-right vertical radius */
-    val topRightRadiusY: Double,
+    val topRightRadiusY: Float,
     /** The bottom-right horizontal radius */
-    val bottomRightRadiusX: Double,
+    val bottomRightRadiusX: Float,
     /** The bottom-right vertical radius */
-    val bottomRightRadiusY: Double,
+    val bottomRightRadiusY: Float,
     /** The bottom-left horizontal radius */
-    val bottomLeftRadiusX: Double,
+    val bottomLeftRadiusX: Float,
     /** The bottom-left vertical radius */
-    val bottomLeftRadiusY: Double
+    val bottomLeftRadiusY: Float
 ) {
     /** The distance between the left and right edges of this rectangle. */
     val width = right - left
@@ -53,7 +53,7 @@ data class RRect(
      * Inspired from: https://github.com/google/skia/blob/master/src/core/SkRRect.cpp#L164
      */
     private fun scaledRadiiRect(): RRect = _scaledRadiiRect ?: run {
-        var scale = 1.0
+        var scale = 1.0f
         scale = minRadius(scale, bottomLeftRadiusY, topLeftRadiusY, height)
         scale = minRadius(scale, topLeftRadiusX, topRightRadiusX, width)
         scale = minRadius(scale, topRightRadiusY, bottomRightRadiusY, height)
@@ -82,9 +82,9 @@ data class RRect(
      * Returns the minimum between min and scale to which radius1 and radius2
      * should be scaled with in order not to exceed the limit.
      */
-    private fun minRadius(min: Double, radius1: Double, radius2: Double, limit: Double): Double {
+    private fun minRadius(min: Float, radius1: Float, radius2: Float, limit: Float): Float {
         val sum = radius1 + radius2
-        return if (sum > limit && sum != 0.0) {
+        return if (sum > limit && sum != 0.0f) {
             Math.min(min, limit / sum)
         } else {
             min
@@ -107,10 +107,10 @@ data class RRect(
 
         val scaled = scaledRadiiRect()
 
-        val x: Double
-        val y: Double
-        val radiusX: Double
-        val radiusY: Double
+        val x: Float
+        val y: Float
+        val radiusX: Float
+        val radiusY: Float
         // check whether point is in one of the rounded corner areas
         // x, y -> translate to ellipse center
         if (point.dx < left + scaled.topLeftRadiusX &&
@@ -149,7 +149,7 @@ data class RRect(
         val newY = y / radiusY
 
         // check if the point is inside the unit circle
-        return newX * newX + newY * newY <= 1.0
+        return newX * newX + newY * newY <= 1.0f
     }
 
     // Kept this with a deprecated annotation to facilitate porting other code that uses
@@ -159,7 +159,7 @@ data class RRect(
         replaceWith = ReplaceWith("grow(delta)", "androidx.ui.engine.geometry.grow"),
         level = DeprecationLevel.ERROR
     )
-    fun inflate(delta: Double): RRect = grow(delta)
+    fun inflate(delta: Float): RRect = grow(delta)
 
     // Kept this with a deprecated annotation to facilitate porting other code that uses
     // the function's old name/location
@@ -168,7 +168,7 @@ data class RRect(
         replaceWith = ReplaceWith("shrink(delta)", "androidx.ui.engine.geometry.shrink"),
         level = DeprecationLevel.ERROR
     )
-    fun deflate(delta: Double): RRect = shrink(delta)
+    fun deflate(delta: Float): RRect = shrink(delta)
 
     override fun toString(): String {
         val tlRadius = topLeftRadius()
@@ -201,7 +201,7 @@ data class RRect(
     companion object {
         /** A rounded rectangle with all the values set to zero. */
         @JvmStatic
-        val Zero = RRect(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+        val Zero = RRect(0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f)
     }
 }
 
@@ -210,12 +210,12 @@ data class RRect(
  * and the same radii along its horizontal axis and its vertical axis.
  */
 fun RRect(
-    left: Double,
-    top: Double,
-    right: Double,
-    bottom: Double,
-    radiusX: Double,
-    radiusY: Double
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
+    radiusX: Float,
+    radiusY: Float
 ) = RRect(
     left = left,
     top = top,
@@ -236,10 +236,10 @@ fun RRect(
  * and the same radius in each corner.
  */
 fun RRect(
-    left: Double,
-    top: Double,
-    right: Double,
-    bottom: Double,
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
     radius: Radius
 ) = RRect(
     left,
@@ -256,8 +256,8 @@ fun RRect(
  */
 fun RRect(
     rect: Rect,
-    radiusX: Double,
-    radiusY: Double
+    radiusX: Float,
+    radiusY: Float
 ): RRect = RRect(
     left = rect.left,
     top = rect.top,
@@ -287,10 +287,10 @@ fun RRect(
  * The corner radii default to [Radius.zero], i.e. right-angled corners.
  */
 fun RRect(
-    left: Double,
-    top: Double,
-    right: Double,
-    bottom: Double,
+    left: Float,
+    top: Float,
+    right: Float,
+    bottom: Float,
     topLeft: Radius = Radius.zero,
     topRight: Radius = Radius.zero,
     bottomRight: Radius = Radius.zero,
@@ -365,7 +365,7 @@ fun RRect.shift(offset: Offset): RRect = RRect(
  * Returns a new [RRect] with edges and radii moved outwards by the given
  * delta.
  */
-fun RRect.grow(delta: Double): RRect = RRect(
+fun RRect.grow(delta: Float): RRect = RRect(
     left = left - delta,
     top = top - delta,
     right = right + delta,
@@ -377,7 +377,7 @@ fun RRect.grow(delta: Double): RRect = RRect(
 )
 
 /** Returns a new [RRect] with edges and radii moved inwards by the given delta. */
-fun RRect.shrink(delta: Double): RRect = grow(-delta)
+fun RRect.shrink(delta: Float): RRect = grow(-delta)
 
 /** The bounding box of this rounded rectangle (the rectangle with no rounded corners). */
 fun RRect.outerRect(): Rect = Rect.fromLTRB(left, top, right, bottom)
@@ -389,7 +389,7 @@ fun RRect.outerRect(): Rect = Rect.fromLTRB(left, top, right, bottom)
  * respective quadrant bisector.
  */
 fun RRect.safeInnerRect(): Rect {
-    val insetFactor = 0.29289321881; // 1-cos(pi/4)
+    val insetFactor = 0.29289321881f; // 1-cos(pi/4)
 
     val leftRadius = Math.max(bottomLeftRadiusX, topLeftRadiusX)
     val topRadius = Math.max(topLeftRadiusY, topRightRadiusY)
@@ -473,10 +473,10 @@ val RRect.isFinite get() =
  * Whether this rounded rectangle is a simple rectangle with zero
  * corner radii.
  */
-val RRect.isRect get(): Boolean = (topLeftRadiusX == 0.0 || topLeftRadiusY == 0.0) &&
-        (topRightRadiusX == 0.0 || topRightRadiusY == 0.0) &&
-        (bottomLeftRadiusX == 0.0 || bottomLeftRadiusY == 0.0) &&
-        (bottomRightRadiusX == 0.0 || bottomRightRadiusY == 0.0)
+val RRect.isRect get(): Boolean = (topLeftRadiusX == 0.0f || topLeftRadiusY == 0.0f) &&
+        (topRightRadiusX == 0.0f || topRightRadiusY == 0.0f) &&
+        (bottomLeftRadiusX == 0.0f || bottomLeftRadiusY == 0.0f) &&
+        (bottomRightRadiusX == 0.0f || bottomRightRadiusY == 0.0f)
 
 /** Whether this rounded rectangle has a side with no straight section. */
 val RRect.isStadium get(): Boolean =
@@ -500,19 +500,19 @@ val RRect.isCircle get() = width == height && isEllipse
  * The lesser of the magnitudes of the [width] and the [height] of this
  * rounded rectangle.
  */
-val RRect.shortestSide get(): Double = Math.min(width.absoluteValue, height.absoluteValue)
+val RRect.shortestSide get(): Float = Math.min(width.absoluteValue, height.absoluteValue)
 
 /**
  * The greater of the magnitudes of the [width] and the [height] of this
  * rounded rectangle.
  */
-val RRect.longestSide get(): Double = Math.max(width.absoluteValue, height.absoluteValue)
+val RRect.longestSide get(): Float = Math.max(width.absoluteValue, height.absoluteValue)
 
 /**
  * The offset to the point halfway between the left and right and the top and
  * bottom edges of this rectangle.
  */
-fun RRect.center(): Offset = Offset(left + width / 2.0, top + height / 2.0)
+fun RRect.center(): Offset = Offset((left + width / 2.0f), (top + height / 2.0f))
 
 /**
  * Linearly interpolate between two rounded rectangles.
@@ -528,10 +528,10 @@ fun RRect.center(): Offset = Offset(left + width / 2.0, top + height / 2.0)
  * 1.0, so negative values and values greater than 1.0 are valid (and can
  * easily be generated by curves such as [Curves.elasticInOut]).
  *
- * Values for `t` are usually obtained from an [Animation<double>], such as
+ * Values for `t` are usually obtained from an [Animation<Float>], such as
  * an [AnimationController].
  */
-fun lerp(a: RRect?, b: RRect?, t: Double): RRect? = when {
+fun lerp(a: RRect?, b: RRect?, t: Float): RRect? = when {
     a == null && b == null -> null
     a == null -> {
         b!! // Force the smart cast below; if it were null it would have tripped the case above
@@ -551,7 +551,7 @@ fun lerp(a: RRect?, b: RRect?, t: Double): RRect? = when {
         )
     }
     b == null -> {
-        val k = 1.0 - t
+        val k = 1.0f - t
         RRect(
             left = a.left * k,
             top = a.top * k,
@@ -568,17 +568,17 @@ fun lerp(a: RRect?, b: RRect?, t: Double): RRect? = when {
         )
     }
     else -> RRect(
-        left = lerpDouble(a.left, b.left, t),
-        top = lerpDouble(a.top, b.top, t),
-        right = lerpDouble(a.right, b.right, t),
-        bottom = lerpDouble(a.bottom, b.bottom, t),
-        topLeftRadiusX = lerpDouble(a.topLeftRadiusX, b.topLeftRadiusX, t),
-        topLeftRadiusY = lerpDouble(a.topLeftRadiusY, b.topLeftRadiusY, t),
-        topRightRadiusX = lerpDouble(a.topRightRadiusX, b.topRightRadiusX, t),
-        topRightRadiusY = lerpDouble(a.topRightRadiusY, b.topRightRadiusY, t),
-        bottomRightRadiusX = lerpDouble(a.bottomRightRadiusX, b.bottomRightRadiusX, t),
-        bottomRightRadiusY = lerpDouble(a.bottomRightRadiusY, b.bottomRightRadiusY, t),
-        bottomLeftRadiusX = lerpDouble(a.bottomLeftRadiusX, b.bottomLeftRadiusX, t),
-        bottomLeftRadiusY = lerpDouble(a.bottomLeftRadiusY, b.bottomLeftRadiusY, t)
+        left = lerpFloat(a.left, b.left, t),
+        top = lerpFloat(a.top, b.top, t),
+        right = lerpFloat(a.right, b.right, t),
+        bottom = lerpFloat(a.bottom, b.bottom, t),
+        topLeftRadiusX = lerpFloat(a.topLeftRadiusX, b.topLeftRadiusX, t),
+        topLeftRadiusY = lerpFloat(a.topLeftRadiusY, b.topLeftRadiusY, t),
+        topRightRadiusX = lerpFloat(a.topRightRadiusX, b.topRightRadiusX, t),
+        topRightRadiusY = lerpFloat(a.topRightRadiusY, b.topRightRadiusY, t),
+        bottomRightRadiusX = lerpFloat(a.bottomRightRadiusX, b.bottomRightRadiusX, t),
+        bottomRightRadiusY = lerpFloat(a.bottomRightRadiusY, b.bottomRightRadiusY, t),
+        bottomLeftRadiusX = lerpFloat(a.bottomLeftRadiusX, b.bottomLeftRadiusX, t),
+        bottomLeftRadiusY = lerpFloat(a.bottomLeftRadiusY, b.bottomLeftRadiusY, t)
     )
 }

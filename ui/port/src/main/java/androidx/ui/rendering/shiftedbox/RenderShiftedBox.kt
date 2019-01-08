@@ -35,28 +35,28 @@ abstract class RenderShiftedBox(
         markAsLayoutOnlyNode()
     }
 
-    override fun computeMinIntrinsicWidth(height: Double): Double {
+    override fun computeMinIntrinsicWidth(height: Float): Float {
         if (child != null)
             return child!!.getMinIntrinsicWidth(height)
-        return 0.0
+        return 0.0f
     }
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
         if (child != null)
             return child!!.getMaxIntrinsicWidth(height)
-        return 0.0
+        return 0.0f
     }
 
-    override fun computeMinIntrinsicHeight(width: Double): Double {
+    override fun computeMinIntrinsicHeight(width: Float): Float {
         if (child != null)
             return child!!.getMinIntrinsicHeight(width)
-        return 0.0
+        return 0.0f
     }
 
-    override fun computeMaxIntrinsicHeight(width: Double): Double {
+    override fun computeMaxIntrinsicHeight(width: Float): Float {
         if (child != null)
             return child!!.getMaxIntrinsicHeight(width)
-        return 0.0
+        return 0.0f
     }
 
 //    @override

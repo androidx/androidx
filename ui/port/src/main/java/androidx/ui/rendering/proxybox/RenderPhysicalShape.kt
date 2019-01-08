@@ -20,7 +20,7 @@ import androidx.ui.assert
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.gestures.hit_test.HitTestResult
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -48,7 +48,7 @@ internal val transparentPaint = Paint().apply {
 class RenderPhysicalShape(
     child: RenderBox? = null,
     clipper: CustomClipper<Path>,
-    elevation: Double,
+    elevation: Float,
     color: Color,
     shadowColor: Color = Color(0xFF000000.toInt())
 ) : RenderPhysicalModelBase<Path>(child, elevation, color, shadowColor, clipper) {
@@ -79,7 +79,7 @@ class RenderPhysicalShape(
                             Paint().apply {
                                 color = shadowColor
                                 style = PaintingStyle.stroke
-                                strokeWidth = elevation * 2.0
+                                strokeWidth = elevation * 2.0f
                             }
                         )
                     }
@@ -98,13 +98,13 @@ class RenderPhysicalShape(
 //                context.pushLayer(physicalModel, super.paint, offset, childPaintBounds= offsetBounds);
             } else {
                 val canvas = context.canvas
-                if (elevation != 0.0 && paintShadows) {
+                if (elevation != 0.0f && paintShadows) {
                     // The drawShadow call doesn't add the region of the shadow to the
                     // picture's bounds, so we draw a hardcoded amount of extra space to
                     // account for the maximum potential area of the shadow.
                     // TODO(jsimmons): remove this when Skia does it for us.
                     canvas.drawRect(
-                        offsetBounds.inflate(20.0),
+                        offsetBounds.inflate(20.0f),
                         transparentPaint
                     )
                     TODO("Migration|Andrey: Needs canvas.drawShadow")
@@ -145,7 +145,7 @@ class RenderPhysicalShape(
  */
 abstract class RenderPhysicalModelBase<T>(
     child: RenderBox?,
-    elevation: Double,
+    elevation: Float,
     color: Color,
     shadowColor: Color,
     clipper: CustomClipper<T>?
@@ -157,7 +157,7 @@ abstract class RenderPhysicalModelBase<T>(
      * If [debugDisableShadows] is set, this value is ignored and no shadow is
      * drawn (an outline is rendered instead).
      */
-    var elevation: Double = elevation
+    var elevation: Float = elevation
         set(value) {
             if (field == value)
                 return
@@ -194,7 +194,7 @@ abstract class RenderPhysicalModelBase<T>(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        properties.add(DoubleProperty.create("elevation", elevation))
+        properties.add(FloatProperty.create("elevation", elevation))
         properties.add(DiagnosticsProperty.create("color", color))
         properties.add(DiagnosticsProperty.create("shadowColor", color))
     }

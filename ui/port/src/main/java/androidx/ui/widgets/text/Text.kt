@@ -21,7 +21,7 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
-import androidx.ui.foundation.diagnostics.DoubleProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.foundation.diagnostics.IntProperty
@@ -83,7 +83,7 @@ class Text(
     /** How visual overflow should be handled. */
     val overflow: TextOverflow? = null,
     /** The number of font pixels for each logical pixel. */
-    val textScaleFactor: Double? = null,
+    val textScaleFactor: Float? = null,
     /**
      * An optional maximum number of lines for the text to span, wrapping if necessary.If the text
      * exceeds the given number of lines, it will be truncated according to [overflow].
@@ -125,7 +125,7 @@ class Text(
         textDirection: TextDirection? = null,
         softWrap: Boolean? = null,
         overflow: TextOverflow? = null,
-        textScaleFactor: Double? = null,
+        textScaleFactor: Float? = null,
         maxLines: Int? = null
     ) : this(key, style, textAlign, textDirection, softWrap, overflow, textScaleFactor, maxLines) {
         this.data = data
@@ -141,7 +141,7 @@ class Text(
         textDirection: TextDirection? = null,
         softWrap: Boolean? = null,
         overflow: TextOverflow? = null,
-        textScaleFactor: Double? = null,
+        textScaleFactor: Float? = null,
         maxLines: Int? = null
     ) : this(key, style, textAlign, textDirection, softWrap, overflow, textScaleFactor, maxLines) {
         this.textSpan = textSpan
@@ -167,7 +167,7 @@ class Text(
             overflow = overflow ?: defaultTextStyle.overflow,
             // TODO(Migration/qqd): Implement textScaleFactor's fallback value
             // MediaQuery.textScaleFactorOf(context) after MediaQuery is implemented.
-            textScaleFactor = textScaleFactor ?: 1.0,
+            textScaleFactor = textScaleFactor ?: 1.0f,
             maxLines = maxLines ?: defaultTextStyle.maxLines,
             text = TextSpan(
                 style = effectiveTextStyle,
@@ -208,7 +208,7 @@ class Text(
         )
         properties.add(EnumProperty<TextOverflow>("overflow", overflow, defaultValue = null))
         properties.add(
-            DoubleProperty.create(
+            FloatProperty.create(
                 "textScaleFactor",
                 textScaleFactor,
                 defaultValue = null

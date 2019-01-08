@@ -57,10 +57,10 @@ class SceneBuilder {
     }
 
     private fun _pushClipRect(
-        left: Double,
-        right: Double,
-        top: Double,
-        bottom: Double
+        left: Float,
+        right: Float,
+        top: Float,
+        bottom: Float
     ) {
         TODO()
 //        layer_builder_->PushClipRect(SkRect::MakeLTRB(left, top, right, bottom),
@@ -161,10 +161,10 @@ class SceneBuilder {
 
     private fun _pushShaderMask(
         shader: Shader,
-        maskRectLeft: Double,
-        maskRectRight: Double,
-        maskRectTop: Double,
-        maskRectBottom: Double,
+        maskRectLeft: Float,
+        maskRectRight: Float,
+        maskRectTop: Float,
+        maskRectBottom: Float,
         blendMode: Int
     ) {
         TODO()
@@ -188,7 +188,7 @@ class SceneBuilder {
      */
     fun pushPhysicalShape(
         path: Path,
-        elevation: Double = 0.0,
+        elevation: Float = 0.0f,
         color: Color,
         shadowColor: Color? = null
     ) {
@@ -199,7 +199,7 @@ class SceneBuilder {
         )
     }
 
-    private fun _pushPhysicalShape(path: Path, elevation: Double, color: Int, shadowColor: Int) {
+    private fun _pushPhysicalShape(path: Path, elevation: Float, color: Int, shadowColor: Int) {
         TODO()
 //        layer_builder_->PushPhysicalShape(
 //        path->path(),                 //
@@ -258,10 +258,10 @@ class SceneBuilder {
 
     private fun _addPerformanceOverlay(
         enabledOptions: Int,
-        left: Double,
-        right: Double,
-        top: Double,
-        bottom: Double
+        left: Float,
+        right: Float,
+        top: Float,
+        bottom: Float
     ) {
         TODO()
 //        layer_builder_->PushPerformanceOverlay(
@@ -295,17 +295,17 @@ class SceneBuilder {
     fun addTexture(
         textureId: Int,
         offset: Offset = Offset.zero,
-        width: Double = 0.0,
-        height: Double = 0.0
+        width: Float = 0.0f,
+        height: Float = 0.0f
     ) {
         _addTexture(offset.dx, offset.dy, width, height, textureId)
     }
 
     private fun _addTexture(
-        dx: Double,
-        dy: Double,
-        width: Double,
-        height: Double,
+        dx: Float,
+        dy: Float,
+        width: Float,
+        height: Float,
         textureId: Int
     ) {
         TODO()
@@ -320,8 +320,8 @@ class SceneBuilder {
     // TODO(Migration/Andrey) needs SceneHost
 //    fun addChildScene(
 //            offset: Offset = Offset.zero,
-//            width: Double = 0.0,
-//            height: Double = 0.0,
+//            width: Double = 0.0f,
+//            height: Double = 0.0f,
 //        sceneHost: SceneHost? = null,
 //        hitTestable : Boolean = true
 //    ) {

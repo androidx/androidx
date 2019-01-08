@@ -168,7 +168,7 @@ class ParagraphBuilderTest {
             TextStyle(color = Color.fromARGB(1, 2, 3, 4)),
             TextStyle(fontStyle = FontStyle.italic),
             TextStyle(fontWeight = FontWeight.bold),
-            TextStyle(letterSpacing = 1.0)
+            TextStyle(letterSpacing = 1.0f)
         )
 
         val paragraphBuilder = ParagraphBuilder(paragraphStyle)
@@ -241,8 +241,8 @@ class ParagraphBuilderTest {
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val maxLines = 2
-        val fontSize = 1.0
-        val lineHeight = 2.0
+        val fontSize = 1.0f
+        val lineHeight = 2.0f
         val ellipsis = "dot dot"
         val locale = Locale("en")
 

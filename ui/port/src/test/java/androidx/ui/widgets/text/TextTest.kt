@@ -52,7 +52,7 @@ class TextTest {
         val string = "Hello"
         val key = Key.createKey("Hello")
         val style = TextStyle()
-        val textScaleFactor = 5.0
+        val textScaleFactor = 5.0f
         val maxLines = 5
 
         val text = Text(
@@ -102,7 +102,7 @@ class TextTest {
         val textSpan = TextSpan(text = "Hello")
         val key = Key.createKey("Hello")
         val style = TextStyle()
-        val textScaleFactor = 5.0
+        val textScaleFactor = 5.0f
         val maxLines = 5
 
         val text = Text(

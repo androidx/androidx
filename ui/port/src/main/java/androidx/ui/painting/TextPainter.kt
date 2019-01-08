@@ -42,7 +42,7 @@ import kotlin.math.ceil
  * fractional pixel values up to the nearest whole pixel value. The right long-term fix is to do
  * layout using fixed precision arithmetic.
  */
-fun applyFloatingPointHack(layoutValue: Double): Double {
+fun applyFloatingPointHack(layoutValue: Float): Float {
     return ceil(layoutValue)
 }
 
@@ -98,7 +98,7 @@ class TextPainter(
     text: TextSpan? = null,
     textAlign: TextAlign = TextAlign.START,
     textDirection: TextDirection? = null,
-    textScaleFactor: Double = 1.0,
+    textScaleFactor: Float = 1.0f,
     maxLines: Int? = null,
     // TODO(Migration/qqd):  We won't be able to use customized ellipsis, but lets leave it here for
     // now. Maybe remove it later.
@@ -139,7 +139,7 @@ class TextPainter(
             needsLayout = true
         }
 
-    var textScaleFactor: Double = textScaleFactor
+    var textScaleFactor: Float = textScaleFactor
         set(value) {
             if (field == value) return
             field = value
@@ -210,7 +210,7 @@ class TextPainter(
      * the [preferredLineHeight]. If [text] is null or if it specifies no styles, the default
      * [TextStyle] values are used (a 10 pixel sans-serif font).
      */
-    val preferredLineHeight: Double
+    val preferredLineHeight: Float
         get() {
             if (layoutTemplate == null) {
                 val builder = ParagraphBuilder(
@@ -222,7 +222,7 @@ class TextPainter(
                 }
                 builder.addText(" ")
                 layoutTemplate = builder.build()
-                layoutTemplate?.layout(ParagraphConstraints(width = Double.POSITIVE_INFINITY))
+                layoutTemplate?.layout(ParagraphConstraints(width = Float.POSITIVE_INFINITY))
             }
             return layoutTemplate!!.height
         }
@@ -239,7 +239,7 @@ class TextPainter(
      *
      * Valid only after [layout] has been called.
      */
-    val minIntrinsicWidth: Double
+    val minIntrinsicWidth: Float
         get() {
             assertNeedsLayout("minIntrinsicWidth")
             return applyFloatingPointHack(paragraph!!.minIntrinsicWidth)
@@ -250,7 +250,7 @@ class TextPainter(
      *
      * Valid only after [layout] has been called.
      */
-    val maxIntrinsicWidth: Double
+    val maxIntrinsicWidth: Float
         get() {
             assertNeedsLayout("maxIntrinsicWidth")
             return applyFloatingPointHack(paragraph!!.maxIntrinsicWidth)
@@ -261,7 +261,7 @@ class TextPainter(
      *
      * Valid only after [layout] has been called.
      */
-    val width: Double
+    val width: Float
         get() {
             assertNeedsLayout("width")
             return applyFloatingPointHack(paragraph!!.width)
@@ -272,7 +272,7 @@ class TextPainter(
      *
      * Valid only after [layout] has been called.
      */
-    val height: Double
+    val height: Float
         get() {
             assertNeedsLayout("height")
             return applyFloatingPointHack(paragraph!!.height)
@@ -294,7 +294,7 @@ class TextPainter(
      *
      * Valid only after [layout] has been called.
      */
-    fun computeDistanceToActualBaseline(baseline: TextBaseline): Double {
+    fun computeDistanceToActualBaseline(baseline: TextBaseline): Float {
         assertNeedsLayout("computeDistanceToActualBaseline")
         return when (baseline) {
             TextBaseline.alphabetic -> paragraph!!.alphabeticBaseline
@@ -319,8 +319,8 @@ class TextPainter(
             return paragraph!!.didExceedMaxLines
         }
 
-    private var lastMinWidth: Double = 0.0
-    private var lastMaxWidth: Double = 0.0
+    private var lastMinWidth: Float = 0.0f
+    private var lastMaxWidth: Float = 0.0f
 
     /**
      * Computes the visual position of the glyphs for painting the text.
@@ -330,7 +330,7 @@ class TextPainter(
      *
      * The [text] and [textDirection] properties must be non-null before this is called.
      */
-    fun layout(minWidth: Double = 0.0, maxWidth: Double = Double.POSITIVE_INFINITY) {
+    fun layout(minWidth: Float = 0.0f, maxWidth: Float = Float.POSITIVE_INFINITY) {
         assert(text != null) {
             "TextPainter.text must be set to a non-null value before using the TextPainter."
         }
@@ -437,7 +437,7 @@ class TextPainter(
     }
 
     // TODO(Migration/qqd): Implement _emptyOffset.
-    var _emptyOffset: Offset = Offset(0.0, 0.0)
+    var _emptyOffset: Offset = Offset(0.0f, 0.0f)
         get() {
             TODO()
 //        assert(!_needsLayout); // implies textDirection is non-null

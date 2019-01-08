@@ -35,27 +35,27 @@ class RenderIntrinsicHeight(
 ) : RenderProxyBox(child) {
 /** Creates a render object that sizes itself to its child's intrinsic height. */
 
-    override fun computeMinIntrinsicWidth(height: Double): Double {
+    override fun computeMinIntrinsicWidth(height: Float): Float {
         if (child == null)
-            return 0.0
+            return 0.0f
         var resultHeight = height
         if (!resultHeight.isFinite())
-            resultHeight = child!!.getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)
+            resultHeight = child!!.getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)
         assert(resultHeight.isFinite())
         return child!!.getMinIntrinsicWidth(resultHeight)
     }
 
-    override fun computeMaxIntrinsicWidth(height: Double): Double {
+    override fun computeMaxIntrinsicWidth(height: Float): Float {
         if (child == null)
-            return 0.0
+            return 0.0f
         var resultHeight = height
         if (!resultHeight.isFinite())
-            resultHeight = child!!.getMaxIntrinsicHeight(Double.POSITIVE_INFINITY)
+            resultHeight = child!!.getMaxIntrinsicHeight(Float.POSITIVE_INFINITY)
         assert(resultHeight.isFinite())
         return child!!.getMaxIntrinsicWidth(resultHeight)
     }
 
-    override fun computeMinIntrinsicHeight(width: Double): Double {
+    override fun computeMinIntrinsicHeight(width: Float): Float {
         return computeMaxIntrinsicHeight(width)
     }
 

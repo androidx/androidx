@@ -61,8 +61,8 @@ class ParagraphStyleTest {
         val fontStyle = FontStyle.italic
         val maxLines = 2
         val fontFamily = FontFamily("sans-serif")
-        val fontSize = 1.0
-        val lineHeight = 2.0
+        val fontSize = 1.0f
+        val lineHeight = 2.0f
         val ellipsis = "dot dot"
         val locale = Locale("en")
         val fontSynthesis = FontSynthesis.style
@@ -129,8 +129,8 @@ class ParagraphStyleTest {
         val fontStyle = FontStyle.italic
         val maxLines = 2
         val fontFamily = FontFamily("sans-serif")
-        val fontSize = 1.0
-        val lineHeight = 2.0
+        val fontSize = 1.0f
+        val lineHeight = 2.0f
         val ellipsis = "dot dot"
         val locale = Locale("en")
         val fontSynthesis = FontSynthesis.style

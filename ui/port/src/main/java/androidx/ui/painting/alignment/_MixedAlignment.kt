@@ -19,7 +19,7 @@ package androidx.ui.painting.alignment
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.truncDiv
 
-class _MixedAlignment(x: Double, start: Double, y: Double) : AlignmentGeometry() {
+class _MixedAlignment(x: Float, start: Float, y: Float) : AlignmentGeometry() {
 
     override val _x = x
 
@@ -35,7 +35,7 @@ class _MixedAlignment(x: Double, start: Double, y: Double) : AlignmentGeometry()
         )
     }
 
-    override operator fun times(other: Double): _MixedAlignment {
+    override operator fun times(other: Float): _MixedAlignment {
         return _MixedAlignment(
                 _x * other,
                 _start * other,
@@ -43,7 +43,7 @@ class _MixedAlignment(x: Double, start: Double, y: Double) : AlignmentGeometry()
         )
     }
 
-    override operator fun div(other: Double): _MixedAlignment {
+    override operator fun div(other: Float): _MixedAlignment {
         return _MixedAlignment(
                 _x / other,
                 _start / other,
@@ -51,15 +51,15 @@ class _MixedAlignment(x: Double, start: Double, y: Double) : AlignmentGeometry()
         )
     }
 
-    override fun truncDiv(other: Double): _MixedAlignment {
+    override fun truncDiv(other: Float): _MixedAlignment {
         return _MixedAlignment(
-                (_x.truncDiv(other)).toDouble(),
-                (_start.truncDiv(other)).toDouble(),
-                (_y.truncDiv(other)).toDouble()
+                (_x.truncDiv(other)).toFloat(),
+                (_start.truncDiv(other)).toFloat(),
+                (_y.truncDiv(other)).toFloat()
         )
     }
 
-    override operator fun rem(other: Double): _MixedAlignment {
+    override operator fun rem(other: Float): _MixedAlignment {
         return _MixedAlignment(
                 _x % other,
                 _start % other,

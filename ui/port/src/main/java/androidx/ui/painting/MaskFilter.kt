@@ -22,7 +22,7 @@ package androidx.ui.painting
 //
 // Instances of this class are used with [Paint.maskFilter] on [Paint] objects.
 // TODO(Migration/njawad: add support for framework's EmbossMaskFilter
-data class MaskFilter(val style: BlurStyle, val sigma: Double) {
+data class MaskFilter(val style: BlurStyle, val sigma: Float) {
     // Creates a mask filter that takes the shape being drawn and blurs it.
     //
     // This is commonly used to approximate shadows.

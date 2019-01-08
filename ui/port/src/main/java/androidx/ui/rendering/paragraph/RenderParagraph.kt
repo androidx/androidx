@@ -29,14 +29,21 @@ import androidx.ui.engine.text.TextPosition
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
-import androidx.ui.foundation.diagnostics.DoubleProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.IntProperty
-import androidx.ui.painting.*
-import androidx.ui.rendering.box.RenderBox
+import androidx.ui.painting.BlendMode
+import androidx.ui.painting.Canvas
+import androidx.ui.painting.Color
+import androidx.ui.painting.Gradient
+import androidx.ui.painting.Paint
+import androidx.ui.painting.Shader
+import androidx.ui.painting.TextPainter
+import androidx.ui.painting.TextSpan
 import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.rendering.box.BoxConstraints
+import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.debugRepaintTextRainbowEnabled
 import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.semantics.SemanticsConfiguration
@@ -85,7 +92,7 @@ class RenderParagraph(
     textDirection: TextDirection,
     softWrap: Boolean = true,
     overflow: TextOverflow = TextOverflow.CLIP,
-    textScaleFactor: Double = 1.0,
+    textScaleFactor: Float = 1.0f,
     maxLines: Int? = null
 ) : RenderBox() {
     @VisibleForTesting
@@ -161,7 +168,7 @@ class RenderParagraph(
             markNeedsLayout()
         }
 
-    var textScaleFactor: Double
+    var textScaleFactor: Float
         set(value) {
             if (textPainter.textScaleFactor == value) return
             textPainter.textScaleFactor = value
@@ -184,17 +191,17 @@ class RenderParagraph(
             return textPainter.maxLines
         }
 
-    val width: Double
+    val width: Float
         get() = textPainter.width
 
-    val height: Double
+    val height: Float
         get() = textPainter.height
 
-    fun layoutText(minWidth: Double = 0.0, maxWidth: Double = Double.POSITIVE_INFINITY) {
+    fun layoutText(minWidth: Float = 0.0f, maxWidth: Float = Float.POSITIVE_INFINITY) {
         val widthMatters = softWrap || overflow == TextOverflow.ELLIPSIS
         textPainter.layout(
             minWidth = minWidth, maxWidth =
-            if (widthMatters) maxWidth else Double.POSITIVE_INFINITY
+            if (widthMatters) maxWidth else Float.POSITIVE_INFINITY
         )
     }
 
@@ -202,31 +209,31 @@ class RenderParagraph(
         layoutText(minWidth = constraints.minWidth, maxWidth = constraints.maxWidth)
     }
 
-    public override fun computeMinIntrinsicWidth(height: Double): Double {
+    public override fun computeMinIntrinsicWidth(height: Float): Float {
         layoutText()
         return textPainter.minIntrinsicWidth
     }
 
-    public override fun computeMaxIntrinsicWidth(height: Double): Double {
+    public override fun computeMaxIntrinsicWidth(height: Float): Float {
         layoutText()
         return textPainter.maxIntrinsicWidth
     }
 
     @VisibleForTesting
-    internal fun computeIntrinsicHeight(width: Double): Double {
+    internal fun computeIntrinsicHeight(width: Float): Float {
         layoutText(minWidth = width, maxWidth = width)
         return textPainter.height
     }
 
-    public override fun computeMinIntrinsicHeight(width: Double): Double {
+    public override fun computeMinIntrinsicHeight(width: Float): Float {
         return computeIntrinsicHeight(width)
     }
 
-    public override fun computeMaxIntrinsicHeight(width: Double): Double {
+    public override fun computeMaxIntrinsicHeight(width: Float): Float {
         return computeIntrinsicHeight(width)
     }
 
-    public override fun computeDistanceToActualBaseline(baseline: TextBaseline): Double {
+    public override fun computeDistanceToActualBaseline(baseline: TextBaseline): Float {
         assert(!debugNeedsLayout)
         // TODO(Migration/qqd): Need to figure out where this constraints come from and how to make
         // it non-null.
@@ -292,11 +299,11 @@ class RenderParagraph(
                     )
                     fadeSizePainter.layout()
                     if (didOverflowWidth) {
-                        val fadeEnd: Double
-                        val fadeStart: Double
+                        var fadeEnd: Float
+                        var fadeStart: Float
                         when (textDirection) {
                             TextDirection.RTL -> {
-                                fadeEnd = 0.0
+                                fadeEnd = 0.0f
                                 fadeStart = fadeSizePainter.width
                             }
                             TextDirection.LTR -> {
@@ -305,16 +312,16 @@ class RenderParagraph(
                             }
                         }
                         overflowShader = Gradient.linear(
-                            Offset(fadeStart, 0.0),
-                            Offset(fadeEnd, 0.0),
-                            listOf(Color(0xFFFFFFFF.toInt()), Color(0x00FFFFFF.toInt()))
+                            Offset(fadeStart, 0.0f),
+                            Offset(fadeEnd, 0.0f),
+                            listOf(Color(0xFFFFFFFF.toInt()), Color(0x00FFFFFF))
                         )
                     } else {
                         val fadeEnd = size.height
-                        val fadeStart = fadeEnd - fadeSizePainter.height / 2.0
+                        val fadeStart = fadeEnd - fadeSizePainter.height / 2.0f
                         overflowShader = Gradient.linear(
-                            Offset(0.0, fadeStart),
-                            Offset(0.0, fadeEnd),
+                            Offset(0.0f, fadeStart),
+                            Offset(0.0f, fadeEnd),
                             listOf(Color(0xFFFFFFFF.toInt()), Color(0x00FFFFFF))
                         )
                     }
@@ -475,7 +482,7 @@ class RenderParagraph(
         )
         properties.add(EnumProperty<TextOverflow>("overflow", overflow))
         properties.add(
-            DoubleProperty.create(
+            FloatProperty.create(
                 "textScaleFactor",
                 textScaleFactor,
                 defaultValue = 1.0

@@ -4,7 +4,7 @@ import androidx.ui.clamp
 import androidx.ui.toStringAsFixed
 
 /**
- * Property which clamps a [double] to between 0 and 1 and formats it as a
+ * Property which clamps a [Float] to between 0 and 1 and formats it as a
  * percentage.
  *
  * Ctor comment:
@@ -19,13 +19,13 @@ import androidx.ui.toStringAsFixed
  */
 class PercentProperty(
     name: String,
-    fraction: Double?,
+    fraction: Float?,
     ifNull: String? = null,
     unit: String? = null,
     showName: Boolean = true,
     tooltip: String? = null,
     level: DiagnosticLevel = DiagnosticLevel.info
-) : DoubleProperty(
+) : FloatProperty(
         name = name,
         value = fraction,
         ifNull = ifNull,
@@ -44,6 +44,6 @@ class PercentProperty(
     override fun numberToString(): String {
         if (getValue() == null)
             return getValue().toString()
-        return "${(getValue()!!.clamp(0.0, 1.0) * 100.0).toStringAsFixed(1)}%"
+        return "${(getValue()!!.clamp(0.0f, 1.0f) * 100.0f).toStringAsFixed(1)}%"
     }
 }

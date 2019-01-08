@@ -56,13 +56,13 @@ import androidx.text.LayoutCompat.TextLayoutAlignment
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class TextLayout constructor(
     charSequence: CharSequence,
-    width: Double = 0.0,
+    width: Float = 0.0f,
     textPaint: TextPaint,
     @TextLayoutAlignment alignment: Int = DEFAULT_ALIGNMENT,
     ellipsize: TextUtils.TruncateAt? = null,
     @TextDirection textDirectionHeuristic: Int = DEFAULT_TEXT_DIRECTION,
-    lineSpacingMultiplier: Double = DEFAULT_LINESPACING_MULTIPLIER.toDouble(),
-    lineSpacingExtra: Double = DEFAULT_LINESPACING_EXTRA.toDouble(),
+    lineSpacingMultiplier: Float = DEFAULT_LINESPACING_MULTIPLIER,
+    lineSpacingExtra: Float = DEFAULT_LINESPACING_EXTRA,
     includePadding: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
     @BreakStrategy breakStrategy: Int = DEFAULT_BREAK_STRATEGY,
@@ -71,7 +71,7 @@ class TextLayout constructor(
     leftIndents: IntArray? = null,
     rightIndents: IntArray? = null
 ) {
-    val maxIntrinsicWidth: Double
+    val maxIntrinsicWidth: Float
     val layout: Layout
     val didExceedMaxLines: Boolean
 
@@ -81,9 +81,9 @@ class TextLayout constructor(
         val frameworkTextDir = getTextDirectionHeuristic(textDirectionHeuristic)
         val boringMetrics = BoringLayoutCompat.isBoring(charSequence, textPaint, frameworkTextDir)
 
-        maxIntrinsicWidth = boringMetrics?.width?.toDouble()
+        maxIntrinsicWidth = boringMetrics?.width?.toFloat()
                 // we may need to getWidthWithLimits(maxWidth: Int, maxLines: Int)
-                ?: Layout.getDesiredWidth(charSequence, start, end, textPaint).toDouble()
+                ?: Layout.getDesiredWidth(charSequence, start, end, textPaint)
 
         val finalWidth = width.toInt()
         val ellipsizeWidth = finalWidth
@@ -110,8 +110,8 @@ class TextLayout constructor(
             )
                 .setAlignment(frameworkAlignment)
                 .setTextDirection(frameworkTextDirectionHeuristic)
-                .setLineSpacingExtra(lineSpacingExtra.toFloat())
-                .setLineSpacingMultiplier(lineSpacingMultiplier.toFloat())
+                .setLineSpacingExtra(lineSpacingExtra)
+                .setLineSpacingMultiplier(lineSpacingMultiplier)
                 .setIncludePad(includePadding)
                 .setEllipsize(ellipsize)
                 .setEllipsizedWidth(ellipsizeWidth)
@@ -145,20 +145,20 @@ class TextLayout constructor(
     val text: CharSequence
         get() = layout.text
 
-    fun getLineLeft(index: Int): Double {
-        return layout.getLineLeft(index).toDouble()
+    fun getLineLeft(index: Int): Float {
+        return layout.getLineLeft(index)
     }
 
-    fun getLineRight(index: Int): Double {
-        return layout.getLineRight(index).toDouble()
+    fun getLineRight(index: Int): Float {
+        return layout.getLineRight(index)
     }
 
-    fun getLineHeight(index: Int): Double {
-        return (layout.getLineBottom(index) - layout.getLineTop(index)).toDouble()
+    fun getLineHeight(index: Int): Float {
+        return (layout.getLineBottom(index) - layout.getLineTop(index)).toFloat()
     }
 
-    fun getLineWidth(index: Int): Double {
-        return layout.getLineWidth(index).toDouble()
+    fun getLineWidth(index: Int): Float {
+        return layout.getLineWidth(index)
     }
 
     fun paint(canvas: Canvas) {

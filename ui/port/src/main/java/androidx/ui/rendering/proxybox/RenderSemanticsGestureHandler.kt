@@ -46,7 +46,7 @@ class RenderSemanticsGestureHandler(
      * accessibility system, it will translate into a 160 pixel
      * leftwards drag.
      */
-    val scrollFactor: Double = 0.8
+    val scrollFactor: Float = 0.8f
 ) : RenderProxyBox(
     child
 ) {
@@ -142,7 +142,7 @@ class RenderSemanticsGestureHandler(
             var primaryDelta = size.width * -scrollFactor
             it(
                 DragUpdateDetails(
-                    delta = Offset(dx = primaryDelta, dy = 0.0),
+                    delta = Offset(dx = primaryDelta, dy = 0.0f),
                     primaryDelta = primaryDelta,
                     globalPosition = this.localToGlobal(size.center(Offset.zero))
                 )
@@ -155,7 +155,7 @@ class RenderSemanticsGestureHandler(
             var primaryDelta = size.width * scrollFactor
             it(
                 DragUpdateDetails(
-                    delta = Offset(dx = primaryDelta, dy = 0.0),
+                    delta = Offset(dx = primaryDelta, dy = 0.0f),
                     primaryDelta = primaryDelta,
                     globalPosition = this.localToGlobal(size.center(Offset.zero))
                 )
@@ -168,7 +168,7 @@ class RenderSemanticsGestureHandler(
             var primaryDelta = size.height * -scrollFactor
             it(
                 DragUpdateDetails(
-                    delta = Offset(dx = 0.0, dy = primaryDelta),
+                    delta = Offset(dx = 0.0f, dy = primaryDelta),
                     primaryDelta = primaryDelta,
                     globalPosition = this.localToGlobal(size.center(Offset.zero))
                 )
@@ -181,7 +181,7 @@ class RenderSemanticsGestureHandler(
             var primaryDelta = size.height * scrollFactor
             it(
                 DragUpdateDetails(
-                    delta = Offset(dx = 0.0, dy = primaryDelta),
+                    delta = Offset(dx = 0.0f, dy = primaryDelta),
                     primaryDelta = primaryDelta,
                     globalPosition = this.localToGlobal(size.center(Offset.zero))
                 )

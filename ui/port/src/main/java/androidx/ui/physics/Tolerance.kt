@@ -16,7 +16,7 @@
 
 package androidx.ui.physics
 
-private const val EPSILON_DEFAULT: Double = 0.001
+private const val EPSILON_DEFAULT: Float = 0.001f
 
 /**
  * Structure that specifies maximum allowable magnitudes for distances,
@@ -37,7 +37,7 @@ class Tolerance(
      * The units for the distance tolerance must be the same as the units used
      * for the distances that are to be compared to this tolerance.
      */
-    val distance: Double = EPSILON_DEFAULT,
+    val distance: Float = EPSILON_DEFAULT,
     /**
      * The magnitude of the maximum duration between two times for them to be
      * considered within tolerance.
@@ -45,7 +45,7 @@ class Tolerance(
      * The units for the time tolerance must be the same as the units used
      * for the times that are to be compared to this tolerance.
      */
-    val time: Double = EPSILON_DEFAULT,
+    val time: Float = EPSILON_DEFAULT,
     /**
      * The magnitude of the maximum difference between two velocities for them to
      * be considered within tolerance.
@@ -53,7 +53,7 @@ class Tolerance(
      * The units for the velocity tolerance must be the same as the units used
      * for the velocities that are to be compared to this tolerance.
      */
-    val velocity: Double = EPSILON_DEFAULT
+    val velocity: Float = EPSILON_DEFAULT
 
 ) {
 

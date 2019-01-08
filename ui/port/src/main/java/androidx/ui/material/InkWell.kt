@@ -124,7 +124,7 @@ abstract class InteractiveInkFeatureFactory {
         containedInkWell: Boolean = false,
         rectCallback: RectCallback? = null,
         borderRadius: BorderRadius? = null,
-        radius: Double? = null,
+        radius: Float? = null,
         onRemoved: VoidCallback? = null
     ): InteractiveInkFeature
 }
@@ -288,7 +288,7 @@ open class InkResponse(
      *  * [splashColor], the color of the splash.
      *  * [splashFactory], which defines the appearance of the splash.
      */
-    val radius: Double? = null,
+    val radius: Float? = null,
     /**
      * The clipping radius of the containing rect.
      *
@@ -664,7 +664,7 @@ class InkWell(
     highlightColor: Color? = null,
     splashColor: Color? = null,
     splashFactory: InteractiveInkFeatureFactory? = null,
-    radius: Double? = null,
+    radius: Float? = null,
     borderRadius: BorderRadius? = null,
     enableFeedback: Boolean = true,
     excludeFromSemantics: Boolean = false

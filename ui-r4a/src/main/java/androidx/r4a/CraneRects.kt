@@ -100,15 +100,14 @@ fun FourQuadrants(bust: Double) {
 
 @Composable
 fun DrawImage(bitmap: Bitmap) {
-    val context = composer.composer.context
     val onPaint: (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
         val paint = Paint()
         canvas.save()
-        val width = parentSize.width.toDouble()
-        val height = parentSize.height.toDouble()
-        val scale = min(width/bitmap.width.toDouble(), height/bitmap.height.toDouble())
+        val width = parentSize.width
+        val height = parentSize.height
+        val scale = min(width/bitmap.width.toFloat(), height/bitmap.height.toFloat())
         canvas.scale(scale, scale)
-        canvas.drawImage(Image(bitmap), Offset(0.0, 0.0), paint)
+        canvas.drawImage(Image(bitmap), Offset(0.0f, 0.0f), paint)
         canvas.restore()
     }
     <Draw onPaint />
@@ -116,13 +115,12 @@ fun DrawImage(bitmap: Bitmap) {
 
 @Composable
 fun DrawRectangle(color: Color) {
-    val context = composer.composer.context
     val paint = Paint()
     paint.color = color
     val onPaint: (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
-        val widthPx = parentSize.width.toDouble()
-        val heightPx = parentSize.height.toDouble()
-        canvas.drawRect(Rect(0.0, 0.0, widthPx, heightPx), paint)
+        val widthPx = parentSize.width
+        val heightPx = parentSize.height
+        canvas.drawRect(Rect(0.0f, 0.0f, widthPx, heightPx), paint)
     }
     <Draw onPaint />
 }

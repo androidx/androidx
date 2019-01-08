@@ -61,7 +61,7 @@ class SemanticsNodeTests {
         val tags = mutableSetOf(tag1, tag2)
 
         val node: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTRB(0.0, 0.0, 10.0, 10.0)
+            it.rect = Rect.fromLTRB(0.0f, 0.0f, 10.0f, 10.0f)
             it.tags = tags
         }
 
@@ -79,7 +79,7 @@ class SemanticsNodeTests {
             childrenInInversePaintOrder = listOf(
                 SemanticsNode().also {
                     it.isMergedIntoParent = true
-                    it.rect = Rect.fromLTRB(5.0, 5.0, 10.0, 10.0)
+                    it.rect = Rect.fromLTRB(5.0f, 5.0f, 10.0f, 10.0f)
                     it.tags = tags
                 }
             )
@@ -149,13 +149,13 @@ class SemanticsNodeTests {
     @Test
     fun `toStringDeep() does not throw with transform == null`() {
         val child1: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTRB(0.0, 0.0, 5.0, 5.0)
+            it.rect = Rect.fromLTRB(0.0f, 0.0f, 5.0f, 5.0f)
         }
         val child2: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTRB(5.0, 0.0, 10.0, 5.0)
+            it.rect = Rect.fromLTRB(5.0f, 0.0f, 10.0f, 5.0f)
         }
         val root: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTRB(0.0, 0.0, 10.0, 5.0)
+            it.rect = Rect.fromLTRB(0.0f, 0.0f, 10.0f, 5.0f)
         }
         root.updateWith(
             config = null,
@@ -189,22 +189,22 @@ class SemanticsNodeTests {
     fun `Incompatible OrdinalSortKey throw AssertionError when compared`() {
         // Different types.
         assertThrows(AssertionError::class) {
-            OrdinalSortKey(0.0).compareTo(CustomSortKey(0.0))
+            OrdinalSortKey(0.0f).compareTo(CustomSortKey(0.0f))
         }
 
         // Different names.
         assertThrows(AssertionError::class) {
-            OrdinalSortKey(0.0, name = "a").compareTo(OrdinalSortKey(0.0, name = "b"))
+            OrdinalSortKey(0.0f, name = "a").compareTo(OrdinalSortKey(0.0f, name = "b"))
         }
     }
 
     @Test
     fun `OrdinalSortKey compares correctly`() {
         val tests: List<List<SemanticsSortKey>> = listOf(
-            listOf(OrdinalSortKey(0.0), OrdinalSortKey(0.0)),
-            listOf(OrdinalSortKey(0.0), OrdinalSortKey(1.0)),
-            listOf(OrdinalSortKey(1.0), OrdinalSortKey(0.0)),
-            listOf(OrdinalSortKey(1.0), OrdinalSortKey(1.0))
+            listOf(OrdinalSortKey(0.0f), OrdinalSortKey(0.0f)),
+            listOf(OrdinalSortKey(0.0f), OrdinalSortKey(1.0f)),
+            listOf(OrdinalSortKey(1.0f), OrdinalSortKey(0.0f)),
+            listOf(OrdinalSortKey(1.0f), OrdinalSortKey(1.0f))
         )
         val expectedResults: List<Int> = listOf(0, -1, 1, 0)
 
@@ -218,13 +218,13 @@ class SemanticsNodeTests {
     @Test
     fun `toStringDeep respects childOrder parameter`() {
         val child1: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTRB(15.0, 0.0, 20.0, 5.0)
+            it.rect = Rect.fromLTRB(15.0f, 0.0f, 20.0f, 5.0f)
         }
         val child2: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTRB(10.0, 0.0, 15.0, 5.0)
+            it.rect = Rect.fromLTRB(10.0f, 0.0f, 15.0f, 5.0f)
         }
         val root: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTRB(0.0, 0.0, 20.0, 5.0)
+            it.rect = Rect.fromLTRB(0.0f, 0.0f, 20.0f, 5.0f)
         }
         root.updateWith(
             config = null,
@@ -268,22 +268,22 @@ class SemanticsNodeTests {
         )
 
         val child3: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTRB(0.0, 0.0, 10.0, 5.0)
+            it.rect = Rect.fromLTRB(0.0f, 0.0f, 10.0f, 5.0f)
         }
         child3.updateWith(
             config = null,
             childrenInInversePaintOrder = listOf(
                 SemanticsNode().also {
-                    it.rect = Rect.fromLTRB(5.0, 0.0, 10.0, 5.0)
+                    it.rect = Rect.fromLTRB(5.0f, 0.0f, 10.0f, 5.0f)
                 },
                 SemanticsNode().also {
-                    it.rect = Rect.fromLTRB(0.0, 0.0, 5.0, 5.0)
+                    it.rect = Rect.fromLTRB(0.0f, 0.0f, 5.0f, 5.0f)
                 }
             )
         )
 
         val rootComplex: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTRB(0.0, 0.0, 25.0, 5.0)
+            it.rect = Rect.fromLTRB(0.0f, 0.0f, 25.0f, 5.0f)
         }
         rootComplex.updateWith(
             config = null,
@@ -405,11 +405,11 @@ class SemanticsNodeTests {
             it.isButton = true
             it.label = "Use all the properties"
             it.textDirection = TextDirection.RTL
-            it.sortKey = OrdinalSortKey(1.0)
+            it.sortKey = OrdinalSortKey(1.0f)
         }
         val allProperties: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTWH(50.0, 10.0, 20.0, 30.0)
-            it.transform = Matrix4.translation(Vector3(10.0, 10.0, 0.0))
+            it.rect = Rect.fromLTWH(50.0f, 10.0f, 20.0f, 30.0f)
+            it.transform = Matrix4.translation(Vector3(10.0f, 10.0f, 0.0f))
             it.updateWith(config = config, childrenInInversePaintOrder = null)
         }
 
@@ -439,8 +439,8 @@ class SemanticsNodeTests {
         )
 
         val scaled: SemanticsNode = SemanticsNode().also {
-            it.rect = Rect.fromLTWH(50.0, 10.0, 20.0, 30.0)
-            it.transform = Matrix4.diagonal3(Vector3(10.0, 10.0, 1.0))
+            it.rect = Rect.fromLTWH(50.0f, 10.0f, 20.0f, 30.0f)
+            it.transform = Matrix4.diagonal3(Vector3(10.0f, 10.0f, 1.0f))
         }
         assertThat(
             scaled.toStringDeep()
@@ -580,6 +580,6 @@ private class TestRender(
 }
 
 private class CustomSortKey(
-    order: Double,
+    order: Float,
     name: String? = null
 ) : OrdinalSortKey(order, name)

@@ -58,10 +58,10 @@ open class VelocityTracker {
      * Returns null if there is no data on which to base an estimate.
      */
     open fun getVelocityEstimate(): VelocityEstimate? {
-        val x: MutableList<Double> = mutableListOf()
-        val y: MutableList<Double> = mutableListOf()
-        val w: MutableList<Double> = mutableListOf()
-        val time: MutableList<Double> = mutableListOf()
+        val x: MutableList<Float> = mutableListOf()
+        val y: MutableList<Float> = mutableListOf()
+        val w: MutableList<Float> = mutableListOf()
+        val time: MutableList<Float> = mutableListOf()
         var sampleCount = 0
         var index: Int = _index
 
@@ -75,9 +75,9 @@ open class VelocityTracker {
         do {
             val sample: _PointAtTime = _samples[index] ?: break
 
-            val age: Double = (newestSample.time - sample.time).inMilliseconds.toDouble()
-            val delta: Double =
-                (sample.time - previousSample.time).inMilliseconds.absoluteValue.toDouble()
+            val age: Float = (newestSample.time - sample.time).inMilliseconds.toFloat()
+            val delta: Float =
+                (sample.time - previousSample.time).inMilliseconds.absoluteValue.toFloat()
             previousSample = sample
             if (age > _kHorizonMilliseconds || delta > _kAssumePointerMoveStoppedMilliseconds) {
                 break
@@ -87,7 +87,7 @@ open class VelocityTracker {
             val position: Offset = sample.point
             x.add(position.dx)
             y.add(position.dy)
-            w.add(1.0)
+            w.add(1.0f)
             time.add(-age)
             index = (if (index == 0) _kHistorySize else index) - 1
 
@@ -96,11 +96,11 @@ open class VelocityTracker {
 
         if (sampleCount >= _kMinSampleSize) {
             val xSolver =
-                LeastSquaresSolver(time.toDoubleArray(), x.toDoubleArray(), w.toDoubleArray())
+                LeastSquaresSolver(time.toFloatArray(), x.toFloatArray(), w.toFloatArray())
             val xFit: PolynomialFit? = xSolver.solve(2)
             if (xFit != null) {
                 val ySolver =
-                    LeastSquaresSolver(time.toDoubleArray(), y.toDoubleArray(), w.toDoubleArray())
+                    LeastSquaresSolver(time.toFloatArray(), y.toFloatArray(), w.toFloatArray())
                 val yFit: PolynomialFit? = ySolver.solve(2)
                 if (yFit != null) {
 
@@ -121,7 +121,7 @@ open class VelocityTracker {
         // valid pointer position.
         return VelocityEstimate(
             pixelsPerSecond = Offset.zero,
-            confidence = 1.0,
+            confidence = 1.0f,
             duration = newestSample.time - oldestSample.time,
             offset = newestSample.point - oldestSample.point
         )

@@ -38,11 +38,11 @@ class LongPressTest {
 
     private val down = PointerDownEvent(
         pointer = 5,
-        position = Offset(10.0, 10.0)
+        position = Offset(10.0f, 10.0f)
     )
     private val up = PointerUpEvent(
         pointer = 5,
-        position = Offset(11.0, 9.0)
+        position = Offset(11.0f, 9.0f)
     )
 
     private val testCoroutineContext = TestCoroutineContext()

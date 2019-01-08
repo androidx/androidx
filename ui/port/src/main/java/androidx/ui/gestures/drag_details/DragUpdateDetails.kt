@@ -63,19 +63,18 @@ class DragUpdateDetails(
      * If non-null, then its value must match one of the coordinates of [delta] and the other
      * coordinate must be zero.
      */
-    val primaryDelta: Double? = null,
+    val primaryDelta: Float? = null,
     /** The pointer's global position when it triggered this update. */
     val globalPosition: Offset
 ) {
     init {
         assert(
-            primaryDelta == null
-                    || (primaryDelta == delta.dx && delta.dy == 0.0)
-                    || (primaryDelta == delta.dy && delta.dx == 0.0)
+            primaryDelta == null || (primaryDelta == delta.dx && delta.dy == 0.0f) ||
+                    (primaryDelta == delta.dy && delta.dx == 0.0f)
         )
     }
 
-    override fun toString() = "${runtimeType()}(${delta})"
+    override fun toString() = "${runtimeType()}($delta)"
 }
 
 /**

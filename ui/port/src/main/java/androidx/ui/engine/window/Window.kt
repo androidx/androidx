@@ -45,7 +45,7 @@ class Window {
      *  * [WidgetsBindingObserver], for a mechanism at the widgets layer to
      *    observe when this value changes.
      */
-    var devicePixelRatio: Double = 1.0
+    var devicePixelRatio: Float = 1.0f
         internal set
 
     /**
@@ -172,7 +172,7 @@ class Window {
      *  * [WidgetsBindingObserver], for a mechanism at the widgets layer to
      *    observe when this value changes.
      */
-    var textScaleFactor: Double = 1.0
+    var textScaleFactor: Float = 1.0f
         internal set
 
     /**

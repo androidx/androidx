@@ -100,7 +100,7 @@ class ContainingViewTest {
         var didLayout = false
         val layout = LayoutNode { _, _ ->
             didLayout = true
-            Size(9.0, 10.0)
+            Size(9.0f, 10.0f)
         }
         val view = setContainingView(layout)
 
@@ -138,13 +138,13 @@ class ContainingViewTest {
                     position(child, (width - child.width) / 2, (height - child.height) / 2)
                 }
             }
-            Size(width.toDouble(), height.toDouble())
+            Size(width.toFloat(), height.toFloat())
         }
         val squareLayout = LayoutNode { constraints, _ ->
-            Size(10.0, 10.0)
+            Size(10.0f, 10.0f)
         }
         val rectLayout = LayoutNode { constraints, _ ->
-            Size(20.0, 8.0)
+            Size(20.0f, 8.0f)
         }
 
         outerLayout.add(0, squareLayout)
@@ -199,12 +199,12 @@ class ContainingViewTest {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return
         }
-        val layout = LayoutNode { _, _ -> Size(10.0, 10.0) }
+        val layout = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
         val drawLatch = CountDownLatch(1)
         val draw = DrawNode { canvas ->
             drawLatch.countDown()
             drawFill(canvas, 0xFF0000FF.toInt()) { c, paint ->
-                c.drawRect(Rect(0.0, 0.0, 10.0, 10.0), paint)
+                c.drawRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
             }
         }
         draw.invalidate()
@@ -212,7 +212,7 @@ class ContainingViewTest {
         val view = setContainingView(layout)
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val bitmap = waitAndScreenShot(Rect(0.0, 0.0, 10.0, 10.0), view)
+        val bitmap = waitAndScreenShot(Rect(0.0f, 0.0f, 10.0f, 10.0f), view)
         assertEquals(0xFF0000FF.toInt(), bitmap.getPixel(0, 0))
         assertEquals(0xFF0000FF.toInt(), bitmap.getPixel(9, 9))
         assertEquals(0xFF0000FF.toInt(), bitmap.getPixel(0, 9))
@@ -227,18 +227,18 @@ class ContainingViewTest {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return
         }
-        val layout = LayoutNode { _, _ -> Size(10.0, 10.0) }
+        val layout = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
         val drawLatch = CountDownLatch(1)
         val square = DrawNode { canvas ->
             drawLatch.countDown()
             drawFill(canvas, 0xFF0000FF.toInt()) { c, paint ->
-                c.drawRect(Rect(0.0, 0.0, 10.0, 10.0), paint)
+                c.drawRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
             }
         }
         layout.add(0, square)
         val circle = DrawNode { canvas ->
             drawFill(canvas, 0xFF00FF00.toInt()) { c, paint ->
-                c.drawOval(Rect(0.0, 0.0, 10.0, 10.0), paint)
+                c.drawOval(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
             }
         }
         layout.add(1, circle)
@@ -246,7 +246,7 @@ class ContainingViewTest {
         val view = setContainingView(layout)
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val bitmap = waitAndScreenShot(Rect(0.0, 0.0, 10.0, 10.0), view)
+        val bitmap = waitAndScreenShot(Rect(0.0f, 0.0f, 10.0f, 10.0f), view)
         // Square is drawn to the corners
         assertEquals(0xFF0000FF.toInt(), bitmap.getPixel(0, 0))
         assertEquals(0xFF0000FF.toInt(), bitmap.getPixel(9, 9))
@@ -276,20 +276,20 @@ class ContainingViewTest {
             measure(second, c, false)
             position(first, 0, 0)
             position(second, 10, 10)
-            Size(20.0, 20.0)
+            Size(20.0f, 20.0f)
         }
-        val subLayout1 = LayoutNode { _, _ -> Size(10.0, 10.0) }
-        val subLayout2 = LayoutNode { _, _ -> Size(10.0, 10.0) }
+        val subLayout1 = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
+        val subLayout2 = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
         val redRect = DrawNode { canvas ->
             drawFill(canvas, 0xFFFF0000.toInt()) { c, paint ->
-                c.drawRect(Rect(0.0, 0.0, 10.0, 10.0), paint)
+                c.drawRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
             }
         }
         val drawLatch = CountDownLatch(1)
         val blueRect = DrawNode { canvas ->
             drawLatch.countDown()
             drawFill(canvas, 0xFF0000FF.toInt()) { c, paint ->
-                c.drawRect(Rect(0.0, 0.0, 10.0, 10.0), paint)
+                c.drawRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
             }
         }
         subLayout1.add(0, redRect)
@@ -300,7 +300,7 @@ class ContainingViewTest {
         val view = setContainingView(layout)
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val bitmap = waitAndScreenShot(Rect(0.0, 0.0, 20.0, 20.0), view)
+        val bitmap = waitAndScreenShot(Rect(0.0f, 0.0f, 20.0f, 20.0f), view)
         // top-left square is red
         assertEquals(0xFFFF0000.toInt(), bitmap.getPixel(5, 5))
 
@@ -321,27 +321,27 @@ class ContainingViewTest {
             val first = layoutChildren[children[1]]!!
             measure(first, c, false)
             position(first, 0, 0)
-            Size(20.0, 20.0)
+            Size(20.0f, 20.0f)
         }
         val drawLatch = CountDownLatch(1)
         val draw1 = DrawNode { canvas ->
             drawFill(canvas, android.graphics.Color.BLUE) { c, paint ->
-                c.drawRect(Rect(0.0, 0.0, 20.0, 20.0), paint)
+                c.drawRect(Rect(0.0f, 0.0f, 20.0f, 20.0f), paint)
             }
             drawLatch.countDown()
         }
         val draw2 = DrawNode { canvas ->
             drawFill(canvas, android.graphics.Color.BLACK) { c, paint ->
-                c.drawOval(Rect(0.0, 0.0, 20.0, 20.0), paint)
+                c.drawOval(Rect(0.0f, 0.0f, 20.0f, 20.0f), paint)
             }
         }
         val draw3 = DrawNode { canvas ->
             drawFill(canvas, android.graphics.Color.WHITE) { c, paint ->
-                c.drawRect(Rect(5.0, 5.0, 15.0, 15.0), paint)
+                c.drawRect(Rect(5.0f, 5.0f, 15.0f, 15.0f), paint)
             }
         }
         layout.add(0, draw1)
-        val child1 = LayoutNode { _, _ -> Size(20.0, 20.0) }
+        val child1 = LayoutNode { _, _ -> Size(20.0f, 20.0f) }
         layout.add(1, child1)
         child1.add(0, draw2)
         layout.add(2, draw3)
@@ -349,7 +349,7 @@ class ContainingViewTest {
         val view = setContainingView(layout)
 
         assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val bitmap = waitAndScreenShot(Rect(0.0, 0.0, 20.0, 20.0), view)
+        val bitmap = waitAndScreenShot(Rect(0.0f, 0.0f, 20.0f, 20.0f), view)
 
         // outer corners should be draw1's blue
         assertEquals(android.graphics.Color.BLUE, bitmap.getPixel(0, 0))
@@ -385,11 +385,11 @@ class ContainingViewTest {
                 max(firstSize.height, secondSize.height)
             )
         }
-        var size1 = 10.0
+        var size1 = 10.0f
         val layout1 = LayoutNode { _, _ -> Size(size1, size1) }
         outer.add(0, layout1)
 
-        val layout2 = LayoutNode { _, _ -> Size(10.0, 10.0) }
+        val layout2 = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
         outer.add(1, layout2)
 
         val view = setContainingView(outer)
@@ -401,7 +401,7 @@ class ContainingViewTest {
             assertEquals(10, view.height)
         }
 
-        size1 = 20.0
+        size1 = 20.0f
         layout1.dirtyLayout()
 
         assertTrue(layoutLatch2.await(1, TimeUnit.SECONDS))

@@ -105,7 +105,7 @@ abstract class DragGestureRecognizer(
      * This value is typically compared with the distance traveled along the
      * scrolling axis. If null then [kTouchSlop] is used.
      */
-    var minFlingDistance: Double? = null
+    var minFlingDistance: Float? = null
 
     /**
      * The minimum velocity for an input pointer drag to be considered fling.
@@ -114,14 +114,14 @@ abstract class DragGestureRecognizer(
      * velocity along the scrolling axis. If null then [kMinFlingVelocity]
      * is used.
      */
-    var minFlingVelocity: Double? = null
+    var minFlingVelocity: Float? = null
 
     /**
      * Fling velocity magnitudes will be clamped to this value.
      *
      * If null then [kMaxFlingVelocity] is used.
      */
-    var maxFlingVelocity: Double? = null
+    var maxFlingVelocity: Float? = null
 
     private var _state: _DragState = _DragState.ready
     private var _initialPosition: Offset? = null
@@ -132,7 +132,7 @@ abstract class DragGestureRecognizer(
 
     internal abstract fun _getDeltaForDetails(delta: Offset): Offset
 
-    internal abstract fun _getPrimaryValueFromOffset(value: Offset): Double?
+    internal abstract fun _getPrimaryValueFromOffset(value: Offset): Float?
 
     internal abstract fun _hasSufficientPendingDragDeltaToAccept(): Boolean
 
@@ -269,7 +269,7 @@ abstract class DragGestureRecognizer(
                     onEnd(
                         DragEndDetails(
                             velocity = Velocity.zero,
-                            primaryVelocity = 0.0
+                            primaryVelocity = 0.0f
                         )
                     )
                 }, debugReport = {

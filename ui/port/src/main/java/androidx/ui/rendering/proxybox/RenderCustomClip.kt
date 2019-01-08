@@ -99,25 +99,25 @@ abstract class RenderCustomClip<T>(
         assert {
             debugPaint = debugPaint ?: Paint().apply {
                 shader = Gradient.linear(
-                    Offset(0.0, 0.0),
-                    Offset(10.0, 10.0),
+                    Offset(0.0f, 0.0f),
+                    Offset(10.0f, 10.0f),
                     listOf(
                         Color(0x00000000),
                         Color(0xFFFF00FF.toInt()),
                         Color(0xFFFF00FF.toInt()),
                         Color(0x00000000)
                     ),
-                    listOf(0.25, 0.25, 0.75, 0.75),
+                    listOf(0.25f, 0.25f, 0.75f, 0.75f),
                     TileMode.repeated
                 )
-                strokeWidth = 2.0
+                strokeWidth = 2.0f
                 style = PaintingStyle.stroke
                 debugText = debugText ?: TextPainter(
                     text = TextSpan(
                         text = "✂",
                         style = TextStyle(
                             color = Color(0xFFFF00FF.toInt()),
-                            fontSize = 14.0
+                            fontSize = 14.0f
                         )
                     ),
                     textDirection = TextDirection.RTL // doesn't matter, it's one character

@@ -3,21 +3,21 @@ package androidx.ui.foundation.diagnostics
 import androidx.ui.toStringAsFixed
 
 /**
- * Property describing a [double] [value] with an optional [unit] of measurement.
+ * Property describing a [Float] [value] with an optional [unit] of measurement.
  *
  * Numeric formatting is optimized for debug message readability.
  */
-open class DoubleProperty protected constructor(
+open class FloatProperty protected constructor(
     name: String,
-    value: Double? = null,
-    computeValue: ComputePropertyValueCallback<Double?>? = null,
+    value: Float? = null,
+    computeValue: ComputePropertyValueCallback<Float?>? = null,
     ifNull: String? = null,
     unit: String? = null,
     showName: Boolean = true,
     defaultValue: Any? = kNoDefaultValue,
     tooltip: String? = null,
     level: DiagnosticLevel = DiagnosticLevel.info
-) : _NumProperty<Double>(
+) : _NumProperty<Float>(
         name = name,
         value = value,
         computeValue = computeValue,
@@ -38,15 +38,15 @@ open class DoubleProperty protected constructor(
          */
         fun create(
             name: String,
-            value: Double? = null,
+            value: Float? = null,
             ifNull: String? = null,
             unit: String? = null,
             showName: Boolean = true,
             defaultValue: Any? = kNoDefaultValue,
             tooltip: String? = null,
             level: DiagnosticLevel = DiagnosticLevel.info
-        ): DoubleProperty {
-            return DoubleProperty(
+        ): FloatProperty {
+            return FloatProperty(
                     name = name,
                     value = value,
                     ifNull = ifNull,
@@ -68,15 +68,15 @@ open class DoubleProperty protected constructor(
          */
         fun createLazy(
             name: String,
-            computeValue: ComputePropertyValueCallback<Double?>,
+            computeValue: ComputePropertyValueCallback<Float?>,
             ifNull: String? = null,
             unit: String? = null,
             showName: Boolean = true,
             defaultValue: Any = kNoDefaultValue,
             tooltip: String? = null,
             level: DiagnosticLevel = DiagnosticLevel.info
-        ): DoubleProperty {
-            return DoubleProperty(
+        ): FloatProperty {
+            return FloatProperty(
                     name = name,
                     computeValue = computeValue,
                     ifNull = ifNull,

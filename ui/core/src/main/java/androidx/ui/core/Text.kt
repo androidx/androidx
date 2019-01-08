@@ -52,7 +52,7 @@ class Text() : Component() {
     /** How visual overflow should be handled. */
     var overflow: TextOverflow = TextOverflow.CLIP
     /** The number of font pixels for each logical pixel. */
-    var textScaleFactor: Double = 1.0
+    var textScaleFactor: Float = 1.0f
     /**
      *  An optional maximum number of lines for the text to span, wrapping if necessary.
      *  If the text exceeds the given number of lines, it will be truncated according to [overflow]
@@ -80,14 +80,14 @@ class Text() : Component() {
             attachContextToFont(text, context)
 
             val boxConstraints = BoxConstraints(
-                    constraints.minWidth.toPx(context).toDouble(),
-                    constraints.maxWidth.toPx(context).toDouble(),
-                    constraints.minHeight.toPx(context).toDouble(),
-                    constraints.maxHeight.toPx(context).toDouble())
+                    constraints.minWidth.toPx(context),
+                    constraints.maxWidth.toPx(context),
+                    constraints.minHeight.toPx(context),
+                    constraints.maxHeight.toPx(context))
             renderParagraph.layoutTextWithConstraints(boxConstraints)
             measureOperations.collect {
                 <Draw> canvas, parent ->
-                    renderParagraph.paint(canvas, Offset(0.0, 0.0))
+                    renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
                 </Draw>
             }
             measureOperations.layout(

@@ -61,7 +61,7 @@ class TextLayoutTest {
 
     @Test
     fun specifiedWidth_equalsTo_widthInFramework() {
-        val layoutWidth = 100.0
+        val layoutWidth = 100.0f
         val textLayout = TextLayout(
             charSequence = "",
             width = layoutWidth,
@@ -75,12 +75,12 @@ class TextLayoutTest {
     @Test
     fun maxIntrinsicWidth_lessThan_specifiedWidth() {
         val text = "aaaa"
-        val textSize = 20.0
+        val textSize = 20.0f
         val layoutWidth = textSize * (text.length - 1)
 
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
-        textPaint.textSize = textSize.toFloat()
+        textPaint.textSize = textSize
 
         val textLayout = TextLayout(
             charSequence = text,
@@ -95,13 +95,13 @@ class TextLayoutTest {
     @Test
     fun lineSpacingExtra_whenMultipleLines_returnsSameAsGiven() {
         val text = "abcdefgh"
-        val textSize = 20.0
+        val textSize = 20.0f
         val layoutWidth = textSize * text.length / 4
-        val lineSpacingExtra = 1.0
+        val lineSpacingExtra = 1.0f
 
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
-        textPaint.textSize = textSize.toFloat()
+        textPaint.textSize = textSize
 
         val layout = TextLayout(
             charSequence = text,
@@ -116,20 +116,20 @@ class TextLayoutTest {
         for (i in 0 until layout.lineCount - 1) {
             // In the sample_font.ttf, the height of the line should be
             // fontSize + 0.2 * fontSize(line gap)
-            assertThat(layout.getLineHeight(i), equalTo(textSize * 1.2 + lineSpacingExtra))
+            assertThat(layout.getLineHeight(i), equalTo(textSize * 1.2f + lineSpacingExtra))
         }
     }
 
     @Test
     fun lineSpacingExtra_whenMultipleLines_hasNoEffectOnLastLine() {
         val text = "abcdefgh"
-        val textSize = 20.0
+        val textSize = 20.0f
         val layoutWidth = textSize * text.length / 4
-        val lineSpacingExtra = 1.0
+        val lineSpacingExtra = 1.0f
 
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
-        textPaint.textSize = textSize.toFloat()
+        textPaint.textSize = textSize
 
         val layout = TextLayout(
             charSequence = text,
@@ -147,19 +147,19 @@ class TextLayoutTest {
         val actualHeight = layout.getLineHeight(lastLine)
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(actualHeight, equalTo(textSize * 1.2))
+        assertThat(actualHeight, equalTo(textSize * 1.2f))
     }
 
     @Test
     fun lineSpacingExtra_whenOneLine_hasNoEffects() {
         val text = "abc"
-        val textSize = 20.0
+        val textSize = 20.0f
         val layoutWidth = textSize * text.length
-        val lineSpacingExtra = 1.0
+        val lineSpacingExtra = 1.0f
 
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
-        textPaint.textSize = textSize.toFloat()
+        textPaint.textSize = textSize
 
         val layout = TextLayout(
             charSequence = text,
@@ -175,19 +175,19 @@ class TextLayoutTest {
         assertThat(layout.lineCount, equalTo(1))
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2))
+        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2f))
     }
 
     @Test
     fun lineSpacingExtra_whenOneLine_withTextRTL_hasNoEffects() {
         val text = "\u05D0\u05D0\u05D0"
-        val textSize = 20.0
+        val textSize = 20.0f
         val layoutWidth = textSize * text.length
-        val lineSpacingExtra = 1.0
+        val lineSpacingExtra = 1.0f
 
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
-        textPaint.textSize = textSize.toFloat()
+        textPaint.textSize = textSize
 
         val layout = TextLayout(
             charSequence = text,
@@ -203,19 +203,19 @@ class TextLayoutTest {
         assertThat(layout.lineCount, equalTo(1))
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2))
+        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2f))
     }
 
     @Test
     fun lineSpacingMultiplier_whenMultipleLines_returnsSameAsGiven() {
         val text = "abcdefgh"
-        val textSize = 20.0
+        val textSize = 20.0f
         val layoutWidth = textSize * text.length / 4
-        val lineSpacingMultiplier = 1.5
+        val lineSpacingMultiplier = 1.5f
 
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
-        textPaint.textSize = textSize.toFloat()
+        textPaint.textSize = textSize
 
         val layout = TextLayout(
             charSequence = text,
@@ -230,20 +230,20 @@ class TextLayoutTest {
         for (i in 0 until layout.lineCount - 1) {
             // In the sample_font.ttf, the height of the line should be
             // fontSize + 0.2 * fontSize(line gap)
-            assertThat(layout.getLineHeight(i), equalTo(textSize * 1.2 * lineSpacingMultiplier))
+            assertThat(layout.getLineHeight(i), equalTo(textSize * 1.2f * lineSpacingMultiplier))
         }
     }
 
     @Test
     fun lineSpacingMultiplier_whenMultipleLines_hasNoEffectOnLastLine() {
         val text = "abcdefgh"
-        val textSize = 20.0
+        val textSize = 20.0f
         val layoutWidth = textSize * text.length / 4
-        val lineSpacingMultiplier = 1.5
+        val lineSpacingMultiplier = 1.5f
 
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
-        textPaint.textSize = textSize.toFloat()
+        textPaint.textSize = textSize
 
         val layout = TextLayout(
             charSequence = text,
@@ -258,19 +258,19 @@ class TextLayoutTest {
         val lastLine = layout.lineCount - 1
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(lastLine), equalTo(textSize * 1.2))
+        assertThat(layout.getLineHeight(lastLine), equalTo(textSize * 1.2f))
     }
 
     @Test
     fun lineSpacingMultiplier_whenOneLine_hasNoEffect() {
         val text = "abc"
-        val textSize = 20.0
+        val textSize = 20.0f
         val layoutWidth = textSize * text.length
-        val lineSpacingMultiplier = 1.5
+        val lineSpacingMultiplier = 1.5f
 
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
-        textPaint.textSize = textSize.toFloat()
+        textPaint.textSize = textSize
 
         val layout = TextLayout(
             charSequence = text,
@@ -285,19 +285,19 @@ class TextLayoutTest {
         assertThat(layout.lineCount, equalTo(1))
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2))
+        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2f))
     }
 
     @Test
     fun lineSpacingMultiplier_whenOneLine_withTextRTL_hasNoEffect() {
         val text = "\u05D0\u05D0\u05D0"
-        val textSize = 20.0
+        val textSize = 20.0f
         val layoutWidth = textSize * text.length
-        val lineSpacingMultiplier = 1.5
+        val lineSpacingMultiplier = 1.5f
 
         val textPaint = TextPaint()
         textPaint.typeface = sampleTypeface
-        textPaint.textSize = textSize.toFloat()
+        textPaint.textSize = textSize
 
         val layout = TextLayout(
             charSequence = text,
@@ -312,6 +312,6 @@ class TextLayoutTest {
         assertThat(layout.lineCount, equalTo(1))
         // In the sample_font.ttf, the height of the line should be
         // fontSize + 0.2 * fontSize(line gap)
-        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2))
+        assertThat(layout.getLineHeight(0), equalTo(textSize * 1.2f))
     }
 }

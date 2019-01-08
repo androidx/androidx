@@ -44,7 +44,7 @@ internal class MixedBorderRadius(
     }
 
     /** Scales each corner of the [MixedBorderRadius] by the given factor. */
-    override fun times(other: Double): MixedBorderRadius {
+    override fun times(other: Float): MixedBorderRadius {
         return MixedBorderRadius(
             topLeft * other,
             topRight * other,
@@ -57,7 +57,7 @@ internal class MixedBorderRadius(
         )
     }
 
-    override fun div(other: Double): MixedBorderRadius {
+    override fun div(other: Float): MixedBorderRadius {
         return MixedBorderRadius(
             topLeft / other,
             topRight / other,
@@ -70,7 +70,7 @@ internal class MixedBorderRadius(
         )
     }
 
-    override fun truncDiv(other: Double): MixedBorderRadius {
+    override fun truncDiv(other: Float): MixedBorderRadius {
         return MixedBorderRadius(
             topLeft.truncDiv(other),
             topRight.truncDiv(other),
@@ -83,7 +83,7 @@ internal class MixedBorderRadius(
         )
     }
 
-    override fun rem(other: Double): MixedBorderRadius {
+    override fun rem(other: Float): MixedBorderRadius {
         return MixedBorderRadius(
             topLeft % other,
             topRight % other,

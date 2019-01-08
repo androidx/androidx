@@ -29,9 +29,9 @@ class MatrixTest {
     fun `Matrix3 identity`() {
         assertEquals(
                 Matrix3(
-                        Vector3(1.0, 0.0, 0.0),
-                        Vector3(0.0, 1.0, 0.0),
-                        Vector3(0.0, 0.0, 1.0)
+                        Vector3(1.0f, 0.0f, 0.0f),
+                        Vector3(0.0f, 1.0f, 0.0f),
+                        Vector3(0.0f, 0.0f, 1.0f)
                 ),
                 Matrix3.identity()
         )
@@ -39,22 +39,22 @@ class MatrixTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `Matrix3 of fails if less than 9 arguments`() {
-        Matrix3.of(*8.doubleArray())
+        Matrix3.of(*8.floatArray())
     }
 
     @Test
     fun `Matrix3 of`() {
-        assertEquals(MAT_3, Matrix3.of(*9.doubleArray()))
+        assertEquals(MAT_3, Matrix3.of(*9.floatArray()))
     }
 
     @Test
     fun `Matrix4 identity`() {
         assertEquals(
                 Matrix4(
-                        Vector4(1.0, 0.0, 0.0, 0.0),
-                        Vector4(0.0, 1.0, 0.0, 0.0),
-                        Vector4(0.0, 0.0, 1.0, 0.0),
-                        Vector4(0.0, 0.0, 0.0, 1.0)
+                        Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 1.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, 0.0f, 1.0f)
                 ),
                 Matrix4.identity()
         )
@@ -62,21 +62,21 @@ class MatrixTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `Matrix4 of fails if less than 16 arguments`() {
-        Matrix4.of(*15.doubleArray())
+        Matrix4.of(*15.floatArray())
     }
 
     @Test
     fun `Matrix4 of`() {
-        assertEquals(MAT_4, Matrix4.of(*16.doubleArray()))
+        assertEquals(MAT_4, Matrix4.of(*16.floatArray()))
     }
 
     @Test
     fun `transpose Matrix3`() {
         assertEquals(
                 Matrix3(
-                        Vector3(1.0, 2.0, 3.0),
-                        Vector3(4.0, 5.0, 6.0),
-                        Vector3(7.0, 8.0, 9.0)
+                        Vector3(1.0f, 2.0f, 3.0f),
+                        Vector3(4.0f, 5.0f, 6.0f),
+                        Vector3(7.0f, 8.0f, 9.0f)
                 ),
                 transpose(MAT_3)
         )
@@ -91,14 +91,14 @@ class MatrixTest {
     fun `inverse Matrix3`() {
         assertEquals(
                 Matrix3(
-                        Vector3(0.0, 1.0, 0.0),
-                        Vector3(-2.0, 1.0, 1.0),
-                        Vector3(2.0, -2.0, 0.0)
+                        Vector3(0.0f, 1.0f, 0.0f),
+                        Vector3(-2.0f, 1.0f, 1.0f),
+                        Vector3(2.0f, -2.0f, 0.0f)
                 ),
                 inverse(Matrix3(
-                        Vector3(1.0, 0.0, 0.5),
-                        Vector3(1.0, 0.0, 0.0),
-                        Vector3(1.0, 1.0, 1.0)
+                        Vector3(1.0f, 0.0f, 0.5f),
+                        Vector3(1.0f, 0.0f, 0.0f),
+                        Vector3(1.0f, 1.0f, 1.0f)
                 ))
         )
     }
@@ -110,23 +110,23 @@ class MatrixTest {
 
     @Test
     fun `scale Vector3`() {
-        assertEquals(Matrix4.identity(), scale(Vector3(1.0, 1.0, 1.0)))
+        assertEquals(Matrix4.identity(), scale(Vector3(1.0f, 1.0f, 1.0f)))
     }
 
     @Test
     fun `scale Matrix4`() {
         assertEquals(
                 Matrix4(
-                        Vector4(2.0, 0.0, 0.0, 0.0),
-                        Vector4(0.0, 4.0, 0.0, 0.0),
-                        Vector4(0.0, 0.0, 6.0, 0.0),
-                        Vector4(0.0, 0.0, 0.0, 1.0)
+                        Vector4(2.0f, 0.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 4.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, 6.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, 0.0f, 1.0f)
                 ),
                 scale(Matrix4(
-                        Vector4(2.0, 0.0, 0.0, 0.0),
-                        Vector4(4.0, 0.0, 0.0, 0.0),
-                        Vector4(6.0, 0.0, 0.0, 0.0),
-                        Vector4(0.0, 0.0, 0.0, 0.0)
+                        Vector4(2.0f, 0.0f, 0.0f, 0.0f),
+                        Vector4(4.0f, 0.0f, 0.0f, 0.0f),
+                        Vector4(6.0f, 0.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, 0.0f, 0.0f)
                 ))
         )
     }
@@ -135,12 +135,12 @@ class MatrixTest {
     fun `translation Vector3`() {
         assertEquals(
                 Matrix4(
-                        Vector4(1.0, 0.0, 0.0, 0.0),
-                        Vector4(0.0, 1.0, 0.0, 0.0),
-                        Vector4(0.0, 0.0, 1.0, 0.0),
-                        Vector4(1.0, 2.0, 3.0, 1.0)
+                        Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 1.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+                        Vector4(1.0f, 2.0f, 3.0f, 1.0f)
                 ),
-                translation(Vector3(1.0, 2.0, 3.0))
+                translation(Vector3(1.0f, 2.0f, 3.0f))
         )
     }
 
@@ -148,10 +148,10 @@ class MatrixTest {
     fun `translation Matrix4`() {
         assertEquals(
                 Matrix4(
-                        Vector4(1.0, 0.0, 0.0, 0.0),
-                        Vector4(0.0, 1.0, 0.0, 0.0),
-                        Vector4(0.0, 0.0, 1.0, 0.0),
-                        Vector4(4.0, 8.0, 12.0, 1.0)
+                        Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 1.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, 1.0f, 0.0f),
+                        Vector4(4.0f, 8.0f, 12.0f, 1.0f)
                 ),
                 translation(MAT_4)
         )
@@ -166,18 +166,18 @@ class MatrixTest {
     fun `inverse Matrix4`() {
         assertEquals(
                 Matrix4(
-                        Vector4(1.0, 0.0, 0.0, 0.0),
-                        Vector4(-1.0, 1.0, 0.0, 0.0),
-                        Vector4(4.0, -4.0, 1.0, -2.0),
-                        Vector4(-2.0, 2.0, 0.0, 1.0)
+                        Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+                        Vector4(-1.0f, 1.0f, 0.0f, 0.0f),
+                        Vector4(4.0f, -4.0f, 1.0f, -2.0f),
+                        Vector4(-2.0f, 2.0f, 0.0f, 1.0f)
 
                 ),
                 inverse(
                         Matrix4(
-                                Vector4(1.0, 0.0, 0.0, 0.0),
-                                Vector4(1.0, 1.0, 0.0, 0.0),
-                                Vector4(0.0, 0.0, 1.0, 2.0),
-                                Vector4(0.0, -2.0, 0.0, 1.0)
+                                Vector4(1.0f, 0.0f, 0.0f, 0.0f),
+                                Vector4(1.0f, 1.0f, 0.0f, 0.0f),
+                                Vector4(0.0f, 0.0f, 1.0f, 2.0f),
+                                Vector4(0.0f, -2.0f, 0.0f, 1.0f)
                         ))
         )
     }
@@ -186,20 +186,20 @@ class MatrixTest {
     fun `inverse non-invertible Matrix4`() {
         assertEquals(
                 Matrix4(
-                        Vector4(Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY,
-                                Double.NaN, Double.NaN),
-                        Vector4(Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY,
-                                Double.NaN, Double.NaN),
-                        Vector4(Double.NaN, Double.NaN, Double.NaN, Double.NaN),
-                        Vector4(Double.NaN, Double.NaN, Double.NaN, Double.NaN)
+                        Vector4(Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY,
+                                Float.NaN, Float.NaN),
+                        Vector4(Float.NEGATIVE_INFINITY, Float.POSITIVE_INFINITY,
+                                Float.NaN, Float.NaN),
+                        Vector4(Float.NaN, Float.NaN, Float.NaN, Float.NaN),
+                        Vector4(Float.NaN, Float.NaN, Float.NaN, Float.NaN)
 
                 ),
                 inverse(
                         Matrix4(
-                                Vector4(1.0, 1.0, 0.0, 0.0),
-                                Vector4(1.0, 1.0, 0.0, 0.0),
-                                Vector4(0.0, 0.0, 1.0, 2.0),
-                                Vector4(0.0, 0.0, 0.0, 1.0)
+                                Vector4(1.0f, 1.0f, 0.0f, 0.0f),
+                                Vector4(1.0f, 1.0f, 0.0f, 0.0f),
+                                Vector4(0.0f, 0.0f, 1.0f, 2.0f),
+                                Vector4(0.0f, 0.0f, 0.0f, 1.0f)
                         ))
         )
     }
@@ -208,12 +208,12 @@ class MatrixTest {
     fun `rotation Vector3`() {
         assertArrayEquals(
                 Matrix4(
-                        Vector4(0.998, 0.0523, -0.0348, 0.0),
-                        Vector4(-0.0517, 0.9985, 0.0174, 0.0),
-                        Vector4(0.0357, -0.0156, 0.9992, 0.0),
-                        Vector4(0.0, 0.0, 0.0, 1.0)
-                ).toDoubleArray(),
-                rotation(Vector3(1.0, 2.0, 3.0)).toDoubleArray()
+                        Vector4(0.998f, 0.0523f, -0.0348f, 0.0f),
+                        Vector4(-0.0517f, 0.9985f, 0.0174f, 0.0f),
+                        Vector4(0.0357f, -0.0156f, 0.9992f, 0.0f),
+                        Vector4(0.0f, 0.0f, 0.0f, 1.0f)
+                ).toFloatArray(),
+                rotation(Vector3(1.0f, 2.0f, 3.0f)).toFloatArray()
         )
     }
 
@@ -221,12 +221,12 @@ class MatrixTest {
     fun `rotation Matrix4`() {
         assertArrayEquals(
                 Matrix4(
-                        Vector4(0.0966, 0.4833, 0.87, 0.0),
-                        Vector4(0.169, 0.507, 0.8451, 0.0),
-                        Vector4(0.2242, 0.5232, 0.8221, 0.0),
-                        Vector4(0.0, 0.0, 0.0, 1.0)
-                ).toDoubleArray(),
-                rotation(MAT_4).toDoubleArray()
+                        Vector4(0.0966f, 0.4833f, 0.87f, 0.0f),
+                        Vector4(0.169f, 0.507f, 0.8451f, 0.0f),
+                        Vector4(0.2242f, 0.5232f, 0.8221f, 0.0f),
+                        Vector4(0.0f, 0.0f, 0.0f, 1.0f)
+                ).toFloatArray(),
+                rotation(MAT_4).toFloatArray()
         )
     }
 
@@ -234,12 +234,12 @@ class MatrixTest {
     fun `rotation axis angle`() {
         assertArrayEquals(
                 Matrix4(
-                        Vector4(0.9999, 5.0, 1.0, 0.0),
-                        Vector4(-1.0, 4.0, 7.0, 0.0),
-                        Vector4(4.0, 5.0, 9.0, 0.0),
-                        Vector4(0.0, 0.0, 0.0, 1.0)
-                ).toDoubleArray(),
-                rotation(Vector3(1.0, 2.0, 3.0), 90.0).toDoubleArray()
+                        Vector4(0.9999f, 5.0f, 1.0f, 0.0f),
+                        Vector4(-1.0f, 4.0f, 7.0f, 0.0f),
+                        Vector4(4.0f, 5.0f, 9.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, 0.0f, 1.0f)
+                ).toFloatArray(),
+                rotation(Vector3(1.0f, 2.0f, 3.0f), 90.0f).toFloatArray()
         )
     }
 
@@ -247,12 +247,12 @@ class MatrixTest {
     fun normal() {
         assertArrayEquals(
                 Matrix4(
-                        Vector4(0.0093, 0.0357, 0.0502, 13.0),
-                        Vector4(0.0186, 0.0428, 0.0558, 14.0),
-                        Vector4(0.0280, 0.05, 0.0614, 15.0),
-                        Vector4(0.0373, 0.0571, 0.0670, 16.0)
-                ).toDoubleArray(),
-                normal(MAT_4).toDoubleArray()
+                        Vector4(0.0093f, 0.0357f, 0.0502f, 13.0f),
+                        Vector4(0.0186f, 0.0428f, 0.0558f, 14.0f),
+                        Vector4(0.0280f, 0.05f, 0.0614f, 15.0f),
+                        Vector4(0.0373f, 0.0571f, 0.0670f, 16.0f)
+                ).toFloatArray(),
+                normal(MAT_4).toFloatArray()
         )
     }
 
@@ -260,16 +260,16 @@ class MatrixTest {
     fun lookAt() {
         assertArrayEquals(
                 Matrix4(
-                        Vector4(0.53606, -0.7862, 0.30734, 0.0),
-                        Vector4(0.28377, 0.51073, 0.81155, 0.0),
-                        Vector4(0.79504, 0.34783, -0.4969, 0.0),
-                        Vector4(1.0, 2.0, 3.0, 1.0)
-                ).toDoubleArray(),
+                        Vector4(0.53606f, -0.7862f, 0.30734f, 0.0f),
+                        Vector4(0.28377f, 0.51073f, 0.81155f, 0.0f),
+                        Vector4(0.79504f, 0.34783f, -0.4969f, 0.0f),
+                        Vector4(1.0f, 2.0f, 3.0f, 1.0f)
+                ).toFloatArray(),
                 lookAt(
-                        eye = Vector3(1.0, 2.0, 3.0),
-                        target = Vector3(9.0, 5.5, -2.0),
-                        up = Vector3(3.0, 4.0, 5.0)
-                ).toDoubleArray()
+                        eye = Vector3(1.0f, 2.0f, 3.0f),
+                        target = Vector3(9.0f, 5.5f, -2.0f),
+                        up = Vector3(3.0f, 4.0f, 5.0f)
+                ).toFloatArray()
         )
     }
 
@@ -277,16 +277,16 @@ class MatrixTest {
     fun lookTowards() {
         assertArrayEquals(
                 Matrix4(
-                        Vector4(-0.6549, -0.3475, 0.67100, 0.0),
-                        Vector4(0.10792, 0.83584, 0.53825, 0.0),
-                        Vector4(0.74791, -0.4249, 0.50994, 0.0),
-                        Vector4(1.0, 2.0, 3.0, 1.0)
-                ).toDoubleArray(),
+                        Vector4(-0.6549f, -0.3475f, 0.67100f, 0.0f),
+                        Vector4(0.10792f, 0.83584f, 0.53825f, 0.0f),
+                        Vector4(0.74791f, -0.4249f, 0.50994f, 0.0f),
+                        Vector4(1.0f, 2.0f, 3.0f, 1.0f)
+                ).toFloatArray(),
                 lookTowards(
-                        eye = Vector3(1.0, 2.0, 3.0),
-                        forward = Vector3(4.4, -2.5, 3.0),
-                        up = Vector3(3.0, 4.0, 5.0)
-                ).toDoubleArray()
+                        eye = Vector3(1.0f, 2.0f, 3.0f),
+                        forward = Vector3(4.4f, -2.5f, 3.0f),
+                        up = Vector3(3.0f, 4.0f, 5.0f)
+                ).toFloatArray()
         )
     }
 
@@ -294,17 +294,17 @@ class MatrixTest {
     fun perspective() {
         assertArrayEquals(
                 Matrix4(
-                        Vector4(57.2943, 0.0, 0.0, 0.0),
-                        Vector4(0.0, 114.5886, 0.0, 0.0),
-                        Vector4(0.0, 0.0, -7.0, 1.0),
-                        Vector4(0.0, 0.0, 24.0, 0.0)
-                ).toDoubleArray(),
+                        Vector4(57.2943f, 0.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 114.5886f, 0.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, -7.0f, 1.0f),
+                        Vector4(0.0f, 0.0f, 24.0f, 0.0f)
+                ).toFloatArray(),
                 perspective(
-                        fov = 1.0,
-                        ratio = 2.0,
-                        far = 3.0,
-                        near = 4.0
-                ).toDoubleArray()
+                        fov = 1.0f,
+                        ratio = 2.0f,
+                        far = 3.0f,
+                        near = 4.0f
+                ).toFloatArray()
         )
     }
 
@@ -312,45 +312,45 @@ class MatrixTest {
     fun ortho() {
         assertArrayEquals(
                 Matrix4(
-                        Vector4(2.0, 0.0, 0.0, 0.0),
-                        Vector4(0.0, 2.0, 0.0, 0.0),
-                        Vector4(0.0, 0.0, -2.0, 0.0),
-                        Vector4(-3.0, -7.0, -11.0, 1.0)
-                ).toDoubleArray(),
+                        Vector4(2.0f, 0.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 2.0f, 0.0f, 0.0f),
+                        Vector4(0.0f, 0.0f, -2.0f, 0.0f),
+                        Vector4(-3.0f, -7.0f, -11.0f, 1.0f)
+                ).toFloatArray(),
                 ortho(
-                        l = 1.0,
-                        r = 2.0,
-                        b = 3.0,
-                        t = 4.0,
-                        n = 5.0,
-                        f = 6.0
-                ).toDoubleArray()
+                        l = 1.0f,
+                        r = 2.0f,
+                        b = 3.0f,
+                        t = 4.0f,
+                        n = 5.0f,
+                        f = 6.0f
+                ).toFloatArray()
         )
     }
 
     companion object {
         private val MAT_3 = Matrix3(
-                Vector3(1.0, 4.0, 7.0),
-                Vector3(2.0, 5.0, 8.0),
-                Vector3(3.0, 6.0, 9.0)
+                Vector3(1.0f, 4.0f, 7.0f),
+                Vector3(2.0f, 5.0f, 8.0f),
+                Vector3(3.0f, 6.0f, 9.0f)
         )
         private val MAT_4 = Matrix4(
-                Vector4(1.0, 5.0, 9.0, 13.0),
-                Vector4(2.0, 6.0, 10.0, 14.0),
-                Vector4(3.0, 7.0, 11.0, 15.0),
-                Vector4(4.0, 8.0, 12.0, 16.0)
+                Vector4(1.0f, 5.0f, 9.0f, 13.0f),
+                Vector4(2.0f, 6.0f, 10.0f, 14.0f),
+                Vector4(3.0f, 7.0f, 11.0f, 15.0f),
+                Vector4(4.0f, 8.0f, 12.0f, 16.0f)
         )
 
         private fun assertArrayEquals(
-            expected: DoubleArray,
-            actual: DoubleArray,
-            delta: Double = 0.0001
+            expected: FloatArray,
+            actual: FloatArray,
+            delta: Float = 0.0001f
         ) = Assert.assertArrayEquals(expected, actual, delta)
 
         /**
          * @return a VectorArray containing n floats 1f,2f,...,n (float) where n
          * is the @receiver integer.
          */
-        private fun Int.doubleArray() = DoubleArray(this) { (it + 1).toDouble() }
+        private fun Int.floatArray() = FloatArray(this) { (it + 1).toFloat() }
     }
 }

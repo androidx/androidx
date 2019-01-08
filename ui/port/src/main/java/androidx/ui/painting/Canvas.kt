@@ -10,6 +10,7 @@ import androidx.ui.engine.text.Paragraph
 import androidx.ui.painting.matrixutils.isIdentity
 import androidx.ui.skia.SkMatrix
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.degrees
 
 // TODO(Migration/njawad): Copy the class here
 /**
@@ -201,10 +202,10 @@ class Canvas {
             TODO("Migration/njawad framework does not have quivalent for saveLayerWithoutBounds")
         } else {
             internalCanvas.saveLayer(
-                    bounds.left.toFloat(),
-                    bounds.top.toFloat(),
-                    bounds.right.toFloat(),
-                    bounds.bottom.toFloat(),
+                    bounds.left,
+                    bounds.top,
+                    bounds.right,
+                    bounds.bottom,
                     paint.toFrameworkPaint(),
                     android.graphics.Canvas.ALL_SAVE_FLAG
             )
@@ -248,8 +249,8 @@ class Canvas {
      * Add a translation to the current transform, shifting the coordinate space
      * horizontally by the first argument and vertically by the second argument.
      */
-    fun translate(dx: Double, dy: Double) {
-        internalCanvas.translate(dx.toFloat(), dy.toFloat())
+    fun translate(dx: Float, dy: Float) {
+        internalCanvas.translate(dx, dy)
     }
 
     /**
@@ -260,13 +261,13 @@ class Canvas {
      * If [sy] is unspecified, [sx] will be used for the scale in both
      * directions.
      */
-    fun scale(sx: Double, sy: Double = sx) {
-        internalCanvas.scale(sx.toFloat(), sy.toFloat())
+    fun scale(sx: Float, sy: Float = sx) {
+        internalCanvas.scale(sx, sy)
     }
 
     /** Add a rotation to the current transform. The argument is in radians clockwise. */
-    fun rotate(radians: Double) {
-        internalCanvas.rotate(Math.toDegrees(radians).toFloat())
+    fun rotate(radians: Float) {
+        internalCanvas.rotate(degrees(radians))
     }
 
     /**
@@ -275,8 +276,8 @@ class Canvas {
      * second argument being the vertical skew in radians clockwise around the
      * origin.
      */
-    fun skew(sx: Double, sy: Double) {
-        internalCanvas.skew(sx.toFloat(), sy.toFloat())
+    fun skew(sx: Float, sy: Float) {
+        internalCanvas.skew(sx, sy)
     }
 
     /**
@@ -363,10 +364,10 @@ class Canvas {
      */
     fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
         internalCanvas.drawLine(
-                p1.dx.toFloat(),
-                p1.dy.toFloat(),
-                p2.dx.toFloat(),
-                p2.dy.toFloat(),
+                p1.dx,
+                p1.dy,
+                p2.dx,
+                p2.dy,
                 paint.toFrameworkPaint()
         )
     }
@@ -438,11 +439,11 @@ class Canvas {
      * the third argument. Whether the circle is filled or stroked (or both) is
      * controlled by [Paint.style].
      */
-    fun drawCircle(c: Offset, radius: Double, paint: Paint) {
+    fun drawCircle(c: Offset, radius: Float, paint: Paint) {
         internalCanvas.drawCircle(
-            c.dx.toFloat(),
-            c.dy.toFloat(),
-            radius.toFloat(),
+            c.dx,
+            c.dy,
+            radius,
             paint.toFrameworkPaint()
         )
     }
@@ -461,16 +462,16 @@ class Canvas {
      */
     fun drawArc(
         rect: Rect,
-        startAngle: Double,
-        sweepAngle: Double,
+        startAngle: Float,
+        sweepAngle: Float,
         useCenter: Boolean,
         paint: Paint
     ) {
         internalRectF.set(rect.toFrameworkRect())
         internalCanvas.drawArc(
                 internalRectF,
-                Math.toDegrees(startAngle).toFloat(),
-                Math.toDegrees(sweepAngle).toFloat(),
+                degrees(startAngle),
+                degrees(sweepAngle),
                 useCenter,
                 paint.toFrameworkPaint()
         )
@@ -492,8 +493,8 @@ class Canvas {
     fun drawImage(image: Image, p: Offset, paint: Paint) {
         internalCanvas.drawBitmap(
                 image.bitmap,
-                p.dx.toFloat(),
-                p.dy.toFloat(),
+                p.dx,
+                p.dy,
                 paint.toFrameworkPaint()
         )
     }
@@ -631,8 +632,8 @@ class Canvas {
 
     private fun drawPoints(points: List<Offset>, paint: Paint) {
         for (point in points) {
-            internalCanvas.drawPoint(point.dx.toFloat(),
-                    point.dy.toFloat(),
+            internalCanvas.drawPoint(point.dx,
+                    point.dy,
                     paint.toFrameworkPaint())
         }
     }
@@ -655,10 +656,10 @@ class Canvas {
                 val p1 = points[i]
                 val p2 = points[i + 1]
                 internalCanvas.drawLine(
-                        p1.dx.toFloat(),
-                        p1.dy.toFloat(),
-                        p2.dx.toFloat(),
-                        p2.dy.toFloat(),
+                        p1.dx,
+                        p1.dy,
+                        p2.dx,
+                        p2.dy,
                         paint.toFrameworkPaint()
                 )
             }

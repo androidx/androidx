@@ -26,7 +26,7 @@ import com.google.r4a.Component
  *     <Draw> canvas, parentSize ->
  *         val paint = Paint()
  *         paint.color = Color(0xFF000000.toInt())
- *         canvas.drawRect(Rect(0.0, 0.0, parentSize.width, parentSize.height, paint)
+ *         canvas.drawRect(Rect(0.0f, 0.0f, parentSize.width, parentSize.height, paint)
  *     </Draw>
  */
 class Draw() : Component() {

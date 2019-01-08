@@ -65,7 +65,7 @@ data class TextSpan(
      * Rather than using this directly, it's simpler to use the [TextPainter] class to paint
      * [TextSpan] objects onto [Canvas] objects.
      */
-    fun build(builder: ParagraphBuilder, textScaleFactor: Double = 1.0) {
+    fun build(builder: ParagraphBuilder, textScaleFactor: Float = 1.0f) {
         val hasStyle: Boolean = style != null
         if (hasStyle) {
             builder.pushStyle(style!!.getTextStyle(textScaleFactor))

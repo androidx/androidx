@@ -19,11 +19,11 @@ package androidx.ui.gestures.lsq_solver
 /** Uses the least-squares algorithm to fit a polynomial to a set of data. */
 class LeastSquaresSolver(
     /** The x-coordinates of each data point. */
-    val x: DoubleArray,
+    val x: FloatArray,
     /** The y-coordinates of each data point. */
-    val y: DoubleArray,
+    val y: FloatArray,
     /** The weight to use for each data point. */
-    val w: DoubleArray
+    val w: FloatArray
 ) {
 
     /** Fits a polynomial of the given degree to the data points. */
@@ -58,24 +58,24 @@ class LeastSquaresSolver(
                 q.set(j, h, a.get(j, h))
             }
             for (i in 0 until j) {
-                val dot: Double = q.getRow(j) * q.getRow(i)
+                val dot: Float = q.getRow(j) * q.getRow(i)
                 for (h in 0 until m) {
                     q.set(j, h, q.get(j, h) - dot * q.get(i, h))
                 }
             }
 
-            val norm: Double = q.getRow(j).norm()
+            val norm: Float = q.getRow(j).norm()
             if ((norm < 0.000001)) {
                 // Vectors are linearly dependent or zero so no solution.
                 return null
             }
 
-            val inverseNorm: Double = 1.0 / norm
+            val inverseNorm: Float = 1.0f / norm
             for (h in 0 until m) {
                 q.set(j, h, q.get(j, h) * inverseNorm)
             }
             for (i in 0 until n) {
-                r.set(j, i, if (i < j) 0.0 else q.getRow(j) * a.getRow(i))
+                r.set(j, i, if (i < j) 0.0f else q.getRow(j) * a.getRow(i))
             }
         }
 
@@ -98,17 +98,17 @@ class LeastSquaresSolver(
         // ...where sumSquaredError is the residual sum of squares (variance of the
         // error), and sumSquaredTotal is the total sum of squares (variance of the
         // data) where each has been weighted.
-        var yMean = 0.0
+        var yMean = 0.0f
         for (h in 0 until m) {
             yMean += y[h]
         }
         yMean /= m
 
-        var sumSquaredError = 0.0
-        var sumSquaredTotal = 0.0
+        var sumSquaredError = 0.0f
+        var sumSquaredTotal = 0.0f
         for (h in 0 until m) {
-            var term = 1.0
-            var err: Double = y[h] - result.coefficients[0]
+            var term = 1.0f
+            var err: Float = y[h] - result.coefficients[0]
             for (i in 1 until n) {
                 term *= x[h]
                 err -= term * result.coefficients[i]
@@ -119,7 +119,7 @@ class LeastSquaresSolver(
         }
 
         result.confidence =
-                if (sumSquaredTotal <= 0.000001) 1.0 else 1.0 - (sumSquaredError / sumSquaredTotal)
+                if (sumSquaredTotal <= 0.000001f) 1f else 1f - (sumSquaredError / sumSquaredTotal)
 
         return result
     }

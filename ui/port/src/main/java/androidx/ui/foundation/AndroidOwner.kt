@@ -61,7 +61,7 @@ private class AndroidOwner(val containingView: ContainingView) : Owner {
             System.out.println("Measuring $child")
             measure(child, constraints, true)
             System.out.println("Child's size is ${child.width} x ${child.height}")
-            Size(child.width.toDouble(), child.height.toDouble())
+            Size(child.width.toFloat(), child.height.toFloat())
         }
     }
 
@@ -266,17 +266,17 @@ class ContainingView @JvmOverloads constructor(
 
     private fun convertMeasureSpec(measureSpec: Int): ConstraintRange {
         val mode = MeasureSpec.getMode(measureSpec)
-        val size = MeasureSpec.getSize(measureSpec).toDouble()
+        val size = MeasureSpec.getSize(measureSpec).toFloat()
         return when (mode) {
             MeasureSpec.EXACTLY -> ConstraintRange(size, size)
-            MeasureSpec.UNSPECIFIED -> ConstraintRange(0.0, Double.POSITIVE_INFINITY)
-            MeasureSpec.AT_MOST -> ConstraintRange(0.0, size)
+            MeasureSpec.UNSPECIFIED -> ConstraintRange(0.0f, Float.POSITIVE_INFINITY)
+            MeasureSpec.AT_MOST -> ConstraintRange(0.0f, size)
             else -> throw IllegalStateException()
         }
     }
 }
 
-private class ConstraintRange(val min: Double, val max: Double)
+private class ConstraintRange(val min: Float, val max: Float)
 
 /**
  * Defines a View used to keep RenderNode information on LayoutNodes and DrawNodes.

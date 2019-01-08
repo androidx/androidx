@@ -47,8 +47,8 @@ class TextPainterTest {
 
     @Test
     fun preferredLineHeight_style_set() {
-        val fontSize = 20.0
-        val scaleFactor = 3.0
+        val fontSize = 20.0f
+        val scaleFactor = 3.0f
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = "Hello", style = textStyle)
         val textPainter = TextPainter(text = textSpan, textScaleFactor = scaleFactor)
@@ -73,7 +73,7 @@ class TextPainterTest {
 
     @Test
     fun minIntrinsicWidth_getter() {
-        val fontSize = 20.0
+        val fontSize = 20.0f
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
@@ -81,12 +81,12 @@ class TextPainterTest {
 
         textPainter.layout()
 
-        assertThat(textPainter.minIntrinsicWidth).isEqualTo(0.0)
+        assertThat(textPainter.minIntrinsicWidth).isEqualTo(0.0f)
     }
 
     @Test
     fun maxIntrinsicWidth_getter() {
-        val fontSize = 20.0
+        val fontSize = 20.0f
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
@@ -99,20 +99,20 @@ class TextPainterTest {
 
     @Test
     fun width_getter() {
-        val fontSize = 20.0
+        val fontSize = 20.0f
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
         val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
 
-        textPainter.layout(0.0, 200.0)
+        textPainter.layout(0.0f, 200.0f)
 
         assertThat(textPainter.width).isEqualTo(fontSize * text.length)
     }
 
     @Test
     fun height_getter() {
-        val fontSize = 20.0
+        val fontSize = 20.0f
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = "Hello", style = textStyle)
         val textPainter = TextPainter(text = textSpan, textDirection = TextDirection.RTL)
@@ -124,7 +124,7 @@ class TextPainterTest {
 
     @Test
     fun size_getter() {
-        val fontSize = 20.0
+        val fontSize = 20.0f
         val text = "Hello"
         val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
         val textSpan = TextSpan(text = text, style = textStyle)
@@ -168,7 +168,7 @@ class TextPainterTest {
         val textPainter =
             TextPainter(text = textSpan, textDirection = TextDirection.RTL, maxLines = 2)
 
-        textPainter.layout(0.0, 200.0)
+        textPainter.layout(0.0f, 200.0f)
 
         assertThat(textPainter.didExceedMaxLines).isTrue()
     }
@@ -180,7 +180,7 @@ class TextPainterTest {
         val textPainter =
             TextPainter(text = textSpan, textDirection = TextDirection.RTL, maxLines = 2)
 
-        textPainter.layout(0.0, 200.0)
+        textPainter.layout(0.0f, 200.0f)
 
         assertThat(textPainter.didExceedMaxLines).isFalse()
     }
@@ -190,7 +190,7 @@ class TextPainterTest {
         val textPainter =
             TextPainter(text = TextSpan(text = "Hello"), textDirection = TextDirection.LTR)
 
-        textPainter.layout(0.0, 20.0)
+        textPainter.layout(0.0f, 20.0f)
 
         assertThat(textPainter.paragraph).isNotNull()
     }
