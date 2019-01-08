@@ -54,7 +54,7 @@ class CraneWrapper(@Children private val children: () -> Unit) : Component() {
             var height = 0.dp
             measureBoxes.forEach { measureBox ->
                 width = max(width, measureBox.layoutNode.size.width)
-                height = max(width, measureBox.layoutNode.size.height)
+                height = max(height, measureBox.layoutNode.size.height)
             }
             craneView.root.resize(width, height)
         }
