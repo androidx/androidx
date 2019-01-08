@@ -58,7 +58,7 @@ final class ColorCutQuantizer {
     final int[] mHistogram;
     final List<Palette.Swatch> mQuantizedColors;
     @Nullable final TimingLogger mTimingLogger;
-    final Palette.Filter[] mFilters;
+    @Nullable final Palette.Filter[] mFilters;
 
     private final float[] mTempHsl = new float[3];
 
@@ -70,7 +70,7 @@ final class ColorCutQuantizer {
      * @param filters Set of filters to use in the quantization stage
      */
     @SuppressWarnings("NullAway") // mTimingLogger initialization and access guarded by LOG_TIMINGS.
-    ColorCutQuantizer(final int[] pixels, final int maxColors, final Palette.Filter[] filters) {
+    ColorCutQuantizer(int[] pixels, int maxColors, @Nullable Palette.Filter[] filters) {
         mTimingLogger = LOG_TIMINGS ? new TimingLogger(LOG_TAG, "Creation") : null;
         mFilters = filters;
 
