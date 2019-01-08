@@ -132,7 +132,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
 
     int mTargetState = STATE_IDLE;
     int mCurrentState = STATE_IDLE;
-    long mSeekWhenPrepared;  // recording the seek position while preparing
 
     private ArrayList<Integer> mVideoTrackIndices;
     ArrayList<Integer> mAudioTrackIndices;
@@ -341,7 +340,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
      */
     @Override
     public void setMediaItem(@NonNull MediaItem mediaItem) {
-        mSeekWhenPrepared = 0;
         if (mMediaItem instanceof FileMediaItem) {
             ((FileMediaItem) mMediaItem).decreaseRefCount();
         }
@@ -557,7 +555,7 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
         if (DEBUG) {
             Log.d(TAG, "onSurfaceTakeOverDone(). Now current view is: " + view);
         }
-        if (mCurrentState != STATE_PLAYING) {
+        if (mCurrentState != STATE_PLAYING && mMediaSession != null) {
             mMediaSession.getPlayer().seekTo(mMediaSession.getPlayer().getCurrentPosition());
         }
         if (view != mCurrentView) {
@@ -610,7 +608,8 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
     }
 
     boolean needToStart() {
-        return (mMediaPlayer != null || mRoutePlayer != null) && isWaitingPlayback();
+        return mMediaSession != null
+                && (mMediaPlayer != null || mRoutePlayer != null) && isWaitingPlayback();
     }
 
     private boolean isWaitingPlayback() {
@@ -1087,12 +1086,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                         }
                     }
 
-                    // mSeekWhenPrepared may be changed after seekTo() call
-                    long seekToPosition = mSeekWhenPrepared;
-                    if (seekToPosition != 0) {
-                        mMediaSession.getPlayer().seekTo(seekToPosition);
-                    }
-
                     if (player instanceof VideoViewPlayer) {
                         if (needToStart()) {
                             mMediaSession.getPlayer().play();
@@ -1204,9 +1197,6 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
                     break;
                 case SessionCommand.COMMAND_CODE_PLAYER_PAUSE:
                     mTargetState = STATE_PAUSED;
-                    break;
-                case SessionCommand.COMMAND_CODE_PLAYER_SEEK_TO:
-                    mSeekWhenPrepared = 0;
                     break;
             }
             return RESULT_SUCCESS;
