@@ -42,10 +42,7 @@ import androidx.ui.engine.window.Locale
  *
  * * `maxLines`: The maximum number of lines painted. Lines beyond this
  *   number are silently dropped. For example, if `maxLines` is 1, then only
- *   one line is rendered. If `maxLines` is null, but `ellipsis` is not null,
- *   then lines after the first one that overflows the width constraints are
- *   dropped. The width constraints are those set in the
- *   [ParagraphConstraints] object passed to the [Paragraph.layout] method.
+ *   one line is rendered.
  *
  * * `fontFamily`: The name of the font to use when painting the text (e.g.,
  *   Roboto).
@@ -56,14 +53,10 @@ import androidx.ui.engine.window.Locale
  * * `lineHeight`: The minimum height of the line boxes, as a multiple of the
  *   font size.
  *
- * * `ellipsis`: String used to ellipsize overflowing text. If `maxLines` is
- *   not null, then the `ellipsis`, if any, is applied to the last rendered
- *   line, if that line overflows the width constraints. If `maxLines` is
- *   null, then the `ellipsis` is applied to the first line that overflows
- *   the width constraints, and subsequent lines are dropped. The width
- *   constraints are those set in the [ParagraphConstraints] object passed to
- *   the [Paragraph.layout] method. The empty string and the null value are
- *   considered equivalent and turn off this behavior.
+ * * `ellipsis`: Whether to ellipsize overflowing text. If `maxLines` is
+ *   not null, ellipsis is applied to the last rendered line, if that line
+ *   overflows the width constraints. If `maxLines` is null, it will never
+ *   be applied. If ellipsis is null, the system default will be adopted.
  *
  * * `locale`: The locale used to select region-specific glyphs.
  *
@@ -80,7 +73,7 @@ data class ParagraphStyle constructor(
     val fontSize: Float? = null,
     val lineHeight: Float? = null,
     // TODO(Migration/siyamed): pass to TextLayout
-    val ellipsis: String? = null,
+    val ellipsis: Boolean? = null,
     val locale: Locale? = null,
     val fontSynthesis: FontSynthesis? = null
 ) {

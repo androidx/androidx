@@ -48,7 +48,7 @@ class RenderParagraphTest {
         assertThat(paragraph.textPainter.textDirection).isEqualTo(TextDirection.LTR)
         assertThat(paragraph.textPainter.textScaleFactor).isEqualTo(1.0f)
         assertThat(paragraph.textPainter.maxLines).isNull()
-        assertThat(paragraph.textPainter.ellipsis).isNull()
+        assertThat(paragraph.textPainter.ellipsis).isFalse()
     }
 
     @Test
@@ -56,7 +56,6 @@ class RenderParagraphTest {
         val text = TextSpan()
         val textScaleFactor = 5.0f
         val maxLines = 7
-        val defaultEllipsis = "\u2026"
 
         val paragraph =
             RenderParagraph(
@@ -81,7 +80,7 @@ class RenderParagraphTest {
         assertThat(paragraph.textPainter.textDirection).isEqualTo(TextDirection.RTL)
         assertThat(paragraph.textPainter.textScaleFactor).isEqualTo(textScaleFactor)
         assertThat(paragraph.textPainter.maxLines).isEqualTo(maxLines)
-        assertThat(paragraph.textPainter.ellipsis).isEqualTo(defaultEllipsis)
+        assertThat(paragraph.textPainter.ellipsis).isEqualTo(true)
     }
 
     @Test
@@ -155,19 +154,18 @@ class RenderParagraphTest {
         paragraph.overflow = TextOverflow.FADE
 
         assertThat(paragraph.overflow).isEqualTo(TextOverflow.FADE)
-        assertThat(paragraph.textPainter.ellipsis).isNull()
+        assertThat(paragraph.textPainter.ellipsis).isFalse()
     }
 
     @Test
     fun `RenderParagraph overflow setter to ellipsis`() {
         val text = TextSpan()
         val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
-        val defaultEllipsis = "\u2026"
 
         paragraph.overflow = TextOverflow.ELLIPSIS
 
         assertThat(paragraph.overflow).isEqualTo((TextOverflow.ELLIPSIS))
-        assertThat(paragraph.textPainter.ellipsis).isEqualTo(defaultEllipsis)
+        assertThat(paragraph.textPainter.ellipsis).isEqualTo(true)
     }
 
     @Test

@@ -80,17 +80,14 @@ fun applyFloatingPointHack(layoutValue: Float): Float {
  *   dropped.
  *   After this is set, you must call [layout] before the next call to [paint].
  *
- * * `ellipsis`: The string used to ellipsize overflowing text. Setting this to a non-empty
- *   string will cause this string to be substituted for the remaining text if the text can not fit
+ * * `ellipsis`: Whether to ellipsize overflowing text. Setting this to true
+ *   string will cause the overflowing text to be ellipsized if the text can not fit
  *   within the specified maximum width.
  *   Specifically, the ellipsis is applied to the last line before the line truncated by [maxLines],
- *   if [maxLines] is non-null and that line overflows the width constraint, or to the first line
- *   that is wider than the width constraint, if [maxLines] is null. The width constraint is the
- *   `maxWidth` passed to [layout].
+ *   if [maxLines] is non-null and that line overflows the width constraint.
  *   After this is set, you must call [layout] before the next call to [paint].
  *   The higher layers of the system, such as the [Text] widget, represent overflow effects using
- *   the [TextOverflow] enum. The [TextOverflow.ellipsis] value corresponds to setting this property
- *   to U+2026 HORIZONTAL ELLIPSIS (…).
+ *   the [TextOverflow] enum.
  *
  *   `locale`: The locale used to select region-specific glyphs.
  */
@@ -102,7 +99,7 @@ class TextPainter(
     maxLines: Int? = null,
     // TODO(Migration/qqd):  We won't be able to use customized ellipsis, but lets leave it here for
     // now. Maybe remove it later.
-    ellipsis: String? = null,
+    ellipsis: Boolean? = null,
     locale: Locale? = null
 ) {
     init {
@@ -157,9 +154,8 @@ class TextPainter(
             needsLayout = true
         }
 
-    var ellipsis: String? = ellipsis
+    var ellipsis: Boolean? = ellipsis
         set(value) {
-            assert(value == null || value.isNotEmpty())
             if (field == value) return
             field = value
             paragraph = null
@@ -308,8 +304,8 @@ class TextPainter(
      * If [maxLines] is not null, this is true if there were more lines to be drawn than the given
      * [maxLines], and thus at least one line was omitted in the output; otherwise it is false.
      *
-     * If [maxLines] is null, this is true if [ellipsis] is not the empty string and there was a
-     * line that overflowed the `maxWidth` argument passed to [layout]; otherwise it is false.
+     * If [maxLines] is null, this is true if [ellipsis] is true and there was a line that
+     * overflowed the `maxWidth` argument passed to [layout]; otherwise it is false.
      *
      * Valid only after [layout] has been called.
      */

@@ -243,7 +243,7 @@ class ParagraphBuilderTest {
         val maxLines = 2
         val fontSize = 1.0f
         val lineHeight = 2.0f
-        val ellipsis = "dot dot"
+        val ellipsis = false
         val locale = Locale("en")
 
         return ParagraphStyle(
