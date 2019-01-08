@@ -232,7 +232,10 @@ public class Processor implements ExecutionListener {
         }
     }
 
-    // TODO: Clean this up some more.
+    /**
+     * An {@link ExecutionListener} for the {@link ListenableFuture} returned by
+     * {@link WorkerWrapper}.
+     */
     private static class FutureListener implements Runnable {
 
         private @NonNull ExecutionListener mExecutionListener;
