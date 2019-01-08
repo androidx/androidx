@@ -266,6 +266,55 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
     }
 
     @Test
+    @LargeTest
+    //TODO(b/122504446): Run this test on <P devices
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    public void testPlayVideoWithUri() throws Exception {
+        if (!loadResourceWithUri(R.raw.testvideo)) {
+            fail();
+        }
+        final int width = 352;
+        final int height = 288;
+
+        mPlayer.setSurface(mActivity.getSurfaceHolder().getSurface());
+
+        final TestUtils.Monitor onVideoSizeChangedCalled = new TestUtils.Monitor();
+        final TestUtils.Monitor onVideoRenderingStartCalled = new TestUtils.Monitor();
+        MediaPlayer.PlayerCallback callback = new MediaPlayer.PlayerCallback() {
+            @Override
+            public void onVideoSizeChanged(MediaPlayer mp, MediaItem dsd, VideoSize size) {
+                if (size.getWidth() == 0 && size.getHeight() == 0) {
+                    // A size of 0x0 can be sent initially one time when using NuPlayer.
+                    assertFalse(onVideoSizeChangedCalled.isSignalled());
+                    return;
+                }
+                onVideoSizeChangedCalled.signal();
+                assertEquals(width, size.getWidth());
+                assertEquals(height, size.getHeight());
+            }
+
+            @Override
+            public void onError(MediaPlayer mp, MediaItem dsd, int what, int extra) {
+                fail("Media player had error " + what + " playing video");
+            }
+
+            @Override
+            public void onInfo(MediaPlayer mp, MediaItem dsd, int what, int extra) {
+                if (what == MediaPlayer.MEDIA_INFO_VIDEO_RENDERING_START) {
+                    onVideoRenderingStartCalled.signal();
+                }
+            }
+        };
+        mPlayer.registerPlayerCallback(mExecutor, callback);
+
+        mPlayer.prepare();
+        mPlayer.play();
+
+        onVideoSizeChangedCalled.waitForSignal();
+        onVideoRenderingStartCalled.waitForSignal();
+    }
+
+    @Test
     @SmallTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetDuration() throws Exception {

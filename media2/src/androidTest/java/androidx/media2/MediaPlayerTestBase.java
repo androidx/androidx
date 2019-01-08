@@ -22,9 +22,11 @@ import static org.junit.Assert.fail;
 
 import android.app.Instrumentation;
 import android.app.KeyguardManager;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -104,6 +106,19 @@ abstract class MediaPlayerTestBase extends MediaTestBase {
             afd.close();
         }
         mFdsToClose.clear();
+    }
+
+    boolean loadResourceWithUri(int resId) throws Exception {
+        Uri testVideoUri = new Uri.Builder()
+                .scheme(ContentResolver.SCHEME_ANDROID_RESOURCE)
+                .authority(mResources.getResourcePackageName(resId))
+                .appendPath(mResources.getResourceTypeName(resId))
+                .appendPath(mResources.getResourceEntryName(resId))
+                .build();
+
+        return mPlayer.setMediaItem(new UriMediaItem.Builder(
+                mContext, testVideoUri).build()).get().getResultCode()
+                == androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
     }
 
     boolean loadResource(int resid) throws Exception {
