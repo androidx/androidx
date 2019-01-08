@@ -16,12 +16,9 @@
 
 package androidx.car.util;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.app.Activity;
 import android.car.Car;
 import android.car.CarNotConnectedException;
-import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -29,16 +26,14 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
+import androidx.car.uxrestrictions.CarUxRestrictions;
+import androidx.car.uxrestrictions.OnUxRestrictionsChangedListener;
 
 /**
- * Class that helps registering {@link CarUxRestrictionsManager.OnUxRestrictionsChangedListener} and
- * managing car connection.
- *
- * @hide
+ * Helps registering {@link OnUxRestrictionsChangedListener} and managing car connection.
  */
-@RestrictTo(LIBRARY_GROUP)
 public class CarUxRestrictionsHelper {
     private static final String TAG = "CarUxRestrictionsHelper";
 
@@ -50,10 +45,10 @@ public class CarUxRestrictionsHelper {
     @Nullable CarUxRestrictionsManager mCarUxRestrictionsManager;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final CarUxRestrictionsManager.OnUxRestrictionsChangedListener mListener;
+    final OnUxRestrictionsChangedListener mListener;
 
     public CarUxRestrictionsHelper(Context context,
-            CarUxRestrictionsManager.OnUxRestrictionsChangedListener listener) {
+            @NonNull OnUxRestrictionsChangedListener listener) {
         if (listener == null) {
             throw new IllegalArgumentException("Listener cannot be null.");
         }
@@ -85,6 +80,9 @@ public class CarUxRestrictionsHelper {
      *
      * <p>This method should be called from {@code Activity}'s {@link Activity#onStop()}, or at the
      * time of being discarded.
+     *
+     * <p>After {@link #stop()} has been called, {@link #start()} can be called again to resume
+     * monitoring car ux restrictions change.
      */
     public void stop() {
         if (mCarUxRestrictionsManager != null) {
@@ -111,10 +109,12 @@ public class CarUxRestrictionsHelper {
             try {
                 mCarUxRestrictionsManager = (CarUxRestrictionsManager)
                         mCar.getCarManager(Car.CAR_UX_RESTRICTION_SERVICE);
-                mCarUxRestrictionsManager.registerListener(mListener);
+                // Convert framework UX restrictions to androidx type.
+                mCarUxRestrictionsManager.registerListener(restrictions ->
+                        mListener.onUxRestrictionsChanged(new CarUxRestrictions(restrictions)));
 
-                mListener.onUxRestrictionsChanged(
-                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions());
+                mListener.onUxRestrictionsChanged(new CarUxRestrictions(
+                        mCarUxRestrictionsManager.getCurrentCarUxRestrictions()));
             } catch (CarNotConnectedException e) {
                 e.printStackTrace();
             }
