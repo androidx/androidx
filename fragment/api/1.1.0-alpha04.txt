@@ -112,6 +112,7 @@ package androidx.fragment.app {
     method public void registerForContextMenu(android.view.View);
     method public final void requestPermissions(String[], int);
     method public final androidx.fragment.app.FragmentActivity requireActivity();
+    method public final android.os.Bundle requireArguments();
     method public final android.content.Context requireContext();
     method public final androidx.fragment.app.FragmentManager requireFragmentManager();
     method public final Object requireHost();
