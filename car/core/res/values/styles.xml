@@ -565,6 +565,7 @@ limitations under the License.
     <eat-comment />
 
     <style name="Widget.Spinner.Car" parent="Widget.AppCompat.Spinner">
+        <item name="android:background">@android:color/transparent</item>
         <item name="android:spinnerMode">dialog</item>
     </style>
 
