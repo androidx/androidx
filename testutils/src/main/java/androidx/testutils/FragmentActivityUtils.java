@@ -22,7 +22,6 @@ import android.os.Build;
 import android.os.Looper;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentActivity;
 import androidx.test.rule.ActivityTestRule;
 
@@ -98,14 +97,19 @@ public class FragmentActivityUtils {
      *
      * @param activity An Activity
      */
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     public static <T extends FragmentActivity> void waitForActivityDrawn(final T activity) {
         final CountDownLatch latch = new CountDownLatch(1);
         activity.runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 View view = activity.getWindow().getDecorView();
-                view.getViewTreeObserver().addOnDrawListener(new CountOnDraw(latch, view));
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    view.getViewTreeObserver().addOnDrawListener(
+                            new CountOnDraw(latch, view));
+                } else {
+                    view.getViewTreeObserver().addOnPreDrawListener(
+                            new CountOnPreDraw(latch, view));
+                }
                 view.invalidate();
             }
         });
