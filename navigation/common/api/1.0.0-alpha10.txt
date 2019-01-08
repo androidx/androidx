@@ -79,8 +79,6 @@ package androidx.navigation {
   }
 
   public final class NavOptions {
-    method public static void addPopAnimationsToIntent(android.content.Intent, androidx.navigation.NavOptions?);
-    method public static void applyPopAnimationsToPendingTransition(android.app.Activity);
     method @AnimRes @AnimatorRes public int getEnterAnim();
     method @AnimRes @AnimatorRes public int getExitAnim();
     method @AnimRes @AnimatorRes public int getPopEnterAnim();
