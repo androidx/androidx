@@ -44,6 +44,10 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
             "android-support-navigation:ActivityNavigator:source";
     private static final String EXTRA_NAV_CURRENT =
             "android-support-navigation:ActivityNavigator:current";
+    private static final String EXTRA_POP_ENTER_ANIM =
+            "android-support-navigation:ActivityNavigator:popEnterAnim";
+    private static final String EXTRA_POP_EXIT_ANIM =
+            "android-support-navigation:ActivityNavigator:popExitAnim";
 
     private Context mContext;
     private Activity mHostActivity;
@@ -56,6 +60,28 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
                 break;
             }
             context = ((ContextWrapper) context).getBaseContext();
+        }
+    }
+
+    /**
+     * Apply any pop animations in the Intent of the given Activity to a pending transition.
+     * This should be used in place of {@link Activity#overridePendingTransition(int, int)}
+     * to get the appropriate pop animations.
+     * @param activity An activity started from the {@link ActivityNavigator}.
+     * @see NavOptions#getPopEnterAnim()
+     * @see NavOptions#getPopExitAnim()
+     */
+    public static void applyPopAnimationsToPendingTransition(@NonNull Activity activity) {
+        Intent intent = activity.getIntent();
+        if (intent == null) {
+            return;
+        }
+        int popEnterAnim = intent.getIntExtra(EXTRA_POP_ENTER_ANIM, -1);
+        int popExitAnim = intent.getIntExtra(EXTRA_POP_ENTER_ANIM, -1);
+        if (popEnterAnim != -1 || popExitAnim != -1) {
+            popEnterAnim = popEnterAnim != -1 ? popEnterAnim : 0;
+            popExitAnim = popExitAnim != -1 ? popExitAnim : 0;
+            activity.overridePendingTransition(popEnterAnim, popExitAnim);
         }
     }
 
@@ -133,7 +159,11 @@ public class ActivityNavigator extends Navigator<ActivityNavigator.Destination> 
         }
         final int destId = destination.getId();
         intent.putExtra(EXTRA_NAV_CURRENT, destId);
-        NavOptions.addPopAnimationsToIntent(intent, navOptions);
+        if (navOptions != null) {
+            // For use in applyPopAnimationsToPendingTransition()
+            intent.putExtra(EXTRA_POP_ENTER_ANIM, navOptions.getPopEnterAnim());
+            intent.putExtra(EXTRA_POP_EXIT_ANIM, navOptions.getPopExitAnim());
+        }
         if (navigatorExtras instanceof Extras) {
             Extras extras = (Extras) navigatorExtras;
             ActivityOptionsCompat activityOptions = extras.getActivityOptions();

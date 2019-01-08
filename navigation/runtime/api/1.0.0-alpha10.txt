@@ -3,6 +3,7 @@ package androidx.navigation {
 
   @androidx.navigation.Navigator.Name("activity") public class ActivityNavigator extends androidx.navigation.Navigator<androidx.navigation.ActivityNavigator.Destination> {
     ctor public ActivityNavigator(android.content.Context);
+    method public static void applyPopAnimationsToPendingTransition(android.app.Activity);
     method public androidx.navigation.ActivityNavigator.Destination createDestination();
     method public androidx.navigation.NavDestination? navigate(androidx.navigation.ActivityNavigator.Destination, android.os.Bundle?, androidx.navigation.NavOptions?, androidx.navigation.Navigator.Extras?);
     method public boolean popBackStack();
