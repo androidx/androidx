@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,8 @@
 
 package foo.bar;
 import androidx.room.*;
-import java.lang.SuppressWarnings;
-import java.util.List;
 
-@Database(entities = {User.class, Child1.class, Child2.class}, views = {UserSummary.class}, version = 1923)
-abstract class ComplexDatabase extends RoomDatabase {
-    abstract ComplexDao getComplexDao();
+public class Info {
+    public int serial;
+    public String code;
 }

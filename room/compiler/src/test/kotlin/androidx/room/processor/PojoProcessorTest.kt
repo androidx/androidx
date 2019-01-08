@@ -655,8 +655,8 @@ class PojoProcessorTest {
             """
         singleRun(pojoCode) { pojo ->
             val param = pojo.constructor?.params?.first()
-            assertThat(param, instanceOf(Constructor.FieldParam::class.java))
-            assertThat((param as Constructor.FieldParam).field.name, `is`("mName"))
+            assertThat(param, instanceOf(Constructor.Param.FieldParam::class.java))
+            assertThat((param as Constructor.Param.FieldParam).field.name, `is`("mName"))
             assertThat(pojo.fields.find { it.name == "mName" }?.setter?.callType,
                     `is`(CallType.CONSTRUCTOR))
         }.compilesWithoutError()
@@ -672,8 +672,8 @@ class PojoProcessorTest {
             """
         singleRun(pojoCode) { pojo ->
             val param = pojo.constructor?.params?.first()
-            assertThat(param, instanceOf(Constructor.FieldParam::class.java))
-            assertThat((param as Constructor.FieldParam).field.name, `is`("mName"))
+            assertThat(param, instanceOf(Constructor.Param.FieldParam::class.java))
+            assertThat((param as Constructor.Param.FieldParam).field.name, `is`("mName"))
             assertThat(pojo.fields.find { it.name == "mName" }?.setter?.callType,
                     `is`(CallType.CONSTRUCTOR))
         }.compilesWithoutError()
