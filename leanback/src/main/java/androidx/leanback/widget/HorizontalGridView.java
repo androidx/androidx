@@ -293,15 +293,15 @@ public class HorizontalGridView extends BaseGridView {
                 || mTempBitmapHigh.getWidth() != mHighFadeShaderLength
                 || mTempBitmapHigh.getHeight() != getHeight()) {
             // TODO: fix logic for sharing mTempBitmapLow
-            if (false && mTempBitmapLow != null
-                    && mTempBitmapLow.getWidth() == mHighFadeShaderLength
-                    && mTempBitmapLow.getHeight() == getHeight()) {
-                // share same bitmap for low edge fading and high edge fading.
-                mTempBitmapHigh = mTempBitmapLow;
-            } else {
-                mTempBitmapHigh = Bitmap.createBitmap(mHighFadeShaderLength, getHeight(),
-                        Bitmap.Config.ARGB_8888);
-            }
+            //if (mTempBitmapLow != null
+            //        && mTempBitmapLow.getWidth() == mHighFadeShaderLength
+            //        && mTempBitmapLow.getHeight() == getHeight()) {
+            //    // share same bitmap for low edge fading and high edge fading.
+            //    mTempBitmapHigh = mTempBitmapLow;
+            //} else {
+            mTempBitmapHigh = Bitmap.createBitmap(mHighFadeShaderLength, getHeight(),
+                    Bitmap.Config.ARGB_8888);
+            //}
         }
         return mTempBitmapHigh;
     }
