@@ -21,6 +21,7 @@ import android.graphics.drawable.Icon;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StyleRes;
+import androidx.car.R;
 
 /**
  * Class to build a {@code CarMenuItem} that appears in the {@link CarToolbar} menu.
@@ -30,7 +31,7 @@ import androidx.annotation.StyleRes;
  *     <li>Title - Primary text that is shown on the item.
  *     <li>{@link CarMenuItem.OnClickListener} - Listener that handles the clicks on the item.
  *     <li>Icon - An {@link Icon} shown before the title.
- *     <li>Style - A Resource Id that specifies the style of the item, must be specified.
+ *     <li>Style - A Resource Id that specifies the style of the item if it's not an overflow item.
  *     <li>Enabled - A boolean that specifies whether the item is enabled or disabled.
  *     <li>Checkable - A boolean that specifies whether the item is checkable (a switch) or not.
  *     <li>Checked - A boolean that specifies whether the item is currently checked or not.
@@ -199,7 +200,8 @@ public class CarMenuItem {
         OnClickListener mOnClickListener;
         @Nullable
         Icon mIcon;
-        int mStyleResId;
+        @StyleRes
+        int mStyleResId = R.style.Widget_Car_ActionButton_Light;
         boolean mIsEnabled = true;
         boolean mIsChecked;
         boolean mIsCheckable;
@@ -317,10 +319,6 @@ public class CarMenuItem {
          */
         @NonNull
         public CarMenuItem build() {
-            // TODO(120920382): Remove this check once a default style is added.
-            if (mStyleResId == 0) {
-                throw new IllegalStateException("Invalid style resource id.");
-            }
             return new CarMenuItem(this);
         }
     }
