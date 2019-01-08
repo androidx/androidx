@@ -35,7 +35,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
 
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Icon;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -135,15 +134,13 @@ public class CarToolbarTest {
         // Since there is no easy way to compare drawable, here we are testing that calling the
         // relevant APIs doesn't crash.
         mActivityRule.runOnUiThread(() ->
-                mToolbar.setNavigationIcon(
-                        Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon)));
+                mToolbar.setNavigationIcon(android.R.drawable.sym_def_app_icon));
     }
 
     @Test
     public void testSetNavigationIconContainerWidth() throws Throwable {
         mActivityRule.runOnUiThread(() -> {
-            mToolbar.setNavigationIcon(
-                    Icon.createWithResource(mActivity, R.drawable.ic_nav_arrow_back));
+            mToolbar.setNavigationIcon(R.drawable.ic_nav_arrow_back);
             // Set title to verify icon space on right.
             mToolbar.setTitle("title");
         });
@@ -162,8 +159,7 @@ public class CarToolbarTest {
     public void testSetNavigationIconContainerWidth_NoContainerKeepsIconCompletelyVisible()
             throws Throwable {
         mActivityRule.runOnUiThread(() -> {
-            mToolbar.setNavigationIcon(
-                    Icon.createWithResource(mActivity, (R.drawable.ic_nav_arrow_back)));
+            mToolbar.setNavigationIcon(R.drawable.ic_nav_arrow_back);
             // Set title to verify icon space on right.
             mToolbar.setTitle("title");
         });
@@ -189,7 +185,7 @@ public class CarToolbarTest {
     @Test
     public void testSetTitleIconShowsAndHidesTitleIconView() throws Throwable {
         mActivityRule.runOnUiThread(() -> mToolbar.setTitleIcon(
-                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon)));
+                android.R.drawable.sym_def_app_icon));
 
         onView(withId(R.id.title_icon)).check(matches(isDisplayed()));
 
@@ -201,7 +197,7 @@ public class CarToolbarTest {
     @Test
     public void testTitleIconHasCorrectDefaultWidth() throws Throwable {
         mActivityRule.runOnUiThread(() -> mToolbar.setTitleIcon(
-                Icon.createWithResource(mActivity, android.R.drawable.sym_def_app_icon)));
+                android.R.drawable.sym_def_app_icon));
 
         onView(withId(R.id.title_icon)).check(matches(withWidth(
                 mActivity.getResources()
@@ -212,8 +208,7 @@ public class CarToolbarTest {
     public void testSetTitleIconSizeSetsCorrectSize() throws Throwable {
         int size = mActivity.getResources().getDimensionPixelSize(R.dimen.car_avatar_icon_size);
         mActivityRule.runOnUiThread(() -> {
-            mToolbar.setTitleIcon(Icon.createWithResource(mActivity,
-                    android.R.drawable.sym_def_app_icon));
+            mToolbar.setTitleIcon(android.R.drawable.sym_def_app_icon);
             mToolbar.setTitleIconSize(size);
         });
 
