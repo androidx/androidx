@@ -585,6 +585,21 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     /**
+     * Return the arguments supplied when the fragment was instantiated.
+     *
+     * @throws IllegalStateException if no arguments were supplied to the Fragment.
+     * @see #getArguments()
+     */
+    @NonNull
+    public final Bundle requireArguments() {
+        Bundle arguments = getArguments();
+        if (arguments == null) {
+            throw new IllegalStateException("Fragment " + this + " does not have any arguments.");
+        }
+        return arguments;
+    }
+
+    /**
      * Returns true if this fragment is added and its state has already been saved
      * by its host. Any operations that would change saved state should not be performed
      * if this method returns true, and some operations such as {@link #setArguments(Bundle)}

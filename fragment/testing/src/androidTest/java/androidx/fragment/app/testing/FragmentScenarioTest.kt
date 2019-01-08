@@ -60,7 +60,8 @@ class FragmentScenarioTest {
         val args = Bundle().apply { putString("my_arg_is", "androidx") }
         with(launchFragment<StateRecordingFragment>(args)) {
             onFragment { fragment ->
-                assertThat(fragment.arguments!!.getString("my_arg_is")).isEqualTo("androidx")
+                assertThat(fragment.requireArguments().getString("my_arg_is"))
+                    .isEqualTo("androidx")
                 // FragmentScenario#launch doesn't attach view to the hierarchy.
                 // To test graphical Fragment, use FragmentScenario#launchInContainer.
                 assertThat(fragment.isViewAttachedToWindow).isFalse()
@@ -96,7 +97,8 @@ class FragmentScenarioTest {
         val args = Bundle().apply { putString("my_arg_is", "androidx") }
         with(launchFragmentInContainer<StateRecordingFragment>(args)) {
             onFragment { fragment ->
-                assertThat(fragment.arguments!!.getString("my_arg_is")).isEqualTo("androidx")
+                assertThat(fragment.requireArguments().getString("my_arg_is"))
+                    .isEqualTo("androidx")
                 assertThat(fragment.isViewAttachedToWindow).isTrue()
                 assertThat(fragment.numberOfRecreations).isEqualTo(0)
             }
