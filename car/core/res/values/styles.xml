@@ -216,8 +216,9 @@ limitations under the License.
     <eat-comment />
     <!-- The styling for CarToolbar. -->
     <style name="Widget.Car.CarToolbar" parent="android:Widget">
-        <item name="android:background">@color/car_card</item>
+        <item name="android:background">@android:color/black</item>
         <item name="navigationIcon">@drawable/ic_nav_arrow_back</item>
+        <item name="navigationIconTint">@color/car_tint_light</item>
         <item name="navigationIconContainerWidth">@dimen/car_margin</item>
         <item name="titleTextAppearance">@style/TextAppearance.Car.Body1.Medium</item>
     </style>
