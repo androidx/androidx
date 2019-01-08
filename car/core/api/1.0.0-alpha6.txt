@@ -93,6 +93,12 @@ package androidx.car.drawer {
 
 package androidx.car.util {
 
+  public class CarUxRestrictionsHelper {
+    ctor public CarUxRestrictionsHelper(android.content.Context!, androidx.car.uxrestrictions.OnUxRestrictionsChangedListener);
+    method public void start();
+    method public void stop();
+  }
+
   public class ColumnCalculator {
     method public int getColumnCount();
     method @Px public int getColumnSpanWidth(int);
