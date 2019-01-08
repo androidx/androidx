@@ -642,6 +642,27 @@ public class WorkerWrapperTest extends DatabaseTest {
         assertThat(periodicWorkSpecAfterFirstRun.state, is(ENQUEUED));
     }
 
+
+    @Test
+    @SmallTest
+    public void testPeriodic_dedupe() {
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS)
+                .build();
+
+        final String periodicWorkId = periodicWork.getStringId();
+        final WorkSpec workSpec = periodicWork.getWorkSpec();
+        long now = System.currentTimeMillis();
+        workSpec.periodStartTime = now + workSpec.intervalDuration;
+        insertWork(periodicWork);
+        WorkerWrapper workerWrapper = createBuilder(periodicWorkId).build();
+        FutureListener listener = createAndAddFutureListener(workerWrapper);
+        workerWrapper.run();
+        assertThat(listener.mResult, is(false));
+    }
+
     @Test
     @SmallTest
     public void testScheduler() {

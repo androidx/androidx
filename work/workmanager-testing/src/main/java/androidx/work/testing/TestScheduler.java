@@ -23,6 +23,7 @@ import android.support.annotation.RestrictTo;
 import androidx.work.Worker;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Scheduler;
+import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkSpec;
 
@@ -177,6 +178,13 @@ class TestScheduler implements Scheduler, ExecutionListener {
         void reset() {
             mConstraintsMet = !mWorkSpec.hasConstraints();
             mPeriodDelayMet = !mWorkSpec.isPeriodic();
+            if (mWorkSpec.isPeriodic()) {
+                // Reset the startTime to simulate the first run of PeriodicWork.
+                // Otherwise WorkerWrapper de-dupes runs of PeriodicWork to 1 execution per interval
+                WorkManagerImpl workManager = WorkManagerImpl.getInstance();
+                WorkDatabase workDatabase = workManager.getWorkDatabase();
+                workDatabase.workSpecDao().setPeriodStartTime(mWorkSpec.id, 0);
+            }
         }
 
         boolean isRunnable() {
