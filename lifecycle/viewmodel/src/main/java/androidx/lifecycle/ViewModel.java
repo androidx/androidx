@@ -122,9 +122,15 @@ public abstract class ViewModel {
     @MainThread
     final void clear() {
         mCleared = true;
-        for (Object value: mBagOfTags.values()) {
-            // see comment for the similar call in setTagIfAbsent
-            closeWithRuntimeException(value);
+        // Since clear() is final, this method is still called on mock objects
+        // and in those cases, mBagOfTags is null. It'll always be empty though
+        // because setTagIfAbsent and getTag are not final so we can skip
+        // clearing it
+        if (mBagOfTags != null) {
+            for (Object value : mBagOfTags.values()) {
+                // see comment for the similar call in setTagIfAbsent
+                closeWithRuntimeException(value);
+            }
         }
         onCleared();
     }
