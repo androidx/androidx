@@ -1847,7 +1847,7 @@ public class FragmentLifecycleTest {
         @Override
         public void onAttach(Context context) {
             super.onAttach(context);
-            mString = getArguments().getString("string", "NO VALUE");
+            mString = requireArguments().getString("string", "NO VALUE");
         }
 
         public String getString() {
