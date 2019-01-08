@@ -265,6 +265,8 @@ package androidx.car.widget {
     method public java.util.List<androidx.car.widget.CarMenuItem>? getMenuItems();
     method public CharSequence? getSubtitle();
     method public CharSequence! getTitle();
+    method public void hideOverflowMenu();
+    method public boolean isOverflowMenuShowing();
     method public void setMenuItems(java.util.List<androidx.car.widget.CarMenuItem>?);
     method public void setNavigationIcon(@DrawableRes int);
     method public void setNavigationIcon(android.graphics.drawable.Drawable?);
@@ -283,6 +285,7 @@ package androidx.car.widget {
     method public void setTitleIcon(android.graphics.drawable.Drawable?);
     method public void setTitleIconSize(@Px int);
     method public void setTitleTextAppearance(@StyleRes int);
+    method public void showOverflowMenu();
   }
 
   public final class ColumnCardView extends androidx.cardview.widget.CardView {
