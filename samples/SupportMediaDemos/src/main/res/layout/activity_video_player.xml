@@ -58,4 +58,14 @@
         widget:viewType="textureView"
     />
 
+    <View
+        android:id="@+id/resize_handle"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginLeft="340dp"
+        android:layout_marginTop="340dp"
+        android:visibility="gone"
+        android:background="#FF0000"
+    />
+
 </FrameLayout>

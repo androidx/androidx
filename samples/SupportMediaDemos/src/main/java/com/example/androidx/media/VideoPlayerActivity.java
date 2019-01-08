@@ -56,10 +56,16 @@ public class VideoPlayerActivity extends FragmentActivity {
     private static final String TAG = "VideoPlayerActivity";
 
     MyVideoView mVideoView;
+    View mResizeHandle;
     private float mSpeed = 1.0f;
 
     private MediaControlView mMediaControlView = null;
     private MediaController mMediaController = null;
+
+    private int mVideoViewDX;
+    private int mVideoViewDY;
+    private int mResizeHandleDX;
+    private int mResizeHandleDY;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,6 +77,20 @@ public class VideoPlayerActivity extends FragmentActivity {
         setContentView(R.layout.activity_video_player);
 
         mVideoView = findViewById(R.id.video_view);
+        mVideoView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return onTouchVideoView(event);
+            }
+        });
+
+        mResizeHandle = findViewById(R.id.resize_handle);
+        mResizeHandle.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return onTouchResizeHandle(event);
+            }
+        });
 
         mVideoView.setOnViewTypeChangedListener(new VideoView.OnViewTypeChangedListener() {
             @Override
@@ -98,7 +118,7 @@ public class VideoPlayerActivity extends FragmentActivity {
         transformable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mVideoView.setTransformable(isChecked);
+                applyTransformability(isChecked);
             }
         });
 
@@ -210,11 +230,9 @@ public class VideoPlayerActivity extends FragmentActivity {
         }
     }
 
-    // Overrides touch event to transform VideoView
+    // To intercept touch event when transformable is checked
     static class MyVideoView extends VideoView {
         private boolean mTransformable;
-        private int mDX;
-        private int mDY;
 
         public MyVideoView(Context context) {
             super(context);
@@ -239,30 +257,90 @@ public class VideoPlayerActivity extends FragmentActivity {
             }
             return true;
         }
-
-        @Override
-        public boolean onTouchEvent(MotionEvent ev) {
-            int rawX = (int) ev.getRawX();
-            int rawY = (int) ev.getRawY();
-            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) getLayoutParams();
-            switch (ev.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    mDX = rawX - params.leftMargin;
-                    mDY = rawY - params.topMargin;
-                    return true;
-                case MotionEvent.ACTION_MOVE:
-                    params.leftMargin = rawX - mDX;
-                    params.topMargin = rawY - mDY;
-                    setLayoutParams(params);
-                    return true;
-            }
-            return super.onTouchEvent(ev);
-        }
     }
 
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+    }
+
+    boolean onTouchVideoView(MotionEvent ev) {
+        int rawX = (int) ev.getRawX();
+        int rawY = (int) ev.getRawY();
+
+        // Move VideoView
+        ViewGroup.MarginLayoutParams vvParams = (ViewGroup.MarginLayoutParams)
+                mVideoView.getLayoutParams();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mVideoViewDX = rawX - vvParams.leftMargin;
+                mVideoViewDY = rawY - vvParams.topMargin;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                vvParams.leftMargin = rawX - mVideoViewDX;
+                vvParams.topMargin = rawY - mVideoViewDY;
+                mVideoView.setLayoutParams(vvParams);
+                break;
+        }
+
+        // Move ResizeHandle as well
+        ViewGroup.MarginLayoutParams rhParams = (ViewGroup.MarginLayoutParams)
+                mResizeHandle.getLayoutParams();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mResizeHandleDX = rawX - rhParams.leftMargin;
+                mResizeHandleDY = rawY - rhParams.topMargin;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                rhParams.leftMargin = rawX - mResizeHandleDX;
+                rhParams.topMargin = rawY - mResizeHandleDY;
+                mResizeHandle.setLayoutParams(rhParams);
+                break;
+        }
+
+        return true;
+    }
+
+    boolean onTouchResizeHandle(MotionEvent ev) {
+        int rawX = (int) ev.getRawX();
+        int rawY = (int) ev.getRawY();
+
+        // Resize VideoView
+        ViewGroup.MarginLayoutParams vvParams = (ViewGroup.MarginLayoutParams)
+                mVideoView.getLayoutParams();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mVideoViewDX = rawX - vvParams.width;
+                mVideoViewDY = rawY - vvParams.height;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                vvParams.width = rawX - mVideoViewDX;
+                vvParams.height = rawY - mVideoViewDY;
+                mVideoView.setLayoutParams(vvParams);
+                break;
+        }
+
+        // Move ResizeHandle
+        ViewGroup.MarginLayoutParams rhParams = (ViewGroup.MarginLayoutParams)
+                mResizeHandle.getLayoutParams();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mResizeHandleDX = rawX - rhParams.leftMargin;
+                mResizeHandleDY = rawY - rhParams.topMargin;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                rhParams.leftMargin = rawX - mResizeHandleDX;
+                rhParams.topMargin = rawY - mResizeHandleDY;
+                mResizeHandle.setLayoutParams(rhParams);
+                break;
+        }
+
+        return true;
+    }
+
+    void applyTransformability(boolean transformable) {
+        mVideoView.setTransformable(transformable);
+        mResizeHandle.setVisibility(transformable ? View.VISIBLE : View.GONE);
     }
 
     String getViewTypeString(int viewType) {
