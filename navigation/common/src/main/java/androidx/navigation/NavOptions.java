@@ -16,76 +16,15 @@
 
 package androidx.navigation;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
 import android.support.annotation.AnimRes;
 import android.support.annotation.AnimatorRes;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 /**
  * NavOptions stores special options for navigate actions
  */
 public final class NavOptions {
-    private static final String KEY_NAV_OPTIONS = "android-support-nav:navOptions";
-    private static final String KEY_SINGLE_TOP = "singleTop";
-    private static final String KEY_POP_UP_TO = "popUpTo";
-    private static final String KEY_POP_UP_TO_INCLUSIVE = "popUpToInclusive";
-    private static final String KEY_ENTER_ANIM = "enterAnim";
-    private static final String KEY_EXIT_ANIM = "exitAnim";
-    private static final String KEY_POP_ENTER_ANIM = "popEnterAnim";
-    private static final String KEY_POP_EXIT_ANIM = "popExitAnim";
-
-    /**
-     * Add the {@link #getPopEnterAnim() pop enter} and {@link #getPopExitAnim() pop exit}
-     * animation to an Intent for later usage with
-     * {@link #applyPopAnimationsToPendingTransition(Activity)}.
-     * <p>
-     * This is automatically called for you by {@link ActivityNavigator}.
-     * </p>
-     *
-     * @param intent Intent being started with the given NavOptions
-     * @param navOptions NavOptions containing the pop animations.
-     * @see #applyPopAnimationsToPendingTransition(Activity)
-     * @see #getPopEnterAnim()
-     * @see #getPopExitAnim()
-     */
-    public static void addPopAnimationsToIntent(@NonNull Intent intent,
-            @Nullable NavOptions navOptions) {
-        if (navOptions != null) {
-            intent.putExtra(KEY_NAV_OPTIONS, navOptions.toBundle());
-        }
-    }
-
-    /**
-     * Apply any pop animations in the Intent of the given Activity to a pending transition.
-     * This should be used in place of  {@link Activity#overridePendingTransition(int, int)}
-     * to get the appropriate pop animations.
-     * @param activity An activity started from the {@link ActivityNavigator}.
-     * @see #addPopAnimationsToIntent(Intent, NavOptions)
-     * @see #getPopEnterAnim()
-     * @see #getPopExitAnim()
-     */
-    public static void applyPopAnimationsToPendingTransition(@NonNull Activity activity) {
-        Intent intent = activity.getIntent();
-        if (intent == null) {
-            return;
-        }
-        Bundle bundle = intent.getBundleExtra(KEY_NAV_OPTIONS);
-        if (bundle != null) {
-            NavOptions navOptions = NavOptions.fromBundle(bundle);
-            int popEnterAnim = navOptions.getPopEnterAnim();
-            int popExitAnim = navOptions.getPopExitAnim();
-            if (popEnterAnim != -1 || popExitAnim != -1) {
-                popEnterAnim = popEnterAnim != -1 ? popEnterAnim : 0;
-                popExitAnim = popExitAnim != -1 ? popExitAnim : 0;
-                activity.overridePendingTransition(popEnterAnim, popExitAnim);
-            }
-        }
-    }
-
     private boolean mSingleTop;
     @IdRes
     private int mPopUpTo;
@@ -165,7 +104,6 @@ public final class NavOptions {
      * The custom enter Animation/Animator that should be run when this destination is
      * popped from the back stack.
      * @return the resource id of a Animation or Animator or -1 if none.
-     * @see #applyPopAnimationsToPendingTransition(Activity)
      */
     @AnimRes @AnimatorRes
     public int getPopEnterAnim() {
@@ -176,32 +114,10 @@ public final class NavOptions {
      * The custom exit Animation/Animator that should be run when this destination is
      * popped from the back stack.
      * @return the resource id of a Animation or Animator or -1 if none.
-     * @see #applyPopAnimationsToPendingTransition(Activity)
      */
     @AnimRes @AnimatorRes
     public int getPopExitAnim() {
         return mPopExitAnim;
-    }
-
-    @NonNull
-    private Bundle toBundle() {
-        Bundle b = new Bundle();
-        b.putBoolean(KEY_SINGLE_TOP, mSingleTop);
-        b.putInt(KEY_POP_UP_TO, mPopUpTo);
-        b.putBoolean(KEY_POP_UP_TO_INCLUSIVE, mPopUpToInclusive);
-        b.putInt(KEY_ENTER_ANIM, mEnterAnim);
-        b.putInt(KEY_EXIT_ANIM, mExitAnim);
-        b.putInt(KEY_POP_ENTER_ANIM, mPopEnterAnim);
-        b.putInt(KEY_POP_EXIT_ANIM, mPopExitAnim);
-        return b;
-    }
-
-    @NonNull
-    private static NavOptions fromBundle(@NonNull Bundle b) {
-        return new NavOptions(b.getBoolean(KEY_SINGLE_TOP, false),
-                b.getInt(KEY_POP_UP_TO, 0), b.getBoolean(KEY_POP_UP_TO_INCLUSIVE, false),
-                b.getInt(KEY_ENTER_ANIM, -1), b.getInt(KEY_EXIT_ANIM, -1),
-                b.getInt(KEY_POP_ENTER_ANIM, -1), b.getInt(KEY_POP_EXIT_ANIM, -1));
     }
 
     /**
