@@ -73,7 +73,6 @@
     <public type="dimen" name="car_app_icon_size" />
 
     <!-- Avatars -->
-    <public type="dimen" name="car_avatar_size" />
     <public type="dimen" name="car_large_avatar_size" />
 
     <!-- Minimum touch target size. -->
