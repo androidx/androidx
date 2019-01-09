@@ -78,7 +78,6 @@ public class SparseArrayCompat<E> implements Cloneable {
             mKeys = new int[initialCapacity];
             mValues = new Object[initialCapacity];
         }
-        mSize = 0;
     }
 
     @Override

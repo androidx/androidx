@@ -74,7 +74,6 @@ public class LongSparseArray<E> implements Cloneable {
             mKeys = new long[initialCapacity];
             mValues = new Object[initialCapacity];
         }
-        mSize = 0;
     }
 
     @Override
