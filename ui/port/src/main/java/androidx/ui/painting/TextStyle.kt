@@ -18,7 +18,6 @@ package androidx.ui.painting
 
 import androidx.ui.assert
 import androidx.ui.clamp
-import androidx.ui.describeEnum
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
@@ -26,7 +25,6 @@ import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDecoration
-import androidx.ui.engine.text.TextDecorationStyle
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
@@ -66,7 +64,6 @@ private const val _defaultFontSize: Float = 14.0f
  * * `background`: The background color for the text.
  * * `decoration`: The decorations to paint near the text (e.g., an underline).
  * * `decorationColor`: The color in which to paint the text decorations.
- * * `decorationStyle`: The style in which to paint the text decorations (e.g., dashed).
  * * `debugLabel`: A human-readable description of this text style.
  * * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
  * * It is combined with the `fontFamily` argument to set the [fontFamily] property.
@@ -91,7 +88,6 @@ data class TextStyle(
     // painting/TextStyle, but has it in engine/TextStyle.
     val decoration: TextDecoration? = null,
     val decorationColor: Color? = null,
-    val decorationStyle: TextDecorationStyle? = null,
     val debugLabel: String? = null,
     var fontFamily: FontFamily? = null
 ) : Diagnosticable {
@@ -103,8 +99,8 @@ data class TextStyle(
     /**
      * Creates a copy of this text style replacing or altering the specified properties.
      *
-     * The non-numeric properties [color], [fontFamily], [decoration], [decorationColor] and
-     * [decorationStyle] are replaced with the new values.
+     * The non-numeric properties [color], [fontFamily], [decoration], [decorationColor] replaced
+     * with the new values.
      *
      * The numeric properties are multiplied by the given factors and then incremented by the given
      * deltas.
@@ -127,7 +123,6 @@ data class TextStyle(
         color: Color? = null,
         decoration: TextDecoration? = null,
         decorationColor: Color? = null,
-        decorationStyle: TextDecorationStyle? = null,
         fontFamily: FontFamily? = null,
         fontSizeFactor: Float = 1.0f,
         fontSizeDelta: Float = 0.0f,
@@ -176,7 +171,6 @@ data class TextStyle(
             background = background,
             decoration = decoration ?: this.decoration,
             decorationColor = decorationColor ?: this.decorationColor,
-            decorationStyle = decorationStyle ?: this.decorationStyle,
             debugLabel = modifiedDebugLabel
         )
     }
@@ -223,7 +217,6 @@ data class TextStyle(
             background = other.background ?: this.background,
             decoration = other.decoration ?: this.decoration,
             decorationColor = other.decorationColor ?: this.decorationColor,
-            decorationStyle = other.decorationStyle ?: this.decorationStyle,
             debugLabel = mergedDebugLabel
         )
     }
@@ -278,7 +271,6 @@ data class TextStyle(
                     background = b?.background,
                     decoration = b?.decoration,
                     decorationColor = b?.decorationColor,
-                    decorationStyle = b?.decorationStyle,
                     debugLabel = lerpDebugLabel
                 )
                 if (t < 0.5) {
@@ -306,7 +298,6 @@ data class TextStyle(
                         background = newB.background,
                         decoration = newB.decoration,
                         decorationColor = Color.lerp(null, newB.decorationColor, t),
-                        decorationStyle = newB.decorationStyle,
                         debugLabel = lerpDebugLabel
                     )
                 }
@@ -330,7 +321,6 @@ data class TextStyle(
                         background = a.background,
                         decoration = a.decoration,
                         decorationColor = Color.lerp(a.decorationColor, null, t),
-                        decorationStyle = a.decorationStyle,
                         debugLabel = lerpDebugLabel
                     )
                 } else {
@@ -372,7 +362,6 @@ data class TextStyle(
                 background = if (t < 0.5) a.background else b.background,
                 decoration = if (t < 0.5) a.decoration else b.decoration,
                 decorationColor = Color.lerp(a.decorationColor, b.decorationColor, t),
-                decorationStyle = if (t < 0.5) a.decorationStyle else b.decorationStyle,
                 debugLabel = lerpDebugLabel
             )
         }
@@ -384,7 +373,6 @@ data class TextStyle(
             color = color,
             decoration = decoration,
             decorationColor = decorationColor,
-            decorationStyle = decorationStyle,
             fontWeight = fontWeight,
             fontStyle = fontStyle,
             fontSynthesis = fontSynthesis,
@@ -461,8 +449,7 @@ data class TextStyle(
         }
         if (color != other.color ||
             decoration != other.decoration ||
-            decorationColor != other.decorationColor ||
-            decorationStyle != other.decorationStyle
+            decorationColor != other.decorationColor
         ) {
             return RenderComparison.PAINT
         }
@@ -534,11 +521,8 @@ data class TextStyle(
                 quoted = false
             )
         )
-        if (decoration != null || decorationColor != null || decorationStyle != null) {
+        if (decoration != null || decorationColor != null) {
             var decorationDescription: MutableList<String> = mutableListOf()
-            if (decorationStyle != null) {
-                decorationDescription.add(describeEnum(decorationStyle))
-            }
 
             // Hide decorationColor from the default text view as it is shown in the
             // terse decoration summary as well.

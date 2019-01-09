@@ -29,7 +29,6 @@ import androidx.ui.painting.Paint
  *             null.
  * * `decoration`: The decorations to paint near the text (e.g., an underline).
  * * `decorationColor`: The color in which to paint the text decorations.
- * * `decorationStyle`: The style in which to paint the text decorations (e.g., dashed).
  * * `fontWeight`: The typeface thickness to use when painting the text (e.g., bold).
  * * `fontStyle`: The typeface variant to use when drawing the letters (e.g., italics).
  * * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
@@ -50,7 +49,6 @@ data class TextStyle constructor(
     val color: Color? = null,
     val decoration: TextDecoration? = null,
     val decorationColor: Color? = null,
-    val decorationStyle: TextDecorationStyle? = null,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
     val textBaseline: TextBaseline? = null,
@@ -78,7 +76,6 @@ data class TextStyle constructor(
         "color: ${color ?: "unspecified"}, " +
         "decoration: ${decoration ?: "unspecified"}, " +
         "decorationColor: ${decorationColor ?: "unspecified"}, " +
-        "decorationStyle: ${decorationStyle ?: "unspecified"}, " +
         "fontWeight: ${fontWeight ?: "unspecified"}, " +
         "fontStyle: ${fontStyle ?: "unspecified"}, " +
         "textBaseline: ${textBaseline ?: "unspecified"}, " +

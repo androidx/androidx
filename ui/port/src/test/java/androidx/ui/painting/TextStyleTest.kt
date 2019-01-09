@@ -23,7 +23,6 @@ import androidx.ui.engine.text.ParagraphStyle
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDecoration
-import androidx.ui.engine.text.TextDecorationStyle
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
@@ -52,7 +51,6 @@ class TextStyleTest {
         assertThat(textStyle.background).isNull()
         assertThat(textStyle.decoration).isNull()
         assertThat(textStyle.decorationColor).isNull()
-        assertThat(textStyle.decorationStyle).isNull()
         assertThat(textStyle.debugLabel).isNull()
         assertThat(textStyle.fontFamily).isNull()
     }
@@ -173,15 +171,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `constructor with customized decorationStyle`() {
-        val decorationStyle = TextDecorationStyle.dashed
-
-        val textStyle = TextStyle(decorationStyle = decorationStyle)
-
-        assertThat(textStyle.decorationStyle).isEqualTo(decorationStyle)
-    }
-
-    @Test
     fun `constructor with customized debugLabel`() {
         val label = "foo"
 
@@ -218,7 +207,6 @@ class TextStyleTest {
         assertThat(textStyle.background).isNull()
         assertThat(textStyle.decoration).isNull()
         assertThat(textStyle.decorationColor).isNull()
-        assertThat(textStyle.decorationStyle).isNull()
         assertThat(textStyle.debugLabel).isNull()
         assertThat(textStyle.fontFamily).isNull()
         assertThat(textStyle.fontSynthesis).isNull()
@@ -252,16 +240,6 @@ class TextStyleTest {
         val newTextStyle = textStyle.apply(decorationColor = color)
 
         assertThat(newTextStyle.decorationColor).isEqualTo(color)
-    }
-
-    @Test
-    fun `apply with decorationStyle`() {
-        val textStyle = TextStyle()
-        val decorationStyle = TextDecorationStyle.dashed
-
-        val newTextStyle = textStyle.apply(decorationStyle = decorationStyle)
-
-        assertThat(newTextStyle.decorationStyle).isEqualTo(decorationStyle)
     }
 
     @Test
@@ -661,29 +639,6 @@ class TextStyleTest {
         val newTextStyle = textStyle.merge(otherTextStyle)
 
         assertThat(newTextStyle.decorationColor).isEqualTo(otherColor)
-    }
-
-    @Test
-    fun `merge with other's decorationStyle is null should use this' decorationStyle`() {
-        val decorationStyle = TextDecorationStyle.dashed
-        val textStyle = TextStyle(decorationStyle = decorationStyle)
-        val otherTextStyle = TextStyle()
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.decorationStyle).isEqualTo(decorationStyle)
-    }
-
-    @Test
-    fun `merge with other's decorationStyle is set should use other's decorationStyle`() {
-        val decorationStyle = TextDecorationStyle.dashed
-        val otherDecorationStyle = TextDecorationStyle.dotted
-        val textStyle = TextStyle(decorationStyle = decorationStyle)
-        val otherTextStyle = TextStyle(decorationStyle = otherDecorationStyle)
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.decorationStyle).isEqualTo(otherDecorationStyle)
     }
 
     @Test
@@ -1909,100 +1864,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp decorationStyle with a is Null and t is smaller than half`() {
-        val decorationStyle = TextDecorationStyle.dotted
-        val t = 0.2f
-        val textStyle = TextStyle(decorationStyle = decorationStyle)
-
-        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-
-        assertThat(newTextStyle?.decorationStyle).isNull()
-    }
-
-    @Test
-    fun `lerp decorationStyle with a is Null and t is larger than half`() {
-        val decorationStyle = TextDecorationStyle.dotted
-        val t = 0.8f
-        val textStyle = TextStyle(decorationStyle = decorationStyle)
-
-        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-
-        assertThat(newTextStyle?.decorationStyle).isEqualTo(decorationStyle)
-    }
-
-    @Test
-    fun `lerp decorationStyle with b is Null and t is smaller than half`() {
-        val decorationStyle = TextDecorationStyle.dotted
-        val t = 0.2f
-        val textStyle = TextStyle(decorationStyle = decorationStyle)
-
-        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-
-        assertThat(newTextStyle?.decorationStyle).isEqualTo(decorationStyle)
-    }
-
-    @Test
-    fun `lerp decorationStyle with b is Null and t is larger than half`() {
-        val decorationStyle = TextDecorationStyle.dotted
-        val t = 0.8f
-        val textStyle = TextStyle(decorationStyle = decorationStyle)
-
-        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-
-        assertThat(newTextStyle?.decorationStyle).isNull()
-    }
-
-    @Test
-    fun `lerp decorationStyle with a and b are not Null and t is smaller than half`() {
-        val decorationStyle1 = TextDecorationStyle.dashed
-        val decorationStyle2 = TextDecorationStyle.dotted
-        val t = 0.2f
-        val textStyle1 = TextStyle(
-            fontSize = 4.0f,
-            wordSpacing = 1.0f,
-            letterSpacing = 2.0f,
-            height = 123.0f,
-            decorationStyle = decorationStyle1
-        )
-        val textStyle2 = TextStyle(
-            fontSize = 7.0f,
-            wordSpacing = 2.0f,
-            letterSpacing = 4.0f,
-            height = 20.0f,
-            decorationStyle = decorationStyle2
-        )
-
-        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
-
-        assertThat(newTextStyle?.decorationStyle).isEqualTo(decorationStyle1)
-    }
-
-    @Test
-    fun `lerp decorationStyle with a and b are not Null and t is larger than half`() {
-        val decorationStyle1 = TextDecorationStyle.dashed
-        val decorationStyle2 = TextDecorationStyle.dotted
-        val t = 0.8f
-        val textStyle1 = TextStyle(
-            fontSize = 4.0f,
-            wordSpacing = 1.0f,
-            letterSpacing = 2.0f,
-            height = 123.0f,
-            decorationStyle = decorationStyle1
-        )
-        val textStyle2 = TextStyle(
-            fontSize = 7.0f,
-            wordSpacing = 2.0f,
-            letterSpacing = 4.0f,
-            height = 20.0f,
-            decorationStyle = decorationStyle2
-        )
-
-        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
-
-        assertThat(newTextStyle?.decorationStyle).isEqualTo(decorationStyle2)
-    }
-
-    @Test
     fun `lerp returns debugLabel when both a and b's debugLabel are Null`() {
         val textStyle1 = TextStyle(
             fontSize = 4.0f,
@@ -2259,7 +2120,6 @@ class TextStyleTest {
             background = bgColor,
             decoration = TextDecoration.overline,
             decorationColor = color,
-            decorationStyle = TextDecorationStyle.dashed,
             debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif")
         )
@@ -2322,7 +2182,6 @@ class TextStyleTest {
             locale = Locale("en", "US"),
             decoration = TextDecoration.overline,
             decorationColor = color1,
-            decorationStyle = TextDecorationStyle.dashed,
             debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif")
         )
@@ -2335,9 +2194,5 @@ class TextStyleTest {
 
         assertThat(textStyle.compareTo(textStyle.copy(decorationColor = color2)))
             .isEqualTo(RenderComparison.PAINT)
-
-        assertThat(
-            textStyle.compareTo(textStyle.copy(decorationStyle = TextDecorationStyle.dotted))
-        ).isEqualTo(RenderComparison.PAINT)
     }
 }

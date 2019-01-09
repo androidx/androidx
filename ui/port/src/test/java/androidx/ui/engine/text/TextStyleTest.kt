@@ -48,7 +48,6 @@ class TextStyleTest {
                         "color: unspecified, " +
                         "decoration: unspecified, " +
                         "decorationColor: unspecified, " +
-                        "decorationStyle: unspecified, " +
                         "fontWeight: unspecified, " +
                         "fontStyle: unspecified, " +
                         "textBaseline: unspecified, " +
@@ -72,7 +71,6 @@ class TextStyleTest {
         val color = Color.fromARGB(1, 2, 3, 4)
         val decoration = TextDecoration.overline
         val decorationColor = Color.fromARGB(5, 6, 7, 8)
-        val decorationStyle = TextDecorationStyle.dashed
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val textBaseline = TextBaseline.alphabetic
@@ -89,7 +87,6 @@ class TextStyleTest {
             color = color,
             decoration = decoration,
             decorationColor = decorationColor,
-            decorationStyle = decorationStyle,
             fontWeight = fontWeight,
             fontStyle = fontStyle,
             textBaseline = textBaseline,
@@ -112,7 +109,6 @@ class TextStyleTest {
                         "color: $color, " +
                         "decoration: $decoration, " +
                         "decorationColor: $decorationColor, " +
-                        "decorationStyle: $decorationStyle, " +
                         "fontWeight: $fontWeight, " +
                         "fontStyle: $fontStyle, " +
                         "textBaseline: $textBaseline, " +

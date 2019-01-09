@@ -195,24 +195,21 @@ fun TextDemoTextDecoration(bust: Double) {
                                 style = TextStyle(
                                         fontSize = fontSize8,
                                         decoration = TextDecoration.lineThrough,
-                                        decorationColor = Color(0xFFFF0000.toInt()),
-                                        decorationStyle = TextDecorationStyle.solid
+                                        decorationColor = Color(0xFFFF0000.toInt())
                                 )),
                         TextSpan(
                                 text = displayText,
                                 style = TextStyle(
                                         fontSize = fontSize8,
                                         decoration = TextDecoration.overline,
-                                        decorationColor = Color(0xFF00FF00.toInt()),
-                                        decorationStyle = TextDecorationStyle.double
+                                        decorationColor = Color(0xFF00FF00.toInt())
                                 )),
                         TextSpan(
                                 text = displayText + '\n',
                                 style = TextStyle(
                                         fontSize = fontSize8,
                                         decoration = TextDecoration.underline,
-                                        decorationColor = Color(0xFF0000FF.toInt()),
-                                        decorationStyle = TextDecorationStyle.dotted
+                                        decorationColor = Color(0xFF0000FF.toInt())
                                 )),
                         TextSpan(
                                 text = displayText,
@@ -222,16 +219,14 @@ fun TextDemoTextDecoration(bust: Double) {
                                                 listOf(
                                                         TextDecoration.underline,
                                                         TextDecoration.lineThrough)),
-                                        decorationColor = Color(0xFFFF00FF.toInt()),
-                                        decorationStyle = TextDecorationStyle.dashed
+                                        decorationColor = Color(0xFFFF00FF.toInt())
                                 )),
                         TextSpan(
                                 text = displayText,
                                 style = TextStyle(
                                         fontSize = fontSize8,
                                         decoration = TextDecoration.lineThrough,
-                                        decorationColor = Color(0xFFFFFF00.toInt()),
-                                        decorationStyle = TextDecorationStyle.wavy
+                                        decorationColor = Color(0xFFFFFF00.toInt())
                                 ))
 
                 )
