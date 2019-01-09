@@ -38,7 +38,7 @@ public class PostMessageService extends Service {
 
         @Override
         public void onPostMessage(ICustomTabsCallback callback,
-                                  String message, Bundle extras) throws RemoteException {
+                String message, Bundle extras) throws RemoteException {
             callback.onPostMessage(message, extras);
         }
     };

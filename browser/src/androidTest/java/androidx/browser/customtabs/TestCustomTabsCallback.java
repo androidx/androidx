@@ -55,7 +55,7 @@ public class TestCustomTabsCallback extends CustomTabsCallback {
 
         @Override
         public void onRelationshipValidationResult(int relation, Uri origin, boolean result,
-                                                   Bundle extras) throws RemoteException {
+                Bundle extras) throws RemoteException {
             TestCustomTabsCallback.this.onRelationshipValidationResult(
                     relation, origin, result, extras);
         }

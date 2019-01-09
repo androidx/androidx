@@ -15,7 +15,8 @@
 -->
 
 <resources>
-    <!-- Browser Actions Context Menu Dimensions -->
-    <dimen name="browser_actions_context_menu_min_padding">20dp</dimen>
-    <dimen name="browser_actions_context_menu_max_width">500dp</dimen>
+    <string name="fallback_menu_item_open_in_browser">Open in browser</string>
+    <string name="fallback_menu_item_copy_link">Copy link</string>
+    <string name="fallback_menu_item_share_link">Share link</string>
+    <string name="copy_toast_msg">Link copied to clipboard</string>
 </resources>

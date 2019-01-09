@@ -20,8 +20,11 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
@@ -30,12 +33,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.browser.R;
 import androidx.core.widget.TextViewCompat;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -51,8 +56,11 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
 
     private static final String TAG = "BrowserActionskMenuUi";
 
-    private final Context mContext;
-    private final Uri mUri;
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Context mContext;
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final Uri mUri;
     private final List<BrowserActionItem> mMenuItems;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -63,13 +71,12 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
     /**
      * @param context The {@link Context} used to show the fallback menu.
      * @param uri The uri which users click to trigger the menu.
-     * @param menuItems The custom menu items shown in the menu.
+     * @param customItems The custom menu items shown in the menu.
      */
-    BrowserActionsFallbackMenuUi(
-            Context context, Uri uri, List<BrowserActionItem> menuItems) {
+    BrowserActionsFallbackMenuUi(Context context, Uri uri, List<BrowserActionItem> customItems) {
         mContext = context;
         mUri = uri;
-        mMenuItems = menuItems;
+        mMenuItems = buildFallbackMenuItemList(context, customItems);
     }
 
     /** @hide */
@@ -77,6 +84,46 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
     @RestrictTo(LIBRARY_GROUP)
     void setMenuUiListener(BrowserActionsFallMenuUiListener menuUiListener) {
         mMenuUiListener = menuUiListener;
+    }
+
+    private List<BrowserActionItem> buildFallbackMenuItemList(
+            Context context, List<BrowserActionItem> customItems) {
+        List<BrowserActionItem> fallbackMenuItems = new ArrayList<>();
+        fallbackMenuItems.add(new BrowserActionItem(
+                mContext.getString(R.string.fallback_menu_item_open_in_browser),
+                buildOpenInBrowserAction()));
+        fallbackMenuItems.add(new BrowserActionItem(
+                mContext.getString(R.string.fallback_menu_item_copy_link), buildCopyAction()));
+        fallbackMenuItems.add(new BrowserActionItem(
+                mContext.getString(R.string.fallback_menu_item_share_link), buildShareAction()));
+        fallbackMenuItems.addAll(customItems);
+        return fallbackMenuItems;
+    }
+
+    private PendingIntent buildOpenInBrowserAction() {
+        Intent intent = new Intent(Intent.ACTION_VIEW, mUri);
+        return PendingIntent.getActivity(mContext, 0, intent, 0);
+    }
+
+    private PendingIntent buildShareAction() {
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.putExtra(Intent.EXTRA_TEXT, mUri.toString());
+        intent.setType("text/plain");
+        return PendingIntent.getActivity(mContext, 0, intent, 0);
+    }
+
+    private Runnable buildCopyAction() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                ClipboardManager clipboardManager =
+                        (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData data = ClipData.newPlainText("url", mUri.toString());
+                clipboardManager.setPrimaryClip(data);
+                String toastMsg = mContext.getString(R.string.copy_toast_msg);
+                Toast.makeText(mContext, toastMsg, Toast.LENGTH_SHORT).show();
+            }
+        };
     }
 
     /**
@@ -128,12 +175,16 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        PendingIntent action = mMenuItems.get(position).getAction();
-        try {
-            action.send();
-            mBrowserActionsDialog.dismiss();
-        } catch (CanceledException e) {
-            Log.e(TAG, "Failed to send custom item action", e);
+        BrowserActionItem menuItem = mMenuItems.get(position);
+        if (menuItem.getAction() != null) {
+            try {
+                menuItem.getAction().send();
+            } catch (CanceledException e) {
+                Log.e(TAG, "Failed to send custom item action", e);
+            }
+        } else if (menuItem.getRunnableAction() != null) {
+            menuItem.getRunnableAction().run();
         }
+        mBrowserActionsDialog.dismiss();
     }
 }
