@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,25 +33,23 @@ import java.util.Arrays;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
-public class SavedStateAccessorHolderTest {
+public class SavedStateHandleParcelingTest {
 
     @UiThreadTest
     @Test
     public void test() {
-        SavedStateAccessorHolder h = new SavedStateAccessorHolder(null);
-        SavedStateAccessor accessor = h.savedStateAccessor();
-        accessor.<String>getLiveData("livedata").setValue("para");
-        accessor.set("notlive", 261);
-        accessor.set("array", new int[]{2, 3, 9});
-        Bundle savedState = h.saveState();
+        SavedStateHandle handle = new SavedStateHandle();
+        handle.<String>getLiveData("livedata").setValue("para");
+        handle.set("notlive", 261);
+        handle.set("array", new int[]{2, 3, 9});
+        Bundle savedState = handle.savedStateProvider().saveState();
         Parcel parcel = Parcel.obtain();
         savedState.writeToParcel(parcel, 0);
         parcel.setDataPosition(0);
         Bundle newBundle = Bundle.CREATOR.createFromParcel(parcel);
-        SavedStateAccessorHolder newHolder = new SavedStateAccessorHolder(newBundle);
-        SavedStateAccessor newAccessor = newHolder.savedStateAccessor();
-        assertThat(newAccessor.<String>get("livedata"), is("para"));
-        assertThat(newAccessor.<Integer>get("notlive"), is(261));
-        assertThat(Arrays.equals(newAccessor.<int[]>get("array"), new int[]{2, 3, 9}), is(true));
+        SavedStateHandle newHandle = SavedStateHandle.createHandle(newBundle, null);
+        assertThat(newHandle.<String>get("livedata"), is("para"));
+        assertThat(newHandle.<Integer>get("notlive"), is(261));
+        assertThat(Arrays.equals(newHandle.<int[]>get("array"), new int[]{2, 3, 9}), is(true));
     }
 }
