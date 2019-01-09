@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.savedstate.fragment.activity;
+package androidx.lifecycle.viewmodel.savedstate.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

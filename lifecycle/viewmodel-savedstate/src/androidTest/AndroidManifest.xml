@@ -16,12 +16,12 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="androidx.lifecycle.viewmodel.savedstate.fragment.test">
+          package="androidx.lifecycle.viewmodel.savedstate.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
         <activity
-            android:name="androidx.lifecycle.savedstate.fragment.activity.FakingSavedStateActivity"/>
+            android:name="androidx.lifecycle.viewmodel.savedstate.activity.FakingSavedStateActivity"/>
     </application>
 
 </manifest>
