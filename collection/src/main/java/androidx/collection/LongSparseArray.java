@@ -74,7 +74,6 @@ public class LongSparseArray<E> implements Cloneable {
             mKeys = new long[initialCapacity];
             mValues = new Object[initialCapacity];
         }
-        mSize = 0;
     }
 
     @Override
@@ -122,9 +121,17 @@ public class LongSparseArray<E> implements Cloneable {
     }
 
     /**
+     * @deprecated Alias for {@link #remove(long)}.
+     */
+    @Deprecated
+    public void delete(long key) {
+        remove(key);
+    }
+
+    /**
      * Removes the mapping from the specified key, if there was any.
      */
-    public void delete(long key) {
+    public void remove(long key) {
         int i = ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
@@ -133,13 +140,6 @@ public class LongSparseArray<E> implements Cloneable {
                 mGarbage = true;
             }
         }
-    }
-
-    /**
-     * Alias for {@link #delete(long)}.
-     */
-    public void remove(long key) {
-        delete(key);
     }
 
     /**
