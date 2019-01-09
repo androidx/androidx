@@ -428,7 +428,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                     public void onBindViewHolder(@NonNull TestViewHolder holder,
                             int position) {
                         super.onBindViewHolder(holder, position);
-                        holder.itemView.setMinimumHeight(mAttachedRv.getHeight() / 3);
+                        holder.itemView.getLayoutParams().height = mAttachedRv.getHeight() / 3;
                     }
                 });
         /**
@@ -530,7 +530,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                             holder.itemView.setFocusable(false);
                             holder.itemView.setFocusableInTouchMode(false);
                         }
-                        holder.itemView.setMinimumHeight(mAttachedRv.getHeight() / visibleRowCount);
+                        lp.height = mAttachedRv.getHeight() / visibleRowCount;
                         lp.topMargin = 0;
                         lp.leftMargin = 0;
                         lp.rightMargin = 0;
@@ -644,7 +644,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
                             holder.itemView.setFocusable(false);
                             holder.itemView.setFocusableInTouchMode(false);
                         }
-                        holder.itemView.setMinimumHeight(mAttachedRv.getHeight() / visibleRowCount);
+                        lp.height = mAttachedRv.getHeight() / visibleRowCount;
                         lp.topMargin = 0;
                         lp.leftMargin = 0;
                         lp.rightMargin = 0;
