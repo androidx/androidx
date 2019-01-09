@@ -28,5 +28,4 @@ dependencies {
     api(KOTLIN_STDLIB)
     implementation(project(":viewpager2"))
     implementation(project(":lifecycle:lifecycle-extensions"))
-    implementation(SUPPORT_DESIGN)
 }
