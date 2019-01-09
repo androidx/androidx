@@ -82,7 +82,7 @@ package androidx.collection {
     method public androidx.collection.LongSparseArray<E>! clone();
     method public boolean containsKey(long);
     method public boolean containsValue(E!);
-    method public void delete(long);
+    method @Deprecated public void delete(long);
     method public E? get(long);
     method public E! get(long, E!);
     method public int indexOfKey(long);
@@ -158,7 +158,7 @@ package androidx.collection {
     method public androidx.collection.SparseArrayCompat<E>! clone();
     method public boolean containsKey(int);
     method public boolean containsValue(E!);
-    method public void delete(int);
+    method @Deprecated public void delete(int);
     method public E? get(int);
     method public E! get(int, E!);
     method public int indexOfKey(int);
