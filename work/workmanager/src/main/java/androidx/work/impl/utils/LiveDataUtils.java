@@ -52,20 +52,27 @@ public class LiveDataUtils {
             @NonNull LiveData<In> inputLiveData,
             @NonNull final Function<In, Out> mappingMethod,
             @NonNull final TaskExecutor workTaskExecutor) {
+
+        final Object lock = new Object();
         final MediatorLiveData<Out> outputLiveData = new MediatorLiveData<>();
+
         outputLiveData.addSource(inputLiveData, new Observer<In>() {
+
+            Out mCurrentOutput = null;
+
             @Override
             public void onChanged(@Nullable final In input) {
-                final Out previousOutput = outputLiveData.getValue();
                 workTaskExecutor.executeOnBackgroundThread(new Runnable() {
                     @Override
                     public void run() {
-                        synchronized (outputLiveData) {
+                        synchronized (lock) {
                             Out newOutput = mappingMethod.apply(input);
-                            if (previousOutput == null && newOutput != null) {
+                            if (mCurrentOutput == null && newOutput != null) {
+                                mCurrentOutput = newOutput;
                                 outputLiveData.postValue(newOutput);
-                            } else if (
-                                    previousOutput != null && !previousOutput.equals(newOutput)) {
+                            } else if (mCurrentOutput != null
+                                    && !mCurrentOutput.equals(newOutput)) {
+                                mCurrentOutput = newOutput;
                                 outputLiveData.postValue(newOutput);
                             }
                         }
