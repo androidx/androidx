@@ -20,7 +20,6 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.semantics.SemanticsConfiguration
 import androidx.ui.semantics.SemanticsNode
 import androidx.ui.semantics.SemanticsTag
-import kotlin.coroutines.experimental.buildSequence
 
 // / A [_SemanticsFragment] that describes which concrete semantic information
 // / a [RenderObject] wants to add to the [SemanticsNode] of its parent.
@@ -76,7 +75,7 @@ internal abstract class _InterestingSemanticsFragment(
         get() = config != null
 
     override val interestingFragments: Iterable<_InterestingSemanticsFragment>
-        get() = buildSequence { yield(this@_InterestingSemanticsFragment) }.asIterable()
+        get() = sequence { yield(this@_InterestingSemanticsFragment) }.asIterable()
 
     protected var _tagsForChildren: MutableSet<SemanticsTag> = mutableSetOf()
 

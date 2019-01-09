@@ -16,7 +16,11 @@
 package androidx.ui.core
 
 import androidx.ui.core.pointerinput.PointerInputHandler
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Canvas
+import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.widgets.basic.Directionality
+import androidx.ui.widgets.framework.BuildContext
 import com.google.r4a.Emittable
 
 /**
@@ -409,6 +413,62 @@ internal class LayoutNode : ComponentNode() {
             size = Size(width = width, height = height)
             owner?.onSizeChange(this)
         }
+    }
+}
+
+internal class SemanticsR4ANode(
+    /**
+     * If [container] is true, this widget will introduce a new
+     * node in the semantics tree. Otherwise, the semantics will be
+     * merged with the semantics of any ancestors (if the ancestor allows that).
+     *
+     * Whether descendants of this widget can add their semantic information to the
+     * [SemanticsNode] introduced by this configuration is controlled by
+     * [explicitChildNodes].
+     */
+    val container: Boolean = false,
+    /**
+     * Whether descendants of this widget are allowed to add semantic information
+     * to the [SemanticsNode] annotated by this widget.
+     *
+     * When set to false descendants are allowed to annotate [SemanticNode]s of
+     * their parent with the semantic information they want to contribute to the
+     * semantic tree.
+     * When set to true the only way for descendants to contribute semantic
+     * information to the semantic tree is to introduce new explicit
+     * [SemanticNode]s to the tree.
+     *
+     * If the semantics properties of this node include
+     * [SemanticsProperties.scopesRoute] set to true, then [explicitChildNodes]
+     * must be true also.
+     *
+     * This setting is often used in combination with [SemanticsConfiguration.isSemanticBoundary]
+     * to create semantic boundaries that are either writable or not for children.
+     */
+    val explicitChildNodes: Boolean = false,
+    /**
+     * Contains properties used by assistive technologies to make the application
+     * more accessible.
+     */
+    val properties: SemanticsProperties
+) : SingleChildComponentNode() {
+    fun _getTextDirection(context: BuildContext): TextDirection? {
+        if (properties.textDirection != null) {
+            return properties.textDirection
+        }
+
+        val containsText =
+            properties.label != null || properties.value != null || properties.hint != null
+
+        if (!containsText) {
+            return null
+        }
+
+        return Directionality.of(context)
+    }
+
+    override fun emitInsertAt(index: Int, instance: Emittable) {
+        super.emitInsertAt(index, instance)
     }
 }
 

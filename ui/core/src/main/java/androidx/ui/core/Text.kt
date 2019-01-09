@@ -67,41 +67,47 @@ class Text() : Component() {
     override fun compose() {
         assert(text != null)
         val context = composer.composer.context
+
         <CurrentTextStyleAmbient.Consumer> style ->
             val mergedStyle = style.merge(text.style)
             // Make a wrapper to avoid modifying the style on the original element
             val styledText = TextSpan(style = mergedStyle, children = listOf(text))
             <DensityProvider> density ->
-                <MeasureBox> constraints, measureOperations ->
-                    val renderParagraph = RenderParagraph(
-                        text = styledText,
-                        textAlign = textAlign,
-                        textDirection = textDirection,
-                        softWrap = softWrap,
-                        overflow = overflow,
-                        textScaleFactor = textScaleFactor,
-                        maxLines = maxLines
-                    )
+                <Semantics
+                    label=text.toString()>
+                    <MeasureBox> constraints, measureOperations ->
+                        val renderParagraph = RenderParagraph(
+                            text = styledText,
+                            textAlign = textAlign,
+                            textDirection = textDirection,
+                            softWrap = softWrap,
+                            overflow = overflow,
+                            textScaleFactor = textScaleFactor,
+                            maxLines = maxLines
+                        )
 
-                    // TODO(Migration/siyamed): This is temporary and should be removed when resource
-                    // system is resolved.
-                    attachContextToFont(styledText, context)
+                        // TODO(Migration/siyamed): This is temporary and should be removed when resource
+                        // system is resolved.
+                        attachContextToFont(styledText, context)
 
-                    val boxConstraints = BoxConstraints(
-                        constraints.minWidth.toPx(density),
-                        constraints.maxWidth.toPx(density),
-                        constraints.minHeight.toPx(density),
-                        constraints.maxHeight.toPx(density))
-                    renderParagraph.layoutTextWithConstraints(boxConstraints)
-                    measureOperations.collect {
-                        <Draw> canvas, parent ->
-                            renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
-                        </Draw>
-                    }
-                    measureOperations.layout(
-                        renderParagraph.width.toDp(density),
-                        renderParagraph.height.toDp(density)) {}
-                </MeasureBox>
+                        val boxConstraints = BoxConstraints(
+                            constraints.minWidth.toPx(density),
+                            constraints.maxWidth.toPx(density),
+                            constraints.minHeight.toPx(density),
+                            constraints.maxHeight.toPx(density)
+                        )
+                        renderParagraph.layoutTextWithConstraints(boxConstraints)
+                        measureOperations.collect {
+                            <Draw> canvas, parent ->
+                                renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
+                            </Draw>
+                        }
+                        measureOperations.layout(
+                            renderParagraph.width.toDp(density),
+                            renderParagraph.height.toDp(density)
+                        ) {}
+                    </MeasureBox>
+                </Semantics>
             </DensityProvider>
         </CurrentTextStyleAmbient.Consumer>
     }
