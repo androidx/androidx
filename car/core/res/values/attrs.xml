@@ -161,6 +161,8 @@ limitations under the License.
     <declare-styleable name="CarToolbar">
         <!-- Drawable to use for the navigation button located at the start of the toolbar. -->
         <attr name="navigationIcon" format="reference"/>
+        <!-- Tint for the navigation button. -->
+        <attr name="navigationIconTint" format="reference"/>
         <!-- The width of space in which navigation icon will be centered. -->
         <attr name="navigationIconContainerWidth" format="dimension"/>
         <!-- Drawable to use for the toolbar title icon. -->

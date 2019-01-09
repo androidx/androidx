@@ -278,6 +278,7 @@ attr listItemSubheaderTextAppearance
 attr listItemTitleTextAppearance
 attr navigationIcon
 attr navigationIconContainerWidth
+attr navigationIconTint
 attr offsetScrollBar
 attr overflowIcon
 attr pagedListViewStyle
