@@ -18,14 +18,11 @@ package androidx.r4a
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Handler
-import android.os.Looper
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
 import androidx.ui.core.Draw
 import androidx.ui.core.MeasureBox
-import androidx.ui.core.PixelSize
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.div
 import androidx.ui.core.dp
@@ -35,10 +32,8 @@ import androidx.ui.core.min
 import androidx.ui.core.minus
 import androidx.ui.core.plus
 import androidx.ui.core.tightConstraints
-import androidx.ui.core.times
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Image
 import androidx.ui.painting.Paint
@@ -55,7 +50,7 @@ fun Padding(
     right: Dimension = 0.dp,
     bottom: Dimension = 0.dp, @Children children: () -> Unit
 ) {
-    <MeasureBox bust=Math.random()>constraints, measureOperations ->
+    <MeasureBox>constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val horizontalPadding = (left + right)
         val verticalPadding = (top + bottom)
@@ -77,31 +72,23 @@ fun Padding(
 }
 
 @Composable
-fun FourQuadrants(bust: Double) {
-    <MeasureBox bust=Math.random() > constraints, measureOperations ->
-        val context = composer.composer.context
-        val resources = context.resources
-        val image =
-            BitmapFactory.decodeResource(resources, androidx.ui.port.R.drawable.four_quadrants)
-        val maxHeight = constraints.maxHeight
-        val maxWidth = constraints.maxWidth
-        val aspectRatio = image.width.toFloat()/image.height.toFloat()
-        val height = min(maxHeight, maxWidth * aspectRatio)
-        val width = min(maxWidth, maxHeight / aspectRatio)
-
+fun FourQuadrants() {
+    val resources = composer.composer.context.resources
+    val image = BitmapFactory.decodeResource(resources, androidx.ui.port.R.drawable.four_quadrants)
+    <MeasureBox> constraints, measureOperations ->
         measureOperations.collect {
             <DrawImage bitmap=image/>
         }
 
-        measureOperations.layout(width, height) {
+        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
         }
     </MeasureBox>
 }
 
 @Composable
 fun DrawImage(bitmap: Bitmap) {
-    val onPaint: (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
-        val paint = Paint()
+    val paint = Paint()
+    <Draw> canvas, parentSize ->
         canvas.save()
         val width = parentSize.width
         val height = parentSize.height
@@ -109,35 +96,33 @@ fun DrawImage(bitmap: Bitmap) {
         canvas.scale(scale, scale)
         canvas.drawImage(Image(bitmap), Offset(0.0f, 0.0f), paint)
         canvas.restore()
-    }
-    <Draw onPaint />
+    </Draw>
 }
 
 @Composable
 fun DrawRectangle(color: Color) {
     val paint = Paint()
     paint.color = color
-    val onPaint: (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
+    <Draw> canvas, parentSize ->
         val widthPx = parentSize.width
         val heightPx = parentSize.height
         canvas.drawRect(Rect(0.0f, 0.0f, widthPx, heightPx), paint)
-    }
-    <Draw onPaint />
+    </Draw>
 }
 
 @Composable
-fun Rectangle(width: Dimension, height: Dimension, color: Color) {
-    <MeasureBox bust=Math.random()> _, measureOperations ->
+fun Rectangle(color: Color) {
+    <MeasureBox> constraints, measureOperations ->
         measureOperations.collect {
             <DrawRectangle color />
         }
-        measureOperations.layout(width, height) {}
+        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {}
     </MeasureBox>
 }
 
 @Composable
-fun Rectangles(bust: Double) {
-    <MeasureBox bust=Math.random()> constraints, measureOperations ->
+fun Rectangles() {
+    <MeasureBox> constraints, measureOperations ->
         val width = if (constraints.hasBoundedWidth) {
             constraints.maxWidth
         } else {
@@ -150,22 +135,21 @@ fun Rectangles(bust: Double) {
             constraints.minHeight
         }
 
-        val size = min(width, height)
-        val rectSize = size / 2
         val measurables = measureOperations.collect {
             val green = Color(0xFF00FF00.toInt())
-            <Rectangle width=rectSize height=rectSize color=green />
+            <Rectangle color=green />
             val red = Color(0xFFFF0000.toInt())
-            <Rectangle width=rectSize height=rectSize color=red />
+            <Rectangle color=red />
             val blue = Color(0xFF0000FF.toInt())
-            <Rectangle width=rectSize height=rectSize color=blue />
-            val yellow = Color(0xFFFFFF00.toInt())
-            <Rectangle width=rectSize height=rectSize color=yellow />
+            <Rectangle color=blue />
+            <FourQuadrants/>
         }
 
+        val size = min(width, height)
+        val rectSize = size / 2
         measureOperations.layout(size, size) {
             val placeables = measurables.map {
-                it.measure(tightConstraints(size, size))
+                it.measure(tightConstraints(rectSize, rectSize))
             }
             placeables[0].place(0.dp, 0.dp)
             placeables[1].place(rectSize, 0.dp)
@@ -175,30 +159,13 @@ fun Rectangles(bust: Double) {
     </MeasureBox>
 }
 
-var iterations = 0
-var recomposeFunc : Runnable? = null
 
 @Composable
 fun CraneRects() {
     <CraneWrapper>
         <Recompose> recompose ->
-            if (recomposeFunc == null) {
-                val handler = Handler(Looper.getMainLooper())
-                recomposeFunc = object: Runnable {
-                    override fun run() {
-                        iterations++
-                        handler.postDelayed(this, 1000)
-                        recompose()
-                    }
-                }
-                handler.postDelayed(recomposeFunc, 1000)
-            }
             <Padding left=20.dp top=20.dp right=20.dp bottom=20.dp>
-                if (iterations % 2 == 0) {
-                    <FourQuadrants bust=Math.random() />
-                } else {
-                    <Rectangles bust=Math.random()/>
-                }
+                <Rectangles />
             </Padding>
         </Recompose>
     </CraneWrapper>

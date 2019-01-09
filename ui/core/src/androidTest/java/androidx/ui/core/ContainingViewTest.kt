@@ -32,7 +32,6 @@ import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
 import androidx.ui.core.Draw
 import androidx.ui.core.MeasureBox
-import androidx.ui.core.PixelSize
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.dp
 import androidx.ui.core.max
@@ -41,7 +40,6 @@ import androidx.ui.core.plus
 import androidx.ui.core.times
 import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Children
@@ -93,17 +91,15 @@ class ContainingViewTest {
             override fun run() {
                 activity.composeInto {
                     <CraneWrapper>
-                        val background : (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
+                        <Draw> canvas, parentSize ->
                             val paint = Paint()
                             paint.color = Color(0xFFFFFF00.toInt())
                             canvas.drawRect(Rect(0.0f, 0.0f,
                                 parentSize.width, parentSize.height), paint)
-                        }
-                        // Component constructor parameters over-memoize, so use a property instead
-                        <Draw onPaint=background/>
+                        </Draw>
                         <Padding size=10.dp>
                             <AtLeastSize size=10.dp>
-                                val foreground : (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
+                                <Draw> canvas, parentSize ->
                                     drawLatch.countDown()
                                     val paint = Paint()
                                     paint.color = Color(0xFF0000FF.toInt())
@@ -113,9 +109,7 @@ class ContainingViewTest {
                                         Rect(0.0f, 0.0f, width, height),
                                         paint
                                     )
-                                }
-                                // Component constructor parameters over-memoize, so use a property instead
-                                <Draw onPaint=foreground/>
+                                </Draw>
                             </AtLeastSize>
                         </Padding>
                     </CraneWrapper>
@@ -229,7 +223,7 @@ class ContainingViewTest {
 
 @Composable
 fun AtLeastSize(size: Dimension, @Children children: @Composable() () -> Unit) {
-    <MeasureBox bust=Math.random()> constraints, measureOperations ->
+    <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val newConstraints = Constraints(
             minWidth = max(size, constraints.minWidth),
@@ -256,7 +250,7 @@ fun AtLeastSize(size: Dimension, @Children children: @Composable() () -> Unit) {
 
 @Composable
 fun Padding(size: Dimension, @Children children: @Composable() () -> Unit) {
-    <MeasureBox bust=Math.random()> constraints, measureOperations ->
+    <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val totalDiff = size * 2
         val newConstraints = Constraints(

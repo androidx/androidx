@@ -19,29 +19,23 @@ package androidx.ui.material
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.core.Draw
 import androidx.ui.core.MeasureBox
-import androidx.ui.core.PixelSize
 import androidx.ui.core.dp
-import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Component
 import com.google.r4a.Composable
-import com.google.r4a.composer
 
 // TODO(clara): This should not be a class once R4A bug is fixed
 class Checkbox : Component() {
 
     override fun compose() {
         <Toggleable>
-            <MeasureBox bust=Math.random()> constraints, measureOperations ->
+            <MeasureBox> constraints, measureOperations ->
                 // TODO(clara): Use constraints
                 val calculatedWidth = 42.dp
-                // TODO(clara): get the context from somewhere else
-                val width = calculatedWidth.toPx(composer.composer.context)
                 measureOperations.collect {
-                    <DrawCheckbox width/>
+                    <DrawCheckbox/>
                 }
                 measureOperations.layout(calculatedWidth, calculatedWidth) {
                     // No children to place
@@ -52,12 +46,11 @@ class Checkbox : Component() {
 }
 
 @Composable
-internal fun DrawCheckbox(width: Float) {
+internal fun DrawCheckbox() {
     val paint = Paint()
     paint.color = Color(0xFFFF0000.toInt())
-    val paintLambda : (Canvas, PixelSize) -> Unit = { canvas, parentSize ->
-        canvas.drawRect(Rect(0f, 0f, 42f, 42f), paint)
+    <Draw> canvas, parentSize ->
+        canvas.drawRect(Rect(0f, 0f, parentSize.width, parentSize.height), paint)
         // TODO(clara): Actually draw a checkbox
-    }
-    <Draw onPaint=paintLambda />
+    </Draw>
 }

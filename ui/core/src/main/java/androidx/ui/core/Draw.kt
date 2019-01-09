@@ -20,18 +20,15 @@ import com.google.r4a.Children
 import com.google.r4a.Component
 
 /**
- * Use Draw to get a [Canvas] to paint into the parent. Components with constructor parameters
- * over-memoize, so we must use a property instead. We can't currently use the children aspect
- * of [onPaint] because of a bug in R4A. That said, it should end up used like this:
+ * Use Draw to get a [Canvas] to paint into the parent.
+ *
  *     <Draw> canvas, parentSize ->
  *         val paint = Paint()
  *         paint.color = Color(0xFF000000.toInt())
  *         canvas.drawRect(Rect(0.0f, 0.0f, parentSize.width, parentSize.height, paint)
  *     </Draw>
  */
-class Draw() : Component() {
-    @Children(composable = false)
-    var onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit = { _, _ -> }
+class Draw(@Children(composable = false) var onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit) : Component() {
 
     override fun compose() {
         // Hide the internals of DrawNode

@@ -15,23 +15,30 @@
  */
 package androidx.ui.core
 
+import android.content.Context
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
-import com.google.r4a.Composable
 import com.google.r4a.R4a
 import com.google.r4a.composer
 
-class CraneWrapper(@Children private val children: () -> Unit) : Component() {
+class CraneWrapper(@Children var children: () -> Unit) : Component() {
     private val androidCraneView = arrayOfNulls<AndroidCraneView>(1)
     private var ambients: Ambient.Reference? = null
+    /**
+     * See the comment for MeasureBox.children to understand how it works.
+     */
+    private val measureBoxes = mutableListOf<MeasureBox>()
+
     override fun compose() {
-        <AndroidCraneView ref=androidCraneView
-                          constraintsChanged={ composeChildren() }>
-            <Ambient.Portal> reference ->
-                ambients = reference
-            </Ambient.Portal>
-        </AndroidCraneView>
+        <ContextAmbient.Provider value = composer.composer.context>
+            <AndroidCraneView ref=androidCraneView
+                              constraintsChanged={ composeChildren() }>
+                <Ambient.Portal> reference ->
+                    ambients = reference
+                </Ambient.Portal>
+            </AndroidCraneView>
+        </ContextAmbient.Provider>
         composeChildren()
     }
 
@@ -40,19 +47,16 @@ class CraneWrapper(@Children private val children: () -> Unit) : Component() {
         if (craneView != null) {
             val context = craneView.context ?: composer.composer.context
 
-            val measureBoxes = mutableListOf<MeasureBox>()
             R4a.composeInto(container = craneView.root, context = context, parent = ambients!!) {
-                <MeasureBoxes.Provider value=measureBoxes>
+                <ParentsChildren.Provider value=measureBoxes>
                     <children />
-                    measureBoxes.forEach { measureBox ->
-                        measureBox.measure(craneView.constraints)
-                        measureBox.layout()
-                    }
-                </MeasureBoxes.Provider>
+                </ParentsChildren.Provider>
             }
             var width = 0.dp
             var height = 0.dp
             measureBoxes.forEach { measureBox ->
+                measureBox.measure(craneView.constraints)
+                measureBox.layout()
                 width = max(width, measureBox.layoutNode.size.width)
                 height = max(height, measureBox.layoutNode.size.height)
             }
@@ -60,3 +64,5 @@ class CraneWrapper(@Children private val children: () -> Unit) : Component() {
         }
     }
 }
+
+val ContextAmbient = Ambient.of<Context>()
