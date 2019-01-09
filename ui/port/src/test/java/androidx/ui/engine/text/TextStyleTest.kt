@@ -68,7 +68,7 @@ class TextStyleTest {
     @Test
     fun `toString with values`() {
         val color = Color.fromARGB(1, 2, 3, 4)
-        val decoration = TextDecoration.overline
+        val decoration = TextDecoration.underline
         val fontWeight = FontWeight.bold
         val fontStyle = FontStyle.italic
         val textBaseline = TextBaseline.alphabetic

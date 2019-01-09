@@ -197,12 +197,6 @@ fun TextDemoTextDecoration(bust: Double) {
                                         decoration = TextDecoration.lineThrough
                                 )),
                         TextSpan(
-                                text = displayText,
-                                style = TextStyle(
-                                        fontSize = fontSize8,
-                                        decoration = TextDecoration.overline
-                                )),
-                        TextSpan(
                                 text = displayText + '\n',
                                 style = TextStyle(
                                         fontSize = fontSize8,

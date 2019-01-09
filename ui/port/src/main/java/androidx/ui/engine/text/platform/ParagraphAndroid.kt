@@ -233,9 +233,6 @@ internal class ParagraphAndroid constructor(
                         Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                     )
                 }
-                if (it.contains(TextDecoration.overline)) {
-                    // TODO(Migration/haoyuchang): implement overline
-                }
                 if (it.contains(TextDecoration.lineThrough)) {
                     spannableString.setSpan(
                         StrikethroughSpan(),

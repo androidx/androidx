@@ -153,7 +153,7 @@ class TextStyleTest {
 
     @Test
     fun `constructor with customized decoration`() {
-        val decoration = TextDecoration.overline
+        val decoration = TextDecoration.underline
 
         val textStyle = TextStyle(decoration = decoration)
 
@@ -588,7 +588,7 @@ class TextStyleTest {
     @Test
     fun `merge with other's decoration is set should use other's decoration`() {
         val decoration = TextDecoration.lineThrough
-        val otherDecoration = TextDecoration.overline
+        val otherDecoration = TextDecoration.underline
         val textStyle = TextStyle(decoration = decoration)
         val otherTextStyle = TextStyle(decoration = otherDecoration)
 
@@ -1703,7 +1703,7 @@ class TextStyleTest {
     @Test
     fun `lerp decoration with a and b are not Null and t is smaller than half`() {
         val decoration1 = TextDecoration.lineThrough
-        val decoration2 = TextDecoration.overline
+        val decoration2 = TextDecoration.underline
         val t = 0.2f
         val textStyle1 = TextStyle(
             fontSize = 4.0f,
@@ -1728,7 +1728,7 @@ class TextStyleTest {
     @Test
     fun `lerp decoration with a and b are not Null and t is larger than half`() {
         val decoration1 = TextDecoration.lineThrough
-        val decoration2 = TextDecoration.overline
+        val decoration2 = TextDecoration.underline
         val t = 0.8f
         val textStyle1 = TextStyle(
             fontSize = 4.0f,
@@ -2005,7 +2005,7 @@ class TextStyleTest {
             height = height,
             locale = Locale("en", "US"),
             background = bgColor,
-            decoration = TextDecoration.overline,
+            decoration = TextDecoration.underline,
             debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif")
         )
@@ -2066,7 +2066,7 @@ class TextStyleTest {
             textBaseline = TextBaseline.alphabetic,
             height = height,
             locale = Locale("en", "US"),
-            decoration = TextDecoration.overline,
+            decoration = TextDecoration.underline,
             debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif")
         )

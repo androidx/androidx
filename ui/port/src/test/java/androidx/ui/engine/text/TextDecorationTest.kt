@@ -42,8 +42,6 @@ class TextDecorationTest {
         assertTrue(textDecoration.contains(TextDecoration.lineThrough))
         // since 0 is always included
         assertTrue(textDecoration.contains(TextDecoration.none))
-
-        assertFalse(textDecoration.contains(TextDecoration.overline))
     }
 
     @Test
@@ -67,7 +65,6 @@ class TextDecorationTest {
             TextDecoration.lineThrough.toString(),
             `is`(equalTo("TextDecoration.lineThrough"))
         )
-        assertThat(TextDecoration.overline.toString(), `is`(equalTo("TextDecoration.overline")))
     }
 
     @Test

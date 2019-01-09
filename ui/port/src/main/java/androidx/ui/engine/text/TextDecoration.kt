@@ -24,13 +24,8 @@ data class TextDecoration internal constructor(val mask: Int) {
         /** Draw a line underneath each line of text */
         val underline: TextDecoration = TextDecoration(0x1)
 
-        // TODO(Migration/siyamed): We do not currently support this, either need custom span
-        // implementation or we wont support it
-        /** Draw a line above each line of text */
-        val overline: TextDecoration = TextDecoration(0x2)
-
         /** Draw a line through each line of text */
-        val lineThrough: TextDecoration = TextDecoration(0x4)
+        val lineThrough: TextDecoration = TextDecoration(0x2)
 
         /** Creates a decoration that paints the union of all the given decorations. */
         fun combine(decorations: List<TextDecoration>): TextDecoration {
@@ -54,9 +49,6 @@ data class TextDecoration internal constructor(val mask: Int) {
         var values: MutableList<String> = mutableListOf()
         if (!((mask and TextDecoration.underline.mask) == 0)) {
             values.add("underline")
-        }
-        if (!((mask and TextDecoration.overline.mask) == 0)) {
-            values.add("overline")
         }
         if (!((mask and TextDecoration.lineThrough.mask) == 0)) {
             values.add("lineThrough")
