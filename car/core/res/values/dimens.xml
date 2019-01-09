@@ -74,7 +74,6 @@ limitations under the License.
     <dimen name="car_spinner_dropdown_arrow_size">48dp</dimen>
 
     <!-- Avatars -->
-    <dimen name="car_avatar_size">56dp</dimen>
     <dimen name="car_large_avatar_size">96dp</dimen>
 
     <!-- Minimum touch target size. -->
