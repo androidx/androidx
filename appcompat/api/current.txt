@@ -941,6 +941,7 @@ package androidx.appcompat.widget {
     method public void setSubtitle(CharSequence!);
     method public void setSubtitleTextAppearance(android.content.Context!, @StyleRes int);
     method public void setSubtitleTextColor(@ColorInt int);
+    method public void setSubtitleTextColor(android.content.res.ColorStateList);
     method public void setTitle(@StringRes int);
     method public void setTitle(CharSequence!);
     method public void setTitleMargin(int, int, int, int);
@@ -950,6 +951,7 @@ package androidx.appcompat.widget {
     method public void setTitleMarginTop(int);
     method public void setTitleTextAppearance(android.content.Context!, @StyleRes int);
     method public void setTitleTextColor(@ColorInt int);
+    method public void setTitleTextColor(android.content.res.ColorStateList);
     method public boolean showOverflowMenu();
   }
 
