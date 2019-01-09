@@ -125,9 +125,17 @@ public class SparseArrayCompat<E> implements Cloneable {
     }
 
     /**
+     * @deprecated Alias for {@link #remove(int)}.
+     */
+    @Deprecated
+    public void delete(int key) {
+        remove(key);
+    }
+
+    /**
      * Removes the mapping from the specified key, if there was any.
      */
-    public void delete(int key) {
+    public void remove(int key) {
         int i =  ContainerHelpers.binarySearch(mKeys, mSize, key);
 
         if (i >= 0) {
@@ -136,13 +144,6 @@ public class SparseArrayCompat<E> implements Cloneable {
                 mGarbage = true;
             }
         }
-    }
-
-    /**
-     * Alias for {@link #delete(int)}.
-     */
-    public void remove(int key) {
-        delete(key);
     }
 
     /**
