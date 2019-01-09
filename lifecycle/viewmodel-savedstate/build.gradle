@@ -21,6 +21,13 @@ import androidx.build.SupportLibraryExtension
 
 plugins {
     id("SupportAndroidLibraryPlugin")
+    id("kotlin-android")
+}
+
+android {
+    lintOptions {
+        fatal("UnknownNullness")
+    }
 }
 
 dependencies {
@@ -29,15 +36,17 @@ dependencies {
     api(project(":lifecycle:lifecycle-livedata-core"))
     api(project(":lifecycle:lifecycle-viewmodel"))
 
+    api project(":fragment"), {
+        exclude group: 'androidx.lifecycle', module: 'lifecycle-livedata-core'
+    }
+
+    androidTestImplementation(TRUTH)
+    androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ESPRESSO_CORE)
-    androidTestImplementation(JUNIT)
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
     androidTestImplementation(TEST_RULES)
-    testImplementation(project(":arch:core-testing"))
-    testImplementation(JUNIT)
-    testImplementation(MOCKITO_CORE)
 }
 
 supportLibrary {

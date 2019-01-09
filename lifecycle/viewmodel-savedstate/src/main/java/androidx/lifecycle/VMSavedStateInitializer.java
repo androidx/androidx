@@ -95,9 +95,10 @@ class VMSavedStateInitializer implements Application.ActivityLifecycleCallbacks 
         for (String key : viewModelStore.keys()) {
             ViewModel viewModel = viewModelStore.get(key);
             SavedStateHandle handle = viewModel
-                    .getTag(SavedStateVMFactory.TAG_SAVED_STATE_HANDLE);
+                    .getTag(AbstractSavedStateVMFactory.TAG_SAVED_STATE_HANDLE);
             if (handle != null) {
-                savedStateStore.registerSavedStateProvider(key, handle.savedStateComponent());
+                savedStateStore.unregisterSavedStateProvider(key);
+                savedStateStore.registerSavedStateProvider(key, handle.savedStateProvider());
             }
         }
     }

@@ -16,34 +16,172 @@
 
 package androidx.lifecycle;
 
+import android.app.Activity;
+import android.app.Application;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.savedstate.SavedStateRegistry;
 
-abstract class SavedStateVMFactory implements ViewModelProvider.KeyedFactory {
-    static final String TAG_SAVED_STATE_HANDLE = "androidx.lifecycle.savedstate.vm.tag";
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
-    private final ViewModelWithStateFactory mWrappedFactory;
-    private final SavedStateRegistry<Bundle> mSavedStateStore;
-    private final Bundle mInitialArgs;
+/**
+ * {@link ViewModelProvider.KeyedFactory} that can create ViewModels accessing and contributing
+ * to a saved state via {@link SavedStateHandle} received in a constructor. If {@code defaultArgs}
+ * bundle was passed in {@link #SavedStateVMFactory(Fragment, Bundle)}
+ * or {@link #SavedStateVMFactory(FragmentActivity, Bundle)}, it will provide default values in
+ * {@code SavedStateHandle}.
+ * <p>
+ * If ViewModel is instance of {@link AndroidViewModel}, it looks for a constructor that
+ * receives an {@link Application} and {@link SavedStateHandle} (in this order), otherwise
+ * it looks for a constructor that receives {@link SavedStateHandle} only.
+ */
+public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
+    private final Application mApplication;
+    private final ViewModelProvider.AndroidViewModelFactory mFactory;
 
-    SavedStateVMFactory(SavedStateRegistry<Bundle> savedStateStore, Bundle initialArgs,
-            ViewModelWithStateFactory factory) {
-        mWrappedFactory = factory;
-        mSavedStateStore = savedStateStore;
-        mInitialArgs = initialArgs;
+    /**
+     * Creates {@link SavedStateVMFactory}.
+     * <p>
+     * {@link ViewModel} created with this factory can access to saved state scoped to
+     * the given {@code fragment}.
+     *
+     * @param fragment scope of this fragment will be used for state saving
+     */
+    public SavedStateVMFactory(@NonNull Fragment fragment) {
+        this(fragment, null);
+    }
+
+    /**
+     * Creates {@link SavedStateVMFactory}.
+     * <p>
+     * {@link ViewModel} created with this factory can access to saved state scoped to
+     * the given {@code fragment}.
+     *
+     * @param fragment scope of this fragment will be used for state saving
+     * @param defaultArgs values from this {@code Bundle} will be used as defaults by
+     * {@link SavedStateHandle} if there is no previously saved state or previously saved state
+     * miss a value by such key.
+     */
+    public SavedStateVMFactory(@NonNull Fragment fragment, @Nullable Bundle defaultArgs) {
+        this(checkApplication(checkActivity(fragment)),
+                fragment.getBundleSavedStateRegistry(), defaultArgs);
+    }
+
+    /**
+     * Creates {@link SavedStateVMFactory}.
+     * <p>
+     * {@link ViewModel} created with this factory can access to saved state scoped to
+     * the given {@code activity}.
+     *
+     * @param activity scope of this activity will be used for state saving
+     */
+    public SavedStateVMFactory(@NonNull FragmentActivity activity) {
+        this(activity, null);
+    }
+
+    /**
+     * Creates {@link SavedStateVMFactory}.
+     * <p>
+     * {@link ViewModel} created with this factory can access to saved state scoped to
+     * the given {@code activity}.
+     *
+     * @param activity scope of this activity will be used for state saving
+     * @param defaultArgs values from this {@code Bundle} will be used as defaults by
+     * {@link SavedStateHandle} if there is no previously saved state or previously saved state
+     * misses a value by such key.
+     */
+    public SavedStateVMFactory(@NonNull FragmentActivity activity, @Nullable Bundle defaultArgs) {
+        this(checkApplication(activity), activity.getBundleSavedStateRegistry(), defaultArgs);
+    }
+
+    /**
+     * Creates {@link SavedStateVMFactory}.
+     * <p>
+     * {@link ViewModel} created with this factory can access to saved state scoped to
+     * the given {@code activity}.
+     *
+     * @param application an application
+     * @param savedStateRegistry registry to retrieve saved state from and later to contribute
+     * @param defaultArgs values from this {@code Bundle} will be used as defaults by
+     * {@link SavedStateHandle} if there is no previously saved state or previously saved state
+     * misses a value by such key.
+     */
+    public SavedStateVMFactory(@NonNull Application application,
+            @NonNull SavedStateRegistry<Bundle> savedStateRegistry,
+            @Nullable Bundle defaultArgs) {
+        super(application, savedStateRegistry, defaultArgs);
+        mApplication = application;
+        mFactory = ViewModelProvider.AndroidViewModelFactory.getInstance(application);
     }
 
     @NonNull
     @Override
-    public <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass) {
-        Bundle savedState = mSavedStateStore.consumeRestoredStateForKey(key);
-        SavedStateHandle handle = new SavedStateHandle(mInitialArgs, savedState);
-        mSavedStateStore.registerSavedStateProvider(key, handle.savedStateComponent());
-        T viewmodel = mWrappedFactory.create(key, modelClass, handle);
-        viewmodel.setTagIfAbsent(TAG_SAVED_STATE_HANDLE, handle);
-        return viewmodel;
+    protected <T extends ViewModel> T create(@NonNull String key, @NonNull Class<T> modelClass,
+            @NonNull SavedStateHandle handle) {
+        boolean isAndroidViewModel = AndroidViewModel.class.isAssignableFrom(modelClass);
+        Constructor<T> constructor;
+        if (isAndroidViewModel) {
+            constructor = findMatchingConstructor(modelClass, ANDROID_VIEWMODEL_SIGNATURE);
+        } else {
+            constructor = findMatchingConstructor(modelClass, VIEWMODEL_SIGNATURE);
+        }
+        if (constructor == null) {
+            return mFactory.create(modelClass);
+        }
+        try {
+            if (isAndroidViewModel) {
+                return constructor.newInstance(mApplication, handle);
+            } else {
+                return constructor.newInstance(handle);
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to access " + modelClass, e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException("A " + modelClass + " cannot be instantiated.", e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException("An exception happened in constructor of "
+                    + modelClass, e.getCause());
+        }
+    }
+
+    private static final Class<?>[] ANDROID_VIEWMODEL_SIGNATURE = new Class[]{Application.class,
+            SavedStateHandle.class};
+    private static final Class<?>[] VIEWMODEL_SIGNATURE = new Class[]{SavedStateHandle.class};
+
+    @SuppressWarnings("unchecked")
+    private static <T> Constructor<T> findMatchingConstructor(Class<T> modelClass,
+            Class<?>[] signature) {
+        for (Constructor<?> constructor : modelClass.getConstructors()) {
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            if (Arrays.equals(signature, parameterTypes)) {
+                return (Constructor<T>) constructor;
+            }
+        }
+        return null;
+    }
+
+    private static Application checkApplication(Activity activity) {
+        Application application = activity.getApplication();
+        if (application == null) {
+            throw new IllegalStateException("Your activity/fragment is not yet attached to "
+                    + "Application. You can't request ViewModelsWithStateFactory "
+                    + "before onCreate call.");
+        }
+        return application;
+    }
+
+    private static Activity checkActivity(Fragment fragment) {
+        Activity activity = fragment.getActivity();
+        if (activity == null) {
+            throw new IllegalStateException("Can't create ViewModelsWithStateFactory"
+                    + " for detached fragment");
+        }
+        return activity;
     }
 }
-
