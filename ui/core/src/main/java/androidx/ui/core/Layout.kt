@@ -19,7 +19,6 @@ import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.R4a
-import com.google.r4a.composer
 
 /**
  * A part of the composition that can be measured. This represents a [MeasureBox] somewhere
@@ -74,16 +73,37 @@ class Placeable internal constructor(private val measureBox: MeasureBox) {
  */
 class MeasureBox(@Children(composable = false) var block: (constraints: Constraints, measureOperations: MeasureOperations) -> Unit) :
     Component() {
-    var bust: Double = 0.0
     internal var layoutBlock: () -> Unit = {}
     private val ref = Ref<LayoutNode>()
     internal val layoutNode: LayoutNode get() = ref.value!!
     internal var ambients: Ambient.Reference? = null
 
+    /**
+     * We should keep the list of all the children as later when we will need to remeasure them
+     * during the Android View onMeasure call. It will not be a composition pass so we will not
+     * be able to go through the composition tree and recollect.
+     * It currently doesn't work well with dynamic inserts and removes of the children as we can't
+     * detect it and have to wait for R4a effects for this.
+     * Having effects later in onDispose we would remove the child from this list which means
+     * it is detached. Later we will also need to figure out how to detect reordering of the
+     * children as here we kind of keeping our own tree of widgets only of MeasureBox type.
+     */
+    internal val children = mutableListOf<MeasureBox>()
+
+    /**
+     * During the first compose we have to add this MeasureBox into a parent children list.
+     * That is how we attach the child into the parent.
+     * We could later reimplemented it with use of R4a effects like didCommit.
+     */
+    private var firstPass = true
+
     override fun compose() {
-        <MeasureBoxes.Consumer> measureBoxes ->
-            // parent is going through collect
-            measureBoxes?.add(this)
+        <ParentsChildren.Consumer> parentsChildren ->
+            if (firstPass) {
+                // save this as a parent's child
+                parentsChildren.add(this)
+                firstPass = false
+            }
             <Ambient.Portal> reference ->
                 ambients = reference
                 <LayoutNode ref measureBox=this />
@@ -94,7 +114,7 @@ class MeasureBox(@Children(composable = false) var block: (constraints: Constrai
                 recomposeMeasureBox = null
                 layout()
             }
-        </MeasureBoxes.Consumer>
+        </ParentsChildren.Consumer>
     }
 
     internal fun measure(constraints: Constraints) {
@@ -117,7 +137,7 @@ class MeasureBox(@Children(composable = false) var block: (constraints: Constrai
     }
 }
 
-internal val MeasureBoxes = Ambient.of<MutableList<MeasureBox>?> { null }
+internal val ParentsChildren = Ambient.of<MutableList<MeasureBox>>()
 
 internal var recomposeMeasureBox: MeasureBox? = null
 
@@ -132,16 +152,17 @@ class MeasureOperations internal constructor(private val measureBox: MeasureBox)
      */
     fun collect(@Children children: () -> Unit): List<Measurable> {
         val layoutNode = measureBox.layoutNode
-        val measureBoxes = mutableListOf<MeasureBox>()
-        R4a.composeInto(layoutNode, composer.composer.context, measureBox.ambients!!) {
-            <MeasureBoxes.Provider value=measureBoxes>
+
+        val ambients = measureBox.ambients!!
+        R4a.composeInto(layoutNode, ambients.getAmbient(ContextAmbient), ambients) {
+            <ParentsChildren.Provider value=measureBox.children>
                 <children />
-            </MeasureBoxes.Provider>
+            </ParentsChildren.Provider>
         }
-        measureBoxes.forEach { measureBox ->
+        measureBox.children.forEach { measureBox ->
             measureBox.layoutNode.visible = false
         }
-        return measureBoxes.map { measureBox ->
+        return measureBox.children.map { measureBox ->
             Measurable(measureBox)
         }
     }
