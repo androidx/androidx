@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.ColorFilter;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -30,6 +31,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -119,7 +121,7 @@ public class CarToolbar extends ViewGroup {
     }
 
     public CarToolbar(Context context, AttributeSet attrs, int defStyleAttr) {
-        this(context, attrs, defStyleAttr, /* defStyleRes= */ 0);
+        this(context, attrs, defStyleAttr, R.style.Widget_Car_CarToolbar);
     }
 
     public CarToolbar(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -154,6 +156,12 @@ public class CarToolbar extends ViewGroup {
 
             setNavigationIcon(a.getResourceId(R.styleable.CarToolbar_navigationIcon,
                     R.drawable.ic_nav_arrow_back));
+
+            int navigationIconTintResId =
+                    a.getResourceId(R.styleable.CarToolbar_navigationIconTint, -1);
+            if (navigationIconTintResId != -1) {
+                setNavigationIconTint(context.getColor(navigationIconTintResId));
+            }
 
             int titleIconResId = a.getResourceId(R.styleable.CarToolbar_titleIcon, -1);
             setTitleIcon(titleIconResId != -1
@@ -315,6 +323,29 @@ public class CarToolbar extends ViewGroup {
         }
         mNavButtonView.setVisibility(VISIBLE);
         mNavButtonView.setImageDrawable(icon);
+    }
+
+    /**
+     * Sets the tint color for the navigation icon.
+     *
+     * @param tint Color tint to apply.
+     *
+     * @attr ref R.styleable#CarToolbar_navigationIconTint
+     */
+    public void setNavigationIconTint(@ColorInt int tint) {
+        mNavButtonView.setColorFilter(tint);
+    }
+
+    /**
+     * Sets the given {@link ColorFilter} as the tint for the navigation icon. A {@code null}
+     * {@code ColorFilter} will clear any set color filters.
+     *
+     * @param colorFilter Color filter to apply for the tint.
+     *
+     * @attr ref R.styleable#CarToolbar_navigationIconTint
+     */
+    public void setNavigationIconTint(@Nullable ColorFilter colorFilter) {
+        mNavButtonView.setColorFilter(colorFilter);
     }
 
     /**
