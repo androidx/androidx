@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
-import android.graphics.drawable.Icon;
+import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -30,6 +30,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
@@ -151,12 +152,12 @@ public class CarToolbar extends ViewGroup {
             setTitleTextAppearance(a.getResourceId(R.styleable.CarToolbar_titleTextAppearance,
                     R.style.TextAppearance_Car_Body1_Medium));
 
-            setNavigationIcon(Icon.createWithResource(getContext(),
-                    a.getResourceId(R.styleable.CarToolbar_navigationIcon,
-                            R.drawable.ic_nav_arrow_back)));
+            setNavigationIcon(a.getResourceId(R.styleable.CarToolbar_navigationIcon,
+                    R.drawable.ic_nav_arrow_back));
 
             int titleIconResId = a.getResourceId(R.styleable.CarToolbar_titleIcon, -1);
-            setTitleIcon(titleIconResId != -1 ? Icon.createWithResource(context, titleIconResId)
+            setTitleIcon(titleIconResId != -1
+                    ? context.getDrawable(titleIconResId)
                     : null);
 
             setTitleIconSize(a.getDimensionPixelSize(R.styleable.CarToolbar_titleIconSize,
@@ -168,8 +169,8 @@ public class CarToolbar extends ViewGroup {
             setSubtitleTextAppearance(a.getResourceId(R.styleable.CarToolbar_subtitleTextAppearance,
                     R.style.TextAppearance_Car_Body2));
 
-            setOverflowIcon(Icon.createWithResource(getContext(),
-                    a.getResourceId(R.styleable.CarToolbar_overflowIcon, R.drawable.ic_more_vert)));
+            setOverflowIcon(a.getResourceId(R.styleable.CarToolbar_overflowIcon,
+                    R.drawable.ic_more_vert));
 
             mOverflowButtonView.setOnClickListener(v -> {
                 if (mOverflowDialog != null) {
@@ -282,6 +283,19 @@ public class CarToolbar extends ViewGroup {
         }
     }
 
+    /**
+     * Set the icon to use for the toolbar's navigation button.
+     *
+     * <p>The navigation button appears at the start of the toolbar if present. Setting an icon
+     * will make the navigation button visible.
+     *
+     * @param iconResId The resource id of the icon to set on the navigatino button.
+     *
+     * @attr ref R.styleable#CarToolbar_navigationIcon
+     */
+    public void setNavigationIcon(@DrawableRes int iconResId) {
+        setNavigationIcon(getContext().getDrawable(iconResId));
+    }
 
     /**
      * Set the icon to use for the toolbar's navigation button.
@@ -290,16 +304,17 @@ public class CarToolbar extends ViewGroup {
      * will make the navigation button visible.
      *
      * @param icon Icon to set; {@code null} will hide the icon.
+     *
      * @attr ref R.styleable#CarToolbar_navigationIcon
      */
-    public void setNavigationIcon(@Nullable Icon icon) {
+    public void setNavigationIcon(@Nullable Drawable icon) {
         if (icon == null) {
             mNavButtonView.setVisibility(GONE);
             mNavButtonView.setImageDrawable(null);
             return;
         }
         mNavButtonView.setVisibility(VISIBLE);
-        mNavButtonView.setImageDrawable(icon.loadDrawable(getContext()));
+        mNavButtonView.setImageDrawable(icon);
     }
 
     /**
@@ -333,17 +348,29 @@ public class CarToolbar extends ViewGroup {
      *
      * <p>The title icon is positioned between the navigation button and the title.
      *
+     * @param iconResId Resource id of the drawable to use as the title icon.
+     * @attr ref R.styleable#CarToolbar_titleIcon
+     */
+    public void setTitleIcon(@DrawableRes int iconResId) {
+        setTitleIcon(getContext().getDrawable(iconResId));
+    }
+
+    /**
+     * Sets the title icon to use in the toolbar.
+     *
+     * <p>The title icon is positioned between the navigation button and the title.
+     *
      * @param icon Icon to set; {@code null} will hide the icon.
      * @attr ref R.styleable#CarToolbar_titleIcon
      */
-    public void setTitleIcon(@Nullable Icon icon) {
+    public void setTitleIcon(@Nullable Drawable icon) {
         if (icon == null) {
             mTitleIconView.setVisibility(GONE);
             mTitleIconView.setImageDrawable(null);
             return;
         }
         mTitleIconView.setVisibility(VISIBLE);
-        mTitleIconView.setImageDrawable(icon.loadDrawable(getContext()));
+        mTitleIconView.setImageDrawable(icon);
     }
 
     /**
@@ -451,11 +478,26 @@ public class CarToolbar extends ViewGroup {
     /**
      * Sets the icon of the overflow menu button.
      *
-     * @param icon Icon to set.
+     * @param iconResId Resource id of the drawable to use for the overflow menu button.
+     *
      * @attr ref R.styleable#CarToolbar_overflowIcon
      */
-    public void setOverflowIcon(@NonNull Icon icon) {
-        mOverflowButtonView.setImageDrawable(icon.loadDrawable(getContext()));
+    public void setOverflowIcon(@DrawableRes int iconResId) {
+        mOverflowButtonView.setImageDrawable(getContext().getDrawable(iconResId));
+    }
+
+    /**
+     * Sets the icon of the overflow menu button.
+     *
+     * @param icon Icon to set.
+     *
+     * @attr ref R.styleable#CarToolbar_overflowIcon
+     */
+    public void setOverflowIcon(@NonNull Drawable icon) {
+        if (icon == null) {
+            throw new IllegalArgumentException("Provided overflow icon cannot be null.");
+        }
+        mOverflowButtonView.setImageDrawable(icon);
     }
 
     /**
