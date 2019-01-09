@@ -16,8 +16,9 @@
 
 package androidx.core.graphics
 
+import android.graphics.Color
 import android.graphics.Matrix
-import android.graphics.Shader
+import android.graphics.SweepGradient
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -26,8 +27,7 @@ import org.junit.Test
 class ShaderTest {
     @Test
     fun testTransform() {
-        @Suppress("DEPRECATION")
-        val shader = Shader()
+        val shader = SweepGradient(0f, 0f, Color.WHITE, Color.BLACK)
         val values = FloatArray(9)
         val matrix = Matrix()
 
