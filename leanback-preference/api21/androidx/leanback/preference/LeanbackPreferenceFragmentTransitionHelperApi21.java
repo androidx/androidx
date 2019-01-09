@@ -29,6 +29,7 @@ import androidx.leanback.transition.FadeAndShortSlide;
 /**
  * @hide
  */
+@SuppressWarnings("RestrictedApi")
 @RequiresApi(21)
 @RestrictTo(LIBRARY_GROUP)
 public class LeanbackPreferenceFragmentTransitionHelperApi21 {
