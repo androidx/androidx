@@ -84,7 +84,6 @@ import androidx.ui.services.text_editing.TextSelection
  *   [softWrap].
  *   The value may be null. If it is not null, then it must be greater than zero.
  */
-private const val ELLIPSIS: String = "\u2026"
 
 class RenderParagraph(
     text: TextSpan,
@@ -110,7 +109,7 @@ class RenderParagraph(
             textDirection = textDirection,
             textScaleFactor = textScaleFactor,
             maxLines = maxLines,
-            ellipsis = if (overflow == TextOverflow.ELLIPSIS) ELLIPSIS else null
+            ellipsis = overflow == TextOverflow.ELLIPSIS
         )
     }
 
@@ -164,7 +163,7 @@ class RenderParagraph(
         set(value) {
             if (field == value) return
             field = value
-            textPainter.ellipsis = if (value === TextOverflow.ELLIPSIS) ELLIPSIS else null
+            textPainter.ellipsis = value === TextOverflow.ELLIPSIS
             markNeedsLayout()
         }
 

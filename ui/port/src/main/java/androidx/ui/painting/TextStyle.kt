@@ -412,7 +412,7 @@ data class TextStyle(
         textAlign: TextAlign? = null,
         textDirection: TextDirection? = null,
         textScaleFactor: Float = 1.0f,
-        ellipsis: String? = null,
+        ellipsis: Boolean? = null,
         maxLines: Int? = null,
         locale: Locale? = null
     ): ParagraphStyle {

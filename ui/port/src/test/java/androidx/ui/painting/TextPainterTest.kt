@@ -84,7 +84,7 @@ class TextPainterTest() {
 
     @Test
     fun `constructor with customized ellipsis`() {
-        val ellipsis = "......"
+        val ellipsis = true
 
         val textPainter = TextPainter(ellipsis = ellipsis)
 
@@ -163,7 +163,7 @@ class TextPainterTest() {
     @Test
     fun `ellipsis setter`() {
         val textPainter = TextPainter()
-        val ellipsis = "......"
+        val ellipsis = true
 
         textPainter.ellipsis = ellipsis
 
@@ -189,7 +189,7 @@ class TextPainterTest() {
         val fontSize = 15.0f
         val scaleFactor = 3.0f
         val maxLines = 5
-        val ellipsis = "..."
+        val ellipsis = true
         val locale = Locale("en", "US")
         val textStyle = TextStyle(fontSize = fontSize)
         val textSpan = TextSpan(text = "Hello", style = textStyle)
@@ -217,7 +217,7 @@ class TextPainterTest() {
     fun `createParagraphStyle without TextStyle in TextSpan`() {
         val scaleFactor = 3.0f
         val maxLines = 5
-        val ellipsis = "..."
+        val ellipsis = true
         val locale = Locale("en", "US")
         val textSpan = TextSpan(text = "Hello")
         val textPainter = TextPainter(
@@ -245,7 +245,7 @@ class TextPainterTest() {
         val fontSize = 15.0f
         val scaleFactor = 3.0f
         val maxLines = 5
-        val ellipsis = "..."
+        val ellipsis = true
         val locale = Locale("en", "US")
         val textStyle = TextStyle(fontSize = fontSize)
         val textSpan = TextSpan(text = "Hello", style = textStyle)
