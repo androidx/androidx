@@ -223,7 +223,7 @@ internal class ParagraphAndroid constructor(
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
             }
-            // TODO(Migration/haoyuchang): implement decorationStyle, decorationColor
+
             style.decoration?.let {
                 if (it.contains(TextDecoration.underline)) {
                     spannableString.setSpan(

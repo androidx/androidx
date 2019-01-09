@@ -33,8 +33,8 @@ import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
-import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
+import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.MessageProperty
 import androidx.ui.foundation.diagnostics.StringProperty
 import androidx.ui.foundation.diagnostics.describeIdentity
@@ -63,7 +63,6 @@ private const val _defaultFontSize: Float = 14.0f
  * * `locale`: The locale used to select region-specific glyphs.
  * * `background`: The background color for the text.
  * * `decoration`: The decorations to paint near the text (e.g., an underline).
- * * `decorationColor`: The color in which to paint the text decorations.
  * * `debugLabel`: A human-readable description of this text style.
  * * `fontFamily`: The name of the font to use when painting the text (e.g., Roboto).
  * * It is combined with the `fontFamily` argument to set the [fontFamily] property.
@@ -87,7 +86,6 @@ data class TextStyle(
     // TODO(Migration/qqd): The flutter version we are implementing does not have "foreground" in
     // painting/TextStyle, but has it in engine/TextStyle.
     val decoration: TextDecoration? = null,
-    val decorationColor: Color? = null,
     val debugLabel: String? = null,
     var fontFamily: FontFamily? = null
 ) : Diagnosticable {
@@ -99,8 +97,8 @@ data class TextStyle(
     /**
      * Creates a copy of this text style replacing or altering the specified properties.
      *
-     * The non-numeric properties [color], [fontFamily], [decoration], [decorationColor] replaced
-     * with the new values.
+     * The non-numeric properties [color], [fontFamily], [decoration] replaced with the new values.
+     *
      *
      * The numeric properties are multiplied by the given factors and then incremented by the given
      * deltas.
@@ -122,7 +120,6 @@ data class TextStyle(
     fun apply(
         color: Color? = null,
         decoration: TextDecoration? = null,
-        decorationColor: Color? = null,
         fontFamily: FontFamily? = null,
         fontSizeFactor: Float = 1.0f,
         fontSizeDelta: Float = 0.0f,
@@ -170,7 +167,6 @@ data class TextStyle(
             locale = locale,
             background = background,
             decoration = decoration ?: this.decoration,
-            decorationColor = decorationColor ?: this.decorationColor,
             debugLabel = modifiedDebugLabel
         )
     }
@@ -216,7 +212,6 @@ data class TextStyle(
             locale = other.locale ?: this.locale,
             background = other.background ?: this.background,
             decoration = other.decoration ?: this.decoration,
-            decorationColor = other.decorationColor ?: this.decorationColor,
             debugLabel = mergedDebugLabel
         )
     }
@@ -270,7 +265,6 @@ data class TextStyle(
                     locale = b?.locale,
                     background = b?.background,
                     decoration = b?.decoration,
-                    decorationColor = b?.decorationColor,
                     debugLabel = lerpDebugLabel
                 )
                 if (t < 0.5) {
@@ -278,7 +272,6 @@ data class TextStyle(
                         inherit = newB.inherit,
                         color = Color.lerp(null, newB.color, t),
                         fontWeight = FontWeight.lerp(null, newB.fontWeight, t),
-                        decorationColor = Color.lerp(null, newB.decorationColor, t),
                         debugLabel = lerpDebugLabel
                     )
                 } else {
@@ -297,7 +290,6 @@ data class TextStyle(
                         locale = newB.locale,
                         background = newB.background,
                         decoration = newB.decoration,
-                        decorationColor = Color.lerp(null, newB.decorationColor, t),
                         debugLabel = lerpDebugLabel
                     )
                 }
@@ -320,7 +312,6 @@ data class TextStyle(
                         locale = a.locale,
                         background = a.background,
                         decoration = a.decoration,
-                        decorationColor = Color.lerp(a.decorationColor, null, t),
                         debugLabel = lerpDebugLabel
                     )
                 } else {
@@ -328,7 +319,6 @@ data class TextStyle(
                         inherit = a.inherit,
                         color = Color.lerp(a.color, null, t),
                         fontWeight = FontWeight.lerp(a.fontWeight, null, t),
-                        decorationColor = Color.lerp(a.decorationColor, null, t),
                         debugLabel = lerpDebugLabel
                     )
                 }
@@ -361,7 +351,6 @@ data class TextStyle(
                 locale = if (t < 0.5) a.locale else b.locale,
                 background = if (t < 0.5) a.background else b.background,
                 decoration = if (t < 0.5) a.decoration else b.decoration,
-                decorationColor = Color.lerp(a.decorationColor, b.decorationColor, t),
                 debugLabel = lerpDebugLabel
             )
         }
@@ -372,7 +361,6 @@ data class TextStyle(
         return androidx.ui.engine.text.TextStyle(
             color = color,
             decoration = decoration,
-            decorationColor = decorationColor,
             fontWeight = fontWeight,
             fontStyle = fontStyle,
             fontSynthesis = fontSynthesis,
@@ -447,12 +435,7 @@ data class TextStyle(
         ) {
             return RenderComparison.LAYOUT
         }
-        if (color != other.color ||
-            decoration != other.decoration ||
-            decorationColor != other.decorationColor
-        ) {
-            return RenderComparison.PAINT
-        }
+        if (color != other.color || decoration != other.decoration) return RenderComparison.PAINT
         return RenderComparison.IDENTICAL
     }
 
@@ -521,23 +504,8 @@ data class TextStyle(
                 quoted = false
             )
         )
-        if (decoration != null || decorationColor != null) {
+        if (decoration != null) {
             var decorationDescription: MutableList<String> = mutableListOf()
-
-            // Hide decorationColor from the default text view as it is shown in the
-            // terse decoration summary as well.
-            styles.add(
-                DiagnosticsProperty.create(
-                    "decorationColor",
-                    decorationColor,
-                    defaultValue = null,
-                    level = DiagnosticLevel.fine
-                )
-            )
-
-            if (decorationColor != null) {
-                decorationDescription.add("$decorationColor")
-            }
 
             // Intentionally collide with the property 'decoration' added below.
             // Tools that show hidden properties could choose the first property

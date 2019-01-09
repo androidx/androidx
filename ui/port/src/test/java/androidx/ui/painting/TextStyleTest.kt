@@ -50,7 +50,6 @@ class TextStyleTest {
         assertThat(textStyle.locale).isNull()
         assertThat(textStyle.background).isNull()
         assertThat(textStyle.decoration).isNull()
-        assertThat(textStyle.decorationColor).isNull()
         assertThat(textStyle.debugLabel).isNull()
         assertThat(textStyle.fontFamily).isNull()
     }
@@ -162,15 +161,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `constructor with customized decorationColor`() {
-        val color = Color(0xFF00FF00.toInt())
-
-        val textStyle = TextStyle(decorationColor = color)
-
-        assertThat(textStyle.decorationColor).isEqualTo(color)
-    }
-
-    @Test
     fun `constructor with customized debugLabel`() {
         val label = "foo"
 
@@ -206,7 +196,6 @@ class TextStyleTest {
         assertThat(textStyle.locale).isNull()
         assertThat(textStyle.background).isNull()
         assertThat(textStyle.decoration).isNull()
-        assertThat(textStyle.decorationColor).isNull()
         assertThat(textStyle.debugLabel).isNull()
         assertThat(textStyle.fontFamily).isNull()
         assertThat(textStyle.fontSynthesis).isNull()
@@ -230,16 +219,6 @@ class TextStyleTest {
         val newTextStyle = textStyle.apply(decoration = decoration)
 
         assertThat(newTextStyle.decoration).isEqualTo(decoration)
-    }
-
-    @Test
-    fun `apply with decorationColor`() {
-        val textStyle = TextStyle()
-        val color = Color(0xFF00FF00.toInt())
-
-        val newTextStyle = textStyle.apply(decorationColor = color)
-
-        assertThat(newTextStyle.decorationColor).isEqualTo(color)
     }
 
     @Test
@@ -616,29 +595,6 @@ class TextStyleTest {
         val newTextStyle = textStyle.merge(otherTextStyle)
 
         assertThat(newTextStyle.decoration).isEqualTo(otherDecoration)
-    }
-
-    @Test
-    fun `merge with other's decorationColor is null should use this' decorationColor`() {
-        val color = Color(0xFF00FF00.toInt())
-        val textStyle = TextStyle(decorationColor = color)
-        val otherTextStyle = TextStyle()
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.decorationColor).isEqualTo(color)
-    }
-
-    @Test
-    fun `merge with other's decorationColor is set should use other's decorationColor`() {
-        val color = Color(0xFF00FF00.toInt())
-        val otherColor = Color(0x00FFFF00)
-        val textStyle = TextStyle(decorationColor = color)
-        val otherTextStyle = TextStyle(decorationColor = otherColor)
-
-        val newTextStyle = textStyle.merge(otherTextStyle)
-
-        assertThat(newTextStyle.decorationColor).isEqualTo(otherColor)
     }
 
     @Test
@@ -1795,75 +1751,6 @@ class TextStyleTest {
     }
 
     @Test
-    fun `lerp decorationColor with a is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00.toInt())
-        val t = 0.2f
-        val textStyle = TextStyle(decorationColor = color)
-
-        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-
-        assertThat(newTextStyle?.decorationColor).isEqualTo(Color.lerp(null, color, t))
-    }
-
-    @Test
-    fun `lerp decorationColor with a is Null and t is larger than half`() {
-        val color = Color(0xFF00FF00.toInt())
-        val t = 0.8f
-        val textStyle = TextStyle(decorationColor = color)
-
-        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
-
-        assertThat(newTextStyle?.decorationColor).isEqualTo(Color.lerp(null, color, t))
-    }
-
-    @Test
-    fun `lerp decorationColor with b is Null and t is smaller than half`() {
-        val color = Color(0xFF00FF00.toInt())
-        val t = 0.2f
-        val textStyle = TextStyle(decorationColor = color)
-
-        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-
-        assertThat(newTextStyle?.decorationColor).isEqualTo(Color.lerp(color, null, t))
-    }
-
-    @Test
-    fun `lerp decorationColor with b is Null and t is larger than half`() {
-        val color = Color(0xFF00FF00.toInt())
-        val t = 0.8f
-        val textStyle = TextStyle(decorationColor = color)
-
-        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
-
-        assertThat(newTextStyle?.decorationColor).isEqualTo(Color.lerp(color, null, t))
-    }
-
-    @Test
-    fun `lerp decorationColor with a and b are not Null`() {
-        val color1 = Color(0xFF00FF00.toInt())
-        val color2 = Color(0x00FFFF00)
-        val t = 0.8f
-        val textStyle1 = TextStyle(
-            fontSize = 4.0f,
-            wordSpacing = 1.0f,
-            letterSpacing = 2.0f,
-            height = 123.0f,
-            decorationColor = color1
-        )
-        val textStyle2 = TextStyle(
-            fontSize = 7.0f,
-            wordSpacing = 2.0f,
-            letterSpacing = 4.0f,
-            height = 20.0f,
-            decorationColor = color2
-        )
-
-        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
-
-        assertThat(newTextStyle?.decorationColor).isEqualTo(Color.lerp(color1, color2, t))
-    }
-
-    @Test
     fun `lerp returns debugLabel when both a and b's debugLabel are Null`() {
         val textStyle1 = TextStyle(
             fontSize = 4.0f,
@@ -2119,7 +2006,6 @@ class TextStyleTest {
             locale = Locale("en", "US"),
             background = bgColor,
             decoration = TextDecoration.overline,
-            decorationColor = color,
             debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif")
         )
@@ -2181,7 +2067,6 @@ class TextStyleTest {
             height = height,
             locale = Locale("en", "US"),
             decoration = TextDecoration.overline,
-            decorationColor = color1,
             debugLabel = "foo",
             fontFamily = FontFamily(genericFamily = "sans-serif")
         )
@@ -2190,9 +2075,6 @@ class TextStyleTest {
             .isEqualTo(RenderComparison.PAINT)
 
         assertThat(textStyle.compareTo(textStyle.copy(decoration = TextDecoration.lineThrough)))
-            .isEqualTo(RenderComparison.PAINT)
-
-        assertThat(textStyle.compareTo(textStyle.copy(decorationColor = color2)))
             .isEqualTo(RenderComparison.PAINT)
     }
 }

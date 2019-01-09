@@ -194,22 +194,19 @@ fun TextDemoTextDecoration(bust: Double) {
                                 text = displayText,
                                 style = TextStyle(
                                         fontSize = fontSize8,
-                                        decoration = TextDecoration.lineThrough,
-                                        decorationColor = Color(0xFFFF0000.toInt())
+                                        decoration = TextDecoration.lineThrough
                                 )),
                         TextSpan(
                                 text = displayText,
                                 style = TextStyle(
                                         fontSize = fontSize8,
-                                        decoration = TextDecoration.overline,
-                                        decorationColor = Color(0xFF00FF00.toInt())
+                                        decoration = TextDecoration.overline
                                 )),
                         TextSpan(
                                 text = displayText + '\n',
                                 style = TextStyle(
                                         fontSize = fontSize8,
-                                        decoration = TextDecoration.underline,
-                                        decorationColor = Color(0xFF0000FF.toInt())
+                                        decoration = TextDecoration.underline
                                 )),
                         TextSpan(
                                 text = displayText,
@@ -218,17 +215,8 @@ fun TextDemoTextDecoration(bust: Double) {
                                         decoration = TextDecoration.combine(
                                                 listOf(
                                                         TextDecoration.underline,
-                                                        TextDecoration.lineThrough)),
-                                        decorationColor = Color(0xFFFF00FF.toInt())
-                                )),
-                        TextSpan(
-                                text = displayText,
-                                style = TextStyle(
-                                        fontSize = fontSize8,
-                                        decoration = TextDecoration.lineThrough,
-                                        decorationColor = Color(0xFFFFFF00.toInt())
+                                                        TextDecoration.lineThrough))
                                 ))
-
                 )
         ) />
     </CraneWrapper>
