@@ -48,7 +48,6 @@ public class CarToolbarActivity extends AppCompatActivity {
             items.add(new CarMenuItem.Builder()
                         .setTitle("Action item")
                         .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
-                        .setStyle(R.style.Widget_Car_Button_Borderless_Colored)
                         .build());
             carToolbar.setMenuItems(items);
         });
@@ -57,7 +56,6 @@ public class CarToolbarActivity extends AppCompatActivity {
             items.add(new CarMenuItem.Builder()
                         .setTitle("If_Room item")
                         .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
-                        .setStyle(R.style.Widget_Car_Button_Borderless_Colored)
                         .build());
             carToolbar.setMenuItems(items);
         });
@@ -66,7 +64,6 @@ public class CarToolbarActivity extends AppCompatActivity {
             items.add(new CarMenuItem.Builder()
                         .setTitle("Overflow item")
                         .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER)
-                        .setStyle(R.style.Widget_Car_Button_Borderless_Colored)
                         .build());
             carToolbar.setMenuItems(items);
         });
