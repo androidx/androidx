@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.navigation.safe.args.generator
+package androidx.navigation.safe.args.generator.java
 
-import androidx.navigation.safe.args.generator.ext.BEGIN_STMT
-import androidx.navigation.safe.args.generator.ext.END_STMT
-import androidx.navigation.safe.args.generator.ext.L
-import androidx.navigation.safe.args.generator.ext.N
-import androidx.navigation.safe.args.generator.ext.S
-import androidx.navigation.safe.args.generator.ext.T
+import androidx.navigation.safe.args.generator.BoolArrayType
+import androidx.navigation.safe.args.generator.BoolType
+import androidx.navigation.safe.args.generator.FloatArrayType
+import androidx.navigation.safe.args.generator.FloatType
+import androidx.navigation.safe.args.generator.IntArrayType
+import androidx.navigation.safe.args.generator.IntType
+import androidx.navigation.safe.args.generator.LongArrayType
+import androidx.navigation.safe.args.generator.LongType
+import androidx.navigation.safe.args.generator.ObjectArrayType
+import androidx.navigation.safe.args.generator.ObjectType
+import androidx.navigation.safe.args.generator.ReferenceArrayType
+import androidx.navigation.safe.args.generator.ReferenceType
+import androidx.navigation.safe.args.generator.StringArrayType
+import androidx.navigation.safe.args.generator.StringType
 import androidx.navigation.safe.args.generator.ext.toCamelCase
 import androidx.navigation.safe.args.generator.ext.toCamelCaseAsVar
 import androidx.navigation.safe.args.generator.models.Action
@@ -39,36 +47,12 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
-private const val NAVIGATION_PACKAGE = "androidx.navigation"
-private val NAV_ARGS_CLASSNAME: ClassName = ClassName.get(NAVIGATION_PACKAGE, "NavArgs")
-private val NAV_DIRECTION_CLASSNAME: ClassName = ClassName.get(NAVIGATION_PACKAGE, "NavDirections")
-internal val HASHMAP_CLASSNAME: ClassName = ClassName.get("java.util", "HashMap")
-internal val BUNDLE_CLASSNAME: ClassName = ClassName.get("android.os", "Bundle")
-
-internal abstract class Annotations {
-    abstract val NULLABLE_CLASSNAME: ClassName
-    abstract val NONNULL_CLASSNAME: ClassName
-
-    private object AndroidAnnotations : Annotations() {
-        override val NULLABLE_CLASSNAME = ClassName.get("android.support.annotation", "Nullable")
-        override val NONNULL_CLASSNAME = ClassName.get("android.support.annotation", "NonNull")
-    }
-
-    private object AndroidXAnnotations : Annotations() {
-        override val NULLABLE_CLASSNAME = ClassName.get("androidx.annotation", "Nullable")
-        override val NONNULL_CLASSNAME = ClassName.get("androidx.annotation", "NonNull")
-    }
-
-    companion object {
-        fun getInstance(useAndroidX: Boolean): Annotations {
-            if (useAndroidX) {
-                return AndroidXAnnotations
-            } else {
-                return AndroidAnnotations
-            }
-        }
-    }
-}
+const val L = "\$L"
+const val N = "\$N"
+const val T = "\$T"
+const val S = "\$S"
+const val BEGIN_STMT = "\$["
+const val END_STMT = "\$]"
 
 private class ClassWithArgsSpecs(
     val args: List<Argument>,
@@ -215,6 +199,7 @@ private class ClassWithArgsSpecs(
                 BoolArrayType, ReferenceArrayType, is ObjectArrayType, is ObjectType ->
                     "$getterName != null ? !$getterName.equals(that.$getterName) " +
                         ": that.$getterName != null"
+                else -> throw IllegalStateException("unknown type: $type")
             }
             beginControlFlow("if ($N)", compareExpression).apply {
                 addStatement("return false")
@@ -249,6 +234,7 @@ private class ClassWithArgsSpecs(
                     "($getterName != null ? $getterName.hashCode() : 0)"
                 BoolType -> "($getterName ? 1 : 0)"
                 LongType -> "(int)($getterName ^ ($getterName >>> 32))"
+                else -> throw IllegalStateException("unknown type: $type")
             }
             addStatement("result = 31 * result + $N", hashCodeExpression)
         }
@@ -369,7 +355,7 @@ fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
             .build()
 }
 
-internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean): JavaFile {
+fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean): JavaFile {
     val annotations = Annotations.getInstance(useAndroidX)
     val destName = destination.name
             ?: throw IllegalStateException("Destination with arguments must have name")
