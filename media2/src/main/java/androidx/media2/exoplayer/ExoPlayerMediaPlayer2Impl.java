@@ -667,7 +667,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
     }
 
     @Override
-    public void onSeekCompleted(long positionMs) {
+    public void onSeekCompleted() {
         synchronized (mTaskLock) {
             if (mCurrentTask != null
                     && mCurrentTask.mMediaCallType == CALL_COMPLETED_SEEK_TO
@@ -853,7 +853,7 @@ public final class ExoPlayerMediaPlayer2Impl extends MediaPlayer2
             return result;
         } catch (ExecutionException e) {
             Throwable cause = e.getCause();
-            Log.e(TAG, "Internal player error", cause);
+            Log.e(TAG, "Internal player error", new RuntimeException(cause));
             throw new IllegalStateException(cause);
         }
     }
