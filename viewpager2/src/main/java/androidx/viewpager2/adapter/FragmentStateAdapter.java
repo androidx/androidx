@@ -62,7 +62,7 @@ public abstract class FragmentStateAdapter extends
             new RecyclerView.AdapterDataObserver() {
                 @Override
                 public void onChanged() {
-                    // TODO: implement more efficiently
+                    // TODO(122667374): implement more efficiently
                     /** Below effectively removes all Fragments and state of no longer used items.
                      * See {@link FragmentStateAdapter#containsItem(long)} */
                     Parcelable state = FragmentStateAdapter.this.saveState();
@@ -136,7 +136,7 @@ public abstract class FragmentStateAdapter extends
             return;
         }
         mFragmentManager.beginTransaction().add(holder.getContainer().getId(),
-                holder.mFragment).commit(); // TODO: review transaction commit type usage
+                holder.mFragment).commit(); // TODO(122669030): review transaction commit type usage
     }
 
     @Override
@@ -188,7 +188,7 @@ public abstract class FragmentStateAdapter extends
     /**
      * Default implementation works for collections that don't add, move, remove items.
      * <p>
-     * TODO: add lint rule
+     * TODO(b/122670460): add lint rule
      * When overriding, also override {@link #containsItem(long)}.
      * <p>
      * If the item is not a part of the collection, return {@link RecyclerView#NO_ID}.
@@ -204,7 +204,7 @@ public abstract class FragmentStateAdapter extends
     /**
      * Default implementation works for collections that don't add, move, remove items.
      * <p>
-     * TODO: add lint rule
+     * TODO(b/122670460): add lint rule
      * When overriding, also override {@link #getItemId(int)}
      */
     public boolean containsItem(long itemId) {
@@ -230,7 +230,7 @@ public abstract class FragmentStateAdapter extends
             for (Long itemId : toRemove) {
                 removeFragment(mFragments.get(itemId), itemId, fragmentTransaction);
             }
-            // TODO: add a recovery step / handle in a more graceful manner
+            // TODO(b/122669030): add a recovery step / handle in a more graceful manner
             fragmentTransaction.commitNowAllowingStateLoss();
         }
 
@@ -246,7 +246,7 @@ public abstract class FragmentStateAdapter extends
             }
         }
 
-        /** TODO: use custom {@link Parcelable} instead of {@link Bundle} to save space */
+        /** TODO(b/122670461): use custom {@link Parcelable} instead of Bundle to save space */
         Bundle savedState = new Bundle(2);
         savedState.putLongArray(STATE_ARG_KEYS, keys);
         savedState.putParcelableArray(STATE_ARG_VALUES, values);

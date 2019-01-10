@@ -88,7 +88,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
      * independent of its item value.. that would allow to verify that page state is maintained even
      * if item value changes.
      *
-     * TODO:
+     * TODO(b/122667374)
      * - Consider adding a [TextView] independent of item value and use for testing state saving.
      * - Document the nuance above.
      * - Discuss the above when finalizing the API.
@@ -126,7 +126,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
             setCurrentItemSync(pageIx)
             val expectedValue = items[pageIx]
 
-            // TODO: revising existing listeners so users don't have to rely on polling
+            // TODO(b/122667374): revising existing listeners so users don't have to rely on polling
             PollingCheck.waitFor(5000) { isPageContentExpected(expectedValue) }
 
             assertThat(isPageContentExpected(expectedValue), equalTo(true))
