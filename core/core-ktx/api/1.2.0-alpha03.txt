@@ -243,6 +243,9 @@ package androidx.core.graphics {
     method public static inline operator android.graphics.RectF plus(android.graphics.RectF, float xy);
     method public static inline operator android.graphics.Rect plus(android.graphics.Rect, android.graphics.Point xy);
     method public static inline operator android.graphics.RectF plus(android.graphics.RectF, android.graphics.PointF xy);
+    method public static inline operator android.graphics.Rect times(android.graphics.Rect, int factor);
+    method public static inline operator android.graphics.RectF times(android.graphics.RectF, int factor);
+    method public static inline operator android.graphics.RectF times(android.graphics.RectF, float factor);
     method public static inline android.graphics.Rect toRect(android.graphics.RectF);
     method public static inline android.graphics.RectF toRectF(android.graphics.Rect);
     method public static inline android.graphics.Region toRegion(android.graphics.Rect);

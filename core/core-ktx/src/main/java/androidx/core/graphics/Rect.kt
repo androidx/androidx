@@ -234,6 +234,35 @@ inline operator fun RectF.minus(xy: PointF): RectF {
 }
 
 /**
+ * Returns a new rectangle representing this rectangle's components each scaled by [factor].
+ */
+inline operator fun Rect.times(factor: Int): Rect {
+    return Rect(this).apply {
+        top *= factor
+        left *= factor
+        right *= factor
+        bottom *= factor
+    }
+}
+
+/**
+ * Returns a new rectangle representing this rectangle's components each scaled by [factor].
+ */
+inline operator fun RectF.times(factor: Int): RectF = times(factor.toFloat())
+
+/**
+ * Returns a new rectangle representing this rectangle's components each scaled by [factor].
+ */
+inline operator fun RectF.times(factor: Float): RectF {
+    return RectF(this).apply {
+        top *= factor
+        left *= factor
+        right *= factor
+        bottom *= factor
+    }
+}
+
+/**
  * Returns the union of two rectangles as a new rectangle.
  */
 inline infix fun Rect.or(r: Rect) = this + r
