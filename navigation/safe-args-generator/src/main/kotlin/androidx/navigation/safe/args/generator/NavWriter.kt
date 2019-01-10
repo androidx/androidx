@@ -40,6 +40,7 @@ import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
 
 private const val NAVIGATION_PACKAGE = "androidx.navigation"
+private val NAV_ARGS_CLASSNAME: ClassName = ClassName.get(NAVIGATION_PACKAGE, "NavArgs")
 private val NAV_DIRECTION_CLASSNAME: ClassName = ClassName.get(NAVIGATION_PACKAGE, "NavDirections")
 internal val HASHMAP_CLASSNAME: ClassName = ClassName.get("java.util", "HashMap")
 internal val BUNDLE_CLASSNAME: ClassName = ClassName.get("android.os", "Bundle")
@@ -376,9 +377,8 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
     val args = destination.args
     val specs = ClassWithArgsSpecs(args, annotations)
 
-    val fromBundleMethod = MethodSpec.methodBuilder("fromBundle").apply {
-        addAnnotation(annotations.NONNULL_CLASSNAME)
-        addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+    val bundleConstructor = MethodSpec.constructorBuilder().apply {
+        addModifiers(Modifier.PUBLIC)
         addAnnotation(specs.suppressAnnotationSpec)
         val bundle = "bundle"
         addParameter(
@@ -386,9 +386,6 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
                 .addAnnotation(specs.annotations.NONNULL_CLASSNAME)
                 .build()
         )
-        returns(className)
-        val result = "__result"
-        addStatement("$T $N = new $T()", className, result, className)
         addStatement("$N.setClassLoader($T.class.getClassLoader())", bundle, className)
         args.forEach { arg ->
             beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
@@ -396,8 +393,9 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
                 arg.type.addBundleGetStatement(this, arg, arg.sanitizedName, bundle)
                 addNullCheck(arg, arg.sanitizedName)
                 addStatement(
-                    "$result.$N.put($S, $N)",
-                    specs.hashMapFieldSpec,
+                    "$N.$N.put($S, $N)",
+                    "this",
+                    specs.hashMapFieldSpec.name,
                     arg.name,
                     arg.sanitizedName
                 )
@@ -410,10 +408,7 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
             }
             endControlFlow()
         }
-        addStatement("return $N", result)
     }.build()
-
-    val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build()
 
     val copyConstructor = MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
@@ -455,11 +450,11 @@ internal fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean
             .build()
 
     val typeSpec = TypeSpec.classBuilder(className)
+            .addSuperinterface(NAV_ARGS_CLASSNAME)
             .addModifiers(Modifier.PUBLIC)
             .addField(specs.hashMapFieldSpec)
-            .addMethod(constructor)
             .addMethod(fromMapConstructor)
-            .addMethod(fromBundleMethod)
+            .addMethod(bundleConstructor)
             .addMethods(specs.getters())
             .addMethod(specs.toBundleMethod("toBundle"))
             .addMethod(specs.equalsMethod(className))

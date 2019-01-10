@@ -17,10 +17,12 @@
 package androidx.navigation
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
-import android.view.View
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Rule
@@ -59,12 +61,34 @@ class ActivityTest {
             // Expected
         }
     }
+
+    @Test fun navArgsLazy() {
+        // Normally, this would be set by using an <activity> destination to
+        // start the Activity, but we'll fake it here in the test
+        activityRule.activity.intent = Intent(
+            activityRule.activity, TestActivity::class.java
+        ).apply {
+            putExtra("test", "test")
+        }
+        assertThat(activityRule.activity.args)
+            .isNotNull()
+        assertThat(activityRule.activity.args.bundle["test"])
+            .isEqualTo("test")
+    }
 }
 
 private const val VIEW_ID = 1
 private const val INVALID_VIEW_ID = 2
 
+/**
+ * It is a lot harder to test generated NavArgs classes, so
+ * we'll just fake one that has the same Bundle constructor
+ * that NavArgsLazy expects
+ */
+data class FakeTestArgs(val bundle: Bundle) : NavArgs
 class TestActivity : Activity() {
+    val args: FakeTestArgs by navArgs()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(View(this).apply {

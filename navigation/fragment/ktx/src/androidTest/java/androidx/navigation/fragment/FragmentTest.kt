@@ -16,12 +16,15 @@
 
 package androidx.navigation.fragment
 
+import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
+import androidx.navigation.NavArgs
 import androidx.navigation.fragment.ktx.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Rule
@@ -58,7 +61,31 @@ class ActivityTest {
             // Expected
         }
     }
+
+    @UiThreadTest
+    @Test fun navArgsLazy() {
+        val navHostFragment = NavHostFragment.create(R.navigation.test_graph)
+        fragmentManager.beginTransaction()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
+
+        // TODO Create a real API to get the current Fragment b/119800853
+        val testFragment = navHostFragment.childFragmentManager.primaryNavigationFragment
+                as TestFragment
+        assertThat(testFragment.args)
+            .isNotNull()
+        assertThat(testFragment.args.bundle["test"])
+            .isEqualTo("test")
+    }
 }
 
 class TestActivity : FragmentActivity()
-class TestFragment : Fragment()
+/**
+ * It is a lot harder to test generated NavArgs classes, so
+ * we'll just fake one that has the same Bundle constructor
+ * that NavArgsLazy expects
+ */
+data class FakeTestArgs(val bundle: Bundle) : NavArgs
+class TestFragment : Fragment() {
+    val args: FakeTestArgs by navArgs()
+}
