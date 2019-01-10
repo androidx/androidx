@@ -20,5 +20,9 @@
     app:startDestination="@+id/start">
     <fragment
         android:id="@+id/start"
-        android:name="androidx.navigation.fragment.TestFragment"/>
+        android:name="androidx.navigation.fragment.TestFragment">
+        <argument
+            android:name="test"
+            android:defaultValue="test"/>
+    </fragment>
 </navigation>

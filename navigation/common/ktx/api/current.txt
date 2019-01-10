@@ -25,6 +25,17 @@ package androidx.navigation {
     property public final int destinationId;
   }
 
+  public final class NavArgsLazy<Args extends androidx.navigation.NavArgs> implements kotlin.Lazy<Args> {
+    ctor public NavArgsLazy(kotlin.reflect.KClass<Args> navArgsClass, kotlin.jvm.functions.Function0<android.os.Bundle> argumentProducer);
+    method public Args getValue();
+    method public boolean isInitialized();
+    property public Args value;
+  }
+
+  public final class NavArgsLazyKt {
+    ctor public NavArgsLazyKt();
+  }
+
   @androidx.navigation.NavDestinationDsl public final class NavArgumentBuilder {
     ctor public NavArgumentBuilder();
     method public androidx.navigation.NavArgument build();

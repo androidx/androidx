@@ -18,6 +18,7 @@ package a.b;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import androidx.navigation.NavArgs;
 import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
@@ -25,43 +26,37 @@ import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
-public class SanitizedMainFragmentArgs {
+public class SanitizedMainFragmentArgs implements NavArgs {
     private final HashMap arguments = new HashMap();
-
-    private SanitizedMainFragmentArgs() {
-    }
 
     private SanitizedMainFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
 
-    @NonNull
     @SuppressWarnings("unchecked")
-    public static SanitizedMainFragmentArgs fromBundle(@NonNull Bundle bundle) {
-        SanitizedMainFragmentArgs __result = new SanitizedMainFragmentArgs();
+    public SanitizedMainFragmentArgs(@NonNull Bundle bundle) {
         bundle.setClassLoader(SanitizedMainFragmentArgs.class.getClassLoader());
         if (bundle.containsKey("name.with.dot")) {
             int nameWithDot;
             nameWithDot = bundle.getInt("name.with.dot");
-            __result.arguments.put("name.with.dot", nameWithDot);
+            this.arguments.put("name.with.dot", nameWithDot);
         } else {
             throw new IllegalArgumentException("Required argument \"name.with.dot\" is missing and does not have an android:defaultValue");
         }
         if (bundle.containsKey("name_with_underscore")) {
             int nameWithUnderscore;
             nameWithUnderscore = bundle.getInt("name_with_underscore");
-            __result.arguments.put("name_with_underscore", nameWithUnderscore);
+            this.arguments.put("name_with_underscore", nameWithUnderscore);
         } else {
             throw new IllegalArgumentException("Required argument \"name_with_underscore\" is missing and does not have an android:defaultValue");
         }
         if (bundle.containsKey("name with spaces")) {
             int nameWithSpaces;
             nameWithSpaces = bundle.getInt("name with spaces");
-            __result.arguments.put("name with spaces", nameWithSpaces);
+            this.arguments.put("name with spaces", nameWithSpaces);
         } else {
             throw new IllegalArgumentException("Required argument \"name with spaces\" is missing and does not have an android:defaultValue");
         }
-        return __result;
     }
 
     @SuppressWarnings("unchecked")
