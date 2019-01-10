@@ -2429,7 +2429,7 @@ public class MediaPlayer extends SessionPlayer {
                     setState(PLAYER_STATE_PLAYING);
                     break;
                 case MediaPlayer2.CALL_COMPLETED_SEEK_TO:
-                    final long pos = mPlayer.getCurrentPosition();
+                    final long pos = getCurrentPosition();
                     notifySessionPlayerCallback(new SessionPlayerCallbackNotifier() {
                         @Override
                         public void callCallback(
