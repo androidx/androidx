@@ -18,6 +18,7 @@ package androidx.ui.core
 import androidx.ui.painting.Canvas
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.Composable
 
 /**
  * Use Draw to get a [Canvas] to paint into the parent.
@@ -34,4 +35,12 @@ class Draw(@Children(composable = false) var onPaint: (canvas: Canvas, parentSiz
         // Hide the internals of DrawNode
         <DrawNode onPaint />
     }
+}
+
+/**
+ * Temporary needed to be able to use the component from the adapter module. b/120971484
+ */
+@Composable
+fun DrawComposable(@Children(composable = false) onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit) {
+    <Draw onPaint />
 }

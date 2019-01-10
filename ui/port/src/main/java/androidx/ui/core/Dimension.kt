@@ -34,7 +34,7 @@ import android.util.TypedValue
  * [toPx] is normally needed only for painting operations.
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-/*inline*/ class Dimension(val dp: Float)
+data /*inline*/ class Dimension(val dp: Float)
 
 /**
  * A dimension used to represent a hairline drawing element. Hairline elements take
