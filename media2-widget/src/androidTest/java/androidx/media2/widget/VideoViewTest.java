@@ -64,7 +64,6 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -79,10 +78,7 @@ import java.util.concurrent.Executor;
 
 /**
  * Test {@link VideoView}.
- *
- * TODO: Lower minSdkVersion to Kitkat.
  */
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class VideoViewTest {
