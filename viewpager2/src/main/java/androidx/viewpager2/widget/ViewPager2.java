@@ -84,7 +84,7 @@ public class ViewPager2 extends ViewGroup {
             new CompositeOnPageChangeListener(3);
 
     int mCurrentItem;
-    RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private ScrollEventAdapter mScrollEventAdapter;
     private PageTransformerAdapter mPageTransformerAdapter;
@@ -249,12 +249,13 @@ public class ViewPager2 extends ViewGroup {
             final ScrollEventAdapter scrollEventAdapter = mScrollEventAdapter;
             final OnPageChangeListener eventDispatcher = mPageChangeEventDispatcher;
             scrollEventAdapter.setOnPageChangeListener(null);
-            mRecyclerView.post(new Runnable() {
+            final RecyclerView recyclerView = mRecyclerView; // to avoid a synthetic accessor
+            recyclerView.post(new Runnable() {
                 @Override
                 public void run() {
                     scrollEventAdapter.setOnPageChangeListener(eventDispatcher);
                     scrollEventAdapter.notifyRestoreCurrentItem(mCurrentItem);
-                    mRecyclerView.scrollToPosition(mCurrentItem);
+                    recyclerView.scrollToPosition(mCurrentItem);
                 }
             });
         } else {
@@ -447,7 +448,7 @@ public class ViewPager2 extends ViewGroup {
         if (Math.abs(item - previousItem) > 3) {
             mRecyclerView.scrollToPosition(item > previousItem ? item - 3 : item + 3);
             // TODO(b/114361680): call smoothScrollToPosition synchronously (blocked by b/114019007)
-            mRecyclerView.post(new SmoothScrollToPosition(item));
+            mRecyclerView.post(new SmoothScrollToPosition(item, mRecyclerView));
         } else {
             mRecyclerView.smoothScrollToPosition(item);
         }
@@ -506,9 +507,11 @@ public class ViewPager2 extends ViewGroup {
 
     private class SmoothScrollToPosition implements Runnable {
         private final int mPosition;
+        private final RecyclerView mRecyclerView;
 
-        SmoothScrollToPosition(int position) {
+        SmoothScrollToPosition(int position, RecyclerView recyclerView) {
             mPosition = position;
+            mRecyclerView = recyclerView; // to avoid a synthetic accessor
         }
 
         @Override
