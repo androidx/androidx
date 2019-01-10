@@ -404,7 +404,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             setAdapterSync(viewAdapterProvider(stringSequence(10)))
             val targetPages = listOf(4, 9)
             val listener = viewPager.addNewRecordingListener()
-            val latch = viewPager.addWaitForScrolledLatch(targetPages.last(), false)
+            val latch = viewPager.addWaitForScrolledLatch(targetPages.last(), true)
 
             // when
             runOnUiThread {
