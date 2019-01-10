@@ -284,18 +284,27 @@ class ComponentNodeTest {
         val childLayoutNode = LayoutNode()
         layoutNode.emitInsertAt(0, childLayoutNode)
 
-        val owner = mock(Owner::class.java)
-        layoutNode.attach(owner)
-
         assertNull(layoutNode.parentLayoutNode)
         assertEquals(layoutNode, childLayoutNode.parentLayoutNode)
-        assertEquals(1, layoutNode.layoutChildren.size)
-        assertEquals(childLayoutNode, layoutNode.layoutChildren[childLayoutNode])
-        assertEquals(0, childLayoutNode.layoutChildren.size)
+        assertEquals(childLayoutNode, childLayoutNode.layoutNode)
 
         layoutNode.emitRemoveAt(index = 0, count = 1)
         assertNull(childLayoutNode.parentLayoutNode)
-        assertEquals(0, layoutNode.layoutChildren.size)
+    }
+
+    // layoutNode hierarchy should be set properly when a GestureNode is a child of a LayoutNode
+    @Test
+    fun directLayoutAndGestureNodesHierarchy() {
+        val layoutNode = LayoutNode()
+        val singleChildNode = GestureNode()
+        layoutNode.emitInsertAt(0, singleChildNode)
+
+        assertNull(layoutNode.parentLayoutNode)
+        assertEquals(layoutNode, singleChildNode.parentLayoutNode)
+        assertNull(singleChildNode.layoutNode)
+
+        layoutNode.emitRemoveAt(index = 0, count = 1)
+        assertNull(singleChildNode.parentLayoutNode)
     }
 
     // layoutNode hierarchy should be set properly when a LayoutNode is a grandchild of a LayoutNode
@@ -305,20 +314,18 @@ class ComponentNodeTest {
         val intermediate = GestureNode()
         val childLayoutNode = LayoutNode()
         layoutNode.emitInsertAt(0, intermediate)
-        intermediate.emitInsertAt(0, childLayoutNode)
+        assertEquals(layoutNode, intermediate.parentLayoutNode)
 
-        val owner = mock(Owner::class.java)
-        layoutNode.attach(owner)
+        intermediate.emitInsertAt(0, childLayoutNode)
 
         assertNull(layoutNode.parentLayoutNode)
         assertEquals(layoutNode, childLayoutNode.parentLayoutNode)
-        assertEquals(1, layoutNode.layoutChildren.size)
-        assertEquals(childLayoutNode, layoutNode.layoutChildren[intermediate])
-        assertEquals(0, childLayoutNode.layoutChildren.size)
+        assertEquals(childLayoutNode, intermediate.layoutNode)
+        assertEquals(childLayoutNode, childLayoutNode.layoutNode)
 
         intermediate.emitRemoveAt(index = 0, count = 1)
         assertNull(childLayoutNode.parentLayoutNode)
-        assertEquals(0, layoutNode.layoutChildren.size)
+        assertNull(intermediate.layoutNode)
     }
 
     // Test visitChildren() for LayoutNode and a SingleChildNode

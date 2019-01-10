@@ -152,5 +152,15 @@
                 <category android:name="com.example.android.ui.SAMPLE_CODE" />
             </intent-filter>
         </activity>
+
+        <activity android:name="androidx.r4a.MultipleCollectActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Multiple collects measure">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
     </application>
 </manifest>

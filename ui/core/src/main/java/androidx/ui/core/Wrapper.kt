@@ -25,20 +25,14 @@ import com.google.r4a.composer
 class CraneWrapper(@Children var children: () -> Unit) : Component() {
     private val androidCraneView = arrayOfNulls<AndroidCraneView>(1)
     private var ambients: Ambient.Reference? = null
-    /**
-     * See the comment for MeasureBox.children to understand how it works.
-     */
-    private val measureBoxes = mutableListOf<MeasureBox>()
 
     override fun compose() {
-        <ContextAmbient.Provider value = composer.composer.context>
-            <AndroidCraneView ref=androidCraneView
-                              constraintsChanged={ composeChildren() }>
-                <Ambient.Portal> reference ->
-                    ambients = reference
-                </Ambient.Portal>
-            </AndroidCraneView>
-        </ContextAmbient.Provider>
+        <AndroidCraneView ref=androidCraneView
+                          constraintsChanged={ composeChildren() }>
+            <Ambient.Portal> reference ->
+                ambients = reference
+            </Ambient.Portal>
+        </AndroidCraneView>
         composeChildren()
     }
 
@@ -46,21 +40,22 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
         val craneView = androidCraneView[0]
         if (craneView != null) {
             val context = craneView.context ?: composer.composer.context
+            val layoutNode = craneView.root
 
-            R4a.composeInto(container = craneView.root, context = context, parent = ambients!!) {
-                <ParentsChildren.Provider value=measureBoxes>
+            R4a.composeInto(container = layoutNode, context = context, parent = ambients!!) {
+                <ContextAmbient.Provider value = context>
                     <children />
-                </ParentsChildren.Provider>
+                </ContextAmbient.Provider>
             }
             var width = 0.dp
             var height = 0.dp
-            measureBoxes.forEach { measureBox ->
+            layoutNode.childrenMeasureBoxes().forEach { measureBox ->
                 measureBox.measure(craneView.constraints)
                 measureBox.layout()
                 width = max(width, measureBox.layoutNode.size.width)
                 height = max(height, measureBox.layoutNode.size.height)
             }
-            craneView.root.resize(width, height)
+            layoutNode.resize(width, height)
         }
     }
 }

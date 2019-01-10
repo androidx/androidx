@@ -124,6 +124,11 @@ val Constraints.hasTightWidth get() = maxWidth == minWidth
  */
 val Constraints.hasTightHeight get() = maxHeight == minHeight
 
+/**
+ * Whether there is exactly one height value that satisfies the constraints.
+ */
+val Constraints.isZero get() = maxWidth == 0.dp || maxHeight == 0.dp
+
 fun tightConstraints(width: Dimension, height: Dimension) =
     Constraints(minWidth = width, maxWidth = width, minHeight = height, maxHeight = height)
 

@@ -96,6 +96,20 @@ internal sealed class ComponentNode : Emittable {
     abstract val count: Int
 
     /**
+     * Returns the first [LayoutNode] in the subtree. If this node is already [LayoutNode]
+     * it returns this, otherwise the next [LayoutNode] or null if there is no [LayoutNode]
+     * within the child's hierarchy.
+     * All node types expect [LayoutNode] could have only a single child.
+     */
+    abstract val layoutNode: LayoutNode?
+
+    /**
+     * This is the LayoutNode ancestor that contains this LayoutNode. This will be `null` for the
+     * root [LayoutNode].
+     */
+    open var parentLayoutNode: LayoutNode? = null
+
+    /**
      * Execute [block] on all children of this ComponentNode. There is no single concept for
      * children in ComponentNode, so this method allows executing a method on all children.
      */
@@ -183,20 +197,34 @@ internal open class SingleChildComponentNode() : ComponentNode() {
      */
     var child: ComponentNode? = null
 
+    override var layoutNode: LayoutNode? = null
+
     override val count: Int
         get() = if (child == null) 0 else 1
+
+    override var parentLayoutNode: LayoutNode?
+        get() = super.parentLayoutNode
+        set(value) {
+            super.parentLayoutNode = value
+            child?.parentLayoutNode = value
+        }
 
     override fun emitInsertAt(index: Int, instance: Emittable) {
         ErrorMessages.IndexOutOfRange.validateArg(index == 0 && child == null, index)
         super.emitInsertAt(index, instance)
-        this.child = instance as ComponentNode
+        val child = instance as ComponentNode
+        this.child = child
+        child.parentLayoutNode = parentLayoutNode
+        layoutNode = child.layoutNode
     }
 
     override fun emitRemoveAt(index: Int, count: Int) {
         ErrorMessages.SingleChildOnlyOneNode.validateArg(count == 1, count)
         ErrorMessages.IndexOutOfRange.validateArg(index == 0 && child != null, index)
         super.emitRemoveAt(index, count)
+        child?.parentLayoutNode = null
         this.child = null
+        this.layoutNode = null
     }
 
     override fun get(index: Int): ComponentNode {
@@ -236,6 +264,8 @@ internal class DrawNode() : ComponentNode() {
 
     var needsPaint = true
 
+    override val layoutNode: LayoutNode? get() = null // no children
+
     override fun visitChildren(block: (ComponentNode) -> Unit) {
         // no children
     }
@@ -274,7 +304,7 @@ internal class DrawNode() : ComponentNode() {
 /**
  * Backing node for [Layout] component.
  */
-internal class LayoutNode() : ComponentNode() {
+internal class LayoutNode : ComponentNode() {
     /**
      * The list of child ComponentNodes that this ComponentNode has. It can contain zero or
      * more entries.
@@ -292,7 +322,7 @@ internal class LayoutNode() : ComponentNode() {
             value?.value = this
         }
 
-    var measureBox: Any? = null
+    var measureBox: MeasureBox? = null
 
     /**
      * The size of this layout
@@ -313,22 +343,11 @@ internal class LayoutNode() : ComponentNode() {
         private set
 
     /**
-     * Map from a child to the first [LayoutNode] within that child. The [parentLayoutNode] of that
-     * [LayoutNode] will be this. There will be no entry for a child if there is no [LayoutNode]
-     * within the child's hierarchy. This is only valid between attach() and detach()
-     */
-    val layoutChildren = mutableMapOf<ComponentNode, LayoutNode?>()
-
-    /**
-     * This is the LayoutNode ancestor that contains this LayoutNode. This will be `null` for the
-     * root [LayoutNode]. It is only valid between attach() and detach().
-     */
-    var parentLayoutNode: LayoutNode? = null
-
-    /**
      * Whether or not this has been placed in the hierarchy.
      */
     var visible = true
+
+    override val layoutNode: LayoutNode get() = this
 
     override val count: Int
         get() = children.size
@@ -340,6 +359,7 @@ internal class LayoutNode() : ComponentNode() {
         if (instance !is ComponentNode) {
             ErrorMessages.OnlyComponents.state()
         }
+        instance.parentLayoutNode = this
         children.add(index, instance)
         super.emitInsertAt(index, instance)
     }
@@ -347,7 +367,8 @@ internal class LayoutNode() : ComponentNode() {
     override fun emitRemoveAt(index: Int, count: Int) {
         super.emitRemoveAt(index, count)
         for (i in index + count - 1 downTo index) {
-            children.removeAt(i)
+            val child = children.removeAt(i)
+            child.parentLayoutNode = null
         }
     }
 
@@ -364,35 +385,6 @@ internal class LayoutNode() : ComponentNode() {
         children.removeAll(removed)
 
         children.addAll(to, removed)
-    }
-
-    override fun attach(owner: Owner) {
-        super.attach(owner)
-
-        // Find the LayoutNode ancestor and its direct child
-        var nodeParent: ComponentNode? = this
-        var node: ComponentNode
-        do {
-            node = nodeParent!!
-            nodeParent = node.parent
-        } while (nodeParent != null && nodeParent !is LayoutNode)
-
-        if (nodeParent is LayoutNode) {
-            // Change the layoutChildren of the ancestor LayoutNode
-            nodeParent.layoutChildren[node] = this
-            parentLayoutNode = nodeParent
-        }
-    }
-
-    override fun detach() {
-        val parentLayoutNode = this.parentLayoutNode
-        if (parentLayoutNode != null) {
-            val entry = parentLayoutNode.layoutChildren.entries.find { it.value == this }
-                ?: ErrorMessages.CannotFindLayoutInParent.state()
-            parentLayoutNode.layoutChildren.remove(entry.key)
-            this.parentLayoutNode = null
-        }
-        super.detach()
     }
 
     override fun visitChildren(block: (ComponentNode) -> Unit) {
@@ -415,6 +407,13 @@ internal class LayoutNode() : ComponentNode() {
             owner?.onSizeChange(this)
         }
     }
+}
+
+/**
+ * The list of child MeasureBoxes. It can contain zero or more entries.
+ */
+internal fun LayoutNode.childrenMeasureBoxes(): List<MeasureBox> {
+    return children.mapNotNull { it.layoutNode?.measureBox }
 }
 
 /**

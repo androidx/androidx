@@ -63,6 +63,7 @@ class Text() : Component() {
 
     override fun compose() {
         assert(text != null)
+        val context = composer.composer.context
         <MeasureBox> constraints, measureOperations ->
             val renderParagraph = RenderParagraph(
                     text = text,
@@ -73,7 +74,6 @@ class Text() : Component() {
                     textScaleFactor = textScaleFactor,
                     maxLines = maxLines
             )
-            val context = composer.composer.context
 
             // TODO(Migration/siyamed): This is temporary and should be removed when resource
             // system is resolved.

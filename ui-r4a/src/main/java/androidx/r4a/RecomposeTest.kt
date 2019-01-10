@@ -82,7 +82,7 @@ fun ListWithOffset(
         }
         val itemHeight = (constraints.maxHeight - offset * (itemsCount - 1)) / itemsCount
         val itemConstraint = tightConstraints(constraints.maxWidth, itemHeight)
-        measureOperations.layout(constraints.maxWidth, itemHeight) {
+        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
             var top = 0.dp
             measurables.map { it.measure(itemConstraint) }.forEach {
                 it.place(0.dp, top)
@@ -97,7 +97,7 @@ class RecomposeTest : Component() {
     var needsScheduling = true
     var offset = 10.dp
     var itemsCount = 1
-    var addsItem = true
+    var step = 0
 
     override fun compose() {
         <CraneWrapper>
@@ -107,12 +107,14 @@ class RecomposeTest : Component() {
                     val handler = Handler(Looper.getMainLooper())
                     val r = object : Runnable {
                         override fun run() {
-                            if (addsItem) {
+                            if (step.rem(3) == 0) {
                                 itemsCount++
-                            } else {
+                            } else if (step.rem(3) == 1) {
                                 offset += 10.dp
+                            } else {
+                                itemsCount--
                             }
-                            addsItem = !addsItem
+                            step++
                             needsScheduling = true
                             recompose()
                         }
