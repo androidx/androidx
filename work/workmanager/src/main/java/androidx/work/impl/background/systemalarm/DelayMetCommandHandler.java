@@ -76,7 +76,14 @@ public class DelayMetCommandHandler implements
     }
 
     @Override
-    public void onAllConstraintsMet(@NonNull List<String> ignored) {
+    public void onAllConstraintsMet(@NonNull List<String> workSpecIds) {
+        // WorkConstraintsTracker will call onAllConstraintsMet with list of workSpecs whose
+        // constraints are met. Ensure the workSpecId we are interested is part of the list
+        // before we call Processor#startWork().
+        if (!workSpecIds.contains(mWorkSpecId)) {
+            return;
+        }
+
         Logger.get().debug(TAG, String.format("onAllConstraintsMet for %s", mWorkSpecId));
         // Constraints met, schedule execution
 
