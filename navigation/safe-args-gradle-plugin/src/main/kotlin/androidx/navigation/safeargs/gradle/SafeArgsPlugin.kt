@@ -27,6 +27,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.resources.TextResource
+import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
 import javax.inject.Inject
 import kotlin.reflect.full.memberFunctions
@@ -35,8 +36,11 @@ private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
 internal const val INCREMENTAL_PATH = "intermediates/incremental"
 
-@Suppress("unused")
-class SafeArgsPlugin @Inject constructor(val providerFactory: ProviderFactory) : Plugin<Project> {
+abstract class SafeArgsPlugin protected constructor(
+    val providerFactory: ProviderFactory
+) : Plugin<Project> {
+
+    abstract val generateKotlin: Boolean
 
     private fun forEachVariant(extension: BaseExtension, action: (BaseVariant) -> Unit) {
         when {
@@ -55,6 +59,12 @@ class SafeArgsPlugin @Inject constructor(val providerFactory: ProviderFactory) :
     override fun apply(project: Project) {
         val extension = project.extensions.findByType(BaseExtension::class.java)
                 ?: throw GradleException("safeargs plugin must be used with android plugin")
+        val isKotlinProject =
+            project.extensions.findByType(KotlinProjectExtension::class.java) != null
+        if (!isKotlinProject && generateKotlin) {
+            throw GradleException(
+                "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin")
+        }
         forEachVariant(extension) { variant ->
             val task = project.tasks.create(
                 "generateSafeArgs${variant.name.capitalize()}",
@@ -66,6 +76,7 @@ class SafeArgsPlugin @Inject constructor(val providerFactory: ProviderFactory) :
                 task.outputDir = File(project.buildDir, "$GENERATED_PATH/${variant.dirName}")
                 task.incrementalFolder = File(project.buildDir, "$INCREMENTAL_PATH/${task.name}")
                 task.useAndroidX = (project.findProperty("android.useAndroidX") == "true")
+                task.generateKotlin = generateKotlin
             }
             task.applicationIdResource?.let { task.dependsOn(it) }
             variant.registerJavaGeneratingTask(task, task.outputDir)
@@ -114,4 +125,20 @@ class SafeArgsPlugin @Inject constructor(val providerFactory: ProviderFactory) :
             .groupBy { file -> file.name }
             .map { entry -> entry.value.last() }
     }
+}
+
+@Suppress("unused")
+class SafeArgsJavaPlugin @Inject constructor(
+    providerFactory: ProviderFactory
+) : SafeArgsPlugin(providerFactory) {
+
+    override val generateKotlin = false
+}
+
+@Suppress("unused")
+class SafeArgsKotlinPlugin @Inject constructor(
+    providerFactory: ProviderFactory
+) : SafeArgsPlugin(providerFactory) {
+
+    override val generateKotlin = true
 }
