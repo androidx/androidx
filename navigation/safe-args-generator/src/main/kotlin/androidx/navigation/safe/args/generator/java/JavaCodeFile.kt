@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.navigation.safe.args.generator.ext
+package androidx.navigation.safe.args.generator.java
 
+import androidx.navigation.safe.args.generator.CodeFile
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
+import java.io.File
 
-fun JavaFile.toClassName(): ClassName = ClassName.get(this.packageName, this.typeSpec.name)
+data class JavaCodeFile(internal val wrapped: JavaFile) : CodeFile {
+    override fun writeTo(directory: File) {
+        wrapped.writeTo(directory)
+    }
+
+    override fun fileName() = "${wrapped.packageName}.${wrapped.typeSpec.name}"
+
+    fun toClassName() = ClassName.get(wrapped.packageName, wrapped.typeSpec.name)
+
+    override fun toString() = wrapped.toString()
+}
+
+fun JavaFile.toCodeFile() = JavaCodeFile(this)

@@ -16,6 +16,7 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.java.JavaCodeFile
 import com.google.testing.compile.JavaSourcesSubject
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -32,6 +33,20 @@ class NavGeneratorTest {
     @Suppress("MemberVisibilityCanBePrivate")
     @get:Rule
     val workingDir = TemporaryFolder()
+
+    private fun generateSafeArgs(
+        rFilePackage: String,
+        applicationId: String,
+        navigationXml: File,
+        outputDir: File
+    ) = SafeArgsGenerator(
+        rFilePackage = rFilePackage,
+        applicationId = applicationId,
+        navigationXml = navigationXml,
+        outputDir = outputDir,
+        useAndroidX = false,
+        generateKotlin = false
+    ).generate()
 
     @Test
     fun naive_test() {
@@ -69,7 +84,7 @@ class NavGeneratorTest {
         }
 
         val javaFiles = javaNames
-                .mapIndexed { index, name -> name to output.files[index] }
+                .mapIndexed { index, name -> name to (output.files[index] as JavaCodeFile) }
                 .associate { it }
         javaFiles.forEach { (name, file) ->
             JavaSourcesSubject.assertThat(file.toJavaFileObject())

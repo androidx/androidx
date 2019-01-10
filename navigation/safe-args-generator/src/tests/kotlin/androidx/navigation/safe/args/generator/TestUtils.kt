@@ -16,31 +16,22 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.java.JavaCodeFile
 import com.google.testing.compile.JavaFileObjects
 import com.google.testing.compile.JavaSourcesSubject
-import com.squareup.javapoet.JavaFile
-import org.hamcrest.CoreMatchers
-import org.hamcrest.MatcherAssert
-import org.junit.rules.TemporaryFolder
 import java.io.File
 import java.nio.charset.Charset
-import javax.tools.JavaFileObject
 
-fun JavaFile.toJavaFileObject(workingDir: TemporaryFolder): JavaFileObject {
-    val destination = workingDir.newFolder()
-    this.writeTo(destination)
-    val path = this.packageName.replace('.', '/')
-    val generated = File(destination, "$path/${this.typeSpec.name}.java")
-    MatcherAssert.assertThat(generated.exists(), CoreMatchers.`is`(true))
-    return JavaFileObjects.forResource(generated.toURI().toURL())
-}
+fun JavaCodeFile.toJavaFileObject() = this.wrapped.toJavaFileObject()
 
 fun JavaSourcesSubject.parsesAs(fullClassName: String, folder: String = "expected") =
-        this.parsesAs(loadSourceFile(fullClassName, folder))
+        this.parsesAs(loadSourceFileObject(fullClassName, folder))
 
-fun loadSourceFile(fullClassName: String, folder: String): JavaFileObject {
+fun loadSourceString(fullClassName: String, folder: String, fileExtension: String): String {
     val folderPath = "src/tests/test-data/${if (folder.isEmpty()) "" else "$folder/"}"
     val split = fullClassName.split(".")
-    val code = File("$folderPath/${split.last()}.java").readText(Charset.defaultCharset())
-    return JavaFileObjects.forSourceString(fullClassName, code)
+    return File("$folderPath/${split.last()}.$fileExtension").readText(Charset.defaultCharset())
 }
+
+fun loadSourceFileObject(fullClassName: String, folder: String) =
+    JavaFileObjects.forSourceString(fullClassName, loadSourceString(fullClassName, folder, "java"))
