@@ -267,8 +267,7 @@ public class MediaPlayerTest extends MediaPlayerTestBase {
 
     @Test
     @LargeTest
-    //TODO(b/122504446): Run this test on <P devices
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testPlayVideoWithUri() throws Exception {
         if (!loadResourceWithUri(R.raw.testvideo)) {
             fail();
