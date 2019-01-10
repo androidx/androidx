@@ -100,6 +100,7 @@ public class BuildCompat {
      *
      * @return {@code true} if Q APIs are available for use, {@code false} otherwise
      */
+    // TODO Inline usages, update ObsoleteBuildCompatUsageDetector, and deprecate once Q is final.
     public static boolean isAtLeastQ() {
         return VERSION.CODENAME.length() == 1
             && VERSION.CODENAME.charAt(0) >= 'Q'
