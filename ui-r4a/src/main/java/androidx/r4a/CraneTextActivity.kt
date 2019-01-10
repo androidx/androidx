@@ -18,27 +18,6 @@ import com.google.r4a.setContent
 class CraneTextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent {
-            <ScrollView>
-                <CraneWrapper>
-                    <Text
-                        text=TextSpan(
-                                text = "Text Crane Demo Text Crane Demo Text Crane Demo",
-                                style = TextStyle(
-                                        fontFamily = FontFamily("sans-serif"),
-                                        color = Color(0xFFFF0000.toInt()),
-                                        fontSize = 100.0f,
-                                        fontWeight = FontWeight.w700
-                                )
-                        )
-                        textAlign=TextAlign.CENTER
-                        textDirection=TextDirection.LTR
-                        softWrap=true
-                        overflow=TextOverflow.FADE
-                        textScaleFactor=2.3f
-                        maxLines=3 />
-                </CraneWrapper>
-            </ScrollView>
-        }
+        setContent { <TextDemo /> }
     }
 }
