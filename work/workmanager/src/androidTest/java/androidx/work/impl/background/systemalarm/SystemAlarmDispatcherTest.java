@@ -42,6 +42,7 @@ import androidx.test.filters.MediumTest;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.DatabaseTest;
+import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Processor;
@@ -119,9 +120,9 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 mLatch.countDown();
             }
         };
+        Logger.setLogger(new Logger.LogcatLogger(Log.DEBUG));
         mConfiguration = new Configuration.Builder()
                 .setExecutor(new SynchronousExecutor())
-                .setMinimumLoggingLevel(Log.VERBOSE)
                 .build();
         when(mWorkManager.getWorkDatabase()).thenReturn(mDatabase);
         when(mWorkManager.getConfiguration()).thenReturn(mConfiguration);
@@ -356,6 +357,45 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
+                        .setRequiresCharging(true)
+                        .build())
+                .build();
+
+        insertWork(work);
+
+        Intent delayMet = CommandHandler.createDelayMetIntent(mContext, work.getStringId());
+        mSpyDispatcher.postOnMainThread(
+                new SystemAlarmDispatcher.AddRunnable(mSpyDispatcher, delayMet, START_ID));
+
+        mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
+
+        List<String> intentActions = mSpyDispatcher.getIntentActions();
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        WorkSpec workSpec = workSpecDao.getWorkSpec(work.getStringId());
+
+        assertThat(mLatch.getCount(), is(0L));
+
+        // Verify order of events
+        assertThat(intentActions,
+                IsIterableContainingInOrder.contains(
+                        CommandHandler.ACTION_DELAY_MET,
+                        CommandHandler.ACTION_STOP_WORK,
+                        CommandHandler.ACTION_EXECUTION_COMPLETED,
+                        CommandHandler.ACTION_CONSTRAINTS_CHANGED));
+
+        assertThat(workSpec.state, is(WorkInfo.State.ENQUEUED));
+    }
+
+    @Test
+    @LargeTest
+    @RepeatRule.Repeat(times = 1)
+    public void testDelayMet_withPartiallyMetConstraint() throws InterruptedException {
+        when(mStorageNotLowTracker.getInitialState()).thenReturn(true);
+        when(mBatteryChargingTracker.getInitialState()).thenReturn(false);
+        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setConstraints(new Constraints.Builder()
+                        .setRequiresStorageNotLow(true)
                         .setRequiresCharging(true)
                         .build())
                 .build();
