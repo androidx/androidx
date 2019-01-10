@@ -16,7 +16,6 @@
 
 package androidx.navigation.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -25,36 +24,43 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.navigation.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.filters.MediumTest
 import androidx.test.rule.ActivityTestRule
-import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
-@LargeTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class ImmediateNavigationTest {
 
     @get:Rule
-    var activityRule = ActivityTestRule(ImmediateNavigationActivity::class.java, false, false)
+    var activityRule = ActivityTestRule(ImmediateNavigationActivity::class.java)
 
     @Test
     fun testNavigateInOnResume() {
-        val instrumentation = InstrumentationRegistry.getInstrumentation()
-        val intent = Intent(instrumentation.context,
-                ImmediateNavigationActivity::class.java)
-
-        val activity = activityRule.launchActivity(intent)
-        instrumentation.waitForIdleSync()
+        val activity = activityRule.activity
         val navController = activity.navController
+        val countDownLatch = CountDownLatch(3)
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.immediate_test -> {
+                    // This should be called twice - once when initially navigating
+                    // through immediate_test and once when popping the back stack
+                    countDownLatch.countDown()
+                }
+                R.id.deep_link_test -> {
+                    countDownLatch.countDown()
+                    // Now pop the back stack to go back to immediate_test
+                    // which should be on the back stack
+                    navController.popBackStack()
+                }
+            }
+        }
         navController.navigate(R.id.immediate_test)
-        instrumentation.waitForIdleSync()
-        assertEquals(R.id.deep_link_test, navController.currentDestination?.id ?: 0)
-        navController.popBackStack()
-        instrumentation.waitForIdleSync()
-        assertEquals(R.id.immediate_test, navController.currentDestination?.id ?: 0)
+        countDownLatch.await(1, TimeUnit.SECONDS)
     }
 }
 
