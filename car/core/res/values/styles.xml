@@ -480,6 +480,13 @@ limitations under the License.
         <item name="android:textAppearance">@style/TextAppearance.Car.Body2.Dark</item>
     </style>
 
+    <!-- The style for dialog buttons. This style removes the horizontal padding from the
+         borderless buttons to ensure they are flush to the text. -->
+    <style name="Widget.Car.Dialog.Button" parent="Widget.Car.Button.Borderless.Colored">
+        <item name="android:paddingStart">0dp</item>
+        <item name="android:paddingEnd">0dp</item>
+    </style>
+
     <!-- ================= -->
     <!-- Preference Styles -->
     <!-- ================= -->
