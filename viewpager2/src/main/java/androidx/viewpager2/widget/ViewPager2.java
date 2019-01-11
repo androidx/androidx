@@ -107,7 +107,6 @@ public class ViewPager2 extends ViewGroup {
 
     @RequiresApi(21)
     public ViewPager2(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        // TODO(b/70663531): handle attrs, defStyleAttr, defStyleRes
         super(context, attrs, defStyleAttr, defStyleRes);
         initialize(context, attrs);
     }
@@ -177,7 +176,6 @@ public class ViewPager2 extends ViewGroup {
      * A lot of places in code rely on an assumption that the page fills the whole ViewPager2.
      *
      * TODO(b/70666617) Allow page width different than width/height 100%/100%
-     * TODO(b/70666614) Revisit the way we enforce width/height restriction of 100%/100%
      */
     private RecyclerView.OnChildAttachStateChangeListener enforceChildFillListener() {
         return new RecyclerView.OnChildAttachStateChangeListener() {
