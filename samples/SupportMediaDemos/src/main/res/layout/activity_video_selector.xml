@@ -36,19 +36,11 @@
         android:text="@string/looping_text" />
 
     <CheckBox
-        android:id="@+id/use_textureview_checkbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/title_text"
-        android:layout_toLeftOf="@id/looping_checkbox"
-        android:text="@string/texture_view_text" />
-
-    <CheckBox
         android:id="@+id/media_type_advertisement"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/title_text"
-        android:layout_toLeftOf="@id/use_textureview_checkbox"
+        android:layout_toLeftOf="@id/looping_checkbox"
         android:text="@string/advertisement_text" />
 
     <Button
