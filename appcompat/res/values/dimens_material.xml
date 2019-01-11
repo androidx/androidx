@@ -33,6 +33,12 @@
     <!-- Bottom margin for action bar subtitles -->
     <dimen name="abc_action_bar_subtitle_bottom_margin_material">5dp</dimen>
 
+    <!-- Default height for list items -->
+    <dimen name="abc_list_item_height_material">64dp</dimen>
+    <!-- Default height for small list items -->
+    <dimen name="abc_list_item_height_small_material">48dp</dimen>
+    <!-- Default height for large list items -->
+    <dimen name="abc_list_item_height_large_material">80dp</dimen>
     <!-- Default padding for list items. This should match the action bar
          content inset so that ListActivity items line up correctly. -->
     <dimen name="abc_list_item_padding_horizontal_material">@dimen/abc_action_bar_content_inset_material</dimen>
