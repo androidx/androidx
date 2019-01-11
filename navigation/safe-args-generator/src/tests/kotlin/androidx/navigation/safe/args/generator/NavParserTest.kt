@@ -49,31 +49,31 @@ class NavParserTest {
                         Argument("intArgument", IntType, IntValue("261")),
                         Argument(
                                 "activityInfo",
-                                ObjectType(ClassName.get("android.content.pm", "ActivityInfo"))
+                                ObjectType("android.content.pm.ActivityInfo")
                         ),
                         Argument(
                                 "activityInfoNull",
-                                ObjectType(ClassName.get("android.content.pm", "ActivityInfo")),
+                                ObjectType("android.content.pm.ActivityInfo"),
                                 NullValue,
                                 true
                         ),
                         Argument("intArrayArg", IntArrayType),
                         Argument("stringArrayArg", StringArrayType),
                         Argument("objectArrayArg", ObjectArrayType(
-                            ClassName.get("android.content.pm", "ActivityInfo"))),
+                            "android.content.pm.ActivityInfo")),
                         Argument(
                             "enumArg",
-                            ObjectType(ClassName.get("java.nio.file", "AccessMode")),
-                            EnumValue(ClassName.get("java.nio.file", "AccessMode"), "READ"),
+                            ObjectType("java.nio.file.AccessMode"),
+                            EnumValue(ObjectType("java.nio.file.AccessMode"), "READ"),
                             false
                         ),
                         Argument(
                             "objectRelativeArg",
-                            ObjectType(ClassName.get("a.b.pkg", "ClassName"))
+                            ObjectType("a.b.pkg.ClassName")
                         ),
                         Argument(
                             "objectRelativeArg2",
-                            ObjectType(ClassName.get("a.b", "ClassName"))
+                            ObjectType("a.b.ClassName")
                         )
                 ))))
 

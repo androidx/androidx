@@ -16,48 +16,12 @@
 
 package androidx.navigation.safe.args.generator
 
-import androidx.navigation.safe.args.generator.ext.N
-import androidx.navigation.safe.args.generator.ext.S
-import androidx.navigation.safe.args.generator.ext.T
-import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.ResReference
-import androidx.navigation.safe.args.generator.models.accessor
-import com.squareup.javapoet.ArrayTypeName
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.CodeBlock
-import com.squareup.javapoet.MethodSpec
-import com.squareup.javapoet.TypeName
-import javax.naming.OperationNotSupportedException
 
-sealed class NavType {
-    open fun addBundleGetStatement(
-        builder: MethodSpec.Builder,
-        arg: Argument,
-        lValue: String,
-        bundle: String
-    ): MethodSpec.Builder {
-        return builder.addStatement("$N = $N.$N($S)", lValue, bundle, bundleGetMethod(), arg.name)
-    }
-
-    open fun addBundlePutStatement(
-        builder: MethodSpec.Builder,
-        arg: Argument,
-        bundle: String,
-        argValue: String
-    ): MethodSpec.Builder {
-        return builder.addStatement(
-                "$N.$N($S, $N)",
-                bundle,
-                bundlePutMethod(),
-                arg.name,
-                argValue
-        )
-    }
-
-    abstract fun typeName(): TypeName
-    abstract fun bundlePutMethod(): String
-    abstract fun bundleGetMethod(): String
-    abstract fun allowsNullable(): Boolean
+interface NavType {
+    fun bundlePutMethod(): String
+    fun bundleGetMethod(): String
+    fun allowsNullable(): Boolean
 
     companion object {
         fun from(name: String?, rFilePackage: String? = null) = when (name) {
@@ -81,246 +45,134 @@ sealed class NavType {
                     ""
                 }
                 if (name.endsWith("[]")) {
-                    name.substringBeforeLast("[]").let { clsName ->
-                        ObjectArrayType(ClassName.get(
-                                prependPackageName + clsName.substringBeforeLast('.', ""),
-                                clsName.substringAfterLast('.')
-                        ))
-                    }
+                    ObjectArrayType(prependPackageName + name.substringBeforeLast("[]"))
                 } else {
-                    ObjectType(ClassName.get(
-                            prependPackageName + name.substringBeforeLast('.', ""),
-                            name.substringAfterLast('.')
-                    ))
+                    ObjectType(prependPackageName + name)
                 }
             }
         }
     }
 }
 
-object IntType : NavType() {
-    override fun typeName(): TypeName = TypeName.INT
+object IntType : NavType {
     override fun bundlePutMethod() = "putInt"
     override fun bundleGetMethod() = "getInt"
     override fun toString() = "integer"
     override fun allowsNullable() = false
 }
 
-object IntArrayType : NavType() {
-    override fun typeName(): TypeName = ArrayTypeName.of(TypeName.INT)
+object IntArrayType : NavType {
     override fun bundlePutMethod() = "putIntArray"
     override fun bundleGetMethod() = "getIntArray"
     override fun toString() = "integer[]"
     override fun allowsNullable() = true
 }
 
-object LongType : NavType() {
-    override fun typeName(): TypeName = TypeName.LONG
+object LongType : NavType {
     override fun bundlePutMethod() = "putLong"
     override fun bundleGetMethod() = "getLong"
     override fun toString() = "long"
     override fun allowsNullable() = false
 }
 
-object LongArrayType : NavType() {
-    override fun typeName(): TypeName = ArrayTypeName.of(TypeName.LONG)
+object LongArrayType : NavType {
     override fun bundlePutMethod() = "putLongArray"
     override fun bundleGetMethod() = "getLongArray"
     override fun toString() = "long[]"
     override fun allowsNullable() = true
 }
 
-object FloatType : NavType() {
-    override fun typeName(): TypeName = TypeName.FLOAT
+object FloatType : NavType {
     override fun bundlePutMethod() = "putFloat"
     override fun bundleGetMethod() = "getFloat"
     override fun toString() = "float"
     override fun allowsNullable() = false
 }
 
-object FloatArrayType : NavType() {
-    override fun typeName(): TypeName = ArrayTypeName.of(TypeName.FLOAT)
+object FloatArrayType : NavType {
     override fun bundlePutMethod() = "putFloatArray"
     override fun bundleGetMethod() = "getFloatArray"
     override fun toString() = "float[]"
     override fun allowsNullable() = true
 }
 
-object StringType : NavType() {
-    override fun typeName(): TypeName = ClassName.get(String::class.java)
+object StringType : NavType {
     override fun bundlePutMethod() = "putString"
     override fun bundleGetMethod() = "getString"
     override fun toString() = "string"
     override fun allowsNullable() = true
 }
 
-object StringArrayType : NavType() {
-    override fun typeName(): TypeName = ArrayTypeName.of(ClassName.get(String::class.java))
+object StringArrayType : NavType {
     override fun bundlePutMethod() = "putStringArray"
     override fun bundleGetMethod() = "getStringArray"
     override fun toString() = "string[]"
     override fun allowsNullable() = true
 }
 
-object BoolType : NavType() {
-    override fun typeName(): TypeName = TypeName.BOOLEAN
+object BoolType : NavType {
     override fun bundlePutMethod() = "putBoolean"
     override fun bundleGetMethod() = "getBoolean"
     override fun toString() = "boolean"
     override fun allowsNullable() = false
 }
 
-object BoolArrayType : NavType() {
-    override fun typeName(): TypeName = ArrayTypeName.of(TypeName.BOOLEAN)
+object BoolArrayType : NavType {
     override fun bundlePutMethod() = "putBooleanArray"
     override fun bundleGetMethod() = "getBooleanArray"
     override fun toString() = "boolean"
     override fun allowsNullable() = false
 }
 
-object ReferenceType : NavType() {
-    // it is internally the same as INT, but we don't want to allow to
-    // assignment between int and reference args
-    override fun typeName(): TypeName = TypeName.INT
+object ReferenceType : NavType {
     override fun bundlePutMethod() = "putInt"
     override fun bundleGetMethod() = "getInt"
     override fun toString() = "reference"
     override fun allowsNullable() = false
 }
 
-object ReferenceArrayType : NavType() {
-    // it is internally the same as INT, but we don't want to allow to
-    // assignment between int and reference args
-    override fun typeName(): TypeName = ArrayTypeName.of(TypeName.INT)
+object ReferenceArrayType : NavType {
     override fun bundlePutMethod() = "putIntArray"
     override fun bundleGetMethod() = "getIntArray"
     override fun toString() = "reference[]"
     override fun allowsNullable() = true
 }
 
-data class ObjectType(private val typeName: TypeName) : NavType() {
-    override fun typeName(): TypeName = typeName
+data class ObjectType(val canonicalName: String) : NavType {
     override fun bundlePutMethod() =
-            throw OperationNotSupportedException("Use addBundlePutStatement instead.")
+            throw UnsupportedOperationException("Use addBundlePutStatement instead.")
 
     override fun bundleGetMethod() =
-            throw OperationNotSupportedException("Use addBundleGetStatement instead.")
+            throw UnsupportedOperationException("Use addBundleGetStatement instead.")
 
     override fun toString() = "parcelable or serializable"
     override fun allowsNullable() = true
-    override fun addBundleGetStatement(
-        builder: MethodSpec.Builder,
-        arg: Argument,
-        lValue: String,
-        bundle: String
-    ): MethodSpec.Builder {
-        return builder.apply {
-            beginControlFlow("if ($T.class.isAssignableFrom($T.class) " +
-                    "|| $T.class.isAssignableFrom($T.class))",
-                    parcelableType, arg.type.typeName(),
-                    serializableType, arg.type.typeName())
-                    .apply {
-                        addStatement(
-                                "$N = ($T) $N.$N($S)",
-                                lValue, arg.type.typeName(), bundle, "get", arg.name
-                        )
-                    }.nextControlFlow("else").apply {
-                        addStatement(
-                                "throw new UnsupportedOperationException($T.class.getName() + " +
-                                        "\" must implement Parcelable or Serializable " +
-                                        "or must be an Enum.\")",
-                                arg.type.typeName())
-                    }.endControlFlow()
-        }
-    }
-
-    override fun addBundlePutStatement(
-        builder: MethodSpec.Builder,
-        arg: Argument,
-        bundle: String,
-        argValue: String
-    ): MethodSpec.Builder {
-        return builder.apply {
-            beginControlFlow("if ($T.class.isAssignableFrom($T.class) || $N == null)",
-                    parcelableType, arg.type.typeName(), argValue).apply {
-                addStatement(
-                        "$N.$N($S, $T.class.cast($N))",
-                        bundle, "putParcelable", arg.name, parcelableType, argValue
-                )
-            }.nextControlFlow("else if ($T.class.isAssignableFrom($T.class))",
-                    serializableType, arg.type.typeName()).apply {
-                addStatement(
-                        "$N.$N($S, $T.class.cast($N))",
-                        bundle, "putSerializable", arg.name, serializableType, argValue
-                )
-            }.nextControlFlow("else").apply {
-                addStatement("throw new UnsupportedOperationException($T.class.getName() + " +
-                        "\" must implement Parcelable or Serializable or must be an Enum.\")",
-                        arg.type.typeName())
-            }.endControlFlow()
-        }
-    }
-
-    companion object {
-        private val parcelableType = ClassName.get("android.os", "Parcelable")
-        private val serializableType = ClassName.get("java.io", "Serializable")
-    }
 }
 
-data class ObjectArrayType(private val typeName: TypeName) : NavType() {
-
-    override fun typeName(): TypeName = ArrayTypeName.of(typeName)
+data class ObjectArrayType(val canonicalName: String) : NavType {
     override fun bundlePutMethod() = "putParcelableArray"
     override fun bundleGetMethod() = "getParcelableArray"
     override fun toString() = "parcelable array"
     override fun allowsNullable() = true
-
-    override fun addBundleGetStatement(
-        builder: MethodSpec.Builder,
-        arg: Argument,
-        lValue: String,
-        bundle: String
-    ): MethodSpec.Builder {
-        return builder.addStatement("$N = ($T) $N.$N($S)",
-            lValue, typeName(), bundle, bundleGetMethod(), arg.name)
-    }
 }
 
-sealed class WriteableValue {
-    abstract fun write(): CodeBlock
-}
+interface WritableValue
 
-data class ReferenceValue(private val resReference: ResReference) : WriteableValue() {
-    override fun write(): CodeBlock = CodeBlock.of(resReference.accessor())
-}
+data class ReferenceValue(val resReference: ResReference) : WritableValue
 
-data class StringValue(private val value: String) : WriteableValue() {
-    override fun write(): CodeBlock = CodeBlock.of(S, value)
-}
+data class StringValue(val value: String) : WritableValue
 
 // keeping value as String, it will help to preserve client format of it: hex, dec
-data class IntValue(private val value: String) : WriteableValue() {
-    override fun write(): CodeBlock = CodeBlock.of(value)
-}
+data class IntValue(val value: String) : WritableValue
 
 // keeping value as String, it will help to preserve client format of it: hex, dec
-data class LongValue(private val value: String) : WriteableValue() {
-    override fun write(): CodeBlock = CodeBlock.of(value)
-}
+data class LongValue(val value: String) : WritableValue
 
 // keeping value as String, it will help to preserve client format of it: scientific, dot
-data class FloatValue(private val value: String) : WriteableValue() {
-    override fun write(): CodeBlock = CodeBlock.of("${value}F")
-}
+data class FloatValue(val value: String) : WritableValue
 
-data class BooleanValue(private val value: String) : WriteableValue() {
-    override fun write(): CodeBlock = CodeBlock.of(value)
-}
+data class BooleanValue(val value: String) : WritableValue
 
-object NullValue : WriteableValue() {
-    override fun write(): CodeBlock = CodeBlock.of("null")
-}
+object NullValue : WritableValue
 
-data class EnumValue(private val type: TypeName, private val value: String) : WriteableValue() {
-    override fun write(): CodeBlock = CodeBlock.of("$T.$N", type, value)
-}
+data class EnumValue(val type: ObjectType, val value: String) : WritableValue

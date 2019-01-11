@@ -20,6 +20,9 @@ import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.models.Destination
 import androidx.navigation.safe.args.generator.models.ResReference
+import androidx.navigation.safe.args.generator.java.generateArgsJavaFile
+import androidx.navigation.safe.args.generator.java.generateDirectionsJavaFile
+import androidx.navigation.safe.args.generator.java.generateDirectionsTypeSpec
 import com.google.common.collect.ImmutableList
 import com.google.testing.compile.Compiler.javac
 import com.google.testing.compile.JavaFileObjects
@@ -36,7 +39,7 @@ import org.junit.runners.JUnit4
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
-class NavWriterTest {
+class JavaNavWriterTest {
 
     private fun id(id: String) = ResReference("a.b", "id", id)
 
@@ -60,7 +63,7 @@ class NavWriterTest {
     }
 
     private fun JavaSourcesSubject.parsesAs(fullClassName: String) =
-            this.parsesAs(fullClassName, "expected/nav_writer_test")
+        this.parsesAs(fullClassName, "expected/java_nav_writer_test")
 
     private fun compileFiles(vararg javaFileObject: JavaFileObject) = javac()
             .compile(loadSourceFile("a.b.R", "a/b"),
@@ -80,13 +83,13 @@ class NavWriterTest {
                         Argument("optionalInt", IntType, IntValue("239")),
                         Argument(
                                 "optionalParcelable",
-                                ObjectType(ClassName.get("android.content.pm", "ActivityInfo")),
+                                ObjectType("android.content.pm.ActivityInfo"),
                                 NullValue,
                                 true
                         ),
                         Argument(
                                 "parcelable",
-                                ObjectType(ClassName.get("android.content.pm", "ActivityInfo"))
+                                ObjectType("android.content.pm.ActivityInfo")
                         ))), false)
         val actual = toJavaFileObject(actionSpec)
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.Next")
@@ -153,18 +156,18 @@ class NavWriterTest {
                 Argument("floatArg", FloatType, FloatValue("1")),
                 Argument("floatArrayArg", FloatArrayType),
                 Argument("objectArrayArg", ObjectArrayType(
-                    ClassName.get("android.content.pm", "ActivityInfo"))),
+                    "android.content.pm.ActivityInfo")),
                 Argument("boolArg", BoolType, BooleanValue("true")),
                 Argument(
                         "optionalParcelable",
-                        ObjectType(ClassName.get("android.content.pm", "ActivityInfo")),
+                        ObjectType("android.content.pm.ActivityInfo"),
                         NullValue,
                         true
                 ),
                 Argument(
                     "enumArg",
-                    ObjectType(ClassName.get("java.nio.file", "AccessMode")),
-                    EnumValue(ClassName.get("java.nio.file", "AccessMode"), "READ"),
+                    ObjectType("java.nio.file.AccessMode"),
+                    EnumValue(ObjectType("java.nio.file.AccessMode"), "READ"),
                     false
                 )),
                 listOf())

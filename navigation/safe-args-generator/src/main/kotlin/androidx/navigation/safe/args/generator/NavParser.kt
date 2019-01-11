@@ -189,9 +189,10 @@ internal class NavParser(
                 if (defaultValue == VALUE_NULL) {
                     NullValue
                 } else {
-                    EnumValue(type.typeName(), defaultValue)
+                    EnumValue(type, defaultValue)
                 }
             }
+            else -> throw IllegalStateException("Unknown type: $type")
         }
 
         if (defaultTypedValue == null) {
