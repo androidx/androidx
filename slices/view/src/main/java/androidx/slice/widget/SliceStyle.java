@@ -48,7 +48,6 @@ public class SliceStyle {
     private int mSubtitleColor;
     private int mHeaderTitleSize;
     private int mHeaderSubtitleSize;
-    private int mHeaderDividerPadding;
     private int mVerticalHeaderTextPadding;
     private int mTitleSize;
     private int mSubtitleSize;
@@ -75,6 +74,8 @@ public class SliceStyle {
     private int mListMinScrollHeight;
     private int mListLargeHeight;
 
+    private RowStyle mRowStyle;
+
     public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.SliceView,
                 defStyleAttr, defStyleRes);
@@ -90,8 +91,6 @@ public class SliceStyle {
                     R.styleable.SliceView_headerSubtitleSize, 0);
             mVerticalHeaderTextPadding = (int) a.getDimension(
                     R.styleable.SliceView_headerTextVerticalPadding, 0);
-            mHeaderDividerPadding = (int) a.getDimension(
-                    R.styleable.SliceView_headerDividerPadding, 0);
 
             mTitleSize = (int) a.getDimension(R.styleable.SliceView_titleSize, 0);
             mSubtitleSize = (int) a.getDimension(
@@ -108,6 +107,11 @@ public class SliceStyle {
                     R.styleable.SliceView_gridTextVerticalPadding, defaultVerticalGridPadding);
             mGridTopPadding = (int) a.getDimension(R.styleable.SliceView_gridTopPadding, 0);
             mGridBottomPadding = (int) a.getDimension(R.styleable.SliceView_gridBottomPadding, 0);
+
+            int rowStyleRes = a.getResourceId(R.styleable.SliceView_rowStyle, 0);
+            if (rowStyleRes != 0) {
+                mRowStyle = new RowStyle(context, rowStyleRes);
+            }
         } finally {
             a.recycle();
         }
@@ -167,10 +171,6 @@ public class SliceStyle {
         return mVerticalHeaderTextPadding;
     }
 
-    public int getHeaderDividerPadding() {
-        return mHeaderDividerPadding;
-    }
-
     public int getTitleSize() {
         return mTitleSize;
     }
@@ -201,6 +201,10 @@ public class SliceStyle {
 
     public int getGridBottomPadding() {
         return mGridBottomPadding;
+    }
+
+    public RowStyle getRowStyle() {
+        return mRowStyle;
     }
 
     public int getRowHeight(RowContent row, SliceViewPolicy policy) {

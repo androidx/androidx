@@ -32,8 +32,6 @@
         <attr name="headerSubtitleSize" format="dimension"/>
         <!-- Vertical padding to use between header title text and header subtitle text. -->
         <attr name="headerTextVerticalPadding" format="dimension" />
-        <!-- Padding to use between header divider and the edge of the view. -->
-        <attr name="headerDividerPadding" format="dimension" />
 
         <!-- Text size to use for title text in a non-header row of the slice. -->
         <attr name="titleSize" format="dimension" />
@@ -56,9 +54,36 @@
          last row of a slice. Use this to specify padding to apply to the bottom of the grid row in
          this situation. -->
         <attr name="gridBottomPadding" format="dimension" />
+
+        <!-- To apply a style for all slice rows shown within an activity or app you
+             may set this in your app theme pointing to your custom RowView style.-->
+        <attr name="rowStyle" format="reference" />
     </declare-styleable>
 
     <!-- To apply a style for all slices shown within an activity or app you
          may set this in your app theme pointing to your custom SliceView style.-->
     <attr name="sliceViewStyle" format="reference" />
+
+    <declare-styleable name="RowStyle">
+        <!-- Padding to the end edge of title items shown in the row. -->
+        <attr name="titleItemEndPadding" format="dimension" />
+
+        <!-- Padding to the start edge of the content in the row. -->
+        <attr name="contentStartPadding" format="dimension" />
+        <!-- Padding to the end edge of the content in the row. -->
+        <attr name="contentEndPadding" format="dimension" />
+
+        <!-- Padding to the start edge of the collection of items shown at the end of the row. -->
+        <attr name="endItemStartPadding" format="dimension" />
+        <!-- Padding to the end edge of the collection of items shown at the end of the row. -->
+        <attr name="endItemEndPadding" format="dimension" />
+
+        <!-- Padding to the start edge of the bottom divider in the row. -->
+        <attr name="bottomDividerStartPadding" format="dimension" />
+        <!-- Padding to the end edge of the bottom divider in the row. -->
+        <attr name="bottomDividerEndPadding" format="dimension" />
+
+        <!-- Height to use for action divider in the row. -->
+        <attr name="actionDividerHeight" format="dimension"/>
+    </declare-styleable>
 </resources>
