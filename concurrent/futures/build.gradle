@@ -25,10 +25,10 @@ plugins {
 }
 
 dependencies {
+    compile(project(":annotation"))
     compile(GUAVA_LISTENABLE_FUTURE)
     testCompile(JUNIT)
     testCompile(TRUTH)
-    compile(SUPPORT_ANNOTATIONS)
 }
 
 supportLibrary {
