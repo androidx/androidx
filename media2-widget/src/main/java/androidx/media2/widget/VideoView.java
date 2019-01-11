@@ -31,7 +31,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.FileMediaItem;
 import androidx.media2.MediaItem;
@@ -217,11 +216,8 @@ public class VideoView extends BaseLayout {
      * Registers a callback to be invoked when a view type change is done.
      * {@see #setViewType(int)}
      * @param l The callback that will be run
-     * @hide
      */
-    @VisibleForTesting
-    @RestrictTo(LIBRARY_GROUP)
-    public void setOnViewTypeChangedListener(OnViewTypeChangedListener l) {
+    public void setOnViewTypeChangedListener(@Nullable OnViewTypeChangedListener l) {
         mImpl.setOnViewTypeChangedListener(l);
     }
 
@@ -273,10 +269,7 @@ public class VideoView extends BaseLayout {
 
     /**
      * Interface definition of a callback to be invoked when the view type has been changed.
-     *
-     * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
     public interface OnViewTypeChangedListener {
         /**
          * Called when the view type has been changed.
@@ -288,6 +281,6 @@ public class VideoView extends BaseLayout {
          * <li>{@link #VIEW_TYPE_TEXTUREVIEW}
          * </ul>
          */
-        void onViewTypeChanged(View view, @ViewType int viewType);
+        void onViewTypeChanged(@NonNull View view, @ViewType int viewType);
     }
 }
