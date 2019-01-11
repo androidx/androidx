@@ -18,18 +18,18 @@ package androidx.navigation.safe.args.generator.models
 
 import androidx.navigation.safe.args.generator.NavType
 import androidx.navigation.safe.args.generator.NullValue
-import androidx.navigation.safe.args.generator.WriteableValue
+import androidx.navigation.safe.args.generator.WritableValue
 import androidx.navigation.safe.args.generator.ext.joinToCamelCaseAsVar
 
 data class Argument(
     val name: String,
     val type: NavType,
-    val defaultValue: WriteableValue? = null,
+    val defaultValue: WritableValue? = null,
     val isNullable: Boolean = false
 ) {
     init {
         if (isNullable && !type.allowsNullable()) {
-            throw IllegalArgumentException("Argument is nullable but type ${type.typeName()} " +
+            throw IllegalArgumentException("Argument is nullable but type $type " +
                     "cannot be nullable.")
         }
         if (!isNullable && defaultValue == NullValue) {

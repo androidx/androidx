@@ -18,6 +18,8 @@ package androidx.navigation.safe.args.generator
 
 import androidx.navigation.safe.args.generator.ext.toClassName
 import androidx.navigation.safe.args.generator.models.Destination
+import androidx.navigation.safe.args.generator.java.generateArgsJavaFile
+import androidx.navigation.safe.args.generator.java.generateDirectionsJavaFile
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
 import java.io.File
