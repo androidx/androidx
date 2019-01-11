@@ -16,6 +16,7 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.java.write
 import androidx.navigation.safe.args.generator.models.ResReference
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
