@@ -25,6 +25,7 @@ import androidx.navigation.testing.test
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -53,6 +54,24 @@ class NavControllerTest {
         val navController = createNavController()
         navController.setGraph(R.navigation.nav_start_destination)
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
+    }
+
+    @Test
+    fun testSetGraphTwice() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_start_destination)
+        val navigator = navController.navigatorProvider[TestNavigator::class]
+        assertThat(navController.currentDestination?.id)
+            .isEqualTo(R.id.start_test)
+        assertThat(navigator.backStack.size)
+            .isEqualTo(1)
+
+        // Now set a new graph, overriding the first
+        navController.setGraph(R.navigation.nav_nested_start_destination)
+        assertThat(navController.currentDestination?.id)
+            .isEqualTo(R.id.nested_test)
+        assertThat(navigator.backStack.size)
+            .isEqualTo(1)
     }
 
     @Test
