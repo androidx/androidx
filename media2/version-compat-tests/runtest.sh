@@ -25,7 +25,6 @@
 
 CLIENT_MODULE_NAME_BASE="support-media2-test-client"
 SERVICE_MODULE_NAME_BASE="support-media2-test-service"
-TEST_VERSIONS=("MaxDepVersions" "MinDepVersions")
 CLIENT_VERSION=""
 SERVICE_VERSION=""
 OPTION_TEST_TARGET=""
@@ -49,28 +48,21 @@ function runTest() {
 
   local CLIENT_MODULE_NAME="$CLIENT_MODULE_NAME_BASE$([ "$CLIENT_VERSION" = "tot" ] || echo "-previous")"
   local SERVICE_MODULE_NAME="$SERVICE_MODULE_NAME_BASE$([ "$SERVICE_VERSION" = "tot" ] || echo "-previous")"
-  for version in "${TEST_VERSIONS[@]}"; do
-    local TEST_TASK_NAME="assemble${version}DebugAndroidTest"
 
-    # Build test apks
-    ./gradlew $CLIENT_MODULE_NAME:$TEST_TASK_NAME || { echo "Build failed. Aborting."; exit 1; }
-    ./gradlew $SERVICE_MODULE_NAME:$TEST_TASK_NAME || { echo "Build failed. Aborting."; exit 1; }
+  # Build test apks
+  ./gradlew $CLIENT_MODULE_NAME:assembleDebugAndroidTest || { echo "Build failed. Aborting."; exit 1; }
+  ./gradlew $SERVICE_MODULE_NAME:assembleDebugAndroidTest || { echo "Build failed. Aborting."; exit 1; }
 
-    # Search for the apks.
-    # Need to search under out/host instead of out/dist, because MaxDepVersions doesn't drop apks there.
-    local CLIENT_APK=$(find ../../out/host -iname "$CLIENT_MODULE_NAME-$version-debug-androidTest.apk")
-    local SERVICE_APK=$(find ../../out/host -iname "$SERVICE_MODULE_NAME-$version-debug-androidTest.apk")
-
-    # Install the apks
-    adb install -r $CLIENT_APK || { echo "Failed to install $CLIENT_APK. Aborting."; exit 1; }
-    adb install -r $SERVICE_APK || { echo "Failed to install $SERVICE_APK. Aborting."; exit 1; }
+  # Install the apks
+  adb install -r "../../out/dist/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
+  adb install -r "../../out/dist/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
 
     # Run the tests
     local test_command="adb shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
     local client_test_runner="androidx.media2.test.client.test/androidx.test.runner.AndroidJUnitRunner"
     local service_test_runner="androidx.media2.test.service.test/androidx.test.runner.AndroidJUnitRunner"
 
-    echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Started: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION (Version=$version) <<<<<<<<<<<<<<<<<<<<<<<<"
+    echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Started: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION <<<<<<<<<<<<<<<<<<<<<<<<"
 
     if [[ $OPTION_TEST_TARGET == *"client"* ]]; then
       ${test_command} $OPTION_TEST_TARGET ${client_test_runner}
@@ -81,7 +73,7 @@ function runTest() {
         ${test_command} ${service_test_runner}
     fi
 
-    echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Ended: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION (Version=$version) <<<<<<<<<<<<<<<<<<<<<<<<<<"
+    echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Ended: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION <<<<<<<<<<<<<<<<<<<<<<<<<<"
   done
 }
 
