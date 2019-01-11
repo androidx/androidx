@@ -93,6 +93,7 @@
     <public type="style" name="Widget.Car.Dialog.Body" />
     <public type="style" name="Widget.Car.Dialog.Body.Light" />
     <public type="style" name="Widget.Car.Dialog.Body.Dark" />
+    <public type="style" name="Widget.Car.Dialog.Button" />
 
     <!-- Preference Styles -->
     <public type="style" name="CarPreference" />
