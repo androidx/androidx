@@ -207,7 +207,7 @@ limitations under the License.
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="colorControlHighlight">@color/car_card_ripple_background</item>
-        <item name="dialogButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
+        <item name="dialogButtonStyle">@style/Widget.Car.Dialog.Button</item>
         <item name="dialogBackgroundColor">@color/car_card</item>
         <item name="dialogListTheme">@style/Theme.Car.List</item>
         <item name="dialogTitleStyle">@style/Widget.Car.Dialog.Title</item>
@@ -219,7 +219,7 @@ limitations under the License.
         <item name="android:colorButtonNormal">@color/car_accent_light</item>
         <item name="android:colorControlHighlight">@color/car_card_ripple_background_light</item>
         <item name="colorControlHighlight">@color/car_card_ripple_background_light</item>
-        <item name="dialogButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
+        <item name="dialogButtonStyle">@style/Widget.Car.Dialog.Button</item>
         <item name="dialogBackgroundColor">@color/car_card_dark</item>
         <item name="dialogListTheme">@style/Theme.Car.Light.List.DarkItems</item>
         <item name="dialogTitleStyle">@style/Widget.Car.Dialog.Title.Light</item>

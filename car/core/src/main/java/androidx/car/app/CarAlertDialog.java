@@ -89,7 +89,7 @@ public class CarAlertDialog extends Dialog {
         mButtonPanelTopMargin = res.getDimensionPixelSize(R.dimen.car_padding_2);
         mBottomPadding = res.getDimensionPixelSize(R.dimen.car_padding_4);
         mButtonMinWidth = res.getDimensionPixelSize(R.dimen.car_button_min_width);
-        mButtonSpacing = res.getDimensionPixelSize(R.dimen.car_padding_4);
+        mButtonSpacing = res.getDimensionPixelSize(R.dimen.car_padding_5);
     }
 
     @Override

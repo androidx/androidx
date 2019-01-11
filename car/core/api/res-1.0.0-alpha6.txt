@@ -70,6 +70,7 @@ style Widget_Car_Dialog
 style Widget_Car_Dialog_Body
 style Widget_Car_Dialog_Body_Dark
 style Widget_Car_Dialog_Body_Light
+style Widget_Car_Dialog_Button
 style Widget_Car_Dialog_Title
 style Widget_Car_Dialog_Title_Dark
 style Widget_Car_Dialog_Title_Light

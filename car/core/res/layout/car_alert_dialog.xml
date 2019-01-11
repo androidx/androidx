@@ -81,7 +81,6 @@ limitations under the License.
                 android:id="@+id/positive_button"
                 android:layout_width="wrap_content"
                 android:minWidth="0dp"
-                android:padding="0dp"
                 android:visibility="gone"
                 style="?attr/dialogButtonStyle" />
 
@@ -89,7 +88,6 @@ limitations under the License.
                 android:id="@+id/negative_button"
                 android:layout_width="wrap_content"
                 android:minWidth="0dp"
-                android:padding="0dp"
                 android:visibility="gone"
                 style="?attr/dialogButtonStyle" />
         </LinearLayout>
