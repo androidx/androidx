@@ -70,6 +70,13 @@
         <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
         <item name="listChoiceIndicatorMultipleAnimated">@drawable/abc_btn_check_material_anim</item>
 
+        <!-- List attributes -->
+        <item name="android:textAppearanceListItem">@style/TextAppearance.AppCompat.Subhead</item>
+        <item name="android:textAppearanceListItemSmall">@style/TextAppearance.AppCompat.Subhead</item>
+        <!-- textAppearanceListItemSecondary is 21+ only so not safe to apply here-->
+        <item name="android:listPreferredItemHeight">@dimen/abc_list_item_height_material</item>
+        <item name="android:listPreferredItemHeightSmall">@dimen/abc_list_item_height_small_material</item>
+        <item name="android:listPreferredItemHeightLarge">@dimen/abc_list_item_height_large_material</item>
         <item name="android:listPreferredItemPaddingLeft">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="android:listPreferredItemPaddingRight">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="android:listPreferredItemPaddingStart">@dimen/abc_list_item_padding_horizontal_material</item>
@@ -134,6 +141,13 @@
         <item name="android:listChoiceIndicatorMultiple">@drawable/abc_btn_check_material</item>
         <item name="listChoiceIndicatorMultipleAnimated">@drawable/abc_btn_check_material_anim</item>
 
+        <!-- List attributes -->
+        <item name="android:textAppearanceListItem">@style/TextAppearance.AppCompat.Subhead</item>
+        <item name="android:textAppearanceListItemSmall">@style/TextAppearance.AppCompat.Subhead</item>
+        <!-- textAppearanceListItemSecondary is 21+ only so not safe to apply here-->
+        <item name="android:listPreferredItemHeight">@dimen/abc_list_item_height_material</item>
+        <item name="android:listPreferredItemHeightSmall">@dimen/abc_list_item_height_small_material</item>
+        <item name="android:listPreferredItemHeightLarge">@dimen/abc_list_item_height_large_material</item>
         <item name="android:listPreferredItemPaddingLeft">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="android:listPreferredItemPaddingRight">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="android:listPreferredItemPaddingStart">@dimen/abc_list_item_padding_horizontal_material</item>
@@ -223,9 +237,9 @@
         <item name="textAppearanceListItem">@style/TextAppearance.AppCompat.Subhead</item>
         <item name="textAppearanceListItemSmall">@style/TextAppearance.AppCompat.Subhead</item>
         <item name="textAppearanceListItemSecondary">@style/TextAppearance.AppCompat.Body1</item>
-        <item name="listPreferredItemHeight">64dp</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemHeightLarge">80dp</item>
+        <item name="listPreferredItemHeight">@dimen/abc_list_item_height_material</item>
+        <item name="listPreferredItemHeightSmall">@dimen/abc_list_item_height_small_material</item>
+        <item name="listPreferredItemHeightLarge">@dimen/abc_list_item_height_large_material</item>
         <item name="listPreferredItemPaddingLeft">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="listPreferredItemPaddingRight">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="listPreferredItemPaddingStart">@dimen/abc_list_item_padding_horizontal_material</item>
@@ -397,9 +411,9 @@
         <item name="textAppearanceListItem">@style/TextAppearance.AppCompat.Subhead</item>
         <item name="textAppearanceListItemSmall">@style/TextAppearance.AppCompat.Subhead</item>
         <item name="textAppearanceListItemSecondary">@style/TextAppearance.AppCompat.Body1</item>
-        <item name="listPreferredItemHeight">64dp</item>
-        <item name="listPreferredItemHeightSmall">48dp</item>
-        <item name="listPreferredItemHeightLarge">80dp</item>
+        <item name="listPreferredItemHeight">@dimen/abc_list_item_height_material</item>
+        <item name="listPreferredItemHeightSmall">@dimen/abc_list_item_height_small_material</item>
+        <item name="listPreferredItemHeightLarge">@dimen/abc_list_item_height_large_material</item>
         <item name="listPreferredItemPaddingLeft">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="listPreferredItemPaddingRight">@dimen/abc_list_item_padding_horizontal_material</item>
         <item name="listPreferredItemPaddingStart">@dimen/abc_list_item_padding_horizontal_material</item>
