@@ -391,7 +391,7 @@ public class NavController {
 
     /**
      * Sets the {@link NavGraph navigation graph} to the specified resource.
-     * Any current navigation graph data will be replaced.
+     * Any current navigation graph data (including back stack) will be replaced.
      *
      * <p>The inflated graph can be retrieved via {@link #getGraph()}.</p>
      *
@@ -408,7 +408,7 @@ public class NavController {
 
     /**
      * Sets the {@link NavGraph navigation graph} to the specified resource.
-     * Any current navigation graph data will be replaced.
+     * Any current navigation graph data (including back stack) will be replaced.
      *
      * <p>The inflated graph can be retrieved via {@link #getGraph()}.</p>
      *
@@ -421,13 +421,12 @@ public class NavController {
      */
     @CallSuper
     public void setGraph(@NavigationRes int graphResId, @Nullable Bundle startDestinationArgs) {
-        mGraph = getNavInflater().inflate(graphResId);
-        onGraphCreated(startDestinationArgs);
+        setGraph(getNavInflater().inflate(graphResId), startDestinationArgs);
     }
 
     /**
      * Sets the {@link NavGraph navigation graph} to the specified graph.
-     * Any current navigation graph data will be replaced.
+     * Any current navigation graph data (including back stack) will be replaced.
      *
      * <p>The graph can be retrieved later via {@link #getGraph()}.</p>
      *
@@ -442,7 +441,7 @@ public class NavController {
 
     /**
      * Sets the {@link NavGraph navigation graph} to the specified graph.
-     * Any current navigation graph data will be replaced.
+     * Any current navigation graph data (including back stack) will be replaced.
      *
      * <p>The graph can be retrieved later via {@link #getGraph()}.</p>
      *
@@ -452,6 +451,10 @@ public class NavController {
      */
     @CallSuper
     public void setGraph(@NonNull NavGraph graph, @Nullable Bundle startDestinationArgs) {
+        if (mGraph != null) {
+            // Pop everything from the old graph off the back stack
+            popBackStackInternal(mGraph.getId(), true);
+        }
         mGraph = graph;
         onGraphCreated(startDestinationArgs);
     }
