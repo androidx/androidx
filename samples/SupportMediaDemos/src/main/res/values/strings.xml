@@ -20,4 +20,5 @@
     <string name="looping_text">Looping</string>
     <string name="texture_view_text">Use TextureView</string>
     <string name="advertisement_text">Advertisement</string>
+    <string name="transformable_text">Transform</string>
 </resources>
