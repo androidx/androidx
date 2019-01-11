@@ -575,6 +575,8 @@ class VideoViewImplBase implements VideoViewImpl, VideoViewInterface.SurfaceList
     // Protected or private methods
     ///////////////////////////////////////////////////
     private void attachMediaControlView() {
+        if (mMediaControlView == null) return;
+
         // Get MediaController from MediaSession and set it inside MediaControlView
         mMediaControlView.setSessionToken(mMediaSession.getToken());
 
