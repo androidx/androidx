@@ -505,23 +505,30 @@ public class WorkManagerImpl extends WorkManager {
 
     /**
      * @param workSpecId The {@link WorkSpec} id to start
+     * @return The {@link ListenableFuture} that eventually returns {@code true} if the work was
+     * successfully enqueued for processing
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(String workSpecId) {
-        startWork(workSpecId, null);
+    public ListenableFuture<Boolean> startWork(String workSpecId) {
+        return startWork(workSpecId, null);
     }
 
     /**
      * @param workSpecId The {@link WorkSpec} id to start
      * @param runtimeExtras The {@link WorkerParameters.RuntimeExtras} associated with this work
+     * @return The {@link ListenableFuture} that eventually returns {@code true} if the work was
+     * successfully enqueued for processing
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void startWork(String workSpecId, WorkerParameters.RuntimeExtras runtimeExtras) {
-        mWorkTaskExecutor
-                .executeOnBackgroundThread(
-                        new StartWorkRunnable(this, workSpecId, runtimeExtras));
+    public ListenableFuture<Boolean> startWork(
+            String workSpecId,
+            WorkerParameters.RuntimeExtras runtimeExtras) {
+        StartWorkRunnable startWorkRunnable =
+                new StartWorkRunnable(this, workSpecId, runtimeExtras);
+        mWorkTaskExecutor.executeOnBackgroundThread(startWorkRunnable);
+        return startWorkRunnable.getEnqueuedFuture();
     }
 
     /**
