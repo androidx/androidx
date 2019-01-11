@@ -66,11 +66,8 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
             setUpTest(orientation).apply {
                 val pageCount = max(startPage, targetPage) + 1
                 setAdapterSync(viewAdapterProvider(stringSequence(pageCount)))
-                if (viewPager.currentItem != startPage) {
-                    val latch = viewPager.addWaitForIdleLatch()
-                    runOnUiThread { viewPager.setCurrentItem(startPage, false) }
-                    latch.await(2, SECONDS)
-                }
+                viewPager.setCurrentItemSync(startPage, false, 2, SECONDS)
+
                 val listener = viewPager.addNewRecordingListener()
                 val movingForward = targetPage > startPage
 
@@ -91,10 +88,11 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 // and check the result
                 listener.apply {
                     assertThat(
-                        "Unexpected sequence of state changes (0=IDLE, 1=DRAGGING, 2=SETTLING)",
+                        "Unexpected sequence of state changes (0=IDLE, 1=DRAGGING, 2=SETTLING)" +
+                                dumpEvents(),
                         stateEvents.map { it.state },
                         equalTo(
-                            if (expectIdleAfterDrag(pageCount)) {
+                            if (expectIdleAfterDrag()) {
                                 listOf(
                                     SCROLL_STATE_SETTLING,
                                     SCROLL_STATE_DRAGGING,
@@ -180,14 +178,16 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
             }
         }
 
-        fun expectIdleAfterDrag(pageCount: Int): Boolean {
+        fun expectIdleAfterDrag(): Boolean {
             val lastScrollEvent = events
                 .dropWhile { it != OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING) }.drop(1)
                 .takeWhile { it is OnPageScrolledEvent }
                 .lastOrNull() as? OnPageScrolledEvent
-            return lastScrollEvent?.let {
-                (it.position == 0 || it.position == pageCount - 1) && it.positionOffsetPixels == 0
-            } ?: false
+            return lastScrollEvent?.let { it.positionOffsetPixels == 0 } ?: false
+        }
+
+        fun dumpEvents(): String {
+            return events.joinToString("\n- ", "\n- ")
         }
     }
 }
