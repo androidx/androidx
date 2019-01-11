@@ -17,8 +17,8 @@
 package androidx.ui.material
 
 import androidx.ui.baseui.selection.Toggleable
-import androidx.ui.core.Draw
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.adapter.Draw
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -51,6 +51,6 @@ internal fun DrawCheckbox() {
     paint.color = Color(0xFFFF0000.toInt())
     <Draw> canvas, parentSize ->
         canvas.drawRect(Rect(0f, 0f, parentSize.width, parentSize.height), paint)
-        // TODO(clara): Actually draw a checkbox
+    // TODO(clara): Actually draw a checkbox
     </Draw>
 }

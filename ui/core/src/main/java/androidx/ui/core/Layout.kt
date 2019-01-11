@@ -18,6 +18,7 @@ package androidx.ui.core
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.R4a
 
 /**
@@ -178,3 +179,10 @@ class MeasureOperations internal constructor(private val measureBox: MeasureBox)
     }
 }
 
+/**
+ * Temporary needed to be able to use the component from the adapter module. b/120971484
+ */
+@Composable
+fun MeasureBoxComposable(@Children(composable = false) block: (constraints: Constraints, measureOperations: MeasureOperations) -> Unit) {
+    <MeasureBox block=block/>
+}

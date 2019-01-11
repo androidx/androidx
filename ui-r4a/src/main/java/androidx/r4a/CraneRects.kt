@@ -18,11 +18,11 @@ package androidx.r4a
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import androidx.ui.core.adapter.Draw
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
-import androidx.ui.core.Draw
-import androidx.ui.core.MeasureBox
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.div
 import androidx.ui.core.dp
