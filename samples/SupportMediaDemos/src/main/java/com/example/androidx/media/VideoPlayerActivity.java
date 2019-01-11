@@ -30,6 +30,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -49,21 +51,21 @@ import java.util.concurrent.Executor;
 public class VideoPlayerActivity extends FragmentActivity {
     public static final String LOOPING_EXTRA_NAME =
             "com.example.androidx.media.VideoPlayerActivity.IsLooping";
-    public static final String USE_TEXTURE_VIEW_EXTRA_NAME =
-            "com.example.androidx.media.VideoPlayerActivity.UseTextureView";
     public static final String MEDIA_TYPE_ADVERTISEMENT =
             "com.example.androidx.media.VideoPlayerActivity.MediaTypeAdvertisement";
     private static final String TAG = "VideoPlayerActivity";
 
-    private MyVideoView mVideoView = null;
+    MyVideoView mVideoView;
+    View mResizeHandle;
     private float mSpeed = 1.0f;
 
     private MediaControlView mMediaControlView = null;
     private MediaController mMediaController = null;
 
-    private boolean mUseTextureView = false;
-    private int mPrevWidth;
-    private int mPrevHeight;
+    private int mVideoViewDX;
+    private int mVideoViewDY;
+    private int mResizeHandleDX;
+    private int mResizeHandleDY;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,50 @@ public class VideoPlayerActivity extends FragmentActivity {
         setContentView(R.layout.activity_video_player);
 
         mVideoView = findViewById(R.id.video_view);
+        mVideoView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return onTouchVideoView(event);
+            }
+        });
+
+        mResizeHandle = findViewById(R.id.resize_handle);
+        mResizeHandle.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return onTouchResizeHandle(event);
+            }
+        });
+
+        mVideoView.setOnViewTypeChangedListener(new VideoView.OnViewTypeChangedListener() {
+            @Override
+            public void onViewTypeChanged(@NonNull View view, int viewType) {
+                String type = getViewTypeString(viewType);
+                Toast.makeText(VideoPlayerActivity.this, "switched to " + type, Toast.LENGTH_SHORT)
+                        .show();
+                setTitle(type);
+            }
+        });
+
+        CheckBox useTextureView = findViewById(R.id.use_textureview_checkbox);
+        useTextureView.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    mVideoView.setViewType(VideoView.VIEW_TYPE_TEXTUREVIEW);
+                } else {
+                    mVideoView.setViewType(VideoView.VIEW_TYPE_SURFACEVIEW);
+                }
+            }
+        });
+
+        CheckBox transformable = findViewById(R.id.transformable_checkbox);
+        transformable.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                applyTransformability(isChecked);
+            }
+        });
 
         String errorString = null;
         Intent intent = getIntent();
@@ -82,10 +128,6 @@ public class VideoPlayerActivity extends FragmentActivity {
         if (intent == null || (videoUri = intent.getData()) == null || !videoUri.isAbsolute()) {
             errorString = "Invalid intent";
         } else {
-            mUseTextureView = intent.getBooleanExtra(USE_TEXTURE_VIEW_EXTRA_NAME, false);
-            if (mUseTextureView) {
-                mVideoView.setViewType(VideoView.VIEW_TYPE_TEXTUREVIEW);
-            }
             UriMediaItem mediaItem = new UriMediaItem.Builder(this, videoUri).build();
             mVideoView.setMediaItem(mediaItem);
 
@@ -101,12 +143,6 @@ public class VideoPlayerActivity extends FragmentActivity {
         if (errorString != null) {
             showErrorDialog(errorString);
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        setTitle(getViewTypeString(mVideoView));
     }
 
     @Override
@@ -154,51 +190,49 @@ public class VideoPlayerActivity extends FragmentActivity {
         }
     }
 
-    private class FullScreenListener
-            implements MediaControlView.OnFullScreenListener {
+    class FullScreenListener implements MediaControlView.OnFullScreenListener {
+        private int mPrevWidth;
+        private int mPrevHeight;
+        private int mPrevLeft;
+        private int mPrevTop;
+
         @Override
-        public void onFullScreen(View view, boolean fullScreen) {
+        public void onFullScreen(@NonNull View view, boolean fullScreen) {
             // TODO: Remove bottom controls after adding back button functionality.
-            if (mPrevHeight == 0 && mPrevWidth == 0) {
-                ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
+            ViewGroup.MarginLayoutParams params =
+                    (ViewGroup.MarginLayoutParams) mVideoView.getLayoutParams();
+            if (fullScreen) {
                 mPrevWidth = params.width;
                 mPrevHeight = params.height;
-            }
+                mPrevLeft = params.leftMargin;
+                mPrevTop = params.topMargin;
 
-            if (fullScreen) {
                 // Remove notification bar
                 getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-                ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
                 params.width = ViewGroup.LayoutParams.MATCH_PARENT;
                 params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+                params.leftMargin = 0;
+                params.topMargin = 0;
                 mVideoView.setLayoutParams(params);
             } else {
                 // Restore notification bar
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-                ViewGroup.LayoutParams params = mVideoView.getLayoutParams();
                 params.width = mPrevWidth;
                 params.height = mPrevHeight;
+                params.leftMargin = mPrevLeft;
+                params.topMargin = mPrevTop;
                 mVideoView.setLayoutParams(params);
             }
             mVideoView.requestLayout();
-            mVideoView.invalidate();
         }
     }
 
-    /**
-     * Extension of the stock android video view used to hook and override
-     * keypress behavior.  Mainly used to make sure that certain keystrokes
-     * don't automatically bring up the andriod MediaController widget (which
-     * then steals focus)
-     *
-     * @author johngro@google.com (John Grossman)
-     */
-    public static class MyVideoView extends VideoView {
-        private float mDX;
-        private float mDY;
+    // To intercept touch event when transformable is checked
+    static class MyVideoView extends VideoView {
+        private boolean mTransformable;
 
         public MyVideoView(Context context) {
             super(context);
@@ -212,49 +246,107 @@ public class VideoPlayerActivity extends FragmentActivity {
             super(context, attrs, defStyle);
         }
 
+        public void setTransformable(boolean transformable) {
+            mTransformable = transformable;
+        }
+
         @Override
-        public boolean onTouchEvent(MotionEvent ev) {
-            switch (ev.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    mDX = ev.getRawX() - getX();
-                    mDY = ev.getRawY() - getY();
-                    super.onTouchEvent(ev);
-                    return true;
-                case MotionEvent.ACTION_MOVE:
-                    animate()
-                            .x(ev.getRawX() - mDX)
-                            .y(ev.getRawY() - mDY)
-                            .setDuration(0)
-                            .start();
-                    super.onTouchEvent(ev);
-                    return true;
+        public boolean onInterceptTouchEvent(MotionEvent ev) {
+            if (!mTransformable) {
+                return super.onInterceptTouchEvent(ev);
             }
-            return super.onTouchEvent(ev);
+            return true;
         }
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (mVideoView.getViewType() == VideoView.VIEW_TYPE_SURFACEVIEW) {
-            mVideoView.setViewType(VideoView.VIEW_TYPE_TEXTUREVIEW);
-            Toast.makeText(this, "switch to TextureView", Toast.LENGTH_SHORT).show();
-            setTitle(getViewTypeString(mVideoView));
-        } else if (mVideoView.getViewType() == VideoView.VIEW_TYPE_TEXTUREVIEW) {
-            mVideoView.setViewType(VideoView.VIEW_TYPE_SURFACEVIEW);
-            Toast.makeText(this, "switch to SurfaceView", Toast.LENGTH_SHORT).show();
-            setTitle(getViewTypeString(mVideoView));
-        }
     }
 
-    private String getViewTypeString(VideoView videoView) {
-        if (videoView == null) {
-            return "Unknown";
+    boolean onTouchVideoView(MotionEvent ev) {
+        int rawX = (int) ev.getRawX();
+        int rawY = (int) ev.getRawY();
+
+        // Move VideoView
+        ViewGroup.MarginLayoutParams vvParams = (ViewGroup.MarginLayoutParams)
+                mVideoView.getLayoutParams();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mVideoViewDX = rawX - vvParams.leftMargin;
+                mVideoViewDY = rawY - vvParams.topMargin;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                vvParams.leftMargin = rawX - mVideoViewDX;
+                vvParams.topMargin = rawY - mVideoViewDY;
+                mVideoView.setLayoutParams(vvParams);
+                break;
         }
-        int type = videoView.getViewType();
-        if (type == VideoView.VIEW_TYPE_SURFACEVIEW) {
+
+        // Move ResizeHandle as well
+        ViewGroup.MarginLayoutParams rhParams = (ViewGroup.MarginLayoutParams)
+                mResizeHandle.getLayoutParams();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mResizeHandleDX = rawX - rhParams.leftMargin;
+                mResizeHandleDY = rawY - rhParams.topMargin;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                rhParams.leftMargin = rawX - mResizeHandleDX;
+                rhParams.topMargin = rawY - mResizeHandleDY;
+                mResizeHandle.setLayoutParams(rhParams);
+                break;
+        }
+
+        return true;
+    }
+
+    boolean onTouchResizeHandle(MotionEvent ev) {
+        int rawX = (int) ev.getRawX();
+        int rawY = (int) ev.getRawY();
+
+        // Resize VideoView
+        ViewGroup.MarginLayoutParams vvParams = (ViewGroup.MarginLayoutParams)
+                mVideoView.getLayoutParams();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mVideoViewDX = rawX - vvParams.width;
+                mVideoViewDY = rawY - vvParams.height;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                vvParams.width = rawX - mVideoViewDX;
+                vvParams.height = rawY - mVideoViewDY;
+                mVideoView.setLayoutParams(vvParams);
+                break;
+        }
+
+        // Move ResizeHandle
+        ViewGroup.MarginLayoutParams rhParams = (ViewGroup.MarginLayoutParams)
+                mResizeHandle.getLayoutParams();
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mResizeHandleDX = rawX - rhParams.leftMargin;
+                mResizeHandleDY = rawY - rhParams.topMargin;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                rhParams.leftMargin = rawX - mResizeHandleDX;
+                rhParams.topMargin = rawY - mResizeHandleDY;
+                mResizeHandle.setLayoutParams(rhParams);
+                break;
+        }
+
+        return true;
+    }
+
+    void applyTransformability(boolean transformable) {
+        mVideoView.setTransformable(transformable);
+        mResizeHandle.setVisibility(transformable ? View.VISIBLE : View.GONE);
+    }
+
+    String getViewTypeString(int viewType) {
+        if (viewType == VideoView.VIEW_TYPE_SURFACEVIEW) {
             return "SurfaceView";
-        } else if (type == VideoView.VIEW_TYPE_TEXTUREVIEW) {
+        } else if (viewType == VideoView.VIEW_TYPE_TEXTUREVIEW) {
             return "TextureView";
         }
         return "Unknown";
