@@ -14,11 +14,9 @@
  * limitations under the License
  */
 
-
+import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
-
-import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
 
 plugins {
     id("SupportKotlinLibraryPlugin")
@@ -28,7 +26,7 @@ dependencies {
     compile("com.google.code.gson:gson:2.8.0")
     compile(KOTLIN_STDLIB)
     testCompile("junit:junit:4.12")
-    testCompile("com.google.truth:truth:0.34")
+    testCompile(TRUTH)
 }
 
 supportLibrary {
