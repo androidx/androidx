@@ -123,6 +123,7 @@ class DatabaseWriterTest {
 private fun singleDb(vararg jfo: JavaFileObject): CompileTester {
     return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
             .that(jfo.toList() + COMMON.USER + COMMON.USER_SUMMARY + COMMON.LIVE_DATA +
-                    COMMON.COMPUTABLE_LIVE_DATA)
+                    COMMON.COMPUTABLE_LIVE_DATA + COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 +
+                    COMMON.INFO)
             .processedWith(RoomProcessor())
 }

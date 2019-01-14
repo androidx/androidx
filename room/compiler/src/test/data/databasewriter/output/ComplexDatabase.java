@@ -34,14 +34,18 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
             @Override
             public void createAllTables(SupportSQLiteDatabase _db) {
                 _db.execSQL("CREATE TABLE IF NOT EXISTS `User` (`uid` INTEGER NOT NULL, `name` TEXT, `lastName` TEXT, `ageColumn` INTEGER NOT NULL, PRIMARY KEY(`uid`))");
+                _db.execSQL("CREATE TABLE IF NOT EXISTS `Child1` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
+                _db.execSQL("CREATE TABLE IF NOT EXISTS `Child2` (`id` INTEGER NOT NULL, `name` TEXT, `serial` INTEGER, `code` TEXT, PRIMARY KEY(`id`))");
                 _db.execSQL("CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
                 _db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)");
-                _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"9d1c69203ac900800807b511b9e50c1e\")");
+                _db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"12b646c55443feeefb567521e2bece85\")");
             }
 
             @Override
             public void dropAllTables(SupportSQLiteDatabase _db) {
                 _db.execSQL("DROP TABLE IF EXISTS `User`");
+                _db.execSQL("DROP TABLE IF EXISTS `Child1`");
+                _db.execSQL("DROP TABLE IF EXISTS `Child2`");
                 _db.execSQL("DROP VIEW IF EXISTS `UserSummary`")
             }
 
@@ -90,6 +94,34 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                             + " Expected:\n" + _infoUser + "\n"
                             + " Found:\n" + _existingUser);
                 }
+                final HashMap<String, TableInfo.Column> _columnsChild1 = new HashMap<String, TableInfo.Column>(4);
+                _columnsChild1.put("id", new TableInfo.Column("id", "INTEGER", true, 1));
+                _columnsChild1.put("name", new TableInfo.Column("name", "TEXT", false, 0));
+                _columnsChild1.put("serial", new TableInfo.Column("serial", "INTEGER", false, 0));
+                _columnsChild1.put("code", new TableInfo.Column("code", "TEXT", false, 0));
+                final HashSet<TableInfo.ForeignKey> _foreignKeysChild1 = new HashSet<TableInfo.ForeignKey>(0);
+                final HashSet<TableInfo.Index> _indicesChild1 = new HashSet<TableInfo.Index>(0);
+                final TableInfo _infoChild1 = new TableInfo("Child1", _columnsChild1, _foreignKeysChild1, _indicesChild1);
+                final TableInfo _existingChild1 = TableInfo.read(_db, "Child1");
+                if (! _infoChild1.equals(_existingChild1)) {
+                    throw new IllegalStateException("Migration didn't properly handle Child1(foo.bar.Child1).\n"
+                            + " Expected:\n" + _infoChild1 + "\n"
+                            + " Found:\n" + _existingChild1);
+                }
+                final HashMap<String, TableInfo.Column> _columnsChild2 = new HashMap<String, TableInfo.Column>(4);
+                _columnsChild2.put("id", new TableInfo.Column("id", "INTEGER", true, 1));
+                _columnsChild2.put("name", new TableInfo.Column("name", "TEXT", false, 0));
+                _columnsChild2.put("serial", new TableInfo.Column("serial", "INTEGER", false, 0));
+                _columnsChild2.put("code", new TableInfo.Column("code", "TEXT", false, 0));
+                final HashSet<TableInfo.ForeignKey> _foreignKeysChild2 = new HashSet<TableInfo.ForeignKey>(0);
+                final HashSet<TableInfo.Index> _indicesChild2 = new HashSet<TableInfo.Index>(0);
+                final TableInfo _infoChild2 = new TableInfo("Child2", _columnsChild2, _foreignKeysChild2, _indicesChild2);
+                final TableInfo _existingChild2 = TableInfo.read(_db, "Child2");
+                if (! _infoChild2.equals(_existingChild2)) {
+                    throw new IllegalStateException("Migration didn't properly handle Child2(foo.bar.Child2).\n"
+                            + " Expected:\n" + _infoChild2 + "\n"
+                            + " Found:\n" + _existingChild2);
+                }
                 final ViewInfo _infoUserSummary = new ViewInfo("UserSummary", "CREATE VIEW `UserSummary` AS SELECT uid, name FROM User");
                 final ViewInfo _existingUserSummary = ViewInfo.read(_db, "UserSummary");
                 if (!_infoUserSummary.equals(_existingUserSummary)) {
@@ -98,7 +130,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                             + " Found:\n" + _existingUserSummary);
                 }
             }
-        }, "9d1c69203ac900800807b511b9e50c1e", "af09255f7569cc7b673ac26387ea5fa5");
+        }, "12b646c55443feeefb567521e2bece85", "2f1dbf49584f5d6c91cb44f8a6ecfee2");
         final SupportSQLiteOpenHelper.Configuration _sqliteConfig = SupportSQLiteOpenHelper.Configuration.builder(configuration.context)
                 .name(configuration.name)
                 .callback(_openCallback)
@@ -114,7 +146,7 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
         HashSet<String> _tables = new HashSet<String>(1);
         _tables.add("User");
         _viewTables.put("usersummary", _tables);
-        return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "User");
+        return new InvalidationTracker(this, _shadowTablesMap, _viewTables, "User","Child1","Child2");
     }
 
     @Override
@@ -124,6 +156,8 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
         try {
             super.beginTransaction();
             _db.execSQL("DELETE FROM `User`");
+            _db.execSQL("DELETE FROM `Child1`");
+            _db.execSQL("DELETE FROM `Child2`");
             super.setTransactionSuccessful();
         } finally {
             super.endTransaction();

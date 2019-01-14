@@ -411,4 +411,74 @@ public final class ComplexDao_Impl extends ComplexDao {
             _statement.release();
         }
     }
+
+    @Override
+    public List<Child1> getChild1List() {
+        final String _sql = "SELECT * FROM Child1";
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        try {
+            final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+            final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
+            final int _cursorIndexOfCode = CursorUtil.getColumnIndexOrThrow(_cursor, "code");
+            final List<Child1> _result = new ArrayList<Child1>(_cursor.getCount());
+            while(_cursor.moveToNext()) {
+                final Child1 _item;
+                final int _tmpId;
+                _tmpId = _cursor.getInt(_cursorIndexOfId);
+                final String _tmpName;
+                _tmpName = _cursor.getString(_cursorIndexOfName);
+                final Info _tmpInfo;
+                if (! (_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
+                    _tmpInfo = new Info();
+                    _tmpInfo.serial = _cursor.getInt(_cursorIndexOfSerial);
+                    _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
+                }  else  {
+                    _tmpInfo = null;
+                }
+                _item = new Child1(_tmpId,_tmpName,_tmpInfo);
+                _result.add(_item);
+            }
+            return _result;
+        } finally {
+            _cursor.close();
+            _statement.release();
+        }
+    }
+
+    @Override
+    public List<Child2> getChild2List() {
+        final String _sql = "SELECT * FROM Child2";
+        final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+        final Cursor _cursor = DBUtil.query(__db, _statement, false);
+        try {
+            final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+            final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
+            final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
+            final int _cursorIndexOfCode = CursorUtil.getColumnIndexOrThrow(_cursor, "code");
+            final List<Child2> _result = new ArrayList<Child2>(_cursor.getCount());
+            while(_cursor.moveToNext()) {
+                final Child2 _item;
+                final int _tmpId;
+                _tmpId = _cursor.getInt(_cursorIndexOfId);
+                final String _tmpName;
+                _tmpName = _cursor.getString(_cursorIndexOfName);
+                final Info _tmpInfo;
+                if (! (_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
+                    _tmpInfo = new Info();
+                    _tmpInfo.serial = _cursor.getInt(_cursorIndexOfSerial);
+                    _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
+                }  else  {
+                    _tmpInfo = null;
+                }
+                _item = new Child2(_tmpId,_tmpName,_tmpInfo);
+                _result.add(_item);
+            }
+            return _result;
+        } finally {
+            _cursor.close();
+            _statement.release();
+        }
+    }
 }

@@ -66,4 +66,10 @@ abstract class ComplexDao {
     @Query("SELECT ageColumn FROM user where uid IN(:ids1) OR uid IN (:ids2) OR uid IN (:ids3)")
     abstract public List<Integer> getAllAgesAsList(List<Integer> ids1,
             int[] ids2, int... ids3);
+
+    @Query("SELECT * FROM Child1")
+    abstract public List<Child1> getChild1List();
+
+    @Query("SELECT * FROM Child2")
+    abstract public List<Child2> getChild2List();
 }

@@ -69,6 +69,19 @@ object COMMON {
         loadJavaCode("common/input/NotAnEntity.java", "foo.bar.NotAnEntity")
     }
 
+    val PARENT by lazy {
+        loadJavaCode("common/input/Parent.java", "foo.bar.Parent")
+    }
+    val CHILD1 by lazy {
+        loadJavaCode("common/input/Child1.java", "foo.bar.Child1")
+    }
+    val CHILD2 by lazy {
+        loadJavaCode("common/input/Child2.java", "foo.bar.Child2")
+    }
+    val INFO by lazy {
+        loadJavaCode("common/input/Info.java", "foo.bar.Info")
+    }
+
     val NOT_AN_ENTITY_TYPE_NAME by lazy {
         ClassName.get("foo.bar", "NotAnEntity")
     }
