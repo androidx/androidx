@@ -606,6 +606,32 @@ class NavControllerTest {
         verifyNoMoreInteractions(onDestinationChangedListener)
     }
 
+    @Test
+    fun testHandleDeepLinkInvalid() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val onDestinationChangedListener =
+            mock(NavController.OnDestinationChangedListener::class.java)
+        navController.addOnDestinationChangedListener(onDestinationChangedListener)
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(navController.findDestination(R.id.start_test)),
+            any())
+
+        val taskStackBuilder = navController.createDeepLink()
+            .setGraph(R.navigation.nav_nested_start_destination)
+            .setDestination(R.id.nested_second_test)
+            .createTaskStackBuilder()
+
+        val intent = taskStackBuilder.editIntentAt(0)
+        assertNotNull(intent)
+        assertWithMessage("handleDeepLink should return false when passed an invalid deep link")
+            .that(navController.handleDeepLink(intent))
+            .isFalse()
+
+        verifyNoMoreInteractions(onDestinationChangedListener)
+    }
+
     private fun createNavController(): NavController {
         val navController = NavController(ApplicationProvider.getApplicationContext())
         val navigator = TestNavigator()
