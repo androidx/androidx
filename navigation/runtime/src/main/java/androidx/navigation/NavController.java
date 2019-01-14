@@ -558,9 +558,7 @@ public class NavController {
         if ((flags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0) {
             // Start with a cleared task starting at our root when we're on our own task
             if (!mBackStack.isEmpty()) {
-                navigate(mGraph.getStartDestination(), bundle, new NavOptions.Builder()
-                        .setPopUpTo(mGraph.getId(), true)
-                        .setEnterAnim(0).setExitAnim(0).build());
+                popBackStackInternal(mGraph.getId(), true);
             }
             int index = 0;
             while (index < deepLink.length) {

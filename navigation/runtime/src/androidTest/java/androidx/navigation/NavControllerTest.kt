@@ -34,6 +34,12 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
+import org.mockito.Mockito.mock
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
+import org.mockito.Mockito.verifyNoMoreInteractions
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -568,9 +574,40 @@ class NavControllerTest {
         intent!!.writeToParcel(p, 0)
     }
 
+    @Test
+    fun testHandleDeepLinkValid() {
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val onDestinationChangedListener =
+            mock(NavController.OnDestinationChangedListener::class.java)
+        navController.addOnDestinationChangedListener(onDestinationChangedListener)
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(navController.findDestination(R.id.start_test)),
+            any())
+
+        val taskStackBuilder = navController.createDeepLink()
+            .setDestination(R.id.second_test)
+            .createTaskStackBuilder()
+
+        val intent = taskStackBuilder.editIntentAt(0)
+        assertNotNull(intent)
+        navController.handleDeepLink(intent)
+
+        // Verify that we navigated down to the deep link
+        verify(onDestinationChangedListener, times(2)).onDestinationChanged(
+            eq(navController),
+            eq(navController.findDestination(R.id.start_test)),
+            any())
+        verify(onDestinationChangedListener).onDestinationChanged(
+            eq(navController),
+            eq(navController.findDestination(R.id.second_test)),
+            any())
+        verifyNoMoreInteractions(onDestinationChangedListener)
+    }
+
     private fun createNavController(): NavController {
-        val navController =
-            NavController(ApplicationProvider.getApplicationContext() as android.content.Context)
+        val navController = NavController(ApplicationProvider.getApplicationContext())
         val navigator = TestNavigator()
         navController.navigatorProvider.addNavigator(navigator)
         return navController
