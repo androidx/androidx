@@ -198,13 +198,11 @@ public class MediaControlView extends BaseLayout {
     int mSelectedVideoQualityIndex;
     int mSelectedSpeedIndex;
     int mMediaType;
-    // TODO: Add lock for accessing mSizeType and mUxState (b/111862062)
     int mSizeType;
     int mUxState;
     long mDuration;
     long mPlaybackActions;
     long mShowControllerIntervalMs;
-    // TODO: Add lock for accessing mCurrentSeekPosition and mNextSeekPosition (b/111862062)
     long mCurrentSeekPosition;
     long mNextSeekPosition;
     boolean mDragging;
