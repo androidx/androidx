@@ -83,6 +83,48 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
     }
 
     @Test
+    public void testOnPostConnect_afterConnected() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public void onPostConnect(MediaSession session, ControllerInfo controller) {
+                latch.countDown();
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnPostConnect_afterConnected").build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
+    public void testOnPostConnect_afterConnectionRejected() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final MediaSession.SessionCallback callback = new MediaSession.SessionCallback() {
+            @Override
+            public SessionCommandGroup onConnect(MediaSession session,
+                    ControllerInfo controller) {
+                return null;
+            }
+
+            @Override
+            public void onPostConnect(MediaSession session, ControllerInfo controller) {
+                latch.countDown();
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, callback)
+                .setId("testOnPostConnect_afterConnectionRejected").build()) {
+            RemoteMediaController controller = createRemoteController(session.getToken());
+            assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    @Test
     public void testOnCommandRequest() throws InterruptedException {
         prepareLooper();
         mPlayer = new MockPlayer(1);
@@ -110,7 +152,6 @@ public class MediaSessionCallbackTest extends MediaSessionTestBase {
                     (long) callback.commands.get(1).getCommandCode());
         }
     }
-
 
     @Test
     public void testOnCreateMediaItem() throws InterruptedException {

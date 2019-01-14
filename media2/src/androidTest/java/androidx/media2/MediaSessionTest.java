@@ -36,7 +36,10 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
+import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.MediaController.ControllerCallback;
 import androidx.media2.MediaController.PlaybackInfo;
@@ -595,6 +598,86 @@ public class MediaSessionTest extends MediaSessionTestBase {
         // TODO(jaewan): Test receivers as well.
         mSession.sendCustomCommand(controllerInfo, testCommand, testArgs);
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    /**
+     * Test expected failure of sendCustomCommand() when it's called in SessionCallback#onConnect().
+     */
+    @Test
+    public void testSendCustomCommand_onConnect() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCommand testCommand = new SessionCommand("test", null);
+        final SessionCallback testSessionCallback = new SessionCallback() {
+            @Nullable
+            @Override
+            public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
+                session.sendCustomCommand(controller, testCommand, null);
+                return super.onConnect(session, controller);
+            }
+        };
+        final ControllerCallback testControllerCallback = new ControllerCallback() {
+            @NonNull
+            @Override
+            public SessionResult onCustomCommand(@NonNull MediaController controller,
+                    @NonNull SessionCommand command, @Nullable Bundle args) {
+                if (TextUtils.equals(testCommand.getCustomCommand(), command.getCustomCommand())) {
+                    latch.countDown();
+                }
+                return super.onCustomCommand(controller, command, args);
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, testSessionCallback).build()) {
+            MediaController controller = createController(session.getToken(), true,
+                    testControllerCallback);
+            assertFalse(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
+    }
+
+    /**
+     * Test expected success of sendCustomCommand() when it's called in
+     * SessionCallback#onPostConnect().
+     */
+    @Test
+    public void testSendCustomCommand_onPostConnect() throws InterruptedException {
+        prepareLooper();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final SessionCommand testCommand = new SessionCommand("test", null);
+        final SessionCallback testSessionCallback = new SessionCallback() {
+            @Nullable
+            @Override
+            public SessionCommandGroup onConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
+                SessionCommandGroup gr = super.onConnect(session, controller);
+                return gr;
+            }
+
+            @Nullable
+            @Override
+            public void onPostConnect(@NonNull MediaSession session,
+                    @NonNull ControllerInfo controller) {
+                session.sendCustomCommand(controller, testCommand, null);
+            }
+        };
+        final ControllerCallback testControllerCallback = new ControllerCallback() {
+            @NonNull
+            @Override
+            public SessionResult onCustomCommand(@NonNull MediaController controller,
+                    @NonNull SessionCommand command, @Nullable Bundle args) {
+                if (TextUtils.equals(testCommand.getCustomCommand(), command.getCustomCommand())) {
+                    latch.countDown();
+                }
+                return super.onCustomCommand(controller, command, args);
+            }
+        };
+        try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
+                .setSessionCallback(sHandlerExecutor, testSessionCallback).build()) {
+            MediaController controller = createController(session.getToken(), true,
+                    testControllerCallback);
+            assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        }
     }
 
     private ControllerInfo getTestControllerInfo() {
