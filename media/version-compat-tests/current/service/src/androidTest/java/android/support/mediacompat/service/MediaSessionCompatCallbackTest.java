@@ -847,7 +847,7 @@ public class MediaSessionCompatCallbackTest {
         // 'Do Not Disturb' or 'Volume limit'.
         final int stream = AudioManager.STREAM_ALARM;
         final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
-        final int minVolume = 0;
+        final int minVolume = 1;
         if (maxVolume <= minVolume) {
             return;
         }
@@ -883,7 +883,7 @@ public class MediaSessionCompatCallbackTest {
         // 'Do Not Disturb' or 'Volume limit'.
         final int stream = AudioManager.STREAM_ALARM;
         final int maxVolume = mAudioManager.getStreamMaxVolume(stream);
-        final int minVolume = 0;
+        final int minVolume = 1;
         if (maxVolume <= minVolume) {
             return;
         }
