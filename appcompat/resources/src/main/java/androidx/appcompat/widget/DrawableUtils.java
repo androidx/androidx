@@ -16,8 +16,6 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -29,17 +27,22 @@ import android.graphics.drawable.ScaleDrawable;
 import android.os.Build;
 import android.util.Log;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 /** @hide */
 @RestrictTo(LIBRARY_GROUP)
 public class DrawableUtils {
+    private static final int[] CHECKED_STATE_SET = new int[]{android.R.attr.state_checked};
+    private static final int[] EMPTY_STATE_SET = new int[0];
 
     private static final String TAG = "DrawableUtils";
 
@@ -171,10 +174,10 @@ public class DrawableUtils {
         final int[] originalState = drawable.getState();
         if (originalState == null || originalState.length == 0) {
             // The drawable doesn't have a state, so set it to be checked
-            drawable.setState(ThemeUtils.CHECKED_STATE_SET);
+            drawable.setState(CHECKED_STATE_SET);
         } else {
             // Else the drawable does have a state, so clear it
-            drawable.setState(ThemeUtils.EMPTY_STATE_SET);
+            drawable.setState(EMPTY_STATE_SET);
         }
         // Now set the original state
         drawable.setState(originalState);
