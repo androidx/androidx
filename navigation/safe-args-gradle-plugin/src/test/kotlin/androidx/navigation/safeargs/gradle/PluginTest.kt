@@ -60,6 +60,7 @@ class PluginTest {
     private var compileSdkVersion = ""
     private var buildToolsVersion = ""
     private var minSdkVersion = ""
+    private var debugKeystore = ""
     private var navigationCommon = ""
 
     private fun projectRoot(): File = testProjectDir.root
@@ -106,6 +107,7 @@ class PluginTest {
         compileSdkVersion = properties.getProperty("compileSdkVersion")
         buildToolsVersion = properties.getProperty("buildToolsVersion")
         minSdkVersion = properties.getProperty("minSdkVersion")
+        debugKeystore = properties.getProperty("debugKeystore")
         navigationCommon = properties.getProperty("navigationCommon")
     }
 
@@ -129,6 +131,12 @@ class PluginTest {
                 defaultConfig {
                     minSdkVersion $minSdkVersion
                 }
+
+                signingConfigs {
+                    debug {
+                        storeFile file("$debugKeystore")
+                    }
+                }
             }
 
             dependencies {
@@ -144,6 +152,7 @@ class PluginTest {
                 ext.compileSdk = $compileSdkVersion
                 ext.buildTools = "$buildToolsVersion"
                 ext.minSdk = $minSdkVersion
+                ext.debugKeystoreFile = "$debugKeystore"
                 ext.navigationCommonDep = "$navigationCommon"
             }
 
@@ -187,6 +196,12 @@ class PluginTest {
 
                 defaultConfig {
                     minSdkVersion $minSdkVersion
+                }
+
+                signingConfigs {
+                    debug {
+                        storeFile file("$debugKeystore")
+                    }
                 }
             }
 
