@@ -26,14 +26,12 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.graphics.drawable.ScaleDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -180,7 +178,6 @@ public class MediaControlView extends BaseLayout {
     private AccessibilityManager mAccessibilityManager;
     private WindowManager mWindowManager;
     private int mPrevWidth;
-    private int mPrevOrientation;
     private int mOriginalLeftBarWidth;
     private int mMaxTimeViewWidth;
     private int mEmbeddedSettingsItemWidth;
@@ -400,21 +397,15 @@ public class MediaControlView extends BaseLayout {
                         currHeight, screenSize.x, screenSize.y);
             }
             mPrevWidth = currWidth;
-
-            // By default, show all bars and hide settings window and overflow view when view size
-            // is changed.
-            showAllBars();
-            hideSettingsAndOverflow();
         }
+    }
 
-        // By default, show all bars and hide settings window and overflow view when view
-        // orientation is changed.
-        int currOrientation = retrieveOrientation();
-        if (currOrientation != mPrevOrientation) {
-            showAllBars();
-            hideSettingsAndOverflow();
-            mPrevOrientation = currOrientation;
-        }
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        // By default, show all bars and hide settings window and overflow view when view size is
+        // changed.
+        showAllBars();
+        hideSettingsAndOverflow();
     }
 
     @Override
@@ -1828,16 +1819,6 @@ public class MediaControlView extends BaseLayout {
         } else {
             mSubtitleButton.setVisibility(View.GONE);
         }
-    }
-
-    private int retrieveOrientation() {
-        DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
-
-        return (height > width)
-                ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
     }
 
     boolean shouldNotHideBars() {
