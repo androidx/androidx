@@ -36,7 +36,6 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -221,7 +220,6 @@ public class MediaControlView extends BaseLayout {
     private View mTitleBar;
     private TextView mTitleView;
     private View mAdExternalLink;
-    private ImageButton mBackButton;
     private MediaRouteButton mRouteButton;
     private MediaRouteSelector mRouteSelector;
 
@@ -461,9 +459,6 @@ public class MediaControlView extends BaseLayout {
         if (mSettingsButton != null) {
             mSettingsButton.setEnabled(enabled);
         }
-        if (mBackButton != null) {
-            mBackButton.setEnabled(enabled);
-        }
         if (mRouteButton != null) {
             mRouteButton.setEnabled(enabled);
         }
@@ -530,11 +525,6 @@ public class MediaControlView extends BaseLayout {
         mTitleBar = v.findViewById(R.id.title_bar);
         mTitleView = v.findViewById(R.id.title_text);
         mAdExternalLink = v.findViewById(R.id.ad_external_link);
-        mBackButton = v.findViewById(R.id.back);
-        if (mBackButton != null) {
-            mBackButton.setOnClickListener(mBackListener);
-            mBackButton.setVisibility(View.GONE);
-        }
         mRouteButton = v.findViewById(R.id.cast);
 
         // Relating to Center View
@@ -1228,15 +1218,6 @@ public class MediaControlView extends BaseLayout {
         }
     };
 
-    private final OnClickListener mBackListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            View root = v.getRootView();
-            root.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK));
-            root.dispatchKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK));
-        }
-    };
-
     private final OnClickListener mSubtitleListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -1520,12 +1501,6 @@ public class MediaControlView extends BaseLayout {
             case SIZE_TYPE_EMBEDDED:
                 // Relating to Title Bar
                 mTitleBar.setVisibility(View.VISIBLE);
-                mBackButton.setVisibility(View.GONE);
-                mTitleView.setPadding(
-                        mResources.getDimensionPixelSize(R.dimen.mcv2_embedded_icon_padding),
-                        mTitleView.getPaddingTop(),
-                        mTitleView.getPaddingRight(),
-                        mTitleView.getPaddingBottom());
 
                 // Relating to Full Screen Button
                 if (mOnFullScreenListener != null) {
@@ -1557,12 +1532,6 @@ public class MediaControlView extends BaseLayout {
             case SIZE_TYPE_FULL:
                 // Relating to Title Bar
                 mTitleBar.setVisibility(View.VISIBLE);
-                mBackButton.setVisibility(View.VISIBLE);
-                mTitleView.setPadding(
-                        0,
-                        mTitleView.getPaddingTop(),
-                        mTitleView.getPaddingRight(),
-                        mTitleView.getPaddingBottom());
 
                 // Relating to Full Screen Button
                 if (mOnFullScreenListener != null) {
@@ -1594,7 +1563,6 @@ public class MediaControlView extends BaseLayout {
             case SIZE_TYPE_MINIMAL:
                 // Relating to Title Bar
                 mTitleBar.setVisibility(View.GONE);
-                mBackButton.setVisibility(View.GONE);
 
                 // Relating to Full Screen Button
                 if (mOnFullScreenListener != null) {
