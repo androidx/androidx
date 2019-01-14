@@ -131,7 +131,8 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         }
         boolean popped = false;
         if (mFragmentManager.getBackStackEntryCount() > 0) {
-            mFragmentManager.popBackStack();
+            mFragmentManager.popBackStack(Integer.toString(mBackStack.peekLast()),
+                    FragmentManager.POP_BACK_STACK_INCLUSIVE);
             mIsPendingBackStackOperation = true;
             popped = true;
         }
