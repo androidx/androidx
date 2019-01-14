@@ -486,6 +486,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
     }
 
     private void unbindPreferences() {
+        getListView().setAdapter(null);
         final PreferenceScreen preferenceScreen = getPreferenceScreen();
         if (preferenceScreen != null) {
             preferenceScreen.onDetached();
