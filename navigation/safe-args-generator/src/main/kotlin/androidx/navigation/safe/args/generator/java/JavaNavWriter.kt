@@ -24,6 +24,7 @@ import androidx.navigation.safe.args.generator.IntArrayType
 import androidx.navigation.safe.args.generator.IntType
 import androidx.navigation.safe.args.generator.LongArrayType
 import androidx.navigation.safe.args.generator.LongType
+import androidx.navigation.safe.args.generator.NavWriter
 import androidx.navigation.safe.args.generator.ObjectArrayType
 import androidx.navigation.safe.args.generator.ObjectType
 import androidx.navigation.safe.args.generator.ReferenceArrayType
@@ -53,6 +54,195 @@ const val T = "\$T"
 const val S = "\$S"
 const val BEGIN_STMT = "\$["
 const val END_STMT = "\$]"
+
+class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
+
+    override fun generateDirectionsCodeFile(
+        destination: Destination,
+        parentDestination: Destination?
+    ): JavaCodeFile {
+        val className = destination.toClassName()
+        val superClassName = parentDestination?.toClassName()
+        val typeSpec = generateDestinationDirectionsTypeSpec(className, superClassName, destination)
+        return JavaFile.builder(className.packageName(), typeSpec).build().toCodeFile()
+    }
+
+    private fun generateDestinationDirectionsTypeSpec(
+        className: ClassName,
+        superclassName: TypeName?,
+        destination: Destination
+    ): TypeSpec {
+        val actionTypes = destination.actions.map { action ->
+            action to generateDirectionsTypeSpec(action)
+        }
+
+        val getters = actionTypes
+            .map { (action, actionType) ->
+                val annotations = Annotations.getInstance(useAndroidX)
+                val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
+                val params = constructor.parameters.joinToString(", ") { param -> param.name }
+                val actionTypeName = ClassName.get("", actionType.name)
+                MethodSpec.methodBuilder(action.id.javaIdentifier.toCamelCaseAsVar())
+                    .addAnnotation(annotations.NONNULL_CLASSNAME)
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addParameters(constructor.parameters)
+                    .returns(actionTypeName)
+                    .addStatement("return new $T($params)", actionTypeName)
+                    .build()
+            }
+
+        return TypeSpec.classBuilder(className)
+            .superclass(superclassName ?: ClassName.OBJECT)
+            .addModifiers(Modifier.PUBLIC)
+            .addTypes(actionTypes.map { (_, actionType) -> actionType })
+            .addMethods(getters)
+            .build()
+    }
+
+    internal fun generateDirectionsTypeSpec(action: Action): TypeSpec {
+        val annotations = Annotations.getInstance(useAndroidX)
+        val specs = ClassWithArgsSpecs(action.args, annotations)
+        val className = ClassName.get("", action.id.javaIdentifier.toCamelCase())
+
+        val getDestIdMethod = MethodSpec.methodBuilder("getActionId")
+            .addAnnotation(Override::class.java)
+            .addModifiers(Modifier.PUBLIC)
+            .returns(Int::class.java)
+            .addStatement("return $N", action.id.accessor())
+            .build()
+
+        val additionalEqualsBlock = CodeBlock.builder().apply {
+            beginControlFlow("if ($N() != that.$N())", getDestIdMethod, getDestIdMethod).apply {
+                addStatement("return false")
+            }
+            endControlFlow()
+        }.build()
+
+        val additionalHashCodeBlock = CodeBlock.builder().apply {
+            addStatement("result = 31 * result + $N()", getDestIdMethod)
+        }.build()
+
+        val toStringHeaderBlock = CodeBlock.builder().apply {
+            add("$S + $L() + $S", "${className.simpleName()}(actionId=", getDestIdMethod.name, "){")
+        }.build()
+
+        return TypeSpec.classBuilder(className)
+            .addSuperinterface(NAV_DIRECTION_CLASSNAME)
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addField(specs.hashMapFieldSpec)
+            .addMethod(specs.constructor())
+            .addMethods(specs.setters(className))
+            .addMethod(specs.toBundleMethod("getArguments", true))
+            .addMethod(getDestIdMethod)
+            .addMethods(specs.getters())
+            .addMethod(specs.equalsMethod(className, additionalEqualsBlock))
+            .addMethod(specs.hashCodeMethod(additionalHashCodeBlock))
+            .addMethod(specs.toStringMethod(className, toStringHeaderBlock))
+            .build()
+    }
+
+    override fun generateArgsCodeFile(
+        destination: Destination
+    ): JavaCodeFile {
+        val annotations = Annotations.getInstance(useAndroidX)
+        val destName = destination.name
+            ?: throw IllegalStateException("Destination with arguments must have name")
+        val className = ClassName.get(destName.packageName(), "${destName.simpleName()}Args")
+        val args = destination.args
+        val specs =
+            ClassWithArgsSpecs(args, annotations)
+
+        val bundleConstructor = MethodSpec.constructorBuilder().apply {
+            addModifiers(Modifier.PUBLIC)
+            addAnnotation(specs.suppressAnnotationSpec)
+            val bundle = "bundle"
+            addParameter(
+                ParameterSpec.builder(BUNDLE_CLASSNAME, bundle)
+                    .addAnnotation(specs.annotations.NONNULL_CLASSNAME)
+                    .build()
+            )
+            addStatement("$N.setClassLoader($T.class.getClassLoader())", bundle, className)
+            args.forEach { arg ->
+                beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
+                    addStatement("$T $N", arg.type.typeName(), arg.sanitizedName)
+                    arg.type.addBundleGetStatement(this, arg, arg.sanitizedName, bundle)
+                    addNullCheck(arg, arg.sanitizedName)
+                    addStatement(
+                        "$N.$N.put($S, $N)",
+                        "this",
+                        specs.hashMapFieldSpec.name,
+                        arg.name,
+                        arg.sanitizedName
+                    )
+                }
+                if (!arg.isOptional()) {
+                    nextControlFlow("else")
+                    addStatement("throw new $T($S)", IllegalArgumentException::class.java,
+                        "Required argument \"${arg.name}\" is missing and does " +
+                                "not have an android:defaultValue")
+                }
+                endControlFlow()
+            }
+        }.build()
+
+        val copyConstructor = MethodSpec.constructorBuilder()
+            .addModifiers(Modifier.PUBLIC)
+            .addParameter(className, "original")
+            .addCode(specs.copyMapContents("this", "original"))
+            .build()
+
+        val fromMapConstructor = MethodSpec.constructorBuilder()
+            .addModifiers(Modifier.PRIVATE)
+            .addParameter(HASHMAP_CLASSNAME, "argumentsMap")
+            .addStatement(
+                "$N.$N.putAll($N)",
+                "this",
+                specs.hashMapFieldSpec.name,
+                "argumentsMap"
+            )
+            .build()
+
+        val buildMethod = MethodSpec.methodBuilder("build")
+            .addAnnotation(annotations.NONNULL_CLASSNAME)
+            .addModifiers(Modifier.PUBLIC)
+            .returns(className)
+            .addStatement(
+                "$T result = new $T($N)",
+                className,
+                className,
+                specs.hashMapFieldSpec.name
+            )
+            .addStatement("return result")
+            .build()
+
+        val builderClassName = ClassName.get("", "Builder")
+        val builderTypeSpec = TypeSpec.classBuilder("Builder")
+            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+            .addField(specs.hashMapFieldSpec)
+            .addMethod(copyConstructor)
+            .addMethod(specs.constructor())
+            .addMethod(buildMethod)
+            .addMethods(specs.setters(builderClassName))
+            .addMethods(specs.getters())
+            .build()
+
+        val typeSpec = TypeSpec.classBuilder(className)
+            .addSuperinterface(NAV_ARGS_CLASSNAME)
+            .addModifiers(Modifier.PUBLIC)
+            .addField(specs.hashMapFieldSpec)
+            .addMethod(fromMapConstructor)
+            .addMethod(bundleConstructor)
+            .addMethods(specs.getters())
+            .addMethod(specs.toBundleMethod("toBundle"))
+            .addMethod(specs.equalsMethod(className))
+            .addMethod(specs.hashCodeMethod())
+            .addMethod(specs.toStringMethod(className))
+            .addType(builderTypeSpec)
+            .build()
+
+        return JavaFile.builder(className.packageName(), typeSpec).build().toCodeFile()
+    }
+}
 
 private class ClassWithArgsSpecs(
     val args: List<Argument>,
@@ -280,201 +470,21 @@ private class ClassWithArgsSpecs(
     }
 }
 
-fun generateDestinationDirectionsTypeSpec(
-    className: ClassName,
-    superclassName: TypeName?,
-    destination: Destination,
-    useAndroidX: Boolean
-): TypeSpec {
-    val actionTypes = destination.actions.map { action ->
-        action to generateDirectionsTypeSpec(action, useAndroidX)
-    }
-
-    val getters = actionTypes
-            .map { (action, actionType) ->
-                val annotations = Annotations.getInstance(useAndroidX)
-                val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
-                val params = constructor.parameters.joinToString(", ") { param -> param.name }
-                val actionTypeName = ClassName.get("", actionType.name)
-                MethodSpec.methodBuilder(action.id.javaIdentifier.toCamelCaseAsVar())
-                        .addAnnotation(annotations.NONNULL_CLASSNAME)
-                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                        .addParameters(constructor.parameters)
-                        .returns(actionTypeName)
-                        .addStatement("return new $T($params)", actionTypeName)
-                        .build()
-            }
-
-    return TypeSpec.classBuilder(className)
-            .superclass(superclassName ?: ClassName.OBJECT)
-            .addModifiers(Modifier.PUBLIC)
-            .addTypes(actionTypes.map { (_, actionType) -> actionType })
-            .addMethods(getters)
-            .build()
-}
-
-fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean): TypeSpec {
-    val annotations = Annotations.getInstance(useAndroidX)
-    val specs = ClassWithArgsSpecs(action.args, annotations)
-    val className = ClassName.get("", action.id.javaIdentifier.toCamelCase())
-
-    val getDestIdMethod = MethodSpec.methodBuilder("getActionId")
-            .addAnnotation(Override::class.java)
-            .addModifiers(Modifier.PUBLIC)
-            .returns(Int::class.java)
-            .addStatement("return $N", action.id.accessor())
-            .build()
-
-    val additionalEqualsBlock = CodeBlock.builder().apply {
-        beginControlFlow("if ($N() != that.$N())", getDestIdMethod, getDestIdMethod).apply {
-            addStatement("return false")
-        }
-        endControlFlow()
-    }.build()
-
-    val additionalHashCodeBlock = CodeBlock.builder().apply {
-        addStatement("result = 31 * result + $N()", getDestIdMethod)
-    }.build()
-
-    val toStringHeaderBlock = CodeBlock.builder().apply {
-        add("$S + $L() + $S", "${className.simpleName()}(actionId=", getDestIdMethod.name, "){")
-    }.build()
-
-    return TypeSpec.classBuilder(className)
-            .addSuperinterface(NAV_DIRECTION_CLASSNAME)
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addField(specs.hashMapFieldSpec)
-            .addMethod(specs.constructor())
-            .addMethods(specs.setters(className))
-            .addMethod(specs.toBundleMethod("getArguments", true))
-            .addMethod(getDestIdMethod)
-            .addMethods(specs.getters())
-            .addMethod(specs.equalsMethod(className, additionalEqualsBlock))
-            .addMethod(specs.hashCodeMethod(additionalHashCodeBlock))
-            .addMethod(specs.toStringMethod(className, toStringHeaderBlock))
-            .build()
-}
-
-fun generateArgsJavaFile(destination: Destination, useAndroidX: Boolean): JavaFile {
-    val annotations = Annotations.getInstance(useAndroidX)
-    val destName = destination.name
-            ?: throw IllegalStateException("Destination with arguments must have name")
-    val className = ClassName.get(destName.packageName(), "${destName.simpleName()}Args")
-    val args = destination.args
-    val specs = ClassWithArgsSpecs(args, annotations)
-
-    val bundleConstructor = MethodSpec.constructorBuilder().apply {
-        addModifiers(Modifier.PUBLIC)
-        addAnnotation(specs.suppressAnnotationSpec)
-        val bundle = "bundle"
-        addParameter(
-            ParameterSpec.builder(BUNDLE_CLASSNAME, bundle)
-                .addAnnotation(specs.annotations.NONNULL_CLASSNAME)
-                .build()
-        )
-        addStatement("$N.setClassLoader($T.class.getClassLoader())", bundle, className)
-        args.forEach { arg ->
-            beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
-                addStatement("$T $N", arg.type.typeName(), arg.sanitizedName)
-                arg.type.addBundleGetStatement(this, arg, arg.sanitizedName, bundle)
-                addNullCheck(arg, arg.sanitizedName)
-                addStatement(
-                    "$N.$N.put($S, $N)",
-                    "this",
-                    specs.hashMapFieldSpec.name,
-                    arg.name,
-                    arg.sanitizedName
-                )
-            }
-            if (!arg.isOptional()) {
-                nextControlFlow("else")
-                addStatement("throw new $T($S)", IllegalArgumentException::class.java,
-                        "Required argument \"${arg.name}\" is missing and does " +
-                                "not have an android:defaultValue")
-            }
-            endControlFlow()
-        }
-    }.build()
-
-    val copyConstructor = MethodSpec.constructorBuilder()
-            .addModifiers(Modifier.PUBLIC)
-            .addParameter(className, "original")
-            .addCode(specs.copyMapContents("this", "original"))
-            .build()
-
-    val fromMapConstructor = MethodSpec.constructorBuilder()
-        .addModifiers(Modifier.PRIVATE)
-        .addParameter(HASHMAP_CLASSNAME, "argumentsMap")
-        .addStatement("$N.$N.putAll($N)",
-            "this",
-            specs.hashMapFieldSpec.name,
-            "argumentsMap")
-        .build()
-
-    val buildMethod = MethodSpec.methodBuilder("build")
-            .addAnnotation(annotations.NONNULL_CLASSNAME)
-            .addModifiers(Modifier.PUBLIC)
-            .returns(className)
-            .addStatement(
-                "$T result = new $T($N)",
-                className,
-                className,
-                specs.hashMapFieldSpec.name
-            )
-            .addStatement("return result")
-            .build()
-
-    val builderClassName = ClassName.get("", "Builder")
-    val builderTypeSpec = TypeSpec.classBuilder("Builder")
-            .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-            .addField(specs.hashMapFieldSpec)
-            .addMethod(copyConstructor)
-            .addMethod(specs.constructor())
-            .addMethod(buildMethod)
-            .addMethods(specs.setters(builderClassName))
-            .addMethods(specs.getters())
-            .build()
-
-    val typeSpec = TypeSpec.classBuilder(className)
-            .addSuperinterface(NAV_ARGS_CLASSNAME)
-            .addModifiers(Modifier.PUBLIC)
-            .addField(specs.hashMapFieldSpec)
-            .addMethod(fromMapConstructor)
-            .addMethod(bundleConstructor)
-            .addMethods(specs.getters())
-            .addMethod(specs.toBundleMethod("toBundle"))
-            .addMethod(specs.equalsMethod(className))
-            .addMethod(specs.hashCodeMethod())
-            .addMethod(specs.toStringMethod(className))
-            .addType(builderTypeSpec)
-            .build()
-
-    return JavaFile.builder(className.packageName(), typeSpec).build()
-}
-
 internal fun MethodSpec.Builder.addNullCheck(
     arg: Argument,
     variableName: String
 ) {
     if (arg.type.allowsNullable() && !arg.isNullable) {
         beginControlFlow("if ($N == null)", variableName).apply {
-            addStatement("throw new $T($S)", IllegalArgumentException::class.java,
-                    "Argument \"${arg.name}\" is marked as non-null " +
-                            "but was passed a null value.")
+            addStatement(
+                "throw new $T($S)", IllegalArgumentException::class.java,
+                "Argument \"${arg.name}\" is marked as non-null but was passed a null value.")
         }
         endControlFlow()
     }
 }
 
-fun generateDirectionsJavaFile(
-    destination: Destination,
-    parentDirectionName: ClassName?,
-    useAndroidX: Boolean
-): JavaFile {
-    val destName = destination.name
-            ?: throw IllegalStateException("Destination with actions must have name")
-    val className = ClassName.get(destName.packageName(), "${destName.simpleName()}Directions")
-    val typeSpec = generateDestinationDirectionsTypeSpec(className, parentDirectionName,
-            destination, useAndroidX)
-    return JavaFile.builder(className.packageName(), typeSpec).build()
+internal fun Destination.toClassName(): ClassName {
+    val destName = name ?: throw IllegalStateException("Destination with actions must have name")
+    return ClassName.get(destName.packageName(), "${destName.simpleName()}Directions")
 }
