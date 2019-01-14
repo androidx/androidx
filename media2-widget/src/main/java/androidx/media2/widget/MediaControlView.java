@@ -635,12 +635,12 @@ public class MediaControlView extends BaseLayout {
 
         int titleBarTranslateY =
                 (-1) * mResources.getDimensionPixelSize(R.dimen.mcv2_title_bar_height);
-        int bottomBarHeight = mResources.getDimensionPixelSize(R.dimen.mcv2_bottom_bar_height);
-        int progressThumbHeight = mResources.getDimensionPixelSize(
+        float bottomBarHeight = mResources.getDimension(R.dimen.mcv2_bottom_bar_height);
+        float progressThumbHeight = mResources.getDimension(
                 R.dimen.mcv2_custom_progress_thumb_size);
-        int progressBarHeight = mResources.getDimensionPixelSize(
-                R.dimen.mcv2_custom_progress_max_size);
-        int bottomBarTranslateY = bottomBarHeight + progressThumbHeight / 2 - progressBarHeight / 2;
+        float progressBarHeight = mResources.getDimension(R.dimen.mcv2_custom_progress_max_size);
+        float bottomBarTranslateY = (float) Math.ceil(bottomBarHeight + progressThumbHeight / 2
+                - progressBarHeight / 2);
 
         ValueAnimator fadeOutAnimator = ValueAnimator.ofFloat(1.0f, 0.0f);
         fadeOutAnimator.setInterpolator(new LinearInterpolator());
