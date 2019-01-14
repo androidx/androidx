@@ -29,34 +29,40 @@ import java.util.HashMap;
 public class SanitizedMainFragmentArgs implements NavArgs {
     private final HashMap arguments = new HashMap();
 
+    private SanitizedMainFragmentArgs() {
+    }
+
     private SanitizedMainFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
-    public SanitizedMainFragmentArgs(@NonNull Bundle bundle) {
+    public static SanitizedMainFragmentArgs fromBundle(@NonNull Bundle bundle) {
+        SanitizedMainFragmentArgs __result = new SanitizedMainFragmentArgs();
         bundle.setClassLoader(SanitizedMainFragmentArgs.class.getClassLoader());
         if (bundle.containsKey("name.with.dot")) {
             int nameWithDot;
             nameWithDot = bundle.getInt("name.with.dot");
-            this.arguments.put("name.with.dot", nameWithDot);
+            __result.arguments.put("name.with.dot", nameWithDot);
         } else {
             throw new IllegalArgumentException("Required argument \"name.with.dot\" is missing and does not have an android:defaultValue");
         }
         if (bundle.containsKey("name_with_underscore")) {
             int nameWithUnderscore;
             nameWithUnderscore = bundle.getInt("name_with_underscore");
-            this.arguments.put("name_with_underscore", nameWithUnderscore);
+            __result.arguments.put("name_with_underscore", nameWithUnderscore);
         } else {
             throw new IllegalArgumentException("Required argument \"name_with_underscore\" is missing and does not have an android:defaultValue");
         }
         if (bundle.containsKey("name with spaces")) {
             int nameWithSpaces;
             nameWithSpaces = bundle.getInt("name with spaces");
-            this.arguments.put("name with spaces", nameWithSpaces);
+            __result.arguments.put("name with spaces", nameWithSpaces);
         } else {
             throw new IllegalArgumentException("Required argument \"name with spaces\" is missing and does not have an android:defaultValue");
         }
+        return __result;
     }
 
     @SuppressWarnings("unchecked")
