@@ -124,10 +124,11 @@
     <string name="car_toolbar_subtitle">Well if that is the case, then why is the subtitle also pretty long? This is nonsensical!</string>
     <string name="toolbar_title">Toolbar demo title</string>
     <string name="toolbar_subtitle">Toolbar demo subtitle</string>
-    <string name="button_add_action">Add action item</string>
-    <string name="button_add_if_room">Add if_room item</string>
-    <string name="button_add_overflow">Add overflow item</string>
-    <string name="button_clear_menu">Clear menu items</string>
+    <string name="button_add_action">Add action</string>
+    <string name="button_add_checkable">Add checkable</string>
+    <string name="button_add_if_room">Add if_room</string>
+    <string name="button_add_overflow">Add overflow</string>
+    <string name="button_clear_menu">Clear menu</string>
 
     <!-- Spinner sample entries -->
     <string-array name="spinner_entries">

@@ -250,11 +250,13 @@ limitations under the License.
         <item name="android:paddingLeft">@dimen/car_padding_2</item>
         <item name="android:paddingRight">@dimen/car_padding_2</item>
         <item name="android:scaleType">fitCenter</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body3</item>
         <item name="android:tint">@color/car_tint</item>
     </style>
 
     <!-- A styling for action buttons within a toolbar that is fixed to light colors. -->
     <style name="Widget.Car.ActionButton.Light">
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Light</item>
         <item name="android:tint">@color/car_tint_light</item>
     </style>
 
