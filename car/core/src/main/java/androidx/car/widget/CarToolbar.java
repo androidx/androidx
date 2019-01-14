@@ -57,7 +57,7 @@ import java.util.List;
  *          always provide access to other navigational destinations. If navigation button is to
  *          be used as Up Button, its {@code OnClickListener} needs to explicitly invoke
  *          {@link AppCompatActivity#onSupportNavigateUp()}
- *      <li><em>A title icon.</em> An @{@code Icon} shown before the title.
+ *      <li><em>A title icon.</em> A @{@code Drawable} shown before the title.
  *      <li><em>A title.</em> A single line primary text that ellipsizes at the end.
  *      <li><em>A subtitle.</em> A single line secondary text that ellipsizes at the end.
  *      <li><em>An overflow button.</em> A button that opens the overflow menu.
@@ -355,7 +355,7 @@ public class CarToolbar extends ViewGroup {
      * at the start of the toolbar. An icon must be set for the navigation button to appear.
      *
      * @param listener Listener to set.
-     * @see #setNavigationIcon(Icon)
+     * @see #setNavigationIcon(Drawable)
      */
     public void setNavigationIconOnClickListener(@Nullable View.OnClickListener listener) {
         mNavButtonView.setOnClickListener(listener);
