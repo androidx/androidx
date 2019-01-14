@@ -83,7 +83,7 @@ function runStudioMac() {
   echo "open ${studioPath}"
   env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
-      open "${studioPath}" "${projectDir}"
+      open -a "${studioPath}" "${projectDir}"
 }
 
 function runStudio() {
