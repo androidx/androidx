@@ -17,6 +17,11 @@
 apply plugin: 'com.android.instantapp'
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file("$debugKeystoreFile")
+        }
+    }
     flavorDimensions "mode"
     productFlavors {
         foo {

@@ -26,6 +26,7 @@ apply plugin: 'java-gradle-plugin'
 
 ext.generatedResources = "$buildDir/generated/resources"
 ext.prebuiltsRoot = "${project.projectDir.getParentFile()}/../../../prebuilts"
+ext.debugKeystore = "${project.projectDir.getParentFile()}/../development/keystore/debug.keystore"
 
 sourceSets {
     test.java.srcDirs += 'src/tests/kotlin'
@@ -46,6 +47,7 @@ task generateSdkResource() {
     inputs.property("compileSdkVersion", SupportConfig.COMPILE_SDK_VERSION)
     inputs.property("buildToolsVersion", SupportConfig.BUILD_TOOLS_VERSION)
     inputs.property("minSdkVersion", SupportConfig.DEFAULT_MIN_SDK_VERSION)
+    inputs.property("debugKeystore", debugKeystore)
     inputs.property("navigationCommon", SAFE_ARGS_NAVIGATION_COMMON)
     outputs.dir(generatedResources)
     doLast {
@@ -56,6 +58,7 @@ task generateSdkResource() {
             writer.write("compileSdkVersion=\"$SupportConfig.COMPILE_SDK_VERSION\"\n")
             writer.write("buildToolsVersion=$SupportConfig.BUILD_TOOLS_VERSION\n")
             writer.write("minSdkVersion=$SupportConfig.DEFAULT_MIN_SDK_VERSION\n")
+            writer.write("debugKeystore=$debugKeystore\n")
             writer.write("navigationCommon=$SAFE_ARGS_NAVIGATION_COMMON\n")
         }
     }
