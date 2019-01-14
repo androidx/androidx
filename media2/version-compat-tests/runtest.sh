@@ -49,32 +49,31 @@ function runTest() {
   local CLIENT_MODULE_NAME="$CLIENT_MODULE_NAME_BASE$([ "$CLIENT_VERSION" = "tot" ] || echo "-previous")"
   local SERVICE_MODULE_NAME="$SERVICE_MODULE_NAME_BASE$([ "$SERVICE_VERSION" = "tot" ] || echo "-previous")"
 
-  # Build test apks
+  echo "Building the test apks"
   ./gradlew $CLIENT_MODULE_NAME:assembleDebugAndroidTest || { echo "Build failed. Aborting."; exit 1; }
   ./gradlew $SERVICE_MODULE_NAME:assembleDebugAndroidTest || { echo "Build failed. Aborting."; exit 1; }
 
-  # Install the apks
+  echo "Installing the test apks"
   adb install -r "../../out/dist/$CLIENT_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
   adb install -r "../../out/dist/$SERVICE_MODULE_NAME.apk" || { echo "Apk installation failed. Aborting."; exit 1; }
 
-    # Run the tests
-    local test_command="adb shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
-    local client_test_runner="androidx.media2.test.client.test/androidx.test.runner.AndroidJUnitRunner"
-    local service_test_runner="androidx.media2.test.service.test/androidx.test.runner.AndroidJUnitRunner"
+  echo "Running the tests"
+  local test_command="adb shell am instrument -w -e debug false -e client_version $CLIENT_VERSION -e service_version $SERVICE_VERSION"
+  local client_test_runner="androidx.media2.test.client.test/androidx.test.runner.AndroidJUnitRunner"
+  local service_test_runner="androidx.media2.test.service.test/androidx.test.runner.AndroidJUnitRunner"
 
-    echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Started: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION <<<<<<<<<<<<<<<<<<<<<<<<"
+  echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Started: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION <<<<<<<<<<<<<<<<<<<<<<<<"
 
-    if [[ $OPTION_TEST_TARGET == *"client"* ]]; then
-      ${test_command} $OPTION_TEST_TARGET ${client_test_runner}
-    elif [[ $OPTION_TEST_TARGET == *"service"* ]]; then
-      ${test_command} $OPTION_TEST_TARGET ${service_test_runner}
-    else
-        ${test_command} ${client_test_runner}
-        ${test_command} ${service_test_runner}
-    fi
+  if [[ $OPTION_TEST_TARGET == *"client"* ]]; then
+    ${test_command} $OPTION_TEST_TARGET ${client_test_runner}
+  elif [[ $OPTION_TEST_TARGET == *"service"* ]]; then
+    ${test_command} $OPTION_TEST_TARGET ${service_test_runner}
+  else
+    ${test_command} ${client_test_runner}
+    ${test_command} ${service_test_runner}
+  fi
 
-    echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Ended: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION <<<<<<<<<<<<<<<<<<<<<<<<<<"
-  done
+  echo ">>>>>>>>>>>>>>>>>>>>>>>> Test Ended: Client-$CLIENT_VERSION & Service-$SERVICE_VERSION <<<<<<<<<<<<<<<<<<<<<<<<<<"
 }
 
 
