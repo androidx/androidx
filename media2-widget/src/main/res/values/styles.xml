@@ -113,11 +113,6 @@
         <item name="android:scaleType">fitXY</item>
     </style>
 
-    <style name="TitleBarButton.Back">
-        <item name="android:src">@drawable/ic_arrow_back</item>
-        <item name="android:contentDescription">@string/mcv2_back_button_desc</item>
-    </style>
-
     <style name="TitleBarButton.Launch">
         <item name="android:src">@drawable/ic_launch</item>
         <item name="android:contentDescription">@string/mcv2_launch_button_desc</item>
