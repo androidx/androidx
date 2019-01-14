@@ -17,7 +17,7 @@
 package androidx.navigation.safeargs.gradle
 
 import androidx.navigation.safe.args.generator.ErrorMessage
-import androidx.navigation.safe.args.generator.generateSafeArgs
+import androidx.navigation.safe.args.generator.SafeArgsGenerator
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.gradle.api.DefaultTask
@@ -62,13 +62,13 @@ open class ArgumentsGenerationTask : DefaultTask() {
     fun getApplicationIdResourceString() = applicationIdResource?.asString() ?: applicationId
 
     private fun generateArgs(navFiles: Collection<File>, out: File) = navFiles.map { file ->
-        val output =
-            generateSafeArgs(
-                rFilePackage = rFilePackage.get(),
-                applicationId = getApplicationIdResourceString() ?: "",
-                navigationXml = file,
-                outputDir = out,
-                useAndroidX = useAndroidX)
+        val output = SafeArgsGenerator(
+            rFilePackage = rFilePackage.get(),
+            applicationId = getApplicationIdResourceString() ?: "",
+            navigationXml = file,
+            outputDir = out,
+            useAndroidX = useAndroidX,
+            generateKotlin = false).generate()
         Mapping(file.relativeTo(project.projectDir).path, output.fileNames) to output.errors
     }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 
