@@ -427,3 +427,59 @@ internal fun ComponentNode.add(child: ComponentNode) {
 class Ref<T>() {
     var value: T? = null
 }
+
+/**
+ * Converts a global position into a local position within this LayoutNode.
+ */
+internal fun LayoutNode.globalToLocal(global: Position): Position {
+    var x: Dimension = global.x
+    var y: Dimension = global.y
+    var node: LayoutNode? = this
+    while (node != null) {
+        x -= node.x
+        y -= node.y
+        node = node.parentLayoutNode
+    }
+    return Position(x, y)
+}
+
+/**
+ * Converts a local position within this LayoutNode into a global one.
+ */
+internal fun LayoutNode.localToGlobal(local: Position): Position {
+    var x: Dimension = local.x
+    var y: Dimension = local.y
+    var node: LayoutNode? = this
+    while (node != null) {
+        x += node.x
+        y += node.y
+        node = node.parentLayoutNode
+    }
+    return Position(x, y)
+}
+
+/**
+ * Converts a child LayoutNode position into a local position within this LayoutNode.
+ */
+internal fun LayoutNode.childToLocal(child: LayoutNode, childLocal: Position): Position {
+    if (child === this) {
+        return childLocal
+    }
+    var x: Dimension = childLocal.x
+    var y: Dimension = childLocal.y
+    var node: LayoutNode? = child
+    while (true) {
+        if (node == null) {
+            throw IllegalStateException("Current layout is not an ancestor of the provided" +
+                    "child layout")
+        }
+        x += node.x
+        y += node.y
+        node = node.parentLayoutNode
+        if (node === this) {
+            // found the node
+            break
+        }
+    }
+    return Position(x, y)
+}

@@ -19,6 +19,7 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
+    testImplementation(TRUTH)
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE)
     androidTestImplementation(TEST_RUNNER)
@@ -28,6 +29,7 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
     androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
+    androidTestImplementation(TRUTH)
 }
 
 android {

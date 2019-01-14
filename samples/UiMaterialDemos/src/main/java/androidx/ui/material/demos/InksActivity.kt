@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.ui.material.material
+package androidx.ui.material.demos
 
-import androidx.ui.core.Duration
+import android.app.Activity
+import android.os.Bundle
+import com.google.r4a.setContent
 
-/** The amount of time theme change animations should last. */
-val ThemeChangeDuration: Duration = Duration.create(milliseconds = 200)
+class InksActivity : Activity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent { <InksDemo/> }
+    }
+}

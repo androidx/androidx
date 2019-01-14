@@ -78,6 +78,7 @@ class MeasureBox(@Children(composable = false) var block: (constraints: Constrai
     private val ref = Ref<LayoutNode>()
     internal val layoutNode: LayoutNode get() = ref.value!!
     internal var ambients: Ambient.Reference? = null
+    internal val coordinatesCallbacks = mutableListOf<(LayoutCoordinates) -> Unit>()
 
     override fun compose() {
         <Ambient.Portal> reference ->
@@ -101,6 +102,10 @@ class MeasureBox(@Children(composable = false) var block: (constraints: Constrai
     internal fun layout() {
         layoutNode.visible = true
         layoutBlock()
+        if (coordinatesCallbacks.isNotEmpty()) {
+            val coordinates = LayoutNodeCoordinates(layoutNode)
+            coordinatesCallbacks.forEach { it.invoke(coordinates) }
+        }
     }
 
     internal fun moveTo(x: Dimension, y: Dimension) {
@@ -110,6 +115,7 @@ class MeasureBox(@Children(composable = false) var block: (constraints: Constrai
     internal fun resize(width: Dimension, height: Dimension) {
         layoutNode.resize(width, height)
     }
+
 }
 
 internal var recomposeMeasureBox: MeasureBox? = null
@@ -141,7 +147,9 @@ class MeasureOperations internal constructor(private val measureBox: MeasureBox)
 
         val ambients = measureBox.ambients!!
         R4a.composeInto(layoutNode, ambients.getAmbient(ContextAmbient), ambients) {
-            collectedComposables.forEach { children -> <children /> }
+            <CoordinatesCallbacksAmbient.Provider value=measureBox.coordinatesCallbacks>
+                collectedComposables.forEach { children -> <children /> }
+            </CoordinatesCallbacksAmbient.Provider>
         }
 
         return layoutNode.childrenMeasureBoxes()
@@ -161,6 +169,42 @@ class MeasureOperations internal constructor(private val measureBox: MeasureBox)
         measureBox.resize(width, height)
         measureBox.layoutBlock = block
     }
+}
+
+internal val CoordinatesCallbacksAmbient = Ambient.of<MutableList<(LayoutCoordinates) -> Unit>>()
+
+/**
+ * The children callback will be called with the final LayoutCoordinates of the current MeasureBox
+ * after measuring.
+ * Note that it will be called after a composition when the coordinates are finalized.
+ *
+ * Usage example:
+ * <Column>
+ *     <Item1/>
+ *     <Item2/>
+ *     <OnPositioned> coordinates ->
+ *         // This coordinates contain bounds of the Column within it's parent Layout.
+ *         // Store it if you want to use it later f.e. when a touch happens.
+ *     </OnPositioned>
+ * </Column>
+ */
+class OnPositioned(
+    @Children(composable = false) private val callback: (coordinates: LayoutCoordinates) -> Unit
+) : Component() {
+
+    private var firstCompose = true
+
+    override fun compose() {
+        <CoordinatesCallbacksAmbient.Consumer> callbacks ->
+            // TODO(Andrey): replace with didCommit effect to execute only once
+            if (firstCompose) {
+                firstCompose = false
+                callbacks.add(callback)
+                // TODO(Andrey): remove the callback from the list in onDispose effect
+            }
+        </CoordinatesCallbacksAmbient.Consumer>
+    }
+
 }
 
 /**

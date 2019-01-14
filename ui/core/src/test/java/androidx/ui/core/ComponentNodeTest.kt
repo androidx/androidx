@@ -444,6 +444,115 @@ class ComponentNodeTest {
         verify(owner, times(0)).onInvalidate(node)
     }
 
+    @Test
+    fun testGlobalToLocal() {
+        val node0 = LayoutNode()
+        val node1 = LayoutNode()
+        node0.emitInsertAt(0, node1)
+
+        val x0 = 100.dp
+        val y0 = 10.dp
+        val x1 = 50.dp
+        val y1 = 80.dp
+        node0.moveTo(x0, y0)
+        node1.moveTo(x1, y1)
+
+        val globalPosition = Position(250.dp, 300.dp)
+
+        val expectedX = globalPosition.x - x0 - x1
+        val expectedY = globalPosition.y - y0 - y1
+        val expectedPosition = Position(expectedX, expectedY)
+
+        // Top-level functions are not resolved properly in IR modules
+        val result = ComponentNodesKt.globalToLocal(node1, globalPosition)
+
+        assertEquals(expectedPosition, result)
+    }
+
+    @Test
+    fun testLocalToGlobal() {
+        val node0 = LayoutNode()
+        val node1 = LayoutNode()
+        node0.emitInsertAt(0, node1)
+
+        val x0 = 100.dp
+        val y0 = 10.dp
+        val x1 = 50.dp
+        val y1 = 80.dp
+        node0.moveTo(x0, y0)
+        node1.moveTo(x1, y1)
+
+        val localPosition = Position(5.dp, 15.dp)
+
+        val expectedX = localPosition.x + x0 + x1
+        val expectedY = localPosition.y + y0 + y1
+        val expectedPosition = Position(expectedX, expectedY)
+
+        // Top-level functions are not resolved properly in IR modules
+        val result = ComponentNodesKt.localToGlobal(node1, localPosition)
+
+        assertEquals(expectedPosition, result)
+    }
+
+    @Test
+    fun testChildToLocal() {
+        val node0 = LayoutNode()
+        val node1 = LayoutNode()
+        node0.emitInsertAt(0, node1)
+
+        val x1 = 50.dp
+        val y1 = 80.dp
+        node0.moveTo(100.dp, 10.dp)
+        node1.moveTo(x1, y1)
+
+        val localPosition = Position(5.dp, 15.dp)
+
+        val expectedX = localPosition.x + x1
+        val expectedY = localPosition.y + y1
+        val expectedPosition = Position(expectedX, expectedY)
+
+        // Top-level functions are not resolved properly in IR modules
+        val result = ComponentNodesKt.childToLocal(node0, node1, localPosition)
+
+        assertEquals(expectedPosition, result)
+    }
+
+    @Test
+    fun testChildToLocalFailedWhenNotAncestor() {
+        val node0 = LayoutNode()
+        val node1 = LayoutNode()
+        val node2 = LayoutNode()
+        node0.emitInsertAt(0, node1)
+        node1.emitInsertAt(0, node2)
+
+        thrown.expect(IllegalStateException::class.java)
+
+        // Top-level functions are not resolved properly in IR modules
+        ComponentNodesKt.childToLocal(node2, node1, Position(5.dp, 15.dp))
+    }
+
+    @Test
+    fun testChildToLocalFailedWhenNotAncestorNoParent() {
+        val node0 = LayoutNode()
+        val node1 = LayoutNode()
+
+        thrown.expect(IllegalStateException::class.java)
+
+        // Top-level functions are not resolved properly in IR modules
+        ComponentNodesKt.childToLocal(node1, node0, Position(5.dp, 15.dp))
+    }
+
+    @Test
+    fun testChildToLocalTheSameNode() {
+        val node = LayoutNode()
+        val position = Position(5.dp, 15.dp)
+
+        // Top-level functions are not resolved properly in IR modules
+        val result = ComponentNodesKt.childToLocal(node, node, position)
+
+        assertEquals(position, result)
+    }
+
     private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {
         val layoutNode = LayoutNode()
         val child1 = LayoutNode()

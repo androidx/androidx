@@ -19,6 +19,9 @@ package androidx.ui.core
 
 import android.content.Context
 import android.util.TypedValue
+import androidx.ui.engine.geometry.Rect
+import androidx.ui.lerpFloat
+import kotlin.math.sqrt
 
 /**
  * Dimension value representing device-independent pixels (dp). Component APIs specify their
@@ -99,6 +102,11 @@ val Hairline = Dimension(dp = 0f)
  */
 /*inline*/ operator fun Dimension.minus(dimension: Dimension) =
     Dimension(dp = dp - dimension.dp)
+
+/**
+ * This is the same as multiplying the Dimension by -1.0.
+ */
+/*inline*/ operator fun Dimension.unaryMinus() = Dimension(-dp)
 
 /**
  * Divide a Dimension by a scalar.
@@ -213,14 +221,70 @@ fun Dimension.toPx(context: Context): Float =
 fun Float.toDp(context: Context): Dimension = (this / 1.dp.toPx(context)).dp
 
 /**
+ * Linearly interpolate between two [Dimension]s.
+ *
+ * The `t` argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning `a` (or something
+ * equivalent to `a`), 1.0 meaning that the interpolation has finished,
+ * returning `b` (or something equivalent to `b`), and values in between
+ * meaning that the interpolation is at the relevant point on the timeline
+ * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+ * 1.0, so negative values and values greater than 1.0 are valid.
+ */
+fun lerp(a: Dimension, b: Dimension, t: Float): Dimension {
+    return Dimension(lerpFloat(a.dp, b.dp, t))
+}
+
+/**
  * A two dimensional size using [Dimension] for units
  */
 data class Size(val width: Dimension, val height: Dimension)
 
 /**
+ * Returns the [Position] of the center of the rect from the point of [0, 0]
+ * with this [Size].
+ */
+fun Size.center(): Position {
+    return Position(width / 2f, height / 2f)
+}
+
+/**
  * A two-dimensional position using [Dimension] for units
  */
 data class Position(val x: Dimension, val y: Dimension)
+
+/**
+ * The magnitude of the offset represented by this [Position].
+ */
+fun Position.getDistance(): Dimension {
+    return Dimension(sqrt(x.dp * x.dp + y.dp * y.dp))
+}
+
+/**
+ * Linearly interpolate between two [Position]s.
+ *
+ * The `t` argument represents position on the timeline, with 0.0 meaning
+ * that the interpolation has not started, returning `a` (or something
+ * equivalent to `a`), 1.0 meaning that the interpolation has finished,
+ * returning `b` (or something equivalent to `b`), and values in between
+ * meaning that the interpolation is at the relevant point on the timeline
+ * between `a` and `b`. The interpolation can be extrapolated beyond 0.0 and
+ * 1.0, so negative values and values greater than 1.0 are valid.
+ */
+fun lerp(a: Position, b: Position, t: Float): Position =
+    Position(lerp(a.x, b.x, t), lerp(a.y, b.y, t))
+
+/**
+ * Subtract a [Position] from another one.
+ */
+/*inline*/ operator fun Position.minus(other: Position) =
+    Position(x - other.x, y - other.y)
+
+/**
+ * Subtract a [Dimension] from the [Position]
+ */
+/*inline*/ operator fun Position.minus(dimension: Dimension) =
+    Position(x - dimension, y - dimension)
 
 /**
  * Holds a unit of squared dimensions, such as `1.dp * 2.dp`. [DimensionSquared], [DimensionCubed],
@@ -414,3 +478,50 @@ data class PixelSize(val width: Float, val height: Float)
  */
 fun Size.toPx(context: Context): PixelSize =
     PixelSize(width.toPx(context), height.toPx(context))
+
+/**
+ * A four dimensional bounds using [Dimension] for units
+ */
+data class Bounds(
+    val left: Dimension,
+    val top: Dimension,
+    val right: Dimension,
+    val bottom: Dimension
+)
+
+/**
+ * A width of this Bounds in [Dimension].
+ */
+val Bounds.width: Dimension get() = right - left
+
+/**
+ * A height of this Bounds in [Dimension].
+ */
+val Bounds.height: Dimension get() = bottom - top
+
+/**
+ * Convert a [Bounds] to a [Size].
+ */
+fun Bounds.toSize(): Size {
+    return Size(width, height)
+}
+
+/**
+ * Convert a [Size] to a [Bounds].
+ */
+fun Size.toBounds(): Bounds {
+    return Bounds(0.dp, 0.dp, width, height)
+}
+
+/**
+ * Convert a [Bounds] to a [Rect].
+ */
+// TODO(Andrey): Move this to an android-specific file
+fun Bounds.toRect(context: Context): Rect {
+    return Rect(
+        left.toPx(context),
+        top.toPx(context),
+        right.toPx(context),
+        bottom.toPx(context)
+    )
+}

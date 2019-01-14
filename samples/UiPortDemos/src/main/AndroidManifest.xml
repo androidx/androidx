@@ -124,9 +124,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".RippleActivity"
+        <activity android:name="androidx.ui.material.demos.InksActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="Ripple Activity">
+                  android:label="Inks Activity">
             <!--we currently not support multiple FlutterViews, so lets not recreate activity
                 on a rotation as the view will also be recreated-->
             <intent-filter>

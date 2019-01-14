@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,25 @@
 
 package androidx.ui.material
 
-import androidx.ui.VoidCallback
+import android.content.Context
 import androidx.ui.animation.Animation
 import androidx.ui.animation.AnimationController
 import androidx.ui.animation.AnimationStatus
 import androidx.ui.animation.Tween
+import androidx.ui.core.Bounds
 import androidx.ui.core.Duration
-import androidx.ui.engine.geometry.Offset
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.toBounds
+import androidx.ui.core.toPx
+import androidx.ui.core.toRect
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.material.material.DefaultSplashRadius
-import androidx.ui.material.material.Material
-import androidx.ui.material.material.RectCallback
-import androidx.ui.material.material.RenderInkFeatures
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.borderradius.BorderRadius
 import androidx.ui.painting.borders.BoxShape
 import androidx.ui.painting.matrixutils.getAsTranslation
-import androidx.ui.rendering.box.RenderBox
 import androidx.ui.vectormath64.Matrix4
 
 internal val HighlightFadeDuration = Duration.create(milliseconds = 200)
@@ -63,19 +62,19 @@ internal val HighlightFadeDuration = Duration.create(milliseconds = 200)
  * `Material.of(context)`.
  *
  * If a `rectCallback` is given, then it provides the highlight rectangle,
- * otherwise, the highlight rectangle is coincident with the [referenceBox].
+ * otherwise, the highlight rectangle is coincident with the target layout.
  *
  * When the highlight is removed, `onRemoved` will be called.
  */
 class InkHighlight(
-    controller: RenderInkFeatures,
-    referenceBox: RenderBox,
+    controller: MaterialInkController,
+    coordinates: LayoutCoordinates,
     color: Color,
     private val shape: BoxShape = BoxShape.RECTANGLE,
     borderRadius: BorderRadius? = null,
-    private val rectCallback: RectCallback? = null,
-    onRemoved: VoidCallback? = null
-) : InteractiveInkFeature(controller, referenceBox, color, onRemoved) {
+    private val boundsCallback: ((LayoutCoordinates) -> Bounds)? = null,
+    onRemoved: (() -> Unit)? = null
+) : InteractiveInkFeature(controller, coordinates, color, onRemoved) {
 
     private val borderRadius: BorderRadius = borderRadius ?: BorderRadius.Zero
 
@@ -86,11 +85,10 @@ class InkHighlight(
         alphaController = AnimationController(
             duration = HighlightFadeDuration,
             vsync = controller.vsync
-        ).apply {
-            addListener { controller.markNeedsPaint() }
-            addStatusListener(this@InkHighlight::handleAlphaStatusChanged)
-            forward()
-        }
+        )
+        alphaController.addListener { controller.markNeedsPaint() }
+        alphaController.addStatusListener(this@InkHighlight::handleAlphaStatusChanged)
+        alphaController.forward()
         alpha = Tween(
             begin = 0,
             end = color.alpha
@@ -126,10 +124,10 @@ class InkHighlight(
         super.dispose()
     }
 
-    private fun paintHighlight(canvas: Canvas, rect: Rect, paint: Paint) {
+    private fun paintHighlight(canvas: Canvas, rect: Rect, paint: Paint, context: Context) {
         when (shape) {
             BoxShape.CIRCLE ->
-                canvas.drawCircle(rect.getCenter(), DefaultSplashRadius, paint)
+                canvas.drawCircle(rect.getCenter(), DefaultSplashRadius.toPx(context), paint)
             BoxShape.RECTANGLE -> {
                 if (borderRadius != BorderRadius.Zero) {
                     val clipRRect = RRect(
@@ -145,17 +143,19 @@ class InkHighlight(
         }
     }
 
-    override fun paintFeature(canvas: Canvas, transform: Matrix4) {
-        val paint = Paint().apply { color = this@InkHighlight.color.withAlpha(alpha.value) }
+    override fun paintFeature(canvas: Canvas, transform: Matrix4, context: Context) {
+        val paint = Paint()
+        paint.color = color.withAlpha(alpha.value)
         val originOffset = transform.getAsTranslation()
-        val rect = rectCallback?.invoke() ?: Offset.zero and referenceBox.size
+        val bounds = boundsCallback?.invoke(coordinates) ?: coordinates.size.toBounds()
+        val rect = bounds.toRect(context)
         if (originOffset == null) {
             canvas.save()
             canvas.transform(transform)
-            paintHighlight(canvas, rect, paint)
+            paintHighlight(canvas, rect, paint, context)
             canvas.restore()
         } else {
-            paintHighlight(canvas, rect.shift(originOffset), paint)
+            paintHighlight(canvas, rect.shift(originOffset), paint, context)
         }
     }
 }

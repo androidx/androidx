@@ -32,14 +32,14 @@ import androidx.ui.toStringAsFixed
  */
 abstract class BorderRadiusGeometry {
 
-    internal abstract val topLeft: Radius
-    internal abstract val topRight: Radius
-    internal abstract val bottomLeft: Radius
-    internal abstract val bottomRight: Radius
-    internal abstract val topStart: Radius
-    internal abstract val topEnd: Radius
-    internal abstract val bottomStart: Radius
-    internal abstract val bottomEnd: Radius
+    abstract val topLeft: Radius
+    abstract val topRight: Radius
+    abstract val bottomLeft: Radius
+    abstract val bottomRight: Radius
+    abstract val topStart: Radius
+    abstract val topEnd: Radius
+    abstract val bottomStart: Radius
+    abstract val bottomEnd: Radius
 
     /**
      * Returns the difference between two [BorderRadiusGeometry] objects.

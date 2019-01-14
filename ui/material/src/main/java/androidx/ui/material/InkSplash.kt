@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,38 @@
 
 package androidx.ui.material
 
+import android.content.Context
+import android.util.Log
 import androidx.ui.VoidCallback
 import androidx.ui.animation.Animation
 import androidx.ui.animation.AnimationController
 import androidx.ui.animation.AnimationStatus
 import androidx.ui.animation.Tween
+import androidx.ui.core.Bounds
+import androidx.ui.core.Dimension
 import androidx.ui.core.Duration
+import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.Position
+import androidx.ui.core.Size
+import androidx.ui.core.center
+import androidx.ui.core.div
+import androidx.ui.core.dp
+import androidx.ui.core.getDistance
+import androidx.ui.core.height
+import androidx.ui.core.lerp
+import androidx.ui.core.minus
+import androidx.ui.core.toBounds
+import androidx.ui.core.toPx
+import androidx.ui.core.toSize
+import androidx.ui.core.width
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.geometry.Size
-import androidx.ui.material.material.DefaultSplashRadius
-import androidx.ui.material.material.Material
-import androidx.ui.material.material.RectCallback
-import androidx.ui.material.material.RenderInkFeatures
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.borderradius.BorderRadius
 import androidx.ui.painting.matrixutils.getAsTranslation
-import androidx.ui.rendering.box.RenderBox
 import androidx.ui.vectormath64.Matrix4
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -43,64 +55,68 @@ import kotlin.math.floor
 internal val UnconfirmedSplashDuration = Duration.create(seconds = 1)
 internal val SplashFadeDuration = Duration.create(milliseconds = 200)
 
-internal val SplashInitialSize = 0.0f; // logical pixels
-internal val SplashConfirmedVelocity = 1.0f; // logical pixels per millisecond
+internal val SplashInitialSize = 0.dp // logical pixels
+internal val SplashConfirmedVelocity = 1.dp // logical pixels per millisecond
 
 internal fun getSplashClipCallback(
-    referenceBox: RenderBox,
     containedInkWell: Boolean,
-    rectCallback: RectCallback?
-): RectCallback? {
-    if (rectCallback != null) {
+    boundsCallback: ((LayoutCoordinates) -> Bounds)?
+): ((LayoutCoordinates) -> Bounds)? {
+    if (boundsCallback != null) {
         assert(containedInkWell)
-        return rectCallback
+        return boundsCallback
     }
-    if (containedInkWell)
-        return { Offset.zero and referenceBox.size }
+    if (containedInkWell) {
+        return { it.size.toBounds() }
+    }
     return null
 }
 
 internal fun getSplashTargetRadius(
-    referenceBox: RenderBox,
+    coordinates: LayoutCoordinates,
     containedInkWell: Boolean,
-    rectCallback: RectCallback?,
-    position: Offset
-): Float {
+    boundsCallback: ((LayoutCoordinates) -> Bounds)?,
+    position: Position
+): Dimension {
     if (containedInkWell) {
-        val size = rectCallback?.invoke()?.getSize() ?: referenceBox.size
+        val size = boundsCallback?.invoke(coordinates)?.toSize() ?: coordinates.size
         return getSplashRadiusForPositionInSize(size, position)
     }
     return DefaultSplashRadius
 }
 
-private fun getSplashRadiusForPositionInSize(bounds: Size, position: Offset): Float {
-    val d1 = (position - bounds.topLeft(Offset.zero)).getDistance()
-    val d2 = (position - bounds.topRight(Offset.zero)).getDistance()
-    val d3 = (position - bounds.bottomLeft(Offset.zero)).getDistance()
-    val d4 = (position - bounds.bottomRight(Offset.zero)).getDistance()
-    return ceil(Math.max(Math.max(d1, d2), Math.max(d3, d4)))
+private fun getSplashRadiusForPositionInSize(size: Size, position: Position): Dimension {
+    val d1 = (position - Position(0.dp, 0.dp)).getDistance()
+    val d2 = (position - Position(size.width, 0.dp)).getDistance()
+    val d3 = (position - Position(0.dp, size.height)).getDistance()
+    val d4 = (position - Position(size.width, size.height)).getDistance()
+    return Dimension(ceil(Math.max(Math.max(d1.dp, d2.dp), Math.max(d3.dp, d4.dp))))
 }
 
-private class InkSplashFactory : InteractiveInkFeatureFactory() {
+/**
+ * Used to specify this type of ink splash for an [InkWell], [InkResponse]
+ * or material [Theme].
+ */
+object InkSplashFactory : InteractiveInkFeatureFactory() {
 
     override fun create(
-        controller: RenderInkFeatures,
-        referenceBox: RenderBox,
-        position: Offset,
+        controller: MaterialInkController,
+        coordinates: LayoutCoordinates,
+        position: Position,
         color: Color,
         containedInkWell: Boolean,
-        rectCallback: RectCallback?,
+        boundsCallback: ((LayoutCoordinates) -> Bounds)?,
         borderRadius: BorderRadius?,
-        radius: Float?,
+        radius: Dimension?,
         onRemoved: VoidCallback?
     ): InteractiveInkFeature {
         return InkSplash(
             controller = controller,
-            referenceBox = referenceBox,
+            coordinates = coordinates,
             position = position,
             color = color,
             containedInkWell = containedInkWell,
-            rectCallback = rectCallback,
+            boundsCallback = boundsCallback,
             borderRadius = borderRadius,
             radiusParam = radius,
             onRemoved = onRemoved
@@ -130,43 +146,47 @@ private class InkSplashFactory : InteractiveInkFeatureFactory() {
  *  * [InkHighlight], which is an ink feature that emphasizes a part of a
  *    [Material].
  *
- * Begin a splash, centered at position relative to [referenceBox].
+ * Begin a splash, centered at position relative to the target layout.
  *
  * The [controller] argument is typically obtained via
  * `Material.of(context)`.
  *
  * If `containedInkWell` is true, then the splash will be sized to fit
  * the well RECTANGLE, then clipped to it when drawn. The well
- * RECTANGLE is the box returned by `rectCallback`, if provided, or
- * otherwise is the bounds of the [referenceBox].
+ * RECTANGLE is the box returned by `boundsCallback`, if provided, or
+ * otherwise is the bounds of the target layout.
  *
- * If `containedInkWell` is false, then `rectCallback` should be null.
+ * If `containedInkWell` is false, then `boundsCallback` should be null.
  * The ink splash is clipped only to the edges of the [Material].
  * This is the default.
  *
  * When the splash is removed, `onRemoved` will be called.
  */
 class InkSplash(
-    controller: RenderInkFeatures,
-    referenceBox: RenderBox,
-    private val position: Offset,
+    controller: MaterialInkController,
+    coordinates: LayoutCoordinates,
+    private val position: Position,
     color: Color,
     containedInkWell: Boolean = false,
-    rectCallback: RectCallback? = null,
+    boundsCallback: ((LayoutCoordinates) -> Bounds)? = null,
     borderRadius: BorderRadius? = null,
-    radiusParam: Float? = null,
+    radiusParam: Dimension? = null,
     onRemoved: VoidCallback? = null
-//    private val shape: BoxShape = BoxShape.RECTANGLE,
-) : InteractiveInkFeature(controller, referenceBox, color, onRemoved) {
+) : InteractiveInkFeature(controller, coordinates, color, onRemoved) {
 
     private val borderRadius: BorderRadius = borderRadius ?: BorderRadius.Zero
-    private val targetRadius: Float =
-        radiusParam ?: getSplashTargetRadius(referenceBox, containedInkWell, rectCallback, position)
-    private val clipCallback: RectCallback? =
-        getSplashClipCallback(referenceBox, containedInkWell, rectCallback)
-    private val repositionToReferenceBox: Boolean = !containedInkWell
+    private val targetRadius: Dimension =
+        radiusParam ?: getSplashTargetRadius(
+            coordinates,
+            containedInkWell,
+            boundsCallback,
+            position
+        )
+    private val clipCallback: ((LayoutCoordinates) -> Bounds)? =
+        getSplashClipCallback(containedInkWell, boundsCallback)
+    private val repositionToTargetLayout: Boolean = !containedInkWell
 
-    private val radius: Animation<Float>
+    private val radius: Animation<Dimension>
     private val radiusController: AnimationController
 
     private val alpha: Animation<Int>
@@ -176,23 +196,22 @@ class InkSplash(
         radiusController = AnimationController(
             duration = UnconfirmedSplashDuration,
             vsync = controller.vsync
-        ).apply {
-            addListener { controller.markNeedsPaint() }
-            forward()
-        }
+        )
+        radiusController.addListener(controller::markNeedsPaint)
+        radiusController.forward()
         radius = Tween(
             begin = SplashInitialSize,
             end = targetRadius
         ).animate(radiusController)
+        Log.e("asdasd", " " + SplashInitialSize + " " + targetRadius)
 
         alphaController = AnimationController(
             duration = SplashFadeDuration,
             vsync = controller.vsync
-        ).apply {
-            addListener { controller.markNeedsPaint() }
-            addStatusListener(this@InkSplash::handleAlphaStatusChanged)
-            forward()
-        }
+        )
+        alphaController.addListener(controller::markNeedsPaint)
+        alphaController.addStatusListener(this::handleAlphaStatusChanged)
+        alphaController.forward()
         alpha = Tween(
             begin = color.alpha,
             end = 0
@@ -228,8 +247,10 @@ class InkSplash(
     private fun clipRRectFromRect(rect: Rect): RRect {
         return RRect(
             rect,
-            topLeft = borderRadius.topLeft, topRight = borderRadius.topRight,
-            bottomLeft = borderRadius.bottomLeft, bottomRight = borderRadius.bottomRight
+            topLeft = borderRadius.topLeft,
+            topRight = borderRadius.topRight,
+            bottomLeft = borderRadius.bottomLeft,
+            bottomRight = borderRadius.bottomRight
         )
     }
 
@@ -245,43 +266,47 @@ class InkSplash(
         }
     }
 
-    override fun paintFeature(canvas: Canvas, transform: Matrix4) {
+    override fun paintFeature(canvas: Canvas, transform: Matrix4, context: Context) {
         val paint = Paint()
         paint.color = color.withAlpha(alpha.value)
         var center = position
-        if (repositionToReferenceBox)
-            center = Offset.lerp(
+        if (repositionToTargetLayout) {
+            center = lerp(
                 center,
-                referenceBox.size.center(Offset.zero),
+                coordinates.size.center(),
                 radiusController.value
-            )!!
+            )
+        }
+        val centerOffset =
+            Offset(center.x.toPx(context), center.y.toPx(context))
         val originOffset = transform.getAsTranslation()
+        val radiusDouble = radius.value.toPx(context)
+        val clipBounds: Bounds? = clipCallback?.invoke(coordinates)
+        val clipRect = if (clipBounds == null) null else Rect(
+            clipBounds.left.toPx(context),
+            clipBounds.top.toPx(context),
+            clipBounds.right.toPx(context),
+            clipBounds.bottom.toPx(context)
+        )
+        Log.e("asdasd", " " + radius.value + " " + radiusDouble)
+
         if (originOffset == null) {
             canvas.save()
             canvas.transform(transform)
-            if (clipCallback != null) {
-                clipCanvasWithRect(canvas, clipCallback.invoke())
+            if (clipRect != null) {
+                clipCanvasWithRect(canvas, clipRect)
             }
-            canvas.drawCircle(center, radius.value, paint)
+            canvas.drawCircle(centerOffset, radiusDouble, paint)
             canvas.restore()
         } else {
-            if (clipCallback != null) {
+            if (clipRect != null) {
                 canvas.save()
-                clipCanvasWithRect(canvas, clipCallback.invoke(), offset = originOffset)
+                clipCanvasWithRect(canvas, clipRect, originOffset)
             }
-            canvas.drawCircle(center + originOffset, radius.value, paint)
+            canvas.drawCircle(centerOffset + originOffset, radiusDouble, paint)
             if (clipCallback != null) {
                 canvas.restore()
             }
         }
-    }
-
-    companion object {
-
-        /**
-         * Used to specify this type of ink splash for an [InkWell], [InkResponse]
-         * or material [Theme].
-         */
-        val SplashFactory: InteractiveInkFeatureFactory = InkSplashFactory()
     }
 }
