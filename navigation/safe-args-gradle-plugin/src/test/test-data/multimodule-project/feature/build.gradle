@@ -25,6 +25,11 @@ android {
     defaultConfig {
         minSdkVersion minSdk
     }
+    signingConfigs {
+        debug {
+            storeFile file("$debugKeystoreFile")
+        }
+    }
 
     flavorDimensions "mode"
     productFlavors {
