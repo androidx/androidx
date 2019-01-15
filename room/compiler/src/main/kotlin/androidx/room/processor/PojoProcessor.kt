@@ -305,15 +305,15 @@ class PojoProcessor private constructor(
 
                 val exactFieldMatch = fieldMap[paramName]
                 if (matches(exactFieldMatch)) {
-                    return@param Constructor.FieldParam(exactFieldMatch!!)
+                    return@param Constructor.Param.FieldParam(exactFieldMatch!!)
                 }
                 val exactEmbeddedMatch = embeddedMap[paramName]
                 if (matches(exactEmbeddedMatch?.field)) {
-                    return@param Constructor.EmbeddedParam(exactEmbeddedMatch!!)
+                    return@param Constructor.Param.EmbeddedParam(exactEmbeddedMatch!!)
                 }
                 val exactRelationMatch = relationMap[paramName]
                 if (matches(exactRelationMatch?.field)) {
-                    return@param Constructor.RelationParam(exactRelationMatch!!)
+                    return@param Constructor.Param.RelationParam(exactRelationMatch!!)
                 }
 
                 val matchingFields = myFields.filter {
@@ -329,11 +329,11 @@ class PojoProcessor private constructor(
                     0 -> null
                     1 -> when {
                         matchingFields.isNotEmpty() ->
-                            Constructor.FieldParam(matchingFields.first())
+                            Constructor.Param.FieldParam(matchingFields.first())
                         embeddedMatches.isNotEmpty() ->
-                            Constructor.EmbeddedParam(embeddedMatches.first())
+                            Constructor.Param.EmbeddedParam(embeddedMatches.first())
                         else ->
-                            Constructor.RelationParam(relationMatches.first())
+                            Constructor.Param.RelationParam(relationMatches.first())
                     }
                     else -> {
                         context.logger.e(param, ProcessorErrors.ambigiousConstructor(
