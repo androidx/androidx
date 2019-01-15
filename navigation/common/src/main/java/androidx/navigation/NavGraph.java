@@ -75,18 +75,16 @@ public class NavGraph extends NavDestination implements Iterable<NavDestination>
     @Nullable
     Pair<NavDestination, Bundle> matchDeepLink(@NonNull Uri uri) {
         // First search through any deep links directly added to this NavGraph
-        Pair<NavDestination, Bundle> result = super.matchDeepLink(uri);
-        if (result != null) {
-            return result;
-        }
+        Pair<NavDestination, Bundle> bestMatch = super.matchDeepLink(uri);
         // Then search through all child destinations for a matching deep link
         for (NavDestination child : this) {
-            Pair<NavDestination, Bundle> childResult = child.matchDeepLink(uri);
-            if (childResult != null) {
-                return childResult;
+            Pair<NavDestination, Bundle> childBestMatch = child.matchDeepLink(uri);
+            if (childBestMatch != null && (bestMatch == null
+                    || childBestMatch.second.size() > bestMatch.second.size())) {
+                bestMatch = childBestMatch;
             }
         }
-        return null;
+        return bestMatch;
     }
 
     /**
