@@ -18,11 +18,11 @@ package androidx.navigation
 
 import android.os.Bundle
 import android.support.v4.util.ArrayMap
-import java.lang.reflect.Constructor
+import java.lang.reflect.Method
 import kotlin.reflect.KClass
 
-internal val constructorSignature = arrayOf(Bundle::class.java)
-internal val constructorMap = ArrayMap<KClass<out NavArgs>, Constructor<out NavArgs>>()
+internal val methodSignature = arrayOf(Bundle::class.java)
+internal val methodMap = ArrayMap<KClass<out NavArgs>, Method>()
 
 /**
  * An implementation of [Lazy] used by [android.app.Activity.navArgs] and
@@ -42,16 +42,14 @@ class NavArgsLazy<Args : NavArgs>(
             var args = cached
             if (args == null) {
                 val arguments = argumentProducer()
-                val constructor: Constructor<out NavArgs> = constructorMap[navArgsClass]
-                    ?: navArgsClass.java.getConstructor(*constructorSignature).apply {
-                        isAccessible = true
-                    }.also { constructor ->
-                        // Save a reference to the constructor
-                        constructorMap[navArgsClass] = constructor
+                val method: Method = methodMap[navArgsClass]
+                    ?: navArgsClass.java.getMethod("fromBundle", *methodSignature).also { method ->
+                        // Save a reference to the method
+                        methodMap[navArgsClass] = method
                     }
 
                 @Suppress("UNCHECKED_CAST")
-                args = constructor.newInstance(arguments) as Args
+                args = method.invoke(null, arguments) as Args
                 cached = args
             }
             return args

@@ -34,12 +34,17 @@ import java.util.HashMap;
 public class MainFragmentArgs implements NavArgs {
     private final HashMap arguments = new HashMap();
 
+    private MainFragmentArgs() {
+    }
+
     private MainFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
-    public MainFragmentArgs(@NonNull Bundle bundle) {
+    public static MainFragmentArgs fromBundle(@NonNull Bundle bundle) {
+        MainFragmentArgs __result = new MainFragmentArgs();
         bundle.setClassLoader(MainFragmentArgs.class.getClassLoader());
         if (bundle.containsKey("main")) {
             String main;
@@ -47,24 +52,24 @@ public class MainFragmentArgs implements NavArgs {
             if (main == null) {
                 throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
             }
-            this.arguments.put("main", main);
+            __result.arguments.put("main", main);
         } else {
             throw new IllegalArgumentException("Required argument \"main\" is missing and does not have an android:defaultValue");
         }
         if (bundle.containsKey("optional")) {
             int optional;
             optional = bundle.getInt("optional");
-            this.arguments.put("optional", optional);
+            __result.arguments.put("optional", optional);
         }
         if (bundle.containsKey("reference")) {
             int reference;
             reference = bundle.getInt("reference");
-            this.arguments.put("reference", reference);
+            __result.arguments.put("reference", reference);
         }
         if (bundle.containsKey("floatArg")) {
             float floatArg;
             floatArg = bundle.getFloat("floatArg");
-            this.arguments.put("floatArg", floatArg);
+            __result.arguments.put("floatArg", floatArg);
         }
         if (bundle.containsKey("floatArrayArg")) {
             float[] floatArrayArg;
@@ -72,7 +77,7 @@ public class MainFragmentArgs implements NavArgs {
             if (floatArrayArg == null) {
                 throw new IllegalArgumentException("Argument \"floatArrayArg\" is marked as non-null but was passed a null value.");
             }
-            this.arguments.put("floatArrayArg", floatArrayArg);
+            __result.arguments.put("floatArrayArg", floatArrayArg);
         } else {
             throw new IllegalArgumentException("Required argument \"floatArrayArg\" is missing and does not have an android:defaultValue");
         }
@@ -82,14 +87,14 @@ public class MainFragmentArgs implements NavArgs {
             if (objectArrayArg == null) {
                 throw new IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value.");
             }
-            this.arguments.put("objectArrayArg", objectArrayArg);
+            __result.arguments.put("objectArrayArg", objectArrayArg);
         } else {
             throw new IllegalArgumentException("Required argument \"objectArrayArg\" is missing and does not have an android:defaultValue");
         }
         if (bundle.containsKey("boolArg")) {
             boolean boolArg;
             boolArg = bundle.getBoolean("boolArg");
-            this.arguments.put("boolArg", boolArg);
+            __result.arguments.put("boolArg", boolArg);
         }
         if (bundle.containsKey("optionalParcelable")) {
             ActivityInfo optionalParcelable;
@@ -98,7 +103,7 @@ public class MainFragmentArgs implements NavArgs {
             } else {
                 throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
             }
-            this.arguments.put("optionalParcelable", optionalParcelable);
+            __result.arguments.put("optionalParcelable", optionalParcelable);
         }
         if (bundle.containsKey("enumArg")) {
             AccessMode enumArg;
@@ -110,8 +115,9 @@ public class MainFragmentArgs implements NavArgs {
             if (enumArg == null) {
                 throw new IllegalArgumentException("Argument \"enumArg\" is marked as non-null but was passed a null value.");
             }
-            this.arguments.put("enumArg", enumArg);
+            __result.arguments.put("enumArg", enumArg);
         }
+        return __result;
     }
 
     @SuppressWarnings("unchecked")
