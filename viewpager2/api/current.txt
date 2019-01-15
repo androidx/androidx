@@ -37,7 +37,7 @@ package androidx.viewpager2.widget {
     method public final void onViewAdded(android.view.View!);
     method public final void registerOnPageChangeCallback(androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback);
     method public final void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter?);
-    method public void setCurrentItem(int);
+    method public final void setCurrentItem(int);
     method public final void setCurrentItem(int, boolean);
     method public final void setOrientation(@androidx.viewpager2.widget.ViewPager2.Orientation int);
     method public final void setPageTransformer(androidx.viewpager2.widget.ViewPager2.PageTransformer?);

@@ -402,23 +402,33 @@ public class ViewPager2 extends ViewGroup {
     /**
      * Set the currently selected page. If the ViewPager has already been through its first
      * layout with its current adapter there will be a smooth animated transition between
-     * the current item and the specified item.
+     * the current item and the specified item. Silently ignored if the adapter is not set or
+     * empty. Clamps item to the bounds of the adapter.
      *
      * TODO(b/123069219): verify first layout behavior
      *
      * @param item Item index to select
      */
-    public void setCurrentItem(int item) {
+    public final void setCurrentItem(int item) {
         setCurrentItem(item, true);
     }
 
     /**
-     * Set the currently selected page.
+     * Set the currently selected page. If {@code smoothScroll = true}, will perform a smooth
+     * animation from the current item to the new item. Silently ignored if the adapter is not set
+     * or empty. Clamps item to the bounds of the adapter.
      *
      * @param item Item index to select
      * @param smoothScroll True to smoothly scroll to the new item, false to transition immediately
      */
     public final void setCurrentItem(int item, boolean smoothScroll) {
+        Adapter adapter = getAdapter();
+        if (adapter == null || adapter.getItemCount() <= 0) {
+            return;
+        }
+        item = Math.max(item, 0);
+        item = Math.min(item, adapter.getItemCount() - 1);
+
         if (item == mCurrentItem && mScrollEventAdapter.isIdle()) {
             // Already at the correct page
             return;
@@ -454,7 +464,10 @@ public class ViewPager2 extends ViewGroup {
     }
 
     /**
-     * @return Currently selected page.
+     * Returns the currently selected page. If no page can sensibly be selected because there is no
+     * adapter or the adapter is empty, returns 0.
+     *
+     * @return Currently selected page
      */
     public final int getCurrentItem() {
         return mCurrentItem;
