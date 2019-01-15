@@ -23,11 +23,9 @@ import static androidx.media2.SessionResult.RESULT_SUCCESS;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
@@ -37,17 +35,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -171,8 +163,6 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
     private static final int STATE_PLAYBACK_COMPLETED = 5;
 
     private static final int INVALID_TRACK_INDEX = -1;
-    private static final int SIZE_TYPE_EMBEDDED = 0;
-    private static final int SIZE_TYPE_FULL = 1;
 
     private static final String SUBTITLE_TRACK_LANG_UNDEFINED = "und";
 
@@ -192,20 +182,11 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
     private String mTitle;
     Executor mCallbackExecutor;
 
-    View mCurrentMusicView;
-    View mMusicFullLandscapeView;
-    View mMusicFullPortraitView;
-    View mMusicEmbeddedView;
+    MusicView mMusicView;
     private Drawable mMusicAlbumDrawable;
     private String mMusicArtistText;
 
-    final Object mLock = new Object();
-    @GuardedBy("mLock")
-    boolean mCurrentItemIsMusic;
-
-    private int mPrevWidth;
     int mDominantColor;
-    private int mSizeType;
 
     int mTargetState = STATE_IDLE;
     int mCurrentState = STATE_IDLE;
@@ -317,11 +298,10 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
         mSubtitleAnchorView.setBackgroundColor(0);
         addView(mSubtitleAnchorView);
 
-        LayoutInflater inflater = (LayoutInflater) getContext()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mMusicFullLandscapeView = inflater.inflate(R.layout.full_landscape_music, null);
-        mMusicFullPortraitView = inflater.inflate(R.layout.full_portrait_music, null);
-        mMusicEmbeddedView = inflater.inflate(R.layout.embedded_music, null);
+        mMusicView = new MusicView(context);
+        mMusicView.setLayoutParams(params);
+        mMusicView.setVisibility(View.GONE);
+        addView(mMusicView);
 
         boolean enableControlView = (attrs == null) || attrs.getAttributeBooleanValue(
                 "http://schemas.android.com/apk/res-auto",
@@ -573,37 +553,6 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-        synchronized (mLock) {
-            if (mCurrentItemIsMusic) {
-                int currWidth = getMeasuredWidth();
-                if (mPrevWidth != currWidth) {
-                    Point screenSize = new Point();
-                    WindowManager winManager = (WindowManager) getContext()
-                            .getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
-                    winManager.getDefaultDisplay().getSize(screenSize);
-                    int screenWidth = screenSize.x;
-                    if (currWidth == screenWidth) {
-                        int orientation = retrieveOrientation();
-                        if (orientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
-                            updateCurrentMusicView(mMusicFullLandscapeView);
-                        } else {
-                            updateCurrentMusicView(mMusicFullPortraitView);
-                        }
-
-                        if (mSizeType != SIZE_TYPE_FULL) {
-                            mSizeType = SIZE_TYPE_FULL;
-                        }
-                    } else {
-                        if (mSizeType != SIZE_TYPE_EMBEDDED) {
-                            mSizeType = SIZE_TYPE_EMBEDDED;
-                            updateCurrentMusicView(mMusicEmbeddedView);
-                        }
-                    }
-                    mPrevWidth = currWidth;
-                }
-            }
-        }
     }
 
     ///////////////////////////////////////////////////
@@ -851,10 +800,6 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
             mSelectedAudioTrackIndex = 0;
         }
 
-        synchronized (mLock) {
-            mCurrentItemIsMusic = mVideoTrackIndices.size() == 0 && mAudioTrackIndices.size() > 0;
-        }
-
         Bundle data = new Bundle();
         data.putInt(MediaControlView.KEY_VIDEO_TRACK_COUNT, mVideoTrackIndices.size());
         data.putInt(MediaControlView.KEY_AUDIO_TRACK_COUNT, mAudioTrackIndices.size());
@@ -864,8 +809,7 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
         return data;
     }
 
-    // TODO: move this method inside callback to make sure it runs inside the callback thread.
-    MediaMetadata extractMetadata(MediaItem mediaItem) {
+    MediaMetadata extractMetadata(MediaItem mediaItem, boolean isMusic) {
         MediaMetadataRetriever retriever = null;
         String path = "";
         try {
@@ -898,51 +842,49 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
 
         MediaMetadata metadata = mediaItem.getMetadata();
 
-        synchronized (mLock) {
-            // Do not extract metadata of a media item which is not the current item.
-            if (mediaItem != mMediaItem) {
-                if (retriever != null) {
-                    retriever.release();
-                }
-                return null;
-            }
-            if (!mCurrentItemIsMusic) {
-                mTitle = extractString(metadata,
-                        MediaMetadata.METADATA_KEY_TITLE, retriever,
-                        MediaMetadataRetriever.METADATA_KEY_TITLE, path);
-            } else {
-                Resources resources = getResources();
-                mTitle = extractString(metadata,
-                        MediaMetadata.METADATA_KEY_TITLE, retriever,
-                        MediaMetadataRetriever.METADATA_KEY_TITLE,
-                        resources.getString(R.string.mcv2_music_title_unknown_text));
-                mMusicArtistText = extractString(metadata,
-                        MediaMetadata.METADATA_KEY_ARTIST,
-                        retriever,
-                        MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                        resources.getString(R.string.mcv2_music_artist_unknown_text));
-                mMusicAlbumDrawable = extractAlbumArt(metadata, retriever,
-                        resources.getDrawable(R.drawable.ic_default_album_image));
-            }
-
+        // Do not extract metadata of a media item which is not the current item.
+        if (mediaItem != mMediaItem) {
             if (retriever != null) {
                 retriever.release();
             }
-
-            // Set duration and title values as MediaMetadata for MediaControlView
-            MediaMetadata.Builder builder = new MediaMetadata.Builder();
-
-            if (mCurrentItemIsMusic) {
-                builder.putString(MediaMetadata.METADATA_KEY_ARTIST, mMusicArtistText);
-            }
-            builder.putString(MediaMetadata.METADATA_KEY_TITLE, mTitle);
-            builder.putLong(
-                    MediaMetadata.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
-            builder.putString(
-                    MediaMetadata.METADATA_KEY_MEDIA_ID, mediaItem.getMediaId());
-            builder.putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1);
-            return builder.build();
+            return null;
         }
+        if (!isMusic) {
+            mTitle = extractString(metadata,
+                    MediaMetadata.METADATA_KEY_TITLE, retriever,
+                    MediaMetadataRetriever.METADATA_KEY_TITLE, path);
+        } else {
+            Resources resources = getResources();
+            mTitle = extractString(metadata,
+                    MediaMetadata.METADATA_KEY_TITLE, retriever,
+                    MediaMetadataRetriever.METADATA_KEY_TITLE,
+                    resources.getString(R.string.mcv2_music_title_unknown_text));
+            mMusicArtistText = extractString(metadata,
+                    MediaMetadata.METADATA_KEY_ARTIST,
+                    retriever,
+                    MediaMetadataRetriever.METADATA_KEY_ARTIST,
+                    resources.getString(R.string.mcv2_music_artist_unknown_text));
+            mMusicAlbumDrawable = extractAlbumArt(metadata, retriever,
+                    resources.getDrawable(R.drawable.ic_default_album_image));
+        }
+
+        if (retriever != null) {
+            retriever.release();
+        }
+
+        // Set duration and title values as MediaMetadata for MediaControlView
+        MediaMetadata.Builder builder = new MediaMetadata.Builder();
+
+        if (isMusic) {
+            builder.putString(MediaMetadata.METADATA_KEY_ARTIST, mMusicArtistText);
+        }
+        builder.putString(MediaMetadata.METADATA_KEY_TITLE, mTitle);
+        builder.putLong(
+                MediaMetadata.METADATA_KEY_DURATION, mMediaSession.getPlayer().getDuration());
+        builder.putString(
+                MediaMetadata.METADATA_KEY_MEDIA_ID, mediaItem.getMediaId());
+        builder.putLong(MediaMetadata.METADATA_KEY_PLAYABLE, 1);
+        return builder.build();
     }
 
     // TODO: move this method inside callback to make sure it runs inside the callback thread.
@@ -981,47 +923,24 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
                 @Override
                 public void onGenerated(Palette palette) {
                     mDominantColor = palette.getDominantColor(0);
-                    if (mCurrentMusicView != null) {
-                        mCurrentMusicView.setBackgroundColor(mDominantColor);
-                    }
+                    mMusicView.setBackgroundColor(mDominantColor);
                 }
             });
-            return new BitmapDrawable(bitmap);
+            return new BitmapDrawable(getResources(), bitmap);
         }
         return defaultDrawable;
     }
 
-    private int retrieveOrientation() {
-        DisplayMetrics dm = Resources.getSystem().getDisplayMetrics();
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
-
-        return (height > width)
-                ? ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-                : ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+    boolean isCurrentItemMusic() {
+        return mVideoTrackIndices != null && mVideoTrackIndices.size() == 0
+                && mAudioTrackIndices != null && mAudioTrackIndices.size() > 0;
     }
 
-    void updateCurrentMusicView(View newMusicView) {
-        newMusicView.setBackgroundColor(mDominantColor);
-
-        ImageView albumView = newMusicView.findViewById(R.id.album);
-        if (albumView != null) {
-            albumView.setImageDrawable(mMusicAlbumDrawable);
-        }
-
-        TextView titleView = newMusicView.findViewById(R.id.title);
-        if (titleView != null) {
-            titleView.setText(mTitle);
-        }
-
-        TextView artistView = newMusicView.findViewById(R.id.artist);
-        if (artistView != null) {
-            artistView.setText(mMusicArtistText);
-        }
-
-        removeView(mCurrentMusicView);
-        addView(newMusicView, 0);
-        mCurrentMusicView = newMusicView;
+    void updateMusicView() {
+        mMusicView.setBackgroundColor(mDominantColor);
+        mMusicView.setAlbumDrawable(mMusicAlbumDrawable);
+        mMusicView.setTitleText(mTitle);
+        mMusicView.setArtistText(mMusicArtistText);
     }
 
     @SuppressLint("SyntheticAccessor")
@@ -1177,7 +1096,8 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
                         // Run extractMetadata() in another thread to prevent StrictMode violation.
                         // extractMetadata() contains file IO indirectly,
                         // via MediaMetadataRetriever.
-                        MetadataExtractTask task = new MetadataExtractTask(mMediaItem);
+                        boolean isMusic = isCurrentItemMusic();
+                        MetadataExtractTask task = new MetadataExtractTask(mMediaItem, isMusic);
                         task.execute();
                     }
 
@@ -1295,11 +1215,9 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
             switch (command.getCommandCode()) {
                 case SessionCommand.COMMAND_CODE_PLAYER_PLAY:
                     mTargetState = STATE_PLAYING;
-                    synchronized (mLock) {
-                        if (!mCurrentView.hasAvailableSurface() && !mCurrentItemIsMusic) {
-                            Log.d(TAG, "surface is not available");
-                            return RESULT_ERROR_INVALID_STATE;
-                        }
+                    if (!mCurrentView.hasAvailableSurface() && !isCurrentItemMusic()) {
+                        Log.d(TAG, "surface is not available");
+                        return RESULT_ERROR_INVALID_STATE;
                     }
                     break;
                 case SessionCommand.COMMAND_CODE_PLAYER_PAUSE:
@@ -1312,13 +1230,16 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
 
     private class MetadataExtractTask extends AsyncTask<Void, Void, MediaMetadata> {
         private MediaItem mItem;
-        MetadataExtractTask(MediaItem mediaItem) {
+        private boolean mIsMusic;
+
+        MetadataExtractTask(MediaItem mediaItem, boolean isMusic) {
             mItem = mediaItem;
+            mIsMusic = isMusic;
         }
 
         @Override
         protected MediaMetadata doInBackground(Void... params) {
-            return extractMetadata(mItem);
+            return extractMetadata(mItem, mIsMusic);
         }
 
         @Override
@@ -1328,13 +1249,12 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
                 mItem.setMetadata(metadata);
             }
 
-            synchronized (mLock) {
-                if (mCurrentItemIsMusic && mMediaItem == mItem) {
-                    // Update Music View to reflect the new metadata
-                    removeView(mSurfaceView);
-                    removeView(mTextureView);
-                    updateCurrentMusicView(mMusicEmbeddedView);
-                }
+            if (mIsMusic && mMediaItem == mItem) {
+                // Update Music View to reflect the new metadata
+                mMusicView.setVisibility(View.VISIBLE);
+                updateMusicView();
+            } else {
+                mMusicView.setVisibility(View.GONE);
             }
         }
     }
