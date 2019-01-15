@@ -42,6 +42,9 @@ class TransactionMethodProcessorTest {
                 package foo.bar;
                 import androidx.room.*;
                 import java.util.*;
+                import androidx.lifecycle.*;
+                import io.reactivex.*;
+                import com.google.common.util.concurrent.*;
                 @Dao
                 abstract class MyClass {
                 """
@@ -81,14 +84,96 @@ class TransactionMethodProcessorTest {
         }.failsToCompile().withErrorContaining(ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
     }
 
-    private fun singleTransactionMethod(vararg input: String,
-                                handler: (TransactionMethod, TestInvocation) -> Unit):
-            CompileTester {
+    @Test
+    fun deferredReturnType_liveData() {
+        singleTransactionMethod(
+            """
+                @Transaction
+                public LiveData<String> doInTransaction(int param) { return null; }
+                """) { transaction, _ ->
+            assertThat(transaction.name, `is`("doInTransaction"))
+        }.failsToCompile()
+            .withErrorContaining(
+                ProcessorErrors.transactionMethodAsync(
+                    "androidx.lifecycle.LiveData"
+                )
+            )
+    }
+
+    @Test
+    fun deferredReturnType_flowable() {
+        singleTransactionMethod(
+            """
+                @Transaction
+                public Flowable<String> doInTransaction(int param) { return null; }
+                """) { transaction, _ ->
+            assertThat(transaction.name, `is`("doInTransaction"))
+        }.failsToCompile()
+            .withErrorContaining(
+                ProcessorErrors.transactionMethodAsync(
+                    "io.reactivex.Flowable"
+                )
+            )
+    }
+
+    @Test
+    fun deferredReturnType_completable() {
+        singleTransactionMethod(
+            """
+                @Transaction
+                public Completable doInTransaction(int param) { return null; }
+                """) { transaction, _ ->
+            assertThat(transaction.name, `is`("doInTransaction"))
+        }.failsToCompile()
+            .withErrorContaining(
+                ProcessorErrors.transactionMethodAsync(
+                    "io.reactivex.Completable"
+                )
+            )
+    }
+
+    @Test
+    fun deferredReturnType_single() {
+        singleTransactionMethod(
+            """
+                @Transaction
+                public Single<String> doInTransaction(int param) { return null; }
+                """) { transaction, _ ->
+            assertThat(transaction.name, `is`("doInTransaction"))
+        }.failsToCompile()
+            .withErrorContaining(
+                ProcessorErrors.transactionMethodAsync(
+                    "io.reactivex.Single"
+                )
+            )
+    }
+
+    @Test
+    fun deferredReturnType_listenableFuture() {
+        singleTransactionMethod(
+            """
+                @Transaction
+                public ListenableFuture<String> doInTransaction(int param) { return null; }
+                """) { transaction, _ ->
+            assertThat(transaction.name, `is`("doInTransaction"))
+        }.failsToCompile()
+            .withErrorContaining(
+                ProcessorErrors.transactionMethodAsync(
+                    "com.google.common.util.concurrent.ListenableFuture"
+                )
+            )
+    }
+
+    private fun singleTransactionMethod(
+        vararg input: String,
+        handler: (TransactionMethod, TestInvocation) -> Unit
+    ): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
                 .that(listOf(JavaFileObjects.forSourceString("foo.bar.MyClass",
                         TransactionMethodProcessorTest.DAO_PREFIX + input.joinToString("\n") +
                                 TransactionMethodProcessorTest.DAO_SUFFIX
-                )))
+                ), COMMON.LIVE_DATA, COMMON.FLOWABLE, COMMON.PUBLISHER, COMMON.COMPLETABLE,
+                    COMMON.SINGLE, COMMON.LISTENABLE_FUTURE))
                 .processedWith(TestProcessor.builder()
                         .forAnnotations(Transaction::class, Dao::class)
                         .nextRunHandler { invocation ->
