@@ -29,12 +29,17 @@ import java.util.HashMap;
 public class MainFragment$InnerFragmentArgs implements NavArgs {
     private final HashMap arguments = new HashMap();
 
+    private MainFragment$InnerFragmentArgs() {
+    }
+
     private MainFragment$InnerFragmentArgs(HashMap argumentsMap) {
         this.arguments.putAll(argumentsMap);
     }
 
+    @NonNull
     @SuppressWarnings("unchecked")
-    public MainFragment$InnerFragmentArgs(@NonNull Bundle bundle) {
+    public static MainFragment$InnerFragmentArgs fromBundle(@NonNull Bundle bundle) {
+        MainFragment$InnerFragmentArgs __result = new MainFragment$InnerFragmentArgs();
         bundle.setClassLoader(MainFragment$InnerFragmentArgs.class.getClassLoader());
         if (bundle.containsKey("mainArg")) {
             String mainArg;
@@ -42,10 +47,11 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
             if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"mainArg\" is marked as non-null but was passed a null value.");
             }
-            this.arguments.put("mainArg", mainArg);
+            __result.arguments.put("mainArg", mainArg);
         } else {
             throw new IllegalArgumentException("Required argument \"mainArg\" is missing and does not have an android:defaultValue");
         }
+        return __result;
     }
 
     @SuppressWarnings("unchecked")

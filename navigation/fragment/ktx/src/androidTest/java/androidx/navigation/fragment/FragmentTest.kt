@@ -82,10 +82,15 @@ class ActivityTest {
 class TestActivity : FragmentActivity()
 /**
  * It is a lot harder to test generated NavArgs classes, so
- * we'll just fake one that has the same Bundle constructor
+ * we'll just fake one that has the same fromBundle method
  * that NavArgsLazy expects
  */
-data class FakeTestArgs(val bundle: Bundle) : NavArgs
+data class FakeTestArgs(val bundle: Bundle) : NavArgs {
+    companion object {
+        @JvmStatic
+        fun fromBundle(bundle: Bundle) = FakeTestArgs(bundle)
+    }
+}
 class TestFragment : Fragment() {
     val args: FakeTestArgs by navArgs()
 }
