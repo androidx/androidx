@@ -354,18 +354,20 @@ public abstract class PreferenceGroup extends Preference {
 
     /**
      * Finds a {@link Preference} based on its key. If two {@link Preference}s share the same key
-     * (not recommended), the first to appear will be returned (to retrieve the other preference
-     * with the same key, call this method on the first preference). If this preference has the
-     * key, it will not be returned.
+     * (not recommended), the first to appear will be returned.
      *
-     * <p>This will recursively search for the preference into children that are also
+     * <p>This will recursively search for the {@link Preference} in any children that are also
      * {@link PreferenceGroup}s.
      *
-     * @param key The key of the preference to retrieve
-     * @return The {@link Preference} with the key, or null
+     * @param key The key of the {@link Preference} to retrieve
+     * @return The {@link Preference} with the key, or {@code null}
      */
-    @SuppressWarnings("TypeParameterUnusedInFormals")
-    public <T extends Preference> T findPreference(CharSequence key) {
+    @SuppressWarnings({"TypeParameterUnusedInFormals", "unchecked"})
+    @Nullable
+    public <T extends Preference> T findPreference(@NonNull CharSequence key) {
+        if (key == null) {
+            throw new IllegalArgumentException("Key cannot be null");
+        }
         if (TextUtils.equals(getKey(), key)) {
             return (T) this;
         }
@@ -374,7 +376,7 @@ public abstract class PreferenceGroup extends Preference {
             final Preference preference = getPreference(i);
             final String curKey = preference.getKey();
 
-            if (curKey != null && curKey.contentEquals(key)) {
+            if (TextUtils.equals(curKey, key)) {
                 return (T) preference;
             }
 
@@ -385,7 +387,6 @@ public abstract class PreferenceGroup extends Preference {
                 }
             }
         }
-
         return null;
     }
 

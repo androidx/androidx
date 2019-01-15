@@ -158,6 +158,7 @@ public class ListPreference extends DialogPreference {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public CharSequence getSummary() {
         if (getSummaryProvider() != null) {
@@ -169,7 +170,7 @@ public class ListPreference extends DialogPreference {
             return summary;
         }
         String formattedString = String.format(mSummary, entry == null ? "" : entry);
-        if (formattedString.contentEquals(summary)) {
+        if (TextUtils.equals(formattedString, summary)) {
             return summary;
         }
         Log.w(TAG,
