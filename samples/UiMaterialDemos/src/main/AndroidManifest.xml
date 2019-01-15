@@ -20,6 +20,21 @@
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
 
     <application>
-        <activity android:name=".SelectionControlsActivity" />
+        <activity android:name=".SelectionControlsActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Material Selection Controls">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".TextActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Material Text">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

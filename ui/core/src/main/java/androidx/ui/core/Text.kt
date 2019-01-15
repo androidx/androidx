@@ -20,9 +20,12 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.TextSpan
+import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.paragraph.RenderParagraph
 import androidx.ui.rendering.paragraph.TextOverflow
+import com.google.r4a.Ambient
+import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.composer
 
@@ -64,36 +67,42 @@ class Text() : Component() {
     override fun compose() {
         assert(text != null)
         val context = composer.composer.context
-        <MeasureBox> constraints, measureOperations ->
-            val renderParagraph = RenderParagraph(
-                    text = text,
+        <CurrentTextStyleAmbient.Consumer> style ->
+            val mergedStyle = style.merge(text.style)
+            // Make a wrapper to avoid modifying the style on the original element
+            val styledText = TextSpan(style = mergedStyle, children = listOf(text))
+            <MeasureBox> constraints, measureOperations ->
+                val renderParagraph = RenderParagraph(
+                    text = styledText,
                     textAlign = textAlign,
                     textDirection = textDirection,
                     softWrap = softWrap,
                     overflow = overflow,
                     textScaleFactor = textScaleFactor,
                     maxLines = maxLines
-            )
+                )
 
-            // TODO(Migration/siyamed): This is temporary and should be removed when resource
-            // system is resolved.
-            attachContextToFont(text, context)
+                // TODO(Migration/siyamed): This is temporary and should be removed when resource
+                // system is resolved.
+                attachContextToFont(styledText, context)
 
-            val boxConstraints = BoxConstraints(
+                val boxConstraints = BoxConstraints(
                     constraints.minWidth.toPx(context),
                     constraints.maxWidth.toPx(context),
                     constraints.minHeight.toPx(context),
                     constraints.maxHeight.toPx(context))
-            renderParagraph.layoutTextWithConstraints(boxConstraints)
-            measureOperations.collect {
-                <Draw> canvas, parent ->
-                    renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
-                </Draw>
-            }
-            measureOperations.layout(
+                renderParagraph.layoutTextWithConstraints(boxConstraints)
+                measureOperations.collect {
+                    <Draw> canvas, parent ->
+                        renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
+                    </Draw>
+                }
+                measureOperations.layout(
                     renderParagraph.width.toDp(context),
                     renderParagraph.height.toDp(context)) {}
-        </MeasureBox>
+            </MeasureBox>
+        </CurrentTextStyleAmbient.Consumer>
+
     }
 
     private fun attachContextToFont(
@@ -106,5 +115,44 @@ class Text() : Component() {
             }
             true
         }
+    }
+}
+
+internal val CurrentTextStyleAmbient = Ambient<TextStyle>("current text style") {
+    TextStyle()
+}
+
+/**
+ * This component is used to set the current value of the Text style ambient. The given style will
+ * be merged with the current style values for any missing attributes. Any [Text]
+ * components included in this component's children will be styled with this style unless
+ * styled explicitly.
+ */
+// TODO(clara): Make this a function instead of a class when cross module is solved
+class CurrentTextStyleProvider(@Children val children: () -> Unit) : Component() {
+    var value: TextStyle? = null
+
+    override fun compose() {
+        <CurrentTextStyleAmbient.Consumer> style ->
+            val mergedStyle = style.merge(value)
+            <CurrentTextStyleAmbient.Provider value=mergedStyle>
+                <children />
+            </CurrentTextStyleAmbient.Provider>
+        </CurrentTextStyleAmbient.Consumer>
+    }
+}
+
+/**
+ * This component is used to read the current value of the Text style ambient. Any [Text]
+ * components included in this component's children will be styled with this style unless
+ * styled explicitly.
+ */
+// TODO(clara): Make this a function instead of a class when cross module is solved
+class CurrentTextStyle(@Children var children: (style: TextStyle) -> Unit) : Component() {
+
+    override fun compose() {
+        <CurrentTextStyleAmbient.Consumer> style ->
+            <children style />
+        </CurrentTextStyleAmbient.Consumer>
     }
 }

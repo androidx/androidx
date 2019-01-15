@@ -16,36 +16,18 @@
 
 package androidx.ui.material
 
-import androidx.ui.core.Text
-import androidx.ui.painting.TextSpan
-import androidx.ui.painting.TextStyle
-import com.google.r4a.Ambient
+import androidx.ui.core.CurrentTextStyleProvider
 import com.google.r4a.Children
-import com.google.r4a.Composable
+import com.google.r4a.Component
 
-val CurrentTypography = Ambient<TypographyStyle>("current typography") {
-    error("No current typography defined!")
-}
 
-@Composable
-fun H1(@Children content: () -> Unit) {
-    <Typography.Consumer> typography ->
-        <CurrentTypography.Provider value=typography.h1>
-            <content />
-        </CurrentTypography.Provider>
-    </Typography.Consumer>
-}
+class H1(@Children val content: () -> Unit) : Component() {
+    override fun compose() {
+        <Typography.Consumer> typography ->
+            <CurrentTextStyleProvider value=typography.h1>
+                <content />
+            </CurrentTextStyleProvider>
+        </Typography.Consumer>
+    }
 
-@Composable
-fun MaterialText(text: TextSpan) { // Should match text attrs
-    <Colors.Consumer> colors ->
-        <CurrentTypography.Consumer> style ->
-            val styledText = TextSpan(style = TextStyle(
-                color = style.color ?: colors.onPrimary,
-                fontSize = style.size,
-                fontWeight = style.weight
-            ), children = listOf(text))
-            <Text text=styledText />
-        </CurrentTypography.Consumer>
-    </Colors.Consumer>
 }

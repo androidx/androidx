@@ -32,6 +32,12 @@ package androidx.ui.material {
     method public static androidx.ui.core.Duration getThemeChangeDuration();
   }
 
+  public final class H1 extends com.google.r4a.Component {
+    ctor public H1(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public void compose();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getContent();
+  }
+
   public abstract class InkFeature {
     ctor public InkFeature(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
     method @CallSuper public void dispose();
@@ -336,60 +342,35 @@ package androidx.ui.material {
   }
 
   public final class MaterialTypography {
-    ctor public MaterialTypography(androidx.ui.material.TypographyStyle h1, androidx.ui.material.TypographyStyle h2, androidx.ui.material.TypographyStyle h3, androidx.ui.material.TypographyStyle h4, androidx.ui.material.TypographyStyle h5, androidx.ui.material.TypographyStyle h6, androidx.ui.material.TypographyStyle subtitle1, androidx.ui.material.TypographyStyle subtitle2, androidx.ui.material.TypographyStyle body1, androidx.ui.material.TypographyStyle body2, androidx.ui.material.TypographyStyle button, androidx.ui.material.TypographyStyle caption, androidx.ui.material.TypographyStyle overline);
+    ctor public MaterialTypography(androidx.ui.painting.TextStyle h1, androidx.ui.painting.TextStyle h2, androidx.ui.painting.TextStyle h3, androidx.ui.painting.TextStyle h4, androidx.ui.painting.TextStyle h5, androidx.ui.painting.TextStyle h6, androidx.ui.painting.TextStyle subtitle1, androidx.ui.painting.TextStyle subtitle2, androidx.ui.painting.TextStyle body1, androidx.ui.painting.TextStyle body2, androidx.ui.painting.TextStyle button, androidx.ui.painting.TextStyle caption, androidx.ui.painting.TextStyle overline);
     ctor public MaterialTypography();
-    method public androidx.ui.material.TypographyStyle component1();
-    method public androidx.ui.material.TypographyStyle component10();
-    method public androidx.ui.material.TypographyStyle component11();
-    method public androidx.ui.material.TypographyStyle component12();
-    method public androidx.ui.material.TypographyStyle component13();
-    method public androidx.ui.material.TypographyStyle component2();
-    method public androidx.ui.material.TypographyStyle component3();
-    method public androidx.ui.material.TypographyStyle component4();
-    method public androidx.ui.material.TypographyStyle component5();
-    method public androidx.ui.material.TypographyStyle component6();
-    method public androidx.ui.material.TypographyStyle component7();
-    method public androidx.ui.material.TypographyStyle component8();
-    method public androidx.ui.material.TypographyStyle component9();
-    method public androidx.ui.material.MaterialTypography copy(androidx.ui.material.TypographyStyle h1, androidx.ui.material.TypographyStyle h2, androidx.ui.material.TypographyStyle h3, androidx.ui.material.TypographyStyle h4, androidx.ui.material.TypographyStyle h5, androidx.ui.material.TypographyStyle h6, androidx.ui.material.TypographyStyle subtitle1, androidx.ui.material.TypographyStyle subtitle2, androidx.ui.material.TypographyStyle body1, androidx.ui.material.TypographyStyle body2, androidx.ui.material.TypographyStyle button, androidx.ui.material.TypographyStyle caption, androidx.ui.material.TypographyStyle overline);
-    method public androidx.ui.material.TypographyStyle getBody1();
-    method public androidx.ui.material.TypographyStyle getBody2();
-    method public androidx.ui.material.TypographyStyle getButton();
-    method public androidx.ui.material.TypographyStyle getCaption();
-    method public androidx.ui.material.TypographyStyle getH1();
-    method public androidx.ui.material.TypographyStyle getH2();
-    method public androidx.ui.material.TypographyStyle getH3();
-    method public androidx.ui.material.TypographyStyle getH4();
-    method public androidx.ui.material.TypographyStyle getH5();
-    method public androidx.ui.material.TypographyStyle getH6();
-    method public androidx.ui.material.TypographyStyle getOverline();
-    method public androidx.ui.material.TypographyStyle getSubtitle1();
-    method public androidx.ui.material.TypographyStyle getSubtitle2();
-  }
-
-  public final class TextKt {
-    ctor public TextKt();
-    method public static void H1(kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method public static void MaterialText(androidx.ui.painting.TextSpan text);
-    method public static com.google.r4a.Ambient<androidx.ui.material.TypographyStyle> getCurrentTypography();
-  }
-
-  public final class TypographyStyle {
-    ctor public TypographyStyle(String typeface, androidx.ui.engine.text.FontWeight weight, float size, androidx.ui.material.Case p, double letterSpacing, androidx.ui.painting.Color? color);
-    ctor public TypographyStyle();
-    method public String component1();
-    method public androidx.ui.engine.text.FontWeight component2();
-    method public float component3();
-    method public androidx.ui.material.Case component4();
-    method public double component5();
-    method public androidx.ui.painting.Color? component6();
-    method public androidx.ui.material.TypographyStyle copy(String typeface, androidx.ui.engine.text.FontWeight weight, float size, androidx.ui.material.Case p, double letterSpacing, androidx.ui.painting.Color? color);
-    method public androidx.ui.material.Case getCase();
-    method public androidx.ui.painting.Color? getColor();
-    method public double getLetterSpacing();
-    method public float getSize();
-    method public String getTypeface();
-    method public androidx.ui.engine.text.FontWeight getWeight();
+    method public androidx.ui.painting.TextStyle component1();
+    method public androidx.ui.painting.TextStyle component10();
+    method public androidx.ui.painting.TextStyle component11();
+    method public androidx.ui.painting.TextStyle component12();
+    method public androidx.ui.painting.TextStyle component13();
+    method public androidx.ui.painting.TextStyle component2();
+    method public androidx.ui.painting.TextStyle component3();
+    method public androidx.ui.painting.TextStyle component4();
+    method public androidx.ui.painting.TextStyle component5();
+    method public androidx.ui.painting.TextStyle component6();
+    method public androidx.ui.painting.TextStyle component7();
+    method public androidx.ui.painting.TextStyle component8();
+    method public androidx.ui.painting.TextStyle component9();
+    method public androidx.ui.material.MaterialTypography copy(androidx.ui.painting.TextStyle h1, androidx.ui.painting.TextStyle h2, androidx.ui.painting.TextStyle h3, androidx.ui.painting.TextStyle h4, androidx.ui.painting.TextStyle h5, androidx.ui.painting.TextStyle h6, androidx.ui.painting.TextStyle subtitle1, androidx.ui.painting.TextStyle subtitle2, androidx.ui.painting.TextStyle body1, androidx.ui.painting.TextStyle body2, androidx.ui.painting.TextStyle button, androidx.ui.painting.TextStyle caption, androidx.ui.painting.TextStyle overline);
+    method public androidx.ui.painting.TextStyle getBody1();
+    method public androidx.ui.painting.TextStyle getBody2();
+    method public androidx.ui.painting.TextStyle getButton();
+    method public androidx.ui.painting.TextStyle getCaption();
+    method public androidx.ui.painting.TextStyle getH1();
+    method public androidx.ui.painting.TextStyle getH2();
+    method public androidx.ui.painting.TextStyle getH3();
+    method public androidx.ui.painting.TextStyle getH4();
+    method public androidx.ui.painting.TextStyle getH5();
+    method public androidx.ui.painting.TextStyle getH6();
+    method public androidx.ui.painting.TextStyle getOverline();
+    method public androidx.ui.painting.TextStyle getSubtitle1();
+    method public androidx.ui.painting.TextStyle getSubtitle2();
   }
 
 }

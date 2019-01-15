@@ -16,8 +16,11 @@
 
 package androidx.ui.material
 
+import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.engine.text.FontWeight
+import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.painting.Color
+import androidx.ui.painting.TextStyle
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
@@ -33,7 +36,9 @@ class MaterialTheme(
     override fun compose() {
         <Colors.Provider value=colors>
             <Typography.Provider value=typography>
-                <children />
+                <CurrentTextStyleProvider value=typography.body1>
+                    <children />
+                </CurrentTextStyleProvider>
             </Typography.Provider>
         </Colors.Provider>
     }
@@ -59,27 +64,60 @@ data class MaterialColors(
 )
 
 data class MaterialTypography(
-    val h1: TypographyStyle = TypographyStyle("Roboto", FontWeight.w100, 96f, Case.SENTENCE, -1.5),
-    val h2: TypographyStyle = TypographyStyle("Roboto", FontWeight.w100, 60f, Case.SENTENCE, -0.5),
-    val h3: TypographyStyle = TypographyStyle("Roboto", FontWeight.normal, 48f, Case.SENTENCE, 0.0),
-    val h4: TypographyStyle = TypographyStyle("Roboto", FontWeight.normal, 34f, Case.SENTENCE, 0.25),
-    val h5: TypographyStyle = TypographyStyle("Roboto", FontWeight.normal, 24f, Case.SENTENCE, 0.0),
-    val h6: TypographyStyle = TypographyStyle("Roboto", FontWeight.w500, 20f, Case.SENTENCE, 0.15),
-    val subtitle1: TypographyStyle = TypographyStyle("Roboto", FontWeight.normal, 16f, Case.SENTENCE, 0.15),
-    val subtitle2: TypographyStyle = TypographyStyle("Roboto", FontWeight.w500, 14f, Case.SENTENCE, 0.1),
-    val body1: TypographyStyle = TypographyStyle("Roboto", FontWeight.normal, 16f, Case.SENTENCE, 0.5),
-    val body2: TypographyStyle = TypographyStyle("Roboto", FontWeight.normal, 14f, Case.SENTENCE, 0.25),
-    val button: TypographyStyle = TypographyStyle("Roboto", FontWeight.w500, 14f, Case.ALLCAPS, 1.25),
-    val caption: TypographyStyle = TypographyStyle("Roboto", FontWeight.normal, 12f, Case.SENTENCE, 0.4),
-    val overline: TypographyStyle = TypographyStyle("Roboto", FontWeight.normal, 10f, Case.ALLCAPS, 1.5)
-)
-
-// TODO(clara): Unify with text core APIs (currently reflects Material spec)
-data class TypographyStyle(
-    val typeface: String = "Roboto",
-    val weight: FontWeight = FontWeight.normal,
-    val size: Float = 12f,
-    val case: Case = Case.SENTENCE,
-    val letterSpacing: Double = 1.0,
-    val color : Color? = null
+    // TODO(clara): case
+    // TODO(clara): letter spacing (specs don't match)
+    // TODO(clara): b/123001228 need a font abstraction layer
+    // TODO(clara): fontSize should be a Dimension, translating here will loose context changes
+    val h1: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.w100,
+        fontSize = 96f),
+    val h2: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.w100,
+        fontSize = 60f),
+    val h3: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.normal,
+        fontSize = 48f),
+    val h4: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.normal,
+        fontSize = 34f),
+    val h5: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.normal,
+        fontSize = 24f),
+    val h6: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.w500,
+        fontSize = 20f),
+    val subtitle1: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.normal,
+        fontSize = 16f),
+    val subtitle2: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.w500,
+        fontSize = 14f),
+    val body1: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.normal,
+        fontSize = 16f),
+    val body2: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.normal,
+        fontSize = 14f),
+    val button: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.w500,
+        fontSize = 14f),
+    val caption: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.normal,
+        fontSize = 12f),
+    val overline: TextStyle = TextStyle(
+        fontFamily = FontFamily("Roboto"),
+        fontWeight = FontWeight.normal,
+        fontSize = 10f)
 )

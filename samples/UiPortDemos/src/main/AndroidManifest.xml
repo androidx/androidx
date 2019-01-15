@@ -135,9 +135,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="androidx.ui.material.demos.SelectionControlsActivity"
+        <activity android:name="androidx.ui.material.demos.MainActivity"
                   android:configChanges="orientation|screenSize"
-                  android:label="Material Selection Controls">
+                  android:label="Material demos">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.ui.SAMPLE_CODE" />
