@@ -538,6 +538,13 @@ public class NavController {
         if (deepLink == null || deepLink.length == 0) {
             return false;
         }
+        String invalidDestinationDisplayName =
+                findInvalidDestinationDisplayNameInDeepLink(deepLink);
+        if (invalidDestinationDisplayName != null) {
+            Log.i(TAG, "Could not find destination " + invalidDestinationDisplayName
+                    + " in the navigation graph, ignoring the deep link from " + intent);
+            return false;
+        }
         bundle.putParcelable(KEY_DEEP_LINK_INTENT, intent);
         int flags = intent.getFlags();
         if ((flags & Intent.FLAG_ACTIVITY_NEW_TASK) != 0
@@ -585,6 +592,11 @@ public class NavController {
             if (i != deepLink.length - 1) {
                 // We're not at the final NavDestination yet, so keep going through the chain
                 graph = (NavGraph) node;
+                // Automatically go down the navigation graph when
+                // the start destination is also a NavGraph
+                while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
+                    graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                }
             } else {
                 // Navigate to the last NavDestination, clearing any existing destinations
                 navigate(node, node.addInDefaultArgs(bundle), new NavOptions.Builder()
@@ -593,6 +605,37 @@ public class NavController {
             }
         }
         return true;
+    }
+
+    /**
+     * Looks through the deep link for invalid destinations, returning the display name of
+     * any invalid destinations in the deep link array.
+     *
+     * @param deepLink array of deep link IDs that are expected to match the graph
+     * @return The display name of the first destination not found in the graph or null if
+     * all destinations were found in the graph.
+     */
+    @Nullable
+    private String findInvalidDestinationDisplayNameInDeepLink(@NonNull int[] deepLink) {
+        NavGraph graph = mGraph;
+        for (int i = 0; i < deepLink.length; i++) {
+            int destinationId = deepLink[i];
+            NavDestination node = i == 0 ? mGraph : graph.findNode(destinationId);
+            if (node == null) {
+                return NavDestination.getDisplayName(mContext, destinationId);
+            }
+            if (i != deepLink.length - 1) {
+                // We're not at the final NavDestination yet, so keep going through the chain
+                graph = (NavGraph) node;
+                // Automatically go down the navigation graph when
+                // the start destination is also a NavGraph
+                while (graph.findNode(graph.getStartDestination()) instanceof NavGraph) {
+                    graph = (NavGraph) graph.findNode(graph.getStartDestination());
+                }
+            }
+        }
+        // We found every destination in the deepLink array, yay!
+        return null;
     }
 
     /**
