@@ -15,39 +15,41 @@
 -->
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:padding="@dimen/MusicView_full_padding"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
+    <ImageView
+        android:id="@+id/album"
+        android:layout_width="@dimen/MusicView_full_image_size"
+        android:layout_height="@dimen/MusicView_full_image_size"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="@dimen/MusicView_image_title_gap"
+        android:src="@drawable/ic_default_album_image" />
 
     <LinearLayout
-        android:id="@+id/music_image"
-        style="@style/FullMusicPortrait.Image">
-
-        <ImageView
-            android:id="@+id/album"
-            android:layout_width="@dimen/mcv2_full_album_image_portrait_size"
-            android:layout_height="@dimen/mcv2_full_album_image_portrait_size"
-            android:src="@drawable/ic_default_album_image"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/music_text"
-        style="@style/FullMusicPortrait.Text">
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="@dimen/MusicView_landscape_text_minimum_width"
+        android:layout_gravity="center_vertical"
+        android:orientation="vertical">
 
         <TextView
             android:id="@+id/title"
-            android:layout_width="@dimen/mcv2_full_album_image_portrait_size"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/mcv2_music_title_unknown_text"
-            android:textSize="20sp"
+            android:textSize="@dimen/MusicView_title_text_size"
             android:textStyle="bold"
             android:textColor="#FFFFFF" />
+
         <TextView
             android:id="@+id/artist"
-            android:layout_width="@dimen/mcv2_full_album_image_portrait_size"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/mcv2_music_artist_unknown_text"
-            android:textSize="16sp"
+            android:textSize="@dimen/MusicView_artist_text_size"
             android:textColor="#BBBBBB" />
     </LinearLayout>
 </LinearLayout>

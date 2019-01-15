@@ -181,39 +181,4 @@
       <item name="android:src">@drawable/ic_high_quality</item>
       <item name="android:contentDescription">@string/mcv2_video_quality_button_desc</item>
     </style>
-
-    <style name="FullMusicPortrait">
-        <item name="android:layout_height">0dp</item>
-    </style>
-
-    <style name="FullMusicPortrait.Image">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_weight">0.6</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <style name="FullMusicPortrait.Text">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_weight">0.4</item>
-        <item name="android:gravity">top|center</item>
-        <item name="android:orientation">vertical</item>
-    </style>
-
-    <style name="FullMusicLandscape">
-        <item name="android:layout_width">0dp</item>
-    </style>
-
-    <style name="FullMusicLandscape.Image">
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">0.35</item>
-        <item name="android:gravity">center|right</item>
-    </style>
-
-    <style name="FullMusicLandscape.Text">
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:layout_weight">0.65</item>
-        <item name="android:layout_marginLeft">24dp</item>
-        <item name="android:gravity">center|left</item>
-        <item name="android:orientation">vertical</item>
-    </style>
 </resources>
