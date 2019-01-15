@@ -304,13 +304,15 @@ public class NavDestination {
         if (mDeepLinks == null) {
             return null;
         }
+        Bundle bestMatchingArguments = null;
         for (NavDeepLink deepLink : mDeepLinks) {
             Bundle matchingArguments = deepLink.getMatchingArguments(uri, getArguments());
-            if (matchingArguments != null) {
-                return Pair.create(this, matchingArguments);
+            if (matchingArguments != null && (bestMatchingArguments == null
+                    || matchingArguments.size() > bestMatchingArguments.size())) {
+                bestMatchingArguments = matchingArguments;
             }
         }
-        return null;
+        return bestMatchingArguments != null ? new Pair<>(this, bestMatchingArguments) : null;
     }
 
     /**
