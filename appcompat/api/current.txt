@@ -612,12 +612,14 @@ package androidx.appcompat.widget {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
   }
 
-  public class AppCompatTextView extends android.widget.TextView implements androidx.core.widget.AutoSizeableTextView androidx.core.view.TintableBackgroundView {
+  public class AppCompatTextView extends android.widget.TextView implements androidx.core.widget.AutoSizeableTextView androidx.core.view.TintableBackgroundView androidx.core.widget.TintableCompoundDrawablesView {
     ctor public AppCompatTextView(android.content.Context!);
     ctor public AppCompatTextView(android.content.Context!, android.util.AttributeSet!);
     ctor public AppCompatTextView(android.content.Context!, android.util.AttributeSet!, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportBackgroundTintList();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportBackgroundTintMode();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
     method public androidx.core.text.PrecomputedTextCompat.Params getTextMetricsParamsCompat();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int) throws java.lang.IllegalArgumentException;
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setAutoSizeTextTypeUniformWithPresetSizes(int[], int) throws java.lang.IllegalArgumentException;
@@ -625,6 +627,8 @@ package androidx.appcompat.widget {
     method public void setPrecomputedText(androidx.core.text.PrecomputedTextCompat);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintList(android.content.res.ColorStateList?);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportBackgroundTintMode(android.graphics.PorterDuff.Mode?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
     method public void setTextAppearance(android.content.Context!, int);
     method public void setTextFuture(java.util.concurrent.Future<androidx.core.text.PrecomputedTextCompat>?);
     method public void setTextMetricsParamsCompat(androidx.core.text.PrecomputedTextCompat.Params);
