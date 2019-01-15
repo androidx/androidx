@@ -15,6 +15,7 @@
  */
 package androidx.ui.engine.text.platform
 
+import android.os.Build
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
@@ -41,6 +42,7 @@ import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
 import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.TypefaceSpan
+import androidx.text.style.WordSpacingSpan
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
@@ -268,7 +270,17 @@ internal class ParagraphAndroid constructor(
             }
 
             // TODO(Migration/haoyuchang): implement textBaseLine
-            // TODO(Migration/haoyuchang): implement wordSpacing
+            if (Build.VERSION.SDK_INT >= 28) {
+                style.wordSpacing?.let {
+                    spannableString.setSpan(
+                        WordSpacingSpan(it),
+                        start,
+                        end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+            }
+
             // TODO(Migration/haoyuchang): support letter spacing with pixel.
             style.letterSpacing?.let {
                 spannableString.setSpan(

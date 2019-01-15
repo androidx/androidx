@@ -34,7 +34,7 @@ import androidx.ui.painting.Paint
  * * `fontSize`: The size of glyphs (in logical pixels) to use when painting the text.
  * * `letterSpacing`: The amount of space (in EM) to add between each letter.
  * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space
- *                  (i.e. between each word).
+ *                  (i.e. between each word). Only works on Android Q and above.
  * * `textBaseline`: The common baseline that should be aligned between this text span and its
  *                   parent text span, or, for the root text spans, with the line box.
  * * `height`: The height of this text span, as a multiple of the font size.
