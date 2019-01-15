@@ -6,6 +6,12 @@ package androidx.ui.baseui.selection {
     method public static void Toggleable(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
+  public enum ToggleableState {
+    enum_constant public static final androidx.ui.baseui.selection.ToggleableState CHECKED;
+    enum_constant public static final androidx.ui.baseui.selection.ToggleableState INDETERMINATE;
+    enum_constant public static final androidx.ui.baseui.selection.ToggleableState UNCHECKED;
+  }
+
 }
 
 package androidx.ui.material {
@@ -19,8 +25,11 @@ package androidx.ui.material {
     ctor public Checkbox();
     method public void compose();
     method public androidx.ui.painting.Color? getColor();
+    method public androidx.ui.baseui.selection.ToggleableState getValue();
     method public void setColor(androidx.ui.painting.Color? p);
+    method public void setValue(androidx.ui.baseui.selection.ToggleableState p);
     property public final androidx.ui.painting.Color? color;
+    property public final androidx.ui.baseui.selection.ToggleableState value;
   }
 
   public final class CheckboxKt {
