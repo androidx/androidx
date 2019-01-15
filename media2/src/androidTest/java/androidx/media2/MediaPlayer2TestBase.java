@@ -552,40 +552,44 @@ public class MediaPlayer2TestBase extends MediaTestBase {
             Thread.sleep(playTime);
         }
 
-        // validate a few MediaMetrics.
-        PersistableBundle metrics = mPlayer.getMetrics();
-        if (metrics == null) {
-            fail("MediaPlayer.getMetrics() returned null metrics");
-        } else if (metrics.isEmpty()) {
-            fail("MediaPlayer.getMetrics() returned empty metrics");
-        } else {
+        // Validate media metrics from API 21 where PersistableBundle was added.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            PersistableBundle metrics = mPlayer.getMetrics();
+            if (metrics == null) {
+                fail("MediaPlayer.getMetrics() returned null metrics");
+            } else if (metrics.isEmpty()) {
+                fail("MediaPlayer.getMetrics() returned empty metrics");
+            } else {
+                int size = metrics.size();
+                Set<String> keys = metrics.keySet();
 
-            int size = metrics.size();
-            Set<String> keys = metrics.keySet();
+                if (keys == null) {
+                    fail("MediaMetricsSet returned no keys");
+                } else if (keys.size() != size) {
+                    fail("MediaMetricsSet.keys().size() mismatch MediaMetricsSet.size()");
+                }
 
-            if (keys == null) {
-                fail("MediaMetricsSet returned no keys");
-            } else if (keys.size() != size) {
-                fail("MediaMetricsSet.keys().size() mismatch MediaMetricsSet.size()");
-            }
+                // we played something; so one of these should be non-null
+                String vmime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_VIDEO,
+                        null);
+                String amime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_AUDIO,
+                        null);
+                if (vmime == null && amime == null) {
+                    fail("getMetrics() returned neither video nor audio mime value");
+                }
 
-            // we played something; so one of these should be non-null
-            String vmime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_VIDEO, null);
-            String amime = metrics.getString(MediaPlayer2.MetricsConstants.MIME_TYPE_AUDIO, null);
-            if (vmime == null && amime == null) {
-                fail("getMetrics() returned neither video nor audio mime value");
-            }
-
-            long duration = metrics.getLong(MediaPlayer2.MetricsConstants.DURATION, -2);
-            if (duration == -2) {
-                fail("getMetrics() didn't return a duration");
-            }
-            long playing = metrics.getLong(MediaPlayer2.MetricsConstants.PLAYING, -2);
-            if (playing == -2) {
-                fail("getMetrics() didn't return a playing time");
-            }
-            if (!keys.contains(MediaPlayer2.MetricsConstants.PLAYING)) {
-                fail("MediaMetricsSet.keys() missing: " + MediaPlayer2.MetricsConstants.PLAYING);
+                long duration = metrics.getLong(MediaPlayer2.MetricsConstants.DURATION, -2);
+                if (duration == -2) {
+                    fail("getMetrics() didn't return a duration");
+                }
+                long playing = metrics.getLong(MediaPlayer2.MetricsConstants.PLAYING, -2);
+                if (playing == -2) {
+                    fail("getMetrics() didn't return a playing time");
+                }
+                if (!keys.contains(MediaPlayer2.MetricsConstants.PLAYING)) {
+                    fail("MediaMetricsSet.keys() missing: "
+                            + MediaPlayer2.MetricsConstants.PLAYING);
+                }
             }
         }
         mPlayer.reset();
