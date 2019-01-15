@@ -77,15 +77,30 @@ import androidx.recyclerview.widget.RecyclerView;
  * {@link #setAdapter(ObjectAdapter)}.
  * </p>
  * <p>
- * Auto hide controls upon playing: best practice is calling
- * {@link #setControlsOverlayAutoHideEnabled(boolean)} upon play/pause.
- * Theme attribute {@link R.attr#playbackControlsAutoHideTimeout} controls how long auto-hide will
- * wait after media starts playing.
- * The auto hiding timer will be cancelled upon {@link #tickle()} triggered by input event.
- * By default fragment does not auto hide controls after user interaction. To enable it: set
- * theme attribute {@link R.attr#playbackControlsAutoHideTickleTimeout}, an auto hide
- * timer will be created when tickle() is triggered by input event.
- * </p>
+ * Hiding and showing controls: the controls are initially visible and automatically show/hide
+ * when play/pause or user interacts with fragment.
+ * <ul>
+ *     <li>
+ *         App may manually call {@link #showControlsOverlay(boolean)} or
+ *         {@link #hideControlsOverlay(boolean)} to show or hide the controls.
+ *     <li>
+ *     <li>
+ *         The controls are visible by default upon onViewCreated(). To make it initially invisible,
+ *         call hideControlsOverlay(false) in overridden onViewCreated().
+ *     </li>
+ *         Upon play or pause, PlaybackControlGlue or PlaybackTransportControlGlue will fade-in
+ *         the controls and automatically fade out after a delay customized by
+ *         {@link R.attr#playbackControlsAutoHideTimeout}. To disable the fade in and fade out
+ *         behavior: call {@link androidx.leanback.media.PlaybackBaseControlGlue
+ *         #setControlsOverlayAutoHideEnabled(boolean)} with false.
+ *     </li>
+ *     <li>
+ *         Upon user interaction event, fragment will fade-in the controls and automatically fade
+ *         out after a delay customized by {@link R.attr#playbackControlsAutoHideTickleTimeout}.
+ *         To disable the fade in and fade out behavior, call {@link
+ *         #setShowOrHideControlsOverlayOnUserInteraction} with false.
+ *     </li>
+ * </ul>
  */
 public class PlaybackSupportFragment extends Fragment {
     static final String BUNDLE_CONTROL_VISIBLE_ON_CREATEVIEW = "controlvisible_oncreateview";
@@ -226,6 +241,7 @@ public class PlaybackSupportFragment extends Fragment {
     boolean mFadingEnabled = true;
     boolean mControlVisibleBeforeOnCreateView = true;
     boolean mControlVisible = true;
+    boolean mShowOrHideControlsOverlayOnUserInteraction = true;
     int mBgAlpha;
     ValueAnimator mBgFadeInAnimator, mBgFadeOutAnimator;
     ValueAnimator mControlRowFadeInAnimator, mControlRowFadeOutAnimator;
@@ -324,13 +340,29 @@ public class PlaybackSupportFragment extends Fragment {
     }
 
     /**
+     * Enables or disables showing and auto-hiding controls when user interacts. Enabled by default.
+     * Auto-hide timer length is defined by {@link R.attr#playbackControlsAutoHideTickleTimeout}.
+     */
+    public void setShowOrHideControlsOverlayOnUserInteraction(boolean
+            showOrHideControlsOverlayOnUserInteraction) {
+        mShowOrHideControlsOverlayOnUserInteraction = showOrHideControlsOverlayOnUserInteraction;
+    }
+
+    /**
+     * Returns true if showing and auto-hiding controls when user interacts; false otherwise.
+     */
+    public boolean isShowOrHideControlsOverlayOnUserInteraction() {
+        return mShowOrHideControlsOverlayOnUserInteraction;
+    }
+
+    /**
      * Enables or disables auto hiding controls overlay after a short delay fragment is resumed.
      * If enabled and fragment is resumed, the view will fade out after a time period.
-     * {@link #tickle()} will kill the timer, next time fragment is resumed,
+     * User interaction will kill the timer, next time fragment is resumed,
      * the timer will be started again if {@link #isControlsOverlayAutoHideEnabled()} is true.
      *  <p>
-     *  In most cases app does not need call tickle() as it's automatically called by
-     *  {@link androidx.leanback.media.PlaybackBaseControlGlue} on user interactions.
+     *  In most cases app should not directly call setControlsOverlayAutoHideEnabled() as it's
+     *  called by {@link androidx.leanback.media.PlaybackBaseControlGlue} on play or pause.
      */
     public void setControlsOverlayAutoHideEnabled(boolean enabled) {
         if (DEBUG) Log.v(TAG, "setControlsOverlayAutoHideEnabled " + enabled);
@@ -401,14 +433,11 @@ public class PlaybackSupportFragment extends Fragment {
 
     /**
      * Tickles the playback controls. Fades in the view if it was faded out. {@link #tickle()} will
-     * also kill the timer created by {@link #setControlsOverlayAutoHideEnabled(boolean)}. When
-     * next time fragment is resumed, the timer will be started again if
-     * {@link #isControlsOverlayAutoHideEnabled()} is true. The timer will also be restarted if
-     * app sets a positive value on theme attribute
-     * {@link R.attr#playbackControlsAutoHideTickleTimeout}.
+     * kill and re-create a timer if {@link R.attr#playbackControlsAutoHideTickleTimeout} is
+     * positive.
      *  <p>
-     *  In most cases app does not need call tickle() as it's automatically called by
-     *  {@link androidx.leanback.media.PlaybackBaseControlGlue} on user interactions.
+     *  In most cases app does not need call tickle() as it's automatically called on user
+     *  interactions.
      */
     public void tickle() {
         if (DEBUG) Log.v(TAG, "tickle enabled " + mFadingEnabled + " isResumed " + isResumed());
@@ -448,7 +477,8 @@ public class PlaybackSupportFragment extends Fragment {
                 if (controlsHidden) {
                     consumeEvent = true;
                 }
-                if (keyAction == KeyEvent.ACTION_DOWN) {
+                if (mShowOrHideControlsOverlayOnUserInteraction
+                        && keyAction == KeyEvent.ACTION_DOWN) {
                     tickle();
                 }
                 break;
@@ -460,7 +490,7 @@ public class PlaybackSupportFragment extends Fragment {
                 }
                 // If controls are not hidden, back will be consumed to fade
                 // them out (even if the key was consumed by the handler).
-                if (!controlsHidden) {
+                if (mShowOrHideControlsOverlayOnUserInteraction && !controlsHidden) {
                     consumeEvent = true;
 
                     if (((KeyEvent) event).getAction() == KeyEvent.ACTION_UP) {
@@ -469,7 +499,7 @@ public class PlaybackSupportFragment extends Fragment {
                 }
                 break;
             default:
-                if (consumeEvent) {
+                if (mShowOrHideControlsOverlayOnUserInteraction && consumeEvent) {
                     if (keyAction == KeyEvent.ACTION_DOWN) {
                         tickle();
                     }
