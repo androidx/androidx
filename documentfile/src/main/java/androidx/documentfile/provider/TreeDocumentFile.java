@@ -47,6 +47,7 @@ class TreeDocumentFile extends DocumentFile {
     }
 
     @Nullable
+    @SuppressWarnings("deprecation")
     private static Uri createFile(Context context, Uri self, String mimeType,
             String displayName) {
         try {
@@ -118,6 +119,7 @@ class TreeDocumentFile extends DocumentFile {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean delete() {
         try {
             return DocumentsContract.deleteDocument(mContext.getContentResolver(), mUri);
@@ -174,6 +176,7 @@ class TreeDocumentFile extends DocumentFile {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public boolean renameTo(String displayName) {
         try {
             final Uri result = DocumentsContract.renameDocument(
