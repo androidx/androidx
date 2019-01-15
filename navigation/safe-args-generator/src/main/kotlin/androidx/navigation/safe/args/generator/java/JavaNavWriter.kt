@@ -152,8 +152,9 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
         val specs =
             ClassWithArgsSpecs(args, annotations)
 
-        val bundleConstructor = MethodSpec.constructorBuilder().apply {
-            addModifiers(Modifier.PUBLIC)
+        val fromBundleMethod = MethodSpec.methodBuilder("fromBundle").apply {
+            addAnnotation(annotations.NONNULL_CLASSNAME)
+            addModifiers(Modifier.PUBLIC, Modifier.STATIC)
             addAnnotation(specs.suppressAnnotationSpec)
             val bundle = "bundle"
             addParameter(
@@ -161,6 +162,9 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
                     .addAnnotation(specs.annotations.NONNULL_CLASSNAME)
                     .build()
             )
+            returns(className)
+            val result = "__result"
+            addStatement("$T $N = new $T()", className, result, className)
             addStatement("$N.setClassLoader($T.class.getClassLoader())", bundle, className)
             args.forEach { arg ->
                 beginControlFlow("if ($N.containsKey($S))", bundle, arg.name).apply {
@@ -168,9 +172,8 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
                     arg.type.addBundleGetStatement(this, arg, arg.sanitizedName, bundle)
                     addNullCheck(arg, arg.sanitizedName)
                     addStatement(
-                        "$N.$N.put($S, $N)",
-                        "this",
-                        specs.hashMapFieldSpec.name,
+                        "$result.$N.put($S, $N)",
+                        specs.hashMapFieldSpec,
                         arg.name,
                         arg.sanitizedName
                     )
@@ -183,7 +186,10 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
                 }
                 endControlFlow()
             }
+            addStatement("return $N", result)
         }.build()
+
+        val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build()
 
         val copyConstructor = MethodSpec.constructorBuilder()
             .addModifiers(Modifier.PUBLIC)
@@ -230,8 +236,9 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
             .addSuperinterface(NAV_ARGS_CLASSNAME)
             .addModifiers(Modifier.PUBLIC)
             .addField(specs.hashMapFieldSpec)
+            .addMethod(constructor)
             .addMethod(fromMapConstructor)
-            .addMethod(bundleConstructor)
+            .addMethod(fromBundleMethod)
             .addMethods(specs.getters())
             .addMethod(specs.toBundleMethod("toBundle"))
             .addMethod(specs.equalsMethod(className))
