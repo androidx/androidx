@@ -395,6 +395,80 @@ class ParagraphTest {
     }
 
     @Test
+    fun maxLines_withMaxLineEqualsZero() {
+        val text = "a\na\na"
+        val fontSize = 100.0f
+        val maxLines = 0
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize,
+            maxLines = maxLines
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        assertThat(paragraph.height, equalTo(0f))
+    }
+
+    @Test(expected = java.lang.IllegalArgumentException::class)
+    fun maxLines_withMaxLineNegative_throwsException() {
+        val text = "a\na\na"
+        val fontSize = 100.0f
+        val maxLines = -1
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize,
+            maxLines = maxLines
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+    }
+
+    @Test
+    fun maxLines_withMaxLineSmallerThanTextLines_clipHeight() {
+        val text = "a\na\na"
+        val fontSize = 100.0f
+        val lineCount = text.lines().size
+        val maxLines = lineCount
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize,
+            maxLines = maxLines
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        val expectHeight = (lineCount + (lineCount - 1) * 0.2f) * fontSize
+        assertThat(paragraph.height, equalTo(expectHeight))
+    }
+
+    @Test
+    fun maxLines_withMaxLineEqualsTextLine() {
+        val text = "a\na\na"
+        val fontSize = 100.0f
+        val maxLines = text.lines().size
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize,
+            maxLines = maxLines
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+        val expectHeight = (maxLines + (maxLines - 1) * 0.2f) * fontSize
+        assertThat(paragraph.height, equalTo(expectHeight))
+    }
+
+    @Test
+    fun maxLines_withMaxLineGreaterThanTextLines() {
+        val text = "a\na\na"
+        val fontSize = 100.0f
+        val lineCount = text.lines().size
+        val maxLines = lineCount + 1
+        val paragraph = simpleParagraph(
+            text = text,
+            fontSize = fontSize,
+            maxLines = maxLines
+        )
+        paragraph.layout(ParagraphConstraints(width = 200f))
+        val expectHeight = (lineCount + (lineCount - 1) * 0.2f) * fontSize
+        assertThat(paragraph.height, equalTo(expectHeight))
+    }
+
+    @Test
     fun didExceedMaxLines_withMaxLinesSmallerThanTextLines_returnsTrue() {
         val text = "aaa\naa"
         val maxLines = text.lines().size - 1
