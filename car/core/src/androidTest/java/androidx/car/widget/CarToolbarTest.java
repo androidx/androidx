@@ -26,6 +26,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -43,6 +44,7 @@ import androidx.annotation.NonNull;
 import androidx.car.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 import org.hamcrest.Description;
@@ -306,6 +308,60 @@ public class CarToolbarTest {
         onView(withId(R.id.overflow_menu)).perform(click());
 
         onView(withText(alwaysItemText)).inRoot(isDialog()).check(doesNotExist());
+    }
+
+    @Test
+    public void testIsOverflowMenuShowing() throws Throwable {
+        CarMenuItem overflowItem = new CarMenuItem
+                .Builder()
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
+                .build();
+
+        mActivityRule.runOnUiThread(() ->
+                mToolbar.setMenuItems(Collections.singletonList(overflowItem)));
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        assertFalse(mToolbar.isOverflowMenuShowing());
+
+        // Open overflow menu.
+        onView(withId(R.id.overflow_menu)).perform(click());
+
+        assertTrue(mToolbar.isOverflowMenuShowing());
+    }
+
+    @Test
+    public void testShowOverflowMenu() throws Throwable {
+        String overflowItemText = "overflow_item_text";
+        CarMenuItem overflowItem = new CarMenuItem
+                .Builder()
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
+                .setTitle(overflowItemText)
+                .build();
+
+        mActivityRule.runOnUiThread(() -> {
+            mToolbar.setMenuItems(Collections.singletonList(overflowItem));
+            mToolbar.showOverflowMenu();
+        });
+
+        onView(withText(overflowItemText)).inRoot(isDialog()).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testHideOverflowMenu() throws Throwable {
+        String overflowItemText = "overflow_item_text";
+        CarMenuItem overflowItem = new CarMenuItem
+                .Builder()
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.NEVER) // Overflow menu item
+                .setTitle(overflowItemText)
+                .build();
+
+        mActivityRule.runOnUiThread(() -> {
+            mToolbar.setMenuItems(Collections.singletonList(overflowItem));
+            mToolbar.showOverflowMenu();
+            mToolbar.hideOverflowMenu();
+        });
+
+        onView(withText(overflowItemText)).check(doesNotExist());
     }
 
     @Test
