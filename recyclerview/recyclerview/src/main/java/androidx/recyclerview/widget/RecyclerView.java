@@ -768,6 +768,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         ViewCompat.setAccessibilityDelegate(this, mAccessibilityDelegate);
     }
 
+    @Override
+    public CharSequence getAccessibilityClassName() {
+        return "androidx.recyclerview.widget.RecyclerView";
+    }
+
     /**
      * Instantiate and set a LayoutManager, if specified in the attributes.
      */
