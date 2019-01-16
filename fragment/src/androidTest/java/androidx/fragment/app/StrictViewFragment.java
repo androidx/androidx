@@ -22,6 +22,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.test.R;
 
 public class StrictViewFragment extends StrictFragment {
@@ -39,11 +41,14 @@ public class StrictViewFragment extends StrictFragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         checkGetActivity();
         checkState("onCreateView", CREATED);
-        final View result = inflater.inflate(mLayoutId, container, false);
+        View result = super.onCreateView(inflater, container, savedInstanceState);
+        if (result == null) {
+            result = inflater.inflate(mLayoutId, container, false);
+        }
         mOnCreateViewCalled = true;
         return result;
     }

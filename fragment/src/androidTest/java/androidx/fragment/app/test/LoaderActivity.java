@@ -18,11 +18,10 @@ package androidx.fragment.app.test;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.ContentView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -32,6 +31,7 @@ import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
 import androidx.testutils.RecreatedActivity;
 
+@ContentView(R.layout.activity_loader)
 public class LoaderActivity extends RecreatedActivity
         implements LoaderManager.LoaderCallbacks<String> {
     private static final int TEXT_LOADER_ID = 14;
@@ -42,8 +42,6 @@ public class LoaderActivity extends RecreatedActivity
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.activity_loader);
         textView = findViewById(R.id.textA);
         textViewB = findViewById(R.id.textB);
 
@@ -92,6 +90,7 @@ public class LoaderActivity extends RecreatedActivity
         }
     }
 
+    @ContentView(R.layout.fragment_c)
     public static class TextLoaderFragment extends Fragment
             implements LoaderManager.LoaderCallbacks<String> {
         public TextView textView;
@@ -100,13 +99,6 @@ public class LoaderActivity extends RecreatedActivity
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             LoaderManager.getInstance(this).initLoader(TEXT_LOADER_ID, null, this);
-        }
-
-        @Nullable
-        @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                @Nullable Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_c, container, false);
         }
 
         @Override
