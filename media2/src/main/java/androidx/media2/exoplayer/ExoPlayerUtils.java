@@ -100,6 +100,7 @@ import java.net.SocketTimeoutException;
                             && uri.getPathSegments().get(0).matches("\\d+")) {
                         resourceIdentifier = Integer.parseInt(uri.getPathSegments().get(0));
                     } else {
+                        path = path.replaceAll("^/", "");
                         String host = uri.getHost();
                         String resourceName = (host != null ? host + ":" : "") + path;
                         resourceIdentifier = context.getResources()
