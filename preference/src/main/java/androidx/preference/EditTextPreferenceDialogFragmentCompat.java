@@ -92,11 +92,11 @@ public class EditTextPreferenceDialogFragmentCompat extends PreferenceDialogFrag
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
-
         if (positiveResult) {
             String value = mEditText.getText().toString();
-            if (getEditTextPreference().callChangeListener(value)) {
-                getEditTextPreference().setText(value);
+            final EditTextPreference preference = getEditTextPreference();
+            if (preference.callChangeListener(value)) {
+                preference.setText(value);
             }
         }
     }
