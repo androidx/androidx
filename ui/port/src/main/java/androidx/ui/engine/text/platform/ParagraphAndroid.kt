@@ -77,7 +77,18 @@ internal class ParagraphAndroid constructor(
         get() = layout?.let { field } ?: -1.0f
 
     val height: Float
-        get() = layout?.let { it.layout.height.toFloat() } ?: 0.0f
+        get() = layout?.let {
+            // TODO(Migration/haoyuchang): Figure out a way to add bottomPadding properly
+            val lineCount = it.lineCount
+            if (paragraphStyle.maxLines != null &&
+                paragraphStyle.maxLines >= 0 &&
+                paragraphStyle.maxLines < lineCount
+            ) {
+                it.layout.getLineBottom(paragraphStyle.maxLines - 1).toFloat()
+            } else {
+                it.layout.height.toFloat()
+            }
+        } ?: 0.0f
 
     // TODO(Migration/siyamed): we do not have this concept. they limit to the max word size.
     // it didn't make sense to me. I believe we might be able to do it. if we can use
