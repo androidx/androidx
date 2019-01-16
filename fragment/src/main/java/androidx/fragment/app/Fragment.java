@@ -47,6 +47,7 @@ import android.view.animation.Animation;
 import android.widget.AdapterView;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.ContentView;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -1593,9 +1594,14 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Called to have the fragment instantiate its user interface view.
-     * This is optional, and non-graphical fragments can return null (which
-     * is the default implementation).  This will be called between
+     * This is optional, and non-graphical fragments can return null. This will be called between
      * {@link #onCreate(Bundle)} and {@link #onActivityCreated(Bundle)}.
+     * <p>The default implementation looks for an {@link ContentView} annotation, inflating
+     * and returning that layout. If the annotation is not found or has an invalid layout resource
+     * id, this method returns null.
+     *
+     * <p>It is recommended to <strong>only</strong> inflate the layout in this method and move
+     * logic that operates on the returned View to {@link #onViewCreated(View, Bundle)}.
      *
      * <p>If you return a View from here, you will later be called in
      * {@link #onDestroyView} when the view is being released.
@@ -1613,6 +1619,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
+        ContentView annotation = getClass().getAnnotation(ContentView.class);
+        if (annotation != null) {
+            int layoutId = annotation.value();
+            if (layoutId != 0) {
+                return inflater.inflate(layoutId, container, false);
+            }
+        }
         return null;
     }
 

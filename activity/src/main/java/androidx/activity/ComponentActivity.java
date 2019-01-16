@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.Window;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.ContentView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.GenericLifecycleObserver;
@@ -107,12 +108,25 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * If your ComponentActivity is annotated with {@link ContentView}, this will
+     * call {@link #setContentView(int)} for you.
+     */
     @Override
     @SuppressWarnings("RestrictedApi")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSavedStateRegistry.performRestore(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
+        ContentView annotation = getClass().getAnnotation(ContentView.class);
+        if (annotation != null) {
+            int layoutId = annotation.value();
+            if (layoutId != 0) {
+                setContentView(layoutId);
+            }
+        }
     }
 
     @SuppressLint("RestrictedApi")
