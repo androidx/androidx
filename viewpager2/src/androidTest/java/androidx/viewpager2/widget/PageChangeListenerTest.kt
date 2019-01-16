@@ -558,7 +558,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
      *
      * @param delayCallback The callback that determines when the configuration change is triggered
      */
-    fun test_configChangeDuringFarSmoothScroll(
+    private fun test_configChangeDuringFarSmoothScroll(
         targetPage: Int,
         delayCallback: (ViewPager2) -> Unit
     ) {
@@ -777,7 +777,6 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         val draggingIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_DRAGGING))
         val idleIx get() = events.indexOf(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE))
         val pageSelectedIx: (page: Int) -> Int = { events.indexOf(OnPageSelectedEvent(it)) }
-        val markIx: (id: Int) -> Int = { events.indexOf(MarkerEvent(it)) }
 
         fun stateEvents(state: Int): List<OnPageScrollStateChangedEvent> {
             return stateEvents.filter { it.state == state }
@@ -828,9 +827,9 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
 
     private fun RecordingListener.assertTargetReachedAfterMarker(targetPage: Int, marker: Int) {
         val finalEvents = eventsAfter(marker)
-        assertThat(finalEvents.get(0), equalTo(OnPageScrolledEvent(targetPage, 0f, 0) as Event))
+        assertThat(finalEvents[0], equalTo(OnPageScrolledEvent(targetPage, 0f, 0) as Event))
         assertThat(
-            finalEvents.get(1),
+            finalEvents[1],
             equalTo(OnPageScrollStateChangedEvent(SCROLL_STATE_IDLE) as Event)
         )
     }
