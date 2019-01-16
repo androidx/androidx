@@ -2329,6 +2329,7 @@ package androidx.core.view.accessibility {
     method public int getTextSelectionEnd();
     method public int getTextSelectionStart();
     method public CharSequence? getTooltipText();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat? getTouchDelegateInfo();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getTraversalAfter();
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getTraversalBefore();
     method public String! getViewIdResourceName();
@@ -2417,6 +2418,7 @@ package androidx.core.view.accessibility {
     method public void setTextEntryKey(boolean);
     method public void setTextSelection(int, int);
     method public void setTooltipText(CharSequence?);
+    method public void setTouchDelegateInfo(androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat);
     method public void setTraversalAfter(android.view.View!);
     method public void setTraversalAfter(android.view.View!, int);
     method public void setTraversalBefore(android.view.View!);
@@ -2542,6 +2544,13 @@ package androidx.core.view.accessibility {
     field public static final int RANGE_TYPE_FLOAT = 1; // 0x1
     field public static final int RANGE_TYPE_INT = 0; // 0x0
     field public static final int RANGE_TYPE_PERCENT = 2; // 0x2
+  }
+
+  public static final class AccessibilityNodeInfoCompat.TouchDelegateInfoCompat {
+    ctor public AccessibilityNodeInfoCompat.TouchDelegateInfoCompat(java.util.Map<android.graphics.Region,android.view.View>);
+    method public android.graphics.Region? getRegionAt(@IntRange(from=0) int);
+    method @IntRange(from=0) public int getRegionCount();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat? getTargetForRegion(android.graphics.Region);
   }
 
   public class AccessibilityNodeProviderCompat {
