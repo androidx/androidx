@@ -28,11 +28,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
+import androidx.annotation.ContentView;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.app.test.NewIntentActivity;
 import androidx.fragment.test.R;
@@ -446,6 +444,7 @@ public class FragmentTransactionTest {
 
     private class NonStaticFragment extends Fragment {}
 
+    @ContentView(R.layout.fragment_a)
     public static class OnGetLayoutInflaterFragment extends Fragment {
         public int onGetLayoutInflaterCalls = 0;
         public LayoutInflater layoutInflater;
@@ -456,13 +455,6 @@ public class FragmentTransactionTest {
             onGetLayoutInflaterCalls++;
             layoutInflater = super.onGetLayoutInflater(savedInstanceState);
             return layoutInflater;
-        }
-
-        @Nullable
-        @Override
-        public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
-                @Nullable Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_a, container, false);
         }
     }
 }

@@ -17,9 +17,7 @@
 package androidx.fragment.app
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.annotation.ContentView
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.annotation.UiThreadTest
@@ -89,6 +87,7 @@ class FragmentFactoryTest {
     }
 }
 
+@ContentView(R.layout.nested_inflated_fragment_parent)
 class ParentFragment : Fragment() {
     var factory: FragmentFactory? = null
 
@@ -97,14 +96,6 @@ class ParentFragment : Fragment() {
         factory?.let { factory ->
             childFragmentManager.fragmentFactory = factory
         }
-    }
-
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        return inflater.inflate(R.layout.nested_inflated_fragment_parent, container, false)
     }
 }
 

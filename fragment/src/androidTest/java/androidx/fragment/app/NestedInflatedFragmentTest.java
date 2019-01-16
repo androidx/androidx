@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.ContentView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.test.R;
@@ -87,13 +88,8 @@ public class NestedInflatedFragmentTest {
         fm.executePendingTransactions();
     }
 
+    @ContentView(R.layout.nested_inflated_fragment_parent)
     public static class ParentFragment extends Fragment {
-        @Nullable
-        @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                @Nullable Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.nested_inflated_fragment_parent, container, false);
-        }
     }
 
     public static class UserVisibleHintParentFragment extends ParentFragment {
@@ -114,13 +110,8 @@ public class NestedInflatedFragmentTest {
         }
     }
 
+    @ContentView(R.layout.nested_inflated_fragment_child)
     public static class InflatedChildFragment extends Fragment {
-        @Nullable
-        @Override
-        public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
-                @Nullable Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.nested_inflated_fragment_child, container, false);
-        }
     }
 
     public static class SimpleFragment extends Fragment {
