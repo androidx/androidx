@@ -24,6 +24,7 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.MenuItem;
 
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -115,5 +116,26 @@ public class ToolbarTest {
             }
         });
         assertEquals("Collapse legend", mToolbar.getCollapseContentDescription());
+    }
+
+    @Test
+    public void testTitlesTextColorSetHex() {
+        final Toolbar toolbar = mActivity.findViewById(R.id.toolbar_textcolor_hex);
+
+        final int expectedColor = 0xFFFF00FF;
+
+        assertEquals(expectedColor, toolbar.getTitleTextView().getCurrentTextColor());
+        assertEquals(expectedColor, toolbar.getSubtitleTextView().getCurrentTextColor());
+    }
+
+    @Test
+    public void testTitlesTextColorSetColorStateList() {
+        final Toolbar toolbar = mActivity.findViewById(R.id.toolbar_textcolor_csl);
+
+        final int expectedColor = AppCompatResources.getColorStateList(toolbar.getContext(),
+                R.color.color_state_lilac_alpha).getDefaultColor();
+
+        assertEquals(expectedColor, toolbar.getTitleTextView().getCurrentTextColor());
+        assertEquals(expectedColor, toolbar.getSubtitleTextView().getCurrentTextColor());
     }
 }
