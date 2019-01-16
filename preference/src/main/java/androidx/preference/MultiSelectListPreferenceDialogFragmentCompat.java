@@ -121,11 +121,10 @@ public class MultiSelectListPreferenceDialogFragmentCompat extends PreferenceDia
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
-        final MultiSelectListPreference preference = getListPreference();
         if (positiveResult && mPreferenceChanged) {
-            final Set<String> values = mNewValues;
-            if (preference.callChangeListener(values)) {
-                preference.setValues(values);
+            final MultiSelectListPreference preference = getListPreference();
+            if (preference.callChangeListener(mNewValues)) {
+                preference.setValues(mNewValues);
             }
         }
         mPreferenceChanged = false;

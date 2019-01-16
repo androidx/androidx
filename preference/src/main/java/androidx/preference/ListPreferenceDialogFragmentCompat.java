@@ -101,9 +101,9 @@ public class ListPreferenceDialogFragmentCompat extends PreferenceDialogFragment
 
     @Override
     public void onDialogClosed(boolean positiveResult) {
-        final ListPreference preference = getListPreference();
         if (positiveResult && mClickedDialogEntryIndex >= 0) {
             String value = mEntryValues[mClickedDialogEntryIndex].toString();
+            final ListPreference preference = getListPreference();
             if (preference.callChangeListener(value)) {
                 preference.setValue(value);
             }
