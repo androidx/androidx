@@ -30,4 +30,24 @@
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
+    <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_textcolor_csl"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:title="Title"
+            app:subtitle="Subtitle"
+            android:minHeight="?attr/actionBarSize"
+            app:titleTextColor="@color/color_state_lilac_alpha"
+            app:subtitleTextColor="@color/color_state_lilac_alpha"/>
+
+    <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_textcolor_hex"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            app:title="Title"
+            app:subtitle="Subtitle"
+            android:minHeight="?attr/actionBarSize"
+            app:titleTextColor="#FF00FF"
+            app:subtitleTextColor="#FF00FF"/>
+
 </LinearLayout>
