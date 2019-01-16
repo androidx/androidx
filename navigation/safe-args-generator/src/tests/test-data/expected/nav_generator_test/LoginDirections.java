@@ -34,7 +34,7 @@ public class LoginDirections {
     public static class ActionDone implements NavDirections {
         private final HashMap arguments = new HashMap();
 
-        public ActionDone() {
+        private ActionDone() {
         }
 
         @Override

@@ -40,7 +40,7 @@ public class SanitizedMainFragmentDirections {
     public static class PreviousAction implements NavDirections {
         private final HashMap arguments = new HashMap();
 
-        public PreviousAction(@NonNull String arg1, @NonNull String arg2) {
+        private PreviousAction(@NonNull String arg1, @NonNull String arg2) {
             if (arg1 == null) {
                 throw new IllegalArgumentException("Argument \"arg_1\" is marked as non-null but was passed a null value.");
             }
@@ -150,7 +150,7 @@ public class SanitizedMainFragmentDirections {
     public static class NextAction implements NavDirections {
         private final HashMap arguments = new HashMap();
 
-        public NextAction(@NonNull String mainArg) {
+        private NextAction(@NonNull String mainArg) {
             if (mainArg == null) {
                 throw new IllegalArgumentException("Argument \"main_arg\" is marked as non-null but was passed a null value.");
             }
