@@ -1347,6 +1347,14 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
         }
 
         if (DEBUG) Log.v(TAG, "Removed fragment from active set " + f);
+        // Ensure that any Fragment that had this Fragment as its
+        // target Fragment retains a reference to the Fragment
+        for (Fragment fragment : mActive.values()) {
+            if (fragment != null && f.mWho.equals(fragment.mTargetWho)) {
+                fragment.mTarget = f;
+                fragment.mTargetWho = null;
+            }
+        }
         // Don't remove yet. That happens in burpActive(). This prevents
         // concurrent modification while iterating over mActive
         mActive.put(f.mWho, null);
@@ -2445,7 +2453,8 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             f.mBackStackNesting = 0;
             f.mInLayout = false;
             f.mAdded = false;
-            f.mTargetWho = null;
+            f.mTargetWho = f.mTarget != null ? f.mTarget.mWho : null;
+            f.mTarget = null;
             if (fs.mSavedFragmentState != null) {
                 fs.mSavedFragmentState.setClassLoader(mHost.getContext().getClassLoader());
                 f.mSavedViewState = fs.mSavedFragmentState.getSparseParcelableArray(
