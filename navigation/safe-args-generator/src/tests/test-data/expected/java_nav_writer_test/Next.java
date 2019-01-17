@@ -33,7 +33,7 @@ import java.util.HashMap;
 public static class Next implements NavDirections {
     private final HashMap arguments = new HashMap();
 
-    public Next(@NonNull String main, int mainInt, @NonNull ActivityInfo parcelable) {
+    private Next(@NonNull String main, int mainInt, @NonNull ActivityInfo parcelable) {
         if (main == null) {
             throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
         }

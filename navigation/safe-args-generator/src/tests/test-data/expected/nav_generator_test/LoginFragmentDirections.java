@@ -35,7 +35,7 @@ public class LoginFragmentDirections extends LoginDirections {
     public static class Register implements NavDirections {
         private final HashMap arguments = new HashMap();
 
-        public Register() {
+        private Register() {
         }
 
         @Override
