@@ -98,6 +98,11 @@ class KotlinNavWriter(private val useAndroidX: Boolean = false) : NavWriter<Kotl
         }
 
         val typeSpec = TypeSpec.classBuilder(className)
+            .primaryConstructor(
+                FunSpec.constructorBuilder()
+                    .addModifiers(KModifier.PRIVATE)
+                    .build()
+            )
             .addTypes(actionTypes.map { (_, type) -> type })
             .addType(
                 TypeSpec.companionObjectBuilder()

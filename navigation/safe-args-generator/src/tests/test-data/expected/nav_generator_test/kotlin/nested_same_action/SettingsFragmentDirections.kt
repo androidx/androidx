@@ -5,7 +5,7 @@ import androidx.navigation.NavDirections
 import kotlin.Int
 import kotlin.String
 
-class SettingsFragmentDirections {
+class SettingsFragmentDirections private constructor() {
     private data class Exit(val exitReason: String = "DIFFERENT") : NavDirections {
         override fun getActionId(): Int = foo.R.id.exit
 
