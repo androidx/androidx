@@ -83,8 +83,3 @@ data class TypographyStyle(
     val letterSpacing: Double = 1.0,
     val color : Color? = null
 )
-
-enum class Case {
-    SENTENCE,
-    ALLCAPS
-}

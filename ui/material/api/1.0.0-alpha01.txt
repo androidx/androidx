@@ -11,7 +11,6 @@ package androidx.ui.baseui.selection {
 package androidx.ui.material {
 
   public enum Case {
-    ctor protected Case();
     enum_constant public static final androidx.ui.material.Case ALLCAPS;
     enum_constant public static final androidx.ui.material.Case SENTENCE;
   }
