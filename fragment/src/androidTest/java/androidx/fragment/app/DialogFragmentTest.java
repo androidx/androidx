@@ -16,6 +16,8 @@
 
 package androidx.fragment.app;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -23,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -83,7 +86,8 @@ public class DialogFragmentTest {
 
         final boolean[] dialogIsNonNull = new boolean[1];
         final boolean[] isShowing = new boolean[1];
-        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        final boolean[] onDismissCalled = new boolean[1];
+        final CountDownLatch countDownLatch = new CountDownLatch(2);
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -95,6 +99,12 @@ public class DialogFragmentTest {
                         isShowing[0] = dialog != null && dialog.isShowing();
                         countDownLatch.countDown();
                     }
+
+                    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                    public void onDestroy() {
+                        onDismissCalled[0] = fragment.onDismissCalled;
+                        countDownLatch.countDown();
+                    }
                 });
             }
         });
@@ -102,6 +112,9 @@ public class DialogFragmentTest {
         mActivityTestRule.finishActivity();
 
         countDownLatch.await(1, TimeUnit.SECONDS);
+        assertWithMessage("onDismiss() should be called before onDestroy()")
+                .that(onDismissCalled[0])
+                .isTrue();
         assertTrue("Dialog should not be null in onStop()", dialogIsNonNull[0]);
         assertTrue("Dialog should still be showing in onStop() "
                 + "during the normal lifecycle", isShowing[0]);
@@ -160,11 +173,46 @@ public class DialogFragmentTest {
         assertNull("Dialog should be null after dismiss()", fragment.getDialog());
     }
 
+    @Test
+    public void testDialogFragmentDismissBeforeOnDestroy() throws Throwable {
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        final TestDialogFragment fragment = new TestDialogFragment();
+        fragment.show(mActivityTestRule.getActivity().getSupportFragmentManager(), null);
+
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        final boolean[] onDismissCalled = new boolean[1];
+        final CountDownLatch countDownLatch = new CountDownLatch(1);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                fragment.getLifecycle().addObserver(new LifecycleObserver() {
+                    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                    public void onDestroy() {
+                        onDismissCalled[0] = fragment.onDismissCalled;
+                        countDownLatch.countDown();
+                    }
+                });
+            }
+        });
+
+        fragment.dismiss();
+
+        countDownLatch.await(1, TimeUnit.SECONDS);
+
+        assertWithMessage("onDismiss() should be called before onDestroy()")
+                .that(onDismissCalled[0])
+                .isTrue();
+    }
+
     public static class TestDialogFragment extends DialogFragment {
 
         public interface OnDestroyViewCallback {
             void onDestroyView(TestDialogFragment fragment);
         }
+
+        public boolean onDismissCalled = false;
 
         private @Nullable OnDestroyViewCallback mDestroyViewCallback = null;
 
@@ -180,6 +228,12 @@ public class DialogFragmentTest {
                     .setMessage("Message")
                     .setPositiveButton("Button", null)
                     .create();
+        }
+
+        @Override
+        public void onDismiss(@NonNull DialogInterface dialog) {
+            super.onDismiss(dialog);
+            onDismissCalled = true;
         }
 
         @Override

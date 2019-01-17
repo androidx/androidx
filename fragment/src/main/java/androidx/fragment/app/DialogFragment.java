@@ -504,7 +504,12 @@ public class DialogFragment extends Fragment
             // the dialog -- we don't want this to cause the fragment to
             // actually be removed.
             mViewDestroyed = true;
+            // Instead of waiting for a posted onDismiss(), null out
+            // the listener and call onDismiss() manually to ensure
+            // that the callback happens before onDestroy()
+            mDialog.setOnDismissListener(null);
             mDialog.dismiss();
+            onDismiss(mDialog);
             mDialog = null;
         }
     }
