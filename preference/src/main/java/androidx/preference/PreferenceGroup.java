@@ -62,7 +62,7 @@ public abstract class PreferenceGroup extends Preference {
      * The container for child {@link Preference}s. This is sorted based on the ordering, please
      * use {@link #addPreference(Preference)} instead of adding to this directly.
      */
-    private List<Preference> mPreferenceList;
+    private List<Preference> mPreferences;
     private boolean mOrderingAsAdded = true;
     private int mCurrentPreferenceOrder = 0;
     private boolean mAttachedToHierarchy = false;
@@ -82,7 +82,7 @@ public abstract class PreferenceGroup extends Preference {
     public PreferenceGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
-        mPreferenceList = new ArrayList<>();
+        mPreferences = new ArrayList<>();
 
         final TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.PreferenceGroup, defStyleAttr, defStyleRes);
@@ -177,7 +177,7 @@ public abstract class PreferenceGroup extends Preference {
      * @return The number of preference children in this group
      */
     public int getPreferenceCount() {
-        return mPreferenceList.size();
+        return mPreferences.size();
     }
 
     /**
@@ -187,7 +187,7 @@ public abstract class PreferenceGroup extends Preference {
      * @return The {@link Preference}
      */
     public Preference getPreference(int index) {
-        return mPreferenceList.get(index);
+        return mPreferences.get(index);
     }
 
     /**
@@ -197,7 +197,7 @@ public abstract class PreferenceGroup extends Preference {
      * @return Whether the preference is now in this group
      */
     public boolean addPreference(Preference preference) {
-        if (mPreferenceList.contains(preference)) {
+        if (mPreferences.contains(preference)) {
             return true;
         }
         if (preference.getKey() != null) {
@@ -225,7 +225,7 @@ public abstract class PreferenceGroup extends Preference {
             }
         }
 
-        int insertionIndex = Collections.binarySearch(mPreferenceList, preference);
+        int insertionIndex = Collections.binarySearch(mPreferences, preference);
         if (insertionIndex < 0) {
             insertionIndex = insertionIndex * -1 - 1;
         }
@@ -235,7 +235,7 @@ public abstract class PreferenceGroup extends Preference {
         }
 
         synchronized (this) {
-            mPreferenceList.add(insertionIndex, preference);
+            mPreferences.add(insertionIndex, preference);
         }
 
         final PreferenceManager preferenceManager = getPreferenceManager();
@@ -300,7 +300,7 @@ public abstract class PreferenceGroup extends Preference {
             if (preference.getParent() == this) {
                 preference.assignParent(null);
             }
-            boolean success = mPreferenceList.remove(preference);
+            boolean success = mPreferences.remove(preference);
             if (success) {
                 // If this preference, or another preference with the same key, gets re-added
                 // immediately, we want it to have the same id so that it can be correctly tracked
@@ -333,9 +333,9 @@ public abstract class PreferenceGroup extends Preference {
      */
     public void removeAll() {
         synchronized (this) {
-            List<Preference> preferenceList = mPreferenceList;
-            for (int i = preferenceList.size() - 1; i >= 0; i--) {
-                removePreferenceInt(preferenceList.get(0));
+            List<Preference> preferences = mPreferences;
+            for (int i = preferences.size() - 1; i >= 0; i--) {
+                removePreferenceInt(preferences.get(0));
             }
         }
         notifyHierarchyChanged();
@@ -478,7 +478,7 @@ public abstract class PreferenceGroup extends Preference {
 
     void sortPreferences() {
         synchronized (this) {
-            Collections.sort(mPreferenceList);
+            Collections.sort(mPreferences);
         }
     }
 
