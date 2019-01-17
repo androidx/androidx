@@ -101,7 +101,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
 
     internal fun generateDirectionsTypeSpec(action: Action): TypeSpec {
         val annotations = Annotations.getInstance(useAndroidX)
-        val specs = ClassWithArgsSpecs(action.args, annotations)
+        val specs = ClassWithArgsSpecs(action.args, annotations, privateConstructor = true)
         val className = ClassName.get("", action.id.javaIdentifier.toCamelCase())
 
         val getDestIdMethod = MethodSpec.methodBuilder("getActionId")
@@ -253,7 +253,8 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
 
 private class ClassWithArgsSpecs(
     val args: List<Argument>,
-    val annotations: Annotations
+    val annotations: Annotations,
+    val privateConstructor: Boolean = false
 ) {
 
     val suppressAnnotationSpec = AnnotationSpec.builder(SuppressWarnings::class.java)
@@ -285,7 +286,7 @@ private class ClassWithArgsSpecs(
     }
 
     fun constructor() = MethodSpec.constructorBuilder().apply {
-        addModifiers(Modifier.PUBLIC)
+        addModifiers(if (privateConstructor) Modifier.PRIVATE else Modifier.PUBLIC)
         args.filterNot(Argument::isOptional).forEach { arg ->
             addParameter(generateParameterSpec(arg))
             addNullCheck(arg, arg.sanitizedName)

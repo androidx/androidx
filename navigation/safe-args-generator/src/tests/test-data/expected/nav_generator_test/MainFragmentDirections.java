@@ -34,7 +34,7 @@ public class MainFragmentDirections {
     public static class StartLogin implements NavDirections {
         private final HashMap arguments = new HashMap();
 
-        public StartLogin() {
+        private StartLogin() {
         }
 
         @Override
