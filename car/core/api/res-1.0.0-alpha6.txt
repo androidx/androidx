@@ -295,7 +295,9 @@ attr subtitle
 attr subtitleTextAppearance
 attr title
 attr titleIcon
+attr titleIconEndMargin
 attr titleIconSize
+attr titleIconStartMargin
 attr titleTextAppearance
 attr upButtonIcon
 attr verticallyCenterListContent

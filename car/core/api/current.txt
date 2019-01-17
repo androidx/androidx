@@ -283,7 +283,9 @@ package androidx.car.widget {
     method public void setTitle(CharSequence!);
     method public void setTitleIcon(@DrawableRes int);
     method public void setTitleIcon(android.graphics.drawable.Drawable?);
+    method public void setTitleIconEndMargin(@Px int);
     method public void setTitleIconSize(@Px int);
+    method public void setTitleIconStartMargin(@Px int);
     method public void setTitleTextAppearance(@StyleRes int);
     method public void showOverflowMenu();
   }
