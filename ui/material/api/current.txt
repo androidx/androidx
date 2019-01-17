@@ -1,0 +1,137 @@
+// Signature format: 2.0
+package androidx.ui.baseui.selection {
+
+  public final class ToggleableKt {
+    ctor public ToggleableKt();
+    method public static void Toggleable(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+}
+
+package androidx.ui.material {
+
+  public enum Case {
+    ctor protected Case();
+    enum_constant public static final androidx.ui.material.Case ALLCAPS;
+    enum_constant public static final androidx.ui.material.Case SENTENCE;
+  }
+
+  public final class Checkbox extends com.google.r4a.Component {
+    ctor public Checkbox();
+    method public void compose();
+    method public androidx.ui.painting.Color? getColor();
+    method public void setColor(androidx.ui.painting.Color? p);
+    property public final androidx.ui.painting.Color? color;
+  }
+
+  public final class CheckboxKt {
+    ctor public CheckboxKt();
+  }
+
+  public final class MaterialColors {
+    ctor public MaterialColors(androidx.ui.painting.Color primary, androidx.ui.painting.Color primaryVariant, androidx.ui.painting.Color secondary, androidx.ui.painting.Color secondaryVariant, androidx.ui.painting.Color background, androidx.ui.painting.Color surface, androidx.ui.painting.Color error, androidx.ui.painting.Color onPrimary, androidx.ui.painting.Color onSecondary, androidx.ui.painting.Color onBackground, androidx.ui.painting.Color onSurface, androidx.ui.painting.Color onError);
+    ctor public MaterialColors();
+    method public androidx.ui.painting.Color component1();
+    method public androidx.ui.painting.Color component10();
+    method public androidx.ui.painting.Color component11();
+    method public androidx.ui.painting.Color component12();
+    method public androidx.ui.painting.Color component2();
+    method public androidx.ui.painting.Color component3();
+    method public androidx.ui.painting.Color component4();
+    method public androidx.ui.painting.Color component5();
+    method public androidx.ui.painting.Color component6();
+    method public androidx.ui.painting.Color component7();
+    method public androidx.ui.painting.Color component8();
+    method public androidx.ui.painting.Color component9();
+    method public androidx.ui.material.MaterialColors copy(androidx.ui.painting.Color primary, androidx.ui.painting.Color primaryVariant, androidx.ui.painting.Color secondary, androidx.ui.painting.Color secondaryVariant, androidx.ui.painting.Color background, androidx.ui.painting.Color surface, androidx.ui.painting.Color error, androidx.ui.painting.Color onPrimary, androidx.ui.painting.Color onSecondary, androidx.ui.painting.Color onBackground, androidx.ui.painting.Color onSurface, androidx.ui.painting.Color onError);
+    method public androidx.ui.painting.Color getBackground();
+    method public androidx.ui.painting.Color getError();
+    method public androidx.ui.painting.Color getOnBackground();
+    method public androidx.ui.painting.Color getOnError();
+    method public androidx.ui.painting.Color getOnPrimary();
+    method public androidx.ui.painting.Color getOnSecondary();
+    method public androidx.ui.painting.Color getOnSurface();
+    method public androidx.ui.painting.Color getPrimary();
+    method public androidx.ui.painting.Color getPrimaryVariant();
+    method public androidx.ui.painting.Color getSecondary();
+    method public androidx.ui.painting.Color getSecondaryVariant();
+    method public androidx.ui.painting.Color getSurface();
+  }
+
+  public final class MaterialTheme extends com.google.r4a.Component {
+    ctor public MaterialTheme(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public androidx.ui.material.MaterialColors getColors();
+    method public androidx.ui.material.MaterialTypography getTypography();
+    method public void setColors(androidx.ui.material.MaterialColors p);
+    method public void setTypography(androidx.ui.material.MaterialTypography p);
+    property public final androidx.ui.material.MaterialColors colors;
+    property public final androidx.ui.material.MaterialTypography typography;
+  }
+
+  public final class MaterialThemeKt {
+    ctor public MaterialThemeKt();
+    method public static com.google.r4a.Ambient<androidx.ui.material.MaterialColors> getColors();
+    method public static com.google.r4a.Ambient<androidx.ui.material.MaterialTypography> getTypography();
+  }
+
+  public final class MaterialTypography {
+    ctor public MaterialTypography(androidx.ui.material.TypographyStyle h1, androidx.ui.material.TypographyStyle h2, androidx.ui.material.TypographyStyle h3, androidx.ui.material.TypographyStyle h4, androidx.ui.material.TypographyStyle h5, androidx.ui.material.TypographyStyle h6, androidx.ui.material.TypographyStyle subtitle1, androidx.ui.material.TypographyStyle subtitle2, androidx.ui.material.TypographyStyle body1, androidx.ui.material.TypographyStyle body2, androidx.ui.material.TypographyStyle button, androidx.ui.material.TypographyStyle caption, androidx.ui.material.TypographyStyle overline);
+    ctor public MaterialTypography();
+    method public androidx.ui.material.TypographyStyle component1();
+    method public androidx.ui.material.TypographyStyle component10();
+    method public androidx.ui.material.TypographyStyle component11();
+    method public androidx.ui.material.TypographyStyle component12();
+    method public androidx.ui.material.TypographyStyle component13();
+    method public androidx.ui.material.TypographyStyle component2();
+    method public androidx.ui.material.TypographyStyle component3();
+    method public androidx.ui.material.TypographyStyle component4();
+    method public androidx.ui.material.TypographyStyle component5();
+    method public androidx.ui.material.TypographyStyle component6();
+    method public androidx.ui.material.TypographyStyle component7();
+    method public androidx.ui.material.TypographyStyle component8();
+    method public androidx.ui.material.TypographyStyle component9();
+    method public androidx.ui.material.MaterialTypography copy(androidx.ui.material.TypographyStyle h1, androidx.ui.material.TypographyStyle h2, androidx.ui.material.TypographyStyle h3, androidx.ui.material.TypographyStyle h4, androidx.ui.material.TypographyStyle h5, androidx.ui.material.TypographyStyle h6, androidx.ui.material.TypographyStyle subtitle1, androidx.ui.material.TypographyStyle subtitle2, androidx.ui.material.TypographyStyle body1, androidx.ui.material.TypographyStyle body2, androidx.ui.material.TypographyStyle button, androidx.ui.material.TypographyStyle caption, androidx.ui.material.TypographyStyle overline);
+    method public androidx.ui.material.TypographyStyle getBody1();
+    method public androidx.ui.material.TypographyStyle getBody2();
+    method public androidx.ui.material.TypographyStyle getButton();
+    method public androidx.ui.material.TypographyStyle getCaption();
+    method public androidx.ui.material.TypographyStyle getH1();
+    method public androidx.ui.material.TypographyStyle getH2();
+    method public androidx.ui.material.TypographyStyle getH3();
+    method public androidx.ui.material.TypographyStyle getH4();
+    method public androidx.ui.material.TypographyStyle getH5();
+    method public androidx.ui.material.TypographyStyle getH6();
+    method public androidx.ui.material.TypographyStyle getOverline();
+    method public androidx.ui.material.TypographyStyle getSubtitle1();
+    method public androidx.ui.material.TypographyStyle getSubtitle2();
+  }
+
+  public final class TextKt {
+    ctor public TextKt();
+    method public static void H1(kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method public static void MaterialText(androidx.ui.painting.TextSpan text);
+    method public static com.google.r4a.Ambient<androidx.ui.material.TypographyStyle> getCurrentTypography();
+  }
+
+  public final class TypographyStyle {
+    ctor public TypographyStyle(String typeface, androidx.ui.engine.text.FontWeight weight, float size, androidx.ui.material.Case p, double letterSpacing, androidx.ui.painting.Color? color);
+    ctor public TypographyStyle();
+    method public String component1();
+    method public androidx.ui.engine.text.FontWeight component2();
+    method public float component3();
+    method public androidx.ui.material.Case component4();
+    method public double component5();
+    method public androidx.ui.painting.Color? component6();
+    method public androidx.ui.material.TypographyStyle copy(String typeface, androidx.ui.engine.text.FontWeight weight, float size, androidx.ui.material.Case p, double letterSpacing, androidx.ui.painting.Color? color);
+    method public androidx.ui.material.Case getCase();
+    method public androidx.ui.painting.Color? getColor();
+    method public double getLetterSpacing();
+    method public float getSize();
+    method public String getTypeface();
+    method public androidx.ui.engine.text.FontWeight getWeight();
+  }
+
+}
+

@@ -20,6 +20,7 @@ import android.app.Activity
 import android.os.Bundle
 import androidx.ui.core.CraneWrapper
 import androidx.ui.material.Checkbox
+import androidx.ui.material.MaterialTheme
 import com.google.r4a.setContent
 
 open class SelectionControlsActivity : Activity() {
@@ -27,7 +28,9 @@ open class SelectionControlsActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContent {
             <CraneWrapper>
-                <Checkbox />
+                <MaterialTheme>
+                    <Checkbox />
+                </MaterialTheme>
             </CraneWrapper> }
     }
 }

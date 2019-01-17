@@ -29,13 +29,18 @@ import com.google.r4a.Composable
 // TODO(clara): This should not be a class once R4A bug is fixed
 class Checkbox : Component() {
 
+    // TODO(clara): remove this default
+    var color: Color? = null
+
     override fun compose() {
         <Toggleable>
             <MeasureBox> constraints, measureOperations ->
                 // TODO(clara): Use constraints
                 val calculatedWidth = 42.dp
                 measureOperations.collect {
-                    <DrawCheckbox/>
+                    <Colors.Consumer> colors ->
+                        <DrawCheckbox color=(color ?: colors.secondary)/>
+                    </Colors.Consumer>
                 }
                 measureOperations.layout(calculatedWidth, calculatedWidth) {
                     // No children to place
@@ -46,9 +51,9 @@ class Checkbox : Component() {
 }
 
 @Composable
-internal fun DrawCheckbox() {
+internal fun DrawCheckbox(color: Color) {
     val paint = Paint()
-    paint.color = Color(0xFFFF0000.toInt())
+    paint.color = color
     <Draw> canvas, parentSize ->
         canvas.drawRect(Rect(0f, 0f, parentSize.width, parentSize.height), paint)
     // TODO(clara): Actually draw a checkbox
