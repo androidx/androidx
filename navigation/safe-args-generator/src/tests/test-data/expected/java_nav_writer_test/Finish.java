@@ -28,7 +28,7 @@ import java.util.HashMap;
 public static class Finish implements NavDirections {
     private final HashMap arguments = new HashMap();
 
-    public Finish() {
+    private Finish() {
     }
 
     @Override
