@@ -19,23 +19,22 @@ package foo.flavor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
-import foo.LoginDirections;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
-public class LoginFragmentDirections extends LoginDirections {
+public class MainFragmentDirections {
     @NonNull
-    public static Register register() {
-        return new Register();
+    public static StartLogin startLogin() {
+        return new StartLogin();
     }
 
-    public static class Register implements NavDirections {
+    public static class StartLogin implements NavDirections {
         private final HashMap arguments = new HashMap();
 
-        private Register() {
+        private StartLogin() {
         }
 
         @Override
@@ -48,7 +47,7 @@ public class LoginFragmentDirections extends LoginDirections {
 
         @Override
         public int getActionId() {
-            return foo.R.id.register;
+            return foo.R.id.start_login;
         }
 
         @Override
@@ -59,7 +58,7 @@ public class LoginFragmentDirections extends LoginDirections {
             if (object == null || getClass() != object.getClass()) {
                 return false;
             }
-            Register that = (Register) object;
+            StartLogin that = (StartLogin) object;
             if (getActionId() != that.getActionId()) {
                 return false;
             }
@@ -75,7 +74,7 @@ public class LoginFragmentDirections extends LoginDirections {
 
         @Override
         public String toString() {
-            return "Register(actionId=" + getActionId() + "){"
+            return "StartLogin(actionId=" + getActionId() + "){"
                     + "}";
         }
     }

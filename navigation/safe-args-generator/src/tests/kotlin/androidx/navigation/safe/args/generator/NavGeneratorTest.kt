@@ -88,7 +88,59 @@ class NavGeneratorTest {
                 .associate { it }
         javaFiles.forEach { (name, file) ->
             JavaSourcesSubject.assertThat(file.toJavaFileObject())
-                    .parsesAs(name, "expected/nav_generator_test")
+                    .parsesAs(name, "expected/nav_generator_test/nested")
+        }
+    }
+
+    @Test
+    fun nested_same_action_test() {
+        val output = generateSafeArgs("foo", "foo.flavor",
+            testData("nested_same_action_test.xml"), workingDir.root)
+        val javaNames = output.fileNames
+        val expectedSet = setOf(
+            "foo.flavor.MainFragmentDirections",
+            "foo.SettingsDirections",
+            "foo.flavor.SettingsFragmentDirections")
+        assertThat(output.errors.isEmpty(), `is`(true))
+        assertThat(javaNames.toSet(), `is`(expectedSet))
+        javaNames.forEach { name ->
+            val file = File(workingDir.root, "${name.replace('.', File.separatorChar)}.java")
+            assertThat(file.exists(), `is`(true))
+        }
+
+        val javaFiles = javaNames
+            .mapIndexed { index, name -> name to (output.files[index] as JavaCodeFile) }
+            .associate { it }
+        javaFiles.forEach { (name, file) ->
+            JavaSourcesSubject.assertThat(file.toJavaFileObject())
+                .parsesAs(name, "expected/nav_generator_test/nested_same_action")
+        }
+    }
+
+    @Test
+    fun nested_overridden_action_test() {
+        val output = generateSafeArgs("foo", "foo.flavor",
+            testData("nested_overridden_action_test.xml"), workingDir.root)
+        val javaNames = output.fileNames
+        val expectedSet = setOf(
+            "foo.flavor.MainFragmentDirections",
+            "foo.SettingsDirections",
+            "foo.flavor.SettingsFragmentDirections",
+            "foo.InnerSettingsDirections",
+            "foo.flavor.InnerSettingsFragmentDirections")
+        assertThat(output.errors.isEmpty(), `is`(true))
+        assertThat(javaNames.toSet(), `is`(expectedSet))
+        javaNames.forEach { name ->
+            val file = File(workingDir.root, "${name.replace('.', File.separatorChar)}.java")
+            assertThat(file.exists(), `is`(true))
+        }
+
+        val javaFiles = javaNames
+            .mapIndexed { index, name -> name to (output.files[index] as JavaCodeFile) }
+            .associate { it }
+        javaFiles.forEach { (name, file) ->
+            JavaSourcesSubject.assertThat(file.toJavaFileObject())
+                .parsesAs(name, "expected/nav_generator_test/nested_overridden_action")
         }
     }
 }

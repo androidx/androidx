@@ -40,12 +40,12 @@ fun SafeArgsGenerator(
     }
 )
 
-class NavSafeArgsGenerator internal constructor(
+class NavSafeArgsGenerator<T : CodeFile> internal constructor(
     private val rFilePackage: String,
     private val applicationId: String,
     private val navigationXml: File,
     private val outputDir: File,
-    private val writer: NavWriter
+    private val writer: NavWriter<T>
 ) {
     fun generate(): GeneratorOutput {
         val context = Context()
@@ -59,23 +59,25 @@ class NavSafeArgsGenerator internal constructor(
         val codeFiles = mutableSetOf<CodeFile>()
         fun writeCodeFiles(
             destination: Destination,
-            parentDestination: Destination?
+            parentDirectionsFileList: List<T>
         ) {
-            val newParentDestination: Destination? =
-                if (destination.actions.isNotEmpty() || parentDestination != null) {
-                    codeFiles.add(writer.generateDirectionsCodeFile(destination, parentDestination))
-                    destination
+            val newParentDirectionFile =
+                if (destination.actions.isNotEmpty() || parentDirectionsFileList.isNotEmpty()) {
+                    writer.generateDirectionsCodeFile(destination, parentDirectionsFileList)
                 } else {
                     null
-                }
+                }?.also { codeFiles.add(it) }
             if (destination.args.isNotEmpty()) {
                 codeFiles.add(writer.generateArgsCodeFile(destination))
             }
-            destination.nested.forEach { it ->
-                writeCodeFiles(it, newParentDestination)
+            destination.nested.forEach { nestedDestination ->
+                writeCodeFiles(
+                    destination = nestedDestination,
+                    parentDirectionsFileList = newParentDirectionFile?.let {
+                        listOf(it) + parentDirectionsFileList } ?: parentDirectionsFileList)
             }
         }
-        writeCodeFiles(resolvedDestination, null)
+        writeCodeFiles(resolvedDestination, emptyList())
         codeFiles.forEach { it.writeTo(outputDir) }
         return GeneratorOutput(codeFiles.toList(), context.logger.allMessages())
     }

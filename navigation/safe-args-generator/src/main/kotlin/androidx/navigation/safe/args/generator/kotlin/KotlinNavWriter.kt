@@ -21,11 +21,11 @@ import androidx.navigation.safe.args.generator.models.Destination
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FileSpec
 
-class KotlinNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
+class KotlinNavWriter(private val useAndroidX: Boolean = false) : NavWriter<KotlinCodeFile> {
 
     override fun generateDirectionsCodeFile(
         destination: Destination,
-        parentDestination: Destination?
+        parentDirectionsFileList: List<KotlinCodeFile>
     ): KotlinCodeFile {
         val destName = destination.name
             ?: throw IllegalStateException("Destination with actions must have name")
