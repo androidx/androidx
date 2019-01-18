@@ -67,7 +67,7 @@ public class MainFragmentDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
+            int result = 1;
             result = 31 * result + getActionId();
             return result;
         }

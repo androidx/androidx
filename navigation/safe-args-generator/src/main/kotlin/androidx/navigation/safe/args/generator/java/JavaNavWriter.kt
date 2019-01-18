@@ -442,7 +442,7 @@ private class ClassWithArgsSpecs(
     ) = MethodSpec.methodBuilder("hashCode").apply {
         addAnnotation(Override::class.java)
         addModifiers(Modifier.PUBLIC)
-        addStatement("int result = super.hashCode()")
+        addStatement("int result = 1")
         args.forEach { (_, type, _, _, sanitizedName) ->
             val getterName = getterFromArgName(sanitizedName, "()")
             val hashCodeExpression = when (type) {

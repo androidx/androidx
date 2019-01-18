@@ -239,6 +239,29 @@ class JavaNavWriterTest {
         assertThat(nextObjectA, not(`is`(nextObjectC)))
     }
 
+    @Test
+    fun testGeneratedDirectionHashCodeImpl() {
+        val nextAction = Action(id("next"), id("destA"), listOf(Argument("main", StringType)))
+        val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
+            listOf(nextAction))
+
+        val actual = generateDirectionsCodeFile(dest, emptyList(), false).toJavaFileObject()
+
+        val generatedFiles = compileFiles(actual).generatedFiles()
+        val loader = InMemoryGeneratedClassLoader(generatedFiles)
+
+        fun createNextObj(mainArgValue: String) = loader.loadClass("a.b.MainFragmentDirections")
+            .getDeclaredMethod("next", String::class.java)
+            .invoke(null, mainArgValue)
+
+        val nextObjectA = createNextObj("data")
+        val nextObjectB = createNextObj("data")
+        val nextObjectC = createNextObj("different data")
+
+        assertThat(nextObjectA.hashCode(), `is`(nextObjectB.hashCode()))
+        assertThat(nextObjectA.hashCode(), not(`is`(nextObjectC.hashCode())))
+    }
+
     /**
      * Class loader that allows us to load classes from compile testing generated classes.
      */

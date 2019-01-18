@@ -77,7 +77,7 @@ public class SettingsDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
+            int result = 1;
             result = 31 * result + (getExitReason() != null ? getExitReason().hashCode() : 0);
             result = 31 * result + getActionId();
             return result;
