@@ -46,6 +46,9 @@ public class BiometricFragment extends Fragment {
 
     private static final String TAG = "BiometricFragment";
 
+    // Set whenever the support library's authenticate is called.
+    private Bundle mBundle;
+
     // Re-set by the application, through BiometricPromptCompat upon orientation changes.
     Executor mClientExecutor;
     DialogInterface.OnClickListener mClientNegativeButtonListener;
@@ -128,12 +131,10 @@ public class BiometricFragment extends Fragment {
 
     /**
      * Creates a new instance of the {@link BiometricFragment}.
-     * @param bundle
      * @return
      */
-    public static BiometricFragment newInstance(Bundle bundle) {
+    public static BiometricFragment newInstance() {
         BiometricFragment biometricFragment = new BiometricFragment();
-        biometricFragment.setArguments(bundle);
         return biometricFragment;
     }
 
@@ -189,18 +190,10 @@ public class BiometricFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+    }
 
-        Bundle bundle = getArguments();
-
-        mNegativeButtonText = bundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
-
-        mBiometricPrompt = new android.hardware.biometrics.BiometricPrompt.Builder(getContext())
-                .setTitle(bundle.getCharSequence(BiometricPrompt.KEY_TITLE))
-                .setSubtitle(bundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE))
-                .setDescription(bundle.getCharSequence(BiometricPrompt.KEY_DESCRIPTION))
-                .setNegativeButton(bundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT),
-                        mClientExecutor, mNegativeButtonListener)
-                .build();
+    public void setBundle(Bundle bundle) {
+        mBundle = bundle;
     }
 
     @Override
@@ -208,6 +201,14 @@ public class BiometricFragment extends Fragment {
             Bundle savedInstanceState) {
         // Start the actual authentication when the fragment is attached.
         if (!mShowing) {
+            mNegativeButtonText = mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT);
+            mBiometricPrompt = new android.hardware.biometrics.BiometricPrompt.Builder(getContext())
+                    .setTitle(mBundle.getCharSequence(BiometricPrompt.KEY_TITLE))
+                    .setSubtitle(mBundle.getCharSequence(BiometricPrompt.KEY_SUBTITLE))
+                    .setDescription(mBundle.getCharSequence(BiometricPrompt.KEY_DESCRIPTION))
+                    .setNegativeButton(mBundle.getCharSequence(BiometricPrompt.KEY_NEGATIVE_TEXT),
+                            mClientExecutor, mNegativeButtonListener)
+                    .build();
             mCancellationSignal = new CancellationSignal();
             if (mCryptoObject == null) {
                 mBiometricPrompt.authenticate(mCancellationSignal, mExecutor,
