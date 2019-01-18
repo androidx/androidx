@@ -16,8 +16,6 @@
 
 package androidx.loader.content;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -27,12 +25,10 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.os.OperationCanceledException;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -48,8 +44,6 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     static final boolean DEBUG = false;
 
     final class LoadTask extends ModernAsyncTask<D> implements Runnable {
-        private final CountDownLatch mDone = new CountDownLatch(1);
-
         // Set to true to indicate that the task has been posted to a handler for
         // execution at a later time.  Used to throttle updates.
         boolean waiting;
@@ -81,22 +75,14 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         @Override
         protected void onPostExecute(D data) {
             if (DEBUG) Log.v(TAG, this + " onPostExecute");
-            try {
-                AsyncTaskLoader.this.dispatchOnLoadComplete(this, data);
-            } finally {
-                mDone.countDown();
-            }
+            AsyncTaskLoader.this.dispatchOnLoadComplete(this, data);
         }
 
         /* Runs on the UI thread */
         @Override
         protected void onCancelled(D data) {
             if (DEBUG) Log.v(TAG, this + " onCancelled");
-            try {
-                AsyncTaskLoader.this.dispatchOnCancelled(this, data);
-            } finally {
-                mDone.countDown();
-            }
+            AsyncTaskLoader.this.dispatchOnCancelled(this, data);
         }
 
         /* Runs on the UI thread, when the waiting task is posted to a handler.
@@ -105,15 +91,6 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         public void run() {
             waiting = false;
             AsyncTaskLoader.this.executePendingTask();
-        }
-
-        /* Used for testing purposes to wait for the task to complete. */
-        public void waitForLoader() {
-            try {
-                mDone.await();
-            } catch (InterruptedException e) {
-                // Ignore
-            }
         }
     }
 
@@ -346,24 +323,6 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     @NonNull
     protected Executor getExecutor() {
         return AsyncTask.THREAD_POOL_EXECUTOR;
-    }
-
-    /**
-     * Locks the current thread until the loader completes the current load
-     * operation. Returns immediately if there is no load operation running.
-     * Should not be called from the UI thread: calling it from the UI
-     * thread would cause a deadlock.
-     * <p>
-     * Use for testing only.  <b>Never</b> call this from a UI thread.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void waitForLoader() {
-        LoadTask task = mTask;
-        if (task != null) {
-            task.waitForLoader();
-        }
     }
 
     @Override
