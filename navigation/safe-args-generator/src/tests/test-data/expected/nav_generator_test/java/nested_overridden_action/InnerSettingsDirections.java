@@ -1,32 +1,29 @@
-package foo.flavor;
+package foo;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
-import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
-public class SettingsFragmentDirections {
+public class InnerSettingsDirections {
     @NonNull
-    public static Exit exit() {
-        return new Exit();
+    public static Exit exit(int exitReason) {
+        return new Exit(exitReason);
     }
 
     public static class Exit implements NavDirections {
         private final HashMap arguments = new HashMap();
 
-        private Exit() {
+        private Exit(int exitReason) {
+            this.arguments.put("exitReason", exitReason);
         }
 
         @NonNull
-        public Exit setExitReason(@NonNull String exitReason) {
-            if (exitReason == null) {
-                throw new IllegalArgumentException("Argument \"exitReason\" is marked as non-null but was passed a null value.");
-            }
+        public Exit setExitReason(int exitReason) {
             this.arguments.put("exitReason", exitReason);
             return this;
         }
@@ -37,8 +34,8 @@ public class SettingsFragmentDirections {
         public Bundle getArguments() {
             Bundle __result = new Bundle();
             if (arguments.containsKey("exitReason")) {
-                String exitReason = (String) arguments.get("exitReason");
-                __result.putString("exitReason", exitReason);
+                int exitReason = (int) arguments.get("exitReason");
+                __result.putInt("exitReason", exitReason);
             }
             return __result;
         }
@@ -49,9 +46,8 @@ public class SettingsFragmentDirections {
         }
 
         @SuppressWarnings("unchecked")
-        @NonNull
-        public String getExitReason() {
-            return (String) arguments.get("exitReason");
+        public int getExitReason() {
+            return (int) arguments.get("exitReason");
         }
 
         @Override
@@ -66,7 +62,7 @@ public class SettingsFragmentDirections {
             if (arguments.containsKey("exitReason") != that.arguments.containsKey("exitReason")) {
                 return false;
             }
-            if (getExitReason() != null ? !getExitReason().equals(that.getExitReason()) : that.getExitReason() != null) {
+            if (getExitReason() != that.getExitReason()) {
                 return false;
             }
             if (getActionId() != that.getActionId()) {
@@ -77,8 +73,8 @@ public class SettingsFragmentDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + (getExitReason() != null ? getExitReason().hashCode() : 0);
+            int result = 1;
+            result = 31 * result + getExitReason();
             result = 31 * result + getActionId();
             return result;
         }

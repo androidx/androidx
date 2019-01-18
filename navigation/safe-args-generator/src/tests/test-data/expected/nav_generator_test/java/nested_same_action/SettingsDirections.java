@@ -3,27 +3,30 @@ package foo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
+import java.lang.IllegalArgumentException;
 import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
-public class InnerSettingsDirections {
+public class SettingsDirections {
     @NonNull
-    public static Exit exit(int exitReason) {
-        return new Exit(exitReason);
+    public static Exit exit() {
+        return new Exit();
     }
 
     public static class Exit implements NavDirections {
         private final HashMap arguments = new HashMap();
 
-        private Exit(int exitReason) {
-            this.arguments.put("exitReason", exitReason);
+        private Exit() {
         }
 
         @NonNull
-        public Exit setExitReason(int exitReason) {
+        public Exit setExitReason(@NonNull String exitReason) {
+            if (exitReason == null) {
+                throw new IllegalArgumentException("Argument \"exitReason\" is marked as non-null but was passed a null value.");
+            }
             this.arguments.put("exitReason", exitReason);
             return this;
         }
@@ -34,8 +37,8 @@ public class InnerSettingsDirections {
         public Bundle getArguments() {
             Bundle __result = new Bundle();
             if (arguments.containsKey("exitReason")) {
-                int exitReason = (int) arguments.get("exitReason");
-                __result.putInt("exitReason", exitReason);
+                String exitReason = (String) arguments.get("exitReason");
+                __result.putString("exitReason", exitReason);
             }
             return __result;
         }
@@ -46,8 +49,9 @@ public class InnerSettingsDirections {
         }
 
         @SuppressWarnings("unchecked")
-        public int getExitReason() {
-            return (int) arguments.get("exitReason");
+        @NonNull
+        public String getExitReason() {
+            return (String) arguments.get("exitReason");
         }
 
         @Override
@@ -62,7 +66,7 @@ public class InnerSettingsDirections {
             if (arguments.containsKey("exitReason") != that.arguments.containsKey("exitReason")) {
                 return false;
             }
-            if (getExitReason() != that.getExitReason()) {
+            if (getExitReason() != null ? !getExitReason().equals(that.getExitReason()) : that.getExitReason() != null) {
                 return false;
             }
             if (getActionId() != that.getActionId()) {
@@ -73,8 +77,8 @@ public class InnerSettingsDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
-            result = 31 * result + getExitReason();
+            int result = 1;
+            result = 31 * result + (getExitReason() != null ? getExitReason().hashCode() : 0);
             result = 31 * result + getActionId();
             return result;
         }
