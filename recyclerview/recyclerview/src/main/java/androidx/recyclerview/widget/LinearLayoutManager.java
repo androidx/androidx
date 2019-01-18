@@ -1323,8 +1323,8 @@ public class LinearLayoutManager extends RecyclerView.LayoutManager implements
         if (getChildCount() == 0 || dy == 0) {
             return 0;
         }
-        mLayoutState.mRecycle = true;
         ensureLayoutState();
+        mLayoutState.mRecycle = true;
         final int layoutDirection = dy > 0 ? LayoutState.LAYOUT_END : LayoutState.LAYOUT_START;
         final int absDy = Math.abs(dy);
         updateLayoutState(layoutDirection, absDy, true, state);
