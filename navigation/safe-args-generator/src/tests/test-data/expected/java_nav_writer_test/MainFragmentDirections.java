@@ -131,7 +131,7 @@ public class MainFragmentDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
+            int result = 1;
             result = 31 * result + (getArg1() != null ? getArg1().hashCode() : 0);
             result = 31 * result + (getArg2() != null ? getArg2().hashCode() : 0);
             result = 31 * result + getActionId();
@@ -237,7 +237,7 @@ public class MainFragmentDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
+            int result = 1;
             result = 31 * result + (getMain() != null ? getMain().hashCode() : 0);
             result = 31 * result + (getOptional() != null ? getOptional().hashCode() : 0);
             result = 31 * result + getActionId();

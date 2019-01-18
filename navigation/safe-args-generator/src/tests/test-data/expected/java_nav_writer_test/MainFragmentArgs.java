@@ -293,7 +293,7 @@ public class MainFragmentArgs implements NavArgs {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 1;
         result = 31 * result + (getMain() != null ? getMain().hashCode() : 0);
         result = 31 * result + getOptional();
         result = 31 * result + getReference();

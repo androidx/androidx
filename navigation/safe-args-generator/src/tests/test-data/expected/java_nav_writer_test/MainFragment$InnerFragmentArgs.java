@@ -91,7 +91,7 @@ public class MainFragment$InnerFragmentArgs implements NavArgs {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 1;
         result = 31 * result + (getMainArg() != null ? getMainArg().hashCode() : 0);
         return result;
     }

@@ -34,7 +34,10 @@ import java.util.Properties
 private const val MAIN_DIR = "androidx/navigation/testapp"
 
 private const val NEXT_DIRECTIONS = "$MAIN_DIR/NextFragmentDirections.java"
+private const val NEXT_ARGUMENTS_KT = "$MAIN_DIR/NextFragmentArgs.kt"
 private const val MAIN_DIRECTIONS = "$MAIN_DIR/MainFragmentDirections.java"
+private const val MAIN_DIRECTIONS_KT = "$MAIN_DIR/MainFragmentDirections.kt"
+private const val MAIN_ARGUMENTS_KT = "$MAIN_DIR/MainFragmentArgs.kt"
 private const val MODIFIED_NEXT_DIRECTIONS = "$MAIN_DIR/ModifiedNextFragmentDirections.java"
 private const val ADDITIONAL_DIRECTIONS = "$MAIN_DIR/AdditionalFragmentDirections.java"
 private const val FOO_DIRECTIONS = "safe/gradle/test/app/foo/FooFragmentDirections.java"
@@ -62,6 +65,7 @@ class PluginTest {
     private var minSdkVersion = ""
     private var debugKeystore = ""
     private var navigationCommon = ""
+    private var kotlinStblib = ""
 
     private fun projectRoot(): File = testProjectDir.root
 
@@ -109,6 +113,7 @@ class PluginTest {
         minSdkVersion = properties.getProperty("minSdkVersion")
         debugKeystore = properties.getProperty("debugKeystore")
         navigationCommon = properties.getProperty("navigationCommon")
+        kotlinStblib = properties.getProperty("kotlinStdlib")
     }
 
     private fun setupSimpleBuildGradle() {
@@ -217,6 +222,49 @@ class PluginTest {
         assertGenerated("notfoo/debug/$NEXT_DIRECTIONS")
         assertNotGenerated("foo/debug/$NEXT_DIRECTIONS")
         assertGenerated("foo/debug/$FOO_DIRECTIONS")
+    }
+
+    @Test
+    fun runGenerateTaskForKotlin() {
+        testData("app-project-kotlin").copyRecursively(projectRoot())
+        buildFile.writeText("""
+            plugins {
+                id('com.android.application')
+                id('kotlin-android')
+                id('androidx.navigation.safeargs.kotlin')
+            }
+
+            repositories {
+                maven { url "$prebuiltsRepo/androidx/external" }
+                maven { url "$prebuiltsRepo/androidx/internal" }
+            }
+
+            android {
+                compileSdkVersion $compileSdkVersion
+                buildToolsVersion "$buildToolsVersion"
+
+                defaultConfig {
+                    minSdkVersion $minSdkVersion
+                }
+
+                signingConfigs {
+                    debug {
+                        storeFile file("$debugKeystore")
+                    }
+                }
+            }
+
+            dependencies {
+                implementation "$kotlinStblib"
+                implementation "$navigationCommon"
+            }
+        """.trimIndent())
+
+        runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
+
+        assertGenerated("debug/$NEXT_ARGUMENTS_KT")
+        assertGenerated("debug/$MAIN_DIRECTIONS_KT")
+        assertGenerated("debug/$MAIN_ARGUMENTS_KT")
     }
 
     @Test

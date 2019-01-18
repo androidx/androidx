@@ -131,7 +131,7 @@ public class SanitizedMainFragmentArgs implements NavArgs {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 1;
         result = 31 * result + getNameWithDot();
         result = 31 * result + getNameWithUnderscore();
         result = 31 * result + getNameWithSpaces();
