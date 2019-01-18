@@ -1236,6 +1236,10 @@ public class FragmentLifecycleTest {
                 .isSameAs(target);
 
         shutdownFragmentController(fc, viewModelStore);
+
+        assertWithMessage("Target Fragment should be accessible after destruction")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
     }
 
     /**
@@ -1274,6 +1278,10 @@ public class FragmentLifecycleTest {
                 .isSameAs(target);
 
         shutdownFragmentController(fc, viewModelStore);
+
+        assertWithMessage("Target Fragment should be accessible after destruction")
+                .that(referrer.getTargetFragment())
+                .isSameAs(target);
     }
 
     /**
@@ -1309,10 +1317,9 @@ public class FragmentLifecycleTest {
         fc.dispatchStop();
         fc.dispatchDestroy();
 
-
-        assertWithMessage("Target Fragment should be null after target Fragment destruction")
+        assertWithMessage("Target Fragment should be accessible after target Fragment destruction")
                 .that(referrer.getTargetFragment())
-                .isNull();
+                .isSameAs(target);
     }
 
     /**
