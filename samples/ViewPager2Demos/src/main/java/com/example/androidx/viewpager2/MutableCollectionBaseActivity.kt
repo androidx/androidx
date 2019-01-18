@@ -79,7 +79,7 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
     val items: Items get() = ViewModelProviders.of(this)[Items::class.java]
 
     private fun notifyDataSetChanged() {
-        viewPager.adapter.notifyDataSetChanged()
+        viewPager.adapter!!.notifyDataSetChanged()
         (itemSpinner.adapter as BaseAdapter).notifyDataSetChanged()
     }
 }

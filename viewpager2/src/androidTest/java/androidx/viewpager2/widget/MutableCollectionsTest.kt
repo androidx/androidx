@@ -124,7 +124,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
             return PageView.getPageText(page) == expectedValue
         }
 
-        (0 until viewPager.adapter.itemCount).forEach { pageIx ->
+        (0 until viewPager.adapter!!.itemCount).forEach { pageIx ->
             setCurrentItemSync(pageIx)
             val expectedValue = items[pageIx]
 
@@ -140,11 +140,11 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
         val latch = CountDownLatch(1)
         viewPager.viewTreeObserver.addOnGlobalLayoutListener { latch.countDown() }
 
-        runOnUiThread { viewPager.adapter.notifyDataSetChanged() }
+        runOnUiThread { viewPager.adapter!!.notifyDataSetChanged() }
         latch.await(5, TimeUnit.SECONDS)
     }
 
-    private val ViewPager2.middleItem: Int get() = adapter.itemCount / 2
+    private val ViewPager2.middleItem: Int get() = adapter!!.itemCount / 2
 
     data class TestConfig(
         val name: String,
