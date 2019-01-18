@@ -129,16 +129,13 @@ public final class ToolbarController {
         }
 
         dismissImmediately(mToolbar);
-        setListeners(mTextView, mToolbar);
+        setListeners(mTextView, start, end, mToolbar);
         final SupportMenu menu = createMenu(mTextView, mHighlight, actions);
         if (hasValidTextView(mTextView) && menu.hasVisibleItems()) {
             setHighlight(mTextView, mHighlight, start, end, mToolbar);
-            final int[] startXY = getCoordinates(mTextView, start);
-            final int[] endXY = getCoordinates(mTextView, end);
-            mContentRect.set(startXY[0], startXY[1], endXY[0], endXY[1]);
-            mContentRect.sort();
-            mToolbar.setMenu(menu);
+            updateRectCoordinates(mContentRect, mTextView, start, end);
             mToolbar.setContentRect(mContentRect);
+            mToolbar.setMenu(menu);
             mToolbar.show();
         }
     }
@@ -212,6 +209,14 @@ public final class ToolbarController {
                 }
             }, HIGHLIGHT_DELAY_MS);
         }
+    }
+
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    static void updateRectCoordinates(Rect rect, TextView textView, int start, int end) {
+        final int[] startXY = getCoordinates(textView, start);
+        final int[] endXY = getCoordinates(textView, end);
+        rect.set(startXY[0], startXY[1], endXY[0], endXY[1]);
+        rect.sort();
     }
 
     private static int[] getCoordinates(TextView textView, int index) {
@@ -313,14 +318,18 @@ public final class ToolbarController {
         return menu;
     }
 
-    private static void setListeners(TextView textView, final FloatingToolbar toolbar) {
+    private static void setListeners(
+            TextView textView, int start, int end, FloatingToolbar toolbar) {
         final ViewTreeObserver observer = textView.getViewTreeObserver();
+        final OnCoordinatesChangeHandler onCoordinatesChangeHandler =
+                new OnCoordinatesChangeHandler(toolbar, textView, start, end);
         final OnWindowFocusChangeListener onWindowFocusChangeListener =
                 new OnWindowFocusChangeListener(toolbar);
         final OnTextViewFocusChangeListener onTextViewFocusChangeListener =
                 new OnTextViewFocusChangeListener(textView, toolbar);
         final OnTextViewDetachedListener onTextViewDetachedListener =
                 new OnTextViewDetachedListener(toolbar);
+        observer.addOnPreDrawListener(onCoordinatesChangeHandler);
         observer.addOnWindowFocusChangeListener(onWindowFocusChangeListener);
         observer.addOnGlobalFocusChangeListener(onTextViewFocusChangeListener);
         observer.addOnWindowAttachListener(onTextViewDetachedListener);
@@ -333,11 +342,57 @@ public final class ToolbarController {
         toolbar.setOnDismissListener(
                 new OnToolbarDismissListener(
                         textView,
+                        onCoordinatesChangeHandler,
                         onWindowFocusChangeListener,
                         onTextViewFocusChangeListener,
                         onTextViewDetachedListener,
                         selectionCallback,
                         insertionCallback));
+    }
+
+    /**
+     * Repositions the toolbar when the coordinates of the highlighted text changes.
+     * It does this by checking just before every draw frame if the coordinates of the highlighted
+     * text have changed. Because this callback is called on every draw frame, it only recalculates
+     * the highlights position when the toolbar is actively showing.
+     */
+    private static final class OnCoordinatesChangeHandler
+            implements ViewTreeObserver.OnPreDrawListener {
+
+        private final FloatingToolbar mToolbar;
+        private final TextView mTextView;
+        private final Rect mContentRect;
+        private final int mStart;
+        private final int mEnd;
+
+        private int[] mLocation = new int[2];
+
+        @SuppressLint("RestrictedApi")
+        OnCoordinatesChangeHandler(
+                FloatingToolbar toolbar, TextView textView, int start, int end) {
+            mToolbar = Preconditions.checkNotNull(toolbar);
+            mTextView = Preconditions.checkNotNull(textView);
+            mTextView.getRootView().getLocationOnScreen(mLocation);
+            mContentRect = new Rect();
+            mStart = start;
+            mEnd = end;
+        }
+
+        @Override
+        public boolean onPreDraw() {
+            if (mToolbar.isShowing()) {
+                final int[] location = new int[2];
+                mTextView.getRootView().getLocationOnScreen(location);
+                if (location[0] != mLocation[0] || location[1] != mLocation[1]) {
+                    // View moved.
+                    updateRectCoordinates(mContentRect, mTextView, mStart, mEnd);
+                    mToolbar.setContentRect(mContentRect);
+                    mToolbar.updateLayout();
+                }
+                mLocation = location;
+            }
+            return true;
+        }
     }
 
     private static final class OnWindowFocusChangeListener
@@ -470,21 +525,24 @@ public final class ToolbarController {
     private static final class OnToolbarDismissListener implements PopupWindow.OnDismissListener {
 
         private final TextView mTextView;
+        private final OnCoordinatesChangeHandler mOnCoordinatesChangeHandler;
         private final OnWindowFocusChangeListener mOnWindowFocusChangeListener;
         private final OnTextViewFocusChangeListener mOnFocusChangeListener;
         private final OnTextViewDetachedListener mOnTextViewDetachedListener;
         private final ActionModeCallback mSelectionCallback;
-        private final  ActionModeCallback mInsertionCallback;
+        private final ActionModeCallback mInsertionCallback;
 
         @SuppressLint("RestrictedApi")
         OnToolbarDismissListener(
                 TextView textView,
+                OnCoordinatesChangeHandler onCoordinatesChangeHandler,
                 OnWindowFocusChangeListener onWindowFocusChangeListener,
                 OnTextViewFocusChangeListener onTextViewFocusChangeListener,
                 OnTextViewDetachedListener onTextViewDetachedListener,
                 ActionModeCallback selectionCallback,
                 ActionModeCallback insertionCallback) {
             mTextView = Preconditions.checkNotNull(textView);
+            mOnCoordinatesChangeHandler = Preconditions.checkNotNull(onCoordinatesChangeHandler);
             mOnWindowFocusChangeListener = Preconditions.checkNotNull(onWindowFocusChangeListener);
             mOnFocusChangeListener = Preconditions.checkNotNull(onTextViewFocusChangeListener);
             mOnTextViewDetachedListener = Preconditions.checkNotNull(onTextViewDetachedListener);
@@ -496,6 +554,7 @@ public final class ToolbarController {
         public void onDismiss() {
             removeHighlight(mTextView);
             final ViewTreeObserver observer = mTextView.getViewTreeObserver();
+            observer.removeOnPreDrawListener(mOnCoordinatesChangeHandler);
             observer.removeOnWindowFocusChangeListener(mOnWindowFocusChangeListener);
             observer.removeOnGlobalFocusChangeListener(mOnFocusChangeListener);
             observer.removeOnWindowAttachListener(mOnTextViewDetachedListener);
