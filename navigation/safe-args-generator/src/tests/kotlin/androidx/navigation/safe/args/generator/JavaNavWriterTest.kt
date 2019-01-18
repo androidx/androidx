@@ -16,6 +16,7 @@
 
 package androidx.navigation.safe.args.generator
 
+import androidx.navigation.safe.args.generator.java.JavaCodeFile
 import androidx.navigation.safe.args.generator.java.JavaNavWriter
 import androidx.navigation.safe.args.generator.models.Action
 import androidx.navigation.safe.args.generator.models.Argument
@@ -41,9 +42,9 @@ class JavaNavWriterTest {
 
     private fun generateDirectionsCodeFile(
         destination: Destination,
-        parentDestination: Destination?,
+        parentDirectionsFileList: List<JavaCodeFile>,
         useAndroidX: Boolean
-    ) = JavaNavWriter(useAndroidX).generateDirectionsCodeFile(destination, parentDestination)
+    ) = JavaNavWriter(useAndroidX).generateDirectionsCodeFile(destination, parentDirectionsFileList)
 
     private fun generateDirectionsTypeSpec(action: Action, useAndroidX: Boolean) =
         JavaNavWriter(useAndroidX).generateDirectionsTypeSpec(action)
@@ -133,7 +134,7 @@ class JavaNavWriterTest {
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
                 listOf(prevAction, nextAction))
 
-        val actual = generateDirectionsCodeFile(dest, null, false).toJavaFileObject()
+        val actual = generateDirectionsCodeFile(dest, emptyList(), false).toJavaFileObject()
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.MainFragmentDirections")
         assertCompilesWithoutError(actual)
     }
@@ -153,7 +154,7 @@ class JavaNavWriterTest {
         val dest = Destination(null, ClassName.get("a.b", "SanitizedMainFragment"),
                 "fragment", listOf(), listOf(prevAction, nextAction))
 
-        val actual = generateDirectionsCodeFile(dest, null, false).toJavaFileObject()
+        val actual = generateDirectionsCodeFile(dest, emptyList(), false).toJavaFileObject()
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.SanitizedMainFragmentDirections")
         assertCompilesWithoutError(actual)
     }
@@ -221,7 +222,7 @@ class JavaNavWriterTest {
         val dest = Destination(null, ClassName.get("a.b", "MainFragment"), "fragment", listOf(),
             listOf(nextAction))
 
-        val actual = generateDirectionsCodeFile(dest, null, false).toJavaFileObject()
+        val actual = generateDirectionsCodeFile(dest, emptyList(), false).toJavaFileObject()
 
         val generatedFiles = compileFiles(actual).generatedFiles()
         val loader = InMemoryGeneratedClassLoader(generatedFiles)

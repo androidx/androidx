@@ -55,22 +55,22 @@ const val S = "\$S"
 const val BEGIN_STMT = "\$["
 const val END_STMT = "\$]"
 
-class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
+class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCodeFile> {
 
     override fun generateDirectionsCodeFile(
         destination: Destination,
-        parentDestination: Destination?
+        parentDirectionsFileList: List<JavaCodeFile>
     ): JavaCodeFile {
         val className = destination.toClassName()
-        val superClassName = parentDestination?.toClassName()
-        val typeSpec = generateDestinationDirectionsTypeSpec(className, superClassName, destination)
+        val typeSpec =
+            generateDestinationDirectionsTypeSpec(className, destination, parentDirectionsFileList)
         return JavaFile.builder(className.packageName(), typeSpec).build().toCodeFile()
     }
 
     private fun generateDestinationDirectionsTypeSpec(
         className: ClassName,
-        superclassName: TypeName?,
-        destination: Destination
+        destination: Destination,
+        parentDirectionsFileList: List<JavaCodeFile>
     ): TypeSpec {
         val actionTypes = destination.actions.map { action ->
             action to generateDirectionsTypeSpec(action)
@@ -91,11 +91,34 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter {
                     .build()
             }
 
+        // The parent destination list is ordered from the closest to the farthest parent of the
+        // processing destination in the graph hierarchy.
+        val parentGetters = mutableListOf<MethodSpec>()
+        parentDirectionsFileList.forEach {
+            val parentTypeSpec = it.wrapped.typeSpec
+            parentTypeSpec.methodSpecs.filter { method ->
+                method.hasModifier(Modifier.STATIC) &&
+                        getters.none { it.name == method.name } && // de-dupe local actions
+                        parentGetters.none { it.name == method.name } // de-dupe parent actions
+            }.forEach { actionMethod ->
+                val params = actionMethod.parameters.joinToString(", ") { param -> param.name }
+                val methodSpec = MethodSpec.methodBuilder(actionMethod.name)
+                    .addAnnotations(actionMethod.annotations)
+                    .addModifiers(actionMethod.modifiers)
+                    .addParameters(actionMethod.parameters)
+                    .returns(
+                        ClassName.bestGuess("${parentTypeSpec.name}.${actionMethod.returnType}"))
+                    .addStatement("return $T.$L($params)",
+                        ClassName.bestGuess(parentTypeSpec.name), actionMethod.name)
+                    .build()
+                parentGetters.add(methodSpec)
+            }
+        }
+
         return TypeSpec.classBuilder(className)
-            .superclass(superclassName ?: ClassName.OBJECT)
             .addModifiers(Modifier.PUBLIC)
             .addTypes(actionTypes.map { (_, actionType) -> actionType })
-            .addMethods(getters)
+            .addMethods(getters + parentGetters)
             .build()
     }
 
