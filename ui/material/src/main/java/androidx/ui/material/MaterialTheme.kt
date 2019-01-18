@@ -25,6 +25,19 @@ import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
 
+/**
+ * This Component defines the styling principles from the Material design specification. It must be
+ * present within a hierarchy of components that includes Material components, as it defines key
+ * values such as base colors and typography.
+ *
+ * By default, it defines the colors as specified in the Color theme creation spec
+ * (https://material.io/design/color/the-color-system.html#color-theme-creation) and the typography
+ * defined in the Type Scale spec
+ * (https://material.io/design/typography/the-type-system.html#type-scale).
+ *
+ * All values may be overriden by providing this component with the [colors] and [typography]
+ * attributes. Use this to configure the overall theme of your application.
+ */
 class MaterialTheme(
     @Children
     val children: () -> Unit
@@ -44,25 +57,93 @@ class MaterialTheme(
     }
 }
 
+/**
+ * This Ambient holds on to the current definition of colors for this application as described
+ * by the Material spec. You can read the values in it when creating custom components that want
+ * to use Material colors, as well as override the values when you want to re-style a part of your
+ * hierarchy.
+ */
 val Colors = Ambient<MaterialColors>("colors") { error("No colors found!") }
 
+/**
+ * This Ambient holds on to the current definiton of typography for this application as described
+ * by the Material spec.  You can read the values in it when creating custom components that want
+ * to use Material types, as well as override the values when you want to re-style a part of your
+ * hierarchy. Material components related to text such as [H1] will refer to this Ambient to obtain
+ * the values with which to style text.
+ */
 val Typography = Ambient<MaterialTypography>("typography") { error("No typography found!") }
 
+/**
+ * Data class holding color values as defined by the Material specification
+ * (https://material.io/design/color/the-color-system.html#color-theme-creation).
+ */
 data class MaterialColors(
+    /**
+     * The primary color is the color displayed most frequently across your app’s screens and
+     * components.
+     */
     val primary: Color = Color(0xFF6200EE.toInt()),
+    /**
+     * The primary variant is used to distinguish two elements of the app using the primary color,
+     * such as the top app bar and the system bar.
+     */
     val primaryVariant: Color = Color(0xFF3700B3.toInt()),
+    /**
+     * The secondary color provides more ways to accent and distinguish your product.
+     * Secondary colors are best for:
+     * <ul>
+     *     <li>Floating action buttons</li>
+     *     <li>Selection controls, like sliders and switches</li>
+     *     <li>Highlighting selected text</li>
+     *     <li>Progress bars</li>
+     *     <li>Links and headlines</li>
+     * </ul>
+     */
     val secondary: Color = Color(0xFF03DAC6.toInt()),
+    /**
+     * The secondary variant is used to distinguish two elements of the app using the secondary
+     * color.
+     */
     val secondaryVariant: Color = Color(0xFF018786.toInt()),
+    /**
+     * The background color appears behind scrollable content.
+     */
     val background: Color = Color(0xFFFFFFFF.toInt()),
+    /**
+     * The surface color is used on surfaces of components, such as cards, sheets and menus.
+     */
     val surface: Color = Color(0xFFFFFFFF.toInt()),
+    /**
+     * The error color is used to indicate error within components, such as text fields.
+     */
     val error: Color = Color(0xFFB00020.toInt()),
+    /**
+     * Color used for text and icons displayed on top of the primary color.
+     */
     val onPrimary: Color = Color(0xFFFFFFFF.toInt()),
+    /**
+     * Color used for text and icons displayed on top of the secondary color.
+     */
     val onSecondary: Color = Color(0xFF000000.toInt()),
+    /**
+     * Color used for text and icons displayed on top of the background color.
+     */
     val onBackground: Color = Color(0xFF000000.toInt()),
+    /**
+     * Color used for text and icons displayed on top of the surface color.
+     */
     val onSurface: Color = Color(0xFF000000.toInt()),
+    /**
+     * Color used for text and icons displayed on top of the error color.
+     */
     val onError: Color = Color(0xFFFFFFFF.toInt())
 )
 
+/**
+ * Data class holding typography definitions as defined by the Material specification
+ * (https://material.io/design/typography/the-type-system.html#type-scale).
+ */
 data class MaterialTypography(
     // TODO(clara): case
     // TODO(clara): letter spacing (specs don't match)
