@@ -44,10 +44,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
-import androidx.viewpager2.CompositeOnPageChangeListener;
-import androidx.viewpager2.PageTransformerAdapter;
 import androidx.viewpager2.R;
-import androidx.viewpager2.ScrollEventAdapter;
 import androidx.viewpager2.adapter.StatefulAdapter;
 
 import java.lang.annotation.Retention;
@@ -80,33 +77,34 @@ public class ViewPager2 extends ViewGroup {
     private final Rect mTmpContainerRect = new Rect();
     private final Rect mTmpChildRect = new Rect();
 
-    private CompositeOnPageChangeListener mExternalPageChangeListeners =
-            new CompositeOnPageChangeListener(3);
+    private CompositeOnPageChangeCallback mExternalPageChangeCallbacks =
+            new CompositeOnPageChangeCallback(3);
 
     int mCurrentItem;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
     private ScrollEventAdapter mScrollEventAdapter;
     private PageTransformerAdapter mPageTransformerAdapter;
-    private CompositeOnPageChangeListener mPageChangeEventDispatcher;
+    private CompositeOnPageChangeCallback mPageChangeEventDispatcher;
 
-    public ViewPager2(Context context) {
+    public ViewPager2(@NonNull Context context) {
         super(context);
         initialize(context, null);
     }
 
-    public ViewPager2(Context context, AttributeSet attrs) {
+    public ViewPager2(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initialize(context, attrs);
     }
 
-    public ViewPager2(Context context, AttributeSet attrs, int defStyleAttr) {
+    public ViewPager2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initialize(context, attrs);
     }
 
     @RequiresApi(21)
-    public ViewPager2(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public ViewPager2(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr,
+            int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         initialize(context, attrs);
     }
@@ -139,35 +137,27 @@ public class ViewPager2 extends ViewGroup {
         mScrollEventAdapter = new ScrollEventAdapter(mLayoutManager);
         mRecyclerView.addOnScrollListener(mScrollEventAdapter);
 
-        mPageChangeEventDispatcher = new CompositeOnPageChangeListener(3);
-        mScrollEventAdapter.setOnPageChangeListener(mPageChangeEventDispatcher);
+        mPageChangeEventDispatcher = new CompositeOnPageChangeCallback(3);
+        mScrollEventAdapter.setOnPageChangeCallback(mPageChangeEventDispatcher);
 
-        // Listener that updates mCurrentItem after swipes. Also triggered in other cases, but in
+        // Callback that updates mCurrentItem after swipes. Also triggered in other cases, but in
         // all those cases mCurrentItem will only be overwritten with the same value.
-        final OnPageChangeListener currentItemUpdater = new OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPx) {
-            }
-
+        final OnPageChangeCallback currentItemUpdater = new OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 mCurrentItem = position;
             }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
         };
 
-        // Add currentItemUpdater before mExternalPageChangeListeners, because we need to update
+        // Add currentItemUpdater before mExternalPageChangeCallbacks, because we need to update
         // internal state first
-        mPageChangeEventDispatcher.addOnPageChangeListener(currentItemUpdater);
-        mPageChangeEventDispatcher.addOnPageChangeListener(mExternalPageChangeListeners);
+        mPageChangeEventDispatcher.addOnPageChangeCallback(currentItemUpdater);
+        mPageChangeEventDispatcher.addOnPageChangeCallback(mExternalPageChangeCallbacks);
 
-        // Add mPageTransformerAdapter after mExternalPageChangeListeners, because page transform
+        // Add mPageTransformerAdapter after mExternalPageChangeCallbacks, because page transform
         // events must be fired after scroll events
         mPageTransformerAdapter = new PageTransformerAdapter(mLayoutManager);
-        mPageChangeEventDispatcher.addOnPageChangeListener(mPageTransformerAdapter);
+        mPageChangeEventDispatcher.addOnPageChangeCallback(mPageTransformerAdapter);
 
         attachViewToParent(mRecyclerView, 0, mRecyclerView.getLayoutParams());
     }
@@ -245,13 +235,13 @@ public class ViewPager2 extends ViewGroup {
             // scroll event for the current position, which has already been fired before the config
             // change.
             final ScrollEventAdapter scrollEventAdapter = mScrollEventAdapter;
-            final OnPageChangeListener eventDispatcher = mPageChangeEventDispatcher;
-            scrollEventAdapter.setOnPageChangeListener(null);
+            final OnPageChangeCallback eventDispatcher = mPageChangeEventDispatcher;
+            scrollEventAdapter.setOnPageChangeCallback(null);
             final RecyclerView recyclerView = mRecyclerView; // to avoid a synthetic accessor
             recyclerView.post(new Runnable() {
                 @Override
                 public void run() {
-                    scrollEventAdapter.setOnPageChangeListener(eventDispatcher);
+                    scrollEventAdapter.setOnPageChangeCallback(eventDispatcher);
                     scrollEventAdapter.notifyRestoreCurrentItem(mCurrentItem);
                     recyclerView.scrollToPosition(mCurrentItem);
                 }
@@ -346,16 +336,16 @@ public class ViewPager2 extends ViewGroup {
      * @see androidx.viewpager2.adapter.FragmentStateAdapter
      * @see RecyclerView#setAdapter(Adapter)
      */
-    public void setAdapter(Adapter adapter) {
+    public final void setAdapter(@Nullable Adapter adapter) {
         mRecyclerView.setAdapter(adapter);
     }
 
-    public Adapter getAdapter() {
+    public final @Nullable Adapter getAdapter() {
         return mRecyclerView.getAdapter();
     }
 
     @Override
-    public void onViewAdded(View child) {
+    public final void onViewAdded(View child) {
         // TODO(b/70666620): consider adding a support for Decor views
         throw new IllegalStateException(
                 getClass().getSimpleName() + " does not support direct child views");
@@ -403,12 +393,25 @@ public class ViewPager2 extends ViewGroup {
     /**
      * @param orientation @{link {@link ViewPager2.Orientation}}
      */
-    public void setOrientation(@Orientation int orientation) {
+    public final void setOrientation(@Orientation int orientation) {
         mLayoutManager.setOrientation(orientation);
     }
 
-    public @Orientation int getOrientation() {
+    public final @Orientation int getOrientation() {
         return mLayoutManager.getOrientation();
+    }
+
+    /**
+     * Set the currently selected page. If the ViewPager has already been through its first
+     * layout with its current adapter there will be a smooth animated transition between
+     * the current item and the specified item.
+     *
+     * TODO(b/123069219): verify first layout behavior
+     *
+     * @param item Item index to select
+     */
+    public void setCurrentItem(int item) {
+        setCurrentItem(item, true);
     }
 
     /**
@@ -417,7 +420,7 @@ public class ViewPager2 extends ViewGroup {
      * @param item Item index to select
      * @param smoothScroll True to smoothly scroll to the new item, false to transition immediately
      */
-    public void setCurrentItem(int item, boolean smoothScroll) {
+    public final void setCurrentItem(int item, boolean smoothScroll) {
         if (item == mCurrentItem && mScrollEventAdapter.isIdle()) {
             // Already at the correct page
             return;
@@ -455,39 +458,30 @@ public class ViewPager2 extends ViewGroup {
     /**
      * @return Currently selected page.
      */
-    public int getCurrentItem() {
+    public final int getCurrentItem() {
         return mCurrentItem;
     }
 
     /**
-     * Add a listener that will be invoked whenever the page changes or is incrementally
-     * scrolled. See {@link OnPageChangeListener}.
+     * Add a callback that will be invoked whenever the page changes or is incrementally
+     * scrolled. See {@link OnPageChangeCallback}.
      *
-     * <p>Components that add a listener should take care to remove it when finished.
-     * Other components that take ownership of a view may call {@link #clearOnPageChangeListeners()}
-     * to remove all attached listeners.</p>
+     * <p>Components that add a callback should take care to remove it when finished.
      *
-     * @param listener listener to add
+     * @param callback callback to add
      */
-    public void addOnPageChangeListener(@NonNull OnPageChangeListener listener) {
-        mExternalPageChangeListeners.addOnPageChangeListener(listener);
+    public final void registerOnPageChangeCallback(@NonNull OnPageChangeCallback callback) {
+        mExternalPageChangeCallbacks.addOnPageChangeCallback(callback);
     }
 
     /**
-     * Remove a listener that was previously added via
-     * {@link #addOnPageChangeListener(OnPageChangeListener)}.
+     * Remove a callback that was previously added via
+     * {@link #registerOnPageChangeCallback(OnPageChangeCallback)}.
      *
-     * @param listener listener to remove
+     * @param callback callback to remove
      */
-    public void removeOnPageChangeListener(@NonNull OnPageChangeListener listener) {
-        mExternalPageChangeListeners.removeOnPageChangeListener(listener);
-    }
-
-    /**
-     * Remove all listeners that are notified of any changes in scroll state or position.
-     */
-    public void clearOnPageChangeListeners() {
-        mExternalPageChangeListeners.clearOnPageChangeListeners();
+    public final void unregisterOnPageChangeCallback(@NonNull OnPageChangeCallback callback) {
+        mExternalPageChangeCallbacks.removeOnPageChangeCallback(callback);
     }
 
     /**
@@ -497,13 +491,13 @@ public class ViewPager2 extends ViewGroup {
      *
      * @param transformer PageTransformer that will modify each page's animation properties
      */
-    public void setPageTransformer(@Nullable PageTransformer transformer) {
+    public final void setPageTransformer(@Nullable PageTransformer transformer) {
         // TODO: add support for reverseDrawingOrder: b/112892792
         // TODO: add support for pageLayerType: b/112893074
         mPageTransformerAdapter.setPageTransformer(transformer);
     }
 
-    private class SmoothScrollToPosition implements Runnable {
+    private static class SmoothScrollToPosition implements Runnable {
         private final int mPosition;
         private final RecyclerView mRecyclerView;
 
@@ -521,8 +515,7 @@ public class ViewPager2 extends ViewGroup {
     /**
      * Callback interface for responding to changing state of the selected page.
      */
-    public interface OnPageChangeListener {
-
+    public abstract static class OnPageChangeCallback {
         /**
          * This method will be invoked when the current page is scrolled, either as part
          * of a programmatically initiated smooth scroll or a user initiated touch scroll.
@@ -532,7 +525,9 @@ public class ViewPager2 extends ViewGroup {
          * @param positionOffset Value from [0, 1) indicating the offset from the page at position.
          * @param positionOffsetPixels Value in pixels indicating the offset from position.
          */
-        void onPageScrolled(int position, float positionOffset, @Px int positionOffsetPixels);
+        public void onPageScrolled(int position, float positionOffset,
+                @Px int positionOffsetPixels) {
+        }
 
         /**
          * This method will be invoked when a new page becomes selected. Animation is not
@@ -540,14 +535,16 @@ public class ViewPager2 extends ViewGroup {
          *
          * @param position Position index of the new selected page.
          */
-        void onPageSelected(int position);
+        public void onPageSelected(int position) {
+        }
 
         /**
          * Called when the scroll state changes. Useful for discovering when the user
          * begins dragging, when the pager is automatically settling to the current page,
          * or when it is fully stopped/idle.
          */
-        void onPageScrollStateChanged(@ScrollState int state);
+        public void onPageScrollStateChanged(@ScrollState int state) {
+        }
     }
 
     /**

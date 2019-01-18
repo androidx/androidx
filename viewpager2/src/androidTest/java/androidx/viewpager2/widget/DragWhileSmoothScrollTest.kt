@@ -68,7 +68,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 setAdapterSync(viewAdapterProvider(stringSequence(pageCount)))
                 viewPager.setCurrentItemSync(startPage, false, 2, SECONDS)
 
-                val listener = viewPager.addNewRecordingListener()
+                val callback = viewPager.addNewRecordingCallback()
                 val movingForward = targetPage > startPage
 
                 // when we are close enough
@@ -86,7 +86,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
                 viewPager.addWaitForIdleLatch().await(2, SECONDS)
 
                 // and check the result
-                listener.apply {
+                callback.apply {
                     assertThat(
                         "Unexpected sequence of state changes (0=IDLE, 1=DRAGGING, 2=SETTLING)" +
                                 dumpEvents(),
@@ -136,8 +136,8 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
-    private fun ViewPager2.addNewRecordingListener(): RecordingListener {
-        return RecordingListener().also { addOnPageChangeListener(it) }
+    private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
+        return RecordingCallback().also { registerOnPageChangeCallback(it) }
     }
 
     private sealed class Event {
@@ -150,7 +150,7 @@ class DragWhileSmoothScrollTest(private val config: TestConfig) : BaseTest() {
         data class OnPageScrollStateChangedEvent(val state: Int) : Event()
     }
 
-    private class RecordingListener : ViewPager2.OnPageChangeListener {
+    private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         private val events = mutableListOf<Event>()
 
         val stateEvents get() = events.mapNotNull { it as? OnPageScrollStateChangedEvent }

@@ -72,34 +72,34 @@ public abstract class FragmentStateAdapter extends
 
     private final FragmentManager mFragmentManager;
 
-    public FragmentStateAdapter(FragmentManager fragmentManager) {
+    public FragmentStateAdapter(@NonNull FragmentManager fragmentManager) {
         mFragmentManager = fragmentManager;
         super.setHasStableIds(true);
     }
 
     @Override
-    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+    public final void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         registerAdapterDataObserver(mDataObserver);
     }
 
     @Override
-    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+    public final void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         unregisterAdapterDataObserver(mDataObserver);
     }
 
     /**
-     * Return the Fragment associated with a specified position.
+     * Provide a Fragment associated with the specified position.
      */
-    public abstract Fragment getItem(int position);
+    public abstract @NonNull Fragment getItem(int position);
 
     @NonNull
     @Override
-    public FragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public final FragmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return FragmentViewHolder.create(parent);
     }
 
     @Override
-    public void onBindViewHolder(final @NonNull FragmentViewHolder holder, int position) {
+    public final void onBindViewHolder(final @NonNull FragmentViewHolder holder, int position) {
         holder.mFragment = getFragment(position);
 
         /** Special case when {@link RecyclerView} decides to keep the {@link container}
@@ -131,7 +131,7 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public void onViewAttachedToWindow(@NonNull FragmentViewHolder holder) {
+    public final void onViewAttachedToWindow(@NonNull FragmentViewHolder holder) {
         if (holder.mFragment.isAdded()) {
             return;
         }
@@ -140,12 +140,12 @@ public abstract class FragmentStateAdapter extends
     }
 
     @Override
-    public void onViewRecycled(@NonNull FragmentViewHolder holder) {
+    public final void onViewRecycled(@NonNull FragmentViewHolder holder) {
         removeFragment(holder);
     }
 
     @Override
-    public boolean onFailedToRecycleView(@NonNull FragmentViewHolder holder) {
+    public final boolean onFailedToRecycleView(@NonNull FragmentViewHolder holder) {
         // This happens when a ViewHolder is in a transient state (e.g. during custom
         // animation). We don't have sufficient information on how to clear up what lead to
         // the transient state, so we are throwing away the ViewHolder to stay on the
