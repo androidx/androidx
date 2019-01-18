@@ -839,7 +839,7 @@ public class Preference implements Comparable<Preference> {
      * the group is visible.
      *
      * @param visible Set false if this preference should be hidden from the user
-     * @attr ref R.styleable#Preference_isPreferenceVisible
+     * {@link R.attr#isPreferenceVisible}
      * @see #isShown()
      */
     public final void setVisible(boolean visible) {
@@ -1001,7 +1001,7 @@ public class Preference implements Comparable<Preference> {
      * letting it wrap onto multiple lines.
      *
      * @param singleLineTitle Set {@code true} if the title should be constrained to one line
-     * @attr ref R.styleable#Preference_android_singleLineTitle
+     * {@link R.attr#android_singleLineTitle}
      */
     public void setSingleLineTitle(boolean singleLineTitle) {
         mHasSingleLineTitleAttr = true;
@@ -1012,7 +1012,7 @@ public class Preference implements Comparable<Preference> {
      * Gets whether the title of this preference is constrained to a single line.
      *
      * @return {@code true} if the title of this preference is constrained to a single line
-     * @attr ref R.styleable#Preference_android_singleLineTitle
+     * {@link R.attr#android_singleLineTitle}
      * @see #setSingleLineTitle(boolean)
      */
     public boolean isSingleLineTitle() {
@@ -1025,7 +1025,7 @@ public class Preference implements Comparable<Preference> {
      * other preferences having icons.
      *
      * @param iconSpaceReserved Set {@code true} if the space for the icon view should be reserved
-     * @attr ref R.styleable#Preference_android_iconSpaceReserved
+     * {@link R.attr#android_iconSpaceReserved}
      */
     public void setIconSpaceReserved(boolean iconSpaceReserved) {
         if (mIconSpaceReserved != iconSpaceReserved) {
@@ -1038,7 +1038,7 @@ public class Preference implements Comparable<Preference> {
      * Returns whether the space of this preference icon view is reserved.
      *
      * @return {@code true} if the space of this preference icon view is reserved
-     * @attr ref R.styleable#Preference_android_iconSpaceReserved
+     * {@link R.attr#android_iconSpaceReserved}
      * @see #setIconSpaceReserved(boolean)
      */
     public boolean isIconSpaceReserved() {

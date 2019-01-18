@@ -203,7 +203,7 @@ import java.util.List;
  * <a href="https://developer.android.com/topic/libraries/architecture/paging/">library
  * documentation</a>.
  *
- * @attr ref androidx.recyclerview.R.styleable#RecyclerView_layoutManager
+ * {@link androidx.recyclerview.R.attr#layoutManager}
  */
 public class RecyclerView extends ViewGroup implements ScrollingView,
         NestedScrollingChild2, NestedScrollingChild3 {
@@ -10484,10 +10484,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         /**
          * Parse the xml attributes to get the most common properties used by layout managers.
          *
-         * @attr ref androidx.recyclerview.R.styleable#RecyclerView_android_orientation
-         * @attr ref androidx.recyclerview.R.styleable#RecyclerView_spanCount
-         * @attr ref androidx.recyclerview.R.styleable#RecyclerView_reverseLayout
-         * @attr ref androidx.recyclerview.R.styleable#RecyclerView_stackFromEnd
+         * {@link androidx.recyclerview.R.attr#android_orientation}
+         * {@link androidx.recyclerview.R.attr#spanCount}
+         * {@link androidx.recyclerview.R.attr#reverseLayout}
+         * {@link androidx.recyclerview.R.attr#stackFromEnd}
          *
          * @return an object containing the properties as specified in the attrs.
          */
@@ -10543,13 +10543,13 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
          * Some general properties that a LayoutManager may want to use.
          */
         public static class Properties {
-            /** @attr ref androidx.recyclerview.R.styleable#RecyclerView_android_orientation */
+            /** {@link androidx.recyclerview.R.attr#android_orientation} */
             public int orientation;
-            /** @attr ref androidx.recyclerview.R.styleable#RecyclerView_spanCount */
+            /** {@link androidx.recyclerview.R.attr#spanCount} */
             public int spanCount;
-            /** @attr ref androidx.recyclerview.R.styleable#RecyclerView_reverseLayout */
+            /** {@link androidx.recyclerview.R.attr#reverseLayout} */
             public boolean reverseLayout;
-            /** @attr ref androidx.recyclerview.R.styleable#RecyclerView_stackFromEnd */
+            /** {@link androidx.recyclerview.R.attr#stackFromEnd} */
             public boolean stackFromEnd;
         }
     }

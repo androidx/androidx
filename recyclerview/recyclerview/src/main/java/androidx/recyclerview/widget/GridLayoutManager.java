@@ -65,7 +65,7 @@ public class GridLayoutManager extends LinearLayoutManager {
      * "layoutManager". If spanCount is not specified in the XML, it defaults to a
      * single column.
      *
-     * @attr ref androidx.recyclerview.R.styleable#RecyclerView_spanCount
+     * {@link androidx.recyclerview.R.attr#spanCount}
      */
     public GridLayoutManager(Context context, AttributeSet attrs, int defStyleAttr,
                              int defStyleRes) {

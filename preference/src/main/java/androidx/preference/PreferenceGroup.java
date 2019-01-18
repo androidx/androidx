@@ -144,7 +144,7 @@ public abstract class PreferenceGroup extends Preference {
      * correctly persist state.
      *
      * @param expandedCount The number of children that is initially shown
-     * @attr ref R.styleable#PreferenceGroup_initialExpandedChildrenCount
+     * {@link R.attr#initialExpandedChildrenCount}
      */
     public void setInitialExpandedChildrenCount(int expandedCount) {
         if (expandedCount != Integer.MAX_VALUE && !hasKey()) {
@@ -158,7 +158,7 @@ public abstract class PreferenceGroup extends Preference {
      * Gets the maximal number of children that are initially shown.
      *
      * @return The maximal number of children that are initially shown
-     * @attr ref R.styleable#PreferenceGroup_initialExpandedChildrenCount
+     * {@link R.attr#initialExpandedChildrenCount}
      */
     public int getInitialExpandedChildrenCount() {
         return mInitialExpandedChildrenCount;

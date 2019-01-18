@@ -72,19 +72,19 @@ import java.io.IOException;
  * <li>Animated vector transitions do not support reversing prior to API level 24</li>
  * </ul>
  *
- * @attr ref android.R.styleable#DrawableStates_state_focused
- * @attr ref android.R.styleable#DrawableStates_state_window_focused
- * @attr ref android.R.styleable#DrawableStates_state_enabled
- * @attr ref android.R.styleable#DrawableStates_state_checkable
- * @attr ref android.R.styleable#DrawableStates_state_checked
- * @attr ref android.R.styleable#DrawableStates_state_selected
- * @attr ref android.R.styleable#DrawableStates_state_activated
- * @attr ref android.R.styleable#DrawableStates_state_active
- * @attr ref android.R.styleable#DrawableStates_state_single
- * @attr ref android.R.styleable#DrawableStates_state_first
- * @attr ref android.R.styleable#DrawableStates_state_middle
- * @attr ref android.R.styleable#DrawableStates_state_last
- * @attr ref android.R.styleable#DrawableStates_state_pressed
+ * {@link android.R.attr#state_focused}
+ * {@link android.R.attr#state_window_focused}
+ * {@link android.R.attr#state_enabled}
+ * {@link android.R.attr#state_checkable}
+ * {@link android.R.attr#state_checked}
+ * {@link android.R.attr#state_selected}
+ * {@link android.R.attr#state_activated}
+ * {@link android.R.attr#state_active}
+ * {@link android.R.attr#state_single}
+ * {@link android.R.attr#state_first}
+ * {@link android.R.attr#state_middle}
+ * {@link android.R.attr#state_last}
+ * {@link android.R.attr#state_pressed}
  * @see AppCompatResources#getDrawable(Context, int)
  */
 public class AnimatedStateListDrawableCompat extends StateListDrawable

@@ -193,7 +193,7 @@ class AppCompatTextViewAutoSizeHelper {
      *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_NONE} or
      *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}
      *
-     * @attr ref R.styleable#AppCompatTextView_autoSizeTextType
+     * {@link R.attr#autoSizeTextType}
      *
      * @see #getAutoSizeTextType()
      *
@@ -248,10 +248,10 @@ class AppCompatTextViewAutoSizeHelper {
      *
      * @throws IllegalArgumentException if any of the configuration params are invalid.
      *
-     * @attr ref R.styleable#AppCompatTextView_autoSizeTextType
-     * @attr ref R.styleable#AppCompatTextView_autoSizeMinTextSize
-     * @attr ref R.styleable#AppCompatTextView_autoSizeMaxTextSize
-     * @attr ref R.styleable#AppCompatTextView_autoSizeStepGranularity
+     * {@link R.attr#autoSizeTextType}
+     * {@link R.attr#autoSizeMinTextSize}
+     * {@link R.attr#autoSizeMaxTextSize}
+     * {@link R.attr#autoSizeStepGranularity}
      *
      * @see #setAutoSizeTextTypeWithDefaults(int)
      * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
@@ -297,8 +297,8 @@ class AppCompatTextViewAutoSizeHelper {
      *
      * @throws IllegalArgumentException if all of the <code>presetSizes</code> are invalid.
      *_
-     * @attr ref R.styleable#AppCompatTextView_autoSizeTextType
-     * @attr ref R.styleable#AppCompatTextView_autoSizePresetSizes
+     * {@link R.attr#autoSizeTextType}
+     * {@link R.attr#autoSizePresetSizes}
      *
      * @see #setAutoSizeTextTypeWithDefaults(int)
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
@@ -350,7 +350,7 @@ class AppCompatTextViewAutoSizeHelper {
      *         {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_NONE} or
      *         {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}
      *
-     * @attr ref R.styleable#AppCompatTextView_autoSizeTextType
+     * {@link R.attr#autoSizeTextType}
      *
      * @see #setAutoSizeTextTypeWithDefaults(int)
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
@@ -367,7 +367,7 @@ class AppCompatTextViewAutoSizeHelper {
     /**
      * @return the current auto-size step granularity in pixels.
      *
-     * @attr ref R.styleable#AppCompatTextView_autoSizeStepGranularity
+     * {@link R.attr#autoSizeStepGranularity}
      *
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
      *
@@ -382,7 +382,7 @@ class AppCompatTextViewAutoSizeHelper {
      * @return the current auto-size minimum text size in pixels (the default is 12sp). Note that
      *         if auto-size has not been configured this function returns {@code -1}.
      *
-     * @attr ref R.styleable#AppCompatTextView_autoSizeMinTextSize
+     * {@link R.attr#autoSizeMinTextSize}
      *
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
      * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)
@@ -398,7 +398,7 @@ class AppCompatTextViewAutoSizeHelper {
      * @return the current auto-size maximum text size in pixels (the default is 112sp). Note that
      *         if auto-size has not been configured this function returns {@code -1}.
      *
-     * @attr ref R.styleable#AppCompatTextView_autoSizeMaxTextSize
+     * {@link R.attr#autoSizeMaxTextSize}
      *
      * @see #setAutoSizeTextTypeUniformWithConfiguration(int, int, int, int)
      * @see #setAutoSizeTextTypeUniformWithPresetSizes(int[], int)

@@ -720,7 +720,7 @@ public class ViewCompat {
      * On API 25 and below, it is a no-op</p>
      *
      * @param autofillHints The autofill hints to set. If the array is emtpy, {@code null} is set.
-     * @attr ref android.R.styleable#View_autofillHints
+     * {@link android.R.attr#autofillHints}
      */
     public static void setAutofillHints(@NonNull View v, @Nullable String... autofillHints) {
         if (Build.VERSION.SDK_INT >= 26) {
@@ -740,7 +740,7 @@ public class ViewCompat {
      * @return {@link View#IMPORTANT_FOR_AUTOFILL_AUTO} by default, or value passed to
      * {@link #setImportantForAutofill(View, int)}.
      *
-     * @attr ref android.R.styleable#View_importantForAutofill
+     * {@link android.R.attr#importantForAutofill}
      */
     @SuppressLint("InlinedApi")
     public static @AutofillImportance int getImportantForAutofill(@NonNull View v) {
@@ -785,7 +785,7 @@ public class ViewCompat {
      * {@link View#IMPORTANT_FOR_AUTOFILL_YES_EXCLUDE_DESCENDANTS},
      * or {@link View#IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS}.
      *
-     * @attr ref android.R.styleable#View_importantForAutofill
+     * {@link android.R.attr#importantForAutofill}
      */
     public static void setImportantForAutofill(@NonNull View v, @AutofillImportance int mode) {
         if (Build.VERSION.SDK_INT >= 26) {

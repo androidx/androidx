@@ -114,27 +114,27 @@ import java.util.List;
  * be a subclass of {@link android.widget.EditText}, and should satisfy the {@link
  * ImeKeyMonitor} interface and {@link GuidedActionAutofillSupport} interface.
  *
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeAppearingAnimation
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeDisappearingAnimation
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsSelectorDrawable
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsListStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedSubActionsListStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedButtonActionsListStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemContainerStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemCheckmarkStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemIconStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemContentStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemTitleStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemDescriptionStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionItemChevronStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionPressedAnimation
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionUnpressedAnimation
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionEnabledChevronAlpha
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionDisabledChevronAlpha
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionTitleMinLines
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionTitleMaxLines
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionDescriptionMinLines
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionVerticalPadding
+ * {@link androidx.leanback.R.attr#guidedStepImeAppearingAnimation}
+ * {@link androidx.leanback.R.attr#guidedStepImeDisappearingAnimation}
+ * {@link androidx.leanback.R.attr#guidedActionsSelectorDrawable}
+ * {@link androidx.leanback.R.attr#guidedActionsListStyle}
+ * {@link androidx.leanback.R.attr#guidedSubActionsListStyle}
+ * {@link androidx.leanback.R.attr#guidedButtonActionsListStyle}
+ * {@link androidx.leanback.R.attr#guidedActionItemContainerStyle}
+ * {@link androidx.leanback.R.attr#guidedActionItemCheckmarkStyle}
+ * {@link androidx.leanback.R.attr#guidedActionItemIconStyle}
+ * {@link androidx.leanback.R.attr#guidedActionItemContentStyle}
+ * {@link androidx.leanback.R.attr#guidedActionItemTitleStyle}
+ * {@link androidx.leanback.R.attr#guidedActionItemDescriptionStyle}
+ * {@link androidx.leanback.R.attr#guidedActionItemChevronStyle}
+ * {@link androidx.leanback.R.attr#guidedActionPressedAnimation}
+ * {@link androidx.leanback.R.attr#guidedActionUnpressedAnimation}
+ * {@link androidx.leanback.R.attr#guidedActionEnabledChevronAlpha}
+ * {@link androidx.leanback.R.attr#guidedActionDisabledChevronAlpha}
+ * {@link androidx.leanback.R.attr#guidedActionTitleMinLines}
+ * {@link androidx.leanback.R.attr#guidedActionTitleMaxLines}
+ * {@link androidx.leanback.R.attr#guidedActionDescriptionMinLines}
+ * {@link androidx.leanback.R.attr#guidedActionVerticalPadding}
  * @see android.R.attr#listChoiceIndicatorSingle
  * @see android.R.attr#listChoiceIndicatorMultiple
  * @see androidx.leanback.app.GuidedStepFragment
