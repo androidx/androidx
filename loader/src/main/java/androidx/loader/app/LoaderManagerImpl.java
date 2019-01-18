@@ -37,7 +37,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Modifier;
 
 class LoaderManagerImpl extends LoaderManager {
-    static final String TAG = "LoaderManager";
+    private static final String TAG = "LoaderManager";
     static boolean DEBUG = false;
 
     /**
@@ -193,6 +193,7 @@ class LoaderManagerImpl extends LoaderManager {
             }
         }
 
+        @NonNull
         @Override
         public String toString() {
             StringBuilder sb = new StringBuilder(64);
@@ -265,6 +266,7 @@ class LoaderManagerImpl extends LoaderManager {
             }
         }
 
+        @NonNull
         @Override
         public String toString() {
             return mCallback.toString();
@@ -383,6 +385,7 @@ class LoaderManagerImpl extends LoaderManager {
         try {
             mLoaderViewModel.startCreatingLoader();
             Loader<D> loader = callback.onCreateLoader(id, args);
+            //noinspection ConstantConditions
             if (loader == null) {
                 throw new IllegalArgumentException("Object returned from onCreateLoader "
                         + "must not be null");
@@ -483,6 +486,7 @@ class LoaderManagerImpl extends LoaderManager {
         mLoaderViewModel.markForRedelivery();
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(128);

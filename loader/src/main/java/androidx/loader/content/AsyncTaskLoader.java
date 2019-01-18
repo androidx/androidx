@@ -40,8 +40,8 @@ import java.util.concurrent.TimeUnit;
  * documentation for a class overview.
  */
 public abstract class AsyncTaskLoader<D> extends Loader<D> {
-    static final String TAG = "AsyncTaskLoader";
-    static final boolean DEBUG = false;
+    private static final String TAG = "AsyncTaskLoader";
+    private static final boolean DEBUG = false;
 
     final class LoadTask extends ModernAsyncTask<D> implements Runnable {
         // Set to true to indicate that the task has been posted to a handler for
@@ -96,12 +96,12 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
 
     private Executor mExecutor;
 
-    volatile LoadTask mTask;
-    volatile LoadTask mCancellingTask;
+    private volatile LoadTask mTask;
+    private volatile LoadTask mCancellingTask;
 
-    long mUpdateThrottle;
-    long mLastLoadCompleteTime = -10000;
-    Handler mHandler;
+    private long mUpdateThrottle;
+    private long mLastLoadCompleteTime = -10000;
+    private Handler mHandler;
 
     public AsyncTaskLoader(@NonNull Context context) {
         super(context);
@@ -134,8 +134,8 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     protected boolean onCancelLoad() {
         if (DEBUG) Log.v(TAG, "onCancelLoad: mTask=" + mTask);
         if (mTask != null) {
-            if (!mStarted) {
-                mContentChanged = true;
+            if (!isStarted()) {
+                onContentChanged();
             }
             if (mCancellingTask != null) {
                 // There was a pending task already waiting for a previous
@@ -180,6 +180,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     public void onCanceled(@Nullable D data) {
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void executePendingTask() {
         if (mCancellingTask == null && mTask != null) {
             if (mTask.waiting) {
@@ -206,6 +207,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void dispatchOnCancelled(LoadTask task, D data) {
         onCanceled(data);
         if (mCancellingTask == task) {
@@ -219,6 +221,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void dispatchOnLoadComplete(LoadTask task, D data) {
         if (mTask != task) {
             if (DEBUG) Log.v(TAG, "Load complete of old task, trying to cancel");
@@ -325,28 +328,29 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         return AsyncTask.THREAD_POOL_EXECUTOR;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @Deprecated
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         super.dump(prefix, fd, writer, args);
         if (mTask != null) {
             writer.print(prefix); writer.print("mTask="); writer.print(mTask);
-                    writer.print(" waiting="); writer.println(mTask.waiting);
+            writer.print(" waiting="); writer.println(mTask.waiting);
         }
         if (mCancellingTask != null) {
             writer.print(prefix); writer.print("mCancellingTask="); writer.print(mCancellingTask);
-                    writer.print(" waiting="); writer.println(mCancellingTask.waiting);
+            writer.print(" waiting="); writer.println(mCancellingTask.waiting);
         }
         if (mUpdateThrottle != 0) {
             writer.print(prefix); writer.print("mUpdateThrottle=");
-                    writer.print(DateUtils.formatElapsedTime(
-                            TimeUnit.MILLISECONDS.toSeconds(mUpdateThrottle)));
-                    writer.print(" mLastLoadCompleteTime=");
-                    writer.print(mLastLoadCompleteTime == -10000
-                            ? "--"
-                            : "-" + DateUtils.formatElapsedTime(TimeUnit.MILLISECONDS.toSeconds(
+            writer.print(DateUtils.formatElapsedTime(
+                    TimeUnit.MILLISECONDS.toSeconds(mUpdateThrottle)));
+            writer.print(" mLastLoadCompleteTime=");
+            writer.print(mLastLoadCompleteTime == -10000
+                    ? "--"
+                    : "-" + DateUtils.formatElapsedTime(TimeUnit.MILLISECONDS.toSeconds(
                                     SystemClock.uptimeMillis() - mLastLoadCompleteTime)));
-                    writer.println();
+            writer.println();
         }
     }
 }
