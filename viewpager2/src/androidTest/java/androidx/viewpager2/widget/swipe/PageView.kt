@@ -30,7 +30,7 @@ object PageView {
     fun inflatePage(parent: ViewGroup): View =
             LayoutInflater.from(parent.context).inflate(R.layout.item_test_layout, parent, false)
 
-    fun findPageInActivity(activity: Activity): View = activity.findViewById(R.id.text_view)
+    fun findPageInActivity(activity: Activity): View? = activity.findViewById(R.id.text_view)
 
     fun getPageText(page: View): String = (page as TextView).text.toString()
 
