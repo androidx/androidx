@@ -52,7 +52,7 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
                     if (modifiedPageValue != null) {
                         expectedValues[currentPage] = modifiedPageValue
                         runOnUiThread {
-                            PageView.setPageText(PageView.findPageInActivity(activity),
+                            PageView.setPageText(PageView.findPageInActivity(activity)!!,
                                     modifiedPageValue)
                         }
                     }
