@@ -63,7 +63,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
                         handleStatefulAdapterItemChange(action.position, items, this)
                     }
 
-                    notifyDatasetChangedSync()
+                    notifyDataSetChangedSync()
                     verifyViewPagerContent(items)
                 }
 
@@ -110,7 +110,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
 
     private fun Context.setCurrentPageContent(newContent: String) {
         runOnUiThread {
-            PageView.setPageText(PageView.findPageInActivity(activity), newContent)
+            PageView.setPageText(PageView.findPageInActivity(activity)!!, newContent)
         }
     }
 
@@ -119,8 +119,10 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
     }
 
     private fun Context.verifyViewPagerContent(items: MutableList<String>) {
-        fun isPageContentExpected(expectedValue: String): Boolean =
-            PageView.getPageText(PageView.findPageInActivity(activity)) == expectedValue
+        fun isPageContentExpected(expectedValue: String): Boolean {
+            val page = PageView.findPageInActivity(activity) ?: return false
+            return PageView.getPageText(page) == expectedValue
+        }
 
         (0 until viewPager.adapter.itemCount).forEach { pageIx ->
             setCurrentItemSync(pageIx)
@@ -134,7 +136,7 @@ class MutableCollectionsTest(private val testConfig: TestConfig) : BaseTest() {
         }
     }
 
-    private fun Context.notifyDatasetChangedSync() {
+    private fun Context.notifyDataSetChangedSync() {
         val latch = CountDownLatch(1)
         viewPager.viewTreeObserver.addOnGlobalLayoutListener { latch.countDown() }
 
