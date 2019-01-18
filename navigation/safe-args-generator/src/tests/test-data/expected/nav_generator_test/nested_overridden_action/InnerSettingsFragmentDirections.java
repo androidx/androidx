@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.navigation.safe.args.generator
+package foo.flavor;
 
-import androidx.navigation.safe.args.generator.models.Destination
+import android.support.annotation.NonNull;
 
-interface NavWriter<T : CodeFile> {
-    fun generateDirectionsCodeFile(
-        destination: Destination,
-        parentDirectionsFileList: List<T>
-    ): T
-
-    fun generateArgsCodeFile(destination: Destination): T
+public class InnerSettingsFragmentDirections {
+    @NonNull
+    public static InnerSettingsDirections.Exit exit(int exitReason) {
+        return InnerSettingsDirections.exit(exitReason);
+    }
 }
