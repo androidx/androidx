@@ -7,6 +7,7 @@ package androidx.car.cluster.navigation {
     method public java.time.ZonedDateTime? getEta();
     method public androidx.car.cluster.navigation.LatLng? getLocation();
     method public String getTitle();
+    method public androidx.car.cluster.navigation.Destination.Traffic getTraffic();
   }
 
   public static final class Destination.Builder {
@@ -17,6 +18,14 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.Destination.Builder setEta(java.time.ZonedDateTime?);
     method public androidx.car.cluster.navigation.Destination.Builder setLocation(androidx.car.cluster.navigation.LatLng?);
     method public androidx.car.cluster.navigation.Destination.Builder setTitle(String);
+    method public androidx.car.cluster.navigation.Destination.Builder setTraffic(androidx.car.cluster.navigation.Destination.Traffic, androidx.car.cluster.navigation.Destination.Traffic...);
+  }
+
+  public static enum Destination.Traffic {
+    enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic HIGH;
+    enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic LOW;
+    enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic MEDIUM;
+    enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic UNKNOWN;
   }
 
   public final class Distance implements androidx.versionedparcelable.VersionedParcelable {
