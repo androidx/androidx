@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.viewpager2;
-
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+package androidx.viewpager2.widget;
 
 import android.view.View;
 
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.viewpager2.widget.ViewPager2.OnPageChangeListener;
+import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback;
 import androidx.viewpager2.widget.ViewPager2.PageTransformer;
 
 import java.util.Locale;
 
 /**
- * Translates {@link OnPageChangeListener} events to {@link PageTransformer} events.
- *
- * @hide
+ * Translates {@link OnPageChangeCallback} events to {@link PageTransformer} events.
  */
-@RestrictTo(LIBRARY)
-public class PageTransformerAdapter implements OnPageChangeListener {
+final class PageTransformerAdapter extends OnPageChangeCallback {
     private final LinearLayoutManager mLayoutManager;
 
     private PageTransformer mPageTransformer;
 
-    public PageTransformerAdapter(LinearLayoutManager layoutManager) {
+    PageTransformerAdapter(LinearLayoutManager layoutManager) {
         mLayoutManager = layoutManager;
     }
 
@@ -49,7 +43,7 @@ public class PageTransformerAdapter implements OnPageChangeListener {
      *
      * @param transformer The PageTransformer
      */
-    public void setPageTransformer(@Nullable PageTransformer transformer) {
+    void setPageTransformer(@Nullable PageTransformer transformer) {
         // TODO: add support for reverseDrawingOrder: b/112892792
         // TODO: add support for pageLayerType: b/112893074
         mPageTransformer = transformer;

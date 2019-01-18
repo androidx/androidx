@@ -25,11 +25,11 @@ import androidx.test.filters.LargeTest
 import androidx.testutils.PollingCheck
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager2.LocaleTestUtils
-import androidx.viewpager2.widget.PageChangeListenerTest.Event.MarkerEvent
-import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageScrollStateChangedEvent
-import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageScrolledEvent
-import androidx.viewpager2.widget.PageChangeListenerTest.Event.OnPageSelectedEvent
-import androidx.viewpager2.widget.PageChangeListenerTest.TestConfig
+import androidx.viewpager2.widget.PageChangeCallbackTest.Event.MarkerEvent
+import androidx.viewpager2.widget.PageChangeCallbackTest.Event.OnPageScrollStateChangedEvent
+import androidx.viewpager2.widget.PageChangeCallbackTest.Event.OnPageScrolledEvent
+import androidx.viewpager2.widget.PageChangeCallbackTest.Event.OnPageSelectedEvent
+import androidx.viewpager2.widget.PageChangeCallbackTest.TestConfig
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING
@@ -50,7 +50,7 @@ import kotlin.math.roundToInt
 
 @RunWith(Parameterized::class)
 @LargeTest
-class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
+class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
     data class TestConfig(
         @ViewPager2.Orientation val orientation: Int,
         val rtl: Boolean
@@ -109,8 +109,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 val initialPage = viewPager.currentItem
                 assertThat(Math.abs(initialPage - targetPage), equalTo(1))
 
-                viewPager.clearOnPageChangeListeners()
-                val listener = viewPager.addNewRecordingListener()
+                val callback = viewPager.addNewRecordingCallback()
                 val latch = viewPager.addWaitForScrolledLatch(targetPage)
 
                 // when
@@ -120,7 +119,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 // then
                 assertBasicState(targetPage, "$targetPage")
 
-                listener.apply {
+                callback.apply {
                     // verify all events
                     assertThat(draggingIx, equalTo(0))
                     assertThat(settlingIx, isBetweenInEx(firstScrolledIx + 1, lastScrolledIx))
@@ -138,6 +137,8 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                     scrollEvents.assertLastCorrect(targetPage)
                     scrollEvents.assertMaxShownPages()
                 }
+
+                viewPager.unregisterOnPageChangeCallback(callback)
             }
         }
     }
@@ -169,8 +170,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             listOf(0, 0, 1, 2, 2, 2, 1, 2, 2, 2, 1, 0, 0, 0).forEach { targetPage ->
                 // given
                 val initialPage = viewPager.currentItem
-                viewPager.clearOnPageChangeListeners()
-                val listener = viewPager.addNewRecordingListener()
+                val callback = viewPager.addNewRecordingCallback()
                 val latch = viewPager.addWaitForScrolledLatch(targetPage)
 
                 // when
@@ -181,7 +181,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 assertBasicState(targetPage, "$targetPage")
 
                 if (targetPage == initialPage && edgePages.contains(targetPage)) {
-                    listener.apply {
+                    callback.apply {
                         // verify all events
                         assertThat("Events should start with a state change to DRAGGING",
                             draggingIx, equalTo(0))
@@ -202,6 +202,8 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                         }
                     }
                 }
+
+                viewPager.unregisterOnPageChangeCallback(callback)
             }
         }
     }
@@ -228,7 +230,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         // given
         setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(3)))
-            val listener = viewPager.addNewRecordingListener()
+            val callback = viewPager.addNewRecordingCallback()
             val latch = viewPager.addWaitForScrolledLatch(0)
 
             // when
@@ -236,7 +238,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             latch.await(1, SECONDS)
 
             // then
-            listener.apply {
+            callback.apply {
                 // verify all events
                 assertThat("There should be exactly 1 dragging event",
                     stateEvents(SCROLL_STATE_DRAGGING).size, equalTo(1))
@@ -262,6 +264,8 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 scrollEvents.assertValueSanity(0, 0, viewPager.pageSize)
                 scrollEvents.assertLastCorrect(0)
             }
+
+            viewPager.unregisterOnPageChangeCallback(callback)
         }
     }
 
@@ -288,17 +292,16 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
 
             viewPager.setCurrentItemSync(2, false, 200, MILLISECONDS)
 
-            // set up test listeners
-            viewPager.clearOnPageChangeListeners()
-            val listener = viewPager.addNewRecordingListener()
-            val latch1 = viewPager.addWaitForScrolledLatch(2)
+            // set up test callbacks
+            val callback = viewPager.addNewRecordingCallback()
+            val latch = viewPager.addWaitForScrolledLatch(2)
 
             // when
             peekBackward()
-            latch1.await(10, SECONDS)
+            latch.await(10, SECONDS)
 
             // then
-            listener.apply {
+            callback.apply {
                 // verify all events
                 assertThat("There should be exactly 1 dragging event",
                     stateEvents(SCROLL_STATE_DRAGGING).size, equalTo(1))
@@ -326,6 +329,8 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 scrollEvents.dropLast(1).assertValueSanity(1, 1, viewPager.pageSize)
                 scrollEvents.assertLastCorrect(2)
             }
+
+            viewPager.unregisterOnPageChangeCallback(callback)
         }
     }
 
@@ -365,14 +370,13 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             // when
             listOf(6, 5, 6, 3, 10, 0, 0, 999, 999, 0).forEach { targetPage ->
                 val currentPage = viewPager.currentItem
-                viewPager.clearOnPageChangeListeners()
-                val listener = viewPager.addNewRecordingListener()
+                val callback = viewPager.addNewRecordingCallback()
 
                 viewPager.setCurrentItemSync(targetPage, true, 2, SECONDS)
 
                 // then
                 val pageIxDelta = targetPage - currentPage
-                listener.apply {
+                callback.apply {
                     when (pageIxDelta) {
                         0 -> assertThat(eventCount, equalTo(0))
                         else -> {
@@ -393,6 +397,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                         }
                     }
                 }
+                viewPager.unregisterOnPageChangeCallback(callback)
             }
         }
     }
@@ -403,7 +408,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(10)))
             val targetPages = listOf(4, 9)
-            val listener = viewPager.addNewRecordingListener()
+            val callback = viewPager.addNewRecordingCallback()
             val latch = viewPager.addWaitForScrolledLatch(targetPages.last(), true)
 
             // when
@@ -415,7 +420,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             latch.await(2, SECONDS)
 
             // then
-            listener.apply {
+            callback.apply {
                 val targetPage = targetPages.last()
                 assertThat(settlingIx, equalTo(0))
                 assertThat(viewPager.currentItem, equalTo(targetPage))
@@ -423,6 +428,8 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                 assertAllPagesSelected(targetPages)
                 assertScrollsAreBetweenSelectedPages()
             }
+
+            viewPager.unregisterOnPageChangeCallback(callback)
         }
     }
 
@@ -452,19 +459,19 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             setAdapterSync(viewAdapterProvider(stringSequence(6)))
             val targetPage = 4
             val marker = 1
-            val listener = viewPager.addNewRecordingListener()
+            val callback = viewPager.addNewRecordingCallback()
 
             // when
             runOnUiThread { viewPager.setCurrentItem(targetPage, true) }
             viewPager.addWaitForDistanceToTarget(targetPage, 2f).await(2, SECONDS)
             runOnUiThread {
                 viewPager.setCurrentItem(targetPage, false)
-                listener.markEvent(marker)
+                callback.markEvent(marker)
             }
             viewPager.addWaitForIdleLatch().await(2, SECONDS)
 
             // then
-            listener.apply {
+            callback.apply {
                 assertThat(selectEvents.map { it.position }, equalTo(listOf(targetPage)))
                 assertThat(
                     stateEvents.map { it.state },
@@ -568,17 +575,17 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             val adapterProvider = viewAdapterProvider(stringSequence(5))
             setAdapterSync(adapterProvider)
             val marker = 1
-            val listener = viewPager.addNewRecordingListener()
+            val callback = viewPager.addNewRecordingCallback()
 
             // when
             runOnUiThread { viewPager.setCurrentItem(targetPage, true) }
             delayCallback(viewPager)
 
             recreateActivity(adapterProvider) { newViewPager ->
-                // mark the config change in the listener
-                listener.markEvent(marker)
-                // viewPager is recreated, so need to reattach listener
-                newViewPager.addOnPageChangeListener(listener)
+                // mark the config change in the callback
+                callback.markEvent(marker)
+                // viewPager is recreated, so need to reattach callback
+                newViewPager.registerOnPageChangeCallback(callback)
             }
 
             // wait until we're at the target page. can take a while on stuttering devices.
@@ -586,7 +593,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             viewPager.waitUntilSnappedOnTargetByPolling(targetPage)
 
             // then
-            listener.apply {
+            callback.apply {
                 assertThat("viewPager.getCurrentItem() does not return the target page",
                     viewPager.currentItem, equalTo(targetPage))
                 assertThat("Currently shown page is not the target page",
@@ -630,14 +637,13 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
             // when
             listOf(2, 2, 0, 0, 1, 2, 1, 0).forEach { targetPage ->
                 val currentPage = viewPager.currentItem
-                viewPager.clearOnPageChangeListeners()
-                val listener = viewPager.addNewRecordingListener()
+                val callback = viewPager.addNewRecordingCallback()
 
                 viewPager.setCurrentItemSync(targetPage, false, 200, MILLISECONDS)
 
                 // then
                 val pageIxDelta = targetPage - currentPage
-                listener.apply {
+                callback.apply {
                     when (pageIxDelta) {
                         0 -> assertThat(eventCount, equalTo(0))
                         else -> {
@@ -648,15 +654,17 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
                         }
                     }
                 }
+
+                viewPager.unregisterOnPageChangeCallback(callback)
             }
         }
     }
 
     /**
-     * Test behavior when no OnPageChangeListeners are attached.
+     * Test behavior when no {@link OnPageChangeCallback}s are attached.
      * Introduced after finding a regression.
      */
-    private fun test_selectItemProgrammatically_noListener(smoothScroll: Boolean) {
+    private fun test_selectItemProgrammatically_noCallback(smoothScroll: Boolean) {
         // given
         setUpTest(config.orientation).apply {
             setAdapterSync(viewAdapterProvider(stringSequence(3)))
@@ -679,13 +687,13 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
     }
 
     @Test
-    fun test_selectItemProgrammatically_noSmoothScroll_noListener() {
-        test_selectItemProgrammatically_noListener(false)
+    fun test_selectItemProgrammatically_noSmoothScroll_noCallback() {
+        test_selectItemProgrammatically_noCallback(false)
     }
 
     @Test
-    fun test_selectItemProgrammatically_smoothScroll_noListener() {
-        test_selectItemProgrammatically_noListener(true)
+    fun test_selectItemProgrammatically_smoothScroll_noCallback() {
+        test_selectItemProgrammatically_noCallback(true)
     }
 
     @Test
@@ -714,11 +722,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         viewPager.adapter = noOpAdapter
 
         // when
-        viewPager.addOnPageChangeListener(object : ViewPager2.OnPageChangeListener {
-            override fun onPageScrolled(position: Int, offset: Float, offsetPx: Int) {}
-            override fun onPageSelected(position: Int) {}
-            override fun onPageScrollStateChanged(state: Int) {}
-        })
+        viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {})
         viewPager.setCurrentItem(2, true)
         viewPager.setCurrentItem(3, false)
 
@@ -726,8 +730,8 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         // no crash
     }
 
-    private fun ViewPager2.addNewRecordingListener(): RecordingListener {
-        return RecordingListener().also { addOnPageChangeListener(it) }
+    private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
+        return RecordingCallback().also { registerOnPageChangeCallback(it) }
     }
 
     private fun ViewPager2.waitUntilSnappedOnTargetByPolling(targetPage: Int) {
@@ -751,7 +755,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         data class MarkerEvent(val id: Int) : Event()
     }
 
-    private class RecordingListener : ViewPager2.OnPageChangeListener {
+    private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         private val events = mutableListOf<Event>()
 
         val scrollEvents get() = events.mapNotNull { it as? OnPageScrolledEvent }
@@ -803,12 +807,12 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
-    private fun RecordingListener.assertAllPagesSelected(pages: List<Int>) {
+    private fun RecordingCallback.assertAllPagesSelected(pages: List<Int>) {
         assertThat(listOf(1, 2), not(equalTo(listOf(2, 1))))
         assertThat(selectEvents.map { it.position }, equalTo(pages))
     }
 
-    private fun RecordingListener.assertScrollsAreBetweenSelectedPages() {
+    private fun RecordingCallback.assertScrollsAreBetweenSelectedPages() {
         var selectedPage = -1
         var prevScrollPosition = 0f
         scrollAndSelectEvents.forEach { event ->
@@ -825,7 +829,7 @@ class PageChangeListenerTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
-    private fun RecordingListener.assertTargetReachedAfterMarker(targetPage: Int, marker: Int) {
+    private fun RecordingCallback.assertTargetReachedAfterMarker(targetPage: Int, marker: Int) {
         val finalEvents = eventsAfter(marker)
         assertThat(finalEvents[0], equalTo(OnPageScrolledEvent(targetPage, 0f, 0) as Event))
         assertThat(

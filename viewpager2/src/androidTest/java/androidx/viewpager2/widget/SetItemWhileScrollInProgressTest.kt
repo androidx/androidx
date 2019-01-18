@@ -139,8 +139,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
             // given
             setUpTest(orientation).apply {
                 setAdapterSync(viewAdapterProvider(stringSequence(totalPages)))
-                viewPager.clearOnPageChangeListeners()
-                val listener = viewPager.addNewRecordingListener()
+                val callback = viewPager.addNewRecordingCallback()
                 var currentPage = viewPager.currentItem
 
                 // when
@@ -149,20 +148,20 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
                         viewPager.setCurrentItem(targetPage, i !in instantScrolls)
                         viewPager.assertCurrentItemSet(targetPage)
                         if (currentPage != targetPage) {
-                            listener.assertPageSelectedEventFired(targetPage)
+                            callback.assertPageSelectedEventFired(targetPage)
                         } else {
-                            listener.assertNoNewPageSelectedEventFired(targetPage)
+                            callback.assertNoNewPageSelectedEventFired(targetPage)
                         }
                         currentPage = targetPage
                     }
                     SystemClock.sleep(100)
                 }
                 PollingCheck.waitFor(2000) {
-                    listener.testFinished
+                    callback.isTestFinished
                 }
 
                 // then
-                listener.apply {
+                callback.apply {
                     assertThat(draggingIx, equalTo(-1))
                     assertThat(lastState?.state, equalTo(0))
                     assertThat(lastScroll?.position, equalTo(lastSelect?.position))
@@ -170,12 +169,14 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
                     assertStateEventsDoNotRepeat()
                     assertScrollTowardsSelectedPage()
                 }
+
+                viewPager.unregisterOnPageChangeCallback(callback)
             }
         }
     }
 
-    private fun ViewPager2.addNewRecordingListener(): RecordingListener {
-        return RecordingListener().also { addOnPageChangeListener(it) }
+    private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
+        return RecordingCallback().also { registerOnPageChangeCallback(it) }
     }
 
     private sealed class Event {
@@ -188,7 +189,7 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         data class OnPageScrollStateChangedEvent(val state: Int) : Event()
     }
 
-    private class RecordingListener : ViewPager2.OnPageChangeListener {
+    private class RecordingCallback : ViewPager2.OnPageChangeCallback() {
         val events = mutableListOf<Event>()
 
         val stateEvents get() = events.mapNotNull { it as? OnPageScrollStateChangedEvent }
@@ -222,29 +223,29 @@ class SetItemWhileScrollInProgressTest(private val config: TestConfig) : BaseTes
         }
     }
 
-    private val RecordingListener.testFinished get() = synchronized(events) {
+    private val RecordingCallback.isTestFinished get() = synchronized(events) {
         lastState?.state == 0 &&
                 lastSelect?.position == lastScroll?.position &&
                 lastScroll?.positionOffsetPixels == 0
     }
 
-    private fun RecordingListener.assertPageSelectedEventFired(targetPage: Int) {
+    private fun RecordingCallback.assertPageSelectedEventFired(targetPage: Int) {
         assertThat(lastEvent, instanceOf(OnPageSelectedEvent::class.java))
         val selectedEvent = lastEvent as Event.OnPageSelectedEvent
         assertThat(selectedEvent.position, equalTo(targetPage))
     }
 
-    private fun RecordingListener.assertNoNewPageSelectedEventFired(targetPage: Int) {
+    private fun RecordingCallback.assertNoNewPageSelectedEventFired(targetPage: Int) {
         assertThat(lastSelect?.position, anyOf(nullValue(), equalTo(targetPage)))
     }
 
-    private fun RecordingListener.assertStateEventsDoNotRepeat() {
+    private fun RecordingCallback.assertStateEventsDoNotRepeat() {
         stateEvents.zipWithNext { a, b ->
             assertThat("State transition to same state found", a.state, not(equalTo(b.state)))
         }
     }
 
-    private fun RecordingListener.assertScrollTowardsSelectedPage() {
+    private fun RecordingCallback.assertScrollTowardsSelectedPage() {
         var target = 0
         var prevPosition = 0f
         events.forEach {
