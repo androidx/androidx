@@ -53,7 +53,7 @@ public class ShortcutManagerCompat {
      * When user selects a direct share item from ShareSheet, the app will receive a share intent
      * which includes the ID of the corresponding shortcut in the extras field.
      */
-    public static final String EXTRA_SHORTCUT_ID = "android.intent.extra.SHORTCUT_ID";
+    public static final String EXTRA_SHORTCUT_ID = "android.intent.extra.shortcut.ID";
 
     /**
      * ShortcutInfoCompatSaver instance that provides APIs to persist shortcuts locally.
