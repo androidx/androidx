@@ -56,7 +56,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
@@ -3661,7 +3660,7 @@ public class ViewCompat {
      * @see #removeOnUnhandledKeyEventListener
      */
     public static void addOnUnhandledKeyEventListener(@NonNull View v,
-            @NonNull OnUnhandledKeyEventListenerCompat listener) {
+            final @NonNull OnUnhandledKeyEventListenerCompat listener) {
         if (Build.VERSION.SDK_INT >= 28) {
             Map<OnUnhandledKeyEventListenerCompat, View.OnUnhandledKeyEventListener>
                     viewListeners = (Map<OnUnhandledKeyEventListenerCompat,
@@ -3671,8 +3670,14 @@ public class ViewCompat {
                 viewListeners = new ArrayMap<>();
                 v.setTag(R.id.tag_unhandled_key_listeners, viewListeners);
             }
-            View.OnUnhandledKeyEventListener fwListener =
-                    new OnUnhandledKeyEventListenerWrapper(listener);
+
+            View.OnUnhandledKeyEventListener fwListener = new View.OnUnhandledKeyEventListener() {
+                @Override
+                public boolean onUnhandledKeyEvent(View v, KeyEvent event) {
+                    return listener.onUnhandledKeyEvent(v, event);
+                }
+            };
+
             viewListeners.put(listener, fwListener);
             v.addOnUnhandledKeyEventListener(fwListener);
             return;
@@ -3740,19 +3745,6 @@ public class ViewCompat {
          * @return {@code true} if the listener has consumed the event, {@code false} otherwise.
          */
         boolean onUnhandledKeyEvent(View v, KeyEvent event);
-    }
-
-    @RequiresApi(28)
-    private static class OnUnhandledKeyEventListenerWrapper
-            implements View.OnUnhandledKeyEventListener {
-        private OnUnhandledKeyEventListenerCompat mCompatListener;
-        OnUnhandledKeyEventListenerWrapper(OnUnhandledKeyEventListenerCompat listener) {
-            mCompatListener = listener;
-        }
-        @Override
-        public boolean onUnhandledKeyEvent(View v, KeyEvent event) {
-            return mCompatListener.onUnhandledKeyEvent(v, event);
-        }
     }
 
     @UiThread
