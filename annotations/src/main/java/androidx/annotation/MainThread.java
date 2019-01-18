@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  * </code></pre>
  *
  * <p class="note"><b>Note:</b> Ordinarily, an app's main thread is also the UI
- * thread. However, However, under special circumstances, an app's main thread
+ * thread. However, under special circumstances, an app's main thread
  * might not be its UI thread; for more information, see
  * <a href="/studio/write/annotations.html#thread-annotations">Thread
  * annotations</a>.
