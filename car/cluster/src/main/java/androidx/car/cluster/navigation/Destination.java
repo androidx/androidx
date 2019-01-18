@@ -44,6 +44,22 @@ public final class Destination implements VersionedParcelable {
     Time mEta;
     @ParcelField(5)
     LatLng mLatLng;
+    @ParcelField(6)
+    EnumWrapper<Traffic> mTraffic;
+
+    /**
+     * Congestion level on the way to a destination, compared to ideal driving conditions.
+     */
+    public enum Traffic {
+        /** Traffic information is not available */
+        UNKNOWN,
+        /** High amount of traffic */
+        HIGH,
+        /** Intermediate amount of traffic */
+        MEDIUM,
+        /** Traffic level close to free flow */
+        LOW,
+    }
 
     /**
      * Used by {@link VersionedParcelable}
@@ -59,12 +75,13 @@ public final class Destination implements VersionedParcelable {
      */
     @RestrictTo(LIBRARY_GROUP)
     Destination(@NonNull String title, @NonNull String address, @Nullable Distance distance,
-            @Nullable Time eta, @Nullable LatLng latlng) {
+            @Nullable Time eta, @Nullable LatLng latlng, @Nullable EnumWrapper<Traffic> traffic) {
         mTitle = title;
         mAddress = address;
         mDistance = distance;
         mEta = eta;
         mLatLng = latlng;
+        mTraffic = traffic;
     }
 
     /**
@@ -76,6 +93,7 @@ public final class Destination implements VersionedParcelable {
         private Distance mDistance;
         private Time mEta;
         private LatLng mLatLng;
+        private EnumWrapper<Traffic> mTraffic;
 
         /**
          * Sets the destination title (formatted for the current user's locale), or empty if there
@@ -137,11 +155,25 @@ public final class Destination implements VersionedParcelable {
         }
 
         /**
+         * Sets the congestion level to this destination, compared to ideal driving conditions.
+         *
+         * @param traffic traffic level
+         * @param fallbacks Variations of {@code traffic}, in case the consumer of this API doesn't
+         *                  support the main one (used for backward compatibility).
+         * @return this object for chaining
+         */
+        @NonNull
+        public Builder setTraffic(@NonNull Traffic traffic, @NonNull Traffic... fallbacks) {
+            mTraffic = EnumWrapper.of(traffic, fallbacks);
+            return this;
+        }
+
+        /**
          * Returns a {@link Destination} built with the provided information.
          */
         @NonNull
         public Destination build() {
-            return new Destination(mTitle, mAddress, mDistance, mEta, mLatLng);
+            return new Destination(mTitle, mAddress, mDistance, mEta, mLatLng, mTraffic);
         }
     }
 
@@ -182,6 +214,14 @@ public final class Destination implements VersionedParcelable {
     }
 
     /**
+     * Returns the congestion level to this destination, compared to to ideal driving conditions.
+     */
+    @NonNull
+    public Traffic getTraffic() {
+        return EnumWrapper.getValue(mTraffic, Traffic.UNKNOWN);
+    }
+
+    /**
      * Returns the geo-location of this destination, or null if it was not provided or is unknown.
      */
     @Nullable
@@ -202,17 +242,19 @@ public final class Destination implements VersionedParcelable {
                 && Objects.equals(getAddress(), that.getAddress())
                 && Objects.equals(getDistance(), that.getDistance())
                 && Objects.equals(getLocation(), that.getLocation())
-                && Objects.equals(getEta(), that.getEta());
+                && Objects.equals(getEta(), that.getEta())
+                && Objects.equals(getTraffic(), that.getTraffic());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getTitle(), getAddress(), getDistance(), getLocation(), getEta());
+        return Objects.hash(getTitle(), getAddress(), getDistance(), getLocation(), getEta(),
+            getTraffic());
     }
 
     @Override
     public String toString() {
-        return String.format("{title: %s, address: %s, distance: %s, location: %s, eta: %s}",
-                mTitle, mAddress, mDistance, mLatLng, mEta);
+        return String.format("{title: %s, address: %s, distance: %s, location: %s, eta: %s, "
+                + "traffic: %s}", mTitle, mAddress, mDistance, mLatLng, mEta, mTraffic);
     }
 }
