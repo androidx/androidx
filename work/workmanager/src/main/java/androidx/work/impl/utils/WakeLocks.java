@@ -25,6 +25,8 @@ import android.support.annotation.RestrictTo;
 
 import androidx.work.Logger;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
@@ -74,14 +76,19 @@ public class WakeLocks {
         // drained and wake locks are no longer being held, a new command comes along and we end up
         // with a ConcurrentModificationException. The addition of commands happens on the command
         // processor thread and this check is done on the main thread.
+
+        Map<PowerManager.WakeLock, String> wakeLocksCopy = new HashMap<>();
         synchronized (sWakeLocks) {
-            for (PowerManager.WakeLock wakeLock : sWakeLocks.keySet()) {
-                if (wakeLock.isHeld()) {
-                    String message = String.format(
-                            "WakeLock held for %s",
-                            sWakeLocks.get(wakeLock));
-                    Logger.get().warning(TAG, message);
-                }
+            // Copy the WakeLocks - otherwise we can get a ConcurrentModificationException if the
+            // garbage collector kicks in and ends up removing something from the master copy while
+            // we are iterating over it.
+            wakeLocksCopy.putAll(sWakeLocks);
+        }
+
+        for (PowerManager.WakeLock wakeLock : wakeLocksCopy.keySet()) {
+            if (wakeLock.isHeld()) {
+                String message = String.format("WakeLock held for %s", wakeLocksCopy.get(wakeLock));
+                Logger.get().warning(TAG, message);
             }
         }
     }
