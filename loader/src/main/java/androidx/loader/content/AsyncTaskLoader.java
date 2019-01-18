@@ -16,25 +16,21 @@
 
 package androidx.loader.content;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.core.os.OperationCanceledException;
-import androidx.core.util.TimeUtils;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Static library support version of the framework's {@link android.content.AsyncTaskLoader}.
@@ -44,12 +40,10 @@ import java.util.concurrent.Executor;
  * documentation for a class overview.
  */
 public abstract class AsyncTaskLoader<D> extends Loader<D> {
-    static final String TAG = "AsyncTaskLoader";
-    static final boolean DEBUG = false;
+    private static final String TAG = "AsyncTaskLoader";
+    private static final boolean DEBUG = false;
 
     final class LoadTask extends ModernAsyncTask<D> implements Runnable {
-        private final CountDownLatch mDone = new CountDownLatch(1);
-
         // Set to true to indicate that the task has been posted to a handler for
         // execution at a later time.  Used to throttle updates.
         boolean waiting;
@@ -81,22 +75,14 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         @Override
         protected void onPostExecute(D data) {
             if (DEBUG) Log.v(TAG, this + " onPostExecute");
-            try {
-                AsyncTaskLoader.this.dispatchOnLoadComplete(this, data);
-            } finally {
-                mDone.countDown();
-            }
+            AsyncTaskLoader.this.dispatchOnLoadComplete(this, data);
         }
 
         /* Runs on the UI thread */
         @Override
         protected void onCancelled(D data) {
             if (DEBUG) Log.v(TAG, this + " onCancelled");
-            try {
-                AsyncTaskLoader.this.dispatchOnCancelled(this, data);
-            } finally {
-                mDone.countDown();
-            }
+            AsyncTaskLoader.this.dispatchOnCancelled(this, data);
         }
 
         /* Runs on the UI thread, when the waiting task is posted to a handler.
@@ -106,25 +92,16 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
             waiting = false;
             AsyncTaskLoader.this.executePendingTask();
         }
-
-        /* Used for testing purposes to wait for the task to complete. */
-        public void waitForLoader() {
-            try {
-                mDone.await();
-            } catch (InterruptedException e) {
-                // Ignore
-            }
-        }
     }
 
     private Executor mExecutor;
 
-    volatile LoadTask mTask;
-    volatile LoadTask mCancellingTask;
+    private volatile LoadTask mTask;
+    private volatile LoadTask mCancellingTask;
 
-    long mUpdateThrottle;
-    long mLastLoadCompleteTime = -10000;
-    Handler mHandler;
+    private long mUpdateThrottle;
+    private long mLastLoadCompleteTime = -10000;
+    private Handler mHandler;
 
     public AsyncTaskLoader(@NonNull Context context) {
         super(context);
@@ -157,8 +134,8 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     protected boolean onCancelLoad() {
         if (DEBUG) Log.v(TAG, "onCancelLoad: mTask=" + mTask);
         if (mTask != null) {
-            if (!mStarted) {
-                mContentChanged = true;
+            if (!isStarted()) {
+                onContentChanged();
             }
             if (mCancellingTask != null) {
                 // There was a pending task already waiting for a previous
@@ -203,6 +180,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
     public void onCanceled(@Nullable D data) {
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void executePendingTask() {
         if (mCancellingTask == null && mTask != null) {
             if (mTask.waiting) {
@@ -229,6 +207,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void dispatchOnCancelled(LoadTask task, D data) {
         onCanceled(data);
         if (mCancellingTask == task) {
@@ -242,6 +221,7 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void dispatchOnLoadComplete(LoadTask task, D data) {
         if (mTask != task) {
             if (DEBUG) Log.v(TAG, "Load complete of old task, trying to cancel");
@@ -348,44 +328,29 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         return AsyncTask.THREAD_POOL_EXECUTOR;
     }
 
-    /**
-     * Locks the current thread until the loader completes the current load
-     * operation. Returns immediately if there is no load operation running.
-     * Should not be called from the UI thread: calling it from the UI
-     * thread would cause a deadlock.
-     * <p>
-     * Use for testing only.  <b>Never</b> call this from a UI thread.
-     *
-     * @hide
-     */
-    @RestrictTo(LIBRARY_GROUP)
-    public void waitForLoader() {
-        LoadTask task = mTask;
-        if (task != null) {
-            task.waitForLoader();
-        }
-    }
-
-    @SuppressLint("RestrictedApi")
+    @SuppressWarnings("deprecation")
     @Override
     @Deprecated
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         super.dump(prefix, fd, writer, args);
         if (mTask != null) {
             writer.print(prefix); writer.print("mTask="); writer.print(mTask);
-                    writer.print(" waiting="); writer.println(mTask.waiting);
+            writer.print(" waiting="); writer.println(mTask.waiting);
         }
         if (mCancellingTask != null) {
             writer.print(prefix); writer.print("mCancellingTask="); writer.print(mCancellingTask);
-                    writer.print(" waiting="); writer.println(mCancellingTask.waiting);
+            writer.print(" waiting="); writer.println(mCancellingTask.waiting);
         }
         if (mUpdateThrottle != 0) {
             writer.print(prefix); writer.print("mUpdateThrottle=");
-                    TimeUtils.formatDuration(mUpdateThrottle, writer);
-                    writer.print(" mLastLoadCompleteTime=");
-                    TimeUtils.formatDuration(mLastLoadCompleteTime,
-                            SystemClock.uptimeMillis(), writer);
-                    writer.println();
+            writer.print(DateUtils.formatElapsedTime(
+                    TimeUnit.MILLISECONDS.toSeconds(mUpdateThrottle)));
+            writer.print(" mLastLoadCompleteTime=");
+            writer.print(mLastLoadCompleteTime == -10000
+                    ? "--"
+                    : "-" + DateUtils.formatElapsedTime(TimeUnit.MILLISECONDS.toSeconds(
+                                    SystemClock.uptimeMillis() - mLastLoadCompleteTime)));
+            writer.println();
         }
     }
 }

@@ -93,7 +93,7 @@ public class LoaderInfoTest {
 
     @UiThreadTest
     @Test
-    public void testSetCallback() throws Throwable {
+    public void testSetCallback() {
         final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
@@ -108,7 +108,7 @@ public class LoaderInfoTest {
 
     @UiThreadTest
     @Test
-    public void testSetCallback_replace() throws Throwable {
+    public void testSetCallback_replace() {
         final DummyLoaderCallbacks initialCallback = new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = initialCallback.onCreateLoader(0, null);
         LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(
@@ -135,7 +135,7 @@ public class LoaderInfoTest {
 
     @UiThreadTest
     @Test
-    public void testMarkForRedelivery() throws Throwable {
+    public void testMarkForRedelivery() {
         DummyLoaderCallbacks loaderCallback =
                 new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
@@ -158,7 +158,7 @@ public class LoaderInfoTest {
 
     @UiThreadTest
     @Test
-    public void testMarkForRedelivery_replace() throws Throwable {
+    public void testMarkForRedelivery_replace() {
         DummyLoaderCallbacks initialCallback =
                 new DummyLoaderCallbacks(mock(Context.class));
         Loader<Boolean> loader = initialCallback.onCreateLoader(0, null);
@@ -190,7 +190,7 @@ public class LoaderInfoTest {
 
     @UiThreadTest
     @Test
-    public void testDestroy() throws Throwable {
+    public void testDestroy() {
         final DummyLoaderCallbacks loaderCallback = new DummyLoaderCallbacks(mock(Context.class));
         final Loader<Boolean> loader = loaderCallback.onCreateLoader(0, null);
         final LoaderManagerImpl.LoaderInfo<Boolean> loaderInfo = new LoaderManagerImpl.LoaderInfo<>(

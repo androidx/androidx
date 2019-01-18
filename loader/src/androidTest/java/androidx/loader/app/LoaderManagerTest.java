@@ -108,7 +108,7 @@ public class LoaderManagerTest {
     }
 
     @Test
-    public void testDestroyLoaderBeforeDeliverData() throws Throwable {
+    public void testDestroyLoaderBeforeDeliverData() {
         final DelayLoaderCallbacks callback =
                 new DelayLoaderCallbacks(mock(Context.class), new CountDownLatch(1));
         InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
@@ -245,17 +245,19 @@ public class LoaderManagerTest {
     @Test(expected = IllegalArgumentException.class)
     public void enforceNonNullLoader() {
         mLoaderManager.initLoader(-1, null, new LoaderManager.LoaderCallbacks<Object>() {
+            @SuppressWarnings("ConstantConditions")
+            @NonNull
             @Override
             public Loader<Object> onCreateLoader(int id, Bundle args) {
                 return null;
             }
 
             @Override
-            public void onLoadFinished(Loader<Object> loader, Object data) {
+            public void onLoadFinished(@NonNull Loader<Object> loader, Object data) {
             }
 
             @Override
-            public void onLoaderReset(Loader<Object> loader) {
+            public void onLoaderReset(@NonNull Loader<Object> loader) {
             }
         });
     }
