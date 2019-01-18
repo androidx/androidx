@@ -224,6 +224,7 @@ package androidx.appcompat.app {
     method public android.content.Intent? getSupportParentActivityIntent();
     method public void onCreateSupportNavigateUpTaskStack(androidx.core.app.TaskStackBuilder);
     method public final boolean onMenuItemSelected(int, android.view.MenuItem);
+    method public void onNightModeChanged(int);
     method public void onPrepareSupportNavigateUpTaskStack(androidx.core.app.TaskStackBuilder);
     method @CallSuper public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode);
     method @CallSuper public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode);
@@ -243,6 +244,7 @@ package androidx.appcompat.app {
   }
 
   public interface AppCompatCallback {
+    method public void onNightModeChanged(int);
     method public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode!);
     method public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode!);
     method public androidx.appcompat.view.ActionMode? onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback!);
@@ -271,6 +273,7 @@ package androidx.appcompat.app {
     method public abstract void onPostCreate(android.os.Bundle!);
     method public abstract void onPostResume();
     method public abstract void onSaveInstanceState(android.os.Bundle!);
+    method public abstract void onSetTheme(@StyleRes int);
     method public abstract void onStart();
     method public abstract void onStop();
     method public abstract boolean requestWindowFeature(int);
@@ -299,6 +302,7 @@ package androidx.appcompat.app {
     ctor protected AppCompatDialog(android.content.Context!, boolean, android.content.DialogInterface.OnCancelListener!);
     method public androidx.appcompat.app.AppCompatDelegate! getDelegate();
     method public androidx.appcompat.app.ActionBar! getSupportActionBar();
+    method public void onNightModeChanged(int);
     method public void onSupportActionModeFinished(androidx.appcompat.view.ActionMode!);
     method public void onSupportActionModeStarted(androidx.appcompat.view.ActionMode!);
     method public androidx.appcompat.view.ActionMode? onWindowStartingSupportActionMode(androidx.appcompat.view.ActionMode.Callback!);
