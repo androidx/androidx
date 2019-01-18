@@ -354,7 +354,7 @@ class Material(
                 </UseTickerProvider>
             }
             operations.layout(constraints.maxWidth, constraints.maxHeight) {
-                measurable.forEach { it.measure(constraints).place(0.dp, 0.dp) }
+                measurable.forEach { operations.measure(it, constraints).place(0.dp, 0.dp) }
             }
         </MeasureBox>
     }

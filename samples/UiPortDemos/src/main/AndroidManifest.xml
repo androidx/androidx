@@ -162,5 +162,13 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="androidx.r4a.ComplexLayoutActivity"
+                  android:configChanges="orientation|screenSize"
+                  android:label="Complex layout activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

@@ -322,7 +322,7 @@ internal class LayoutNode : ComponentNode() {
             value?.value = this
         }
 
-    var measureBox: MeasureBox? = null
+    var measureBox: ComplexMeasureBox? = null
 
     /**
      * The size of this layout
@@ -412,7 +412,7 @@ internal class LayoutNode : ComponentNode() {
 /**
  * The list of child MeasureBoxes. It can contain zero or more entries.
  */
-internal fun LayoutNode.childrenMeasureBoxes(): List<MeasureBox> {
+internal fun LayoutNode.childrenMeasureBoxes(): List<ComplexMeasureBox> {
     return children.mapNotNull { it.layoutNode?.measureBox }
 }
 
