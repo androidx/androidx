@@ -19,6 +19,7 @@ package androidx.loader.content;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -73,7 +74,7 @@ public class AsyncTaskLoaderTest {
         final AtomicInteger loadCount = new AtomicInteger(3);
         loader.registerListener(0, new Loader.OnLoadCompleteListener<Void>() {
             @Override
-            public void onLoadComplete(Loader<Void> loader, Void data) {
+            public void onLoadComplete(@NonNull Loader<Void> loader, Void data) {
                 if (loadCount.getAndDecrement() > 0) {
                     loader.forceLoad();
                 }
@@ -101,6 +102,7 @@ public class AsyncTaskLoaderTest {
             return null;
         }
 
+        @NonNull
         @Override
         protected Executor getExecutor() {
             mGetExecutorCallCount += 1;

@@ -127,6 +127,7 @@ abstract class ModernAsyncTask<Result> {
         };
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void postResultIfNotInvoked(Result result) {
         final boolean wasTaskInvoked = mTaskInvoked.get();
         if (!wasTaskInvoked) {
@@ -134,6 +135,7 @@ abstract class ModernAsyncTask<Result> {
         }
     }
 
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
     void postResult(final Result result) {
         getHandler().post(new Runnable() {
             @Override

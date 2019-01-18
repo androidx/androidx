@@ -39,16 +39,16 @@ import java.util.Arrays;
  * documentation for a class overview.
  */
 public class CursorLoader extends AsyncTaskLoader<Cursor> {
-    final ForceLoadContentObserver mObserver;
+    private final ForceLoadContentObserver mObserver;
 
-    Uri mUri;
-    String[] mProjection;
-    String mSelection;
-    String[] mSelectionArgs;
-    String mSortOrder;
+    private Uri mUri;
+    private String[] mProjection;
+    private String mSelection;
+    private String[] mSelectionArgs;
+    private String mSortOrder;
 
-    Cursor mCursor;
-    CancellationSignal mCancellationSignal;
+    private Cursor mCursor;
+    private CancellationSignal mCancellationSignal;
 
     /* Runs on a worker thread */
     @Override
@@ -233,6 +233,7 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
         mSortOrder = sortOrder;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     @Deprecated
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
@@ -245,6 +246,5 @@ public class CursorLoader extends AsyncTaskLoader<Cursor> {
                 writer.println(Arrays.toString(mSelectionArgs));
         writer.print(prefix); writer.print("mSortOrder="); writer.println(mSortOrder);
         writer.print(prefix); writer.print("mCursor="); writer.println(mCursor);
-        writer.print(prefix); writer.print("mContentChanged="); writer.println(mContentChanged);
     }
 }

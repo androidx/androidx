@@ -36,15 +36,15 @@ import java.io.PrintWriter;
  * documentation for a class overview.
  */
 public class Loader<D> {
-    int mId;
-    OnLoadCompleteListener<D> mListener;
-    OnLoadCanceledListener<D> mOnLoadCanceledListener;
-    Context mContext;
-    boolean mStarted = false;
-    boolean mAbandoned = false;
-    boolean mReset = true;
-    boolean mContentChanged = false;
-    boolean mProcessingChange = false;
+    private int mId;
+    private OnLoadCompleteListener<D> mListener;
+    private OnLoadCanceledListener<D> mOnLoadCanceledListener;
+    private Context mContext;
+    private boolean mStarted = false;
+    private boolean mAbandoned = false;
+    private boolean mReset = true;
+    private boolean mContentChanged = false;
+    private boolean mProcessingChange = false;
 
     /**
      * An implementation of a ContentObserver that takes care of connecting
@@ -536,6 +536,7 @@ public class Loader<D> {
         return sb.toString();
     }
 
+    @NonNull
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(64);
@@ -559,6 +560,7 @@ public class Loader<D> {
      * @deprecated Consider using {@link LoaderManager#enableDebugLogging(boolean)} to understand
      * the series of operations performed by LoaderManager.
      */
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.print(prefix); writer.print("mId="); writer.print(mId);
