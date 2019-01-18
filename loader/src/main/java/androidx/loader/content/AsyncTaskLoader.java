@@ -18,23 +18,23 @@ package androidx.loader.content;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.text.format.DateUtils;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.os.OperationCanceledException;
-import androidx.core.util.TimeUtils;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Static library support version of the framework's {@link android.content.AsyncTaskLoader}.
@@ -366,7 +366,6 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         }
     }
 
-    @SuppressLint("RestrictedApi")
     @Override
     @Deprecated
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
@@ -381,10 +380,13 @@ public abstract class AsyncTaskLoader<D> extends Loader<D> {
         }
         if (mUpdateThrottle != 0) {
             writer.print(prefix); writer.print("mUpdateThrottle=");
-                    TimeUtils.formatDuration(mUpdateThrottle, writer);
+                    writer.print(DateUtils.formatElapsedTime(
+                            TimeUnit.MILLISECONDS.toSeconds(mUpdateThrottle)));
                     writer.print(" mLastLoadCompleteTime=");
-                    TimeUtils.formatDuration(mLastLoadCompleteTime,
-                            SystemClock.uptimeMillis(), writer);
+                    writer.print(mLastLoadCompleteTime == -10000
+                            ? "--"
+                            : "-" + DateUtils.formatElapsedTime(TimeUnit.MILLISECONDS.toSeconds(
+                                    SystemClock.uptimeMillis() - mLastLoadCompleteTime)));
                     writer.println();
         }
     }
