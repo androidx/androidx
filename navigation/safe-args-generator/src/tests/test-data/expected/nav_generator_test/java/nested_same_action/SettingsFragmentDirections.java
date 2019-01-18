@@ -1,4 +1,4 @@
-package foo;
+package foo.flavor;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -10,7 +10,7 @@ import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
-public class SettingsDirections {
+public class SettingsFragmentDirections {
     @NonNull
     public static Exit exit() {
         return new Exit();
@@ -77,7 +77,7 @@ public class SettingsDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
+            int result = 1;
             result = 31 * result + (getExitReason() != null ? getExitReason().hashCode() : 0);
             result = 31 * result + getActionId();
             return result;

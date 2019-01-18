@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,16 +25,21 @@ import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
-public class MainFragmentDirections {
+public class LoginFragmentDirections {
     @NonNull
-    public static StartLogin startLogin() {
-        return new StartLogin();
+    public static Register register() {
+        return new Register();
     }
 
-    public static class StartLogin implements NavDirections {
+    @NonNull
+    public static LoginDirections.ActionDone actionDone() {
+        return LoginDirections.actionDone();
+    }
+
+    public static class Register implements NavDirections {
         private final HashMap arguments = new HashMap();
 
-        private StartLogin() {
+        private Register() {
         }
 
         @Override
@@ -47,7 +52,7 @@ public class MainFragmentDirections {
 
         @Override
         public int getActionId() {
-            return foo.R.id.start_login;
+            return foo.R.id.register;
         }
 
         @Override
@@ -58,7 +63,7 @@ public class MainFragmentDirections {
             if (object == null || getClass() != object.getClass()) {
                 return false;
             }
-            StartLogin that = (StartLogin) object;
+            Register that = (Register) object;
             if (getActionId() != that.getActionId()) {
                 return false;
             }
@@ -67,14 +72,14 @@ public class MainFragmentDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
+            int result = 1;
             result = 31 * result + getActionId();
             return result;
         }
 
         @Override
         public String toString() {
-            return "StartLogin(actionId=" + getActionId() + "){"
+            return "Register(actionId=" + getActionId() + "){"
                     + "}";
         }
     }

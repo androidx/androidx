@@ -131,7 +131,7 @@ public class SanitizedMainFragmentDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
+            int result = 1;
             result = 31 * result + (getArg1() != null ? getArg1().hashCode() : 0);
             result = 31 * result + (getArg2() != null ? getArg2().hashCode() : 0);
             result = 31 * result + getActionId();
@@ -237,7 +237,7 @@ public class SanitizedMainFragmentDirections {
 
         @Override
         public int hashCode() {
-            int result = super.hashCode();
+            int result = 1;
             result = 31 * result + (getMainArg() != null ? getMainArg().hashCode() : 0);
             result = 31 * result + (getOptionalArg() != null ? getOptionalArg().hashCode() : 0);
             result = 31 * result + getActionId();

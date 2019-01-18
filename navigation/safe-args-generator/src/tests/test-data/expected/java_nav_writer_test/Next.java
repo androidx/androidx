@@ -226,7 +226,7 @@ public static class Next implements NavDirections {
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
+        int result = 1;
         result = 31 * result + (getMain() != null ? getMain().hashCode() : 0);
         result = 31 * result + getMainInt();
         result = 31 * result + (getOptional() != null ? getOptional().hashCode() : 0);

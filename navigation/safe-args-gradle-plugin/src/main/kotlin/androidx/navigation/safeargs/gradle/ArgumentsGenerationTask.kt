@@ -44,6 +44,9 @@ open class ArgumentsGenerationTask : DefaultTask() {
     @get:Input
     var useAndroidX: Boolean = false
 
+    @get:Input
+    var generateKotlin: Boolean = false
+
     @get:OutputDirectory
     lateinit var outputDir: File
 
@@ -68,7 +71,7 @@ open class ArgumentsGenerationTask : DefaultTask() {
             navigationXml = file,
             outputDir = out,
             useAndroidX = useAndroidX,
-            generateKotlin = false).generate()
+            generateKotlin = generateKotlin).generate()
         Mapping(file.relativeTo(project.projectDir).path, output.fileNames) to output.errors
     }.unzip().let { (mappings, errorLists) -> mappings to errorLists.flatten() }
 
