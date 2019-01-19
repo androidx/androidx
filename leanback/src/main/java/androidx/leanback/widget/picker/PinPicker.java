@@ -30,7 +30,7 @@ import java.util.List;
  * {@link Picker} subclass for allowing the user to enter a numerical PIN. The column count can be
  * customized, and defaults to 4.
  *
- * @attr ref R.styleable#lbPinPicker_columnCount
+ * {@link R.attr#columnCount}
  */
 public class PinPicker extends Picker {
 

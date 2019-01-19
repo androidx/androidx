@@ -124,8 +124,8 @@ import java.util.concurrent.Executor;
  * does not restore the current play state, play position, selected tracks. Applications should save
  * and restore these on their own in {@link android.app.Activity#onSaveInstanceState} and
  * {@link android.app.Activity#onRestoreInstanceState}.
- * @attr ref androidx.media2.widget.R.styleable#VideoView_enableControlView
- * @attr ref androidx.media2.widget.R.styleable#VideoView_viewType
+ * {@link androidx.media2.widget.R.attr#enableControlView}
+ * {@link androidx.media2.widget.R.attr#viewType}
  */
 public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceListener {
     /** @hide */
