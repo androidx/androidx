@@ -5,7 +5,7 @@ import androidx.navigation.NavDirections
 import kotlin.Int
 import kotlin.String
 
-class SettingsDirections {
+class SettingsDirections private constructor() {
     private data class Exit(val exitReason: String = "DEFAULT") : NavDirections {
         override fun getActionId(): Int = foo.R.id.exit
 

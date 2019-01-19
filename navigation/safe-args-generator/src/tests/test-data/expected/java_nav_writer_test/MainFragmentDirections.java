@@ -27,6 +27,9 @@ import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
 public class MainFragmentDirections {
+    private MainFragmentDirections() {
+    }
+
     @NonNull
     public static Previous previous(@NonNull String arg1, @NonNull String arg2) {
         return new Previous(arg1, arg2);

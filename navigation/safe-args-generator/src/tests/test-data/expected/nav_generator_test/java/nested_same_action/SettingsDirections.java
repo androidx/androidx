@@ -11,6 +11,9 @@ import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
 public class SettingsDirections {
+    private SettingsDirections() {
+    }
+
     @NonNull
     public static Exit exit() {
         return new Exit();
