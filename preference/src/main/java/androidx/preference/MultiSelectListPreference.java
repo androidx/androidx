@@ -148,6 +148,7 @@ public class MultiSelectListPreference extends DialogPreference {
         mValues.addAll(values);
 
         persistStringSet(values);
+        notifyChanged();
     }
 
     /**
