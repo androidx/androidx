@@ -174,7 +174,7 @@ public class ExpandablePreferenceTest {
         assertEquals(title, preferenceGroupAdapter.getItem(2).getSummary());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = IllegalStateException.class)
     @UiThreadTest
     public void nestedExpandablePreferences_notAllowed_shouldThrowAnException() {
         PreferenceCategory category = new PreferenceCategory(mContext);

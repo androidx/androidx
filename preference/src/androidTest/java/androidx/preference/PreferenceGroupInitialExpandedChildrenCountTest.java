@@ -17,6 +17,7 @@
 package androidx.preference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -95,8 +96,7 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         for (int i = 0; i < INITIAL_EXPANDED_COUNT; i++) {
             assertEquals(mPreferenceList.get(i), preferenceGroupAdapter.getItem(i));
         }
-        assertEquals(CollapsiblePreferenceGroupController.ExpandButton.class,
-                preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT).getClass());
+        assertTrue(preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT) instanceof ExpandButton);
     }
 
     /**
@@ -137,8 +137,8 @@ public class PreferenceGroupInitialExpandedChildrenCountTest {
         for (int i = 0; i <= INITIAL_EXPANDED_COUNT; i++) {
             assertEquals(preferenceList.get(i), preferenceGroupAdapter.getItem(i));
         }
-        assertEquals(CollapsiblePreferenceGroupController.ExpandButton.class,
-                preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT + 1).getClass());
+        assertTrue(
+                preferenceGroupAdapter.getItem(INITIAL_EXPANDED_COUNT + 1) instanceof ExpandButton);
     }
 
     /**
