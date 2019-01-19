@@ -10,6 +10,9 @@ import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
 public class InnerSettingsDirections {
+    private InnerSettingsDirections() {
+    }
+
     @NonNull
     public static Exit exit(int exitReason) {
         return new Exit(exitReason);

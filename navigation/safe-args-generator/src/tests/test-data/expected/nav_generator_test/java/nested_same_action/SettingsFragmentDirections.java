@@ -11,6 +11,9 @@ import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
 public class SettingsFragmentDirections {
+    private SettingsFragmentDirections() {
+    }
+
     @NonNull
     public static Exit exit() {
         return new Exit();

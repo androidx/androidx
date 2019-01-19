@@ -26,6 +26,9 @@ import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
 public class LoginDirections {
+    private LoginDirections() {
+    }
+
     @NonNull
     public static ActionDone actionDone() {
         return new ActionDone();

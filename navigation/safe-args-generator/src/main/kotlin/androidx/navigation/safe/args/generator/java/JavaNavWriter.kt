@@ -72,6 +72,8 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
         destination: Destination,
         parentDirectionsFileList: List<JavaCodeFile>
     ): TypeSpec {
+        val constructor = MethodSpec.constructorBuilder().addModifiers(Modifier.PRIVATE).build()
+
         val actionTypes = destination.actions.map { action ->
             action to generateDirectionsTypeSpec(action)
         }
@@ -118,6 +120,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
         return TypeSpec.classBuilder(className)
             .addModifiers(Modifier.PUBLIC)
             .addTypes(actionTypes.map { (_, actionType) -> actionType })
+            .addMethod(constructor)
             .addMethods(getters + parentGetters)
             .build()
     }

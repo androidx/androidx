@@ -19,6 +19,9 @@ package foo.flavor;
 import android.support.annotation.NonNull;
 
 public class InnerSettingsFragmentDirections {
+    private InnerSettingsFragmentDirections() {
+    }
+
     @NonNull
     public static InnerSettingsDirections.Exit exit(int exitReason) {
         return InnerSettingsDirections.exit(exitReason);

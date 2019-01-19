@@ -5,7 +5,7 @@ import androidx.navigation.NavDirections
 import kotlin.Int
 import kotlin.String
 
-class MainFragmentDirections {
+class MainFragmentDirections private constructor() {
     private object Previous : NavDirections {
         override fun getActionId(): Int = a.b.R.id.previous
 
