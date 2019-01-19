@@ -16,8 +16,6 @@
 
 package androidx.viewpager2.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
@@ -38,7 +36,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
@@ -50,11 +47,12 @@ import androidx.viewpager2.adapter.StatefulAdapter;
 import java.lang.annotation.Retention;
 
 /**
- * Work in progress: go/viewpager2
+ * ViewPager2 replaces {@link androidx.viewpager.widget.ViewPager}, addressing most of its
+ * predecessor’s pain-points, including right-to-left layout support, vertical orientation,
+ * modifiable Fragment collections, etc.
  *
- * @hide
+ * @see androidx.viewpager.widget.ViewPager
  */
-@RestrictTo(LIBRARY_GROUP)
 public class ViewPager2 extends ViewGroup {
     @Retention(SOURCE)
     @IntDef({ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL})
