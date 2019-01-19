@@ -40,8 +40,7 @@ import java.lang.reflect.InvocationHandler;
  */
 public abstract class WebViewRendererClient implements WebViewRendererClientBoundaryInterface {
     private static final String[] sSupportedFeatures = new String[] {
-            // TODO(tobiasjs) remove dev suffix when ready.
-            Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE + Features.DEV_SUFFIX,
+            Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
     };
 
     /**
