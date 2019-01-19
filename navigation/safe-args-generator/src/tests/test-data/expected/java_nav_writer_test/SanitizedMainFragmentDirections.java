@@ -27,6 +27,9 @@ import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
 public class SanitizedMainFragmentDirections {
+    private SanitizedMainFragmentDirections() {
+    }
+
     @NonNull
     public static PreviousAction previousAction(@NonNull String arg1, @NonNull String arg2) {
         return new PreviousAction(arg1, arg2);

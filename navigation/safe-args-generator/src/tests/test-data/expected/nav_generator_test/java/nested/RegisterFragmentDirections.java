@@ -19,6 +19,9 @@ package foo.flavor;
 import android.support.annotation.NonNull;
 
 public class RegisterFragmentDirections {
+    private RegisterFragmentDirections() {
+    }
+
     @NonNull
     public static LoginDirections.ActionDone actionDone() {
         return LoginDirections.actionDone();

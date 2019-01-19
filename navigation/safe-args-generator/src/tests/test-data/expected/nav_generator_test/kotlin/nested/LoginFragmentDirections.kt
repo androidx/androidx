@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.navigation.NavDirections
 import kotlin.Int
 
-class LoginFragmentDirections {
+class LoginFragmentDirections private constructor() {
     private object Register : NavDirections {
         override fun getActionId(): Int = foo.R.id.register
 

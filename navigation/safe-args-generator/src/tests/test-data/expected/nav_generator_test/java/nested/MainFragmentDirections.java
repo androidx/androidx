@@ -26,6 +26,9 @@ import java.lang.SuppressWarnings;
 import java.util.HashMap;
 
 public class MainFragmentDirections {
+    private MainFragmentDirections() {
+    }
+
     @NonNull
     public static StartLogin startLogin() {
         return new StartLogin();
