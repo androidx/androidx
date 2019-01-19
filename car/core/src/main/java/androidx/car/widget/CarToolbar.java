@@ -299,7 +299,7 @@ public class CarToolbar extends ViewGroup {
      *
      * @param iconResId The resource id of the icon to set on the navigatino button.
      *
-     * @attr ref R.styleable#CarToolbar_navigationIcon
+     * {@link R.attr#navigationIcon}
      */
     public void setNavigationIcon(@DrawableRes int iconResId) {
         setNavigationIcon(getContext().getDrawable(iconResId));
@@ -313,7 +313,7 @@ public class CarToolbar extends ViewGroup {
      *
      * @param icon Icon to set; {@code null} will hide the icon.
      *
-     * @attr ref R.styleable#CarToolbar_navigationIcon
+     * {@link R.attr#navigationIcon}
      */
     public void setNavigationIcon(@Nullable Drawable icon) {
         if (icon == null) {
@@ -330,7 +330,7 @@ public class CarToolbar extends ViewGroup {
      *
      * @param tint Color tint to apply.
      *
-     * @attr ref R.styleable#CarToolbar_navigationIconTint
+     * {@link R.attr#navigationIconTint}
      */
     public void setNavigationIconTint(@ColorInt int tint) {
         mNavButtonView.setColorFilter(tint);
@@ -342,7 +342,7 @@ public class CarToolbar extends ViewGroup {
      *
      * @param colorFilter Color filter to apply for the tint.
      *
-     * @attr ref R.styleable#CarToolbar_navigationIconTint
+     * {@link R.attr#navigationIconTint}
      */
     public void setNavigationIconTint(@Nullable ColorFilter colorFilter) {
         mNavButtonView.setColorFilter(colorFilter);
@@ -380,7 +380,7 @@ public class CarToolbar extends ViewGroup {
      * <p>The title icon is positioned between the navigation button and the title.
      *
      * @param iconResId Resource id of the drawable to use as the title icon.
-     * @attr ref R.styleable#CarToolbar_titleIcon
+     * {@link R.attr#titleIcon}
      */
     public void setTitleIcon(@DrawableRes int iconResId) {
         setTitleIcon(getContext().getDrawable(iconResId));
@@ -392,7 +392,7 @@ public class CarToolbar extends ViewGroup {
      * <p>The title icon is positioned between the navigation button and the title.
      *
      * @param icon Icon to set; {@code null} will hide the icon.
-     * @attr ref R.styleable#CarToolbar_titleIcon
+     * {@link R.attr#titleIcon}
      */
     public void setTitleIcon(@Nullable Drawable icon) {
         if (icon == null) {
@@ -408,7 +408,7 @@ public class CarToolbar extends ViewGroup {
      * Sets a new size for the title icon.
      *
      * @param size Size of the title icon dimensions in pixels.
-     * @attr ref R.styleable#CarToolbar_titleIconSize
+     * {@link R.attr#titleIconSize}
      */
     public void setTitleIconSize(@Px int size) {
         mTitleIconSize = size;
@@ -511,7 +511,7 @@ public class CarToolbar extends ViewGroup {
      *
      * @param iconResId Resource id of the drawable to use for the overflow menu button.
      *
-     * @attr ref R.styleable#CarToolbar_overflowIcon
+     * {@link R.attr#overflowIcon}
      */
     public void setOverflowIcon(@DrawableRes int iconResId) {
         mOverflowButtonView.setImageDrawable(getContext().getDrawable(iconResId));
@@ -522,7 +522,7 @@ public class CarToolbar extends ViewGroup {
      *
      * @param icon Icon to set.
      *
-     * @attr ref R.styleable#CarToolbar_overflowIcon
+     * {@link R.attr#overflowIcon}
      */
     public void setOverflowIcon(@NonNull Drawable icon) {
         if (icon == null) {

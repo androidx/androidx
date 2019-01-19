@@ -39,9 +39,9 @@ import java.util.TimeZone;
  * can be customized.  The columns can be customized by attribute "datePickerFormat" or
  * {@link #setDatePickerFormat(String)}.
  *
- * @attr ref R.styleable#lbDatePicker_android_maxDate
- * @attr ref R.styleable#lbDatePicker_android_minDate
- * @attr ref R.styleable#lbDatePicker_datePickerFormat
+ * {@link R.attr#android_maxDate}
+ * {@link R.attr#android_minDate}
+ * {@link R.attr#datePickerFormat}
  */
 public class DatePicker extends Picker {
 

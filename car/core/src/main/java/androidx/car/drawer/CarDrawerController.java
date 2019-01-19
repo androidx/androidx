@@ -84,10 +84,10 @@ public class CarDrawerController {
      * @param drawerLayout The top-level container for the window content that shows the
      *                     interactive drawer.
      * @param drawerToggle The {@link ActionBarDrawerToggle} that will open the drawer.
-     * @attr ref R.styleable#CarTheme_drawerBackButtonId
-     * @attr ref R.styleable#CarTheme_drawerListId
-     * @attr ref R.styleable#CarTheme_drawerProgressId
-     * @attr ref R.styleable#CarTheme_drawerTitleId
+     * {@link R.attr#drawerBackButtonId}
+     * {@link R.attr#drawerListId}
+     * {@link R.attr#drawerProgressId}
+     * {@link R.attr#drawerTitleId}
      */
     public CarDrawerController(@NonNull DrawerLayout drawerLayout,
             @NonNull ActionBarDrawerToggle drawerToggle) {

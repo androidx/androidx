@@ -108,13 +108,13 @@ import androidx.leanback.R;
     </style>}
  * </pre>
  *
- * @attr ref androidx.leanback.R.styleable#LeanbackTheme_imageCardViewStyle
- * @attr ref androidx.leanback.R.styleable#lbImageCardView_lbImageCardViewType
- * @attr ref androidx.leanback.R.styleable#LeanbackTheme_imageCardViewTitleStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackTheme_imageCardViewContentStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackTheme_imageCardViewBadgeStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackTheme_imageCardViewImageStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackTheme_imageCardViewInfoAreaStyle
+ * {@link androidx.leanback.R.attr#imageCardViewStyle}
+ * {@link androidx.leanback.R.attr#lbImageCardViewType}
+ * {@link androidx.leanback.R.attr#imageCardViewTitleStyle}
+ * {@link androidx.leanback.R.attr#imageCardViewContentStyle}
+ * {@link androidx.leanback.R.attr#imageCardViewBadgeStyle}
+ * {@link androidx.leanback.R.attr#imageCardViewImageStyle}
+ * {@link androidx.leanback.R.attr#imageCardViewInfoAreaStyle}
  */
 public class ImageCardView extends BaseCardView {
 

@@ -60,7 +60,7 @@ import androidx.emoji.text.EmojiSpan;
  * }
  * </pre>
  *
- * @attr ref androidx.emoji.R.styleable#EmojiExtractTextLayout_emojiReplaceStrategy
+ * {@link androidx.emoji.R.attr#emojiReplaceStrategy}
  */
 public class EmojiExtractTextLayout extends LinearLayout {
 
@@ -131,7 +131,7 @@ public class EmojiExtractTextLayout extends LinearLayout {
      *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
      *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
      *
-     * @attr ref androidx.emoji.R.styleable#EmojiExtractTextLayout_emojiReplaceStrategy
+     * {@link androidx.emoji.R.attr#emojiReplaceStrategy}
      */
     public void setEmojiReplaceStrategy(@EmojiCompat.ReplaceStrategy int replaceStrategy) {
         mExtractEditText.setEmojiReplaceStrategy(replaceStrategy);
@@ -145,7 +145,7 @@ public class EmojiExtractTextLayout extends LinearLayout {
      *                        {@link EmojiCompat#REPLACE_STRATEGY_NON_EXISTENT},
      *                        {@link EmojiCompat#REPLACE_STRATEGY_ALL}
      *
-     * @attr ref androidx.emoji.R.styleable#EmojiExtractTextLayout_emojiReplaceStrategy
+     * {@link androidx.emoji.R.attr#emojiReplaceStrategy}
      */
     public int getEmojiReplaceStrategy() {
         return mExtractEditText.getEmojiReplaceStrategy();
