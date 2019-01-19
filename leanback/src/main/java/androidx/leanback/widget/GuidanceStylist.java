@@ -52,13 +52,13 @@ import java.util.List;
  * </ul><p>
  * View IDs are allowed to be missing, in which case the corresponding views will be null.
  *
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeAppearingAnimation
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepImeDisappearingAnimation
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidanceContainerStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidanceTitleStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidanceDescriptionStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidanceBreadcrumbStyle
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidanceIconStyle
+ * {@link androidx.leanback.R.attr#guidedStepImeAppearingAnimation}
+ * {@link androidx.leanback.R.attr#guidedStepImeDisappearingAnimation}
+ * {@link androidx.leanback.R.attr#guidanceContainerStyle}
+ * {@link androidx.leanback.R.attr#guidanceTitleStyle}
+ * {@link androidx.leanback.R.attr#guidanceDescriptionStyle}
+ * {@link androidx.leanback.R.attr#guidanceBreadcrumbStyle}
+ * {@link androidx.leanback.R.attr#guidanceIconStyle}
  * @see androidx.leanback.app.GuidedStepFragment
  * @see GuidanceStylist.Guidance
  */

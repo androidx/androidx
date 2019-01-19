@@ -144,14 +144,14 @@ import java.util.List;
  * the Activity's theme. (Themes whose parent theme is already set to the onboarding theme do not
  * need to set the onboardingTheme attribute; if set, it will be ignored.)
  *
- * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingTheme
- * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingHeaderStyle
- * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingTitleStyle
- * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingDescriptionStyle
- * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingNavigatorContainerStyle
- * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingPageIndicatorStyle
- * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingStartButtonStyle
- * @attr ref R.styleable#LeanbackOnboardingTheme_onboardingLogoStyle
+ * {@link R.attr#onboardingTheme}
+ * {@link R.attr#onboardingHeaderStyle}
+ * {@link R.attr#onboardingTitleStyle}
+ * {@link R.attr#onboardingDescriptionStyle}
+ * {@link R.attr#onboardingNavigatorContainerStyle}
+ * {@link R.attr#onboardingPageIndicatorStyle}
+ * {@link R.attr#onboardingStartButtonStyle}
+ * {@link R.attr#onboardingLogoStyle}
  */
 abstract public class OnboardingSupportFragment extends Fragment {
     private static final String TAG = "OnboardingF";

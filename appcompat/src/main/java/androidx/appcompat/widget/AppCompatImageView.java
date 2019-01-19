@@ -85,7 +85,7 @@ public class AppCompatImageView extends ImageView implements TintableBackgroundV
      *
      * @param resId the resource identifier of the drawable
      * @see ImageView#setImageResource(int)
-     * @attr ref R.styleable#AppCompatImageView_srcCompat
+     * {@link R.attr#srcCompat}
      */
     @Override
     public void setImageResource(@DrawableRes int resId) {

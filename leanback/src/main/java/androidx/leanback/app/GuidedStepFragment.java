@@ -131,13 +131,13 @@ import java.util.List;
  * <i>Note: Currently GuidedStepFragments grouped in this way must all be defined programmatically,
  * rather than in XML. This restriction may be removed in the future.</i>
  *
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepTheme
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedStepBackground
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionContentWidthWeight
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionContentWidthWeightTwoPanels
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsBackground
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsBackgroundDark
- * @attr ref androidx.leanback.R.styleable#LeanbackGuidedStepTheme_guidedActionsElevation
+ * {@link androidx.leanback.R.attr#guidedStepTheme}
+ * {@link androidx.leanback.R.attr#guidedStepBackground}
+ * {@link androidx.leanback.R.attr#guidedActionContentWidthWeight}
+ * {@link androidx.leanback.R.attr#guidedActionContentWidthWeightTwoPanels}
+ * {@link androidx.leanback.R.attr#guidedActionsBackground}
+ * {@link androidx.leanback.R.attr#guidedActionsBackgroundDark}
+ * {@link androidx.leanback.R.attr#guidedActionsElevation}
  * @see GuidanceStylist
  * @see GuidanceStylist.Guidance
  * @see GuidedAction

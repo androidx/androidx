@@ -48,8 +48,8 @@ import java.util.Locale;
  * time by calling {@link #setIs24Hour(boolean)}, and the AM/PM picker column will be activated or
  * deactivated accordingly.
  *
- * @attr ref R.styleable#lbTimePicker_is24HourFormat
- * @attr ref R.styleable#lbTimePicker_useCurrentTime
+ * {@link R.attr#is24HourFormat}
+ * {@link R.attr#useCurrentTime}
  */
 public class TimePicker extends Picker {
 
