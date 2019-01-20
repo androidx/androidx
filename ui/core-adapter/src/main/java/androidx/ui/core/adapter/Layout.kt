@@ -19,11 +19,14 @@ package androidx.ui.core.adapter
 import androidx.ui.core.ComplexMeasureOperations
 import androidx.ui.core.Constraints
 import androidx.ui.core.MeasureOperations
+import androidx.ui.layout.FlexChildren
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
-// Ignore that the IDEA cannot resolve this.
+// Ignore that the IDEA cannot resolve these.
 import androidx.ui.core.LayoutKt
+import androidx.ui.layout.AlignKt
+import androidx.ui.layout.FlexKt
 
 /**
  * All this module is needed to work around b/120971484
@@ -49,8 +52,37 @@ fun MeasureBox(
 @Composable
 @Suppress("PLUGIN_ERROR")
 fun ComplexMeasureBox(
-    @Children(composable = false) block:
-        (operations: ComplexMeasureOperations) -> Unit)
-{
+    @Children(composable = false) block: (operations: ComplexMeasureOperations) -> Unit
+) {
     LayoutKt.ComplexMeasureBoxComposable(block)
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.Flex
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun RowFlex(@Children() block: (FlexChildren) -> Unit) {
+    FlexKt.FlexRow(block)
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.Flex
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun Row(@Children() block: () -> Unit) {
+    FlexKt.Row(block)
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.Center
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun Center(@Children() block: () -> Unit) {
+    AlignKt.Center(block)
 }
