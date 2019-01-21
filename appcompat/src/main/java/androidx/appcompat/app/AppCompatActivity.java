@@ -16,6 +16,7 @@
 
 package androidx.appcompat.app;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -65,6 +66,12 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
 
     private AppCompatDelegate mDelegate;
     private Resources mResources;
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+        getDelegate().attachBaseContext(newBase);
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

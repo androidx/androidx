@@ -208,8 +208,10 @@ public abstract class AppCompatDelegate {
      *
      * @param callback An optional callback for AppCompat specific events
      */
-    public static AppCompatDelegate create(Activity activity, AppCompatCallback callback) {
-        return new AppCompatDelegateImpl(activity, activity.getWindow(), callback);
+    @NonNull
+    public static AppCompatDelegate create(@NonNull Activity activity,
+            @Nullable AppCompatCallback callback) {
+        return new AppCompatDelegateImpl(activity, callback);
     }
 
     /**
@@ -217,8 +219,10 @@ public abstract class AppCompatDelegate {
      *
      * @param callback An optional callback for AppCompat specific events
      */
-    public static AppCompatDelegate create(Dialog dialog, AppCompatCallback callback) {
-        return new AppCompatDelegateImpl(dialog.getContext(), dialog.getWindow(), callback);
+    @NonNull
+    public static AppCompatDelegate create(@NonNull Dialog dialog,
+            @Nullable AppCompatCallback callback) {
+        return new AppCompatDelegateImpl(dialog, callback);
     }
 
     /**
@@ -227,8 +231,9 @@ public abstract class AppCompatDelegate {
      *
      * @param callback An optional callback for AppCompat specific events
      */
-    public static AppCompatDelegate create(Context context, Window window,
-            AppCompatCallback callback) {
+    @NonNull
+    public static AppCompatDelegate create(@NonNull Context context, @NonNull Window window,
+            @Nullable AppCompatCallback callback) {
         return new AppCompatDelegateImpl(context, window, callback);
     }
 
@@ -345,6 +350,12 @@ public abstract class AppCompatDelegate {
      * {@link Activity#addContentView(android.view.View, android.view.ViewGroup.LayoutParams)}}
      */
     public abstract void addContentView(View v, ViewGroup.LayoutParams lp);
+
+    /**
+     * Should be called from {@link Activity#attachBaseContext(Context)}
+     */
+    public void attachBaseContext(Context context) {
+    }
 
     /**
      * Should be called from {@link Activity#onTitleChanged(CharSequence, int)}}
