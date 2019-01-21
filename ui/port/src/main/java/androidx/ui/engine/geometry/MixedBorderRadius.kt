@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting.borderradius
+package androidx.ui.engine.geometry
 
-import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.text.TextDirection
 
 internal class MixedBorderRadius(

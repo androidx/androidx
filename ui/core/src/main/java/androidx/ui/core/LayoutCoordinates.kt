@@ -66,9 +66,9 @@ internal class LayoutNodeCoordinates(
     private val layoutNode: LayoutNode
 ) : LayoutCoordinates {
 
-    override val position = Position(layoutNode.x, layoutNode.y)
+    override val position get() = Position(layoutNode.x, layoutNode.y)
 
-    override val size = layoutNode.size
+    override val size get() = layoutNode.size
 
     override fun globalToLocal(global: Position) = layoutNode.globalToLocal(global)
 

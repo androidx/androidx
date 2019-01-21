@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting.borders
+package androidx.ui.material.borders;
 
 /**
  * The shape to use when rendering a [Border] or [BoxDecoration].
@@ -24,7 +24,8 @@ package androidx.ui.painting.borders
  * interpolated or animated. The [Border] class cannot interpolate between
  * different shapes.
  */
-enum class BoxShape {
+// TODO("Andrey: Migrate to Kotlin when enums will be supported by IR")
+public enum BoxShape {
     /**
      * An axis-aligned, 2D RECTANGLE. May have rounded corners (described by a
      * [BorderRadius]). The edges of the RECTANGLE will match the edges of the box

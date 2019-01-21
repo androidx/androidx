@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting.borders
+package androidx.ui.material.borders
 
+import android.content.Context
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Canvas
@@ -187,7 +188,11 @@ abstract class ShapeBorder {
      *  * [getInnerPath], which creates the path for the inner edge.
      *  * [Path.contains], which can tell if an [Offset] is within a [Path].
      */
-    abstract fun getOuterPath(rect: Rect, textDirection: TextDirection? = null): Path
+    abstract fun getOuterPath(
+        rect: Rect,
+        context: Context,
+        textDirection: TextDirection? = null
+    ): Path
 
     /**
      * Create a [Path] that describes the inner edge of the border.
@@ -210,7 +215,11 @@ abstract class ShapeBorder {
      *  * [getOuterPath], which creates the path for the outer edge.
      *  * [Path.contains], which can tell if an [Offset] is within a [Path].
      */
-    abstract fun getInnerPath(rect: Rect, textDirection: TextDirection? = null): Path
+    abstract fun getInnerPath(
+        rect: Rect,
+        context: Context,
+        textDirection: TextDirection? = null
+    ): Path
 
     /**
      * Paints the border within the given [Rect] on the given [Canvas].
@@ -220,7 +229,12 @@ abstract class ShapeBorder {
      * of "start" and "end" instead of "left" and "right"). It may be null if
      * the border will not need the text direction to paint itself.
      */
-    abstract fun paint(canvas: Canvas, rect: Rect, textDirection: TextDirection? = null)
+    abstract fun paint(
+        canvas: Canvas,
+        context: Context,
+        rect: Rect,
+        textDirection: TextDirection? = null
+    )
 }
 
 /**

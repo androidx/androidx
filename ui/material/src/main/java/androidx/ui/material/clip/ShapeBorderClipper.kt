@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.ui.rendering.proxybox
+package androidx.ui.material.clip
 
+import android.content.Context
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Path
-import androidx.ui.painting.borders.ShapeBorder
+import androidx.ui.material.borders.ShapeBorder
 
 /** A [CustomClipper] that clips to the outer path of a [ShapeBorder]. */
-class ShapeBorderClipper(
+data class ShapeBorderClipper(
     /** The shape border whose outer path this clipper clips to. */
     val shape: ShapeBorder,
     /**
@@ -38,13 +39,7 @@ class ShapeBorderClipper(
 ) : CustomClipper<Path>() {
 
     /** Returns the outer path of [shape] as the clip. */
-    override fun getClip(size: Size): Path {
-        return shape.getOuterPath(Offset.zero and size, textDirection = textDirection)
-    }
-
-    override fun shouldReclip(oldClipper: CustomClipper<Path>): Boolean {
-        if (oldClipper !is ShapeBorderClipper)
-            return true
-        return oldClipper.shape != shape
+    override fun getClip(size: Size, context: Context): Path {
+        return shape.getOuterPath(Offset.zero and size, context, textDirection = textDirection)
     }
 }

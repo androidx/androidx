@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting.borderradius
+package androidx.ui.engine.geometry
 
-import androidx.ui.engine.geometry.RRect
-import androidx.ui.engine.geometry.Radius
-import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.geometry.lerp
 import androidx.ui.engine.text.TextDirection
 
 /**
@@ -141,11 +137,6 @@ class BorderRadius(
 
     companion object {
 
-        // TODO("Migration|Andrey: This constructors are not following our guides. But it just
-        // will not work as we have two pairs of constructors (all and circular;
-        // vertical and horizontal) with the same set of parameters.
-        // To be discussed.
-
         /** Creates a border radius where all radii are [radius]. */
         fun all(radius: Radius) = BorderRadius(
             topLeft = radius,
@@ -189,7 +180,7 @@ class BorderRadius(
 
         /** A border radius with all zero radii. */
         @JvmStatic
-        val Zero = BorderRadius.all(Radius.zero)
+        val Zero = all(Radius.zero)
     }
 }
 
