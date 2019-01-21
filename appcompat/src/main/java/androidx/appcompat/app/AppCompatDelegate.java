@@ -91,39 +91,60 @@ public abstract class AppCompatDelegate {
     static final String TAG = "AppCompatDelegate";
 
     /**
-     * Mode which means to not use night mode, and therefore prefer {@code notnight} qualified
-     * resources where available, regardless of the time.
+     * Mode which uses the system's night mode setting to determine if it is night or not.
      *
      * @see #setLocalNightMode(int)
      */
-    public static final int MODE_NIGHT_NO = 1;
+    public static final int MODE_NIGHT_FOLLOW_SYSTEM = -1;
 
     /**
-     * Mode which means to always use night mode, and therefore prefer {@code night} qualified
-     * resources where available, regardless of the time.
-     *
-     * @see #setLocalNightMode(int)
-     */
-    public static final int MODE_NIGHT_YES = 2;
-
-    /**
-     * Mode which means to use night mode when it is determined that it is night or not.
+     * Night mode which switches between dark and light mode depending on the time of day
+     * (dark at night, light in the day).
      *
      * <p>The calculation used to determine whether it is night or not makes use of the location
      * APIs (if this app has the necessary permissions). This allows us to generate accurate
      * sunrise and sunset times. If this app does not have permission to access the location APIs
      * then we use hardcoded times which will be less accurate.</p>
      *
-     * @see #setLocalNightMode(int)
+     * @deprecated Automatic switching of dark/light based on the current time is deprecated.
+     * Considering using an explicit setting, or {@link #MODE_NIGHT_AUTO_BATTERY}.
      */
-    public static final int MODE_NIGHT_AUTO = 0;
+    @Deprecated
+    public static final int MODE_NIGHT_AUTO_TIME = 0;
 
     /**
-     * Mode which uses the system's night mode setting to determine if it is night or not.
+     * @deprecated Use {@link AppCompatDelegate#MODE_NIGHT_AUTO_TIME} instead
+     */
+    @Deprecated
+    public static final int MODE_NIGHT_AUTO = MODE_NIGHT_AUTO_TIME;
+
+    /**
+     * Night mode which uses always uses a light mode, enabling {@code notnight} qualified
+     * resources regardless of the time.
      *
      * @see #setLocalNightMode(int)
      */
-    public static final int MODE_NIGHT_FOLLOW_SYSTEM = -1;
+    public static final int MODE_NIGHT_NO = 1;
+
+    /**
+     * Night mode which uses always uses a dark mode, enabling {@code night} qualified
+     * resources regardless of the time.
+     *
+     * @see #setLocalNightMode(int)
+     */
+    public static final int MODE_NIGHT_YES = 2;
+
+    /**
+     * Night mode which uses a dark mode when the system's 'Battery Saver' feature is enabled,
+     * otherwise it uses a 'light mode'. This mode can help the device to decrease power usage,
+     * depending on the display technology in the device.
+     *
+     * <em>Please note: this mode should only be used when running on devices which do not
+     * provide a similar device-wide setting.</em>
+     *
+     * @see #setLocalNightMode(int)
+     */
+    public static final int MODE_NIGHT_AUTO_BATTERY = 3;
 
     static final int MODE_NIGHT_UNSPECIFIED = -100;
 
@@ -132,8 +153,8 @@ public abstract class AppCompatDelegate {
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
-    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO, MODE_NIGHT_FOLLOW_SYSTEM,
-            MODE_NIGHT_UNSPECIFIED})
+    @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO_TIME, MODE_NIGHT_FOLLOW_SYSTEM,
+            MODE_NIGHT_UNSPECIFIED, MODE_NIGHT_AUTO_BATTERY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface NightMode {}
 
@@ -441,8 +462,8 @@ public abstract class AppCompatDelegate {
      * automatically recreated or its {@link Configuration} updated. Which one depends on how
      * the component is setup (via {@code android:configChanges} or similar).</p>
      *
-     * <p>You can notified when the night changes by overriding the
-     * {@link AppCompatCallback#onNightModeChanged(int)} method.</p>
+     * <p>You can be notified when the night changes by overriding the
+     * {@link AppCompatActivity#onNightModeChanged(int)} method.</p>
      *
      * @see #setDefaultNightMode(int)
      * @see #setLocalNightMode(int)
@@ -475,10 +496,11 @@ public abstract class AppCompatDelegate {
      */
     public static void setDefaultNightMode(@NightMode int mode) {
         switch (mode) {
-            case MODE_NIGHT_AUTO:
             case MODE_NIGHT_NO:
             case MODE_NIGHT_YES:
             case MODE_NIGHT_FOLLOW_SYSTEM:
+            case MODE_NIGHT_AUTO_TIME:
+            case MODE_NIGHT_AUTO_BATTERY:
                 sDefaultNightMode = mode;
                 break;
             default:
