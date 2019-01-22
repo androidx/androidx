@@ -20,16 +20,20 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.ViewGroup;
@@ -42,6 +46,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.transition.test.R;
 
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.annotation.Nullable;
 
@@ -112,6 +117,34 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
                 - mImageView.getPaddingLeft() - mImageView.getPaddingRight());
         assertEquals(mImage.getBounds().height(), mImageView.getHeight()
                 - mImageView.getPaddingTop() - mImageView.getPaddingBottom());
+    }
+
+    @Test
+    public void testInterruptionKeepsCorrectScaleType() throws Throwable {
+        final ImageView imageView = enterImageViewScene(ImageView.ScaleType.CENTER_INSIDE,
+                null, false);
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(mRoot, mChangeImageTransform);
+                imageView.setScaleType(ImageView.ScaleType.FIT_END);
+            }
+        });
+        waitForStart();
+
+        // reset the transition with the listener
+        createTransition();
+        // start the new transition which will interrupt the previous one
+        rule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                TransitionManager.beginDelayedTransition(mRoot, mChangeImageTransform);
+                imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            }
+        });
+        waitForEnd();
+
+        assertEquals(ImageView.ScaleType.CENTER_CROP, imageView.getScaleType());
     }
 
     private Matrix centerMatrix() {
@@ -341,13 +374,25 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
         }
 
         private Matrix copyMatrix() {
-            Matrix matrix = mImageView.getImageMatrix();
+            Matrix matrix = getDrawMatrixCompat(mImageView);
             if (matrix != null) {
                 matrix = new Matrix(matrix);
             }
             return matrix;
         }
 
+    }
+
+    private Matrix getDrawMatrixCompat(ImageView imageView) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            return imageView.getImageMatrix();
+        } else {
+            Canvas canvas = mock(Canvas.class);
+            imageView.draw(canvas);
+            ArgumentCaptor<Matrix> matrixCaptor = ArgumentCaptor.forClass(Matrix.class);
+            verify(canvas, atMost(1)).concat(matrixCaptor.capture());
+            return !matrixCaptor.getAllValues().isEmpty() ? matrixCaptor.getValue() : new Matrix();
+        }
     }
 
 }
