@@ -55,6 +55,24 @@ public class LifecycleRegistryTest {
     }
 
     @Test
+    public void getCurrentState() {
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+        assertThat(mRegistry.getCurrentState(), is(Lifecycle.State.RESUMED));
+
+        mRegistry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY);
+        assertThat(mRegistry.getCurrentState(), is(Lifecycle.State.DESTROYED));
+    }
+
+    @Test
+    public void setCurrentState() {
+        mRegistry.setCurrentState(Lifecycle.State.RESUMED);
+        assertThat(mRegistry.getCurrentState(), is(Lifecycle.State.RESUMED));
+
+        mRegistry.setCurrentState(Lifecycle.State.DESTROYED);
+        assertThat(mRegistry.getCurrentState(), is(Lifecycle.State.DESTROYED));
+    }
+
+    @Test
     public void addRemove() {
         LifecycleObserver observer = mock(LifecycleObserver.class);
         mRegistry.addObserver(observer);

@@ -30,9 +30,8 @@ class LiveDataTest {
 
     @Test fun observe() {
         val lifecycleOwner = object : LifecycleOwner {
-            private val registry = LifecycleRegistry(this)
-            init {
-                registry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+            private val registry = LifecycleRegistry(this).apply {
+                currentState = Lifecycle.State.STARTED
             }
             override fun getLifecycle() = registry
         }

@@ -104,10 +104,21 @@ public class LifecycleRegistry extends Lifecycle {
      * Moves the Lifecycle to the given state and dispatches necessary events to the observers.
      *
      * @param state new state
+     * @deprecated Use {@link #setCurrentState(State)}.
      */
-    @SuppressWarnings("WeakerAccess")
+    @Deprecated
     @MainThread
     public void markState(@NonNull State state) {
+        setCurrentState(state);
+    }
+
+    /**
+     * Moves the Lifecycle to the given state and dispatches necessary events to the observers.
+     *
+     * @param state new state
+     */
+    @MainThread
+    public void setCurrentState(@NonNull State state) {
         moveToState(state);
     }
 
