@@ -32,6 +32,7 @@ import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
 import androidx.ui.core.minus
 import androidx.ui.core.plus
+import androidx.ui.core.pointerinput.PointerEventPass
 import androidx.ui.core.pointerinput.PointerInputChange
 import androidx.ui.core.tightConstraints
 import androidx.ui.engine.geometry.Offset
@@ -167,10 +168,13 @@ var small = false
 fun CraneRects() {
     <CraneWrapper>
         <Recompose> recompose ->
-            val onPointerEvent: (event: PointerInputChange, pass: Int) -> PointerInputChange =
+            val onPointerEvent:
+                        (event: PointerInputChange, pass: PointerEventPass) -> PointerInputChange =
                 { event, pass ->
-                    // TODO(shepshapard): Convert pass to use an enum when kotlin enums work again.
-                    if (pass == 4 && !event.previous.down && event.current.down) {
+                    if (pass == PointerEventPass.PostUp
+                        && !event.previous.down
+                        && event.current.down
+                    ) {
                         small = !small
                         recompose()
                     }
