@@ -27,12 +27,10 @@ import androidx.ui.engine.geometry.Offset
  */
 internal fun MotionEvent.toPointerInputEvent(): PointerInputEvent {
 
-    val upIndex = if (this.actionMasked == ACTION_POINTER_UP) {
-        this.actionIndex
-    } else if (this.actionMasked == ACTION_UP) {
-        0
-    } else {
-        null
+    val upIndex = when (this.actionMasked) {
+        ACTION_POINTER_UP -> this.actionIndex
+        ACTION_UP -> 0
+        else -> null
     }
 
     val pointers: MutableList<PointerInputEventData> = mutableListOf()
