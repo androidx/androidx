@@ -249,6 +249,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     BundleSavedStateRegistry mSavedStateRegistry = new BundleSavedStateRegistry();
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overriding this method is no longer supported and this method will be made
+     * <code>final</code> in a future version of Fragment.
+     */
     @Override
     @NonNull
     public Lifecycle getLifecycle() {
@@ -282,6 +288,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * to receive a callback for when the Fragment's view lifecycle is available.
      * <p>
      * This should only be called on the main thread.
+     * <p>
+     * Overriding this method is no longer supported and this method will be made
+     * <code>final</code> in a future version of Fragment.
      *
      * @return A {@link LifecycleOwner} that represents the {@link #getView() Fragment's View}
      * lifecycle.
@@ -303,6 +312,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * <p>
      * This will be set to the new {@link LifecycleOwner} after {@link #onCreateView} returns a
      * non-null View and will set to null after {@link #onDestroyView()}.
+     * <p>
+     * Overriding this method is no longer supported and this method will be made
+     * <code>final</code> in a future version of Fragment.
      *
      * @return A LiveData that changes in sync with {@link #getViewLifecycleOwner()}.
      */
