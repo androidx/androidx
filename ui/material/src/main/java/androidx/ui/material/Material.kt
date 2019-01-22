@@ -18,18 +18,25 @@ package androidx.ui.material
 
 import android.content.Context
 import androidx.annotation.CallSuper
+import androidx.ui.animation.Curve
+import androidx.ui.animation.Curves
 import androidx.ui.assert
-import androidx.ui.core.adapter.Draw
+import androidx.ui.core.Dimension
 import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.adapter.Draw
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.material.clip.ClipPath
+import androidx.ui.material.clip.PhysicalShape
+import androidx.ui.material.clip.ShapeBorderClipper
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
-import androidx.ui.painting.borderradius.BorderRadius
-import androidx.ui.painting.borders.CircleBorder
-import androidx.ui.painting.borders.RoundedRectangleBorder
-import androidx.ui.painting.borders.ShapeBorder
+import androidx.ui.engine.geometry.BorderRadius
+import androidx.ui.material.borders.CircleBorder
+import androidx.ui.material.borders.RoundedRectangleBorder
+import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.scheduler.ticker.TickerProvider
 import androidx.ui.vectormath64.Matrix4
 import com.google.r4a.Ambient
@@ -228,7 +235,7 @@ class Material(
      * Defaults to 0. Changing this value will cause the shadow to animate over
      * [animationDuration].
      */
-    var elevation: Float = 0f
+    var elevation: Dimension = 0.dp
     /**
      * The color to paint the material.
      *
@@ -320,69 +327,36 @@ class Material(
         val backgroundColor = getBackgroundColor()
         assert(backgroundColor != null || type == MaterialType.TRANSPARENCY)
 
-        <UseTickerProvider> vsync ->
-            <InkFeatures vsync color>
-                <children />
-            </InkFeatures>
+        <MeasureBox> constraints, operations ->
+            val measurable = operations.collect {
+                <UseTickerProvider> vsync ->
+                    val shape = getFinalShape()
 
-        //            // TODO("Migration|Andrey: needs AnimatedPhysicalModel")
-//            // PhysicalModel has a temporary workaround for a performance issue that
-//            // speeds up rectangular non transparent material (the workaround is to
-//            // skip the call to ui.Canvas.saveLayer if the border radius is 0).
-//            // Until the saveLayer performance issue is resolved, we're keeping this
-//            // special case here for canvas material type that is using the default
-//            // shape (RECTANGLE). We could go down this fast path for explicitly
-//            // specified rectangles (e.g shape RoundedRectangleBorder with radius 0, but
-//            // we choose not to as we want the change from the fast-path to the
-//            // slow-path to be noticeable in the construction site of Material.
-//            if (widget.type == MaterialType.canvas && widget.shape == null && widget.borderRadius == null) {
-//                return new AnimatedPhysicalModel (
-//                        curve: Curves.fastOutSlowIn,
-//                duration: widget.animationDuration,
-//                shape: BoxShape.RECTANGLE,
-//                borderRadius: BorderRadius.zero,
-//                elevation: widget.elevation,
-//                color: backgroundColor,
-//                shadowColor: widget.shadowColor,
-//                animateColor: false,
-//                child: contents,
-//                );
-//            }
-//
-//            // TODO("Migration|Andrey: needs AnimatedDefaultTextStyle")
-//            if (contents != null) {
-//                contents = AnimatedDefaultTextStyle(
-//                    style: widget. textStyle ?? Theme.of(context).textTheme.body1,
-//                duration: widget.animationDuration,
-//                child: contents
-//                )
-//            }
-//
-//            // TODO("Migration|Andrey: needs LayoutChangedNotification")
-//            contents = NotificationListener<LayoutChangedNotification>(
-//                onNotification:(LayoutChangedNotification notification) {
-//                final RenderInkFeatures renderer =
-//                        inkFeatureRenderer.currentContext.findRenderObject();
-//                renderer.didChangeLayout();
-//                return true;
-//            }
-//
-//            // TODO("Migration|Andrey: Implement clipping by shape and borders.")
-//            val shape = getFinalShape()
-//
-//            if (widget.type == MaterialType.TRANSPARENCY)
-//                return transparentInterior(shape = shape, contents = contents)
-//
-//            return MaterialInterior(
-//                curve = Curves.fastOutSlowIn,
-//                duration = widget.animationDuration,
-//                shape = shape,
-//                elevation = widget.elevation,
-//                color = backgroundColor!!,
-//                shadowColor = widget.shadowColor,
-//                child = contents
-//            )
-        </UseTickerProvider>
+                    if (type == MaterialType.TRANSPARENCY) {
+                        <TransparentInterior shape>
+                            <InkFeatures vsync color>
+                                <children />
+                            </InkFeatures>
+                        </TransparentInterior>
+                    } else {
+                        <MaterialInterior
+                            curve=Curves.fastOutSlowIn
+                            duration=animationDuration
+                            shape
+                            elevation
+                            color=backgroundColor!!
+                            shadowColor>
+                            <InkFeatures vsync color>
+                                <children />
+                            </InkFeatures>
+                        </MaterialInterior>
+                    }
+                </UseTickerProvider>
+            }
+            operations.layout(constraints.maxWidth, constraints.maxHeight) {
+                measurable.forEach { it.measure(constraints).place(0.dp, 0.dp) }
+            }
+        </MeasureBox>
     }
 
     /**
@@ -408,85 +382,59 @@ class Material(
                 RoundedRectangleBorder()
             MaterialType.CARD,
             MaterialType.BUTTON ->
-                RoundedRectangleBorder(borderRadius = MaterialEdges[type] ?: BorderRadius.Zero)
+                RoundedRectangleBorder(
+                    borderRadius = MaterialEdges[type] ?: BorderRadius.Zero
+                )
             MaterialType.CIRCLE ->
                 CircleBorder()
         }
     }
 }
 
-// TODO("Migration|Andrey: Implement clipping by shape and borders. Commenting out for now")
+@Composable
+internal fun DrawShapeBorder(shape: ShapeBorder) {
+    val context = CompositionContext.current.context
+    <Draw> canvas, parentSize ->
+        shape.paint(canvas,
+            context,
+            Rect(0f, 0f, parentSize.width, parentSize.height),
+            null)
+    </Draw>
+}
 
-//internal fun transparentInterior(shape: ShapeBorder, contents: Widget): Widget {
-//    return ClipPath(
-//        child = ShapeBorderPaint(
-//            child = contents,
-//            shape = shape
-//        ),
-//        clipper = ShapeBorderClipper(
-//            shape = shape
-//        )
-//    )
-//}
+@Composable
+internal fun TransparentInterior(shape: ShapeBorder, @Children children: () -> Unit) {
+    <ClipPath clipper=ShapeBorderClipper(shape)>
+        <children />
+    </ClipPath>
+    <DrawShapeBorder shape/>
+}
 
-//private class ShapeBorderPaint(
-//    val child: Widget,
-//    val shape: ShapeBorder
-//) : StatelessWidget() {
-//
-//    override fun build(context: BuildContext): Widget {
-//        return CustomPaint(
-//            child = child,
-//            foregroundPainter = ShapeBorderPainter(shape, Directionality.of(context))
-//        )
-//    }
-//}
+/**
+ * The interior of non-transparent material.
+ *
+ * Animates [elevation], [shadowColor], and [shape].
+ */
+internal class MaterialInterior(
+    /**
+     * The border of the widget.
+     *
+     * This border will be painted, and in addition the outer path of the border
+     * determines the physical shape.
+     */
+    var shape: ShapeBorder,
+    /** The target z-coordinate at which to place this physical object. */
+    var elevation: Dimension,
+    /** The target background color. */
+    var color: Color,
+    /** The target shadow color. */
+    var shadowColor: Color,
+    var curve: Curve = Curves.linear,
+    var duration: Duration,
+    @Children var children: () -> Unit
+) : Component() {
 
-//private class ShapeBorderPainter(
-//    val border: ShapeBorder,
-//    val textDirection: TextDirection
-//) : CustomPainter() {
-//
-//    override fun paint(canvas: Canvas, size: Size) {
-//        border.paint(canvas, Offset.zero and size, textDirection)
-//    }
-//
-//    override fun shouldRepaint(oldDelegate: CustomPainter) =
-//        (oldDelegate as ShapeBorderPainter).border != border
-//}
-
-///**
-// * The interior of non-transparent material.
-// *
-// * Animates [elevation], [shadowColor], and [shape].
-// */
-//class MaterialInterior(
-//    key: Key? = null,
-//    /**
-//     * The widget below this widget in the tree.
-//     *
-//     * {@macro flutter.widgets.child}
-//     */
-//    val child: Widget,
-//    /**
-//     * The border of the widget.
-//     *
-//     * This border will be painted, and in addition the outer path of the border
-//     * determines the physical shape.
-//     */
-//    val shape: ShapeBorder,
-//    /** The target z-coordinate at which to place this physical object. */
-//    val elevation: Float,
-//    /** The target background color. */
-//    val color: Color,
-//    /** The target shadow color. */
-//    val shadowColor: Color,
-//    curve: Curve = Curves.linear,
-//    duration: Duration
-//) : ImplicitlyAnimatedWidget(key, curve, duration) {
-//
-//    override fun createState() = MaterialInteriorState(this)
-//
+//    // TODO("Migration|Andrey: Needs semantics in R4a")
 //    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
 //        super.debugFillProperties(properties)
 //        properties.add(DiagnosticsProperty.create("shape", shape))
@@ -494,40 +442,20 @@ class Material(
 //        properties.add(DiagnosticsProperty.create("color", color))
 //        properties.add(DiagnosticsProperty.create("shadowColor", shadowColor))
 //    }
-//}
 
-//class MaterialInteriorState(widget: MaterialInterior) :
-//    AnimatedWidgetBaseState<MaterialInterior>(widget) {
-//
-//    private var elevation: Tween<Float>? = null
-//    private var shadowColor: Tween<Color>? = null
-//    private var border: Tween<ShapeBorder>? = null
-//
-//    override fun forEachTween(visitor: TweenVisitor) {
-//        elevation = visitor(elevation, widget.elevation) { value: Float -> Tween(begin = value) }
-//        shadowColor =
-//            visitor(shadowColor, widget.shadowColor) { value: Color -> Tween(begin = value) }
-//        border = visitor(border, widget.shape) { value: ShapeBorder -> Tween(begin = value) }
-//    }
-//
-//    override fun build(context: BuildContext): Widget {
-//        // TODO("Migration|Andrey: find Kotlin friendly way of creating tweens w/o nulls.")
-//        val shape = border!!.evaluate(animation!!)
-//        return PhysicalShape(
-//            child = ShapeBorderPaint(
-//                child = widget.child,
-//                shape = shape
-//            ),
-//            clipper = ShapeBorderClipper(
-//                shape = shape,
-//                textDirection = Directionality.of(context)
-//            ),
-//            elevation = elevation!!.evaluate(animation!!),
-//            color = widget.color,
-//            shadowColor = shadowColor!!.evaluate(animation!!)
-//        )
-//    }
-//}
+    override fun compose() {
+        // TODO("Andrey: This widget was also applying border, elevation and shadowColor changes
+        // with animations (class ImplicitlyAnimatedWidget).
+        // We should reimplement this use case as part of our Swan animations.")
+        <PhysicalShape clipper=ShapeBorderClipper(shape)
+                       elevation
+                       color
+                       shadowColor>
+            <children />
+        </PhysicalShape>
+        <DrawShapeBorder shape />
+    }
+}
 
 internal val MaterialInkControllerAmbient = Ambient.of<MaterialInkController?>()
 
@@ -589,12 +517,6 @@ internal class InkFeatures(
         markNeedsPaint()
     }
 
-    internal fun didChangeLayout() {
-        if (inkFeatures != null && inkFeatures!!.isNotEmpty()) {
-            markNeedsPaint()
-        }
-    }
-
     // TODO("Migration|Andrey: Not sure we will need it")
 //    override fun hitTestSelf(position: Offset) = true
 
@@ -631,7 +553,7 @@ abstract class InkFeature(
      * [MaterialInkController.markNeedsPaint] when they need to repaint.
      */
     val controller: MaterialInkController,
-    /** The render box whose visual position defines the frame of reference for this ink feature. */
+    /** The layout coordinates of the parent for this ink feature. */
     val coordinates: LayoutCoordinates,
     /** Called when the ink feature is no longer visible on the material. */
     val onRemoved: (() -> Unit)? = null

@@ -19,8 +19,6 @@ package androidx.ui.animation
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.painting.Color
-import androidx.ui.painting.borders.ShapeBorder
-import androidx.ui.painting.borders.lerp
 
 // TODO(Migration|Andrey) Crane-specific typealias and extension constructors as we can't
 // TODO(Migration|Andrey) call A + B on any type in Kotlin
@@ -43,9 +41,6 @@ fun Tween(begin: Color? = null, end: Color? = null) = Tween(begin, end, ColorTwe
 fun Tween(begin: Size? = null, end: Size? = null) = Tween(begin, end, SizeTweenEvaluator)
 
 fun Tween(begin: Rect? = null, end: Rect? = null) = Tween(begin, end, RectTweenEvaluator)
-
-fun Tween(begin: ShapeBorder? = null, end: ShapeBorder? = null) =
-    Tween(begin, end, ShapeBorderEvaluator)
 
 private object FloatTweenEvaluator : TweenEvaluator<Float> {
     override fun invoke(begin: Float, end: Float, t: Float): Float {
@@ -86,12 +81,6 @@ private object SizeTweenEvaluator : TweenEvaluator<Size> {
 private object RectTweenEvaluator : TweenEvaluator<Rect> {
     override fun invoke(begin: Rect, end: Rect, t: Float): Rect {
         return Rect.lerp(begin, end, t)!!
-    }
-}
-
-private object ShapeBorderEvaluator : TweenEvaluator<ShapeBorder> {
-    override fun invoke(begin: ShapeBorder, end: ShapeBorder, t: Float): ShapeBorder {
-        return lerp(begin, end, t)!!
     }
 }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting.borders
+package androidx.ui.material.borders
 
+import android.content.Context
+import androidx.ui.core.dp
+import androidx.ui.core.toPx
+import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.engine.geometry.lerp
 import androidx.ui.engine.geometry.shrink
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.lerpFloat
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Paint
 import androidx.ui.painting.Path
-import androidx.ui.painting.borderradius.BorderRadius
-import androidx.ui.painting.borderradius.lerp
 import androidx.ui.toStringAsFixed
 
 /**
@@ -95,32 +98,38 @@ data class RoundedRectangleBorder(
         return super.lerpTo(b, t)
     }
 
-    override fun getInnerPath(rect: Rect, textDirection: TextDirection?): Path {
+    override fun getInnerPath(rect: Rect, context: Context, textDirection: TextDirection?): Path {
         return Path().apply {
-            addRRect(borderRadius.resolve(textDirection).toRRect(rect).shrink(side.width))
+            addRRect(borderRadius.resolve(textDirection).toRRect(rect)
+                .shrink(side.width.toPx(context)))
         }
     }
 
-    override fun getOuterPath(rect: Rect, textDirection: TextDirection?): Path {
+    override fun getOuterPath(rect: Rect, context: Context, textDirection: TextDirection?): Path {
         return Path().apply {
             addRRect(borderRadius.resolve(textDirection).toRRect(rect))
         }
     }
 
-    override fun paint(canvas: Canvas, rect: Rect, textDirection: TextDirection?) {
+    override fun paint(
+        canvas: Canvas,
+        context: Context,
+        rect: Rect,
+        textDirection: TextDirection?
+    ) {
         when (side.style) {
             BorderStyle.NONE -> {
             }
             BorderStyle.SOLID -> {
                 val width = side.width
-                if (width == 0.0f) {
+                if (width == 0.dp) {
                     canvas.drawRRect(
                         borderRadius.resolve(textDirection).toRRect(rect),
-                        side.toPaint()
+                        side.toPaint(context)
                     )
                 } else {
                     val outer = borderRadius.resolve(textDirection).toRRect(rect)
-                    val inner = outer.shrink(width)
+                    val inner = outer.shrink(width.toPx(context))
                     val paint = Paint().apply {
                         color = side.color
                     }
@@ -233,32 +242,42 @@ private data class RoundedRectangleToCircleBorder(
         )!!
     }
 
-    override fun getInnerPath(rect: Rect, textDirection: TextDirection?): Path {
+    override fun getInnerPath(
+        rect: Rect,
+        context: Context,
+        textDirection: TextDirection?
+    ): Path {
         return Path().apply {
-            addRRect(adjustBorderRadius(rect).toRRect(adjustRect(rect)).shrink(side.width))
+            addRRect(adjustBorderRadius(rect).toRRect(adjustRect(rect))
+                .shrink(side.width.toPx(context)))
         }
     }
 
-    override fun getOuterPath(rect: Rect, textDirection: TextDirection?): Path {
+    override fun getOuterPath(rect: Rect, context: Context, textDirection: TextDirection?): Path {
         return Path().apply {
             addRRect(adjustBorderRadius(rect).toRRect(adjustRect(rect)))
         }
     }
 
-    override fun paint(canvas: Canvas, rect: Rect, textDirection: TextDirection?) {
+    override fun paint(
+        canvas: Canvas,
+        context: Context,
+        rect: Rect,
+        textDirection: TextDirection?
+    ) {
         when (side.style) {
             BorderStyle.NONE -> {
             }
             BorderStyle.SOLID -> {
                 val width = side.width
-                if (width == 0.0f) {
+                if (width == 0.dp) {
                     canvas.drawRRect(
                         adjustBorderRadius(rect).toRRect(adjustRect(rect)),
-                        side.toPaint()
+                        side.toPaint(context)
                     )
                 } else {
                     val outer = adjustBorderRadius(rect).toRRect(adjustRect(rect))
-                    val inner = outer.shrink(width)
+                    val inner = outer.shrink(width.toPx(context))
                     val paint = Paint().apply {
                         color = side.color
                     }

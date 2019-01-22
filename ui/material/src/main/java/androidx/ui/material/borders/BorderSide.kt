@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting.borders
+package androidx.ui.material.borders
 
-import androidx.ui.lerpFloat
+import android.content.Context
+import androidx.ui.core.Dimension
+import androidx.ui.core.compareTo
+import androidx.ui.core.dp
+import androidx.ui.core.lerp
+import androidx.ui.core.max
+import androidx.ui.core.plus
+import androidx.ui.core.times
+import androidx.ui.core.toPx
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.runtimeType
-import androidx.ui.toStringAsFixed
-import kotlin.math.max
-
-/** The style of line to draw for a [BorderSide] in a [Border]. */
-enum class BorderStyle {
-    /** Skip the border. */
-    NONE,
-
-    /** Draw the border as a SOLID line. */
-    SOLID
-
-    // if you add more, think about how they will lerp
-}
 
 /**
  * A side of a border of a box.
@@ -79,7 +74,7 @@ data class BorderSide(
      * zero-width border is a hairline border. To omit the border
      * entirely, set the [style] to [BorderStyle.NONE].
      */
-    val width: Float = 1.0f,
+    val width: Dimension = 1.dp,
     /**
      * The style of this side of the border.
      *
@@ -91,7 +86,7 @@ data class BorderSide(
 ) {
 
     init {
-        assert(width >= 0.0)
+        assert(width >= 0.dp)
     }
 
     /**
@@ -115,7 +110,7 @@ data class BorderSide(
     fun scale(t: Float): BorderSide {
         return BorderSide(
             color = color,
-            width = max(0.0f, width * t),
+            width = max(0.dp, width * t),
             style = if (t <= 0.0f) BorderStyle.NONE else style
         )
     }
@@ -128,11 +123,11 @@ data class BorderSide(
      * non-uniform rectangular [Border]s have beveled edges and so paint their
      * border sides as filled shapes rather than using a stroke.
      */
-    fun toPaint(): Paint {
+    fun toPaint(context: Context): Paint {
         return when (style) {
             BorderStyle.SOLID -> Paint().apply {
                 color = color
-                strokeWidth = width
+                strokeWidth = width.toPx(context)
                 style = PaintingStyle.stroke
             }
             BorderStyle.NONE -> Paint().apply {
@@ -143,13 +138,16 @@ data class BorderSide(
         }
     }
 
-    override fun toString() = "$runtimeType($color, ${width.toStringAsFixed(1)}, $style)"
+    override fun toString() = "$runtimeType($color, $width, $style)"
 
     companion object {
 
         /** A hairline black border that is not rendered. */
         @JvmStatic
-        val None = BorderSide(width = 0.0f, style = BorderStyle.NONE)
+        val None = BorderSide(
+            width = 0.dp,
+            style = BorderStyle.NONE
+        )
     }
 }
 
@@ -168,8 +166,8 @@ data class BorderSide(
  */
 fun merge(a: BorderSide, b: BorderSide): BorderSide {
     assert(canMerge(a, b))
-    val aIsNone = a.style == BorderStyle.NONE && a.width == 0.0f
-    val bIsNone = b.style == BorderStyle.NONE && b.width == 0.0f
+    val aIsNone = a.style == BorderStyle.NONE && a.width == 0.dp
+    val bIsNone = b.style == BorderStyle.NONE && b.width == 0.dp
     if (aIsNone && bIsNone)
         return BorderSide.None
     if (aIsNone)
@@ -193,8 +191,8 @@ fun merge(a: BorderSide, b: BorderSide): BorderSide {
  * [BorderStyle.NONE], or if they both have the same color and style.
  */
 fun canMerge(a: BorderSide, b: BorderSide): Boolean {
-    if ((a.style == BorderStyle.NONE && a.width == 0.0f) ||
-        (b.style == BorderStyle.NONE && b.width == 0.0f)
+    if ((a.style == BorderStyle.NONE && a.width == 0.dp) ||
+        (b.style == BorderStyle.NONE && b.width == 0.dp)
     )
         return true
     return a.style == b.style &&
@@ -223,8 +221,8 @@ fun lerp(a: BorderSide, b: BorderSide, t: Float): BorderSide {
         return a
     if (t == 1.0f)
         return b
-    val width = lerpFloat(a.width, b.width, t)
-    if (width < 0.0f)
+    val width = lerp(a.width, b.width, t)
+    if (width < 0.dp)
         return BorderSide.None
     if (a.style == b.style) {
         return BorderSide(

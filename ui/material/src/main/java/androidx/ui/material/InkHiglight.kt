@@ -32,8 +32,8 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import androidx.ui.painting.borderradius.BorderRadius
-import androidx.ui.painting.borders.BoxShape
+import androidx.ui.engine.geometry.BorderRadius
+import androidx.ui.material.borders.BoxShape
 import androidx.ui.painting.matrixutils.getAsTranslation
 import androidx.ui.vectormath64.Matrix4
 

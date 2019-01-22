@@ -17,29 +17,37 @@
 package androidx.ui.material.demos
 
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.Dimension
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
+import androidx.ui.core.minus
+import androidx.ui.core.tightConstraints
+import androidx.ui.core.times
 import androidx.ui.material.InkRippleFactory
 import androidx.ui.material.InkTmpGestureHost
 import androidx.ui.material.InkWell
 import androidx.ui.material.Material
 import androidx.ui.material.MaterialType
 import androidx.ui.painting.Color
+import androidx.ui.engine.geometry.BorderRadius
+import androidx.ui.material.borders.BorderSide
+import androidx.ui.material.borders.RoundedRectangleBorder
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
-import com.google.r4a.Recompose
 
 
 // TODO("Migration|Andrey: While composables work way better when used from the same module")
 // TODO("Migration|Andrey: Let's keep demos in 'ui-material' as well")
 
 @Composable
-internal fun FillAll(@Children children: () -> Unit) {
+internal fun FillAll(padding: Dimension, @Children children: () -> Unit) {
     <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
+        val itemConstraints = tightConstraints(constraints.maxWidth - padding * 2,
+            constraints.maxHeight - padding * 2)
         measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
-            measurables.forEach { it.measure(constraints).place(0.dp, 0.dp) }
+            measurables.forEach { it.measure(itemConstraints).place(padding, padding) }
         }
     </MeasureBox>
 }
@@ -50,21 +58,23 @@ class InksDemo : Component() {
     override fun compose() {
         <InkTmpGestureHost>
             <CraneWrapper>
-                <Recompose> recompose ->
-                    <FillAll>
+                    <FillAll padding=50.dp>
+                        val shape = RoundedRectangleBorder(
+                            side = BorderSide(Color(0x80000000.toInt())),
+                            borderRadius = BorderRadius.circular(100f)
+                        )
                         <Material
-                            type=MaterialType.BUTTON
-                            color=Color(0xFF000000.toInt())
-                            shadowColor=Color(0xFF000000.toInt())>
+                            type=MaterialType.CARD
+                            color=Color(0x28CCCCCC)
+                            shape>
                             <InkWell
                                 splashFactory=InkRippleFactory
-                                splashColor=Color(android.graphics.Color.LTGRAY).withAlpha(125)
-                                highlightColor=Color(android.graphics.Color.GRAY).withAlpha(125)
+                                splashColor=Color(0x50CCCCCC)
+                                highlightColor=Color(0x3C888888)
                                 onTap={}>
                             </InkWell>
                         </Material>
                     </FillAll>
-                </Recompose>
             </CraneWrapper>
         </InkTmpGestureHost>
     }

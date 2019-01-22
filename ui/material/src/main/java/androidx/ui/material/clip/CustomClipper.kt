@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.ui.rendering.proxybox
+package androidx.ui.material.clip
 
+import android.content.Context
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
@@ -28,10 +29,6 @@ import androidx.ui.foundation.change_notifier.Listenable
  * [ClipPath]).
  *
  * The [getClip] method is called whenever the custom clip needs to be updated.
- *
- * The [shouldReclip] method is called when a new instance of the class
- * is provided, to check if the new instance actually represents different
- * information.
  *
  * The most efficient way to update the clip provided by this class is to
  * supply a reclip argument to the constructor of the [CustomClipper]. The
@@ -54,7 +51,7 @@ abstract class CustomClipper<T>(
      * Returns a description of the clip given that the render object being
      * clipped is of the given size.
      */
-    abstract fun getClip(size: Size): T
+    abstract fun getClip(size: Size, context: Context): T
 
     /**
      * Returns an approximation of the clip returned by [getClip], as
@@ -67,23 +64,4 @@ abstract class CustomClipper<T>(
      * with very small arcs in the corners), then this may be adequate.
      */
     fun getApproximateClipRect(size: Size): Rect = Offset.zero and size
-
-    /**
-     * Called whenever a new instance of the custom clipper delegate class is
-     * provided to the clip object, or any time that a new clip object is created
-     * with a new instance of the custom painter delegate class (which amounts to
-     * the same thing, because the latter is implemented in terms of the former).
-     *
-     * If the new instance represents different information than the old
-     * instance, then the method should return true, otherwise it should return
-     * false.
-     *
-     * If the method returns false, then the [getClip] call might be optimized
-     * away.
-     *
-     * It's possible that the [getClip] method will get called even if
-     * [shouldReclip] returns false or if the [shouldReclip] method is never
-     * called at all (e.g. if the box changes size).
-     */
-    abstract fun shouldReclip(oldClipper: CustomClipper<T>): Boolean
 }

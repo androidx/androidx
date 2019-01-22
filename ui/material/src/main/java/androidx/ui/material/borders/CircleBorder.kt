@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.ui.painting.borders
+package androidx.ui.material.borders
 
+import android.content.Context
+import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Canvas
@@ -62,18 +64,18 @@ data class CircleBorder(
         return super.lerpTo(b, t)
     }
 
-    override fun getInnerPath(rect: Rect, textDirection: TextDirection?): Path {
+    override fun getInnerPath(rect: Rect, context: Context, textDirection: TextDirection?): Path {
         return Path().apply {
             addOval(
                 Rect.fromCircle(
-                    center = rect.getCenter(),
-                    radius = max(0.0f, rect.getShortestSide() / 2.0f - side.width)
+                    rect.getCenter(),
+                    max(0.0f, rect.getShortestSide() / 2.0f - side.width.toPx(context))
                 )
             )
         }
     }
 
-    override fun getOuterPath(rect: Rect, textDirection: TextDirection?): Path {
+    override fun getOuterPath(rect: Rect, context: Context, textDirection: TextDirection?): Path {
         return Path().apply {
             addOval(
                 Rect.fromCircle(
@@ -84,15 +86,20 @@ data class CircleBorder(
         }
     }
 
-    override fun paint(canvas: Canvas, rect: Rect, textDirection: TextDirection?) {
+    override fun paint(
+        canvas: Canvas,
+        context: Context,
+        rect: Rect,
+        textDirection: TextDirection?
+    ) {
         when (side.style) {
             BorderStyle.NONE -> {
             }
             BorderStyle.SOLID ->
                 canvas.drawCircle(
                     rect.getCenter(),
-                    (rect.getShortestSide() - side.width) / 2.0f,
-                    side.toPaint()
+                    (rect.getShortestSide() - side.width.toPx(context)) / 2.0f,
+                    side.toPaint(context)
                 )
         }
     }

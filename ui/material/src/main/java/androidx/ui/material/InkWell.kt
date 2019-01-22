@@ -25,8 +25,8 @@ import androidx.ui.core.OnPositioned
 import androidx.ui.core.Position
 import androidx.ui.foundation.ValueChanged
 import androidx.ui.painting.Color
-import androidx.ui.painting.borderradius.BorderRadius
-import androidx.ui.painting.borders.BoxShape
+import androidx.ui.engine.geometry.BorderRadius
+import androidx.ui.material.borders.BoxShape
 import androidx.ui.rendering.proxybox.HitTestBehavior
 import androidx.ui.widgets.gesturedetector.GestureDetector
 import com.google.r4a.Children
