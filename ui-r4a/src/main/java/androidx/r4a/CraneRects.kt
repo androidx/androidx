@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,12 @@ package androidx.r4a
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.ui.core.adapter.Draw
-import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
+import androidx.ui.core.PointerInput
+import androidx.ui.core.adapter.Draw
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.div
 import androidx.ui.core.dp
@@ -31,6 +32,7 @@ import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
 import androidx.ui.core.minus
 import androidx.ui.core.plus
+import androidx.ui.core.pointerinput.PointerInputChange
 import androidx.ui.core.tightConstraints
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
@@ -50,7 +52,7 @@ fun Padding(
     right: Dimension = 0.dp,
     bottom: Dimension = 0.dp, @Children children: () -> Unit
 ) {
-    <MeasureBox>constraints, measureOperations ->
+    <MeasureBox> constraints, measureOperations ->
         val measurables = measureOperations.collect(children)
         val horizontalPadding = (left + right)
         val verticalPadding = (top + bottom)
@@ -77,7 +79,7 @@ fun FourQuadrants() {
     val image = BitmapFactory.decodeResource(resources, androidx.ui.port.R.drawable.four_quadrants)
     <MeasureBox> constraints, measureOperations ->
         measureOperations.collect {
-            <DrawImage bitmap=image/>
+            <DrawImage bitmap=image />
         }
 
         measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
@@ -92,7 +94,7 @@ fun DrawImage(bitmap: Bitmap) {
         canvas.save()
         val width = parentSize.width
         val height = parentSize.height
-        val scale = min(width/bitmap.width.toFloat(), height/bitmap.height.toFloat())
+        val scale = min(width / bitmap.width.toFloat(), height / bitmap.height.toFloat())
         canvas.scale(scale, scale)
         canvas.drawImage(Image(bitmap), Offset(0.0f, 0.0f), paint)
         canvas.restore()
@@ -142,7 +144,7 @@ fun Rectangles() {
             <Rectangle color=red />
             val blue = Color(0xFF0000FF.toInt())
             <Rectangle color=blue />
-            <FourQuadrants/>
+            <FourQuadrants />
         }
 
         val size = min(width, height)
@@ -159,15 +161,31 @@ fun Rectangles() {
     </MeasureBox>
 }
 
+var small = false
 
 @Composable
 fun CraneRects() {
     <CraneWrapper>
         <Recompose> recompose ->
-            <Padding left=20.dp top=20.dp right=20.dp bottom=20.dp>
-                <Rectangles />
+            val onPointerEvent: (event: PointerInputChange, pass: Int) -> PointerInputChange =
+                { event, pass ->
+                    // TODO(shepshapard): Convert pass to use an enum when kotlin enums work again.
+                    if (pass == 4 && !event.previous.down && event.current.down) {
+                        small = !small
+                        recompose()
+                    }
+                    event
+                }
+
+            val padding = if (small) 48.dp else 96.dp
+
+            <Padding left=padding top=padding right=padding bottom=padding>
+                <Padding left=0.dp top=0.dp right=0.dp bottom=0.dp>
+                    <PointerInput pointerInputHandler=onPointerEvent>
+                        <Rectangles />
+                    </PointerInput>
+                </Padding>
             </Padding>
         </Recompose>
     </CraneWrapper>
 }
-

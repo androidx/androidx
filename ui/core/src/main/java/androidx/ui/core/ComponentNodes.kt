@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package androidx.ui.core
 
+import androidx.ui.core.pointerinput.PointerInputHandler
 import androidx.ui.painting.Canvas
 import com.google.r4a.Emittable
 
@@ -245,9 +246,11 @@ internal open class SingleChildComponentNode() : ComponentNode() {
 }
 
 /**
- * Backing node for Gesture
+ * Backing node for handling pointer events.
  */
-internal class GestureNode() : SingleChildComponentNode()
+internal class PointerInputNode() : SingleChildComponentNode() {
+    var pointerInputHandler: PointerInputHandler = { event, _ -> event }
+}
 
 /**
  * Backing node for the [Draw] component.

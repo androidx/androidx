@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -210,7 +210,7 @@ class ComponentNodeTest {
 
     @Test
     fun singleChildAdd() {
-        val node = GestureNode()
+        val node = PointerInputNode()
         val owner = mock(Owner::class.java)
         node.attach(owner)
         verify(owner, times(1)).onAttach(node)
@@ -225,16 +225,16 @@ class ComponentNodeTest {
 
     @Test
     fun singleChildcounts() {
-        val node = GestureNode()
+        val node = PointerInputNode()
         assertEquals(0, node.count)
-        node.emitInsertAt(0, GestureNode())
+        node.emitInsertAt(0, PointerInputNode())
         assertEquals(1, node.count)
     }
 
     @Test
     fun singleChildeGet() {
-        val node = GestureNode()
-        val child = GestureNode()
+        val node = PointerInputNode()
+        val child = PointerInputNode()
         node.emitInsertAt(0, child)
         assertEquals(child, node[0])
     }
@@ -242,14 +242,14 @@ class ComponentNodeTest {
     @Test
     fun singleChildMove() {
         thrown.expect(UnsupportedOperationException::class.java)
-        val node = GestureNode()
-        node.emitInsertAt(0, GestureNode())
+        val node = PointerInputNode()
+        node.emitInsertAt(0, PointerInputNode())
         node.emitMove(from = 0, to = 0, count = 0)
     }
 
     @Test
     fun singleChildRemove() {
-        val node = GestureNode()
+        val node = PointerInputNode()
         val owner = mock(Owner::class.java)
         node.attach(owner)
         val child = DrawNode()
@@ -296,7 +296,7 @@ class ComponentNodeTest {
     @Test
     fun directLayoutAndGestureNodesHierarchy() {
         val layoutNode = LayoutNode()
-        val singleChildNode = GestureNode()
+        val singleChildNode = PointerInputNode()
         layoutNode.emitInsertAt(0, singleChildNode)
 
         assertNull(layoutNode.parentLayoutNode)
@@ -311,7 +311,7 @@ class ComponentNodeTest {
     @Test
     fun indirectLayoutNodeHierarchy() {
         val layoutNode = LayoutNode()
-        val intermediate = GestureNode()
+        val intermediate = PointerInputNode()
         val childLayoutNode = LayoutNode()
         layoutNode.emitInsertAt(0, intermediate)
         assertEquals(layoutNode, intermediate.parentLayoutNode)
@@ -332,7 +332,7 @@ class ComponentNodeTest {
     @Test
     fun visitChildren() {
         val (node1, node2, node3) = createSimpleLayout()
-        val node4 = GestureNode()
+        val node4 = PointerInputNode()
         node3.emitInsertAt(0, node4)
         val nodes = mutableListOf<ComponentNode>()
         node1.visitChildren { nodes.add(it) }
