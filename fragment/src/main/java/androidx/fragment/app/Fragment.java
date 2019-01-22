@@ -325,6 +325,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     /**
      * Returns the {@link ViewModelStore} associated with this Fragment
+     * <p>
+     * Overriding this method is no longer supported and this method will be made
+     * <code>final</code> in a future version of Fragment.
      *
      * @return a {@code ViewModelStore}
      * @throws IllegalStateException if called before the Fragment is attached i.e., before
