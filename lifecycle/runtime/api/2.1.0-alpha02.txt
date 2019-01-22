@@ -7,8 +7,9 @@ package androidx.lifecycle {
     method public androidx.lifecycle.Lifecycle.State getCurrentState();
     method public int getObserverCount();
     method public void handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event);
-    method @MainThread public void markState(androidx.lifecycle.Lifecycle.State);
+    method @Deprecated @MainThread public void markState(androidx.lifecycle.Lifecycle.State);
     method public void removeObserver(androidx.lifecycle.LifecycleObserver);
+    method @MainThread public void setCurrentState(androidx.lifecycle.Lifecycle.State);
   }
 
   @Deprecated public interface LifecycleRegistryOwner extends androidx.lifecycle.LifecycleOwner {
