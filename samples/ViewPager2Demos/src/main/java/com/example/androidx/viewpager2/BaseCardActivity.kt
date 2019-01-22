@@ -51,7 +51,7 @@ abstract class BaseCardActivity : FragmentActivity() {
     private val translateY get() = orientation == ORIENTATION_HORIZONTAL &&
             translateCheckBox.isChecked
 
-    private val layoutId: Int = R.layout.activity_no_tablayout
+    protected open val layoutId: Int = R.layout.activity_no_tablayout
 
     private val mAnimator = ViewPager2.PageTransformer { page, position ->
         val absPos = Math.abs(position)

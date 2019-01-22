@@ -29,7 +29,7 @@ import com.example.androidx.viewpager2.cards.CardView
  *
  * @see CardFragmentActivity for an example of using {@link ViewPager2} with Fragments.
  */
-class CardViewActivity : BaseCardActivity() {
+open class CardViewActivity : BaseCardActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
