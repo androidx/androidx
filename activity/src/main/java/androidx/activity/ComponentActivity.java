@@ -219,6 +219,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     /**
      * Returns the {@link ViewModelStore} associated with this activity
+     * <p>
+     * Overriding this method is no longer supported and this method will be made
+     * <code>final</code> in a future version of ComponentActivity.
      *
      * @return a {@code ViewModelStore}
      * @throws IllegalStateException if called before the Activity is attached to the Application
