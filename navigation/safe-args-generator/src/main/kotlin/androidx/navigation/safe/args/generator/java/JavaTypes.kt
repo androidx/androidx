@@ -50,6 +50,8 @@ import com.squareup.javapoet.TypeName
 
 internal val NAV_DIRECTION_CLASSNAME: ClassName =
     ClassName.get("androidx.navigation", "NavDirections")
+internal val ACTION_ONLY_NAV_DIRECTION_CLASSNAME: ClassName =
+    ClassName.get("androidx.navigation", "ActionOnlyNavDirections")
 internal val NAV_ARGS_CLASSNAME: ClassName = ClassName.get("androidx.navigation", "NavArgs")
 internal val HASHMAP_CLASSNAME: ClassName = ClassName.get("java.util", "HashMap")
 internal val BUNDLE_CLASSNAME: ClassName = ClassName.get("android.os", "Bundle")
