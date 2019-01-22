@@ -24,14 +24,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light">
 
-        <activity android:name=".CardViewActivity" android:label="CardsDemo">
+        <activity android:name=".CardViewActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.SAMPLE_CODE"/>
             </intent-filter>
         </activity>
 
-        <activity android:name=".CardFragmentActivity" android:label="CardsFragmentDemo">
+        <activity android:name=".CardFragmentActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.SAMPLE_CODE"/>
@@ -46,6 +46,13 @@
         </activity>
 
         <activity android:name=".MutableCollectionViewActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.SAMPLE_CODE"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".CardViewTabLayoutActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.SAMPLE_CODE"/>
