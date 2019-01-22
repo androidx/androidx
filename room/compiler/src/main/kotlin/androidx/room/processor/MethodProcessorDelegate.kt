@@ -86,7 +86,8 @@ abstract class MethodProcessorDelegate(
             containing: DeclaredType,
             executableElement: ExecutableElement
         ): MethodProcessorDelegate {
-            val kotlinMetadata = KotlinMetadataElement.createFor(context, containing.asElement())
+            val kotlinMetadata =
+                KotlinMetadataElement.createFor(context, executableElement.enclosingElement)
             return if (kotlinMetadata?.isSuspendFunction(executableElement) == true) {
                 val hasCoroutineArtifact = context.processingEnv.elementUtils
                     .getTypeElement(RoomCoroutinesTypeNames.COROUTINES_ROOM.toString()) != null
