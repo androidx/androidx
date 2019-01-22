@@ -20,26 +20,36 @@ import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
+import android.widget.Button
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import kotlinx.android.synthetic.main.activity_mutable_collection.buttonAddAfter
-import kotlinx.android.synthetic.main.activity_mutable_collection.buttonAddBefore
-import kotlinx.android.synthetic.main.activity_mutable_collection.buttonGoTo
-import kotlinx.android.synthetic.main.activity_mutable_collection.buttonRemove
-import kotlinx.android.synthetic.main.activity_mutable_collection.itemSpinner
-import kotlinx.android.synthetic.main.activity_mutable_collection.viewPager
 
 /**
  * Shows how to use notifyDataSetChanged with [ViewPager2]
  */
 abstract class MutableCollectionBaseActivity : FragmentActivity() {
+    private lateinit var buttonAddAfter: Button
+    private lateinit var buttonAddBefore: Button
+    private lateinit var buttonGoTo: Button
+    private lateinit var buttonRemove: Button
+    private lateinit var itemSpinner: Spinner
+    private lateinit var viewPager: ViewPager2
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mutable_collection)
+
+        buttonAddAfter = findViewById(R.id.buttonAddAfter)
+        buttonAddBefore = findViewById(R.id.buttonAddBefore)
+        buttonGoTo = findViewById(R.id.buttonGoTo)
+        buttonRemove = findViewById(R.id.buttonRemove)
+        itemSpinner = findViewById(R.id.itemSpinner)
+        viewPager = findViewById(R.id.viewPager)
 
         viewPager.adapter = createViewPagerAdapter()
 
@@ -49,7 +59,7 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
                     text = getItem(position)
                 }
 
-            override fun getItem(position: Int): String = items[getItemId(position)]
+            override fun getItem(position: Int): String = items.getItemById(getItemId(position))
             override fun getItemId(position: Int): Long = items.itemId(position)
             override fun getCount(): Int = items.size
         }
@@ -76,7 +86,7 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
 
     abstract fun createViewPagerAdapter(): RecyclerView.Adapter<*>
 
-    val items: Items get() = ViewModelProviders.of(this)[Items::class.java]
+    val items: ItemsViewModel get() = ViewModelProviders.of(this)[ItemsViewModel::class.java]
 
     private fun notifyDataSetChanged() {
         viewPager.adapter!!.notifyDataSetChanged()
@@ -85,19 +95,16 @@ abstract class MutableCollectionBaseActivity : FragmentActivity() {
 }
 
 /** A very simple collection of items. Optimized for simplicity (i.e. not performance). */
-class Items : ViewModel() {
+class ItemsViewModel : ViewModel() {
     private var nextValue = 1L
 
     private val items = (1..9).map { longToItem(nextValue++) }.toMutableList()
-    private val clickCount = mutableMapOf<Long, Int>()
 
-    operator fun get(id: Long): String = items.first { itemToLong(it) == id }
+    fun getItemById(id: Long): String = items.first { itemToLong(it) == id }
     fun itemId(position: Int): Long = itemToLong(items[position])
     fun contains(itemId: Long): Boolean = items.any { itemToLong(it) == itemId }
     fun addNewAt(position: Int) = items.add(position, longToItem(nextValue++))
     fun removeAt(position: Int) = items.removeAt(position)
-    fun clickCount(itemId: Long): Int = clickCount[itemId] ?: 0
-    fun registerClick(itemId: Long) = clickCount.set(itemId, 1 + clickCount(itemId))
     val size: Int get() = items.size
 
     private fun longToItem(value: Long): String = "item#$value"

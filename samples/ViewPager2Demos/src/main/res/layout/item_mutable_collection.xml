@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"/>
         <TextView
                 android:layout_margin="5dp"
-                android:id="@+id/textViewItemId"
+                android:id="@+id/textViewItemText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"/>
