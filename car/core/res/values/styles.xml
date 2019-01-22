@@ -133,6 +133,14 @@ limitations under the License.
         <item name="android:textColor">@color/car_body4</item>
     </style>
 
+    <style name="TextAppearance.Car.Body4.Light">
+        <item name="android:textColor">@color/car_body4_light</item>
+    </style>
+
+    <style name="TextAppearance.Car.Body4.Dark">
+        <item name="android:textColor">@color/car_body4_dark</item>
+    </style>
+
     <style name="TextAppearance.Car.SubText1">
         <item name="android:textStyle">normal</item>
         <item name="android:textSize">@dimen/car_subtext1_size</item>
