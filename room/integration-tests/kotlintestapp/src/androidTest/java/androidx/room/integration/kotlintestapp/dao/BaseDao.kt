@@ -37,4 +37,7 @@ interface BaseDao<T> {
 
     @Delete
     fun delete(t: T)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun suspendInsert(t: T)
 }
