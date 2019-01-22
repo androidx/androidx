@@ -409,57 +409,10 @@ public class MediaControlView extends BaseLayout {
     }
 
     @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-
-        if (mPlayPauseButton != null) {
-            mPlayPauseButton.setEnabled(enabled);
-        }
-        if (mFfwdButton != null) {
-            mFfwdButton.setEnabled(enabled);
-        }
-        if (mRewButton != null) {
-            mRewButton.setEnabled(enabled);
-        }
-        if (mNextButton != null) {
-            mNextButton.setEnabled(enabled);
-        }
-        if (mPrevButton != null) {
-            mPrevButton.setEnabled(enabled);
-        }
-        if (mProgress != null) {
-            mProgress.setEnabled(enabled);
-        }
-        if (mSubtitleButton != null) {
-            mSubtitleButton.setEnabled(enabled);
-        }
-        if (mFullScreenButton != null) {
-            mFullScreenButton.setEnabled(enabled);
-        }
-        if (mOverflowShowButton != null) {
-            mOverflowShowButton.setEnabled(enabled);
-        }
-        if (mOverflowHideButton != null) {
-            mOverflowHideButton.setEnabled(enabled);
-        }
-        if (mVideoQualityButton != null) {
-            mVideoQualityButton.setEnabled(enabled);
-        }
-        if (mSettingsButton != null) {
-            mSettingsButton.setEnabled(enabled);
-        }
-        if (mRouteButton != null) {
-            mRouteButton.setEnabled(enabled);
-        }
-        disableUnsupportedButtons();
-    }
-
-    @Override
     public void onVisibilityAggregated(boolean isVisible) {
         super.onVisibilityAggregated(isVisible);
 
         if (isVisible) {
-            disableUnsupportedButtons();
             removeCallbacks(mUpdateProgress);
             post(mUpdateProgress);
         } else {
@@ -638,8 +591,6 @@ public class MediaControlView extends BaseLayout {
                 mTransportControls.setAlpha(alpha);
                 if (alpha == 0.0f) {
                     mTransportControls.setVisibility(View.GONE);
-                } else if (alpha == 1.0f) {
-                    setEnabled(false);
                 }
                 if (mSizeType == SIZE_TYPE_MINIMAL) {
                     mFullScreenButton.setAlpha(alpha);
@@ -671,8 +622,6 @@ public class MediaControlView extends BaseLayout {
                 mTransportControls.setAlpha(alpha);
                 if (alpha == 0.0f) {
                     mTransportControls.setVisibility(View.VISIBLE);
-                } else if (alpha == 1.0f) {
-                    setEnabled(true);
                 }
                 if (mSizeType == SIZE_TYPE_MINIMAL) {
                     mFullScreenButton.setAlpha(alpha);
@@ -701,13 +650,11 @@ public class MediaControlView extends BaseLayout {
                 new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationStart(Animator animation) {
-                        setEnabled(false);
                         mUxState = UX_STATE_ANIMATING;
                     }
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        setEnabled(true);
                         mUxState = UX_STATE_ONLY_PROGRESS_VISIBLE;
                     }
                 });
@@ -723,13 +670,11 @@ public class MediaControlView extends BaseLayout {
                 new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationStart(Animator animation) {
-                        setEnabled(false);
                         mUxState = UX_STATE_ANIMATING;
                     }
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        setEnabled(true);
                         mUxState = UX_STATE_NONE_VISIBLE;
                     }
                 });
@@ -747,13 +692,11 @@ public class MediaControlView extends BaseLayout {
         mHideAllBarsAnimator.getChildAnimations().get(0).addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                setEnabled(false);
                 mUxState = UX_STATE_ANIMATING;
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                setEnabled(true);
                 mUxState = UX_STATE_NONE_VISIBLE;
             }
         });
@@ -772,13 +715,11 @@ public class MediaControlView extends BaseLayout {
                 new AnimatorListenerAdapter() {
                     @Override
                     public void onAnimationStart(Animator animation) {
-                        setEnabled(false);
                         mUxState = UX_STATE_ANIMATING;
                     }
 
                     @Override
                     public void onAnimationEnd(Animator animation) {
-                        setEnabled(true);
                         mUxState = UX_STATE_ALL_VISIBLE;
                     }
                 });
@@ -796,13 +737,11 @@ public class MediaControlView extends BaseLayout {
         mShowAllBarsAnimator.getChildAnimations().get(0).addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
-                setEnabled(false);
                 mUxState = UX_STATE_ANIMATING;
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                setEnabled(true);
                 mUxState = UX_STATE_ALL_VISIBLE;
             }
         });
@@ -858,34 +797,6 @@ public class MediaControlView extends BaseLayout {
                 mExtraControls.setVisibility(View.GONE);
             }
         });
-    }
-
-    /**
-     * Disable pause or seek buttons if the stream cannot be paused or seeked.
-     * This requires the control interface to be a MediaPlayerControlExt
-     * TODO: b/110905302
-     */
-    private void disableUnsupportedButtons() {
-        try {
-            if (mPlayPauseButton != null && !mController.canPause()) {
-                mPlayPauseButton.setEnabled(false);
-            }
-            if (mRewButton != null && !mController.canSeekBackward()) {
-                mRewButton.setEnabled(false);
-            }
-            if (mFfwdButton != null && !mController.canSeekForward()) {
-                mFfwdButton.setEnabled(false);
-            }
-            if (mProgress != null && !mController.canSeekBackward()
-                    && !mController.canSeekForward()) {
-                mProgress.setEnabled(false);
-            }
-        } catch (IncompatibleClassChangeError ex) {
-            // We were given an old version of the interface, that doesn't have
-            // the canPause/canSeekXYZ methods. This is OK, it just means we
-            // assume the media can be paused and seeked, and so we don't disable
-            // the buttons.
-        }
     }
 
     final Runnable mUpdateProgress = new Runnable() {
@@ -1428,10 +1339,9 @@ public class MediaControlView extends BaseLayout {
             mAdRemainingView.setVisibility(View.GONE);
             mAdExternalLink.setVisibility(View.GONE);
 
-            mProgress.setEnabled(true);
+            mProgress.setEnabled(mSeekAvailable);
             mNextButton.setEnabled(true);
             mNextButton.clearColorFilter();
-            disableUnsupportedButtons();
         }
     }
 
@@ -1761,7 +1671,6 @@ public class MediaControlView extends BaseLayout {
 
         if (commands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_PAUSE)) {
             mPlayPauseButton.setVisibility(View.VISIBLE);
-            mPlayPauseButton.setEnabled(true);
         } else {
             mPlayPauseButton.setVisibility(View.GONE);
         }
@@ -1769,7 +1678,6 @@ public class MediaControlView extends BaseLayout {
                 && mMediaType != MEDIA_TYPE_MUSIC) {
             if (mRewButton != null) {
                 mRewButton.setVisibility(View.VISIBLE);
-                mRewButton.setEnabled(true);
             }
         } else {
             if (mRewButton != null) {
@@ -1780,7 +1688,6 @@ public class MediaControlView extends BaseLayout {
                 && mMediaType != MEDIA_TYPE_MUSIC) {
             if (mFfwdButton != null) {
                 mFfwdButton.setVisibility(View.VISIBLE);
-                mFfwdButton.setEnabled(true);
             }
         } else {
             if (mFfwdButton != null) {
@@ -1791,7 +1698,6 @@ public class MediaControlView extends BaseLayout {
                 SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_PREVIOUS_PLAYLIST_ITEM)) {
             if (mPrevButton != null) {
                 mPrevButton.setVisibility(VISIBLE);
-                mPrevButton.setEnabled(true);
             }
         } else {
             if (mPrevButton != null) {
@@ -1802,7 +1708,6 @@ public class MediaControlView extends BaseLayout {
                 SessionCommand.COMMAND_CODE_PLAYER_SKIP_TO_NEXT_PLAYLIST_ITEM)) {
             if (mNextButton != null) {
                 mNextButton.setVisibility(VISIBLE);
-                mNextButton.setEnabled(true);
             }
         } else {
             if (mNextButton != null) {
@@ -2283,7 +2188,6 @@ public class MediaControlView extends BaseLayout {
                             removeCallbacks(mUpdateProgress);
                             break;
                         case SessionPlayer.PLAYER_STATE_ERROR:
-                            MediaControlView.this.setEnabled(false);
                             mPlayPauseButton.setImageDrawable(
                                     mResources.getDrawable(R.drawable.ic_play_circle_filled));
                             mPlayPauseButton.setContentDescription(
