@@ -110,6 +110,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
         // processing destination in the graph hierarchy.
         val parentGetters = mutableListOf<MethodSpec>()
         parentDirectionsFileList.forEach {
+            val parentPackageName = it.wrapped.packageName
             val parentTypeSpec = it.wrapped.typeSpec
             parentTypeSpec.methodSpecs.filter { method ->
                 method.hasModifier(Modifier.STATIC) &&
@@ -119,8 +120,10 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
                 val params = actionMethod.parameters.joinToString(", ") { param -> param.name }
                 val returnTypeName = when (actionMethod.returnType) {
                     NAV_DIRECTION_CLASSNAME -> NAV_DIRECTION_CLASSNAME
-                    else -> ClassName.bestGuess(
-                        "${parentTypeSpec.name}.${actionMethod.returnType}")
+                    else -> ClassName.get(
+                        parentPackageName,
+                        parentTypeSpec.name,
+                        actionMethod.returnType.toString())
                 }
                 val methodSpec = MethodSpec.methodBuilder(actionMethod.name)
                     .addAnnotations(actionMethod.annotations)
@@ -128,7 +131,7 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
                     .addParameters(actionMethod.parameters)
                     .returns(returnTypeName)
                     .addStatement("return $T.$L($params)",
-                        ClassName.bestGuess(parentTypeSpec.name), actionMethod.name)
+                        ClassName.get(parentPackageName, parentTypeSpec.name), actionMethod.name)
                     .build()
                 parentGetters.add(methodSpec)
             }
