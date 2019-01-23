@@ -81,16 +81,29 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
         val getters = actionTypes
             .map { (action, actionType) ->
                 val annotations = Annotations.getInstance(useAndroidX)
-                val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
-                val params = constructor.parameters.joinToString(", ") { param -> param.name }
-                val actionTypeName = ClassName.get("", actionType.name)
-                MethodSpec.methodBuilder(action.id.javaIdentifier.toCamelCaseAsVar())
-                    .addAnnotation(annotations.NONNULL_CLASSNAME)
-                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                    .addParameters(constructor.parameters)
-                    .returns(actionTypeName)
-                    .addStatement("return new $T($params)", actionTypeName)
-                    .build()
+                val methodName = action.id.javaIdentifier.toCamelCaseAsVar()
+                if (action.args.isEmpty()) {
+                    MethodSpec.methodBuilder(methodName)
+                        .addAnnotation(annotations.NONNULL_CLASSNAME)
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                        .returns(NAV_DIRECTION_CLASSNAME)
+                        .addStatement(
+                            "return new $T($L)",
+                            ACTION_ONLY_NAV_DIRECTION_CLASSNAME, action.id.accessor()
+                        )
+                        .build()
+                } else {
+                    val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
+                    val params = constructor.parameters.joinToString(", ") { param -> param.name }
+                    val actionTypeName = ClassName.get("", actionType.name)
+                    MethodSpec.methodBuilder(methodName)
+                        .addAnnotation(annotations.NONNULL_CLASSNAME)
+                        .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                        .addParameters(constructor.parameters)
+                        .returns(actionTypeName)
+                        .addStatement("return new $T($params)", actionTypeName)
+                        .build()
+                }
             }
 
         // The parent destination list is ordered from the closest to the farthest parent of the
@@ -104,12 +117,16 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
                         parentGetters.none { it.name == method.name } // de-dupe parent actions
             }.forEach { actionMethod ->
                 val params = actionMethod.parameters.joinToString(", ") { param -> param.name }
+                val returnTypeName = when (actionMethod.returnType) {
+                    NAV_DIRECTION_CLASSNAME -> NAV_DIRECTION_CLASSNAME
+                    else -> ClassName.bestGuess(
+                        "${parentTypeSpec.name}.${actionMethod.returnType}")
+                }
                 val methodSpec = MethodSpec.methodBuilder(actionMethod.name)
                     .addAnnotations(actionMethod.annotations)
                     .addModifiers(actionMethod.modifiers)
                     .addParameters(actionMethod.parameters)
-                    .returns(
-                        ClassName.bestGuess("${parentTypeSpec.name}.${actionMethod.returnType}"))
+                    .returns(returnTypeName)
                     .addStatement("return $T.$L($params)",
                         ClassName.bestGuess(parentTypeSpec.name), actionMethod.name)
                     .build()
@@ -119,7 +136,9 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
 
         return TypeSpec.classBuilder(className)
             .addModifiers(Modifier.PUBLIC)
-            .addTypes(actionTypes.map { (_, actionType) -> actionType })
+            .addTypes(actionTypes
+                .filter { (action, _) -> action.args.isNotEmpty() }
+                .map { (_, actionType) -> actionType })
             .addMethod(constructor)
             .addMethods(getters + parentGetters)
             .build()

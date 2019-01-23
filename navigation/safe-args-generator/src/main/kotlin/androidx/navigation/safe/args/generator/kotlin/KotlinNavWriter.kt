@@ -64,7 +64,9 @@ class KotlinNavWriter(private val useAndroidX: Boolean = false) : NavWriter<Kotl
                 returns(NAV_DIRECTION_CLASSNAME)
                 addParameters(parameters)
                 if (action.args.isEmpty()) {
-                    addStatement("return %T", typeName)
+                    addStatement("return %T(%L)",
+                        ACTION_ONLY_NAV_DIRECTION_CLASSNAME, action.id.accessor()
+                    )
                 } else {
                     addStatement(
                         "return %T(${parameters.joinToString(", ") { it.name }})",
@@ -103,7 +105,10 @@ class KotlinNavWriter(private val useAndroidX: Boolean = false) : NavWriter<Kotl
                     .addModifiers(KModifier.PRIVATE)
                     .build()
             )
-            .addTypes(actionTypes.map { (_, type) -> type })
+            .addTypes(actionTypes
+                .filter { (action, _) -> action.args.isNotEmpty() }
+                .map { (_, type) -> type }
+            )
             .addType(
                 TypeSpec.companionObjectBuilder()
                     .addFunctions(actionsFunSpec + parentActionsFunSpec)
