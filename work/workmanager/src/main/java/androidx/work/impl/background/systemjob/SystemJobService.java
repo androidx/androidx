@@ -31,8 +31,6 @@ import androidx.work.WorkerParameters;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkManagerImpl;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,8 +43,7 @@ import java.util.Map;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
 public class SystemJobService extends JobService implements ExecutionListener {
-    // Prevent synthetic accessor
-    static final String TAG = Logger.tagWithPrefix("SystemJobService");
+    private static final String TAG = Logger.tagWithPrefix("SystemJobService");
     private WorkManagerImpl mWorkManagerImpl;
     private final Map<String, JobParameters> mJobParameters = new HashMap<>();
 
@@ -97,7 +94,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
         }
 
         PersistableBundle extras = params.getExtras();
-        final String workSpecId = extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
+        String workSpecId = extras.getString(SystemJobInfoConverter.EXTRA_WORK_SPEC_ID);
         if (TextUtils.isEmpty(workSpecId)) {
             Logger.get().error(TAG, "WorkSpec id not found!");
             return false;
@@ -136,28 +133,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
             }
         }
 
-        final ListenableFuture<Boolean> enqueuedFuture =
-                mWorkManagerImpl.startWork(workSpecId, runtimeExtras);
-
-        enqueuedFuture.addListener(new Runnable() {
-            @Override
-            public void run() {
-                boolean isEnqueued = false;
-                try {
-                    isEnqueued = enqueuedFuture.get();
-                } catch (Throwable ignore) {
-                    // Should never happen
-                }
-
-                if (!isEnqueued) {
-                    Logger.get().debug(TAG,
-                            String.format("De-duping request to process WorkSpec %s", workSpecId));
-                    // If the work was never enqueued, cleanup.
-                    onExecuted(workSpecId, false);
-                }
-            }
-        }, mWorkManagerImpl.getWorkTaskExecutor().getMainThreadExecutor());
-
+        mWorkManagerImpl.startWork(workSpecId, runtimeExtras);
         return true;
     }
 
