@@ -16,7 +16,7 @@
 package androidx.ui.foundation
 
 import androidx.ui.engine.geometry.Size
-import androidx.ui.foundation.LayoutNode.Companion.measure
+import androidx.ui.foundation.LayoutNodePort.Companion.measure
 import androidx.ui.rendering.box.BoxConstraints
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -33,17 +33,17 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 
 @RunWith(JUnit4::class)
-class ComponentNodeTest {
+class PortComponentNodeTest {
     @get:Rule
     val thrown = ExpectedException.none()!!
 
     // Ensure that attach and detach work properly
     @Test
     fun componentNodeAttachDetach() {
-        val node = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
+        val node = LayoutNodePort { _, _ -> Size(0.0f, 0.0f) }
         assertNull(node.owner)
 
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         node.attach(owner)
         assertEquals(owner, node.owner)
 
@@ -54,7 +54,7 @@ class ComponentNodeTest {
         verify(owner, times(1)).onDetach(node)
     }
 
-    // Ensure that LayoutNode's children are ordered properly through add, remove, move
+    // Ensure that LayoutNodePort's children are ordered properly through add, remove, move
     @Test
     fun layoutNodeChildrenOrder() {
         val (node, child1, child2) = createSimpleLayout()
@@ -76,8 +76,8 @@ class ComponentNodeTest {
         node.remove(index = 0, count = 2)
         assertEquals(0, node.size)
 
-        val child3 = DrawNode {}
-        val child4 = DrawNode {}
+        val child3 = DrawNodePort {}
+        val child4 = DrawNodePort {}
 
         node.add(0, child1)
         node.add(1, child2)
@@ -105,12 +105,12 @@ class ComponentNodeTest {
         assertEquals(child1, node[3])
     }
 
-    // Ensure that attach of a LayoutNode connects all children
+    // Ensure that attach of a LayoutNodePort connects all children
     @Test
     fun layoutNodeAttach() {
         val (node, child1, child2) = createSimpleLayout()
 
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         node.attach(owner)
         assertEquals(owner, node.owner)
         assertEquals(owner, child1.owner)
@@ -121,11 +121,11 @@ class ComponentNodeTest {
         verify(owner, times(1)).onAttach(child2)
     }
 
-    // Ensure that detach of a LayoutNode detaches all children
+    // Ensure that detach of a LayoutNodePort detaches all children
     @Test
     fun layoutNodeDetach() {
         val (node, child1, child2) = createSimpleLayout()
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         node.attach(owner)
         reset(owner)
         node.detach()
@@ -145,7 +145,7 @@ class ComponentNodeTest {
     @Test
     fun layoutNodeDropDetaches() {
         val (node, child1, child2) = createSimpleLayout()
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         node.attach(owner)
 
         node.remove(0, 1)
@@ -162,7 +162,7 @@ class ComponentNodeTest {
     @Test
     fun layoutNodeAdoptAttaches() {
         val (node, child1, child2) = createSimpleLayout()
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         node.attach(owner)
 
         node.remove(0, 1)
@@ -180,46 +180,46 @@ class ComponentNodeTest {
 
     @Test
     fun drawNodeChildSizes() {
-        val node = DrawNode {}
+        val node = DrawNodePort {}
         assertEquals(0, node.size)
     }
 
     @Test
     fun drawNodeGet() {
         thrown.expect(IllegalArgumentException::class.java)
-        val node = DrawNode {}
+        val node = DrawNodePort {}
         node[0]
     }
 
     @Test
     fun drawNodeAdd() {
         thrown.expect(UnsupportedOperationException::class.java)
-        val node = DrawNode {}
-        node.add(0, DrawNode {})
+        val node = DrawNodePort {}
+        node.add(0, DrawNodePort {})
     }
 
     @Test
     fun drawNodeMove() {
         thrown.expect(UnsupportedOperationException::class.java)
-        val node = DrawNode {}
+        val node = DrawNodePort {}
         node.move(from = 0, to = 0, count = 0)
     }
 
     @Test
     fun drawNodeRemove() {
         thrown.expect(IllegalArgumentException::class.java)
-        val node = DrawNode {}
+        val node = DrawNodePort {}
         node.remove(index = 0, count = 0)
     }
 
     @Test
     fun singleChildAdd() {
-        val node = GestureNode()
-        val owner = mock(Owner::class.java)
+        val node = GestureNodePort()
+        val owner = mock(PortOwner::class.java)
         node.attach(owner)
         verify(owner, times(1)).onAttach(node)
 
-        val child = DrawNode {}
+        val child = DrawNodePort {}
         node.add(0, child)
         verify(owner, times(1)).onAttach(child)
         assertEquals(1, node.size)
@@ -229,16 +229,16 @@ class ComponentNodeTest {
 
     @Test
     fun singleChildSizes() {
-        val node = GestureNode()
+        val node = GestureNodePort()
         assertEquals(0, node.size)
-        node.add(0, GestureNode())
+        node.add(0, GestureNodePort())
         assertEquals(1, node.size)
     }
 
     @Test
     fun singleChildeGet() {
-        val node = GestureNode()
-        val child = GestureNode()
+        val node = GestureNodePort()
+        val child = GestureNodePort()
         node.add(0, child)
         assertEquals(child, node[0])
     }
@@ -246,17 +246,17 @@ class ComponentNodeTest {
     @Test
     fun singleChildMove() {
         thrown.expect(UnsupportedOperationException::class.java)
-        val node = GestureNode()
-        node.add(0, GestureNode())
+        val node = GestureNodePort()
+        node.add(0, GestureNodePort())
         node.move(from = 0, to = 0, count = 0)
     }
 
     @Test
     fun singleChildRemove() {
-        val node = GestureNode()
-        val owner = mock(Owner::class.java)
+        val node = GestureNodePort()
+        val owner = mock(PortOwner::class.java)
         node.attach(owner)
-        val child = DrawNode {}
+        val child = DrawNodePort {}
         node.add(0, child)
         node.remove(index = 0, count = 1)
         verify(owner, times(1)).onDetach(child)
@@ -268,11 +268,11 @@ class ComponentNodeTest {
     // Ensure that depth is as expected
     @Test
     fun depth() {
-        val root = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
+        val root = LayoutNodePort { _, _ -> Size(0.0f, 0.0f) }
         val (child, grand1, grand2) = createSimpleLayout()
         root.add(0, child)
 
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         root.attach(owner)
 
         assertEquals(0, root.depth)
@@ -281,14 +281,14 @@ class ComponentNodeTest {
         assertEquals(2, grand2.depth)
     }
 
-    // layoutNode hierarchy should be set properly when a LayoutNode is a child of a LayoutNode
+    // layoutNode hierarchy should be set properly when a LayoutNodePort is a child of a LayoutNodePort
     @Test
     fun directLayoutNodeHierarchy() {
-        val layoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
-        val childLayoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
+        val layoutNode = LayoutNodePort { _, _ -> Size(0.0f, 0.0f) }
+        val childLayoutNode = LayoutNodePort { _, _ -> Size(0.0f, 0.0f) }
         layoutNode.add(0, childLayoutNode)
 
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         layoutNode.attach(owner)
 
         assertNull(layoutNode.parentLayoutNode)
@@ -302,16 +302,16 @@ class ComponentNodeTest {
         assertEquals(0, layoutNode.layoutChildren.size)
     }
 
-    // layoutNode hierarchy should be set properly when a LayoutNode is a grandchild of a LayoutNode
+    // layoutNode hierarchy should be set properly when a LayoutNodePort is a grandchild of a LayoutNodePort
     @Test
     fun indirectLayoutNodeHierarchy() {
-        val layoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
-        val intermediate = GestureNode()
-        val childLayoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
+        val layoutNode = LayoutNodePort { _, _ -> Size(0.0f, 0.0f) }
+        val intermediate = GestureNodePort()
+        val childLayoutNode = LayoutNodePort { _, _ -> Size(0.0f, 0.0f) }
         layoutNode.add(0, intermediate)
         intermediate.add(0, childLayoutNode)
 
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         layoutNode.attach(owner)
 
         assertNull(layoutNode.parentLayoutNode)
@@ -325,13 +325,13 @@ class ComponentNodeTest {
         assertEquals(0, layoutNode.layoutChildren.size)
     }
 
-    // Test visitChildren() for LayoutNode and a SingleChildNode
+    // Test visitChildren() for LayoutNodePort and a SingleChildNode
     @Test
     fun visitChildren() {
         val (node1, node2, node3) = createSimpleLayout()
-        val node4 = GestureNode()
+        val node4 = GestureNodePort()
         node3.add(0, node4)
-        val nodes = mutableListOf<ComponentNode>()
+        val nodes = mutableListOf<PortComponentNode>()
         node1.visitChildren { nodes.add(it) }
         assertEquals(2, nodes.size)
         assertEquals(node2, nodes[0])
@@ -346,10 +346,10 @@ class ComponentNodeTest {
     @Test
     fun requestLayout() {
         val (node, _, _) = createSimpleLayout()
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         node.attach(owner)
         verify(owner, times(1)).onRequestLayout(node)
-        LayoutNode.measure(node, BoxConstraints.tightFor(0.0f, 0.0f), false)
+        LayoutNodePort.measure(node, BoxConstraints.tightFor(0.0f, 0.0f), false)
         reset(owner)
 
         node.dirtyLayout()
@@ -365,10 +365,10 @@ class ComponentNodeTest {
     @Test
     fun testLayout() {
         val (parent, child) = createNestedLayout()
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         parent.attach(owner)
         val constraints = BoxConstraints.tightFor(width = 20.0f, height = 25.0f)
-        LayoutNode.measure(parent, constraints, true)
+        LayoutNodePort.measure(parent, constraints, true)
         assertEquals(constraints, parent.constraints)
         val childConstraints = BoxConstraints.tightFor(width = 10.0f, height = 15.0f)
         assertEquals(childConstraints, child.constraints)
@@ -392,9 +392,9 @@ class ComponentNodeTest {
     @Test
     fun testLayoutNodeAdd() {
         val (layout, child1, child2) = createSimpleLayout()
-        val inserted = DrawNode {}
+        val inserted = DrawNodePort {}
         layout.add(0, inserted)
-        val children = mutableListOf<ComponentNode>()
+        val children = mutableListOf<PortComponentNode>()
         layout.visitChildren { children.add(it) }
         assertEquals(3, children.size)
         assertEquals(inserted, children[0])
@@ -405,13 +405,13 @@ class ComponentNodeTest {
     @Test
     fun testLayoutNodeRemove() {
         val (layout, child1, _) = createSimpleLayout()
-        val child3 = DrawNode {}
-        val child4 = DrawNode {}
+        val child3 = DrawNodePort {}
+        val child4 = DrawNodePort {}
         layout.add(2, child3)
         layout.add(3, child4)
         layout.remove(index = 1, count = 2)
 
-        val children = mutableListOf<ComponentNode>()
+        val children = mutableListOf<PortComponentNode>()
         layout.visitChildren { children.add(it) }
         assertEquals(2, children.size)
         assertEquals(child1, children[0])
@@ -421,14 +421,14 @@ class ComponentNodeTest {
     @Test
     fun testMoveChildren() {
         val (layout, child1, child2) = createSimpleLayout()
-        val child3 = DrawNode {}
-        val child4 = DrawNode {}
+        val child3 = DrawNodePort {}
+        val child4 = DrawNodePort {}
         layout.add(2, child3)
         layout.add(3, child4)
 
         layout.move(from = 2, to = 1, count = 2)
 
-        val children = mutableListOf<ComponentNode>()
+        val children = mutableListOf<PortComponentNode>()
         layout.visitChildren { children.add(it) }
         assertEquals(4, children.size)
         assertEquals(child1, children[0])
@@ -449,11 +449,11 @@ class ComponentNodeTest {
 
     @Test
     fun testInvalidate() {
-        val node = DrawNode {}
+        val node = DrawNodePort {}
         node.invalidate()
         assertTrue(node.needsPaint)
 
-        val owner = mock(Owner::class.java)
+        val owner = mock(PortOwner::class.java)
         node.attach(owner)
         verify(owner, times(1)).onInvalidate(node)
 
@@ -467,17 +467,17 @@ class ComponentNodeTest {
         verify(owner, times(0)).onInvalidate(node)
     }
 
-    private fun createSimpleLayout(): Triple<LayoutNode, ComponentNode, ComponentNode> {
-        val layoutNode = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
-        val child1 = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
-        val child2 = LayoutNode { _, _ -> Size(0.0f, 0.0f) }
+    private fun createSimpleLayout(): Triple<LayoutNodePort, PortComponentNode, PortComponentNode> {
+        val layoutNode = LayoutNodePort { _, _ -> Size(0.0f, 0.0f) }
+        val child1 = LayoutNodePort { _, _ -> Size(0.0f, 0.0f) }
+        val child2 = LayoutNodePort { _, _ -> Size(0.0f, 0.0f) }
         layoutNode.add(0, child1)
         layoutNode.add(1, child2)
         return Triple(layoutNode, child1, child2)
     }
 
-    private fun createNestedLayout(): Pair<LayoutNode, LayoutNode> {
-        val parent = LayoutNode { c, _ ->
+    private fun createNestedLayout(): Pair<LayoutNodePort, LayoutNodePort> {
+        val parent = LayoutNodePort { c, _ ->
             val child = layoutChildren.values.first()!!
             c as BoxConstraints
             val constraints = BoxConstraints.tightFor(c.minWidth - 10.0f,
@@ -486,7 +486,7 @@ class ComponentNodeTest {
             position(child, 5, 4)
             Size(c.minWidth, c.minHeight)
         }
-        val child = LayoutNode { c, _ ->
+        val child = LayoutNodePort { c, _ ->
             c as BoxConstraints
             Size(c.minWidth, c.minHeight)
         }
