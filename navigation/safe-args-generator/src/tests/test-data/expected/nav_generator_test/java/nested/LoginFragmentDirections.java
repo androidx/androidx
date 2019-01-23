@@ -16,74 +16,21 @@
 
 package foo.flavor;
 
-import android.os.Bundle;
 import android.support.annotation.NonNull;
+import androidx.navigation.ActionOnlyNavDirections;
 import androidx.navigation.NavDirections;
-import java.lang.Object;
-import java.lang.Override;
-import java.lang.String;
-import java.lang.SuppressWarnings;
-import java.util.HashMap;
 
 public class LoginFragmentDirections {
     private LoginFragmentDirections() {
     }
 
     @NonNull
-    public static Register register() {
-        return new Register();
+    public static NavDirections register() {
+        return new ActionOnlyNavDirections(foo.R.id.register);
     }
 
     @NonNull
-    public static LoginDirections.ActionDone actionDone() {
+    public static NavDirections actionDone() {
         return LoginDirections.actionDone();
-    }
-
-    public static class Register implements NavDirections {
-        private final HashMap arguments = new HashMap();
-
-        private Register() {
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
-        @NonNull
-        public Bundle getArguments() {
-            Bundle __result = new Bundle();
-            return __result;
-        }
-
-        @Override
-        public int getActionId() {
-            return foo.R.id.register;
-        }
-
-        @Override
-        public boolean equals(Object object) {
-            if (this == object) {
-                return true;
-            }
-            if (object == null || getClass() != object.getClass()) {
-                return false;
-            }
-            Register that = (Register) object;
-            if (getActionId() != that.getActionId()) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = 1;
-            result = 31 * result + getActionId();
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "Register(actionId=" + getActionId() + "){"
-                    + "}";
-        }
     }
 }

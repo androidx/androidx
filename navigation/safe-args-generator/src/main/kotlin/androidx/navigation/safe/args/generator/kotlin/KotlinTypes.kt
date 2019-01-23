@@ -56,6 +56,8 @@ import com.squareup.kotlinpoet.asTypeName
 import java.lang.UnsupportedOperationException
 
 internal val NAV_DIRECTION_CLASSNAME: ClassName = ClassName("androidx.navigation", "NavDirections")
+internal val ACTION_ONLY_NAV_DIRECTION_CLASSNAME: ClassName =
+    ClassName("androidx.navigation", "ActionOnlyNavDirections")
 internal val NAV_ARGS_CLASSNAME: ClassName = ClassName("androidx.navigation", "NavArgs")
 internal val BUNDLE_CLASSNAME: ClassName = ClassName("android.os", "Bundle")
 
