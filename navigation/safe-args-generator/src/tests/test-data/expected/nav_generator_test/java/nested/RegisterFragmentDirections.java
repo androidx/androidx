@@ -17,13 +17,14 @@
 package foo.flavor;
 
 import android.support.annotation.NonNull;
+import androidx.navigation.NavDirections;
 
 public class RegisterFragmentDirections {
     private RegisterFragmentDirections() {
     }
 
     @NonNull
-    public static LoginDirections.ActionDone actionDone() {
+    public static NavDirections actionDone() {
         return LoginDirections.actionDone();
     }
 }
