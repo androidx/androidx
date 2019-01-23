@@ -43,6 +43,7 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
     val dependencies: MutableSet<PomDependency> = mutableSetOf()
     private val properties: MutableMap<String, String> = mutableMapOf()
     private var dependenciesGroup: Element? = null
+
     private var hasChanged: Boolean = false
 
     private fun initialize() {
@@ -90,11 +91,14 @@ class PomDocument(val file: ArchiveFile, private val document: Document) {
         }
 
         val newDependencies = mutableSetOf<PomDependency>()
+        var wasAnyDependencyChanged = false
         for (dependency in dependencies) {
-            newDependencies.add(mapDependency(dependency, context))
+            val newDependency = mapDependency(dependency, context)
+            newDependencies.add(newDependency)
+            wasAnyDependencyChanged = wasAnyDependencyChanged || newDependency != dependency
         }
 
-        if (newDependencies.isEmpty()) {
+        if (!wasAnyDependencyChanged) {
             return
         }
 
