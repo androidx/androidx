@@ -17,12 +17,14 @@
 package androidx.appcompat.app;
 
 import static androidx.appcompat.app.NightModeActivity.TOP_ACTIVITY;
+import static androidx.appcompat.testutils.NightModeUtils.setLocalNightModeAndWait;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isBackground;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.app.Instrumentation;
@@ -173,6 +175,21 @@ public class NightModeTestCase {
         resumeCompleteLatch.await();
         // finally check that the text has changed, signifying that night resources are being used
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
+    }
+
+    @Test
+    public void testOnNightModeChangedCalled() throws Throwable {
+        // Set local night mode to YES
+        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_YES);
+        // Assert that the Activity received a new value
+        assertEquals(AppCompatDelegate.MODE_NIGHT_YES,
+                mActivityTestRule.getActivity().getLastNightModeAndReset());
+
+        // Set local night mode to NO
+        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_NO);
+        // Assert that the Activity received a new value
+        assertEquals(AppCompatDelegate.MODE_NIGHT_NO,
+                mActivityTestRule.getActivity().getLastNightModeAndReset());
     }
 
     private static class FakeTwilightManager extends TwilightManager {
