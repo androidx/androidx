@@ -22,15 +22,19 @@ import androidx.ui.core.Bounds
 import androidx.ui.core.Dimension
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
+import androidx.ui.core.PointerInput
 import androidx.ui.core.Position
-import androidx.ui.foundation.ValueChanged
-import androidx.ui.painting.Color
+import androidx.ui.core.pointerinput.PointerEventPass
+import androidx.ui.core.pointerinput.PointerInputChange
+import androidx.ui.core.toDp
 import androidx.ui.engine.geometry.BorderRadius
+import androidx.ui.foundation.ValueChanged
 import androidx.ui.material.borders.BoxShape
-import androidx.ui.rendering.proxybox.HitTestBehavior
+import androidx.ui.painting.Color
 import androidx.ui.widgets.gesturedetector.GestureDetector
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.CompositionContext
 
 /**
  * An ink feature that displays a [color] "splash" in response to a user
@@ -324,16 +328,6 @@ class InkResponse(
      */
     var enableFeedback: Boolean = true
     /**
-     * Whether to exclude the gestures introduced by this widget from the
-     * semantics tree.
-     *
-     * For example, a long-press gesture for showing a tooltip is usually
-     * excluded because the tooltip itself is included in the semantics
-     * tree directly and so having a gesture to show it would result in
-     * duplication of information.
-     */
-    var excludeFromSemantics: Boolean = false
-    /**
      * The bounds to use for the highlight effect and for clipping
      * the splash effects if [containedInkWell] is true.
      *
@@ -550,20 +544,37 @@ class InkResponse(
 
         val onTapDown = if (enabled) this::handleTapDown else null
         val onTap = if (enabled) this::handleTap else null
+        // TODO(Andrey): figure out what to do with cancel, double tap, long press.
+        // TODO(Andrey): it should not be handled on this layer ideally so ink should just react
+        // TODO(Andrey): on taps, but leave the taps handling to the specific gesture component,
+        // TODO(Andrey): not have all this duplicate callbacks
         val onTapCancel = if (enabled) this::handleTapCancel else null
         val onDoubleTap = if (onDoubleTap != null) this::handleDoubleTap else null
         val onLongPress = if (onLongPress != null) this::handleLongPress else null
-
-        <InkTmpGestureDetector
-            onTapDown=onTapDown
-            onTap=onTap
-            onTapCancel=onTapCancel
-            onDoubleTap=onDoubleTap
-            onLongPress=onLongPress
-            behavior=HitTestBehavior.OPAQUE
-            excludeFromSemantics=excludeFromSemantics>
+        val context = CompositionContext.current.context
+        val pointerInputHandler: (PointerInputChange, PointerEventPass) -> PointerInputChange =
+            { event, pass ->
+                if (pass == PointerEventPass.PostUp) {
+                    // down
+                    if (!event.previous.down && event.current.down) {
+                        val offset = event.current.position!!
+                        onTapDown?.invoke(
+                            Position(
+                                offset.dx.toDp(context),
+                                offset.dy.toDp(context)
+                            )
+                        )
+                    }
+                    // up
+                    if (event.previous.down && !event.current.down) {
+                        onTap?.invoke()
+                    }
+                }
+                event
+            }
+        <PointerInput pointerInputHandler>
             <children />
-        </InkTmpGestureDetector>
+        </PointerInput>
     }
 }
 
@@ -625,7 +636,6 @@ class InkWell(
     var radius: Dimension? = null
     var borderRadius: BorderRadius? = null
     var enableFeedback: Boolean = true
-    var excludeFromSemantics: Boolean = false
 
     override fun compose() {
         <InkResponse
@@ -643,7 +653,6 @@ class InkWell(
             radius
             borderRadius
             enableFeedback
-            excludeFromSemantics
         >
             <children />
         </InkResponse>
