@@ -48,7 +48,7 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
             }
         }
 
-    val pointerInputEventProcessor = PointerInputEventProcessor(context, root)
+    val pointerInputEventProcessor = PointerInputEventProcessor(Density(context), root)
 
     var constraints = tightConstraints(width = 0.dp, height = 0.dp)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
@@ -141,15 +141,16 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
             this.constraints = constraints
             constraintsChanged()
         }
+        val density = Density(context)
 
         setMeasuredDimension(
-            root.size.width.toPx(context).roundToInt(),
-            root.size.height.toPx(context).roundToInt()
+            root.size.width.toPx(density).roundToInt(),
+            root.size.height.toPx(density).roundToInt()
         )
 
         adjustedLayouts.forEach { layout ->
-            val layoutWidth = layout.size.width.toPx(context).roundToInt()
-            val layoutHeight = layout.size.height.toPx(context).roundToInt()
+            val layoutWidth = layout.size.width.toPx(density).roundToInt()
+            val layoutHeight = layout.size.height.toPx(density).roundToInt()
             val width = View.MeasureSpec.makeMeasureSpec(layoutWidth, View.MeasureSpec.EXACTLY)
             val height = View.MeasureSpec.makeMeasureSpec(layoutHeight, View.MeasureSpec.EXACTLY)
             layout.androidData?.view?.measure(width, height)
@@ -173,11 +174,12 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        val density = Density(context)
         adjustedLayouts.forEach { layout ->
-            val left = layout.x.toPx(context).roundToInt()
-            val top = layout.y.toPx(context).roundToInt()
-            val right = left + layout.size.width.toPx(context).roundToInt()
-            val bottom = top + layout.size.height.toPx(context).roundToInt()
+            val left = layout.x.toPx(density).roundToInt()
+            val top = layout.y.toPx(density).roundToInt()
+            val right = left + layout.size.width.toPx(density).roundToInt()
+            val bottom = top + layout.size.height.toPx(density).roundToInt()
             layout.androidData?.view?.layout(left, top, right, bottom)
         }
         adjustedLayouts.clear()
@@ -190,9 +192,8 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
     }
 
     private fun convertMeasureSpec(measureSpec: Int): ConstraintRange {
-        val pxToDp = 1f / 1.dp.toPx(context)
         val mode = MeasureSpec.getMode(measureSpec)
-        val size = MeasureSpec.getSize(measureSpec).dp * pxToDp
+        val size = MeasureSpec.getSize(measureSpec).toDp(Density(context))
         return when (mode) {
             MeasureSpec.EXACTLY -> ConstraintRange(size, size)
             MeasureSpec.UNSPECIFIED -> ConstraintRange(0.dp, Float.POSITIVE_INFINITY.dp)
@@ -204,7 +205,7 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
     private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
         node.visitChildren { child ->
             if (child is DrawNode) {
-                child.onPaint(canvas, root.size.toPx(context))
+                child.onPaint(canvas, root.size.toPx(Density(context)))
                 child.needsPaint = false
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view
@@ -266,7 +267,7 @@ private class NodeView(container: ViewGroup, val node: LayoutNode) :
     private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
         node.visitChildren { child ->
             if (child is DrawNode) {
-                child.onPaint(canvas, this.node.size.toPx(context))
+                child.onPaint(canvas, this.node.size.toPx(Density(context)))
                 child.needsPaint = false
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view

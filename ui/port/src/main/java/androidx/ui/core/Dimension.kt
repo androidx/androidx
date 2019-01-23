@@ -17,9 +17,6 @@
 
 package androidx.ui.core
 
-import android.content.Context
-import android.util.TypedValue
-import androidx.ui.engine.geometry.Rect
 import androidx.ui.lerpFloat
 import kotlin.math.sqrt
 
@@ -209,16 +206,6 @@ fun Dimension.coerceAtLeast(minimumValue: Dimension): Dimension {
 fun Dimension.coerceAtMost(maximumValue: Dimension): Dimension {
     return if (this > maximumValue) maximumValue else this
 }
-
-/**
- * Convert [Dimension] to pixels. Pixels are used to paint to [Canvas].
- */
-// TODO(mount): Move this to an android-specific file
-fun Dimension.toPx(context: Context): Float =
-    TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics)
-
-/** Convert a [Float] pixel value to a Dimension */
-fun Float.toDp(context: Context): Dimension = (this / 1.dp.toPx(context)).dp
 
 /**
  * Linearly interpolate between two [Dimension]s.
@@ -474,12 +461,6 @@ inline class DimensionInverse(val idp: Float)
 data class PixelSize(val width: Float, val height: Float)
 
 /**
- * Convert a [Size] to a [PixelSize].
- */
-fun Size.toPx(context: Context): PixelSize =
-    PixelSize(width.toPx(context), height.toPx(context))
-
-/**
  * A four dimensional bounds using [Dimension] for units
  */
 data class Bounds(
@@ -511,17 +492,4 @@ fun Bounds.toSize(): Size {
  */
 fun Size.toBounds(): Bounds {
     return Bounds(0.dp, 0.dp, width, height)
-}
-
-/**
- * Convert a [Bounds] to a [Rect].
- */
-// TODO(Andrey): Move this to an android-specific file
-fun Bounds.toRect(context: Context): Rect {
-    return Rect(
-        left.toPx(context),
-        top.toPx(context),
-        right.toPx(context),
-        bottom.toPx(context)
-    )
 }

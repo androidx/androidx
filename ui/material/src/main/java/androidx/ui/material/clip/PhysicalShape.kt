@@ -22,6 +22,7 @@ import androidx.ui.core.adapter.Draw
 import androidx.ui.core.compareTo
 import androidx.ui.core.dp
 import androidx.ui.core.toPx
+import androidx.ui.core.adapter.DensityProvider
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -31,7 +32,6 @@ import androidx.ui.painting.Path
 import androidx.ui.painting.debugDisableShadows
 import com.google.r4a.Children
 import com.google.r4a.Component
-import com.google.r4a.composer
 
 
 /**
@@ -93,45 +93,46 @@ class PhysicalShape(
 //    }
 
     override fun compose() {
-        val context = composer.composer.context
-        <Draw> canvas, parentSize ->
-            val clip = clipHolder.getClip(clipper, parentSize, context)
-            var paintShadows = true
-            assert {
-                if (debugDisableShadows) {
-                    if (elevation > 0.dp) {
-                        val paint = Paint()
-                        paint.color = shadowColor
-                        paint.style = PaintingStyle.stroke
-                        paint.strokeWidth = elevation.toPx(context) * 2.0f
-                        canvas.drawPath(
-                            clip,
-                            paint
-                        )
+        <DensityProvider> density ->
+            <Draw> canvas, parentSize ->
+                val clip = clipHolder.getClip(clipper, parentSize, density)
+                var paintShadows = true
+                assert {
+                    if (debugDisableShadows) {
+                        if (elevation > 0.dp) {
+                            val paint = Paint()
+                            paint.color = shadowColor
+                            paint.style = PaintingStyle.stroke
+                            paint.strokeWidth = elevation.toPx(density) * 2.0f
+                            canvas.drawPath(
+                                clip,
+                                paint
+                            )
+                        }
+                        paintShadows = false
                     }
-                    paintShadows = false
+                    true
                 }
-                true
-            }
 
-            if (elevation != 0.dp && paintShadows) {
-                TODO("Migration|Andrey: Needs canvas.drawShadow. b/123215187")
-//                    canvas.drawShadow(
-//                        offsetPath,
-//                        shadowColor,
-//                        elevation,
-//                        color.alpha != 0xFF
-//                    )
-            }
-            val paint = Paint()
-            paint.color = color
-            paint.style = PaintingStyle.fill
-            paint.strokeWidth = elevation.toPx(context) * 2.0f
-            canvas.drawPath(clip, paint)
-            val rect = Rect(0f, 0f, parentSize.width, parentSize.height)
-            canvas.saveLayer(rect, Paint())
-            canvas.clipPath(clip)
-        </Draw>
+                if (elevation != 0.dp && paintShadows) {
+                    TODO("Migration|Andrey: Needs canvas.drawShadow. b/123215187")
+    //                    canvas.drawShadow(
+    //                        offsetPath,
+    //                        shadowColor,
+    //                        elevation,
+    //                        color.alpha != 0xFF
+    //                    )
+                }
+                val paint = Paint()
+                paint.color = color
+                paint.style = PaintingStyle.fill
+                paint.strokeWidth = elevation.toPx(density) * 2.0f
+                canvas.drawPath(clip, paint)
+                val rect = Rect(0f, 0f, parentSize.width, parentSize.height)
+                canvas.saveLayer(rect, Paint())
+                canvas.clipPath(clip)
+            </Draw>
+        </DensityProvider>
         <children/>
         <Draw> canvas, _ ->
             canvas.restore()

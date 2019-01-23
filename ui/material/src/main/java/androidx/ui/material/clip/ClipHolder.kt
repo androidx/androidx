@@ -16,7 +16,7 @@
 
 package androidx.ui.material.clip
 
-import android.content.Context
+import androidx.ui.core.Density
 import androidx.ui.core.PixelSize
 import androidx.ui.engine.geometry.Size
 
@@ -46,7 +46,7 @@ class ClipHolder<T>(
      * It will recreate a clip only when clipper or parent size have been changed,
      * otherwise will return the cached object.
      */
-    fun getClip(clipper: CustomClipper<T>?, pixelSize: PixelSize, context: Context): T {
+    fun getClip(clipper: CustomClipper<T>?, pixelSize: PixelSize, density: Density): T {
         val size = Size(pixelSize.width, pixelSize.height)
         if (lastClipper != clipper) {
             lastClip = null
@@ -58,7 +58,7 @@ class ClipHolder<T>(
             lastClip = null
             lastSize = size
         }
-        val clip = lastClip ?: clipper?.getClip(size, context) ?: defaultClip(size)
+        val clip = lastClip ?: clipper?.getClip(size, density) ?: defaultClip(size)
         lastClip = clip
         return clip
     }

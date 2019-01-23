@@ -18,6 +18,8 @@ package androidx.ui.material
 
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
+import androidx.ui.core.Dimension
+import androidx.ui.core.adapter.DensityProvider
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
@@ -33,7 +35,6 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.Path
 import com.google.r4a.Component
-import com.google.r4a.composer
 
 // TODO(clara): This should not be a class once R4A bug is fixed
 class Checkbox : Component() {
@@ -44,13 +45,12 @@ class Checkbox : Component() {
 
     override fun compose() {
         <Toggleable>
-            val strokeWidthPx = strokeWidth.toPx(composer.composer.context)
             <MeasureBox> constraints, measureOperations ->
                 measureOperations.collect {
                     <Colors.Consumer> colors ->
                         <DrawCheckbox color=(color ?: colors.secondary)
                                       value
-                                      strokeWidth=strokeWidthPx/>
+                                      strokeWidth=strokeWidth/>
                     </Colors.Consumer>
                 }
                 val calculatedWidth = min(
@@ -63,19 +63,22 @@ class Checkbox : Component() {
     }
 }
 
-internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Float) {
-    val radius = Radius.circular(radiusSize.toPx(composer.composer.context))
-    <Draw> canvas, parentSize ->
-        val outer = RRect(0f, 0f, parentSize.width, parentSize.height, radius)
-        if (value == ToggleableState.CHECKED) {
-            drawChecked(canvas, outer, color, strokeWidth)
-        } else if (value == ToggleableState.UNCHECKED) {
-            // TODO(clara): Where does this color come from?
-            drawUnchecked(canvas, outer, color, strokeWidth)
-        } else { // Indeterminate
-            drawIndeterminate(canvas, outer, color, strokeWidth)
-        }
-    </Draw>
+internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Dimension) {
+    <DensityProvider> density ->
+        val radius = Radius.circular(radiusSize.toPx(density))
+        val strokeWidthPx = strokeWidth.toPx(density)
+        <Draw> canvas, parentSize ->
+            val outer = RRect(0f, 0f, parentSize.width, parentSize.height, radius)
+            if (value == ToggleableState.CHECKED) {
+                drawChecked(canvas, outer, color, strokeWidthPx)
+            } else if (value == ToggleableState.UNCHECKED) {
+                // TODO(clara): Where does this color come from?
+                drawUnchecked(canvas, outer, color, strokeWidthPx)
+            } else { // Indeterminate
+                drawIndeterminate(canvas, outer, color, strokeWidthPx)
+            }
+        </Draw>
+    </DensityProvider>
 }
 
 internal fun drawUnchecked(canvas: Canvas, outer: RRect, color: Color, strokeWidth: Float) {

@@ -16,7 +16,7 @@
 
 package androidx.ui.material.borders
 
-import android.content.Context
+import androidx.ui.core.Density
 import androidx.ui.core.Dimension
 import androidx.ui.core.compareTo
 import androidx.ui.core.dp
@@ -123,11 +123,11 @@ data class BorderSide(
      * non-uniform rectangular [Border]s have beveled edges and so paint their
      * border sides as filled shapes rather than using a stroke.
      */
-    fun toPaint(context: Context): Paint {
+    fun toPaint(density: Density): Paint {
         return when (style) {
             BorderStyle.SOLID -> Paint().apply {
                 color = color
-                strokeWidth = width.toPx(context)
+                strokeWidth = width.toPx(density)
                 style = PaintingStyle.stroke
             }
             BorderStyle.NONE -> Paint().apply {

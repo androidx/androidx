@@ -16,7 +16,7 @@
 
 package androidx.ui.material.clip
 
-import android.content.Context
+import androidx.ui.core.Density
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
@@ -51,7 +51,7 @@ abstract class CustomClipper<T>(
      * Returns a description of the clip given that the render object being
      * clipped is of the given size.
      */
-    abstract fun getClip(size: Size, context: Context): T
+    abstract fun getClip(size: Size, density: Density): T
 
     /**
      * Returns an approximation of the clip returned by [getClip], as

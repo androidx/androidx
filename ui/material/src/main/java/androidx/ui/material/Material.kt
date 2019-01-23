@@ -16,34 +16,34 @@
 
 package androidx.ui.material
 
-import android.content.Context
 import androidx.annotation.CallSuper
 import androidx.ui.animation.Curve
 import androidx.ui.animation.Curves
 import androidx.ui.assert
+import androidx.ui.core.Density
 import androidx.ui.core.Dimension
 import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
+import androidx.ui.core.adapter.DensityProvider
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
+import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.material.borders.CircleBorder
+import androidx.ui.material.borders.RoundedRectangleBorder
+import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.material.clip.ClipPath
 import androidx.ui.material.clip.PhysicalShape
 import androidx.ui.material.clip.ShapeBorderClipper
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
-import androidx.ui.engine.geometry.BorderRadius
-import androidx.ui.material.borders.CircleBorder
-import androidx.ui.material.borders.RoundedRectangleBorder
-import androidx.ui.material.borders.ShapeBorder
 import androidx.ui.scheduler.ticker.TickerProvider
 import androidx.ui.vectormath64.Matrix4
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
-import com.google.r4a.CompositionContext
 
 
 // TODO("Migration|Andrey: Enums doesn't work in R4a module. Created tmp java class MaterialType")
@@ -393,13 +393,14 @@ class Material(
 
 @Composable
 internal fun DrawShapeBorder(shape: ShapeBorder) {
-    val context = CompositionContext.current.context
-    <Draw> canvas, parentSize ->
-        shape.paint(canvas,
-            context,
-            Rect(0f, 0f, parentSize.width, parentSize.height),
-            null)
-    </Draw>
+    <DensityProvider> density ->
+        <Draw> canvas, parentSize ->
+            shape.paint(canvas,
+                density,
+                Rect(0f, 0f, parentSize.width, parentSize.height),
+                null)
+        </Draw>
+    </DensityProvider>
 }
 
 @Composable
@@ -521,16 +522,17 @@ internal class InkFeatures(
 //    override fun hitTestSelf(position: Offset) = true
 
     override fun compose() {
-        val context = CompositionContext.current.context
-        <Draw> canvas, size ->
-            val inkFeatures = inkFeatures
-            if (inkFeatures != null && inkFeatures.isNotEmpty()) {
-                canvas.save()
-                canvas.clipRect(Rect(0f, 0f, size.width, size.height))
-                inkFeatures.forEach { it.paint(canvas, context) }
-                canvas.restore()
-            }
-        </Draw>
+        <DensityProvider> density ->
+            <Draw> canvas, size ->
+                val inkFeatures = inkFeatures
+                if (inkFeatures != null && inkFeatures.isNotEmpty()) {
+                    canvas.save()
+                    canvas.clipRect(Rect(0f, 0f, size.width, size.height))
+                    inkFeatures.forEach { it.paint(canvas, density) }
+                    canvas.restore()
+                }
+            </Draw>
+        </DensityProvider>
         <MaterialInkControllerAmbient.Provider value=this>
             <children />
         </MaterialInkControllerAmbient.Provider>
@@ -572,7 +574,7 @@ abstract class InkFeature(
         onRemoved?.invoke()
     }
 
-    internal fun paint(canvas: Canvas, context: Context) {
+    internal fun paint(canvas: Canvas, density: Density) {
         assert(!debugDisposed)
         // TODO("Migration|Andrey: Calculate transformation matrix using parents")
         // TODO("Migration|Andrey: Currently we don't have such a logic")
@@ -590,7 +592,7 @@ abstract class InkFeature(
 //        for (index in descendants.size - 1 downTo 1) {
 //            descendants[index].applyPaintTransform(descendants[index - 1], transform)
 //        }
-        paintFeature(canvas, transform, context)
+        paintFeature(canvas, transform, density)
     }
 
     /**
@@ -599,5 +601,5 @@ abstract class InkFeature(
      * The transform argument gives the coordinate conversion from the coordinate
      * system of the canvas to the coordinate system of the target layout.
      */
-    protected abstract fun paintFeature(canvas: Canvas, transform: Matrix4, context: Context)
+    protected abstract fun paintFeature(canvas: Canvas, transform: Matrix4, density: Density)
 }

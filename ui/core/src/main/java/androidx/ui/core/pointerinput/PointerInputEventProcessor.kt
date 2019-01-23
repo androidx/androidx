@@ -16,8 +16,8 @@
 
 package androidx.ui.core.pointerinput
 
-import android.content.Context
 import androidx.ui.core.ComponentNode
+import androidx.ui.core.Density
 import androidx.ui.core.LayoutNode
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.Size
@@ -54,7 +54,7 @@ private class PointerInputChangeEventProducer {
 /**
  * The core element that receives [PointerInputEvent]s and process them through Crane.
  */
-internal class PointerInputEventProcessor(val context: Context, val root: LayoutNode) {
+internal class PointerInputEventProcessor(val density: Density, val root: LayoutNode) {
 
     private val pointerInputChangeEventProducer = PointerInputChangeEventProducer()
     private val pointerInputHandlerPaths: MutableMap<Int, PointerInputHandlerPath> = mutableMapOf()
@@ -134,7 +134,7 @@ internal class PointerInputEventProcessor(val context: Context, val root: Layout
         parent.visitChildren { child ->
             // If the child is a PointerInputNode, then hit test on that child.
             if (child is PointerInputNode) {
-                val parentSize = size.toPx(context)
+                val parentSize = size.toPx(density)
                 if (offset.dx >= 0 &&
                     offset.dx < parentSize.width &&
                     offset.dy >= 0 &&
@@ -150,7 +150,7 @@ internal class PointerInputEventProcessor(val context: Context, val root: Layout
             // 1. Update the offset to be relative to that LayoutNode
             val newOffset =
                 if (child is LayoutNode) {
-                    Offset(offset.dx - child.x.toPx(context), offset.dy - child.y.toPx(context))
+                    Offset(offset.dx - child.x.toPx(density), offset.dy - child.y.toPx(density))
                 } else offset
             // 2. Update the size to be the size of the LayoutNode
             val newSize =

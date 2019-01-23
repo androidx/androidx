@@ -16,7 +16,7 @@
 
 package androidx.ui.material.clip
 
-import android.content.Context
+import androidx.ui.core.Density
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.text.TextDirection
@@ -39,7 +39,7 @@ data class ShapeBorderClipper(
 ) : CustomClipper<Path>() {
 
     /** Returns the outer path of [shape] as the clip. */
-    override fun getClip(size: Size, context: Context): Path {
-        return shape.getOuterPath(Offset.zero and size, context, textDirection = textDirection)
+    override fun getClip(size: Size, density: Density): Path {
+        return shape.getOuterPath(Offset.zero and size, density, textDirection = textDirection)
     }
 }

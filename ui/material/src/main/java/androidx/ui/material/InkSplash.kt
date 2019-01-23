@@ -16,14 +16,13 @@
 
 package androidx.ui.material
 
-import android.content.Context
-import android.util.Log
 import androidx.ui.VoidCallback
 import androidx.ui.animation.Animation
 import androidx.ui.animation.AnimationController
 import androidx.ui.animation.AnimationStatus
 import androidx.ui.animation.Tween
 import androidx.ui.core.Bounds
+import androidx.ui.core.Density
 import androidx.ui.core.Dimension
 import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
@@ -37,14 +36,15 @@ import androidx.ui.core.lerp
 import androidx.ui.core.minus
 import androidx.ui.core.toBounds
 import androidx.ui.core.toPx
+import androidx.ui.core.toRect
 import androidx.ui.core.toSize
+import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.painting.matrixutils.getAsTranslation
 import androidx.ui.vectormath64.Matrix4
 import kotlin.math.ceil
@@ -201,7 +201,6 @@ class InkSplash(
             begin = SplashInitialSize,
             end = targetRadius
         ).animate(radiusController)
-        Log.e("asdasd", " " + SplashInitialSize + " " + targetRadius)
 
         alphaController = AnimationController(
             duration = SplashFadeDuration,
@@ -264,7 +263,7 @@ class InkSplash(
         }
     }
 
-    override fun paintFeature(canvas: Canvas, transform: Matrix4, context: Context) {
+    override fun paintFeature(canvas: Canvas, transform: Matrix4, density: Density) {
         val paint = Paint()
         paint.color = color.withAlpha(alpha.value)
         var center = position
@@ -276,17 +275,11 @@ class InkSplash(
             )
         }
         val centerOffset =
-            Offset(center.x.toPx(context), center.y.toPx(context))
+            Offset(center.x.toPx(density), center.y.toPx(density))
         val originOffset = transform.getAsTranslation()
-        val radiusDouble = radius.value.toPx(context)
+        val radiusDouble = radius.value.toPx(density)
         val clipBounds: Bounds? = clipCallback?.invoke(coordinates)
-        val clipRect = if (clipBounds == null) null else Rect(
-            clipBounds.left.toPx(context),
-            clipBounds.top.toPx(context),
-            clipBounds.right.toPx(context),
-            clipBounds.bottom.toPx(context)
-        )
-        Log.e("asdasd", " " + radius.value + " " + radiusDouble)
+        val clipRect = if (clipBounds == null) null else clipBounds.toRect(density)
 
         if (originOffset == null) {
             canvas.save()

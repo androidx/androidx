@@ -16,12 +16,12 @@
 
 package androidx.ui.material.clip
 
+import androidx.ui.core.adapter.DensityProvider
 import androidx.ui.core.adapter.Draw
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Path
 import com.google.r4a.Children
 import com.google.r4a.Component
-import com.google.r4a.CompositionContext
 
 /**
  * A widget that clips its child using a path.
@@ -73,11 +73,12 @@ class ClipPath(
 //    }
 
     override fun compose() {
-        val context = CompositionContext.current.context
-        <Draw> canvas, parentSize ->
-            canvas.save()
-            canvas.clipPath(clipHolder.getClip(clipper, parentSize, context))
-        </Draw>
+        <DensityProvider> density ->
+            <Draw> canvas, parentSize ->
+                canvas.save()
+                canvas.clipPath(clipHolder.getClip(clipper, parentSize, density))
+            </Draw>
+        </DensityProvider>
         <children/>
         <Draw> canvas, _ ->
             canvas.restore()
