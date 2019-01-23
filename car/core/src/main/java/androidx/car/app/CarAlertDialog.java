@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.text.method.MovementMethod;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.TouchDelegate;
@@ -67,6 +68,7 @@ public class CarAlertDialog extends Dialog {
     private TextView mTitleView;
     private ImageView mIconView;
     private TextView mBodyView;
+    private MovementMethod mBodyMovementMethod;
 
     private View mButtonPanel;
     private Button mPositiveButton;
@@ -79,6 +81,7 @@ public class CarAlertDialog extends Dialog {
         mTitle = builder.mTitle;
         mIcon = builder.mIcon;
         mBody = builder.mBody;
+        mBodyMovementMethod = builder.mBodyMovementMethod;
         mPositiveButtonText = builder.mPositiveButtonText;
         mPositiveButtonListener = builder.mPositiveButtonListener;
         mNegativeButtonText = builder.mNegativeButtonText;
@@ -182,7 +185,9 @@ public class CarAlertDialog extends Dialog {
 
     private void setBody(CharSequence body) {
         mBodyView.setText(body);
+        mBodyView.setMovementMethod(mBodyMovementMethod);
         mBodyView.setVisibility(TextUtils.isEmpty(body) ? View.GONE : View.VISIBLE);
+
         updateButtonPanelTopMargin();
     }
 
@@ -421,6 +426,8 @@ public class CarAlertDialog extends Dialog {
         Icon mIcon;
         CharSequence mTitle;
         CharSequence mBody;
+        MovementMethod mBodyMovementMethod;
+
         CharSequence mPositiveButtonText;
         OnClickListener mPositiveButtonListener;
         CharSequence mNegativeButtonText;
@@ -506,6 +513,18 @@ public class CarAlertDialog extends Dialog {
          */
         public Builder setBody(CharSequence body) {
             mBody = body;
+            return this;
+        }
+
+        /**
+         * Sets the {@link MovementMethod} to be applied on the body text of this alert dialog.
+         *
+         * @param  movementMethod The {@code MovementMethod} to apply or {@code null}.
+         * @return This {@code Builder} object to allow for chaining of calls.
+         * @see TextView#setMovementMethod(MovementMethod)
+         */
+        public Builder setBodyMovementMethod(@Nullable MovementMethod movementMethod) {
+            mBodyMovementMethod = movementMethod;
             return this;
         }
 
