@@ -29,6 +29,8 @@ public class NightModeActivity extends BaseTestActivity {
      */
     static NightModeActivity TOP_ACTIVITY = null;
 
+    private int mLastNightModeChange = Integer.MIN_VALUE;
+
     @Override
     protected int getContentViewLayoutResId() {
         return R.layout.activity_night_mode;
@@ -46,5 +48,16 @@ public class NightModeActivity extends BaseTestActivity {
         if (TOP_ACTIVITY == this) {
             TOP_ACTIVITY = null;
         }
+    }
+
+    @Override
+    public void onNightModeChanged(int mode) {
+        mLastNightModeChange = mode;
+    }
+
+    int getLastNightModeAndReset() {
+        final int mode = mLastNightModeChange;
+        mLastNightModeChange = Integer.MIN_VALUE;
+        return mode;
     }
 }
