@@ -43,8 +43,49 @@
  * <p>
  * <b>Manually initializing WorkManager</b>
  * <p>
- * You can manually initialize WorkManager and provide a custom {@link androidx.work.Configuration}
- * for it.  Please see {@link androidx.work.WorkManager#initialize(Context, Configuration)}.
+ * By default, WorkManager is initialized using a {@code ContentProvider} with a default
+ * {@link androidx.work.Configuration}.  ContentProviders are created and run before the
+ * {@code Application} object, so this allows the WorkManager singleton to be setup before your
+ * code can run in most cases.  This is suitable for most developers.  You can manually initialize
+ * WorkManager and provide a custom {@link androidx.work.Configuration} for it.  Please see
+ * {@link androidx.work.WorkManager#initialize(Context, Configuration)}.
+ * <p>
+ * <b>WorkManager and its Interactions with the OS</b>
+ * <p>
+ * WorkManager {@code BroadcastReceiver}s to monitor {@link androidx.work.Constraints} on devices
+ * before API 23.  The BroadcastReceivers are disabled on API 23 and up.  In particular, WorkManager
+ * listens to the following {@code Intent}s:
+ * <p><ul>
+ *     <li>{@code android.intent.action.ACTION_POWER_CONNECTED}</li>
+ *     <li>{@code android.intent.action.ACTION_POWER_DISCONNECTED}</li>
+ *     <li>{@code android.intent.action.BATTERY_OKAY}</li>
+ *     <li>{@code android.intent.action.BATTERY_LOW}</li>
+ *     <li>{@code android.intent.action.DEVICE_STORAGE_LOW}</li>
+ *     <li>{@code android.intent.action.DEVICE_STORAGE_OK}</li>
+ *     <li>{@code android.net.conn.CONNECTIVITY_CHANGE}</li> *
+ * </ul>
+ * In addition, WorkManager listens to system time changes and reboots to properly reschedule work
+ * in certain situations.  For this, it listens to the following Intents:
+ * <p><ul>
+ *     <li>{@code android.intent.action.BOOT_COMPLETED}</li>
+ *     <li>{@code android.intent.action.TIME_SET}</li>
+ *     <li>{@code android.intent.action.TIMEZONE_CHANGED}</li>
+ * </ul>
+ * <p>
+ * WorkManager uses the following permissions:
+ * <p><ul>
+ *     <li>{@code android.permission.WAKE_LOCK} to make it can keep the device awake to complete
+ *     work before API 23</li>
+ *     <li>{@code android.permission.ACCESS_NETWORK_STATE} to listen to network changes before API
+ *     23 and monitor network {@link androidx.work.Constraints}</li>
+ *     <li>{@code android.permission.RECEIVE_BOOT_COMPLETED} to listen to reboots and reschedule
+ *     work properly.</li>
+ * </ul>
+ * <p>
+ * Note that WorkManager may enable or disable some of its BroadcastReceivers at runtime as needed.
+ * This has the side-effect of the system sending {@code ACTION_PACKAGE_CHANGED} broadcasts to your
+ * app.  Please be aware of this use case and architect your app appropriately (especially if you
+ * are using widgets - see https://issuetracker.google.com/115575872).
  */
 package androidx.work;
 
