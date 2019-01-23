@@ -35,7 +35,6 @@ import java.util.List;
  * Demo activity for PagedListView.
  */
 public class PagedListViewActivity extends Activity {
-
     private static final int ITEM_COUNT = 80;
 
     @Override
@@ -61,13 +60,13 @@ public class PagedListViewActivity extends Activity {
     /**
      * Adapter that populates a number of items for demo purposes.
      */
-    private static class DemoAdapter extends RecyclerView.Adapter<DemoAdapter.ViewHolder> {
+    private class DemoAdapter extends RecyclerView.Adapter<PagedListViewActivity.ViewHolder> {
         private final List<String> mItems = new ArrayList<>();
 
         /**
          * Generates a string for item text.
          */
-        public static String getItemText(int index) {
+        public String getItemText(int index) {
             return "Item " + index;
         }
 
@@ -99,17 +98,17 @@ public class PagedListViewActivity extends Activity {
             mItems.remove(position);
             notifyItemRemoved(position);
         }
+    }
 
-        /**
-         * ViewHolder for DemoAdapter.
-         */
-        public static class ViewHolder extends RecyclerView.ViewHolder {
-            private TextView mTextView;
+    /**
+     * ViewHolder for DemoAdapter.
+     */
+    public static class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView mTextView;
 
-            public ViewHolder(View itemView) {
-                super(itemView);
-                mTextView = itemView.findViewById(R.id.text);
-            }
+        public ViewHolder(View itemView) {
+            super(itemView);
+            mTextView = itemView.findViewById(R.id.text);
         }
     }
 

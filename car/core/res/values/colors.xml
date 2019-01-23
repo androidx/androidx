@@ -160,4 +160,7 @@
 
     <color name="alpha_picker_bg">@color/alpha_picker_bg_light</color>
     <color name="alpha_picker_unavailable_bg">@color/alpha_picker_unavailable_bg_light</color>
+
+    <!-- Dialog -->
+    <color name="car_list_dialog_scrim">#d5000000</color>
 </resources>
