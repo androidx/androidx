@@ -16,11 +16,11 @@
 
 package androidx.ui.core.pointerinput;
 
-import static androidx.ui.core.pointerinput.PointerEventPass.INITIAL_DOWN;
-import static androidx.ui.core.pointerinput.PointerEventPass.POST_DOWN;
-import static androidx.ui.core.pointerinput.PointerEventPass.POST_UP;
-import static androidx.ui.core.pointerinput.PointerEventPass.PRE_DOWN;
-import static androidx.ui.core.pointerinput.PointerEventPass.PRE_UP;
+import static androidx.ui.core.pointerinput.PointerEventPass.InitialDown;
+import static androidx.ui.core.pointerinput.PointerEventPass.PostDown;
+import static androidx.ui.core.pointerinput.PointerEventPass.PostUp;
+import static androidx.ui.core.pointerinput.PointerEventPass.PreDown;
+import static androidx.ui.core.pointerinput.PointerEventPass.PreUp;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -85,7 +85,7 @@ import kotlin.jvm.functions.Function2;
 public class PointerInputEventProcessorTest {
 
     private Context mContext;
-    private List<Triple<PointerInputNode, Integer, PointerInputChange>> mTrackerList;
+    private List<Triple<PointerInputNode, PointerEventPass, PointerInputChange>> mTrackerList;
 
     @Before
     public void setup() {
@@ -98,7 +98,7 @@ public class PointerInputEventProcessorTest {
 
         // Arrange
 
-        List<Integer> pointerInputPassesToTrack = Collections.singletonList(POST_UP);
+        List<PointerEventPass> pointerInputPassesToTrack = Collections.singletonList(PostUp);
 
         PointerInputNode pointerInputNode = new PointerInputNode();
         PointerInputHandlerTracker pointerInputHandlerTracker =
@@ -131,7 +131,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(0),
                 pointerInputNode,
-                POST_UP,
+                PostUp,
                 8712,
                 offset,
                 true,
@@ -141,7 +141,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(1),
                 pointerInputNode,
-                POST_UP,
+                PostUp,
                 8712,
                 offset2,
                 true,
@@ -151,7 +151,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(2),
                 pointerInputNode,
-                POST_UP,
+                PostUp,
                 8712,
                 offset2,
                 false,
@@ -165,7 +165,7 @@ public class PointerInputEventProcessorTest {
 
         // Arrange
 
-        List<Integer> pointerInputPassesToTrack = Collections.singletonList(POST_UP);
+        List<PointerEventPass> pointerInputPassesToTrack = Collections.singletonList(PostUp);
 
         PointerInputNode pointerInputNode = new PointerInputNode();
         PointerInputHandlerTracker pointerInputHandlerTracker =
@@ -212,7 +212,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(0),
                 pointerInputNode,
-                POST_UP,
+                PostUp,
                 0,
                 topLeftOffset,
                 true,
@@ -222,7 +222,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(1),
                 pointerInputNode,
-                POST_UP,
+                PostUp,
                 1,
                 topRightOffset,
                 true,
@@ -232,7 +232,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(2),
                 pointerInputNode,
-                POST_UP,
+                PostUp,
                 2,
                 bottomLeftOffset,
                 true,
@@ -242,7 +242,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(3),
                 pointerInputNode,
-                POST_UP,
+                PostUp,
                 3,
                 bottomRightOffset,
                 true,
@@ -256,7 +256,7 @@ public class PointerInputEventProcessorTest {
 
         // Arrange
 
-        List<Integer> pointerInputPassesToTrack = Collections.singletonList(POST_UP);
+        List<PointerEventPass> pointerInputPassesToTrack = Collections.singletonList(PostUp);
 
         PointerInputNode pointerInputNode = new PointerInputNode();
         PointerInputHandlerTracker pointerInputHandlerTracker =
@@ -327,7 +327,7 @@ public class PointerInputEventProcessorTest {
 
         // Arrange
 
-        List<Integer> pointerInputPassesToTrack = Collections.singletonList(POST_UP);
+        List<PointerEventPass> pointerInputPassesToTrack = Collections.singletonList(PostUp);
 
         // Create PointerInputNodes
 
@@ -379,7 +379,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(0),
                 childPointerInputNode,
-                POST_UP,
+                PostUp,
                 0,
                 offset,
                 true,
@@ -389,7 +389,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(1),
                 middlePointerInputNode,
-                POST_UP,
+                PostUp,
                 0,
                 offset,
                 true,
@@ -399,7 +399,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(2),
                 parentPointerInputNode,
-                POST_UP,
+                PostUp,
                 0,
                 offset,
                 true,
@@ -413,7 +413,7 @@ public class PointerInputEventProcessorTest {
 
         // Arrange
 
-        List<Integer> pointerInputPassesToTrack = Collections.singletonList(POST_UP);
+        List<PointerEventPass> pointerInputPassesToTrack = Collections.singletonList(PostUp);
 
         // Create PointerInputNodes
 
@@ -465,7 +465,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(0),
                 middlePointerInputNode,
-                POST_UP,
+                PostUp,
                 0,
                 offset,
                 true,
@@ -475,7 +475,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(1),
                 parentPointerInputNode,
-                POST_UP,
+                PostUp,
                 0,
                 offset,
                 true,
@@ -489,7 +489,7 @@ public class PointerInputEventProcessorTest {
 
         // Arrange
 
-        List<Integer> pointerInputPassesToTrack = Collections.singletonList(POST_UP);
+        List<PointerEventPass> pointerInputPassesToTrack = Collections.singletonList(PostUp);
 
         // Create PointerInputNodes
 
@@ -541,7 +541,7 @@ public class PointerInputEventProcessorTest {
         assertPointerInputChange(
                 mTrackerList.get(0),
                 parentPointerInputNode,
-                POST_UP,
+                PostUp,
                 0,
                 offset,
                 true,
@@ -555,8 +555,8 @@ public class PointerInputEventProcessorTest {
 
         // Arrange
 
-        List<Integer> pointerInputPassesToTrack =
-                Arrays.asList(INITIAL_DOWN, PRE_UP, PRE_DOWN, POST_UP, POST_DOWN);
+        List<PointerEventPass> pointerInputPassesToTrack =
+                Arrays.asList(InitialDown, PreUp, PreDown, PostUp, PostDown);
 
         PointerInputNode pointerInputNode = new PointerInputNode();
         PointerInputHandlerTracker pointerInputHandlerTracker =
@@ -586,8 +586,8 @@ public class PointerInputEventProcessorTest {
         // Assert
 
         assertThat(mTrackerList.size(), is(equalTo(15)));
-        Integer[] passes =
-                new Integer[]{INITIAL_DOWN, PRE_UP, PRE_DOWN, POST_UP, POST_DOWN};
+        PointerEventPass[] passes =
+                new PointerEventPass[]{InitialDown, PreUp, PreDown, PostUp, PostDown};
 
         // For each PointerInputEvent, verify that it went through the PointerInputNode's
         // pointerInputHandler for each pass in order.
@@ -634,8 +634,8 @@ public class PointerInputEventProcessorTest {
 
         // Arrange
 
-        List<Integer> pointerInputPassesToTrack =
-                Arrays.asList(INITIAL_DOWN, PRE_UP, PRE_DOWN, POST_UP, POST_DOWN);
+        List<PointerEventPass> pointerInputPassesToTrack =
+                Arrays.asList(InitialDown, PreUp, PreDown, PostUp, PostDown);
 
         PointerInputNode pointerInputNode = new PointerInputNode();
         PointerInputHandlerTracker pointerInputHandlerTracker =
@@ -675,8 +675,8 @@ public class PointerInputEventProcessorTest {
         // Assert
 
         assertThat(mTrackerList.size(), is(equalTo(10)));
-        Integer[] passes =
-                new Integer[]{INITIAL_DOWN, PRE_UP, PRE_DOWN, POST_UP, POST_DOWN};
+        PointerEventPass[] passes =
+                new PointerEventPass[]{InitialDown, PreUp, PreDown, PostUp, PostDown};
 
         float consumedX = 0;
         for (int i = 0; i < 5; i++) {
@@ -728,9 +728,9 @@ public class PointerInputEventProcessorTest {
     }
 
     private void assertPointerInputChange(
-            Triple<PointerInputNode, Integer, PointerInputChange> actual,
+            Triple<PointerInputNode, PointerEventPass, PointerInputChange> actual,
             PointerInputNode pointerInputNode,
-            Integer pass,
+            PointerEventPass pass,
             int id,
             Offset currentPosition,
             boolean currentDown,
@@ -753,16 +753,16 @@ public class PointerInputEventProcessorTest {
     }
 
     private class PointerInputHandlerTracker implements
-            Function2<PointerInputChange, Integer, PointerInputChange> {
+            Function2<PointerInputChange, PointerEventPass, PointerInputChange> {
 
         private PointerInputNode mPointerInputNode;
-        private List<Triple<PointerInputNode, Integer, PointerInputChange>> mTrackerList;
-        private List<Integer> mPointerEventPassesToTrack;
+        private List<Triple<PointerInputNode, PointerEventPass, PointerInputChange>> mTrackerList;
+        private List<PointerEventPass> mPointerEventPassesToTrack;
         public PointerInputChangeModifier mPointerInputChangeModifier;
 
         PointerInputHandlerTracker(PointerInputNode pointerInputNode,
-                List<Triple<PointerInputNode, Integer, PointerInputChange>> trackerList,
-                List<Integer> pointerEventPassesToTrack) {
+                List<Triple<PointerInputNode, PointerEventPass, PointerInputChange>> trackerList,
+                List<PointerEventPass> pointerEventPassesToTrack) {
             mPointerInputNode = pointerInputNode;
             mTrackerList = trackerList;
             mPointerEventPassesToTrack = pointerEventPassesToTrack;
@@ -770,7 +770,7 @@ public class PointerInputEventProcessorTest {
 
         @Override
         public PointerInputChange invoke(PointerInputChange pointerInputChange,
-                Integer pointerEventPass) {
+                PointerEventPass pointerEventPass) {
             if (mPointerEventPassesToTrack.contains(pointerEventPass)) {
                 mTrackerList.add(
                         new Triple<>(mPointerInputNode, pointerEventPass, pointerInputChange));

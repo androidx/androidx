@@ -24,22 +24,7 @@ import androidx.ui.core.Size
 import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Offset
 
-/**
- * The enumeration of passes where [PointerInputChange] traverses up and down the UI tree.
- */
-// TODO(shepshapard): Convert to enum when it doesn't cause an issue where Activities can't be
-// found.
-class PointerEventPass {
-    companion object {
-        const val INITIAL_DOWN: Int = 1
-        const val PRE_UP: Int = 2
-        const val PRE_DOWN: Int = 3
-        const val POST_UP: Int = 4
-        const val POST_DOWN: Int = 5
-    }
-}
-
-typealias PointerInputHandler = (PointerInputChange, Int) -> PointerInputChange
+typealias PointerInputHandler = (PointerInputChange, PointerEventPass) -> PointerInputChange
 private typealias PointerInputHandlerPath = List<PointerInputHandler>
 
 /**
@@ -104,23 +89,23 @@ internal class PointerInputEventProcessor(val context: Context, val root: Layout
 
             // Down from parent to child
             parentToChild.forEach {
-                change = it(change, PointerEventPass.INITIAL_DOWN)
+                change = it(change, PointerEventPass.InitialDown)
             }
             // PrePass up (hacky up path of onNestedPreScroll)
             childtoParent.forEach {
-                change = it(change, PointerEventPass.PRE_UP)
+                change = it(change, PointerEventPass.PreUp)
             }
             // Pre-pass down (onNestedPreScroll)
             parentToChild.forEach {
-                change = it(change, PointerEventPass.PRE_DOWN)
+                change = it(change, PointerEventPass.PreDown)
             }
             // Post-pass up (onNestedScroll)
             childtoParent.forEach {
-                change = it(change, PointerEventPass.POST_UP)
+                change = it(change, PointerEventPass.PostUp)
             }
             // Post-pass down (hacky down path of onNestedScroll)
             parentToChild.forEach {
-                change = it(change, PointerEventPass.POST_DOWN)
+                change = it(change, PointerEventPass.PostDown)
             }
         }
     }
@@ -144,7 +129,7 @@ internal class PointerInputEventProcessor(val context: Context, val root: Layout
         parent: ComponentNode,
         offset: Offset,
         size: Size,
-        hitTestResult: MutableList<(PointerInputChange, Int) -> PointerInputChange>
+        hitTestResult: MutableList<PointerInputHandler>
     ) {
         parent.visitChildren { child ->
             // If the child is a PointerInputNode, then hit test on that child.
