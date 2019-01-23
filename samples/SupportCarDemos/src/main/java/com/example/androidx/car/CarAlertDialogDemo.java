@@ -19,6 +19,7 @@ package com.example.androidx.car;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.widget.CheckBox;
 
 import androidx.car.app.CarAlertDialog;
@@ -40,6 +41,7 @@ public class CarAlertDialogDemo extends FragmentActivity {
         CheckBox hasTitleView = findViewById(R.id.has_title);
         CheckBox hasImageView = findViewById(R.id.has_image);
         CheckBox hasBodyText = findViewById(R.id.has_body_text);
+        CheckBox hasClickableBodyText = findViewById(R.id.has_clickable_body_text);
         CheckBox hasSingleLineBody = findViewById(R.id.has_single_line_body);
         CheckBox hasAction1 = findViewById(R.id.has_action_1);
         CheckBox hasAction2 = findViewById(R.id.has_action_2);
@@ -49,6 +51,7 @@ public class CarAlertDialogDemo extends FragmentActivity {
                     hasTitleView.isChecked(),
                     hasImageView.isChecked(),
                     hasBodyText.isChecked(),
+                    hasClickableBodyText.isChecked(),
                     hasSingleLineBody.isChecked(),
                     hasAction1.isChecked(),
                     hasAction2.isChecked());
@@ -62,17 +65,23 @@ public class CarAlertDialogDemo extends FragmentActivity {
         private static final String HAS_TITLE_KEY = "has_title_key";
         private static final String HAS_IMAGE_KEY = "has_image_key";
         private static final String HAS_BODY_KEY = "has_body_key";
+        private static final String HAS_CLICKABLE_BODY_KEY = "has_clickable_body_key";
         private static final String HAS_SINGLE_LINE_BODY_KEY = "has_single_line_body_key";
         private static final String HAS_ACTION_1_KEY = "has_action_1_key";
         private static final String HAS_ACTION_2_KEY = "has_action_2_key";
 
-        static AlertDialogFragment newInstance(boolean hasTitle, boolean hasImage,
-                boolean hasBody, boolean hasSingleLineBody, boolean hasAction1,
+        static AlertDialogFragment newInstance(boolean hasTitle,
+                boolean hasImage,
+                boolean hasBody,
+                boolean hasClickableBodyText,
+                boolean hasSingleLineBody,
+                boolean hasAction1,
                 boolean hasAction2) {
             Bundle args = new Bundle();
             args.putBoolean(HAS_TITLE_KEY, hasTitle);
             args.putBoolean(HAS_IMAGE_KEY, hasImage);
             args.putBoolean(HAS_BODY_KEY, hasBody);
+            args.putBoolean(HAS_CLICKABLE_BODY_KEY, hasClickableBodyText);
             args.putBoolean(HAS_SINGLE_LINE_BODY_KEY, hasSingleLineBody);
             args.putBoolean(HAS_ACTION_1_KEY, hasAction1);
             args.putBoolean(HAS_ACTION_2_KEY, hasAction2);
@@ -98,7 +107,12 @@ public class CarAlertDialogDemo extends FragmentActivity {
             }
 
             if (args.getBoolean(HAS_BODY_KEY)) {
-                builder.setBody(context.getString(R.string.alert_dialog_body));
+                if (args.getBoolean(HAS_CLICKABLE_BODY_KEY)) {
+                    builder.setBody(context.getText(R.string.test_link));
+                    builder.setBodyMovementMethod(LinkMovementMethod.getInstance());
+                } else {
+                    builder.setBody(context.getString(R.string.alert_dialog_body));
+                }
             }
 
             if (args.getBoolean(HAS_SINGLE_LINE_BODY_KEY)) {
