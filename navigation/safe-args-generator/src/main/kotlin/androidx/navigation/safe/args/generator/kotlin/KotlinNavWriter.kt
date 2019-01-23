@@ -205,6 +205,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = false) : NavWriter<Kotl
         }.build()
 
         val fromBundleFunSpec = FunSpec.builder("fromBundle").apply {
+            addAnnotation(JvmStatic::class)
             if (destination.args.any { it.type is ObjectArrayType }) {
                 addAnnotation(
                     AnnotationSpec.builder(Suppress::class)
