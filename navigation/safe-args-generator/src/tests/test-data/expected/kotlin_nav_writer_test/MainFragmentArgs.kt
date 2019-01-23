@@ -15,6 +15,7 @@ import kotlin.FloatArray
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
+import kotlin.jvm.JvmStatic
 
 data class MainFragmentArgs(
     val main: String,
@@ -51,6 +52,7 @@ data class MainFragmentArgs(
     }
 
     companion object {
+        @JvmStatic
         @Suppress("UNCHECKED_CAST")
         fun fromBundle(bundle: Bundle): MainFragmentArgs {
             bundle.setClassLoader(MainFragmentArgs::class.java.classLoader)
