@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.work {
 
   public final class ArrayCreatingInputMerger extends androidx.work.InputMerger {
@@ -204,7 +204,7 @@ package androidx.work {
     method public java.util.Set<java.lang.String> getTags();
   }
 
-  public static enum WorkInfo.State {
+  public enum WorkInfo.State {
     method public boolean isFinished();
     enum_constant public static final androidx.work.WorkInfo.State BLOCKED;
     enum_constant public static final androidx.work.WorkInfo.State CANCELLED;

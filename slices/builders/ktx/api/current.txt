@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.slice.builders {
 
   public final class CellBuilderDsl extends androidx.slice.builders.GridRowBuilder.CellBuilder {
@@ -11,8 +11,8 @@ package androidx.slice.builders {
 
   public final class GridRowBuilderKt {
     ctor public GridRowBuilderKt();
-    method public static androidx.slice.builders.GridRowBuilder cell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
-    method public static androidx.slice.builders.GridRowBuilder seeMoreCell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
+    method public static inline androidx.slice.builders.GridRowBuilder cell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
+    method public static inline androidx.slice.builders.GridRowBuilder seeMoreCell(androidx.slice.builders.GridRowBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.CellBuilderDsl,kotlin.Unit> buildCell);
   }
 
   public final class HeaderBuilderDsl extends androidx.slice.builders.ListBuilder.HeaderBuilder {
@@ -29,13 +29,13 @@ package androidx.slice.builders {
 
   public final class ListBuilderKt {
     ctor public ListBuilderKt();
-    method public static androidx.slice.builders.ListBuilder gridRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.GridRowBuilderDsl,kotlin.Unit> buildGrid);
-    method public static androidx.slice.builders.ListBuilder header(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.HeaderBuilderDsl,kotlin.Unit> buildHeader);
-    method public static androidx.slice.builders.ListBuilder inputRange(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.InputRangeBuilderDsl,kotlin.Unit> buildInputRange);
-    method public static androidx.slice.Slice list(android.content.Context context, android.net.Uri uri, long ttl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.ListBuilderDsl,kotlin.Unit> addRows);
-    method public static androidx.slice.builders.ListBuilder range(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RangeBuilderDsl,kotlin.Unit> buildRange);
-    method public static androidx.slice.builders.ListBuilder row(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
-    method public static androidx.slice.builders.ListBuilder seeMoreRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
+    method public static inline androidx.slice.builders.ListBuilder gridRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.GridRowBuilderDsl,kotlin.Unit> buildGrid);
+    method public static inline androidx.slice.builders.ListBuilder header(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.HeaderBuilderDsl,kotlin.Unit> buildHeader);
+    method public static inline androidx.slice.builders.ListBuilder inputRange(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.InputRangeBuilderDsl,kotlin.Unit> buildInputRange);
+    method public static inline androidx.slice.Slice list(android.content.Context context, android.net.Uri uri, long ttl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.ListBuilderDsl,kotlin.Unit> addRows);
+    method public static inline androidx.slice.builders.ListBuilder range(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RangeBuilderDsl,kotlin.Unit> buildRange);
+    method public static inline androidx.slice.builders.ListBuilder row(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
+    method public static inline androidx.slice.builders.ListBuilder seeMoreRow(androidx.slice.builders.ListBuilderDsl, kotlin.jvm.functions.Function1<? super androidx.slice.builders.RowBuilderDsl,kotlin.Unit> buildRow);
     method public static androidx.slice.builders.SliceAction tapSliceAction(android.app.PendingIntent pendingIntent, androidx.core.graphics.drawable.IconCompat icon, @androidx.slice.builders.ListBuilder.ImageMode int imageMode = 0, CharSequence title);
     method public static androidx.slice.builders.SliceAction toggleSliceAction(android.app.PendingIntent pendingIntent, androidx.core.graphics.drawable.IconCompat? icon = null, CharSequence title, boolean isChecked);
   }

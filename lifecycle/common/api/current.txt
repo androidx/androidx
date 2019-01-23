@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.lifecycle {
 
   public abstract class Lifecycle {
@@ -8,7 +8,7 @@ package androidx.lifecycle {
     method @MainThread public abstract void removeObserver(androidx.lifecycle.LifecycleObserver);
   }
 
-  public static enum Lifecycle.Event {
+  public enum Lifecycle.Event {
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_ANY;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_CREATE;
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_DESTROY;
@@ -18,7 +18,7 @@ package androidx.lifecycle {
     enum_constant public static final androidx.lifecycle.Lifecycle.Event ON_STOP;
   }
 
-  public static enum Lifecycle.State {
+  public enum Lifecycle.State {
     method public boolean isAtLeast(androidx.lifecycle.Lifecycle.State);
     enum_constant public static final androidx.lifecycle.Lifecycle.State CREATED;
     enum_constant public static final androidx.lifecycle.Lifecycle.State DESTROYED;

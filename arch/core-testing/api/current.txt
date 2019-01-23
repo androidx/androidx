@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.arch.core.executor.testing {
 
   public class CountingTaskExecutorRule extends org.junit.rules.TestWatcher {

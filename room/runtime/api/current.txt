@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.room {
 
   public class DatabaseConfiguration {
@@ -81,7 +81,7 @@ package androidx.room {
     method public void onOpen(androidx.sqlite.db.SupportSQLiteDatabase);
   }
 
-  public static enum RoomDatabase.JournalMode {
+  public enum RoomDatabase.JournalMode {
     enum_constant public static final androidx.room.RoomDatabase.JournalMode AUTOMATIC;
     enum_constant public static final androidx.room.RoomDatabase.JournalMode TRUNCATE;
     enum_constant @RequiresApi(android.os.Build.VERSION_CODES.JELLY_BEAN) public static final androidx.room.RoomDatabase.JournalMode WRITE_AHEAD_LOGGING;

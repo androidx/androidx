@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.leanback.app {
 
   public final class BackgroundManager {
@@ -24,7 +24,6 @@ package androidx.leanback.app {
   @Deprecated public class BaseFragment extends androidx.leanback.app.BrandedFragment {
     method @Deprecated protected Object! createEntranceTransition();
     method @Deprecated public final androidx.leanback.app.ProgressBarManager! getProgressBarManager();
-    method @Deprecated public void onCreate(android.os.Bundle!);
     method @Deprecated protected void onEntranceTransitionEnd();
     method @Deprecated protected void onEntranceTransitionPrepare();
     method @Deprecated protected void onEntranceTransitionStart();
@@ -54,13 +53,7 @@ package androidx.leanback.app {
     method @Deprecated public androidx.leanback.widget.TitleViewAdapter! getTitleViewAdapter();
     method @Deprecated public void installTitleView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
     method @Deprecated public final boolean isShowingTitle();
-    method @Deprecated public void onDestroyView();
     method @Deprecated public android.view.View! onInflateTitleView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
-    method @Deprecated public void onPause();
-    method @Deprecated public void onResume();
-    method @Deprecated public void onSaveInstanceState(android.os.Bundle!);
-    method @Deprecated public void onStart();
-    method @Deprecated public void onViewCreated(android.view.View, android.os.Bundle?);
     method @Deprecated public void setBadgeDrawable(android.graphics.drawable.Drawable!);
     method @Deprecated public void setOnSearchClickedListener(android.view.View.OnClickListener!);
     method @Deprecated public void setSearchAffordanceColor(int);
@@ -111,9 +104,6 @@ package androidx.leanback.app {
     method @Deprecated public boolean isInHeadersTransition();
     method @Deprecated public boolean isShowingHeaders();
     method @Deprecated public androidx.leanback.app.HeadersFragment! onCreateHeadersFragment();
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
-    method @Deprecated public void onDestroy();
-    method @Deprecated public void onStop();
     method @Deprecated public void setAdapter(androidx.leanback.widget.ObjectAdapter!);
     method @Deprecated public void setBrandColor(@ColorInt int);
     method @Deprecated public void setBrowseTransitionListener(androidx.leanback.app.BrowseFragment.BrowseTransitionListener!);
@@ -299,10 +289,8 @@ package androidx.leanback.app {
     method @Deprecated public androidx.leanback.widget.DetailsParallax! getParallax();
     method @Deprecated public androidx.leanback.app.RowsFragment! getRowsFragment();
     method @Deprecated protected android.view.View! inflateTitle(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
     method @Deprecated protected void onSetDetailsOverviewRowStatus(androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter!, androidx.leanback.widget.FullWidthDetailsOverviewRowPresenter.ViewHolder!, int, int, int);
     method @Deprecated protected void onSetRowStatus(androidx.leanback.widget.RowPresenter!, androidx.leanback.widget.RowPresenter.ViewHolder!, int, int, int);
-    method @Deprecated public void onStop();
     method @Deprecated public void setAdapter(androidx.leanback.widget.ObjectAdapter!);
     method @Deprecated public void setOnItemViewClickedListener(androidx.leanback.widget.BaseOnItemViewClickedListener!);
     method @Deprecated public void setOnItemViewSelectedListener(androidx.leanback.widget.BaseOnItemViewSelectedListener!);
@@ -381,7 +369,6 @@ package androidx.leanback.app {
     method @Deprecated public android.graphics.drawable.Drawable! getImageDrawable();
     method @Deprecated public CharSequence! getMessage();
     method @Deprecated public boolean isBackgroundTranslucent();
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
     method @Deprecated public void setBackgroundDrawable(android.graphics.drawable.Drawable!);
     method @Deprecated public void setButtonClickListener(android.view.View.OnClickListener!);
     method @Deprecated public void setButtonText(String!);
@@ -438,7 +425,6 @@ package androidx.leanback.app {
     method @Deprecated public void notifyActionChanged(int);
     method @Deprecated public void notifyButtonActionChanged(int);
     method @Deprecated protected void onAddSharedElementTransition(android.app.FragmentTransaction!, androidx.leanback.app.GuidedStepFragment!);
-    method @Deprecated public void onCreate(android.os.Bundle!);
     method @Deprecated public void onCreateActions(java.util.List<androidx.leanback.widget.GuidedAction>, android.os.Bundle!);
     method @Deprecated public androidx.leanback.widget.GuidedActionsStylist! onCreateActionsStylist();
     method @Deprecated public android.view.View! onCreateBackgroundView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
@@ -446,8 +432,6 @@ package androidx.leanback.app {
     method @Deprecated public androidx.leanback.widget.GuidedActionsStylist! onCreateButtonActionsStylist();
     method @Deprecated public androidx.leanback.widget.GuidanceStylist.Guidance onCreateGuidance(android.os.Bundle!);
     method @Deprecated public androidx.leanback.widget.GuidanceStylist! onCreateGuidanceStylist();
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
-    method @Deprecated public void onDestroyView();
     method @Deprecated public void onGuidedActionClicked(androidx.leanback.widget.GuidedAction!);
     method @Deprecated public void onGuidedActionEditCanceled(androidx.leanback.widget.GuidedAction!);
     method @Deprecated public void onGuidedActionEdited(androidx.leanback.widget.GuidedAction!);
@@ -455,8 +439,6 @@ package androidx.leanback.app {
     method @Deprecated public void onGuidedActionFocused(androidx.leanback.widget.GuidedAction!);
     method @Deprecated protected void onProvideFragmentTransitions();
     method @Deprecated public int onProvideTheme();
-    method @Deprecated public void onResume();
-    method @Deprecated public void onSaveInstanceState(android.os.Bundle!);
     method @Deprecated public boolean onSubGuidedActionClicked(androidx.leanback.widget.GuidedAction!);
     method @Deprecated public void openInEditMode(androidx.leanback.widget.GuidedAction!);
     method @Deprecated public void popBackStackToGuidedStepFragment(Class!, int);
@@ -543,13 +525,9 @@ package androidx.leanback.app {
     method @Deprecated public int getSelectedPosition();
     method @Deprecated public final androidx.leanback.widget.VerticalGridView! getVerticalGridView();
     method @Deprecated public boolean isScrolling();
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
-    method @Deprecated public void onDestroyView();
-    method @Deprecated public void onSaveInstanceState(android.os.Bundle!);
     method @Deprecated public void onTransitionEnd();
     method @Deprecated public boolean onTransitionPrepare();
     method @Deprecated public void onTransitionStart();
-    method @Deprecated public void onViewCreated(android.view.View, android.os.Bundle?);
     method @Deprecated public final void setAdapter(androidx.leanback.widget.ObjectAdapter!);
     method @Deprecated public void setAlignment(int);
     method @Deprecated public void setOnHeaderClickedListener(androidx.leanback.app.HeadersFragment.OnHeaderClickedListener!);
@@ -619,13 +597,10 @@ package androidx.leanback.app {
     method @Deprecated protected abstract android.view.View? onCreateForegroundView(android.view.LayoutInflater!, android.view.ViewGroup!);
     method @Deprecated protected android.animation.Animator? onCreateLogoAnimation();
     method @Deprecated protected android.animation.Animator! onCreateTitleAnimator();
-    method @Deprecated public android.view.View? onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
     method @Deprecated protected void onFinishFragment();
     method @Deprecated protected void onLogoAnimationFinished();
     method @Deprecated protected void onPageChanged(int, int);
     method @Deprecated public int onProvideTheme();
-    method @Deprecated public void onSaveInstanceState(android.os.Bundle!);
-    method @Deprecated public void onViewCreated(android.view.View, android.os.Bundle?);
     method @Deprecated public void setArrowBackgroundColor(@ColorInt int);
     method @Deprecated public void setArrowColor(@ColorInt int);
     method @Deprecated public void setDescriptionViewTextColor(@ColorInt int);
@@ -689,17 +664,8 @@ package androidx.leanback.app {
     method @Deprecated public boolean isShowOrHideControlsOverlayOnUserInteraction();
     method @Deprecated public void notifyPlaybackRowChanged();
     method @Deprecated protected void onBufferingStateChanged(boolean);
-    method @Deprecated public void onCreate(android.os.Bundle!);
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
-    method @Deprecated public void onDestroy();
-    method @Deprecated public void onDestroyView();
     method @Deprecated protected void onError(int, CharSequence!);
-    method @Deprecated public void onPause();
-    method @Deprecated public void onResume();
-    method @Deprecated public void onStart();
-    method @Deprecated public void onStop();
     method @Deprecated protected void onVideoSizeChanged(int, int);
-    method @Deprecated public void onViewCreated(android.view.View, android.os.Bundle?);
     method @Deprecated public void setAdapter(androidx.leanback.widget.ObjectAdapter!);
     method @Deprecated public void setBackgroundType(int);
     method @Deprecated public void setControlsOverlayAutoHideEnabled(boolean);
@@ -725,19 +691,7 @@ package androidx.leanback.app {
   @Deprecated public class PlaybackFragmentGlueHost extends androidx.leanback.media.PlaybackGlueHost implements androidx.leanback.widget.PlaybackSeekUi {
     ctor @Deprecated public PlaybackFragmentGlueHost(androidx.leanback.app.PlaybackFragment!);
     method @Deprecated public void fadeOut();
-    method @Deprecated public androidx.leanback.media.PlaybackGlueHost.PlayerCallback! getPlayerCallback();
-    method @Deprecated public void hideControlsOverlay(boolean);
-    method @Deprecated public boolean isControlsOverlayAutoHideEnabled();
-    method @Deprecated public boolean isControlsOverlayVisible();
-    method @Deprecated public void notifyPlaybackRowChanged();
-    method @Deprecated public void setControlsOverlayAutoHideEnabled(boolean);
-    method @Deprecated public void setHostCallback(androidx.leanback.media.PlaybackGlueHost.HostCallback!);
-    method @Deprecated public void setOnActionClickedListener(androidx.leanback.widget.OnActionClickedListener!);
-    method @Deprecated public void setOnKeyInterceptListener(android.view.View.OnKeyListener!);
-    method @Deprecated public void setPlaybackRow(androidx.leanback.widget.Row!);
-    method @Deprecated public void setPlaybackRowPresenter(androidx.leanback.widget.PlaybackRowPresenter!);
     method @Deprecated public void setPlaybackSeekUiClient(androidx.leanback.widget.PlaybackSeekUi.Client!);
-    method @Deprecated public void showControlsOverlay(boolean);
   }
 
   public class PlaybackSupportFragment extends androidx.fragment.app.Fragment {
@@ -811,14 +765,9 @@ package androidx.leanback.app {
     method @Deprecated public int getSelectedPosition();
     method @Deprecated public final androidx.leanback.widget.VerticalGridView! getVerticalGridView();
     method @Deprecated public boolean isScrolling();
-    method @Deprecated public void onCreate(android.os.Bundle!);
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
-    method @Deprecated public void onDestroyView();
-    method @Deprecated public void onSaveInstanceState(android.os.Bundle!);
     method @Deprecated public void onTransitionEnd();
     method @Deprecated public boolean onTransitionPrepare();
     method @Deprecated public void onTransitionStart();
-    method @Deprecated public void onViewCreated(android.view.View, android.os.Bundle?);
     method @Deprecated public final void setAdapter(androidx.leanback.widget.ObjectAdapter!);
     method @Deprecated public void setAlignment(int);
     method @Deprecated public void setEntranceTransitionState(boolean);
@@ -889,13 +838,6 @@ package androidx.leanback.app {
     method @Deprecated public androidx.leanback.app.RowsFragment! getRowsFragment();
     method @Deprecated public String! getTitle();
     method @Deprecated public static androidx.leanback.app.SearchFragment! newInstance(String!);
-    method @Deprecated public void onCreate(android.os.Bundle!);
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
-    method @Deprecated public void onDestroy();
-    method @Deprecated public void onPause();
-    method @Deprecated public void onRequestPermissionsResult(int, String[]!, int[]!);
-    method @Deprecated public void onResume();
-    method @Deprecated public void onStart();
     method @Deprecated public void setBadgeDrawable(android.graphics.drawable.Drawable!);
     method @Deprecated public void setOnItemViewClickedListener(androidx.leanback.widget.OnItemViewClickedListener!);
     method @Deprecated public void setOnItemViewSelectedListener(androidx.leanback.widget.OnItemViewSelectedListener!);
@@ -949,7 +891,6 @@ package androidx.leanback.app {
     method @Deprecated public androidx.leanback.widget.ObjectAdapter! getAdapter();
     method @Deprecated public androidx.leanback.widget.VerticalGridPresenter! getGridPresenter();
     method @Deprecated public androidx.leanback.widget.OnItemViewClickedListener! getOnItemViewClickedListener();
-    method @Deprecated public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
     method @Deprecated public void setAdapter(androidx.leanback.widget.ObjectAdapter!);
     method @Deprecated public void setGridPresenter(androidx.leanback.widget.VerticalGridPresenter!);
     method @Deprecated public void setOnItemViewClickedListener(androidx.leanback.widget.OnItemViewClickedListener!);
@@ -1127,10 +1068,6 @@ package androidx.leanback.media {
     method @Deprecated public long getSupportedActions();
     method @Deprecated public boolean hasValidMedia();
     method @Deprecated public boolean isMediaPlaying();
-    method @Deprecated public void next();
-    method @Deprecated public void pause();
-    method @Deprecated public void play(int);
-    method @Deprecated public void previous();
   }
 
   public class MediaPlayerAdapter extends androidx.leanback.media.PlayerAdapter {
@@ -1755,12 +1692,6 @@ package androidx.leanback.widget {
     method @Deprecated public androidx.leanback.widget.OnActionClickedListener! getOnActionClickedListener();
     method @Deprecated public boolean isStyleLarge();
     method @Deprecated public final boolean isUsingDefaultSelectEffect();
-    method @Deprecated protected void onBindRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder!, Object!);
-    method @Deprecated protected void onRowViewAttachedToWindow(androidx.leanback.widget.RowPresenter.ViewHolder!);
-    method @Deprecated protected void onRowViewDetachedFromWindow(androidx.leanback.widget.RowPresenter.ViewHolder!);
-    method @Deprecated protected void onRowViewSelected(androidx.leanback.widget.RowPresenter.ViewHolder!, boolean);
-    method @Deprecated protected void onSelectLevelChanged(androidx.leanback.widget.RowPresenter.ViewHolder!);
-    method @Deprecated protected void onUnbindRowViewHolder(androidx.leanback.widget.RowPresenter.ViewHolder!);
     method @Deprecated public void setBackgroundColor(@ColorInt int);
     method @Deprecated public void setOnActionClickedListener(androidx.leanback.widget.OnActionClickedListener!);
     method @Deprecated public final void setSharedElementEnterTransition(android.app.Activity!, String!, long);

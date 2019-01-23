@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.wear.activity {
 
   public class ConfirmationActivity extends android.app.Activity {
@@ -19,14 +19,6 @@ package androidx.wear.ambient {
   @Deprecated public final class AmbientMode extends android.app.Fragment {
     ctor @Deprecated public AmbientMode();
     method @Deprecated public static <T extends android.app.Activity> androidx.wear.ambient.AmbientMode.AmbientController! attachAmbientSupport(T!);
-    method @Deprecated public void dump(String!, java.io.FileDescriptor!, java.io.PrintWriter!, String[]!);
-    method @Deprecated @CallSuper public void onAttach(android.content.Context!);
-    method @Deprecated @CallSuper public void onCreate(android.os.Bundle!);
-    method @Deprecated @CallSuper public void onDestroy();
-    method @Deprecated @CallSuper public void onDetach();
-    method @Deprecated @CallSuper public void onPause();
-    method @Deprecated @CallSuper public void onResume();
-    method @Deprecated @CallSuper public void onStop();
     field @Deprecated public static final String EXTRA_BURN_IN_PROTECTION = "com.google.android.wearable.compat.extra.BURN_IN_PROTECTION";
     field @Deprecated public static final String EXTRA_LOWBIT_AMBIENT = "com.google.android.wearable.compat.extra.LOWBIT_AMBIENT";
     field @Deprecated public static final String FRAGMENT_TAG = "android.support.wearable.ambient.AmbientMode";
@@ -196,7 +188,12 @@ package androidx.wear.widget {
     ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
     ctor public SwipeDismissFrameLayout(android.content.Context!, android.util.AttributeSet!, int, int);
     method public void addCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback!);
+    method public float getDismissMinDragWidthRatio();
+    method public boolean isSwipeable();
     method public void removeCallback(androidx.wear.widget.SwipeDismissFrameLayout.Callback!);
+    method public void setDismissMinDragWidthRatio(float);
+    method public void setSwipeable(boolean);
+    field public static final float DEFAULT_DISMISS_DRAG_WIDTH_RATIO = 0.33f;
   }
 
   @UiThread public abstract static class SwipeDismissFrameLayout.Callback {

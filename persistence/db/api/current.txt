@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.sqlite.db {
 
   public final class SimpleSQLiteQuery implements androidx.sqlite.db.SupportSQLiteQuery {

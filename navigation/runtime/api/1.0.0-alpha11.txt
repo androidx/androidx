@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.navigation {
 
   @androidx.navigation.Navigator.Name("activity") public class ActivityNavigator extends androidx.navigation.Navigator<androidx.navigation.ActivityNavigator.Destination> {

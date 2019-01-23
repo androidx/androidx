@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.legacy.app {
 
   @Deprecated public class ActivityCompat extends androidx.core.app.ActivityCompat {
@@ -24,42 +24,22 @@ package androidx.legacy.app {
 
   @Deprecated public abstract class FragmentPagerAdapter extends androidx.viewpager.widget.PagerAdapter {
     ctor @Deprecated public FragmentPagerAdapter(android.app.FragmentManager!);
-    method @Deprecated public void destroyItem(android.view.ViewGroup!, int, Object!);
-    method @Deprecated public void finishUpdate(android.view.ViewGroup!);
     method @Deprecated public abstract android.app.Fragment! getItem(int);
     method @Deprecated public long getItemId(int);
-    method @Deprecated public Object! instantiateItem(android.view.ViewGroup!, int);
     method @Deprecated public boolean isViewFromObject(android.view.View!, Object!);
-    method @Deprecated public void restoreState(android.os.Parcelable!, ClassLoader!);
-    method @Deprecated public android.os.Parcelable! saveState();
-    method @Deprecated public void setPrimaryItem(android.view.ViewGroup!, int, Object!);
-    method @Deprecated public void startUpdate(android.view.ViewGroup!);
   }
 
   @Deprecated public abstract class FragmentStatePagerAdapter extends androidx.viewpager.widget.PagerAdapter {
     ctor @Deprecated public FragmentStatePagerAdapter(android.app.FragmentManager!);
-    method @Deprecated public void destroyItem(android.view.ViewGroup!, int, Object!);
-    method @Deprecated public void finishUpdate(android.view.ViewGroup!);
     method @Deprecated public abstract android.app.Fragment! getItem(int);
-    method @Deprecated public Object! instantiateItem(android.view.ViewGroup!, int);
     method @Deprecated public boolean isViewFromObject(android.view.View!, Object!);
-    method @Deprecated public void restoreState(android.os.Parcelable!, ClassLoader!);
-    method @Deprecated public android.os.Parcelable! saveState();
-    method @Deprecated public void setPrimaryItem(android.view.ViewGroup!, int, Object!);
-    method @Deprecated public void startUpdate(android.view.ViewGroup!);
   }
 
   @Deprecated public class FragmentTabHost extends android.widget.TabHost implements android.widget.TabHost.OnTabChangeListener {
     ctor @Deprecated public FragmentTabHost(android.content.Context!);
     ctor @Deprecated public FragmentTabHost(android.content.Context!, android.util.AttributeSet!);
     method @Deprecated public void addTab(android.widget.TabHost.TabSpec!, Class<?>!, android.os.Bundle!);
-    method @Deprecated protected void onAttachedToWindow();
-    method @Deprecated protected void onDetachedFromWindow();
-    method @Deprecated protected void onRestoreInstanceState(android.os.Parcelable!);
-    method @Deprecated protected android.os.Parcelable! onSaveInstanceState();
     method @Deprecated public void onTabChanged(String!);
-    method @Deprecated public void setOnTabChangedListener(android.widget.TabHost.OnTabChangeListener!);
-    method @Deprecated public void setup();
     method @Deprecated public void setup(android.content.Context!, android.app.FragmentManager!);
     method @Deprecated public void setup(android.content.Context!, android.app.FragmentManager!, int);
   }
