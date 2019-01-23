@@ -61,9 +61,6 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
         // To workaround this, we call onCreate(null) in the ctor, and then again as usual in
         // onCreate().
         getDelegate().onCreate(null);
-
-        // Apply AppCompat's DayNight resources if needed
-        getDelegate().applyDayNight();
     }
 
     protected AppCompatDialog(Context context, boolean cancelable,
@@ -204,5 +201,9 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
     public boolean dispatchKeyEvent(KeyEvent event) {
         View decor = getWindow().getDecorView();
         return KeyEventDispatcher.dispatchKeyEvent(mKeyDispatcher, decor, this, event);
+    }
+
+    @Override
+    public void onNightModeChanged(int mode) {
     }
 }

@@ -17,6 +17,7 @@
 package androidx.appcompat.app;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate.NightMode;
 import androidx.appcompat.view.ActionMode;
 
 /**
@@ -53,4 +54,11 @@ public interface AppCompatCallback {
     @Nullable
     ActionMode onWindowStartingSupportActionMode(ActionMode.Callback callback);
 
+    /**
+     * Called when the night mode has changed. See {@link AppCompatDelegate#applyDayNight()} for
+     * more information.
+     *
+     * @param mode the night mode which has been applied
+     */
+    void onNightModeChanged(@NightMode int mode);
 }

@@ -36,6 +36,7 @@ import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.StyleRes;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
@@ -278,6 +279,12 @@ public abstract class AppCompatDelegate {
     public abstract void onPostResume();
 
     /**
+     * This should be called from {@link Activity#setTheme(int)} to notify AppCompat of what
+     * the current theme resource id is.
+     */
+    public abstract void onSetTheme(@StyleRes int themeResId);
+
+    /**
      * Finds a view that was identified by the id attribute from the XML that
      * was processed in {@link #onCreate}.
      *
@@ -432,6 +439,9 @@ public abstract class AppCompatDelegate {
      * <p>If this is called after the host component has been created, the component will either be
      * automatically recreated or its {@link Configuration} updated. Which one depends on how
      * the component is setup (via {@code android:configChanges} or similar).</p>
+     *
+     * <p>You can notified when the night changes by overriding the
+     * {@link AppCompatCallback#onNightModeChanged(int)} method.</p>
      *
      * @see #setDefaultNightMode(int)
      * @see #setLocalNightMode(int)
