@@ -150,7 +150,7 @@ class ChangeDetectionTest {
                 "  </dependencies>" +
                 "</project>\n",
             fileName = "pom.xml",
-            areChangesExpected = true
+            areChangesExpected = false
         )
     }
 

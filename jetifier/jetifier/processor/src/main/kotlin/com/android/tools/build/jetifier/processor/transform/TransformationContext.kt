@@ -102,9 +102,11 @@ class TransformationContext(
     fun reportNoPackageMappingFoundFailure(tag: String, packageName: String, filePath: Path) {
         if (!useFallbackIfTypeIsMissing || (rewritingSupportLib && isInReversedMode)) {
             packageMappingNotFoundFailuresCounts++
-            Log.e(tag, "No mapping for package '%s' in '%s'", packageName, filePath)
+            Log.w(tag, "No mapping for package '%s' in '%s', keeping identity", packageName,
+                filePath)
         } else {
-            Log.w(tag, "No mapping for package '%s' in '%s'", packageName, filePath)
+            Log.w(tag, "No mapping for package '%s' in '%s', keeping identity", packageName,
+                filePath)
         }
     }
 }
