@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package android.support.v4.media {
 
   public final class MediaBrowserCompat {
