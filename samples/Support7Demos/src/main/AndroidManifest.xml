@@ -271,7 +271,7 @@
 
         <activity android:name=".app.MenuItemIconTinting"
                   android:label="@string/menu_item_icon_tinting"
-                  android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+                  android:theme="@style/Theme.Custom.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.supportv7.SAMPLE_CODE" />

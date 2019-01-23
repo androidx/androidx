@@ -29,7 +29,7 @@
         android:id="@+id/menu_second"
         android:icon="@drawable/ic_media_play"
         android:title="@string/action_bar_add"
-        app:iconTint="@color/color_sky_day"
+        app:iconTint="@color/menu_item_color"
         app:iconTintMode="multiply"
         app:showAsAction="always"/>
 
