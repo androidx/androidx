@@ -35,7 +35,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.util.ObjectsCompat;
@@ -56,7 +55,6 @@ import androidx.versionedparcelable.ParcelImpl;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -96,10 +94,6 @@ class MediaSessionStub extends IMediaSession.Stub {
     final MediaSessionImpl mSessionImpl;
     final Context mContext;
     final MediaSessionManager mSessionManager;
-
-    @GuardedBy("mLock")
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final Set<IBinder> mConnectingControllers = new HashSet<>();
 
     MediaSessionStub(MediaSessionImpl sessionImpl) {
         mSessionImpl = sessionImpl;
@@ -331,12 +325,6 @@ class MediaSessionStub extends IMediaSession.Stub {
                 }
                 final IBinder callbackBinder = ((Controller2Cb) controllerInfo.getControllerCb())
                         .getCallbackBinder();
-                synchronized (mLock) {
-                    // Keep connecting controllers.
-                    // This helps sessions to call APIs in the onConnect()
-                    // (e.g. setCustomLayout()) instead of pending them.
-                    mConnectingControllers.add(callbackBinder);
-                }
                 SessionCommandGroup allowedCommands = mSessionImpl.getCallback().onConnect(
                         mSessionImpl.getInstance(), controllerInfo);
                 // Don't reject connection for the request from trusted app.
@@ -359,7 +347,6 @@ class MediaSessionStub extends IMediaSession.Stub {
                             Log.w(TAG, "Controller " + controllerInfo + " has sent connection"
                                     + " request multiple times");
                         }
-                        mConnectingControllers.remove(callbackBinder);
                         mConnectedControllersManager.addController(
                                 callbackBinder, controllerInfo, allowedCommands);
                         sequencedFutureManager = mConnectedControllersManager
@@ -386,10 +373,10 @@ class MediaSessionStub extends IMediaSession.Stub {
                     } catch (RemoteException e) {
                         // Controller may be died prematurely.
                     }
+
+                    mSessionImpl.getCallback().onPostConnect(
+                            mSessionImpl.getInstance(), controllerInfo);
                 } else {
-                    synchronized (mLock) {
-                        mConnectingControllers.remove(callbackBinder);
-                    }
                     if (DEBUG) {
                         Log.d(TAG, "Rejecting connection, controllerInfo=" + controllerInfo);
                     }

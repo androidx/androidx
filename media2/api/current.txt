@@ -444,6 +444,7 @@ package androidx.media2 {
     method public androidx.media2.SessionResult onCustomCommand(androidx.media2.MediaSession, androidx.media2.MediaSession.ControllerInfo, androidx.media2.SessionCommand, android.os.Bundle?);
     method public void onDisconnected(androidx.media2.MediaSession, androidx.media2.MediaSession.ControllerInfo);
     method public int onFastForward(androidx.media2.MediaSession, androidx.media2.MediaSession.ControllerInfo);
+    method public void onPostConnect(androidx.media2.MediaSession, androidx.media2.MediaSession.ControllerInfo);
     method public int onRewind(androidx.media2.MediaSession, androidx.media2.MediaSession.ControllerInfo);
     method public int onSetRating(androidx.media2.MediaSession, androidx.media2.MediaSession.ControllerInfo, String, androidx.media2.Rating);
     method public int onSkipBackward(androidx.media2.MediaSession, androidx.media2.MediaSession.ControllerInfo);
