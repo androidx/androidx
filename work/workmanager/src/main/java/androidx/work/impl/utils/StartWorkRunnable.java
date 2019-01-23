@@ -20,9 +20,6 @@ import android.support.annotation.RestrictTo;
 
 import androidx.work.WorkerParameters;
 import androidx.work.impl.WorkManagerImpl;
-import androidx.work.impl.utils.futures.SettableFuture;
-
-import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * A {@link Runnable} that can start work on the
@@ -35,7 +32,6 @@ public class StartWorkRunnable implements Runnable {
     private WorkManagerImpl mWorkManagerImpl;
     private String mWorkSpecId;
     private WorkerParameters.RuntimeExtras mRuntimeExtras;
-    private final SettableFuture<Boolean> mEnqueuedFuture;
 
     public StartWorkRunnable(
             WorkManagerImpl workManagerImpl,
@@ -44,15 +40,10 @@ public class StartWorkRunnable implements Runnable {
         mWorkManagerImpl = workManagerImpl;
         mWorkSpecId = workSpecId;
         mRuntimeExtras = runtimeExtras;
-        mEnqueuedFuture = SettableFuture.create();
-    }
-
-    public ListenableFuture<Boolean> getEnqueuedFuture() {
-        return mEnqueuedFuture;
     }
 
     @Override
     public void run() {
-        mEnqueuedFuture.set(mWorkManagerImpl.getProcessor().startWork(mWorkSpecId, mRuntimeExtras));
+        mWorkManagerImpl.getProcessor().startWork(mWorkSpecId, mRuntimeExtras);
     }
 }
