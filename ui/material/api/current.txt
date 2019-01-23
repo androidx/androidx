@@ -77,7 +77,6 @@ package androidx.ui.material {
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
     method public boolean getContainedInkWell();
     method public boolean getEnableFeedback();
-    method public boolean getExcludeFromSemantics();
     method public androidx.ui.painting.Color? getHighlightColor();
     method public androidx.ui.material.borders.BoxShape getHighlightShape();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDoubleTap();
@@ -94,7 +93,6 @@ package androidx.ui.material {
     method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setContainedInkWell(boolean p);
     method public void setEnableFeedback(boolean p);
-    method public void setExcludeFromSemantics(boolean p);
     method public void setHighlightColor(androidx.ui.painting.Color? p);
     method public void setHighlightShape(androidx.ui.material.borders.BoxShape p);
     method public void setOnDoubleTap(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
@@ -111,7 +109,6 @@ package androidx.ui.material {
     property public final kotlin.jvm.functions.Function1<androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback;
     property public final boolean containedInkWell;
     property public final boolean enableFeedback;
-    property public final boolean excludeFromSemantics;
     property public final androidx.ui.painting.Color? highlightColor;
     property public final androidx.ui.material.borders.BoxShape highlightShape;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleTap;
@@ -153,44 +150,12 @@ package androidx.ui.material {
     ctor public InkSplashKt();
   }
 
-  public final class InkTmpGestureDetector extends com.google.r4a.Component {
-    ctor public InkTmpGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.Position,kotlin.Unit>? onTapDown, kotlin.jvm.functions.Function0<kotlin.Unit>? onTap, kotlin.jvm.functions.Function0<kotlin.Unit>? onTapCancel, kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleTap, kotlin.jvm.functions.Function0<kotlin.Unit>? onLongPress, androidx.ui.rendering.proxybox.HitTestBehavior? behavior, boolean excludeFromSemantics, kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public androidx.ui.rendering.proxybox.HitTestBehavior? getBehavior();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public boolean getExcludeFromSemantics();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDoubleTap();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnLongPress();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnTap();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnTapCancel();
-    method public kotlin.jvm.functions.Function1<androidx.ui.core.Position,kotlin.Unit>? getOnTapDown();
-    method public void setBehavior(androidx.ui.rendering.proxybox.HitTestBehavior? p);
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setOnDoubleTap(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnLongPress(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnTap(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnTapCancel(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
-    method public void setOnTapDown(kotlin.jvm.functions.Function1<? super androidx.ui.core.Position,kotlin.Unit>? p);
-  }
-
-  public final class InkTmpGestureDetectorKt {
-    ctor public InkTmpGestureDetectorKt();
-  }
-
-  public final class InkTmpGestureHost extends com.google.r4a.Component {
-    ctor public InkTmpGestureHost(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-  }
-
   public final class InkWell extends com.google.r4a.Component {
     ctor public InkWell(kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method public void compose();
     method public androidx.ui.engine.geometry.BorderRadius? getBorderRadius();
     method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
     method public boolean getEnableFeedback();
-    method public boolean getExcludeFromSemantics();
     method public androidx.ui.painting.Color? getHighlightColor();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnDoubleTap();
     method public kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? getOnHighlightChanged();
@@ -204,7 +169,6 @@ package androidx.ui.material {
     method public void setBorderRadius(androidx.ui.engine.geometry.BorderRadius? p);
     method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setEnableFeedback(boolean p);
-    method public void setExcludeFromSemantics(boolean p);
     method public void setHighlightColor(androidx.ui.painting.Color? p);
     method public void setOnDoubleTap(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
     method public void setOnHighlightChanged(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? p);
@@ -217,7 +181,6 @@ package androidx.ui.material {
     method public void setSplashFactory(androidx.ui.material.InteractiveInkFeatureFactory? p);
     property public final androidx.ui.engine.geometry.BorderRadius? borderRadius;
     property public final boolean enableFeedback;
-    property public final boolean excludeFromSemantics;
     property public final androidx.ui.painting.Color? highlightColor;
     property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleTap;
     property public final kotlin.jvm.functions.Function1<java.lang.Boolean,kotlin.Unit>? onHighlightChanged;

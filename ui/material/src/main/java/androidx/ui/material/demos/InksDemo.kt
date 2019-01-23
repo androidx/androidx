@@ -23,15 +23,14 @@ import androidx.ui.core.dp
 import androidx.ui.core.minus
 import androidx.ui.core.tightConstraints
 import androidx.ui.core.times
+import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.material.InkRippleFactory
-import androidx.ui.material.InkTmpGestureHost
 import androidx.ui.material.InkWell
 import androidx.ui.material.Material
 import androidx.ui.material.MaterialType
-import androidx.ui.painting.Color
-import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
+import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
@@ -56,27 +55,25 @@ internal fun FillAll(padding: Dimension, @Children children: () -> Unit) {
 class InksDemo : Component() {
 
     override fun compose() {
-        <InkTmpGestureHost>
-            <CraneWrapper>
-                    <FillAll padding=50.dp>
-                        val shape = RoundedRectangleBorder(
-                            side = BorderSide(Color(0x80000000.toInt())),
-                            borderRadius = BorderRadius.circular(100f)
-                        )
-                        <Material
-                            type=MaterialType.CARD
-                            color=Color(0x28CCCCCC)
-                            shape>
-                            <InkWell
-                                splashFactory=InkRippleFactory
-                                splashColor=Color(0x50CCCCCC)
-                                highlightColor=Color(0x3C888888)
-                                onTap={}>
-                            </InkWell>
-                        </Material>
-                    </FillAll>
-            </CraneWrapper>
-        </InkTmpGestureHost>
+        <CraneWrapper>
+            <FillAll padding=50.dp>
+                val shape = RoundedRectangleBorder(
+                    side = BorderSide(Color(0x80000000.toInt())),
+                    borderRadius = BorderRadius.circular(100f)
+                )
+                <Material
+                    type=MaterialType.CARD
+                    color=Color(0x28CCCCCC)
+                    shape>
+                    <InkWell
+                        splashFactory=InkRippleFactory
+                        splashColor=Color(0x50CCCCCC)
+                        highlightColor=Color(0x3C888888)
+                        onTap={}>
+                    </InkWell>
+                </Material>
+            </FillAll>
+        </CraneWrapper>
     }
 }
 
