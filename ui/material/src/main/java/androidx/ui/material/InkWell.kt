@@ -21,12 +21,12 @@ import androidx.ui.core.Bounds
 import androidx.ui.core.Dimension
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
-import androidx.ui.core.PointerInput
 import androidx.ui.core.Position
 import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.pointerinput.PointerEventPass
 import androidx.ui.core.pointerinput.PointerInputChange
 import androidx.ui.core.toDp
+import androidx.ui.core.gesture.PressIndicatorGestureDetector
 import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.foundation.ValueChanged
 import androidx.ui.material.borders.BoxShape
@@ -471,6 +471,10 @@ class InkResponse(
         currentSplash?.confirm()
         currentSplash = null
         updateHighlight(false)
+        // TODO(andreykulikov): Ideally, the actual tap event doesn't need to be plumbed
+        // through here, and a separate handler can deal with the actual event trigger. That is,
+        // if the concept I'm building is going to prove to work out.... so maybe hold off making
+        // any dramatic changes for now.
         val onTap = onTap
         if (onTap != null) {
             if (enableFeedback) {
@@ -533,7 +537,6 @@ class InkResponse(
         <OnPositioned> coordinates ->
             this.coordinates = coordinates
         </OnPositioned>
-
         <MaterialInkControllerProvider> inkFeatures ->
             inkController = inkFeatures
         </MaterialInkControllerProvider>
@@ -547,31 +550,10 @@ class InkResponse(
         val onTapCancel = if (enabled) this::handleTapCancel else null
         val onDoubleTap = if (onDoubleTap != null) this::handleDoubleTap else null
         val onLongPress = if (onLongPress != null) this::handleLongPress else null
-        <DensityConsumer> density ->
-            val pointerInputHandler: (PointerInputChange, PointerEventPass) -> PointerInputChange =
-                { event, pass ->
-                    if (pass == PointerEventPass.PostUp) {
-                        // down
-                        if (!event.previous.down && event.current.down) {
-                            val offset = event.current.position!!
-                            onTapDown?.invoke(
-                                Position(
-                                    offset.dx.toDp(density),
-                                    offset.dy.toDp(density)
-                                )
-                            )
-                        }
-                        // up
-                        if (event.previous.down && !event.current.down) {
-                            onTap?.invoke()
-                        }
-                    }
-                    event
-                }
-            <PointerInput pointerInputHandler>
-                <children />
-            </PointerInput>
-        </DensityConsumer>
+
+        <PressIndicatorGestureDetector onStart=onTapDown onStop=onTap onCancel=onTapCancel>
+            <children />
+        </PressIndicatorGestureDetector>
     }
 }
 

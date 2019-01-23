@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.core.pointerinput.test;
+package androidx.ui.core.pointerinput;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -22,10 +22,6 @@ import static org.junit.Assert.assertThat;
 import android.view.MotionEvent;
 
 import androidx.test.filters.SmallTest;
-import androidx.ui.core.pointerinput.MotionEventAdapterKt;
-import androidx.ui.core.pointerinput.PointerInputData;
-import androidx.ui.core.pointerinput.PointerInputEvent;
-import androidx.ui.core.pointerinput.PointerInputEventData;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

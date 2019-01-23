@@ -21,19 +21,18 @@ import android.graphics.BitmapFactory
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
-import androidx.ui.core.PointerInput
+import androidx.ui.core.Position
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.coerceAtLeast
 import androidx.ui.core.div
 import androidx.ui.core.dp
+import androidx.ui.core.adapter.PressGestureDetector
 import androidx.ui.core.hasBoundedHeight
 import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
 import androidx.ui.core.minus
 import androidx.ui.core.plus
-import androidx.ui.core.pointerinput.PointerEventPass
-import androidx.ui.core.pointerinput.PointerInputChange
 import androidx.ui.core.tightConstraints
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
@@ -163,31 +162,35 @@ fun Rectangles() {
 }
 
 var small = false
+var pressed = false
 
 @Composable
 fun CraneRects() {
     <CraneWrapper>
         <Recompose> recompose ->
-            val onPointerEvent:
-                        (event: PointerInputChange, pass: PointerEventPass) -> PointerInputChange =
-                { event, pass ->
-                    if (pass == PointerEventPass.PostUp
-                        && !event.previous.down
-                        && event.current.down
-                    ) {
-                        small = !small
-                        recompose()
-                    }
-                    event
-                }
+            val onPress: (Position) -> Unit = {
+                pressed = true
+                recompose()
+            }
 
-            val padding = if (small) 48.dp else 96.dp
+            val onRelease = {
+                small = !small
+                pressed = false
+                recompose()
+            }
+
+            val onCancel = {
+                pressed = false
+                recompose()
+            }
+
+            val padding = if (pressed) 36.dp else if (small) 48.dp else 96.dp
 
             <Padding left=padding top=padding right=padding bottom=padding>
                 <Padding left=0.dp top=0.dp right=0.dp bottom=0.dp>
-                    <PointerInput pointerInputHandler=onPointerEvent>
+                    <PressGestureDetector onPress onRelease onCancel>
                         <Rectangles />
-                    </PointerInput>
+                    </PressGestureDetector>
                 </Padding>
             </Padding>
         </Recompose>
