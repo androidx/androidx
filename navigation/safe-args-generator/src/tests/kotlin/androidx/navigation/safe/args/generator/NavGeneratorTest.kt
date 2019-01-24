@@ -100,8 +100,8 @@ class NavGeneratorTest(private val generateKotlin: Boolean) {
         val expectedSet = setOf(
                 "foo.flavor.MainFragmentDirections",
                 "foo.LoginDirections",
-                "foo.flavor.LoginFragmentDirections",
-                "foo.flavor.RegisterFragmentDirections")
+                "foo.flavor.account.LoginFragmentDirections",
+                "foo.flavor.account.RegisterFragmentDirections")
         assertThat(output.errors.isEmpty(), `is`(true))
         assertThat(fileNames.toSet(), `is`(expectedSet))
         fileNames.forEach { name ->

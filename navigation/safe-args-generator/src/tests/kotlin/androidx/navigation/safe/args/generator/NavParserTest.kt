@@ -102,14 +102,14 @@ class NavParserTest {
 
         val expectedNestedFragment1 = Destination(
                 id = id("login_fragment"),
-                name = ClassName.get("foo.app", "LoginFragment"),
+                name = ClassName.get("foo.app.account", "LoginFragment"),
                 type = "fragment",
                 args = emptyList(),
                 actions = listOf(Action(id("register"), id("register_fragment"))))
 
         val expectedNestedFragment2 = Destination(
                 id = id("register_fragment"),
-                name = ClassName.get("foo.app", "RegisterFragment"),
+                name = ClassName.get("foo.app.account", "RegisterFragment"),
                 type = "fragment",
                 args = emptyList(),
                 actions = emptyList())

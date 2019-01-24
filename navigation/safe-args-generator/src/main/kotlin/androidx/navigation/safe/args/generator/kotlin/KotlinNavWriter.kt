@@ -80,6 +80,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = false) : NavWriter<Kotl
         // processing destination in the graph hierarchy.
         val parentActionsFunSpec = mutableListOf<FunSpec>()
         parentDirectionsFileList.forEach {
+            val parentPackageName = it.wrapped.packageName
             val parentTypeSpec = it.wrapped.members.filterIsInstance(TypeSpec::class.java).first()
             val parentCompanionTypeSpec = parentTypeSpec.typeSpecs.first { it.isCompanion }
             parentCompanionTypeSpec.funSpecs.filter { function ->
@@ -92,7 +93,7 @@ class KotlinNavWriter(private val useAndroidX: Boolean = false) : NavWriter<Kotl
                     .returns(NAV_DIRECTION_CLASSNAME)
                     .addStatement(
                         "return %T.%L($params)",
-                        ClassName.bestGuess(parentTypeSpec.name!!), functionSpec.name
+                        ClassName(parentPackageName, parentTypeSpec.name!!), functionSpec.name
                     )
                     .build()
                 parentActionsFunSpec.add(methodSpec)
