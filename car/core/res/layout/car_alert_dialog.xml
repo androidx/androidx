@@ -32,8 +32,8 @@ limitations under the License.
         android:id="@+id/content_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/car_keyline_1"
-        android:layout_marginEnd="@dimen/car_keyline_1"
+        android:layout_marginStart="@dimen/car_padding_4"
+        android:layout_marginEnd="@dimen/car_padding_4"
         android:paddingTop="@dimen/car_padding_4"
         android:paddingBottom="@dimen/car_padding_4"
         android:orientation="vertical">

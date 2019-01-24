@@ -20,8 +20,10 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
+import android.view.View;
 import android.widget.CheckBox;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.car.app.CarAlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
@@ -46,8 +48,11 @@ public class CarAlertDialogDemo extends FragmentActivity {
         CheckBox hasAction1 = findViewById(R.id.has_action_1);
         CheckBox hasAction2 = findViewById(R.id.has_action_2);
 
-        findViewById(R.id.create_dialog).setOnClickListener(v -> {
+        View createSupportDialogButton = findViewById(R.id.create_support_dialog);
+
+        View.OnClickListener mButtonListener = v -> {
             AlertDialogFragment alertDialog = AlertDialogFragment.newInstance(
+                    /* createSupportDialog= */ v == createSupportDialogButton,
                     hasTitleView.isChecked(),
                     hasImageView.isChecked(),
                     hasBodyText.isChecked(),
@@ -57,11 +62,15 @@ public class CarAlertDialogDemo extends FragmentActivity {
                     hasAction2.isChecked());
 
             alertDialog.show(getSupportFragmentManager(), DIALOG_TAG);
-        });
+        };
+
+        createSupportDialogButton.setOnClickListener(mButtonListener);
+        findViewById(R.id.create_car_dialog).setOnClickListener(mButtonListener);
     }
 
     /** A {@link DialogFragment} that will inflate a {@link CarAlertDialog}. */
     public static class AlertDialogFragment extends DialogFragment {
+        private static final String CREATE_SUPPORT_DIALOG_KEY = "create_support_dialog_key";
         private static final String HAS_TITLE_KEY = "has_title_key";
         private static final String HAS_IMAGE_KEY = "has_image_key";
         private static final String HAS_BODY_KEY = "has_body_key";
@@ -70,7 +79,9 @@ public class CarAlertDialogDemo extends FragmentActivity {
         private static final String HAS_ACTION_1_KEY = "has_action_1_key";
         private static final String HAS_ACTION_2_KEY = "has_action_2_key";
 
-        static AlertDialogFragment newInstance(boolean hasTitle,
+        static AlertDialogFragment newInstance(
+                boolean createSupportDialog,
+                boolean hasTitle,
                 boolean hasImage,
                 boolean hasBody,
                 boolean hasClickableBodyText,
@@ -78,6 +89,7 @@ public class CarAlertDialogDemo extends FragmentActivity {
                 boolean hasAction1,
                 boolean hasAction2) {
             Bundle args = new Bundle();
+            args.putBoolean(CREATE_SUPPORT_DIALOG_KEY, createSupportDialog);
             args.putBoolean(HAS_TITLE_KEY, hasTitle);
             args.putBoolean(HAS_IMAGE_KEY, hasImage);
             args.putBoolean(HAS_BODY_KEY, hasBody);
@@ -93,6 +105,46 @@ public class CarAlertDialogDemo extends FragmentActivity {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return getArguments().getBoolean(CREATE_SUPPORT_DIALOG_KEY)
+                    ? createSupportDialog()
+                    : createCarDialog();
+        }
+
+        private Dialog createSupportDialog() {
+            Context context = getContext();
+            Bundle args = getArguments();
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+
+            if (args.getBoolean(HAS_TITLE_KEY)) {
+                builder.setTitle(context.getString(R.string.alert_dialog_title));
+            }
+
+            if (args.getBoolean(HAS_IMAGE_KEY)) {
+                int sampleIcon = android.R.drawable.sym_def_app_icon;
+                builder.setIcon(sampleIcon);
+            }
+
+            if (args.getBoolean(HAS_BODY_KEY)) {
+                builder.setMessage(context.getString(R.string.alert_dialog_body));
+            }
+
+            if (args.getBoolean(HAS_SINGLE_LINE_BODY_KEY)) {
+                builder.setMessage(context.getString(R.string.alert_dialog_body_single_line));
+            }
+
+            if (args.getBoolean(HAS_ACTION_1_KEY)) {
+                builder.setPositiveButton(context.getString(R.string.alert_dialog_action1),
+                        /* listener= */ null);
+            }
+
+            if (args.getBoolean(HAS_ACTION_2_KEY)) {
+                builder.setNegativeButton(context.getString(R.string.alert_dialog_action2),
+                        /* listener= */ null);
+            }
+            return builder.create();
+        }
+
+        private Dialog createCarDialog() {
             Context context = getContext();
             Bundle args = getArguments();
             CarAlertDialog.Builder builder = new CarAlertDialog.Builder(context);

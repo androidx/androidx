@@ -79,10 +79,24 @@
         android:checked="true"
         android:text="@string/alert_dialog_checkbox_action2" />
 
-    <Button
-        android:id="@+id/create_dialog"
+    <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/create_alert_dialog_button" />
+        android:layout_height="wrap_content">
+
+      <Button
+          android:id="@+id/create_car_dialog"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_marginEnd="@dimen/car_padding_4"
+          android:checked="true"
+          android:text="@string/create_car_alert_dialog_button" />
+
+      <Button
+          android:id="@+id/create_support_dialog"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:checked="true"
+          android:text="@string/create_support_alert_dialog_button" />
+    </LinearLayout>
 </LinearLayout>

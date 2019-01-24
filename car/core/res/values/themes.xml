@@ -236,17 +236,17 @@ limitations under the License.
         <item name="android:background">@color/car_card</item>
         <item name="android:borderlessButtonStyle">@style/Widget.Car.Button.Borderless.Colored</item>
         <item name="android:colorButtonNormal">@color/car_accent</item>
-        <item name="android:colorControlNormal">@color/car_body2</item>
+        <item name="android:colorControlNormal">@color/car_body3</item>
         <item name="android:colorControlActivated">@color/car_accent</item>
         <item name="android:listChoiceIndicatorMultiple">@drawable/car_checkbox</item>
         <item name="android:listChoiceIndicatorSingle">@drawable/car_radio_button</item>
         <item name="android:listDividerAlertDialog">@drawable/car_preference_divider</item>
         <item name="android:listPreferredItemHeightSmall">@dimen/car_single_line_list_item_height</item>
-        <item name="android:listPreferredItemPaddingStart">@dimen/car_keyline_1</item>
-        <item name="android:listPreferredItemPaddingEnd">@dimen/car_keyline_1</item>
+        <item name="android:listPreferredItemPaddingStart">@dimen/car_padding_4</item>
+        <item name="android:listPreferredItemPaddingEnd">@dimen/car_padding_4</item>
         <item name="android:scrollbarSize">@dimen/car_scroll_bar_thumb_width</item>
-        <item name="android:textAppearanceLarge">@style/TextAppearance.Car.Body2</item>
-        <item name="android:textColorPrimary">@color/car_body2</item>
+        <item name="android:textAppearanceLarge">@style/TextAppearance.Car.Body3</item>
+        <item name="android:textColorPrimary">@color/car_body3</item>
         <item name="android:windowAnimationStyle">@style/Car.Dialog.Animation</item>
         <item name="android:windowTitleStyle">@style/Widget.Car.Dialog.Title</item>
         <item name="alertDialogStyle">@style/AlertDialog</item>
@@ -259,16 +259,20 @@ limitations under the License.
     <!-- Style for framework and the Appcompat AlertDialog that is fixed to have a light colored
          background. -->
     <style name="Theme.Car.Light.Dialog.Alert" parent="Theme.Car.Dialog.Alert">
+        <item name="android:colorButtonNormal">@color/car_accent_dark</item>
+        <item name="android:colorControlActivated">@color/car_accent_dark</item>
         <item name="android:background">@color/car_card_light</item>
-        <item name="android:textColorPrimary">@color/car_body2_dark</item>
+        <item name="android:textColorPrimary">@color/car_body3_dark</item>
         <item name="android:windowTitleStyle">@style/Widget.Car.Dialog.Title.Dark</item>
     </style>
 
     <!-- Style for framework and the Appcompat AlertDialog that is fixed to have a dark colored
          background. -->
     <style name="Theme.Car.Dark.Dialog.Alert" parent="Theme.Car.Dialog.Alert">
+        <item name="android:colorButtonNormal">@color/car_accent_light</item>
+        <item name="android:colorControlActivated">@color/car_accent_light</item>
         <item name="android:background">@color/car_card_dark</item>
-        <item name="android:textColorPrimary">@color/car_body2_light</item>
+        <item name="android:textColorPrimary">@color/car_body3_light</item>
         <item name="android:windowTitleStyle">@style/Widget.Car.Dialog.Title.Light</item>
     </style>
 
