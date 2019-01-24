@@ -71,7 +71,7 @@ fun TmpLayout() {
         val rectSize = size / 2
         measureOperations.layout(size, size) {
             val placeables = measurables.map {
-                it.measure(tightConstraints(rectSize, rectSize))
+                measureOperations.measure(it, tightConstraints(rectSize, rectSize))
             }
             placeables[0].place(0.dp, 0.dp)
             placeables[1].place(rectSize, 0.dp)

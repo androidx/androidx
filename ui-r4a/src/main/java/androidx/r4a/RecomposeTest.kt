@@ -84,7 +84,7 @@ fun ListWithOffset(
         val itemConstraint = tightConstraints(constraints.maxWidth, itemHeight)
         measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
             var top = 0.dp
-            measurables.map { it.measure(itemConstraint) }.forEach {
+            measurables.map { measureOperations.measure(it, itemConstraint) }.forEach {
                 it.place(0.dp, top)
                 top += itemHeight + offset
             }

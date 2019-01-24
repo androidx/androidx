@@ -60,13 +60,13 @@ fun HeaderFooterLayout(
         val contentMeasurables = measureOperations.collect { <children /> }
         val footerMeasurable = measureOperations.collect { <footer /> }.first()
         measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
-            val headerPlaceable = headerMeasurable
-                .measure(tightConstraints(constraints.maxWidth, 100.dp))
+            val headerPlaceable =
+                measureOperations.measure(headerMeasurable, tightConstraints(constraints.maxWidth, 100.dp))
             headerPlaceable.place(0.dp, 0.dp)
 
             val footerPadding = 50.dp
-            val footerPlaceable = footerMeasurable
-                .measure(tightConstraints(constraints.maxWidth - footerPadding * 2, 100.dp))
+            val footerPlaceable = measureOperations.measure(footerMeasurable,
+                tightConstraints(constraints.maxWidth - footerPadding * 2, 100.dp))
             footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
 
             val itemHeight =
@@ -74,7 +74,7 @@ fun HeaderFooterLayout(
                         contentMeasurables.size
             val itemConstraint = tightConstraints(constraints.maxWidth, itemHeight)
             var top = headerPlaceable.height
-            contentMeasurables.map { it.measure(itemConstraint) }.forEach {
+            contentMeasurables.map { measureOperations.measure(it, itemConstraint) }.forEach {
                 it.place(0.dp, top)
                 top += itemHeight
             }

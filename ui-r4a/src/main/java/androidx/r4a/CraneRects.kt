@@ -64,12 +64,12 @@ fun Padding(
             minHeight = (constraints.minHeight - verticalPadding).coerceAtLeast(0.dp),
             maxHeight = (constraints.maxHeight - verticalPadding).coerceAtLeast(0.dp)
         )
-        val placeable = measurables.firstOrNull()?.measure(newConstraints)
-        val width = (placeable?.width ?: 0.dp) + horizontalPadding
-        val height = (placeable?.height ?: 0.dp) + verticalPadding
+        val placeable = measureOperations.measure(measurables.first(), newConstraints)
+        val width = placeable.width + horizontalPadding
+        val height = placeable.height + verticalPadding
 
         measureOperations.layout(width, height) {
-            placeable?.place(left, top)
+            placeable.place(left, top)
         }
     </MeasureBox>
 }
@@ -152,7 +152,7 @@ fun Rectangles() {
         val rectSize = size / 2
         measureOperations.layout(size, size) {
             val placeables = measurables.map {
-                it.measure(tightConstraints(rectSize, rectSize))
+                measureOperations.measure(it, tightConstraints(rectSize, rectSize))
             }
             placeables[0].place(0.dp, 0.dp)
             placeables[1].place(rectSize, 0.dp)

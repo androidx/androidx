@@ -46,7 +46,9 @@ internal fun FillAll(padding: Dimension, @Children children: () -> Unit) {
         val itemConstraints = tightConstraints(constraints.maxWidth - padding * 2,
             constraints.maxHeight - padding * 2)
         measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
-            measurables.forEach { it.measure(itemConstraints).place(padding, padding) }
+            measurables.forEach {
+                measureOperations.measure(it, constraints).place(padding, padding)
+            }
         }
     </MeasureBox>
 }

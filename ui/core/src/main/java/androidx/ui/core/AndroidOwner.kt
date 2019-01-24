@@ -61,8 +61,8 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
     /**
      * Convenience property to avoid all that casting.
      */
-    private var ComponentNode.androidData: AndroidData
-        get() = ownerData as AndroidData
+    private var ComponentNode.androidData: AndroidData?
+        get() = ownerData as AndroidData?
         set(value) {
             ownerData = value
         }
@@ -70,7 +70,7 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
     override fun onInvalidate(drawNode: DrawNode) {
         // TODO(mount): use ownerScope. This isn't supported by IR compiler yet
 //        ownerScope.launch {
-        drawNode.androidData.view.invalidate()
+        drawNode.androidData?.view?.invalidate()
 //        }
     }
 
@@ -99,7 +99,7 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
             val androidData = parent!!.androidData
             node.androidData = androidData
             if (node is DrawNode) {
-                androidData.drawNodes.add(node)
+                androidData?.drawNodes?.add(node)
             }
             return
         }
@@ -118,12 +118,12 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
     override fun onDetach(node: ComponentNode) {
         adjustedLayouts.remove(node)
         if (node is DrawNode) {
-            val androidData = node.androidData
+            val androidData = node.androidData!!
             androidData.drawNodes.remove(node)
             if (true) {
             } // Don't know why this is needed for the R4A compiler
         } else if (node is LayoutNode) {
-            val view = node.androidData.view
+            val view = node.androidData!!.view
             (view.parent as ViewGroup).removeView(view)
         }
         node.ownerData = null
@@ -152,7 +152,7 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
             val layoutHeight = layout.size.height.toPx(context).roundToInt()
             val width = View.MeasureSpec.makeMeasureSpec(layoutWidth, View.MeasureSpec.EXACTLY)
             val height = View.MeasureSpec.makeMeasureSpec(layoutHeight, View.MeasureSpec.EXACTLY)
-            layout.androidData.view.measure(width, height)
+            layout.androidData?.view?.measure(width, height)
         }
     }
 
@@ -178,7 +178,7 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
             val top = layout.y.toPx(context).roundToInt()
             val right = left + layout.size.width.toPx(context).roundToInt()
             val bottom = top + layout.size.height.toPx(context).roundToInt()
-            layout.androidData.view.layout(left, top, right, bottom)
+            layout.androidData?.view?.layout(left, top, right, bottom)
         }
         adjustedLayouts.clear()
     }

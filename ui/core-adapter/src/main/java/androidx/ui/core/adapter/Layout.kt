@@ -16,6 +16,7 @@
 
 package androidx.ui.core.adapter
 
+import androidx.ui.core.ComplexMeasureOperations
 import androidx.ui.core.Constraints
 import androidx.ui.core.MeasureOperations
 import com.google.r4a.Children
@@ -37,4 +38,19 @@ fun MeasureBox(
         (constraints: Constraints, operations: MeasureOperations) -> Unit
 ) {
     LayoutKt.MeasureBoxComposable(block)
+}
+
+/**
+ * All this module is needed to work around b/120971484
+ *
+ * For the original logic:
+ * @see androidx.ui.core.ComplexMeasureBox
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun ComplexMeasureBox(
+    @Children(composable = false) block:
+        (operations: ComplexMeasureOperations) -> Unit)
+{
+    LayoutKt.ComplexMeasureBoxComposable(block)
 }

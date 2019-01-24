@@ -232,7 +232,7 @@ fun AtLeastSize(size: Dimension, @Children children: @Composable() () -> Unit) {
             maxHeight = max(size, constraints.maxHeight)
         )
         val placeables = measurables.map { m ->
-            m.measure(newConstraints)
+            measureOperations.measure(m, newConstraints)
         }
         var maxWidth = size
         var maxHeight = size
@@ -260,7 +260,7 @@ fun Padding(size: Dimension, @Children children: @Composable() () -> Unit) {
             maxHeight = (constraints.maxHeight - totalDiff).coerceAtLeast(0.dp)
         )
         val placeables = measurables.map { m ->
-            m.measure(newConstraints)
+            measureOperations.measure(m, newConstraints)
         }
         var maxWidth = size
         var maxHeight = size
