@@ -49,6 +49,8 @@
     <color name="car_light_blue_700">#ff0288d1</color>
     <color name="car_light_blue_800">#ff0277bd</color>
     <color name="car_light_blue_900">#ff01579b</color>
+    <color name="car_blue_light">#ff66b5ff</color>
+    <color name="car_blue_dark">#ff60a8f0</color>
     <color name="car_blue_300">#ff96bff2</color>
     <color name="car_blue_500">#ff5195ea</color>
     <color name="car_green_500">#ff41af6a</color>
@@ -59,8 +61,6 @@
     <color name="car_red_500">#ffe25142</color>
     <color name="car_red_500a">#ffd50000</color>
     <color name="car_red_700">#ffc22a2a</color>
-    <color name="car_teal_200">#ff80cbc4</color>
-    <color name="car_teal_700">#ff00796b</color>
     <color name="car_indigo_800">#ff283593</color>
 
     <!--  Various colors for text sizes. "Light" and "dark" here refer to the lighter or darker
@@ -137,16 +137,8 @@
          on a light-colored background. -->
     <color name="car_seekbar_track_background">@color/car_seekbar_track_background_light</color>
 
-    <!-- Colors for the switch widget (thumb and track) -->
-    <color name="car_switch_thumb_on">@color/car_teal_700</color>
-    <color name="car_switch_thumb_off">@color/car_body2</color>
-    <color name="car_switch_track_on">@color/car_teal_700</color>
-    <color name="car_switch_track_off">@color/car_body2</color>
-    <color name="car_switch_compat_track_on">@color/car_teal_700</color>
-    <color name="car_switch_compat_track_off">@color/car_grey_400</color>
-
     <!-- Misc colors -->
-    <color name="car_accent">@color/car_accent_dark</color>
+    <color name="car_accent">@color/car_accent_light</color>
 
     <!-- Speed Bump -->
     <!-- The color of the scrim that is behind the speed bump lock-out message. -->
