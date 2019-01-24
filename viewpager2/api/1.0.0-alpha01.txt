@@ -17,6 +17,9 @@ package androidx.viewpager2.adapter {
     method public final void setHasStableIds(boolean);
   }
 
+  public final class FragmentViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder {
+  }
+
   public interface StatefulAdapter {
     method public void restoreState(android.os.Parcelable);
     method public android.os.Parcelable saveState();
