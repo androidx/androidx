@@ -18,6 +18,7 @@ package androidx.room.solver
 
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaBaseTypeNames
+import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.isAssignableWithoutVariance
 import androidx.room.ext.isEntityElement
 import androidx.room.ext.typeName
@@ -405,7 +406,7 @@ class TypeAdapterStore private constructor(
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return OptionalQueryResultAdapter(SingleEntityQueryResultAdapter(rowAdapter))
             } else if (MoreTypes.isTypeOf(java.util.List::class.java, typeMirror)) {
-                val typeArg = declared.typeArguments.first()
+                val typeArg = declared.typeArguments.first().extendsBoundOrSelf()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return ListQueryResultAdapter(rowAdapter)
             }

@@ -199,6 +199,9 @@ public abstract class UserDao {
     @Query("SELECT mBirthday from User where mId = :id")
     public abstract Date getBirthday(int id);
 
+    @Query("SELECT mBirthday from User")
+    public abstract List<Date> getAllBirthdays();
+
     @Query("SELECT COUNT(*) from user")
     public abstract int count();
 
