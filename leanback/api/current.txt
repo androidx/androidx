@@ -686,6 +686,7 @@ package androidx.leanback.app {
     method @Deprecated public boolean isControlsOverlayAutoHideEnabled();
     method @Deprecated public boolean isControlsOverlayVisible();
     method @Deprecated public boolean isFadingEnabled();
+    method @Deprecated public boolean isShowOrHideControlsOverlayOnUserInteraction();
     method @Deprecated public void notifyPlaybackRowChanged();
     method @Deprecated protected void onBufferingStateChanged(boolean);
     method @Deprecated public void onCreate(android.os.Bundle!);
@@ -713,6 +714,7 @@ package androidx.leanback.app {
     method @Deprecated public void setPlaybackSeekUiClient(androidx.leanback.widget.PlaybackSeekUi.Client!);
     method @Deprecated public void setSelectedPosition(int);
     method @Deprecated public void setSelectedPosition(int, boolean);
+    method @Deprecated public void setShowOrHideControlsOverlayOnUserInteraction(boolean);
     method @Deprecated public void showControlsOverlay(boolean);
     method @Deprecated public void tickle();
     field @Deprecated public static final int BG_DARK = 1; // 0x1
@@ -748,6 +750,7 @@ package androidx.leanback.app {
     method public boolean isControlsOverlayAutoHideEnabled();
     method public boolean isControlsOverlayVisible();
     method @Deprecated public boolean isFadingEnabled();
+    method public boolean isShowOrHideControlsOverlayOnUserInteraction();
     method public void notifyPlaybackRowChanged();
     method protected void onBufferingStateChanged(boolean);
     method protected void onError(int, CharSequence!);
@@ -766,6 +769,7 @@ package androidx.leanback.app {
     method public void setPlaybackSeekUiClient(androidx.leanback.widget.PlaybackSeekUi.Client!);
     method public void setSelectedPosition(int);
     method public void setSelectedPosition(int, boolean);
+    method public void setShowOrHideControlsOverlayOnUserInteraction(boolean);
     method public void showControlsOverlay(boolean);
     method public void tickle();
     field public static final int BG_DARK = 1; // 0x1
