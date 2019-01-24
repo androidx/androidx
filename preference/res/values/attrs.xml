@@ -26,6 +26,11 @@
         <!-- Theme for inflating Preference objects -->
         <attr name="preferenceTheme" format="reference" />
 
+        <!-- The preferred TextAppearance for the title displayed in a PreferenceCategory.
+        This is needed as there are no relevant android: attributes we can use for this as we
+        do with other text appearance styles. -->
+        <attr name="preferenceCategoryTitleTextAppearance" format="reference" />
+
         <!-- Default style for PreferenceScreen. -->
         <attr name="preferenceScreenStyle" format="reference" />
         <!-- Default style for the PreferenceActivity. -->
