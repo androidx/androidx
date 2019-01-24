@@ -202,8 +202,4 @@ public class AppCompatDialog extends Dialog implements AppCompatCallback {
         View decor = getWindow().getDecorView();
         return KeyEventDispatcher.dispatchKeyEvent(mKeyDispatcher, decor, this, event);
     }
-
-    @Override
-    public void onNightModeChanged(int mode) {
-    }
 }
