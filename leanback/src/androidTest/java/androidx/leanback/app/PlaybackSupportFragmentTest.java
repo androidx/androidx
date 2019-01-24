@@ -16,6 +16,7 @@
 package androidx.leanback.app;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
@@ -29,8 +30,13 @@ import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.leanback.media.PlaybackControlGlue;
 import androidx.leanback.media.PlaybackGlue;
+import androidx.leanback.media.PlaybackGlueHost;
+import androidx.leanback.media.PlaybackTransportControlGlue;
+import androidx.leanback.media.PlayerAdapter;
 import androidx.leanback.testutils.PollingCheck;
 import androidx.leanback.widget.ControlButtonPresenterSelector;
 import androidx.leanback.widget.ListRow;
@@ -474,6 +480,114 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
             }
         });
         waitForSlideOut(fragment);
+    }
+
+    public static class PlayerAdapterSample extends PlayerAdapter {
+        boolean mPlaying;
+
+        @Override
+        public boolean isPrepared() {
+            return true;
+        }
+
+        @Override
+        public boolean isPlaying() {
+            return mPlaying;
+        }
+
+        @Override
+        public void play() {
+            mPlaying = true;
+            if (super.getCallback() != null) {
+                getCallback().onPlayStateChanged(this);
+            }
+        }
+
+        @Override
+        public void pause() {
+            mPlaying = false;
+            if (super.getCallback() != null) {
+                getCallback().onPlayStateChanged(this);
+            }
+        }
+    }
+
+    public static class ControlsOverlayAutoHideDisabledFragment extends PlaybackSupportFragment {
+        PlaybackTransportControlGlue<PlayerAdapterSample> mGlue;
+        PlaybackGlueHost mHost = new PlaybackSupportFragmentGlueHost(this);
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            mGlue = new PlaybackTransportControlGlue<>(getContext(), new PlayerAdapterSample());
+            mGlue.setHost(mHost);
+            mGlue.setControlsOverlayAutoHideEnabled(false);
+        }
+
+        @Override
+        public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
+            hideControlsOverlay(false);
+        }
+    }
+
+    @Test
+    public void testControlsOverlayAutoHideDisabled() throws Throwable {
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(ControlsOverlayAutoHideDisabledFragment.class,
+                        ACTIVITY_LOAD_MS);
+        final ControlsOverlayAutoHideDisabledFragment fragment =
+                (ControlsOverlayAutoHideDisabledFragment) activity.getTestFragment();
+
+        // Sanity check that onViewCreated has made the controls invisible
+        assertFalse(fragment.mControlVisible);
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                fragment.mGlue.play();
+            }
+        });
+        // Play/pause should not show controls when setControlsOverlayAutoHideEnabled(false).
+        assertFalse(fragment.mControlVisible);
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                fragment.mGlue.pause();
+            }
+        });
+        assertFalse(fragment.mControlVisible);
+    }
+
+    public static class KeyEventTickleDisabledFragment extends PlaybackSupportFragment {
+        PlaybackTransportControlGlue<PlayerAdapterSample> mGlue;
+        PlaybackGlueHost mHost = new PlaybackSupportFragmentGlueHost(this);
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            mGlue = new PlaybackTransportControlGlue<>(getContext(), new PlayerAdapterSample());
+            mGlue.setHost(mHost);
+            setShowOrHideControlsOverlayOnUserInteraction(false);
+        }
+    }
+
+    @Test
+    public void testKeyEventTickleDisabled() throws Throwable {
+        SingleSupportFragmentTestActivity activity =
+                launchAndWaitActivity(KeyEventTickleDisabledFragment.class,
+                        ACTIVITY_LOAD_MS);
+        final KeyEventTickleDisabledFragment fragment =
+                (KeyEventTickleDisabledFragment) activity.getTestFragment();
+
+        activityTestRule.runOnUiThread(new Runnable() {
+            public void run() {
+                fragment.mGlue.play();
+            }
+        });
+        // Initially visible
+        assertTrue(fragment.mControlVisible);
+        // Then auto slide out after playing
+        waitForSlideOut(fragment);
+        // KeyEvent should not show controls when setShowOrHideControlsOverlayOnUserInteraction
+        // (false) is called
+        sendKeys(KeyEvent.KEYCODE_DPAD_LEFT);
+        assertFalse(fragment.mControlVisible);
     }
 
     private static void waitForSlideOut(final PlaybackSupportFragment fragment) {

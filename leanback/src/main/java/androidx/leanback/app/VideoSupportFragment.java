@@ -25,6 +25,8 @@ import androidx.leanback.R;
 /**
  * Subclass of {@link PlaybackSupportFragment} that is responsible for providing a {@link SurfaceView}
  * and rendering video.
+ * See base class {@link PlaybackSupportFragment} for how to setup controls and how to
+ * customize showing/hiding controls.
  */
 public class VideoSupportFragment extends PlaybackSupportFragment {
     static final int SURFACE_NOT_CREATED = 0;
