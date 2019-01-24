@@ -39,6 +39,8 @@
     <public type="style" name="TextAppearance.Car.Body3.Dark" />
     <public type="style" name="TextAppearance.Car.Body3.Medium.Dark" />
     <public type="style" name="TextAppearance.Car.Body4" />
+    <public type="style" name="TextAppearance.Car.Body4.Light" />
+    <public type="style" name="TextAppearance.Car.Body4.Dark" />
     <public type="style" name="TextAppearance.Car.SubText1" />
     <public type="style" name="TextAppearance.Car.SubText2" />
     <public type="style" name="TextAppearance.Car.SubText3" />
