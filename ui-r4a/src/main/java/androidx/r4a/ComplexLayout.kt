@@ -20,41 +20,32 @@ import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
 import androidx.ui.core.adapter.ComplexMeasureBox
+import androidx.ui.core.adapter.Row
+import androidx.ui.core.adapter.RowFlex
 import androidx.ui.core.adapter.MeasureBox
-import androidx.ui.core.compareTo
+import androidx.ui.core.adapter.Center
 import androidx.ui.core.dp
-import androidx.ui.core.plus
 import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Composable
-import com.google.r4a.Recompose
 
+/**
+ * Draws a rectangle of a specified dimension, or to its max incoming constraints if
+ * dimensions are not specified.
+ */
 @Composable
-fun ComplexRectangle(color: Color) {
-    <ComplexMeasureBox> measureOperations ->
-        measureOperations.collect {
-            <DrawRectangle color />
-        }
-        measureOperations.layout { constraints, _, _, layoutResult ->
-            layoutResult(constraints.maxWidth, constraints.maxHeight) {}
-        }
-        measureOperations.minIntrinsicWidth { _, _ -> 20.dp }
-        measureOperations.maxIntrinsicWidth { _, _ -> 20.dp }
-        measureOperations.minIntrinsicHeight { _, _ -> 20.dp }
-        measureOperations.maxIntrinsicHeight { _, _ -> 20.dp }
-    </ComplexMeasureBox>
-}
-
-@Composable
-fun SimpleRectangle(color: Color) {
+fun SizedRectangle(color: Color, width: Dimension? = null, height: Dimension? = null) {
     <MeasureBox> constraints, measureOperations ->
         measureOperations.collect {
             <DrawRectangle color />
         }
-        measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {}
+        measureOperations.layout(width ?: constraints.maxWidth, height ?: constraints.maxHeight) {}
     </MeasureBox>
 }
 
+/**
+ * A widget that forces its only child to be as wide as its min intrinsic width.
+ */
 @Composable
 fun IntrinsicWidth(@Children() children: () -> Unit) {
     <ComplexMeasureBox> measureOperations ->
@@ -91,21 +82,6 @@ fun IntrinsicWidth(@Children() children: () -> Unit) {
 }
 
 @Composable
-fun ComplexLayout() {
-    <CraneWrapper>
-        <Recompose> recompose ->
-            <Wrapper>
-                <HorizontalLinearLayout>
-                    <RectangleWithIntrinsics color=Color(0xFFFF0000.toInt()) />
-                    <RectangleWithIntrinsics color=Color(0xFF00FF00.toInt()) />
-                    <RectangleWithIntrinsics color=Color(0xFF0000FF.toInt()) />
-                </HorizontalLinearLayout>
-            </Wrapper>
-        </Recompose>
-    </CraneWrapper>
-}
-
-@Composable
 fun Wrapper(@Children() children: () -> Unit) {
     <ComplexMeasureBox> measureOperations ->
         val child = measureOperations.collect(children).first()
@@ -124,39 +100,9 @@ fun Wrapper(@Children() children: () -> Unit) {
     </ComplexMeasureBox>
 }
 
-fun List<Dimension>.max(): Dimension {
-    var max = 0.dp
-    forEach {
-        if (it > max) {
-            max = it
-        }
-    }
-    return max
-}
-
-@Composable
-fun HorizontalLinearLayout(@Children() children: () -> Unit) {
-    <MeasureBox> constraints, operations ->
-        val measurables = operations.collect(children)
-        val childConstraints = Constraints(
-            0.dp,
-            Float.POSITIVE_INFINITY.dp,
-            constraints.minHeight,
-            constraints.maxHeight
-        )
-        val placeables = measurables.map { m -> operations.measure(m, childConstraints) }
-        val width = placeables.map { it.width }.fold(0.dp, Dimension::plus)
-        val height = placeables.map { it.height }.max()
-        operations.layout(width, height) {
-            var currentLeft = 0.dp
-            placeables.forEach { placeable ->
-                placeable.place(currentLeft, 0.dp)
-                currentLeft += placeable.width
-            }
-        }
-    </MeasureBox>
-}
-
+/**
+ * Draws an rectangle of fixed (80.dp, 80.dp) size, while providing intrinsic dimensions as well.
+ */
 @Composable
 fun RectangleWithIntrinsics(color: Color) {
     <ComplexMeasureBox> measureOperations ->
@@ -173,3 +119,42 @@ fun RectangleWithIntrinsics(color: Color) {
     </ComplexMeasureBox>
 }
 
+@Composable
+fun FlexRowUsage() {
+    <RowFlex> children ->
+        // TODO(popam): named arguments cannot be used because of the adapter hack
+        children.expanded(/*flex=*/2f) {
+            <Center>
+                <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
+            </Center>
+            <SizedRectangle color=Color(0xFF0000FF.toInt()) height=40.dp />
+        }
+        children.inflexible {
+            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp />
+            <SizedRectangle color=Color(0xFF00FF00.toInt()) width=50.dp />
+            <SizedRectangle color=Color(0xFF0000FF.toInt()) width=60.dp />
+        }
+        children.expanded(/*flex=*/1f) {
+            <SizedRectangle color=Color(0xFF00FF00.toInt()) />
+        }
+    </RowFlex>
+}
+
+@Composable
+fun RowUsage() {
+    <Row>
+        <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
+        <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp height=80.dp />
+        <SizedRectangle color=Color(0xFF00FF00.toInt()) width=80.dp height=70.dp />
+    </Row>
+}
+
+/**
+ * Entry point for the activity.
+ */
+@Composable
+fun ComplexLayout() {
+    <CraneWrapper>
+        <FlexRowUsage />
+    </CraneWrapper>
+}
