@@ -510,6 +510,9 @@ public class BiometricPrompt implements BiometricConstants {
                 fragmentManager.beginTransaction().attach(mFingerprintHelperFragment).commit();
             }
         }
+        // For the case when onResume() is being called right after authenticate,
+        // we need to make sure that all fragment transactions have been committed.
+        fragmentManager.executePendingTransactions();
     }
 
     /**
