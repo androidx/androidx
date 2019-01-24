@@ -16,6 +16,8 @@
 
 package androidx.viewpager2.widget;
 
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
+
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL;
 import static androidx.viewpager2.widget.ViewPager2.SCROLL_STATE_DRAGGING;
@@ -26,6 +28,7 @@ import static androidx.viewpager2.widget.ViewPager2.ScrollState;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.view.View;
+import android.view.ViewGroup.MarginLayoutParams;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -42,6 +45,13 @@ import java.util.Locale;
  * relative to the pages and exposes this position via ({@link #getRelativeScrollPosition()}.
  */
 final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
+    private static final MarginLayoutParams ZERO_MARGIN_LAYOUT_PARAMS;
+
+    static {
+        ZERO_MARGIN_LAYOUT_PARAMS = new MarginLayoutParams(MATCH_PARENT, MATCH_PARENT);
+        ZERO_MARGIN_LAYOUT_PARAMS.setMargins(0, 0, 0, 0);
+    }
+
     @Retention(SOURCE)
     @IntDef({STATE_IDLE, STATE_IN_PROGRESS_MANUAL_DRAG, STATE_IN_PROGRESS_SMOOTH_SCROLL,
             STATE_IN_PROGRESS_IMMEDIATE_SCROLL})
@@ -216,18 +226,24 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
             return values.reset();
         }
 
+        // TODO(123350297): automated test for this
+        MarginLayoutParams margin =
+                (firstVisibleView.getLayoutParams() instanceof MarginLayoutParams)
+                        ? (MarginLayoutParams) firstVisibleView.getLayoutParams()
+                        : ZERO_MARGIN_LAYOUT_PARAMS;
+
         boolean isHorizontal = mLayoutManager.getOrientation() == ORIENTATION_HORIZONTAL;
         int start, sizePx;
         if (isHorizontal) {
             sizePx = firstVisibleView.getWidth();
             if (!isLayoutRTL()) {
-                start = firstVisibleView.getLeft();
+                start = firstVisibleView.getLeft() - margin.leftMargin;
             } else {
-                start = sizePx - firstVisibleView.getRight();
+                start = sizePx - firstVisibleView.getRight() + margin.rightMargin;
             }
         } else {
             sizePx = firstVisibleView.getHeight();
-            start = firstVisibleView.getTop();
+            start = firstVisibleView.getTop() - margin.topMargin;
         }
 
         values.mOffsetPx = -start;
