@@ -10,6 +10,7 @@ import androidx.ui.engine.window.Locale
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
+import androidx.ui.rendering.paragraph.TextOverflow
 import com.google.r4a.Composable
 
 val displayText = "Text Demo"
@@ -30,38 +31,39 @@ fun TextDemo() {
                           LinearLayout.LayoutParams.MATCH_PARENT)>
         <ScrollView>
             <LinearLayout orientation=LinearLayout.VERTICAL>
-                <TagLine bust=Math.random() tag="color, fontSize, fontWeight and fontStyle" />
-                <TextDemoBasic bust=Math.random() />
-                <TagLine bust=Math.random() tag="Chinese, Arabic, and Hindi" />
-                <TextDemoLanguage bust=Math.random() />
-                <TagLine bust=Math.random() tag="FontFamily: sans-serif, serif, and monospace" />
-                <TextDemoFontFamily bust=Math.random() />
-                <TagLine bust=Math.random() tag="decoration, decorationColor and decorationStyle" />
-                <TextDemoTextDecoration bust=Math.random() />
-                <TagLine bust=Math.random() tag="letterSpacing" />
-                <TextDemoLetterSpacing bust=Math.random() />
-                <TagLine bust=Math.random() tag="wordSpacing" />
-                <TextDemoWordSpacing bust=Math.random() />
-                <TagLine bust=Math.random() tag="height" />
-                <TextDemoHeight bust=Math.random() />
-                <TagLine bust=Math.random() tag="background" />
-                <TextDemoBackground bust=Math.random() />
-                <TagLine bust=Math.random()
-                         tag="Locale: Japanese, Simplified and Traditional Chinese" />
-                <TextDemoLocale bust=Math.random() />
-                <TagLine bust=Math.random() tag="textAlign and textDirection" />
-                <TextDemoTextAlign bust=Math.random() />
-                <TagLine bust=Math.random() tag="softWrap: on and off" />
-                <TextDemoSoftWrap bust=Math.random() />
-                <TagLine bust=Math.random() tag="textScaleFactor: default and 2.0" />
-                <TextDemoTextScaleFactor bust=Math.random() />
+                <TagLine tag="color, fontSize, fontWeight and fontStyle" />
+                <TextDemoBasic />
+                <TagLine tag="Chinese, Arabic, and Hindi" />
+                <TextDemoLanguage />
+                <TagLine tag="FontFamily: sans-serif, serif, and monospace" />
+                <TextDemoFontFamily />
+                <TagLine tag="decoration, decorationColor and decorationStyle" />
+                <TextDemoTextDecoration />
+                <TagLine tag="letterSpacing" />
+                <TextDemoLetterSpacing />
+                <TagLine tag="wordSpacing" />
+                <TextDemoWordSpacing />
+                <TagLine tag="height" />
+                <TextDemoHeight />
+                <TagLine tag="background" />
+                <TextDemoBackground />
+                <TagLine tag="Locale: Japanese, Simplified and Traditional Chinese" />
+                <TextDemoLocale />
+                <TagLine tag="textAlign and textDirection" />
+                <TextDemoTextAlign />
+                <TagLine tag="softWrap: on and off" />
+                <TextDemoSoftWrap />
+                <TagLine tag="textScaleFactor: default and 2.0" />
+                <TextDemoTextScaleFactor />
+                <TagLine tag="TextOverFlow: FADE" />
+                <TexDemoTextOverflowFade />
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
 }
 
 @Composable
-fun TagLine(bust: Double, tag: String) {
+fun TagLine(tag: String) {
     <CraneWrapper>
         <Text text=TextSpan(
                 text = "      ",
@@ -75,7 +77,7 @@ fun TagLine(bust: Double, tag: String) {
 }
 
 @Composable
-fun SecondTagLine(bust: Double, tag: String) {
+fun SecondTagLine(tag: String) {
     <CraneWrapper>
         <Text text=TextSpan(
                 text = tag,
@@ -84,7 +86,7 @@ fun SecondTagLine(bust: Double, tag: String) {
 }
 
 @Composable
-fun TextDemoBasic(bust: Double) {
+fun TextDemoBasic() {
     // This group of text widgets show different color, fontSize, fontWeight and fontStyle in
     // English.
     <CraneWrapper>
@@ -120,7 +122,7 @@ fun TextDemoBasic(bust: Double) {
 }
 
 @Composable
-fun TextDemoLanguage(bust: Double) {
+fun TextDemoLanguage() {
     // This group of text widgets show different color, fontSize, fontWeight and fontStyle in
     // Chinese, Arabic, and Hindi.
     <CraneWrapper>
@@ -156,7 +158,7 @@ fun TextDemoLanguage(bust: Double) {
 }
 
 @Composable
-fun TextDemoFontFamily(bust: Double) {
+fun TextDemoFontFamily() {
     // This group of text widgets show different fontFamilies in English.
     <CraneWrapper>
         <Text text=TextSpan(
@@ -185,7 +187,7 @@ fun TextDemoFontFamily(bust: Double) {
 }
 
 @Composable
-fun TextDemoTextDecoration(bust: Double) {
+fun TextDemoTextDecoration() {
     // This group of text widgets show different decoration, decorationColor and decorationStyle.
     <CraneWrapper>
         <Text text=TextSpan(
@@ -217,7 +219,7 @@ fun TextDemoTextDecoration(bust: Double) {
 }
 
 @Composable
-fun TextDemoLetterSpacing(bust: Double) {
+fun TextDemoLetterSpacing() {
     // This group of text widgets show different letterSpacing.
     <CraneWrapper>
         <Text text=TextSpan(
@@ -239,7 +241,7 @@ fun TextDemoLetterSpacing(bust: Double) {
 }
 
 @Composable
-fun TextDemoWordSpacing(bust: Double) {
+fun TextDemoWordSpacing() {
     // This group of text widgets show different wordSpacing.
     <CraneWrapper>
         <Text text=TextSpan(
@@ -262,7 +264,7 @@ fun TextDemoWordSpacing(bust: Double) {
 }
 
 @Composable
-fun TextDemoHeight(bust: Double) {
+fun TextDemoHeight() {
     // This group of text widgets show different height.
     <LinearLayout orientation=LinearLayout.HORIZONTAL>
         <CraneWrapper>
@@ -284,7 +286,7 @@ fun TextDemoHeight(bust: Double) {
 }
 
 @Composable
-fun TextDemoBackground(bust: Double) {
+fun TextDemoBackground() {
     // This group of text widgets show different background.
     <CraneWrapper>
         <Text text=TextSpan(
@@ -313,7 +315,7 @@ fun TextDemoBackground(bust: Double) {
 }
 
 @Composable
-fun TextDemoLocale(bust: Double) {
+fun TextDemoLocale() {
     // This group of text widgets show different Locales of the same Unicode codepoint.
     val text = "\u82B1"
     <CraneWrapper>
@@ -343,7 +345,7 @@ fun TextDemoLocale(bust: Double) {
 }
 
 @Composable
-fun TextDemoTextAlign(bust: Double) {
+fun TextDemoTextAlign() {
     // This group of text widgets show different TextAligns: LEFT, RIGHT, CENTER, JUSTIFY, START for
     // LTR and RTL, END for LTR and RTL.
     val textSpan = TextSpan(
@@ -354,25 +356,25 @@ fun TextDemoTextAlign(bust: Double) {
         text = text + displayText + " "
     }
     <LinearLayout orientation=LinearLayout.VERTICAL>
-        <SecondTagLine bust=Math.random() tag="textAlgin = TextAlign.LEFT" />
+        <SecondTagLine tag="textAlgin = TextAlign.LEFT" />
         <CraneWrapper>
             <Text
                 text=textSpan
                 textAlign=TextAlign.LEFT />
         </CraneWrapper>
-        <SecondTagLine bust=Math.random() tag="textAlgin = TextAlign.RIGHT" />
+        <SecondTagLine tag="textAlgin = TextAlign.RIGHT" />
         <CraneWrapper>
             <Text
                 text=textSpan
                 textAlign=TextAlign.RIGHT />
         </CraneWrapper>
-        <SecondTagLine bust=Math.random() tag="textAlgin = TextAlign.CENTER" />
+        <SecondTagLine tag="textAlgin = TextAlign.CENTER" />
         <CraneWrapper>
             <Text
                 text=textSpan
                 textAlign=TextAlign.CENTER />
         </CraneWrapper>
-        <SecondTagLine bust=Math.random() tag="textAlgin = default and TextAlign.JUSTIFY" />
+        <SecondTagLine tag="textAlgin = default and TextAlign.JUSTIFY" />
         <CraneWrapper>
             <Text
                 text=TextSpan(
@@ -390,26 +392,26 @@ fun TextDemoTextAlign(bust: Double) {
                                 color = Color(0xFF0000FF.toInt())))
                 textAlign=TextAlign.JUSTIFY />
         </CraneWrapper>
-        <SecondTagLine bust=Math.random() tag="textAlgin = TextAlign.START for LTR" />
+        <SecondTagLine tag="textAlgin = TextAlign.START for LTR" />
         <CraneWrapper>
             <Text
                 text=textSpan
                 textAlign=TextAlign.START />
         </CraneWrapper>
-        <SecondTagLine bust=Math.random() tag="textAlgin = TextAlign.START for RTL" />
+        <SecondTagLine tag="textAlgin = TextAlign.START for RTL" />
         <CraneWrapper>
             <Text
                 text=textSpan
                 textDirection=TextDirection.RTL
                 textAlign=TextAlign.START />
         </CraneWrapper>
-        <SecondTagLine bust=Math.random() tag="textAlgin = TextAlign.END for LTR" />
+        <SecondTagLine tag="textAlgin = TextAlign.END for LTR" />
         <CraneWrapper>
             <Text
                 text=textSpan
                 textAlign=TextAlign.END />
         </CraneWrapper>
-        <SecondTagLine bust=Math.random() tag="textAlgin = TextAlign.END for RTL" />
+        <SecondTagLine tag="textAlgin = TextAlign.END for RTL" />
         <CraneWrapper>
             <Text
                 text=textSpan
@@ -420,7 +422,7 @@ fun TextDemoTextAlign(bust: Double) {
 }
 
 @Composable
-fun TextDemoSoftWrap(bust: Double) {
+fun TextDemoSoftWrap() {
     // This group of text widgets show difference between softWrap is true and false.
     var text: String = ""
     for (i in 1..10) {
@@ -447,17 +449,17 @@ fun TextDemoSoftWrap(bust: Double) {
 
 // TODO(Migration/qqd): Impelement text demo for overflow and maxLines.
 @Composable
-fun TextDemoOverflow(bust: Double) {
+fun TextDemoOverflow() {
 
 }
 
 @Composable
-fun TextDemoMaxLines(bust: Double) {
+fun TextDemoMaxLines() {
 
 }
 
 @Composable
-fun TextDemoTextScaleFactor(bust: Double) {
+fun TextDemoTextScaleFactor() {
     // This group of text widgets show the different textScaleFactor.
     val textSpan = TextSpan(
             text = displayText,
@@ -473,4 +475,31 @@ fun TextDemoTextScaleFactor(bust: Double) {
                 textScaleFactor=2.0.toFloat() />
         </CraneWrapper>
     </LinearLayout>
+}
+
+@Composable
+fun TexDemoTextOverflowFade() {
+    var text = ""
+    for (i in 1..15) {
+        text = text + displayText
+    }
+    val textSpan = TextSpan(
+            text = text,
+            style = TextStyle(fontSize = fontSize8, color = Color(0xFFFF0000.toInt())))
+
+    <SecondTagLine tag="horizontally fading edge" />
+    <CraneWrapper>
+        <Text
+            text=textSpan
+            maxLines=1
+            overflow=TextOverflow.FADE
+            softWrap=false />
+    </CraneWrapper>
+    <SecondTagLine tag="vertically fading edge" />
+    <CraneWrapper>
+        <Text
+            text=textSpan
+            maxLines=3
+            overflow=TextOverflow.FADE />
+    </CraneWrapper>
 }

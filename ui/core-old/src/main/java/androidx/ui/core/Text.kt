@@ -96,7 +96,7 @@ class Text() : Component() {
                             constraints.minHeight.toPx(density),
                             constraints.maxHeight.toPx(density)
                         )
-                        renderParagraph.layoutTextWithConstraints(boxConstraints)
+                        renderParagraph.performLayout(boxConstraints)
                         measureOperations.collect {
                             <Draw> canvas, parent ->
                                 renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
