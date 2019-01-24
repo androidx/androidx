@@ -169,6 +169,12 @@ public class CarToolbar extends ViewGroup {
                     ? context.getDrawable(titleIconResId)
                     : null);
 
+            setTitleIconStartMargin(
+                    a.getDimensionPixelSize(R.styleable.CarToolbar_titleIconStartMargin, 0));
+
+            setTitleIconEndMargin(
+                    a.getDimensionPixelSize(R.styleable.CarToolbar_titleIconEndMargin, 0));
+
             setTitleIconSize(a.getDimensionPixelSize(R.styleable.CarToolbar_titleIconSize,
                     res.getDimensionPixelSize(R.dimen.car_application_icon_size)));
 
@@ -230,8 +236,7 @@ public class CarToolbar extends ViewGroup {
         if (mTitleIconView.getVisibility() != GONE) {
             int measureSpec = MeasureSpec.makeMeasureSpec(mTitleIconSize, MeasureSpec.EXACTLY);
             mTitleIconView.measure(measureSpec, measureSpec);
-
-            width += mTitleIconView.getMeasuredWidth();
+            width += mTitleIconView.getMeasuredWidth() + getHorizontalMargins(mTitleIconView);
         }
 
         int titleLength = 0;
@@ -277,8 +282,10 @@ public class CarToolbar extends ViewGroup {
         }
 
         if (mTitleIconView.getVisibility() != GONE) {
+            MarginLayoutParams marginParams = (MarginLayoutParams) mTitleIconView.getLayoutParams();
+            layoutLeft += marginParams.getMarginStart();
             layoutViewFromLeftVerticallyCentered(mTitleIconView, layoutLeft, height);
-            layoutLeft += mTitleIconView.getMeasuredWidth();
+            layoutLeft += mTitleIconView.getMeasuredWidth() + marginParams.getMarginEnd();
         }
 
         if (mTitleTextView.getVisibility() != GONE && mSubtitleTextView.getVisibility() != GONE) {
@@ -402,6 +409,30 @@ public class CarToolbar extends ViewGroup {
         }
         mTitleIconView.setVisibility(VISIBLE);
         mTitleIconView.setImageDrawable(icon);
+    }
+
+    /**
+     * Sets the start margin of the title icon.
+     *
+     * @param margin Start margin of the title icon in pixels.
+     * @attr ref R.styleable#CarToolbar_titleIconStartMargin
+     */
+    public void setTitleIconStartMargin(@Px int margin) {
+        MarginLayoutParams marginParams = (MarginLayoutParams) mTitleIconView.getLayoutParams();
+        marginParams.setMarginStart(margin);
+        requestLayout();
+    }
+
+    /**
+     * Sets the end margin of the title icon.
+     *
+     * @param margin End margin of the title icon in pixels.
+     * @attr ref R.styleable#CarToolbar_titleIconEndMargin
+     */
+    public void setTitleIconEndMargin(@Px int margin) {
+        MarginLayoutParams marginParams = (MarginLayoutParams) mTitleIconView.getLayoutParams();
+        marginParams.setMarginEnd(margin);
+        requestLayout();
     }
 
     /**

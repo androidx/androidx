@@ -167,6 +167,10 @@ limitations under the License.
         <attr name="navigationIconContainerWidth" format="dimension"/>
         <!-- Drawable to use for the toolbar title icon. -->
         <attr name="titleIcon" format="reference"/>
+        <!-- Margin before the title icon. -->
+        <attr name="titleIconStartMargin" format="dimension"/>
+        <!-- Margin after the title icon. -->
+        <attr name="titleIconEndMargin" format="dimension"/>
         <!-- The dimension size of the title icon. -->
         <attr name="titleIconSize" format="dimension"/>
         <!-- Primary text shown on the CarToolbar. -->

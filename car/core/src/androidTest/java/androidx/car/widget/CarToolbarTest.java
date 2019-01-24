@@ -37,6 +37,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.content.pm.PackageManager;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -194,6 +195,42 @@ public class CarToolbarTest {
         mActivityRule.runOnUiThread(() -> mToolbar.setTitleIcon(null));
 
         onView(withId(R.id.title_icon)).check(matches(not(isDisplayed())));
+    }
+
+    @Test
+    public void testTitleIconHasZeroDefaultMargins() throws Throwable {
+        mActivityRule.runOnUiThread(() ->
+                mToolbar.setTitleIcon(android.R.drawable.sym_def_app_icon));
+
+        onView(withId(R.id.title_icon)).check(matches(withHorizontalMargins(0)));
+    }
+
+    @Test
+    public void testSetTitleIconStartMargin() throws Throwable {
+        int startMargin = 100;
+        int navIconWidth = 100;
+        mActivityRule.runOnUiThread(() -> {
+            mToolbar.setNavigationIconContainerWidth(navIconWidth);
+            mToolbar.setTitleIcon(android.R.drawable.sym_def_app_icon);
+            mToolbar.setTitleIconStartMargin(startMargin);
+        });
+
+        onView(withId(R.id.title_icon)).check(matches(withLeft(navIconWidth + startMargin)));
+    }
+
+    @Test
+    public void testSetTitleIconEndMargin() throws Throwable {
+        int endMargin = 100;
+        mActivityRule.runOnUiThread(() -> {
+            mToolbar.setTitleIcon(android.R.drawable.sym_def_app_icon);
+            mToolbar.setTitleIconEndMargin(endMargin);
+            mToolbar.setTitle("title");
+        });
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        int iconEnd = mActivity.findViewById(R.id.title_icon).getRight();
+
+        onView(withId(R.id.title)).check(matches(withLeft(iconEnd + endMargin)));
     }
 
     @Test
@@ -433,6 +470,30 @@ public class CarToolbarTest {
             @Override
             public void describeTo(Description description) {
                 description.appendText("has width: " + width);
+            }
+        };
+    }
+
+    /**
+     * Returns a matcher that matches {@link View}s that have the given horizontal margins.
+     *
+     * @param horizontalMargin The horizontal margin value to match to.
+     * @return A {@link Matcher} for verification.
+     */
+    @NonNull
+    public static Matcher<View> withHorizontalMargins(int horizontalMargin) {
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public boolean matchesSafely(View view) {
+                ViewGroup.MarginLayoutParams params =
+                        (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+                return horizontalMargin == params.leftMargin
+                        && horizontalMargin == params.rightMargin;
+            }
+
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("has horizontal margins: " + horizontalMargin);
             }
         };
     }
