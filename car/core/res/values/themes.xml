@@ -48,7 +48,6 @@ limitations under the License.
         <item name="android:seekBarStyle">@style/Widget.Car.SeekBar.Light</item>
         <item name="android:textColor">@color/car_body1_light</item>
         <item name="android:textColorPrimary">@color/car_display1_light</item>
-        <item name="android:textColorLink">@color/car_light_blue_500</item>
         <item name="android:textColorHighlight">@color/car_grey_700</item>
         <item name="android:textColorHint">@color/car_body2_light</item>
         <item name="android:spinnerStyle">@style/Widget.Spinner.Car</item>
@@ -120,7 +119,6 @@ limitations under the License.
         <item name="android:spinnerDropDownItemStyle">@style/CarSpinnerItem</item>
         <item name="android:textColor">@color/car_body1</item>
         <item name="android:textColorPrimary">@color/car_display1</item>
-        <item name="android:textColorLink">@color/car_light_blue_500</item>
         <item name="android:textColorHighlight">@color/car_grey_700</item>
         <item name="android:textColorHint">@color/car_body2</item>
         <item name="android:editTextStyle">@style/Widget.Car.EditText</item>
