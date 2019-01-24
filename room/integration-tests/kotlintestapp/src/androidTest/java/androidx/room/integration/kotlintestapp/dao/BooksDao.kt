@@ -30,6 +30,7 @@ import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookAuthor
 import androidx.room.integration.kotlintestapp.vo.BookWithJavaEntity
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
+import androidx.room.integration.kotlintestapp.vo.DateConverter
 import androidx.room.integration.kotlintestapp.vo.Lang
 import androidx.room.integration.kotlintestapp.vo.Publisher
 import androidx.room.integration.kotlintestapp.vo.PublisherWithBookSales
@@ -41,8 +42,10 @@ import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
 import io.reactivex.Single
+import java.util.Date
 
 @Dao
+@TypeConverters(DateConverter::class)
 interface BooksDao {
 
     @Insert
@@ -321,4 +324,10 @@ interface BooksDao {
 
     @Query("SELECT * FROM Publisher WHERE _rowid_ = :rowid")
     fun getPublisher(rowid: Long): Publisher
+
+    @Query("SELECT dateOfBirth FROM author")
+    suspend fun getAllAuthorsDateOfBirth(): List<Date>
+
+    @Query("SELECT dateOfBirth FROM author WHERE authorId = :authorId")
+    suspend fun getAuthorDateOfBirths(authorId: String): Date
 }
