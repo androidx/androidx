@@ -25,6 +25,7 @@
         android:layout_height="wrap_content"
         app:titleIcon="@android:drawable/sym_def_app_icon"
         app:titleIconSize="@dimen/car_avatar_icon_size"
+        app:titleIconEndMargin="@dimen/car_padding_4"
         app:title="@string/car_toolbar_title"
         app:subtitle="@string/car_toolbar_subtitle"/>
     <LinearLayout
