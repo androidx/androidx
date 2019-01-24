@@ -19,6 +19,6 @@
     <!-- Disabled state uses a tint of the color so widgets are not transparent, e.g. SeekBar.-->
     <item android:state_enabled="false"
           android:alpha="0.5"
-          android:color="@color/car_teal_700"/>
-    <item android:color="@color/car_teal_700"/>
+          android:color="@color/car_blue_dark"/>
+    <item android:color="@color/car_blue_dark"/>
 </selector>

@@ -231,12 +231,6 @@ color car_subtext5
 color car_subtext5_dark
 color car_subtext5_light
 dimen car_subtext5_size
-color car_switch_compat_track_off
-color car_switch_compat_track_on
-color car_switch_thumb_off
-color car_switch_thumb_on
-color car_switch_track_off
-color car_switch_track_on
 color car_tint
 color car_tint_dark
 color car_tint_light
