@@ -27,6 +27,11 @@
 
         <Button android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@string/mode_night_follow_system"
+                android:onClick="setModeNightFollowSystem"/>
+
+        <Button android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:text="@string/mode_night_no"
                 android:onClick="setModeNightNo"/>
 

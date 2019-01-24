@@ -85,6 +85,29 @@ public class NightModeTestCase {
     }
 
     @Test
+    public void testSwitchingYesToFollowSystem() throws Throwable {
+        // Verify first that we're in day mode
+        onView(withId(R.id.text_night_mode))
+                .check(matches(withText(STRING_DAY)));
+
+        // Now force the local night mode to be yes (aka night mode)
+        setLocalNightModeAndWaitForRecreate(
+                mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
+
+        // Now check the text has changed, signifying that night resources are being used
+        onView(withId(R.id.text_night_mode))
+                .check(matches(withText(STRING_NIGHT)));
+
+        // Now force the local night mode to be FOLLOW_SYSTEM, which should go back to DAY
+        setLocalNightModeAndWaitForRecreate(
+                mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+
+        // Now check the text has changed, signifying that night resources are being used
+        onView(withId(R.id.text_night_mode))
+                .check(matches(withText(STRING_DAY)));
+    }
+
+    @Test
     public void testColorConvertedDrawableChangesWithNightMode() throws Throwable {
         final NightModeActivity activity = mActivityTestRule.getActivity();
         final int dayColor = ContextCompat.getColor(activity, R.color.color_sky_day);

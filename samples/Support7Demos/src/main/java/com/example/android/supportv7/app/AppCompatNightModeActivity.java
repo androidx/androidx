@@ -37,6 +37,10 @@ public class AppCompatNightModeActivity extends AppCompatActivity {
         setContentView(R.layout.appcompat_night_mode);
     }
 
+    public void setModeNightFollowSystem(View view) {
+        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+    }
+
     public void setModeNightNo(View view) {
         getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
     }

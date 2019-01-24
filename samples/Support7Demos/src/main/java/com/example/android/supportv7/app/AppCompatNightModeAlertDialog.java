@@ -36,6 +36,12 @@ public class AppCompatNightModeAlertDialog extends AppCompatActivity {
         setContentView(R.layout.appcompat_night_mode);
     }
 
+    public void setModeNightFollowSystem(View view) {
+        AlertDialog dialog = createAlertDialog();
+        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+        dialog.show();
+    }
+
     public void setModeNightNo(View view) {
         AlertDialog dialog = createAlertDialog();
         dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);
