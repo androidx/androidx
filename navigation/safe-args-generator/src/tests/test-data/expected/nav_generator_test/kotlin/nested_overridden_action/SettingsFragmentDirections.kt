@@ -1,6 +1,7 @@
 package foo.flavor
 
 import androidx.navigation.NavDirections
+import foo.SettingsDirections
 import kotlin.String
 
 class SettingsFragmentDirections private constructor() {
