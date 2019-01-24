@@ -153,7 +153,7 @@ public class CarToolbar extends ViewGroup {
             setTitle(title);
 
             setTitleTextAppearance(a.getResourceId(R.styleable.CarToolbar_titleTextAppearance,
-                    R.style.TextAppearance_Car_Body1_Medium));
+                    R.style.TextAppearance_Car_Body1_Medium_Light));
 
             setNavigationIcon(a.getResourceId(R.styleable.CarToolbar_navigationIcon,
                     R.drawable.ic_nav_arrow_back));
@@ -182,7 +182,7 @@ public class CarToolbar extends ViewGroup {
             setSubtitle(subtitle);
 
             setSubtitleTextAppearance(a.getResourceId(R.styleable.CarToolbar_subtitleTextAppearance,
-                    R.style.TextAppearance_Car_Body2));
+                    R.style.TextAppearance_Car_Body2_Light));
 
             setOverflowIcon(a.getResourceId(R.styleable.CarToolbar_overflowIcon,
                     R.drawable.ic_more_vert));
