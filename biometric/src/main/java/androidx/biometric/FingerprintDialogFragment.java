@@ -171,6 +171,7 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         outState.putBundle(KEY_DIALOG_BUNDLE, mBundle);
     }
 
