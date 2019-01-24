@@ -26,13 +26,13 @@ import static org.mockito.Mockito.verify;
 
 import android.widget.TextView;
 
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.transition.test.R;
 
 import org.junit.Test;
 
-@MediumTest
+@LargeTest
 public class ChangeScrollTest extends BaseTransitionTest {
 
     @Override

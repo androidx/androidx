@@ -55,8 +55,8 @@ import androidx.slice.widget.EventInfo;
 import androidx.slice.widget.SliceLiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -74,7 +74,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Tests for {@link SliceMetadata}.
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 @SdkSuppress(minSdkVersion = 19)
 public class SliceMetadataTest {
 

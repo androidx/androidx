@@ -15,13 +15,13 @@
  */
 package androidx.appcompat.app;
 
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 
 /**
  * Testing the default view inflation where appcompat views are used for specific
  * views in layouts specified in XML.
  */
-@SmallTest
+@MediumTest
 public class AppCompatInflaterNullTest extends
         AppCompatInflaterPassTest<AppCompatInflaterNullActivity> {
     public AppCompatInflaterNullTest() {

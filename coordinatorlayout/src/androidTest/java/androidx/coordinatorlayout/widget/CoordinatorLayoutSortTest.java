@@ -22,7 +22,7 @@ import android.app.Instrumentation;
 import android.view.View;
 
 import androidx.coordinatorlayout.testutils.CoordinatorLayoutUtils;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -37,7 +37,7 @@ import java.util.Collection;
 import java.util.List;
 
 @RunWith(Parameterized.class)
-@MediumTest
+@SmallTest
 public class CoordinatorLayoutSortTest {
     @Rule
     public final ActivityTestRule<CoordinatorLayoutActivity> mActivityTestRule;

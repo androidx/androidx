@@ -20,10 +20,10 @@ import android.os.Bundle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.LargeTest
 import org.junit.runner.RunWith
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class XmlNavControllerTest : BaseNavControllerTest<XmlNavigationActivity>(
         XmlNavigationActivity::class.java)

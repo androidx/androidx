@@ -35,7 +35,7 @@ import androidx.coordinatorlayout.test.R;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -44,7 +44,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@MediumTest
+@LargeTest
 public class CoordinatorSnackbarWithButtonTest extends BaseDynamicCoordinatorLayoutTest {
     private View mBar;
 

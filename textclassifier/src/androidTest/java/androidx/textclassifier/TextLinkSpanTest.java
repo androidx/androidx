@@ -45,7 +45,7 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.textclassifier.TextLinks.TextLink;
 import androidx.textclassifier.TextLinks.TextLinkSpan;
@@ -64,7 +64,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Unit tests for {@link TextLinkSpan}. */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class TextLinkSpanTest {
 

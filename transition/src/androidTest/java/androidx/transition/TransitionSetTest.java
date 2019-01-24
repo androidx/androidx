@@ -33,13 +33,13 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.transition.test.R;
 
 import org.junit.Before;
 import org.junit.Test;
 
-@MediumTest
+@SmallTest
 public class TransitionSetTest extends BaseTest {
 
     private final TransitionSet mTransitionSet = new TransitionSet();

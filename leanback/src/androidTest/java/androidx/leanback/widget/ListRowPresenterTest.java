@@ -32,14 +32,14 @@ import android.widget.FrameLayout;
 import androidx.core.view.ViewCompat;
 import androidx.leanback.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class ListRowPresenterTest {
 
     static final float DELTA = 1f;

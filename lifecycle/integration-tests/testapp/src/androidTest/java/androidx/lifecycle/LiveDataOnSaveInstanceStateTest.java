@@ -28,8 +28,8 @@ import androidx.lifecycle.testapp.CollectingSupportActivity;
 import androidx.lifecycle.testapp.CollectingSupportFragment;
 import androidx.lifecycle.testapp.NavigationDialogActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class LiveDataOnSaveInstanceStateTest {
     @Rule

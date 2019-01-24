@@ -31,8 +31,8 @@ import androidx.media2.test.service.MockMediaLibraryService;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaBrowser;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class MediaLibrarySessionCallbackTest extends MediaSessionTestBase {
 
     MockPlayer mPlayer;

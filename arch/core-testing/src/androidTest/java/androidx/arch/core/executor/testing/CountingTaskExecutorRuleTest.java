@@ -21,7 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@LargeTest
 public class CountingTaskExecutorRuleTest {
     private final Semaphore mOnIdleCount = new Semaphore(0);
 

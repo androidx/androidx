@@ -41,7 +41,7 @@ import androidx.appcompat.view.ActionMode;
 import androidx.core.view.MenuItemCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -72,7 +72,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBackDismissesActionMode() {
         final AtomicBoolean destroyed = new AtomicBoolean();
 
@@ -136,7 +136,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testMenuPressInvokesPanelCallbacks() throws InterruptedException {
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
         mInstrumentation.waitForIdleSync();
@@ -148,7 +148,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBackPressWithMenuInvokesOnPanelClosed() throws InterruptedException {
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
         mInstrumentation.waitForIdleSync();
@@ -159,7 +159,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBackPressWithEmptyMenuFinishesActivity() throws InterruptedException {
         repopulateWithEmptyMenu();
 
@@ -171,7 +171,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testDelKeyEventReachesActivity() {
         // First send the event
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DEL);
@@ -187,7 +187,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testMenuKeyEventReachesActivity() throws InterruptedException {
         mInstrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_MENU);
         mInstrumentation.waitForIdleSync();
@@ -202,7 +202,7 @@ public abstract class BaseKeyEventsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testActionMenuContent() throws Throwable {
         onView(withId(R.id.action_search))
                 .check(matches(isDisplayed()))

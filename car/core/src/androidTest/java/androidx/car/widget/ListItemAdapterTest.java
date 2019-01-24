@@ -28,7 +28,7 @@ import android.widget.FrameLayout;
 import androidx.car.test.R;
 import androidx.car.uxrestrictions.CarUxRestrictions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Assume;
@@ -42,7 +42,7 @@ import java.util.List;
 
 /** Unit tests for {@link ListItemAdapter}. */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public final class ListItemAdapterTest {
     @Rule
     public ActivityTestRule<PagedListViewTestActivity> mActivityRule =

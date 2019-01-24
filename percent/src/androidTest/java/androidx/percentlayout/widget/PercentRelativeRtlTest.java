@@ -19,11 +19,11 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import android.os.Build;
-import androidx.test.filters.SmallTest;
 import android.view.View;
 
 import androidx.core.view.ViewCompat;
 import androidx.percentlayout.test.R;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -94,7 +94,7 @@ import org.junit.Test;
  * the core classes, but rather just provide a translation layer between percentage-based values
  * and pixel-based ones.
  */
-@SmallTest
+@LargeTest
 public class PercentRelativeRtlTest extends BaseInstrumentationTestCase<TestRelativeRtlActivity> {
     private PercentRelativeLayout mPercentRelativeLayout;
     private int mContainerWidth;

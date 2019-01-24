@@ -28,7 +28,7 @@ import androidx.leanback.widget.ObjectAdapter;
 import androidx.leanback.widget.PresenterSelector;
 import androidx.leanback.widget.SectionRow;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -176,7 +176,7 @@ public class ListRowDataAdapterTest {
         assertEquals(3, listRowDataAdapter.size());
     }
 
-    @MediumTest
+    @SmallTest
     @Test
     public void adapterSize_nonVisibleRowRemoved() {
         int itemCount = 4;

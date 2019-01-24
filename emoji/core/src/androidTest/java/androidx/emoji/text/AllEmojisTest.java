@@ -28,8 +28,8 @@ import android.text.Spanned;
 import androidx.core.graphics.PaintCompat;
 import androidx.emoji.util.TestString;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -47,7 +47,7 @@ import java.util.Collection;
  * Reads raw/allemojis.txt which includes all the emojis known to human kind and tests that
  * EmojiCompat creates EmojiSpans for each one of them.
  */
-@SmallTest
+@LargeTest
 @RunWith(Parameterized.class)
 @SdkSuppress(minSdkVersion = 19)
 public class AllEmojisTest {

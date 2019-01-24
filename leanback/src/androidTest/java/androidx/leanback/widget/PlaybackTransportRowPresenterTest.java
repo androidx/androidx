@@ -38,7 +38,7 @@ import android.view.ViewParent;
 import androidx.leanback.media.PlaybackTransportControlGlue;
 import androidx.leanback.media.PlayerAdapter;
 import androidx.leanback.widget.PlaybackSeekDataProvider.ResultCallback;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -47,7 +47,7 @@ import org.mockito.Mockito;
 
 import java.util.Arrays;
 
-@SmallTest
+@MediumTest
 public class PlaybackTransportRowPresenterTest {
 
     Context mContext;

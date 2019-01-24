@@ -39,7 +39,7 @@ import android.view.View;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.wear.test.R;
 import androidx.wear.widget.util.WakeLockRule;
@@ -51,7 +51,7 @@ import org.junit.runner.RunWith;
 import java.util.HashMap;
 import java.util.Map;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class BoxInsetLayoutTest {
     private static final float FACTOR = 0.146467f; //(1 - sqrt(2)/2)/2

@@ -44,7 +44,7 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -64,7 +64,7 @@ import io.reactivex.Flowable;
 import io.reactivex.Observable;
 import io.reactivex.disposables.CompositeDisposable;
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class InvalidationTrackerTest {
     @Rule

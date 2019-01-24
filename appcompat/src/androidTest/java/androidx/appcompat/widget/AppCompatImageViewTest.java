@@ -22,7 +22,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtilsMatchers;
 import androidx.test.espresso.ViewInteraction;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 
@@ -30,7 +30,7 @@ import org.junit.Test;
  * In addition to all tinting-related tests done by the base class, this class provides
  * tests specific to {@link AppCompatImageView} class.
  */
-@SmallTest
+@LargeTest
 public class AppCompatImageViewTest extends AppCompatBaseImageViewTest<AppCompatImageView> {
     public AppCompatImageViewTest() {
         super(AppCompatImageViewActivity.class);

@@ -20,7 +20,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import androidx.test.filters.SmallTest
+import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertTrue
@@ -28,7 +28,7 @@ import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 
-@SmallTest
+@LargeTest
 class ActivityTest {
     @get:Rule val activityRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
     private val view get() = activityRule.activity.findViewById<View>(VIEW_ID)

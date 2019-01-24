@@ -38,7 +38,6 @@ import android.util.Log;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.DatabaseTest;
@@ -81,7 +80,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@LargeTest
 public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Rule

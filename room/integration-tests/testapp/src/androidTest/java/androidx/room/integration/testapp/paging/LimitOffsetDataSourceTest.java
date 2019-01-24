@@ -27,7 +27,7 @@ import androidx.room.integration.testapp.test.TestUtil;
 import androidx.room.integration.testapp.vo.User;
 import androidx.room.paging.LimitOffsetDataSource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 
 import org.junit.After;
 import org.junit.Test;
@@ -36,7 +36,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class LimitOffsetDataSourceTest extends TestDatabaseTest {
 

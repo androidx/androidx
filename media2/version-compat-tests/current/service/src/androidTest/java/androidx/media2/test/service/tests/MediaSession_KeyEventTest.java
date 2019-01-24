@@ -37,8 +37,8 @@ import androidx.media2.SessionPlayer;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -55,7 +55,7 @@ import java.util.concurrent.TimeUnit;
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class MediaSession_KeyEventTest extends MediaSessionTestBase {
     private static String sExpectedControllerPackageName;
 

@@ -38,6 +38,7 @@ import android.support.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.Data;
@@ -69,7 +70,7 @@ import java.util.concurrent.ExecutionException;
 
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class WorkContinuationImplTest extends WorkManagerTest {
 
     private Configuration mConfiguration;

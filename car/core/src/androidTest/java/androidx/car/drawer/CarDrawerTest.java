@@ -34,7 +34,7 @@ import androidx.car.widget.PagedListView;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.After;
@@ -51,7 +51,7 @@ import org.junit.runner.RunWith;
  * drawer, use {@link CarDrawerTestActivity#getDrawerController()}.
  */
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@SmallTest
 public final class CarDrawerTest {
     // Note that launchActivity is passed "false" here because we only want to create the
     // Activity after we checked that the test is being run on an auto device. Otherwise, this will
