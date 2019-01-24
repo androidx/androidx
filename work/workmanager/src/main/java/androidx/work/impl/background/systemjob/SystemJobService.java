@@ -133,6 +133,13 @@ public class SystemJobService extends JobService implements ExecutionListener {
             }
         }
 
+        // It is important that we return true, and hang on this onStartJob() request.
+        // The call to startWork() may no-op because the WorkRequest could have been picked up
+        // by the GreedyScheduler, and was already being executed. GreedyScheduler does not
+        // handle retries, and the Processor notifies all Schedulers about an intent to reschedule.
+        // In such cases, we rely on SystemJobService to ask for a reschedule by calling
+        // jobFinished(params, true) in onExecuted(...);
+        // For more information look at b/123211993
         mWorkManagerImpl.startWork(workSpecId, runtimeExtras);
         return true;
     }
