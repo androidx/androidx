@@ -21,9 +21,13 @@ import android.widget.FrameLayout;
 
 import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
-final class FragmentViewHolder extends RecyclerView.ViewHolder {
+/**
+ * {@link ViewHolder} implementation for handling {@link Fragment}s. Used in
+ * {@link FragmentStateAdapter}.
+ */
+public final class FragmentViewHolder extends ViewHolder {
     Fragment mFragment;
 
     private FragmentViewHolder(FrameLayout container) {
