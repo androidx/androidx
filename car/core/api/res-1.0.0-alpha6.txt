@@ -30,6 +30,8 @@ style TextAppearance_Car_Body3_Medium
 style TextAppearance_Car_Body3_Medium_Dark
 style TextAppearance_Car_Body3_Medium_Light
 style TextAppearance_Car_Body4
+style TextAppearance_Car_Body4_Dark
+style TextAppearance_Car_Body4_Light
 style TextAppearance_Car_Display1
 style TextAppearance_Car_Display2
 style TextAppearance_Car_Display3
