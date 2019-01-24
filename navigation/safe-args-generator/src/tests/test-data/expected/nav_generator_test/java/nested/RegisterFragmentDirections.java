@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package foo.flavor;
+package foo.flavor.account;
 
 import android.support.annotation.NonNull;
 import androidx.navigation.NavDirections;
+import foo.LoginDirections;
 
 public class RegisterFragmentDirections {
     private RegisterFragmentDirections() {

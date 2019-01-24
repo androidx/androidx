@@ -34,14 +34,14 @@
                 app:popUpTo="@id/main_fragment"/>
         <fragment
                 android:id="@+id/login_fragment"
-                android:name=".LoginFragment">
+                android:name=".account.LoginFragment">
             <action
                     android:id="@+id/register"
                     app:destination="@id/register_fragment"/>
         </fragment>
         <fragment
                 android:id="@+id/register_fragment"
-                android:name=".RegisterFragment">
+                android:name=".account.RegisterFragment">
         </fragment>
     </navigation>
 </navigation>

@@ -1,7 +1,8 @@
-package foo.flavor
+package foo.flavor.account
 
 import androidx.navigation.ActionOnlyNavDirections
 import androidx.navigation.NavDirections
+import foo.LoginDirections
 
 class LoginFragmentDirections private constructor() {
     companion object {

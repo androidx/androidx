@@ -17,6 +17,7 @@
 package foo.flavor;
 
 import android.support.annotation.NonNull;
+import foo.InnerSettingsDirections;
 
 public class InnerSettingsFragmentDirections {
     private InnerSettingsFragmentDirections() {
