@@ -209,13 +209,13 @@ internal class ParagraphAndroid constructor(
         )
     }
 
-    fun getLineLeft(index: Int): Float = ensureLayout.getLineLeft(index)
+    fun getLineLeft(lineIndex: Int): Float = ensureLayout.getLineLeft(lineIndex)
 
-    fun getLineRight(index: Int): Float = ensureLayout.getLineRight(index)
+    fun getLineRight(lineIndex: Int): Float = ensureLayout.getLineRight(lineIndex)
 
-    fun getLineHeight(index: Int): Float = ensureLayout.getLineHeight(index)
+    fun getLineHeight(lineIndex: Int): Float = ensureLayout.getLineHeight(lineIndex)
 
-    fun getLineWidth(index: Int): Float = ensureLayout.getLineWidth(index)
+    fun getLineWidth(lineIndex: Int): Float = ensureLayout.getLineWidth(lineIndex)
 
     /**
      * @return true if the given line is ellipsized, else false.
