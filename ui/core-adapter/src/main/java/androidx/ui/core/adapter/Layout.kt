@@ -63,8 +63,18 @@ fun ComplexMeasureBox(
  */
 @Composable
 @Suppress("PLUGIN_ERROR")
-fun RowFlex(@Children() block: (FlexChildren) -> Unit) {
+fun FlexRow(@Children() block: (FlexChildren) -> Unit) {
     FlexKt.FlexRow(block)
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.Flex
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun FlexColumn(@Children() block: (FlexChildren) -> Unit) {
+    FlexKt.FlexColumn(block)
 }
 
 /**
@@ -75,6 +85,16 @@ fun RowFlex(@Children() block: (FlexChildren) -> Unit) {
 @Suppress("PLUGIN_ERROR")
 fun Row(@Children() block: () -> Unit) {
     FlexKt.Row(block)
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.Flex
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun Column(@Children() block: () -> Unit) {
+    FlexKt.Column(block)
 }
 
 /**

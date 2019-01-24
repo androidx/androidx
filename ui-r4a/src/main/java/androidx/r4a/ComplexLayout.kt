@@ -19,11 +19,13 @@ package androidx.r4a
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
+import androidx.ui.core.adapter.Column
 import androidx.ui.core.adapter.ComplexMeasureBox
 import androidx.ui.core.adapter.Row
-import androidx.ui.core.adapter.RowFlex
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.Center
+import androidx.ui.core.adapter.FlexColumn
+import androidx.ui.core.adapter.FlexRow
 import androidx.ui.core.dp
 import androidx.ui.painting.Color
 import com.google.r4a.Children
@@ -121,7 +123,7 @@ fun RectangleWithIntrinsics(color: Color) {
 
 @Composable
 fun FlexRowUsage() {
-    <RowFlex> children ->
+    <FlexRow> children ->
         // TODO(popam): named arguments cannot be used because of the adapter hack
         children.expanded(/*flex=*/2f) {
             <Center>
@@ -137,7 +139,28 @@ fun FlexRowUsage() {
         children.expanded(/*flex=*/1f) {
             <SizedRectangle color=Color(0xFF00FF00.toInt()) />
         }
-    </RowFlex>
+    </FlexRow>
+}
+
+@Composable
+fun FlexColumnUsage() {
+    <FlexColumn> children ->
+        // TODO(popam): named arguments cannot be used because of the adapter hack
+        children.expanded(/*flex=*/2f) {
+            <Center>
+                <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
+            </Center>
+            <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp />
+        }
+        children.inflexible {
+            <SizedRectangle color=Color(0xFFFF0000.toInt()) height=40.dp />
+            <SizedRectangle color=Color(0xFF00FF00.toInt()) height=50.dp />
+            <SizedRectangle color=Color(0xFF0000FF.toInt()) height=60.dp />
+        }
+        children.expanded(/*flex=*/1f) {
+            <SizedRectangle color=Color(0xFF00FF00.toInt()) />
+        }
+    </FlexColumn>
 }
 
 @Composable
@@ -149,12 +172,21 @@ fun RowUsage() {
     </Row>
 }
 
+@Composable
+fun ColumnUsage() {
+    <Column>
+        <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
+        <SizedRectangle color=Color(0xFFFF0000.toInt()) width=40.dp height=80.dp />
+        <SizedRectangle color=Color(0xFF00FF00.toInt()) width=80.dp height=70.dp />
+    </Column>
+}
+
 /**
  * Entry point for the activity.
  */
 @Composable
 fun ComplexLayout() {
     <CraneWrapper>
-        <FlexRowUsage />
+        <FlexColumnUsage />
     </CraneWrapper>
 }
