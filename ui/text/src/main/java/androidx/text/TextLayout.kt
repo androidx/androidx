@@ -161,6 +161,13 @@ class TextLayout constructor(
         return layout.getLineWidth(index)
     }
 
+    /**
+     * @return true if the given line is ellipsized, else false.
+     */
+    fun isEllipsisApplied(lineIndex: Int): Boolean {
+        return layout.getEllipsisCount(lineIndex) > 0
+    }
+
     fun paint(canvas: Canvas) {
         layout.draw(canvas)
     }

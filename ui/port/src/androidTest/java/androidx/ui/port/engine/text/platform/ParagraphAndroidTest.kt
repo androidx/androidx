@@ -43,7 +43,9 @@ import com.nhaarman.mockitokotlin2.verify
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
 import org.hamcrest.Matchers.nullValue
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertThat
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -736,11 +738,67 @@ class ParagraphAndroidTest {
         assertThat(typeface.isItalic, equalTo(false))
     }
 
+    @Test
+    fun testEllipsis_withMaxLineEqualsNull_doesNotEllipsis() {
+        val text = "abc"
+        val fontSize = 20f
+        val paragraphWidth = (text.length - 1) * fontSize
+        val paragraph = simpleParagraph(
+            text = text,
+            fontFamily = fontFamily,
+            fontSize = fontSize,
+            ellipsis = true
+        )
+        paragraph.layout(paragraphWidth)
+        for (i in 0 until paragraph.lineCount) {
+            assertFalse(paragraph.isEllipsisApplied(i))
+        }
+    }
+
+    @Test
+    fun testEllipsis_withMaxLinesLessThanTextLines_doesEllipsis() {
+        val text = "abcde"
+        val fontSize = 100f
+        // Note that on API 21, if the next line only contains 1 character, ellipsis won't work
+        val paragraphWidth = (text.length - 1.5f) * fontSize
+        val paragraph = simpleParagraph(
+            text = text,
+            fontFamily = fontFamily,
+            fontSize = fontSize,
+            ellipsis = true,
+            maxLines = 1
+        )
+        paragraph.layout(paragraphWidth)
+
+        assertTrue(paragraph.isEllipsisApplied(0))
+    }
+
+    @Test
+    fun testEllipsis_withMaxLinesMoreThanTextLines_doesNotEllipsis() {
+        val text = "abc"
+        val fontSize = 100f
+        val paragraphWidth = (text.length - 1) * fontSize
+        val maxLines = ceil(text.length * fontSize / paragraphWidth).toInt()
+        val paragraph = simpleParagraph(
+            text = text,
+            fontFamily = fontFamily,
+            fontSize = fontSize,
+            ellipsis = true,
+            maxLines = maxLines
+        )
+        paragraph.layout(paragraphWidth)
+
+        for (i in 0 until paragraph.lineCount) {
+            assertFalse(paragraph.isEllipsisApplied(i))
+        }
+    }
+
     private fun simpleParagraph(
         text: CharSequence = "",
         textStyles: List<ParagraphBuilder.TextStyleIndex> = listOf(),
         textAlign: TextAlign? = null,
         fontSize: Float? = null,
+        ellipsis: Boolean? = null,
         maxLines: Int? = null,
         fontFamily: FontFamily? = null,
         fontWeight: FontWeight? = null,
@@ -753,6 +811,7 @@ class ParagraphAndroidTest {
             typefaceAdapter = typefaceAdapter,
             paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
+                ellipsis = ellipsis,
                 maxLines = maxLines,
                 fontFamily = fontFamily,
                 fontSize = fontSize,

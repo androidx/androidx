@@ -19,6 +19,7 @@ import android.os.Build
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextPaint
+import android.text.TextUtils
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
 import android.text.style.ForegroundColorSpan
@@ -179,10 +180,17 @@ internal class ParagraphAndroid constructor(
         val lineSpacingMultiplier =
             paragraphStyle.lineHeight ?: DEFAULT_LINESPACING_MULTIPLIER
 
+        val ellipsize = if (paragraphStyle.ellipsis == true) {
+            TextUtils.TruncateAt.END
+        } else {
+            null
+        }
+
         layout = TextLayout(
             charSequence = charSequence,
             width = floorWidth,
             textPaint = textPaint,
+            ellipsize = ellipsize,
             alignment = alignment,
             textDirectionHeuristic = textDirectionHeuristic,
             lineSpacingMultiplier = lineSpacingMultiplier,
@@ -208,6 +216,11 @@ internal class ParagraphAndroid constructor(
     fun getLineHeight(index: Int): Float = ensureLayout.getLineHeight(index)
 
     fun getLineWidth(index: Int): Float = ensureLayout.getLineWidth(index)
+
+    /**
+     * @return true if the given line is ellipsized, else false.
+     */
+    fun isEllipsisApplied(lineIndex: Int): Boolean = ensureLayout.isEllipsisApplied(lineIndex)
 
     fun paint(canvas: Canvas, x: Float, y: Float) {
         val tmpLayout = layout ?: throw IllegalStateException("paint cannot be " +
