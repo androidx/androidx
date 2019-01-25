@@ -152,8 +152,6 @@ public class ChangeImageTransform extends Transition {
         int drawableWidth = drawable.getIntrinsicWidth();
         int drawableHeight = drawable.getIntrinsicHeight();
 
-        ImageViewUtils.startAnimateTransform(imageView);
-
         ObjectAnimator animator;
         if (drawableWidth <= 0 || drawableHeight <= 0) {
             animator = createNullAnimator(imageView);
@@ -167,8 +165,6 @@ public class ChangeImageTransform extends Transition {
             ANIMATED_TRANSFORM_PROPERTY.set(imageView, startMatrix);
             animator = createMatrixAnimator(imageView, startMatrix, endMatrix);
         }
-
-        ImageViewUtils.reserveEndAnimateTransform(imageView, animator);
 
         return animator;
     }

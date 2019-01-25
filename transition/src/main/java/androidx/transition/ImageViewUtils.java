@@ -16,14 +16,13 @@
 
 package androidx.transition;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.util.Log;
 import android.widget.ImageView;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -33,51 +32,56 @@ class ImageViewUtils {
     private static Method sAnimateTransformMethod;
     private static boolean sAnimateTransformMethodFetched;
 
-    /**
-     * Starts animating the transformation of the image view. This has to be called before calling
-     * {@link #animateTransform(ImageView, Matrix)}.
-     */
-    static void startAnimateTransform(ImageView view) {
-        if (Build.VERSION.SDK_INT < 21) {
-            final ImageView.ScaleType scaleType = view.getScaleType();
-            view.setTag(R.id.save_scale_type, scaleType);
-            if (scaleType == ImageView.ScaleType.MATRIX) {
-                view.setTag(R.id.save_image_matrix, view.getImageMatrix());
-            } else {
-                view.setScaleType(ImageView.ScaleType.MATRIX);
-            }
-            view.setImageMatrix(MatrixUtils.IDENTITY_MATRIX);
-        }
-    }
+    private static Field sDrawMatrixField;
+    private static boolean sDrawMatrixFieldFetched;
 
     /**
      * Sets the matrix to animate the content of the image view.
      */
     static void animateTransform(ImageView view, Matrix matrix) {
-        if (Build.VERSION.SDK_INT < 21) {
-            view.setImageMatrix(matrix);
-        } else {
-            if (matrix == null) {
-                // There is a bug in ImageView.animateTransform() prior to Android Q so paddings
-                // are ignored when matrix is null.
-                Drawable drawable = view.getDrawable();
-                if (drawable != null) {
-                    int vwidth = view.getWidth() - view.getPaddingLeft() - view.getPaddingRight();
-                    int vheight = view.getHeight() - view.getPaddingTop() - view.getPaddingBottom();
-                    drawable.setBounds(0, 0, vwidth, vheight);
-                    view.invalidate();
+        if (matrix == null) {
+            // There is a bug in ImageView.animateTransform() prior to the current development
+            // version of Android so paddings are ignored when matrix is null.
+            Drawable drawable = view.getDrawable();
+            if (drawable != null) {
+                int vwidth = view.getWidth() - view.getPaddingLeft() - view.getPaddingRight();
+                int vheight = view.getHeight() - view.getPaddingTop() - view.getPaddingBottom();
+                drawable.setBounds(0, 0, vwidth, vheight);
+                view.invalidate();
+            }
+        } else if (Build.VERSION.SDK_INT >= 21) {
+            fetchAnimateTransformMethod();
+            if (sAnimateTransformMethod != null) {
+                try {
+                    sAnimateTransformMethod.invoke(view, matrix);
+                } catch (IllegalAccessException e) {
+                    // Do nothing
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException(e.getCause());
                 }
-            } else {
-                fetchAnimateTransformMethod();
-                if (sAnimateTransformMethod != null) {
+            }
+        } else {
+            Drawable drawable = view.getDrawable();
+            if (drawable != null) {
+                drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
+                        drawable.getIntrinsicHeight());
+                Matrix drawMatrix = null;
+                fetchDrawMatrixField();
+                if (sDrawMatrixField != null) {
                     try {
-                        sAnimateTransformMethod.invoke(view, matrix);
-                    } catch (IllegalAccessException e) {
+                        drawMatrix = (Matrix) sDrawMatrixField.get(view);
+                        if (drawMatrix == null) {
+                            drawMatrix = new Matrix();
+                            sDrawMatrixField.set(view, drawMatrix);
+                        }
+                    } catch (IllegalAccessException ignore) {
                         // Do nothing
-                    } catch (InvocationTargetException e) {
-                        throw new RuntimeException(e.getCause());
                     }
                 }
+                if (drawMatrix != null) {
+                    drawMatrix.set(matrix);
+                }
+                view.invalidate();
             }
         }
     }
@@ -95,26 +99,15 @@ class ImageViewUtils {
         }
     }
 
-    /**
-     * Reserves that the caller will stop calling {@link #animateTransform(ImageView, Matrix)} when
-     * the specified animator ends.
-     */
-    static void reserveEndAnimateTransform(final ImageView view, Animator animator) {
-        if (Build.VERSION.SDK_INT < 21) {
-            animator.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    final ImageView.ScaleType scaleType = (ImageView.ScaleType)
-                            view.getTag(R.id.save_scale_type);
-                    view.setScaleType(scaleType);
-                    view.setTag(R.id.save_scale_type, null);
-                    if (scaleType == ImageView.ScaleType.MATRIX) {
-                        view.setImageMatrix((Matrix) view.getTag(R.id.save_image_matrix));
-                        view.setTag(R.id.save_image_matrix, null);
-                    }
-                    animation.removeListener(this);
-                }
-            });
+    private static void fetchDrawMatrixField() {
+        if (!sDrawMatrixFieldFetched) {
+            try {
+                sDrawMatrixField = ImageView.class.getDeclaredField("mDrawMatrix");
+                sDrawMatrixField.setAccessible(true);
+            } catch (NoSuchFieldException ignore) {
+                // Do nothing
+            }
+            sDrawMatrixFieldFetched = true;
         }
     }
 
