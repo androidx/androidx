@@ -32,11 +32,11 @@ import androidx.test.rule.ActivityTestRule
 import androidx.testutils.PollingCheck
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
-import androidx.ui.foundation.ComponentNode
+import androidx.ui.foundation.PortComponentNode
 import androidx.ui.foundation.ContainingView
-import androidx.ui.foundation.DrawNode
-import androidx.ui.foundation.LayoutNode
-import androidx.ui.foundation.LayoutNode.Companion.measure
+import androidx.ui.foundation.DrawNodePort
+import androidx.ui.foundation.LayoutNodePort
+import androidx.ui.foundation.LayoutNodePort.Companion.measure
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
@@ -59,7 +59,7 @@ import kotlin.math.max
 
 @SmallTest
 @RunWith(JUnit4::class)
-class ContainingViewTest {
+class PortContainingViewTest {
     @get:Rule
     val activityTestRule = ActivityTestRule<ImageDrawTest.Companion.TestActivity>(
         ImageDrawTest.Companion.TestActivity::class.java
@@ -90,7 +90,7 @@ class ContainingViewTest {
     }
 
     /**
-     * Tests that layout is called properly on LayoutNode when added to a View hierarchy
+     * Tests that layout is called properly on LayoutNodePort when added to a View hierarchy
      */
     @Test
     fun singleLayoutNode() {
@@ -98,7 +98,7 @@ class ContainingViewTest {
             return
         }
         var didLayout = false
-        val layout = LayoutNode { _, _ ->
+        val layout = LayoutNodePort { _, _ ->
             didLayout = true
             Size(9.0f, 10.0f)
         }
@@ -121,7 +121,7 @@ class ContainingViewTest {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             return
         }
-        val outerLayout = LayoutNode { constraints, _ ->
+        val outerLayout = LayoutNodePort { constraints, _ ->
             // give the same constraints to all children
             var width = 0
             var height = 0
@@ -140,10 +140,10 @@ class ContainingViewTest {
             }
             Size(width.toFloat(), height.toFloat())
         }
-        val squareLayout = LayoutNode { constraints, _ ->
+        val squareLayout = LayoutNodePort { constraints, _ ->
             Size(10.0f, 10.0f)
         }
-        val rectLayout = LayoutNode { constraints, _ ->
+        val rectLayout = LayoutNodePort { constraints, _ ->
             Size(20.0f, 8.0f)
         }
 
@@ -199,9 +199,9 @@ class ContainingViewTest {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return
         }
-        val layout = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
+        val layout = LayoutNodePort { _, _ -> Size(10.0f, 10.0f) }
         val drawLatch = CountDownLatch(1)
-        val draw = DrawNode { canvas ->
+        val draw = DrawNodePort { canvas ->
             drawLatch.countDown()
             drawFill(canvas, 0xFF0000FF.toInt()) { c, paint ->
                 c.drawRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
@@ -227,16 +227,16 @@ class ContainingViewTest {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return
         }
-        val layout = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
+        val layout = LayoutNodePort { _, _ -> Size(10.0f, 10.0f) }
         val drawLatch = CountDownLatch(1)
-        val square = DrawNode { canvas ->
+        val square = DrawNodePort { canvas ->
             drawLatch.countDown()
             drawFill(canvas, 0xFF0000FF.toInt()) { c, paint ->
                 c.drawRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
             }
         }
         layout.add(0, square)
-        val circle = DrawNode { canvas ->
+        val circle = DrawNodePort { canvas ->
             drawFill(canvas, 0xFF00FF00.toInt()) { c, paint ->
                 c.drawOval(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
             }
@@ -261,7 +261,7 @@ class ContainingViewTest {
     }
 
     /**
-     * DrawNodes in different layouts should be placed with respect to their LayoutNode parent
+     * DrawNodes in different layouts should be placed with respect to their LayoutNodePort parent
      */
     @Test
     fun complexLayoutDraw() {
@@ -269,7 +269,7 @@ class ContainingViewTest {
             return
         }
         // Draw rects in the upper left and lower right, but not in the upper right and lower left
-        val layout = LayoutNode { c, _ ->
+        val layout = LayoutNodePort { c, _ ->
             val first = layoutChildren[children[0]]!!
             val second = layoutChildren[children[1]]!!
             measure(first, c, false)
@@ -278,15 +278,15 @@ class ContainingViewTest {
             position(second, 10, 10)
             Size(20.0f, 20.0f)
         }
-        val subLayout1 = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
-        val subLayout2 = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
-        val redRect = DrawNode { canvas ->
+        val subLayout1 = LayoutNodePort { _, _ -> Size(10.0f, 10.0f) }
+        val subLayout2 = LayoutNodePort { _, _ -> Size(10.0f, 10.0f) }
+        val redRect = DrawNodePort { canvas ->
             drawFill(canvas, 0xFFFF0000.toInt()) { c, paint ->
                 c.drawRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
             }
         }
         val drawLatch = CountDownLatch(1)
-        val blueRect = DrawNode { canvas ->
+        val blueRect = DrawNodePort { canvas ->
             drawLatch.countDown()
             drawFill(canvas, 0xFF0000FF.toInt()) { c, paint ->
                 c.drawRect(Rect(0.0f, 0.0f, 10.0f, 10.0f), paint)
@@ -317,31 +317,31 @@ class ContainingViewTest {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return
         }
-        val layout = LayoutNode { c, _ ->
+        val layout = LayoutNodePort { c, _ ->
             val first = layoutChildren[children[1]]!!
             measure(first, c, false)
             position(first, 0, 0)
             Size(20.0f, 20.0f)
         }
         val drawLatch = CountDownLatch(1)
-        val draw1 = DrawNode { canvas ->
+        val draw1 = DrawNodePort { canvas ->
             drawFill(canvas, android.graphics.Color.BLUE) { c, paint ->
                 c.drawRect(Rect(0.0f, 0.0f, 20.0f, 20.0f), paint)
             }
             drawLatch.countDown()
         }
-        val draw2 = DrawNode { canvas ->
+        val draw2 = DrawNodePort { canvas ->
             drawFill(canvas, android.graphics.Color.BLACK) { c, paint ->
                 c.drawOval(Rect(0.0f, 0.0f, 20.0f, 20.0f), paint)
             }
         }
-        val draw3 = DrawNode { canvas ->
+        val draw3 = DrawNodePort { canvas ->
             drawFill(canvas, android.graphics.Color.WHITE) { c, paint ->
                 c.drawRect(Rect(5.0f, 5.0f, 15.0f, 15.0f), paint)
             }
         }
         layout.add(0, draw1)
-        val child1 = LayoutNode { _, _ -> Size(20.0f, 20.0f) }
+        val child1 = LayoutNodePort { _, _ -> Size(20.0f, 20.0f) }
         layout.add(1, child1)
         child1.add(0, draw2)
         layout.add(2, draw3)
@@ -369,7 +369,7 @@ class ContainingViewTest {
         }
         val layoutLatch1 = CountDownLatch(1)
         val layoutLatch2 = CountDownLatch(2)
-        val outer = LayoutNode { c, _ ->
+        val outer = LayoutNodePort { c, _ ->
             val first = layoutChildren[children[0]]!!
             val second = layoutChildren[children[1]]!!
             val firstSize = measure(first, c, true)
@@ -386,10 +386,10 @@ class ContainingViewTest {
             )
         }
         var size1 = 10.0f
-        val layout1 = LayoutNode { _, _ -> Size(size1, size1) }
+        val layout1 = LayoutNodePort { _, _ -> Size(size1, size1) }
         outer.add(0, layout1)
 
-        val layout2 = LayoutNode { _, _ -> Size(10.0f, 10.0f) }
+        val layout2 = LayoutNodePort { _, _ -> Size(10.0f, 10.0f) }
         outer.add(1, layout2)
 
         val view = setContainingView(outer)
@@ -434,7 +434,7 @@ class ContainingViewTest {
         block(canvas, paint)
     }
 
-    private fun setContainingView(node: ComponentNode?): ContainingView {
+    private fun setContainingView(node: PortComponentNode?): ContainingView {
         var view: ContainingView? = null
         val onPreDraw = mock<ViewTreeObserver.OnPreDrawListener> {
             on { onPreDraw() } doReturn true

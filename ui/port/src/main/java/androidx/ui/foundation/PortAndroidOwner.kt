@@ -24,7 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.window.Window
-import androidx.ui.foundation.LayoutNode.Companion.measure
+import androidx.ui.foundation.LayoutNodePort.Companion.measure
 import androidx.ui.painting.Canvas
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.widgets.binding.WidgetsFlutterBinding
@@ -34,24 +34,24 @@ import androidx.ui.widgets.framework.Widget
 import androidx.ui.widgets.view.ViewHost
 
 /**
- * [ComponentNode.ownerData] under [AndroidOwner] control.
+ * [PortComponentNode.ownerData] under [PortAndroidOwner] control.
  */
 private class AndroidData(val view: ViewGroup) {
-    val drawNodes = mutableSetOf<DrawNode>()
+    val drawNodes = mutableSetOf<DrawNodePort>()
 }
 
 /**
- * An Android View-based owner. Only [LayoutNode]s and [DrawNode]s get unique
- * [ComponentNode.ownerData]. Other nodes share their owner data with their parent.
+ * An Android View-based owner. Only [LayoutNodePort]s and [DrawNodePort]s get unique
+ * [PortComponentNode.ownerData]. Other nodes share their owner data with their parent.
  *
  * This is currently single threaded and runs on the UI thread.
  */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-private class AndroidOwner(val containingView: ContainingView) : Owner {
-    val nodesRequiringLayout = sortedSetOf<LayoutNode>(DepthFirstComparison())
-    val adjustedLayouts = mutableSetOf<LayoutNode>()
+private class PortAndroidOwner(val containingView: ContainingView) : PortOwner {
+    val nodesRequiringLayout = sortedSetOf<LayoutNodePort>(DepthFirstComparison())
+    val adjustedLayouts = mutableSetOf<LayoutNodePort>()
 
-    val root = LayoutNode { constraints, _ ->
+    val root = LayoutNodePort { constraints, _ ->
         assert(layoutChildren.size <= 1)
         val child = layoutChildren.values.firstOrNull()
         if (child == null) {
@@ -70,13 +70,13 @@ private class AndroidOwner(val containingView: ContainingView) : Owner {
     /**
      * Convenience property to avoid all that casting.
      */
-    private var ComponentNode.androidData: AndroidData
+    private var PortComponentNode.androidData: AndroidData
         get() = ownerData as AndroidData
         set(value) {
             ownerData = value
         }
 
-    private val LayoutNode.isRelayoutBoundary: Boolean
+    private val LayoutNodePort.isRelayoutBoundary: Boolean
         get() = (!parentUsesSize && !sizedByParent)
 
     init {
@@ -86,13 +86,13 @@ private class AndroidOwner(val containingView: ContainingView) : Owner {
         root.sizedByParent = false
     }
 
-    override fun onInvalidate(drawNode: DrawNode) {
+    override fun onInvalidate(drawNode: DrawNodePort) {
         callOnUiThread {
             drawNode.androidData.view.invalidate()
         }
     }
 
-    override fun onRequestLayout(layoutNode: LayoutNode) {
+    override fun onRequestLayout(layoutNode: LayoutNodePort) {
         if (!layoutRequested) {
             layoutRequested = true
             callOnUiThread {
@@ -111,30 +111,30 @@ private class AndroidOwner(val containingView: ContainingView) : Owner {
         }
     }
 
-    override fun onSizeChange(layoutNode: LayoutNode) {
+    override fun onSizeChange(layoutNode: LayoutNodePort) {
         adjustedLayouts.add(layoutNode)
     }
 
-    override fun onPositionChange(layoutNode: LayoutNode) {
+    override fun onPositionChange(layoutNode: LayoutNodePort) {
         adjustedLayouts.add(layoutNode)
     }
 
-    override fun onAttach(node: ComponentNode) {
+    override fun onAttach(node: PortComponentNode) {
         if (node.ownerData != null) throw IllegalStateException()
         assert(node.ownerData == null)
 
         val parent = node.parent
-        if (node !is LayoutNode) {
+        if (node !is LayoutNodePort) {
             val androidData = parent!!.androidData
             node.androidData = androidData
-            if (node is DrawNode) {
+            if (node is DrawNodePort) {
                 androidData.drawNodes.add(node)
                 androidData.view.setWillNotDraw(false)
             }
             return
         }
 
-        // LayoutNode and DrawNode get their own Views
+        // LayoutNodePort and DrawNodePort get their own Views
         val container = if (parent == null) {
             // This must be the root node
             containingView
@@ -150,14 +150,14 @@ private class AndroidOwner(val containingView: ContainingView) : Owner {
         adjustedLayouts.add(node)
     }
 
-    override fun onDetach(node: ComponentNode) {
-        if (node is DrawNode) {
+    override fun onDetach(node: PortComponentNode) {
+        if (node is DrawNodePort) {
             val androidData = node.androidData
             androidData.drawNodes.remove(node)
             if (androidData.drawNodes.isEmpty()) {
                 androidData.view.setWillNotDraw(true)
             }
-        } else if (node is LayoutNode) {
+        } else if (node is LayoutNodePort) {
             val view = node.androidData.view
             (view.parent as ViewGroup).removeView(view)
         }
@@ -167,7 +167,7 @@ private class AndroidOwner(val containingView: ContainingView) : Owner {
     /**
      * Does layout for all nodes that have pending layout.
      * This currently only works on the UI thread. At the end of this, all layouts will be
-     * resized and positioned. [adjustedLayouts] will contain all [LayoutNode]s that have
+     * resized and positioned. [adjustedLayouts] will contain all [LayoutNodePort]s that have
      * changed size or position.
      */
     fun reconcileLayout() {
@@ -179,7 +179,7 @@ private class AndroidOwner(val containingView: ContainingView) : Owner {
     }
 
     /**
-     * Calls [android.view.View.measure] on each view underlying [LayoutNode]s that have
+     * Calls [android.view.View.measure] on each view underlying [LayoutNodePort]s that have
      * been resized or repositioned.
      */
     fun measureAdjustedLayouts() {
@@ -191,7 +191,7 @@ private class AndroidOwner(val containingView: ContainingView) : Owner {
     }
 
     /**
-     * Calls [android.view.View.layout] on each view underlying [LayoutNode]s that have
+     * Calls [android.view.View.layout] on each view underlying [LayoutNodePort]s that have
      * been resized or repositioned.
      */
     fun layoutAdjustedLayouts() {
@@ -225,7 +225,7 @@ class ContainingView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
 ) : ViewGroup(context, attrs, defStyleAttr) {
-    private val owner = AndroidOwner(this)
+    private val owner = PortAndroidOwner(this)
 
     // `internal` so it can be used for test access
     internal val root = owner.root
@@ -240,7 +240,7 @@ class ContainingView @JvmOverloads constructor(
         )
         System.out.println("Measuring root $root")
         // Layout with new constraints
-        LayoutNode.measure(root, constraints, false)
+        LayoutNodePort.measure(root, constraints, false)
 
         System.out.println("Root now ${root.width}. Measuring the rest")
         // force reconciliation immediately
@@ -282,7 +282,7 @@ private class ConstraintRange(val min: Float, val max: Float)
  * Defines a View used to keep RenderNode information on LayoutNodes and DrawNodes.
  * This will be replaced with using RenderNodes instead.
  */
-private class NodeView(container: ViewGroup, val node: ComponentNode) :
+private class NodeView(container: ViewGroup, val node: PortComponentNode) :
     ViewGroup(container.context) {
     init {
         container.addView(this)
@@ -307,7 +307,7 @@ private class NodeView(container: ViewGroup, val node: ComponentNode) :
 
     /**
      * Override dispatchDraw so that we can change the order of drawing to intersperse
-     * [DrawNode]s and [LayoutNode]s.
+     * [DrawNodePort]s and [LayoutNodePort]s.
      */
     override fun dispatchDraw(canvas: android.graphics.Canvas) {
         if (willNotDraw()) {
@@ -316,13 +316,13 @@ private class NodeView(container: ViewGroup, val node: ComponentNode) :
         }
     }
 
-    private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
+    private fun callDrawOnChildren(node: PortComponentNode, canvas: Canvas) {
         val drawingTime = drawingTime
         node.visitChildren { child ->
-            if (child is DrawNode) {
+            if (child is DrawNodePort) {
                 child.onPaint(canvas)
                 child.needsPaint = false
-            } else if (child is LayoutNode) {
+            } else if (child is LayoutNodePort) {
                 val view = (child.ownerData as AndroidData).view
                 drawChild(canvas.toFrameworkCanvas(), view, drawingTime)
             } else {
@@ -334,11 +334,11 @@ private class NodeView(container: ViewGroup, val node: ComponentNode) :
 
 /**
  * Used for sorting ComponentNodes, initially by depth, then by order in the hierarchy.
- * The root node is first. in a [LayoutNode], the first child is ordered before the second
+ * The root node is first. in a [LayoutNodePort], the first child is ordered before the second
  * child.
  */
-private class DepthFirstComparison : Comparator<ComponentNode> {
-    override fun compare(o1: ComponentNode, o2: ComponentNode): Int {
+private class DepthFirstComparison : Comparator<PortComponentNode> {
+    override fun compare(o1: PortComponentNode, o2: PortComponentNode): Int {
         if (o1 === o2) {
             return 0
         }
@@ -348,8 +348,8 @@ private class DepthFirstComparison : Comparator<ComponentNode> {
         }
         assert(o1.owner === o2.owner)
         assert(o1.owner != null)
-        var o1Child: ComponentNode = o1
-        var thatChild: ComponentNode = o2
+        var o1Child: PortComponentNode = o1
+        var thatChild: PortComponentNode = o2
         var o1Parent = o1.parent!!
         var thatParent = o2.parent!!
         while (o1Parent !== thatParent) {
@@ -359,7 +359,7 @@ private class DepthFirstComparison : Comparator<ComponentNode> {
             thatParent = thatParent.parent!!
         }
 
-        o1Parent as LayoutNode
+        o1Parent as LayoutNodePort
         val firstChild = o1Parent.children.first { child ->
             child === o1Child || child === thatChild
         }
@@ -391,7 +391,7 @@ fun ContainingView(context: Context, widget: Widget): ContainingView {
 }
 
 private class ElementNodesGenerator(
-    private val rootNode: LayoutNode,
+    private val rootNode: LayoutNodePort,
     private val rootWidgetElement: Element
 ) {
 
@@ -401,16 +401,16 @@ private class ElementNodesGenerator(
         rootWidgetElement.visitChildren(::onElementVisited)
     }
 
-    private var parentNode: LayoutNode = rootNode
+    private var parentNode: LayoutNodePort = rootNode
 
     /**
      * We traverse through Widget's hierarchy and convert every RenderObject into ComponentNodes
      * and transform them into nodes hierarchy.
      *
-     * One RenderObject can be representing or a pair of LayoutNode and DrawNode
-     * or just one LayoutNode for Layout widgets.
+     * One RenderObject can be representing or a pair of LayoutNodePort and DrawNodePort
+     * or just one LayoutNodePort for Layout widgets.
      *
-     * GestureNode is not yet supported.
+     * GestureNodePort is not yet supported.
      */
     private fun onElementVisited(element: Element) {
         if (element is RenderObjectElement) {

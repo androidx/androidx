@@ -7,9 +7,9 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.foundation.AbstractNode
-import androidx.ui.foundation.ComponentNode
-import androidx.ui.foundation.DrawNode
-import androidx.ui.foundation.LayoutNode
+import androidx.ui.foundation.PortComponentNode
+import androidx.ui.foundation.DrawNodePort
+import androidx.ui.foundation.LayoutNodePort
 import androidx.ui.foundation.assertions.FlutterError
 import androidx.ui.foundation.assertions.debugPrintStack
 import androidx.ui.foundation.debugPrint
@@ -406,7 +406,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             return result
         }
 
-    // Using LayoutNode's value internally. It is true when we need to relayout.
+    // Using LayoutNodePort's value internally. It is true when we need to relayout.
     internal var _needsLayout: Boolean
         get() = layoutNode.needsLayout
         set(value) {
@@ -652,7 +652,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
      * work to update its layout information.
      */
     open fun layout(constraints: Constraints, parentUsesSize: Boolean = false) {
-        LayoutNode.measure(layoutNode, constraints, parentUsesSize)
+        LayoutNodePort.measure(layoutNode, constraints, parentUsesSize)
     }
 
     private fun layoutInternal(constraints: Constraints, parentUsesSize: Boolean): Size {
@@ -1057,7 +1057,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
 
     internal var _needsPaint: Boolean = true
         set(value) {
-            // We can't just use DrawNode's value as layout RenderObjects doesn't have it.
+            // We can't just use DrawNodePort's value as layout RenderObjects doesn't have it.
             if (value) {
                 val drawNode = drawNode
                 if (drawNode != null) {
@@ -1065,8 +1065,8 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
                 } else if (inComponentsMode) {
                     // In Flutter you could mark Layout as needsPaint to redraw all the children.
                     // To achieve the same behavior we have to invalidate all the children manually
-                    fun invalidateChildrenNodes(it: ComponentNode) {
-                        if (it is DrawNode) {
+                    fun invalidateChildrenNodes(it: PortComponentNode) {
+                        if (it is DrawNodePort) {
                             it.invalidate()
                         }
                         it.visitChildren(::invalidateChildrenNodes)
@@ -1856,13 +1856,13 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
         }
     }
 
-    // ComponentNode's logic start
+    // PortComponentNode's logic start
 
     /**
      * Layout node for the ComponentNodes hierarchy
      */
-    internal val layoutNode: LayoutNode =
-        LayoutNode { constraints, parentUsesSize ->
+    internal val layoutNode: LayoutNodePort =
+        LayoutNodePort { constraints, parentUsesSize ->
             val result = layoutInternal(constraints, parentUsesSize)
             System.out.println("Layout node ${this@RenderObject}. Constraint:$constraints. " +
                     "parentUsesSize=$parentUsesSize. Result=$result")
@@ -1872,8 +1872,8 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
     /**
      * Draw node for the ComponentNodes hierarchy. Will be null for not drawing RenderObjects
      */
-    internal var drawNode: DrawNode? =
-        DrawNode { canvas ->
+    internal var drawNode: DrawNodePort? =
+        DrawNodePort { canvas ->
             System.out.println("Draw node " + this@RenderObject)
 
             // It will perform all the drawing into a PictureRecorder
@@ -1921,7 +1921,7 @@ abstract class RenderObject : AbstractNode(), DiagnosticableTree, HitTestTarget 
             field = value
         }
 
-    // ComponentNode's logic end
+    // PortComponentNode's logic end
 }
 
 typealias RenderObjectVisitor = (RenderObject) -> Unit

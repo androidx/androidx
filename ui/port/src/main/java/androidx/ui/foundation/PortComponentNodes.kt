@@ -23,51 +23,51 @@ import androidx.ui.rendering.obj.Constraints
 import kotlin.math.roundToInt
 
 /**
- * Owner implements the connection to the underlying view system. On Android, this connects
+ * PortOwner implements the connection to the underlying view system. On Android, this connects
  * to Android [android.view.View]s and all layout, draw, input, and accessibility is hooked
  * through them.
  */
-internal interface Owner {
+internal interface PortOwner {
     /**
-     * Called from a [DrawNode], this registers with the underlying view system that a
+     * Called from a [DrawNodePort], this registers with the underlying view system that a
      * redraw of the given [drawNode] is required. It may cause other nodes to redraw, if
      * necessary.
      */
-    fun onInvalidate(drawNode: DrawNode)
+    fun onInvalidate(drawNode: DrawNodePort)
 
     /**
-     * Called from a [LayoutNode], this registers with the underlying view system that the
-     * given node needs a relayout. The given [layoutNode] will have [LayoutNode.layout] called
+     * Called from a [LayoutNodePort], this registers with the underlying view system that the
+     * given node needs a relayout. The given [layoutNode] will have [LayoutNodePort.layout] called
      * on it at a later time determined by the view system.
      */
-    fun onRequestLayout(layoutNode: LayoutNode)
+    fun onRequestLayout(layoutNode: LayoutNodePort)
 
     /**
-     * Called by [LayoutNode] to indicate the new size of [layoutNode].
+     * Called by [LayoutNodePort] to indicate the new size of [layoutNode].
      * The owner may need to track updated layouts.
      */
-    fun onSizeChange(layoutNode: LayoutNode)
+    fun onSizeChange(layoutNode: LayoutNodePort)
 
     /**
-     * Called by [LayoutNode] to indicate the new position of [layoutNode].
+     * Called by [LayoutNodePort] to indicate the new position of [layoutNode].
      * The owner may need to track updated layouts.
      */
-    fun onPositionChange(layoutNode: LayoutNode)
+    fun onPositionChange(layoutNode: LayoutNodePort)
 
     /**
-     * Called by [ComponentNode] when it is attached to the view system and now has an owner.
-     * This is used by [Owner] to update [ComponentNode.ownerData] and track which nodes are
+     * Called by [PortComponentNode] when it is attached to the view system and now has an owner.
+     * This is used by [PortOwner] to update [PortComponentNode.ownerData] and track which nodes are
      * associated with it. It will only be called when [node] is not already attached to an
      * owner.
      */
-    fun onAttach(node: ComponentNode)
+    fun onAttach(node: PortComponentNode)
 
     /**
-     * Called by [ComponentNode] when it is detached from the view system, such as during
-     * [ComponentNode.dropChild]. This will only be called for [node]s that are already
-     * [ComponentNode.attach]ed.
+     * Called by [PortComponentNode] when it is detached from the view system, such as during
+     * [PortComponentNode.dropChild]. This will only be called for [node]s that are already
+     * [PortComponentNode.attach]ed.
      */
-    fun onDetach(node: ComponentNode)
+    fun onDetach(node: PortComponentNode)
 }
 
 /**
@@ -76,47 +76,48 @@ internal interface Owner {
  * Specific components are backed by a tree of nodes: Draw, Layout, Semantics, GestureDetector.
  * All other components are not represented in the backing hierarchy.
  */
-internal sealed class ComponentNode {
+internal sealed class PortComponentNode {
     /**
-     * The parent node in the ComponentNode hierarchy. This is `null` when the `ComponentNode`
-     * is attached (has an [owner]) and is the root of the tree or has not had [add] called for it.
+     * The parent node in the PortComponentNode hierarchy. This is `null` when the
+     * `PortComponentNode` is attached (has an [owner]) and is the root of the tree or has not had
+     * [add] called for it.
      */
-    var parent: ComponentNode? = null
+    var parent: PortComponentNode? = null
         private set
 
     /**
-     * The view system [Owner]. This `null` until [attach] is called
+     * The view system [PortOwner]. This `null` until [attach] is called
      */
-    var owner: Owner? = null
+    var owner: PortOwner? = null
         private set
 
     /**
-     * The tree depth of the ComponentNode. This is valid only when [isAttached] is true.
+     * The tree depth of the PortComponentNode. This is valid only when [isAttached] is true.
      */
     var depth: Int = 0
 
     /**
-     * An opaque value set by the [Owner]. It is `null` when [isAttached] is false, but
-     * may also be `null` when [isAttached] is true, depending on the needs of the Owner.
+     * An opaque value set by the [PortOwner]. It is `null` when [isAttached] is false, but
+     * may also be `null` when [isAttached] is true, depending on the needs of the PortOwner.
      */
     var ownerData: Any? = null
 
     /**
-     * Returns the number of children in this ComponentNode.
+     * Returns the number of children in this PortComponentNode.
      */
     abstract val size: Int
 
     /**
-     * Execute [block] on all children of this ComponentNode. There is no single concept for
-     * children in ComponentNode, so this method allows executing a method on all children.
+     * Execute [block] on all children of this PortComponentNode. There is no single concept for
+     * children in PortComponentNode, so this method allows executing a method on all children.
      */
-    abstract fun visitChildren(block: (ComponentNode) -> Unit)
+    abstract fun visitChildren(block: (PortComponentNode) -> Unit)
 
     /**
-     * Inserts a child [ComponentNode] at a particular index. If this ComponentNode [isAttached]
-     * then [child] will become [attach]ed also. [child] must have a `null` [parent].
+     * Inserts a child [PortComponentNode] at a particular index. If this PortComponentNode
+     * [isAttached] then [child] will become [attach]ed also. [child] must have a `null` [parent].
      */
-    open fun add(index: Int, child: ComponentNode) {
+    open fun add(index: Int, child: PortComponentNode) {
         assert(child.parent == null)
         child.parent = this
         val owner = this.owner
@@ -145,16 +146,16 @@ internal sealed class ComponentNode {
     abstract fun move(from: Int, to: Int, count: Int)
 
     /**
-     * Returns the child ComponentNode at the given index. An exception will be thrown if there
+     * Returns the child PortComponentNode at the given index. An exception will be thrown if there
      * is no child at the given index.
      */
-    abstract operator fun get(index: Int): ComponentNode
+    abstract operator fun get(index: Int): PortComponentNode
 
     /**
-     * Set the [Owner] of this ComponentNode. This ComponentNode must not already be attached.
-     * [owner] must match its [parent].[owner].
+     * Set the [PortOwner] of this PortComponentNode. This PortComponentNode must not already be
+     * attached. [owner] must match its [parent].[owner].
      */
-    open fun attach(owner: Owner) {
+    open fun attach(owner: PortOwner) {
         assert(this.owner == null)
         assert {
             val parent = parent
@@ -173,9 +174,9 @@ internal sealed class ComponentNode {
     }
 
     /**
-     * Remove the ComponentNode from the [Owner]. The [owner] must not be `null` before this call
-     * and its [parent]'s [owner] must be `null` before calling this. This will also [detach] all
-     * children. After executing, the [owner] will be `null`.
+     * Remove the PortComponentNode from the [PortOwner]. The [owner] must not be `null` before this
+     * call and its [parent]'s [owner] must be `null` before calling this. This will also [detach]
+     * all children. After executing, the [owner] will be `null`.
      */
     open fun detach() {
         assert(owner != null)
@@ -189,18 +190,18 @@ internal sealed class ComponentNode {
 }
 
 /**
- * Base class for [ComponentNode]s that have zero or one child
+ * Base class for [PortComponentNode]s that have zero or one child
  */
-internal open class SingleChildComponentNode() : ComponentNode() {
+internal open class SingleChildPortComponentNode() : PortComponentNode() {
     /**
-     * The child that this ComponentNode has. This will be `null` if it has no child.
+     * The child that this PortComponentNode has. This will be `null` if it has no child.
      */
-    var child: ComponentNode? = null
+    var child: PortComponentNode? = null
 
     override val size: Int
         get() = if (child == null) 0 else 1
 
-    override fun add(index: Int, child: ComponentNode) {
+    override fun add(index: Int, child: PortComponentNode) {
         assert(this.child == null)
         assert(index == 0)
         super.add(index, child)
@@ -215,7 +216,7 @@ internal open class SingleChildComponentNode() : ComponentNode() {
         this.child = null
     }
 
-    override fun get(index: Int): ComponentNode {
+    override fun get(index: Int): PortComponentNode {
         assert(index == 0)
         return child ?: throw IllegalArgumentException("There is no child of this node")
     }
@@ -224,7 +225,7 @@ internal open class SingleChildComponentNode() : ComponentNode() {
         throw UnsupportedOperationException("Can't move children when there is a maximum of 1")
     }
 
-    override fun visitChildren(block: (ComponentNode) -> Unit) {
+    override fun visitChildren(block: (PortComponentNode) -> Unit) {
         val child = this.child
         if (child != null) {
             block(child)
@@ -235,18 +236,18 @@ internal open class SingleChildComponentNode() : ComponentNode() {
 /**
  * Backing node for Gesture
  */
-internal class GestureNode() : SingleChildComponentNode()
+internal class GestureNodePort() : SingleChildPortComponentNode()
 
 /**
  * Backing node for the [Draw] component.
  */
-internal class DrawNode(val onPaint: (Canvas) -> Unit) : ComponentNode() {
+internal class DrawNodePort(val onPaint: (Canvas) -> Unit) : PortComponentNode() {
     override val size: Int
         get() = 0
 
     var needsPaint = true
 
-    override fun visitChildren(block: (ComponentNode) -> Unit) {
+    override fun visitChildren(block: (PortComponentNode) -> Unit) {
         // no children
     }
 
@@ -254,11 +255,11 @@ internal class DrawNode(val onPaint: (Canvas) -> Unit) : ComponentNode() {
         throw UnsupportedOperationException("Children are not supported")
     }
 
-    override fun get(index: Int): ComponentNode {
+    override fun get(index: Int): PortComponentNode {
         throw IllegalArgumentException("Children are not supported")
     }
 
-    override fun add(index: Int, child: ComponentNode) {
+    override fun add(index: Int, child: PortComponentNode) {
         throw UnsupportedOperationException("Children are not supported")
     }
 
@@ -266,7 +267,7 @@ internal class DrawNode(val onPaint: (Canvas) -> Unit) : ComponentNode() {
         throw java.lang.IllegalArgumentException("Children are not supported")
     }
 
-    override fun attach(owner: Owner) {
+    override fun attach(owner: PortOwner) {
         super.attach(owner)
         if (needsPaint) {
             owner.onInvalidate(this)
@@ -284,15 +285,15 @@ internal class DrawNode(val onPaint: (Canvas) -> Unit) : ComponentNode() {
 /**
  * Backing node for [Layout] component.
  */
-internal class LayoutNode(
+internal class LayoutNodePort(
     /** This is only needed now because we don't have reconciliation */
-    val onLayout: LayoutNode.(constraints: Constraints, parentUsesSize: Boolean) -> Size
-) : ComponentNode() {
+    val onLayout: LayoutNodePort.(constraints: Constraints, parentUsesSize: Boolean) -> Size
+) : PortComponentNode() {
     /**
-     * The list of child ComponentNodes that this ComponentNode has. It can contain zero or
+     * The list of child ComponentNodes that this PortComponentNode has. It can contain zero or
      * more entries.
      */
-    val children = mutableListOf<ComponentNode>()
+    val children = mutableListOf<PortComponentNode>()
 
     /**
      * `true` when [dirtyLayout] has been called on this Node and `false` after [layout] has
@@ -328,38 +329,39 @@ internal class LayoutNode(
         private set
 
     /**
-     * The x position of this LayoutNode as set by its [parentLayoutNode]. Only the
+     * The x position of this LayoutNodePort as set by its [parentLayoutNode]. Only the
      * [parentLayoutNode] will set this value during its [layout].
      */
     var x = 0
         private set
 
     /**
-     * The y position of this LayoutNode as set by its [parentLayoutNode]. Only the
+     * The y position of this LayoutNodePort as set by its [parentLayoutNode]. Only the
      * [parentLayoutNode] will set this value during its [layout].
      */
     var y = 0
         private set
 
     /**
-     * Map from a child to the first [LayoutNode] within that child. The [parentLayoutNode] of that
-     * [LayoutNode] will be this. There will be no entry for a child if there is no [LayoutNode]
-     * within the child's hierarchy. This is only valid between attach() and detach()
+     * Map from a child to the first [LayoutNodePort] within that child. The [parentLayoutNode] of
+     * that [LayoutNodePort] will be this. There will be no entry for a child if there is no
+     * [LayoutNodePort] within the child's hierarchy. This is only valid between attach() and
+     * detach()
      */
-    val layoutChildren = mutableMapOf<ComponentNode, LayoutNode?>()
+    val layoutChildren = mutableMapOf<PortComponentNode, LayoutNodePort?>()
 
     /**
-     * This is the LayoutNode ancestor that contains this LayoutNode. This will be `null` for the
-     * root [LayoutNode]. It is only valid between attach() and detach().
+     * This is the LayoutNodePort ancestor that contains this LayoutNodePort. This will be `null`
+     * for the root [LayoutNodePort]. It is only valid between attach() and detach().
      */
-    var parentLayoutNode: LayoutNode? = null
+    var parentLayoutNode: LayoutNodePort? = null
 
     override val size: Int
         get() = children.size
 
-    override fun get(index: Int): ComponentNode = children[index]
+    override fun get(index: Int): PortComponentNode = children[index]
 
-    override fun add(index: Int, child: ComponentNode) {
+    override fun add(index: Int, child: PortComponentNode) {
         children.add(index, child)
         super.add(index, child)
         if (owner != null) {
@@ -379,7 +381,7 @@ internal class LayoutNode(
         assert(to >= 0)
         assert(count > 0)
         // Do the simple thing for now. We can improve efficiency later if we need to
-        val removed = ArrayList<ComponentNode>(count)
+        val removed = ArrayList<PortComponentNode>(count)
         for (i in from until from + count) {
             removed += children[i]
         }
@@ -389,19 +391,19 @@ internal class LayoutNode(
         dirtyLayout()
     }
 
-    override fun attach(owner: Owner) {
+    override fun attach(owner: PortOwner) {
         super.attach(owner)
 
-        // Find the LayoutNode ancestor and its direct child
-        var nodeParent: ComponentNode? = this
-        var node: ComponentNode
+        // Find the LayoutNodePort ancestor and its direct child
+        var nodeParent: PortComponentNode? = this
+        var node: PortComponentNode
         do {
             node = nodeParent!!
             nodeParent = node.parent
-        } while (nodeParent != null && nodeParent !is LayoutNode)
+        } while (nodeParent != null && nodeParent !is LayoutNodePort)
 
-        if (nodeParent is LayoutNode) {
-            // Change the layoutChildren of the ancestor LayoutNode
+        if (nodeParent is LayoutNodePort) {
+            // Change the layoutChildren of the ancestor LayoutNodePort
             nodeParent.layoutChildren[node] = this
             parentLayoutNode = nodeParent
         }
@@ -420,12 +422,12 @@ internal class LayoutNode(
         super.detach()
     }
 
-    override fun visitChildren(block: (ComponentNode) -> Unit) {
+    override fun visitChildren(block: (PortComponentNode) -> Unit) {
         children.forEach(block)
     }
 
     /**
-     * Indicate that the LayoutNode's layout is dirty and should be updated.
+     * Indicate that the LayoutNodePort's layout is dirty and should be updated.
      * The [layout] call will be scheduled to execute at a later point.
      * This call is necessary because we don't have a reconciliation step yet. Normally
      * the layout would automatically be updated during reconciliation.
@@ -439,9 +441,9 @@ internal class LayoutNode(
     }
 
     /**
-     * Changes the position of a LayoutNode within its LayoutNode [parent].
+     * Changes the position of a LayoutNodePort within its LayoutNodePort [parent].
      */
-    fun position(child: ComponentNode, x: Int, y: Int) {
+    fun position(child: PortComponentNode, x: Int, y: Int) {
         assert(children.contains(child))
         val layoutNode = layoutChildren[child] ?: return // non-layout child has no position
 
@@ -467,13 +469,13 @@ internal class LayoutNode(
          * R4A completes its layout reconciliation.
          */
         fun measure(
-            node: ComponentNode,
+            node: PortComponentNode,
             constraints: Constraints,
             parentUsesSize: Boolean = false
         ): Size {
             System.out.println("Measuring $node")
             var child = node
-            while (child !is LayoutNode) {
+            while (child !is LayoutNodePort) {
                 if (child.size == 0) {
                     return Size.zero
                 }
@@ -502,7 +504,7 @@ internal class LayoutNode(
 /**
  * Removes all the children within the hierarchy
  */
-internal fun ComponentNode.removeChildren() {
+internal fun PortComponentNode.removeChildren() {
     for (i in size - 1 downTo 0) {
         get(i).removeChildren()
         remove(i)
@@ -510,9 +512,9 @@ internal fun ComponentNode.removeChildren() {
 }
 
 /**
- * Inserts a child [ComponentNode] at a last index. If this ComponentNode [isAttached]
+ * Inserts a child [PortComponentNode] at a last index. If this PortComponentNode [isAttached]
  * then [child] will become [attach]ed also. [child] must have a `null` [parent].
  */
-internal fun ComponentNode.add(child: ComponentNode) {
+internal fun PortComponentNode.add(child: PortComponentNode) {
     add(size, child)
 }
