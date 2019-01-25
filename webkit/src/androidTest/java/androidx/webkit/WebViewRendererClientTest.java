@@ -32,6 +32,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -55,8 +57,10 @@ public class WebViewRendererClientTest {
         // easier to support requiring variable numbers of releaseBlock() calls
         // to unblock.
         private CountDownLatch mLatch;
+        private ResolvableFuture<Void> mBecameBlocked;
         JSBlocker(int requiredReleaseCount) {
             mLatch = new CountDownLatch(requiredReleaseCount);
+            mBecameBlocked = ResolvableFuture.create();
         }
 
         JSBlocker() {
@@ -72,7 +76,12 @@ public class WebViewRendererClientTest {
             // This blocks indefinitely (until signalled) on a background thread.
             // The actual test timeout is not determined by this wait, but by other
             // code waiting for the onRendererUnresponsive() call.
+            mBecameBlocked.set(null);
             mLatch.await();
+        }
+
+        public void waitForBlocked() {
+            WebkitUtils.waitForFuture(mBecameBlocked);
         }
     }
 
@@ -84,6 +93,7 @@ public class WebViewRendererClientTest {
                 webView.getSettings().setJavaScriptEnabled(true);
                 webView.addJavascriptInterface(blocker, "blocker");
                 webView.evaluateJavascript("blocker.block();", null);
+                blocker.waitForBlocked();
                 // Sending an input event that does not get acknowledged will cause
                 // the unresponsive renderer event to fire.
                 webView.dispatchKeyEvent(
@@ -92,13 +102,12 @@ public class WebViewRendererClientTest {
         });
     }
 
-    @Test
-    public void testWebViewRendererClient() throws Throwable {
+    private void testWebViewRendererClientOnExecutor(Executor executor) throws Throwable {
         WebkitUtils.checkFeature(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
         final JSBlocker blocker = new JSBlocker();
         final ResolvableFuture<Void> rendererUnblocked = ResolvableFuture.create();
 
-        mWebViewOnUiThread.setWebViewRendererClient(new WebViewRendererClient() {
+        WebViewRendererClient client = new WebViewRendererClient() {
             @Override
             public void onRendererUnresponsive(WebView view, WebViewRenderer renderer) {
                 // Let the renderer unblock.
@@ -110,11 +119,34 @@ public class WebViewRendererClientTest {
                 // Notify that the renderer has been unblocked.
                 rendererUnblocked.set(null);
             }
-        });
+        };
+        if (executor == null) {
+            mWebViewOnUiThread.setWebViewRendererClient(client);
+        } else {
+            mWebViewOnUiThread.setWebViewRendererClient(executor, client);
+        }
 
         mWebViewOnUiThread.loadUrlAndWaitForCompletion("about:blank");
         blockRenderer(blocker);
         WebkitUtils.waitForFuture(rendererUnblocked);
+    }
+
+    @Test
+    public void testWebViewRendererClientWithoutExecutor() throws Throwable {
+        testWebViewRendererClientOnExecutor(null);
+    }
+
+    @Test
+    public void testWebViewRendererClientWithExecutor() throws Throwable {
+        final AtomicInteger executorCount = new AtomicInteger();
+        testWebViewRendererClientOnExecutor(new Executor() {
+            @Override
+            public void execute(Runnable r) {
+                executorCount.incrementAndGet();
+                r.run();
+            }
+        });
+        Assert.assertEquals(2, executorCount.get());
     }
 
     @Test

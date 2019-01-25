@@ -20,41 +20,18 @@ import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.webkit.internal.WebViewRendererImpl;
-
-import org.chromium.support_lib_boundary.WebViewRendererClientBoundaryInterface;
-import org.chromium.support_lib_boundary.util.Features;
-
-import java.lang.reflect.InvocationHandler;
 
 /**
  * Used to receive callbacks on {@link WebView} renderer events.
  *
  * WebViewRendererClient instances may be set or retrieved via {@link
- * WebViewCompat#setWebViewRendererClient(WebView,WebViewRendererClient)} and {@link
+ * WebViewCompat#setWebViewRendererClient(WebView,Executor,WebViewRendererClient)} and {@link
  * WebViewCompat#getWebViewRendererClient(WebView)}.
  *
  * Instances may be attached to multiple WebViews, and thus a single renderer event may cause
  * a callback to be called multiple times with different WebView parameters.
  */
-public abstract class WebViewRendererClient implements WebViewRendererClientBoundaryInterface {
-    private static final String[] sSupportedFeatures = new String[] {
-            Features.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
-    };
-
-    /**
-     * Returns the list of features this client supports. This feature list should always be a
-     * subset of the Features declared in WebViewFeature.
-     *
-     * @hide
-     */
-    @Override
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public final String[] getSupportedFeatures() {
-        return sSupportedFeatures;
-    }
-
+public abstract class WebViewRendererClient {
     /**
      * Called when the renderer currently associated with {@code view} becomes unresponsive as a
      * result of a long running blocking task such as the execution of JavaScript.
@@ -100,32 +77,4 @@ public abstract class WebViewRendererClient implements WebViewRendererClientBoun
      */
     public abstract void onRendererResponsive(
             @NonNull WebView view, @Nullable WebViewRenderer renderer);
-
-    /**
-     * Invoked by chromium with arguments that need to be wrapped by support library adapter
-     * objects. Applications are not meant to override this. instead they should override the
-     * non-final method that this method calls with adapted arguments.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Override
-    public final void onRendererUnresponsive(
-            @NonNull WebView view, @NonNull /* WebViewRenderer */ InvocationHandler renderer) {
-        onRendererUnresponsive(view, WebViewRendererImpl.forInvocationHandler(renderer));
-    }
-
-    /**
-     * Invoked by chromium with arguments that need to be wrapped by support library adapter
-     * objects. Applications are not meant to override this. instead they should override the
-     * non-final method that this method calls with adapted arguments.
-     *
-     * @hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Override
-    public final void onRendererResponsive(
-            @NonNull WebView view, @NonNull /* WebViewRenderer */ InvocationHandler renderer) {
-        onRendererResponsive(view, WebViewRendererImpl.forInvocationHandler(renderer));
-    }
 }

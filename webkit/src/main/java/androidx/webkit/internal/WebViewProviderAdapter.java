@@ -31,6 +31,7 @@ import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
 import java.lang.reflect.InvocationHandler;
+import java.util.concurrent.Executor;
 
 /**
  * Adapter for WebViewProviderBoundaryInterface providing the functionality expected of
@@ -103,15 +104,18 @@ public class WebViewProviderAdapter {
     public WebViewRendererClient getWebViewRendererClient() {
         InvocationHandler handler = mImpl.getWebViewRendererClient();
         if (handler == null) return null;
-        return (WebViewRendererClient)
-                BoundaryInterfaceReflectionUtil.getDelegateFromInvocationHandler(handler);
+        return ((WebViewRendererClientAdapter)
+                BoundaryInterfaceReflectionUtil.getDelegateFromInvocationHandler(
+                        handler)).getWebViewRendererClient();
     }
 
     /**
      * Adapter method for {@link WebViewCompat#setWebViewRendererClient(WebViewRendererClient)}.
      */
-    public void setWebViewRendererClient(WebViewRendererClient webViewRendererClient) {
+    public void setWebViewRendererClient(
+            Executor executor, WebViewRendererClient webViewRendererClient) {
         mImpl.setWebViewRendererClient(
-                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(webViewRendererClient));
+                BoundaryInterfaceReflectionUtil.createInvocationHandlerFor(
+                      new WebViewRendererClientAdapter(executor, webViewRendererClient)));
     }
 }
