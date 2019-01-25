@@ -127,7 +127,7 @@ import java.util.concurrent.Executor;
  * {@link androidx.media2.widget.R.attr#enableControlView}
  * {@link androidx.media2.widget.R.attr#viewType}
  */
-public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceListener {
+public class VideoView extends SelectiveLayout implements VideoViewInterface.SurfaceListener {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @IntDef({
@@ -283,25 +283,22 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
 
         mTextureView = new VideoTextureView(context);
         mSurfaceView = new VideoSurfaceView(context);
-        LayoutParams params = new LayoutParams(LayoutParams.MATCH_PARENT,
-                LayoutParams.MATCH_PARENT);
-        mTextureView.setLayoutParams(params);
-        mSurfaceView.setLayoutParams(params);
         mTextureView.setSurfaceListener(this);
         mSurfaceView.setSurfaceListener(this);
 
         addView(mTextureView);
         addView(mSurfaceView);
 
+        SelectiveLayout.LayoutParams params = new SelectiveLayout.LayoutParams();
+        params.forceMatchParent = true;
+
         mSubtitleAnchorView = new SubtitleAnchorView(context);
-        mSubtitleAnchorView.setLayoutParams(params);
         mSubtitleAnchorView.setBackgroundColor(0);
-        addView(mSubtitleAnchorView);
+        addView(mSubtitleAnchorView, params);
 
         mMusicView = new MusicView(context);
-        mMusicView.setLayoutParams(params);
         mMusicView.setVisibility(View.GONE);
-        addView(mMusicView);
+        addView(mMusicView, params);
 
         boolean enableControlView = (attrs == null) || attrs.getAttributeBooleanValue(
                 "http://schemas.android.com/apk/res-auto",
@@ -550,11 +547,6 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
         return super.dispatchTouchEvent(ev);
     }
 
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    }
-
     ///////////////////////////////////////////////////
     // Implements VideoViewInterface.SurfaceListener
     ///////////////////////////////////////////////////
@@ -634,8 +626,8 @@ public class VideoView extends BaseLayout implements VideoViewInterface.SurfaceL
         // Get MediaController from MediaSession and set it inside MediaControlView
         mMediaControlView.setSessionToken(mMediaSession.getToken());
 
-        LayoutParams params =
-                new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        SelectiveLayout.LayoutParams params = new SelectiveLayout.LayoutParams();
+        params.forceMatchParent = true;
         addView(mMediaControlView, params);
     }
 

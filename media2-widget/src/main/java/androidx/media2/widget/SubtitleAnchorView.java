@@ -20,12 +20,13 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.os.Looper;
 import android.util.AttributeSet;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.media2.subtitle.SubtitleController.Anchor;
 import androidx.media2.subtitle.SubtitleTrack.RenderingWidget;
 
-class SubtitleAnchorView extends BaseLayout implements Anchor {
+class SubtitleAnchorView extends View implements Anchor {
     private static final String TAG = "SubtitleAnchorView";
 
     private RenderingWidget mSubtitleWidget;
@@ -89,7 +90,7 @@ class SubtitleAnchorView extends BaseLayout implements Anchor {
     }
 
     @Override
-    public void onAttachedToWindow() {
+    protected void onAttachedToWindow() {
         super.onAttachedToWindow();
 
         if (mSubtitleWidget != null) {
@@ -98,7 +99,7 @@ class SubtitleAnchorView extends BaseLayout implements Anchor {
     }
 
     @Override
-    public void onDetachedFromWindow() {
+    protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
         if (mSubtitleWidget != null) {
@@ -107,7 +108,7 @@ class SubtitleAnchorView extends BaseLayout implements Anchor {
     }
 
     @Override
-    public void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
         if (mSubtitleWidget != null) {
@@ -119,8 +120,8 @@ class SubtitleAnchorView extends BaseLayout implements Anchor {
     }
 
     @Override
-    public void draw(Canvas canvas) {
-        super.draw(canvas);
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
 
         if (mSubtitleWidget != null) {
             final int saveCount = canvas.save();
