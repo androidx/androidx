@@ -58,12 +58,18 @@ class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
     private static final String ADD_FONT_WEIGHT_STYLE_METHOD = "addFontWeightStyle";
     private static final String CREATE_FROM_FAMILIES_WITH_DEFAULT_METHOD =
             "createFromFamiliesWithDefault";
-    private static final Class sFontFamily;
-    private static final Constructor sFontFamilyCtor;
-    private static final Method sAddFontWeightStyle;
-    private static final Method sCreateFromFamiliesWithDefault;
+    private static Class sFontFamily;
+    private static Constructor sFontFamilyCtor;
+    private static Method sAddFontWeightStyle;
+    private static Method sCreateFromFamiliesWithDefault;
+    private static boolean sHasInitBeenCalled = false;
 
-    static {
+    private static void init() {
+        if (sHasInitBeenCalled) {
+            return;
+        }
+        sHasInitBeenCalled = true;
+
         Class fontFamilyClass;
         Constructor fontFamilyCtor;
         Method addFontMethod;
@@ -72,7 +78,7 @@ class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
             fontFamilyClass = Class.forName(FONT_FAMILY_CLASS);
             fontFamilyCtor = fontFamilyClass.getConstructor();
             addFontMethod = fontFamilyClass.getMethod(ADD_FONT_WEIGHT_STYLE_METHOD,
-                     String.class, Integer.TYPE, Boolean.TYPE);
+                    String.class, Integer.TYPE, Boolean.TYPE);
             Object familyArray = Array.newInstance(fontFamilyClass, 1);
             createFromFamiliesWithDefaultMethod =
                     Typeface.class.getMethod(CREATE_FROM_FAMILIES_WITH_DEFAULT_METHOD,
@@ -105,6 +111,7 @@ class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
     }
 
     private static Object newFamily() {
+        init();
         try {
             return sFontFamilyCtor.newInstance();
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException e) {
@@ -113,6 +120,7 @@ class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
     }
 
     private static Typeface createFromFamiliesWithDefault(Object family) {
+        init();
         try {
             Object familyArray = Array.newInstance(sFontFamily, 1);
             Array.set(familyArray, 0, family);
@@ -125,6 +133,7 @@ class TypefaceCompatApi21Impl extends TypefaceCompatBaseImpl {
 
     private static boolean addFontWeightStyle(Object family, String name,
             int weight, boolean style) {
+        init();
         try {
             final Boolean result = (Boolean) sAddFontWeightStyle.invoke(
                     family, name, weight, style);
