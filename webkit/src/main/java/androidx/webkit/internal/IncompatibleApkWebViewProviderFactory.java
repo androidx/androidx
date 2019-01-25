@@ -18,6 +18,7 @@ package androidx.webkit.internal;
 
 import android.webkit.WebView;
 
+import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
 import org.chromium.support_lib_boundary.TracingControllerBoundaryInterface;
@@ -63,6 +64,11 @@ public class IncompatibleApkWebViewProviderFactory implements WebViewProviderFac
 
     @Override
     public TracingControllerBoundaryInterface getTracingController() {
+        throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
+    }
+
+    @Override
+    public ProxyControllerBoundaryInterface getProxyController() {
         throw new UnsupportedOperationException(UNSUPPORTED_EXCEPTION_EXPLANATION);
     }
 }
