@@ -581,7 +581,12 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
         }
     }
 
-    @Override
-    public void onNightModeChanged(@NightMode final int mode) {
+    /**
+     * Called when the night mode has changed. See {@link AppCompatDelegate#applyDayNight()} for
+     * more information.
+     *
+     * @param mode the night mode which has been applied
+     */
+    protected void onNightModeChanged(@NightMode int mode) {
     }
 }
