@@ -69,6 +69,7 @@ public class BiometricPromptDemo extends FragmentActivity {
     private static final String KEY_SAVED_USE_CRYPTO = "saved_use_crypto_state";
     private static final String KEY_SAVED_RADIO = "saved_radio_state";
     private static final String KEY_SAVED_FAILURES = "saved_failures_state";
+    private static final String KEY_COUNTER = "saved_counter";
 
     private static final String DEFAULT_KEY_NAME = "default_key";
 
@@ -84,6 +85,7 @@ public class BiometricPromptDemo extends FragmentActivity {
     private KeyStore mKeyStore;
     private BiometricPrompt mBiometricPrompt;
 
+    private int mCounter;
     private int mNumberFailedAttempts;
 
     private final Executor mExecutor = (runnable) -> {
@@ -140,6 +142,7 @@ public class BiometricPromptDemo extends FragmentActivity {
             mUseCrypto = savedInstanceState.getBoolean(KEY_SAVED_USE_CRYPTO);
             mMode = savedInstanceState.getInt(KEY_SAVED_RADIO);
             mNumberFailedAttempts = savedInstanceState.getInt(KEY_SAVED_FAILURES);
+            mCounter = savedInstanceState.getInt(KEY_COUNTER);
         }
 
         setContentView(R.layout.fragment_activity);
@@ -184,6 +187,7 @@ public class BiometricPromptDemo extends FragmentActivity {
         outState.putBoolean(KEY_SAVED_USE_CRYPTO, mUseCrypto);
         outState.putInt(KEY_SAVED_RADIO, mMode);
         outState.putInt(KEY_SAVED_FAILURES, mNumberFailedAttempts);
+        outState.putInt(KEY_COUNTER, mCounter);
     }
 
     /**
@@ -249,12 +253,14 @@ public class BiometricPromptDemo extends FragmentActivity {
         // Build the biometric prompt info
         BiometricPrompt.PromptInfo info =
                 new BiometricPrompt.PromptInfo.Builder()
-                        .setTitle("Title")
-                        .setSubtitle("Subtitle")
+                        .setTitle("Title " + mCounter)
+                        .setSubtitle("Subtitle " + mCounter)
                         .setDescription(
-                                "Lorem ipsum dolor sit amet, consecte etur adipisicing elit.")
-                        .setNegativeButtonText("Negative Button")
+                                "Lorem ipsum dolor sit amet, consecte etur adipisicing elit. "
+                                        + mCounter)
+                        .setNegativeButtonText("Negative Button " + mCounter)
                         .build();
+        mCounter++;
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M && mUseCrypto) {
             try {
