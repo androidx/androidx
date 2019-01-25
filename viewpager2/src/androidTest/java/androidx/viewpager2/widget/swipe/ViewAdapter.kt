@@ -20,7 +20,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 
-class ViewAdapter(private val items: List<String>) : RecyclerView.Adapter<ViewHolder>() {
+open class ViewAdapter(private val items: List<String>) : RecyclerView.Adapter<ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             object : ViewHolder(PageView.inflatePage(parent)) {}
 

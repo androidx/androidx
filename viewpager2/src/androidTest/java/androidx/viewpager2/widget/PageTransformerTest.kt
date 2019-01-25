@@ -177,7 +177,7 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
         val latch = viewPager.addWaitForScrolledLatch(targetPage)
         swipe(currentPage, targetPage)
         latch.await(1, SECONDS)
-        assertBasicState(targetPage, "$targetPage")
+        assertBasicState(targetPage)
     }
 
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {

@@ -42,7 +42,7 @@ class SwipeTest(private val testConfig: TestConfig) : BaseTest() {
                 val expectedValues = stringSequence(totalPages).toMutableList()
                 val adapter = adapterProvider(expectedValues.toList()) // immutable defensive copy
                 setAdapterSync(adapter)
-                assertBasicState(0, "0")
+                assertBasicState(0)
 
                 pageSequence.forEachIndexed { currentStep, targetPage ->
                     val currentPage = viewPager.currentItem
