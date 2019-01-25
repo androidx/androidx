@@ -70,7 +70,7 @@ public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
      */
     public SavedStateVMFactory(@NonNull Fragment fragment, @Nullable Bundle defaultArgs) {
         this(checkApplication(checkActivity(fragment)),
-                fragment.getBundleSavedStateRegistry(), defaultArgs);
+                fragment.getSavedStateRegistry(), defaultArgs);
     }
 
     /**
@@ -97,7 +97,7 @@ public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
      * misses a value by such key.
      */
     public SavedStateVMFactory(@NonNull FragmentActivity activity, @Nullable Bundle defaultArgs) {
-        this(checkApplication(activity), activity.getBundleSavedStateRegistry(), defaultArgs);
+        this(checkApplication(activity), activity.getSavedStateRegistry(), defaultArgs);
     }
 
     /**
@@ -113,7 +113,7 @@ public final class SavedStateVMFactory extends AbstractSavedStateVMFactory {
      * misses a value by such key.
      */
     public SavedStateVMFactory(@NonNull Application application,
-            @NonNull SavedStateRegistry<Bundle> savedStateRegistry,
+            @NonNull SavedStateRegistry savedStateRegistry,
             @Nullable Bundle defaultArgs) {
         super(application, savedStateRegistry, defaultArgs);
         mApplication = application;

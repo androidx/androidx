@@ -35,9 +35,9 @@ import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ReportFragment;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
+import androidx.savedstate.BundleSavedStateRegistry;
 import androidx.savedstate.SavedStateRegistry;
-import androidx.savedstate.bundle.BundleSavedStateRegistry;
-import androidx.savedstate.bundle.BundleSavedStateRegistryOwner;
+import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,7 +54,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ComponentActivity extends androidx.core.app.ComponentActivity implements
         LifecycleOwner,
         ViewModelStoreOwner,
-        BundleSavedStateRegistryOwner {
+        SavedStateRegistryOwner {
 
     static final class NonConfigurationInstances {
         Object custom;
@@ -369,7 +369,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
     @NonNull
     @Override
-    public final SavedStateRegistry<Bundle> getBundleSavedStateRegistry() {
+    public final SavedStateRegistry getSavedStateRegistry() {
         return mSavedStateRegistry;
     }
 

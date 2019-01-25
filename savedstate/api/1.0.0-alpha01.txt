@@ -1,0 +1,36 @@
+// Signature format: 3.0
+package androidx.savedstate {
+
+  public abstract class AbstractSavedStateRegistry implements androidx.savedstate.SavedStateRegistry {
+    ctor public AbstractSavedStateRegistry();
+    method @MainThread public final android.os.Bundle? consumeRestoredStateForKey(String);
+    method @MainThread public final boolean isRestored();
+    method @MainThread public final void registerSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider);
+    method @MainThread protected final void restoreSavedState(java.util.Map<java.lang.String,android.os.Bundle>?);
+    method @MainThread protected final java.util.Map<java.lang.String,android.os.Bundle> saveState();
+    method @MainThread public final void unregisterSavedStateProvider(String);
+  }
+
+  public final class BundleSavedStateRegistry extends androidx.savedstate.AbstractSavedStateRegistry {
+    ctor public BundleSavedStateRegistry();
+    method @MainThread public void performRestore(android.os.Bundle?);
+    method @MainThread public void performSave(android.os.Bundle);
+  }
+
+  public interface SavedStateRegistry {
+    method @MainThread public android.os.Bundle? consumeRestoredStateForKey(String);
+    method @MainThread public boolean isRestored();
+    method @MainThread public void registerSavedStateProvider(String, androidx.savedstate.SavedStateRegistry.SavedStateProvider);
+    method @MainThread public void unregisterSavedStateProvider(String);
+  }
+
+  public static interface SavedStateRegistry.SavedStateProvider {
+    method public android.os.Bundle saveState();
+  }
+
+  public interface SavedStateRegistryOwner {
+    method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
+  }
+
+}
+
