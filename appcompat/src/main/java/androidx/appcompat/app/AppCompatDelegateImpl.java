@@ -2143,9 +2143,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
-        // Notify the callback of the night mode
-        if (mAppCompatCallback != null) {
-            mAppCompatCallback.onNightModeChanged(mode);
+        // Notify the activity of the night mode
+        if (mContext instanceof AppCompatActivity) {
+            ((AppCompatActivity) mContext).onNightModeChanged(mode);
         }
 
         return handled;
