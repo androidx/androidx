@@ -29,12 +29,15 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
@@ -591,12 +594,81 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         return mPopup;
     }
 
-    private void showPopup() {
+    void showPopup() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             mPopup.show(getTextDirection(), getTextAlignment());
         } else {
             mPopup.show(-1, -1);
         }
+    }
+
+
+    @Override
+    public Parcelable onSaveInstanceState() {
+        final AppCompatSpinner.SavedState ss =
+                new AppCompatSpinner.SavedState(super.onSaveInstanceState());
+        ss.mShowDropdown = mPopup != null && mPopup.isShowing();
+        return ss;
+    }
+
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        AppCompatSpinner.SavedState ss = (AppCompatSpinner.SavedState) state;
+
+        super.onRestoreInstanceState(ss.getSuperState());
+
+        if (ss.mShowDropdown) {
+            ViewTreeObserver vto = getViewTreeObserver();
+            if (vto != null) {
+                final OnGlobalLayoutListener listener = new OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        if (!getInternalPopup().isShowing()) {
+                            showPopup();
+                        }
+                        final ViewTreeObserver vto = getViewTreeObserver();
+                        if (vto != null) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                vto.removeOnGlobalLayoutListener(this);
+                            } else {
+                                vto.removeGlobalOnLayoutListener(this);
+                            }
+                        }
+                    }
+                };
+                vto.addOnGlobalLayoutListener(listener);
+            }
+        }
+    }
+
+    static class SavedState extends BaseSavedState {
+        boolean mShowDropdown;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        SavedState(Parcel in) {
+            super(in);
+            mShowDropdown = in.readByte() != 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeByte((byte) (mShowDropdown ? 1 : 0));
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
     }
 
     /**

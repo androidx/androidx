@@ -21,6 +21,7 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -28,6 +29,7 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 
+import android.content.pm.ActivityInfo;
 import android.content.res.Resources;
 
 import androidx.annotation.ColorInt;
@@ -42,6 +44,7 @@ import androidx.test.filters.MediumTest;
 import androidx.test.filters.SmallTest;
 
 import org.hamcrest.Matcher;
+import org.junit.After;
 import org.junit.Test;
 
 /**
@@ -51,6 +54,8 @@ import org.junit.Test;
 @SmallTest
 public class AppCompatSpinnerTest
         extends AppCompatBaseViewTest<AppCompatSpinnerActivity, AppCompatSpinner> {
+    private static final String EARTH = "Earth";
+
     public AppCompatSpinnerTest() {
         super(AppCompatSpinnerActivity.class);
     }
@@ -59,6 +64,17 @@ public class AppCompatSpinnerTest
     protected boolean hasBackgroundByDefault() {
         // Spinner has default background set on it
         return true;
+    }
+
+    @Override
+    public void setUp() {
+        super.setUp();
+        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
+    @After
+    public void cleanUp() {
+        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     /**
@@ -145,5 +161,23 @@ public class AppCompatSpinnerTest
 
         final AppCompatSpinner.DialogPopup dialogPopup = (AppCompatSpinner.DialogPopup) popup;
         assertThat(dialogPopup.mPopup, instanceOf(AlertDialog.class));
+    }
+
+    @MediumTest
+    @Test
+    public void testChangeOrientationDialogPopupPersists() {
+        verifyChangeOrientationPopupPersists(R.id.spinner_dialog_popup);
+    }
+
+    @MediumTest
+    @Test
+    public void testChangeOrientationDropdownPopupPersists() {
+        verifyChangeOrientationPopupPersists(R.id.spinner_dropdown_popup);
+    }
+
+    private void verifyChangeOrientationPopupPersists(@IdRes int spinnerId) {
+        onView(withId(spinnerId)).perform(click());
+        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        onView(withText(EARTH)).check(matches(isDisplayed()));
     }
 }
