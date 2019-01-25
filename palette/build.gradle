@@ -14,7 +14,7 @@ android {
 
 dependencies {
     api(project(":core"))
-    api(project(":collection"))
+    implementation(project(":collection"))
 
     annotationProcessor(NULLAWAY)
 
