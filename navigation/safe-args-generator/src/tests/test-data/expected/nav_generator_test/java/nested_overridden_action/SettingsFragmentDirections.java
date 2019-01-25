@@ -8,6 +8,11 @@ public class SettingsFragmentDirections {
     }
 
     @NonNull
+    public static SettingsDirections.Main main() {
+        return SettingsDirections.main();
+    }
+
+    @NonNull
     public static SettingsDirections.Exit exit() {
         return SettingsDirections.exit();
     }
