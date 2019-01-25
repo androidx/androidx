@@ -61,6 +61,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RunWith(AndroidJUnit4.class)
 public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
 
+    private static final int[] SPAN_SIZES = new int[]{1, 1, 1, 2, 2, 2, 2, 3, 3, 2, 2, 2};
+    private final GridLayoutManager.SpanSizeLookup mSpanSizeLookupForSpanIndexTest =
+            new GridLayoutManager.SpanSizeLookup() {
+        @Override
+        public int getSpanSize(int position) {
+            return SPAN_SIZES[position];
+        }
+    };
+
     @Test
     public void focusSearchFailureUp() throws Throwable {
         focusSearchFailure(false);
@@ -997,30 +1006,55 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
             }
         };
         ssl.setSpanIndexCacheEnabled(true);
-        assertEquals("reference child non existent", -1, ssl.findReferenceIndexFromCache(2));
+        assertEquals("reference child non existent", -1,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        2));
         ssl.getCachedSpanIndex(4, 5);
-        assertEquals("reference child non existent", -1, ssl.findReferenceIndexFromCache(3));
+        assertEquals("reference child non existent", -1,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        3));
         // this should not happen and if happens, it is better to return -1
-        assertEquals("reference child itself", -1, ssl.findReferenceIndexFromCache(4));
-        assertEquals("reference child before", 4, ssl.findReferenceIndexFromCache(5));
-        assertEquals("reference child before", 4, ssl.findReferenceIndexFromCache(100));
+        assertEquals("reference child itself", -1,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        4));
+        assertEquals("reference child before", 4,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        5));
+        assertEquals("reference child before", 4,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        100));
         ssl.getCachedSpanIndex(6, 5);
-        assertEquals("reference child before", 6, ssl.findReferenceIndexFromCache(7));
-        assertEquals("reference child before", 4, ssl.findReferenceIndexFromCache(6));
-        assertEquals("reference child itself", -1, ssl.findReferenceIndexFromCache(4));
+        assertEquals("reference child before", 6,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        7));
+        assertEquals("reference child before", 4,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        6));
+        assertEquals("reference child itself", -1,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        4));
         ssl.getCachedSpanIndex(12, 5);
-        assertEquals("reference child before", 12, ssl.findReferenceIndexFromCache(13));
-        assertEquals("reference child before", 6, ssl.findReferenceIndexFromCache(12));
-        assertEquals("reference child before", 6, ssl.findReferenceIndexFromCache(7));
+        assertEquals("reference child before", 12,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        13));
+        assertEquals("reference child before", 6,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        12));
+        assertEquals("reference child before", 6,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        7));
         for (int i = 0; i < 6; i++) {
             ssl.getCachedSpanIndex(i, 5);
         }
 
         for (int i = 1; i < 7; i++) {
             assertEquals("reference child right before " + i, i - 1,
-                    ssl.findReferenceIndexFromCache(i));
+                    GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                            i));
         }
-        assertEquals("reference child before 0 ", -1, ssl.findReferenceIndexFromCache(0));
+        assertEquals("reference child before 0 ", -1,
+                GridLayoutManager.SpanSizeLookup.findFirstKeyLessThan(ssl.mSpanIndexCache,
+                        0));
     }
 
     public void spanLookupTest(boolean enableCache) {
@@ -1308,5 +1342,186 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         mGlm.waitForLayout(2);
         assertEquals("item index 5 should be in span 2", 0,
                 getLp(mGlm.findViewByPosition(5)).getSpanIndex());
+    }
+
+    @Test
+    public void computeVerticalScrollRange_spansUsedAndGroupIndexesCached_rangeIsConstant()
+            throws Throwable {
+        int nItems = 100;
+        final RecyclerView rv = setupBasic(new Config(2, nItems));
+        mGlm.setUsingSpansToEstimateScrollbarDimensions(true);
+        mGlm.mSpanSizeLookup.setSpanGroupIndexCacheEnabled(true);
+        int[] fullSpanItems = new int[nItems / 2];
+        for (int i = 0; i < fullSpanItems.length; i++) {
+            fullSpanItems[i] = i;
+        }
+        mAdapter.setFullSpan(fullSpanItems);
+        waitForFirstLayout(rv);
+
+        int constantRange = mGlm.computeVerticalScrollRange(rv.mState);
+        assertEquals(0, mGlm.computeVerticalScrollOffset(rv.mState));
+
+        scrollToPosition(nItems - 1);
+        mGlm.waitForLayout(2);
+        int maxOffset = mGlm.computeVerticalScrollOffset(rv.mState);
+        assertEquals(mGlm.computeVerticalScrollRange(rv.mState), constantRange);
+        assertEquals(maxOffset + mGlm.computeVerticalScrollExtent(rv.mState), constantRange);
+    }
+
+    @Test
+    public void getSpanGroupIndex_noCaching() {
+        assertGetSpanGroupIndex();
+    }
+
+
+    @Test
+    public void getSpanGroupIndex_cacheSpanIndex() {
+        mSpanSizeLookupForSpanIndexTest.setSpanIndexCacheEnabled(true);
+        assertGetSpanGroupIndex();
+    }
+
+    @Test
+    public void getSpanGroupIndex_cacheSpanGroupIndex() {
+        mSpanSizeLookupForSpanIndexTest.setSpanGroupIndexCacheEnabled(true);
+        assertGetSpanGroupIndex();
+    }
+
+    @Test
+    public void getSpanGroupIndex_cacheAll() {
+        mSpanSizeLookupForSpanIndexTest.setSpanGroupIndexCacheEnabled(true);
+        mSpanSizeLookupForSpanIndexTest.setSpanIndexCacheEnabled(true);
+        assertGetSpanGroupIndex();
+    }
+
+    private void assertGetSpanGroupIndex() {
+        assertEquals(0, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(0, 3));
+        assertEquals(0, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(1, 3));
+        assertEquals(0, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(2, 3));
+        assertEquals(1, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(3, 3));
+        assertEquals(2, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(4, 3));
+        assertEquals(3, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(5, 3));
+        assertEquals(4, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(6, 3));
+        assertEquals(5, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(7, 3));
+        assertEquals(6, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(8, 3));
+        assertEquals(7, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(9, 3));
+        assertEquals(8, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(10, 3));
+        assertEquals(9, mSpanSizeLookupForSpanIndexTest.getSpanGroupIndex(11, 3));
+    }
+
+    @Test
+    public void getSpanGroupIndex_calledTwiceForSameItemAndCachingOn_internalCalledOnce() {
+        final int[] callCount = new int[] {0};
+        GridLayoutManager.SpanSizeLookup spanSizeLookup = new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                return SPAN_SIZES[position];
+            }
+
+            @Override
+            public int getSpanGroupIndex(int adapterPosition, int spanCount) {
+                callCount[0]++;
+                return super.getSpanGroupIndex(adapterPosition, spanCount);
+            }
+        };
+        spanSizeLookup.setSpanGroupIndexCacheEnabled(true);
+        spanSizeLookup.getCachedSpanGroupIndex(0, 3);
+        spanSizeLookup.getCachedSpanGroupIndex(0, 3);
+        assertEquals(1, callCount[0]);
+    }
+
+    @Test
+    public void computeVerticalScrollValues_isCorrect() throws Throwable {
+        assertThatComputeScrollValuesIsCorrect(VERTICAL);
+    }
+
+    @Test
+    public void computeHorizontalScrollValues_isCorrect() throws Throwable {
+        assertThatComputeScrollValuesIsCorrect(HORIZONTAL);
+    }
+
+    private void assertThatComputeScrollValuesIsCorrect(@RecyclerView.Orientation int orientation)
+            throws Throwable {
+        final int spanCount = 2;
+        final int itemCount = 100;
+        final int childWidth = orientation == VERTICAL ? MATCH_PARENT : 100;
+        final int childHeight = orientation == VERTICAL ? 100 : MATCH_PARENT;
+        final int rvHeight = orientation == VERTICAL ? childHeight * 4 : MATCH_PARENT;
+        final int rvWidth = orientation == VERTICAL ? MATCH_PARENT : childWidth * 4;
+
+        final RecyclerView recyclerView = setupBasic(new Config(spanCount, itemCount)
+                        .orientation(orientation),
+                new GridTestAdapter(itemCount, 1) {
+
+                    @Override
+                    public void onBindViewHolder(@NonNull TestViewHolder holder,
+                            int position) {
+                        super.onBindViewHolder(holder, position);
+                        holder.itemView.setLayoutParams(
+                                new RecyclerView.LayoutParams(childWidth, childHeight));
+                    }
+                });
+        recyclerView.setLayoutParams(new ViewGroup.LayoutParams(rvWidth, rvHeight));
+        mGlm.setUsingSpansToEstimateScrollbarDimensions(true);
+        int[] fullSpanItems = new int[itemCount / 2];
+        for (int i = 0; i < fullSpanItems.length; i++) {
+            fullSpanItems[i] = i;
+        }
+        int expectedNumberOfRows = itemCount / 2 /* half the rows contain one item */
+                + itemCount / 2 / 2; /* the other half of the rows contain two items */
+        mAdapter.setFullSpan(fullSpanItems);
+
+        waitForFirstLayout(recyclerView);
+
+        int expectedExtent = orientation == VERTICAL ? rvHeight : rvWidth;
+        int childSize = orientation == VERTICAL ? childHeight : childWidth;
+
+        assertEquals(0, getScrollOffset(recyclerView, orientation));
+        assertEquals(expectedExtent, getScrollExtent(recyclerView, orientation));
+        assertEquals(childSize * expectedNumberOfRows, getScrollRange(recyclerView, orientation));
+
+        scrollToPosition(10);
+        mGlm.waitForLayout(2);
+
+        // We scroll to position 10 that means that the first item on the screen is item 7, because
+        // there are four items on the screen, so 7,8,9,10.
+        assertEquals(childSize * 7, getScrollOffset(recyclerView, orientation));
+        assertEquals(expectedExtent, getScrollExtent(recyclerView, orientation));
+        assertEquals(childSize * expectedNumberOfRows, getScrollRange(recyclerView, orientation));
+
+        scrollToPosition(itemCount - 1);
+        mGlm.waitForLayout(2);
+
+        assertEquals(childSize * (expectedNumberOfRows - 4),
+                getScrollOffset(recyclerView, orientation));
+        assertEquals(expectedExtent, getScrollExtent(recyclerView, orientation));
+        assertEquals(childSize * expectedNumberOfRows,
+                mGlm.computeVerticalScrollRange(recyclerView.mState));
+    }
+
+    private int getScrollOffset(
+            RecyclerView recyclerView,
+            @RecyclerView.Orientation int orientation) {
+        return orientation == VERTICAL
+                ? mGlm.computeVerticalScrollOffset(recyclerView.mState)
+                : mGlm.computeHorizontalScrollOffset(recyclerView.mState);
+
+    }
+
+    private int getScrollExtent(
+            RecyclerView recyclerView,
+            @RecyclerView.Orientation int orientation) {
+        return orientation == VERTICAL
+                ? mGlm.computeVerticalScrollExtent(recyclerView.mState)
+                : mGlm.computeHorizontalScrollExtent(recyclerView.mState);
+
+    }
+
+    private int getScrollRange(
+            RecyclerView recyclerView,
+            @RecyclerView.Orientation int orientation) {
+        return orientation == VERTICAL
+                ? mGlm.computeVerticalScrollRange(recyclerView.mState)
+                : mGlm.computeHorizontalScrollRange(recyclerView.mState);
+
     }
 }

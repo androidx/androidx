@@ -125,8 +125,10 @@ package androidx.recyclerview.widget {
     ctor public GridLayoutManager(android.content.Context!, int, int, boolean);
     method public int getSpanCount();
     method public androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup! getSpanSizeLookup();
+    method public boolean isUsingSpansToEstimateScrollbarDimensions();
     method public void setSpanCount(int);
     method public void setSpanSizeLookup(androidx.recyclerview.widget.GridLayoutManager.SpanSizeLookup!);
+    method public void setUsingSpansToEstimateScrollbarDimensions(boolean);
     field public static final int DEFAULT_SPAN_COUNT = -1; // 0xffffffff
   }
 
@@ -151,8 +153,11 @@ package androidx.recyclerview.widget {
     method public int getSpanGroupIndex(int, int);
     method public int getSpanIndex(int, int);
     method public abstract int getSpanSize(int);
+    method public void invalidateSpanGroupIndexCache();
     method public void invalidateSpanIndexCache();
+    method public boolean isSpanGroupIndexCacheEnabled();
     method public boolean isSpanIndexCacheEnabled();
+    method public void setSpanGroupIndexCacheEnabled(boolean);
     method public void setSpanIndexCacheEnabled(boolean);
   }
 
