@@ -26,6 +26,8 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import androidx.webkit.ProxyConfig;
+import androidx.webkit.ProxyController;
 import androidx.webkit.SafeBrowsingResponseCompat;
 import androidx.webkit.ServiceWorkerClientCompat;
 import androidx.webkit.TracingConfig;
@@ -292,6 +294,15 @@ public enum WebViewFeatureInternal {
      * {@link WebViewRendererClient#onRendererResponsive(WebView,WebViewRenderer)}
      */
     WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE(WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE),
+
+    /**
+     * This feature covers
+     * {@link ProxyController#setProxyOverride(ProxyConfig, Executor, Runnable)},
+     * {@link ProxyController#setProxyOverride(ProxyConfig, Runnable)},
+     * {@link ProxyController#clearProxyOverride(Executor, Runnable)}, and
+     * {@link ProxyController#clearProxyOverride(Runnable)}.
+     */
+    PROXY_OVERRIDE(WebViewFeature.PROXY_OVERRIDE),
 
     ;  // This semicolon ends the enum. Add new features with a trailing comma above this line.
 
