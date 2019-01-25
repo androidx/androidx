@@ -241,7 +241,7 @@ public class RecyclerViewNestedScrollingTest {
                 mRecyclerView.fling(0, targetVelocity);
             }
         });
-        assertThat(countDownLatch.await(1, TimeUnit.SECONDS), is(true));
+        assertThat(countDownLatch.await(2, TimeUnit.SECONDS), is(true));
 
         // Verify all of the following TYPE_NON_TOUCH nested scrolling methods are called
         verify(mParent, atLeastOnce()).onStartNestedScroll(mRecyclerView, mRecyclerView,
