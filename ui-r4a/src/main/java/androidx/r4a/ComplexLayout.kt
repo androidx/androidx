@@ -19,6 +19,8 @@ package androidx.r4a
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
+import androidx.ui.core.adapter.Align
+import androidx.ui.core.adapter.Alignment
 import androidx.ui.core.adapter.Column
 import androidx.ui.core.adapter.ComplexMeasureBox
 import androidx.ui.core.adapter.Row
@@ -26,6 +28,7 @@ import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.Center
 import androidx.ui.core.adapter.FlexColumn
 import androidx.ui.core.adapter.FlexRow
+import androidx.ui.core.adapter.Stack
 import androidx.ui.core.dp
 import androidx.ui.painting.Color
 import com.google.r4a.Children
@@ -181,12 +184,45 @@ fun ColumnUsage() {
     </Column>
 }
 
+@Composable
+fun AlignUsage() {
+    <Align alignment=Alignment.BottomRight>
+        <SizedRectangle color=Color(0xFF0000FF.toInt()) width=40.dp height=40.dp />
+    </Align>
+}
+
+@Composable
+fun StackUsage() {
+    <Stack defaultAlignment=Alignment.BottomRight> children ->
+        children.aligned(Alignment.Center) {
+            <SizedRectangle color=Color(0xFF0000FF.toInt()) width=300.dp height=300.dp />
+        }
+        children.aligned(Alignment.TopLeft) {
+            <SizedRectangle color=Color(0xFF00FF00.toInt()) width=150.dp height=150.dp />
+        }
+        children.aligned(Alignment.BottomRight) {
+            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=150.dp height=150.dp />
+        }
+        // TODO(popam): insets should be named arguments
+        children.positioned(null, 20.dp, null, 20.dp) {
+            <SizedRectangle color=Color(0xFFFFA500.toInt()) width=80.dp />
+            <SizedRectangle color=Color(0xFFA52A2A.toInt()) width=20.dp />
+        }
+        children.positioned(40.dp, null, null, null) {
+            <SizedRectangle color=Color(0xFFB22222.toInt()) width=20.dp />
+        }
+        children.positioned(null, null, 40.dp, null) {
+            <SizedRectangle color=Color(0xFFFFFF00) width=40.dp />
+         }
+    </Stack>
+}
+
 /**
  * Entry point for the activity.
  */
 @Composable
 fun ComplexLayout() {
     <CraneWrapper>
-        <FlexColumnUsage />
+        <StackUsage />
     </CraneWrapper>
 }

@@ -31,7 +31,7 @@ import com.google.r4a.Composable
 /**
  * Collects information about the children of a [FlexColumn] or [FlexColumn]
  * when its body is executed with a [FlexChildren] instance as argument.
- * TODO(popam): make this the receiver scope of the RowFlex lambda
+ * TODO(popam): make this the receiver scope of the Flex lambda
  */
 class FlexChildren {
     private val _flexChildren = mutableListOf<FlexChild>()

@@ -20,6 +20,7 @@ import androidx.ui.core.ComplexMeasureOperations
 import androidx.ui.core.Constraints
 import androidx.ui.core.MeasureOperations
 import androidx.ui.layout.FlexChildren
+import androidx.ui.layout.StackChildren
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
@@ -27,6 +28,7 @@ import com.google.r4a.Composable
 import androidx.ui.core.LayoutKt
 import androidx.ui.layout.AlignKt
 import androidx.ui.layout.FlexKt
+import androidx.ui.layout.StackKt
 
 /**
  * All this module is needed to work around b/120971484
@@ -105,4 +107,46 @@ fun Column(@Children() block: () -> Unit) {
 @Suppress("PLUGIN_ERROR")
 fun Center(@Children() block: () -> Unit) {
     AlignKt.Center(block)
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.Alignment
+ */
+@Suppress("PLUGIN_ERROR")
+class Alignment {
+    companion object {
+        val TopLeft = androidx.ui.layout.Alignment(-1f, -1f)
+        val TopCenter = androidx.ui.layout.Alignment(-1f, 0f)
+        val TopRight = androidx.ui.layout.Alignment(-1f, 1f)
+        val CenterLeft = androidx.ui.layout.Alignment(0f, -1f)
+        val Center = androidx.ui.layout.Alignment(0f, 0f)
+        val CenterRight = androidx.ui.layout.Alignment(0f, 1f)
+        val BottomLeft = androidx.ui.layout.Alignment(1f, -1f)
+        val BottomCenter = androidx.ui.layout.Alignment(1f, 0f)
+        val BottomRight = androidx.ui.layout.Alignment(1f, 1f)
+    }
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.Align
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun Align(alignment: androidx.ui.layout.Alignment, @Children() block: () -> Unit) {
+    AlignKt.Align(alignment, block)
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.Stack
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun Stack(
+    defaultAlignment: androidx.ui.layout.Alignment = Alignment.Center,
+    @Children() block: (StackChildren) -> Unit
+) {
+    StackKt.Stack(defaultAlignment, block)
 }

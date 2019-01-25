@@ -19,28 +19,63 @@ package androidx.ui.layout
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dimension
 import androidx.ui.core.MeasureBox
+import androidx.ui.core.Position
+import androidx.ui.core.Size
+import androidx.ui.core.center
 import androidx.ui.core.div
 import androidx.ui.core.dp
+import androidx.ui.core.max
+import androidx.ui.core.min
 import androidx.ui.core.minus
+import androidx.ui.core.plus
+import androidx.ui.core.times
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
 /**
- * A layout that takes a child and centers it within itself.
- * The layout will be as large as possible for finite incoming
- * constraints, or wrap content otherwise.
- *
- * Example usage:
- * <Center>
- *    <SizedRectangle color=Color(0xFF0000FF.toInt()) width = 40.dp height = 40.dp />
- * </Center>
+ * Represents a positioning of a point inside a 2D box. [Alignment] is often used to define
+ * the alignment of a box inside a parent container.
+ * The coordinate space of the 2D box is the continuous [-1f, 1f] range in both dimensions,
+ * so (verticalBias, horizontalBias) will be points in this space. (verticalBias=0f,
+ * horizontalBias=0f) represents the center of the box, (verticalBias=-1f, horizontalBias=1f)
+ * will be the top right, etc.
+ */
+data class Alignment(val verticalBias: Float, val horizontalBias: Float) {
+    companion object {
+        val TopLeft = Alignment(-1f, -1f)
+        val TopCenter = Alignment(-1f, 0f)
+        val TopRight = Alignment(-1f, 1f)
+        val CenterLeft = Alignment(0f, -1f)
+        val Center = Alignment(0f, 0f)
+        val CenterRight = Alignment(0f, 1f)
+        val BottomLeft = Alignment(-1f, -1f)
+        val BottomCenter = Alignment(-1f, 0f)
+        val BottomRight = Alignment(-1f, 1f)
+    }
+
+    /**
+     * Returns the position of a 2D point in a container of a given size,
+     * according to this [Alignment].
+     */
+    fun align(size: Size): Position {
+        return Position(
+            size.center().x * (1 + horizontalBias),
+            size.center().y * (1 + verticalBias)
+        )
+    }
+}
+
+/**
+ * A layout that takes a child and aligns it within itself, according to the alignment parameter.
+ * The layout will be as large as possible for finite incoming constraints,
+ * or wrap content otherwise.
  */
 @Composable
-fun Center(@Children children: () -> Unit) {
+fun Align(alignment: Alignment, @Children children: () -> Unit) {
     <MeasureBox> constraints, measureOperations ->
         val measurable = measureOperations.collect(children).firstOrNull()
         if (measurable == null) {
-            measureOperations.layout(0.dp, 0.dp) {}
+            measureOperations.layout(constraints.minWidth, constraints.minHeight) {}
         } else {
             // The child cannot be larger than our max constraints, but we ignore min constraints.
             val childConstraints = Constraints(
@@ -62,11 +97,26 @@ fun Center(@Children children: () -> Unit) {
             }
 
             measureOperations.layout(layoutWidth, layoutHeight) {
-                placeable.place(
-                    (layoutWidth - placeable.width) / 2,
-                    (layoutHeight - placeable.height) / 2
+                val position = alignment.align(
+                    Size(layoutWidth - placeable.width, layoutHeight - placeable.height)
                 )
+                placeable.place(position.x, position.y)
             }
         }
     </MeasureBox>
+}
+
+/**
+ * A layout that takes a child and centers it within itself.
+ * The layout will be as large as possible for finite incoming
+ * constraints, or wrap content otherwise.
+ *
+ * Example usage:
+ * <Center>
+ *    <SizedRectangle color=Color(0xFF0000FF.toInt()) width = 40.dp height = 40.dp />
+ * </Center>
+ */
+@Composable
+fun Center(@Children children: () -> Unit) {
+    <Align alignment=Alignment.Center children />
 }
