@@ -99,7 +99,7 @@ limitations under the License.
     <dimen name="car_app_bar_default_elevation">8dp</dimen>
     <dimen name="car_application_icon_size">44dp</dimen>
     <!-- Factor used to scale switches in the CarToolbar -->
-    <dimen name="car_app_bar_switch_scale" format="float">1.4</dimen>
+    <item name="car_app_bar_switch_scale" format="float" type="dimen">1.4</item>
     <dimen name="car_app_bar_action_icon_bound">40dp</dimen>
 
     <!-- Lists -->
