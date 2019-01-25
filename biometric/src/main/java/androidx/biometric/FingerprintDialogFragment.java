@@ -77,11 +77,9 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     /**
      * Creates a dialog requesting for Fingerprint authentication.
-     * @param bundle
      */
-    public static FingerprintDialogFragment newInstance(Bundle bundle) {
+    public static FingerprintDialogFragment newInstance() {
         FingerprintDialogFragment fragment = new FingerprintDialogFragment();
-        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -121,7 +119,9 @@ public class FingerprintDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mBundle = getArguments();
+        if (savedInstanceState != null && mBundle == null) {
+            mBundle = savedInstanceState.getBundle(KEY_DIALOG_BUNDLE);
+        }
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle(mBundle.getCharSequence(BiometricPrompt.KEY_TITLE));
@@ -186,10 +186,6 @@ public class FingerprintDialogFragment extends DialogFragment {
             mErrorColor = ContextCompat.getColor(mContext, R.color.biometric_error_color);
         }
         mTextColor = getThemedColorFor(android.R.attr.textColorSecondary);
-
-        if (savedInstanceState != null) {
-            mBundle = savedInstanceState.getBundle(KEY_DIALOG_BUNDLE);
-        }
     }
 
     @Override
@@ -215,6 +211,10 @@ public class FingerprintDialogFragment extends DialogFragment {
         if (fingerprintHelperFragment != null) {
             fingerprintHelperFragment.cancel(FingerprintHelperFragment.USER_CANCELED_FROM_USER);
         }
+    }
+
+    public void setBundle(Bundle bundle) {
+        mBundle = bundle;
     }
 
     private int getThemedColorFor(int attr) {
