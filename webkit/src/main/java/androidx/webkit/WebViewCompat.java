@@ -43,6 +43,7 @@ import org.chromium.support_lib_boundary.util.Features;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.Executor;
 
 /**
  * Compatibility version of {@link android.webkit.WebView}
@@ -521,9 +522,55 @@ public class WebViewCompat {
      * Callbacks represent renderer events from the perspective of this WebView, and may or may
      * not be correlated with renderer events affecting other WebViews.
      *
+     * <p>The renderer client encapsulates callbacks relevant to WebView renderer
+     * state. See {@link WebViewRendererClient} for details.
+     *
+     * <p>Although many WebView instances may share a single underlying renderer, and renderers may
+     * live either in the application process, or in a sandboxed process that is isolated from
+     * the application process, instances of {@link WebViewRendererClient} are set per-WebView.
+     * Callbacks represent renderer events from the perspective of this WebView, and may or may
+     * not be correlated with renderer events affecting other WebViews.
+     *
      * <p>This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE}.
+     *
+     * @param webview the {@link WebView} on which to monitor responsiveness.
+     * @param executor the {@link Executor} that will be used to execute callbacks.
+     * @param webViewRendererClient the {@link WebViewRendererClient} to set for callbacks.
+     */
+    @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setWebViewRendererClient(
+            @NonNull WebView webview,
+            @NonNull /* @CallbackExecutor */ Executor executor,
+            @NonNull WebViewRendererClient webViewRendererClient) {
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
+                WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
+        if (feature.isSupportedByWebView()) {
+            getProvider(webview).setWebViewRendererClient(executor, webViewRendererClient);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Sets the renderer client object associated with this WebView.
+     *
+     * <p>See {@link #setWebViewRendererClient(WebView,Executor,WebViewRendererClient} for details,
+     * with the following differences:
+     *
+     * <p>Callbacks will execute directly on the thread on which this WebView was instantiated.
+     *
+     * <p>Passing {@code null} for {@code webViewRendererClien} will clear the renderer client
+     * object for this WebView.
+     *
+     * <p>This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE}.
+     *
+     * @param webview the {@link WebView} on which to monitor responsiveness.
+     * @param webViewRendererClient the {@link WebViewRendererClient} to set for callbacks.
      */
     @RequiresFeature(name = WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -532,7 +579,7 @@ public class WebViewCompat {
         final WebViewFeatureInternal feature = WebViewFeatureInternal.getFeature(
                 WebViewFeature.WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE);
         if (feature.isSupportedByWebView()) {
-            getProvider(webview).setWebViewRendererClient(webViewRendererClient);
+            getProvider(webview).setWebViewRendererClient(null, webViewRendererClient);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
