@@ -30,6 +30,11 @@
             android:id="@+id/settings"
             app:startDestination="@id/settings_fragment">
         <action
+                android:id="@+id/main"
+                app:destination="@id/main_fragment">
+            <argument android:name="enterReason" android:defaultValue="DEFAULT"/>
+        </action>
+        <action
                 android:id="@+id/exit"
                 app:popUpTo="@id/main_fragment">
             <argument android:name="exitReason" android:defaultValue="DEFAULT"/>

@@ -18,6 +18,7 @@ package foo.flavor;
 
 import android.support.annotation.NonNull;
 import foo.InnerSettingsDirections;
+import foo.SettingsDirections;
 
 public class InnerSettingsFragmentDirections {
     private InnerSettingsFragmentDirections() {
@@ -26,5 +27,10 @@ public class InnerSettingsFragmentDirections {
     @NonNull
     public static InnerSettingsDirections.Exit exit(int exitReason) {
         return InnerSettingsDirections.exit(exitReason);
+    }
+
+    @NonNull
+    public static SettingsDirections.Main main() {
+        return InnerSettingsDirections.main();
     }
 }
