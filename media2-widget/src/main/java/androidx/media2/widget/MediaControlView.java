@@ -1714,9 +1714,12 @@ public class MediaControlView extends BaseLayout {
         // Show window
         mNeedToHideBars = false;
         mSettingsWindow.dismiss();
-        mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
-                mSettingsWindowMargin - height, Gravity.BOTTOM | Gravity.RIGHT);
-        mNeedToHideBars = true;
+        // Workaround for b/123271636.
+        if (height > 0) {
+            mSettingsWindow.showAsDropDown(this, mSettingsWindowMargin,
+                    mSettingsWindowMargin - height, Gravity.BOTTOM | Gravity.RIGHT);
+            mNeedToHideBars = true;
+        }
     }
 
     void dismissSettingsWindow() {
