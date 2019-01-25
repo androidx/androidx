@@ -17,21 +17,17 @@
 package androidx.fragment.app;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.test.LoaderActivity;
 import androidx.fragment.test.R;
 import androidx.loader.app.LoaderManager;
-import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -45,14 +41,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class LoaderTest {
-    private static final int DELAY_LOADER = 10;
-
     @Rule
     public ActivityTestRule<LoaderActivity> mActivityRule =
             new ActivityTestRule<>(LoaderActivity.class);
@@ -141,91 +133,6 @@ public class LoaderTest {
         FragmentTestUtil.executePendingTransactions(mActivityRule, fm);
 
         assertEquals("Loaded!", fragment.textView.getText().toString());
-    }
-
-    /**
-     * When a change is interrupted with stop, the data in the LoaderManager remains stale.
-     */
-    //@Test
-    public void noStaleData() throws Throwable {
-        final LoaderActivity activity = mActivityRule.getActivity();
-        final String[] value = new String[] { "First Value" };
-
-        final CountDownLatch[] loadedLatch = new CountDownLatch[] { new CountDownLatch(1) };
-        final Loader<String>[] loaders = new Loader[1];
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                final Loader<String> loader =
-                        LoaderManager.getInstance(activity).initLoader(DELAY_LOADER, null,
-                                new LoaderManager.LoaderCallbacks<String>() {
-                                    @NonNull
-                                    @Override
-                                    public Loader<String> onCreateLoader(int id, Bundle args) {
-                                        return new AsyncTaskLoader<String>(activity) {
-                                            @Override
-                                            protected void onStopLoading() {
-                                                cancelLoad();
-                                            }
-
-                                            @Override
-                                            public String loadInBackground() {
-                                                SystemClock.sleep(50);
-                                                return value[0];
-                                            }
-
-                                            @Override
-                                            protected void onStartLoading() {
-                                                if (takeContentChanged()) {
-                                                    forceLoad();
-                                                }
-                                                super.onStartLoading();
-                                            }
-                                        };
-                                    }
-
-                                    @Override
-                                    public void onLoadFinished(@NonNull Loader<String> loader,
-                                            String data) {
-                                        activity.textViewB.setText(data);
-                                        loadedLatch[0].countDown();
-                                    }
-
-                                    @Override
-                                    public void onLoaderReset(@NonNull Loader<String> loader) {
-                                    }
-                                });
-                loader.forceLoad();
-                loaders[0] = loader;
-            }
-        });
-
-        assertTrue(loadedLatch[0].await(1, TimeUnit.SECONDS));
-        assertEquals("First Value", activity.textViewB.getText().toString());
-
-        loadedLatch[0] = new CountDownLatch(1);
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                value[0] = "Second Value";
-                loaders[0].onContentChanged();
-                loaders[0].stopLoading();
-            }
-        });
-
-        // Since the loader was stopped (and canceled), it shouldn't notify the change
-        assertFalse(loadedLatch[0].await(300, TimeUnit.MILLISECONDS));
-
-        mActivityRule.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                loaders[0].startLoading();
-            }
-        });
-
-        // Since the loader was stopped (and canceled), it shouldn't notify the change
-        assertTrue(loadedLatch[0].await(1, TimeUnit.SECONDS));
-        assertEquals("Second Value", activity.textViewB.getText().toString());
     }
 
     public static class LoaderFragment extends Fragment implements
