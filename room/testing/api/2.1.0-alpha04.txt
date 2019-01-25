@@ -1,0 +1,14 @@
+// Signature format: 2.0
+package androidx.room.testing {
+
+  public class MigrationTestHelper extends org.junit.rules.TestWatcher {
+    ctor public MigrationTestHelper(android.app.Instrumentation!, String!);
+    ctor public MigrationTestHelper(android.app.Instrumentation!, String!, androidx.sqlite.db.SupportSQLiteOpenHelper.Factory!);
+    method public void closeWhenFinished(androidx.sqlite.db.SupportSQLiteDatabase!);
+    method public void closeWhenFinished(androidx.room.RoomDatabase!);
+    method public androidx.sqlite.db.SupportSQLiteDatabase! createDatabase(String!, int) throws java.io.IOException;
+    method public androidx.sqlite.db.SupportSQLiteDatabase! runMigrationsAndValidate(String!, int, boolean, androidx.room.migration.Migration...!) throws java.io.IOException;
+  }
+
+}
+
