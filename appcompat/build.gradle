@@ -10,7 +10,7 @@ dependencies {
     api(project(":annotation"))
 
     api(project(":core"))
-    api(project(":collection"))
+    implementation(project(":collection"))
     api("androidx.cursoradapter:cursoradapter:1.0.0")
     api(project(":fragment"))
     api("androidx.vectordrawable:vectordrawable:1.0.1")

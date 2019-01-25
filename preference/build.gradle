@@ -26,7 +26,7 @@ dependencies {
     // TODO: change to 1.1.0-alpha02 after release
     api(project(":appcompat"))
     api("androidx.core:core:1.1.0-alpha01")
-    api("androidx.collection:collection:1.0.0")
+    implementation("androidx.collection:collection:1.0.0")
     // TODO: change to 1.1.0-alpha04 after release
     api(project(":fragment"))
     api("androidx.recyclerview:recyclerview:1.0.0")
