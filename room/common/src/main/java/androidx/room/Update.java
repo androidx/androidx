@@ -31,7 +31,10 @@ package androidx.room;
 public @interface Update {
     /**
      * What to do if a conflict happens.
-     * @see <a href="https://sqlite.org/lang_conflict.html">SQLite conflict documentation</a>
+     * <p>
+     * Use {@link OnConflictStrategy#ABORT} (default) to roll back the transaction on conflict.
+     * Use {@link OnConflictStrategy#REPLACE} to replace the existing rows with the new rows.
+     * Use {@link OnConflictStrategy#IGNORE} to keep the existing rows.
      *
      * @return How to handle conflicts. Defaults to {@link OnConflictStrategy#ABORT}.
      */
