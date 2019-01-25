@@ -95,7 +95,10 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
                 } else {
                     val constructor = actionType.methodSpecs.find(MethodSpec::isConstructor)!!
                     val params = constructor.parameters.joinToString(", ") { param -> param.name }
-                    val actionTypeName = ClassName.get("", actionType.name)
+                    val actionTypeName = ClassName.get(
+                        className.packageName(),
+                        className.simpleName(),
+                        actionType.name)
                     MethodSpec.methodBuilder(methodName)
                         .addAnnotation(annotations.NONNULL_CLASSNAME)
                         .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -118,18 +121,11 @@ class JavaNavWriter(private val useAndroidX: Boolean = false) : NavWriter<JavaCo
                         parentGetters.none { it.name == method.name } // de-dupe parent actions
             }.forEach { actionMethod ->
                 val params = actionMethod.parameters.joinToString(", ") { param -> param.name }
-                val returnTypeName = when (actionMethod.returnType) {
-                    NAV_DIRECTION_CLASSNAME -> NAV_DIRECTION_CLASSNAME
-                    else -> ClassName.get(
-                        parentPackageName,
-                        parentTypeSpec.name,
-                        actionMethod.returnType.toString())
-                }
                 val methodSpec = MethodSpec.methodBuilder(actionMethod.name)
                     .addAnnotations(actionMethod.annotations)
                     .addModifiers(actionMethod.modifiers)
                     .addParameters(actionMethod.parameters)
-                    .returns(returnTypeName)
+                    .returns(actionMethod.returnType)
                     .addStatement("return $T.$L($params)",
                         ClassName.get(parentPackageName, parentTypeSpec.name), actionMethod.name)
                     .build()
