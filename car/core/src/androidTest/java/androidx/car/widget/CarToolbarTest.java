@@ -18,6 +18,7 @@ package androidx.car.widget;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.assertion.PositionAssertions.isCompletelyLeftOf;
 import static androidx.test.espresso.assertion.PositionAssertions.isCompletelyRightOf;
 import static androidx.test.espresso.assertion.ViewAssertions.doesNotExist;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -66,8 +67,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Unit tests for {@link CarToolbar}.
@@ -308,6 +311,26 @@ public class CarToolbarTest {
     }
 
     @Test
+    public void testSetMenuItems_NullClearsItems() throws Throwable {
+        String actionItemText = "checkable_item_text";
+        CarMenuItem actionItem = new CarMenuItem
+                .Builder()
+                .setTitle(actionItemText)
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS) // Action item
+                .build();
+
+        mActivityRule.runOnUiThread(() ->
+                mToolbar.setMenuItems(Collections.singletonList(actionItem)));
+
+        // Wait for item to show.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        mActivityRule.runOnUiThread(() -> mToolbar.setMenuItems(null));
+
+        onView(withText(actionItemText)).check(doesNotExist());
+    }
+
+    @Test
     public void testActionItemWithIconDisplaysIcon() throws Throwable {
         String actionItemText = "action_item_text";
         CarMenuItem actionItem = new CarMenuItem
@@ -524,10 +547,12 @@ public class CarToolbarTest {
                 .setTitle(overflowItemText)
                 .build();
 
-        mActivityRule.runOnUiThread(() -> {
-            mToolbar.setMenuItems(Collections.singletonList(overflowItem));
-            mToolbar.showOverflowMenu();
-        });
+        mActivityRule.runOnUiThread(() ->
+                mToolbar.setMenuItems(Collections.singletonList(overflowItem)));
+
+        // Since overflow items are set in onMeasure, need to wait for the views to be laid out.
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+        mActivityRule.runOnUiThread(() -> mToolbar.showOverflowMenu());
 
         onView(withText(overflowItemText)).inRoot(isDialog()).check(matches(isDisplayed()));
     }
@@ -570,6 +595,138 @@ public class CarToolbarTest {
         onView(withText(overflowItemText)).perform(click());
 
         assertTrue(clicked[0]);
+    }
+
+    @Test
+    public void testIfRoomItemDisplayedInOrderProvided() throws Throwable {
+        List<CarMenuItem> items = new ArrayList<>();
+        String action1Text = "action_item_1";
+        items.add(new CarMenuItem
+                .Builder()
+                .setTitle(action1Text)
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
+                .build());
+
+        String ifRoomItemText = "if_room_item_text";
+        items.add(new CarMenuItem
+                .Builder()
+                .setTitle(ifRoomItemText)
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
+                .build());
+
+        String action2Text = "action_item_2";
+        items.add(new CarMenuItem
+                .Builder()
+                .setTitle(action2Text)
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
+                .build());
+
+
+        mActivityRule.runOnUiThread(() -> mToolbar.setMenuItems(items));
+
+        onView(withText(ifRoomItemText)).check(isCompletelyLeftOf(withText(action1Text)));
+        onView(withText(ifRoomItemText)).check(isCompletelyRightOf(withText(action2Text)));
+    }
+
+    @Test
+    public void testIfRoomItemDisplayedIfRoomAvailable() throws Throwable {
+        String ifRoomItemText = "if_room_item_text";
+        CarMenuItem ifRoomItem = new CarMenuItem
+                .Builder()
+                .setTitle(ifRoomItemText)
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
+                .build();
+
+        mActivityRule.runOnUiThread(() ->
+                mToolbar.setMenuItems(Collections.singletonList(ifRoomItem)));
+
+        onView(withText(ifRoomItemText)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testIfRoomItemAddedToOverflowIfOverCountLimit() throws Throwable {
+        List<CarMenuItem> items = new ArrayList<>();
+        for (int i = 0; i < CarToolbar.ACTION_ITEM_COUNT_LIMIT; i++) {
+            items.add(new CarMenuItem
+                    .Builder()
+                    .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
+                    .build());
+        }
+
+        String ifRoomItemText = "if_room_item_text";
+        items.add(new CarMenuItem
+                .Builder()
+                .setTitle(ifRoomItemText)
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
+                .build());
+
+        mActivityRule.runOnUiThread(() -> mToolbar.setMenuItems(items));
+
+        onView(withText(ifRoomItemText)).check(doesNotExist());
+
+        // Open overflow menu.
+        onView(withId(R.id.overflow_menu)).perform(click());
+
+        onView(withText(ifRoomItemText)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testIfRoomItemAddedToOverflowIfOverWidthPercentageLimit() throws Throwable {
+        // Add just one ALWAYS item with long text so that ACTION_ITEM_COUNT_LIMIT is not reached.
+        String longText = mActivity.getString(R.string.over_uxr_text_length_limit);
+        List<CarMenuItem> items = new ArrayList<>();
+        items.add(new CarMenuItem
+                .Builder()
+                .setTitle(longText)
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
+                .build());
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        String ifRoomItemText = "if_room_item_text";
+        items.add(new CarMenuItem
+                .Builder()
+                .setTitle(ifRoomItemText)
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
+                .build());
+
+        mActivityRule.runOnUiThread(() -> mToolbar.setMenuItems(items));
+
+        onView(withText(ifRoomItemText)).check(doesNotExist());
+
+        mActivityRule.runOnUiThread(() -> mToolbar.showOverflowMenu());
+
+        onView(withText(ifRoomItemText)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testIfRoomItemPushedFromActionToOverflowIfLimitExceeded() throws Throwable {
+        List<CarMenuItem> items = new ArrayList<>();
+        items.add(new CarMenuItem
+                .Builder()
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
+                .build());
+
+        String ifRoomItemText = "if_room_item_text";
+        items.add(new CarMenuItem
+                .Builder()
+                .setTitle(ifRoomItemText)
+                .setDisplayBehavior(CarMenuItem.DisplayBehavior.IF_ROOM)
+                .build());
+
+        mActivityRule.runOnUiThread(() -> mToolbar.setMenuItems(items));
+
+        onView(withText(ifRoomItemText)).check(matches(isDisplayed()));
+
+        for (int i = 0; i < CarToolbar.ACTION_ITEM_COUNT_LIMIT - 1; i++) {
+            items.add(new CarMenuItem
+                    .Builder()
+                    .setDisplayBehavior(CarMenuItem.DisplayBehavior.ALWAYS)
+                    .build());
+        }
+        mActivityRule.runOnUiThread(() -> mToolbar.setMenuItems(items));
+
+        onView(withText(ifRoomItemText)).check(doesNotExist());
+        onView(withId(R.id.overflow_menu)).check(matches(isDisplayed()));
     }
 
     private TextView getTitleView() {
