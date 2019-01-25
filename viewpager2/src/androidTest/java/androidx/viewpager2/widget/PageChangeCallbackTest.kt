@@ -718,7 +718,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             val callback = test.viewPager.addNewRecordingCallback()
 
             // when
-            test.viewPager.setCurrentItemSync(targetPage, false, 2, SECONDS)
+            test.viewPager.setCurrentItemSync(targetPage, false, 2, SECONDS, false)
 
             // then
             assertThat(test.viewPager.currentItem, equalTo(0))
@@ -739,22 +739,23 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             // given
             val initialPage = test.viewPager.currentItem
             val callback = test.viewPager.addNewRecordingCallback()
+            val targetBoundary = if (targetPage <= 0) 0 else n - 1
+            // only expect events when we're going to the boundary on the other side
+            val expectEvents = initialPage != targetBoundary
 
             // when
-            test.viewPager.setCurrentItemSync(targetPage, smoothScroll, 2, SECONDS)
+            test.viewPager.setCurrentItemSync(targetPage, smoothScroll, 2, SECONDS, expectEvents)
 
             // then the viewpager must have scrolled to the respective boundary
-            val boundary = if (targetPage <= 0) 0 else n - 1
-            assertThat(test.viewPager.currentItem, equalTo(boundary))
-            if (initialPage == boundary) {
-                // when it was already there, no events should have been fired
+            assertThat(test.viewPager.currentItem, equalTo(targetBoundary))
+            if (!expectEvents) {
                 assertThat(callback.eventCount, equalTo(0))
             } else {
-                // otherwise, make sure the page select events and scroll events are correct
+                // make sure the page select events and scroll events are correct
                 val pageSize = test.viewPager.pageSize
-                callback.scrollEvents.assertValueSanity(initialPage, boundary, pageSize)
-                callback.scrollEvents.assertLastCorrect(boundary)
-                callback.assertAllPagesSelected(listOf(boundary))
+                callback.scrollEvents.assertValueSanity(initialPage, targetBoundary, pageSize)
+                callback.scrollEvents.assertLastCorrect(targetBoundary)
+                callback.assertAllPagesSelected(listOf(targetBoundary))
             }
             test.viewPager.unregisterOnPageChangeCallback(callback)
         }
