@@ -63,12 +63,12 @@ inline fun FragmentManager.commitNow(
  *
  * One of four commit functions will be used based on the values of `now` and `allowStateLoss`:
  *
- * | `now` | `allowStateLoss` | Method                         |
- * | ----- | ---------------- | ------------------------------ |
- * | false | false            | `commit()`                     |
- * | false | true             | `commitAllowingStateLoss()`    |
- * | true  | false            | `commitNow()`                  |
- * | true  | true             | `commitNowAllowingStateLoss()` |
+ *     |  now  |  allowStateLoss  | Method                         |
+ *     | ----- | ---------------- | ------------------------------ |
+ *     | false | false            |  commit()                      |
+ *     | false | true             |  commitAllowingStateLoss()     |
+ *     | true  | false            |  commitNow()                   |
+ *     | true  | true             |  commitNowAllowingStateLoss()  |
  */
 @Deprecated("Use commit { .. } or commitNow { .. } extensions")
 inline fun FragmentManager.transaction(
