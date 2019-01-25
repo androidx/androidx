@@ -282,7 +282,8 @@ public abstract class AppCompatDelegate {
      * This should be called from {@link Activity#setTheme(int)} to notify AppCompat of what
      * the current theme resource id is.
      */
-    public abstract void onSetTheme(@StyleRes int themeResId);
+    public void onSetTheme(@StyleRes int themeResId) {
+    }
 
     /**
      * Finds a view that was identified by the id attribute from the XML that
