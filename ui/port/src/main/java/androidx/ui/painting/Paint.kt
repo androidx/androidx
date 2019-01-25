@@ -97,6 +97,12 @@ class Paint {
 
     internal fun toFrameworkPaint(): android.graphics.Paint = internalPaint
 
+    var alpha: Float
+        get() = internalPaint.alpha / 255.0f
+        set(value) {
+            internalPaint.alpha = kotlin.math.round(value * 255.0f).toInt()
+        }
+
     // Whether to apply anti-aliasing to lines and images drawn on the
     // canvas.
     //
