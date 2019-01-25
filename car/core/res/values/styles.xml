@@ -480,22 +480,23 @@ limitations under the License.
 
     <!-- The body text for a dialog. -->
     <style name="Widget.Car.Dialog.Body">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body2</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body3</item>
     </style>
 
     <!-- Body text for a dialog that is fixed in a light color. -->
     <style name="Widget.Car.Dialog.Body.Light">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body2.Light</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Light</item>
     </style>
 
     <!-- Body text for a dialog that is fixed in a dark color. -->
     <style name="Widget.Car.Dialog.Body.Dark">
-        <item name="android:textAppearance">@style/TextAppearance.Car.Body2.Dark</item>
+        <item name="android:textAppearance">@style/TextAppearance.Car.Body3.Dark</item>
     </style>
 
     <!-- The style for dialog buttons. This style removes the horizontal padding from the
          borderless buttons to ensure they are flush to the text. -->
     <style name="Widget.Car.Dialog.Button" parent="Widget.Car.Button.Borderless.Colored">
+        <item name="android:fontFamily">sans-serif-medium</item>
         <item name="android:paddingStart">0dp</item>
         <item name="android:paddingEnd">0dp</item>
     </style>
