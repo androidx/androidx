@@ -18,6 +18,11 @@ public class InnerSettingsDirections {
         return new Exit(exitReason);
     }
 
+    @NonNull
+    public static SettingsDirections.Main main() {
+        return SettingsDirections.main();
+    }
+
     public static class Exit implements NavDirections {
         private final HashMap arguments = new HashMap();
 

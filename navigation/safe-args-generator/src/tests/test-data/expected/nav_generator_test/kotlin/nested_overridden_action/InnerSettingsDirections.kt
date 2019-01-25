@@ -3,6 +3,7 @@ package foo
 import android.os.Bundle
 import androidx.navigation.NavDirections
 import kotlin.Int
+import kotlin.String
 
 class InnerSettingsDirections private constructor() {
     private data class Exit(val exitReason: Int) : NavDirections {
@@ -17,5 +18,8 @@ class InnerSettingsDirections private constructor() {
 
     companion object {
         fun exit(exitReason: Int): NavDirections = Exit(exitReason)
+
+        fun main(enterReason: String = "DEFAULT"): NavDirections =
+                SettingsDirections.main(enterReason)
     }
 }
