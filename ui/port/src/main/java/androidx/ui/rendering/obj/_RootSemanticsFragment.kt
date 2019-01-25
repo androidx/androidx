@@ -21,7 +21,6 @@ import androidx.ui.painting.matrixutils.matrixEquals
 import androidx.ui.semantics.SemanticsConfiguration
 import androidx.ui.semantics.SemanticsNode
 import androidx.ui.vectormath64.Matrix4
-import kotlin.coroutines.experimental.buildSequence
 
 // / An [_InterestingSemanticsFragment] that produces the root [SemanticsNode] of
 // / the semantics tree.
@@ -40,7 +39,7 @@ internal class _RootSemanticsFragment(
         parentSemanticsClipRect: Rect?,
         parentPaintClipRect: Rect?
     ): Iterable<SemanticsNode> {
-        return buildSequence {
+        return sequence {
             assert(_tagsForChildren == null || _tagsForChildren!!.isEmpty())
             assert(parentSemanticsClipRect == null)
             assert(parentPaintClipRect == null)

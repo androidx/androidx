@@ -44,8 +44,8 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
             val layoutNode = craneView.root
 
             R4a.composeInto(container = layoutNode, context = context, parent = ambients!!) {
-                <ContextAmbient.Provider value = context>
-                    <DensityAmbient.Provider value =Density(context)>
+                <ContextAmbient.Provider value=context>
+                    <DensityAmbient.Provider value = Density(context)>
                         <children />
                     </DensityAmbient.Provider>
                 </ContextAmbient.Provider>
