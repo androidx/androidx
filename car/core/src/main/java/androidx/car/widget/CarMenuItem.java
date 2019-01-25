@@ -30,7 +30,7 @@ import androidx.car.R;
  * <ul>
  *     <li>Title - Primary text that is shown on the item.
  *     <li>{@link CarMenuItem.OnClickListener} - Listener that handles the clicks on the item.
- *     <li>Icon - An {@link Icon} shown before the title.
+ *     <li>Icon - An {@link Icon} shown before the title, if the item is not checkable (a switch).
  *     <li>Style - A Resource Id that specifies the style of the item if it's not an overflow item.
  *     <li>Enabled - A boolean that specifies whether the item is enabled or disabled.
  *     <li>Checkable - A boolean that specifies whether the item is checkable (a switch) or not.
