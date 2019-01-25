@@ -19,6 +19,7 @@ import android.content.Context
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.R4a
 import com.google.r4a.composer
 
@@ -44,7 +45,9 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
 
             R4a.composeInto(container = layoutNode, context = context, parent = ambients!!) {
                 <ContextAmbient.Provider value = context>
-                    <children />
+                    <DensityAmbient.Provider value =Density(context)>
+                        <children />
+                    </DensityAmbient.Provider>
                 </ContextAmbient.Provider>
             }
             var width = 0.dp
@@ -62,3 +65,12 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
 }
 
 val ContextAmbient = Ambient.of<Context>()
+
+internal val DensityAmbient = Ambient.of<Density>()
+
+@Composable
+fun DensityProvider(@Children children: (density: Density) -> Unit) {
+    <DensityAmbient.Consumer> density ->
+        <children density />
+    </DensityAmbient.Consumer>
+}

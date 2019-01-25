@@ -21,6 +21,7 @@ import android.util.TypedValue
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.PollingCheck
+import androidx.ui.core.Density
 import androidx.ui.core.dp
 import androidx.ui.core.toPx
 import androidx.ui.port.integration.ImageDrawTest
@@ -50,6 +51,6 @@ class DimensionDeviceTest {
     fun dimensionCalculation() {
         val dm = activity.resources.displayMetrics
         val dp10InPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, dm)
-        assertEquals(dp10InPx, 10.dp.toPx(activity), 0.01f)
+        assertEquals(dp10InPx, 10.dp.toPx(Density(activity)), 0.01f)
     }
 }

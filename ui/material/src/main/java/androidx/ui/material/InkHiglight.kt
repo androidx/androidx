@@ -16,12 +16,12 @@
 
 package androidx.ui.material
 
-import android.content.Context
 import androidx.ui.animation.Animation
 import androidx.ui.animation.AnimationController
 import androidx.ui.animation.AnimationStatus
 import androidx.ui.animation.Tween
 import androidx.ui.core.Bounds
+import androidx.ui.core.Density
 import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.toBounds
@@ -124,10 +124,10 @@ class InkHighlight(
         super.dispose()
     }
 
-    private fun paintHighlight(canvas: Canvas, rect: Rect, paint: Paint, context: Context) {
+    private fun paintHighlight(canvas: Canvas, rect: Rect, paint: Paint, density: Density) {
         when (shape) {
             BoxShape.CIRCLE ->
-                canvas.drawCircle(rect.getCenter(), DefaultSplashRadius.toPx(context), paint)
+                canvas.drawCircle(rect.getCenter(), DefaultSplashRadius.toPx(density), paint)
             BoxShape.RECTANGLE -> {
                 if (borderRadius != BorderRadius.Zero) {
                     val clipRRect = RRect(
@@ -143,19 +143,19 @@ class InkHighlight(
         }
     }
 
-    override fun paintFeature(canvas: Canvas, transform: Matrix4, context: Context) {
+    override fun paintFeature(canvas: Canvas, transform: Matrix4, density: Density) {
         val paint = Paint()
         paint.color = color.withAlpha(alpha.value)
         val originOffset = transform.getAsTranslation()
         val bounds = boundsCallback?.invoke(coordinates) ?: coordinates.size.toBounds()
-        val rect = bounds.toRect(context)
+        val rect = bounds.toRect(density)
         if (originOffset == null) {
             canvas.save()
             canvas.transform(transform)
-            paintHighlight(canvas, rect, paint, context)
+            paintHighlight(canvas, rect, paint, density)
             canvas.restore()
         } else {
-            paintHighlight(canvas, rect.shift(originOffset), paint, context)
+            paintHighlight(canvas, rect.shift(originOffset), paint, density)
         }
     }
 }

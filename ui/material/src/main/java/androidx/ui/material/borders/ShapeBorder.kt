@@ -16,7 +16,7 @@
 
 package androidx.ui.material.borders
 
-import android.content.Context
+import androidx.ui.core.Density
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Canvas
@@ -190,7 +190,7 @@ abstract class ShapeBorder {
      */
     abstract fun getOuterPath(
         rect: Rect,
-        context: Context,
+        density: Density,
         textDirection: TextDirection? = null
     ): Path
 
@@ -217,7 +217,7 @@ abstract class ShapeBorder {
      */
     abstract fun getInnerPath(
         rect: Rect,
-        context: Context,
+        density: Density,
         textDirection: TextDirection? = null
     ): Path
 
@@ -231,7 +231,7 @@ abstract class ShapeBorder {
      */
     abstract fun paint(
         canvas: Canvas,
-        context: Context,
+        density: Density,
         rect: Rect,
         textDirection: TextDirection? = null
     )

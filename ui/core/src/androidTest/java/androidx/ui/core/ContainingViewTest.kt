@@ -29,6 +29,7 @@ import androidx.test.rule.ActivityTestRule
 import androidx.ui.core.AndroidCraneView
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
+import androidx.ui.core.Density
 import androidx.ui.core.Dimension
 import androidx.ui.core.Draw
 import androidx.ui.core.MeasureBox
@@ -119,12 +120,13 @@ class ContainingViewTest {
         activityTestRule.runOnUiThread(runnable)
         drawLatch.await(1, TimeUnit.SECONDS)
         val bitmap = waitAndScreenShot()
-        val totalSize = 30.dp.toPx(activity).toDouble()
+        val density = Density(activity)
+        val totalSize = 30.dp.toPx(density).toDouble()
         assertEquals(ceil(totalSize).toInt(), bitmap.width)
         assertEquals(ceil(totalSize).toInt(), bitmap.height)
 
-        val offset = round(10.dp.toPx(activity))
-        val endRect = round(20.dp.toPx(activity))
+        val offset = round(10.dp.toPx(density))
+        val endRect = round(20.dp.toPx(density))
         for (x in 0 until totalSize.toInt()) {
             for (y in 0 until totalSize.toInt()) {
                 val pixel = bitmap.getPixel(x, y)

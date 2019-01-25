@@ -16,7 +16,7 @@
 
 package androidx.ui.material.borders
 
-import android.content.Context
+import androidx.ui.core.Density
 import androidx.ui.core.dp
 import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.BorderRadius
@@ -98,14 +98,14 @@ data class RoundedRectangleBorder(
         return super.lerpTo(b, t)
     }
 
-    override fun getInnerPath(rect: Rect, context: Context, textDirection: TextDirection?): Path {
+    override fun getInnerPath(rect: Rect, density: Density, textDirection: TextDirection?): Path {
         return Path().apply {
             addRRect(borderRadius.resolve(textDirection).toRRect(rect)
-                .shrink(side.width.toPx(context)))
+                .shrink(side.width.toPx(density)))
         }
     }
 
-    override fun getOuterPath(rect: Rect, context: Context, textDirection: TextDirection?): Path {
+    override fun getOuterPath(rect: Rect, density: Density, textDirection: TextDirection?): Path {
         return Path().apply {
             addRRect(borderRadius.resolve(textDirection).toRRect(rect))
         }
@@ -113,7 +113,7 @@ data class RoundedRectangleBorder(
 
     override fun paint(
         canvas: Canvas,
-        context: Context,
+        density: Density,
         rect: Rect,
         textDirection: TextDirection?
     ) {
@@ -125,11 +125,11 @@ data class RoundedRectangleBorder(
                 if (width == 0.dp) {
                     canvas.drawRRect(
                         borderRadius.resolve(textDirection).toRRect(rect),
-                        side.toPaint(context)
+                        side.toPaint(density)
                     )
                 } else {
                     val outer = borderRadius.resolve(textDirection).toRRect(rect)
-                    val inner = outer.shrink(width.toPx(context))
+                    val inner = outer.shrink(width.toPx(density))
                     val paint = Paint().apply {
                         color = side.color
                     }
@@ -244,16 +244,16 @@ private data class RoundedRectangleToCircleBorder(
 
     override fun getInnerPath(
         rect: Rect,
-        context: Context,
+        density: Density,
         textDirection: TextDirection?
     ): Path {
         return Path().apply {
             addRRect(adjustBorderRadius(rect).toRRect(adjustRect(rect))
-                .shrink(side.width.toPx(context)))
+                .shrink(side.width.toPx(density)))
         }
     }
 
-    override fun getOuterPath(rect: Rect, context: Context, textDirection: TextDirection?): Path {
+    override fun getOuterPath(rect: Rect, density: Density, textDirection: TextDirection?): Path {
         return Path().apply {
             addRRect(adjustBorderRadius(rect).toRRect(adjustRect(rect)))
         }
@@ -261,7 +261,7 @@ private data class RoundedRectangleToCircleBorder(
 
     override fun paint(
         canvas: Canvas,
-        context: Context,
+        density: Density,
         rect: Rect,
         textDirection: TextDirection?
     ) {
@@ -273,11 +273,11 @@ private data class RoundedRectangleToCircleBorder(
                 if (width == 0.dp) {
                     canvas.drawRRect(
                         adjustBorderRadius(rect).toRRect(adjustRect(rect)),
-                        side.toPaint(context)
+                        side.toPaint(density)
                     )
                 } else {
                     val outer = adjustBorderRadius(rect).toRRect(adjustRect(rect))
-                    val inner = outer.shrink(width.toPx(context))
+                    val inner = outer.shrink(width.toPx(density))
                     val paint = Paint().apply {
                         color = side.color
                     }

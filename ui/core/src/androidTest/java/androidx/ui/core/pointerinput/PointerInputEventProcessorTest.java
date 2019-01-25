@@ -26,12 +26,11 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import android.content.Context;
-
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
+import androidx.ui.core.Density;
+import androidx.ui.core.DensityKt;
 import androidx.ui.core.Dimension;
-import androidx.ui.core.DimensionKt;
 import androidx.ui.core.Duration;
 import androidx.ui.core.LayoutNode;
 import androidx.ui.core.PointerInputNode;
@@ -84,12 +83,12 @@ import kotlin.jvm.functions.Function2;
 @RunWith(JUnit4.class)
 public class PointerInputEventProcessorTest {
 
-    private Context mContext;
+    private Density mDensity;
     private List<Triple<PointerInputNode, PointerEventPass, PointerInputChange>> mTrackerList;
 
     @Before
     public void setup() {
-        mContext = InstrumentationRegistry.getContext();
+        mDensity = DensityKt.Density(InstrumentationRegistry.getContext());
         mTrackerList = new ArrayList<>();
     }
 
@@ -117,7 +116,7 @@ public class PointerInputEventProcessorTest {
         PointerInputEvent up = createPointerInputEvent(createDuration(0), 8712, offset2, false);
 
         PointerInputEventProcessor pointerInputEventProcessor =
-                new PointerInputEventProcessor(mContext, parentLayoutNode);
+                new PointerInputEventProcessor(mDensity, parentLayoutNode);
 
         // Act
 
@@ -197,7 +196,7 @@ public class PointerInputEventProcessorTest {
                 createPointerInputEvent(createDuration(0), 3, bottomRightOffset, true);
 
         PointerInputEventProcessor pointerInputEventProcessor = new PointerInputEventProcessor(
-                mContext, parentLayoutNode);
+                mDensity, parentLayoutNode);
 
         // Act
 
@@ -304,7 +303,7 @@ public class PointerInputEventProcessorTest {
                 createPointerInputEvent(createDuration(0), 7, bottomRightToRightOffset, true);
 
         PointerInputEventProcessor pointerInputEventProcessor = new PointerInputEventProcessor(
-                mContext, parentLayoutNode);
+                mDensity, parentLayoutNode);
 
         // Act
 
@@ -367,7 +366,7 @@ public class PointerInputEventProcessorTest {
                 createPointerInputEvent(createDuration(0), 0, offset, true);
 
         PointerInputEventProcessor pointerInputEventProcessor =
-                new PointerInputEventProcessor(mContext, parentLayoutNode);
+                new PointerInputEventProcessor(mDensity, parentLayoutNode);
 
         // Act
 
@@ -453,7 +452,7 @@ public class PointerInputEventProcessorTest {
                 createPointerInputEvent(createDuration(0), 0, offset, true);
 
         PointerInputEventProcessor pointerInputEventProcessor =
-                new PointerInputEventProcessor(mContext, parentLayoutNode);
+                new PointerInputEventProcessor(mDensity, parentLayoutNode);
 
         // Act
 
@@ -529,7 +528,7 @@ public class PointerInputEventProcessorTest {
                 createPointerInputEvent(createDuration(0), 0, offset, true);
 
         PointerInputEventProcessor pointerInputEventProcessor =
-                new PointerInputEventProcessor(mContext, parentLayoutNode);
+                new PointerInputEventProcessor(mDensity, parentLayoutNode);
 
         // Act
 
@@ -575,7 +574,7 @@ public class PointerInputEventProcessorTest {
         PointerInputEvent up = createPointerInputEvent(createDuration(0), 8712, offset2, false);
 
         PointerInputEventProcessor pointerInputEventProcessor =
-                new PointerInputEventProcessor(mContext, parentLayoutNode);
+                new PointerInputEventProcessor(mDensity, parentLayoutNode);
 
         // Act
 
@@ -665,7 +664,7 @@ public class PointerInputEventProcessorTest {
         PointerInputEvent move = createPointerInputEvent(createDuration(0), 8712, offset2, true);
 
         PointerInputEventProcessor pointerInputEventProcessor =
-                new PointerInputEventProcessor(mContext, parentLayoutNode);
+                new PointerInputEventProcessor(mDensity, parentLayoutNode);
 
         // Act
 
@@ -720,7 +719,7 @@ public class PointerInputEventProcessorTest {
     }
 
     private float createPixelDimension(int dp) {
-        return DimensionKt.toPx(new Dimension(dp), mContext);
+        return DensityKt.toPx(new Dimension(dp), mDensity);
     }
 
     private ConsumedData createConsumeData() {

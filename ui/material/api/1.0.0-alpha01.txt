@@ -53,7 +53,7 @@ package androidx.ui.material {
     method public final androidx.ui.material.MaterialInkController getController();
     method public final androidx.ui.core.LayoutCoordinates getCoordinates();
     method public final kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRemoved();
-    method protected abstract void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, android.content.Context context);
+    method protected abstract void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
   }
 
   public final class InkHighlight extends androidx.ui.material.InteractiveInkFeature {
@@ -61,7 +61,7 @@ package androidx.ui.material {
     method public void activate();
     method public void deactivate();
     method public boolean getActive();
-    method protected void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, android.content.Context context);
+    method protected void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
     property public final boolean active;
   }
 
@@ -124,7 +124,7 @@ package androidx.ui.material {
 
   public final class InkRipple extends androidx.ui.material.InteractiveInkFeature {
     ctor public InkRipple(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position position, androidx.ui.painting.Color color, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.engine.geometry.BorderRadius? borderRadius, androidx.ui.core.Dimension? radiusParam, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    method protected void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, android.content.Context context);
+    method protected void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
   }
 
   public final class InkRippleFactory extends androidx.ui.material.InteractiveInkFeatureFactory {
@@ -138,7 +138,7 @@ package androidx.ui.material {
 
   public final class InkSplash extends androidx.ui.material.InteractiveInkFeature {
     ctor public InkSplash(androidx.ui.material.MaterialInkController controller, androidx.ui.core.LayoutCoordinates coordinates, androidx.ui.core.Position position, androidx.ui.painting.Color color, boolean containedInkWell, kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,androidx.ui.core.Bounds>? boundsCallback, androidx.ui.engine.geometry.BorderRadius? borderRadius, androidx.ui.core.Dimension? radiusParam, kotlin.jvm.functions.Function0<kotlin.Unit>? onRemoved);
-    method protected void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, android.content.Context context);
+    method protected void paintFeature(androidx.ui.painting.Canvas canvas, androidx.ui.vectormath64.Matrix4 transform, androidx.ui.core.Density density);
   }
 
   public final class InkSplashFactory extends androidx.ui.material.InteractiveInkFeatureFactory {
@@ -361,7 +361,7 @@ package androidx.ui.material.borders {
     method public androidx.ui.material.borders.BorderStyle getStyle();
     method public androidx.ui.core.Dimension getWidth();
     method public androidx.ui.material.borders.BorderSide scale(float t);
-    method public androidx.ui.painting.Paint toPaint(android.content.Context context);
+    method public androidx.ui.painting.Paint toPaint(androidx.ui.core.Density density);
     field public static final androidx.ui.material.borders.BorderSide.Companion! Companion;
   }
 
@@ -392,10 +392,10 @@ package androidx.ui.material.borders {
     ctor public CircleBorder();
     method public androidx.ui.material.borders.BorderSide component1();
     method public androidx.ui.material.borders.CircleBorder copy(androidx.ui.material.borders.BorderSide side);
-    method public androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, android.content.Context context, androidx.ui.engine.text.TextDirection? textDirection);
-    method public androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, android.content.Context context, androidx.ui.engine.text.TextDirection? textDirection);
+    method public androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
+    method public androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.BorderSide getSide();
-    method public void paint(androidx.ui.painting.Canvas canvas, android.content.Context context, androidx.ui.engine.geometry.Rect rect, androidx.ui.engine.text.TextDirection? textDirection);
+    method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.core.Density density, androidx.ui.engine.geometry.Rect rect, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.CircleBorder scale(float t);
   }
 
@@ -406,21 +406,21 @@ package androidx.ui.material.borders {
     method public androidx.ui.engine.geometry.BorderRadius component2();
     method public androidx.ui.material.borders.RoundedRectangleBorder copy(androidx.ui.material.borders.BorderSide side, androidx.ui.engine.geometry.BorderRadius borderRadius);
     method public androidx.ui.engine.geometry.BorderRadius getBorderRadius();
-    method public androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, android.content.Context context, androidx.ui.engine.text.TextDirection? textDirection);
-    method public androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, android.content.Context context, androidx.ui.engine.text.TextDirection? textDirection);
+    method public androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
+    method public androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.BorderSide getSide();
-    method public void paint(androidx.ui.painting.Canvas canvas, android.content.Context context, androidx.ui.engine.geometry.Rect rect, androidx.ui.engine.text.TextDirection? textDirection);
+    method public void paint(androidx.ui.painting.Canvas canvas, androidx.ui.core.Density density, androidx.ui.engine.geometry.Rect rect, androidx.ui.engine.text.TextDirection? textDirection);
     method public androidx.ui.material.borders.ShapeBorder scale(float t);
   }
 
   public abstract class ShapeBorder {
     ctor public ShapeBorder();
     method protected androidx.ui.material.borders.ShapeBorder? add(androidx.ui.material.borders.ShapeBorder other, boolean reversed = false);
-    method public abstract androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, android.content.Context context, androidx.ui.engine.text.TextDirection? textDirection = null);
-    method public abstract androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, android.content.Context context, androidx.ui.engine.text.TextDirection? textDirection = null);
+    method public abstract androidx.ui.painting.Path getInnerPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection = null);
+    method public abstract androidx.ui.painting.Path getOuterPath(androidx.ui.engine.geometry.Rect rect, androidx.ui.core.Density density, androidx.ui.engine.text.TextDirection? textDirection = null);
     method public androidx.ui.material.borders.ShapeBorder? lerpFrom(androidx.ui.material.borders.ShapeBorder? a, float t);
     method public androidx.ui.material.borders.ShapeBorder? lerpTo(androidx.ui.material.borders.ShapeBorder? b, float t);
-    method public abstract void paint(androidx.ui.painting.Canvas canvas, android.content.Context context, androidx.ui.engine.geometry.Rect rect, androidx.ui.engine.text.TextDirection? textDirection = null);
+    method public abstract void paint(androidx.ui.painting.Canvas canvas, androidx.ui.core.Density density, androidx.ui.engine.geometry.Rect rect, androidx.ui.engine.text.TextDirection? textDirection = null);
     method public final operator androidx.ui.material.borders.ShapeBorder plus(androidx.ui.material.borders.ShapeBorder other);
     method public abstract androidx.ui.material.borders.ShapeBorder scale(float t);
   }
@@ -437,7 +437,7 @@ package androidx.ui.material.clip {
   public final class ClipHolder<T> {
     ctor public ClipHolder(kotlin.jvm.functions.Function0<kotlin.Unit> markNeedsClip, kotlin.jvm.functions.Function1<? super androidx.ui.engine.geometry.Size,? extends T> defaultClip);
     method public void dispose();
-    method public T! getClip(androidx.ui.material.clip.CustomClipper<T>? clipper, androidx.ui.core.PixelSize pixelSize, android.content.Context context);
+    method public T! getClip(androidx.ui.material.clip.CustomClipper<T>? clipper, androidx.ui.core.PixelSize pixelSize, androidx.ui.core.Density density);
   }
 
   public final class ClipPath extends com.google.r4a.Component {
@@ -453,7 +453,7 @@ package androidx.ui.material.clip {
     ctor public CustomClipper(androidx.ui.foundation.change_notifier.Listenable? reclip);
     ctor public CustomClipper();
     method public final androidx.ui.engine.geometry.Rect getApproximateClipRect(androidx.ui.engine.geometry.Size size);
-    method public abstract T! getClip(androidx.ui.engine.geometry.Size size, android.content.Context context);
+    method public abstract T! getClip(androidx.ui.engine.geometry.Size size, androidx.ui.core.Density density);
     method public final androidx.ui.foundation.change_notifier.Listenable? getReclip();
   }
 
@@ -477,7 +477,7 @@ package androidx.ui.material.clip {
     method public androidx.ui.material.borders.ShapeBorder component1();
     method public androidx.ui.engine.text.TextDirection? component2();
     method public androidx.ui.material.clip.ShapeBorderClipper copy(androidx.ui.material.borders.ShapeBorder shape, androidx.ui.engine.text.TextDirection? textDirection);
-    method public androidx.ui.painting.Path getClip(androidx.ui.engine.geometry.Size size, android.content.Context context);
+    method public androidx.ui.painting.Path getClip(androidx.ui.engine.geometry.Size size, androidx.ui.core.Density density);
     method public androidx.ui.material.borders.ShapeBorder getShape();
     method public androidx.ui.engine.text.TextDirection? getTextDirection();
   }

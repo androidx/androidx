@@ -16,7 +16,6 @@
 
 package androidx.ui.material
 
-import android.content.Context
 import androidx.ui.animation.Animation
 import androidx.ui.animation.AnimationController
 import androidx.ui.animation.AnimationStatus
@@ -25,6 +24,7 @@ import androidx.ui.animation.Interval
 import androidx.ui.animation.Tween
 import androidx.ui.animation.animations.CurvedAnimation
 import androidx.ui.core.Bounds
+import androidx.ui.core.Density
 import androidx.ui.core.Dimension
 import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
@@ -289,7 +289,7 @@ class InkRipple(
         }
     }
 
-    override fun paintFeature(canvas: Canvas, transform: Matrix4, context: Context) {
+    override fun paintFeature(canvas: Canvas, transform: Matrix4, density: Density) {
         val alpha = if (fadeInController.isAnimating) fadeIn.value else fadeOut.value
         val paint = Paint()
         paint.color = color.withAlpha(alpha)
@@ -299,23 +299,23 @@ class InkRipple(
             coordinates.size.center(),
             Curves.ease.transform(radiusController.value)
         )
-        val centerOffset = Offset(center.x.toPx(context), center.y.toPx(context))
+        val centerOffset = Offset(center.x.toPx(density), center.y.toPx(density))
         val originOffset = transform.getAsTranslation()
-        val clipRect = clipCallback?.invoke(coordinates)?.toRect(context)
+        val clipRect = clipCallback?.invoke(coordinates)?.toRect(density)
         if (originOffset == null) {
             canvas.save()
             canvas.transform(transform)
             if (clipRect != null) {
                 clipCanvasWithRect(canvas, clipRect)
             }
-            canvas.drawCircle(centerOffset, radius.value.toPx(context), paint)
+            canvas.drawCircle(centerOffset, radius.value.toPx(density), paint)
             canvas.restore()
         } else {
             if (clipRect != null) {
                 canvas.save()
                 clipCanvasWithRect(canvas, clipRect, offset = originOffset)
             }
-            canvas.drawCircle(centerOffset + originOffset, radius.value.toPx(context), paint)
+            canvas.drawCircle(centerOffset + originOffset, radius.value.toPx(density), paint)
             if (clipRect != null) {
                 canvas.restore()
             }

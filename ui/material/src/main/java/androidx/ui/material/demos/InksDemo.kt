@@ -47,7 +47,7 @@ internal fun FillAll(padding: Dimension, @Children children: () -> Unit) {
             constraints.maxHeight - padding * 2)
         measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
             measurables.forEach {
-                measureOperations.measure(it, constraints).place(padding, padding)
+                measureOperations.measure(it, itemConstraints).place(padding, padding)
             }
         }
     </MeasureBox>
