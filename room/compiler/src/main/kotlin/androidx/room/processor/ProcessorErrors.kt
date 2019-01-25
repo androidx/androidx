@@ -150,6 +150,15 @@ object ProcessorErrors {
             "private, final, or abstract. It can be abstract only if the method is also" +
             " annotated with @Query."
 
+    fun transactionMethodAsync(returnTypeName: String) = "Method annotated with @Transaction must" +
+            " not return deferred/async return type $returnTypeName. Since transactions are" +
+            " thread confined and Room cannot guarantee that all queries in the method" +
+            " implementation are performed on the same thread, only synchronous @Transaction" +
+            " implemented methods are allowed. If a transaction is started and a change of thread" +
+            " is done and waited upon then a database deadlock can occur if the additional thread" +
+            " attempts to perform a query. This restrictions prevents such situation from" +
+            " occurring."
+
     val TRANSACTION_MISSING_ON_RELATION = "The return value includes a Pojo with a @Relation." +
             " It is usually desired to annotate this method with @Transaction to avoid" +
             " possibility of inconsistent results between the Pojo and its relations. See " +
