@@ -16,11 +16,18 @@
 
 <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        tools:background="#FFFF">
+        android:orientation="vertical">
+
+    <TextView
+            android:text="@string/viewpager2"
+            android:textStyle="bold"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacer_large"
+            android:layout_marginLeft="@dimen/spacer_small"
+            android:layout_marginRight="@dimen/spacer_small"/>
 
     <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
@@ -37,7 +44,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_margin="5dp">
+            android:layout_margin="@dimen/spacer_small">
+
+        <TextView
+                android:text="@string/toolbox"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/spacer_small"/>
 
         <LinearLayout
                 android:layout_width="match_parent"
@@ -45,14 +59,14 @@
                 android:orientation="horizontal">
 
             <TextView
-                    android:layout_margin="5dp"
+                    android:layout_margin="@dimen/spacer_small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Item:"/>
+                    android:text="@string/choose_a_page"/>
 
             <Spinner
                     android:id="@+id/itemSpinner"
-                    android:layout_margin="5dp"
+                    android:layout_margin="@dimen/spacer_small"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"/>
@@ -69,32 +83,32 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_margin="5dp"
-                    android:text="Go to item"/>
+                    android:layout_margin="@dimen/spacer_small"
+                    android:text="@string/go_to_page"/>
 
             <Button
                     android:id="@+id/buttonRemove"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_margin="5dp"
-                    android:text="Remove item"/>
+                    android:layout_margin="@dimen/spacer_small"
+                    android:text="@string/remove_page"/>
 
             <Button
                     android:id="@+id/buttonAddBefore"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_margin="5dp"
-                    android:text="Add new before"/>
+                    android:layout_margin="@dimen/spacer_small"
+                    android:text="@string/add_new_before"/>
 
             <Button
                     android:id="@+id/buttonAddAfter"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:layout_margin="5dp"
-                    android:text="Add new after"/>
+                    android:layout_margin="@dimen/spacer_small"
+                    android:text="@string/add_new_after"/>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

@@ -31,4 +31,9 @@
     <color name="yellow_300">#F7CB4D</color>
     <color name="yellow_500">#F4B400</color>
     <color name="yellow_700">#F09300</color>
+
+    <color name="magnolia_50">#efe5fd</color>
+    <color name="magnolia_100">#d4bff9</color>
+    <color name="purple_500">#6200EE</color>
+    <color name="teal_200">#03DAC5</color>
 </resources>

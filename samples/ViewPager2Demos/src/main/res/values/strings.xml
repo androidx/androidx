@@ -23,4 +23,14 @@
     <string name="checkbox_rotate">Rotate</string>
     <string name="checkbox_translate">Translate</string>
     <string name="checkbox_scale">Scale</string>
+    <string name="increase_count">Count++</string>
+    <string name="count_colon">Count:</string>
+    <string name="id_colon">Id:</string>
+    <string name="add_new_before">Add new before</string>
+    <string name="add_new_after">Add new after</string>
+    <string name="remove_page">Remove page</string>
+    <string name="go_to_page">Go to page</string>
+    <string name="choose_a_page">Choose a page:</string>
+    <string name="toolbox">Toolbox</string>
+    <string name="viewpager2">ViewPager2</string>
 </resources>
