@@ -274,10 +274,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
      * Let the adapter know that mCurrentItem was restored in onRestoreInstanceState
      */
     void notifyRestoreCurrentItem(int currentItem) {
-        // Don't send page selected event for page 0 for consistency with ViewPager
-        if (currentItem != 0) {
-            dispatchSelected(currentItem);
-        }
+        dispatchSelected(currentItem);
     }
 
     private boolean isLayoutRTL() {
