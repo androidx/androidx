@@ -132,7 +132,6 @@ color car_body4_dark
 color car_body4_light
 dimen car_body4_size
 dimen car_button_height
-dimen car_button_horizontal_padding
 dimen car_button_min_width
 dimen car_button_radius
 color car_card
