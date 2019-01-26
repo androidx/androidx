@@ -111,7 +111,7 @@ public class CarDrawerController {
                 theme.resolveAttribute(R.attr.drawerListId, outValue, true)
                         ? outValue.resourceId
                         : R.id.car_drawer_list);
-        mDrawerList.setMaxPages(PagedListView.ItemCap.UNLIMITED);
+        mDrawerList.setMaxPages(PagedListView.UNLIMITED_PAGES);
 
         View toolbar = drawerLayout.findViewById(
                 theme.resolveAttribute(R.attr.drawerToolbarId, outValue, true)
