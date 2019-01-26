@@ -290,8 +290,8 @@ limitations under the License.
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:maxEms">@integer/car_button_max_ems</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
-        <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
-        <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
+        <item name="android:paddingStart">@dimen/car_padding_3</item>
+        <item name="android:paddingEnd">@dimen/car_padding_3</item>
         <item name="android:requiresFadingEdge">horizontal</item>
         <item name="android:singleLine">true</item>
         <item name="android:textSize">@dimen/car_body3_size</item>
@@ -318,8 +318,8 @@ limitations under the License.
         <item name="android:layout_height">@dimen/car_button_height</item>
         <item name="android:maxEms">@integer/car_button_max_ems</item>
         <item name="android:minWidth">@dimen/car_button_min_width</item>
-        <item name="android:paddingStart">@dimen/car_button_horizontal_padding</item>
-        <item name="android:paddingEnd">@dimen/car_button_horizontal_padding</item>
+        <item name="android:paddingStart">@dimen/car_padding_3</item>
+        <item name="android:paddingEnd">@dimen/car_padding_3</item>
         <item name="android:requiresFadingEdge">horizontal</item>
         <item name="android:singleLine">true</item>
         <item name="android:textSize">@dimen/car_body3_size</item>
