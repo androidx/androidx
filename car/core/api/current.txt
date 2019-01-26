@@ -468,17 +468,6 @@ package androidx.car.widget {
     field public static final int PAGE_UP = 0; // 0x0
   }
 
-  public final class PagedSmoothScroller extends androidx.recyclerview.widget.LinearSmoothScroller {
-    ctor public PagedSmoothScroller(android.content.Context!);
-  }
-
-  public class PagedSnapHelper extends androidx.recyclerview.widget.LinearSnapHelper {
-    ctor public PagedSnapHelper(android.content.Context!);
-    method public void attachToRecyclerView(androidx.recyclerview.widget.RecyclerView?);
-    method public boolean isAtEnd(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
-    method public boolean isAtStart(androidx.recyclerview.widget.RecyclerView.LayoutManager!);
-  }
-
   public class RadioButtonListItem extends androidx.car.widget.ListItem<androidx.car.widget.RadioButtonListItem.ViewHolder> {
     ctor public RadioButtonListItem(android.content.Context);
     method public static androidx.car.widget.RadioButtonListItem.ViewHolder createViewHolder(android.view.View);
