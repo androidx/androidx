@@ -360,7 +360,7 @@ public final class DeletionDao_Impl implements DeletionDao {
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
     final String _sql = _stringBuilder.toString();
-    SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
+    final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
     int _argIndex = 1;
     for (int _item : uid) {
       _stmt.bindLong(_argIndex, _item);
