@@ -81,7 +81,7 @@ import java.util.Set;
 
 /**
  * Row item is in small template format and can be used to construct list items for use
- * with {@link LargeTemplateView}.
+ * with {@link TemplateView}.
  *
  * @hide
  */
@@ -812,7 +812,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         } else {
             if (mRowIndex == 0) {
                 // Header clicks are a little weird and SliceView needs to know about them to
-                // maintain loading state; this is hooked up in LargeSliceAdapter -- it will call
+                // maintain loading state; this is hooked up in SliceAdapter -- it will call
                 // through to SliceView parent which has the info to perform the click.
                 performClick();
             } else {

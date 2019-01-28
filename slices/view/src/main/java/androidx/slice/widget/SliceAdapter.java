@@ -51,7 +51,7 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
-public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.SliceViewHolder>
+public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHolder>
         implements SliceActionView.SliceActionLoadingListener {
 
     static final int TYPE_DEFAULT       = 1;
@@ -81,7 +81,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     SliceView mParent;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    LargeTemplateView mTemplateView;
+    TemplateView mTemplateView;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mInsetStart;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -97,7 +97,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     SliceViewPolicy mPolicy;
 
-    public LargeSliceAdapter(Context context) {
+    public SliceAdapter(Context context) {
         mContext = context;
         setHasStableIds(true);
     }
@@ -105,13 +105,13 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     /**
      * Sets the SliceView parent and the template parent.
      */
-    public void setParents(SliceView parent, LargeTemplateView templateView) {
+    public void setParents(SliceView parent, TemplateView templateView) {
         mParent = parent;
         mTemplateView = templateView;
     }
 
     /**
-     * Sets the insets (padding) for slice view. LargeSliceAdapter will handle determining
+     * Sets the insets (padding) for slice view. SliceAdapter will handle determining
      * if a child needs a particular padding, i.e. if it's the first row then the top inset
      * will be applied to it whereas subsequent rows would get a top inset of 0.
      */
@@ -309,7 +309,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
     }
 
     /**
-     * A {@link RecyclerView.ViewHolder} for presenting slices in {@link LargeSliceAdapter}.
+     * A {@link RecyclerView.ViewHolder} for presenting slices in {@link SliceAdapter}.
      */
     public class SliceViewHolder extends RecyclerView.ViewHolder implements View.OnTouchListener,
             View.OnClickListener {
@@ -328,7 +328,7 @@ public class LargeSliceAdapter extends RecyclerView.Adapter<LargeSliceAdapter.Sl
             mSliceChildView.setOnClickListener(this);
             // Touch listener used to pipe events to touch feedback drawable
             mSliceChildView.setOnTouchListener(this);
-            mSliceChildView.setSliceActionLoadingListener(LargeSliceAdapter.this);
+            mSliceChildView.setSliceActionLoadingListener(SliceAdapter.this);
 
             final boolean isHeader = position == HEADER_INDEX;
             int mode = mParent != null ? mParent.getMode() : MODE_LARGE;
