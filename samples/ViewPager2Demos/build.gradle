@@ -1,6 +1,3 @@
-import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
-import static androidx.build.dependencies.DependenciesKt.SUPPORT_DESIGN
-
 /*
  * Copyright 2017 The Android Open Source Project
  *
@@ -16,6 +13,9 @@ import static androidx.build.dependencies.DependenciesKt.SUPPORT_DESIGN
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
+import static androidx.build.dependencies.DependenciesKt.SUPPORT_DESIGN
 
 plugins {
     id("AndroidXPlugin")
