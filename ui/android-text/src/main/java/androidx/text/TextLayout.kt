@@ -18,6 +18,7 @@ package androidx.text
 import android.graphics.Canvas
 import android.os.Build
 import android.text.Layout
+import android.text.Spanned
 import android.text.TextDirectionHeuristic
 import android.text.TextDirectionHeuristics
 import android.text.TextPaint
@@ -47,6 +48,7 @@ import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.LayoutCompat.TextDirection
 import androidx.text.LayoutCompat.TextLayoutAlignment
+import androidx.text.style.BaselineShiftSpan
 
 /**
  * Wrapper for Static Text Layout classes.
@@ -90,7 +92,17 @@ class TextLayout constructor(
         val frameworkAlignment = TextAlignmentAdapter.get(alignment)
         val frameworkTextDirectionHeuristic = getTextDirectionHeuristic(textDirectionHeuristic)
 
-        layout = if (boringMetrics != null && maxIntrinsicWidth <= width) {
+        // BoringLayout won't adjust line height for baselineShift,
+        // use StaticLayout for those spans.
+        val hasBaselineShiftSpans = if (charSequence is Spanned) {
+            // nextSpanTransition returns limit if there isn't any span.
+            charSequence.nextSpanTransition(-1, end, BaselineShiftSpan::class.java) < end
+        } else {
+            false
+        }
+
+        layout = if (boringMetrics != null && maxIntrinsicWidth <= width &&
+            !hasBaselineShiftSpans) {
             BoringLayoutCompat.Builder(
                 charSequence,
                 textPaint,

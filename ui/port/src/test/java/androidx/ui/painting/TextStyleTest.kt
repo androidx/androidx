@@ -16,6 +16,7 @@
 
 package androidx.ui.painting
 
+import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
@@ -125,6 +126,15 @@ class TextStyleTest {
     }
 
     @Test
+    fun `constructor with customized baselineShift`() {
+        val baselineShift = BaselineShift.SUPERSCRIPT
+
+        val textStyle = TextStyle(baselineShift = baselineShift)
+
+        assertThat(textStyle.baselineShift).isEqualTo(baselineShift)
+    }
+
+    @Test
     fun `constructor with customized height`() {
         val height = 123.0f
 
@@ -192,6 +202,7 @@ class TextStyleTest {
         assertThat(textStyle.letterSpacing).isNull()
         assertThat(textStyle.wordSpacing).isNull()
         assertThat(textStyle.textBaseline).isNull()
+        assertThat(textStyle.baselineShift).isNull()
         assertThat(textStyle.height).isNull()
         assertThat(textStyle.locale).isNull()
         assertThat(textStyle.background).isNull()
@@ -526,6 +537,29 @@ class TextStyleTest {
         val newTextStyle = textStyle.merge(otherTextStyle)
 
         assertThat(newTextStyle.textBaseline).isEqualTo(otherTextBaseline)
+    }
+
+    @Test
+    fun `merge with other's baselineShift is null should use this' baselineShift`() {
+        val baselineShift = BaselineShift.SUPERSCRIPT
+        val textStyle = TextStyle(baselineShift = baselineShift)
+        val otherTextStyle = TextStyle()
+
+        val newTextStyle = textStyle.merge(otherTextStyle)
+
+        assertThat(newTextStyle.baselineShift).isEqualTo(baselineShift)
+    }
+
+    @Test
+    fun `merge with other's baselineShift is set should use other's baselineShift`() {
+        val baselineShift = BaselineShift.SUPERSCRIPT
+        val otherBaselineShift = BaselineShift.SUBSCRIPT
+        val textStyle = TextStyle(baselineShift = baselineShift)
+        val otherTextStyle = TextStyle(baselineShift = otherBaselineShift)
+
+        val newTextStyle = textStyle.merge(otherTextStyle)
+
+        assertThat(newTextStyle.baselineShift).isEqualTo(otherBaselineShift)
     }
 
     @Test
@@ -1401,6 +1435,76 @@ class TextStyleTest {
     }
 
     @Test
+    fun `lerp baselineShift with a is Null and t is smaller than half`() {
+        val baselineShift = BaselineShift.SUPERSCRIPT
+        val t = 0.3f
+        val textStyle = TextStyle(baselineShift = baselineShift)
+
+        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
+
+        assertThat(newTextStyle?.baselineShift).isNull()
+    }
+
+    @Test
+    fun `lerp baselineShift with a is Null and t is larger than half`() {
+        val baselineShift = BaselineShift.SUPERSCRIPT
+        val t = 0.7f
+        val textStyle = TextStyle(baselineShift = baselineShift)
+
+        val newTextStyle = TextStyle.lerp(b = textStyle, t = t)
+
+        assertThat(newTextStyle?.baselineShift).isEqualTo(baselineShift)
+    }
+
+    @Test
+    fun `lerp baselineShift with b is Null and t is smaller than half`() {
+        val baselineShift = BaselineShift.SUPERSCRIPT
+        val t = 0.3f
+        val textStyle = TextStyle(baselineShift = baselineShift)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
+
+        assertThat(newTextStyle?.baselineShift).isEqualTo(baselineShift)
+    }
+
+    @Test
+    fun `lerp baselineShift with b is Null and t is larger than half`() {
+        val baselineShift = BaselineShift.SUPERSCRIPT
+        val t = 0.7f
+        val textStyle = TextStyle(baselineShift = baselineShift)
+
+        val newTextStyle = TextStyle.lerp(a = textStyle, t = t)
+
+        assertThat(newTextStyle?.baselineShift).isNull()
+    }
+
+    @Test
+    fun `lerp baselineShift with a and b are not Null`() {
+        val baselineShift1 = BaselineShift(1.0f)
+        val baselineShift2 = BaselineShift(2.0f)
+        val t = 0.3f
+        val textStyle1 = TextStyle(
+            baselineShift = baselineShift1,
+            fontSize = 4.0f,
+            wordSpacing = 1.0f,
+            letterSpacing = 2.0f,
+            height = 123.0f
+        )
+        val textStyle2 = TextStyle(
+            baselineShift = baselineShift2,
+            fontSize = 7.0f,
+            wordSpacing = 2.0f,
+            letterSpacing = 4.0f,
+            height = 20.0f
+        )
+
+        val newTextStyle = TextStyle.lerp(a = textStyle1, b = textStyle2, t = t)
+
+        assertThat(newTextStyle?.baselineShift)
+            .isEqualTo(BaselineShift.lerp(baselineShift1, baselineShift2, t))
+    }
+
+    @Test
     fun `lerp height with a is Null and t is smaller than half`() {
         val height = 88.0f
         val t = 0.2f
@@ -1869,12 +1973,14 @@ class TextStyleTest {
         val height = 123.0f
         val color = Color(0xFF00FF00.toInt())
         val fontSynthesis = FontSynthesis.style
+        val baselineShift = BaselineShift.SUPERSCRIPT
         val textStyle = TextStyle(
             fontSize = fontSize,
             fontWeight = FontWeight.w800,
             color = color,
             height = height,
-            fontSynthesis = fontSynthesis
+            fontSynthesis = fontSynthesis,
+            baselineShift = baselineShift
         )
 
         assertThat(textStyle.fontFamily).isNull()
@@ -1891,7 +1997,8 @@ class TextStyleTest {
                 fontWeight = FontWeight.w800,
                 fontSize = fontSize,
                 height = height,
-                fontSynthesis = fontSynthesis
+                fontSynthesis = fontSynthesis,
+                baselineShift = baselineShift
             )
         )
     }
@@ -2002,6 +2109,7 @@ class TextStyleTest {
             letterSpacing = 1.0f,
             wordSpacing = 2.0f,
             textBaseline = TextBaseline.alphabetic,
+            baselineShift = BaselineShift.SUBSCRIPT,
             height = height,
             locale = Locale("en", "US"),
             background = bgColor,
@@ -2041,6 +2149,9 @@ class TextStyleTest {
         assertThat(textStyle.compareTo(textStyle.copy(textBaseline = TextBaseline.ideographic)))
             .isEqualTo(RenderComparison.LAYOUT)
 
+        assertThat(textStyle.compareTo(textStyle.copy(baselineShift = BaselineShift.SUPERSCRIPT)))
+            .isEqualTo(RenderComparison.LAYOUT)
+
         assertThat(textStyle.compareTo(textStyle.copy(height = 20.0f)))
             .isEqualTo(RenderComparison.LAYOUT)
 
@@ -2064,6 +2175,7 @@ class TextStyleTest {
             letterSpacing = 1.0f,
             wordSpacing = 2.0f,
             textBaseline = TextBaseline.alphabetic,
+            baselineShift = BaselineShift.SUPERSCRIPT,
             height = height,
             locale = Locale("en", "US"),
             decoration = TextDecoration.underline,

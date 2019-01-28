@@ -41,6 +41,7 @@ import androidx.text.LayoutCompat.JUSTIFICATION_MODE_INTER_WORD
 import androidx.text.LayoutCompat.TEXT_DIRECTION_LTR
 import androidx.text.LayoutCompat.TEXT_DIRECTION_RTL
 import androidx.text.TextLayout
+import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
@@ -240,6 +241,17 @@ internal class ParagraphAndroid constructor(
             val start = textStyle.start
             val end = textStyle.end
             val style = textStyle.textStyle
+
+            // Be aware that SuperscriptSpan needs to be applied before all other spans which
+            // affect FontMetrics
+            style.baselineShift?.let {
+                spannableString.setSpan(
+                    BaselineShiftSpan(it.multiplier),
+                    start,
+                    end,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
 
             style.color?.let {
                 spannableString.setSpan(

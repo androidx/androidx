@@ -12,9 +12,11 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.text.StaticLayoutCompat
+import androidx.text.style.BaselineShiftSpan
 import androidx.text.style.LetterSpacingSpan
 import androidx.text.style.TypefaceSpan
 import androidx.text.style.WordSpacingSpan
+import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
@@ -548,6 +550,60 @@ class ParagraphAndroidTest {
         assertThat(
             paragraph.underlyingText,
             hasSpanOnTop(LocaleSpan::class, 0, "abc".length)
+        )
+    }
+
+    @Test
+    fun textStyle_setBaselineShiftOnWholeText() {
+        val text = "abcde"
+        val textStyle = TextStyle(baselineShift = BaselineShift.SUBSCRIPT)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length))
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(paragraph.underlyingText, hasSpan(BaselineShiftSpan::class, 0, text.length))
+    }
+
+    @Test
+    fun textStyle_setBaselineShiftOnPartText() {
+        val text = "abcde"
+        val textStyle = TextStyle(baselineShift = BaselineShift.SUPERSCRIPT)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(ParagraphBuilder.TextStyleIndex(textStyle, 0, "abc".length))
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(paragraph.underlyingText, hasSpan(BaselineShiftSpan::class, 0, "abc".length))
+    }
+
+    @Test
+    fun textStyle_setBaselineShiftTwice_LastOneOnTop() {
+        val text = "abcde"
+        val textStyle = TextStyle(baselineShift = BaselineShift.SUBSCRIPT)
+        val textStyleOverwrite = TextStyle(baselineShift = BaselineShift.SUPERSCRIPT)
+
+        val paragraph = simpleParagraph(
+            text = text,
+            textStyles = listOf(
+                ParagraphBuilder.TextStyleIndex(textStyle, 0, text.length),
+                ParagraphBuilder.TextStyleIndex(textStyleOverwrite, 0, "abc".length)
+            )
+        )
+        // width is not important
+        paragraph.layout(100.0f)
+
+        assertThat(paragraph.underlyingText, hasSpan(BaselineShiftSpan::class, 0, text.length))
+        assertThat(paragraph.underlyingText, hasSpan(BaselineShiftSpan::class, 0, "abc".length))
+        assertThat(
+            paragraph.underlyingText,
+            hasSpanOnTop(BaselineShiftSpan::class, 0, "abc".length)
         )
     }
 

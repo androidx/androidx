@@ -37,6 +37,7 @@ import androidx.ui.painting.Paint
  *                  (i.e. between each word). Only works on Android Q and above.
  * * `textBaseline`: The common baseline that should be aligned between this text span and its
  *                   parent text span, or, for the root text spans, with the line box.
+ *   `baselineShift`:The
  * * `height`: The height of this text span, as a multiple of the font size.
  * * `locale`: The locale used to select region-specific glyphs.
  * * `background`: The background color for the text.
@@ -49,11 +50,12 @@ data class TextStyle constructor(
     val decoration: TextDecoration? = null,
     val fontWeight: FontWeight? = null,
     val fontStyle: FontStyle? = null,
-    val textBaseline: TextBaseline? = null,
     val fontFamily: FontFamily? = null,
     val fontSize: Float? = null,
     val letterSpacing: Float? = null,
     val wordSpacing: Float? = null,
+    val textBaseline: TextBaseline? = null,
+    val baselineShift: BaselineShift? = null,
     val height: Float? = null,
     val locale: Locale? = null,
     // TODO(Migration/haoyuchang): background is changed to color from paint.
@@ -84,7 +86,8 @@ data class TextStyle constructor(
         "locale: ${locale ?: "unspecified"}, " +
         "background: ${background ?: "unspecified"}, " +
         "foreground: ${foreground ?: "unspecified"}, " +
-        "fontSynthesis: ${fontSynthesis ?: "unspecified"}" +
+        "fontSynthesis: ${fontSynthesis ?: "unspecified"}, " +
+        "baselineShift: ${baselineShift ?: "unspecified"}" +
         ")"
     }
 }

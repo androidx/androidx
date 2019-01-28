@@ -58,7 +58,8 @@ class TextStyleTest {
                         "locale: unspecified, " +
                         "background: unspecified, " +
                         "foreground: unspecified, " +
-                        "fontSynthesis: unspecified" +
+                        "fontSynthesis: unspecified, " +
+                        "baselineShift: unspecified" +
                         ")"
                 )
             )
@@ -80,6 +81,7 @@ class TextStyleTest {
         val locale = Locale("en")
         val background = Color(0xFF000000.toInt())
         val fontSynthesis = FontSynthesis.style
+        val baselineShift = BaselineShift.SUPERSCRIPT
 
         val textStyle = TextStyle(
             color = color,
@@ -95,7 +97,8 @@ class TextStyleTest {
             locale = locale,
             background = background,
             foreground = null,
-            fontSynthesis = fontSynthesis
+            fontSynthesis = fontSynthesis,
+            baselineShift = baselineShift
         )
 
         assertThat(
@@ -116,7 +119,8 @@ class TextStyleTest {
                         "locale: $locale, " +
                         "background: $background, " +
                         "foreground: unspecified, " +
-                        "fontSynthesis: $fontSynthesis" +
+                        "fontSynthesis: $fontSynthesis, " +
+                        "baselineShift: $baselineShift" +
                         ")"
                 )
             )

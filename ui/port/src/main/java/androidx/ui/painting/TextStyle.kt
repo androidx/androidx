@@ -18,6 +18,7 @@ package androidx.ui.painting
 
 import androidx.ui.assert
 import androidx.ui.clamp
+import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
 import androidx.ui.engine.text.FontWeight
@@ -79,6 +80,7 @@ data class TextStyle(
     val letterSpacing: Float? = null,
     val wordSpacing: Float? = null,
     val textBaseline: TextBaseline? = null,
+    val baselineShift: BaselineShift? = null,
     val height: Float? = null,
     val locale: Locale? = null,
     // TODO(Migration/haoyuchang): Changed from Paint to Color.
@@ -163,6 +165,7 @@ data class TextStyle(
             wordSpacing =
             if (wordSpacing == null) null else wordSpacing * wordSpacingFactor + wordSpacingDelta,
             textBaseline = textBaseline,
+            baselineShift = baselineShift,
             height = if (height == null) null else height * heightFactor + heightDelta,
             locale = locale,
             background = background,
@@ -208,6 +211,7 @@ data class TextStyle(
             letterSpacing = other.letterSpacing ?: this.letterSpacing,
             wordSpacing = other.wordSpacing ?: this.wordSpacing,
             textBaseline = other.textBaseline ?: this.textBaseline,
+            baselineShift = other.baselineShift ?: this.baselineShift,
             height = other.height ?: this.height,
             locale = other.locale ?: this.locale,
             background = other.background ?: this.background,
@@ -261,6 +265,7 @@ data class TextStyle(
                     letterSpacing = b?.letterSpacing,
                     wordSpacing = b?.wordSpacing,
                     textBaseline = b?.textBaseline,
+                    baselineShift = b?.baselineShift,
                     height = b?.height,
                     locale = b?.locale,
                     background = b?.background,
@@ -286,6 +291,7 @@ data class TextStyle(
                         letterSpacing = newB.letterSpacing,
                         wordSpacing = newB.wordSpacing,
                         textBaseline = newB.textBaseline,
+                        baselineShift = newB.baselineShift,
                         height = newB.height,
                         locale = newB.locale,
                         background = newB.background,
@@ -308,6 +314,7 @@ data class TextStyle(
                         letterSpacing = a.letterSpacing,
                         wordSpacing = a.wordSpacing,
                         textBaseline = a.textBaseline,
+                        baselineShift = a.baselineShift,
                         height = a.height,
                         locale = a.locale,
                         background = a.background,
@@ -347,6 +354,7 @@ data class TextStyle(
                     t
                 ),
                 textBaseline = if (t < 0.5) a.textBaseline else b.textBaseline,
+                baselineShift = BaselineShift.lerp(a.baselineShift, b.baselineShift, t),
                 height = lerpFloat(a.height ?: b.height!!, b.height ?: a.height!!, t),
                 locale = if (t < 0.5) a.locale else b.locale,
                 background = if (t < 0.5) a.background else b.background,
@@ -364,11 +372,12 @@ data class TextStyle(
             fontWeight = fontWeight,
             fontStyle = fontStyle,
             fontSynthesis = fontSynthesis,
-            textBaseline = textBaseline,
             fontFamily = fontFamily,
             fontSize = if (fontSize == null) null else (fontSize * textScaleFactor),
             letterSpacing = letterSpacing,
             wordSpacing = wordSpacing,
+            textBaseline = textBaseline,
+            baselineShift = baselineShift,
             height = height,
             locale = locale,
             background = background
@@ -429,6 +438,7 @@ data class TextStyle(
             letterSpacing != other.letterSpacing ||
             wordSpacing != other.wordSpacing ||
             textBaseline != other.textBaseline ||
+            baselineShift != other.baselineShift ||
             height != other.height ||
             locale != other.locale ||
             background != other.background
@@ -487,6 +497,8 @@ data class TextStyle(
         styles.add(FloatProperty.create("letterSpacing", letterSpacing, defaultValue = null))
         styles.add(FloatProperty.create("wordSpacing", wordSpacing, defaultValue = null))
         styles.add(EnumProperty<TextBaseline>("baseline", textBaseline, defaultValue = null))
+        styles.add(FloatProperty.create("baselineShift",
+            baselineShift?.multiplier, defaultValue = null))
         styles.add(FloatProperty.create("height", height, unit = "x", defaultValue = null))
         styles.add(
             StringProperty(
