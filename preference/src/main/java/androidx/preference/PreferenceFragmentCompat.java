@@ -199,7 +199,7 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
         final View rawListContainer = view.findViewById(AndroidResources.ANDROID_R_LIST_CONTAINER);
         if (!(rawListContainer instanceof ViewGroup)) {
-            throw new RuntimeException("Content has view with id attribute "
+            throw new IllegalStateException("Content has view with id attribute "
                     + "'android.R.id.list_container' that is not a ViewGroup class");
         }
 
@@ -457,7 +457,8 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
     @Override
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    public <T extends Preference> T findPreference(CharSequence key) {
+    @Nullable
+    public <T extends Preference> T findPreference(@NonNull CharSequence key) {
         if (mPreferenceManager == null) {
             return null;
         }

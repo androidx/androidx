@@ -19,11 +19,10 @@
 package androidx.preference
 
 /**
- * Returns the preference with `key`.
- *
- * @throws NullPointerException if no preference is found with that key.
+ * Returns the preference with `key`, or `null` if no preference with `key` is found.
  */
-inline operator fun <T : Preference> PreferenceGroup.get(key: CharSequence): T = findPreference(key)
+inline operator fun <T : Preference> PreferenceGroup.get(key: CharSequence): T? =
+    findPreference(key)
 
 /**
  * Returns the preference at `index`.
@@ -31,7 +30,7 @@ inline operator fun <T : Preference> PreferenceGroup.get(key: CharSequence): T =
  * @throws IndexOutOfBoundsException if index is less than 0 or greater than or equal to the count.
  */
 operator fun PreferenceGroup.get(index: Int): Preference = getPreference(index)
-        ?: throw IndexOutOfBoundsException("Index: $index, Size: $preferenceCount")
+    ?: throw IndexOutOfBoundsException("Index: $index, Size: $preferenceCount")
 
 /** Returns `true` if `preference` is found in this preference group. */
 operator fun PreferenceGroup.contains(preference: Preference): Boolean {

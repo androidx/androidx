@@ -92,6 +92,7 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * @deprecated Use {@link PreferenceFragmentCompat} instead
  */
+@SuppressWarnings("deprecation")
 @Deprecated
 public abstract class PreferenceFragment extends Fragment implements
         PreferenceManager.OnPreferenceTreeClickListener,

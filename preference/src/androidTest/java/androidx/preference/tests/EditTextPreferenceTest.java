@@ -23,7 +23,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
 import android.text.InputFilter;
@@ -95,6 +95,6 @@ public class EditTextPreferenceTest {
                         .findFragmentByTag(
                                 "androidx.preference.PreferenceFragment.DIALOG")).getDialog()
                         .findViewById(android.R.id.edit);
-        assertEquals(filters, editText.getFilters());
+        assertArrayEquals(filters, editText.getFilters());
     }
 }
