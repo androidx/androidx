@@ -1,0 +1,31 @@
+import static androidx.build.dependencies.DependenciesKt.*
+import androidx.build.LibraryGroups
+import androidx.build.LibraryVersions
+import androidx.build.SupportLibraryExtension;
+
+plugins {
+    id("SupportJavaLibraryPlugin")
+    id("kotlin")
+}
+
+dependencies {
+    testImplementation(JUNIT)
+    testImplementation(MOCKITO_CORE)
+    testImplementation(TEST_RUNNER)
+    testImplementation(TEST_RULES)
+    testImplementation("com.google.truth:truth:0.42")
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
+        exclude group: 'org.mockito' // to keep control on the mockito version
+    }
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+
+supportLibrary {
+    name = "AndroidX UI Layout"
+    publish = true
+    mavenVersion = LibraryVersions.UI
+    mavenGroup = LibraryGroups.UI
+    inceptionYear = "2019"
+    description = "AndroidX UI layout classes not targeting a specific design system."
+    useMetalava = true
+}
