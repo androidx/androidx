@@ -125,3 +125,13 @@ fun Constraints.enforce(otherConstraints: Constraints) = Constraints(
     minHeight = minHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight),
     maxHeight = maxHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight)
 )
+
+/**
+ * Returns a copy of the current instance, overriding the specified values to be tight.
+ */
+fun Constraints.withTight(width: Dimension? = null, height: Dimension? = null) = Constraints(
+    minWidth = width ?: this.minWidth,
+    maxWidth = width ?: this.maxWidth,
+    minHeight = height ?: this.minHeight,
+    maxHeight = height ?: this.maxHeight
+)

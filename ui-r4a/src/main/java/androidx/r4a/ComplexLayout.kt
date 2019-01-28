@@ -27,10 +27,13 @@ import androidx.ui.core.adapter.ComplexMeasureBox
 import androidx.ui.core.adapter.Row
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.adapter.Center
+import androidx.ui.core.adapter.Container
 import androidx.ui.core.adapter.FlexColumn
 import androidx.ui.core.adapter.FlexRow
+import androidx.ui.core.adapter.Padding
 import androidx.ui.core.adapter.Stack
 import androidx.ui.core.dp
+import androidx.ui.layout.EdgeInsets
 import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -228,12 +231,37 @@ fun ConstrainedBoxUsage() {
     </Align>
 }
 
+fun PaddingUsage() {
+    <Row>
+        <Padding padding=EdgeInsets(20.dp)>
+            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height= 20.dp />
+        </Padding>
+        <Padding padding=EdgeInsets(20.dp)>
+            <SizedRectangle color=Color(0xFFFF0000.toInt()) width=20.dp height= 20.dp />
+        </Padding>
+    </Row>
+}
+
+@Composable
+fun ContainerUsage() {
+    <Align alignment=Alignment.Center>
+        <Container padding=null color=Color(0xFF0000FF.toInt()) alignment=Alignment.BottomRight
+               constraints=null width=100.dp height=100.dp margin=EdgeInsets(20.dp)>
+            <Container padding=EdgeInsets(20.dp) color=Color(0xFF000000.toInt())
+                       alignment=Alignment.BottomRight constraints=null width=50.dp height=50.dp
+                       margin=null>
+                <SizedRectangle color=Color(0xFFFFFFFF.toInt()) />
+            </Container>
+        </Container>
+    </Align>
+}
+
 /**
  * Entry point for the activity.
  */
 @Composable
 fun ComplexLayout() {
     <CraneWrapper>
-        <ConstrainedBoxUsage />
+        <ContainerUsage />
     </CraneWrapper>
 }

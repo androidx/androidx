@@ -20,11 +20,10 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
-import androidx.ui.core.Dimension
 import androidx.ui.core.Position
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
-import androidx.ui.core.coerceAtLeast
+import androidx.ui.core.adapter.Padding
 import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.adapter.PressGestureDetector
@@ -35,42 +34,14 @@ import androidx.ui.core.minus
 import androidx.ui.core.plus
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.layout.EdgeInsets
 import androidx.ui.painting.Color
 import androidx.ui.painting.Image
 import androidx.ui.painting.Paint
-import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.Recompose
 import com.google.r4a.composer
 import kotlin.math.min
-
-@Composable
-fun Padding(
-    left: Dimension = 0.dp,
-    top: Dimension = 0.dp,
-    right: Dimension = 0.dp,
-    bottom: Dimension = 0.dp, @Children children: () -> Unit
-) {
-    <MeasureBox> constraints, measureOperations ->
-        val measurables = measureOperations.collect(children)
-        val horizontalPadding = (left + right)
-        val verticalPadding = (top + bottom)
-
-        val newConstraints = Constraints(
-            minWidth = (constraints.minWidth - horizontalPadding).coerceAtLeast(0.dp),
-            maxWidth = (constraints.maxWidth - horizontalPadding).coerceAtLeast(0.dp),
-            minHeight = (constraints.minHeight - verticalPadding).coerceAtLeast(0.dp),
-            maxHeight = (constraints.maxHeight - verticalPadding).coerceAtLeast(0.dp)
-        )
-        val placeable = measureOperations.measure(measurables.first(), newConstraints)
-        val width = placeable.width + horizontalPadding
-        val height = placeable.height + verticalPadding
-
-        measureOperations.layout(width, height) {
-            placeable.place(left, top)
-        }
-    </MeasureBox>
-}
 
 @Composable
 fun FourQuadrants() {
@@ -185,8 +156,8 @@ fun CraneRects() {
 
             val padding = if (pressed) 36.dp else if (small) 48.dp else 96.dp
 
-            <Padding left=padding top=padding right=padding bottom=padding>
-                <Padding left=0.dp top=0.dp right=0.dp bottom=0.dp>
+            <Padding padding=EdgeInsets(padding)>
+                <Padding padding=EdgeInsets(0.dp)>
                     <PressGestureDetector onPress onRelease onCancel>
                         <Rectangles />
                     </PressGestureDetector>

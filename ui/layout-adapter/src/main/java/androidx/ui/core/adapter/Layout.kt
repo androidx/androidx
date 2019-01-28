@@ -17,15 +17,21 @@
 package androidx.ui.core.adapter
 
 import androidx.ui.core.Constraints
+import androidx.ui.core.Dimension
+import androidx.ui.layout.EdgeInsets
 import androidx.ui.layout.FlexChildren
 import androidx.ui.layout.StackChildren
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
 // Ignore that the IDEA cannot resolve these.
+import androidx.ui.painting.Color
+
 import androidx.ui.layout.AlignKt
 import androidx.ui.layout.ConstrainedBoxKt
+import androidx.ui.layout.ContainerKt
 import androidx.ui.layout.FlexKt
+import androidx.ui.layout.PaddingKt
 import androidx.ui.layout.StackKt
 
 /**
@@ -128,4 +134,36 @@ fun Stack(
 @Suppress("PLUGIN_ERROR")
 fun ConstrainedBox(additionalConstraints: Constraints, @Children() block: () -> Unit) {
     ConstrainedBoxKt.ConstrainedBox(additionalConstraints, block)
+}
+
+/**
+ * For the original logic
+ * @see androidx.ui.layout.Padding
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun Padding(
+    padding: EdgeInsets,
+    @Children() block: () -> Unit
+) {
+    PaddingKt.Padding(padding, block)
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.Padding
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun Container(
+    padding: EdgeInsets? = null,
+    color: Color? = null,
+    alignment: androidx.ui.layout.Alignment? = null,
+    margin: EdgeInsets? = null,
+    constraints: Constraints? = null,
+    width: Dimension? = null,
+    height: Dimension? = null,
+    @Children() block: () -> Unit
+) {
+    ContainerKt.Container(padding, color, alignment, margin, constraints, width, height, block)
 }
