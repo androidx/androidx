@@ -34,9 +34,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
-import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.resources.R;
 
+import androidx.appcompat.widget.ResourceManagerInternal;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -71,7 +71,7 @@ import java.util.Arrays;
  * {@link android.R.attr#state_pressed}
  *
  * Adapted from platform class; altered with API level checks as necessary & uses
- * {@link AppCompatResources} for <code>Drawable</code> inflation.
+ * {@link ResourceManagerInternal} for <code>Drawable</code> inflation.
  *
  * @hide
  */
@@ -195,7 +195,7 @@ class StateListDrawable extends DrawableContainer {
             final int drawableId = a.getResourceId(
                     R.styleable.StateListDrawableItem_android_drawable, -1);
             if (drawableId > 0) {
-                dr = AppCompatResources.getDrawable(context, drawableId);
+                dr = ResourceManagerInternal.get().getDrawable(context, drawableId);
             }
             a.recycle();
             final int[] states = extractStateSet(attrs);

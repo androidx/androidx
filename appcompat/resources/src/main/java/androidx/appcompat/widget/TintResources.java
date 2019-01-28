@@ -46,7 +46,7 @@ class TintResources extends ResourcesWrapper {
         Drawable d = super.getDrawable(id);
         Context context = mContextRef.get();
         if (d != null && context != null) {
-            AppCompatDrawableManager.get().tintDrawableUsingColorFilter(context, id, d);
+            ResourceManagerInternal.get().tintDrawableUsingColorFilter(context, id, d);
         }
         return d;
     }
