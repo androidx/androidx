@@ -41,7 +41,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SmallTest;
 
 import org.hamcrest.Matcher;
 import org.junit.After;
@@ -51,7 +50,7 @@ import org.junit.Test;
  * In addition to all tinting-related tests done by the base class, this class provides
  * tests specific to {@link AppCompatSpinner} class.
  */
-@SmallTest
+@LargeTest
 public class AppCompatSpinnerTest
         extends AppCompatBaseViewTest<AppCompatSpinnerActivity, AppCompatSpinner> {
     private static final String EARTH = "Earth";
@@ -163,13 +162,13 @@ public class AppCompatSpinnerTest
         assertThat(dialogPopup.mPopup, instanceOf(AlertDialog.class));
     }
 
-    @MediumTest
+    @LargeTest
     @Test
     public void testChangeOrientationDialogPopupPersists() {
         verifyChangeOrientationPopupPersists(R.id.spinner_dialog_popup);
     }
 
-    @MediumTest
+    @LargeTest
     @Test
     public void testChangeOrientationDropdownPopupPersists() {
         verifyChangeOrientationPopupPersists(R.id.spinner_dropdown_popup);

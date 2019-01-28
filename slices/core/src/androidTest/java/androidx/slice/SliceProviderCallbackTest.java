@@ -30,8 +30,8 @@ import androidx.remotecallback.RemoteCallable;
 import androidx.remotecallback.RemoteCallback;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 @SdkSuppress(minSdkVersion = 26)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class SliceProviderCallbackTest {
 
     private static Provider sProvider;

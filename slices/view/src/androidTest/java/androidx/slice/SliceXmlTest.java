@@ -43,8 +43,8 @@ import androidx.slice.core.SliceQuery;
 import androidx.slice.view.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +56,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 @SdkSuppress(minSdkVersion = 19)
 public class SliceXmlTest {
 

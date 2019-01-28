@@ -35,7 +35,7 @@ import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -46,7 +46,7 @@ import org.junit.runner.RunWith;
  * NestedScrollingChild3 implementation.
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class SwipeRefreshLayoutNestedScrollingChild3Test {
 
     private SwipeRefreshLayout mSwipeRefreshLayout;

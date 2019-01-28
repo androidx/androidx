@@ -27,7 +27,7 @@ import android.view.accessibility.AccessibilityEvent;
 
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@MediumTest
+@SmallTest
 @RunWith(Parameterized.class)
 public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentationTest {
     private static final boolean SUPPORTS_COLLECTION_INFO =

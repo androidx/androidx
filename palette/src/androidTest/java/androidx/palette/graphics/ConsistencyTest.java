@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
 import android.graphics.Bitmap;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +32,7 @@ public class ConsistencyTest {
     private static final int NUMBER_TRIALS = 10;
 
     @Test
-    @MediumTest
+    @SmallTest
     public void testConsistency() {
         Palette lastPalette = null;
         final Bitmap bitmap = TestUtils.loadSampleBitmap();

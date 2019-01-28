@@ -47,7 +47,7 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontInfo;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -66,7 +66,7 @@ import java.util.concurrent.TimeUnit;
  * Unit tests for {@link FontsContractCompat}.
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class FontsContractCompatTest {
     private static final String AUTHORITY = "androidx.core.provider.fonts.font";
     private static final String PACKAGE = "androidx.core.test";

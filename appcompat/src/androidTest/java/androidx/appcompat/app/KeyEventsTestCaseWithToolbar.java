@@ -23,25 +23,24 @@ import android.view.KeyEvent;
 import android.view.Window;
 
 import androidx.appcompat.widget.Toolbar;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 
+@MediumTest
 public class KeyEventsTestCaseWithToolbar extends BaseKeyEventsTestCase<ToolbarAppCompatActivity> {
     public KeyEventsTestCaseWithToolbar() {
         super(ToolbarAppCompatActivity.class);
     }
 
     @Test
-    @SmallTest
     @Override
     public void testMenuKeyEventReachesActivity() throws InterruptedException {
         // With Toolbar, MENU key gets sent-to (and consumed by) Toolbar rather than Activity
     }
 
     @Test
-    @SmallTest
     public void testMenuKeyOpensToolbarMenu() {
         // Base test only checks that *a* menu is opened, we check here that the toolbar's menu
         // specifically is opened.
@@ -58,7 +57,6 @@ public class KeyEventsTestCaseWithToolbar extends BaseKeyEventsTestCase<ToolbarA
     }
 
     @Test
-    @SmallTest
     public void testOpenMenuOpensToolbarMenu() throws Throwable {
         if (!mActivityTestRule.getActivity().getWindow().hasFeature(Window.FEATURE_OPTIONS_PANEL)) {
             return;

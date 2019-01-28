@@ -22,15 +22,15 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static org.hamcrest.CoreMatchers.allOf;
 
-import androidx.test.annotation.UiThreadTest;
-import androidx.test.espresso.UiController;
-import androidx.test.espresso.ViewAction;
-import androidx.test.filters.SmallTest;
 import android.view.View;
 import android.view.ViewStub;
 
 import androidx.annotation.LayoutRes;
 import androidx.percentlayout.test.R;
+import androidx.test.annotation.UiThreadTest;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
+import androidx.test.filters.LargeTest;
 
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -41,7 +41,7 @@ import org.junit.Test;
 /**
  * Test cases to verify that percent layouts properly account for their own paddings.
  */
-@SmallTest
+@LargeTest
 public class PercentDynamicLayoutTest
         extends BaseInstrumentationTestCase<PercentDynamicLayoutActivity> {
     public PercentDynamicLayoutTest() {

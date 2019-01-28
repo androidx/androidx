@@ -44,8 +44,8 @@ import androidx.media2.test.client.MediaTestUtils;
 import androidx.media2.test.client.RemoteMediaSession;
 import androidx.media2.test.common.PollingCheck;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -61,7 +61,7 @@ import java.util.List;
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class MediaControllerTest extends MediaSessionTestBase {
 
     final List<RemoteMediaSession> mRemoteSessionList = new ArrayList<>();

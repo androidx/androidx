@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import android.graphics.Rect;
 import android.view.View;
 
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +36,7 @@ import java.util.Map;
 /**
  * Tests dispatching no-op updates to the GLM and ensures it re-lays out items in the same location
  */
-@MediumTest
+@SmallTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerNoOpUpdateTest extends BaseGridLayoutManagerTest {
     @Parameterized.Parameters(name = "conf:{0},rtl={1}")

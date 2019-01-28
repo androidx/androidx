@@ -26,8 +26,8 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,7 +38,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
-@SmallTest
+@MediumTest
 public final class HandlerCompatTest {
     private final HandlerThread mThread = new HandlerThread("handler-compat-test");
 

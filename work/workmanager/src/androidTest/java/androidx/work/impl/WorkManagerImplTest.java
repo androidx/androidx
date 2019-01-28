@@ -70,7 +70,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.work.BackoffPolicy;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
@@ -167,7 +166,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertWork() throws ExecutionException, InterruptedException {
         final int workCount = 3;
         final OneTimeWorkRequest[] workArray = new OneTimeWorkRequest[workCount];
@@ -191,7 +190,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_AddsImplicitTags() throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl.enqueue(Collections.singletonList(work)).getResult().get();
@@ -203,7 +202,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertMultipleWork() throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -218,7 +217,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertMultipleWork_continuationBlocking()
             throws ExecutionException, InterruptedException {
 
@@ -238,7 +237,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertWithDependencies()
             throws ExecutionException, InterruptedException {
 
@@ -278,7 +277,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertWithCompletedDependencies_isNotStatusBlocked()
             throws ExecutionException, InterruptedException {
 
@@ -297,7 +296,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertWithFailedDependencies_isStatusFailed()
             throws ExecutionException, InterruptedException {
 
@@ -316,7 +315,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertWithCancelledDependencies_isStatusCancelled()
             throws ExecutionException, InterruptedException {
 
@@ -335,7 +334,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 23)
     public void testEnqueue_insertWorkConstraints()
             throws ExecutionException, InterruptedException {
@@ -389,7 +388,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertWorkInitialDelay()
             throws ExecutionException, InterruptedException {
 
@@ -408,7 +407,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertWorkBackoffPolicy()
             throws ExecutionException, InterruptedException {
 
@@ -430,7 +429,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertWorkTags() throws ExecutionException, InterruptedException {
         final String firstTag = "first_tag";
         final String secondTag = "second_tag";
@@ -455,7 +454,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueue_insertPeriodicWork() throws ExecutionException, InterruptedException {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
@@ -474,7 +473,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueued_work_setsPeriodStartTime()
             throws ExecutionException, InterruptedException {
 
@@ -489,7 +488,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueued_periodicWork_setsPeriodStartTime()
             throws ExecutionException, InterruptedException {
 
@@ -511,7 +510,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBeginUniqueWork_setsUniqueName()
             throws ExecutionException, InterruptedException {
 
@@ -530,7 +529,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueueUniquePeriodicWork_setsUniqueName()
             throws ExecutionException, InterruptedException {
 
@@ -551,7 +550,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBeginUniqueWork_deletesOldWorkOnReplace()
             throws ExecutionException, InterruptedException {
 
@@ -585,7 +584,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueueUniquePeriodicWork_deletesOldWorkOnReplace()
             throws ExecutionException, InterruptedException {
 
@@ -620,7 +619,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBeginUniqueWork_keepsExistingWorkOnKeep()
             throws ExecutionException, InterruptedException {
 
@@ -654,7 +653,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueueUniquePeriodicWork_keepsExistingWorkOnKeep()
             throws ExecutionException, InterruptedException {
 
@@ -689,7 +688,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBeginUniqueWork_replacesExistingWorkOnKeepWhenExistingWorkIsDone()
             throws ExecutionException, InterruptedException {
 
@@ -723,7 +722,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueueUniquePeriodicWork_replacesExistingWorkOnKeepWhenExistingWorkIsDone()
             throws ExecutionException, InterruptedException {
 
@@ -759,7 +758,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBeginUniqueWork_appendsExistingWorkOnAppend()
             throws ExecutionException, InterruptedException {
 
@@ -797,7 +796,7 @@ public class WorkManagerImplTest {
 
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testEnqueueUniqueWork_appendsExistingWorkOnAppend()
             throws ExecutionException, InterruptedException {
         // Not duplicating other enqueueUniqueWork with different work policies as they
@@ -836,7 +835,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBeginUniqueWork_appendsExistingWorkToOnlyLeavesOnAppend()
             throws ExecutionException, InterruptedException {
 
@@ -897,7 +896,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testBeginUniqueWork_insertsExistingWorkWhenNothingToAppendTo()
             throws ExecutionException, InterruptedException {
 
@@ -916,7 +915,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testGetWorkInfoByIdSync() throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
@@ -929,7 +928,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testGetWorkInfoByIdSync_returnsNullIfNotInDatabase()
             throws ExecutionException, InterruptedException {
 
@@ -940,7 +939,7 @@ public class WorkManagerImplTest {
     // Temporarily disabled due to b/121002352.
     // bug b/121090948 filed to keep track.
     // @Test
-    // @SmallTest
+    // @MediumTest
     @SuppressWarnings("unchecked")
     public void testGetWorkInfoById() {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -1004,7 +1003,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testGetWorkInfosByTagSync() throws ExecutionException, InterruptedException {
         final String firstTag = "first_tag";
         final String secondTag = "second_tag";
@@ -1053,7 +1052,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void getWorkInfosByNameSync() throws ExecutionException, InterruptedException {
         final String uniqueName = "myname";
 
@@ -1094,7 +1093,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SuppressWarnings("unchecked")
     public void testGetWorkInfosByName() {
         final String uniqueName = "myname";
@@ -1159,7 +1158,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCancelWorkById() throws ExecutionException, InterruptedException {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
@@ -1174,7 +1173,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCancelWorkById_cancelsDependentWork()
             throws ExecutionException, InterruptedException {
 
@@ -1195,7 +1194,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCancelWorkById_cancelsUnfinishedWorkOnly()
             throws ExecutionException, InterruptedException {
 
@@ -1218,7 +1217,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testCancelAllWorkByTag() throws ExecutionException, InterruptedException {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
@@ -1251,7 +1250,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testCancelAllWorkByTag_cancelsDependentWork()
             throws ExecutionException, InterruptedException {
 
@@ -1298,7 +1297,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testCancelWorkByName() throws ExecutionException, InterruptedException {
         final String uniqueName = "myname";
 
@@ -1334,7 +1333,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testCancelAllWork() throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
@@ -1357,7 +1356,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     public void testCancelAllWork_updatesLastCancelAllTime() {
         Preferences preferences = new Preferences(ApplicationProvider.getApplicationContext());
         preferences.setLastCancelAllTimeMillis(0L);
@@ -1370,7 +1369,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     @SuppressWarnings("unchecked")
     public void testCancelAllWork_updatesLastCancelAllTimeLiveData() throws InterruptedException {
         Preferences preferences = new Preferences(ApplicationProvider.getApplicationContext());
@@ -1400,7 +1399,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void pruneFinishedWork() throws InterruptedException, ExecutionException {
         OneTimeWorkRequest enqueuedWork = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         OneTimeWorkRequest finishedWork =
@@ -1432,7 +1431,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSynchronousCancelAndGetWorkInfo()
             throws ExecutionException, InterruptedException {
 
@@ -1447,7 +1446,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testGenerateCleanupCallback_resetsRunningWorkStatuses() {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
 
@@ -1467,7 +1466,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testGenerateCleanupCallback_deletesOldFinishedWork() {
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
@@ -1490,7 +1489,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testGenerateCleanupCallback_doesNotDeleteOldFinishedWorkWithActiveDependents() {
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
@@ -1579,7 +1578,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(maxSdkVersion = 22)
     public void testEnqueueApi22OrLower_withBatteryNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
@@ -1596,7 +1595,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(maxSdkVersion = 22)
     public void testEnqueueApi22OrLower_withStorageNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
@@ -1613,7 +1612,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testEnqueueApi23To25_withBatteryNotLowConstraint_expectsConstraintTrackingWorker()
             throws ExecutionException, InterruptedException {
@@ -1633,7 +1632,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 23, maxSdkVersion = 25)
     public void testEnqueueApi23To25_withStorageNotLowConstraint_expectsConstraintTrackingWorker()
             throws ExecutionException, InterruptedException {
@@ -1653,7 +1652,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 26)
     public void testEnqueueApi26OrHigher_withBatteryNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
@@ -1670,7 +1669,7 @@ public class WorkManagerImplTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 26)
     public void testEnqueueApi26OrHigher_withStorageNotLowConstraint_expectsOriginalWorker()
             throws ExecutionException, InterruptedException {
@@ -1692,7 +1691,7 @@ public class WorkManagerImplTest {
 
     /*
     @Test
-    @SmallTest
+    @MediumTest
     @RepeatRule.Repeat(times = 10)
     @SdkSuppress(maxSdkVersion = 22)    // We can't force JobScheduler to run quicker than 15 mins.
     public void testPeriodicWork_ExecutesRepeatedly() throws InterruptedException {

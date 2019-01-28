@@ -54,9 +54,9 @@ import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import org.junit.Test;
@@ -74,7 +74,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * In addition to all tinting-related tests done by the base class, this class provides
  * tests specific to {@link AppCompatTextView} class.
  */
-@SmallTest
+@LargeTest
 public class AppCompatTextViewTest
         extends AppCompatBaseViewTest<AppCompatTextViewActivity, AppCompatTextView> {
     private static final String SAMPLE_TEXT_1 = "Hello, World!";

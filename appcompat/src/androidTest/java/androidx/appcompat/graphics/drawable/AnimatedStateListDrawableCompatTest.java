@@ -34,7 +34,7 @@ import android.util.StateSet;
 import androidx.appcompat.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 
 import org.junit.Before;
@@ -46,7 +46,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.util.HashSet;
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class AnimatedStateListDrawableCompatTest {
     private static final int[] STATE_EMPTY = new int[]{};

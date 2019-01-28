@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 import android.util.Log;
 import android.view.View;
 
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,7 +33,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 
-@MediumTest
+@SmallTest
 @RunWith(Parameterized.class)
 public class GridLayoutManagerBaseConfigSetTest extends BaseGridLayoutManagerTest {
     @Parameterized.Parameters(name = "{0}")

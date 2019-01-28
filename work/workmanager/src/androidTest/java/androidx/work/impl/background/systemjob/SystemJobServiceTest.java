@@ -41,7 +41,6 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.work.Configuration;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -162,7 +161,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testOnStopJob_ReschedulesWhenNotCancelled() {
         // TODO: Remove after we figure out why these tests execute on API 17 emulators.
         if (Build.VERSION.SDK_INT < WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
@@ -195,7 +194,7 @@ public class SystemJobServiceTest extends WorkManagerTest {
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testStartJob_ReturnsFalseWithDuplicateJob() {
         // TODO: Remove after we figure out why these tests execute on API 17 emulators.
         if (Build.VERSION.SDK_INT < WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {

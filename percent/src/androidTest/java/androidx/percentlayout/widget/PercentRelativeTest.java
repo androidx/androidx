@@ -15,10 +15,10 @@
  */
 package androidx.percentlayout.widget;
 
-import androidx.test.filters.SmallTest;
 import android.view.View;
 
 import androidx.percentlayout.test.R;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +55,7 @@ import org.junit.Test;
  *     <li>Center child (marked with C) - margin (all sides) from the other four children.</li>
  * </ul>
  */
-@SmallTest
+@LargeTest
 public class PercentRelativeTest extends BaseInstrumentationTestCase<TestRelativeActivity> {
     private PercentRelativeLayout mPercentRelativeLayout;
     private int mContainerWidth;

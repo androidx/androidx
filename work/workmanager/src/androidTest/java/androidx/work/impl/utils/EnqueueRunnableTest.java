@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkManagerImpl;
 
@@ -38,7 +38,7 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class EnqueueRunnableTest {
 
     private Context mContext;

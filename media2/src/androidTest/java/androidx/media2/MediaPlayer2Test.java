@@ -46,7 +46,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -656,7 +655,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetDuration() throws Exception {
         if (!checkLoadResource(R.raw.testvideo)) {
@@ -691,7 +690,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetCurrentPosition() throws Exception {
         assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
@@ -703,7 +702,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetBufferedPosition() throws Exception {
         assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
@@ -715,7 +714,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetPlayerParams() throws Exception {
         assertEquals(MediaPlayer2.PLAYER_STATE_IDLE, mPlayer.getState());
@@ -2555,7 +2554,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testClearPendingCommands() throws Exception {
         final Monitor readRequested = new Monitor();
@@ -2910,7 +2909,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testGetWidthAndHeightWithNonSquarePixels() throws Exception {
         assertTrue(loadResource(R.raw.testvideo_with_2_subtitle_tracks));
@@ -2935,7 +2934,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testSkipUnnecessarySeek() throws Exception {
         final int resid = R.raw.video_480x360_mp4_h264_1350kbps_30fps_aac_stereo_192kbps_44100hz;
@@ -3131,7 +3130,7 @@ public class MediaPlayer2Test extends MediaPlayer2TestBase {
     }
 
     @Test
-    @MediumTest
+    @LargeTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void testClose() throws Exception {
         assertTrue(loadResource(R.raw.testmp3_2));

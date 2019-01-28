@@ -41,7 +41,7 @@ import androidx.test.espresso.action.Press;
 import androidx.test.espresso.action.Swipe;
 import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.wear.test.R;
@@ -53,6 +53,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
+@LargeTest
 public class SwipeDismissFrameLayoutTest {
 
     private static final long MAX_WAIT_TIME = 4000; //ms
@@ -73,7 +74,6 @@ public class SwipeDismissFrameLayoutTest {
     private int mLayoutHeight;
 
     @Test
-    @SmallTest
     public void testCanScrollHorizontally() {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
@@ -95,7 +95,6 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    @SmallTest
     public void canScrollHorizontallyShouldBeFalseWhenInvisible() {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
@@ -117,7 +116,6 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    @SmallTest
     public void canScrollHorizontallyShouldBeFalseWhenGone() {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
@@ -140,7 +138,6 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    @SmallTest
     public void testSwipeDismissEnabledByDefault() {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
@@ -153,7 +150,6 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    @SmallTest
     public void testSwipeDismissesViewIfEnabled() {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
@@ -164,7 +160,6 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    @SmallTest
     public void testSwipeDoesNotDismissViewIfDisabled() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
         setUpSimpleLayout();
@@ -179,7 +174,6 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    @SmallTest
     public void testAddRemoveCallback() {
         // GIVEN a freshly setup SwipeDismissFrameLayout
         setUpSimpleLayout();
@@ -193,7 +187,6 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    @SmallTest
     public void testSwipeDoesNotDismissViewIfScrollable() throws Throwable {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
         setUpSwipeDismissWithHorizontalRecyclerView();
@@ -216,7 +209,6 @@ public class SwipeDismissFrameLayoutTest {
 
 
     @Test
-    @SmallTest
     public void testEdgeSwipeDoesDismissViewIfScrollable() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned off.
         setUpSwipeDismissWithHorizontalRecyclerView();
@@ -227,7 +219,6 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    @SmallTest
     public void testSwipeDoesNotDismissViewIfStartsInWrongPosition() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned on, but only for an
         // inner circle.
@@ -239,7 +230,6 @@ public class SwipeDismissFrameLayoutTest {
     }
 
     @Test
-    @SmallTest
     public void testSwipeDoesDismissViewIfStartsInRightPosition() {
         // GIVEN a freshly setup SwipeDismissFrameLayout with dismiss turned on, but only for an
         // inner circle.
@@ -262,7 +252,6 @@ public class SwipeDismissFrameLayoutTest {
      }*/
 
     @Test
-    @SmallTest
     public void testArcSwipeDoesNotTriggerDismiss() throws Throwable {
         // GIVEN a freshly setup SwipeDismissFrameLayout with vertically scrollable content
         setUpSwipeDismissWithVerticalRecyclerView();

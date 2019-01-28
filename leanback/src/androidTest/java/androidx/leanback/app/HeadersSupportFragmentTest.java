@@ -29,12 +29,12 @@ import androidx.leanback.widget.ListRow;
 import androidx.leanback.widget.ListRowPresenter;
 import androidx.leanback.widget.VerticalGridView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class HeadersSupportFragmentTest extends SingleSupportFragmentTestBase {
 

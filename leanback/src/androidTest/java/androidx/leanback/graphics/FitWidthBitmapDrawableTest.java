@@ -27,7 +27,7 @@ import android.graphics.Rect;
 import android.os.Build;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -46,7 +46,7 @@ public class FitWidthBitmapDrawableTest {
     private final static int HEIGHT = 600;
     private Bitmap bitmap = Bitmap.createBitmap(WIDTH, HEIGHT, Bitmap.Config.ARGB_8888);
 
-    @MediumTest
+    @LargeTest
     @Test
     public void draw_withOffset() {
         int offset = 600;

@@ -38,7 +38,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.espresso.IdlingRegistry;
 import androidx.test.espresso.IdlingResource;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
@@ -57,7 +57,7 @@ import java.util.List;
 
 /** Unit tests for a {@link PagedListView} that has scrollbars disabled. */
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@SmallTest
 public final class PagedListViewNoScrollBarTest {
     /**
      * Used by {@link TestAdapter} to calculate ViewHolder height so N items appear in one page of

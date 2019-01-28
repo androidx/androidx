@@ -67,7 +67,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.versionedparcelable.ParcelUtils;
 
 import org.junit.Test;
@@ -89,7 +88,7 @@ import java.util.concurrent.atomic.AtomicReference;
 // TODO: (internal cleanup) Move tests that aren't related with callbacks.
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class MediaBrowserCallbackTest extends MediaControllerCallbackTest {
     private static final String TAG = "MediaBrowserCallbackTest";
 

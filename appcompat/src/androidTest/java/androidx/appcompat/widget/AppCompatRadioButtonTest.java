@@ -29,8 +29,8 @@ import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.widget.CompoundButtonCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 /**
  * Provides tests specific to {@link AppCompatRadioButton} class.
  */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class AppCompatRadioButtonTest extends AppCompatBaseViewTest<AppCompatRadioButtonActivity,
         AppCompatRadioButton> {
