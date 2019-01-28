@@ -212,7 +212,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
         mActionRowHeight = getResources().getDimensionPixelSize(
                 R.dimen.abc_slice_action_row_height);
         mViewPolicy = new SliceViewPolicy();
-        mCurrentView = new LargeTemplateView(getContext());
+        mCurrentView = new TemplateView(getContext());
         mCurrentView.setPolicy(mViewPolicy);
         addView(mCurrentView, getChildLp(mCurrentView));
         applyConfigurations();
@@ -706,7 +706,7 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
             newView = true;
         } else if (mode != MODE_SHORTCUT && isCurrentViewShortcut) {
             removeView(mCurrentView);
-            mCurrentView = new LargeTemplateView(getContext());
+            mCurrentView = new TemplateView(getContext());
             addView(mCurrentView, getChildLp(mCurrentView));
             newView = true;
         }

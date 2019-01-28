@@ -38,23 +38,23 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
-public class LargeTemplateView extends SliceChildView implements
+public class TemplateView extends SliceChildView implements
         SliceViewPolicy.PolicyChangeListener {
 
     private SliceView mParent;
     private final View mForeground;
-    private final LargeSliceAdapter mAdapter;
+    private final SliceAdapter mAdapter;
     private final RecyclerView mRecyclerView;
     private ListContent mListContent;
     private ArrayList<SliceContent> mDisplayedItems = new ArrayList<>();
     private int mDisplayedItemsHeight = 0;
     private int[] mLoc = new int[2];
 
-    public LargeTemplateView(Context context) {
+    public TemplateView(Context context) {
         super(context);
         mRecyclerView = new RecyclerView(getContext());
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mAdapter = new LargeSliceAdapter(context);
+        mAdapter = new SliceAdapter(context);
         mRecyclerView.setAdapter(mAdapter);
         addView(mRecyclerView);
 
