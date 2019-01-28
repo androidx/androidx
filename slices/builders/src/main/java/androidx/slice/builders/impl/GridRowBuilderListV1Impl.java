@@ -57,7 +57,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
 
     /**
      */
-    public GridRowBuilderListV1Impl(@NonNull ListBuilderV1Impl parent, GridRowBuilder builder) {
+    public GridRowBuilderListV1Impl(@NonNull ListBuilderImpl parent, GridRowBuilder builder) {
         super(parent.createChildBuilder(), null);
         if (builder.getLayoutDirection() != -1) {
             setLayoutDirection(builder.getLayoutDirection());
