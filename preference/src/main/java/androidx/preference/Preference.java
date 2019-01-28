@@ -715,6 +715,7 @@ public class Preference implements Comparable<Preference> {
      * @see #setSummary(CharSequence)
      * @see #setSummaryProvider(SummaryProvider)
      */
+    @SuppressWarnings("unchecked")
     public CharSequence getSummary() {
         if (getSummaryProvider() != null) {
             return getSummaryProvider().provideSummary(this);
@@ -1394,17 +1395,19 @@ public class Preference implements Comparable<Preference> {
     }
 
     /**
-     * Finds a preference in this hierarchy (the whole thing, even above/below your
-     * {@link PreferenceScreen} screen break) with the given key.
+     * Finds a preference in the entire hierarchy (above or below this preference) with the given
+     * key. Returns {@code null} if no preference could be found with the given key.
      *
-     * <p>This only functions after we have been attached to a hierarchy.
+     * <p>This only works after this preference has been attached to a hierarchy.
      *
-     * @param key The key of the preference to find
-     * @return The preference that uses the given key
+     * @param key The key of the preference to retrieve
+     * @return The preference with the key, or {@code null}
+     * @see PreferenceGroup#findPreference(CharSequence)
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    protected <T extends Preference> T findPreferenceInHierarchy(String key) {
-        if (TextUtils.isEmpty(key) || mPreferenceManager == null) {
+    @Nullable
+    protected <T extends Preference> T findPreferenceInHierarchy(@NonNull String key) {
+        if (mPreferenceManager == null) {
             return null;
         }
 

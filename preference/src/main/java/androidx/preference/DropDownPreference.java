@@ -101,6 +101,7 @@ public class DropDownPreference extends ListPreference {
         return new ArrayAdapter<>(mContext, android.R.layout.simple_spinner_dropdown_item);
     }
 
+    @SuppressWarnings("unchecked")
     private void updateEntries() {
         mAdapter.clear();
         if (getEntries() != null) {

@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
@@ -433,14 +434,16 @@ public class PreferenceManager {
     }
 
     /**
-     * Finds a {@link Preference} based on its key.
+     * Finds a {@link Preference} with the given key. Returns {@code null} if no
+     * {@link Preference} could be found with the given key.
      *
-     * @param key The key of the preference to retrieve
+     * @param key The key of the {@link Preference} to retrieve
      * @return The {@link Preference} with the key, or {@code null}
      * @see PreferenceGroup#findPreference(CharSequence)
      */
     @SuppressWarnings("TypeParameterUnusedInFormals")
-    public <T extends Preference> T findPreference(CharSequence key) {
+    @Nullable
+    public <T extends Preference> T findPreference(@NonNull CharSequence key) {
         if (mPreferenceScreen == null) {
             return null;
         }
