@@ -15,15 +15,8 @@
   limitations under the License.
   -->
 
-<vector
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:width="56dp"
-        android:height="56dp"
-        android:viewportHeight="56"
-        android:viewportWidth="56">
-
-    <path
-            android:fillColor="#fff"
-            android:pathData="M28,39 L26.405,37.5667575 C20.74,32.4713896 17,29.1089918 17,24.9945504 C17,21.6321526 19.6565,19 23.05,19 C24.964,19 26.801,19.8828338 28,21.2724796 C29.199,19.8828338 31.036,19 32.95,19 C36.3435,19 39,21.6321526 39,24.9945504 C39,29.1089918 35.26,32.4713896 29.595,37.5667575 L28,39 L28,39 Z"/>
-
-</vector>
+<animation-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+            android:drawable="@drawable/state_list_density_1"
+            android:duration="15"/>
+</animation-list>
