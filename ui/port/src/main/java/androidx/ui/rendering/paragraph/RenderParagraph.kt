@@ -38,6 +38,7 @@ import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Gradient
 import androidx.ui.painting.Paint
+import androidx.ui.painting.Path
 import androidx.ui.painting.Shader
 import androidx.ui.painting.TextPainter
 import androidx.ui.painting.TextSpan
@@ -385,6 +386,11 @@ class RenderParagraph(
 
     override fun paint(context: PaintingContext, offset: Offset) {
         paint(context.canvas, offset)
+    }
+
+    /** Returns path that enclose the given text selection range. */
+    fun getPathForSelection(selection: TextSelection): Path {
+        return textPainter.getPathForSelection(selection)
     }
 
     /**

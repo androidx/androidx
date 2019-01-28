@@ -90,6 +90,39 @@ class ParagraphTest {
         paragraph.getPositionForOffset(Offset(0.0f, 0.0f))
     }
 
+    @Test(expected = AssertionError::class)
+    fun `getPathForRange throws exception if start larger than end`() {
+        val text = "ab"
+        val textStart = 0
+        val textEnd = text.length
+        val paragraphStyle = createParagraphStyle()
+        val paragraph = Paragraph(StringBuilder(text), paragraphStyle, listOf())
+
+        paragraph.getPathForRange(textEnd, textStart)
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `getPathForRange throws exception if start is smaller than 0`() {
+        val text = "ab"
+        val textStart = 0
+        val textEnd = text.length
+        val paragraphStyle = createParagraphStyle()
+        val paragraph = Paragraph(StringBuilder(text), paragraphStyle, listOf())
+
+        paragraph.getPathForRange(textStart - 2, textEnd - 1)
+    }
+
+    @Test(expected = AssertionError::class)
+    fun `getPathForRange throws exception if end is larger than text length`() {
+        val text = "ab"
+        val textStart = 0
+        val textEnd = text.length
+        val paragraphStyle = createParagraphStyle()
+        val paragraph = Paragraph(StringBuilder(text), paragraphStyle, listOf())
+
+        paragraph.getPathForRange(textStart, textEnd + 1)
+    }
+
     private fun createParagraphStyle(): ParagraphStyle {
         val textAlign = TextAlign.END
         val textDirection = TextDirection.RTL

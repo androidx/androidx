@@ -23,9 +23,7 @@ import androidx.ui.engine.geometry.Radius
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.vectormath64.Matrix4
 
-class Path {
-
-    private val internalPath = android.graphics.Path()
+class Path(private val internalPath: android.graphics.Path = android.graphics.Path()) {
 
     // Temporary value holders to reuse an object (not part of a state):
     private val rectF = android.graphics.RectF()

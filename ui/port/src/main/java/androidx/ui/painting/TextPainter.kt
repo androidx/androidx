@@ -492,6 +492,12 @@ class TextPainter(
 //        return null;
     }
 
+    /** Returns path that enclose the given text selection range. */
+    fun getPathForSelection(selection: TextSelection): Path {
+        assert(!needsLayout)
+        return paragraph!!.getPathForRange(selection.start, selection.end)
+    }
+
     /**
      * Returns a list of rects that bound the given selection.
      *

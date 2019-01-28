@@ -58,6 +58,7 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.engine.text.hasFontAttributes
 import androidx.ui.painting.Canvas
+import androidx.ui.painting.Path
 import java.util.Locale
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -208,6 +209,12 @@ internal class ParagraphAndroid constructor(
             // TODO(Migration/siyamed): we provide a default value
             affinity = TextAffinity.upstream
         )
+    }
+
+    fun getPathForRange(start: Int, end: Int): Path {
+        val path = android.graphics.Path()
+        ensureLayout.layout.getSelectionPath(start, end, path)
+        return Path(path)
     }
 
     fun getLineLeft(lineIndex: Int): Float = ensureLayout.getLineLeft(lineIndex)

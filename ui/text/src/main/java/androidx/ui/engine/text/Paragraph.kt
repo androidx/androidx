@@ -18,6 +18,7 @@ package androidx.ui.engine.text
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.platform.ParagraphAndroid
 import androidx.ui.painting.Canvas
+import androidx.ui.painting.Path
 
 /**
  * A paragraph of text.
@@ -137,6 +138,26 @@ class Paragraph internal constructor(
         needsLayout = false
         paragraphImpl.layout(width, force)
     }
+
+    /** Returns path that enclose the given text range. */
+    fun getPathForRange(start: Int, end: Int): Path {
+        assert(start <= end && start >= 0 && end <= text.length) {
+            "Start($start) or End($end) is out of Range(0..${text.length}), or start > end!"
+        }
+        return paragraphImpl.getPathForRange(start, end)
+    }
+
+    /** Returns the left x Coordinate of the given line. */
+    fun getLineLeft(lineIndex: Int): Float = paragraphImpl.getLineLeft(lineIndex)
+
+    /** Returns the right x Coordinate of the given line. */
+    fun getLineRight(lineIndex: Int): Float = paragraphImpl.getLineRight(lineIndex)
+
+    /** Returns the height of the given line. */
+    fun getLineHeight(lineIndex: Int): Float = paragraphImpl.getLineHeight(lineIndex)
+
+    /** Returns the width of the given line. */
+    fun getLineWidth(lineIndex: Int): Float = paragraphImpl.getLineWidth(lineIndex)
 
     /** Returns a list of text boxes that enclose the given text range. */
     fun getBoxesForRange(start: Int, end: Int): List<TextBox> {

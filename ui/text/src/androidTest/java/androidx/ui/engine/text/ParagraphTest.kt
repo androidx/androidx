@@ -20,6 +20,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.engine.text.FontTestData.Companion.FONT_100_REGULAR
 import androidx.ui.engine.text.FontTestData.Companion.FONT_200_REGULAR
@@ -27,6 +28,8 @@ import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.engine.window.Locale
 import androidx.ui.matchers.equalToBitmap
+import androidx.ui.painting.Path
+import androidx.ui.painting.PathOperation
 import org.hamcrest.Matchers.equalTo
 import org.hamcrest.Matchers.not
 import org.junit.Assert.assertThat
@@ -1101,6 +1104,296 @@ class ParagraphTest {
 
         assertThat(paragraphImpl.lineCount, equalTo(1))
         assertThat(paragraphImpl.getLineWidth(0), equalTo(expectedWidth))
+    }
+
+    @Test
+    fun testGetPathForRange_singleLine() {
+        // Setup test.
+        val text = "abc"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val paragraphImpl = paragraph.paragraphImpl
+        val expectedPath = Path()
+        val lineLeft = paragraphImpl.getLineLeft(0)
+        val lineRight = paragraphImpl.getLineRight(0)
+        expectedPath.addRect(Rect(lineLeft, 0f, lineRight - fontSize, fontSize))
+
+        // Run.
+        // Select "ab"
+        val actualPath = paragraph.getPathForRange(0, 2)
+
+        // Assert.
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff, equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_multiLines() {
+        // Setup test.
+        val text = "abc\nabc"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val paragraphImpl = paragraph.paragraphImpl
+        val expectedPath = Path()
+        val firstLineLeft = paragraphImpl.getLineLeft(0)
+        val secondLineLeft = paragraphImpl.getLineLeft(1)
+        val firstLineRight = paragraphImpl.getLineRight(0)
+        val secondLineRight = paragraphImpl.getLineRight(1)
+        expectedPath.addRect(Rect(firstLineLeft + fontSize, 0f, firstLineRight, fontSize))
+        expectedPath.addRect(Rect(
+                secondLineLeft,
+                fontSize,
+                secondLineRight - fontSize,
+                paragraph.height))
+
+        // Run.
+        // Select "bc\nab"
+        val actualPath = paragraph.getPathForRange(1, 6)
+
+        // Assert.
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff, equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_Bidi() {
+        // Setup test.
+        val textLTR = "Hello"
+        val textRTL = "שלום"
+        val text = textLTR + textRTL
+        val selectionLTRStart = 2
+        val selectionRTLEnd = 2
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val paragraphImpl = paragraph.paragraphImpl
+        val expectedPath = Path()
+        val lineLeft = paragraphImpl.getLineLeft(0)
+        val lineRight = paragraphImpl.getLineRight(0)
+        expectedPath.addRect(
+                Rect(
+                    lineLeft + selectionLTRStart * fontSize,
+                    0f,
+                    lineLeft + textLTR.length * fontSize,
+                    fontSize))
+        expectedPath.addRect(Rect(lineRight - selectionRTLEnd * fontSize, 0f, lineRight, fontSize))
+
+        // Run.
+        // Select "llo..של"
+        val actualPath =
+                paragraph.getPathForRange(selectionLTRStart, textLTR.length + selectionRTLEnd)
+
+        // Assert.
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff, equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_Start_Equals_End_Returns_Empty_Path() {
+        val text = "abc"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val actualPath = paragraph.getPathForRange(1, 1)
+
+        assertThat(actualPath.getBounds(), equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_Empty_Text() {
+        val text = ""
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val actualPath = paragraph.getPathForRange(0, 0)
+
+        assertThat(actualPath.getBounds(), equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_Surrogate_Pair_Start_Middle_Second_Character_Selected() {
+        // Setup test.
+        val text = "\uD834\uDD1E\uD834\uDD1F"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val paragraphImpl = paragraph.paragraphImpl
+        val expectedPath = Path()
+        val lineRight = paragraphImpl.getLineRight(0)
+        expectedPath.addRect(Rect(lineRight / 2, 0f, lineRight, fontSize))
+
+        // Run.
+        // Try to select "\uDD1E\uD834\uDD1F", only "\uD834\uDD1F" is selected.
+        val actualPath = paragraph.getPathForRange(1, text.length)
+
+        // Assert.
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff, equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_Surrogate_Pair_End_Middle_Second_Character_Selected() {
+        // Setup test.
+        val text = "\uD834\uDD1E\uD834\uDD1F"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val paragraphImpl = paragraph.paragraphImpl
+        val expectedPath = Path()
+        val lineRight = paragraphImpl.getLineRight(0)
+        expectedPath.addRect(Rect(lineRight / 2, 0f, lineRight, fontSize))
+
+        // Run.
+        // Try to select "\uDD1E\uD834", actually "\uD834\uDD1F" is selected.
+        val actualPath = paragraph.getPathForRange(1, text.length - 1)
+
+        // Assert.
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff, equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_Surrogate_Pair_Start_Middle_End_Same_Character_Returns_Line_Segment() {
+        // Setup test.
+        val text = "\uD834\uDD1E\uD834\uDD1F"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val paragraphImpl = paragraph.paragraphImpl
+        val expectedPath = Path()
+        val lineRight = paragraphImpl.getLineRight(0)
+        expectedPath.addRect(Rect(lineRight / 2, 0f, lineRight / 2, fontSize))
+
+        // Run.
+        // Try to select "\uDD1E", get vertical line segment after this character.
+        val actualPath = paragraph.getPathForRange(1, 2)
+
+        // Assert.
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff, equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_Emoji_Sequence() {
+        // Setup test.
+        val text = "\u1F600\u1F603\u1F604\u1F606"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val paragraphImpl = paragraph.paragraphImpl
+        val expectedPath = Path()
+        val lineLeft = paragraphImpl.getLineLeft(0)
+        val lineRight = paragraphImpl.getLineRight(0)
+        expectedPath.addRect(Rect(lineLeft + fontSize, 0f, lineRight - fontSize, fontSize))
+
+        // Run.
+        // Select "\u1F603\u1F604"
+        val actualPath = paragraph.getPathForRange(1, text.length - 1)
+
+        // Assert.
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff, equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_Unicode_200D_Return_Line_Segment() {
+        // Setup test.
+        val text = "\u200D"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val paragraphImpl = paragraph.paragraphImpl
+        val expectedPath = Path()
+        val lineLeft = paragraphImpl.getLineLeft(0)
+        val lineRight = paragraphImpl.getLineRight(0)
+        expectedPath.addRect(Rect(lineLeft, 0f, lineRight, fontSize))
+
+        // Run.
+        val actualPath = paragraph.getPathForRange(0, 1)
+
+        // Assert.
+        assertThat(lineLeft, equalTo(lineRight))
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff, equalTo(Rect.zero))
+    }
+
+    @Test
+    fun testGetPathForRange_Unicode_2066_Return_Line_Segment() {
+        // Setup tests.
+        val text = "\u2066"
+        val fontSize = 20f
+        val paragraph = simpleParagraph(
+                text = text,
+                fontFamily = fontFamilyMeasureFont,
+                fontSize = fontSize
+        )
+        paragraph.layout(ParagraphConstraints(width = Float.MAX_VALUE))
+
+        val paragraphImpl = paragraph.paragraphImpl
+        val expectedPath = Path()
+        val lineLeft = paragraphImpl.getLineLeft(0)
+        val lineRight = paragraphImpl.getLineRight(0)
+        expectedPath.addRect(Rect(lineLeft, 0f, lineRight, fontSize))
+
+        // Run.
+        val actualPath = paragraph.getPathForRange(0, 1)
+
+        // Assert.
+        assertThat(lineLeft, equalTo(lineRight))
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff, equalTo(Rect.zero))
     }
 
     // TODO(migration/siyamed) add test

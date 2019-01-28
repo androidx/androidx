@@ -18,6 +18,7 @@ package androidx.ui.port.rendering
 
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontWeight
@@ -25,11 +26,14 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.font.Font
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
+import androidx.ui.painting.Path
+import androidx.ui.painting.PathOperation
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.paragraph.RenderParagraph
 import androidx.ui.rendering.paragraph.TextOverflow
+import androidx.ui.services.text_editing.TextSelection
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -37,6 +41,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.text.Typography.paragraph
 
 @RunWith(JUnit4::class)
 @SmallTest
@@ -202,5 +207,36 @@ class RenderParagraphTest {
         paragraph.performLayout(BoxConstraints(maxWidth = 100.0f))
 
         assertThat(paragraph.debugHasOverflowShader).isTrue()
+    }
+
+    @Test
+    fun testGetPathForSelection_wrap_multiLines() {
+        // Setup test.
+        val fontSize = 20.0f
+        val text = "HelloHello"
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val textSpan = TextSpan(text = text, style = textStyle)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+        paragraph.layoutText(maxWidth = 120f)
+
+        val expectedPath = Path()
+        val firstLineLeft = paragraph.textPainter.paragraph?.getLineLeft(0)
+        val secondLineLeft = paragraph.textPainter.paragraph?.getLineLeft(1)
+        val firstLineRight = paragraph.textPainter.paragraph?.getLineRight(0)
+        val secondLineRight = paragraph.textPainter.paragraph?.getLineRight(1)
+        expectedPath.addRect(Rect(firstLineLeft!!, 0f, firstLineRight!!, fontSize))
+        expectedPath.addRect(Rect(
+                secondLineLeft!!,
+                fontSize,
+                secondLineRight!! - 2 * fontSize,
+                paragraph.height))
+
+        // Run.
+        // Select all.
+        val actualPath = paragraph.getPathForSelection(TextSelection(0, text.length))
+
+        // Assert.
+        val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
+        assertThat(diff).isEqualTo(Rect.zero)
     }
 }
