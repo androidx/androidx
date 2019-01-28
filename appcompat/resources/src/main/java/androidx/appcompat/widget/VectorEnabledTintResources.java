@@ -65,7 +65,7 @@ public class VectorEnabledTintResources extends Resources {
     public Drawable getDrawable(int id) throws NotFoundException {
         final Context context = mContextRef.get();
         if (context != null) {
-            return AppCompatDrawableManager.get().onDrawableLoadedFromResources(context, this, id);
+            return ResourceManagerInternal.get().onDrawableLoadedFromResources(context, this, id);
         } else {
             return super.getDrawable(id);
         }

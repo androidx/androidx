@@ -39,11 +39,11 @@ import android.util.Xml;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.R;
-import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.ResourceManagerInternal;
 import androidx.collection.LongSparseArray;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.graphics.drawable.TintAwareDrawable;
+import androidx.appcompat.resources.R;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
@@ -85,7 +85,7 @@ import java.io.IOException;
  * {@link android.R.attr#state_middle}
  * {@link android.R.attr#state_last}
  * {@link android.R.attr#state_pressed}
- * @see AppCompatResources#getDrawable(Context, int)
+ * @see ResourceManagerInternal#getDrawable(Context, int)
  */
 public class AnimatedStateListDrawableCompat extends StateListDrawable
         implements TintAwareDrawable {
@@ -128,7 +128,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
      * @param resId the resource ID for AnimatedStateListDrawable object.
      * @param theme the theme to apply, may be null.
      * @return a new AnimatedStateListDrawableCompat or null if parsing error is found.
-     * @see AppCompatResources#getDrawable(Context, int)
+     * @see ResourceManagerInternal#getDrawable(Context, int)
      */
     @Nullable
     public static AnimatedStateListDrawableCompat create(
@@ -518,7 +518,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
         final int drawableId = a.getResourceId(
                 R.styleable.AnimatedStateListDrawableTransition_android_drawable, -1);
         if (drawableId > 0) {
-            dr = AppCompatResources.getDrawable(context, drawableId);
+            dr = ResourceManagerInternal.get().getDrawable(context, drawableId);
         }
         final boolean reversible = a.getBoolean(
                 R.styleable.AnimatedStateListDrawableTransition_android_reversible, false);
@@ -570,7 +570,7 @@ public class AnimatedStateListDrawableCompat extends StateListDrawable
         final int drawableId =
                 a.getResourceId(R.styleable.AnimatedStateListDrawableItem_android_drawable, -1);
         if (drawableId > 0) {
-            dr = AppCompatResources.getDrawable(context, drawableId);
+            dr = ResourceManagerInternal.get().getDrawable(context, drawableId);
         }
         a.recycle();
         final int[] states = extractStateSet(attrs);

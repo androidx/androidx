@@ -38,7 +38,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.appcompat.R;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
@@ -46,6 +45,7 @@ import androidx.collection.LruCache;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
+import androidx.appcompat.resources.R;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
@@ -59,10 +59,10 @@ import java.util.WeakHashMap;
  * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
-public final class ResourceManager {
+public final class ResourceManagerInternal {
     @RestrictTo(LIBRARY_GROUP)
     interface ResourceManagerHooks {
-        Drawable createDrawableFor(@NonNull ResourceManager appCompatDrawableManager,
+        Drawable createDrawableFor(@NonNull ResourceManagerInternal appCompatDrawableManager,
                 @NonNull Context context, @DrawableRes final int resId);
         boolean tintDrawable(@NonNull Context context, @DrawableRes int resId,
                 @NonNull Drawable drawable);
@@ -77,27 +77,27 @@ public final class ResourceManager {
                 @NonNull AttributeSet attrs, @Nullable Resources.Theme theme);
     }
 
-    private static final String TAG = "ResourceManager";
+    private static final String TAG = "ResourceManagerInternal";
     private static final boolean DEBUG = false;
     private static final PorterDuff.Mode DEFAULT_MODE = PorterDuff.Mode.SRC_IN;
     private static final String SKIP_DRAWABLE_TAG = "appcompat_skip_skip";
 
     private static final String PLATFORM_VD_CLAZZ = "android.graphics.drawable.VectorDrawable";
 
-    private static ResourceManager INSTANCE;
+    private static ResourceManagerInternal INSTANCE;
 
     /**
      * Returns the singleton instance of this class.
      */
-    public static synchronized ResourceManager get() {
+    public static synchronized ResourceManagerInternal get() {
         if (INSTANCE == null) {
-            INSTANCE = new ResourceManager();
+            INSTANCE = new ResourceManagerInternal();
             installDefaultInflateDelegates(INSTANCE);
         }
         return INSTANCE;
     }
 
-    private static void installDefaultInflateDelegates(@NonNull ResourceManager manager) {
+    private static void installDefaultInflateDelegates(@NonNull ResourceManagerInternal manager) {
         // This sdk version check will affect src:appCompat code path.
         // Although VectorDrawable exists in Android framework from Lollipop, AppCompat will use
         // (Animated)VectorDrawableCompat before Nougat to utilize bug fixes & feature backports.
@@ -492,7 +492,6 @@ public final class ResourceManager {
         return filter;
     }
 
-    // TODO - this will go to the new module along with R.drawable.abc_vector_test
     private void checkVectorDrawableSetup(@NonNull Context context) {
         if (mHasCheckedVectorDrawableSetup) {
             // We've already checked so return now...
