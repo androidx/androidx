@@ -87,12 +87,12 @@ public class MessagingSliceBuilder extends TemplateSliceBuilder {
      */
     @RestrictTo(LIBRARY)
     @Override
-    protected TemplateBuilderImpl selectImpl(Uri uri) {
-        if (checkCompatible(SliceSpecs.MESSAGING, uri)) {
+    protected TemplateBuilderImpl selectImpl() {
+        if (checkCompatible(SliceSpecs.MESSAGING)) {
             return new MessagingV1Impl(getBuilder(), SliceSpecs.MESSAGING);
-        } else if (checkCompatible(SliceSpecs.LIST, uri)) {
+        } else if (checkCompatible(SliceSpecs.LIST)) {
             return new MessagingListV1Impl(getBuilder(), SliceSpecs.LIST);
-        } else if (checkCompatible(SliceSpecs.BASIC, uri)) {
+        } else if (checkCompatible(SliceSpecs.BASIC)) {
             return new MessagingBasicImpl(getBuilder(), SliceSpecs.BASIC);
         }
         return null;

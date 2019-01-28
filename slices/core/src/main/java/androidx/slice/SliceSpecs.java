@@ -39,6 +39,11 @@ public class SliceSpecs {
     public static final SliceSpec LIST = new SliceSpec("androidx.slice.LIST", 1);
 
     /**
+     * Same as LIST, but also supports selection rows.
+     */
+    public static final SliceSpec LIST_V2 = new SliceSpec("androidx.slice.LIST", 2);
+
+    /**
      * Messaging template. Each message contains a timestamp and a message, it optionally contains
      * a source of where the message came from.
      */
