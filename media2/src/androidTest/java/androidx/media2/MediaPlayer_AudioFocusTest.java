@@ -53,7 +53,7 @@ import androidx.annotation.GuardedBy;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -78,7 +78,7 @@ import java.util.concurrent.TimeUnit;
 // TODO: Lower the minSdk version. Currently instantiating ExoPlayerMediaPlayer2Impl fails in API26
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-@MediumTest
+@LargeTest
 public class MediaPlayer_AudioFocusTest extends MediaPlayerTestBase {
     private static final int WAIT_TIME_MS = 2000;
 

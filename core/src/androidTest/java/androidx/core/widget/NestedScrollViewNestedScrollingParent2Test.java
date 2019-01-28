@@ -41,7 +41,7 @@ import androidx.core.view.NestedScrollingParent2;
 import androidx.core.view.ViewCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ import org.junit.runner.RunWith;
  * {@link androidx.core.view.NestedScrollingParent} and {@link NestedScrollingParent2} correctly.
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class NestedScrollViewNestedScrollingParent2Test {
 
     private NestedScrollView mNestedScrollView;

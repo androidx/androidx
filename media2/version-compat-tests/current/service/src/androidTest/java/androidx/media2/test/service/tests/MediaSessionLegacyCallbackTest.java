@@ -63,7 +63,6 @@ import androidx.media2.test.service.MockRemotePlayer;
 import androidx.media2.test.service.RemoteMediaControllerCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -79,7 +78,7 @@ import java.util.concurrent.TimeUnit;
  * Tests {@link SessionCallback} working with {@link MediaControllerCompat}.
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class MediaSessionLegacyCallbackTest extends MediaSessionTestBase {
     private static final String TAG = "MediaSessionLegacyCallbackTest";
 

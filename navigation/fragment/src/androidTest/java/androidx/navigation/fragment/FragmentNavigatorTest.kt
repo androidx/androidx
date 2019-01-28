@@ -26,7 +26,7 @@ import androidx.navigation.fragment.test.EmptyFragment
 import androidx.navigation.fragment.test.R
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
@@ -43,7 +43,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoMoreInteractions
 
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class FragmentNavigatorTest {
 

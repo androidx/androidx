@@ -32,8 +32,8 @@ import android.os.Build;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -46,7 +46,7 @@ import java.util.UUID;
 
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@SmallTest
 public class NotificationManagerCompatTest {
 
     private static final String TAG = NotificationManagerCompatTest.class.getSimpleName();

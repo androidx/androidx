@@ -35,7 +35,7 @@ import android.os.UserManager;
 import androidx.core.app.RemoteActionCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.textclassifier.LegacyTextClassifier.MatchMakerImpl;
 import androidx.textclassifier.LegacyTextClassifier.MatchMakerImpl.PermissionsChecker;
 
@@ -48,7 +48,7 @@ import java.util.List;
 /**
  * Unit tests for {@link MatchMakerImpl}.
  */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class MatchMakerImplTest {
 

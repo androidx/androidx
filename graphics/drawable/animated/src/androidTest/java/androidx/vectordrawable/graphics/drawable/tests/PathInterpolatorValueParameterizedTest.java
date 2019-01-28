@@ -21,7 +21,7 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.view.animation.Interpolator;
 
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 import androidx.vectordrawable.graphics.drawable.AnimationUtilsCompat;
 import androidx.vectordrawable.test.R;
@@ -35,7 +35,7 @@ import org.junit.runners.Parameterized;
 import java.util.Arrays;
 import java.util.Collection;
 
-@MediumTest
+@SmallTest
 @RunWith(Parameterized.class)
 public class PathInterpolatorValueParameterizedTest {
     private static final float EPSILON = 1e-3f;

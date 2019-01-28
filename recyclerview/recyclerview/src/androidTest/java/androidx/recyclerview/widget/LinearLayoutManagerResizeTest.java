@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 
 import android.widget.FrameLayout;
 
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,7 +50,7 @@ public class LinearLayoutManagerResizeTest extends BaseLinearLayoutManagerTest {
         return configs;
     }
 
-    @MediumTest
+    @SmallTest
     @Test
     public void resize() throws Throwable {
         final Config config = (Config) mConfig.clone();

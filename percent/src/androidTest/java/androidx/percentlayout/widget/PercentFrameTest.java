@@ -19,16 +19,16 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import android.os.Build;
-import androidx.test.filters.SmallTest;
 import android.view.View;
 
 import androidx.core.view.ViewCompat;
 import androidx.percentlayout.test.R;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
 
-@SmallTest
+@LargeTest
 public class PercentFrameTest extends BaseInstrumentationTestCase<TestFrameActivity> {
     private PercentFrameLayout mPercentFrameLayout;
     private int mContainerWidth;

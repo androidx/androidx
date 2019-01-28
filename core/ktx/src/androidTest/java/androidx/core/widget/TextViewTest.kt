@@ -20,14 +20,14 @@ import android.widget.TextView
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.LargeTest
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.util.concurrent.atomic.AtomicBoolean
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
+@LargeTest
 class TextViewTest {
 
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context

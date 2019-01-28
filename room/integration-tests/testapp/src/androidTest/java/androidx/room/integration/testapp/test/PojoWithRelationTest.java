@@ -32,7 +32,7 @@ import androidx.room.integration.testapp.vo.UserAndPetsAndHouses;
 import androidx.room.integration.testapp.vo.UserIdAndPetNames;
 import androidx.room.integration.testapp.vo.UserWithPetsAndToys;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +44,7 @@ import java.util.Date;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class PojoWithRelationTest extends TestDatabaseTest {
     @Test
     public void fetchAll() {

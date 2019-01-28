@@ -68,7 +68,7 @@ import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
@@ -85,7 +85,7 @@ import java.util.concurrent.TimeUnit;
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@LargeTest
 public class MediaSession_PermissionTest extends MediaSessionTestBase {
     private static final String SESSION_ID = "MediaSessionTest_permission";
 

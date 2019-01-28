@@ -28,7 +28,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.test.R;
 import androidx.appcompat.testutils.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -40,7 +40,7 @@ import org.junit.runner.RunWith;
 /**
  * Test {@link Toolbar}.
  */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class ToolbarTest {
 

@@ -23,8 +23,8 @@ import androidx.room.integration.kotlintestapp.vo.Book
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
 import androidx.room.integration.kotlintestapp.vo.Lang
 import androidx.room.integration.kotlintestapp.vo.Publisher
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
 import com.google.common.base.Optional
 import io.reactivex.Flowable
 import io.reactivex.schedulers.Schedulers
@@ -39,7 +39,7 @@ import org.junit.Assert.assertNotNull
 import org.junit.Test
 import java.util.Date
 
-@SmallTest
+@MediumTest
 class BooksDaoTest : TestDatabaseTest() {
 
     @Test

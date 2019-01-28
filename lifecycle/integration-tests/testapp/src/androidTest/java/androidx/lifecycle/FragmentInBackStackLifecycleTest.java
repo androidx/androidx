@@ -38,7 +38,7 @@ import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.testapp.EmptyActivity;
 import androidx.lifecycle.testapp.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Rule;
@@ -47,7 +47,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class FragmentInBackStackLifecycleTest {
     @Rule

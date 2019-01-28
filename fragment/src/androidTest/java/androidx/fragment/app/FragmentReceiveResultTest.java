@@ -34,7 +34,7 @@ import androidx.fragment.app.test.FragmentResultActivity;
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -50,6 +50,7 @@ import java.util.concurrent.TimeUnit;
  * Tests for Fragment startActivityForResult and startIntentSenderForResult.
  */
 @RunWith(AndroidJUnit4.class)
+@MediumTest
 public class FragmentReceiveResultTest {
     @Rule
     public ActivityTestRule<FragmentTestActivity> mActivityRule =
@@ -66,7 +67,6 @@ public class FragmentReceiveResultTest {
     }
 
     @Test
-    @SmallTest
     public void testStartActivityForResultOk() throws Throwable {
         startActivityForResult(10, Activity.RESULT_OK, "content 10");
 
@@ -77,7 +77,6 @@ public class FragmentReceiveResultTest {
     }
 
     @Test
-    @SmallTest
     public void testStartActivityForResultCanceled() throws Throwable {
         startActivityForResult(20, Activity.RESULT_CANCELED, "content 20");
 
@@ -88,7 +87,6 @@ public class FragmentReceiveResultTest {
     }
 
     @Test
-    @SmallTest
     public void testStartIntentSenderForResultOk() throws Throwable {
         startIntentSenderForResult(30, Activity.RESULT_OK, "content 30");
 
@@ -99,7 +97,6 @@ public class FragmentReceiveResultTest {
     }
 
     @Test
-    @SmallTest
     public void testStartIntentSenderForResultCanceled() throws Throwable {
         startIntentSenderForResult(40, Activity.RESULT_CANCELED, "content 40");
 
@@ -110,7 +107,6 @@ public class FragmentReceiveResultTest {
     }
 
     @Test
-    @SmallTest
     public void testActivityResult_withDelegate() {
         ActivityCompat.PermissionCompatDelegate
                 delegate = mock(ActivityCompat.PermissionCompatDelegate.class);

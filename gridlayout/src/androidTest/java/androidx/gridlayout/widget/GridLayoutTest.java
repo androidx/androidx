@@ -30,7 +30,7 @@ import android.view.ViewGroup;
 
 import androidx.gridlayout.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -39,7 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class GridLayoutTest {
     @Rule public final ActivityTestRule<GridLayoutTestActivity> mActivityTestRule;
 

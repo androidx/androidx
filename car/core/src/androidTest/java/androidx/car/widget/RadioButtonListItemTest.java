@@ -38,7 +38,7 @@ import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.hamcrest.Matcher;
@@ -56,7 +56,7 @@ import java.util.List;
  * Tests the layout configuration in {@link RadioButtonListItem}.
  */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class RadioButtonListItemTest {
     @Rule
     public ActivityTestRule<PagedListViewTestActivity> mActivityRule =

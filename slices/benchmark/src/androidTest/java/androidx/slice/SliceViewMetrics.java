@@ -26,8 +26,8 @@ import androidx.benchmark.BenchmarkState;
 import androidx.slice.widget.SliceView;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Rule;
@@ -41,7 +41,7 @@ import java.lang.annotation.Annotation;
 import java.util.Arrays;
 
 @RunWith(Parameterized.class)
-@MediumTest
+@SmallTest
 @SdkSuppress(minSdkVersion = 19)
 public class SliceViewMetrics {
 

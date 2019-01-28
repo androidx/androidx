@@ -51,8 +51,8 @@ import androidx.core.app.TestActivity;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -85,7 +85,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 26)
     public void testIsRequestPinShortcutSupported_v26() throws Throwable {
         ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
@@ -99,7 +99,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 26)
     public void testRequestPinShortcut_v26()  throws Throwable {
         ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
@@ -115,7 +115,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 26)
     public void testCreateShortcutResultIntent_v26()  throws Throwable {
         ShortcutManager mockShortcutManager = mock(ShortcutManager.class);
@@ -133,7 +133,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         assertEquals("test-id", captor.getValue().getId());
     }
 
-    @SmallTest
+    @MediumTest
     @Test
     @SdkSuppress(maxSdkVersion = 25)
     public void testIsRequestPinShortcutSupported_v4() throws Throwable {
@@ -188,7 +188,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         assertNotNull(callback.blockingGetIntent());
     }
 
-    @SmallTest
+    @MediumTest
     @Test
     @SdkSuppress(maxSdkVersion = 25)
     public void testCreateShortcutResultIntent_v4() throws Throwable {

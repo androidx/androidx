@@ -42,7 +42,7 @@ import androidx.media2.MediaBrowser.BrowserCallback;
 import androidx.media2.MediaController.ControllerCallback;
 import androidx.media2.MediaLibraryService.LibraryParams;
 import androidx.media2.MockMediaBrowserServiceCompat.Proxy;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -59,7 +59,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Tests {@link MediaBrowser} with {@link MediaBrowserServiceCompat}.
  */
-@SmallTest
+@LargeTest
 public class MediaBrowserLegacyTest extends MediaSessionTestBase {
     private static final String TAG = "MediaBrowserLegacyTest";
 
