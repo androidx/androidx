@@ -48,7 +48,7 @@ import androidx.leanback.widget.SparseArrayObjectAdapter;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.Suppress;
 
 import org.junit.Test;
@@ -56,7 +56,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class PlaybackFragmentTest extends SingleFragmentTestBase {
 

@@ -31,7 +31,7 @@ import android.widget.FrameLayout;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -39,7 +39,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class RecyclerViewOnItemTouchListenerTest {
 
     private FrameLayout mParent;

@@ -17,7 +17,7 @@
 package androidx.webkit;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.webkit.internal.WebViewFeatureInternal;
 import androidx.webkit.internal.WebViewGlueCommunicator;
 import androidx.webkit.internal.WebkitToCompatConverter;
@@ -39,7 +39,7 @@ public class BoundaryInterfaceTest {
      * that proxy will need to look up all the classes referenced from
      * {@link org.chromium.support_lib_boundary.WebkitToCompatConverterBoundaryInterface}.
      */
-    @SmallTest
+    @MediumTest
     @Test
     public void testCreateWebkitToCompatConverter() {
         // Use the SERVICE_WORKER_BASIC_USAGE feature as a proxy for knowing whether the current

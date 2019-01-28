@@ -55,7 +55,6 @@ import androidx.media2.test.common.TestUtils;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -74,7 +73,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class MediaControllerCallbackTest extends MediaSessionTestBase {
 
     // Since ControllerInfo cannot be passed, we just pass null and the service app chooses the

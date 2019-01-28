@@ -25,7 +25,7 @@ import androidx.car.test.R;
 import androidx.car.util.ColumnCalculator;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /** Instrumentation unit tests for {@link ColumnCardView}. */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ColumnCardViewTest {
     @Rule

@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 
 import androidx.appcompat.test.R;
 import androidx.core.view.ViewCompat;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
@@ -38,7 +38,7 @@ public class KeyEventsTestCaseWithWindowDecor extends BaseKeyEventsTestCase<Wind
     }
 
     @Test
-    @SmallTest
+    @LargeTest
     public void testUnhandledKeys() throws Throwable {
         final ViewGroup container = mActivityTestRule.getActivity().findViewById(R.id.test_content);
         final MockUnhandledKeyListener listener = new MockUnhandledKeyListener();

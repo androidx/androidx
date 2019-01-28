@@ -31,7 +31,7 @@ import androidx.lifecycle.SavedStateVMFactory;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.viewmodel.savedstate.activity.FakingSavedStateActivity;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -44,7 +44,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-@MediumTest
+@SmallTest
 public class ViewModelsWithStateTests {
 
     private static final String FRAGMENT_MODE = "fragment";

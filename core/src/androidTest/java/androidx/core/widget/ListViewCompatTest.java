@@ -33,7 +33,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.test.R;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -42,7 +42,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@SmallTest
+@MediumTest
 public class ListViewCompatTest extends BaseInstrumentationTestCase<ListViewTestActivity> {
     private ListView mListView;
 

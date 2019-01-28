@@ -25,7 +25,7 @@ import android.graphics.Typeface;
 
 import androidx.appcompat.test.R;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ import org.junit.Test;
  * In addition to all tinting-related tests done by the base class, this class provides
  * tests specific to {@link AppCompatButton} class.
  */
-@SmallTest
+@LargeTest
 public class AppCompatButtonTest
         extends AppCompatBaseViewTest<AppCompatButtonActivity, AppCompatButton> {
     public AppCompatButtonTest() {

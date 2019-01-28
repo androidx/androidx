@@ -30,7 +30,7 @@ import androidx.media2.test.service.MockMediaSessionService;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.media2.test.service.TestServiceRegistry;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Tests {@link MediaSessionService}.
  */
-@SmallTest
+@MediumTest
 public class MediaSessionServiceTest extends MediaSessionTestBase {
     private SessionToken mToken;
 

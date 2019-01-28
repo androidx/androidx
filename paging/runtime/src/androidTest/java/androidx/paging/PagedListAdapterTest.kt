@@ -20,7 +20,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertSame
 import org.junit.Test
@@ -33,7 +33,7 @@ import org.mockito.Mockito.verifyNoMoreInteractions
 import org.mockito.Mockito.verifyZeroInteractions
 import java.lang.IllegalStateException
 
-@SmallTest
+@MediumTest
 @RunWith(JUnit4::class)
 class PagedListAdapterTest {
     private val mainThread = TestExecutor()

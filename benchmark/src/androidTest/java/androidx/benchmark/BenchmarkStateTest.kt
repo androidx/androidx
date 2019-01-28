@@ -16,7 +16,7 @@
 
 package androidx.benchmark
 
-import androidx.test.filters.SmallTest
+import androidx.test.filters.LargeTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -24,7 +24,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.TimeUnit
 
-@SmallTest
+@LargeTest
 @RunWith(JUnit4::class)
 class BenchmarkStateTest {
     private fun ms2ns(ms: Long): Long = TimeUnit.MILLISECONDS.toNanos(ms)

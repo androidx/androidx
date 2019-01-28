@@ -42,7 +42,7 @@ import androidx.annotation.DrawableRes;
 import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback;
@@ -61,7 +61,7 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class AnimatedVectorDrawableTest {
     @Rule public final ActivityTestRule<DrawableStubActivity> mActivityTestRule;

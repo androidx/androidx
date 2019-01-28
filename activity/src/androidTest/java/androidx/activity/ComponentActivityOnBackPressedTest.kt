@@ -22,7 +22,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -31,7 +31,7 @@ import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import java.util.concurrent.CountDownLatch
 
-@MediumTest
+@SmallTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityOnBackPressedTest {
 

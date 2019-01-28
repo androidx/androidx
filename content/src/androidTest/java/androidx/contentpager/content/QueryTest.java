@@ -23,12 +23,12 @@ import android.net.Uri;
 
 import androidx.contentpager.content.ContentPager.ContentCallback;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-@MediumTest
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class QueryTest {
 

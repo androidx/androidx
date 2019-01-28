@@ -42,8 +42,8 @@ import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -68,7 +68,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @SdkSuppress(minSdkVersion = 24)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@MediumTest
 public class JournalDbPostMigrationTest {
     @Rule
     public CountingTaskExecutorRule executorRule = new CountingTaskExecutorRule();

@@ -65,7 +65,6 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
@@ -83,6 +82,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
+@LargeTest
 public class PopupMenuTest {
     @Rule
     public final ActivityTestRule<PopupTestActivity> mActivityTestRule =
@@ -127,7 +127,6 @@ public class PopupMenuTest {
     }
 
     @Test
-    @MediumTest
     public void testBasicContent() throws Throwable {
         final Builder menuBuilder = new Builder();
         menuBuilder.wireToActionButton();
@@ -315,7 +314,6 @@ public class PopupMenuTest {
 
     @FlakyTest(bugId = 33669575)
     @Test
-    @LargeTest
     public void testAnchoring() {
         Builder menuBuilder = new Builder();
         menuBuilder.wireToActionButton();
@@ -349,7 +347,6 @@ public class PopupMenuTest {
     }
 
     @Test
-    @MediumTest
     public void testDismissalViaAPI() throws Throwable {
         Builder menuBuilder = new Builder().withDismissListener();
         menuBuilder.wireToActionButton();
@@ -373,7 +370,6 @@ public class PopupMenuTest {
     }
 
     @Test
-    @MediumTest
     public void testDismissalViaTouch() throws Throwable {
         Builder menuBuilder = new Builder().withDismissListener();
         menuBuilder.wireToActionButton();
@@ -429,7 +425,6 @@ public class PopupMenuTest {
     }
 
     @Test
-    @MediumTest
     public void testSimpleMenuItemClickViaEvent() {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
         menuBuilder.wireToActionButton();
@@ -452,7 +447,6 @@ public class PopupMenuTest {
     }
 
     @Test
-    @MediumTest
     public void testSimpleMenuItemClickViaAPI() throws Throwable {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
         menuBuilder.wireToActionButton();
@@ -478,7 +472,6 @@ public class PopupMenuTest {
     }
 
     @Test
-    @MediumTest
     public void testSubMenuClicksViaEvent() throws Throwable {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
         menuBuilder.wireToActionButton();
@@ -540,7 +533,6 @@ public class PopupMenuTest {
     }
 
     @Test
-    @MediumTest
     @Ignore
     public void testSubMenuClicksViaAPI() throws Throwable {
         Builder menuBuilder = new Builder().withMenuItemClickListener();
@@ -610,7 +602,6 @@ public class PopupMenuTest {
     }
 
     @Test
-    @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     public void testHoverSelectsMenuItem() throws Throwable {
         Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();

@@ -37,7 +37,7 @@ import androidx.core.graphics.drawable.IconCompat;
 import androidx.sharetarget.test.R;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -53,7 +53,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 
-@MediumTest
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class ShortcutInfoCompatSaverTest {
 

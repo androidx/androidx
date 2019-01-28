@@ -31,7 +31,7 @@ import androidx.loader.app.test.DummyLoaderCallbacks;
 import androidx.loader.content.Loader;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
@@ -42,7 +42,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class LoaderInfoTest {
 
     private LifecycleOwner mOwner;

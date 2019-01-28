@@ -35,14 +35,14 @@ import android.view.View;
 
 import androidx.core.util.Pair;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 
 import java.util.ArrayList;
 
-@MediumTest
+@SmallTest
 public class SlideEdgeTest extends BaseTransitionTest {
 
     private static final ArrayList<Pair<Integer, String>> SLIDE_EDGES = new ArrayList<>();

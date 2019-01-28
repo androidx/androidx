@@ -38,7 +38,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.IdlingResource;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -54,7 +54,7 @@ import java.util.List;
 
 /** Unit tests for {@link GridLayoutManagerUtils}. */
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@SmallTest
 public final class GridLayoutManagerUtilsTest {
     /**
      * Used by {@link TestAdapter} to calculate ViewHolder height so N items appear in one page of

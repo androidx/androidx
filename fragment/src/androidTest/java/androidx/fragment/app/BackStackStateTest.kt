@@ -19,7 +19,7 @@ package androidx.fragment.app
 import android.os.Parcel
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -27,7 +27,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@SmallTest
+@LargeTest
 class BackStackStateTest {
 
     @get:Rule

@@ -32,15 +32,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.test.R;
 import androidx.core.widget.TextViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
 
-@MediumTest
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class AppCompatTextViewAutoSizeTest extends
         AppCompatBaseAutoSizeTest<AppCompatTextViewAutoSizeActivity, AppCompatTextView> {

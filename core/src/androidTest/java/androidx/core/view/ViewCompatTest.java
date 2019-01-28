@@ -37,7 +37,7 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.core.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.Before;
@@ -48,7 +48,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RunWith(AndroidJUnit4.class)
-@MediumTest
+@LargeTest
 public class ViewCompatTest extends BaseInstrumentationTestCase<ViewCompatActivity> {
 
     private View mView;

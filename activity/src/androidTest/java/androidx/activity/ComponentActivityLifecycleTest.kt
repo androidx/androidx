@@ -21,7 +21,7 @@ import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import androidx.test.rule.ActivityTestRule
 import org.junit.Rule
 import org.junit.Test
@@ -32,7 +32,7 @@ import org.mockito.Mockito.verifyNoMoreInteractions
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class ComponentActivityLifecycleTest {
 

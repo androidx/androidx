@@ -29,7 +29,7 @@ import android.widget.TextView;
 import androidx.browser.R;
 import androidx.browser.customtabs.TestActivity;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 
 /** Unit tests for {@link BrowserActionsFallbackMenuUi}. */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class BrowserActionsFallbackMenuUiTest {
     private static final String TEST_URL = "http://www.example.com";
     private static final String CUSTOM_ITEM_TITLE_1 = "Open url";

@@ -26,7 +26,7 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.appcompat.widget.AppCompatSpinner;
 import androidx.appcompat.widget.AppCompatTextView;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -37,7 +37,7 @@ import org.junit.Test;
  * Testing the custom view inflation where app-specific views are used for specific
  * views in layouts specified in XML.
  */
-@SmallTest
+@MediumTest
 public class AppCompatInflaterCustomTest {
     private ViewGroup mContainer;
     private AppCompatInflaterCustomActivity mActivity;

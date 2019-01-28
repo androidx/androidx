@@ -30,8 +30,8 @@ import android.telephony.mbms.ServiceInfo;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +44,7 @@ import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-@SmallTest
+@MediumTest
 public class MbmsHelperTest{
     @Test
     public void testNameMatchFound() {

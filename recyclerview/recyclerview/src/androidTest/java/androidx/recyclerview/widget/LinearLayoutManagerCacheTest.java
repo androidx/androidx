@@ -23,8 +23,8 @@ import static org.junit.Assert.assertEquals;
 
 import android.os.Build;
 
-import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
+import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,7 +66,7 @@ public class LinearLayoutManagerCacheTest extends BaseLinearLayoutManagerTest {
         return mRecyclerView.mRecycler.mCachedViews;
     }
 
-    @MediumTest
+    @SmallTest
     @Test
     public void cacheAndPrefetch() throws Throwable {
         final Config config = (Config) mConfig.clone();

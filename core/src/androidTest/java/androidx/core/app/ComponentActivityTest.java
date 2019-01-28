@@ -21,14 +21,14 @@ import static org.junit.Assert.assertNull;
 import android.support.v4.BaseInstrumentationTestCase;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class ComponentActivityTest extends BaseInstrumentationTestCase<TestComponentActivity> {
     private ComponentActivity mComponentActivity;
     private TestExtraData mTestExtraData;

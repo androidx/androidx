@@ -18,8 +18,7 @@ package androidx.core.widget;
 
 import static android.support.v4.testutils.LayoutDirectionActions.setLayoutDirection;
 import static android.support.v4.testutils.TextViewActions.setCompoundDrawablesRelative;
-import static android.support.v4.testutils.TextViewActions
-        .setCompoundDrawablesRelativeWithIntrinsicBounds;
+import static android.support.v4.testutils.TextViewActions.setCompoundDrawablesRelativeWithIntrinsicBounds;
 import static android.support.v4.testutils.TextViewActions.setMaxLines;
 import static android.support.v4.testutils.TextViewActions.setMinLines;
 import static android.support.v4.testutils.TextViewActions.setText;
@@ -66,8 +65,8 @@ import androidx.core.test.R;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.test.annotation.UiThreadTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -78,7 +77,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
-@SmallTest
+@LargeTest
 public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTestActivity> {
     private static final String TAG = "TextViewCompatTest";
 

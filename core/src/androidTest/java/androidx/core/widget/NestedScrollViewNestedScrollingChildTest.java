@@ -42,7 +42,7 @@ import androidx.core.view.NestedScrollingParent3;
 import androidx.core.view.ViewCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 import androidx.testutils.Direction;
 import androidx.testutils.FlingData;
 import androidx.testutils.MotionEventData;
@@ -63,7 +63,7 @@ import java.util.List;
  * version of the nested scroll parents correctly.
 */
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class NestedScrollViewNestedScrollingChildTest {
 
     private NestedScrollingSpyView mParentSpy;

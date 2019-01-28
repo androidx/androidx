@@ -44,8 +44,8 @@ import androidx.media2.test.service.MediaTestUtils;
 import androidx.media2.test.service.MockPlayer;
 import androidx.media2.test.service.RemoteMediaController;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -63,7 +63,7 @@ import java.util.concurrent.TimeUnit;
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 public class MediaSessionCallbackTest extends MediaSessionTestBase {
     private static final String TAG = "MediaSessionCallbackTest";
 

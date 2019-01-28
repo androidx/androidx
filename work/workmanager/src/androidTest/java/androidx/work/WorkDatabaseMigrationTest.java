@@ -42,7 +42,6 @@ import android.support.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkDatabaseMigrations;
@@ -245,7 +244,7 @@ public class WorkDatabaseMigrationTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testMigrationVersion4To5() throws IOException {
         SupportSQLiteDatabase database =
                 mMigrationTestHelper.createDatabase(TEST_DATABASE, VERSION_4);

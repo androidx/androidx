@@ -17,11 +17,11 @@
 package androidx.appcompat.app;
 
 import androidx.test.annotation.UiThreadTest;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 
-@SmallTest
+@LargeTest
 public class BasicsTestCaseWithToolbar extends BaseBasicsTestCase<ToolbarAppCompatActivity> {
     public BasicsTestCaseWithToolbar() {
         super(ToolbarAppCompatActivity.class);

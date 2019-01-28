@@ -25,8 +25,8 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,7 +41,7 @@ public class MediaRouterInitializationTest {
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
-    @SmallTest
+    @MediumTest
     public void testEmptyUserRoute() throws Exception {
         getInstrumentation().runOnMainSync(new Runnable() {
             @Override

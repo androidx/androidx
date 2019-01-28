@@ -36,7 +36,7 @@ import androidx.core.view.ViewCompat;
 import androidx.fragment.app.test.FragmentTestActivity;
 import androidx.fragment.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.rule.ActivityTestRule;
 
 import org.junit.Before;
@@ -47,7 +47,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@MediumTest
+@SmallTest
 @RunWith(AndroidJUnit4.class)
 public class FragmentAnimatorTest {
     // These are pretend resource IDs for animators. We don't need real ones since we

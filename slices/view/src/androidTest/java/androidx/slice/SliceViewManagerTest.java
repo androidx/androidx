@@ -42,8 +42,8 @@ import androidx.slice.render.SliceRenderActivity;
 import androidx.slice.widget.SliceLiveData;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -55,7 +55,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
-@SmallTest
+@LargeTest
 @SdkSuppress(minSdkVersion = 19)
 public class SliceViewManagerTest {
 

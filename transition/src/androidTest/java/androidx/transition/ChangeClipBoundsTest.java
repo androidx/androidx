@@ -30,13 +30,13 @@ import android.graphics.Rect;
 import android.view.View;
 
 import androidx.core.view.ViewCompat;
-import androidx.test.filters.MediumTest;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 
-@MediumTest
+@LargeTest
 public class ChangeClipBoundsTest extends BaseTransitionTest {
 
     @Override
