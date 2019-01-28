@@ -16,7 +16,6 @@
 
 package androidx.media2.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 import static androidx.media2.SessionResult.RESULT_ERROR_INVALID_STATE;
 import static androidx.media2.SessionResult.RESULT_SUCCESS;
@@ -127,7 +126,7 @@ import java.util.concurrent.Executor;
  * {@link androidx.media2.widget.R.attr#enableControlView}
  * {@link androidx.media2.widget.R.attr#viewType}
  */
-public class VideoView extends SelectiveLayout implements VideoViewInterface.SurfaceListener {
+public class VideoView extends SelectiveLayout {
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @IntDef({
@@ -168,7 +167,7 @@ public class VideoView extends SelectiveLayout implements VideoViewInterface.Sur
 
     private AudioAttributesCompat mAudioAttributes;
 
-    private VideoView.OnViewTypeChangedListener mViewTypeChangedListener;
+    VideoView.OnViewTypeChangedListener mViewTypeChangedListener;
 
     VideoViewInterface mCurrentView;
     VideoViewInterface mTargetView;
@@ -254,6 +253,67 @@ public class VideoView extends SelectiveLayout implements VideoViewInterface.Sur
         }
     };
 
+    private final VideoViewInterface.SurfaceListener mSurfaceListener =
+            new VideoViewInterface.SurfaceListener() {
+        @Override
+        public void onSurfaceCreated(View view, int width, int height) {
+            if (DEBUG) {
+                Log.d(TAG, "onSurfaceCreated(). mCurrentState=" + mCurrentState
+                        + ", mTargetState=" + mTargetState
+                        + ", width/height: " + width + "/" + height
+                        + ", " + view.toString());
+            }
+            if (view == mTargetView) {
+                ((VideoViewInterface) view).takeOver();
+            }
+            if (needToStart()) {
+                mMediaSession.getPlayer().play();
+            }
+        }
+
+        @Override
+        public void onSurfaceDestroyed(View view) {
+            if (DEBUG) {
+                Log.d(TAG, "onSurfaceDestroyed(). mCurrentState=" + mCurrentState
+                        + ", mTargetState=" + mTargetState + ", " + view.toString());
+            }
+        }
+
+        @Override
+        public void onSurfaceChanged(View view, int width, int height) {
+            if (DEBUG) {
+                Log.d(TAG, "onSurfaceChanged(). width/height: " + width + "/" + height
+                        + ", " + view.toString());
+            }
+        }
+
+        @Override
+        public void onSurfaceTakeOverDone(VideoViewInterface view) {
+            if (view != mTargetView) {
+                if (DEBUG) {
+                    Log.d(TAG, "onSurfaceTakeOverDone(). view is not targetView. ignore.: " + view);
+                }
+                return;
+            }
+            if (DEBUG) {
+                Log.d(TAG, "onSurfaceTakeOverDone(). Now current view is: " + view);
+            }
+            if (mCurrentState != STATE_PLAYING && mMediaSession != null) {
+                mMediaSession.getPlayer().seekTo(mMediaSession.getPlayer().getCurrentPosition());
+            }
+            if (view != mCurrentView) {
+                ((View) mCurrentView).setVisibility(View.GONE);
+                mCurrentView = view;
+                if (mViewTypeChangedListener != null) {
+                    mViewTypeChangedListener.onViewTypeChanged(VideoView.this, view.getViewType());
+                }
+            }
+
+            if (needToStart()) {
+                mMediaSession.getPlayer().play();
+            }
+        }
+    };
 
     public VideoView(@NonNull Context context) {
         this(context, null);
@@ -283,8 +343,8 @@ public class VideoView extends SelectiveLayout implements VideoViewInterface.Sur
 
         mTextureView = new VideoTextureView(context);
         mSurfaceView = new VideoSurfaceView(context);
-        mTextureView.setSurfaceListener(this);
-        mSurfaceView.setSurfaceListener(this);
+        mTextureView.setSurfaceListener(mSurfaceListener);
+        mSurfaceView.setSurfaceListener(mSurfaceListener);
 
         addView(mTextureView);
         addView(mSurfaceView);
@@ -545,76 +605,6 @@ public class VideoView extends SelectiveLayout implements VideoViewInterface.Sur
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         return super.dispatchTouchEvent(ev);
-    }
-
-    ///////////////////////////////////////////////////
-    // Implements VideoViewInterface.SurfaceListener
-    ///////////////////////////////////////////////////
-
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    @Override
-    public void onSurfaceCreated(View view, int width, int height) {
-        if (DEBUG) {
-            Log.d(TAG, "onSurfaceCreated(). mCurrentState=" + mCurrentState
-                    + ", mTargetState=" + mTargetState + ", width/height: " + width + "/" + height
-                    + ", " + view.toString());
-        }
-        if (view == mTargetView) {
-            ((VideoViewInterface) view).takeOver();
-        }
-        if (needToStart()) {
-            mMediaSession.getPlayer().play();
-        }
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    @Override
-    public void onSurfaceDestroyed(View view) {
-        if (DEBUG) {
-            Log.d(TAG, "onSurfaceDestroyed(). mCurrentState=" + mCurrentState
-                    + ", mTargetState=" + mTargetState + ", " + view.toString());
-        }
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    @Override
-    public void onSurfaceChanged(View view, int width, int height) {
-        if (DEBUG) {
-            Log.d(TAG, "onSurfaceChanged(). width/height: " + width + "/" + height
-                    + ", " + view.toString());
-        }
-    }
-
-    /** @hide */
-    @RestrictTo(LIBRARY)
-    @Override
-    public void onSurfaceTakeOverDone(VideoViewInterface view) {
-        if (view != mTargetView) {
-            if (DEBUG) {
-                Log.d(TAG, "onSurfaceTakeOverDone(). view is not targetView. ignore.: " + view);
-            }
-            return;
-        }
-        if (DEBUG) {
-            Log.d(TAG, "onSurfaceTakeOverDone(). Now current view is: " + view);
-        }
-        if (mCurrentState != STATE_PLAYING && mMediaSession != null) {
-            mMediaSession.getPlayer().seekTo(mMediaSession.getPlayer().getCurrentPosition());
-        }
-        if (view != mCurrentView) {
-            ((View) mCurrentView).setVisibility(View.GONE);
-            mCurrentView = view;
-            if (mViewTypeChangedListener != null) {
-                mViewTypeChangedListener.onViewTypeChanged(this, view.getViewType());
-            }
-        }
-
-        if (needToStart()) {
-            mMediaSession.getPlayer().play();
-        }
     }
 
     ///////////////////////////////////////////////////
