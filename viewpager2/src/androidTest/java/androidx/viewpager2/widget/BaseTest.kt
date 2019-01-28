@@ -357,11 +357,20 @@ open class BaseTest {
         targetPage: Int,
         smoothScroll: Boolean,
         timeout: Long,
-        unit: TimeUnit
+        unit: TimeUnit,
+        expectEvents: Boolean = (targetPage != currentItem)
     ) {
-        if (currentItem == targetPage) return
-        val latch = addWaitForScrolledLatch(targetPage, smoothScroll)
-        post { setCurrentItem(targetPage, smoothScroll) }
+        val latch =
+                if (expectEvents)
+                    addWaitForScrolledLatch(targetPage, smoothScroll)
+                else
+                    CountDownLatch(1)
+        post {
+            setCurrentItem(targetPage, smoothScroll)
+            if (!expectEvents) {
+                latch.countDown()
+            }
+        }
         latch.await(timeout, unit)
     }
 
