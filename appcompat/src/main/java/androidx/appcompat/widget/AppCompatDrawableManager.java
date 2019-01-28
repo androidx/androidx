@@ -56,8 +56,8 @@ public final class AppCompatDrawableManager {
     public static synchronized AppCompatDrawableManager get() {
         if (INSTANCE == null) {
             INSTANCE = new AppCompatDrawableManager();
-            INSTANCE.mResourceManager = ResourceManager.get();
-            INSTANCE.mResourceManager.setHooks(new ResourceManager.ResourceManagerHooks() {
+            INSTANCE.mResourceManager = ResourceManagerInternal.get();
+            INSTANCE.mResourceManager.setHooks(new ResourceManagerInternal.ResourceManagerHooks() {
                 /**
                  * Drawables which should be tinted with the value of
                  * {@code R.attr.colorControlNormal}, using the default mode using a raw color
@@ -230,7 +230,7 @@ public final class AppCompatDrawableManager {
                 }
 
                 @Override
-                public Drawable createDrawableFor(@NonNull ResourceManager resourceManager,
+                public Drawable createDrawableFor(@NonNull ResourceManagerInternal resourceManager,
                         @NonNull Context context, int resId) {
                     if (resId == R.drawable.abc_cab_background_top_material) {
                         return new LayerDrawable(new Drawable[]{
@@ -394,7 +394,7 @@ public final class AppCompatDrawableManager {
         return INSTANCE;
     }
 
-    private ResourceManager mResourceManager;
+    private ResourceManagerInternal mResourceManager;
 
     public synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {
         return mResourceManager.getDrawable(context, resId);
@@ -424,11 +424,11 @@ public final class AppCompatDrawableManager {
     }
 
     static void tintDrawable(Drawable drawable, TintInfo tint, int[] state) {
-        ResourceManager.tintDrawable(drawable, tint, state);
+        ResourceManagerInternal.tintDrawable(drawable, tint, state);
     }
 
     public static synchronized PorterDuffColorFilter getPorterDuffColorFilter(
             int color, PorterDuff.Mode mode) {
-        return ResourceManager.getPorterDuffColorFilter(color, mode);
+        return ResourceManagerInternal.getPorterDuffColorFilter(color, mode);
     }
 }

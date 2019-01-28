@@ -16,8 +16,6 @@
 
 package androidx.appcompat.graphics.drawable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
@@ -30,11 +28,14 @@ import android.view.View;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 /**
  * Drawable which delegates all calls to its wrapped {@link Drawable}.
  * <p>
  * The wrapped {@link Drawable} <em>must</em> be fully released from any {@link View}
- * before wrapping, otherwise internal {@link Drawable.Callback} may be dropped.
+ * before wrapping, otherwise internal {@link Callback} may be dropped.
  *
  * @hide
  */
