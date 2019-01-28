@@ -1084,8 +1084,6 @@ public class VideoView extends SelectiveLayout {
                     }
 
                     if (mMediaControlView != null) {
-                        mMediaControlView.setEnabled(true);
-
                         Uri uri = (mMediaItem instanceof UriMediaItem)
                                 ? ((UriMediaItem) mMediaItem).getUri() : null;
                         if (uri != null && UriUtil.isFromNetwork(uri)) {
