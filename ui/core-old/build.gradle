@@ -9,9 +9,10 @@ plugins {
 
 dependencies {
     api "androidx.annotation:annotation:1.0.0"
-    api(project(":ui-core-old"))
-    api project(':ui-core-adapter')
+    api "androidx.activity:activity:1.0.0-alpha01"
+    api project(":ui-port")
     api(KOTLIN_R4A_STDLIB)
+    api(KOTLIN_R4A_COROUTINES)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
@@ -19,7 +20,6 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
-    testImplementation(TRUTH)
     androidTestImplementation(JUNIT)
     androidTestImplementation(MOCKITO_CORE)
     androidTestImplementation(TEST_RUNNER)
@@ -29,7 +29,6 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
     androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
-    androidTestImplementation(TRUTH)
 }
 
 android {
@@ -40,12 +39,12 @@ android {
 }
 
 supportLibrary {
-    name = "Androidx Material"
+    name = "Androidx UI Framework core"
     publish = true
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2018"
-    description = "AndroidX Material"
+    description = "core components for androidx UI."
 }
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
@@ -53,3 +52,4 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
         useIR = true
     }
 }
+
