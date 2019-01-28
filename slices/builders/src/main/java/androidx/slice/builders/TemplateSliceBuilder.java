@@ -69,7 +69,7 @@ public abstract class TemplateSliceBuilder {
         mBuilder = new Slice.Builder(uri);
         mContext = context;
         mSpecs = getSpecs(uri);
-        mImpl = selectImpl(uri);
+        mImpl = selectImpl();
         if (mImpl == null) {
             throw new IllegalArgumentException("No valid specs found");
         }
@@ -102,7 +102,7 @@ public abstract class TemplateSliceBuilder {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    protected TemplateBuilderImpl selectImpl(Uri uri) {
+    protected TemplateBuilderImpl selectImpl() {
         return null;
     }
 
@@ -110,7 +110,7 @@ public abstract class TemplateSliceBuilder {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    protected boolean checkCompatible(SliceSpec candidate, Uri uri) {
+    protected boolean checkCompatible(SliceSpec candidate) {
         final int size = mSpecs.size();
         for (int i = 0; i < size; i++) {
             if (mSpecs.get(i).canRender(candidate)) {

@@ -37,7 +37,7 @@ import androidx.remotecallback.RemoteCallback;
 import androidx.slice.Slice;
 import androidx.slice.SliceSpecs;
 import androidx.slice.builders.impl.ListBuilderBasicImpl;
-import androidx.slice.builders.impl.ListBuilderV1Impl;
+import androidx.slice.builders.impl.ListBuilderImpl;
 import androidx.slice.builders.impl.TemplateBuilderImpl;
 import androidx.slice.core.SliceHints;
 
@@ -435,10 +435,12 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @RestrictTo(LIBRARY)
     @Override
-    protected TemplateBuilderImpl selectImpl(Uri uri) {
-        if (checkCompatible(SliceSpecs.LIST, uri)) {
-            return new ListBuilderV1Impl(getBuilder(), SliceSpecs.LIST, getClock());
-        } else if (checkCompatible(SliceSpecs.BASIC, uri)) {
+    protected TemplateBuilderImpl selectImpl() {
+        if (checkCompatible(SliceSpecs.LIST_V2)) {
+            return new ListBuilderImpl(getBuilder(), SliceSpecs.LIST_V2, getClock());
+        } else if (checkCompatible(SliceSpecs.LIST)) {
+            return new ListBuilderImpl(getBuilder(), SliceSpecs.LIST, getClock());
+        } else if (checkCompatible(SliceSpecs.BASIC)) {
             return new ListBuilderBasicImpl(getBuilder(), SliceSpecs.BASIC);
         }
         return null;
