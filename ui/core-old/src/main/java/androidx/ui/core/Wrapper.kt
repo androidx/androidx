@@ -69,7 +69,7 @@ val ContextAmbient = Ambient.of<Context>()
 internal val DensityAmbient = Ambient.of<Density>()
 
 @Composable
-fun DensityProvider(@Children children: (density: Density) -> Unit) {
+fun DensityConsumer(@Children children: (density: Density) -> Unit) {
     <DensityAmbient.Consumer> density ->
         <children density />
     </DensityAmbient.Consumer>

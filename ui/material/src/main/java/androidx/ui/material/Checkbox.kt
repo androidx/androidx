@@ -19,7 +19,7 @@ package androidx.ui.material
 import androidx.ui.baseui.selection.Toggleable
 import androidx.ui.baseui.selection.ToggleableState
 import androidx.ui.core.Dimension
-import androidx.ui.core.adapter.DensityProvider
+import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
@@ -64,7 +64,7 @@ class Checkbox : Component() {
 }
 
 internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Dimension) {
-    <DensityProvider> density ->
+    <DensityConsumer> density ->
         val radius = Radius.circular(radiusSize.toPx(density))
         val strokeWidthPx = strokeWidth.toPx(density)
         <Draw> canvas, parentSize ->
@@ -78,7 +78,7 @@ internal fun DrawCheckbox(value: ToggleableState, color: Color, strokeWidth: Dim
                 drawIndeterminate(canvas, outer, color, strokeWidthPx)
             }
         </Draw>
-    </DensityProvider>
+    </DensityConsumer>
 }
 
 internal fun drawUnchecked(canvas: Canvas, outer: RRect, color: Color, strokeWidth: Float) {

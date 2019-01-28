@@ -72,7 +72,7 @@ class Text() : Component() {
             val mergedStyle = style.merge(text.style)
             // Make a wrapper to avoid modifying the style on the original element
             val styledText = TextSpan(style = mergedStyle, children = listOf(text))
-            <DensityProvider> density ->
+            <DensityConsumer> density ->
                 <Semantics
                     label=text.toString()>
                     <MeasureBox> constraints, measureOperations ->
@@ -108,7 +108,7 @@ class Text() : Component() {
                         ) {}
                     </MeasureBox>
                 </Semantics>
-            </DensityProvider>
+            </DensityConsumer>
         </CurrentTextStyleAmbient.Consumer>
     }
 

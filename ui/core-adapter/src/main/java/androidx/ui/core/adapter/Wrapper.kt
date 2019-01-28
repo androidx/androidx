@@ -27,11 +27,11 @@ import androidx.ui.core.WrapperKt
  * All this module is needed to work around b/120971484
  *
  * For the original logic:
- * @see androidx.ui.core.DensityProvider
+ * @see androidx.ui.core.DensityConsumer
  */
 @Composable
 @Suppress("PLUGIN_ERROR")
-fun DensityProvider(@Children children: (density: Density) -> Unit) {
+fun DensityConsumer(@Children children: (density: Density) -> Unit) {
     // Ignore that the IDEA cannot resolve this.
-    WrapperKt.DensityProvider(children)
+    WrapperKt.DensityConsumer(children)
 }

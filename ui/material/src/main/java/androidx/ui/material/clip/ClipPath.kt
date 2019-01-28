@@ -16,7 +16,7 @@
 
 package androidx.ui.material.clip
 
-import androidx.ui.core.adapter.DensityProvider
+import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Path
@@ -73,12 +73,12 @@ class ClipPath(
 //    }
 
     override fun compose() {
-        <DensityProvider> density ->
+        <DensityConsumer> density ->
             <Draw> canvas, parentSize ->
                 canvas.save()
                 canvas.clipPath(clipHolder.getClip(clipper, parentSize, density))
             </Draw>
-        </DensityProvider>
+        </DensityConsumer>
         <children/>
         <Draw> canvas, _ ->
             canvas.restore()

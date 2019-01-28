@@ -24,7 +24,7 @@ import androidx.ui.core.Density
 import androidx.ui.core.Dimension
 import androidx.ui.core.Duration
 import androidx.ui.core.LayoutCoordinates
-import androidx.ui.core.adapter.DensityProvider
+import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
@@ -393,14 +393,14 @@ class Material(
 
 @Composable
 internal fun DrawShapeBorder(shape: ShapeBorder) {
-    <DensityProvider> density ->
+    <DensityConsumer> density ->
         <Draw> canvas, parentSize ->
             shape.paint(canvas,
                 density,
                 Rect(0f, 0f, parentSize.width, parentSize.height),
                 null)
         </Draw>
-    </DensityProvider>
+    </DensityConsumer>
 }
 
 @Composable
@@ -522,7 +522,7 @@ internal class InkFeatures(
 //    override fun hitTestSelf(position: Offset) = true
 
     override fun compose() {
-        <DensityProvider> density ->
+        <DensityConsumer> density ->
             <Draw> canvas, size ->
                 val inkFeatures = inkFeatures
                 if (inkFeatures != null && inkFeatures.isNotEmpty()) {
@@ -532,7 +532,7 @@ internal class InkFeatures(
                     canvas.restore()
                 }
             </Draw>
-        </DensityProvider>
+        </DensityConsumer>
         <MaterialInkControllerAmbient.Provider value=this>
             <children />
         </MaterialInkControllerAmbient.Provider>

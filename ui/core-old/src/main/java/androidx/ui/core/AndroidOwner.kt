@@ -203,9 +203,10 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
     }
 
     private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
+        val density = Density(context)
         node.visitChildren { child ->
             if (child is DrawNode) {
-                child.onPaint(canvas, root.size.toPx(Density(context)))
+                child.onPaint(canvas, root.size.toPx(density))
                 child.needsPaint = false
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view
@@ -265,9 +266,10 @@ private class NodeView(container: ViewGroup, val node: LayoutNode) :
     }
 
     private fun callDrawOnChildren(node: ComponentNode, canvas: Canvas) {
+        val density = Density(context)
         node.visitChildren { child ->
             if (child is DrawNode) {
-                child.onPaint(canvas, this.node.size.toPx(Density(context)))
+                child.onPaint(canvas, this.node.size.toPx(density))
                 child.needsPaint = false
             } else if (child is LayoutNode) {
                 val view = (child.ownerData as AndroidData).view

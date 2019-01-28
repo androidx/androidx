@@ -18,11 +18,11 @@ package androidx.ui.material.clip
 
 import androidx.ui.assert
 import androidx.ui.core.Dimension
+import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.compareTo
 import androidx.ui.core.dp
 import androidx.ui.core.toPx
-import androidx.ui.core.adapter.DensityProvider
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -93,7 +93,7 @@ class PhysicalShape(
 //    }
 
     override fun compose() {
-        <DensityProvider> density ->
+        <DensityConsumer> density ->
             <Draw> canvas, parentSize ->
                 val clip = clipHolder.getClip(clipper, parentSize, density)
                 var paintShadows = true
@@ -132,7 +132,7 @@ class PhysicalShape(
                 canvas.saveLayer(rect, Paint())
                 canvas.clipPath(clip)
             </Draw>
-        </DensityProvider>
+        </DensityConsumer>
         <children/>
         <Draw> canvas, _ ->
             canvas.restore()

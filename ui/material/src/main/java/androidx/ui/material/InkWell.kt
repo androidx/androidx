@@ -23,7 +23,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.OnPositioned
 import androidx.ui.core.PointerInput
 import androidx.ui.core.Position
-import androidx.ui.core.adapter.DensityProvider
+import androidx.ui.core.adapter.DensityConsumer
 import androidx.ui.core.pointerinput.PointerEventPass
 import androidx.ui.core.pointerinput.PointerInputChange
 import androidx.ui.core.toDp
@@ -547,7 +547,7 @@ class InkResponse(
         val onTapCancel = if (enabled) this::handleTapCancel else null
         val onDoubleTap = if (onDoubleTap != null) this::handleDoubleTap else null
         val onLongPress = if (onLongPress != null) this::handleLongPress else null
-        <DensityProvider> density ->
+        <DensityConsumer> density ->
             val pointerInputHandler: (PointerInputChange, PointerEventPass) -> PointerInputChange =
                 { event, pass ->
                     if (pass == PointerEventPass.PostUp) {
@@ -571,7 +571,7 @@ class InkResponse(
             <PointerInput pointerInputHandler>
                 <children />
             </PointerInput>
-        </DensityProvider>
+        </DensityConsumer>
     }
 }
 
