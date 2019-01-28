@@ -20,8 +20,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 
+import android.os.Build;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.work.impl.WorkManagerImpl;
 import androidx.work.worker.InfiniteTestWorker;
 
 import org.junit.Test;
@@ -61,8 +64,16 @@ public class WorkSpecTest extends WorkManagerTest {
                 TimeUnit.MILLISECONDS)
                 .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
-        assertThat(getWorkSpec(periodicWork).calculateNextRunTime(),
-                is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS - DEFAULT_FLEX_TIME_MS));
+
+        if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
+            assertThat(getWorkSpec(periodicWork).calculateNextRunTime(),
+                    is(DEFAULT_PERIOD_START_TIME + DEFAULT_INTERVAL_TIME_MS));
+        } else {
+            assertThat(getWorkSpec(periodicWork).calculateNextRunTime(),
+                    is(DEFAULT_PERIOD_START_TIME
+                            + DEFAULT_INTERVAL_TIME_MS
+                            - DEFAULT_FLEX_TIME_MS));
+        }
     }
 
     @Test
@@ -168,6 +179,7 @@ public class WorkSpecTest extends WorkManagerTest {
                 .setInitialRunAttemptCount(1)
                 .setPeriodStartTime(DEFAULT_PERIOD_START_TIME, TimeUnit.MILLISECONDS)
                 .build();
+
         assertThat(getWorkSpec(work).calculateNextRunTime(),
                 is(DEFAULT_PERIOD_START_TIME + WorkRequest.MAX_BACKOFF_MILLIS));
     }

@@ -282,9 +282,14 @@ public class EnqueueRunnable implements Runnable {
                     workSpec.state = BLOCKED;
                 }
             } else {
-                // Set scheduled times only for work without prerequisites. Dependent work
-                // will set their scheduled times when they are unblocked.
-                workSpec.periodStartTime = currentTimeMillis;
+                // Set scheduled times only for work without prerequisites and that are
+                // not periodic. Dependent work will set their scheduled times when they are
+                // unblocked.
+                if (!workSpec.isPeriodic()) {
+                    workSpec.periodStartTime = currentTimeMillis;
+                } else {
+                    workSpec.periodStartTime = 0L;
+                }
             }
 
             if (Build.VERSION.SDK_INT >= 23 && Build.VERSION.SDK_INT <= 25) {

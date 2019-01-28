@@ -29,6 +29,7 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.Relation;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.RestrictTo;
 
@@ -38,6 +39,7 @@ import androidx.work.Data;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
+import androidx.work.impl.WorkManagerImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -248,7 +250,13 @@ public class WorkSpec {
                     : (long) Math.scalb(backoffDelayDuration, runAttemptCount - 1);
             return periodStartTime + Math.min(WorkRequest.MAX_BACKOFF_MILLIS, delay);
         } else if (isPeriodic()) {
-            return periodStartTime + intervalDuration - flexDuration;
+            if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
+                // Don't use flexDuration for determining next run time for PeriodicWork
+                // Schedulers <= API 22. This is because intervalDuration could equal flexDuration.
+                return periodStartTime + intervalDuration;
+            } else {
+                return periodStartTime + intervalDuration - flexDuration;
+            }
         } else {
             return periodStartTime + initialDelay;
         }

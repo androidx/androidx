@@ -218,15 +218,19 @@ public class CommandHandler implements ExecutionListener {
                 return;
             }
 
+            // Note: The first instance of PeriodicWorker getting scheduled will set an alarm in the
+            // past. This is because periodStartTime = 0.
             long triggerAt = workSpec.calculateNextRunTime();
 
             if (!workSpec.hasConstraints()) {
-                Logger.get().debug(TAG, String.format("Setting up Alarms for %s", workSpecId));
+                Logger.get().debug(TAG,
+                        String.format("Setting up Alarms for %s at %s", workSpecId, triggerAt));
                 Alarms.setAlarm(mContext, dispatcher.getWorkManager(), workSpecId, triggerAt);
             } else {
                 // Schedule an alarm irrespective of whether all constraints matched.
                 Logger.get().debug(TAG,
-                        String.format("Opportunistically setting an alarm for %s", workSpecId));
+                        String.format("Opportunistically setting an alarm for %s at %s", workSpecId,
+                                triggerAt));
                 Alarms.setAlarm(
                         mContext,
                         dispatcher.getWorkManager(),
