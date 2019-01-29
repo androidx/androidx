@@ -395,7 +395,10 @@ public abstract class FragmentManager {
      *
      * @param fragmentFactory the factory to use to create new Fragment instances
      */
-    public abstract void setFragmentFactory(@NonNull FragmentFactory fragmentFactory);
+    public void setFragmentFactory(@NonNull FragmentFactory fragmentFactory) {
+        throw new UnsupportedOperationException(
+                "This method must be overridden to provide an implementation");
+    }
 
     /**
      * Gets the current {@link FragmentFactory} used to instantiate new Fragment instances.
@@ -403,7 +406,10 @@ public abstract class FragmentManager {
      * @return the current FragmentFactory
      */
     @NonNull
-    public abstract FragmentFactory getFragmentFactory();
+    public FragmentFactory getFragmentFactory() {
+        throw new UnsupportedOperationException(
+                "This method must be overridden to provide an implementation");
+    }
 
     /**
      * Print the FragmentManager's state into the given stream.
