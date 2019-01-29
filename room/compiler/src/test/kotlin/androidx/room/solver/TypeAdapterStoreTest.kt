@@ -116,7 +116,7 @@ class TypeAdapterStoreTest {
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
-            assertThat(bindScope.generate().trim(), `is`("""
+            assertThat(bindScope.generate().toString().trim(), `is`("""
                     final int ${tmp(0)};
                     ${tmp(0)} = fooVar ? 1 : 0;
                     stmt.bindLong(41, ${tmp(0)});
@@ -124,7 +124,7 @@ class TypeAdapterStoreTest {
 
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "7", cursorScope)
-            assertThat(cursorScope.generate().trim(), `is`("""
+            assertThat(cursorScope.generate().toString().trim(), `is`("""
                     final int ${tmp(0)};
                     ${tmp(0)} = curs.getInt(7);
                     res = ${tmp(0)} != 0;
@@ -145,7 +145,7 @@ class TypeAdapterStoreTest {
 
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
-            assertThat(bindScope.generate().trim(), `is`("""
+            assertThat(bindScope.generate().toString().trim(), `is`("""
                     final int ${tmp(0)};
                     final boolean ${tmp(1)};
                     ${tmp(1)} = foo.bar.Point.toBoolean(fooVar);
@@ -155,7 +155,7 @@ class TypeAdapterStoreTest {
 
             val cursorScope = testCodeGenScope()
             adapter.readFromCursor("res", "curs", "11", cursorScope).toString()
-            assertThat(cursorScope.generate().trim(), `is`("""
+            assertThat(cursorScope.generate().toString().trim(), `is`("""
                     final int ${tmp(0)};
                     ${tmp(0)} = curs.getInt(11);
                     final boolean ${tmp(1)};
@@ -176,7 +176,7 @@ class TypeAdapterStoreTest {
             assertThat(adapter?.typeMirror(), `is`(tDate))
             val bindScope = testCodeGenScope()
             adapter!!.readFromCursor("outDate", "curs", "0", bindScope)
-            assertThat(bindScope.generate().trim(), `is`("""
+            assertThat(bindScope.generate().toString().trim(), `is`("""
                 final java.lang.Long _tmp;
                 if (curs.isNull(0)) {
                   _tmp = null;
@@ -200,7 +200,7 @@ class TypeAdapterStoreTest {
 
             val bindScope = testCodeGenScope()
             adapter!!.bindToStmt("stmt", "41", "fooVar", bindScope)
-            assertThat(bindScope.generate().trim(), `is`("""
+            assertThat(bindScope.generate().toString().trim(), `is`("""
                 final java.lang.String ${tmp(0)};
                 ${tmp(0)} = androidx.room.util.StringUtil.joinIntoString(fooVar);
                 if (${tmp(0)} == null) {

@@ -58,7 +58,7 @@ class QueryWriterTest {
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().trim(), `is`("""
+            assertThat(scope.generate().toString().trim(), `is`("""
                     final java.lang.String _sql = "SELECT id FROM users";
                     final $QUERY _stmt = $QUERY.acquire(_sql, 0);
                     """.trimIndent()))
@@ -73,7 +73,7 @@ class QueryWriterTest {
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().trim(), `is`(
+            assertThat(scope.generate().toString().trim(), `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users WHERE name LIKE ?";
                     final $QUERY _stmt = $QUERY.acquire(_sql, 1);
@@ -95,7 +95,7 @@ class QueryWriterTest {
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().trim(), `is`(
+            assertThat(scope.generate().toString().trim(), `is`(
                     """
                     final java.lang.String _sql = "SELECT id FROM users WHERE id IN(?,?)";
                     final $QUERY _stmt = $QUERY.acquire(_sql, 2);
@@ -115,7 +115,7 @@ class QueryWriterTest {
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().trim(), `is`(
+            assertThat(scope.generate().toString().trim(), `is`(
                     """
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE id IN(");
@@ -168,7 +168,7 @@ class QueryWriterTest {
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().trim(), `is`(collectionOut))
+            assertThat(scope.generate().toString().trim(), `is`(collectionOut))
         }.compilesWithoutError()
     }
 
@@ -180,7 +180,7 @@ class QueryWriterTest {
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().trim(), `is`(collectionOut))
+            assertThat(scope.generate().toString().trim(), `is`(collectionOut))
         }.compilesWithoutError()
     }
 
@@ -192,7 +192,7 @@ class QueryWriterTest {
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().trim(), `is`("""
+            assertThat(scope.generate().toString().trim(), `is`("""
                     final java.lang.String _sql = "SELECT id FROM users WHERE age > ? OR bage > ?";
                     final $QUERY _stmt = $QUERY.acquire(_sql, 2);
                     int _argIndex = 1;
@@ -211,7 +211,7 @@ class QueryWriterTest {
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().trim(), `is`("""
+            assertThat(scope.generate().toString().trim(), `is`("""
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE age > ");
                     _stringBuilder.append("?");
@@ -245,7 +245,7 @@ class QueryWriterTest {
                 """) { writer ->
             val scope = testCodeGenScope()
             writer.prepareReadAndBind("_sql", "_stmt", scope)
-            assertThat(scope.generate().trim(), `is`("""
+            assertThat(scope.generate().toString().trim(), `is`("""
                     java.lang.StringBuilder _stringBuilder = $STRING_UTIL.newStringBuilder();
                     _stringBuilder.append("SELECT id FROM users WHERE age IN (");
                     final int _inputSize = ages.length;
@@ -275,8 +275,10 @@ class QueryWriterTest {
         }.compilesWithoutError()
     }
 
-    fun singleQueryMethod(vararg input: String,
-                          handler: (QueryWriter) -> Unit):
+    fun singleQueryMethod(
+        vararg input: String,
+        handler: (QueryWriter) -> Unit
+    ):
             CompileTester {
         return Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
                 .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
