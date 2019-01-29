@@ -24,6 +24,7 @@ plugins {
 
 dependencies {
     api(project(":core"))
+    implementation("androidx.collection:collection:1.0.0")
     api(GUAVA_LISTENABLE_FUTURE)
     implementation("androidx.concurrent:concurrent-futures:1.0.0-alpha02")
 

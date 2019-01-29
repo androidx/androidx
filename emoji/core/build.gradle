@@ -23,6 +23,7 @@ dependencies {
     api files(configurations.repackage)
 
     api(project(":core"))
+    implementation(project(':collection'))
 
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)

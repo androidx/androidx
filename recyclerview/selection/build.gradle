@@ -26,6 +26,7 @@ dependencies {
     api(project(":recyclerview"))
     api(project(":annotation"))
     api(project(":core"))
+    implementation(project(":collection"))
 
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)

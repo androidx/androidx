@@ -18,6 +18,7 @@ dependencies {
     api(project(":core")) {
         exclude group: 'androidx.annotation'
     }
+    api(project(":collection"))
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.annotation:annotation:1.0.0")
     api("androidx.loader:loader:1.0.0")
