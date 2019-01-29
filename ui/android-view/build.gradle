@@ -33,6 +33,14 @@ dependencies {
     androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
 }
 
+android {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+        kotlinOptions {
+            useIR = true
+        }
+    }
+}
+
 supportLibrary {
     name = "AndroidX UI View components"
     publish = true

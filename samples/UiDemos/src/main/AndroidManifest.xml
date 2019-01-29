@@ -18,6 +18,8 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools" package="com.example.androidx.ui">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
             android:label="AndroidX UI sample"
             android:supportsRtl="true" tools:ignore="GoogleAppIndexingWarning"
@@ -111,6 +113,15 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="androidx.ui.androidview.WebComponentActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="WebComponent Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="androidx.ui.material.demos.SAMPLE_CODE" />
             </intent-filter>
         </activity>
 

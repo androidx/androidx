@@ -7,6 +7,7 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":ui-android-view"))
     implementation(project(":ui-r4a"))
     implementation(project(":ui-animation-demos"))
     implementation(project(":ui-material-demos"))
