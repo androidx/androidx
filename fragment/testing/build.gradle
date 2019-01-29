@@ -39,6 +39,7 @@ dependencies {
     api(TEST_CORE)
     api(KOTLIN_STDLIB)
     androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
     androidTestImplementation(TEST_RUNNER)
