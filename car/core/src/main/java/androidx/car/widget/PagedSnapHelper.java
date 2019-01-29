@@ -37,7 +37,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * when it appears in the list. The snapping behavior will resume when the large view is scrolled
  * off-screen.
  */
-public class PagedSnapHelper extends LinearSnapHelper {
+class PagedSnapHelper extends LinearSnapHelper {
     /**
      * The percentage of a View that needs to be completely visible for it to be a viable snap
      * target.
