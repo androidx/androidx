@@ -507,15 +507,11 @@ public class WorkerWrapper implements Runnable {
     private void resetPeriodicAndResolve() {
         mWorkDatabase.beginTransaction();
         try {
-            long currentPeriodStartTime = mWorkSpec.periodStartTime;
-            long now = System.currentTimeMillis();
-            long potentialNextStartTime = currentPeriodStartTime + mWorkSpec.intervalDuration;
-            // The system clock may have been changed such that the potentialNextStartTime is still
-            // in the past. When this happens, we need to move the nextPeriodStartTime to the
-            // present. This way, the Schedulers will correctly schedule the next instance of the
-            // PeriodicWork in the future.
-            long nextPeriodStartTime = Math.max(now, potentialNextStartTime);
-            mWorkSpecDao.setPeriodStartTime(mWorkSpecId, nextPeriodStartTime);
+            // The system clock may have been changed such that the periodStartTime was in the past.
+            // Therefore we always use the current time to determine the next run time of a Worker.
+            // This way, the Schedulers will correctly schedule the next instance of the
+            // PeriodicWork in the future. This happens in calculateNextRunTime() in WorkSpec.
+            mWorkSpecDao.setPeriodStartTime(mWorkSpecId, System.currentTimeMillis());
             mWorkSpecDao.setState(ENQUEUED, mWorkSpecId);
             mWorkSpecDao.resetWorkSpecRunAttemptCount(mWorkSpecId);
             if (Build.VERSION.SDK_INT < WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
