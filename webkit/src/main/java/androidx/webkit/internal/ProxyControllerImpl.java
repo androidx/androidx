@@ -17,7 +17,6 @@
 package androidx.webkit.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.webkit.ProxyConfig;
 import androidx.webkit.ProxyController;
 import androidx.webkit.WebViewFeature;
@@ -33,30 +32,21 @@ public class ProxyControllerImpl extends ProxyController {
     private ProxyControllerBoundaryInterface mBoundaryInterface;
 
     @Override
-    public void setProxyOverride(@NonNull ProxyConfig proxyConfig, @Nullable Runnable listener) {
-        setProxyOverride(proxyConfig, new SynchronousExecutor(), listener);
-    }
-
-    @Override
     public void setProxyOverride(@NonNull ProxyConfig proxyConfig, @NonNull Executor executor,
-            @Nullable Runnable listener) {
+            @NonNull Runnable listener) {
         WebViewFeatureInternal webViewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.PROXY_OVERRIDE);
         if (webViewFeature.isSupportedByWebView()) {
-            getBoundaryInterface().setProxyOverride(proxyConfig.proxyRules(),
-                    proxyConfig.bypassRules(), listener, executor);
+            getBoundaryInterface().setProxyOverride(
+                    proxyConfig.proxyRules().toArray(new String[0][]),
+                    proxyConfig.bypassRules().toArray(new String[0]), listener, executor);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
     }
 
     @Override
-    public void clearProxyOverride(@Nullable Runnable listener) {
-        clearProxyOverride(new SynchronousExecutor(), listener);
-    }
-
-    @Override
-    public void clearProxyOverride(@NonNull Executor executor, @Nullable Runnable listener) {
+    public void clearProxyOverride(@NonNull Executor executor, @NonNull Runnable listener) {
         WebViewFeatureInternal webViewFeature =
                 WebViewFeatureInternal.getFeature(WebViewFeature.PROXY_OVERRIDE);
         if (webViewFeature.isSupportedByWebView()) {
@@ -71,12 +61,5 @@ public class ProxyControllerImpl extends ProxyController {
             mBoundaryInterface = WebViewGlueCommunicator.getFactory().getProxyController();
         }
         return mBoundaryInterface;
-    }
-
-    static class SynchronousExecutor implements Executor {
-        @Override
-        public void execute(Runnable r) {
-            r.run();
-        }
     }
 }

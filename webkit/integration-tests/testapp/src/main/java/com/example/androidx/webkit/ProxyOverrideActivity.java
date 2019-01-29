@@ -102,7 +102,8 @@ public class ProxyOverrideActivity extends AppCompatActivity {
     private void setProxyOverride(String proxyUrl) {
         ProxyController proxyController = ProxyController.getInstance();
         ProxyConfig proxyConfig = new ProxyConfig.Builder().addProxyRule(proxyUrl).build();
-        proxyController.setProxyOverride(proxyConfig, () -> onProxyOverrideComplete());
+        proxyController.setProxyOverride(proxyConfig, (Runnable r) -> r.run(),
+                () -> onProxyOverrideComplete());
     }
 
     private void onProxyOverrideComplete() {

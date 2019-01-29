@@ -21,27 +21,26 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 /**
  * Config for {@link ProxyController#setProxyOverride(ProxyConfig, Executor, Runnable)}.
  * <p>
  * Proxy rules should be added using {@code addProxyRule} methods. Multiple rules can be used as
- * fallback if a proxy fails to respond (e.g. the proxy server is down). Bypass rules can be set
- * for URLs that should not use these settings.
+ * fallback if a proxy fails to respond (for example, the proxy server is down). Bypass rules can
+ * be set for URLs that should not use these settings.
  * <p>
- * For instance, the following code means that WebView would first try to use proxy1.com for all
- * URLs, if that fails, proxy2.com, and if that fails, it would make a direct connection.
+ * For instance, the following code means that WebView would first try to use {@code proxy1.com}
+ * for all URLs, if that fails, {@code proxy2.com}, and if that fails, it would make a direct
+ * connection.
  * <pre class="prettyprint">
  * ProxyConfig proxyConfig = new ProxyConfig.Builder().addProxyRule("proxy1.com")
  *                                                    .addProxyRule("proxy2.com")
  *                                                    .addProxyRule(ProxyConfig.DIRECT)
  *                                                    .build();
  * </pre>
- * TODO(laisminchillo): unhide this when we're ready to expose this
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ProxyConfig {
     /**
      * Connect to URLs directly instead of using a proxy server.
@@ -50,30 +49,30 @@ public class ProxyConfig {
     /**
      * HTTP scheme.
      */
-    public static final String HTTP = "http";
+    public static final String MATCH_HTTP = "http";
     /**
      * HTTPS scheme.
      */
-    public static final String HTTPS = "https";
+    public static final String MATCH_HTTPS = "https";
     /**
      * Matches all schemes.
      */
     public static final String MATCH_ALL_SCHEMES = "*";
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @StringDef({HTTP, HTTPS, MATCH_ALL_SCHEMES})
+    @StringDef({MATCH_HTTP, MATCH_HTTPS, MATCH_ALL_SCHEMES})
     public @interface ProxyScheme {}
-    private static final String BYPASS_RULE_LOCAL = "<local>";
-    private static final String BYPASS_RULE_LOOPBACK = "<-loopback>";
+    private static final String BYPASS_RULE_SIMPLE_NAMES = "<local>";
+    private static final String BYPASS_RULE_SUBTRACT_IMPLICIT = "<-loopback>";
 
-    private String[][] mProxyRules;
-    private String[] mBypassRules;
+    private List<String[]> mProxyRules;
+    private List<String> mBypassRules;
 
     /**
      * @hide Internal use only
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public ProxyConfig(String[][] proxyRules, String[] bypassRules) {
+    public ProxyConfig(List<String[]> proxyRules, List<String> bypassRules) {
         mProxyRules = proxyRules;
         mBypassRules = bypassRules;
     }
@@ -83,7 +82,7 @@ public class ProxyConfig {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @NonNull
-    public String[][] proxyRules() {
+    public List<String[]> proxyRules() {
         return mProxyRules;
     }
 
@@ -92,24 +91,37 @@ public class ProxyConfig {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @NonNull
-    public String[] bypassRules() {
+    public List<String> bypassRules() {
         return mBypassRules;
     }
 
     /**
      * ProxyConfig builder. Use {@link Builder#addProxyRule(String)} or
-     * {@link Builder#addProxyRule(String, String)} to add proxy rules. Note that if
-     * you don't add any proxy rules, all connections will be made directly. Use
-     * {@link Builder#addBypassRule(String)} to add bypass rules. Use
-     * {@link Builder#build()} to build this into a {@link ProxyConfig} object.
+     * {@link Builder#addProxyRule(String, String)} to add proxy rules. Use
+     * {@link Builder#addBypassRule(String)} to add bypass rules. Use {@link Builder#build()} to
+     * build this into a {@link ProxyConfig} object.
+     *
+     * <p class="note"><b>Note:</b> applying a {@code ProxyConfig} with no rules will cause all
+     * connections to be made directly.
      */
-    public static class Builder {
-        private ArrayList<String[]> mProxyRules;
-        private ArrayList<String> mBypassRules;
+    public static final class Builder {
+        private List<String[]> mProxyRules;
+        private List<String> mBypassRules;
 
+        /**
+         * Create an empty ProxyConfig Builder.
+         */
         public Builder() {
             mProxyRules = new ArrayList<>();
             mBypassRules = new ArrayList<>();
+        }
+
+        /**
+         * Create a ProxyConfig Builder from an existing ProxyConfig object.
+         */
+        public Builder(@NonNull ProxyConfig proxyConfig) {
+            mProxyRules = proxyConfig.proxyRules();
+            mBypassRules = proxyConfig.bypassRules();
         }
 
         /**
@@ -117,29 +129,22 @@ public class ProxyConfig {
          */
         @NonNull
         public ProxyConfig build() {
-            return new ProxyConfig(buildProxyRules(), buildBypassRules());
+            return new ProxyConfig(proxyRules(), bypassRules());
         }
 
         /**
          * Adds a proxy to be used for all URLs.
          * <p>Proxy is either {@link ProxyConfig#DIRECT} or a string in the format
-         * {@code [scheme://]host[:port]}. Scheme is optional and defaults to HTTP; host is one
-         * of an IPv6 literal with brackets, an IPv4 literal or one or more labels separated by
-         * a period; port number is optional and defaults to {@code 80} for {@code HTTP},
-         * {@code 443} for {@code HTTPS} and {@code 1080} for {@code SOCKS}.
+         * {@code [scheme://]host[:port]}. Scheme is optional, if present must be {@code HTTP},
+         * {@code HTTPS} or <a href="https://tools.ietf.org/html/rfc1928">SOCKS</a> and defaults to
+         * {@code HTTP}. Host is one of an IPv6 literal with brackets, an IPv4 literal or one or
+         * more labels separated by a period. Port number is optional and defaults to {@code 80} for
+         * {@code HTTP}, {@code 443} for {@code HTTPS} and {@code 1080} for {@code SOCKS}.
          * <p>
          * The correct syntax for hosts is defined by
-         * <a  href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986</a>
+         * <a href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986</a>
          * <p>
-         * Host examples:
-         * <table>
-         * <tr><th> Type </th> <th> Example </th></tr>
-         * <tr><td> IPv4 literal</td> <td> 192.168.1.1 </td></tr>
-         * <tr><td> IPv6 literal with brackets</td> <td> [10:20:30:40:50:60:70:80] </td></tr>
-         * <tr><td> Labels </td> <td> example.com </td></tr>
-         * </table>
-         * <p>
-         * Proxy URL examples:
+         * Examples:
          * <table>
          * <tr><th> Scheme </th> <th> Host </th> <th> Port </th> <th> Proxy URL </th></tr>
          * <tr><td></td> <td>example.com</td> <td></td> <td>example.com</td> </tr>
@@ -162,7 +167,7 @@ public class ProxyConfig {
         /**
          * This does everything that {@link Builder#addProxyRule(String)} does,
          * but only applies to URLs using {@code schemeFilter}. Scheme filter must be one of
-         * {@link ProxyConfig#HTTP}, {@link ProxyConfig#HTTPS} or
+         * {@link ProxyConfig#MATCH_HTTP}, {@link ProxyConfig#MATCH_HTTPS} or
          * {@link ProxyConfig#MATCH_ALL_SCHEMES}.
          *
          * @param proxyUrl Proxy URL
@@ -192,30 +197,45 @@ public class ProxyConfig {
         }
 
         /**
-         * Matches hostnames without a period in them (and are not IP literals).
+         * Hostnames without a period in them (and that are not IP literals) will skip proxy
+         * settings and be connected to directly instead. Examples: {@code "abc"}, {@code "local"},
+         * {@code "some-domain"}.
+         * <p>
+         * Hostnames with a trailing dot are not considered simple by this definition.
          */
         @NonNull
-        public Builder doNotProxyLocalNetworkRequests() {
-            return addBypassRule(BYPASS_RULE_LOCAL);
+        public Builder bypassSimpleHostnames() {
+            return addBypassRule(BYPASS_RULE_SIMPLE_NAMES);
         }
 
         /**
-         * Subtracts the implicit proxy bypass rules (localhost and link local addresses), so they
-         * are no longer bypassed.
+         * By default, certain hostnames implicitly bypass the proxy if they are link-local IPs, or
+         * localhost addresses. For instance hostnames matching any of (non-exhaustive list):
+         * <ul>
+         * <li>localhost</li>
+         * <li>*.localhost</li>
+         * <li>[::1]</li>
+         * <li>127.0.0.1/8</li>
+         * <li>169.254/16</li>
+         * <li>[FE80::]/10</li>
+         * </ul>
+         * <p>
+         * Call this function to override the default behavior and force localhost and link-local
+         * URLs to be sent through the proxy.
          */
         @NonNull
-        public Builder doProxyLoopbackRequests() {
-            return addBypassRule(BYPASS_RULE_LOOPBACK);
+        public Builder subtractImplicitRules() {
+            return addBypassRule(BYPASS_RULE_SUBTRACT_IMPLICIT);
         }
 
         @NonNull
-        private String[][] buildProxyRules() {
-            return mProxyRules.toArray(new String[0][]);
+        private List<String[]> proxyRules() {
+            return mProxyRules;
         }
 
         @NonNull
-        private String[] buildBypassRules() {
-            return mBypassRules.toArray(new String[mBypassRules.size()]);
+        private List<String> bypassRules() {
+            return mBypassRules;
         }
     }
 }
