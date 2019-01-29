@@ -26,7 +26,8 @@ dependencies {
     implementation(project(":slice-core"))
     api(project(":remotecallback"))
     implementation project(":annotation")
-    implementation project(path: ':core')
+    implementation project(':core')
+    implementation project(':collection')
 }
 
 supportLibrary {
