@@ -17,5 +17,7 @@
 <resources>
     <string name="main_activity_title">WebView AndroidX Demos</string>
     <string name="safebrowsing_activity_title">Safe Browsing</string>
+    <string name="proxy_override_activity_title">Proxy Override</string>
     <string name="not_updateable_webview">not updatable</string>
+    <string name="proxy_override_requests_served">Requests served: %d</string>
 </resources>
