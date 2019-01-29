@@ -21,6 +21,7 @@ import androidx.fragment.app.FragmentFactory
 import androidx.fragment.testing.test.R.style.ThemedFragmentTheme
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,6 +42,7 @@ private class NoDefaultConstructorFragmentFactory(val arg: String) : FragmentFac
  * Verifies FragmentScenario API works consistently across different Android framework versions.
  */
 @RunWith(AndroidJUnit4::class)
+@LargeTest
 class FragmentScenarioTest {
     @Test
     fun launchFragment() {
