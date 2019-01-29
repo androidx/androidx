@@ -30,17 +30,27 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Immutable sequence of graphic elements (e.g.: text, images) to be displayed one after another in
- * the same way as a {@link CharSequence} would. Elements in this sequence are represented by
- * {@link RichTextElement} instances.
+ * A {@link RichText} is an immutable sequence of graphic elements (e.g.: text, images)
+ * to be displayed one after another.
+ * <p>
+ * Elements in this sequence are represented by {@link RichTextElement} instances.
+ * <p>
+ * Each sequence will have a textual representation provided by {@link #getText()}
+ * and in the case of the absence of a rich representation, the sequence of elements
+ * {@link #getElements()} may be left empty. The textual representation may also be used as a
+ * fallback for when {@link RichTextElement}s fail to render.
  */
 @VersionedParcelize
 public class RichText implements VersionedParcelable {
     @ParcelField(1)
     List<RichTextElement> mElements;
 
+    @ParcelField(2)
+    String mText;
+
     /**
      * Used by {@link VersionedParcelable}
+     *
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -51,7 +61,8 @@ public class RichText implements VersionedParcelable {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
-    RichText(@NonNull List<RichTextElement> elements) {
+    RichText(@NonNull String text, @NonNull List<RichTextElement> elements) {
+        mText = text;
         mElements = new ArrayList<>(elements);
     }
 
@@ -77,13 +88,24 @@ public class RichText implements VersionedParcelable {
          * Returns a {@link RichText} built with the provided information.
          */
         @NonNull
-        public RichText build() {
-            return new RichText(mElements);
+        public RichText build(@NonNull String text) {
+            return new RichText(Preconditions.checkNotNull(text), mElements);
         }
     }
 
     /**
-     * Returns the sequence of graphic elements
+     * Returns the plaintext string of this {@link RichText}.
+     */
+    @NonNull
+    public String getText() {
+        return Common.nonNullOrEmpty(mText);
+    }
+
+    /**
+     * Returns the sequence of graphic elements.
+     * <p>
+     * If no rich representation is available, the list may be empty and {@link #getText()} should
+     * be used as a fallback.
      */
     @NonNull
     public List<RichTextElement> getElements() {
@@ -99,16 +121,17 @@ public class RichText implements VersionedParcelable {
             return false;
         }
         RichText richText = (RichText) o;
-        return Objects.equals(getElements(), richText.getElements());
+        return Objects.equals(getText(), richText.getText())
+                && Objects.equals(getElements(), richText.getElements());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getElements());
+        return Objects.hash(getText(), getElements());
     }
 
     @Override
     public String toString() {
-        return String.format("{elements: %s}", mElements);
+        return String.format("{text: '%s', elements: %s}", mText, mElements);
     }
 }
