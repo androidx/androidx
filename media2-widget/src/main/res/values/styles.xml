@@ -176,9 +176,4 @@
         <item name="android:src">@drawable/ic_settings</item>
         <item name="android:contentDescription">@string/mcv2_settings_button_desc</item>
     </style>
-
-    <style name="BottomBarButton.VideoQuality">
-      <item name="android:src">@drawable/ic_high_quality</item>
-      <item name="android:contentDescription">@string/mcv2_video_quality_button_desc</item>
-    </style>
 </resources>

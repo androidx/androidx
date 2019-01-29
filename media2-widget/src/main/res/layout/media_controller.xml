@@ -250,10 +250,6 @@
                 android:orientation="horizontal" />
 
             <ImageButton
-                android:id="@+id/video_quality"
-                style="@style/BottomBarButton.VideoQuality" />
-
-            <ImageButton
                 android:id="@+id/settings"
                 style="@style/BottomBarButton.Settings" />
         </LinearLayout>
