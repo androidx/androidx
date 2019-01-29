@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.leanback.preference {
 
   @Deprecated public abstract class BaseLeanbackPreferenceFragment extends androidx.preference.PreferenceFragment {

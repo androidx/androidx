@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.navigation {
 
   @androidx.navigation.NavOptionsDsl public final class AnimBuilder {

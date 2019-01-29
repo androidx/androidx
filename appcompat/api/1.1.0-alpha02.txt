@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.appcompat.app {
 
   public abstract class ActionBar {
@@ -343,13 +343,25 @@ package androidx.appcompat.content.res {
 
 package androidx.appcompat.graphics.drawable {
 
-  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements androidx.core.graphics.drawable.TintAwareDrawable {
+  public class AnimatedStateListDrawableCompat extends android.graphics.drawable.Drawable implements android.graphics.drawable.Drawable.Callback androidx.core.graphics.drawable.TintAwareDrawable {
     ctor public AnimatedStateListDrawableCompat();
     method public void addState(int[], android.graphics.drawable.Drawable, int);
+    method public void addState(int[]!, android.graphics.drawable.Drawable!);
     method public <T extends android.graphics.drawable.Drawable & android.graphics.drawable.Animatable> void addTransition(int, int, T, boolean);
     method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat? create(android.content.Context, @DrawableRes int, android.content.res.Resources.Theme?);
     method public static androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat! createFromXmlInner(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void draw(android.graphics.Canvas);
+    method public final android.graphics.drawable.Drawable.ConstantState! getConstantState();
+    method public int getOpacity();
     method public void inflate(android.content.Context, android.content.res.Resources, org.xmlpull.v1.XmlPullParser, android.util.AttributeSet, android.content.res.Resources.Theme?) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method public void invalidateDrawable(android.graphics.drawable.Drawable);
+    method public void scheduleDrawable(android.graphics.drawable.Drawable, Runnable, long);
+    method public void setAlpha(int);
+    method public void setColorFilter(android.graphics.ColorFilter!);
+    method public void setDither(boolean);
+    method public void setEnterFadeDuration(int);
+    method public void setExitFadeDuration(int);
+    method public void unscheduleDrawable(android.graphics.drawable.Drawable, Runnable);
   }
 
   public class DrawerArrowDrawable extends android.graphics.drawable.Drawable {

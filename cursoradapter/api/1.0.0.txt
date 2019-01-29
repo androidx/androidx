@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.cursoradapter.widget {
 
   public abstract class CursorAdapter extends android.widget.BaseAdapter implements android.widget.Filterable {
