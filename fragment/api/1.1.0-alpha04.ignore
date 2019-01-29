@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-AddedAbstractMethod: androidx.fragment.app.FragmentManager#getFragmentFactory():
-    Added method androidx.fragment.app.FragmentManager.getFragmentFactory()
-AddedAbstractMethod: androidx.fragment.app.FragmentManager#setFragmentFactory(androidx.fragment.app.FragmentFactory):
-    Added method androidx.fragment.app.FragmentManager.setFragmentFactory(androidx.fragment.app.FragmentFactory)
-
-
