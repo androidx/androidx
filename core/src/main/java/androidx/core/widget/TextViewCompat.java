@@ -26,6 +26,7 @@ import static android.view.View.TEXT_DIRECTION_RTL;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -58,6 +59,7 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
+import androidx.core.os.BuildCompat;
 import androidx.core.text.PrecomputedTextCompat;
 import androidx.core.util.Preconditions;
 
@@ -876,14 +878,21 @@ public final class TextViewCompat {
      * @param precomputed the precomputed text
      * @throws IllegalArgumentException if precomputed text is not compatible with textView.
      */
+    @SuppressLint("NewApi")  // TODO: Remove once Q SDK is released
     public static void setPrecomputedText(@NonNull TextView textView,
                                           @NonNull PrecomputedTextCompat precomputed) {
 
-        PrecomputedTextCompat.Params param = TextViewCompat.getTextMetricsParams(textView);
-        if (!param.equalsWithoutTextDirection(precomputed.getParams())) {
-            throw new IllegalArgumentException("Given text can not be applied to TextView.");
+        if (BuildCompat.isAtLeastQ()) {
+            // Framework can not understand PrecomptedTextCompat. Pass underlying PrecomputedText.
+            // Parameter check is also done by framework.
+            textView.setText(precomputed.getPrecomputedText());
+        } else {
+            PrecomputedTextCompat.Params param = TextViewCompat.getTextMetricsParams(textView);
+            if (!param.equalsWithoutTextDirection(precomputed.getParams())) {
+                throw new IllegalArgumentException("Given text can not be applied to TextView.");
+            }
+            textView.setText(precomputed);
         }
-        textView.setText(precomputed);
     }
 
     /**
