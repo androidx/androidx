@@ -145,28 +145,19 @@ class TextLayout constructor(
     val text: CharSequence
         get() = layout.text
 
-    fun getLineLeft(index: Int): Float {
-        return layout.getLineLeft(index)
-    }
+    fun getLineLeft(lineIndex: Int): Float = layout.getLineLeft(lineIndex)
 
-    fun getLineRight(index: Int): Float {
-        return layout.getLineRight(index)
-    }
+    fun getLineRight(lineIndex: Int): Float = layout.getLineRight(lineIndex)
 
-    fun getLineHeight(index: Int): Float {
-        return (layout.getLineBottom(index) - layout.getLineTop(index)).toFloat()
-    }
+    fun getLineHeight(lineIndex: Int): Float =
+        (layout.getLineBottom(lineIndex) - layout.getLineTop(lineIndex)).toFloat()
 
-    fun getLineWidth(index: Int): Float {
-        return layout.getLineWidth(index)
-    }
+    fun getLineWidth(lineIndex: Int): Float = layout.getLineWidth(lineIndex)
 
     /**
      * @return true if the given line is ellipsized, else false.
      */
-    fun isEllipsisApplied(lineIndex: Int): Boolean {
-        return layout.getEllipsisCount(lineIndex) > 0
-    }
+    fun isEllipsisApplied(lineIndex: Int): Boolean = layout.getEllipsisCount(lineIndex) > 0
 
     fun paint(canvas: Canvas) {
         layout.draw(canvas)
