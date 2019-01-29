@@ -1,6 +1,9 @@
 <component name="ProjectCodeStyleConfiguration">
   <code_scheme name="Project" version="173">
     <option name="RIGHT_MARGIN" value="100" />
+    <AndroidXmlCodeStyleSettings>
+      <option name="USE_CUSTOM_SETTINGS" value="true" />
+    </AndroidXmlCodeStyleSettings>
     <JavaCodeStyleSettings>
       <option name="FIELD_NAME_PREFIX" value="m" />
       <option name="STATIC_FIELD_NAME_PREFIX" value="s" />
@@ -101,6 +104,10 @@
         <pair source="c" header="h" fileNamingConvention="NONE" />
       </extensions>
     </Objective-C-extensions>
+    <XML>
+      <option name="XML_ALIGN_ATTRIBUTES" value="false" />
+      <option name="XML_SPACE_INSIDE_EMPTY_TAG" value="true" />
+    </XML>
     <codeStyleSettings language="JAVA">
       <option name="ALIGN_MULTILINE_PARAMETERS" value="false" />
       <option name="ALIGN_MULTILINE_FOR" value="false" />
