@@ -18,6 +18,7 @@ package androidx.ui.painting
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.ui.core.toFrameworkRect
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Radius

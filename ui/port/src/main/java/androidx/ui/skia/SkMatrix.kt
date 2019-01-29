@@ -18,6 +18,7 @@ package androidx.ui.skia
 
 import android.graphics.Matrix
 import android.graphics.RectF
+import androidx.ui.core.toFrameworkRectF
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.vectormath64.Matrix4
 
