@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.preference {
 
   public class CheckBoxPreference extends androidx.preference.TwoStatePreference {

@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.emoji.widget {
 
   public class EmojiAppCompatButton extends androidx.appcompat.widget.AppCompatButton {

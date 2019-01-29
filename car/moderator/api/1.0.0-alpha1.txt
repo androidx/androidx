@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.car.moderator {
 
   public class SpeedBumpView extends android.widget.FrameLayout {

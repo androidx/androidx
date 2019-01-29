@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.navigation.testing {
 
   @androidx.navigation.Navigator.Name("test") public class TestNavigator extends androidx.navigation.Navigator<androidx.navigation.testing.TestNavigator.Destination> {
@@ -21,8 +21,8 @@ package androidx.navigation.testing {
 
   public final class TestNavigatorDestinationBuilderKt {
     ctor public TestNavigatorDestinationBuilderKt();
-    method public static void test(androidx.navigation.NavGraphBuilder, @IdRes int id);
-    method public static void test(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.testing.TestNavigatorDestinationBuilder,kotlin.Unit> builder);
+    method public static inline void test(androidx.navigation.NavGraphBuilder, @IdRes int id);
+    method public static inline void test(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.testing.TestNavigatorDestinationBuilder,kotlin.Unit> builder);
   }
 
   public final class TestNavigatorProvider extends androidx.navigation.NavigatorProvider {

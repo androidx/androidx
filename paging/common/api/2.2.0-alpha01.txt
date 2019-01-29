@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.paging {
 
   public abstract class DataSource<Key, Value> {
@@ -153,7 +153,7 @@ package androidx.paging {
     method public androidx.paging.PagedList.Config.Builder setPrefetchDistance(@IntRange(from=0) int);
   }
 
-  public static enum PagedList.LoadState {
+  public enum PagedList.LoadState {
     enum_constant public static final androidx.paging.PagedList.LoadState DONE;
     enum_constant public static final androidx.paging.PagedList.LoadState ERROR;
     enum_constant public static final androidx.paging.PagedList.LoadState IDLE;
@@ -165,7 +165,7 @@ package androidx.paging {
     method public void onLoadStateChanged(androidx.paging.PagedList.LoadType, androidx.paging.PagedList.LoadState, Throwable?);
   }
 
-  public static enum PagedList.LoadType {
+  public enum PagedList.LoadType {
     enum_constant public static final androidx.paging.PagedList.LoadType END;
     enum_constant public static final androidx.paging.PagedList.LoadType REFRESH;
     enum_constant public static final androidx.paging.PagedList.LoadType START;

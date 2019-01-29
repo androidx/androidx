@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.navigation.fragment {
 
   @androidx.navigation.Navigator.Name("fragment") public class FragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.FragmentNavigator.Destination> {

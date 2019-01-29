@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.savedstate.bundle {
 
   public final class BundleSavedStateRegistry extends androidx.savedstate.AbstractSavedStateRegistry<android.os.Bundle> {

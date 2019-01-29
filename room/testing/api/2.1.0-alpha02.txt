@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.room.testing {
 
   public class MigrationTestHelper extends org.junit.rules.TestWatcher {

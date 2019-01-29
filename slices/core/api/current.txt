@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.slice {
 
   @RequiresApi(19) public final class Slice extends androidx.versionedparcelable.CustomVersionedParcelable implements androidx.versionedparcelable.VersionedParcelable {
@@ -45,7 +45,7 @@ package androidx.slice {
     method public final int delete(android.net.Uri, String?, String[]?);
     method @RequiresApi(19) public java.util.List<android.net.Uri> getPinnedSlices();
     method public final String! getType(android.net.Uri!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) @RequiresApi(19) public Object! getWrapper();
+    method @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY) public Object! getWrapper();
     method public final android.net.Uri? insert(android.net.Uri, android.content.ContentValues?);
     method @RequiresApi(19) public abstract androidx.slice.Slice! onBindSlice(android.net.Uri!);
     method public final boolean onCreate();

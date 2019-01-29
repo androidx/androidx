@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.vectordrawable.graphics.drawable {
 
   public class VectorDrawableCompat extends android.graphics.drawable.Drawable implements androidx.core.graphics.drawable.TintAwareDrawable {
