@@ -17,4 +17,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="androidx.appcompat.resources.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
+
+    <application
+            android:theme="@android:style/Theme">
+        <activity
+                android:name="android.app.Activity"/>
+    </application>
+
 </manifest>
