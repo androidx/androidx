@@ -46,6 +46,8 @@ import java.util.List;
  * {@link FragmentActivity#getSupportFragmentManager}.
  */
 public abstract class FragmentManager {
+    static final FragmentFactory DEFAULT_FACTORY = new FragmentFactory();
+
     /**
      * Representation of an entry on the fragment back stack, as created
      * with {@link FragmentTransaction#addToBackStack(String)
@@ -111,6 +113,8 @@ public abstract class FragmentManager {
          */
         public void onBackStackChanged();
     }
+
+    private FragmentFactory mFragmentFactory = null;
 
     /**
      * Start a series of edit operations on the Fragments associated with
@@ -389,15 +393,12 @@ public abstract class FragmentManager {
 
     /**
      * Set a {@link FragmentFactory} for this FragmentManager that will be used
-     * to create new Fragment instances from this point onward. Any child
-     * FragmentManager that does not have a custom FragmentFactory set will also use
-     * this same FragmentFactory.
+     * to create new Fragment instances from this point onward.
      *
      * @param fragmentFactory the factory to use to create new Fragment instances
      */
     public void setFragmentFactory(@NonNull FragmentFactory fragmentFactory) {
-        throw new UnsupportedOperationException(
-                "This method must be overridden to provide an implementation");
+        mFragmentFactory = fragmentFactory;
     }
 
     /**
@@ -407,8 +408,10 @@ public abstract class FragmentManager {
      */
     @NonNull
     public FragmentFactory getFragmentFactory() {
-        throw new UnsupportedOperationException(
-                "This method must be overridden to provide an implementation");
+        if (mFragmentFactory == null) {
+            mFragmentFactory = DEFAULT_FACTORY;
+        }
+        return mFragmentFactory;
     }
 
     /**
