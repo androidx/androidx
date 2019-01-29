@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.legacy.app {
 
   @Deprecated public class ActionBarDrawerToggle implements androidx.drawerlayout.widget.DrawerLayout.DrawerListener {
@@ -35,8 +35,6 @@ package androidx.legacy.widget {
     ctor @Deprecated public Space(android.content.Context, android.util.AttributeSet?, int);
     ctor @Deprecated public Space(android.content.Context, android.util.AttributeSet?);
     ctor @Deprecated public Space(android.content.Context);
-    method @Deprecated public void draw(android.graphics.Canvas!);
-    method @Deprecated protected void onMeasure(int, int);
   }
 
 }

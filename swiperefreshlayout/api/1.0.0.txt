@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.swiperefreshlayout.widget {
 
   public class CircularProgressDrawable extends android.graphics.drawable.Drawable implements android.graphics.drawable.Animatable {

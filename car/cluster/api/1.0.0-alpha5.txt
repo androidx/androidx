@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.car.cluster.navigation {
 
   public final class Destination implements androidx.versionedparcelable.VersionedParcelable {
@@ -21,7 +21,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.Destination.Builder setTraffic(androidx.car.cluster.navigation.Destination.Traffic, androidx.car.cluster.navigation.Destination.Traffic...);
   }
 
-  public static enum Destination.Traffic {
+  public enum Destination.Traffic {
     enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic HIGH;
     enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic LOW;
     enum_constant public static final androidx.car.cluster.navigation.Destination.Traffic MEDIUM;
@@ -35,7 +35,7 @@ package androidx.car.cluster.navigation {
     method public int getMeters();
   }
 
-  public static enum Distance.Unit {
+  public enum Distance.Unit {
     enum_constant public static final androidx.car.cluster.navigation.Distance.Unit FEET;
     enum_constant public static final androidx.car.cluster.navigation.Distance.Unit KILOMETERS;
     enum_constant public static final androidx.car.cluster.navigation.Distance.Unit METERS;
@@ -81,7 +81,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.LaneDirection.Builder setShape(androidx.car.cluster.navigation.LaneDirection.Shape, androidx.car.cluster.navigation.LaneDirection.Shape...);
   }
 
-  public static enum LaneDirection.Shape {
+  public enum LaneDirection.Shape {
     enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape NORMAL_LEFT;
     enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape NORMAL_RIGHT;
     enum_constant public static final androidx.car.cluster.navigation.LaneDirection.Shape SHARP_LEFT;
@@ -114,7 +114,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.Maneuver.Builder setType(androidx.car.cluster.navigation.Maneuver.Type, androidx.car.cluster.navigation.Maneuver.Type...);
   }
 
-  public static enum Maneuver.Type {
+  public enum Maneuver.Type {
     enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DEPART;
     enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DESTINATION;
     enum_constant public static final androidx.car.cluster.navigation.Maneuver.Type DESTINATION_LEFT;
@@ -189,7 +189,7 @@ package androidx.car.cluster.navigation {
     method public androidx.car.cluster.navigation.NavigationState.Builder setServiceStatus(androidx.car.cluster.navigation.NavigationState.ServiceStatus, androidx.car.cluster.navigation.NavigationState.ServiceStatus...);
   }
 
-  public static enum NavigationState.ServiceStatus {
+  public enum NavigationState.ServiceStatus {
     enum_constant public static final androidx.car.cluster.navigation.NavigationState.ServiceStatus NORMAL;
     enum_constant public static final androidx.car.cluster.navigation.NavigationState.ServiceStatus REROUTING;
   }

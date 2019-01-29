@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.car.app {
 
   public class CarAlertDialog extends android.app.Dialog {
@@ -82,7 +82,6 @@ package androidx.car.drawer {
   }
 
   public class DrawerItemViewHolder extends androidx.recyclerview.widget.RecyclerView.ViewHolder implements androidx.car.uxrestrictions.OnUxRestrictionsChangedListener {
-    ctor @VisibleForTesting(otherwise=androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE) public DrawerItemViewHolder(android.view.View);
     method public android.widget.TextView? getBodyView();
     method public android.widget.ImageView? getEndIconView();
     method public android.widget.ImageView getIconView();
@@ -248,7 +247,7 @@ package androidx.car.widget {
     method public androidx.car.widget.CarMenuItem.Builder setTitle(CharSequence);
   }
 
-  public static enum CarMenuItem.DisplayBehavior {
+  public enum CarMenuItem.DisplayBehavior {
     enum_constant public static final androidx.car.widget.CarMenuItem.DisplayBehavior ALWAYS;
     enum_constant public static final androidx.car.widget.CarMenuItem.DisplayBehavior IF_ROOM;
     enum_constant public static final androidx.car.widget.CarMenuItem.DisplayBehavior NEVER;
