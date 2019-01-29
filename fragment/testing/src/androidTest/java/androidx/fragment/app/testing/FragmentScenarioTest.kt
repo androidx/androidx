@@ -20,7 +20,13 @@ import android.os.Bundle
 import androidx.fragment.app.FragmentFactory
 import androidx.fragment.testing.test.R.style.ThemedFragmentTheme
 import androidx.lifecycle.Lifecycle.State
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso.onView
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.espresso.Espresso.openActionBarOverflowOrOptionsMenu
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -392,5 +398,12 @@ class FragmentScenarioTest {
                 assertThat(fragment.numberOfRecreations).isEqualTo(1)
             }
         }
+    }
+
+    @Test
+    fun fragmentWithOptionsMenu() {
+        launchFragment<OptionsMenuFragment>()
+        openActionBarOverflowOrOptionsMenu(ApplicationProvider.getApplicationContext())
+        onView(withText("Item1")).check(matches(isDisplayed()))
     }
 }
