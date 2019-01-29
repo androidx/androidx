@@ -190,6 +190,8 @@ class RenderParagraph(
             return textPainter.maxLines
         }
 
+    override var size: Size = Size(0.0f, 0.0f)
+
     val width: Float
         get() = textPainter.width
 
@@ -267,10 +269,8 @@ class RenderParagraph(
     internal val debugHasOverflowShader: Boolean
         get() = overflowShader != null
 
-    public override fun performLayout() {
-        // TODO(Migration/qqd): Need to figure out where this constraints come from and how to make
-        // it non-null.
-        layoutTextWithConstraints(constraints!!)
+    fun performLayout(constraints: BoxConstraints) {
+        layoutTextWithConstraints(constraints)
         // We grab textPainter.size here because assigning to `size` will trigger
         // us to validate our intrinsic sizes, which will change textPainter's
         // layout because the intrinsic size calculations are destructive.
@@ -317,7 +317,7 @@ class RenderParagraph(
                         )
                     } else {
                         val fadeEnd = size.height
-                        val fadeStart = fadeEnd - fadeSizePainter.height / 2.0f
+                        val fadeStart = fadeEnd - fadeSizePainter.height
                         overflowShader = Gradient.linear(
                             Offset(0.0f, fadeStart),
                             Offset(0.0f, fadeEnd),
@@ -329,6 +329,10 @@ class RenderParagraph(
         } else {
             overflowShader = null
         }
+    }
+
+    public override fun performLayout() {
+        performLayout(constraints!!)
     }
 
     fun paint(canvas: Canvas, offset: Offset) {
@@ -371,7 +375,7 @@ class RenderParagraph(
             if (overflowShader != null) {
                 canvas.translate(offset.dx, offset.dy)
                 val paint = Paint()
-                paint.blendMode = BlendMode.modulate
+                paint.blendMode = BlendMode.multiply
                 paint.shader = overflowShader
                 canvas.drawRect(Offset.zero.and(size), paint)
             }

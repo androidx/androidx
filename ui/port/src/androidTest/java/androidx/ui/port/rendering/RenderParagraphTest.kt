@@ -25,7 +25,9 @@ import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
+import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.paragraph.RenderParagraph
+import androidx.ui.rendering.paragraph.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -138,5 +140,59 @@ class RenderParagraphTest {
         paragraph.layoutText()
 
         assertThat(paragraph.height).isEqualTo(fontSize)
+    }
+
+    @Test
+    fun hasOverflowShaderFalse() {
+        val fontSize = 20.0f
+        val text = "Hello"
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val textSpan = TextSpan(text = text, style = textStyle)
+        val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
+
+        paragraph.performLayout(BoxConstraints())
+
+        assertThat(paragraph.debugHasOverflowShader).isFalse()
+    }
+
+    @Test
+    fun hasOverflowShaderFadeHorizontallyTrue() {
+        val fontSize = 20.0f
+        var text = ""
+        for (i in 1..15) {
+            text = text + "Hello World"
+        }
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val textSpan = TextSpan(text = text, style = textStyle)
+        val paragraph = RenderParagraph(
+                text = textSpan,
+                overflow = TextOverflow.FADE,
+                textDirection = TextDirection.LTR,
+                softWrap = false,
+                maxLines = 1)
+
+        paragraph.performLayout(BoxConstraints(maxWidth = 100.0f))
+
+        assertThat(paragraph.debugHasOverflowShader).isTrue()
+    }
+
+    @Test
+    fun hasOverflowShaderFadeVerticallyTrue() {
+        val fontSize = 20.0f
+        var text = ""
+        for (i in 1..30) {
+            text = text + "Hello World"
+        }
+        val textStyle = TextStyle(fontSize = fontSize, fontFamily = fontFamily)
+        val textSpan = TextSpan(text = text, style = textStyle)
+        val paragraph = RenderParagraph(
+                text = textSpan,
+                overflow = TextOverflow.FADE,
+                textDirection = TextDirection.LTR,
+                maxLines = 2)
+
+        paragraph.performLayout(BoxConstraints(maxWidth = 100.0f))
+
+        assertThat(paragraph.debugHasOverflowShader).isTrue()
     }
 }

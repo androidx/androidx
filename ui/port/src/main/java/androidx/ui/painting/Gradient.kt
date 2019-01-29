@@ -205,9 +205,11 @@ class Gradient private constructor(private val shader: android.graphics.Shader) 
         }
 
         private fun _validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
-            if (colorStops == null && colors.size != 2) {
-                throw IllegalArgumentException("colors must have length 2 if colorStops " +
-                        "is omitted.")
+            if (colorStops == null) {
+                if (colors.size != 2) {
+                    throw IllegalArgumentException("colors must have length 2 if colorStops " +
+                            "is omitted.")
+                }
             } else if (colors.size != colorStops?.size) {
                 throw IllegalArgumentException("colors and colorStops arguments must have" +
                         " equal length.")
