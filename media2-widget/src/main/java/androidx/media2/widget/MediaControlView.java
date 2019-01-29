@@ -84,7 +84,7 @@ import java.util.concurrent.Executor;
  * A View that contains the controls for {@link MediaPlayer}.
  * It provides a wide range of buttons that serve the following functions: play/pause,
  * rewind/fast-forward, skip to next/previous, select subtitle track, enter/exit full screen mode,
- * adjust video quality, select audio track, and adjust playback speed.
+ * select audio track, and adjust playback speed.
  * <p>
  * The easiest way to use a MediaControlView is by creating a {@link VideoView}, which will
  * internally create a MediaControlView instance and handle all the commands from buttons inside
@@ -134,8 +134,7 @@ public class MediaControlView extends BaseLayout {
     private static final int SETTINGS_MODE_AUDIO_TRACK = 0;
     private static final int SETTINGS_MODE_PLAYBACK_SPEED = 1;
     private static final int SETTINGS_MODE_SUBTITLE_TRACK = 2;
-    private static final int SETTINGS_MODE_VIDEO_QUALITY = 3;
-    private static final int SETTINGS_MODE_MAIN = 4;
+    private static final int SETTINGS_MODE_MAIN = 3;
     private static final int PLAYBACK_SPEED_1x_INDEX = 3;
 
     private static final int MEDIA_TYPE_DEFAULT = 0;
@@ -191,7 +190,6 @@ public class MediaControlView extends BaseLayout {
     int mSettingsMode;
     int mSelectedSubtitleTrackIndex;
     int mSelectedAudioTrackIndex;
-    int mSelectedVideoQualityIndex;
     int mSelectedSpeedIndex;
     int mMediaType;
     int mSizeType;
@@ -258,7 +256,6 @@ public class MediaControlView extends BaseLayout {
     ImageButton mFullScreenButton;
     ImageButton mOverflowShowButton;
     ImageButton mOverflowHideButton;
-    private ImageButton mVideoQualityButton;
     private ImageButton mSettingsButton;
     private TextView mAdRemainingView;
 
@@ -272,7 +269,6 @@ public class MediaControlView extends BaseLayout {
     private List<Integer> mSettingsIconIdsList;
     List<String> mSubtitleDescriptionsList;
     List<String> mAudioTrackList;
-    List<String> mVideoQualityList;
     List<String> mPlaybackSpeedTextList;
     List<Integer> mPlaybackSpeedMultBy100List;
     int mCustomPlaybackSpeedIndex;
@@ -537,10 +533,6 @@ public class MediaControlView extends BaseLayout {
         mSettingsButton = v.findViewById(R.id.settings);
         if (mSettingsButton != null) {
             mSettingsButton.setOnClickListener(mSettingsButtonListener);
-        }
-        mVideoQualityButton = v.findViewById(R.id.video_quality);
-        if (mVideoQualityButton != null) {
-            mVideoQualityButton.setOnClickListener(mVideoQualityListener);
         }
         mAdRemainingView = v.findViewById(R.id.ad_remaining);
 
@@ -1131,19 +1123,6 @@ public class MediaControlView extends BaseLayout {
         }
     };
 
-    private final OnClickListener mVideoQualityListener = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            removeCallbacks(mHideMainBars);
-            removeCallbacks(mHideProgressBar);
-
-            mSettingsMode = SETTINGS_MODE_VIDEO_QUALITY;
-            mSubSettingsAdapter.setTexts(mVideoQualityList);
-            mSubSettingsAdapter.setCheckPosition(mSelectedVideoQualityIndex);
-            displaySettingsWindow(mSubSettingsAdapter);
-        }
-    };
-
     private final OnClickListener mFullScreenListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -1252,10 +1231,6 @@ public class MediaControlView extends BaseLayout {
                     }
                     dismissSettingsWindow();
                     break;
-                case SETTINGS_MODE_VIDEO_QUALITY:
-                    mSelectedVideoQualityIndex = position;
-                    dismissSettingsWindow();
-                    break;
             }
         }
     };
@@ -1300,7 +1275,6 @@ public class MediaControlView extends BaseLayout {
             mTitleView.setText(title.toString() + " - " + artist.toString());
 
             // Remove unnecessary buttons
-            mVideoQualityButton.setVisibility(View.GONE);
             if (mFfwdButton != null) {
                 mFfwdButton.setVisibility(View.GONE);
             }
@@ -1563,10 +1537,6 @@ public class MediaControlView extends BaseLayout {
         mAudioTrackList = new ArrayList<String>();
         mAudioTrackList.add(
                 mResources.getString(R.string.MediaControlView_audio_track_none_text));
-
-        mVideoQualityList = new ArrayList<String>();
-        mVideoQualityList.add(
-                mResources.getString(R.string.MediaControlView_video_quality_auto_text));
 
         mPlaybackSpeedTextList = new ArrayList<String>(Arrays.asList(
                 mResources.getStringArray(R.array.MediaControlView_playback_speeds)));
