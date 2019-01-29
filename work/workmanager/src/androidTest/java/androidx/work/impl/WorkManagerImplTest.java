@@ -499,14 +499,12 @@ public class WorkManagerImplTest {
                 .build();
         assertThat(periodicWork.getWorkSpec().periodStartTime, is(0L));
 
-        long beforeEnqueueTime = System.currentTimeMillis();
-
         mWorkManagerImpl.enqueue(Collections.singletonList(periodicWork))
                 .getResult()
                 .get();
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getStringId());
-        assertThat(workSpec.periodStartTime, is(greaterThanOrEqualTo(beforeEnqueueTime)));
+        assertThat(workSpec.periodStartTime, is(0L));
     }
 
     @Test
