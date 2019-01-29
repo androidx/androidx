@@ -24,6 +24,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.TestActivity
 import androidx.core.ktx.test.R
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
@@ -36,6 +37,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 
 @SdkSuppress(minSdkVersion = 19)
+@MediumTest
 class TransitionTest {
     @JvmField @Rule val rule = ActivityTestRule<TestActivity>(TestActivity::class.java)
 

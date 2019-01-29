@@ -21,6 +21,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.ActivityTestRule
 import org.junit.Assert.assertTrue
@@ -31,6 +32,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @RunWith(AndroidJUnit4::class)
+@LargeTest
 class SafeTransactionInOnResumeTest {
 
     @get:Rule
