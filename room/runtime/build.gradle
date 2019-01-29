@@ -36,6 +36,7 @@ dependencies {
     api(project(":sqlite:sqlite"))
     implementation(ARCH_CORE_RUNTIME)
     implementation(ANDROIDX_CORE)
+    implementation(ANDROIDX_COLLECTION)
     compileOnly(ARCH_PAGING_COMMON)
     compileOnly(ARCH_LIFECYCLE_LIVEDATA_CORE)
     implementation(ANDROIDX_COLLECTION)

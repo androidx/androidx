@@ -12,6 +12,7 @@ dependencies {
     api('androidx.versionedparcelable:versionedparcelable:1.1.0-alpha01')
     api(GUAVA_LISTENABLE_FUTURE)
     implementation(project(":concurrent:concurrent-futures"))
+    implementation(project(":collection"))
     compileOnly(CHECKER_FRAMEWORK)
     // Depend on media2-exoplayer so that the library groupId is set to match media2.
     implementation(project(":media2-exoplayer"))

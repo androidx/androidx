@@ -25,6 +25,7 @@ plugins {
 dependencies {
     api(project(":annotation"))
     api(project(":core"))
+    implementation(project(":collection"))
 
     androidTestImplementation(JUNIT)
     androidTestImplementation(TEST_EXT_JUNIT)
