@@ -440,7 +440,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         val stmtVar = scope.getTmpVar("_stmt")
         val listSizeArgs = queryWriter.prepareQuery(sqlVar, scope)
         scope.builder().apply {
-            addStatement("$T $L = $N.compileStatement($L)",
+            addStatement("final $T $L = $N.compileStatement($L)",
                     SupportDbTypeNames.SQLITE_STMT, stmtVar, dbField, sqlVar)
             queryWriter.bindArgs(stmtVar, listSizeArgs, scope)
 
