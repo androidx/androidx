@@ -378,7 +378,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         mLatch.await(TEST_TIMEOUT, TimeUnit.SECONDS);
         assertThat(mLatch.getCount(), is(0L));
-        verify(mSpyProcessor, times(0)).startWork(workSpecId);
+        verify(mSpyProcessor, times(1)).startWork(workSpecId);
     }
 
     @Test
@@ -584,11 +584,13 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 .build();
 
         OneTimeWorkRequest noConstraints = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setScheduleRequestedAt(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
         OneTimeWorkRequest workWithConstraints = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+                .setScheduleRequestedAt(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
                         .setRequiresCharging(true)
                         .build())
@@ -597,6 +599,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         long hourFromNow = System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1);
         OneTimeWorkRequest workInTheFuture = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setPeriodStartTime(hourFromNow, TimeUnit.MILLISECONDS)
+                .setScheduleRequestedAt(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .build();
 
         insertWork(failed);
