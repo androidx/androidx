@@ -103,6 +103,17 @@ public class SystemJobScheduler implements Scheduler {
                 SystemIdInfo info = workDatabase.systemIdInfoDao()
                         .getSystemIdInfo(workSpec.id);
 
+                if (info != null) {
+                    JobInfo jobInfo = mJobScheduler.getPendingJob(info.systemId);
+                    if (jobInfo != null) {
+                        Logger.get().debug(TAG, String.format(
+                                "Skipping scheduling %s because JobScheduler is aware of it "
+                                        + "already.",
+                                workSpec.id));
+                        continue;
+                    }
+                }
+
                 int jobId = info != null ? info.systemId : mIdGenerator.nextJobSchedulerIdWithRange(
                         mWorkManager.getConfiguration().getMinJobSchedulerId(),
                         mWorkManager.getConfiguration().getMaxJobSchedulerId());

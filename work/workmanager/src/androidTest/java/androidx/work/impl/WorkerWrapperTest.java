@@ -682,7 +682,8 @@ public class WorkerWrapperTest extends DatabaseTest {
         WorkerWrapper workerWrapper = createBuilder(periodicWorkId).build();
         FutureListener listener = createAndAddFutureListener(workerWrapper);
         workerWrapper.run();
-        assertThat(listener.mResult, is(false));
+        // Should get rescheduled
+        assertThat(listener.mResult, is(true));
     }
 
     @Test

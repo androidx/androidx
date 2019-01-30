@@ -112,6 +112,14 @@ public class DelayMetCommandHandler implements
 
         cleanUp();
 
+        if (needsReschedule) {
+            // We need to reschedule the WorkSpec. WorkerWrapper may also call Scheduler.schedule()
+            // but given that we will only consider WorkSpecs that are eligible that it safe.
+            Intent reschedule = CommandHandler.createScheduleWorkIntent(mContext, mWorkSpecId);
+            mDispatcher.postOnMainThread(
+                    new SystemAlarmDispatcher.AddRunnable(mDispatcher, reschedule, mStartId));
+        }
+
         if (mHasConstraints) {
             // The WorkSpec had constraints. Once the execution of the worker is complete,
             // we might need to disable constraint proxies which were previously enabled for
