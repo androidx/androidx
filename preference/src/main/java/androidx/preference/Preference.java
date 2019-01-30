@@ -572,12 +572,10 @@ public class Preference implements Comparable<Preference> {
         holder.setDividerAllowedAbove(mAllowDividerAbove);
         holder.setDividerAllowedBelow(mAllowDividerBelow);
 
-        if (isCopyingEnabled()) {
-            if (mOnCopyListener == null) {
-                mOnCopyListener = new OnPreferenceCopyListener(this);
-            }
-            holder.itemView.setOnCreateContextMenuListener(mOnCopyListener);
+        if (isCopyingEnabled() && mOnCopyListener == null) {
+            mOnCopyListener = new OnPreferenceCopyListener(this);
         }
+        holder.itemView.setOnCreateContextMenuListener(isCopyingEnabled() ? mOnCopyListener : null);
     }
 
     /**
