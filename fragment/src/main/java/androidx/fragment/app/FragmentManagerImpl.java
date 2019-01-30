@@ -2781,9 +2781,10 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
             setFragmentFactory(new FragmentFactory() {
                 @SuppressWarnings("deprecation")
                 @NonNull
-                public Fragment instantiate(@NonNull Context context, @NonNull String className,
-                                            @Nullable Bundle args) {
-                    return mHost.instantiate(context, className, args);
+                @Override
+                public Fragment instantiate(@NonNull ClassLoader classLoader,
+                        @NonNull String className, @Nullable Bundle args) {
+                    return mHost.instantiate(mHost.getContext(), className, args);
                 }
             });
         }
