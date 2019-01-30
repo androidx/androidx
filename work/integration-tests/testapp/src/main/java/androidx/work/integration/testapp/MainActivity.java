@@ -279,5 +279,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.run_retry_worker).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(
+                        RetryWorker.class).build();
+
+                WorkManager.getInstance().enqueueUniqueWork(RetryWorker.TAG, REPLACE, request);
+            }
+        });
+
     }
 }
