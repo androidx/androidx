@@ -146,10 +146,18 @@ public abstract class AppCompatDelegate {
      */
     public static final int MODE_NIGHT_AUTO_BATTERY = 3;
 
-    static final int MODE_NIGHT_UNSPECIFIED = -100;
+    /**
+     * An unspecified mode for night mode. This is primarily used with
+     * {@link #setLocalNightMode(int)}, to allow the default night mode to be used.
+     * If both the default and local night modes are set to this value, then the default value of
+     * {@link #MODE_NIGHT_FOLLOW_SYSTEM} is applied.
+     *
+     * @see AppCompatDelegate#setDefaultNightMode(int)
+     */
+    public static final int MODE_NIGHT_UNSPECIFIED = -100;
 
     @NightMode
-    private static int sDefaultNightMode = MODE_NIGHT_FOLLOW_SYSTEM;
+    private static int sDefaultNightMode = MODE_NIGHT_UNSPECIFIED;
 
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
@@ -478,8 +486,20 @@ public abstract class AppCompatDelegate {
      *
      * <p>As this will call {@link #applyDayNight()}, the host component might be
      * recreated automatically.</p>
+     *
+     * <p>It is not recommended to use this method on a delegate attached to a {@link Dialog}.
+     * Dialogs use the host Activity as their context, resulting in the dialog's night mode
+     * overriding the Activity's night mode.
      */
     public abstract void setLocalNightMode(@NightMode int mode);
+
+    /**
+     * Returns the night mode previously set via {@link #getLocalNightMode()}.
+     */
+    @NightMode
+    public int getLocalNightMode() {
+        return MODE_NIGHT_UNSPECIFIED;
+    }
 
     /**
      * Sets the default night mode. This is used across all activities/dialogs but can be overridden
