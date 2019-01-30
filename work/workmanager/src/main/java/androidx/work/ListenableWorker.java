@@ -389,6 +389,11 @@ public abstract class ListenableWorker {
                 String name = Success.class.getName();
                 return 31 * name.hashCode() + mOutputData.hashCode();
             }
+
+            @Override
+            public String toString() {
+                return "Success {" + "mOutputData=" + mOutputData + '}';
+            }
         }
 
         /**
@@ -439,6 +444,11 @@ public abstract class ListenableWorker {
                 String name = Failure.class.getName();
                 return 31 * name.hashCode() + mOutputData.hashCode();
             }
+
+            @Override
+            public String toString() {
+                return "Failure {" +  "mOutputData=" + mOutputData +  '}';
+            }
         }
 
         /**
@@ -465,6 +475,11 @@ public abstract class ListenableWorker {
             public int hashCode() {
                 String name = Retry.class.getName();
                 return name.hashCode();
+            }
+
+            @Override
+            public String toString() {
+                return "Retry";
             }
         }
     }
