@@ -22,6 +22,7 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.painting.Path
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.composer
 
 /**
  * A widget that clips its child using a path.

@@ -29,6 +29,7 @@ import androidx.ui.scheduler.ticker.TickerProvider
 import androidx.ui.widgets.binding.WidgetsFlutterBinding
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 
 // TODO("Migration|Andrey: Utils for using AnimationController in material package")

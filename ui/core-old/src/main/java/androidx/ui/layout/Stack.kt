@@ -26,6 +26,7 @@ import androidx.ui.core.max
 import androidx.ui.core.minus
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 /**
  * Collects information about the children of a [Stack] when its body is executed

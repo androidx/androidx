@@ -18,6 +18,7 @@ package androidx.r4a
 
 import android.widget.TextView
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 @Composable
 fun HelloWorld() {

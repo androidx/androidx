@@ -34,6 +34,7 @@ import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 
 // TODO("Migration|Andrey: While composables work way better when used from the same module")

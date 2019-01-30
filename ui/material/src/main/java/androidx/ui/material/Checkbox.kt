@@ -35,6 +35,7 @@ import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
 import androidx.ui.painting.Path
 import com.google.r4a.Component
+import com.google.r4a.composer
 
 // TODO(clara): This should not be a class once R4A bug is fixed
 class Checkbox : Component() {

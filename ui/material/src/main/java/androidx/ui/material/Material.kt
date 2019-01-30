@@ -44,6 +44,7 @@ import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 
 // TODO("Migration|Andrey: Enums doesn't work in R4a module. Created tmp java class MaterialType")
@@ -482,6 +483,7 @@ fun MaterialInkControllerProvider(@Children children: (MaterialInkController) ->
             throw IllegalStateException(message.toString())
         } else {
             <children p1=inkFeatures/>
+            Unit  // Work around bug in Kotlin IR
         }
     </MaterialInkControllerAmbient.Consumer>
 }

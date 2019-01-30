@@ -50,6 +50,7 @@ import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
+import com.google.r4a.composer
 import com.google.r4a.Recompose
 
 

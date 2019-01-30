@@ -33,6 +33,7 @@ import androidx.ui.core.dp
 import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 /**
  * Draws a rectangle of a specified dimension, or to its max incoming constraints if

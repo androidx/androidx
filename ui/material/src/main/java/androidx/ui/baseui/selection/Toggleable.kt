@@ -18,6 +18,7 @@ package androidx.ui.baseui.selection
 
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 // TODO(clara): This will emit Semantics and Gestures once those pillars are working.
 @Composable

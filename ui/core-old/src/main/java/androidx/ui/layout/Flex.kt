@@ -27,6 +27,7 @@ import androidx.ui.core.plus
 import androidx.ui.core.times
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 /**
  * Collects information about the children of a [FlexColumn] or [FlexColumn]

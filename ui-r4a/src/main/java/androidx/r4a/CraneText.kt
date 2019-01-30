@@ -12,6 +12,7 @@ import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.TextOverflow
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 val displayText = "Text Demo"
 val displayTextChinese = "文本演示"

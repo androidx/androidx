@@ -19,6 +19,7 @@ package androidx.ui.core
 import androidx.ui.core.pointerinput.PointerInputHandler
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.composer
 
 class PointerInput(
     @Children var children: () -> Unit

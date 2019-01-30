@@ -24,6 +24,7 @@ import androidx.ui.semantics.SemanticsSortKey
 import androidx.ui.semantics.SetSelectionHandler
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 @Composable
 fun Semantics(

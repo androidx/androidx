@@ -40,6 +40,7 @@ import androidx.ui.vectorgraphics.EMPTY_PATH
 import androidx.ui.vectorgraphics.PathNode
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.composer
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException

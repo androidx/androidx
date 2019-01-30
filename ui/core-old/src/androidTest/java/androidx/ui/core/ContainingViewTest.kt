@@ -57,6 +57,7 @@ import java.lang.Math.round
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
+import com.google.r4a.composer
 
 @SmallTest
 @RunWith(JUnit4::class)

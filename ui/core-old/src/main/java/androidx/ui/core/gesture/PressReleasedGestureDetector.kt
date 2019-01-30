@@ -27,6 +27,7 @@ import androidx.ui.core.pointerinput.changedToUpIgnoreConsumed
 import androidx.ui.core.pointerinput.consumeDownChange
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.composer
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**

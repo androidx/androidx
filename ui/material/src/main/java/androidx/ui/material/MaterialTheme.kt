@@ -24,6 +24,7 @@ import androidx.ui.painting.TextStyle
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.composer
 
 /**
  * This Component defines the styling principles from the Material design specification. It must be

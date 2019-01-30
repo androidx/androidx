@@ -30,6 +30,7 @@ import androidx.ui.core.toDp
 import androidx.ui.engine.geometry.Offset
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.composer
 
 // TODO(shepshapard): Convert to functional component with effects once effects are ready.
 /**

@@ -19,6 +19,7 @@ package androidx.ui.core.gesture
 import androidx.ui.core.Position
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 @Composable
 fun PressGestureDetector(

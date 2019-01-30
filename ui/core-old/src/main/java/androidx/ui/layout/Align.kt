@@ -31,6 +31,7 @@ import androidx.ui.core.plus
 import androidx.ui.core.times
 import com.google.r4a.Children
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 /**
  * Represents a positioning of a point inside a 2D box. [Alignment] is often used to define

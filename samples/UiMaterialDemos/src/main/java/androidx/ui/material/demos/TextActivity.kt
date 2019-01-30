@@ -26,6 +26,7 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
 import com.google.r4a.setContent
+import com.google.r4a.composer
 
 open class TextActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

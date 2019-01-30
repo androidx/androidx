@@ -32,6 +32,7 @@ import androidx.ui.material.MaterialTheme
 import androidx.ui.painting.Color
 import com.google.r4a.Composable
 import com.google.r4a.setContent
+import com.google.r4a.composer
 
 open class SelectionControlsActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {

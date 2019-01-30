@@ -19,6 +19,7 @@ package androidx.ui.material
 import androidx.ui.core.CurrentTextStyleProvider
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.composer
 
 
 class H1(@Children val content: () -> Unit) : Component() {

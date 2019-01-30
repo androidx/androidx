@@ -19,6 +19,7 @@ import androidx.ui.painting.Canvas
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
+import com.google.r4a.composer
 
 /**
  * Use Draw to get a [Canvas] to paint into the parent.

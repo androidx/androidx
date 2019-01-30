@@ -34,6 +34,7 @@ import androidx.ui.painting.Color
 import androidx.ui.widgets.gesturedetector.GestureDetector
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.composer
 
 /**
  * An ink feature that displays a [color] "splash" in response to a user
