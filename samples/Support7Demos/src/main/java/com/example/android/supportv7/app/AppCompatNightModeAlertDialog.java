@@ -48,9 +48,15 @@ public class AppCompatNightModeAlertDialog extends AppCompatActivity {
         dialog.show();
     }
 
-    public void setModeNightAuto(View view) {
+    public void setModeNightAutoTime(View view) {
         AlertDialog dialog = createAlertDialog();
-        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO);
+        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);
+        dialog.show();
+    }
+
+    public void setModeNightAutoBattery(View view) {
+        AlertDialog dialog = createAlertDialog();
+        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);
         dialog.show();
     }
 

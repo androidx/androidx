@@ -37,8 +37,13 @@
 
         <Button android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/mode_night_auto"
-                android:onClick="setModeNightAuto"/>
+                android:text="@string/mode_night_auto_time"
+                android:onClick="setModeNightAutoTime"/>
+
+        <Button android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/mode_night_auto_battery"
+                android:onClick="setModeNightAutoBattery"/>
 
         <View
             android:layout_width="match_parent"

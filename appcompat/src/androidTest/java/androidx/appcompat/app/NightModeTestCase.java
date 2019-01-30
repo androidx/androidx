@@ -102,7 +102,7 @@ public class NightModeTestCase {
     }
 
     @Test
-    public void testNightModeAutoRecreatesOnTimeChange() throws Throwable {
+    public void testNightModeAutoTimeRecreatesOnTimeChange() throws Throwable {
         // Create a fake TwilightManager and set it as the app instance
         final FakeTwilightManager twilightManager = new FakeTwilightManager();
         TwilightManager.setInstance(twilightManager);
@@ -113,8 +113,8 @@ public class NightModeTestCase {
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)));
 
         // Set MODE_NIGHT_AUTO so that we will change to night mode automatically
-        final NightModeActivity newActivity =
-                setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
+        final NightModeActivity newActivity = setLocalNightModeAndWaitForRecreate(activity,
+                        AppCompatDelegate.MODE_NIGHT_AUTO_TIME);
         final AppCompatDelegateImpl newDelegate =
                 (AppCompatDelegateImpl) newActivity.getDelegate();
 
@@ -123,13 +123,13 @@ public class NightModeTestCase {
             @Override
             public void run() {
                 twilightManager.setIsNight(true);
-                newDelegate.getAutoNightModeManager().dispatchTimeChanged();
+                newDelegate.getAutoTimeNightModeManager().onChange();
             }
         });
 
         RecreatedAppCompatActivity.sResumed = new CountDownLatch(1);
         assertTrue(RecreatedAppCompatActivity.sResumed.await(1, TimeUnit.SECONDS));
-        // At this point recreate that has been triggered by dispatchTimeChanged call
+        // At this point recreate that has been triggered by onChange call
         // has completed
 
         // Check that the text has changed, signifying that night resources are being used
@@ -137,7 +137,7 @@ public class NightModeTestCase {
     }
 
     @Test
-    public void testNightModeAutoRecreatesOnResume() throws Throwable {
+    public void testNightModeAutoTimeRecreatesOnResume() throws Throwable {
         // Create a fake TwilightManager and set it as the app instance
         final FakeTwilightManager twilightManager = new FakeTwilightManager();
         TwilightManager.setInstance(twilightManager);
@@ -145,7 +145,8 @@ public class NightModeTestCase {
         NightModeActivity activity = mActivityTestRule.getActivity();
 
         // Set MODE_NIGHT_AUTO so that we will change to night mode automatically
-        activity = setLocalNightModeAndWaitForRecreate(activity, AppCompatDelegate.MODE_NIGHT_AUTO);
+        activity = setLocalNightModeAndWaitForRecreate(activity,
+                AppCompatDelegate.MODE_NIGHT_AUTO_TIME);
         // Verify that we're currently in day mode
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)));
 
