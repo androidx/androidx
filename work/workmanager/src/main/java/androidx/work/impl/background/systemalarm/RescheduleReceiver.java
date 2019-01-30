@@ -33,6 +33,7 @@ public class RescheduleReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Logger.get().debug(TAG, String.format("Received intent %s", intent));
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
             WorkManagerImpl workManager = WorkManagerImpl.getInstance();
             if (workManager == null) {
