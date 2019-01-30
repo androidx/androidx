@@ -143,21 +143,78 @@ package androidx.ui.core {
     property public final T? value;
   }
 
-  public final class SemanticsR4ANode extends androidx.ui.core.SingleChildComponentNode {
-    ctor public SemanticsR4ANode(boolean container, boolean explicitChildNodes, androidx.ui.core.semantics.SemanticsProperties properties);
+  public final class SemanticsComponentNode extends androidx.ui.core.SingleChildComponentNode {
+    ctor public SemanticsComponentNode(boolean container, boolean explicitChildNodes, Boolean? enabled, Boolean? checked, Boolean? selected, Boolean? button, Boolean? header, Boolean? textField, Boolean? focused, Boolean? inMutuallyExclusiveGroup, Boolean? obscured, Boolean? scopesRoute, Boolean? namesRoute, Boolean? hidden, String? label, String? value, String? hint, androidx.ui.engine.text.TextDirection? textDirection, String? testTag, java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> actions);
+    ctor public SemanticsComponentNode();
+    method public java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> getActions();
+    method public Boolean? getButton();
+    method public Boolean? getChecked();
     method public boolean getContainer();
+    method public Boolean? getEnabled();
     method public boolean getExplicitChildNodes();
-    method public androidx.ui.core.semantics.SemanticsProperties getProperties();
+    method public Boolean? getFocused();
+    method public Boolean? getHeader();
+    method public Boolean? getHidden();
+    method public String? getHint();
+    method public Boolean? getInMutuallyExclusiveGroup();
+    method public String? getLabel();
+    method public Boolean? getNamesRoute();
+    method public Boolean? getObscured();
+    method public Boolean? getScopesRoute();
+    method public Boolean? getSelected();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getSemanticsConfiguration();
+    method public String? getTestTag();
+    method public androidx.ui.engine.text.TextDirection? getTextDirection();
+    method public Boolean? getTextField();
+    method public String? getValue();
+    method public void setActions(java.util.List<? extends androidx.ui.core.semantics.SemanticsAction<?>> p);
+    method public void setButton(Boolean? p);
+    method public void setChecked(Boolean? p);
     method public void setContainer(boolean p);
+    method public void setEnabled(Boolean? p);
     method public void setExplicitChildNodes(boolean p);
-    method public void setProperties(androidx.ui.core.semantics.SemanticsProperties p);
+    method public void setFocused(Boolean? p);
+    method public void setHeader(Boolean? p);
+    method public void setHidden(Boolean? p);
+    method public void setHint(String? p);
+    method public void setInMutuallyExclusiveGroup(Boolean? p);
+    method public void setLabel(String? p);
+    method public void setNamesRoute(Boolean? p);
+    method public void setObscured(Boolean? p);
+    method public void setScopesRoute(Boolean? p);
+    method public void setSelected(Boolean? p);
+    method public void setTestTag(String? p);
+    method public void setTextDirection(androidx.ui.engine.text.TextDirection? p);
+    method public void setTextField(Boolean? p);
+    method public void setValue(String? p);
+    property public final java.util.List<androidx.ui.core.semantics.SemanticsAction<?>> actions;
+    property public final Boolean? button;
+    property public final Boolean? checked;
+    property public final boolean container;
+    property public final Boolean? enabled;
+    property public final boolean explicitChildNodes;
+    property public final Boolean? focused;
+    property public final Boolean? header;
+    property public final Boolean? hidden;
+    property public final String? hint;
+    property public final Boolean? inMutuallyExclusiveGroup;
+    property public final String? label;
+    property public final Boolean? namesRoute;
+    property public final Boolean? obscured;
+    property public final Boolean? scopesRoute;
+    property public final Boolean? selected;
+    property public final androidx.ui.core.semantics.SemanticsConfiguration semanticsConfiguration;
+    property public final String? testTag;
+    property public final androidx.ui.engine.text.TextDirection? textDirection;
+    property public final Boolean? textField;
+    property public final String? value;
   }
 
   public final class SemanticsTreeNodeImpl implements androidx.ui.core.SemanticsTreeNode {
-    ctor public SemanticsTreeNodeImpl(androidx.ui.core.SemanticsTreeNode? parent, androidx.ui.core.semantics.SemanticsProperties data, androidx.ui.core.LayoutNode? layoutNode);
+    ctor public SemanticsTreeNodeImpl(androidx.ui.core.SemanticsTreeNode? parent, androidx.ui.core.semantics.SemanticsConfiguration data, androidx.ui.core.LayoutNode? layoutNode);
     method public void addChild(androidx.ui.core.SemanticsTreeNode child);
     method public java.util.Set<androidx.ui.core.SemanticsTreeNode> getChildren();
-    method public androidx.ui.core.semantics.SemanticsProperties getData();
+    method public androidx.ui.core.semantics.SemanticsConfiguration getData();
     method public androidx.ui.core.PxPosition? getGlobalPosition();
     method public androidx.ui.core.SemanticsTreeNode? getParent();
     property public java.util.Set<androidx.ui.core.SemanticsTreeNode> children;

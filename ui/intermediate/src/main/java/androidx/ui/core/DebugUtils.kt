@@ -13,15 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.test
 
-import androidx.ui.core.PxPosition
-import androidx.ui.core.SemanticsTreeNode
-import androidx.ui.core.semantics.SemanticsConfiguration
+package androidx.ui.core
 
-class SemanticsTreeNodeStub(override val data: SemanticsConfiguration) : SemanticsTreeNode {
-    override val parent: SemanticsTreeNode?
-        get() = null
-    override val children: Set<SemanticsTreeNode> = setOf()
-    override val globalPosition: PxPosition? = null
+inline fun ifDebug(block: () -> Unit) {
+    // Right now, we always run these.  At a later point, we may revisit this
+    block()
 }

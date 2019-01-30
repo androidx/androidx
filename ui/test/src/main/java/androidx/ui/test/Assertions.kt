@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsConfiguration
 
 /**
  * Asserts that current component is visible.
@@ -24,7 +24,7 @@ import androidx.ui.core.semantics.SemanticsProperties
 // TODO(b/123702531): Provide guarantees of being visible VS being actually displayed
 fun SemanticsTreeQuery.assertIsVisible() =
     verifyAssertOnExactlyOne("The component is not visible!") {
-        it.hidden == null || it.hidden == false
+        !it.isHidden
     }
 
 /**
@@ -34,7 +34,7 @@ fun SemanticsTreeQuery.assertIsVisible() =
  */
 fun SemanticsTreeQuery.assertIsHidden() =
     verifyAssertOnExactlyOne("The component is visible!") {
-        it.hidden == true
+        it.isHidden
     }
 
 /**
@@ -56,13 +56,13 @@ fun SemanticsTreeQuery.assertDoesNotExist(): SemanticsTreeQuery {
 fun SemanticsTreeQuery.assertIsChecked() =
     // TODO(pavlis): Throw exception if component is not checkable
     verifyAssertOnExactlyOne("The component is not checked!") {
-        it.checked == true
+        it.isChecked == true
     }
 
 fun SemanticsTreeQuery.assertIsNotChecked() =
     // TODO(pavlis): Throw exception if component is not checkable
     verifyAssertOnExactlyOne("The component is checked!") {
-        it.checked != true
+        it.isChecked != true
     }
 
 fun SemanticsTreeQuery.assertIsSelected(excepted: Boolean) =
@@ -70,7 +70,7 @@ fun SemanticsTreeQuery.assertIsSelected(excepted: Boolean) =
     verifyAssertOnExactlyOne(
         "The component is expected to be selected = '$excepted', but it's not!"
     ) {
-        it.selected == excepted
+        it.isSelected == excepted
     }
 
 fun SemanticsTreeQuery.assertIsInMutuallyExclusiveGroup() =
@@ -78,11 +78,11 @@ fun SemanticsTreeQuery.assertIsInMutuallyExclusiveGroup() =
     verifyAssertOnExactlyOne(
         "The component is expected to be mutually exclusive group, but it's not!"
     ) {
-        it.inMutuallyExclusiveGroup == true
+        it.isInMutuallyExclusiveGroup == true
     }
 
 fun SemanticsTreeQuery.assertSemanticsIsEqualTo(
-    expectedProperties: SemanticsProperties
+    expectedProperties: SemanticsConfiguration
 ): SemanticsTreeQuery {
     val foundNodes = findAllMatching()
     if (foundNodes.size != 1) {
@@ -95,7 +95,7 @@ fun SemanticsTreeQuery.assertSemanticsIsEqualTo(
 
 internal fun SemanticsTreeQuery.verifyAssertOnExactlyOne(
     assertionMessage: String,
-    condition: (SemanticsProperties) -> Boolean
+    condition: (SemanticsConfiguration) -> Boolean
 ): SemanticsTreeQuery {
     val foundNodes = findAllMatching()
     if (foundNodes.size != 1) {

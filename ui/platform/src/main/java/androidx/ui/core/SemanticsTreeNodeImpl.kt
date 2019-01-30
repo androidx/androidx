@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.ui.core.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsConfiguration
 
 /**
  * Represent a node in the semantics tree together with information about its parent and children.
@@ -26,7 +26,7 @@ import androidx.ui.core.semantics.SemanticsProperties
  */
 class SemanticsTreeNodeImpl(
     override val parent: SemanticsTreeNode?,
-    override val data: SemanticsProperties,
+    override val data: SemanticsConfiguration,
     private val layoutNode: LayoutNode?
 ) : SemanticsTreeNode {
     private val _children = mutableSetOf<SemanticsTreeNode>()
@@ -56,10 +56,10 @@ private fun findAllSemanticNodesInternal(
     nodes: MutableList<SemanticsTreeNode>
 ) {
     var currentParent = parent
-    if (currentNode is SemanticsR4ANode) {
+    if (currentNode is SemanticsComponentNode) {
         val wrapper = SemanticsTreeNodeImpl(
             parent = parent,
-            data = currentNode.properties,
+            data = currentNode.semanticsConfiguration,
             layoutNode = currentNode.layoutNode
         )
         parent?.addChild(wrapper)

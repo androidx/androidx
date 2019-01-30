@@ -44,11 +44,11 @@ class SwitchUiTest : AndroidUiTestRunner() {
     val disableTransitions = DisableTransitions()
 
     private val defaultUncheckedSwitchSemantics = createFullSemantics(
-        enabled = false,
+        enabled = true,
         checked = false
     )
     private val defaultCheckedSwitchSemantics = createFullSemantics(
-        enabled = false,
+        enabled = true,
         checked = true
     )
     private val defaultSwitchTag = "switch"

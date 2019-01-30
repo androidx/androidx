@@ -16,7 +16,7 @@
 package androidx.ui.core
 
 import android.view.MotionEvent
-import androidx.ui.core.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsConfiguration
 
 /**
  * Represent a node in the semantics tree together with information about its parent and children.
@@ -26,7 +26,7 @@ import androidx.ui.core.semantics.SemanticsProperties
  */
 interface SemanticsTreeNode {
     val parent: SemanticsTreeNode?
-    val data: SemanticsProperties
+    val data: SemanticsConfiguration
     val children: Set<SemanticsTreeNode>
     val globalPosition: PxPosition?
 }

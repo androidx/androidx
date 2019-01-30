@@ -16,8 +16,10 @@
 
 package androidx.ui.baseui.selection
 
+import androidx.ui.core.Semantics
 import androidx.ui.core.gesture.PressGestureDetector
-import androidx.ui.core.adapter.Semantics
+import androidx.ui.core.semantics.SemanticsAction
+import androidx.ui.core.semantics.SemanticsActionType
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -28,10 +30,19 @@ fun Toggleable(
     onToggle: (() -> Unit)? = null,
     @Children children: () -> Unit
 ) {
+    val actions = if (onToggle != null) {
+        listOf(SemanticsAction(SemanticsActionType.Tap, onToggle))
+    } else {
+        emptyList()
+    }
     // TODO should we use PressReleasedGestureDetector?
     <PressGestureDetector onRelease=onToggle>
-    // TODO(pavlis): Semantics currently doesn't support 3 states (only checked / unchecked).
-        <Semantics checked=(value == ToggleableState.Checked)>
+        // TODO: enabled should not be hardcoded
+        // TODO(pavlis): Semantics currently doesn't support 4 states (only checked / unchecked / not checkable).
+        <Semantics
+            checked=(value == ToggleableState.Checked)
+            enabled=true
+            actions>
             <children />
         </Semantics>
     </PressGestureDetector>

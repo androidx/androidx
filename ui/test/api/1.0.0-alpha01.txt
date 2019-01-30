@@ -15,7 +15,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsTreeQuery assertIsNotChecked(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsSelected(androidx.ui.test.SemanticsTreeQuery, boolean excepted);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsVisible(androidx.ui.test.SemanticsTreeQuery);
-    method public static androidx.ui.test.SemanticsTreeQuery assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.core.semantics.SemanticsProperties expectedProperties);
+    method public static androidx.ui.test.SemanticsTreeQuery assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.core.semantics.SemanticsConfiguration expectedProperties);
   }
 
   public final class DisableTransitions implements org.junit.rules.TestRule {
@@ -36,10 +36,10 @@ package androidx.ui.test {
 
   public final class GoldenSemanticsKt {
     ctor public GoldenSemanticsKt();
-    method public static void assertEquals(androidx.ui.core.semantics.SemanticsProperties, androidx.ui.core.semantics.SemanticsProperties expected);
-    method public static androidx.ui.core.semantics.SemanticsProperties copyWith(androidx.ui.core.semantics.SemanticsProperties, kotlin.jvm.functions.Function1<? super androidx.ui.test.SemanticsPropertiesBuilder,kotlin.Unit> diff);
-    method public static androidx.ui.core.semantics.SemanticsProperties createFullSemantics(Boolean? enabled = false, Boolean? checked = false, Boolean? selected = false, Boolean? inMutuallyExclusiveGroup = false);
-    method public static androidx.ui.test.SemanticsPropertiesBuilder toBuilder(androidx.ui.core.semantics.SemanticsProperties);
+    method public static void assertEquals(androidx.ui.core.semantics.SemanticsConfiguration, androidx.ui.core.semantics.SemanticsConfiguration expected);
+    method public static androidx.ui.core.semantics.SemanticsConfiguration copyWith(androidx.ui.core.semantics.SemanticsConfiguration, kotlin.jvm.functions.Function1<? super androidx.ui.test.SemanticsPropertiesBuilder,kotlin.Unit> diff);
+    method public static androidx.ui.core.semantics.SemanticsConfiguration createFullSemantics(Boolean? enabled = null, Boolean? checked = null, boolean selected = false, boolean inMutuallyExclusiveGroup = false);
+    method public static androidx.ui.test.SemanticsPropertiesBuilder toBuilder(androidx.ui.core.semantics.SemanticsConfiguration);
   }
 
   public final class OutputKt {
@@ -48,16 +48,16 @@ package androidx.ui.test {
   }
 
   public final class SemanticsPropertiesBuilder {
-    ctor public SemanticsPropertiesBuilder(Boolean? enabled, Boolean? checked, Boolean? inMutuallyExclusiveGroup, Boolean? selected);
-    method public androidx.ui.core.semantics.SemanticsProperties build();
+    ctor public SemanticsPropertiesBuilder(Boolean? enabled, Boolean? checked, boolean inMutuallyExclusiveGroup, boolean selected);
+    method public androidx.ui.core.semantics.SemanticsConfiguration build();
     method public Boolean? getChecked();
     method public Boolean? getEnabled();
-    method public Boolean? getInMutuallyExclusiveGroup();
-    method public Boolean? getSelected();
+    method public boolean getInMutuallyExclusiveGroup();
+    method public boolean getSelected();
     method public void setChecked(Boolean? p);
     method public void setEnabled(Boolean? p);
-    method public void setInMutuallyExclusiveGroup(Boolean? p);
-    method public void setSelected(Boolean? p);
+    method public void setInMutuallyExclusiveGroup(boolean p);
+    method public void setSelected(boolean p);
   }
 
   public final class SemanticsTreeQuery {

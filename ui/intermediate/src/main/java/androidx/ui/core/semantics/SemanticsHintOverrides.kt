@@ -58,17 +58,4 @@ data class SemanticsHintOverrides(
     /** Whether there are any non-null hint values. */
     val isNotEmpty
         get() = onTapHint != null || onLongPressHint != null
-
-    // TODO(Migration): Not ported because of data class
-//    override fun hashCode(): Int {
-    // return ui.hashValues(onTapHint, onLongPressHint)
-//    }
-
-//    override fun equals(other: Any?): Boolean {
-//    if (other.runtimeType != runtimeType)
-//      return false;
-//    val typedOther: SemanticsHintOverrides = other;
-//    return typedOther.onTapHint == onTapHint
-//      && typedOther.onLongPressHint == onLongPressHint;
-//    }
 }

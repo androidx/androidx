@@ -27,10 +27,9 @@ import androidx.ui.core.PointerEventPass.PreUp
 import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
-import androidx.ui.core.SemanticsR4ANode
+import androidx.ui.core.SemanticsComponentNode
 import androidx.ui.core.Timestamp
 import androidx.ui.core.ipx
-import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.core.millisecondsToTimestamp
 import androidx.ui.engine.geometry.Offset
 import com.nhaarman.mockitokotlin2.any
@@ -1071,12 +1070,15 @@ class PointerInputEventProcessorTest {
 
     @Test
     fun process_downOnPointerInputNodeWrappingSemanticsNodeWrappingLayoutNode_downReceived() {
-        val semanticsR4ANode: SemanticsR4ANode =
-            SemanticsR4ANode(false, false, SemanticsProperties()).apply {
+        val semanticsComponentNode: SemanticsComponentNode =
+            SemanticsComponentNode(
+                container = false,
+                explicitChildNodes = false
+            ).apply {
                 emitInsertAt(0, LayoutNode(0, 0, 100, 100))
             }
         val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, semanticsR4ANode)
+            emitInsertAt(0, semanticsComponentNode)
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         root.apply {
@@ -1120,7 +1122,12 @@ class PointerInputEventProcessorTest {
     @Test
     fun process_downOnPointerInputNodeWrappingSemanticsNode_downNotReceived() {
         val pointerInputNode: PointerInputNode = PointerInputNode().apply {
-            emitInsertAt(0, SemanticsR4ANode(false, false, SemanticsProperties()))
+            emitInsertAt(
+                0, SemanticsComponentNode(
+                    container = false,
+                    explicitChildNodes = false
+                )
+            )
             pointerInputHandler = spy(MyPointerInputHandler())
         }
         root.apply {

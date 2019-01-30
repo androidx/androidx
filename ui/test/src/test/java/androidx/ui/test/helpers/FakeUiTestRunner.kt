@@ -18,7 +18,7 @@ package androidx.ui.test.helpers
 
 import android.view.MotionEvent
 import androidx.ui.core.SemanticsTreeNode
-import androidx.ui.core.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.test.SemanticsTreeNodeStub
 import androidx.ui.test.UiTestRunner
 
@@ -26,7 +26,7 @@ class FakeUiTestRunner : UiTestRunner {
 
     private lateinit var semanticsToUse: List<SemanticsTreeNode>
 
-    fun withProperties(vararg properties: SemanticsProperties): FakeUiTestRunner {
+    fun withProperties(vararg properties: SemanticsConfiguration): FakeUiTestRunner {
         semanticsToUse = properties.map {
             SemanticsTreeNodeStub(/* data= */ it) }.toList()
         return this

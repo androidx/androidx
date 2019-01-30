@@ -22,7 +22,7 @@ import androidx.ui.core.LayoutCoordinates
 import androidx.ui.core.Px
 import androidx.ui.core.PxBounds
 import androidx.ui.core.PxPosition
-import androidx.ui.core.adapter.Semantics
+import androidx.ui.core.Semantics
 import androidx.ui.core.dp
 import androidx.ui.core.withDensity
 import androidx.ui.layout.Container

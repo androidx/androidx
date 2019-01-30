@@ -15,9 +15,13 @@
  */
 package androidx.ui.core
 
-import androidx.ui.core.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsAction
+import androidx.ui.core.semantics.SemanticsConfiguration
+import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.Canvas
 import com.google.r4a.Emittable
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 /**
  * Owner implements the connection to the underlying view system. On Android, this connects
@@ -68,7 +72,7 @@ interface Owner {
 /**
  * The base type for all nodes from the tree generated from a component hierarchy.
  *
- * Specific components are backed by a tree of nodes: Draw, Layout, Semantics, GestureDetector.
+ * Specific components are backed by a tree of nodes: Draw, Layout, SemanticsComponentNode, GestureDetector.
  * All other components are not represented in the backing hierarchy.
  */
 sealed class ComponentNode : Emittable {
@@ -293,6 +297,58 @@ sealed class SingleChildComponentNode : ComponentNode() {
     }
 }
 
+internal abstract sealed class MultiChildComponentNode : ComponentNode() {
+    /**
+     * The list of child ComponentNodes that this ComponentNode has. It can contain zero or
+     * more entries.
+     */
+    val children = mutableListOf<ComponentNode>()
+
+    override val count: Int
+        get() = children.size
+
+    override fun get(index: Int): ComponentNode = children.get(index)
+
+    override fun emitInsertAt(index: Int, instance: Emittable) {
+        // TODO(mount): Allow inserting Views
+        if (instance !is ComponentNode) {
+            ErrorMessages.OnlyComponents.state()
+        }
+        children.add(index, instance)
+        super.emitInsertAt(index, instance)
+    }
+
+    override fun emitRemoveAt(index: Int, count: Int) {
+        super.emitRemoveAt(index, count)
+        for (i in index + count - 1 downTo index) {
+            val child = children.removeAt(i)
+            child.parentLayoutNode = null
+        }
+    }
+
+    override fun emitMove(from: Int, to: Int, count: Int) {
+        ErrorMessages.IllegalMoveOperation.validateArgs(
+            from >= 0 && to >= 0 && count > 0,
+            count, from, to
+        )
+        // Do the simple thing for now. We can improve efficiency later if we need to
+        val removed = ArrayList<ComponentNode>(count)
+        for (i in from until from + count) {
+            removed += children[i]
+        }
+        children.removeAll(removed)
+
+        children.addAll(to, removed)
+    }
+
+    override fun visitChildren(reverse: Boolean, block: (ComponentNode) -> Unit) {
+        val children = if (reverse) children.reversed() else children
+        children.forEach { child ->
+            block(child)
+        }
+    }
+}
+
 /**
  * Backing node for handling pointer events.
  */
@@ -479,7 +535,48 @@ class LayoutNode : ComponentNode() {
     fun requestLayout() = owner?.onRequestLayout()
 }
 
-class SemanticsR4ANode(
+private class InvalidatingProperty<T>(private var value: T) :
+    ReadWriteProperty<SemanticsComponentNode, T> {
+    override fun getValue(thisRef: SemanticsComponentNode, property: KProperty<*>): T {
+        return value
+    }
+
+    override fun setValue(
+        thisRef: SemanticsComponentNode,
+        property: KProperty<*>,
+        value: T
+    ) {
+        if (this.value == value) {
+            return
+        }
+        this.value = value
+        thisRef.markNeedsSemanticsUpdate()
+    }
+}
+
+private class InvalidatingCallbackProperty<T>(private var value: T) :
+    ReadWriteProperty<SemanticsComponentNode, T> {
+    override fun getValue(thisRef: SemanticsComponentNode, property: KProperty<*>): T {
+        return value
+    }
+
+    override fun setValue(
+        thisRef: SemanticsComponentNode,
+        property: KProperty<*>,
+        value: T
+    ) {
+        if (this.value == value) {
+            return
+        }
+        val hadValue = this.value != null
+        this.value = value
+        if ((value != null) != hadValue) {
+            thisRef.markNeedsSemanticsUpdate()
+        }
+    }
+}
+
+class SemanticsComponentNode(
     /**
      * If [container] is true, this widget will introduce a new
      * node in the semantics tree. Otherwise, the semantics will be
@@ -489,7 +586,7 @@ class SemanticsR4ANode(
      * [SemanticsNode] introduced by this configuration is controlled by
      * [explicitChildNodes].
      */
-    var container: Boolean = false,
+    container: Boolean = false,
     /**
      * Whether descendants of this widget are allowed to add semantic information
      * to the [SemanticsNode] annotated by this widget.
@@ -508,13 +605,169 @@ class SemanticsR4ANode(
      * This setting is often used in combination with [SemanticsConfiguration.isSemanticBoundary]
      * to create semantic boundaries that are either writable or not for children.
      */
-    var explicitChildNodes: Boolean = false,
+    explicitChildNodes: Boolean = false,
+    enabled: Boolean? = null,
+    checked: Boolean? = null,
+    selected: Boolean? = null,
+    button: Boolean? = null,
+    header: Boolean? = null,
+    textField: Boolean? = null,
+    focused: Boolean? = null,
+    inMutuallyExclusiveGroup: Boolean? = null,
+    obscured: Boolean? = null,
+    scopesRoute: Boolean? = null,
+    namesRoute: Boolean? = null,
+    hidden: Boolean? = null,
+    label: String? = null,
+    value: String? = null,
+    hint: String? = null,
+    textDirection: TextDirection? = null,
+    testTag: String? = null,
+    actions: List<SemanticsAction<*>> = emptyList()
+
+) : SingleChildComponentNode() {
+    private var needsSemanticsUpdate = true
+    private var cachedSemanticsConfiguration: SemanticsConfiguration? = null
+    val semanticsConfiguration: SemanticsConfiguration
+        get() {
+            if (cachedSemanticsConfiguration == null) {
+                cachedSemanticsConfiguration = generateNodeLocalSemanticsConfiguration()
+            }
+            return cachedSemanticsConfiguration!!
+        }
+
+    private fun generateNodeLocalSemanticsConfiguration(): SemanticsConfiguration? {
+        return SemanticsConfiguration().also { config ->
+            // TODO(ryanmentley): add more once we enable them in the API
+            enabled?.let { enabled ->
+                config.isEnabled = enabled
+            }
+            checked?.let { checked ->
+                config.isChecked = checked
+            }
+            selected?.let { selected ->
+                config.isSelected = selected
+            }
+            button?.let { button ->
+                config.isButton = button
+            }
+            inMutuallyExclusiveGroup?.let { inMutuallyExclusiveGroup ->
+                config.isInMutuallyExclusiveGroup = inMutuallyExclusiveGroup
+            }
+            hidden?.let { hidden ->
+                config.isHidden = hidden
+            }
+            label?.let { label ->
+                config.label = label
+            }
+            value?.let { value ->
+                config.value = value
+            }
+            textDirection?.let { textDirection ->
+                config.textDirection = textDirection
+            }
+            testTag?.let { testTag ->
+                config.testTag = testTag
+            }
+            config.actions = actions
+        }
+    }
+
+    var container: Boolean by InvalidatingProperty(container)
+
+    var explicitChildNodes: Boolean by InvalidatingProperty(explicitChildNodes)
+
     /**
-     * Contains properties used by assistive technologies to make the application
-     * more accessible.
+     * If non-null, sets the [SemanticsNode.hasCheckedState] semantic to true and
+     * the [SemanticsNode.isChecked] semantic to the given value.
      */
-    var properties: SemanticsProperties
-) : SingleChildComponentNode()
+    var checked: Boolean? by InvalidatingProperty(checked)
+
+    /**
+     * If non-null, sets the [SemanticsNode.hasEnabledState] semantic to true and
+     * the [SemanticsNode.isEnabled] semantic to the given value.
+     */
+    var enabled: Boolean? by InvalidatingProperty(enabled)
+
+    /**
+     * If non-null, sets the [SemanticsNode.isSelected] semantic to the given
+     * value.
+     */
+    var selected: Boolean? by InvalidatingProperty(selected)
+
+    /** If non-null, sets the [SemanticsNode.isButton] semantic to the given value. */
+    var button: Boolean? by InvalidatingProperty(button)
+
+    /** If non-null, sets the [SemanticsNode.isHeader] semantic to the given value. */
+    var header: Boolean? by InvalidatingProperty(header)
+
+    /** If non-null, sets the [SemanticsNode.isTextField] semantic to the given value. */
+    var textField: Boolean? by InvalidatingProperty(textField)
+
+    /** If non-null, sets the [SemanticsNode.isFocused] semantic to the given value. */
+    var focused: Boolean? by InvalidatingProperty(focused)
+
+    /**
+     * If non-null, sets the [SemanticsNode.isInMutuallyExclusiveGroup] semantic
+     * to the given value.
+     */
+    var inMutuallyExclusiveGroup: Boolean? by InvalidatingProperty(inMutuallyExclusiveGroup)
+
+    /**
+     * If non-null, sets the [SemanticsNode.isObscured] semantic to the given
+     * value.
+     */
+    var obscured: Boolean? by InvalidatingProperty(obscured)
+
+    /** If non-null, sets the [SemanticsNode.scopesRoute] semantic to the give value. */
+    var scopesRoute: Boolean? by InvalidatingProperty(scopesRoute)
+
+    /** If non-null, sets the [SemanticsNode.namesRoute] semantic to the give value. */
+    var namesRoute: Boolean? by InvalidatingProperty(namesRoute)
+
+    /**
+     * If non-null, sets the [SemanticsNode.isHidden] semantic to the given
+     * value.
+     */
+    var hidden: Boolean? by InvalidatingProperty(hidden)
+
+    /**
+     * If non-null, sets the [SemanticsNode.label] semantic to the given value.
+     *
+     * The reading direction is given by [textDirection].
+     */
+    var label: String? by InvalidatingProperty(label)
+
+    /**
+     * If non-null, sets the [SemanticsNode.value] semantic to the given value.
+     *
+     * The reading direction is given by [textDirection].
+     */
+    var value: String? by InvalidatingProperty(value)
+
+    /**
+     * If non-null, sets the [SemanticsNode.hint] semantic to the given value.
+     *
+     * The reading direction is given by [textDirection].
+     */
+    var hint: String? by InvalidatingProperty(hint)
+
+    /**
+     * If non-null, sets the [SemanticsNode.textDirection] semantic to the given value.
+     *
+     * This must not be null if [label], [hint], or [value] are not null.
+     */
+    var textDirection: TextDirection? by InvalidatingProperty(textDirection)
+
+    var testTag: String? by InvalidatingProperty(testTag)
+
+    var actions: List<SemanticsAction<*>> by InvalidatingProperty(actions)
+
+    internal fun markNeedsSemanticsUpdate() {
+        cachedSemanticsConfiguration = null
+        needsSemanticsUpdate = true
+    }
+}
 
 /**
  * The list of child MeasureBoxes. It can contain zero or more entries.
@@ -577,8 +830,10 @@ fun LayoutNode.childToLocal(child: LayoutNode, childLocal: PxPosition): PxPositi
     var node: LayoutNode? = child
     while (true) {
         if (node == null) {
-            throw IllegalStateException("Current layout is not an ancestor of the provided" +
-                    "child layout")
+            throw IllegalStateException(
+                "Current layout is not an ancestor of the provided" +
+                        "child layout"
+            )
         }
         x += node.x.toPx()
         y += node.y.toPx()

@@ -25,7 +25,7 @@ import androidx.ui.core.PointerInputChange
 import androidx.ui.core.PointerInputData
 import androidx.ui.core.PointerInputNode
 import androidx.ui.core.PxPosition
-import androidx.ui.core.SemanticsR4ANode
+import androidx.ui.core.SemanticsComponentNode
 import androidx.ui.core.changedToDownIgnoreConsumed
 import androidx.ui.core.changedToUpIgnoreConsumed
 import androidx.ui.core.isAttached
@@ -271,7 +271,7 @@ internal class PointerInputEventProcessor(val root: LayoutNode) {
                     hitTestOnDescendants(child, newOffset, hitPointerInputNodes)
                     null
                 }
-                is SemanticsR4ANode -> {
+                is SemanticsComponentNode -> {
                     child.child
                 }
                 is DrawNode -> {

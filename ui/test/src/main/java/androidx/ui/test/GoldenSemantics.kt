@@ -16,19 +16,19 @@
 
 package androidx.ui.test
 
-import androidx.ui.core.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsConfiguration
 
 // TODO(catalintudor): add remaining properties
 class SemanticsPropertiesBuilder(
     var enabled: Boolean?,
     var checked: Boolean?,
-    var inMutuallyExclusiveGroup: Boolean?,
-    var selected: Boolean?
+    var inMutuallyExclusiveGroup: Boolean,
+    var selected: Boolean
 ) {
-    fun build(): SemanticsProperties {
-        return SemanticsProperties(
-            enabled,
-            checked,
+    fun build(): SemanticsConfiguration {
+        return createFullSemantics(
+            enabled = enabled,
+            checked = checked,
             inMutuallyExclusiveGroup = inMutuallyExclusiveGroup,
             selected = selected
         )
@@ -43,25 +43,25 @@ class SemanticsPropertiesBuilder(
  */
 // TODO(catalintudor): add remaining properties
 fun createFullSemantics(
-    enabled: Boolean? = false,
-    checked: Boolean? = false,
-    selected: Boolean? = false,
-    inMutuallyExclusiveGroup: Boolean? = false
-): SemanticsProperties {
-    return SemanticsProperties(
-        enabled = enabled,
-        checked = checked,
-        inMutuallyExclusiveGroup = inMutuallyExclusiveGroup,
-        selected = selected
-    )
+    enabled: Boolean? = null,
+    checked: Boolean? = null,
+    selected: Boolean = false,
+    inMutuallyExclusiveGroup: Boolean = false
+): SemanticsConfiguration {
+    return SemanticsConfiguration().also {
+        it.isEnabled = enabled
+        it.isChecked = checked
+        it.isInMutuallyExclusiveGroup = inMutuallyExclusiveGroup
+        it.isSelected = selected
+    }
 }
 
-fun SemanticsProperties.toBuilder(): SemanticsPropertiesBuilder {
+fun SemanticsConfiguration.toBuilder(): SemanticsPropertiesBuilder {
     return SemanticsPropertiesBuilder(
-        enabled = enabled,
-        checked = checked,
-        inMutuallyExclusiveGroup = inMutuallyExclusiveGroup,
-        selected = selected
+        enabled = isEnabled,
+        checked = isChecked,
+        inMutuallyExclusiveGroup = isInMutuallyExclusiveGroup,
+        selected = isSelected
     )
 }
 
@@ -70,30 +70,34 @@ fun SemanticsProperties.toBuilder(): SemanticsPropertiesBuilder {
  * Uses [SemanticsPropertiesBuilder] as an intermediate (mutable) representation of
  * [SemanticsProperties]
  */
-fun SemanticsProperties.copyWith(diff: SemanticsPropertiesBuilder.() -> Unit): SemanticsProperties {
+fun SemanticsConfiguration.copyWith(diff: SemanticsPropertiesBuilder.() -> Unit):
+        SemanticsConfiguration {
     return toBuilder()
         .apply(diff)
         .build()
 }
 
-fun SemanticsProperties.assertEquals(expected: SemanticsProperties) {
+fun SemanticsConfiguration.assertEquals(expected: SemanticsConfiguration) {
     val assertMessage = StringBuilder()
 
-    if (enabled != expected.enabled) {
-        assertMessage.append("\n- expected 'enabled' = ${expected.enabled} but was $enabled")
+    if (isEnabled != expected.isEnabled) {
+        assertMessage.append("\n- expected 'isEnabled' = ${expected.isEnabled} but was $isEnabled")
     }
 
-    if (checked != expected.checked) {
-        assertMessage.append("\n- expected 'checked' = ${expected.checked} but was $checked")
+    if (isChecked != expected.isChecked) {
+        assertMessage.append("\n- expected 'isChecked' = ${expected.isChecked} but was $isChecked")
     }
-    if (inMutuallyExclusiveGroup != expected.inMutuallyExclusiveGroup) {
+
+    if (isInMutuallyExclusiveGroup != expected.isInMutuallyExclusiveGroup) {
         assertMessage.append(
-            "\n- expected 'inMutuallyExclusiveGroup' = ${expected.inMutuallyExclusiveGroup} " +
-                    "but was $inMutuallyExclusiveGroup"
+            "\n- expected 'inMutuallyExclusiveGroup' = ${expected.isInMutuallyExclusiveGroup} " +
+                    "but was $isInMutuallyExclusiveGroup"
         )
     }
-    if (selected != expected.selected) {
-        assertMessage.append("\n- expected 'selected' = ${expected.selected} but was $selected")
+    if (isSelected != expected.isSelected) {
+        assertMessage.append(
+            "\n- expected 'isSelected' = ${expected.isSelected} but was $isSelected"
+        )
     }
 
     if (assertMessage.isNotEmpty()) {

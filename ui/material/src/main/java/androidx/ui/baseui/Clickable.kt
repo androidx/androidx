@@ -17,8 +17,10 @@
 package androidx.ui.baseui
 
 import androidx.ui.core.Layout
-import androidx.ui.core.adapter.Semantics
+import androidx.ui.core.Semantics
 import androidx.ui.core.gesture.PressReleasedGestureDetector
+import androidx.ui.core.semantics.SemanticsAction
+import androidx.ui.core.semantics.SemanticsActionType
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -48,7 +50,12 @@ fun Clickable(
     <Semantics
         button=true
         enabled=enabled
-        onTap=onClick>
+        actions=if (enabled && onClick != null) {
+            // TODO(ryanmentley): The unnecessary generic type specification works around an IR bug
+            listOf<SemanticsAction<*>>(SemanticsAction(SemanticsActionType.Tap, onClick))
+        } else {
+            emptyList<SemanticsAction<*>>()
+        }>
         <PressReleasedGestureDetector
             onRelease=if (enabled) onClick else null
             consumeDownOnStart>

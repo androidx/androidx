@@ -17,7 +17,7 @@
 package androidx.ui.test
 
 import androidx.ui.core.SemanticsTreeNode
-import androidx.ui.core.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsConfiguration
 import androidx.ui.test.helpers.FakeUiTestRunner
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -26,13 +26,11 @@ class FindersTests {
     @Test
     fun findByTag_zeroOutOfOne_findsNone() {
         val foundNodes = FakeUiTestRunner()
-            .withSemantics(
-                newNode(
-                    SemanticsProperties(
-                        testTag = "not_myTestTag"
-                    )
-                )
-            )
+            .withSemantics(newNode(
+                SemanticsConfiguration().apply {
+                    testTag = "not_myTestTag"
+                }
+            ))
             .findByTag("myTestTag")
             .findAllMatching()
 
@@ -41,16 +39,12 @@ class FindersTests {
 
     @Test
     fun findByTag_oneOutOfTwo_findsOne() {
-        val node1 = newNode(
-            SemanticsProperties(
-                testTag = "myTestTag"
-            )
-        )
-        var node2 = newNode(
-            SemanticsProperties(
-                testTag = "myTestTag2"
-            )
-        )
+        val node1 = newNode(SemanticsConfiguration().apply {
+            testTag = "myTestTag"
+        })
+        var node2 = newNode(SemanticsConfiguration().apply {
+            testTag = "myTestTag2"
+        })
 
         val foundNodes = FakeUiTestRunner()
             .withSemantics(node1, node2)
@@ -63,14 +57,14 @@ class FindersTests {
     @Test
     fun findByTag_twoOutOfTwo_findsTwo() {
         val node1 = newNode(
-            SemanticsProperties(
+            SemanticsConfiguration().apply {
                 testTag = "myTestTag"
-            )
+            }
         )
         var node2 = newNode(
-            SemanticsProperties(
+            SemanticsConfiguration().apply {
                 testTag = "myTestTag"
-            )
+            }
         )
 
         val foundNodes = FakeUiTestRunner()
@@ -81,7 +75,7 @@ class FindersTests {
         Truth.assertThat(foundNodes).containsExactly(node1, node2)
     }
 
-    private fun newNode(properties: SemanticsProperties): SemanticsTreeNode {
+    private fun newNode(properties: SemanticsConfiguration): SemanticsTreeNode {
         return SemanticsTreeNodeStub(/* data= */ properties)
     }
 }
