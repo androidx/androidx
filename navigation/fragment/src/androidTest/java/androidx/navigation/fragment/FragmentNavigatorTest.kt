@@ -308,6 +308,61 @@ class FragmentNavigatorTest {
 
     @UiThreadTest
     @Test
+    fun testPopWithSameDestinationTwice() {
+        val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
+        val destination = fragmentNavigator.createDestination()
+        destination.id = INITIAL_FRAGMENT
+        destination.className = EmptyFragment::class.java.name
+
+        // First push an initial Fragment
+        assertThat(fragmentNavigator.navigate(destination, null, null, null))
+            .isEqualTo(destination)
+        fragmentManager.executePendingTransactions()
+        val fragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment should be added")
+            .that(fragment)
+            .isNotNull()
+
+        // Now push a second Fragment
+        destination.id = SECOND_FRAGMENT
+        assertThat(fragmentNavigator.navigate(destination, null, null, null))
+            .isEqualTo(destination)
+        fragmentManager.executePendingTransactions()
+        val replacementFragment = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Replacement Fragment should be added")
+            .that(replacementFragment)
+            .isNotNull()
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameAs(replacementFragment)
+
+        // Push the same Fragment a second time, creating a stack of two
+        // identical Fragments
+        assertThat(fragmentNavigator.navigate(destination, null, null, null))
+            .isEqualTo(destination)
+        fragmentManager.executePendingTransactions()
+        val fragmentToPop = fragmentManager.findFragmentById(R.id.container)
+        assertWithMessage("Fragment to pop should be added")
+            .that(fragmentToPop)
+            .isNotNull()
+        assertWithMessage("Fragment to pop should be the primary navigation Fragment")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameAs(fragmentToPop)
+
+        // Now pop the Fragment
+        val popped = fragmentNavigator.popBackStack()
+        fragmentManager.executePendingTransactions()
+        assertWithMessage("FragmentNavigator should return true when popping a Fragment")
+            .that(popped)
+            .isTrue()
+        assertWithMessage("Replacement Fragment should be the primary navigation Fragment " +
+                "after pop")
+            .that(fragmentManager.primaryNavigationFragment)
+            .isSameAs(replacementFragment)
+    }
+
+    @UiThreadTest
+    @Test
     fun testPopWithChildFragmentBackStack() {
         val fragmentNavigator = FragmentNavigator(emptyActivity, fragmentManager, R.id.container)
         val destination = fragmentNavigator.createDestination()

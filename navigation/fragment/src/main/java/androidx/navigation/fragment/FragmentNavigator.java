@@ -131,7 +131,8 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         }
         boolean popped = false;
         if (mFragmentManager.getBackStackEntryCount() > 0) {
-            mFragmentManager.popBackStack(Integer.toString(mBackStack.peekLast()),
+            mFragmentManager.popBackStack(
+                    generateBackStackName(mBackStack.size(), mBackStack.peekLast()),
                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
             mIsPendingBackStackOperation = true;
             popped = true;
@@ -216,12 +217,12 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 // remove it from the back stack and put our replacement
                 // on the back stack in its place
                 mFragmentManager.popBackStack();
-                ft.addToBackStack(Integer.toString(destId));
+                ft.addToBackStack(generateBackStackName(mBackStack.size() + 1, destId));
                 mIsPendingBackStackOperation = true;
             }
             isAdded = false;
         } else {
-            ft.addToBackStack(Integer.toString(destId));
+            ft.addToBackStack(generateBackStackName(mBackStack.size() + 1, destId));
             mIsPendingBackStackOperation = true;
             isAdded = true;
         }
@@ -268,6 +269,31 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         }
     }
 
+    @NonNull
+    private String generateBackStackName(int backStackIndex, int destId) {
+        return backStackIndex + "-" + destId;
+    }
+
+    private int getDestId(@Nullable String backStackName) {
+        String[] split = backStackName != null ? backStackName.split("-") : new String[0];
+        if (split.length != 2) {
+            throw new IllegalStateException("Invalid back stack entry on the "
+                    + "NavHostFragment's back stack - use getChildFragmentManager() "
+                    + "if you need to do custom FragmentTransactions from within "
+                    + "Fragments created via your navigation graph.");
+        }
+        try {
+            // Just make sure the backStackIndex is correctly formatted
+            Integer.parseInt(split[0]);
+            return Integer.parseInt(split[1]);
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("Invalid back stack entry on the "
+                    + "NavHostFragment's back stack - use getChildFragmentManager() "
+                    + "if you need to do custom FragmentTransactions from within "
+                    + "Fragments created via your navigation graph.");
+        }
+    }
+
     /**
      * Checks if this FragmentNavigator's back stack is equal to the FragmentManager's back stack.
      */
@@ -285,7 +311,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         while (backStackIterator.hasNext() && fragmentBackStackIndex >= 0) {
             int destId = backStackIterator.next();
             try {
-                int fragmentDestId = Integer.valueOf(mFragmentManager
+                int fragmentDestId = getDestId(mFragmentManager
                         .getBackStackEntryAt(fragmentBackStackIndex--)
                         .getName());
                 if (destId != fragmentDestId) {
