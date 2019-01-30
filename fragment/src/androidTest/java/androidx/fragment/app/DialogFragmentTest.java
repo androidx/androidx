@@ -86,7 +86,7 @@ public class DialogFragmentTest {
 
         final boolean[] dialogIsNonNull = new boolean[1];
         final boolean[] isShowing = new boolean[1];
-        final boolean[] onDismissCalled = new boolean[1];
+        final int[] onDismissCalledCount = new int[1];
         final CountDownLatch countDownLatch = new CountDownLatch(2);
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -102,7 +102,7 @@ public class DialogFragmentTest {
 
                     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
                     public void onDestroy() {
-                        onDismissCalled[0] = fragment.onDismissCalled;
+                        onDismissCalledCount[0] = fragment.onDismissCalledCount;
                         countDownLatch.countDown();
                     }
                 });
@@ -113,8 +113,8 @@ public class DialogFragmentTest {
 
         countDownLatch.await(1, TimeUnit.SECONDS);
         assertWithMessage("onDismiss() should be called before onDestroy()")
-                .that(onDismissCalled[0])
-                .isTrue();
+                .that(onDismissCalledCount[0])
+                .isEqualTo(1);
         assertTrue("Dialog should not be null in onStop()", dialogIsNonNull[0]);
         assertTrue("Dialog should still be showing in onStop() "
                 + "during the normal lifecycle", isShowing[0]);
@@ -182,7 +182,7 @@ public class DialogFragmentTest {
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        final boolean[] onDismissCalled = new boolean[1];
+        final int[] onDismissCalledCount = new int[1];
         final CountDownLatch countDownLatch = new CountDownLatch(1);
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
@@ -190,20 +190,25 @@ public class DialogFragmentTest {
                 fragment.getLifecycle().addObserver(new LifecycleObserver() {
                     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
                     public void onDestroy() {
-                        onDismissCalled[0] = fragment.onDismissCalled;
+                        onDismissCalledCount[0] = fragment.onDismissCalledCount;
                         countDownLatch.countDown();
                     }
                 });
             }
         });
 
-        fragment.dismiss();
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                fragment.dismiss();
+            }
+        });
 
         countDownLatch.await(1, TimeUnit.SECONDS);
 
-        assertWithMessage("onDismiss() should be called before onDestroy()")
-                .that(onDismissCalled[0])
-                .isTrue();
+        assertWithMessage("onDismiss() should be called only once before onDestroy()")
+                .that(onDismissCalledCount[0])
+                .isEqualTo(1);
     }
 
     public static class TestDialogFragment extends DialogFragment {
@@ -212,7 +217,7 @@ public class DialogFragmentTest {
             void onDestroyView(TestDialogFragment fragment);
         }
 
-        public boolean onDismissCalled = false;
+        public int onDismissCalledCount = 0;
 
         private @Nullable OnDestroyViewCallback mDestroyViewCallback = null;
 
@@ -233,7 +238,7 @@ public class DialogFragmentTest {
         @Override
         public void onDismiss(@NonNull DialogInterface dialog) {
             super.onDismiss(dialog);
-            onDismissCalled = true;
+            onDismissCalledCount++;
         }
 
         @Override
