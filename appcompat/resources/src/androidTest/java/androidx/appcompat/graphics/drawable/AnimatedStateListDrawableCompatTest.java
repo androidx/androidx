@@ -104,15 +104,15 @@ public class AnimatedStateListDrawableCompatTest {
             // Expected.
         }
 
-        MockTransition focusedToUnfocused = mock(MockTransition.class);
+        MockTransition focusedToUnfocused = new MockTransition();
         asld.addTransition(R.id.focused, R.id.unfocused, focusedToUnfocused, false);
         assertEquals(3, asld.getStateCount());
 
-        MockTransition unfocusedToFocused = mock(MockTransition.class);
+        MockTransition unfocusedToFocused = new MockTransition();
         asld.addTransition(R.id.unfocused, R.id.focused, unfocusedToFocused, false);
         assertEquals(4, asld.getStateCount());
 
-        MockTransition reversible = mock(MockTransition.class);
+        MockTransition reversible = new MockTransition();
         asld.addTransition(R.id.focused, R.id.unfocused, reversible, true);
         assertEquals(5, asld.getStateCount());
     }
@@ -131,8 +131,8 @@ public class AnimatedStateListDrawableCompatTest {
         asld.addState(STATE_FOCUSED, focused, R.id.focused);
         asld.addState(StateSet.WILD_CARD, unfocused, R.id.unfocused);
 
-        MockTransition focusedToUnfocused = mock(MockTransition.class);
-        MockTransition unfocusedToFocused = mock(MockTransition.class);
+        MockTransition focusedToUnfocused = new MockTransition();
+        MockTransition unfocusedToFocused = new MockTransition();
         asld.addTransition(R.id.focused, R.id.unfocused, focusedToUnfocused, false);
         asld.addTransition(R.id.unfocused, R.id.focused, unfocusedToFocused, false);
 
@@ -197,9 +197,22 @@ public class AnimatedStateListDrawableCompatTest {
         assertNull(asld.getConstantState());
     }
 
-    public abstract class MockTransition extends MockDrawable implements Animatable,
+    public class MockTransition extends MockDrawable implements Animatable,
             Animatable2Compat {
         private HashSet<AnimationCallback> mCallbacks = new HashSet<>();
+
+        @Override
+        public void start() {
+        }
+
+        @Override
+        public void stop() {
+        }
+
+        @Override
+        public boolean isRunning() {
+            return false;
+        }
 
         @Override
         public void registerAnimationCallback(AnimationCallback callback) {
