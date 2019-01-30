@@ -1,4 +1,4 @@
-// Signature format: 2.0
+// Signature format: 3.0
 package androidx.navigation.fragment {
 
   public final class FragmentKt {
@@ -8,6 +8,7 @@ package androidx.navigation.fragment {
 
   public final class FragmentNavArgsLazyKt {
     ctor public FragmentNavArgsLazyKt();
+    method @MainThread public static inline <reified Args extends androidx.navigation.NavArgs> androidx.navigation.NavArgsLazy<Args>! navArgs(android.support.v4.app.Fragment);
   }
 
   public final class FragmentNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.navigation.fragment.FragmentNavigator.Destination> {
@@ -17,6 +18,8 @@ package androidx.navigation.fragment {
 
   public final class FragmentNavigatorDestinationBuilderKt {
     ctor public FragmentNavigatorDestinationBuilderKt();
+    method public static inline <reified F extends android.support.v4.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id);
+    method public static inline <reified F extends android.support.v4.app.Fragment> void fragment(androidx.navigation.NavGraphBuilder, @IdRes int id, kotlin.jvm.functions.Function1<? super androidx.navigation.fragment.FragmentNavigatorDestinationBuilder,kotlin.Unit>! builder);
   }
 
   public final class FragmentNavigatorExtrasKt {
