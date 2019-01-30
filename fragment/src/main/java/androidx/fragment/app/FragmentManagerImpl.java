@@ -118,7 +118,6 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     Fragment mParent;
     @Nullable
     Fragment mPrimaryNav;
-    FragmentFactory mFragmentFactory;
 
     static Field sAnimationListenerField = null;
 
@@ -2768,27 +2767,27 @@ final class FragmentManagerImpl extends FragmentManager implements LayoutInflate
     }
 
     @Override
-    public void setFragmentFactory(@NonNull FragmentFactory fragmentFactory) {
-        mFragmentFactory = fragmentFactory;
-    }
-
-    @Override
     @NonNull
     public FragmentFactory getFragmentFactory() {
-        if (mFragmentFactory == null) {
+        FragmentFactory factory = super.getFragmentFactory();
+        if (factory == DEFAULT_FACTORY) {
             if (mParent != null) {
+                // This can't call setFragmentFactory since we need to
+                // compute this each time getFragmentFactory() is called
+                // so that if the parent's FragmentFactory changes, we
+                // pick the change up here.
                 return mParent.mFragmentManager.getFragmentFactory();
             }
-            mFragmentFactory = new FragmentFactory() {
+            setFragmentFactory(new FragmentFactory() {
                 @SuppressWarnings("deprecation")
                 @NonNull
                 public Fragment instantiate(@NonNull Context context, @NonNull String className,
                                             @Nullable Bundle args) {
                     return mHost.instantiate(context, className, args);
                 }
-            };
+            });
         }
-        return mFragmentFactory;
+        return super.getFragmentFactory();
     }
 
     @Override
