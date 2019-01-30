@@ -38,9 +38,5 @@
             <property name="messageKey" value="annotation.missing.hide" />
             <message key="annotation.missing.hide" value="Must include both @RestrictTo annotation and @hide Javadoc tag."/>
         </module>
-        <!-- Custom support library check for methods with @Test to have test size annotation -->
-        <module name="com.android.support.checkstyle.TestSizeAnnotationCheck">
-            <property name="severity" value="error" />
-        </module>
     </module>
 </module>
