@@ -581,7 +581,8 @@ public class VideoView extends SelectiveLayout {
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        return VideoView.class.getName();
+        // Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage.
+        return "androidx.media2.widget.VideoView";
     }
 
     @Override

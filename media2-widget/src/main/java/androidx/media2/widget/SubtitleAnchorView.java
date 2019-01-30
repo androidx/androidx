@@ -133,6 +133,7 @@ class SubtitleAnchorView extends View implements Anchor {
 
     @Override
     public CharSequence getAccessibilityClassName() {
-        return SubtitleAnchorView.class.getName();
+        // Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage.
+        return "androidx.media2.widget.SubtitleAnchorView";
     }
 }

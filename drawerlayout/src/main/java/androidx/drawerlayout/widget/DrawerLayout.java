@@ -192,6 +192,10 @@ public class DrawerLayout extends ViewGroup {
     private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION =
             Build.VERSION.SDK_INT >= 21;
 
+    /** Class name may be obfuscated by Proguard. Hardcode the string for accessibility usage. */
+    private static final String ACCESSIBILITY_CLASS_NAME =
+            "androidx.drawerlayout.widget.DrawerLayout";
+
     private final ChildAccessibilityDelegate mChildAccessibilityDelegate =
             new ChildAccessibilityDelegate();
     private float mDrawerElevation;
@@ -2352,7 +2356,7 @@ public class DrawerLayout extends ViewGroup {
                 addChildrenForAccessibility(info, (ViewGroup) host);
             }
 
-            info.setClassName(DrawerLayout.class.getName());
+            info.setClassName(ACCESSIBILITY_CLASS_NAME);
 
             // This view reports itself as focusable so that it can intercept
             // the back button, but we should prevent this view from reporting
@@ -2366,7 +2370,7 @@ public class DrawerLayout extends ViewGroup {
         public void onInitializeAccessibilityEvent(View host, AccessibilityEvent event) {
             super.onInitializeAccessibilityEvent(host, event);
 
-            event.setClassName(DrawerLayout.class.getName());
+            event.setClassName(ACCESSIBILITY_CLASS_NAME);
         }
 
         @Override
