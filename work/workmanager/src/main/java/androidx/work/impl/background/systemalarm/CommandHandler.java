@@ -25,7 +25,6 @@ import android.support.annotation.RestrictTo;
 import android.support.annotation.WorkerThread;
 
 import androidx.work.Logger;
-import androidx.work.WorkInfo;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
@@ -119,7 +118,6 @@ public class CommandHandler implements ExecutionListener {
 
     @Override
     public void onExecuted(@NonNull String workSpecId, boolean needsReschedule) {
-
         synchronized (mLock) {
             // This listener is only necessary for knowing when a pending work is complete.
             // Delegate to the underlying execution listener itself.
@@ -211,10 +209,12 @@ public class CommandHandler implements ExecutionListener {
                         "Skipping scheduling " + workSpecId + " because it's no longer in "
                         + "the DB");
                 return;
-            } else if (workSpec.state != WorkInfo.State.ENQUEUED) {
+            } else if (workSpec.state.isFinished()) {
+                // We need to schedule the Alarms, even when the Worker is RUNNING. This is because
+                // if the process gets killed, the Alarm is necessary to pick up the execution of
+                // Work.
                 Logger.get().warning(TAG,
-                        "Skipping scheduling " + workSpecId + " because it is no longer "
-                        + "enqueued");
+                        "Skipping scheduling " + workSpecId + "because it is finished.");
                 return;
             }
 
