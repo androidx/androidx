@@ -95,11 +95,13 @@ abstract class SafeArgsPlugin protected constructor(
         val appIdTextResource = variant::class.memberFunctions.firstOrNull {
             it.name == "getApplicationIdTextResource"
         }?.let {
-            it.call(variant) as TextResource
+            it.call(variant) as TextResource?
         }
         if (appIdTextResource != null) {
             task.applicationIdResource = appIdTextResource
         } else {
+            // getApplicationIdTextResource() was not found or it returned null, fallback to
+            // getApplicationId()
             task.applicationId = variant.applicationId
         }
     }
