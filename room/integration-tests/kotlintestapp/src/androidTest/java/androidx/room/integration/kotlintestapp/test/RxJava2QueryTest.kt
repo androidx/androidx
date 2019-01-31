@@ -19,6 +19,8 @@ package androidx.room.integration.kotlintestapp.test
 import androidx.room.EmptyResultSetException
 import androidx.room.integration.kotlintestapp.vo.BookWithPublisher
 import androidx.test.filters.SmallTest
+import androidx.test.platform.app.InstrumentationRegistry
+import io.reactivex.schedulers.Schedulers
 import org.junit.Test
 
 @SmallTest
@@ -111,5 +113,23 @@ class RxJava2QueryTest : TestDatabaseTest() {
                             it.books?.get(0) == TestUtil.BOOK_1 &&
                             it.books?.get(1) == TestUtil.BOOK_2
                 }
+    }
+
+    @Test
+    fun mainThreadSubscribe_sharedPreparedQuery() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            booksDao.insertPublisherCompletable("a1", "author1")
+                .subscribeOn(Schedulers.io())
+                .blockingAwait()
+        }
+    }
+
+    @Test
+    fun mainThreadSubscribe_preparedQuery() {
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            booksDao.deleteBookWithIdsSingle("b1", "b2")
+                .subscribeOn(Schedulers.io())
+                .blockingGet()
+        }
     }
 }
