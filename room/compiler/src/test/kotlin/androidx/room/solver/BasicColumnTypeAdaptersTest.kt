@@ -37,8 +37,11 @@ import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
 
 @RunWith(Parameterized::class)
-class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
-                                  val cursorCode: String) {
+class BasicColumnTypeAdaptersTest(
+    val input: Input,
+    val bindCode: String,
+    val cursorCode: String
+) {
     val scope = testCodeGenScope()
 
     companion object {
@@ -89,7 +92,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                     .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
             adapter.bindToStmt("st", "6", "inp", scope)
-            assertThat(scope.generate().trim(), `is`(bindCode))
+            assertThat(scope.generate().toString().trim(), `is`(bindCode))
             generateCode(invocation, false)
         }.compilesWithoutError()
     }
@@ -104,7 +107,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
                     .findColumnTypeAdapter(
                             input.getBoxedTypeMirror(invocation.processingEnv), null)!!
             adapter.bindToStmt("st", "6", "inp", scope)
-            assertThat(scope.generate().trim(), `is`(
+            assertThat(scope.generate().toString().trim(), `is`(
                     """
                     if (inp == null) {
                       st.bindNull(6);
@@ -140,7 +143,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
             val adapter = TypeAdapterStore.create(Context(invocation.processingEnv))
                     .findColumnTypeAdapter(input.getTypeMirror(invocation.processingEnv), null)!!
             adapter.readFromCursor("out", "crs", "9", scope)
-            assertThat(scope.generate().trim(), `is`(cursorCode))
+            assertThat(scope.generate().toString().trim(), `is`(cursorCode))
             generateCode(invocation, false)
         }.compilesWithoutError()
     }
@@ -155,7 +158,7 @@ class BasicColumnTypeAdaptersTest(val input: Input, val bindCode: String,
                     .findColumnTypeAdapter(
                             input.getBoxedTypeMirror(invocation.processingEnv), null)!!
             adapter.readFromCursor("out", "crs", "9", scope)
-            assertThat(scope.generate().trim(), `is`(
+            assertThat(scope.generate().toString().trim(), `is`(
                     """
                     if (crs.isNull(9)) {
                       out = null;
