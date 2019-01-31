@@ -42,6 +42,3 @@ supportLibrary {
     description = "Android Room Coroutines Adapter"
     url = SupportLibraryExtension.ARCHITECTURE_URL
 }
-repositories {
-    mavenCentral()
-}
