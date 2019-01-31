@@ -434,8 +434,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         // Make sure that the DrawableManager knows about the new config
         AppCompatDrawableManager.get().onConfigurationChanged(mContext);
 
-        // Re-apply Day/Night with the new configuration
-        applyDayNight();
+        // Re-apply Day/Night with the new configuration but disable recreations. Since this
+        // configuration change has only just happened we can safely just update the resources now
+        applyDayNight(false);
     }
 
     @Override
@@ -2024,12 +2025,16 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     @Override
     public boolean applyDayNight() {
+        return applyDayNight(true);
+    }
+
+    private boolean applyDayNight(final boolean recreateIfNeeded) {
         boolean applied = false;
 
         @NightMode final int nightMode = getNightMode();
         @ApplyableNightMode final int modeToApply = mapNightMode(nightMode);
         if (modeToApply != MODE_NIGHT_FOLLOW_SYSTEM) {
-            applied = updateForNightMode(modeToApply);
+            applied = updateForNightMode(modeToApply, recreateIfNeeded);
         }
 
         if (nightMode == MODE_NIGHT_AUTO_TIME) {
@@ -2093,7 +2098,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
      * @param config The configuration which triggered this update
      * @return true if an action has been taken (recreation, resources updating, etc)
      */
-    private boolean updateForNightMode(@ApplyableNightMode final int mode) {
+    private boolean updateForNightMode(@ApplyableNightMode final int mode,
+            final boolean allowRecreation) {
         final Resources res = mContext.getResources();
         final Configuration config = res.getConfiguration();
         final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
@@ -2106,8 +2112,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
         if (currentNightMode != newNightMode) {
             final boolean manifestHandlingUiMode = isActivityManifestHandlingUiMode();
-            final boolean shouldRecreateOnNightModeChange =
-                    !manifestHandlingUiMode && mCreated && mContext instanceof Activity;
+            final boolean shouldRecreateOnNightModeChange = allowRecreation
+                    && !manifestHandlingUiMode && mCreated && mContext instanceof Activity;
 
             if (shouldRecreateOnNightModeChange) {
                 if (DEBUG) {

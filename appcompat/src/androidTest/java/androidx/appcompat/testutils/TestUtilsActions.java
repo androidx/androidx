@@ -22,6 +22,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.isDisplayingAtLeast;
 
 import static org.hamcrest.core.AllOf.allOf;
 
+import android.app.Activity;
+import android.content.pm.ActivityInfo;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.view.View;
@@ -181,6 +183,36 @@ public class TestUtilsActions {
                 uiController.loopMainThreadUntilIdle();
 
                 view.setSystemUiVisibility(sysUiVisibility);
+
+                uiController.loopMainThreadUntilIdle();
+            }
+        };
+    }
+
+    public static ViewAction rotateScreenOrientation(final Activity activity) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "Rotating screen orientation";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                uiController.loopMainThreadUntilIdle();
+
+                switch (activity.getRequestedOrientation()) {
+                    case ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+                        break;
+                    default:
+                        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+                        break;
+                }
 
                 uiController.loopMainThreadUntilIdle();
             }
