@@ -19,11 +19,16 @@ package androidx.ui.material
 import androidx.ui.core.CurrentTextStyleProvider
 import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.font.FontFamily
+import androidx.ui.material.ripple.CurrentRippleTheme
+import androidx.ui.material.ripple.DefaultRippleEffectFactory
+import androidx.ui.material.ripple.RippleTheme
 import androidx.ui.painting.Color
 import androidx.ui.painting.TextStyle
+import androidx.ui.painting.withAlphaPercent
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
+import com.google.r4a.Composable
 import com.google.r4a.composer
 
 /**
@@ -51,7 +56,9 @@ class MaterialTheme(
         <Colors.Provider value=colors>
             <Typography.Provider value=typography>
                 <CurrentTextStyleProvider value=typography.body1>
-                    <children />
+                    <MaterialRippleTheme>
+                        <children />
+                    </MaterialRippleTheme>
                 </CurrentTextStyleProvider>
             </Typography.Provider>
         </Colors.Provider>
@@ -203,3 +210,27 @@ data class MaterialTypography(
         fontWeight = FontWeight.normal,
         fontSize = 10f)
 )
+
+
+/**
+ * Applies the default [RippleTheme] parameters based on the Material Design
+ * guidelines for descendants
+ */
+@Composable
+fun MaterialRippleTheme(@Children children: () -> Unit) {
+    <Colors.Consumer> materialColors ->
+        val defaultTheme = RippleTheme(
+            factory = DefaultRippleEffectFactory,
+            colorCallback = { background ->
+                if (background == null || background.computeLuminance() >= 0.5) { // light bg
+                    materialColors.secondary.withAlphaPercent(16f) // 12 %
+                } else { // dark bg
+                    Color(0xFFFFFFFF.toInt()).withAlphaPercent(24f) // 24 % of white
+                }
+            }
+        )
+        <CurrentRippleTheme.Provider value=defaultTheme>
+            <children />
+        </CurrentRippleTheme.Provider>
+    </Colors.Consumer>
+}

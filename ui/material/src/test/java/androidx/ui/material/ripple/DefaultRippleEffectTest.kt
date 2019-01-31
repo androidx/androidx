@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.material
+package androidx.ui.material.ripple
 
 import androidx.ui.core.Bounds
 import androidx.ui.core.LayoutCoordinates
@@ -28,7 +28,7 @@ import org.junit.runners.JUnit4
 import kotlin.math.sqrt
 
 @RunWith(JUnit4::class)
-class InkRippleTest {
+class DefaultRippleEffectTest {
 
     @Test
     fun testRippleTargetRadiusWithoutBoundsCallback() {
@@ -39,7 +39,7 @@ class InkRippleTest {
         }
 
         // Top-level functions are not resolved properly in IR modules
-        val result = InkRippleKt.getRippleTargetRadius(coordinates, null)
+        val result = DefaultRippleEffectKt.getRippleTargetRadius(coordinates, null)
         assertThat(result.dp).isEqualTo(halfDistance(width, height))
     }
 
@@ -52,7 +52,7 @@ class InkRippleTest {
             { Bounds(0.dp, 0.dp, width.dp, height.dp) }
 
         // Top-level functions are not resolved properly in IR modules
-        val result = InkRippleKt.getRippleTargetRadius(coordinates, boundsCallback)
+        val result = DefaultRippleEffectKt.getRippleTargetRadius(coordinates, boundsCallback)
         assertThat(result.dp).isEqualTo(halfDistance(width, height))
     }
 

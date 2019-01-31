@@ -16,7 +16,6 @@
 
 package androidx.ui.material.demos
 
-import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.dp
@@ -24,21 +23,18 @@ import androidx.ui.core.minus
 import androidx.ui.core.tightConstraints
 import androidx.ui.core.times
 import androidx.ui.engine.geometry.BorderRadius
-import androidx.ui.material.InkRippleFactory
-import androidx.ui.material.InkWell
-import androidx.ui.material.Material
-import androidx.ui.material.MaterialType
 import androidx.ui.material.borders.BorderSide
 import androidx.ui.material.borders.RoundedRectangleBorder
+import androidx.ui.material.ripple.BoundedRipple
+import androidx.ui.material.surface.Card
 import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
-
-// TODO("Migration|Andrey: While composables work way better when used from the same module")
-// TODO("Migration|Andrey: Let's keep demos in 'ui-material' as well")
+// TODO("Andrey: While composables work way better when used from the same module")
+// TODO("Andrey: Let's keep demos in 'ui-material' as well")
 
 @Composable
 internal fun FillAll(padding: Dimension, @Children children: () -> Unit) {
@@ -55,29 +51,19 @@ internal fun FillAll(padding: Dimension, @Children children: () -> Unit) {
 }
 
 @Composable
-class InksDemo : Component() {
+class RippleDemo : Component() {
 
     override fun compose() {
-        <CraneWrapper>
-            <FillAll padding=50.dp>
-                val shape = RoundedRectangleBorder(
-                    side = BorderSide(Color(0x80000000.toInt())),
-                    borderRadius = BorderRadius.circular(100f)
-                )
-                <Material
-                    type=MaterialType.CARD
-                    color=Color(0x28CCCCCC)
-                    shape>
-                    <InkWell
-                        splashFactory=InkRippleFactory
-                        splashColor=Color(0x50CCCCCC)
-                        highlightColor=Color(0x3C888888)
-                        onTap={}>
-                    </InkWell>
-                </Material>
-            </FillAll>
-        </CraneWrapper>
+        <FillAll padding=50.dp>
+            val shape = RoundedRectangleBorder(
+                side = BorderSide(Color(0x80000000.toInt())),
+                borderRadius = BorderRadius.circular(100f)
+            )
+            <Card shape>
+                <BoundedRipple>
+                    // here we will have a clickable element
+                </BoundedRipple>
+            </Card>
+        </FillAll>
     }
 }
-
-
