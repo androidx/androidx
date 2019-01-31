@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,22 +20,20 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.DimenRes;
 import androidx.annotation.Dimension;
-import androidx.annotation.DrawableRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -50,9 +48,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class to build a list item of text.
+ * Class to build a list item with {@link Switch}.
  *
- * <p>An item supports primary action and supplemental action(s).
+ * <p>An item supports primary action and a switch as supplemental action.
  *
  * <p>An item visually composes of 3 parts; each part may contain multiple views.
  * <ul>
@@ -67,20 +65,15 @@ import java.util.List;
  *         <li>Title
  *         <li>Body
  *     </ul>
- *     <li>{@code Supplemental Action}: represented by one of the following types; aligned toward
- *     the end of item.
- *     <ul>
- *         <li>Supplemental Icon
- *         <li>Switch
- *     </ul>
+ *     <li>{@code Supplemental Action}: represented by {@link Switch}.
  * </ul>
  *
- * <p>{@code TextListItem} binds data to {@link ViewHolder} based on components selected.
+ * <p>{@code SwitchListItem} binds data to {@link ViewHolder} based on components selected.
  *
  * <p>When conflicting setter methods are called (e.g. setting primary action to both primary icon
  * and no icon), the last called method wins.
  */
-public class TextListItem extends ListItem<TextListItem.ViewHolder> {
+public class SwitchListItem extends ListItem<SwitchListItem.ViewHolder> {
 
     @Retention(SOURCE)
     @IntDef({
@@ -113,26 +106,14 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private static final int PRIMARY_ACTION_TYPE_EMPTY_ICON = 1;
     private static final int PRIMARY_ACTION_TYPE_ICON = 2;
 
-    @Retention(SOURCE)
-    @IntDef({SUPPLEMENTAL_ACTION_NO_ACTION,
-            SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON,
-            SUPPLEMENTAL_ACTION_SWITCH})
-    private @interface SupplementalActionType {}
-
-    private static final int SUPPLEMENTAL_ACTION_NO_ACTION = 0;
-    private static final int SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON = 1;
-    private static final int SUPPLEMENTAL_ACTION_SWITCH = 2;
-
     private final Context mContext;
     private boolean mIsEnabled = true;
+    private boolean mIsClickable;
 
     private final List<ViewBinder<ViewHolder>> mBinders = new ArrayList<>();
 
-    private View.OnClickListener mOnClickListener;
-
     @PrimaryActionType private int mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
     private Icon mPrimaryActionIcon;
-    private Drawable mPrimaryActionIconDrawable;
     @PrimaryActionIconSize private int mPrimaryActionIconSize = PRIMARY_ACTION_ICON_SIZE_SMALL;
 
     private CharSequence mTitle;
@@ -140,12 +121,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
 
     @Dimension
     private final int mSupplementalGuidelineBegin;
-
-    @SupplementalActionType private int mSupplementalActionType = SUPPLEMENTAL_ACTION_NO_ACTION;
-    private Icon mSupplementalIcon;
-    private Drawable mSupplementalIconDrawable;
-    private View.OnClickListener mSupplementalIconOnClickListener;
-    private boolean mShowSupplementalIconDivider;
 
     private boolean mSwitchChecked;
     /**
@@ -157,14 +132,14 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     private CompoundButton.OnCheckedChangeListener mSwitchOnCheckedChangeListener;
 
     /**
-     * Creates a {@link TextListItem.ViewHolder}.
+     * Creates a {@link ViewHolder}.
      */
     @NonNull
     public static ViewHolder createViewHolder(View itemView) {
         return new ViewHolder(itemView);
     }
 
-    public TextListItem(@NonNull Context context) {
+    public SwitchListItem(@NonNull Context context) {
         mContext = context;
         mSupplementalGuidelineBegin = mContext.getResources().getDimensionPixelSize(
                 R.dimen.car_list_item_supplemental_guideline_top);
@@ -176,21 +151,22 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      */
     @Override
     public int getViewType() {
-        return ListItemAdapter.LIST_ITEM_TYPE_TEXT;
+        return ListItemAdapter.LIST_ITEM_TYPE_SWITCH;
     }
 
     /**
      * Calculates the layout params for views in {@link ViewHolder}.
      */
     @Override
+    @CallSuper
     protected void resolveDirtyState() {
         mBinders.clear();
 
         // Create binders that adjust layout params of each view.
         setPrimaryAction();
         setText();
-        setSupplementalActions();
-        setOnClickListener();
+        setSwitch();
+        setItemClickable();
     }
 
     /**
@@ -206,7 +182,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         for (View v : viewHolder.getWidgetViews()) {
             v.setEnabled(mIsEnabled);
         }
-        // TextListItem supports clicking on the item so we also update the entire itemView.
+        // SwitchListItem supports clicking on the item so we also update the entire itemView.
         viewHolder.itemView.setEnabled(mIsEnabled);
     }
 
@@ -215,8 +191,113 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         mIsEnabled = enabled;
     }
 
+    /**
+     * Sets whether the item is clickable. If {@code true}, clicking item toggles the switch.
+     */
+    public void setClickable(boolean isClickable) {
+        mIsClickable = isClickable;
+        markDirty();
+    }
+
+    /**
+     * Sets {@code Primary Action} to be represented by an icon.
+     *
+     * @param icon An icon to set as primary action.
+     * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
+     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
+     */
+    public void setPrimaryActionIcon(@NonNull Icon icon, @PrimaryActionIconSize int size) {
+        mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
+        mPrimaryActionIcon = icon;
+        mPrimaryActionIconSize = size;
+        markDirty();
+    }
+
+    /**
+     * Sets {@code Primary Action} to be empty icon.
+     *
+     * <p>{@code Text} would have a start margin as if {@code Primary Action} were set to primary
+     * icon.
+     */
+    public void setPrimaryActionEmptyIcon() {
+        mPrimaryActionType = PRIMARY_ACTION_TYPE_EMPTY_ICON;
+        markDirty();
+    }
+
+    /**
+     * Sets {@code Primary Action} to have no icon. Text would align to the start of item.
+     */
+    public void setPrimaryActionNoIcon() {
+        mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
+        markDirty();
+    }
+
+    /**
+     * Sets the title of item.
+     *
+     * <p>Primary text is {@code Title} by default. It can be set by
+     * {@link #setBody(CharSequence)}
+     *
+     * <p>{@code Title} text is limited to one line, and ellipses at the end.
+     *
+     * @param title text to display as title.
+     */
+    public void setTitle(@Nullable CharSequence title) {
+        mTitle = title;
+        markDirty();
+    }
+
+    /**
+     * Sets the body text of item.
+     *
+     * <p>Text beyond length required by regulation will be truncated.
+     *
+     * @param body text to be displayed.
+     */
+    public void setBody(@Nullable CharSequence body) {
+        mBody = body;
+        markDirty();
+    }
+
+    /**
+     * Sets the state of {@code Switch}.
+     *
+     * @param isChecked sets the "checked/unchecked, namely on/off" state of switch.
+     */
+    public void setSwitchState(boolean isChecked) {
+        if (mSwitchChecked == isChecked) {
+            return;
+        }
+        mSwitchChecked = isChecked;
+        mShouldNotifySwitchChecked = true;
+        markDirty();
+    }
+
+    /**
+     * Registers a callback to be invoked when the checked state of switch changes.
+     *
+     * @param listener callback to be invoked when the checked state shown in the UI changes.
+     */
+    public void setSwitchOnCheckedChangeListener(
+            @Nullable CompoundButton.OnCheckedChangeListener listener) {
+        mSwitchOnCheckedChangeListener = listener;
+        // This method invalidates previous listener. Reset so that we *only*
+        // notify when the checked state changes and not on the initial bind.
+        mShouldNotifySwitchChecked = false;
+        markDirty();
+    }
+
+    /**
+     * Sets whether to display a vertical bar between switch and text.
+     */
+    public void setShowSwitchDivider(boolean showSwitchDivider) {
+        mShowSwitchDivider = showSwitchDivider;
+        markDirty();
+    }
+
     @NonNull
-    protected Context getContext() {
+    protected final Context getContext() {
         return mContext;
     }
 
@@ -238,25 +319,14 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         setTextEndMargin();
     }
 
-    private void setOnClickListener() {
-        mBinders.add(vh -> {
-            vh.itemView.setOnClickListener(mOnClickListener);
-            vh.itemView.setClickable(mOnClickListener != null);
-        });
-    }
-
     private void setPrimaryIconContent() {
         switch (mPrimaryActionType) {
             case PRIMARY_ACTION_TYPE_ICON:
                 mBinders.add(vh -> {
                     vh.getPrimaryIcon().setVisibility(View.VISIBLE);
-                    if (mPrimaryActionIcon != null) {
-                        mPrimaryActionIcon.loadDrawableAsync(getContext(),
-                                drawable -> vh.getPrimaryIcon().setImageDrawable(drawable),
-                                new Handler(Looper.getMainLooper()));
-                    } else {
-                        vh.getPrimaryIcon().setImageDrawable(mPrimaryActionIconDrawable);
-                    }
+                    mPrimaryActionIcon.loadDrawableAsync(getContext(),
+                            drawable -> vh.getPrimaryIcon().setImageDrawable(drawable),
+                            new Handler(Looper.getMainLooper()));
                 });
                 break;
             case PRIMARY_ACTION_TYPE_EMPTY_ICON:
@@ -410,9 +480,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     }
 
     private void setTextEndMargin() {
-        int endMargin = mSupplementalActionType == SUPPLEMENTAL_ACTION_NO_ACTION
-                ? mContext.getResources().getDimensionPixelSize(R.dimen.car_keyline_1)
-                : mContext.getResources().getDimensionPixelSize(R.dimen.car_padding_4);
+        int endMargin = mContext.getResources().getDimensionPixelSize(R.dimen.car_padding_4);
 
         mBinders.add(vh -> {
             MarginLayoutParams titleLayoutParams =
@@ -443,7 +511,7 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             mBinders.add(vh -> {
                 // Body uses top and bottom margin.
                 int margin = mContext.getResources().getDimensionPixelSize(
-                         R.dimen.car_padding_3);
+                        R.dimen.car_padding_3);
                 MarginLayoutParams layoutParams =
                         (MarginLayoutParams) vh.getBody().getLayoutParams();
                 layoutParams.topMargin = margin;
@@ -474,314 +542,45 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
     /**
      * Sets up view(s) for supplemental action.
      */
-    private void setSupplementalActions() {
-        switch (mSupplementalActionType) {
-            case SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON:
-                mBinders.add(vh -> {
-                    vh.getSupplementalIcon().setVisibility(View.VISIBLE);
-                    if (mShowSupplementalIconDivider) {
-                        vh.getSupplementalIconDivider().setVisibility(View.VISIBLE);
-                    }
+    private void setSwitch() {
+        mBinders.add(vh -> {
+            vh.getSwitch().setVisibility(View.VISIBLE);
+            vh.getSwitch().setOnCheckedChangeListener(null);
+            vh.getSwitch().setChecked(mSwitchChecked);
+            vh.getSwitch().setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (mSwitchOnCheckedChangeListener != null) {
+                    // The checked state changed via user interaction with the switch.
+                    mSwitchOnCheckedChangeListener.onCheckedChanged(buttonView, isChecked);
+                }
+                mSwitchChecked = isChecked;
+            });
+            if (mShouldNotifySwitchChecked && mSwitchOnCheckedChangeListener != null) {
+                // The checked state was changed programmatically.
+                mSwitchOnCheckedChangeListener.onCheckedChanged(vh.getSwitch(),
+                        mSwitchChecked);
+                mShouldNotifySwitchChecked = false;
+            }
 
-                    if (mSupplementalIcon != null) {
-                        mSupplementalIcon.loadDrawableAsync(getContext(),
-                                drawable -> vh.getSupplementalIcon().setImageDrawable(drawable),
-                                new Handler(Looper.getMainLooper()));
-                    } else {
-                        vh.getSupplementalIcon().setImageDrawable(mSupplementalIconDrawable);
-                    }
-                    vh.getSupplementalIcon().setOnClickListener(
-                            mSupplementalIconOnClickListener);
+            if (mShowSwitchDivider) {
+                vh.getSwitchDivider().setVisibility(View.VISIBLE);
+            }
+        });
+    }
 
-                    boolean hasClickListener = mSupplementalIconOnClickListener != null;
-                    vh.getSupplementalIcon().setClickable(hasClickListener);
-                    vh.getClickInterceptView().setClickable(hasClickListener);
-                    vh.getClickInterceptView().setVisibility(
-                            hasClickListener ? View.VISIBLE : View.GONE);
-                });
-                break;
-            case SUPPLEMENTAL_ACTION_NO_ACTION:
-                // If there's not action, then no need for the intercept view to stop touches.
-                mBinders.add(vh -> vh.getClickInterceptView().setClickable(false));
-                break;
-            case SUPPLEMENTAL_ACTION_SWITCH:
-                mBinders.add(vh -> {
-                    vh.getSwitch().setVisibility(View.VISIBLE);
-                    vh.getSwitch().setOnCheckedChangeListener(null);
-                    vh.getSwitch().setChecked(mSwitchChecked);
-                    vh.getSwitch().setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        if (mSwitchOnCheckedChangeListener != null) {
-                            // The checked state changed via user interaction with the switch.
-                            mSwitchOnCheckedChangeListener.onCheckedChanged(buttonView, isChecked);
-                        }
-                        mSwitchChecked = isChecked;
-                    });
-                    if (mShouldNotifySwitchChecked && mSwitchOnCheckedChangeListener != null) {
-                        // The checked state was changed programmatically.
-                        mSwitchOnCheckedChangeListener.onCheckedChanged(vh.getSwitch(),
-                                mSwitchChecked);
-                        mShouldNotifySwitchChecked = false;
-                    }
-                    if (mShowSwitchDivider) {
-                        vh.getSwitchDivider().setVisibility(View.VISIBLE);
-                    }
-
-                    // The switch is always touch-able, so activate the intercept view.
-                    vh.getClickInterceptView().setClickable(true);
-                    vh.getClickInterceptView().setVisibility(View.VISIBLE);
-                });
-                break;
-            default:
-                throw new IllegalStateException("Unknown supplemental action type.");
-        }
+    private void setItemClickable() {
+        mBinders.add(vh -> {
+            // If applicable (namely item is clickable), clicking item always toggles the switch.
+            vh.itemView.setOnClickListener(v -> vh.getSwitch().toggle());
+            vh.itemView.setClickable(mIsClickable);
+        });
     }
 
     /**
-     * Sets {@link View.OnClickListener} of {@code TextListItem}.
-     */
-    public void setOnClickListener(View.OnClickListener listener) {
-        mOnClickListener = listener;
-        markDirty();
-    }
-
-    /**
-     * Sets {@code Primary Action} to be represented by an icon.
-     *
-     * @param icon An icon to set as primary action.
-     * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
-     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
-     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
-     */
-    public void setPrimaryActionIcon(@NonNull Icon icon, @PrimaryActionIconSize int size) {
-        mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
-        mPrimaryActionIcon = icon;
-        mPrimaryActionIconSize = size;
-        markDirty();
-    }
-
-    /**
-     * Sets {@code Primary Action} to be represented by an icon.
-     *
-     * @param iconResId the resource identifier of the drawable.
-     * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
-     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
-     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
-     *
-     * @deprecated Use {@link #setPrimaryActionIcon(Icon, int)}.
-     */
-    @Deprecated
-    public void setPrimaryActionIcon(@DrawableRes int iconResId, @PrimaryActionIconSize int size) {
-        setPrimaryActionIcon(Icon.createWithResource(getContext(), iconResId), size);
-    }
-
-    /**
-     * Sets {@code Primary Action} to be represented by an icon.
-     *
-     * @param drawable the Drawable to set, or null to clear the content.
-     * @param size small/medium/large. Available as {@link #PRIMARY_ACTION_ICON_SIZE_SMALL},
-     *             {@link #PRIMARY_ACTION_ICON_SIZE_MEDIUM},
-     *             {@link #PRIMARY_ACTION_ICON_SIZE_LARGE}.
-     *
-     * @deprecated Use {@link #setPrimaryActionIcon(Icon, int)}.
-     */
-    @Deprecated
-    public void setPrimaryActionIcon(@Nullable Drawable drawable, @PrimaryActionIconSize int size) {
-        mPrimaryActionType = PRIMARY_ACTION_TYPE_ICON;
-        mPrimaryActionIconDrawable = drawable;
-        mPrimaryActionIconSize = size;
-        markDirty();
-    }
-
-    /**
-     * Sets {@code Primary Action} to be empty icon.
-     *
-     * <p>{@code Text} would have a start margin as if {@code Primary Action} were set to primary
-     * icon.
-     */
-    public void setPrimaryActionEmptyIcon() {
-        mPrimaryActionType = PRIMARY_ACTION_TYPE_EMPTY_ICON;
-        markDirty();
-    }
-
-    /**
-     * Sets {@code Primary Action} to have no icon. Text would align to the start of item.
-     */
-    public void setPrimaryActionNoIcon() {
-        mPrimaryActionType = PRIMARY_ACTION_TYPE_NO_ICON;
-        markDirty();
-    }
-
-    /**
-     * Sets the title of item.
-     *
-     * <p>Primary text is {@code Title} by default. It can be set by
-     * {@link #setBody(CharSequence)}
-     *
-     * <p>{@code Title} text is limited to one line, and ellipses at the end.
-     *
-     * @param title text to display as title.
-     */
-    public void setTitle(CharSequence title) {
-        mTitle = title;
-        markDirty();
-    }
-
-    /**
-     * Sets the body text of item.
-     *
-     * <p>Text beyond length required by regulation will be truncated.
-     *
-     * @param body text to be displayed.
-     */
-    public void setBody(CharSequence body) {
-        mBody = body;
-        markDirty();
-    }
-
-    /**
-     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
-     *
-     * @param icon An icon to set as supplemental action.
-     * @param showDivider whether to display a vertical bar that separates {@code text} and
-     *                    {@code Supplemental Icon}.
-     */
-    public void setSupplementalIcon(@NonNull Icon icon, boolean showDivider) {
-        mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
-
-        mSupplementalIcon = icon;
-        mShowSupplementalIconDivider = showDivider;
-        markDirty();
-    }
-
-    /**
-     * Sets an {@code OnClickListener} for the icon representing the {@code Supplemental Action}.
-     *
-     * @param listener the callback that will run when icon is clicked.
-     */
-    public void setSupplementalIconOnClickListener(@NonNull View.OnClickListener listener) {
-        mSupplementalIconOnClickListener = listener;
-        markDirty();
-    }
-
-    /**
-     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
-     *
-     * @param iconResId drawable resource id.
-     * @param showDivider whether to display a vertical bar that separates {@code text} and
-     *                    {@code Supplemental Icon}.
-     *
-     * @deprecated Use {@link #setSupplementalIcon(Icon, boolean)}.
-     */
-    @Deprecated
-    public void setSupplementalIcon(int iconResId, boolean showDivider) {
-        setSupplementalIcon(Icon.createWithResource(getContext(), iconResId), showDivider);
-    }
-
-    /**
-     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
-     *
-     * @param drawable the Drawable to set, or null to clear the content.
-     * @param showDivider whether to display a vertical bar that separates {@code text} and
-     *                    {@code Supplemental Icon}.
-     *
-     * @deprecated Use {@link #setSupplementalIcon(Icon, boolean)}.
-     */
-    @Deprecated
-    public void setSupplementalIcon(Drawable drawable, boolean showDivider) {
-        setSupplementalIcon(drawable, showDivider, null);
-    }
-
-    /**
-     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
-     *
-     * @param iconResId drawable resource id.
-     * @param showDivider whether to display a vertical bar that separates {@code text} and
-     *                    {@code Supplemental Icon}.
-     * @param listener the callback that will run when icon is clicked.
-     *
-     * @deprecated Use {@link #setSupplementalIcon(Icon, boolean)} and
-     *             {@link #setSupplementalIconOnClickListener(View.OnClickListener)}.
-     */
-    @Deprecated
-    public void setSupplementalIcon(int iconResId, boolean showDivider,
-            View.OnClickListener listener) {
-        setSupplementalIcon(Icon.createWithResource(getContext(), iconResId), showDivider);
-        setSupplementalIconOnClickListener(listener);
-    }
-
-    /**
-     * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
-     *
-     * @param drawable the Drawable to set, or null to clear the content.
-     * @param showDivider whether to display a vertical bar that separates {@code text} and
-     *                    {@code Supplemental Icon}.
-     * @param listener the callback that will run when icon is clicked.
-     *
-     * @deprecated Use {@link #setSupplementalIcon(Icon, boolean)} and
-     *             {@link #setSupplementalIconOnClickListener(View.OnClickListener)}.
-     */
-    @Deprecated
-    public void setSupplementalIcon(Drawable drawable, boolean showDivider,
-            View.OnClickListener listener) {
-        mSupplementalActionType = SUPPLEMENTAL_ACTION_SUPPLEMENTAL_ICON;
-
-        mSupplementalIconDrawable = drawable;
-        mSupplementalIconOnClickListener = listener;
-        mShowSupplementalIconDivider = showDivider;
-        markDirty();
-    }
-
-    /**
-     * Sets {@code Supplemental Action} to be represented by a {@link android.widget.Switch}.
-     *
-     * @param checked initial value for switched.
-     * @param showDivider whether to display a vertical bar between switch and text.
-     * @param listener callback to be invoked when the checked state shown in the UI changes.
-     *
-     * @deprecated Use {@link SwitchListItem} instead.
-     */
-    @Deprecated
-    public void setSwitch(boolean checked, boolean showDivider,
-            CompoundButton.OnCheckedChangeListener listener) {
-        mSupplementalActionType = SUPPLEMENTAL_ACTION_SWITCH;
-
-        mSwitchChecked = checked;
-        // This method invalidates any previous listener and state changes. Reset so that we *only*
-        // notify when the checked state changes and not on the initial bind.
-        mShouldNotifySwitchChecked = false;
-        mShowSwitchDivider = showDivider;
-        mSwitchOnCheckedChangeListener = listener;
-
-        markDirty();
-    }
-
-    /**
-     * Sets the state of {@code Switch}. For this method to take effect,
-     * {@link #setSwitch(boolean, boolean, CompoundButton.OnCheckedChangeListener)} must be called
-     * first to set {@code Supplemental Action} as a {@code Switch}.
-     *
-     * @param isChecked sets the "checked/unchecked, namely on/off" state of switch.
-     *
-     * @deprecated Use {@link SwitchListItem} instead.
-     */
-    @Deprecated
-    public void setSwitchState(boolean isChecked) {
-        if (mSwitchChecked == isChecked) {
-            return;
-        }
-        mSwitchChecked = isChecked;
-        mShouldNotifySwitchChecked = true;
-        markDirty();
-    }
-
-    /**
-     * Holds views of TextListItem.
+     * Holds views of SwitchListItem.
      */
     public static final class ViewHolder extends ListItem.ViewHolder {
 
         private final View[] mWidgetViews;
-
-        private ViewGroup mContainerLayout;
 
         private ImageView mPrimaryIcon;
 
@@ -789,17 +588,15 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         private TextView mBody;
 
         private Guideline mSupplementalGuideline;
-        private View mSupplementalIconDivider;
-        private ImageView mSupplementalIcon;
 
         private Switch mSwitch;
         private View mSwitchDivider;
-        private View mClickInterceptor;
 
-        public ViewHolder(View itemView) {
+        /**
+         * ViewHolder that contains necessary widgets for {@link SwitchListItem}.
+         */
+        public ViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            mContainerLayout = itemView.findViewById(R.id.container);
 
             mPrimaryIcon = itemView.findViewById(R.id.primary_icon);
 
@@ -807,32 +604,20 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
             mBody = itemView.findViewById(R.id.body);
 
             mSupplementalGuideline = itemView.findViewById(R.id.supplemental_actions_guideline);
-            mSupplementalIcon = itemView.findViewById(R.id.supplemental_icon);
-            mSupplementalIconDivider = itemView.findViewById(R.id.supplemental_icon_divider);
 
             mSwitch = itemView.findViewById(R.id.switch_widget);
             mSwitchDivider = itemView.findViewById(R.id.switch_divider);
 
-            mClickInterceptor = itemView.findViewById(R.id.click_interceptor);
-
             int minTouchSize = itemView.getContext().getResources()
                     .getDimensionPixelSize(R.dimen.car_touch_target_size);
-
-            MinTouchTargetHelper.ensureThat(mSupplementalIcon)
-                    .hasMinTouchSize(minTouchSize);
+            MinTouchTargetHelper.ensureThat(mSwitch).hasMinTouchSize(minTouchSize);
 
             // Each line groups relevant child views in an effort to help keep this view array
             // updated with actual child views in the ViewHolder.
             mWidgetViews = new View[] {
-                    // Primary action.
                     mPrimaryIcon,
-                    // Text.
                     mTitle, mBody,
-                    // Supplemental actions include icon, action button, and switch.
-                    mSupplementalIcon, mSupplementalIconDivider,
                     mSwitch, mSwitchDivider,
-                    // Click intercept view that is underneath any supplemental actions
-                    mClickInterceptor
             };
         }
 
@@ -849,11 +634,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         }
 
         @NonNull
-        public ViewGroup getContainerLayout() {
-            return mContainerLayout;
-        }
-
-        @NonNull
         public ImageView getPrimaryIcon() {
             return mPrimaryIcon;
         }
@@ -866,16 +646,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         @NonNull
         public TextView getBody() {
             return mBody;
-        }
-
-        @NonNull
-        public ImageView getSupplementalIcon() {
-            return mSupplementalIcon;
-        }
-
-        @NonNull
-        public View getSupplementalIconDivider() {
-            return mSupplementalIconDivider;
         }
 
         @NonNull
@@ -896,15 +666,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         @NonNull
         View[] getWidgetViews() {
             return mWidgetViews;
-        }
-
-        /**
-         * Returns the view that will intercept clicks beneath the supplemental icon and action
-         * views.
-         */
-        @NonNull
-        View getClickInterceptView() {
-            return mClickInterceptor;
         }
     }
 }
