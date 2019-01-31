@@ -17,14 +17,11 @@
 package androidx.ui.core.gesture.util
 
 import androidx.ui.core.Duration
-import androidx.ui.core.Px
 import androidx.ui.core.PxPosition
 import androidx.ui.core.Timestamp
 import androidx.ui.core.Velocity
-import androidx.ui.core.getDistance
 import androidx.ui.core.inMilliseconds
 import androidx.ui.core.px
-import java.lang.IllegalArgumentException
 import kotlin.math.absoluteValue
 
 private const val AssumePointerMoveStoppedMilliseconds: Int = 40
@@ -63,29 +60,11 @@ class VelocityTracker {
     }
 
     /**
-     * Computes the velocity of the pointer at the time of the last provided data point.
+     * Computes the estimated velocity of the pointer at the time of the last provided data point.
      *
      * This can be expensive. Only call this when you need the velocity.
-     *
-     * @param min Pixels per second.  If the velocity falls below this, the returned velocity will
-     * be 0.
-     * @param max Pixels per second.  If the velocity exceeds this, the returned velocity will be 0.
-     * @return `null` if there is no data from which to compute an estimate.
      */
-    fun calculateVelocity(
-        min: Px = 0f.px,
-        max: Px = Float.MAX_VALUE.px
-    ): Velocity {
-        val estimate: VelocityEstimate = getVelocityEstimate()
-
-        // If we are outside the bounds of allowable velocity, return a velocity of 0.
-        val distance = estimate.pixelsPerSecond.getDistance()
-        if (distance < min || distance > max) {
-            return Velocity.Zero
-        }
-
-        return Velocity(pixelsPerSecond = estimate.pixelsPerSecond)
-    }
+    fun calculateVelocity() = Velocity(pixelsPerSecond = getVelocityEstimate().pixelsPerSecond)
 
     /**
      * Clears the tracked positions added by [addPosition].

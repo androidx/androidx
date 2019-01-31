@@ -52,7 +52,11 @@ private class PointerInputChangeEventProducer {
                     ConsumedData()
                 )
             )
-            previousPointerInputData[it.id] = it.pointerInputData
+            if (it.pointerInputData.down) {
+                previousPointerInputData[it.id] = it.pointerInputData
+            } else {
+                previousPointerInputData.remove(it.id)
+            }
         }
         return PointerInputChangeEvent(pointerEvent.timestamp, changes)
     }
