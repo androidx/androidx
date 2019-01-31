@@ -262,10 +262,19 @@ public class CommandHandler implements ExecutionListener {
         synchronized (mLock) {
             String workSpecId = extras.getString(KEY_WORKSPEC_ID);
             Logger.get().debug(TAG, String.format("Handing delay met for %s", workSpecId));
-            DelayMetCommandHandler delayMetCommandHandler =
-                    new DelayMetCommandHandler(mContext, startId, workSpecId, dispatcher);
-            mPendingDelayMet.put(workSpecId, delayMetCommandHandler);
-            delayMetCommandHandler.handleProcessWork();
+
+            // Check to see if we are already handling an ACTION_DELAY_MET for the WorkSpec.
+            // If we are, then there is nothing for us to do.
+            if (!mPendingDelayMet.containsKey(workSpecId)) {
+                DelayMetCommandHandler delayMetCommandHandler =
+                        new DelayMetCommandHandler(mContext, startId, workSpecId, dispatcher);
+                mPendingDelayMet.put(workSpecId, delayMetCommandHandler);
+                delayMetCommandHandler.handleProcessWork();
+            } else {
+                Logger.get().debug(TAG,
+                        String.format("WorkSpec %s is already being handled for ACTION_DELAY_MET",
+                                workSpecId));
+            }
         }
     }
 
