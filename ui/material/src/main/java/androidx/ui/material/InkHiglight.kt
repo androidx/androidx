@@ -34,8 +34,8 @@ import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.engine.geometry.BorderRadius
 import androidx.ui.material.borders.BoxShape
-import androidx.ui.painting.matrixutils.getAsTranslation
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.getAsTranslation
 
 internal val HighlightFadeDuration = Duration.create(milliseconds = 200)
 

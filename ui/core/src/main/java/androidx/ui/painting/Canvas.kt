@@ -1,18 +1,31 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package androidx.ui.painting
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.ui.Vertices
 import androidx.ui.core.toFrameworkRect
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.engine.text.Paragraph
-import androidx.ui.painting.matrixutils.isIdentity
-import androidx.ui.skia.SkMatrix
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.degrees
+import androidx.ui.vectormath64.isIdentity
 
+// TODO(mount/njawad): Separate the platform-independent API from the platform-dependent.
 // TODO(Migration/njawad): Copy the class here
 /**
  * An interface for recording graphical operations.
@@ -408,7 +421,6 @@ class Canvas {
      *
      * This shape is almost but not quite entirely unlike an annulus.
      */
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun drawDRRect(outer: RRect, inner: RRect, paint: Paint) {
         // TODO(Migration/njawad find better way to recreate functionality with Framework APIs
         // without creating temporary paths on each draw call
@@ -601,11 +613,12 @@ class Canvas {
      * of the [ParagraphConstraints.width] given to [Paragraph.layout], to the `offset` argument's
      * [Offset.dx] coordinate.
      */
-    fun drawParagraph(paragraph: Paragraph, offset: Offset) {
-        assert(paragraph != null)
-        assert(Offset.isValid(offset))
-        paragraph.paint(this, offset.dx, offset.dy)
-    }
+    // TODO(siyamed): Decide what to do with this method. Should it exist on Canvas?
+//    fun drawParagraph(paragraph: Paragraph, offset: Offset) {
+//        assert(paragraph != null)
+//        assert(Offset.isValid(offset))
+//        paragraph.paint(this, offset.dx, offset.dy)
+//    }
 
     /**
      * Draws a sequence of points according to the given [PointMode].
@@ -753,10 +766,6 @@ class Canvas {
                 vertices.indices.size,
                 paint.toFrameworkPaint()
         )
-    }
-
-    fun concat(matrix: SkMatrix) {
-        internalCanvas.concat(matrix.frameworkMatrix)
     }
 
 //    //

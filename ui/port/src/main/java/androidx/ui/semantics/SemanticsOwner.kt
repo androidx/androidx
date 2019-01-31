@@ -2,8 +2,8 @@ package androidx.ui.semantics
 
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.foundation.change_notifier.ChangeNotifier
-import androidx.ui.painting.matrixutils.transformPoint
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.transformPoint
 
 /**
  * Owns [SemanticsNode] objects and notifies listeners of changes to the

@@ -17,8 +17,8 @@
 package androidx.ui.rendering.obj
 
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.matrixutils.inverseTransformRect
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.inverseTransformRect
 
 // / From parent to child coordinate system.
 // TODO(Migration/ryanmentley): Should be private except for synthetic accessor

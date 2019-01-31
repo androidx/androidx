@@ -16,7 +16,6 @@ import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.timelineWhitelistArguments
 import androidx.ui.gestures.hit_test.HitTestEntry
 import androidx.ui.gestures.hit_test.HitTestResult
-import androidx.ui.painting.matrixutils.transformRect
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.box.RenderBox
 import androidx.ui.rendering.debugRepaintRainbowEnabled
@@ -27,6 +26,7 @@ import androidx.ui.rendering.obj.PaintingContext
 import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.transformRect
 
 /**
  * The root of the render tree.

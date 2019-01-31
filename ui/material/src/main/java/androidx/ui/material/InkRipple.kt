@@ -48,8 +48,8 @@ import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.engine.geometry.BorderRadius
-import androidx.ui.painting.matrixutils.getAsTranslation
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.getAsTranslation
 
 internal val UnconfirmedRippleDuration = Duration.create(seconds = 1)
 internal val FadeInDuration = Duration.create(milliseconds = 75)

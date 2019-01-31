@@ -17,10 +17,10 @@
 package androidx.ui.rendering.obj
 
 import androidx.ui.engine.geometry.Rect
-import androidx.ui.painting.matrixutils.matrixEquals
 import androidx.ui.semantics.SemanticsConfiguration
 import androidx.ui.semantics.SemanticsNode
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.matrixEquals
 
 // / An [_InterestingSemanticsFragment] that produces the root [SemanticsNode] of
 // / the semantics tree.

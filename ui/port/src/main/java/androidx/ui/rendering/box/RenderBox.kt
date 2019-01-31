@@ -18,7 +18,6 @@ import androidx.ui.gestures.hit_test.HitTestResult
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import androidx.ui.painting.PaintingStyle
-import androidx.ui.painting.matrixutils.transformPoint
 import androidx.ui.rendering.debugCheckIntrinsicSizes
 import androidx.ui.rendering.debugPaintBaselinesEnabled
 import androidx.ui.rendering.debugPaintPointersEnabled
@@ -28,6 +27,7 @@ import androidx.ui.rendering.obj.RenderObject
 import androidx.ui.rendering.obj.RenderObjectWithChildMixin
 import androidx.ui.runtimeType
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.transformPoint
 
 /**
  * A render object in a 2D Cartesian coordinate system.

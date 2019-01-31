@@ -23,15 +23,15 @@ import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.IterableProperty
 import androidx.ui.foundation.diagnostics.MessageProperty
 import androidx.ui.foundation.diagnostics.StringProperty
-import androidx.ui.painting.matrixutils.getAsScale
-import androidx.ui.painting.matrixutils.getAsTranslation
-import androidx.ui.painting.matrixutils.isIdentity
-import androidx.ui.painting.matrixutils.matrixEquals
 import androidx.ui.runtimeType
 import androidx.ui.services.text_editing.TextSelection
 import androidx.ui.toStringAsFixed
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.Vector3
+import androidx.ui.vectormath64.getAsScale
+import androidx.ui.vectormath64.getAsTranslation
+import androidx.ui.vectormath64.isIdentity
+import androidx.ui.vectormath64.matrixEquals
 
 fun _initIdentityTransform(): FloatArray {
     return Matrix4.identity().m4storage.toFloatArray()

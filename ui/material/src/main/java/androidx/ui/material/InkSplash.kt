@@ -45,8 +45,8 @@ import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
-import androidx.ui.painting.matrixutils.getAsTranslation
 import androidx.ui.vectormath64.Matrix4
+import androidx.ui.vectormath64.getAsTranslation
 import kotlin.math.ceil
 import kotlin.math.floor
 

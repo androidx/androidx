@@ -20,12 +20,13 @@ import androidx.build.LibraryVersions
 import androidx.build.SupportLibraryExtension
 
 plugins {
-    id("SupportJavaLibraryPlugin")
-    id("kotlin")
+    id("SupportAndroidLibraryPlugin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     implementation(KOTLIN_R4A_STDLIB)
+    implementation(KOTLIN_R4A_COROUTINES)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
@@ -34,6 +35,22 @@ dependencies {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
     testImplementation(TRUTH)
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(MOCKITO_CORE)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
+        exclude group: 'org.mockito' // to keep control on the mockito version
+    }
+    androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+        multiDexEnabled true
+    }
 }
 
 supportLibrary {

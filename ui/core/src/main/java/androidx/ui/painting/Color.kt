@@ -16,12 +16,11 @@
 
 package androidx.ui.painting
 
-import androidx.ui.clamp
-import androidx.ui.toRadixString
-import androidx.ui.truncDiv
+import androidx.ui.toHexString
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
+// TODO(mount): Move to Color long
 /**
  * An immutable 32 bit color value in ARGB format.
  *
@@ -122,12 +121,13 @@ class Color(colorValue: Int) {
          */
         fun fromRGBO(r: Int, g: Int, b: Int, opacity: Float): Color {
             return Color(
-                    (
-                        ((((opacity * 0xff.toFloat()).truncDiv(1f)) and 0xff) shl 24) or
-                        ((r and 0xff) shl 16) or
-                        ((g and 0xff) shl 8) or
-                        ((b and 0xff) shl 0)
-                    ) and 0xFFFFFFFF.toInt())
+                (
+                        ((((opacity * 0xff.toFloat()).toInt()) and 0xff) shl 24) or
+                                ((r and 0xff) shl 16) or
+                                ((g and 0xff) shl 8) or
+                                ((b and 0xff) shl 0)
+                        ) and 0xFFFFFFFF.toInt()
+            )
         }
 
         // See <https://www.w3.org/TR/WCAG20/#relativeluminancedef>
@@ -225,21 +225,21 @@ class Color(colorValue: Int) {
             val invAlpha = 0xff - alpha
             var backAlpha = background.alpha
             if (backAlpha == 0xff) { // Opaque background case
-                return Color.fromARGB(
-                        0xff,
-                (alpha * foreground.red + invAlpha * background.red).truncDiv(0xff),
-                (alpha * foreground.green + invAlpha * background.green).truncDiv(0xff),
-                (alpha * foreground.blue + invAlpha * background.blue).truncDiv(0xff)
+                return fromARGB(
+                    0xff,
+                    (alpha * foreground.red + invAlpha * background.red) / 0xff,
+                    (alpha * foreground.green + invAlpha * background.green) / 0xff,
+                    (alpha * foreground.blue + invAlpha * background.blue) / 0xff
                 )
             } else { // General case
-                backAlpha = (backAlpha * invAlpha).truncDiv(0xff)
+                backAlpha = (backAlpha * invAlpha) / 0xff
                 val outAlpha = alpha + backAlpha
                 assert(outAlpha != 0x00)
-                return Color.fromARGB(
-                        outAlpha,
-                (foreground.red * alpha + background.red * backAlpha).truncDiv(outAlpha),
-                (foreground.green * alpha + background.green * backAlpha).truncDiv(outAlpha),
-                (foreground.blue * alpha + background.blue * backAlpha).truncDiv(outAlpha)
+                return fromARGB(
+                    outAlpha,
+                    (foreground.red * alpha + background.red * backAlpha) / outAlpha,
+                    (foreground.green * alpha + background.green * backAlpha) / outAlpha,
+                    (foreground.blue * alpha + background.blue * backAlpha) / outAlpha
                 )
             }
         }
@@ -277,7 +277,7 @@ class Color(colorValue: Int) {
      * Out of range values will have unexpected effects.
      */
     fun withAlpha(a: Int): Color {
-        return Color.fromARGB(a, red, green, blue)
+        return fromARGB(a, red, green, blue)
     }
 
     /**
@@ -298,7 +298,7 @@ class Color(colorValue: Int) {
      * Out of range values will have unexpected effects.
      */
     fun withRed(r: Int): Color {
-        return Color.fromARGB(alpha, r, green, blue)
+        return fromARGB(alpha, r, green, blue)
     }
 
     /**
@@ -308,7 +308,7 @@ class Color(colorValue: Int) {
      * Out of range values will have unexpected effects.
      */
     fun withGreen(g: Int): Color {
-        return Color.fromARGB(alpha, red, g, blue)
+        return fromARGB(alpha, red, g, blue)
     }
 
     /**
@@ -318,7 +318,7 @@ class Color(colorValue: Int) {
      * Out of range values will have unexpected effects.
      */
     fun withBlue(b: Int): Color {
-        return Color.fromARGB(alpha, red, green, b)
+        return fromARGB(alpha, red, green, b)
     }
 
     /**
@@ -354,9 +354,9 @@ class Color(colorValue: Int) {
         return value
     }
 
-    override fun toString() = "Color(0x${value.toRadixString(16).padStart(8, '0')})"
+    override fun toString() = "Color(${value.toHexString()})"
 }
 
 fun _scaleAlpha(a: Color, factor: Float): Color {
-    return a.withAlpha((a.alpha * factor).roundToInt().clamp(0, 255))
+    return a.withAlpha((a.alpha * factor).roundToInt().coerceIn(0, 255))
 }

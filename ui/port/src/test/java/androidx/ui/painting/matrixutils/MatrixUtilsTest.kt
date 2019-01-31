@@ -20,6 +20,7 @@ import androidx.ui.engine.geometry.Offset
 import androidx.ui.matchers.MoreOrLessEquals
 import androidx.ui.vectormath64.Matrix4
 import androidx.ui.vectormath64.PI
+import androidx.ui.vectormath64.getAsTranslation
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNull

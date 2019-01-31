@@ -30,3 +30,5 @@ fun lerpInt(a: Int, b: Int, t: Float): Float {
 }
 
 fun Float.toStringAsFixed(digits: Int) = String.format("%.${digits}f", this)
+
+fun Int.toHexString() = "0x${toUInt().toString(16).padStart(8, '0')}"

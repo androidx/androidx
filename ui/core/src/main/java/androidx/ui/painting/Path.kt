@@ -16,8 +16,6 @@
 
 package androidx.ui.painting
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.ui.core.toFrameworkRect
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.RRect
@@ -36,7 +34,7 @@ class Path {
 
     fun toFrameworkPath(): android.graphics.Path = internalPath
 
-    private fun clone() = androidx.ui.painting.Path().apply {
+    private fun clone() = Path().apply {
         internalPath.set(this@Path.internalPath)
     }
 
@@ -501,7 +499,7 @@ class Path {
      * Returns a copy of the path with all the segments of every
      * subpath translated by the given offset.
      */
-    fun shift(offset: Offset): androidx.ui.painting.Path {
+    fun shift(offset: Offset): Path {
         return clone().apply {
             mMatrix.reset()
             mMatrix.setTranslate(offset.dx, offset.dy)
@@ -513,7 +511,7 @@ class Path {
      * Returns a copy of the path with all the segments of every
      * subpath transformed by the given matrix.
      */
-    fun transform(matrix: Matrix4): androidx.ui.painting.Path {
+    fun transform(matrix: Matrix4): Path {
         // TODO(Migration/njawad: Update implementation with Matrix4 -> android.graphics.Matrix)
         TODO("Update implementation with Matrix4 -> android.graphics.Matrix conversion")
         // internalPath.transform(matrix);
@@ -571,13 +569,12 @@ class Path {
          * curve order is reduced where possible so that cubics may be turned into
          * quadratics, and quadratics maybe turned into lines.
          */
-        @RequiresApi(Build.VERSION_CODES.KITKAT)
         fun combine(
             operation: PathOperation,
-            path1: androidx.ui.painting.Path,
-            path2: androidx.ui.painting.Path
-        ): androidx.ui.painting.Path {
-            val path = androidx.ui.painting.Path()
+            path1: Path,
+            path2: Path
+        ): Path {
+            val path = Path()
 
             if (path.op(path1, path2, operation)) {
                 return path
@@ -591,19 +588,17 @@ class Path {
     }
 
     // Wrapper around _op method to avoid synthetic accessor in companion combine method
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     fun op(
-        path1: androidx.ui.painting.Path,
-        path2: androidx.ui.painting.Path,
+        path1: Path,
+        path2: Path,
         operation: PathOperation
     ): Boolean {
         return _op(path1, path2, operation)
     }
 
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun _op(
-        path1: androidx.ui.painting.Path,
-        path2: androidx.ui.painting.Path,
+        path1: Path,
+        path2: Path,
         operation: PathOperation
     ): Boolean {
         // TODO(shepshapard): Our current min SDK is 21, so this check shouldn't be needed.

@@ -15,6 +15,8 @@
  */
 package androidx.ui.vectormath64
 
+import androidx.ui.engine.geometry.Offset
+import androidx.ui.engine.geometry.Rect
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -85,33 +87,33 @@ data class Matrix4(
             identity().apply { setTranslationRaw(x, y, z) }
     }
 
-    inline val m4storage: List<Float>
+    /*inline jacoco hates inline*/ val m4storage: List<Float>
         get() = x.v4storage + y.v4storage + z.v4storage + w.v4storage
 
-    inline var right: Vector3
+    /*inline jacoco hates inline*/ var right: Vector3
         get() = x.xyz
         set(value) {
             x.xyz = value
         }
-    inline var up: Vector3
+    /*inline jacoco hates inline*/ var up: Vector3
         get() = y.xyz
         set(value) {
             y.xyz = value
         }
-    inline var forward: Vector3
+    /*inline jacoco hates inline*/ var forward: Vector3
         get() = z.xyz
         set(value) {
             z.xyz = value
         }
-    inline var position: Vector3
+    /*inline jacoco hates inline*/ var position: Vector3
         get() = w.xyz
         set(value) {
             w.xyz = value
         }
 
-    inline val scale: Vector3
+    /*inline jacoco hates inline*/ val scale: Vector3
         get() = Vector3(length(x.xyz), length(y.xyz), length(z.xyz))
-    inline val translation: Vector3
+    /*inline jacoco hates inline*/ val translation: Vector3
         get() = w.xyz
     val rotation: Vector3
         get() {
@@ -128,7 +130,7 @@ data class Matrix4(
             }
         }
 
-    inline val upperLeft: Matrix3
+    /*inline jacoco hates inline*/ val upperLeft: Matrix3
         get() = Matrix3(x.xyz, y.xyz, z.xyz)
 
     operator fun get(column: Int) = when (column) {
@@ -503,4 +505,156 @@ data class Matrix4(
         newStorage[15] = t4
         assignFromStorage(newStorage)
     }
+}
+
+/**
+ * Returns the given [transform] matrix as an [Offset], if the matrix is
+ * nothing but a 2D translation.
+ *
+ * Otherwise, returns null.
+ */
+fun Matrix4.getAsTranslation(): Offset? {
+    val values = m4storage
+    // Values are stored in column-major order.
+    return if (values[0] == 1.0f && // col 1
+        values[1] == 0.0f &&
+        values[2] == 0.0f &&
+        values[3] == 0.0f &&
+        values[4] == 0.0f && // col 2
+        values[5] == 1.0f &&
+        values[6] == 0.0f &&
+        values[7] == 0.0f &&
+        values[8] == 0.0f && // col 3
+        values[9] == 0.0f &&
+        values[10] == 1.0f &&
+        values[11] == 0.0f &&
+        values[14] == 0.0f && // bottom of col 4 (values 12 and 13 are the x and y offsets)
+
+        values[15] == 1.0f) {
+        Offset(values[12], values[13])
+    } else null
+}
+
+/**
+ * Returns the given [transform] matrix as a [Float] describing a uniform
+ * scale, if the matrix is nothing but a symmetric 2D scale transform.
+ *
+ * Otherwise, returns null.
+ */
+fun Matrix4.getAsScale(): Float? {
+    val values = m4storage
+    // Values are stored in column-major order.
+    return if (values[1] == 0.0f && // col 1 (value 0 is the scale)
+        values[2] == 0.0f &&
+        values[3] == 0.0f &&
+        values[4] == 0.0f && // col 2 (value 5 is the scale)
+        values[6] == 0.0f &&
+        values[7] == 0.0f &&
+        values[8] == 0.0f && // col 3
+        values[9] == 0.0f &&
+        values[10] == 1.0f &&
+        values[11] == 0.0f &&
+        values[12] == 0.0f && // col 4
+        values[13] == 0.0f &&
+        values[14] == 0.0f &&
+        values[15] == 1.0f &&
+        values[0] == values[5]) { // uniform scale
+        values[0]
+    } else null
+}
+
+/**
+ * Returns true if the given matrices are exactly equal, and false
+ * otherwise. Null values are assumed to be the identity matrix.
+ */
+fun matrixEquals(a: Matrix4?, b: Matrix4?): Boolean {
+    if (a === b)
+        return true
+    assert(a != null || b != null)
+    if (a == null)
+        return b!!.isIdentity()
+    if (b == null) {
+        return a.isIdentity()
+    }
+    val astorage = a.m4storage
+    val bstorage = b.m4storage
+    return astorage.subList(0, 16) == bstorage.subList(0, 16)
+}
+
+/** Whether the given matrix is the identity matrix. */
+fun Matrix4.isIdentity(): Boolean {
+    val storage = m4storage
+    return (storage[0] == 1.0f && // col 1
+            storage[1] == 0.0f &&
+            storage[2] == 0.0f &&
+            storage[3] == 0.0f &&
+            storage[4] == 0.0f && // col 2
+            storage[5] == 1.0f &&
+            storage[6] == 0.0f &&
+            storage[7] == 0.0f &&
+            storage[8] == 0.0f && // col 3
+            storage[9] == 0.0f &&
+            storage[10] == 1.0f &&
+            storage[11] == 0.0f &&
+            storage[12] == 0.0f && // col 4
+            storage[13] == 0.0f &&
+            storage[14] == 0.0f &&
+            storage[15] == 1.0f)
+}
+
+/**
+ * Applies the given matrix as a perspective transform to the given point.
+ *
+ * this function assumes the given point has a z-coordinate of 0.0. the
+ * z-coordinate of the result is ignored.
+ */
+fun Matrix4.transformPoint(point: Offset): Offset {
+    val position3 = Vector3(point.dx, point.dy, 0.0f)
+    val transformed3 = perspectiveTransform(position3)
+    return Offset(transformed3.x, transformed3.y)
+}
+
+/**
+ * Returns a rect that bounds the result of applying the given matrix as a
+ * perspective transform to the given rect.
+ *
+ * This function assumes the given rect is in the plane with z equals 0.0.
+ * The transformed rect is then projected back into the plane with z equals
+ * 0.0 before computing its bounding rect.
+ */
+fun Matrix4.transformRect(rect: Rect): Rect {
+    val point1 = transformPoint(rect.getTopLeft())
+    val point2 = transformPoint(rect.getTopRight())
+    val point3 = transformPoint(rect.getBottomLeft())
+    val point4 = transformPoint(rect.getBottomRight())
+    return Rect.fromLTRB(
+        min4(point1.dx, point2.dx, point3.dx, point4.dx),
+        min4(point1.dy, point2.dy, point3.dy, point4.dy),
+        max4(point1.dx, point2.dx, point3.dx, point4.dx),
+        max4(point1.dy, point2.dy, point3.dy, point4.dy)
+    )
+}
+
+private fun min4(a: Float, b: Float, c: Float, d: Float): Float {
+    return minOf(a, minOf(b, minOf(c, d)))
+}
+
+private fun max4(a: Float, b: Float, c: Float, d: Float): Float {
+    return maxOf(a, maxOf(b, maxOf(c, d)))
+}
+
+/**
+ * Returns a rect that bounds the result of applying the inverse of the given
+ * matrix as a perspective transform to the given rect.
+ *
+ * This function assumes the given rect is in the plane with z equals 0.0.
+ * The transformed rect is then projected back into the plane with z equals
+ * 0.0 before computing its bounding rect.
+ */
+fun inverseTransformRect(transform: Matrix4, rect: Rect): Rect {
+    assert(transform.determinant != 0.0f)
+    if (transform.isIdentity())
+        return rect
+    val inverted = Matrix4(transform).apply { invert() }
+    return inverted.transformRect(rect)
 }

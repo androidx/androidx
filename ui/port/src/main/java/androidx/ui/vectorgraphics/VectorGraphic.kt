@@ -231,7 +231,7 @@ class VGroup(val name: String = DEFAULT_GROUP_NAME) : VNode() {
 
             val matrix = groupMatrix
             if (matrix != null) {
-                concat(matrix)
+                toFrameworkCanvas().concat(matrix.frameworkMatrix)
             }
 
             for (node in children) {
