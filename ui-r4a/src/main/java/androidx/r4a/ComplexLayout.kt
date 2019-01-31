@@ -22,6 +22,7 @@ import androidx.ui.core.Dimension
 import androidx.ui.core.adapter.Align
 import androidx.ui.core.adapter.Alignment
 import androidx.ui.core.adapter.Column
+import androidx.ui.core.adapter.ConstrainedBox
 import androidx.ui.core.adapter.ComplexMeasureBox
 import androidx.ui.core.adapter.Row
 import androidx.ui.core.adapter.MeasureBox
@@ -94,10 +95,10 @@ fun Wrapper(@Children() children: () -> Unit) {
         measureOperations.layout { constraints, measure, intrinsics, layoutResult ->
             // Check the default intrinsic methods used by MeasureBoxes.
             // TODO(popam): make this a proper test instead
-            require(intrinsics.minIntrinsicWidth(child, Float.POSITIVE_INFINITY.dp) == 90.dp)
-            require(intrinsics.maxIntrinsicWidth(child, Float.POSITIVE_INFINITY.dp) == 450.dp)
-            require(intrinsics.minIntrinsicHeight(child, Float.POSITIVE_INFINITY.dp) == 30.dp)
-            require(intrinsics.maxIntrinsicHeight(child, Float.POSITIVE_INFINITY.dp) == 150.dp)
+            require(intrinsics.minIntrinsicWidth(child, Dimension.Infinity) == 90.dp)
+            require(intrinsics.maxIntrinsicWidth(child, Dimension.Infinity) == 450.dp)
+            require(intrinsics.minIntrinsicHeight(child, Dimension.Infinity) == 30.dp)
+            require(intrinsics.maxIntrinsicHeight(child, Dimension.Infinity) == 150.dp)
             val placeable = measure(child, constraints)
             layoutResult(placeable.width, placeable.height) {
                 placeable.place(0.dp, 0.dp)
@@ -218,12 +219,21 @@ fun StackUsage() {
     </Stack>
 }
 
+@Composable
+fun ConstrainedBoxUsage() {
+    <Align alignment=Alignment.Center>
+        <ConstrainedBox additionalConstraints=Constraints.tightConstraints(50.dp, 50.dp)>
+            <SizedRectangle color=Color(0xFFFF0000) />
+        </ConstrainedBox>
+    </Align>
+}
+
 /**
  * Entry point for the activity.
  */
 @Composable
 fun ComplexLayout() {
     <CraneWrapper>
-        <StackUsage />
+        <ConstrainedBoxUsage />
     </CraneWrapper>
 }

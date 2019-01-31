@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,82 +17,64 @@
 package androidx.ui.core
 
 /**
- * When a [MeasureBox] wants to know what size a child wants to be in one dimension, given a fixed
- * size in the opposite dimension, SizeBias indicates how the child should calculate the size.
- * For example, when measuring the minimum height required when a given width is provided:
- *     <MeasureBox> constraints ->
- *         if (constraints.bias == SizeBias.TowardMinimum) {
- *             if (constraints.hasTightWidth) {
- *                 // calculate height based on width
- *             } else {
- *                 // calculate width based on height
- *             }
- *         }
- *         // ...
- *     </MeasureBox>
- * Use [minIntrinsicHeight], [minIntrinsicWidth], [maxIntrinsicHeight], and
- * [maxIntrinsicWidth] for creating constraints that require bias. Constraints bias is
- * in the [Constraints.bias] property.
+ * Immutable constraints used for measuring child [MeasureBox]es. A parent [MeasureBox]
+ * can measure their children using the [measure] method on the corresponding [Measurable]s,
+ * method which takes the [Constraints] the child has to follow. A [measure]d child is then
+ * responsible to choose for themselves and return a size which satisfies the received set
+ * of [Constraints]:
+ * - minWidth <= chosenWidth <= maxWidth
+ * - minHeight <= chosenHeight <= maxHeight
+ * The parent can then access the child chosen size on the resulting [Placeable]. The parent is
+ * responsible of defining a valid positioning of the children according to their sizes, so the
+ * parent needs to measure the children with appropriate [Constraints], such that whatever valid
+ * sizes children choose, they can be laid out in a way that also respects the parent's incoming
+ * [Constraints]. Note that different children can be [measure]d with different [Constraints].
+ * A set of [Constraints] can have infinite maxWidth and/or maxHeight. This is a trick often
+ * used by parents to ask their children for their preferred size: unbounded constraints force
+ * children whose default behavior is to fill the available space (always size to
+ * maxWidth/maxHeight) to have an opinion about their preferred size. Most commonly, when measured
+ * with unbounded [Constraints], these children will fallback to size themselves to wrap their
+ * content, instead of expanding to fill the available space (this is not always true
+ * as it depends on the child layout model, but is a common behavior for core layout components).
  */
-// TODO(mount) Move this to the ui-core module
-enum class SizeBias {
-    /**
-     * In the axis that isn't tight ([Constraints.hasTightWidth], [Constraints.hasTightHeight]),
-     * layout using the size that takes up the minimum space with the given opposite axis without
-     * being clipped. For example, determining the height that text would need for a given
-     * horizontal space could use TowardMinimum for [Constraints.bias].
-     *
-     * TowardMinimum is only valid when one axis in [Constraints] is tight
-     * ([Constraints.hasTightWidth], [Constraints.hasTightHeight]) and the opposite axis has an
-     * unbounded range between `0.dp` and `Float.POSITIVE_INFINITY.dp`. The bounded axis may
-     * be finite or infinite.
-     */
-    TowardMinimum,
-
-    /**
-     * In the axis that isn't tight ([Constraints.hasTightWidth], [Constraints.hasTightHeight]),
-     * layout using the size that takes up the maximum space with the given opposite dimension
-     * that can be filled without needing whitespace. For example, when a bitmap with a fixed
-     * aspect ratio is given a certain height, a TowardMaximum bias would be used to determine
-     * preferred width.
-     *
-     * TowardMaximum is only valid when one axis in [Constraints] is tight
-     * ([Constraints.hasTightWidth], [Constraints.hasTightHeight]) and the opposite axis has an
-     * unbounded range between `0.dp` and `Float.POSITIVE_INFINITY.dp`. The bounded axis may
-     * be finite or infinite.
-     */
-    TowardMaximum,
-
-    /**
-     * Any value within the [Constraints] may be used to size the `MeasureBox`. This is the
-     * default value.
-     */
-    Preferred
-}
-
-/**
- * Constraints used for measuring child [MeasureBox]es.
- */
-// TODO(mount) Move this to the ui-core module
-data class Constraints internal constructor(
-    val minWidth: Dimension,
-    val maxWidth: Dimension,
-    val minHeight: Dimension,
-    val maxHeight: Dimension,
-    val bias: SizeBias
+data class Constraints(
+    val minWidth: Dimension = 0.dp,
+    val maxWidth: Dimension = Dimension.Infinity,
+    val minHeight: Dimension = 0.dp,
+    val maxHeight: Dimension = Dimension.Infinity
 ) {
     init {
         assert(minWidth.dp.isFinite())
         assert(minHeight.dp.isFinite())
-        assert(
-            bias == SizeBias.Preferred ||
-                    (hasTightHeight && isBiasedConstraint(minWidth, maxWidth)) ||
-                    (hasTightWidth && isBiasedConstraint(minHeight, maxHeight))
-        )
     }
 
-    private inline fun isBiasedConstraint(min: Dimension, max: Dimension): Boolean =
-        min.dp == 0f && max.dp == Float.POSITIVE_INFINITY
+    companion object {
+        /**
+         * Creates constraints tight in both dimensions.
+         */
+        fun tightConstraints(width: Dimension, height: Dimension) =
+            Constraints(width, width, height, height)
+
+        /**
+         * Creates constraints with tight width and loose height.
+         */
+        fun tightConstraintsForWidth(width: Dimension) = Constraints(
+            minWidth = width,
+            maxWidth = width,
+            minHeight = 0.dp,
+            maxHeight = Dimension.Infinity
+        )
+
+        /**
+         * Creates constraints with tight height and loose width.
+         */
+        fun tightConstraintsForHeight(height: Dimension) = Constraints(
+            minWidth = 0.dp,
+            maxWidth = Dimension.Infinity,
+            minHeight = height,
+            maxHeight = height
+        )
+    }
 }
 
 /**
@@ -129,48 +111,17 @@ val Constraints.hasTightHeight get() = maxHeight == minHeight
  */
 val Constraints.isZero get() = maxWidth == 0.dp || maxHeight == 0.dp
 
-fun tightConstraints(width: Dimension, height: Dimension) =
-    Constraints(minWidth = width, maxWidth = width, minHeight = height, maxHeight = height)
+/**
+ * Whether there is any size that satisfies the current constraints.
+ */
+val Constraints.satisfiable get() = minWidth <= maxWidth && minHeight <= maxHeight
 
-fun Constraints(
-    minWidth: Dimension = 0.dp,
-    maxWidth: Dimension = Float.POSITIVE_INFINITY.dp,
-    minHeight: Dimension = 0.dp,
-    maxHeight: Dimension = Float.POSITIVE_INFINITY.dp
-) = Constraints(minWidth, maxWidth, minHeight, maxHeight, SizeBias.Preferred)
-
-fun minIntrinsicHeight(width: Dimension) =
-    Constraints(
-        minWidth = width,
-        maxWidth = width,
-        minHeight = 0.dp,
-        maxHeight = Float.POSITIVE_INFINITY.dp,
-        bias = SizeBias.TowardMinimum
-    )
-
-fun maxIntrinsicHeight(width: Dimension) =
-    Constraints(
-        minWidth = width,
-        maxWidth = width,
-        minHeight = 0.dp,
-        maxHeight = Float.POSITIVE_INFINITY.dp,
-        bias = SizeBias.TowardMaximum
-    )
-
-fun minIntrinsicWidth(height: Dimension) =
-    Constraints(
-        minHeight = height,
-        maxHeight = height,
-        minWidth = 0.dp,
-        maxWidth = Float.POSITIVE_INFINITY.dp,
-        bias = SizeBias.TowardMinimum
-    )
-
-fun maxIntrinsicWidth(height: Dimension) =
-    Constraints(
-        minHeight = height,
-        maxHeight = height,
-        minWidth = 0.dp,
-        maxWidth = Float.POSITIVE_INFINITY.dp,
-        bias = SizeBias.TowardMaximum
-    )
+/**
+ * Returns the result of coercing the current constraints in a different set of constraints.
+ */
+fun Constraints.enforce(otherConstraints: Constraints) = Constraints(
+    minWidth = minWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
+    maxWidth = maxWidth.coerceIn(otherConstraints.minWidth, otherConstraints.maxWidth),
+    minHeight = minHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight),
+    maxHeight = maxHeight.coerceIn(otherConstraints.minHeight, otherConstraints.maxHeight)
+)

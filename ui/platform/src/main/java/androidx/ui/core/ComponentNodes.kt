@@ -320,7 +320,7 @@ class LayoutNode : ComponentNode() {
     /**
      * The constraints used the last time [layout] was called.
      */
-    var constraints: Constraints = tightConstraints(0.dp, 0.dp)
+    var constraints: Constraints = Constraints.tightConstraints(0.dp, 0.dp)
 
     var ref: Ref<LayoutNode>?
         get() = null

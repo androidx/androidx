@@ -337,45 +337,41 @@ class MeasureBox(
 
             measureOperations.minIntrinsicWidth { h, intrinsics ->
                 var intrinsicWidth = 0.dp
-                val measureOperations =
-                    MeasureOperationsImpl(measureOperations, { m, c ->
-                        val width = intrinsics.minIntrinsicWidth(m, c.minHeight)
-                        DummyPlaceable(width, h)
-                    }, { width, _, _ -> intrinsicWidth = width })
-                val constraints = Constraints(0.dp, Float.POSITIVE_INFINITY.dp, h, h)
+                val measureOperations = MeasureOperationsImpl(measureOperations, { m, c ->
+                    val width = intrinsics.minIntrinsicWidth(m, c.minHeight)
+                    DummyPlaceable(width, h)
+                }, { width, _, _ -> intrinsicWidth = width })
+                val constraints = Constraints.tightConstraintsForHeight(h)
                 block(constraints, measureOperations)
                 intrinsicWidth
             }
             measureOperations.maxIntrinsicWidth { h, intrinsics ->
                 var intrinsicWidth = 0.dp
-                val measureOperations =
-                    MeasureOperationsImpl(measureOperations, { m, c ->
-                        val width = intrinsics.maxIntrinsicWidth(m, c.minHeight)
-                        DummyPlaceable(width, h)
-                    }, { width, _, _ -> intrinsicWidth = width })
-                val constraints = Constraints(0.dp, Float.POSITIVE_INFINITY.dp, h, h)
+                val measureOperations = MeasureOperationsImpl(measureOperations, { m, c ->
+                    val width = intrinsics.maxIntrinsicWidth(m, c.minHeight)
+                    DummyPlaceable(width, h)
+                }, { width, _, _ -> intrinsicWidth = width })
+                val constraints = Constraints.tightConstraintsForHeight(h)
                 block(constraints, measureOperations)
-               intrinsicWidth
+                intrinsicWidth
             }
             measureOperations.minIntrinsicHeight { w, intrinsics ->
                 var intrinsicHeight = 0.dp
-                val measureOperations =
-                    MeasureOperationsImpl(measureOperations, { m, c ->
-                        val height = intrinsics.minIntrinsicHeight(m, c.minWidth)
-                        DummyPlaceable(w, height)
-                    }, { _, height, _ -> intrinsicHeight = height })
-                val constraints = Constraints(w, w, 0.dp, Float.POSITIVE_INFINITY.dp)
+                val measureOperations = MeasureOperationsImpl(measureOperations, { m, c ->
+                    val height = intrinsics.minIntrinsicHeight(m, c.minWidth)
+                    DummyPlaceable(w, height)
+                }, { _, height, _ -> intrinsicHeight = height })
+                val constraints = Constraints.tightConstraintsForWidth(w)
                 block(constraints, measureOperations)
                 intrinsicHeight
             }
             measureOperations.maxIntrinsicHeight { w, intrinsics ->
                 var intrinsicHeight = 0.dp
-                val measureOperations =
-                    MeasureOperationsImpl(measureOperations, { m, c ->
-                        val height = intrinsics.maxIntrinsicHeight(m, c.minWidth)
-                        DummyPlaceable(w, height)
-                    }, { _, height, _ -> intrinsicHeight = height })
-                val constraints = Constraints(w, w, 0.dp, Float.POSITIVE_INFINITY.dp)
+                val measureOperations = MeasureOperationsImpl(measureOperations, { m, c ->
+                    val height = intrinsics.maxIntrinsicHeight(m, c.minWidth)
+                    DummyPlaceable(w, height)
+                }, { _, height, _ -> intrinsicHeight = height })
+                val constraints = Constraints.tightConstraintsForWidth(w)
                 block(constraints, measureOperations)
                 intrinsicHeight
             }

@@ -18,6 +18,7 @@
 
 package androidx.r4a
 
+import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.adapter.Draw
 import androidx.ui.core.adapter.MeasureBox
@@ -25,7 +26,6 @@ import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.minus
 import androidx.ui.core.plus
-import androidx.ui.core.tightConstraints
 import androidx.ui.core.times
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -61,19 +61,21 @@ fun HeaderFooterLayout(
         val contentMeasurables = measureOperations.collect { <children /> }
         val footerMeasurable = measureOperations.collect { <footer /> }.first()
         measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
-            val headerPlaceable =
-                measureOperations.measure(headerMeasurable, tightConstraints(constraints.maxWidth, 100.dp))
+            val headerPlaceable = measureOperations.measure(
+                    headerMeasurable,
+                    Constraints.tightConstraints(constraints.maxWidth, 100.dp)
+            )
             headerPlaceable.place(0.dp, 0.dp)
 
             val footerPadding = 50.dp
             val footerPlaceable = measureOperations.measure(footerMeasurable,
-                tightConstraints(constraints.maxWidth - footerPadding * 2, 100.dp))
+                Constraints.tightConstraints(constraints.maxWidth - footerPadding * 2, 100.dp))
             footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
 
             val itemHeight =
                 (constraints.maxHeight - headerPlaceable.height - footerPlaceable.height) /
                         contentMeasurables.size
-            val itemConstraint = tightConstraints(constraints.maxWidth, itemHeight)
+            val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
             var top = headerPlaceable.height
             contentMeasurables.map { measureOperations.measure(it, itemConstraint) }.forEach {
                 it.place(0.dp, top)

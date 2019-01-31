@@ -33,7 +33,6 @@ import androidx.ui.core.hasBoundedWidth
 import androidx.ui.core.min
 import androidx.ui.core.minus
 import androidx.ui.core.plus
-import androidx.ui.core.tightConstraints
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -151,7 +150,7 @@ fun Rectangles() {
         val rectSize = size / 2
         measureOperations.layout(size, size) {
             val placeables = measurables.map {
-                measureOperations.measure(it, tightConstraints(rectSize, rectSize))
+                measureOperations.measure(it, Constraints.tightConstraints(rectSize, rectSize))
             }
             placeables[0].place(0.dp, 0.dp)
             placeables[1].place(rectSize, 0.dp)

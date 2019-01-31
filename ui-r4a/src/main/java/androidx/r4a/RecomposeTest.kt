@@ -34,6 +34,7 @@ package androidx.r4a
 
 import android.os.Handler
 import android.os.Looper
+import androidx.ui.core.Constraints
 import androidx.ui.core.CraneWrapper
 import androidx.ui.core.Dimension
 import androidx.ui.core.adapter.Draw
@@ -42,7 +43,6 @@ import androidx.ui.core.div
 import androidx.ui.core.dp
 import androidx.ui.core.minus
 import androidx.ui.core.plus
-import androidx.ui.core.tightConstraints
 import androidx.ui.core.times
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.painting.Color
@@ -82,7 +82,7 @@ fun ListWithOffset(
             }
         }
         val itemHeight = (constraints.maxHeight - offset * (itemsCount - 1)) / itemsCount
-        val itemConstraint = tightConstraints(constraints.maxWidth, itemHeight)
+        val itemConstraint = Constraints.tightConstraints(constraints.maxWidth, itemHeight)
         measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
             var top = 0.dp
             measurables.map { measureOperations.measure(it, itemConstraint) }.forEach {

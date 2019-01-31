@@ -39,6 +39,11 @@ package androidx.ui.layout {
     property public final androidx.ui.layout.Alignment TopRight;
   }
 
+  public final class ConstrainedBoxKt {
+    ctor public ConstrainedBoxKt();
+    method public static void ConstrainedBox(androidx.ui.core.Constraints additionalConstraints, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
   public final class FlexChildren {
     ctor public FlexChildren();
     method public void expanded(float flex, kotlin.jvm.functions.Function0<kotlin.Unit> children);

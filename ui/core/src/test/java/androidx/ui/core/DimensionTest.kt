@@ -116,7 +116,12 @@ class DimensionTest {
 
     @Test
     fun hairline() {
-        assertEquals(0f, Hairline.dp, 0f)
+        assertEquals(0f, Dimension.Hairline.dp, 0f)
+    }
+
+    @Test
+    fun infinite() {
+        assertEquals(Float.POSITIVE_INFINITY, Dimension.Infinity.dp, 0f)
     }
 
     @Suppress("DIVISION_BY_ZERO")
@@ -126,9 +131,9 @@ class DimensionTest {
         assertTrue(1.dp < 3.dp)
         assertEquals(0, 1.dp.compareTo(1.dp))
         assertTrue(1.dp > 0.dp)
-        assertTrue(Float.NEGATIVE_INFINITY.dp < Float.POSITIVE_INFINITY.dp)
+        assertTrue(Float.NEGATIVE_INFINITY.dp < Dimension.Infinity)
         assertTrue(Float.NEGATIVE_INFINITY.dp < 0.dp)
-        assertTrue(Float.POSITIVE_INFINITY.dp > Float.MAX_VALUE.dp)
+        assertTrue(Dimension.Infinity > Float.MAX_VALUE.dp)
 
         val zeroNaN = 0f / 0f
         val infNaN = Float.POSITIVE_INFINITY / Float.NEGATIVE_INFINITY

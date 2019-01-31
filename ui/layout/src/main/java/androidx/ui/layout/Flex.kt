@@ -196,7 +196,7 @@ private data class OrientationIndependentConstraints(
 
     // Creates a new instance with the same cross axis constraints and unbounded main axis.
     fun looseMainAxis() = OrientationIndependentConstraints(
-        0.dp, Float.POSITIVE_INFINITY.dp, crossAxisMin, crossAxisMax
+        0.dp, Dimension.Infinity, crossAxisMin, crossAxisMax
     )
 
     // Given an orientation, resolves the current instance to traditional constraints.

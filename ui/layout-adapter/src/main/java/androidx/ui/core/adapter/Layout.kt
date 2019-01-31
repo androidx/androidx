@@ -16,6 +16,7 @@
 
 package androidx.ui.core.adapter
 
+import androidx.ui.core.Constraints
 import androidx.ui.layout.FlexChildren
 import androidx.ui.layout.StackChildren
 import com.google.r4a.Children
@@ -23,6 +24,7 @@ import com.google.r4a.Composable
 
 // Ignore that the IDEA cannot resolve these.
 import androidx.ui.layout.AlignKt
+import androidx.ui.layout.ConstrainedBoxKt
 import androidx.ui.layout.FlexKt
 import androidx.ui.layout.StackKt
 
@@ -116,4 +118,14 @@ fun Stack(
     @Children() block: (StackChildren) -> Unit
 ) {
     StackKt.Stack(defaultAlignment, block)
+}
+
+/**
+ * For the original logic:
+ * @see androidx.ui.layout.ConstrainedBox
+ */
+@Composable
+@Suppress("PLUGIN_ERROR")
+fun ConstrainedBox(additionalConstraints: Constraints, @Children() block: () -> Unit) {
+    ConstrainedBoxKt.ConstrainedBox(additionalConstraints, block)
 }

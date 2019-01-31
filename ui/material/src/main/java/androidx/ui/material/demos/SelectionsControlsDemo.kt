@@ -17,9 +17,9 @@
 package androidx.ui.material.demos
 
 import androidx.ui.baseui.selection.ToggleableState
+import androidx.ui.core.Constraints
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.div
-import androidx.ui.core.tightConstraints
 import androidx.ui.core.times
 import androidx.ui.material.Checkbox
 import androidx.ui.material.RadioButton
@@ -37,7 +37,7 @@ fun FillGrid(horizontalGridCount: Int, @Children children: () -> Unit) {
         val verticalGrid = (measurables.size + horizontalGridCount - 1) / horizontalGridCount
         val cellW = constraints.maxWidth / horizontalGridCount
         val cellH = constraints.maxHeight / verticalGrid
-        val c = tightConstraints(cellW, cellH)
+        val c = Constraints.tightConstraints(cellW, cellH)
         measureOperations.layout(constraints.maxWidth, constraints.maxHeight) {
             measurables
                     .map { measureOperations.measure(it, c) }

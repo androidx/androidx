@@ -35,13 +35,20 @@ import kotlin.math.sqrt
  * [toPx] is normally needed only for painting operations.
  */
 @Suppress("EXPERIMENTAL_FEATURE_WARNING")
-data /*inline*/ class Dimension(val dp: Float)
+data /*inline*/ class Dimension(val dp: Float) {
+    companion object {
+        /**
+         * A dimension used to represent a hairline drawing element. Hairline elements take up no
+         * space, but will draw a single pixel, independent of the device's resolution and density.
+         */
+        val Hairline = Dimension(dp = 0f)
 
-/**
- * A dimension used to represent a hairline drawing element. Hairline elements take
- * up no space, but will draw a single pixel, independent of the device's resolution and density.
- */
-val Hairline = Dimension(dp = 0f)
+        /**
+         * Infinite dp dimension.
+         */
+        val Infinity = Dimension(dp = Float.POSITIVE_INFINITY)
+    }
+}
 
 // TODO(mount): regain the inline in the below extension properties. These don't work with jococo
 /**

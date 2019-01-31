@@ -52,7 +52,7 @@ class AndroidCraneView constructor(context: Context)
 
     private val pointerInputEventProcessor = PointerInputEventProcessor(Density(context), root)
 
-    var constraints = tightConstraints(width = 0.dp, height = 0.dp)
+    var constraints = Constraints.tightConstraints(width = 0.dp, height = 0.dp)
     // TODO(mount): reinstate when coroutines are supported by IR compiler
 //    private val ownerScope = CoroutineScope(Dispatchers.Main.immediate + Job())
 
@@ -198,7 +198,7 @@ class AndroidCraneView constructor(context: Context)
         val size = MeasureSpec.getSize(measureSpec).toDp(Density(context))
         return when (mode) {
             MeasureSpec.EXACTLY -> ConstraintRange(size, size)
-            MeasureSpec.UNSPECIFIED -> ConstraintRange(0.dp, Float.POSITIVE_INFINITY.dp)
+            MeasureSpec.UNSPECIFIED -> ConstraintRange(0.dp, Dimension.Infinity)
             MeasureSpec.AT_MOST -> ConstraintRange(0.dp, size)
             else -> throw IllegalStateException()
         }

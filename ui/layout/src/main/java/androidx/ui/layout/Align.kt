@@ -22,12 +22,7 @@ import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Position
 import androidx.ui.core.Size
 import androidx.ui.core.center
-import androidx.ui.core.div
-import androidx.ui.core.dp
-import androidx.ui.core.max
-import androidx.ui.core.min
 import androidx.ui.core.minus
-import androidx.ui.core.plus
 import androidx.ui.core.times
 import com.google.r4a.Children
 import com.google.r4a.Composable
@@ -80,18 +75,19 @@ fun Align(alignment: Alignment, @Children children: () -> Unit) {
         } else {
             // The child cannot be larger than our max constraints, but we ignore min constraints.
             val childConstraints = Constraints(
-                0.dp, constraints.maxWidth, 0.dp, constraints.maxHeight
+                maxWidth = constraints.maxWidth,
+                maxHeight = constraints.maxHeight
             )
             val placeable = measureOperations.measure(measurable, childConstraints)
 
             // The layout is as large as possible for bounded constraints,
             // or wrap content otherwise.
-            val layoutWidth = if (constraints.maxWidth != Float.POSITIVE_INFINITY.dp) {
+            val layoutWidth = if (constraints.maxWidth != Dimension.Infinity) {
                 constraints.maxWidth
             } else {
                 placeable.width
             }
-            val layoutHeight = if (constraints.maxHeight != Float.POSITIVE_INFINITY.dp) {
+            val layoutHeight = if (constraints.maxHeight != Dimension.Infinity) {
                 constraints.maxHeight
             } else {
                 placeable.height
