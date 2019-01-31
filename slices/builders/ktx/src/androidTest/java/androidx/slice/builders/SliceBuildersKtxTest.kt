@@ -25,13 +25,13 @@ import androidx.slice.SliceSpecs
 import androidx.slice.builders.ListBuilder.ICON_IMAGE
 import androidx.slice.builders.ktx.test.R
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 19)
-@SmallTest
+@MediumTest
 class SliceBuildersKtxTest {
     private val testUri = Uri.parse("content://com.example.android.sliceuri")
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context
