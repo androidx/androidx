@@ -10,8 +10,6 @@ plugins {
 dependencies {
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.activity:activity:1.0.0-alpha01"
-    api(KOTLIN_R4A_STDLIB)
-    api(KOTLIN_R4A_COROUTINES)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
@@ -39,10 +37,10 @@ android {
 }
 
 supportLibrary {
-    name = "Androidx Text"
+    name = "AndroidX Text"
     publish = false
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2018"
-    description = "AndroidX Text."
+    description = "Android Specific implementation for Text."
 }
