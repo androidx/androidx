@@ -144,9 +144,14 @@
                 android:theme="@style/Theme.AppCompat.DayNight"/>
 
         <activity
-                android:name="androidx.appcompat.app.NightModeConfigChangesActivity"
+                android:name="androidx.appcompat.app.NightModeUiModeConfigChangesActivity"
                 android:theme="@style/Theme.AppCompat.DayNight"
                 android:configChanges="uiMode"/>
+
+        <activity
+            android:name="androidx.appcompat.app.NightModeOrientationConfigChangesActivity"
+            android:theme="@style/Theme.AppCompat.DayNight"
+            android:configChanges="orientation"/>
 
         <activity
                 android:name="androidx.appcompat.app.AppCompatVectorDrawableIntegrationActivity"/>
