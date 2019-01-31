@@ -31,7 +31,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.ColorStateList;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.icu.text.DecimalFormatSymbols;
 import android.os.Build;
@@ -971,5 +973,74 @@ public final class TextViewCompat {
         } else {
             return TEXT_DIRECTION_FIRST_STRONG;
         }
+    }
+
+    /**
+     * Applies a tint to any compound drawables.
+     * <p>
+     * This will always take effect when running on API v23 or newer. When running on platforms
+     * previous to API v23, it will only take effect if {@code textView} implements the
+     * {@code TintableCompoundDrawablesView} interface.
+     */
+    public static void setCompoundDrawableTintList(@NonNull TextView textView,
+            @Nullable ColorStateList tint) {
+        Preconditions.checkNotNull(textView);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            textView.setCompoundDrawableTintList(tint);
+        } else if (textView instanceof TintableCompoundDrawablesView) {
+            ((TintableCompoundDrawablesView) textView).setSupportCompoundDrawablesTintList(tint);
+        }
+    }
+
+    /**
+     * Return the tint applied to any compound drawables.
+     * <p>
+     * Only returns meaningful info when running on API v23 or newer, or if {@code textView}
+     * implements the {@code TintableCompoundDrawablesView} interface.
+     */
+    @Nullable
+    public static ColorStateList getCompoundDrawableTintList(@NonNull TextView textView) {
+        Preconditions.checkNotNull(textView);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return textView.getCompoundDrawableTintList();
+        } else if (textView instanceof TintableCompoundDrawablesView) {
+            return ((TintableCompoundDrawablesView) textView).getSupportCompoundDrawablesTintList();
+        }
+        return null;
+    }
+
+    /**
+     * Applies a tint mode to any compound drawables.
+     * <p>
+     * This will always take effect when running on API v23 or newer. When running on platforms
+     * previous to API v23, it will only take effect if {@code textView} implements the
+     * {@code TintableCompoundDrawablesView} interface.
+     */
+    public static void setCompoundDrawableTintMode(@NonNull TextView textView,
+            @Nullable PorterDuff.Mode tintMode) {
+        Preconditions.checkNotNull(textView);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            textView.setCompoundDrawableTintMode(tintMode);
+        } else if (textView instanceof TintableCompoundDrawablesView) {
+            ((TintableCompoundDrawablesView) textView).setSupportCompoundDrawablesTintMode(
+                    tintMode);
+        }
+    }
+
+    /**
+     * Return the tint mode applied to any compound drawables.
+     * <p>
+     * Only returns meaningful info when running on API v23 or newer, or if {@code textView}
+     * implements the {@code TintableCompoundDrawablesView} interface.
+     */
+    @Nullable
+    public static PorterDuff.Mode getCompoundDrawableTintMode(@NonNull TextView textView) {
+        Preconditions.checkNotNull(textView);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return textView.getCompoundDrawableTintMode();
+        } else if (textView instanceof TintableCompoundDrawablesView) {
+            return ((TintableCompoundDrawablesView) textView).getSupportCompoundDrawablesTintMode();
+        }
+        return null;
     }
 }

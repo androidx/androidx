@@ -2889,6 +2889,8 @@ package androidx.core.widget {
     method public static int getAutoSizeStepGranularity(android.widget.TextView);
     method public static int[] getAutoSizeTextAvailableSizes(android.widget.TextView);
     method public static int getAutoSizeTextType(android.widget.TextView);
+    method public static android.content.res.ColorStateList? getCompoundDrawableTintList(android.widget.TextView);
+    method public static android.graphics.PorterDuff.Mode? getCompoundDrawableTintMode(android.widget.TextView);
     method public static android.graphics.drawable.Drawable[] getCompoundDrawablesRelative(android.widget.TextView);
     method public static int getFirstBaselineToTopHeight(android.widget.TextView);
     method public static int getLastBaselineToBottomHeight(android.widget.TextView);
@@ -2898,6 +2900,8 @@ package androidx.core.widget {
     method public static void setAutoSizeTextTypeUniformWithConfiguration(android.widget.TextView, int, int, int, int) throws java.lang.IllegalArgumentException;
     method public static void setAutoSizeTextTypeUniformWithPresetSizes(android.widget.TextView, int[], int) throws java.lang.IllegalArgumentException;
     method public static void setAutoSizeTextTypeWithDefaults(android.widget.TextView, int);
+    method public static void setCompoundDrawableTintList(android.widget.TextView, android.content.res.ColorStateList?);
+    method public static void setCompoundDrawableTintMode(android.widget.TextView, android.graphics.PorterDuff.Mode?);
     method public static void setCompoundDrawablesRelative(android.widget.TextView, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?, android.graphics.drawable.Drawable?);
     method public static void setCompoundDrawablesRelativeWithIntrinsicBounds(android.widget.TextView, @DrawableRes int, @DrawableRes int, @DrawableRes int, @DrawableRes int);
@@ -2917,6 +2921,13 @@ package androidx.core.widget {
     method public android.graphics.PorterDuff.Mode? getSupportButtonTintMode();
     method public void setSupportButtonTintList(android.content.res.ColorStateList?);
     method public void setSupportButtonTintMode(android.graphics.PorterDuff.Mode?);
+  }
+
+  public interface TintableCompoundDrawablesView {
+    method public android.content.res.ColorStateList? getSupportCompoundDrawablesTintList();
+    method public android.graphics.PorterDuff.Mode? getSupportCompoundDrawablesTintMode();
+    method public void setSupportCompoundDrawablesTintList(android.content.res.ColorStateList?);
+    method public void setSupportCompoundDrawablesTintMode(android.graphics.PorterDuff.Mode?);
   }
 
 }

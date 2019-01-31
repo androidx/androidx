@@ -10,7 +10,8 @@ dependencies {
     api("androidx.appcompat:appcompat:1.0.0")
     api("androidx.annotation:annotation:1.0.0")
     implementation("androidx.collection:collection:1.0.0")
-    api("androidx.core:core:1.1.0-alpha01")
+    // TODO: change to 1.1.0-alpha04 after release
+    api(project(":core"))
 
     androidTestImplementation(TEST_EXT_JUNIT)
     androidTestImplementation(TEST_CORE)
