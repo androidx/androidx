@@ -43,9 +43,10 @@ class Checkbox : Component() {
     // TODO(clara): remove this default
     var color: Color? = null
     var value: ToggleableState = ToggleableState.CHECKED
+    var testTag: String? = null
 
     override fun compose() {
-        <Toggleable>
+        <Toggleable testTag value>
             <MeasureBox> constraints, measureOperations ->
                 measureOperations.collect {
                     <Colors.Consumer> colors ->
@@ -57,7 +58,7 @@ class Checkbox : Component() {
                 val calculatedWidth = min(
                     min(constraints.maxHeight, constraints.maxWidth), checkboxSize)
                 measureOperations.layout(calculatedWidth, calculatedWidth) {
-                    // No children to place
+                    // No mChildren to place
                 }
             </MeasureBox>
         </Toggleable>

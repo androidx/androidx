@@ -1,1 +1,56 @@
 // Signature format: 3.0
+package androidx.ui.test {
+
+  public final class ActionsKt {
+    ctor public ActionsKt();
+    method public static void doClick(androidx.ui.test.SemanticsTreeQuery);
+  }
+
+  public final class AssertionsKt {
+    ctor public AssertionsKt();
+    method public static androidx.ui.test.SemanticsTreeQuery assertDoesNotExist(androidx.ui.test.SemanticsTreeQuery);
+    method public static androidx.ui.test.SemanticsTreeQuery assertIsChecked(androidx.ui.test.SemanticsTreeQuery);
+    method public static androidx.ui.test.SemanticsTreeQuery assertIsHidden(androidx.ui.test.SemanticsTreeQuery);
+    method public static androidx.ui.test.SemanticsTreeQuery assertIsVisible(androidx.ui.test.SemanticsTreeQuery);
+    method public static void assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.semantics.SemanticsProperties expectedProperties);
+  }
+
+  public final class FindersKt {
+    ctor public FindersKt();
+    method public static androidx.ui.test.SemanticsTreeQuery findByTag(androidx.ui.test.UiTestRunner, String testTag);
+  }
+
+  public final class OutputKt {
+    ctor public OutputKt();
+    method public static void dumpSemantics(androidx.ui.test.SemanticsTreeQuery, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> consumer);
+  }
+
+  public final class SemanticsTreeQuery {
+  }
+
+  public interface UiTestRunner {
+    method public java.util.List<androidx.ui.core.SemanticsTreeNode> findSemantics(kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
+  }
+
+}
+
+package androidx.ui.test.android {
+
+  public class AndroidUiTestRunner implements androidx.ui.test.UiTestRunner {
+    ctor public AndroidUiTestRunner();
+    method public java.util.List<androidx.ui.core.SemanticsTreeNode> findSemantics(kotlin.jvm.functions.Function1<? super androidx.ui.core.SemanticsTreeNode,java.lang.Boolean> selector);
+    method public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> getActivityTestRule();
+    method public final void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method public final void setup();
+    property public final androidx.test.rule.ActivityTestRule<androidx.ui.test.android.DefaultTestActivity> activityTestRule;
+  }
+
+  public final class DefaultTestActivity extends android.app.Activity {
+    ctor public DefaultTestActivity();
+    method public java.util.concurrent.CountDownLatch getHasFocusLatch();
+    method public void setHasFocusLatch(java.util.concurrent.CountDownLatch p);
+    property public final java.util.concurrent.CountDownLatch hasFocusLatch;
+  }
+
+}
+

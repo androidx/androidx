@@ -16,7 +16,9 @@
   -->
 <manifest package="androidx.ui.material" xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
-
-    <application/>
+  
+     <application>
+        <activity android:name="androidx.ui.test.android.DefaultTestActivity" android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
+    </application>
 </manifest>
 

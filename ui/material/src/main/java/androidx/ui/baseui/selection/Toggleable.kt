@@ -16,6 +16,7 @@
 
 package androidx.ui.baseui.selection
 
+import androidx.ui.core.SemanticsProxy
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
@@ -23,6 +24,12 @@ import com.google.r4a.composer
 // TODO(clara): This will emit Semantics and Gestures once those pillars are working.
 @Composable
 fun Toggleable(
-    @Children children: () -> Unit) {
-    <children />
+    value: ToggleableState,
+    testTag: String? = null,
+    @Children children: () -> Unit
+) {
+    // TODO(pavlis): Semantics currently doesn't support 3 states (only checked / unchecked).
+    <SemanticsProxy checked=(value == ToggleableState.CHECKED) testTag>
+        <children />
+    </SemanticsProxy>
 }
