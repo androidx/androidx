@@ -49,6 +49,8 @@ class BrowseActivity : ListActivity() {
                 "intent" to activityToIntent(MutableCollectionFragmentActivity::class.java.name)))
         myData.add(mapOf("title" to "ViewPager2 with a TabLayout (Views)",
                 "intent" to activityToIntent(CardViewTabLayoutActivity::class.java.name)))
+        myData.add(mapOf("title" to "ViewPager2 with Fake Dragging",
+                "intent" to activityToIntent(FakeDragActivity::class.java.name)))
 
         return myData
     }

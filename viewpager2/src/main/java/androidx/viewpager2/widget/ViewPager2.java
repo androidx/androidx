@@ -86,7 +86,9 @@ public final class ViewPager2 extends ViewGroup {
     int mCurrentItem;
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLayoutManager;
+    private PagerSnapHelper mPagerSnapHelper;
     private ScrollEventAdapter mScrollEventAdapter;
+    private FakeDrag mFakeDragger;
     private PageTransformerAdapter mPageTransformerAdapter;
     private CompositeOnPageChangeCallback mPageChangeEventDispatcher;
     private boolean mUserInputEnabled = true;
@@ -124,9 +126,16 @@ public final class ViewPager2 extends ViewGroup {
         mRecyclerView.setLayoutParams(
                 new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         mRecyclerView.addOnChildAttachStateChangeListener(enforceChildFillListener());
-        new PagerSnapHelper().attachToRecyclerView(mRecyclerView);
 
+        // Create ScrollEventAdapter before attaching PagerSnapHelper to RecyclerView, because the
+        // attach process calls PagerSnapHelperImpl.findSnapView, which uses the mScrollEventAdapter
         mScrollEventAdapter = new ScrollEventAdapter(mLayoutManager);
+        // Create FakeDrag before attaching PagerSnapHelper, same reason as above
+        mFakeDragger = new FakeDrag(this, mScrollEventAdapter, mRecyclerView);
+        mPagerSnapHelper = new PagerSnapHelperImpl();
+        mPagerSnapHelper.attachToRecyclerView(mRecyclerView);
+        // Add mScrollEventAdapter after attaching mPagerSnapHelper to mRecyclerView, because we
+        // don't want to respond on the events sent out during the attach process
         mRecyclerView.addOnScrollListener(mScrollEventAdapter);
 
         mPageChangeEventDispatcher = new CompositeOnPageChangeCallback(3);
@@ -421,6 +430,10 @@ public final class ViewPager2 extends ViewGroup {
      * @param smoothScroll True to smoothly scroll to the new item, false to transition immediately
      */
     public void setCurrentItem(int item, boolean smoothScroll) {
+        if (isFakeDragging()) {
+            throw new IllegalStateException("Cannot change current item when ViewPager2 is fake "
+                    + "dragging");
+        }
         Adapter adapter = getAdapter();
         if (adapter == null || adapter.getItemCount() <= 0) {
             return;
@@ -470,6 +483,109 @@ public final class ViewPager2 extends ViewGroup {
      */
     public int getCurrentItem() {
         return mCurrentItem;
+    }
+
+    /**
+     * Returns the current scroll state of the ViewPager2. Returned value is one of can be one of
+     * {@link #SCROLL_STATE_IDLE}, {@link #SCROLL_STATE_DRAGGING} or {@link #SCROLL_STATE_SETTLING}.
+     *
+     * @return The scroll state that was last dispatched to {@link
+     *         OnPageChangeCallback#onPageScrollStateChanged(int)}
+     */
+    @ScrollState
+    public int getScrollState() {
+        return mScrollEventAdapter.getScrollState();
+    }
+
+    /**
+     * Start a fake drag of the pager.
+     *
+     * <p>A fake drag can be useful if you want to synchronize the motion of the ViewPager2 with the
+     * touch scrolling of another view, while still letting the ViewPager2 control the snapping
+     * motion and fling behavior. (e.g. parallax-scrolling tabs.) Call {@link #fakeDragBy(float)} to
+     * simulate the actual drag motion. Call {@link #endFakeDrag()} to complete the fake drag and
+     * fling as necessary.
+     *
+     * <p>A fake drag can be interrupted by a real drag. From that point on, all calls to {@code
+     * fakeDragBy} and {@code endFakeDrag} will be ignored until the next fake drag is started by
+     * calling {@code beginFakeDrag}. If you need the ViewPager2 to ignore touch events and other
+     * user input during a fake drag, use {@link #setUserInputEnabled(boolean)}. If a real or fake
+     * drag is already in progress, this method will return {@code false}.
+     *
+     * @return {@code true} if the fake drag began successfully, {@code false} if it could not be
+     *         started
+     *
+     * @see #fakeDragBy(float)
+     * @see #endFakeDrag()
+     * @see #isFakeDragging()
+     */
+    public boolean beginFakeDrag() {
+        return mFakeDragger.beginFakeDrag();
+    }
+
+    /**
+     * Fake drag by an offset in pixels. You must have called {@link #beginFakeDrag()} first. Drag
+     * happens in the direction of the orientation. Positive offsets will drag to the previous page,
+     * negative values to the next page, with one exception: if layout direction is set to RTL and
+     * the ViewPager2's orientation is horizontal, then the behavior will be inverted. This matches
+     * the deltas of touch events that would cause the same real drag.
+     *
+     * <p>If the pager is not in the fake dragging state anymore, it ignores this call and returns
+     * {@code false}.
+     *
+     * @param offsetPxFloat Offset in pixels to drag by
+     * @return {@code true} if the fake drag was executed. If {@code false} is returned, it means
+     *         there was no fake drag to end.
+     *
+     * @see #beginFakeDrag()
+     * @see #endFakeDrag()
+     * @see #isFakeDragging()
+     */
+    public boolean fakeDragBy(float offsetPxFloat) {
+        return mFakeDragger.fakeDragBy(offsetPxFloat);
+    }
+
+    /**
+     * End a fake drag of the pager.
+     *
+     * @return {@code true} if the fake drag was ended. If {@code false} is returned, it means there
+     *         was no fake drag to end.
+     *
+     * @see #beginFakeDrag()
+     * @see #fakeDragBy(float)
+     * @see #isFakeDragging()
+     */
+    public boolean endFakeDrag() {
+        return mFakeDragger.endFakeDrag();
+    }
+
+    /**
+     * Returns {@code true} if a fake drag is in progress.
+     *
+     * @return {@code true} if currently in a fake drag, {@code false} otherwise.
+     * @see #beginFakeDrag()
+     * @see #fakeDragBy(float)
+     * @see #endFakeDrag()
+     */
+    public boolean isFakeDragging() {
+        return mFakeDragger.isFakeDragging();
+    }
+
+    /**
+     * Snaps the ViewPager2 to the closest page
+     */
+    void snapToPage() {
+        // Method copied from PagerSnapHelper#snapToTargetExistingView
+        // When fixing something here, make sure to update that method as well
+        View view = mPagerSnapHelper.findSnapView(mLayoutManager);
+        if (view == null) {
+            return;
+        }
+        int[] snapDistance = mPagerSnapHelper.calculateDistanceToFinalSnap(mLayoutManager, view);
+        //noinspection ConstantConditions
+        if (snapDistance[0] != 0 || snapDistance[1] != 0) {
+            mRecyclerView.smoothScrollBy(snapDistance[0], snapDistance[1]);
+        }
     }
 
     /**
@@ -599,6 +715,21 @@ public final class ViewPager2 extends ViewGroup {
         }
     }
 
+    private class PagerSnapHelperImpl extends PagerSnapHelper {
+        PagerSnapHelperImpl() {
+        }
+
+        @Nullable
+        @Override
+        public View findSnapView(RecyclerView.LayoutManager layoutManager) {
+            // When interrupting a smooth scroll with a fake drag, we stop RecyclerView's scroll
+            // animation, which fires a scroll state change to IDLE. PagerSnapHelper then kicks in
+            // to snap to a page, which we need to prevent here.
+            // Simplifying that case: during a fake drag, no snapping should occur.
+            return isFakeDragging() ? null : super.findSnapView(layoutManager);
+        }
+    }
+
     private static class SmoothScrollToPosition implements Runnable {
         private final int mPosition;
         private final RecyclerView mRecyclerView;
@@ -641,9 +772,10 @@ public final class ViewPager2 extends ViewGroup {
         }
 
         /**
-         * Called when the scroll state changes. Useful for discovering when the user
-         * begins dragging, when the pager is automatically settling to the current page,
-         * or when it is fully stopped/idle.
+         * Called when the scroll state changes. Useful for discovering when the user begins
+         * dragging, when a fake drag is started, when the pager is automatically settling to the
+         * current page, or when it is fully stopped/idle. {@code state} can be one of {@link
+         * #SCROLL_STATE_IDLE}, {@link #SCROLL_STATE_DRAGGING} or {@link #SCROLL_STATE_SETTLING}.
          */
         public void onPageScrollStateChanged(@ScrollState int state) {
         }

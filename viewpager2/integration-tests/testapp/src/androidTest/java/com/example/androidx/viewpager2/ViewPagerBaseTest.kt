@@ -16,7 +16,6 @@
 
 package com.example.androidx.viewpager2
 
-import androidx.test.espresso.Espresso.onData
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.matcher.ViewMatchers.isNotChecked
@@ -26,7 +25,6 @@ import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_VERTICAL
 import com.example.androidx.viewpager2.test.AnimationVerifier
 import org.hamcrest.CoreMatchers.allOf
-import org.hamcrest.CoreMatchers.equalTo
 import org.junit.Before
 import org.junit.Test
 import org.junit.runners.Parameterized
@@ -73,7 +71,7 @@ abstract class ViewPagerBaseTest<T : BaseCardActivity>(
     @Before
     override fun setUp() {
         super.setUp()
-        selectOrientation()
+        selectOrientation(config.orientation)
         if (config.animateRotate) check(R.id.rotate_checkbox)
         if (config.animateTranslate) check(R.id.translate_checkbox)
         if (config.animateScale) check(R.id.scale_checkbox)
@@ -94,17 +92,6 @@ abstract class ViewPagerBaseTest<T : BaseCardActivity>(
         swipeToPreviousPage()
         animationVerifier.verify()
         verifyCurrentPage(twoOfSpades)
-    }
-
-    private fun selectOrientation() {
-        onView(withId(R.id.orientation_spinner)).perform(click())
-        onData(equalTo(
-            when (config.orientation) {
-                ORIENTATION_HORIZONTAL -> "horizontal"
-                ORIENTATION_VERTICAL -> "vertical"
-                else -> "unknown"
-            }
-        )).perform(click())
     }
 
     private fun check(id: Int) {
