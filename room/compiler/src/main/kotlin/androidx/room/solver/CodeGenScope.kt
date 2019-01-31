@@ -58,7 +58,7 @@ class CodeGenScope(val writer: ClassWriter) {
         return result
     }
 
-    fun generate() = builder().build().toString()
+    fun generate(): CodeBlock = builder().build()
 
     /**
      * copies all variable indices but excludes generated code.
