@@ -44,7 +44,7 @@ private const val FOO_DIRECTIONS = "safe/gradle/test/app/foo/FooFragmentDirectio
 private const val FEATURE_DIRECTIONS = "$MAIN_DIR/FeatureFragmentDirections.java"
 private const val LIBRARY_DIRECTIONS = "$MAIN_DIR/LibraryFragmentDirections.java"
 private const val FOO_DYNAMIC_DIRECTIONS =
-        "safe/gradle/test/app/dynamic_feature/foo/DynFooFeatureFragmentDirections.java"
+        "safe/gradle/test/app/safe/app/foo/DynFooFeatureFragmentDirections.java"
 private const val NOTFOO_DYNAMIC_DIRECTIONS = "$MAIN_DIR/DynFeatureFragmentDirections.java"
 
 private const val NAV_RESOURCES = "src/main/res/navigation"
@@ -376,11 +376,11 @@ class PluginTest {
     fun generateForFeature() {
         setupMultiModuleBuildGradle()
         runGradle(
-                ":feature:assembleFooDebug",
-                ":feature:assembleNotfooDebug"
+                ":feature:assembleFooDebugFeature",
+                ":feature:assembleNotfooDebugFeature"
         )
-                .assertSuccessfulTask("feature:assembleNotfooDebug")
-                .assertSuccessfulTask("feature:assembleFooDebug")
+                .assertSuccessfulTask("feature:assembleNotfooDebugFeature")
+                .assertSuccessfulTask("feature:assembleFooDebugFeature")
 
         assertGenerated("foo/debug/$FEATURE_DIRECTIONS", "feature/")
         assertGenerated("notfoo/debug/$FEATURE_DIRECTIONS", "feature/")
@@ -404,11 +404,11 @@ class PluginTest {
     fun generateForBaseFeature() {
         setupMultiModuleBuildGradle()
         runGradle(
-                ":base:assembleFooDebug",
-                ":base:assembleNotfooDebug"
+                ":base:assembleFooDebugFeature",
+                ":base:assembleNotfooDebugFeature"
         )
-                .assertSuccessfulTask("base:assembleNotfooDebug")
-                .assertSuccessfulTask("base:assembleFooDebug")
+                .assertSuccessfulTask("base:assembleNotfooDebugFeature")
+                .assertSuccessfulTask("base:assembleFooDebugFeature")
 
         assertGenerated("foo/debug/$MAIN_DIRECTIONS", "base/")
         assertGenerated("notfoo/debug/$MAIN_DIRECTIONS", "base/")

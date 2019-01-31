@@ -26,11 +26,9 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.ProviderFactory
-import org.gradle.api.resources.TextResource
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 import java.io.File
 import javax.inject.Inject
-import kotlin.reflect.full.memberFunctions
 
 private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
@@ -85,23 +83,13 @@ abstract class SafeArgsPlugin protected constructor(
 
     /**
      * Sets the android project application id into the task.
-     *
-     * Safe Args depends on AGP 3.2 which doesn't declare getApplicationIdTextResource.
-     * However, on 3.3+ getApplicationIdTextResource() is recommended and on 3.4 getApplicationId
-     * is completely deprecated and will throw. Thus the need for this method to get
-     * the app id resource via a reflection call.
      */
     private fun setApplicationId(task: ArgumentsGenerationTask, variant: BaseVariant) {
-        val appIdTextResource = variant::class.memberFunctions.firstOrNull {
-            it.name == "getApplicationIdTextResource"
-        }?.let {
-            it.call(variant) as TextResource?
-        }
+        val appIdTextResource = variant.applicationIdTextResource
         if (appIdTextResource != null) {
             task.applicationIdResource = appIdTextResource
         } else {
-            // getApplicationIdTextResource() was not found or it returned null, fallback to
-            // getApplicationId()
+            // getApplicationIdTextResource() returned null, fallback to getApplicationId()
             task.applicationId = variant.applicationId
         }
     }
