@@ -248,7 +248,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable FragmentViewLifecycleOwner mViewLifecycleOwner;
     MutableLiveData<LifecycleOwner> mViewLifecycleOwnerLiveData = new MutableLiveData<>();
 
-    SavedStateRegistryController mSavedStateRegistryController = new SavedStateRegistryController();
+    SavedStateRegistryController mSavedStateRegistryController;
 
     // Cache the ContentView layoutIds for Fragments.
     private static final HashMap<Class, Integer> sAnnotationIds = new HashMap<>();
@@ -434,6 +434,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     private void initLifecycle() {
         mLifecycleRegistry = new LifecycleRegistry(this);
+        mSavedStateRegistryController = SavedStateRegistryController.create(this);
         if (Build.VERSION.SDK_INT >= 19) {
             mLifecycleRegistry.addObserver(new GenericLifecycleObserver() {
                 @Override
@@ -1851,7 +1852,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      */
     void initState() {
         initLifecycle();
-        mSavedStateRegistryController = new SavedStateRegistryController();
         mWho = UUID.randomUUID().toString();
         mAdded = false;
         mRemoving = false;
