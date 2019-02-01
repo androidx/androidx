@@ -28,6 +28,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 
 import androidx.annotation.ColorInt;
@@ -240,6 +241,7 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     /**
      */
     @Override
+    @SuppressLint("RestrictedApi")
     public void apply(Slice.Builder builder) {
         if (mIsError) {
             builder.addHints(HINT_ERROR);

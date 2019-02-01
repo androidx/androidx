@@ -31,6 +31,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -79,6 +80,7 @@ public class ListContent extends SliceContent {
         populate(slice);
     }
 
+    @SuppressLint("RestrictedApi")
     private void populate(Slice slice) {
         if (slice == null) return;
         mSliceActions = SliceMetadata.getSliceActions(slice);
@@ -223,6 +225,7 @@ public class ListContent extends SliceContent {
      * @return suitable action to use for a tap on the slice template or for the shortcut.
      */
     @Nullable
+    @SuppressLint("RestrictedApi")
     private SliceAction findPrimaryAction() {
         SliceItem action = null;
         if (mHeaderContent != null) {
@@ -246,6 +249,7 @@ public class ListContent extends SliceContent {
      * @param actions the actions associated with this slice, only matter if this row is the header.
      * @return the type of template the provided row item represents.
      */
+    @SuppressLint("RestrictedApi")
     public static int getRowType(SliceContent content, boolean isHeader,
                                  List<SliceAction> actions) {
         if (content != null) {
@@ -336,6 +340,7 @@ public class ListContent extends SliceContent {
     /**
      * @return whether the provided slice item is a valid header.
      */
+    @SuppressLint("RestrictedApi")
     private static boolean isValidHeader(SliceItem sliceItem) {
         if (FORMAT_SLICE.equals(sliceItem.getFormat())
                 && !sliceItem.hasAnyHints(HINT_ACTIONS, HINT_KEYWORDS, HINT_SEE_MORE)) {

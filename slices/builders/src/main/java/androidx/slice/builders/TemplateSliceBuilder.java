@@ -18,6 +18,7 @@ package androidx.slice.builders;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.util.Pair;
@@ -120,6 +121,7 @@ public abstract class TemplateSliceBuilder {
         return false;
     }
 
+    @SuppressLint("RestrictedApi")
     private List<SliceSpec> getSpecs(Uri uri) {
         if (SliceProvider.getCurrentSpecs() != null) {
             return new ArrayList<>(SliceProvider.getCurrentSpecs());
@@ -132,6 +134,7 @@ public abstract class TemplateSliceBuilder {
      * @hide
      */
     @RestrictTo(LIBRARY)
+    @SuppressLint("RestrictedApi")
     protected Clock getClock() {
         if (SliceProvider.getClock() != null) {
             return SliceProvider.getClock();

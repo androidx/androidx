@@ -34,12 +34,12 @@ import org.junit.runner.RunWith;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
-public class NightModeConfigChangesTestCase {
+public class NightModeUiModeConfigChangesTestCase {
     @Rule
-    public final ActivityTestRule<NightModeConfigChangesActivity> mActivityTestRule;
+    public final ActivityTestRule<NightModeUiModeConfigChangesActivity> mActivityTestRule;
 
-    public NightModeConfigChangesTestCase() {
-        mActivityTestRule = new ActivityTestRule<>(NightModeConfigChangesActivity.class);
+    public NightModeUiModeConfigChangesTestCase() {
+        mActivityTestRule = new ActivityTestRule<>(NightModeUiModeConfigChangesActivity.class);
     }
 
     @Before

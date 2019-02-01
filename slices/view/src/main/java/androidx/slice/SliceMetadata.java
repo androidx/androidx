@@ -40,6 +40,7 @@ import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_PROGRESS;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -125,6 +126,7 @@ public class SliceMetadata {
      * @param context the context to use for the slice.
      * @param slice the slice to extract metadata from.
      */
+    @SuppressLint("RestrictedApi")
     private SliceMetadata(@NonNull Context context, @NonNull Slice slice) {
         mSlice = slice;
         mContext = context;
@@ -451,6 +453,7 @@ public class SliceMetadata {
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("RestrictedApi")
     public static List<SliceAction> getSliceActions(@NonNull Slice slice) {
         SliceItem actionGroup = SliceQuery.find(slice, FORMAT_SLICE, HINT_ACTIONS, null);
         String[] hints = new String[] {HINT_ACTIONS, HINT_SHORTCUT};
