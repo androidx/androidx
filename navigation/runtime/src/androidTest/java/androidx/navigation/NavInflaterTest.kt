@@ -19,7 +19,6 @@ package androidx.navigation
 import android.app.Instrumentation
 import android.content.Context
 import android.net.Uri
-import android.support.v4.content.ContextCompat
 import androidx.navigation.test.R
 import androidx.navigation.test.TestEnum
 import androidx.navigation.testing.TestNavigatorProvider
@@ -53,6 +52,20 @@ class NavInflaterTest {
             .isEqualTo(R.id.start_test)
     }
 
+    @Test(expected = RuntimeException::class)
+    fun testInflateInvalidArgumentArgType() {
+        val context = ApplicationProvider.getApplicationContext() as Context
+        val navInflater = NavInflater(context, TestNavigatorProvider())
+        navInflater.inflate(R.navigation.nav_invalid_argument_arg_type)
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun testInflateInvalidArgumentDefaultValue() {
+        val context = ApplicationProvider.getApplicationContext() as Context
+        val navInflater = NavInflater(context, TestNavigatorProvider())
+        navInflater.inflate(R.navigation.nav_invalid_argument_default_value)
+    }
+
     @Test
     fun testInflateDeepLinkWithApplicationId() {
         val context = ApplicationProvider.getApplicationContext() as Context
@@ -76,32 +89,6 @@ class NavInflaterTest {
 
         assertThat(defaultArguments["test_int"]?.run { type to defaultValue })
             .isEqualTo(NavType.IntType to 12)
-        assertThat(defaultArguments["test_int_reference"]?.run { type to defaultValue })
-            .isEqualTo(NavType.IntType to 2)
-    }
-
-    @Test
-    fun testDefaultArgumentsDimen() {
-        val defaultArguments = inflateDefaultArgumentsFromGraph()
-        val context = ApplicationProvider.getApplicationContext() as Context
-        val expectedValue = context.resources.getDimensionPixelSize(R.dimen.test_dimen_arg)
-
-        assertThat(defaultArguments["test_dimen"]?.run { type to defaultValue })
-            .isEqualTo(NavType.IntType to expectedValue)
-        assertThat(defaultArguments["test_dimen_integer"]?.run { type to defaultValue })
-            .isEqualTo(NavType.IntType to expectedValue)
-        assertThat(defaultArguments["test_dimen_reference"]?.run { type to defaultValue })
-            .isEqualTo(NavType.ReferenceType to R.dimen.test_dimen_arg)
-    }
-
-    @Test
-    fun testDefaultArgumentsColor() {
-        val defaultArguments = inflateDefaultArgumentsFromGraph()
-        val context = ApplicationProvider.getApplicationContext() as Context
-        val expectedValue = ContextCompat.getColor(context, R.color.test_color_arg)
-
-        assertThat(defaultArguments["test_color_reference"]?.run { type to defaultValue })
-            .isEqualTo(NavType.IntType to expectedValue)
     }
 
     @Test
@@ -125,8 +112,6 @@ class NavInflaterTest {
         assertThat(defaultArguments["test_boolean_with_argType_false"]?.run {
             type to defaultValue
         }).isEqualTo(NavType.BoolType to false)
-        assertThat(defaultArguments["test_boolean_reference"]?.run { type to defaultValue })
-            .isEqualTo(NavType.BoolType to true)
     }
 
     @Test
@@ -161,11 +146,6 @@ class NavInflaterTest {
             .isEqualTo(NavType.StringType to "123L")
         assertThat(defaultArguments["test_string_integer"]?.run { type to defaultValue })
             .isEqualTo(NavType.StringType to "123")
-        assertThat(defaultArguments["test_string_with_argType_reference"]?.run {
-            type to defaultValue
-        }).isEqualTo(NavType.StringType to "test string")
-        assertThat(defaultArguments["test_string_reference"]?.run { type to defaultValue })
-            .isEqualTo(NavType.StringType to "test string")
 
         assertThat(defaultArguments["test_string_no_default"]?.run {
             type to isDefaultValuePresent
@@ -177,7 +157,7 @@ class NavInflaterTest {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
         assertThat(defaultArguments["test_reference"]?.run { type to defaultValue })
-            .isEqualTo(NavType.IntType to R.style.AppTheme)
+            .isEqualTo(NavType.ReferenceType to R.style.AppTheme)
         assertThat(defaultArguments["test_reference_dimen"]?.run { type to defaultValue })
             .isEqualTo(NavType.ReferenceType to R.dimen.test_dimen_arg)
         assertThat(defaultArguments["test_reference_integer"]?.run { type to defaultValue })
@@ -186,6 +166,8 @@ class NavInflaterTest {
             .isEqualTo(NavType.ReferenceType to R.string.test_string_arg)
         assertThat(defaultArguments["test_reference_bool"]?.run { type to defaultValue })
             .isEqualTo(NavType.ReferenceType to R.bool.test_bool_arg)
+        assertThat(defaultArguments["test_reference_color"]?.run { type to defaultValue })
+            .isEqualTo(NavType.ReferenceType to R.color.test_color_arg)
     }
 
     @Test

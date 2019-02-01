@@ -22,26 +22,6 @@
         <argument
             android:name="test_int"
             android:defaultValue="12" />
-        <argument
-            android:name="test_int_reference"
-            android:defaultValue="@integer/test_integer_arg"
-            app:argType="integer" />
-
-        <argument
-            android:name="test_dimen"
-            android:defaultValue="@dimen/test_dimen_arg" />
-        <argument
-            android:name="test_dimen_integer"
-            android:defaultValue="@dimen/test_dimen_arg"
-            app:argType="integer" />
-        <argument
-            android:name="test_dimen_reference"
-            android:defaultValue="@dimen/test_dimen_arg"
-            app:argType="reference" />
-
-        <argument
-            android:name="test_color_reference"
-            android:defaultValue="@color/test_color_arg" />
 
         <argument
             android:name="test_float"
@@ -52,20 +32,19 @@
             android:defaultValue="@style/AppTheme" />
         <argument
             android:name="test_reference_dimen"
-            android:defaultValue="@dimen/test_dimen_arg"
-            app:argType="reference" />
+            android:defaultValue="@dimen/test_dimen_arg" />
         <argument
             android:name="test_reference_integer"
-            android:defaultValue="@integer/test_integer_arg"
-            app:argType="reference" />
+            android:defaultValue="@integer/test_integer_arg" />
         <argument
             android:name="test_reference_string"
-            android:defaultValue="@string/test_string_arg"
-            app:argType="reference" />
+            android:defaultValue="@string/test_string_arg" />
         <argument
             android:name="test_reference_bool"
-            android:defaultValue="@bool/test_bool_arg"
-            app:argType="reference" />
+            android:defaultValue="@bool/test_bool_arg" />
+        <argument
+            android:name="test_reference_color"
+            android:defaultValue="@color/test_color_arg" />
 
         <argument
             android:name="test_boolean"
@@ -81,9 +60,6 @@
             android:name="test_boolean_with_argType_false"
             android:defaultValue="false"
             app:argType="boolean" />
-        <argument
-            android:name="test_boolean_reference"
-            android:defaultValue="@bool/test_bool_arg" />
 
         <argument
             android:name="test_string"
@@ -100,13 +76,6 @@
             android:name="test_string_integer"
             android:defaultValue="123"
             app:argType="string" />
-        <argument
-            android:name="test_string_with_argType_reference"
-            android:defaultValue="@string/test_string_arg"
-            app:argType="string" />
-        <argument
-            android:name="test_string_reference"
-            android:defaultValue="@string/test_string_arg" />
         <argument
             android:name="test_string_no_default"
             app:argType="string" />
