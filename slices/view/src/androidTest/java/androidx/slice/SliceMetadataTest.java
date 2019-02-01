@@ -485,6 +485,16 @@ public class SliceMetadataTest {
     }
 
     @Test
+    public void testGetToggleEmptySlice() {
+        Uri uri = Uri.parse("content://pkg/slice");
+
+        ListBuilder lb = new ListBuilder(mContext, uri, ListBuilder.INFINITY);
+        Slice rowSlice = lb.build();
+        SliceMetadata rowInfo = SliceMetadata.from(mContext, rowSlice);
+        assertTrue(rowInfo.getToggles().isEmpty());
+    }
+
+    @Test
     public void testSendToggleAction() {
         final AtomicBoolean toggleState = new AtomicBoolean(true);
         final CountDownLatch latch = new CountDownLatch(3);

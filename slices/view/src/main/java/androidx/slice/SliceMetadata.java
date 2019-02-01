@@ -241,8 +241,8 @@ public class SliceMetadata {
                     toggles.add(action);
                 }
             }
-        } else {
-            toggles = mHeaderContent.getToggleItems();
+        } else if (mHeaderContent != null) {
+            toggles.addAll(mHeaderContent.getToggleItems());
         }
         return toggles;
     }
