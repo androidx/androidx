@@ -30,7 +30,8 @@
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="@dimen/MusicView_full_image_size"
+        android:maxWidth="@dimen/MusicView_full_image_size"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/mcv2_music_title_unknown_text"
         android:textSize="@dimen/MusicView_title_text_size"
@@ -39,7 +40,8 @@
 
     <TextView
         android:id="@+id/artist"
-        android:layout_width="@dimen/MusicView_full_image_size"
+        android:maxWidth="@dimen/MusicView_full_image_size"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/mcv2_music_artist_unknown_text"
         android:textSize="@dimen/MusicView_artist_text_size"
