@@ -13,8 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.ui.vectormath64
 
-enum class MatrixColumn {
-    X, Y, Z, W
+package androidx.ui.painting
+
+/**
+ * Defines how a new clip region should be merged with the existing clip
+ * region.
+ *
+ * Used by [Canvas.clipRect].
+ */
+enum class ClipOp {
+    /** Subtract the new region from the existing region. */
+    difference,
+
+    /** Intersect the new region from the existing region. */
+    intersect
 }

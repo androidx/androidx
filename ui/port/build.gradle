@@ -10,13 +10,15 @@ plugins {
 dependencies {
     api "androidx.annotation:annotation:1.0.0"
     api "androidx.activity:activity:1.0.0-alpha01"
+    api project(":ui-core")
+    implementation project(":ui-android-core")
+    api project(":ui-text")
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
     testImplementation(TEST_RULES)
-    api(project(":ui-text"))
     testImplementation(TRUTH)
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version

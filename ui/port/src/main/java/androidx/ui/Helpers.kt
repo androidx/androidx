@@ -9,18 +9,6 @@ import kotlin.math.truncate
 // These are purely Crane helpers for flutter migration. Feel free to add more.
 
 // Copied from Dart
-fun lerpFloat(a: Float, b: Float, t: Float): Float {
-    return a + (b - a) * t
-}
-
-fun lerpInt(a: Int, b: Int, t: Float): Float {
-    return a + (b - a) * t
-}
-
-// Copied from Dart
-fun Float.toStringAsFixed(digits: Int) = java.lang.String.format("%.${digits}f", this)!!
-
-// Copied from Dart
 fun Float.truncDiv(other: Float) = truncate(this / other).toInt()
 
 // Dart spec: If both operands are ints then a ~/ b performs the truncating integer division.

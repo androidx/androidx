@@ -15,8 +15,6 @@
  */
 package androidx.ui.vectormath64
 
-enum class VectorComponent {
-    X, Y, Z, W,
-    R, G, B, A,
-    S, T, P, Q
+enum class MatrixColumn {
+    X, Y, Z, W
 }

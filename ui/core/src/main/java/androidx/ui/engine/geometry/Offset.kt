@@ -1,10 +1,26 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package androidx.ui.engine.geometry
 
 import androidx.ui.lerpFloat
 import androidx.ui.toStringAsFixed
-import androidx.ui.truncDiv
 import kotlin.math.atan2
 import kotlin.math.sqrt
+import kotlin.math.truncate
 
 /**
  * An immutable 2D floating-point offset.
@@ -236,7 +252,7 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
      */
     // TODO(Migration/Filip): Original operator ~/ could not be overriden in Kotlin
     fun truncDiv(operand: Float) =
-            Offset((dx.truncDiv(operand)).toFloat(), (dy.truncDiv(operand)).toFloat())
+            Offset(truncate(dx / operand), truncate(dy / operand))
 
     /**
      * Modulo (remainder) operator.
@@ -270,9 +286,7 @@ data class Offset(override val dx: Float, override val dy: Float) : OffsetBase {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as Offset
+        if (other !is Offset) return false
 
         if (dx != other.dx) return false
         if (dy != other.dy) return false

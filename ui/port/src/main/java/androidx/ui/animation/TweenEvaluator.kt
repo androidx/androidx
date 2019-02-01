@@ -18,6 +18,7 @@ package androidx.ui.animation
 
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
+import androidx.ui.engine.geometry.lerp
 import androidx.ui.painting.Color
 
 // TODO(Migration|Andrey) Crane-specific typealias and extension constructors as we can't
@@ -80,7 +81,7 @@ private object SizeTweenEvaluator : TweenEvaluator<Size> {
 
 private object RectTweenEvaluator : TweenEvaluator<Rect> {
     override fun invoke(begin: Rect, end: Rect, t: Float): Rect {
-        return Rect.lerp(begin, end, t)!!
+        return lerp(begin, end, t)!!
     }
 }
 

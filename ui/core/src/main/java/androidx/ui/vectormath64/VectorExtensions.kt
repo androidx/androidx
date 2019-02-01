@@ -16,7 +16,6 @@
  */
 package androidx.ui.vectormath64
 
-import androidx.ui.clamp
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -44,16 +43,18 @@ fun refract(i: Vector2, n: Vector2, eta: Float): Vector2 {
     return if (k < 0.0f) Vector2(0.0f) else eta * i - (eta * d + sqrt(k)) * n
 }
 
-inline fun clamp(v: Vector2, min: Float, max: Float): Vector2 {
+inline fun Vector2.coerceIn(min: Float, max: Float): Vector2 {
     return Vector2(
-            v.x.clamp(min, max),
-            v.y.clamp(min, max))
+        x.coerceIn(min, max),
+        y.coerceIn(min, max)
+    )
 }
 
-inline fun clamp(v: Vector2, min: Vector2, max: Vector2): Vector2 {
+inline fun Vector2.coerceIn(min: Vector2, max: Vector2): Vector2 {
     return Vector2(
-            v.x.clamp(min.x, max.x),
-            v.y.clamp(min.y, max.y))
+        x.coerceIn(min.x, max.x),
+        y.coerceIn(min.y, max.y)
+    )
 }
 
 inline fun mix(a: Vector2, b: Vector2, x: Float): Vector2 {
@@ -103,18 +104,20 @@ fun refract(i: Vector3, n: Vector3, eta: Float): Vector3 {
     return if (k < 0.0f) Vector3(0.0f) else eta * i - (eta * d + sqrt(k)) * n
 }
 
-inline fun clamp(v: Vector3, min: Float, max: Float): Vector3 {
+inline fun Vector3.coerceIn(min: Float, max: Float): Vector3 {
     return Vector3(
-            v.x.clamp(min, max),
-            v.y.clamp(min, max),
-            v.z.clamp(min, max))
+        x.coerceIn(min, max),
+        y.coerceIn(min, max),
+        z.coerceIn(min, max)
+    )
 }
 
-inline fun clamp(v: Vector3, min: Vector3, max: Vector3): Vector3 {
+inline fun Vector3.coerceIn(min: Vector3, max: Vector3): Vector3 {
     return Vector3(
-            v.x.clamp(min.x, max.x),
-            v.y.clamp(min.y, max.y),
-            v.z.clamp(min.z, max.z))
+        x.coerceIn(min.x, max.x),
+        y.coerceIn(min.y, max.y),
+        z.coerceIn(min.z, max.z)
+    )
 }
 
 inline fun mix(a: Vector3, b: Vector3, x: Float): Vector3 {
@@ -156,20 +159,22 @@ fun normalize(v: Vector4): Vector4 {
     return Vector4(v.x * l, v.y * l, v.z * l, v.w * l)
 }
 
-inline fun clamp(v: Vector4, min: Float, max: Float): Vector4 {
+inline fun Vector4.coerceIn(min: Float, max: Float): Vector4 {
     return Vector4(
-            v.x.clamp(min, max),
-            v.y.clamp(min, max),
-            v.z.clamp(min, max),
-            v.w.clamp(min, max))
+        x.coerceIn(min, max),
+        y.coerceIn(min, max),
+        z.coerceIn(min, max),
+        w.coerceIn(min, max)
+    )
 }
 
-inline fun clamp(v: Vector4, min: Vector4, max: Vector4): Vector4 {
+inline fun Vector4.coerceIn(min: Vector4, max: Vector4): Vector4 {
     return Vector4(
-            v.x.clamp(min.x, max.x),
-            v.y.clamp(min.y, max.y),
-            v.z.clamp(min.z, max.z),
-            v.w.clamp(min.w, max.w))
+        x.coerceIn(min.x, max.x),
+        y.coerceIn(min.y, max.y),
+        z.coerceIn(min.z, max.z),
+        w.coerceIn(min.w, max.w)
+    )
 }
 
 inline fun mix(a: Vector4, b: Vector4, x: Float): Vector4 {

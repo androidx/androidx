@@ -60,29 +60,29 @@ data class Matrix4(
         }
 
         /** Rotation of [radians_] around X. */
-        fun rotationX(radians: Float) = Matrix4.zero().apply {
+        fun rotationX(radians: Float) = zero().apply {
             set(3, 3, 1.0f)
             rotateX(radians)
         }
 
         /** Rotation of [radians_] around Y. */
-        fun rotationY(radians: Float) = Matrix4.zero().apply {
+        fun rotationY(radians: Float) = zero().apply {
             set(3, 3, 1.0f)
             rotateY(radians)
         }
 
-        fun rotationZ(radians: Float) = Matrix4.zero().apply {
+        fun rotationZ(radians: Float) = zero().apply {
             set(3, 3, 1.0f)
             rotateZ(radians)
         }
 
         // / Translation matrix.
-        fun translation(translation: Vector3) = Matrix4.identity().apply {
+        fun translation(translation: Vector3) = identity().apply {
             setTranslationRaw(x = translation.x, y = translation.y, z = translation.z)
         }
 
         fun translationValues(x: Float, y: Float, z: Float) =
-            Matrix4.identity().apply { setTranslationRaw(x, y, z) }
+            identity().apply { setTranslationRaw(x, y, z) }
     }
 
     inline val m4storage: List<Float>

@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.ui.vectormath64
 
-package androidx.ui.painting
-
-/**
- * Defines how a new clip region should be merged with the existing clip
- * region.
- *
- * Used by [Canvas.clipRect].
- */
-enum class ClipOp {
-    /** Subtract the new region from the existing region. */
-    difference,
-
-    /** Intersect the new region from the existing region. */
-    intersect
+enum class VectorComponent {
+    X, Y, Z, W,
+    R, G, B, A,
+    S, T, P, Q
 }
