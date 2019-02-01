@@ -25,6 +25,7 @@ import static androidx.media2.SessionPlayer.PlayerResult.RESULT_ERROR_UNKNOWN_ER
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_INFO_SKIPPED;
 import static androidx.media2.SessionPlayer.PlayerResult.RESULT_SUCCESS;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.DeniedByServerException;
@@ -652,6 +653,7 @@ public class MediaPlayer extends SessionPlayer {
     @GuardedBy("mPlaylistLock")
     private boolean mSetMediaItemCalled;
 
+    @SuppressLint("RestrictedApi")
     public MediaPlayer(@NonNull Context context) {
         mState = PLAYER_STATE_IDLE;
         mPlayer = MediaPlayer2.create(context);
@@ -692,6 +694,7 @@ public class MediaPlayer extends SessionPlayer {
 
     @Override
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> play() {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -720,6 +723,7 @@ public class MediaPlayer extends SessionPlayer {
 
     @Override
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> pause() {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -747,6 +751,7 @@ public class MediaPlayer extends SessionPlayer {
      */
     @Override
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> prepare() {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -771,6 +776,7 @@ public class MediaPlayer extends SessionPlayer {
 
     @Override
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> seekTo(final long position) {
         PendingFuture<PlayerResult> pendingFuture =
                 new PendingFuture<PlayerResult>(mExecutor, true) {
@@ -792,6 +798,7 @@ public class MediaPlayer extends SessionPlayer {
 
     @Override
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> setPlaybackSpeed(final float playbackSpeed) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -815,6 +822,7 @@ public class MediaPlayer extends SessionPlayer {
 
     @NonNull
     @Override
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> setAudioAttributes(
             @NonNull final AudioAttributesCompat attr) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
@@ -842,6 +850,7 @@ public class MediaPlayer extends SessionPlayer {
         }
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     public long getCurrentPosition() {
         try {
@@ -852,6 +861,7 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
+    @SuppressLint("RestrictedApi")
     public long getDuration() {
         try {
             return mPlayer.getDuration();
@@ -861,6 +871,7 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
+    @SuppressLint("RestrictedApi")
     public long getBufferedPosition() {
         try {
             return mPlayer.getBufferedPosition();
@@ -870,6 +881,7 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
+    @SuppressLint("RestrictedApi")
     public int getBufferingState() {
         Integer buffState;
         synchronized (mStateLock) {
@@ -879,6 +891,7 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
+    @SuppressLint("RestrictedApi")
     public float getPlaybackSpeed() {
         try {
             return mPlayer.getPlaybackParams().getSpeed();
@@ -889,6 +902,7 @@ public class MediaPlayer extends SessionPlayer {
 
     @Override
     @Nullable
+    @SuppressLint("RestrictedApi")
     public AudioAttributesCompat getAudioAttributes() {
         try {
             return mPlayer.getAudioAttributes();
@@ -1384,6 +1398,7 @@ public class MediaPlayer extends SessionPlayer {
 
     @Override
     @Nullable
+    @SuppressLint("RestrictedApi")
     public MediaItem getCurrentMediaItem() {
         return mPlayer.getCurrentMediaItem();
     }
@@ -1435,6 +1450,7 @@ public class MediaPlayer extends SessionPlayer {
     }
 
     @Override
+    @SuppressLint("RestrictedApi")
     public void close() throws Exception {
         reset();
         mAudioFocusHandler.close();
@@ -1456,6 +1472,7 @@ public class MediaPlayer extends SessionPlayer {
      * this method, you will have to initialize it again by setting the
      * media item and calling {@link #prepare()}.
      */
+    @SuppressLint("RestrictedApi")
     public void reset() {
         // Cancel the pending commands.
         synchronized (mPendingCommands) {
@@ -1509,6 +1526,7 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> setSurface(@Nullable final Surface surface) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1557,6 +1575,7 @@ public class MediaPlayer extends SessionPlayer {
      * @return the current volume of this player to this player. Note that it does not take into
      * account the associated stream volume.
      */
+    @SuppressLint("RestrictedApi")
     public float getPlayerVolume() {
         return mPlayer.getPlayerVolume();
     }
@@ -1564,6 +1583,7 @@ public class MediaPlayer extends SessionPlayer {
     /**
      * @return the maximum volume that can be used in {@link #setPlayerVolume(float)}.
      */
+    @SuppressLint("RestrictedApi")
     public float getMaxPlayerVolume() {
         return mPlayer.getMaxPlayerVolume();
     }
@@ -1578,6 +1598,7 @@ public class MediaPlayer extends SessionPlayer {
      * receive a notification {@link PlayerCallback#onVideoSizeChanged} when the size
      * is available.
      */
+    @SuppressLint("RestrictedApi")
     public @NonNull VideoSize getVideoSize() {
         return new VideoSize(mPlayer.getVideoWidth(), mPlayer.getVideoHeight());
     }
@@ -1592,6 +1613,7 @@ public class MediaPlayer extends SessionPlayer {
      */
     @RestrictTo(LIBRARY_GROUP)
     @RequiresApi(21)
+    @SuppressLint("RestrictedApi")
     public PersistableBundle getMetrics() {
         return mPlayer.getMetrics();
     }
@@ -1609,6 +1631,7 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> setPlaybackParams(@NonNull final PlaybackParams params) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1634,6 +1657,7 @@ public class MediaPlayer extends SessionPlayer {
      * @return the playback params.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public PlaybackParams getPlaybackParams() {
         return mPlayer.getPlaybackParams();
     }
@@ -1656,6 +1680,7 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> seekTo(final long msec, @SeekMode final int mode) {
         PendingFuture<PlayerResult> pendingFuture =
                 new PendingFuture<PlayerResult>(mExecutor, true) {
@@ -1696,6 +1721,7 @@ public class MediaPlayer extends SessionPlayer {
      * @see MediaTimestamp
      */
     @Nullable
+    @SuppressLint("RestrictedApi")
     public MediaTimestamp getTimestamp() {
         return mPlayer.getTimestamp();
     }
@@ -1718,6 +1744,7 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> setAudioSessionId(final int sessionId) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1744,6 +1771,7 @@ public class MediaPlayer extends SessionPlayer {
      * Note that the audio session ID is 0 only if a problem occured when the MediaPlayer2 was
      * contructed.
      */
+    @SuppressLint("RestrictedApi")
     public int getAudioSessionId() {
         return mPlayer.getAudioSessionId();
     }
@@ -1764,6 +1792,7 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> attachAuxEffect(final int effectId) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1799,6 +1828,7 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> setAuxEffectSendLevel(final float level) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1824,6 +1854,7 @@ public class MediaPlayer extends SessionPlayer {
      * @return List of track info. The total number of tracks is the size of the list.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public List<TrackInfo> getTrackInfo() {
         List<MediaPlayer2.TrackInfo> list = mPlayer.getTrackInfo();
         List<TrackInfo> trackList = new ArrayList<>();
@@ -1850,6 +1881,7 @@ public class MediaPlayer extends SessionPlayer {
      * @see #selectTrack(int)
      * @see #deselectTrack(int)
      */
+    @SuppressLint("RestrictedApi")
     public int getSelectedTrack(int trackType) {
         return mPlayer.getSelectedTrack(trackType);
     }
@@ -1883,6 +1915,7 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> selectTrack(final int index) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1917,6 +1950,7 @@ public class MediaPlayer extends SessionPlayer {
      * {@link PlayerResult} will be delivered when the command completes.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<PlayerResult> deselectTrack(final int index) {
         PendingFuture<PlayerResult> pendingFuture = new PendingFuture<PlayerResult>(mExecutor) {
             @Override
@@ -1944,6 +1978,7 @@ public class MediaPlayer extends SessionPlayer {
      */
     @Nullable
     @RestrictTo(LIBRARY_GROUP)
+    @SuppressLint("RestrictedApi")
     public DrmInfo getDrmInfo() {
         MediaPlayer2.DrmInfo info = mPlayer.getDrmInfo();
         return info == null ? null : new DrmInfo(info);
@@ -1976,6 +2011,7 @@ public class MediaPlayer extends SessionPlayer {
     @RestrictTo(LIBRARY_GROUP)
     // This is an asynchronous call.
     @NonNull
+    @SuppressLint("RestrictedApi")
     public ListenableFuture<DrmResult> prepareDrm(@NonNull final UUID uuid) {
         PendingFuture<DrmResult> pendingFuture = new PendingFuture<DrmResult>(mExecutor) {
             @Override
@@ -2005,6 +2041,7 @@ public class MediaPlayer extends SessionPlayer {
      * @throws NoDrmSchemeException if there is no active DRM session to release
      * @hide
      */
+    @SuppressLint("RestrictedApi")
     @RestrictTo(LIBRARY_GROUP)
     public void releaseDrm() throws NoDrmSchemeException {
         try {
@@ -2054,6 +2091,7 @@ public class MediaPlayer extends SessionPlayer {
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
+    @SuppressLint("RestrictedApi")
     public MediaDrm.KeyRequest getDrmKeyRequest(
             @Nullable byte[] keySetId, @Nullable byte[] initData,
             @Nullable String mimeType, int keyType,
@@ -2089,6 +2127,7 @@ public class MediaPlayer extends SessionPlayer {
      */
     @Nullable
     @RestrictTo(LIBRARY_GROUP)
+    @SuppressLint("RestrictedApi")
     public byte[] provideDrmKeyResponse(
             @Nullable byte[] keySetId, @NonNull byte[] response)
             throws NoDrmSchemeException, DeniedByServerException {
@@ -2106,6 +2145,7 @@ public class MediaPlayer extends SessionPlayer {
      * @param keySetId identifies the saved key set to restore
      * @hide
      */
+    @SuppressLint("RestrictedApi")
     @RestrictTo(LIBRARY_GROUP)
     public void restoreDrmKeys(@NonNull byte[] keySetId) throws NoDrmSchemeException {
         try {
@@ -2127,6 +2167,7 @@ public class MediaPlayer extends SessionPlayer {
      */
     @RestrictTo(LIBRARY_GROUP)
     @NonNull
+    @SuppressLint("RestrictedApi")
     public String getDrmPropertyString(@NonNull String propertyName) throws NoDrmSchemeException {
         try {
             return mPlayer.getDrmPropertyString(propertyName);
@@ -2147,6 +2188,7 @@ public class MediaPlayer extends SessionPlayer {
      * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
+    @SuppressLint("RestrictedApi")
     public void setDrmPropertyString(@NonNull String propertyName, @NonNull String value)
             throws NoDrmSchemeException {
         try {
@@ -2165,6 +2207,7 @@ public class MediaPlayer extends SessionPlayer {
      * @param listener the callback that will be run
      * @hide
      */
+    @SuppressLint("RestrictedApi")
     @RestrictTo(LIBRARY_GROUP)
     public void setOnDrmConfigHelper(@Nullable final OnDrmConfigHelper listener) {
         mPlayer.setOnDrmConfigHelper(listener == null ? null :
@@ -2271,6 +2314,7 @@ public class MediaPlayer extends SessionPlayer {
         return futures;
     }
 
+    @SuppressLint("RestrictedApi")
     private ResolvableFuture<PlayerResult> setMediaItemInternal(MediaItem item) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -2283,7 +2327,7 @@ public class MediaPlayer extends SessionPlayer {
         return future;
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "RestrictedApi"}) /* synthetic access */
     ResolvableFuture<PlayerResult> setNextMediaItemInternal(MediaItem item) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -2294,7 +2338,7 @@ public class MediaPlayer extends SessionPlayer {
         return future;
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "RestrictedApi"}) /* synthetic access */
     ResolvableFuture<PlayerResult> skipToNextInternal() {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -2305,7 +2349,7 @@ public class MediaPlayer extends SessionPlayer {
         return future;
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "RestrictedApi"}) /* synthetic access */
     ResolvableFuture<PlayerResult> setPlayerVolumeInternal(float volume) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         synchronized (mPendingCommands) {
@@ -2321,7 +2365,7 @@ public class MediaPlayer extends SessionPlayer {
         return createFutureForResultCode(resultCode, null);
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "RestrictedApi"}) /* synthetic access */
     ResolvableFuture<PlayerResult> createFutureForResultCode(int resultCode, MediaItem item) {
         ResolvableFuture<PlayerResult> future = ResolvableFuture.create();
         future.set(new PlayerResult(resultCode,
@@ -2403,7 +2447,7 @@ public class MediaPlayer extends SessionPlayer {
         return (value > maxValue) ? maxValue : value;
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @SuppressWarnings({"WeakerAccess", "RestrictedApi"}) /* synthetic access */
     void handleCallComplete(MediaPlayer2 mp, final MediaItem item, int what, int status) {
         PendingCommand expected;
         synchronized (mPendingCommands) {

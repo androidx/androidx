@@ -61,6 +61,7 @@ import java.util.concurrent.Executor;
  * This object is thread safe.
  */
 @VersionedParcelize(isCustom = true)
+@SuppressLint("RestrictedApi")
 public class MediaItem extends CustomVersionedParcelable {
     private static final String TAG = "MediaItem";
 

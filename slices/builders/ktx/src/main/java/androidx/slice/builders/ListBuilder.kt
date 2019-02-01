@@ -15,6 +15,7 @@
  */
 package androidx.slice.builders
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Context
 import android.net.Uri
@@ -143,6 +144,7 @@ inline fun ListBuilderDsl.range(buildRange: RangeBuilderDsl.() -> Unit) =
 /**
  * Factory method to build a tappable [SliceAction].
  */
+@SuppressLint("RestrictedApi")
 fun tapSliceAction(
     pendingIntent: PendingIntent,
     icon: IconCompat,
@@ -153,6 +155,7 @@ fun tapSliceAction(
 /**
  * Factory method to build a toggleable [SliceAction].
  */
+@SuppressLint("RestrictedApi")
 fun toggleSliceAction(
     pendingIntent: PendingIntent,
     icon: IconCompat? = null,

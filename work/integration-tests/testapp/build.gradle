@@ -30,6 +30,7 @@ android {
             minifyEnabled = true
         }
     }
+
     defaultConfig.vectorDrawables.useSupportLibrary = true
 }
 

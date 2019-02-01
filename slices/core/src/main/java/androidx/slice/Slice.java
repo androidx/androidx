@@ -47,6 +47,7 @@ import static androidx.slice.core.SliceHints.HINT_ACTIVITY;
 import static androidx.slice.core.SliceHints.HINT_CACHED;
 import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION_VALUE;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.app.slice.SliceManager;
@@ -88,6 +89,7 @@ import java.util.Set;
  */
 @VersionedParcelize(allowSerialization = true, isCustom = true)
 @RequiresApi(19)
+@SuppressLint("RestrictedApi")
 public final class Slice extends CustomVersionedParcelable implements VersionedParcelable {
 
     /**
