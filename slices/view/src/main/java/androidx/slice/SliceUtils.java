@@ -86,6 +86,7 @@ public class SliceUtils {
      * original slice if no content can be removed.
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public static Slice stripSlice(@NonNull Slice s, @SliceMode int mode, boolean isScrollable) {
         ListContent listContent = new ListContent(s);
         if (listContent.isValid()) {

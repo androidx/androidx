@@ -26,6 +26,7 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.Slice.appendHints;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
@@ -84,6 +85,7 @@ import java.util.List;
  */
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true, isCustom = true)
 @RequiresApi(19)
+@SuppressLint("RestrictedApi")
 public final class SliceItem extends CustomVersionedParcelable {
 
     private static final String HINTS = "hints";

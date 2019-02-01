@@ -30,6 +30,7 @@ import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.res.Resources;
@@ -312,6 +313,7 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     /**
      * Adds a cell to the grid view based on the provided {@link SliceItem}.
      */
+    @SuppressLint("RestrictedApi")
     private void addCell(GridContent.CellContent cell, int index, int total) {
         final int maxCellText = getMode() == MODE_SMALL && mGridContent.hasImage()
                 ? MAX_CELL_TEXT_SMALL : MAX_CELL_TEXT;
