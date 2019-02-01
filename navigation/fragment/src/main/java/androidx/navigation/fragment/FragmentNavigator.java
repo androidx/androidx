@@ -46,6 +46,14 @@ import java.util.Map;
  * Navigator that navigates through {@link FragmentTransaction fragment transactions}. Every
  * destination using this Navigator must set a valid Fragment class name with
  * <code>android:name</code> or {@link Destination#setClassName(String)}.
+ * <p>
+ * The current Fragment from FragmentNavigator's perspective can be retrieved by calling
+ * {@link FragmentManager#getPrimaryNavigationFragment()} with the FragmentManager
+ * passed to this FragmentNavigator.
+ * <p>
+ * Note that the default implementation does Fragment transactions
+ * asynchronously, so the current Fragment will not be available immediately
+ * (i.e., in callbacks to {@link NavController.OnDestinationChangedListener}).
  */
 @Navigator.Name("fragment")
 public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> {
@@ -119,6 +127,18 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         mFragmentManager.removeOnBackStackChangedListener(mOnBackStackChangedListener);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method must call
+     * {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)}
+     * if the pop succeeded so that the newly visible Fragment can be retrieved with
+     * {@link FragmentManager#getPrimaryNavigationFragment()}.
+     * <p>
+     * Note that the default implementation pops the Fragment
+     * asynchronously, so the newly visible Fragment from the back stack
+     * is not instantly available after this call completes.
+     */
     @Override
     public boolean popBackStack() {
         if (mBackStack.isEmpty()) {
@@ -166,6 +186,18 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         return Fragment.instantiate(context, className, args);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method should always call
+     * {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)}
+     * so that the Fragment associated with the new destination can be retrieved with
+     * {@link FragmentManager#getPrimaryNavigationFragment()}.
+     * <p>
+     * Note that the default implementation commits the new Fragment
+     * asynchronously, so the new Fragment is not instantly available
+     * after this call completes.
+     */
     @Nullable
     @Override
     public NavDestination navigate(@NonNull Destination destination, @Nullable Bundle args,
