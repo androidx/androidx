@@ -39,6 +39,8 @@ import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.services.text_editing.TextRange
 import androidx.ui.services.text_editing.TextSelection
 
+/** The default selection color if none is specified. */
+private val defaultSelectionColor = Color(0x6633B5E5)
 /**
  * A render object that displays a paragraph of text
  *
@@ -90,6 +92,7 @@ class RenderParagraph(
     private var overflowShader: Shader? = null
     private var hasVisualOverflow = false
     private var constraints: TextConstraints? = null
+    internal var selectionPaint: Paint
 
     init {
         assert(maxLines == null || maxLines > 0)
@@ -101,6 +104,8 @@ class RenderParagraph(
             maxLines = maxLines,
             ellipsis = overflow == TextOverflow.ELLIPSIS
         )
+        selectionPaint = Paint()
+        selectionPaint.color = defaultSelectionColor
     }
 
     var text: TextSpan
@@ -360,8 +365,14 @@ class RenderParagraph(
         }
     }
 
+    /** Paint selected region. */
+    fun paintSelection(canvas: Canvas, selection: TextSelection) {
+        val path = getPathForSelection(selection)
+        canvas.drawPath(path, selectionPaint)
+    }
+
     /** Returns path that enclose the given text selection range. */
-    fun getPathForSelection(selection: TextSelection): Path {
+    internal fun getPathForSelection(selection: TextSelection): Path {
         return textPainter.getPathForSelection(selection)
     }
 

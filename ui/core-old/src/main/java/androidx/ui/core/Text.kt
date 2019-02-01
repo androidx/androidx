@@ -24,6 +24,7 @@ import androidx.ui.painting.TextStyle
 import androidx.ui.rendering.paragraph.RenderParagraph
 import androidx.ui.rendering.paragraph.TextConstraints
 import androidx.ui.rendering.paragraph.TextOverflow
+import androidx.ui.services.text_editing.TextSelection
 import com.google.r4a.Ambient
 import com.google.r4a.Children
 import com.google.r4a.Component
@@ -63,6 +64,10 @@ class Text() : Component() {
      *  The value may be null. If it is not null, then it must be greater than zero.
      */
     var maxLines: Int? = null
+    /**
+     *  The selection of the text.
+     */
+    var selection: TextSelection? = null
 
     override fun compose() {
         assert(text != null)
@@ -99,6 +104,7 @@ class Text() : Component() {
                         renderParagraph.performLayout(boxConstraints)
                         measureOperations.collect {
                             <Draw> canvas, parent ->
+                                selection?.let{renderParagraph.paintSelection(canvas, it)}
                                 renderParagraph.paint(canvas, Offset(0.0f, 0.0f))
                             </Draw>
                         }

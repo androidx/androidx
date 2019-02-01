@@ -24,6 +24,7 @@ import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
+import androidx.ui.painting.Color
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.painting.TextSpan
@@ -229,5 +230,14 @@ class RenderParagraphIntegrationTest {
         // Assert.
         val diff = Path.combine(PathOperation.difference, expectedPath, actualPath).getBounds()
         assertThat(diff).isEqualTo(Rect.zero)
+    }
+
+    @Test
+    fun testSelectionPaint_default_color() {
+        val text = TextSpan()
+        val paragraph = RenderParagraph(text = text, textDirection = TextDirection.LTR)
+        val defaultSelectionColor = Color(0x6633B5E5)
+
+        assertThat(paragraph.selectionPaint.color).isEqualTo(defaultSelectionColor)
     }
 }
