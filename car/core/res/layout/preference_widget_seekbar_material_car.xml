@@ -82,9 +82,9 @@
 
             <TextView
                 android:id="@+id/seekbar_value"
-                android:layout_width="@dimen/preference_seekbar_value_width"
+                android:layout_width="@dimen/car_keyline_3"
                 android:layout_height="wrap_content"
-                android:gravity="right|center_vertical"
+                android:gravity="end|center_vertical"
                 android:textAppearance="?attr/listItemBodyTextAppearance"
                 android:fadingEdge="horizontal"
                 android:scrollbars="none"/>
