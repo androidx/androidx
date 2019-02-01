@@ -1336,6 +1336,7 @@ class MediaSessionImplBase implements MediaSessionImpl {
             session.dispatchRemoteControllerTaskWithoutReturn(task);
         }
 
+        @SuppressLint("RestrictedApi")
         private void updateDurationIfNeeded(@NonNull final SessionPlayer player,
                 @Nullable final MediaItem item) {
             if (item == null) {

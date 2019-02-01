@@ -24,6 +24,7 @@ import static android.support.v4.media.session.PlaybackStateCompat.ACTION_STOP;
 
 import static androidx.annotation.VisibleForTesting.PACKAGE_PRIVATE;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -66,6 +67,7 @@ public class MediaNotificationHandler extends
     private final NotificationCompat.Action mSkipToPrevAction;
     private final NotificationCompat.Action mSkipToNextAction;
 
+    @SuppressLint("RestrictedApi")
     public MediaNotificationHandler(MediaSessionService service) {
         mServiceInstance = service;
         mStartSelfIntent = new Intent(mServiceInstance, mServiceInstance.getClass());
@@ -92,6 +94,7 @@ public class MediaNotificationHandler extends
      * @param state player state
      */
     @Override
+    @SuppressLint("RestrictedApi")
     public void onPlayerStateChanged(MediaSession session,
             @SessionPlayer.PlayerState int state) {
         MediaSessionService.MediaNotification mediaNotification =
@@ -117,11 +120,13 @@ public class MediaNotificationHandler extends
     }
 
     @Override
+    @SuppressLint("RestrictedApi")
     public void onSessionClosed(MediaSession session) {
         mServiceInstance.removeSession(session);
         stopForegroundServiceIfNeeded();
     }
 
+    @SuppressLint("RestrictedApi")
     private void stopForegroundServiceIfNeeded() {
         List<MediaSession> sessions = mServiceInstance.getSessions();
         for (int i = 0; i < sessions.size(); i++) {
@@ -138,6 +143,7 @@ public class MediaNotificationHandler extends
     /**
      * Creates a default media style notification for {@link MediaSessionService}.
      */
+    @SuppressLint("RestrictedApi")
     public MediaSessionService.MediaNotification onUpdateNotification(MediaSession session) {
         ensureNotificationChannel();
 
@@ -185,12 +191,14 @@ public class MediaNotificationHandler extends
         return new MediaSessionService.MediaNotification(NOTIFICATION_ID, notification);
     }
 
+    @SuppressLint("RestrictedApi")
     private NotificationCompat.Action createNotificationAction(int iconResId, int titleResId,
             @PlaybackStateCompat.Actions long action) {
         CharSequence title = mServiceInstance.getResources().getText(titleResId);
         return new NotificationCompat.Action(iconResId, title, createPendingIntent(action));
     }
 
+    @SuppressLint("RestrictedApi")
     private PendingIntent createPendingIntent(@PlaybackStateCompat.Actions long action) {
         int keyCode = PlaybackStateCompat.toKeyCode(action);
         Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);

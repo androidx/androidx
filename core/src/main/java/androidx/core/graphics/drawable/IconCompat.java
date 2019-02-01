@@ -25,6 +25,7 @@ import static android.graphics.drawable.Icon.TYPE_URI;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -84,6 +85,7 @@ import java.nio.charset.Charset;
  */
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true, isCustom = true,
         jetifyAs = "android.support.v4.graphics.drawable.IconCompat")
+@SuppressLint("RestrictedApi")
 public class IconCompat extends CustomVersionedParcelable {
 
     private static final String TAG = "IconCompat";
