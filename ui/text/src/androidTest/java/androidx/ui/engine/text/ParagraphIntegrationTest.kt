@@ -40,7 +40,7 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 @SmallTest
-class ParagraphTest {
+class ParagraphIntegrationTest {
     // TODO(Migration/haoyuchang): These native calls should be removed after the
     // counterparts are implemented in crane.
     private lateinit var fontFamilyMeasureFont: FontFamily

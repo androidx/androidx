@@ -20,7 +20,6 @@ import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.foundation.Key
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
 import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
@@ -180,7 +179,7 @@ class Text(
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
         properties.add(StringProperty("data", data, showName = false))
-        textSpan?.let {
+        /* textSpan?.let {
             properties.add(
                 it.toDiagnosticsNode(
                     name = "textSpan",
@@ -188,7 +187,7 @@ class Text(
                 )
             )
         }
-        style?.debugFillProperties(properties)
+        style?.debugFillProperties(properties)*/
         properties.add(EnumProperty<TextAlign>("textAlign", textAlign, defaultValue = null))
         properties.add(
             EnumProperty<TextDirection>(

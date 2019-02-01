@@ -16,8 +16,6 @@
 
 package androidx.ui.painting
 
-import androidx.ui.assert
-import androidx.ui.clamp
 import androidx.ui.engine.text.BaselineShift
 import androidx.ui.engine.text.FontStyle
 import androidx.ui.engine.text.FontSynthesis
@@ -29,7 +27,7 @@ import androidx.ui.engine.text.TextDecoration
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.window.Locale
-import androidx.ui.foundation.diagnostics.DiagnosticLevel
+/*import androidx.ui.foundation.diagnostics.DiagnosticLevel
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.Diagnosticable
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
@@ -38,10 +36,12 @@ import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FloatProperty
 import androidx.ui.foundation.diagnostics.MessageProperty
 import androidx.ui.foundation.diagnostics.StringProperty
-import androidx.ui.foundation.diagnostics.describeIdentity
+import androidx.ui.foundation.diagnostics.describeIdentity*/
 import androidx.ui.lerpFloat
 import androidx.ui.painting.basictypes.RenderComparison
 import androidx.ui.toStringAsFixed
+
+/*import androidx.ui.toStringAsFixed*/
 
 private const val _kDefaultDebugLabel: String = "unknown"
 
@@ -89,9 +89,9 @@ data class TextStyle(
     // TODO(Migration/qqd): The flutter version we are implementing does not have "foreground" in
     // painting/TextStyle, but has it in engine/TextStyle.
     val decoration: TextDecoration? = null,
-    val debugLabel: String? = null,
-    var fontFamily: FontFamily? = null
-) : Diagnosticable {
+    var fontFamily: FontFamily? = null,
+    val debugLabel: String? = null
+) /*: Diagnosticable*/ {
 
     init {
         assert(inherit != null)
@@ -139,14 +139,8 @@ data class TextStyle(
         assert(letterSpacing != null || (letterSpacingFactor == 1.0f && letterSpacingDelta == 0.0f))
         assert(wordSpacing != null || (wordSpacingFactor == 1.0f && wordSpacingDelta == 0.0f))
 
-        var modifiedDebugLabel = ""
-
-        assert {
-            if (debugLabel != null) {
-                modifiedDebugLabel = "($debugLabel).apply"
-            }
-            true
-        }
+        // TODO(siyamed) remove debug labels
+        var modifiedDebugLabel = if (debugLabel != null) "($debugLabel).apply" else ""
 
         return TextStyle(
             inherit = inherit,
@@ -155,7 +149,7 @@ data class TextStyle(
             fontSize = if (fontSize == null) null else fontSize * fontSizeFactor + fontSizeDelta,
             fontWeight = if (fontWeight == null) null else {
                 FontWeight.values[
-                    (fontWeight.index + fontWeightDelta).clamp(0, FontWeight.values.size - 1)
+                    (fontWeight.index + fontWeightDelta).coerceIn(0, FontWeight.values.size - 1)
                 ]
             },
             fontStyle = fontStyle,
@@ -192,13 +186,11 @@ data class TextStyle(
         if (other == null) return this
         if (!other.inherit!!) return other
 
+        // TODO(siyamed) remove debug labels
         var mergedDebugLabel = ""
-        assert {
-            if (other.debugLabel != null || debugLabel != null) {
-                mergedDebugLabel = "(${debugLabel ?: _kDefaultDebugLabel}).merge(${other.debugLabel
-                    ?: _kDefaultDebugLabel})"
-            }
-            true
+        if (other.debugLabel != null || debugLabel != null) {
+            mergedDebugLabel = "(${debugLabel ?: _kDefaultDebugLabel}).merge(" +
+                    "${other.debugLabel ?: _kDefaultDebugLabel})"
         }
 
         return TextStyle(
@@ -244,15 +236,10 @@ data class TextStyle(
             val inheritEqual = a?.inherit == b?.inherit
             assert(aIsNull || bIsNull || inheritEqual)
             if (aIsNull && bIsNull) return null
-
-            var lerpDebugLabel = ""
-            assert {
-                lerpDebugLabel =
-                        "lerp(${a?.debugLabel
-                            ?: _kDefaultDebugLabel} ⎯${t.toStringAsFixed(1)}→ ${b?.debugLabel
-                            ?: _kDefaultDebugLabel})"
-                true
-            }
+            // TODO(siyamed) remove debug labels
+            var lerpDebugLabel = "lerp(${a?.debugLabel
+                ?: _kDefaultDebugLabel} ⎯${t.toStringAsFixed(1)}→ ${b?.debugLabel
+                ?: _kDefaultDebugLabel})"
 
             if (a == null) {
                 val newB = TextStyle(
@@ -450,7 +437,7 @@ data class TextStyle(
         return RenderComparison.IDENTICAL
     }
 
-    override fun toStringShort() = describeIdentity(this)
+    /*override fun toStringShort() = describeIdentity(this)
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
@@ -551,5 +538,5 @@ data class TextStyle(
             )
         )
         styles.iterator().forEach { properties.add(it) }
-    }
+    } */
 }

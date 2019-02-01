@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package androidx.ui.painting
 
-import androidx.ui.clamp
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
@@ -345,7 +344,7 @@ class TextPainter(
         lastMaxWidth = maxWidth
         paragraph!!.layout(ParagraphConstraints(width = maxWidth))
         if (minWidth != maxWidth) {
-            val newWidth = maxIntrinsicWidth.clamp(minWidth, maxWidth)
+            val newWidth = maxIntrinsicWidth.coerceIn(minWidth, maxWidth)
             if (newWidth != width) {
                 paragraph!!.layout(ParagraphConstraints(width = newWidth))
             }

@@ -19,16 +19,16 @@ package androidx.ui.painting
 import androidx.ui.engine.text.ParagraphBuilder
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextPosition
-import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
+/*import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticableTree
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
 import androidx.ui.foundation.diagnostics.DiagnosticsProperty
 import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
 import androidx.ui.foundation.diagnostics.StringProperty
 import androidx.ui.foundation.diagnostics.describeIdentity
-import androidx.ui.gestures.recognizer.GestureRecognizer
+import androidx.ui.gestures.recognizer.GestureRecognizer*/
 import androidx.ui.painting.basictypes.RenderComparison
-import androidx.ui.runtimeType
+/*import androidx.ui.runtimeType*/
 import java.lang.StringBuilder
 
 /**
@@ -53,9 +53,9 @@ import java.lang.StringBuilder
 data class TextSpan(
     val style: TextStyle? = null,
     val text: String? = null,
-    val children: List<TextSpan>? = null,
-    val recognizer: GestureRecognizer? = null
-) : DiagnosticableTree {
+    val children: List<TextSpan>? = null/*,
+    val recognizer: GestureRecognizer? = null*/
+) /*: DiagnosticableTree*/ {
 
     /**
      * Apply the [style], [text], and [children] of this object to the given [ParagraphBuilder],
@@ -180,9 +180,10 @@ data class TextSpan(
             (style == null) != (other.style == null)) {
             return RenderComparison.LAYOUT
         }
-        var result: RenderComparison =
-            if (recognizer == other.recognizer) RenderComparison.IDENTICAL
-            else RenderComparison.METADATA
+        var result: RenderComparison = RenderComparison.IDENTICAL
+            // TODO(siyamed) add recognizer
+            /*if (recognizer == other.recognizer) RenderComparison.IDENTICAL
+            else RenderComparison.METADATA*/
         if (style != null) {
             val candidate: RenderComparison = style.compareTo(other.style!!)
             if (candidate.ordinal > result.ordinal) {
@@ -206,7 +207,7 @@ data class TextSpan(
         return result
     }
 
-    override fun toStringShort() = describeIdentity(this)
+    /*override fun toStringShort() = describeIdentity(this)
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
@@ -235,5 +236,5 @@ data class TextSpan(
         return children.map { child: TextSpan ->
             child.toDiagnosticsNode()
         }.toList()
-    }
+    } */
 }

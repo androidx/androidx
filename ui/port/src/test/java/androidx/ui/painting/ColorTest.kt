@@ -42,11 +42,11 @@ class ColorTest {
 
     @Test
     fun `color accessors should work`() {
-        val foo = Color(0x12345678)
-        assertEquals(0x12, foo.alpha)
-        assertEquals(0x34, foo.red)
-        assertEquals(0x56, foo.green)
-        assertEquals(0x78, foo.blue)
+        val color = Color(0x12345678)
+        assertEquals(0x12, color.alpha)
+        assertEquals(0x34, color.red)
+        assertEquals(0x56, color.green)
+        assertEquals(0x78, color.blue)
     }
 
     @Test

@@ -1,8 +1,23 @@
+/*
+ * Copyright 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package androidx.ui.services.text_editing
 
 import androidx.ui.engine.text.TextAffinity
 import androidx.ui.engine.text.TextPosition
-import androidx.ui.runtimeType
 
 // import 'dart:ui' show hashValues, TextAffinity, TextPosition;
 //
@@ -104,10 +119,10 @@ data class TextSelection(
     val extent: TextPosition
             get() = TextPosition(offset = extentOffset, affinity = affinity)
 
-    override fun toString(): String {
+/*    override fun toString(): String {
         return "${runtimeType()}(baseOffset: $baseOffset, extentOffset: $extentOffset," +
                 " affinity: $affinity, isDirectional: $isDirectional)"
-    }
+    } */
 //  TODO(Migration/haoyuchang): Remove unused functions after we make sure they are unnecessary
 //  @override
 //  bool operator ==(dynamic other) {

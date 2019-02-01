@@ -173,7 +173,7 @@ class DefaultTextStyle(
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
         super.debugFillProperties(properties)
-        style.debugFillProperties(properties)
+        // style.debugFillProperties(properties)
         properties.add(EnumProperty<TextAlign>("textAlign", textAlign, defaultValue = null))
         properties.add(
             FlagProperty(

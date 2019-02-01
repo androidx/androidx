@@ -28,7 +28,7 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
 import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
 import androidx.ui.foundation.diagnostics.DiagnosticsNode
-import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle
+/*import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle*/
 import androidx.ui.foundation.diagnostics.EnumProperty
 import androidx.ui.foundation.diagnostics.FlagProperty
 import androidx.ui.foundation.diagnostics.FloatProperty
@@ -468,12 +468,12 @@ class RenderParagraph(
     }
 
     override fun debugDescribeChildren(): List<DiagnosticsNode> {
-        return listOf(
+        return listOf() /*listOf(
             text.toDiagnosticsNode(
                 name = "text",
                 style = DiagnosticsTreeStyle.transition
             )
-        )
+        )*/
     }
 
     override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
