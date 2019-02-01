@@ -16,7 +16,6 @@
 
 package com.example.android.leanback;
 
-import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -409,7 +408,6 @@ public class MediaSessionService extends Service {
              * @param mp Object of MediaPlayer。
              */
             @Override
-            @SuppressLint("NewApi")
             public void onCompletion(MediaPlayer mp) {
 
                 // When current media item finishes playing, always reset rewind/ fastforward state
@@ -675,7 +673,6 @@ public class MediaSessionService extends Service {
     }
 
     // Control the player to play the music item.
-    @SuppressLint("NewApi")
     private void play() {
         // Only when player is not null (meaning the player has been created), the player is
         // prepared (using the mInitialized as the flag to represent it,
@@ -748,7 +745,6 @@ public class MediaSessionService extends Service {
      * Also no matter current media item is fast forwarding or rewinding. Next music item will
      * be played in normal speed.
      */
-    @SuppressLint("NewApi")
     private void next() {
         if (mMediaItemList.isEmpty()) {
             return;
@@ -782,7 +778,6 @@ public class MediaSessionService extends Service {
      * Also no matter current media item is fast forwarding or rewinding. Previous music item will
      * be played in normal speed.
      */
-    @SuppressLint("NewApi")
     private void previous() {
         if (mMediaItemList.isEmpty()) {
             return;
@@ -814,7 +809,6 @@ public class MediaSessionService extends Service {
     }
 
     // Play media item in a fast forward speed.
-    @SuppressLint("NewApi")
     private void fastForward() {
         // To support fast forward action, the mRewindSpeedFactors must be provided through
         // setFastForwardSpeedFactors() method;
@@ -911,7 +905,6 @@ public class MediaSessionService extends Service {
     // called.
     // If we are in rewind mode, this function will compute the new position through rewinding
     // speed and compare the start/ end rewinding time stamp.
-    @SuppressLint("NewApi")
     private void resetSpeedAndPlay() {
 
         if (mIsRewindBegin) {

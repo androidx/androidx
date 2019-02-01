@@ -16,7 +16,6 @@
 
 package androidx.media2;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.media.MediaBrowserCompat.MediaItem;
@@ -40,7 +39,6 @@ class MediaSessionServiceLegacyStub extends MediaBrowserServiceCompat {
 
     final MediaSessionManager mManager;
 
-    @SuppressLint("RestrictedApi")
     MediaSessionServiceLegacyStub(Context context, MediaSessionImpl sessionImpl,
             MediaSessionCompat.Token token) {
         super();

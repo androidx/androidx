@@ -16,4 +16,4 @@
 
 package androidx.appcompat.app;
 
-public class NightModeUiModeConfigChangesActivity extends NightModeActivity {}
+public class NightModeConfigChangesActivity extends NightModeActivity {}

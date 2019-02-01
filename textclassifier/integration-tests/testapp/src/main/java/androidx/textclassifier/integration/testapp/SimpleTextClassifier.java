@@ -15,7 +15,6 @@
  */
 package androidx.textclassifier.integration.testapp;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -85,7 +84,6 @@ public class SimpleTextClassifier extends TextClassifier {
     }
 
     @Override
-    @SuppressLint("RestrictedApi")
     public void onSelectionEvent(SelectionEvent event) {
         super.onSelectionEvent(event);
     }

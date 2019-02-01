@@ -46,7 +46,6 @@ import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.net.Uri;
 
@@ -552,7 +551,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @SuppressLint("RestrictedApi")
         private void setTitle(CharSequence title, boolean isLoading) {
             mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});
             if (isLoading) {
@@ -569,7 +567,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @SuppressLint("RestrictedApi")
         private void setSubtitle(CharSequence subtitle, boolean isLoading) {
             mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);
             if (isLoading) {
@@ -646,7 +643,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         /**
          */
         @Override
-        @SuppressLint("RestrictedApi")
         public void apply(Slice.Builder b) {
             if (mStartItem != null) {
                 b.addSubSlice(mStartItem);
@@ -717,7 +713,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         /**
          */
         @Override
-        @SuppressLint("RestrictedApi")
         public void apply(Slice.Builder b) {
             if (mTitleItem != null) {
                 b.addItem(mTitleItem);
@@ -741,7 +736,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @SuppressLint("RestrictedApi")
         private void setTitle(CharSequence title, boolean isLoading) {
             mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});
             if (isLoading) {
@@ -751,7 +745,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @SuppressLint("RestrictedApi")
         private void setSubtitle(CharSequence subtitle, boolean isLoading) {
             mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);
             if (isLoading) {
@@ -761,7 +754,6 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        @SuppressLint("RestrictedApi")
         private void setSummary(CharSequence summarySubtitle, boolean isLoading) {
             mSummaryItem = new SliceItem(summarySubtitle, FORMAT_TEXT, null,
                     new String[] {HINT_SUMMARY});

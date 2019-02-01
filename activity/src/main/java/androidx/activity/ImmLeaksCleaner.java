@@ -16,7 +16,6 @@
 
 package androidx.activity;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
@@ -31,7 +30,6 @@ import androidx.lifecycle.LifecycleOwner;
 import java.lang.reflect.Field;
 
 @RequiresApi(19)
-@SuppressLint("RestrictedApi")
 final class ImmLeaksCleaner implements GenericLifecycleObserver {
     private static final int NOT_INITIALIAZED = 0;
     private static final int INIT_SUCCESS = 1;

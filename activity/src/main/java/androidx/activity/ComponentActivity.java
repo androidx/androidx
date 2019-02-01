@@ -49,7 +49,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * lower level building blocks are included. Higher level components can then be used as needed
  * without enforcing a deep Activity class hierarchy or strong coupling between components.
  */
-@SuppressLint("RestrictedApi")
 public class ComponentActivity extends androidx.core.app.ComponentActivity implements
         LifecycleOwner,
         ViewModelStoreOwner,
@@ -70,7 +69,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     final CopyOnWriteArrayList<LifecycleAwareOnBackPressedCallback> mOnBackPressedCallbacks =
             new CopyOnWriteArrayList<>();
 
-    @SuppressLint("RestrictedApi")
     public ComponentActivity() {
         Lifecycle lifecycle = getLifecycle();
         //noinspection ConstantConditions
@@ -363,7 +361,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         return mSavedStateRegistry;
     }
 
-    @SuppressLint("RestrictedApi")
     private class LifecycleAwareOnBackPressedCallback implements
             OnBackPressedCallback,
             GenericLifecycleObserver {

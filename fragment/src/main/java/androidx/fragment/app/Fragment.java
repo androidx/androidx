@@ -428,7 +428,6 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         initLifecycle();
     }
 
-    @SuppressLint("RestrictedApi")
     private void initLifecycle() {
         mLifecycleRegistry = new LifecycleRegistry(this);
         if (Build.VERSION.SDK_INT >= 19) {
