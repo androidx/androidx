@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 
 /**
@@ -32,10 +33,7 @@ import java.util.concurrent.Future;
  * <p>
  * If you use this to the {@link MediaSession}, session would dispatch incoming volume change event
  * to the player instead of changing device stream volume.
- *
- * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
 public abstract class RemoteSessionPlayer extends SessionPlayer {
     /**
      * @hide
@@ -69,13 +67,13 @@ public abstract class RemoteSessionPlayer extends SessionPlayer {
      * Adjust player volume with the direction. Override this API to customize volume change in
      * remote device
      * <p>
-     * Default implement adjust volume by 1
-     * <p>
      * This would be ignored when volume control type is {@link #VOLUME_CONTROL_FIXED}.
      *
      * @param direction direction of the volume changes. Positive value for volume up, negative for
      *                  volume down.
+     * @return result of adjusting the volume. Shouldn't be {@code null}.
      */
+    @NonNull
     public abstract Future<PlayerResult> adjustVolume(int direction);
 
     /**
@@ -88,8 +86,10 @@ public abstract class RemoteSessionPlayer extends SessionPlayer {
      * A value of {@code 0} indicates muting. See {@link #getMaxVolume()} for the volume range
      * supported by this player.
      *
-     * @param volume a value between 0.0f and {@link #getMaxVolume()}.
+     * @param volume a value between {@code 0} and {@link #getMaxVolume()}.
+     * @return result of setting the volume. Shouldn't be {@code null}.
      */
+    @NonNull
     public abstract Future<PlayerResult> setVolume(int volume);
 
     /**
@@ -122,18 +122,21 @@ public abstract class RemoteSessionPlayer extends SessionPlayer {
     public abstract @VolumeControlType int getVolumeControlType();
 
     /**
-     * @hide
+     * A callback class to receive notifications for events on the remote session player. See
+     * {@link #registerPlayerCallback(Executor, PlayerCallback)} to register this callback.
+     * <p>
+     * This is registered by {@link MediaSession} to notify volume changes to the
+     * {@link MediaController}.
      */
-    @RestrictTo(LIBRARY_GROUP)
     public static class Callback extends SessionPlayer.PlayerCallback {
         /**
          * Called to indicate that the volume has changed.
          *
-         * @param player2 the player that has completed volume changes.
+         * @param player the player that has changed volume.
          * @param volume the new volume
          * @see #setVolume(int)
          */
-        public void onVolumeChanged(@NonNull RemoteSessionPlayer player2, int volume) {
+        public void onVolumeChanged(@NonNull RemoteSessionPlayer player, int volume) {
         }
     }
 }
