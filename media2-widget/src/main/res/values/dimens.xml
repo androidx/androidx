@@ -33,7 +33,7 @@
 
     <dimen name="mcv2_custom_progress_max_size">2dp</dimen>
     <dimen name="mcv2_custom_progress_thumb_size">12dp</dimen>
-    <dimen name="mcv2_buffer_view_height">5dp</dimen>
+    <dimen name="mcv2_custom_progress_margin_bottom">43dp</dimen>
 
     <dimen name="mcv2_title_bar_height">48dp</dimen>
     <dimen name="mcv2_bottom_bar_height">48dp</dimen>
