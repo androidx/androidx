@@ -20,12 +20,14 @@
     android:id="@+id/video_player_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layoutDirection="ltr"
     android:keepScreenOn="true"
     android:background="#3F51B5">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layoutDirection="locale"
         android:orientation="horizontal">
 
         <CheckBox
@@ -53,6 +55,7 @@
         android:layout_height="300dp"
         android:layout_marginLeft="40dp"
         android:layout_marginTop="40dp"
+        android:layoutDirection="locale"
         android:background="#000000"
         widget:enableControlView="false"
         widget:viewType="textureView"
