@@ -60,6 +60,7 @@ private const val _defaultFontSize: Float = 14.0f
  * * `letterSpacing`: The amount of space (in logical pixels) to add between each letter.
  * * `wordSpacing`: The amount of space (in logical pixels) to add at each sequence of white-space (i.e. between each word). Only works on Android Q and above.
  * * `textBaseline`: The common baseline that should be aligned between this text span and its parent text span, or, for the root text spans, with the line box.
+ * * `baselineShift`: This parameter specifies how much the baseline is shifted from the current position.
  * * `height`: The height of this text span, as a multiple of the font size.
  * * `locale`: The locale used to select region-specific glyphs.
  * * `background`: The background color for the text.
