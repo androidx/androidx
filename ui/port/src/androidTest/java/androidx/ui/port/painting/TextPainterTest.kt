@@ -19,14 +19,16 @@ package androidx.ui.port.painting
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Size
+import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.font.Font
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.painting.TextPainter
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -36,6 +38,12 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 @SmallTest
 class TextPainterTest {
+
+    private val BASIC_MEASURE_FONT = Font(
+        name = "sample_font.ttf",
+        weight = FontWeight.normal,
+        style = FontStyle.normal
+    )
 
     private lateinit var fontFamily: FontFamily
 

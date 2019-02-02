@@ -19,12 +19,14 @@ package androidx.ui.port.rendering
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Size
+import androidx.ui.engine.text.FontStyle
+import androidx.ui.engine.text.FontWeight
 import androidx.ui.engine.text.TextDirection
+import androidx.ui.engine.text.font.Font
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import androidx.ui.port.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.paragraph.RenderParagraph
 import androidx.ui.rendering.paragraph.TextOverflow
@@ -39,6 +41,12 @@ import kotlin.math.floor
 @RunWith(JUnit4::class)
 @SmallTest
 class RenderParagraphTest {
+    private val BASIC_MEASURE_FONT = Font(
+        name = "sample_font.ttf",
+        weight = FontWeight.normal,
+        style = FontStyle.normal
+    )
+
     private lateinit var fontFamily: FontFamily
 
     @Before
