@@ -74,6 +74,10 @@ class NavParserTest {
                         Argument(
                             "objectRelativeArg2",
                             ObjectType("a.b.ClassName")
+                        ),
+                        Argument(
+                            "objectRelativeArg3",
+                            ObjectType("a.b.OuterClass\$InnerClass")
                         )
                 ))))
 
