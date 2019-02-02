@@ -34,13 +34,13 @@ import java.util.Properties
 private const val MAIN_DIR = "androidx/navigation/testapp"
 
 private const val NEXT_DIRECTIONS = "$MAIN_DIR/NextFragmentDirections.java"
+private const val NEXT_ARGUMENTS = "$MAIN_DIR/NextFragmentArgs.java"
 private const val NEXT_ARGUMENTS_KT = "$MAIN_DIR/NextFragmentArgs.kt"
 private const val MAIN_DIRECTIONS = "$MAIN_DIR/MainFragmentDirections.java"
 private const val MAIN_DIRECTIONS_KT = "$MAIN_DIR/MainFragmentDirections.kt"
-private const val MAIN_ARGUMENTS_KT = "$MAIN_DIR/MainFragmentArgs.kt"
 private const val MODIFIED_NEXT_DIRECTIONS = "$MAIN_DIR/ModifiedNextFragmentDirections.java"
 private const val ADDITIONAL_DIRECTIONS = "$MAIN_DIR/AdditionalFragmentDirections.java"
-private const val FOO_DIRECTIONS = "safe/gradle/test/app/foo/FooFragmentDirections.java"
+private const val FOO_DIRECTIONS = "$MAIN_DIR/foo/FooFragmentDirections.java"
 private const val FEATURE_DIRECTIONS = "$MAIN_DIR/FeatureFragmentDirections.java"
 private const val LIBRARY_DIRECTIONS = "$MAIN_DIR/LibraryFragmentDirections.java"
 private const val FOO_DYNAMIC_DIRECTIONS =
@@ -220,6 +220,7 @@ class PluginTest {
                 .assertSuccessfulTask("assembleFooDebug")
 
         assertGenerated("notfoo/debug/$NEXT_DIRECTIONS")
+        assertGenerated("notfoo/debug/$NEXT_ARGUMENTS")
         assertNotGenerated("foo/debug/$NEXT_DIRECTIONS")
         assertGenerated("foo/debug/$FOO_DIRECTIONS")
     }
@@ -263,8 +264,8 @@ class PluginTest {
         runGradle("assembleDebug").assertSuccessfulTask("assembleDebug")
 
         assertGenerated("debug/$NEXT_ARGUMENTS_KT")
+        assertGenerated("debug/$NEXT_ARGUMENTS_KT")
         assertGenerated("debug/$MAIN_DIRECTIONS_KT")
-        assertGenerated("debug/$MAIN_ARGUMENTS_KT")
     }
 
     @Test

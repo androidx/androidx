@@ -29,3 +29,21 @@ fun String.toCamelCaseAsVar(): String {
     if (split.size == 1) return split[0]
     return split.joinToCamelCaseAsVar()
 }
+
+// Gets class name parts (package name, simple name, inner names) out of a canonical name such
+// as a.b.OuterClass$InnerClass, useful for then building a javapoet or kotlinpoet ClassName.
+fun String.toClassNameParts(): Triple<String, String, Array<String>> {
+    val packageName = substringBeforeLast('.', "")
+    val (simpleName, innerNames) = substringAfterLast('.').let {
+        val simpleName = it.substringBefore("$")
+        val innerNames = it.substringAfter("$", "").let { innerName ->
+            if (innerName.isNotEmpty()) {
+                innerName.split("$")
+            } else {
+                emptyList()
+            }
+        }
+        simpleName to innerNames
+    }
+    return Triple(packageName, simpleName, innerNames.toTypedArray())
+}

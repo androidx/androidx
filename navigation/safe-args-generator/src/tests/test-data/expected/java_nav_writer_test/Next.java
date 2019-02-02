@@ -33,7 +33,8 @@ import java.util.HashMap;
 public static class Next implements NavDirections {
     private final HashMap arguments = new HashMap();
 
-    private Next(@NonNull String main, int mainInt, @NonNull ActivityInfo parcelable) {
+    private Next(@NonNull String main, int mainInt, @NonNull ActivityInfo parcelable,
+            @NonNull ActivityInfo.WindowLayout innerData) {
         if (main == null) {
             throw new IllegalArgumentException("Argument \"main\" is marked as non-null but was passed a null value.");
         }
@@ -43,6 +44,10 @@ public static class Next implements NavDirections {
             throw new IllegalArgumentException("Argument \"parcelable\" is marked as non-null but was passed a null value.");
         }
         this.arguments.put("parcelable", parcelable);
+        if (innerData == null) {
+            throw new IllegalArgumentException("Argument \"innerData\" is marked as non-null but was passed a null value.");
+        }
+        this.arguments.put("innerData", innerData);
     }
 
     @NonNull
@@ -90,6 +95,15 @@ public static class Next implements NavDirections {
         return this;
     }
 
+    @NonNull
+    public Next setInnerData(@NonNull ActivityInfo.WindowLayout innerData) {
+        if (innerData == null) {
+            throw new IllegalArgumentException("Argument \"innerData\" is marked as non-null but was passed a null value.");
+        }
+        this.arguments.put("innerData", innerData);
+        return this;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
     @NonNull
@@ -129,6 +143,16 @@ public static class Next implements NavDirections {
                 __result.putSerializable("parcelable", Serializable.class.cast(parcelable));
             } else {
                 throw new UnsupportedOperationException(ActivityInfo.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
+            }
+        }
+        if (arguments.containsKey("innerData")) {
+            ActivityInfo.WindowLayout innerData = (ActivityInfo.WindowLayout) arguments.get("innerData");
+            if (Parcelable.class.isAssignableFrom(ActivityInfo.WindowLayout.class) || innerData == null) {
+                __result.putParcelable("innerData", Parcelable.class.cast(innerData));
+            } else if (Serializable.class.isAssignableFrom(ActivityInfo.WindowLayout.class)) {
+                __result.putSerializable("innerData", Serializable.class.cast(innerData));
+            } else {
+                throw new UnsupportedOperationException(ActivityInfo.WindowLayout.class.getName() + " must implement Parcelable or Serializable or must be an Enum.");
             }
         }
         return __result;
@@ -171,6 +195,12 @@ public static class Next implements NavDirections {
     @NonNull
     public ActivityInfo getParcelable() {
         return (ActivityInfo) arguments.get("parcelable");
+    }
+
+    @SuppressWarnings("unchecked")
+    @NonNull
+    public ActivityInfo.WindowLayout getInnerData() {
+        return (ActivityInfo.WindowLayout) arguments.get("innerData");
     }
 
     @Override
@@ -218,6 +248,12 @@ public static class Next implements NavDirections {
         if (getParcelable() != null ? !getParcelable().equals(that.getParcelable()) : that.getParcelable() != null) {
             return false;
         }
+        if (arguments.containsKey("innerData") != that.arguments.containsKey("innerData")) {
+            return false;
+        }
+        if (getInnerData() != null ? !getInnerData().equals(that.getInnerData()) : that.getInnerData() != null) {
+            return false;
+        }
         if (getActionId() != that.getActionId()) {
             return false;
         }
@@ -233,6 +269,7 @@ public static class Next implements NavDirections {
         result = 31 * result + getOptionalInt();
         result = 31 * result + (getOptionalParcelable() != null ? getOptionalParcelable().hashCode() : 0);
         result = 31 * result + (getParcelable() != null ? getParcelable().hashCode() : 0);
+        result = 31 * result + (getInnerData() != null ? getInnerData().hashCode() : 0);
         result = 31 * result + getActionId();
         return result;
     }
@@ -246,6 +283,7 @@ public static class Next implements NavDirections {
                 + ", optionalInt=" + getOptionalInt()
                 + ", optionalParcelable=" + getOptionalParcelable()
                 + ", parcelable=" + getParcelable()
+                + ", innerData=" + getInnerData()
                 + "}";
     }
 }
