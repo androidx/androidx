@@ -16,7 +16,8 @@ private data class Next(
     val optional: String = "bla",
     val optionalInt: Int = 239,
     val optionalParcelable: ActivityInfo? = null,
-    val parcelable: ActivityInfo
+    val parcelable: ActivityInfo,
+    val innerData: ActivityInfo.WindowLayout
 ) : NavDirections {
     override fun getActionId(): Int = a.b.R.id.next
 
@@ -38,6 +39,15 @@ private data class Next(
             result.putSerializable("parcelable", this.parcelable as Serializable)
         } else {
             throw UnsupportedOperationException(ActivityInfo::class.java.name +
+                    " must implement Parcelable or Serializable or must be an Enum.")
+        }
+        if (Parcelable::class.java.isAssignableFrom(ActivityInfo.WindowLayout::class.java)) {
+            result.putParcelable("innerData", this.innerData as Parcelable)
+        } else if (Serializable::class.java.isAssignableFrom(ActivityInfo.WindowLayout::class.java))
+                {
+            result.putSerializable("innerData", this.innerData as Serializable)
+        } else {
+            throw UnsupportedOperationException(ActivityInfo.WindowLayout::class.java.name +
                     " must implement Parcelable or Serializable or must be an Enum.")
         }
         return result

@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.navigation.testapp
+package androidx.navigation.testapp;
 
-import java.io.Serializable
+import java.io.Serializable;
 
-class MyClass : Serializable {
+public class MyClass implements Serializable {
 
-    class InnerClass : Serializable
+    public static class InnerClass implements Serializable {
+
+    }
 }
