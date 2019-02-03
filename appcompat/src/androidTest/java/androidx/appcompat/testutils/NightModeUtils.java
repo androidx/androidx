@@ -19,14 +19,22 @@ package androidx.appcompat.testutils;
 import static org.junit.Assert.assertEquals;
 
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.res.Configuration;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
 public class NightModeUtils {
+
+    public static void assertConfigurationNightModeEquals(int expectedNightMode,
+            @NonNull Context context) {
+        assertConfigurationNightModeEquals(expectedNightMode,
+                context.getResources().getConfiguration());
+    }
 
     public static void assertConfigurationNightModeEquals(
             int expectedNightMode, Configuration configuration) {
