@@ -20,7 +20,6 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Ignore
 import androidx.room.Relation
-import androidx.room.ext.KotlinMetadataElement
 import androidx.room.ext.extendsBoundOrSelf
 import androidx.room.ext.getAllFieldsIncludingPrivateSupers
 import androidx.room.ext.hasAnnotation
@@ -29,6 +28,8 @@ import androidx.room.ext.isAssignableWithoutVariance
 import androidx.room.ext.isCollection
 import androidx.room.ext.toAnnotationBox
 import androidx.room.ext.typeName
+import androidx.room.kotlin.KotlinMetadataElement
+import androidx.room.kotlin.descriptor
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
@@ -375,7 +376,7 @@ class PojoProcessor private constructor(
                 val primaryConstructor =
                     kotlinMetadata?.findPrimaryConstructorSignature()?.let { signature ->
                         goodConstructors.firstOrNull {
-                            kotlinMetadata.getMethodSignature(it.element) == signature
+                            it.element.descriptor(context.processingEnv.typeUtils) == signature
                     }
                 }
                 if (primaryConstructor != null) {

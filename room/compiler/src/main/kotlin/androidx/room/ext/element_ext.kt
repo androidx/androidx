@@ -22,7 +22,6 @@ import asTypeElement
 import com.google.auto.common.AnnotationMirrors
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import me.eugeniomarletti.kotlin.metadata.shadow.load.java.JvmAbi
 import java.lang.reflect.Proxy
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.AnnotationMirror
@@ -342,6 +341,11 @@ fun TypeMirror.extendsBoundOrSelf(): TypeMirror {
 }
 
 /**
+ * Suffix of the Kotlin synthetic class created interface method implementations.
+ */
+const val DEFAULT_IMPLS_CLASS_NAME = "DefaultImpls"
+
+/**
  * Finds the default implementation method corresponding to this Kotlin interface method.
  */
 fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
@@ -360,7 +364,7 @@ fun Element.findKotlinDefaultImpl(typeUtils: Types): Element? {
 
     val parent = this.enclosingElement as TypeElement
     val innerClass = parent.enclosedElements.find {
-        it.kind == ElementKind.CLASS && it.simpleName.contentEquals(JvmAbi.DEFAULT_IMPLS_CLASS_NAME)
+        it.kind == ElementKind.CLASS && it.simpleName.contentEquals(DEFAULT_IMPLS_CLASS_NAME)
     } ?: return null
     return innerClass.enclosedElements.find {
         it.kind == ElementKind.METHOD && it.simpleName == this.simpleName &&

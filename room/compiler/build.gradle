@@ -51,7 +51,7 @@ dependencies {
     compile(JAVAPOET)
     compile(ANTLR)
     compile(XERIAL)
-    compile(KOTLIN_METADATA)
+    compile(KOTLIN_METADATA_JVM)
     compile(APACHE_COMMONS_CODEC)
     testCompile(GOOGLE_COMPILE_TESTING)
     testCompile project(":paging:paging-common")

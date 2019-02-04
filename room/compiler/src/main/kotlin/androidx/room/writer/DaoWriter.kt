@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
@@ -40,7 +41,6 @@ import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import me.eugeniomarletti.kotlin.metadata.shadow.load.java.JvmAbi
 import stripNonJava
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ElementKind
@@ -217,7 +217,7 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
                 TransactionMethod.CallType.DEFAULT_KOTLIN -> {
                     append("$N.$N.$N(this")
                     params.add(element.enclosingElement.simpleName)
-                    params.add(JvmAbi.DEFAULT_IMPLS_CLASS_NAME)
+                    params.add(DEFAULT_IMPLS_CLASS_NAME)
                     params.add(element.simpleName)
                 }
             }
