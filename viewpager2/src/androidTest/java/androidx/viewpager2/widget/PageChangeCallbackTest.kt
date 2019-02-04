@@ -118,7 +118,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 latch.await(1, SECONDS)
 
                 // then
-                assertBasicState(targetPage, "$targetPage")
+                assertBasicState(targetPage)
 
                 callback.apply {
                     // verify all events
@@ -179,7 +179,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 latch.await(2, SECONDS)
 
                 // then
-                assertBasicState(targetPage, "$targetPage")
+                assertBasicState(targetPage)
 
                 if (targetPage == initialPage && edgePages.contains(targetPage)) {
                     callback.apply {

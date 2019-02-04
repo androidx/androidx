@@ -333,7 +333,7 @@ open class BaseTest {
      * 2. Expected text is displayed
      * 3. Internal activity state is valid (as per activity self-test)
      */
-    fun Context.assertBasicState(pageIx: Int, value: String) {
+    fun Context.assertBasicState(pageIx: Int, value: String = pageIx.toString()) {
         assertThat<Int>(
             "viewPager.getCurrentItem() should return $pageIx",
             viewPager.currentItem, equalTo(pageIx)
