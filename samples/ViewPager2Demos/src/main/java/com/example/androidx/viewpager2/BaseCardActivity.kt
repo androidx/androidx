@@ -44,6 +44,7 @@ abstract class BaseCardActivity : FragmentActivity() {
     private lateinit var scaleCheckBox: CheckBox
     private lateinit var gotoPage: Button
     private lateinit var orientationSelector: Spinner
+    private lateinit var disableUserInputCheckBox: CheckBox
     private var orientation: Int = ORIENTATION_HORIZONTAL
 
     private val translateX get() = orientation == ORIENTATION_VERTICAL &&
@@ -76,12 +77,17 @@ abstract class BaseCardActivity : FragmentActivity() {
 
         viewPager = findViewById(R.id.view_pager)
         orientationSelector = findViewById(R.id.orientation_spinner)
+        disableUserInputCheckBox = findViewById(R.id.disable_user_input_checkbox)
         cardSelector = findViewById(R.id.card_spinner)
         smoothScrollCheckBox = findViewById(R.id.smooth_scroll_checkbox)
         rotateCheckBox = findViewById(R.id.rotate_checkbox)
         translateCheckBox = findViewById(R.id.translate_checkbox)
         scaleCheckBox = findViewById(R.id.scale_checkbox)
         gotoPage = findViewById(R.id.jump_button)
+
+        disableUserInputCheckBox.setOnCheckedChangeListener { _, isDisabled ->
+            viewPager.isUserInputEnabled = !isDisabled
+        }
 
         orientationSelector.adapter = createOrientationAdapter()
         cardSelector.adapter = createCardAdapter()
@@ -110,13 +116,6 @@ abstract class BaseCardActivity : FragmentActivity() {
             val smoothScroll = smoothScrollCheckBox.isChecked
             viewPager.setCurrentItem(card, smoothScroll)
         }
-    }
-
-    private fun createAdapter(values: Set<String>): SpinnerAdapter {
-        val adapter = ArrayAdapter(
-                this, android.R.layout.simple_spinner_item, values.toTypedArray())
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        return adapter
     }
 
     private fun createCardAdapter(): SpinnerAdapter {
