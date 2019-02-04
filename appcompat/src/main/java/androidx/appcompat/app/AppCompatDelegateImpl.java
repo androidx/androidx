@@ -295,6 +295,17 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
         }
 
+        if (mLocalNightMode == MODE_NIGHT_UNSPECIFIED && mContext instanceof AppCompatActivity) {
+            final AppCompatDelegate delegate = ((AppCompatActivity) mContext).getDelegate();
+            if (delegate != this) {
+                // This code path is used to detect when this Delegate is a child Delegate from
+                // an Activity, primarily for Dialogs. Dialogs use the Activity as it's Context,
+                // so we want to make sure that the this 'child' delegate does not interfere
+                // with the Activity config. The simplest way to do that is to match the
+                // outer Activity's local night mode
+                mLocalNightMode = delegate.getLocalNightMode();
+            }
+        }
         if (savedInstanceState != null && mLocalNightMode == MODE_NIGHT_UNSPECIFIED) {
             // If we have a icicle and we haven't had a local night mode set yet, try and read
             // it from the icicle
@@ -2029,7 +2040,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     private boolean applyDayNight(final boolean recreateIfNeeded) {
-        @NightMode final int nightMode = getNightMode();
+        @NightMode final int nightMode = calculateNightMode();
         @ApplyableNightMode final int modeToApply = mapNightMode(nightMode);
         final boolean applied = updateForNightMode(modeToApply, recreateIfNeeded);
 
@@ -2044,24 +2055,26 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
-    public void setLocalNightMode(@NightMode final int mode) {
-        switch (mode) {
-            case MODE_NIGHT_NO:
-            case MODE_NIGHT_YES:
-            case MODE_NIGHT_FOLLOW_SYSTEM:
-            case MODE_NIGHT_AUTO_TIME:
-            case MODE_NIGHT_AUTO_BATTERY:
-                if (mLocalNightMode != mode) {
-                    mLocalNightMode = mode;
-                    applyDayNight();
-                }
-                break;
+    public void setLocalNightMode(@NightMode int mode) {
+        if (mLocalNightMode != mode) {
+            mLocalNightMode = mode;
+            applyDayNight();
         }
+    }
+
+    @Override
+    public int getLocalNightMode() {
+        return mLocalNightMode;
     }
 
     @ApplyableNightMode
     int mapNightMode(@NightMode final int mode) {
         switch (mode) {
+            case MODE_NIGHT_NO:
+            case MODE_NIGHT_YES:
+            case MODE_NIGHT_FOLLOW_SYSTEM:
+                // $FALLTHROUGH since these are all valid modes to return
+                return mode;
             case MODE_NIGHT_AUTO_TIME:
                 if (Build.VERSION.SDK_INT >= 23) {
                     UiModeManager uiModeManager = mContext.getSystemService(UiModeManager.class);
@@ -2075,14 +2088,16 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             case MODE_NIGHT_AUTO_BATTERY:
                 return getAutoBatteryNightModeManager().getApplyableNightMode();
             case MODE_NIGHT_UNSPECIFIED:
-                // If we don't have a mode specified, just let the system handle it
+                // If we don't have a mode specified, let the system handle it
                 return MODE_NIGHT_FOLLOW_SYSTEM;
+            default:
+                throw new IllegalStateException("Unknown value set for night mode. Please use one"
+                        + " of the MODE_NIGHT values from AppCompatDelegate.");
         }
-        return mode;
     }
 
     @NightMode
-    private int getNightMode() {
+    private int calculateNightMode() {
         return mLocalNightMode != MODE_NIGHT_UNSPECIFIED ? mLocalNightMode : getDefaultNightMode();
     }
 

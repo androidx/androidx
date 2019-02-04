@@ -259,6 +259,7 @@ package androidx.appcompat.app {
     method public abstract <T extends android.view.View> T! findViewById(@IdRes int);
     method public static int getDefaultNightMode();
     method public abstract androidx.appcompat.app.ActionBarDrawerToggle.Delegate? getDrawerToggleDelegate();
+    method public int getLocalNightMode();
     method public abstract android.view.MenuInflater! getMenuInflater();
     method public abstract androidx.appcompat.app.ActionBar? getSupportActionBar();
     method public abstract boolean hasWindowFeature(int);
@@ -294,6 +295,7 @@ package androidx.appcompat.app {
     field @Deprecated public static final int MODE_NIGHT_AUTO_TIME = 0; // 0x0
     field public static final int MODE_NIGHT_FOLLOW_SYSTEM = -1; // 0xffffffff
     field public static final int MODE_NIGHT_NO = 1; // 0x1
+    field public static final int MODE_NIGHT_UNSPECIFIED = -100; // 0xffffff9c
     field public static final int MODE_NIGHT_YES = 2; // 0x2
   }
 
