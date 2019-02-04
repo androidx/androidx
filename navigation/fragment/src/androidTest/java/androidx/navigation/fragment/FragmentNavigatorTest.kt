@@ -31,7 +31,6 @@ import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
@@ -267,8 +266,10 @@ class FragmentNavigatorTest {
 
         // Now pop the initial Fragment
         val popped = fragmentNavigator.popBackStack()
-        assertFalse("FragmentNavigator should return false when popping the initial Fragment",
-                popped)
+        assertWithMessage("FragmentNavigator should return false when popping " +
+                "the initial Fragment")
+            .that(popped)
+            .isTrue()
     }
 
     @UiThreadTest
