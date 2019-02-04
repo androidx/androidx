@@ -16,13 +16,13 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.KotlinMetadataElement
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.getSuspendFunctionReturnType
+import androidx.room.kotlin.KotlinMetadataElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
