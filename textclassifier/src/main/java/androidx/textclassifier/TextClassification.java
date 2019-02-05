@@ -21,8 +21,11 @@ import android.app.PendingIntent;
 import android.app.RemoteAction;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -69,6 +72,8 @@ import java.util.Map;
  * }</pre>
  */
 public final class TextClassification {
+
+    private static final String LOG_TAG = "TextClassification";
 
     private static final String EXTRA_TEXT = "text";
     private static final String EXTRA_ACTIONS = "actions";
@@ -625,8 +630,35 @@ public final class TextClassification {
              */
             @NonNull
             public Request build() {
-                return new Request(mText, mStartIndex, mEndIndex, mDefaultLocales, mReferenceTime,
+                return new Request(
+                        normalizeIfUri(mText, mStartIndex, mEndIndex),
+                        mStartIndex, mEndIndex, mDefaultLocales, mReferenceTime,
                         mExtras == null ? Bundle.EMPTY : BundleUtils.deepCopy(mExtras));
+            }
+
+            // Ensures the package manager can recognize a url scheme that is not all lowercase.
+            // b/123640937
+            @Nullable
+            private static CharSequence normalizeIfUri(
+                    CharSequence text, int startIndex, int endIndex) {
+                try {
+                    // TODO: Skip if running Android Q.
+                    final Uri uri = Uri.parse(text.subSequence(startIndex, endIndex).toString());
+                    final String scheme = uri.getScheme();
+                    final String lower = scheme == null ? null : scheme.toLowerCase(Locale.ROOT);
+                    if (lower != null && !scheme.equals(lower)) {
+                        final String normalized = uri.buildUpon().scheme(lower).build().toString();
+                        if (normalized.length() == (endIndex - startIndex)) {
+                            return new SpannableString(
+                                    new SpannableStringBuilder(text)
+                                            .replace(startIndex, endIndex, normalized));
+                        }
+                    }
+                } catch (Exception e) {
+                    // Catching to ensure no crashes from this method.
+                    Log.e(LOG_TAG, "Error fixing uri scheme", e);
+                }
+                return text;
             }
         }
 
