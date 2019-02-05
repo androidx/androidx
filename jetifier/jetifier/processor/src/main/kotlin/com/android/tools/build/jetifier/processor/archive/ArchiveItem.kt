@@ -46,6 +46,16 @@ interface ArchiveItem {
     val wasChanged: Boolean
 
     /**
+     * Whether to exclude this item from the generated output.
+     */
+    var markedForRemoval: Boolean
+
+    /**
+     * Finds all the files satisfying the given [selector] and adds them to [result].
+     */
+    fun findAllFiles(selector: (ArchiveFile) -> Boolean, result: FileSearchResult)
+
+    /**
      * Accepts visitor.
      */
     fun accept(visitor: ArchiveItemVisitor)
@@ -55,12 +65,26 @@ interface ArchiveItem {
      */
     fun writeSelfTo(outputStream: OutputStream)
 
-    fun isPomFile() = fileName.equals("pom.xml", ignoreCase = true)
-            || fileName.endsWith(".pom", ignoreCase = true)
+    fun isPomFile() = fileName.equals("pom.xml", ignoreCase = true) ||
+            fileName.endsWith(".pom", ignoreCase = true)
 
     fun isClassFile() = fileName.endsWith(".class", ignoreCase = true)
 
     fun isXmlFile() = fileName.endsWith(".xml", ignoreCase = true)
 
-    fun isProGuardFile () = fileName.equals("proguard.txt", ignoreCase = true)
+    fun isProGuardFile() = fileName.equals("proguard.txt", ignoreCase = true)
+}
+
+/**
+ * Aggregated result of all the files that were found.
+ *
+ * @see ArchiveItem.findAllFiles
+ */
+class FileSearchResult {
+
+    val all = mutableSetOf<ArchiveFile>()
+
+    fun addFile(file: ArchiveFile) {
+        all.add(file)
+    }
 }
