@@ -259,6 +259,11 @@ class SemanticsProperties(
      */
     val sortKey: SemanticsSortKey? = null,
     /**
+     * Allows to mark a component by a user defined tag in order to find it for testing. The tag
+     * does not need to be unique.
+     */
+    val testTag: String? = null,
+    /**
      * The handler for [SemanticsAction.tap].
      *
      * This is the semantic equivalent of a user briefly tapping the screen with

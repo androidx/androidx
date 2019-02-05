@@ -23,6 +23,7 @@ import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.semantics.SemanticsSortKey
 import androidx.ui.semantics.SetSelectionHandler
 import com.google.r4a.Children
+import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
@@ -50,6 +51,7 @@ fun Semantics(
     hint: String? = null,
     textDirection: TextDirection? = null,
     sortKey: SemanticsSortKey? = null,
+    testTag: String? = null,
     onTap: VoidCallback? = null,
     onLongPress: VoidCallback? = null,
     onScrollLeft: VoidCallback? = null,
@@ -91,6 +93,7 @@ fun Semantics(
             hint = hint,
             textDirection = textDirection,
             sortKey = sortKey,
+            testTag = testTag,
             onTap = onTap,
             onLongPress = onLongPress,
             onScrollLeft = onScrollLeft,
@@ -110,4 +113,20 @@ fun Semantics(
         )>
         <children />
     </SemanticsR4ANode>
+}
+
+
+// TODO(pavlis): Temporary workaround for meta-data bug.
+class SemanticsProxy(
+    @Children var children: () -> Unit
+) : Component() {
+
+    var checked: Boolean = false
+    var testTag: String? = null
+
+    override fun compose() {
+        <Semantics checked testTag>
+            <children />
+        </Semantics>
+    }
 }

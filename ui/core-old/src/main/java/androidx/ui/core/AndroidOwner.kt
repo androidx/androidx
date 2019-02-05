@@ -35,7 +35,9 @@ private class AndroidData(val view: ViewGroup) {
 }
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-internal class AndroidCraneView constructor(context: Context) : ViewGroup(context), Owner {
+internal class AndroidCraneView constructor(context: Context)
+    : ViewGroup(context), Owner, SemanticsTreeProvider {
+
     private val adjustedLayouts = mutableListOf<LayoutNode>()
     internal val root = LayoutNode()
 
@@ -224,6 +226,10 @@ internal class AndroidCraneView constructor(context: Context) : ViewGroup(contex
                 callDrawOnChildren(child, canvas)
             }
         }
+    }
+
+    override fun getAllSemanticNodes(): List<SemanticsTreeNode> {
+        return findAllSemanticNodesIn(root)
     }
 }
 
