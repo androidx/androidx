@@ -1136,6 +1136,14 @@ package androidx.core.hardware.fingerprint {
 
 }
 
+package androidx.core.location {
+
+  public final class LocationManagerCompat {
+    method public static boolean isLocationEnabled(android.location.LocationManager);
+  }
+
+}
+
 package androidx.core.math {
 
   public class MathUtils {
