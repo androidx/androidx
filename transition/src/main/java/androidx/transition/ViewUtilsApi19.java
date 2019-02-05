@@ -16,54 +16,70 @@
 
 package androidx.transition;
 
-import android.util.Log;
+import android.annotation.SuppressLint;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import androidx.core.os.BuildCompat;
 
 @RequiresApi(19)
 class ViewUtilsApi19 extends ViewUtilsBase {
 
-    private static final String TAG = "ViewUtilsApi19";
-
-    private static Method sSetTransitionAlphaMethod;
-    private static boolean sSetTransitionAlphaMethodFetched;
-    private static Method sGetTransitionAlphaMethod;
-    private static boolean sGetTransitionAlphaMethodFetched;
+    /**
+     * False when linking of the hidden set[get]TransitionAlpha method has previously failed.
+     */
+    private static boolean sTryHiddenTransitionAlpha = true;
 
     @Override
+    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
     public void setTransitionAlpha(@NonNull View view, float alpha) {
-        fetchSetTransitionAlphaMethod();
-        if (sSetTransitionAlphaMethod != null) {
-            try {
-                sSetTransitionAlphaMethod.invoke(view, alpha);
-            } catch (IllegalAccessException e) {
-                // Do nothing
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e.getCause());
-            }
+        if (BuildCompat.isAtLeastQ()) {
+            view.setTransitionAlpha(alpha);
         } else {
-            view.setAlpha(alpha);
+            hiddenSetTransitionAlpha(view, alpha);
         }
     }
 
-    @Override
-    public float getTransitionAlpha(@NonNull View view) {
-        fetchGetTransitionAlphaMethod();
-        if (sGetTransitionAlphaMethod != null) {
+    @RequiresApi(19)
+    @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
+    private void hiddenSetTransitionAlpha(@NonNull View view, float alpha) {
+        if (sTryHiddenTransitionAlpha) {
+            // Since this was an @hide method made public, we can link directly against it with
+            // a try/catch for its absence instead of doing the same through reflection.
             try {
-                return (Float) sGetTransitionAlphaMethod.invoke(view);
-            } catch (IllegalAccessException e) {
-                // Do nothing
-            } catch (InvocationTargetException e) {
-                throw new RuntimeException(e.getCause());
+                view.setTransitionAlpha(alpha);
+                return;
+            } catch (NoSuchMethodError e) {
+                sTryHiddenTransitionAlpha = false;
             }
         }
-        return super.getTransitionAlpha(view);
+        view.setAlpha(alpha);
+    }
+
+    @Override
+    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
+    public float getTransitionAlpha(@NonNull View view) {
+        if (BuildCompat.isAtLeastQ()) {
+            return view.getTransitionAlpha();
+        } else {
+            return hiddenGetTransitionAlpha(view);
+        }
+    }
+
+    @RequiresApi(19)
+    @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
+    private float hiddenGetTransitionAlpha(@NonNull View view) {
+        if (sTryHiddenTransitionAlpha) {
+            // Since this was an @hide method made public, we can link directly against it with
+            // a try/catch for its absence instead of doing the same through reflection.
+            try {
+                return view.getTransitionAlpha();
+            } catch (NoSuchMethodError e) {
+                sTryHiddenTransitionAlpha = false;
+            }
+        }
+        return view.getAlpha();
     }
 
     @Override
@@ -74,31 +90,6 @@ class ViewUtilsApi19 extends ViewUtilsBase {
     @Override
     public void clearNonTransitionAlpha(@NonNull View view) {
         // Do nothing
-    }
-
-    private void fetchSetTransitionAlphaMethod() {
-        if (!sSetTransitionAlphaMethodFetched) {
-            try {
-                sSetTransitionAlphaMethod = View.class.getDeclaredMethod("setTransitionAlpha",
-                        float.class);
-                sSetTransitionAlphaMethod.setAccessible(true);
-            } catch (NoSuchMethodException e) {
-                Log.i(TAG, "Failed to retrieve setTransitionAlpha method", e);
-            }
-            sSetTransitionAlphaMethodFetched = true;
-        }
-    }
-
-    private void fetchGetTransitionAlphaMethod() {
-        if (!sGetTransitionAlphaMethodFetched) {
-            try {
-                sGetTransitionAlphaMethod = View.class.getDeclaredMethod("getTransitionAlpha");
-                sGetTransitionAlphaMethod.setAccessible(true);
-            } catch (NoSuchMethodException e) {
-                Log.i(TAG, "Failed to retrieve getTransitionAlpha method", e);
-            }
-            sGetTransitionAlphaMethodFetched = true;
-        }
     }
 
 }

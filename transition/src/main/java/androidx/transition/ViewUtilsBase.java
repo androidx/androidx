@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.ViewParent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -99,7 +100,7 @@ class ViewUtilsBase {
         }
     }
 
-    public void setAnimationMatrix(@NonNull View view, Matrix matrix) {
+    public void setAnimationMatrix(@NonNull View view, @Nullable Matrix matrix) {
         if (matrix == null || matrix.isIdentity()) {
             view.setPivotX(view.getWidth() / 2);
             view.setPivotY(view.getHeight() / 2);
@@ -132,7 +133,7 @@ class ViewUtilsBase {
         }
     }
 
-    public void setLeftTopRightBottom(View v, int left, int top, int right, int bottom) {
+    public void setLeftTopRightBottom(@NonNull View v, int left, int top, int right, int bottom) {
         fetchSetFrame();
         if (sSetFrameMethod != null) {
             try {
