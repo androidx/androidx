@@ -16,6 +16,8 @@
 
 package androidx.appcompat.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -27,16 +29,14 @@ import android.graphics.drawable.ScaleDrawable;
 import android.os.Build;
 import android.util.Log;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
+import androidx.core.os.BuildCompat;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /** @hide */
 @RestrictTo(LIBRARY_GROUP)
@@ -69,6 +69,15 @@ public class DrawableUtils {
      * use reflection. Since the {@code Insets} class is hidden also, we return a Rect instead.
      */
     public static Rect getOpticalBounds(Drawable drawable) {
+        if (BuildCompat.isAtLeastQ()) {
+            final android.graphics.Insets insets = drawable.getOpticalInsets();
+            final Rect result = new Rect();
+            result.left = insets.left;
+            result.right = insets.right;
+            result.top = insets.top;
+            result.bottom = insets.bottom;
+            return result;
+        }
         if (sInsetsClazz != null) {
             try {
                 // If the Drawable is wrapped, we need to manually unwrap it and process
