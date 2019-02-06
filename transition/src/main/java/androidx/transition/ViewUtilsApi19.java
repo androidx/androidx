@@ -21,7 +21,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 
 @RequiresApi(19)
 class ViewUtilsApi19 extends ViewUtilsBase {
@@ -32,18 +31,8 @@ class ViewUtilsApi19 extends ViewUtilsBase {
     private static boolean sTryHiddenTransitionAlpha = true;
 
     @Override
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
-    public void setTransitionAlpha(@NonNull View view, float alpha) {
-        if (BuildCompat.isAtLeastQ()) {
-            view.setTransitionAlpha(alpha);
-        } else {
-            hiddenSetTransitionAlpha(view, alpha);
-        }
-    }
-
-    @RequiresApi(19)
     @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
-    private void hiddenSetTransitionAlpha(@NonNull View view, float alpha) {
+    public void setTransitionAlpha(@NonNull View view, float alpha) {
         if (sTryHiddenTransitionAlpha) {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
@@ -58,18 +47,8 @@ class ViewUtilsApi19 extends ViewUtilsBase {
     }
 
     @Override
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
-    public float getTransitionAlpha(@NonNull View view) {
-        if (BuildCompat.isAtLeastQ()) {
-            return view.getTransitionAlpha();
-        } else {
-            return hiddenGetTransitionAlpha(view);
-        }
-    }
-
-    @RequiresApi(19)
     @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
-    private float hiddenGetTransitionAlpha(@NonNull View view) {
+    public float getTransitionAlpha(@NonNull View view) {
         if (sTryHiddenTransitionAlpha) {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.

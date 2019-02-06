@@ -21,7 +21,6 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 
 @RequiresApi(22)
 class ViewUtilsApi22 extends ViewUtilsApi21 {
@@ -32,19 +31,8 @@ class ViewUtilsApi22 extends ViewUtilsApi21 {
     private static boolean sTryHiddenSetLeftTopRightBottom = true;
 
     @Override
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
-    public void setLeftTopRightBottom(@NonNull View v, int left, int top, int right, int bottom) {
-        if (BuildCompat.isAtLeastQ()) {
-            v.setLeftTopRightBottom(left, top, right, bottom);
-        } else {
-            hiddenSetLeftTopRightBottom(v, left, top, right, bottom);
-        }
-    }
-
-    @RequiresApi(22)
     @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
-    private void hiddenSetLeftTopRightBottom(@NonNull View v, int left, int top,
-            int right, int bottom) {
+    public void setLeftTopRightBottom(@NonNull View v, int left, int top, int right, int bottom) {
         if (sTryHiddenSetLeftTopRightBottom) {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
@@ -55,6 +43,5 @@ class ViewUtilsApi22 extends ViewUtilsApi21 {
             }
         }
     }
-
 }
 

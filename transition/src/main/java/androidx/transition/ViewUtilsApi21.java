@@ -23,7 +23,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 
 @RequiresApi(21)
 class ViewUtilsApi21 extends ViewUtilsApi19 {
@@ -42,18 +41,8 @@ class ViewUtilsApi21 extends ViewUtilsApi19 {
     private static boolean sTryHiddenTransformMatrixToLocal = true;
 
     @Override
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
-    public void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix) {
-        if (BuildCompat.isAtLeastQ()) {
-            view.transformMatrixToGlobal(matrix);
-        } else {
-            hiddenTransformMatrixToGlobal(view, matrix);
-        }
-    }
-
-    @RequiresApi(21)
     @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
-    private static void hiddenTransformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix) {
+    public void transformMatrixToGlobal(@NonNull View view, @NonNull Matrix matrix) {
         if (sTryHiddenTransformMatrixToGlobal) {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
@@ -66,18 +55,8 @@ class ViewUtilsApi21 extends ViewUtilsApi19 {
     }
 
     @Override
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
-    public void transformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix) {
-        if (BuildCompat.isAtLeastQ()) {
-            view.transformMatrixToLocal(matrix);
-        } else {
-            hiddenTransformMatrixToLocal(view, matrix);
-        }
-    }
-
-    @RequiresApi(21)
     @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
-    private void hiddenTransformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix) {
+    public void transformMatrixToLocal(@NonNull View view, @NonNull Matrix matrix) {
         if (sTryHiddenTransformMatrixToLocal) {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
@@ -90,18 +69,8 @@ class ViewUtilsApi21 extends ViewUtilsApi19 {
     }
 
     @Override
-    @SuppressLint("NewApi") // TODO: Remove this suppression once Q SDK is released.
-    public void setAnimationMatrix(@NonNull View view, @Nullable Matrix matrix) {
-        if (BuildCompat.isAtLeastQ()) {
-            view.setAnimationMatrix(matrix);
-        } else {
-            hiddenSetAnimationMatrix(view, matrix);
-        }
-    }
-
-    @RequiresApi(21)
     @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
-    private void hiddenSetAnimationMatrix(@NonNull View view, @Nullable Matrix matrix) {
+    public void setAnimationMatrix(@NonNull View view, @Nullable Matrix matrix) {
         if (sTryHiddenSetAnimationMatrix) {
             // Since this was an @hide method made public, we can link directly against it with
             // a try/catch for its absence instead of doing the same through reflection.
