@@ -920,7 +920,7 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testClickInterceptor_ClickableIfSupplmentalIconClickable() {
+    public void testClickInterceptor_ClickableIfSupplementalIconClickable() {
         TextListItem item = new TextListItem(mActivity);
         item.setEnabled(true);
 
@@ -934,7 +934,7 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testClickInterceptor_VisibleIfSupplmentalIconClickable() {
+    public void testClickInterceptor_VisibleIfSupplementalIconClickable() {
         TextListItem item = new TextListItem(mActivity);
         item.setEnabled(true);
 
@@ -948,7 +948,7 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testClickInterceptor_NotClickableIfSupplmentalIconNotClickable() {
+    public void testClickInterceptor_NotClickableIfSupplementalIconNotClickable() {
         TextListItem item = new TextListItem(mActivity);
         item.setEnabled(true);
 
@@ -962,7 +962,7 @@ public class TextListItemTest {
     }
 
     @Test
-    public void testClickInterceptor_GoneIfSupplmentalIconClickable() {
+    public void testClickInterceptor_GoneIfSupplementalIconClickable() {
         TextListItem item = new TextListItem(mActivity);
         item.setEnabled(true);
 
