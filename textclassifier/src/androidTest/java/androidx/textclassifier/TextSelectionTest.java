@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
 public final class TextSelectionTest {
     private static final float EPSILON = 1e-7f;
 
-    private static final CharSequence TEXT = "This is an apple";
+    private static final String TEXT = "This is an apple";
     private static final int START_INDEX = 2;
     private static final int END_INDEX = 5;
     private static final String ID = "id";
@@ -114,7 +114,7 @@ public final class TextSelectionTest {
 
         assertThat(platformRequest.getStartIndex()).isEqualTo(START_INDEX);
         assertThat(platformRequest.getEndIndex()).isEqualTo(END_INDEX);
-        assertThat(platformRequest.getText()).isEqualTo(TEXT);
+        assertThat(platformRequest.getText().toString()).isEqualTo(TEXT);
         assertThat(platformRequest.getDefaultLocales().toLanguageTags())
                 .isEqualTo(LOCALE_LIST.toLanguageTags());
     }
@@ -131,7 +131,7 @@ public final class TextSelectionTest {
         TextSelection.Request request = TextSelection.Request.fromPlatfrom(platformRequest);
         assertThat(request.getStartIndex()).isEqualTo(START_INDEX);
         assertThat(request.getEndIndex()).isEqualTo(END_INDEX);
-        assertThat(request.getText()).isEqualTo(TEXT);
+        assertThat(request.getText().toString()).isEqualTo(TEXT);
         assertThat(request.getDefaultLocales().toLanguageTags())
                 .isEqualTo(LOCALE_LIST.toLanguageTags());
     }
