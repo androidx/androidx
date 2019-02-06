@@ -237,7 +237,8 @@ public class NavController {
      * the system {@link android.view.KeyEvent#KEYCODE_BACK Back} button when the associated
      * navigation host has focus.
      *
-     * @return true if the stack was popped, false otherwise
+     * @return true if the stack was popped and the user has been navigated to another
+     * destination, false otherwise
      */
     public boolean popBackStack() {
         if (mBackStack.isEmpty()) {
@@ -254,14 +255,14 @@ public class NavController {
      * @param destinationId The topmost destination to retain
      * @param inclusive Whether the given destination should also be popped.
      *
-     * @return true if the stack was popped at least once, false otherwise
+     * @return true if the stack was popped at least once and the user has been navigated to
+     * another destination, false otherwise
      */
     public boolean popBackStack(@IdRes int destinationId, boolean inclusive) {
         boolean popped = popBackStackInternal(destinationId, inclusive);
-        if (popped) {
-            dispatchOnDestinationChanged();
-        }
-        return popped;
+        // Only return true if the pop succeeded and we've dispatched
+        // the change to a new destination
+        return popped && dispatchOnDestinationChanged();
     }
 
     /**
@@ -302,13 +303,13 @@ public class NavController {
                     + " as it was not found on the current back stack");
             return false;
         }
-        boolean popped = true;
+        boolean popped = false;
         for (Navigator navigator : popOperations) {
             if (navigator.popBackStack()) {
                 mBackStack.removeLast();
+                popped = true;
             } else {
                 // The pop did not complete successfully, so stop immediately
-                popped = false;
                 break;
             }
         }
@@ -357,8 +358,15 @@ public class NavController {
         }
     }
 
+    /**
+     * Dispatch changes to all OnDestinationChangedListeners.
+     * <p>
+     * If the back stack is empty, no events get dispatched.
+     *
+     * @return If changes were dispatched.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void dispatchOnDestinationChanged() {
+    boolean dispatchOnDestinationChanged() {
         // We never want to leave NavGraphs on the top of the stack
         //noinspection StatementWithEmptyBody
         while (!mBackStack.isEmpty()
@@ -373,7 +381,9 @@ public class NavController {
                 listener.onDestinationChanged(this, backStackEntry.getDestination(),
                         backStackEntry.getArguments());
             }
+            return true;
         }
+        return false;
     }
 
     /**
