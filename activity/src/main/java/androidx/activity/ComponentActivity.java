@@ -39,6 +39,7 @@ import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.bundle.BundleSavedStateRegistry;
 import androidx.savedstate.bundle.BundleSavedStateRegistryOwner;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -69,6 +70,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final CopyOnWriteArrayList<LifecycleAwareOnBackPressedCallback> mOnBackPressedCallbacks =
             new CopyOnWriteArrayList<>();
+
+    // Cache the ContentView layoutIds for Activities.
+    private static final HashMap<Class, Integer> sAnnotationIds = new HashMap<>();
 
     @SuppressLint("RestrictedApi")
     public ComponentActivity() {
@@ -122,12 +126,18 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         super.onCreate(savedInstanceState);
         mSavedStateRegistry.performRestore(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
-        ContentView annotation = getClass().getAnnotation(ContentView.class);
-        if (annotation != null) {
-            int layoutId = annotation.value();
-            if (layoutId != 0) {
-                setContentView(layoutId);
+        Class<? extends ComponentActivity> clazz = getClass();
+        if (!sAnnotationIds.containsKey(clazz)) {
+            ContentView annotation = clazz.getAnnotation(ContentView.class);
+            if (annotation != null) {
+                sAnnotationIds.put(clazz, annotation.value());
+            } else {
+                sAnnotationIds.put(clazz, null);
             }
+        }
+        Integer layoutId = sAnnotationIds.get(clazz);
+        if (layoutId != null && layoutId != 0) {
+            setContentView(layoutId);
         }
     }
 
