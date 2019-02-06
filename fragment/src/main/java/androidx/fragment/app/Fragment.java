@@ -72,6 +72,7 @@ import androidx.savedstate.bundle.BundleSavedStateRegistryOwner;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.UUID;
 
 /**
@@ -248,6 +249,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     MutableLiveData<LifecycleOwner> mViewLifecycleOwnerLiveData = new MutableLiveData<>();
 
     BundleSavedStateRegistry mSavedStateRegistry = new BundleSavedStateRegistry();
+
+    // Cache the ContentView layoutIds for Fragments.
+    private static final HashMap<Class, Integer> sAnnotationIds = new HashMap<>();
 
     /**
      * {@inheritDoc}
@@ -1635,12 +1639,18 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @Nullable
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        ContentView annotation = getClass().getAnnotation(ContentView.class);
-        if (annotation != null) {
-            int layoutId = annotation.value();
-            if (layoutId != 0) {
-                return inflater.inflate(layoutId, container, false);
+        Class<? extends Fragment> clazz = getClass();
+        if (!sAnnotationIds.containsKey(clazz)) {
+            ContentView annotation = clazz.getAnnotation(ContentView.class);
+            if (annotation != null) {
+                sAnnotationIds.put(clazz, annotation.value());
+            } else {
+                sAnnotationIds.put(clazz, null);
             }
+        }
+        Integer layoutId = sAnnotationIds.get(clazz);
+        if (layoutId != null && layoutId != 0) {
+            return inflater.inflate(layoutId, container, false);
         }
         return null;
     }
