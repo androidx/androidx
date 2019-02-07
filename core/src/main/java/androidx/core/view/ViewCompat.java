@@ -60,6 +60,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.collection.ArrayMap;
 import androidx.core.R;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.AccessibilityDelegateCompat.AccessibilityDelegateAdapter;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
@@ -906,6 +907,15 @@ public class ViewCompat {
 
     private static @Nullable View.AccessibilityDelegate
             getAccessibilityDelegateInternal(@NonNull View v) {
+        if (BuildCompat.isAtLeastQ()) {
+            return v.getAccessibilityDelegate();
+        } else {
+            return getAccessibilityDelegateThroughReflection(v);
+        }
+    }
+
+    private static @Nullable View.AccessibilityDelegate getAccessibilityDelegateThroughReflection(
+            @NonNull View v) {
         if (sAccessibilityDelegateCheckFailed) {
             return null; // View implementation might have changed.
         }
