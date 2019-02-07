@@ -482,6 +482,9 @@ public class NavController {
                     throw new IllegalStateException("unknown destination during restore: "
                             + mContext.getResources().getResourceName(destinationId));
                 }
+                if (args != null) {
+                    args.setClassLoader(mContext.getClassLoader());
+                }
                 mBackStack.add(new NavBackStackEntry(node, args));
             }
             mBackStackIdsToRestore = null;
@@ -928,6 +931,8 @@ public class NavController {
         if (navState == null) {
             return;
         }
+
+        navState.setClassLoader(mContext.getClassLoader());
 
         mNavigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE);
         mBackStackIdsToRestore = navState.getIntArray(KEY_BACK_STACK_IDS);
