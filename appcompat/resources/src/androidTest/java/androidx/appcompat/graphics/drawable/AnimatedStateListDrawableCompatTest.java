@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -40,7 +39,6 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -79,11 +77,11 @@ public class AnimatedStateListDrawableCompatTest {
             // Expected.
         }
 
-        Drawable unfocused = mock(Drawable.class);
+        Drawable unfocused = new MockDrawable();
         asld.addState(StateSet.WILD_CARD, unfocused, R.id.focused);
         assertEquals(1, asld.getStateCount());
 
-        Drawable focused = mock(Drawable.class);
+        Drawable focused = new MockDrawable();
         asld.addState(STATE_FOCUSED, focused, R.id.unfocused);
         assertEquals(2, asld.getStateCount());
     }
@@ -92,8 +90,8 @@ public class AnimatedStateListDrawableCompatTest {
     public void testAddTransition() {
         AnimatedStateListDrawableCompat asld = new AnimatedStateListDrawableCompat();
 
-        Drawable focused = mock(Drawable.class);
-        Drawable unfocused = mock(Drawable.class);
+        Drawable focused = new MockDrawable();
+        Drawable unfocused = new MockDrawable();
         asld.addState(STATE_FOCUSED, focused, R.id.focused);
         asld.addState(StateSet.WILD_CARD, unfocused, R.id.unfocused);
 
@@ -126,8 +124,8 @@ public class AnimatedStateListDrawableCompatTest {
     public void testOnStateChange() {
         AnimatedStateListDrawableCompat asld = new AnimatedStateListDrawableCompat();
 
-        Drawable focused = mock(Drawable.class);
-        Drawable unfocused = mock(Drawable.class);
+        Drawable focused = new MockDrawable();
+        Drawable unfocused = new MockDrawable();
         asld.addState(STATE_FOCUSED, focused, R.id.focused);
         asld.addState(StateSet.WILD_CARD, unfocused, R.id.unfocused);
 
@@ -189,8 +187,8 @@ public class AnimatedStateListDrawableCompatTest {
         assertNotNull(asld.getConstantState());
 
         // When a drawable who returns a null constant state is added
-        Drawable noConstantStateDrawable = mock(Drawable.class);
-        Mockito.when(noConstantStateDrawable.getConstantState()).thenReturn(null);
+        // MockDrawable returns null from getConstantState() - same as Drawable's default impl
+        Drawable noConstantStateDrawable = new MockDrawable();
         asld.addState(StateSet.WILD_CARD, noConstantStateDrawable, R.id.focused);
 
         // Then the ASLD should also return a null constant state
