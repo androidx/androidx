@@ -50,8 +50,8 @@ class MusicView extends ViewGroup {
 
         if (width > height) {
             mType = MusicViewType.WITH_TITLE_LANDSCAPE;
-            mWithTitleLandscape.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.AT_MOST),
-                    MeasureSpec.makeMeasureSpec(height, MeasureSpec.UNSPECIFIED));
+            mWithTitleLandscape.measure(MeasureSpec.makeMeasureSpec(width, MeasureSpec.UNSPECIFIED),
+                    MeasureSpec.makeMeasureSpec(height, MeasureSpec.AT_MOST));
             if (hasTooSmallMeasuredState(mWithTitleLandscape)
                     || mWithTitleLandscape.getMeasuredWidth() > width) {
                 mType = MusicViewType.WITHOUT_TITLE;
