@@ -20,6 +20,7 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.os.Looper
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
@@ -78,7 +79,7 @@ class DialogFragmentTest {
         var dialogIsNonNull = false
         var isShowing = false
         var onDismissCalledCount = 0
-        val countDownLatch = CountDownLatch(2)
+        val countDownLatch = CountDownLatch(3)
         activityTestRule.runOnUiThread {
             fragment.lifecycle.addObserver(GenericLifecycleObserver { _, event ->
                 if (event == Lifecycle.Event.ON_STOP) {
@@ -92,10 +93,24 @@ class DialogFragmentTest {
                 }
             })
         }
+        var dismissOnMainThread = false
+        var dismissCalled = false
+        fragment.dismissCallback = {
+            dismissCalled = true
+            dismissOnMainThread = Looper.myLooper() == Looper.getMainLooper()
+            countDownLatch.countDown()
+        }
 
         activityTestRule.finishActivity()
 
         countDownLatch.await(1, TimeUnit.SECONDS)
+
+        assertWithMessage("Dialog should be dismissed")
+            .that(dismissCalled)
+            .isTrue()
+        assertWithMessage("Dismiss should always be called on the main thread")
+            .that(dismissOnMainThread)
+            .isTrue()
         assertWithMessage("onDismiss() should be called before onDestroy()")
             .that(onDismissCalledCount)
             .isEqualTo(1)
@@ -120,7 +135,8 @@ class DialogFragmentTest {
 
         var dialogIsNonNull = false
         var isShowing = false
-        val countDownLatch = CountDownLatch(1)
+        var onDismissCalledCount = 0
+        val countDownLatch = CountDownLatch(3)
         activityTestRule.runOnUiThread {
             fragment.lifecycle.addObserver(GenericLifecycleObserver { _, event ->
                 if (event == Lifecycle.Event.ON_STOP) {
@@ -128,29 +144,39 @@ class DialogFragmentTest {
                     dialogIsNonNull = dialog != null
                     isShowing = dialog != null && dialog.isShowing
                     countDownLatch.countDown()
+                } else if (event == Lifecycle.Event.ON_DESTROY) {
+                    onDismissCalledCount = fragment.onDismissCalledCount
+                    countDownLatch.countDown()
                 }
             })
         }
-
-        val dismissLatch = CountDownLatch(1)
-        fragment.destroyViewCallback = {
-            dismissLatch.countDown()
+        var dismissOnMainThread = false
+        var dismissCalled = false
+        fragment.dismissCallback = {
+            dismissCalled = true
+            dismissOnMainThread = Looper.myLooper() == Looper.getMainLooper()
+            countDownLatch.countDown()
         }
 
         fragment.dismiss()
 
         countDownLatch.await(1, TimeUnit.SECONDS)
 
+        assertWithMessage("Dialog should be dismissed")
+            .that(dismissCalled)
+            .isTrue()
+        assertWithMessage("Dismiss should always be called on the main thread")
+            .that(dismissOnMainThread)
+            .isTrue()
+        assertWithMessage("onDismiss() should be called before onDestroy()")
+            .that(onDismissCalledCount)
+            .isEqualTo(1)
         assertWithMessage("Dialog should not be null in onStop()")
             .that(dialogIsNonNull)
             .isTrue()
         assertWithMessage("Dialog should not be showing in onStop() when manually dismissed")
             .that(isShowing)
             .isFalse()
-
-        // Wait for the DialogFragment's onDestroyView to be called which is where the Dialog
-        // gets null'ed out
-        dismissLatch.await()
 
         assertWithMessage("Dialog should be null after dismiss()")
             .that(fragment.dialog)
@@ -187,8 +213,7 @@ class DialogFragmentTest {
     class TestDialogFragment : DialogFragment() {
 
         var onDismissCalledCount = 0
-
-        var destroyViewCallback: () -> Unit = {}
+        var dismissCallback: () -> Unit = {}
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return AlertDialog.Builder(context)
@@ -201,11 +226,7 @@ class DialogFragmentTest {
         override fun onDismiss(dialog: DialogInterface) {
             super.onDismiss(dialog)
             onDismissCalledCount++
-        }
-
-        override fun onDestroyView() {
-            super.onDestroyView()
-            destroyViewCallback.invoke()
+            dismissCallback.invoke()
         }
     }
 }
