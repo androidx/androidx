@@ -130,7 +130,7 @@ public abstract class CustomTabsService extends Service {
 
         @Override
         public boolean mayLaunchUrl(ICustomTabsCallback callback, Uri url,
-                                    Bundle extras, List<Bundle> otherLikelyBundles) {
+                Bundle extras, List<Bundle> otherLikelyBundles) {
             return CustomTabsService.this.mayLaunchUrl(
                     new CustomTabsSessionToken(callback), url, extras, otherLikelyBundles);
         }
@@ -148,7 +148,7 @@ public abstract class CustomTabsService extends Service {
 
         @Override
         public boolean requestPostMessageChannel(ICustomTabsCallback callback,
-                                                 Uri postMessageOrigin) {
+                Uri postMessageOrigin) {
             return CustomTabsService.this.requestPostMessageChannel(
                     new CustomTabsSessionToken(callback), postMessageOrigin);
         }
@@ -236,7 +236,7 @@ public abstract class CustomTabsService extends Service {
      * @return Whether the call was successful.
      */
     protected abstract boolean mayLaunchUrl(CustomTabsSessionToken sessionToken, Uri url,
-                                            Bundle extras, List<Bundle> otherLikelyBundles);
+            Bundle extras, List<Bundle> otherLikelyBundles);
 
     /**
      * Unsupported commands that may be provided by the implementation.
@@ -264,7 +264,7 @@ public abstract class CustomTabsService extends Service {
      * @return Whether the operation was successful.
      */
     protected abstract boolean updateVisuals(CustomTabsSessionToken sessionToken,
-                                             Bundle bundle);
+            Bundle bundle);
 
     /**
      * Sends a request to create a two way postMessage channel between the client and the browser
@@ -278,7 +278,7 @@ public abstract class CustomTabsService extends Service {
      * asynchronous.
      */
     protected abstract boolean requestPostMessageChannel(CustomTabsSessionToken sessionToken,
-                                                         Uri postMessageOrigin);
+            Uri postMessageOrigin);
 
     /**
      * Sends a postMessage request using the origin communicated via

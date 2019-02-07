@@ -14,8 +14,6 @@
      limitations under the License
 -->
 
-<resources>
-    <!-- Browser Actions Context Menu Dimensions -->
-    <dimen name="browser_actions_context_menu_min_padding">20dp</dimen>
-    <dimen name="browser_actions_context_menu_max_width">500dp</dimen>
-</resources>
+<paths>
+    <files-path path="image_provider/" name="image_provider_images" />
+</paths>

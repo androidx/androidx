@@ -19,6 +19,8 @@ package androidx.browser.customtabs;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.browser.customtabs.CustomTabsService.Relation;
+
 /**
  * A callback class for custom tabs client to get messages regarding events in their custom tabs. In
  * the implementation, all callbacks are sent to the UI thread for the client.
@@ -75,7 +77,7 @@ public class CustomTabsCallback {
      * purposes.
      *
      * @param callbackName Name of the extra callback.
-     * @param args Arguments for the calback
+     * @param args Arguments for the callback
      */
     public void extraCallback(String callbackName, Bundle args) {}
 
@@ -111,6 +113,6 @@ public class CustomTabsCallback {
      * @param result Whether the relation was validated.
      * @param extras Reserved for future use.
      */
-    public void onRelationshipValidationResult(@CustomTabsService.Relation int relation, Uri requestedOrigin,
-                                               boolean result, Bundle extras) {}
+    public void onRelationshipValidationResult(@Relation int relation, Uri requestedOrigin,
+            boolean result, Bundle extras) {}
 }

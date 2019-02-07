@@ -33,8 +33,10 @@ import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
 import android.text.TextUtils;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.browser.customtabs.CustomTabsService.Relation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +79,7 @@ public class CustomTabsClient {
     /**
      * Returns the preferred package to use for Custom Tabs, preferring the default VIEW handler.
      *
-     * @see #getPackageName(Context, List, boolean)
+     * @see #getPackageName(Context, List<String>, boolean)
      */
     public static String getPackageName(Context context, @Nullable List<String> packages) {
         return getPackageName(context, packages, false);
@@ -96,8 +98,8 @@ public class CustomTabsClient {
      * @param ignoreDefault If set, the default VIEW handler won't get priority over other browsers.
      * @return The preferred package name for handling Custom Tabs, or <code>null</code>.
      */
-    public static String getPackageName(
-        Context context, @Nullable List<String> packages, boolean ignoreDefault) {
+    public static @Nullable String getPackageName(
+            @NonNull Context context, @Nullable List<String> packages, boolean ignoreDefault) {
         PackageManager pm = context.getPackageManager();
 
         List<String> packageNames = packages == null ? new ArrayList<String>() : packages;
@@ -149,8 +151,8 @@ public class CustomTabsClient {
                 applicationContext.unbindService(this);
             }
 
-           @Override
-           public final void onServiceDisconnected(ComponentName componentName) { }
+            @Override
+            public void onServiceDisconnected(ComponentName componentName) { }
         };
         try {
             return bindCustomTabsService(applicationContext, packageName, connection);
@@ -240,7 +242,7 @@ public class CustomTabsClient {
 
             @Override
             public void onRelationshipValidationResult(
-                    final @CustomTabsService.Relation int relation, final Uri requestedOrigin, final boolean result,
+                    final @Relation int relation, final Uri requestedOrigin, final boolean result,
                     final @Nullable Bundle extras) throws RemoteException {
                 if (callback == null) return;
                 mHandler.post(new Runnable() {
