@@ -20,12 +20,13 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Bundle
+import android.os.Looper
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -42,12 +43,22 @@ class DialogFragmentTest {
 
     @Test
     fun testDialogFragmentShows() {
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
         val fragment = TestDialogFragment()
         fragment.show(activityTestRule.activity.supportFragmentManager, null)
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
 
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        assertWithMessage("Dialog was not being shown")
+            .that(fragment.dialog?.isShowing)
+            .isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentShowsNow() {
+        val fragment = TestDialogFragment()
+        fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
 
         assertWithMessage("Dialog was not being shown")
             .that(fragment.dialog?.isShowing)
@@ -55,15 +66,11 @@ class DialogFragmentTest {
     }
 
     @Test
-    fun testDialogFragmentShowsNow() {
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
+    fun testDialogFragmentDismissOnFinish() {
         val fragment = TestDialogFragment()
         activityTestRule.runOnUiThread {
             fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
         }
-
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         assertWithMessage("Dialog was not being shown")
             .that(fragment.dialog?.isShowing)
@@ -72,7 +79,7 @@ class DialogFragmentTest {
         var dialogIsNonNull = false
         var isShowing = false
         var onDismissCalledCount = 0
-        val countDownLatch = CountDownLatch(2)
+        val countDownLatch = CountDownLatch(3)
         activityTestRule.runOnUiThread {
             fragment.lifecycle.addObserver(GenericLifecycleObserver { _, event ->
                 if (event == Lifecycle.Event.ON_STOP) {
@@ -86,10 +93,24 @@ class DialogFragmentTest {
                 }
             })
         }
+        var dismissOnMainThread = false
+        var dismissCalled = false
+        fragment.dismissCallback = {
+            dismissCalled = true
+            dismissOnMainThread = Looper.myLooper() == Looper.getMainLooper()
+            countDownLatch.countDown()
+        }
 
         activityTestRule.finishActivity()
 
         countDownLatch.await(1, TimeUnit.SECONDS)
+
+        assertWithMessage("Dialog should be dismissed")
+            .that(dismissCalled)
+            .isTrue()
+        assertWithMessage("Dismiss should always be called on the main thread")
+            .that(dismissOnMainThread)
+            .isTrue()
         assertWithMessage("onDismiss() should be called before onDestroy()")
             .that(onDismissCalledCount)
             .isEqualTo(1)
@@ -103,12 +124,10 @@ class DialogFragmentTest {
 
     @Test
     fun testDialogFragmentDismiss() {
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
         val fragment = TestDialogFragment()
-        fragment.show(activityTestRule.activity.supportFragmentManager, null)
-
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        activityTestRule.runOnUiThread {
+            fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+        }
 
         assertWithMessage("Dialog was not being shown")
             .that(fragment.dialog?.isShowing)
@@ -116,7 +135,8 @@ class DialogFragmentTest {
 
         var dialogIsNonNull = false
         var isShowing = false
-        val countDownLatch = CountDownLatch(1)
+        var onDismissCalledCount = 0
+        val countDownLatch = CountDownLatch(3)
         activityTestRule.runOnUiThread {
             fragment.lifecycle.addObserver(GenericLifecycleObserver { _, event ->
                 if (event == Lifecycle.Event.ON_STOP) {
@@ -124,29 +144,39 @@ class DialogFragmentTest {
                     dialogIsNonNull = dialog != null
                     isShowing = dialog != null && dialog.isShowing
                     countDownLatch.countDown()
+                } else if (event == Lifecycle.Event.ON_DESTROY) {
+                    onDismissCalledCount = fragment.onDismissCalledCount
+                    countDownLatch.countDown()
                 }
             })
         }
-
-        val dismissLatch = CountDownLatch(1)
-        fragment.destroyViewCallback = {
-            dismissLatch.countDown()
+        var dismissOnMainThread = false
+        var dismissCalled = false
+        fragment.dismissCallback = {
+            dismissCalled = true
+            dismissOnMainThread = Looper.myLooper() == Looper.getMainLooper()
+            countDownLatch.countDown()
         }
 
         fragment.dismiss()
 
         countDownLatch.await(1, TimeUnit.SECONDS)
 
+        assertWithMessage("Dialog should be dismissed")
+            .that(dismissCalled)
+            .isTrue()
+        assertWithMessage("Dismiss should always be called on the main thread")
+            .that(dismissOnMainThread)
+            .isTrue()
+        assertWithMessage("onDismiss() should be called before onDestroy()")
+            .that(onDismissCalledCount)
+            .isEqualTo(1)
         assertWithMessage("Dialog should not be null in onStop()")
             .that(dialogIsNonNull)
             .isTrue()
         assertWithMessage("Dialog should not be showing in onStop() when manually dismissed")
             .that(isShowing)
             .isFalse()
-
-        // Wait for the DialogFragment's onDestroyView to be called which is where the Dialog
-        // gets null'ed out
-        dismissLatch.await()
 
         assertWithMessage("Dialog should be null after dismiss()")
             .that(fragment.dialog)
@@ -155,12 +185,10 @@ class DialogFragmentTest {
 
     @Test
     fun testDialogFragmentDismissBeforeOnDestroy() {
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
         val fragment = TestDialogFragment()
-        fragment.show(activityTestRule.activity.supportFragmentManager, null)
-
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        activityTestRule.runOnUiThread {
+            fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+        }
 
         var onDismissCalledCount = 0
         val countDownLatch = CountDownLatch(1)
@@ -171,9 +199,9 @@ class DialogFragmentTest {
                     countDownLatch.countDown()
                 }
             })
+            // Now dismiss the Fragment
+            fragment.dismiss()
         }
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync { fragment.dismiss() }
 
         countDownLatch.await(1, TimeUnit.SECONDS)
 
@@ -185,8 +213,7 @@ class DialogFragmentTest {
     class TestDialogFragment : DialogFragment() {
 
         var onDismissCalledCount = 0
-
-        var destroyViewCallback: () -> Unit = {}
+        var dismissCallback: () -> Unit = {}
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return AlertDialog.Builder(context)
@@ -199,11 +226,7 @@ class DialogFragmentTest {
         override fun onDismiss(dialog: DialogInterface) {
             super.onDismiss(dialog)
             onDismissCalledCount++
-        }
-
-        override fun onDestroyView() {
-            super.onDestroyView()
-            destroyViewCallback.invoke()
+            dismissCallback.invoke()
         }
     }
 }
