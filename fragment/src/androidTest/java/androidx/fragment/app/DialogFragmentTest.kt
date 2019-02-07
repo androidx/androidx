@@ -23,9 +23,9 @@ import android.os.Bundle
 import androidx.fragment.app.test.EmptyFragmentTestActivity
 import androidx.lifecycle.GenericLifecycleObserver
 import androidx.lifecycle.Lifecycle
+import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Rule
@@ -42,12 +42,22 @@ class DialogFragmentTest {
 
     @Test
     fun testDialogFragmentShows() {
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
         val fragment = TestDialogFragment()
         fragment.show(activityTestRule.activity.supportFragmentManager, null)
+        activityTestRule.runOnUiThread {
+            activityTestRule.activity.supportFragmentManager.executePendingTransactions()
+        }
 
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        assertWithMessage("Dialog was not being shown")
+            .that(fragment.dialog?.isShowing)
+            .isTrue()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testDialogFragmentShowsNow() {
+        val fragment = TestDialogFragment()
+        fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
 
         assertWithMessage("Dialog was not being shown")
             .that(fragment.dialog?.isShowing)
@@ -55,15 +65,11 @@ class DialogFragmentTest {
     }
 
     @Test
-    fun testDialogFragmentShowsNow() {
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
+    fun testDialogFragmentDismissOnFinish() {
         val fragment = TestDialogFragment()
         activityTestRule.runOnUiThread {
             fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
         }
-
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
         assertWithMessage("Dialog was not being shown")
             .that(fragment.dialog?.isShowing)
@@ -103,12 +109,10 @@ class DialogFragmentTest {
 
     @Test
     fun testDialogFragmentDismiss() {
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
         val fragment = TestDialogFragment()
-        fragment.show(activityTestRule.activity.supportFragmentManager, null)
-
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        activityTestRule.runOnUiThread {
+            fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+        }
 
         assertWithMessage("Dialog was not being shown")
             .that(fragment.dialog?.isShowing)
@@ -155,12 +159,10 @@ class DialogFragmentTest {
 
     @Test
     fun testDialogFragmentDismissBeforeOnDestroy() {
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-
         val fragment = TestDialogFragment()
-        fragment.show(activityTestRule.activity.supportFragmentManager, null)
-
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        activityTestRule.runOnUiThread {
+            fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
+        }
 
         var onDismissCalledCount = 0
         val countDownLatch = CountDownLatch(1)
@@ -171,9 +173,9 @@ class DialogFragmentTest {
                     countDownLatch.countDown()
                 }
             })
+            // Now dismiss the Fragment
+            fragment.dismiss()
         }
-
-        InstrumentationRegistry.getInstrumentation().runOnMainSync { fragment.dismiss() }
 
         countDownLatch.await(1, TimeUnit.SECONDS)
 
