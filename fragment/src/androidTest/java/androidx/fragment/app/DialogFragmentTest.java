@@ -18,11 +18,6 @@ package androidx.fragment.app;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -62,8 +57,12 @@ public class DialogFragmentTest {
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        assertNotNull("Dialog was null", fragment.getDialog());
-        assertTrue("Dialog was not being shown", fragment.getDialog().isShowing());
+        assertWithMessage("Dialog was null")
+                .that(fragment.getDialog())
+                .isNotNull();
+        assertWithMessage("Dialog was not being shown")
+                .that(fragment.getDialog().isShowing())
+                .isTrue();
     }
 
     @Test
@@ -81,8 +80,12 @@ public class DialogFragmentTest {
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        assertNotNull("Dialog was null", fragment.getDialog());
-        assertTrue("Dialog was not being shown", fragment.getDialog().isShowing());
+        assertWithMessage("Dialog was null")
+                .that(fragment.getDialog())
+                .isNotNull();
+        assertWithMessage("Dialog was not being shown")
+                .that(fragment.getDialog().isShowing())
+                .isTrue();
 
         final boolean[] dialogIsNonNull = new boolean[1];
         final boolean[] isShowing = new boolean[1];
@@ -115,9 +118,13 @@ public class DialogFragmentTest {
         assertWithMessage("onDismiss() should be called before onDestroy()")
                 .that(onDismissCalledCount[0])
                 .isEqualTo(1);
-        assertTrue("Dialog should not be null in onStop()", dialogIsNonNull[0]);
-        assertTrue("Dialog should still be showing in onStop() "
-                + "during the normal lifecycle", isShowing[0]);
+        assertWithMessage("Dialog should not be null in onStop()")
+                .that(dialogIsNonNull[0])
+                .isTrue();
+        assertWithMessage("Dialog should still be showing in onStop() "
+                + "during the normal lifecycle")
+                .that(isShowing[0])
+                .isTrue();
     }
 
     @Test
@@ -129,8 +136,12 @@ public class DialogFragmentTest {
 
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
-        assertNotNull("Dialog was null", fragment.getDialog());
-        assertTrue("Dialog was not being shown", fragment.getDialog().isShowing());
+        assertWithMessage("Dialog was null")
+                .that(fragment.getDialog())
+                .isNotNull();
+        assertWithMessage("Dialog was not being shown")
+                .that(fragment.getDialog().isShowing())
+                .isTrue();
 
         final boolean[] dialogIsNonNull = new boolean[1];
         final boolean[] isShowing = new boolean[1];
@@ -162,15 +173,21 @@ public class DialogFragmentTest {
 
         countDownLatch.await(1, TimeUnit.SECONDS);
 
-        assertTrue("Dialog should not be null in onStop()", dialogIsNonNull[0]);
-        assertFalse("Dialog should not be showing in onStop() "
-                + "when manually dismissed", isShowing[0]);
+        assertWithMessage("Dialog should not be null in onStop()")
+                .that(dialogIsNonNull[0])
+                .isTrue();
+        assertWithMessage("Dialog should not be showing in onStop() "
+                + "when manually dismissed")
+                .that(isShowing[0])
+                .isFalse();
 
         // Wait for the DialogFragment's onDestroyView to be called which is where the Dialog
         // gets null'ed out
         dismissLatch.await();
 
-        assertNull("Dialog should be null after dismiss()", fragment.getDialog());
+        assertWithMessage("Dialog should be null after dismiss()")
+                .that(fragment.getDialog())
+                .isNull();
     }
 
     @Test
