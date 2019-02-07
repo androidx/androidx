@@ -4,14 +4,15 @@ package androidx.browser.browseractions {
   public class BrowserActionItem {
     ctor public BrowserActionItem(String, android.app.PendingIntent, @DrawableRes int);
     ctor public BrowserActionItem(String, android.app.PendingIntent);
-    method public android.app.PendingIntent! getAction();
+    method public android.app.PendingIntent getAction();
     method public int getIconId();
-    method public String! getTitle();
+    method public String getTitle();
   }
 
   public class BrowserActionsIntent {
-    method public static String! getCreatorPackageName(android.content.Intent!);
+    method @Deprecated public static String? getCreatorPackageName(android.content.Intent);
     method public android.content.Intent getIntent();
+    method public static String? getUntrustedCreatorPackageName(android.content.Intent);
     method public static void launchIntent(android.content.Context!, android.content.Intent!);
     method public static void openBrowserAction(android.content.Context!, android.net.Uri!);
     method public static void openBrowserAction(android.content.Context!, android.net.Uri!, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>!, android.app.PendingIntent!);
@@ -72,7 +73,7 @@ package androidx.browser.customtabs {
     method public static boolean connectAndInitialize(android.content.Context!, String!);
     method public android.os.Bundle! extraCommand(String!, android.os.Bundle!);
     method public static String! getPackageName(android.content.Context!, java.util.List<java.lang.String>?);
-    method public static String! getPackageName(android.content.Context!, java.util.List<java.lang.String>?, boolean);
+    method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String>?, boolean);
     method public androidx.browser.customtabs.CustomTabsSession! newSession(androidx.browser.customtabs.CustomTabsCallback!);
     method public boolean warmup(long);
   }
