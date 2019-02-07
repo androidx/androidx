@@ -204,6 +204,38 @@ public class LoaderManagerTest {
                 initialCallback.mLoader.isReset());
     }
 
+    /**
+     * Ensures that calling restartLoader from onLoadFinished will not reset current loader.
+     * This is especially important for CursorLoader which closes cursor when Loader is reset.
+     * This means that rest of onLoadFinished could access closed cursor.
+     */
+    @Test
+    public void testRestartLoaderWhileDeliveringData() throws Throwable {
+        CountDownLatch initialCountDownLatch = new CountDownLatch(1);
+        final DelayLoaderCallbacks initialCallback = new DelayLoaderCallbacks(mock(Context.class),
+                initialCountDownLatch) {
+            @Override
+            public void onLoadFinished(@NonNull Loader<Boolean> loader, Boolean data) {
+                super.onLoadFinished(loader, data);
+                assertFalse("Assumption is that loader is not reset in onLoadFinished",
+                        loader.isReset());
+                mLoaderManager.restartLoader(45, null,
+                        new DelayLoaderCallbacks(mock(Context.class), new CountDownLatch(1)));
+                assertFalse("Loader should not be reset when restarted in onLoadFinished",
+                        loader.isReset());
+            }
+        };
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(new Runnable() {
+            @Override
+            public void run() {
+                mLoaderManager.initLoader(45, null, initialCallback);
+            }
+        });
+        // Wait for the Loader to return data
+        initialCountDownLatch.await(1, TimeUnit.SECONDS);
+    }
+
+
     @Test
     public void testRestartLoaderMultiple() throws Throwable {
         CountDownLatch initialCountDownLatch = new CountDownLatch(1);
