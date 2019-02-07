@@ -50,6 +50,7 @@ import com.squareup.kotlinpoet.FLOAT
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.LONG
+import com.squareup.kotlinpoet.ParameterizedTypeName
 import com.squareup.kotlinpoet.TypeName
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.asTypeName
@@ -90,10 +91,12 @@ internal fun NavType.addBundleGetStatement(
         )
         endControlFlow()
     }
-    is ObjectArrayType -> builder.addStatement(
-        "%L = %L.%L(%S) as %T",
-        lValue, bundle, bundleGetMethod(), arg.name, arg.type.typeName().copy(nullable = true)
-    )
+    is ObjectArrayType -> builder.apply {
+        val baseType = (arg.type.typeName() as ParameterizedTypeName).typeArguments.first()
+        addStatement(
+            "%L = %L.%L(%S)?.map { it as %T }?.toTypedArray()",
+            lValue, bundle, bundleGetMethod(), arg.name, baseType)
+    }
     else -> builder.addStatement(
         "%L = %L.%L(%S)",
         lValue,
