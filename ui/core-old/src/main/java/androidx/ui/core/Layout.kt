@@ -274,6 +274,7 @@ class ComplexMeasureOperations internal constructor(
         return layoutNode.childrenMeasureBoxes()
             .drop(boxesSoFar)
             .map { measureBox ->
+                measureBox as ComplexMeasureBox
                 measureBox.layoutNode.visible = false
                 Measurable(measureBox)
             }

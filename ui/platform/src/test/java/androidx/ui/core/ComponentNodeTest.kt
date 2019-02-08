@@ -464,7 +464,7 @@ class ComponentNodeTest {
         val expectedPosition = Position(expectedX, expectedY)
 
         // Top-level functions are not resolved properly in IR modules
-        val result = ComponentNodesKt.globalToLocal(node1, globalPosition)
+        val result = node1.globalToLocal(globalPosition)
 
         assertEquals(expectedPosition, result)
     }
@@ -489,7 +489,7 @@ class ComponentNodeTest {
         val expectedPosition = Position(expectedX, expectedY)
 
         // Top-level functions are not resolved properly in IR modules
-        val result = ComponentNodesKt.localToGlobal(node1, localPosition)
+        val result = node1.localToGlobal(localPosition)
 
         assertEquals(expectedPosition, result)
     }
@@ -512,7 +512,7 @@ class ComponentNodeTest {
         val expectedPosition = Position(expectedX, expectedY)
 
         // Top-level functions are not resolved properly in IR modules
-        val result = ComponentNodesKt.childToLocal(node0, node1, localPosition)
+        val result = node0.childToLocal(node1, localPosition)
 
         assertEquals(expectedPosition, result)
     }
@@ -528,7 +528,7 @@ class ComponentNodeTest {
         thrown.expect(IllegalStateException::class.java)
 
         // Top-level functions are not resolved properly in IR modules
-        ComponentNodesKt.childToLocal(node2, node1, Position(5.dp, 15.dp))
+        node2.childToLocal(node1, Position(5.dp, 15.dp))
     }
 
     @Test
@@ -539,7 +539,7 @@ class ComponentNodeTest {
         thrown.expect(IllegalStateException::class.java)
 
         // Top-level functions are not resolved properly in IR modules
-        ComponentNodesKt.childToLocal(node1, node0, Position(5.dp, 15.dp))
+        node1.childToLocal(node0, Position(5.dp, 15.dp))
     }
 
     @Test
@@ -548,7 +548,7 @@ class ComponentNodeTest {
         val position = Position(5.dp, 15.dp)
 
         // Top-level functions are not resolved properly in IR modules
-        val result = ComponentNodesKt.childToLocal(node, node, position)
+        val result = node.childToLocal(node, position)
 
         assertEquals(position, result)
     }
@@ -560,12 +560,5 @@ class ComponentNodeTest {
         layoutNode.emitInsertAt(0, child1)
         layoutNode.emitInsertAt(1, child2)
         return Triple(layoutNode, child1, child2)
-    }
-
-    private fun createNestedLayout(): Pair<LayoutNode, LayoutNode> {
-        val parent = LayoutNode()
-        val child = LayoutNode()
-        parent.emitInsertAt(0, child)
-        return Pair(parent, child)
     }
 }

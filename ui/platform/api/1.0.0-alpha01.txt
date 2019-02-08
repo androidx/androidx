@@ -1,31 +1,135 @@
 // Signature format: 3.0
 package androidx.ui.core {
 
-  public enum ErrorMessages {
-    ctor protected ErrorMessages(String message);
-    method public final Void arg();
-    method public final Void arg(java.lang.Object... args);
-    method public final String getMessage();
-    method public final Void state();
-    method public final Void state(java.lang.Object... args);
-    method public final Void unsupported();
-    method public final void validateArg(boolean check, Object? value);
-    method public final void validateArgs(boolean check, java.lang.Object... values);
-    method public final void validateState(boolean check);
-    enum_constant public static final androidx.ui.core.ErrorMessages CannotFindLayoutInParent;
-    enum_constant public static final androidx.ui.core.ErrorMessages ChildrenUnsupported;
-    enum_constant public static final androidx.ui.core.ErrorMessages ComponentNodeHasParent;
-    enum_constant public static final androidx.ui.core.ErrorMessages IllegalMoveOperation;
-    enum_constant public static final androidx.ui.core.ErrorMessages IndexOutOfRange;
-    enum_constant public static final androidx.ui.core.ErrorMessages NoChild;
-    enum_constant public static final androidx.ui.core.ErrorMessages NoMovingSingleElements;
-    enum_constant public static final androidx.ui.core.ErrorMessages NoSizeAfterLayout;
-    enum_constant public static final androidx.ui.core.ErrorMessages OnlyComponents;
-    enum_constant public static final androidx.ui.core.ErrorMessages OwnerAlreadyAttached;
-    enum_constant public static final androidx.ui.core.ErrorMessages OwnerAlreadyDetached;
-    enum_constant public static final androidx.ui.core.ErrorMessages ParentOwnerMustMatchChild;
-    enum_constant public static final androidx.ui.core.ErrorMessages SingleChildOnlyOneNode;
-    enum_constant public static final androidx.ui.core.ErrorMessages SizeAlreadyExists;
+  public abstract sealed class ComponentNode implements com.google.r4a.Emittable {
+    method public void attach(androidx.ui.core.Owner owner);
+    method public void detach();
+    method public void emitInsertAt(int index, com.google.r4a.Emittable instance);
+    method public void emitRemoveAt(int index, int count);
+    method public abstract operator androidx.ui.core.ComponentNode get(int index);
+    method public abstract int getCount();
+    method public final int getDepth();
+    method public abstract androidx.ui.core.LayoutNode? getLayoutNode();
+    method public final androidx.ui.core.Owner? getOwner();
+    method public final Object? getOwnerData();
+    method public final androidx.ui.core.ComponentNode? getParent();
+    method public androidx.ui.core.LayoutNode? getParentLayoutNode();
+    method public final void setDepth(int p);
+    method public final void setOwnerData(Object? p);
+    method public void setParentLayoutNode(androidx.ui.core.LayoutNode? p);
+    method public abstract void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    property public abstract int count;
+    property public final int depth;
+    property public abstract androidx.ui.core.LayoutNode? layoutNode;
+    property public final androidx.ui.core.Owner? owner;
+    property public final Object? ownerData;
+    property public final androidx.ui.core.ComponentNode? parent;
+    property public androidx.ui.core.LayoutNode? parentLayoutNode;
+  }
+
+  public final class ComponentNodesKt {
+    ctor public ComponentNodesKt();
+    method public static void add(androidx.ui.core.ComponentNode, androidx.ui.core.ComponentNode child);
+    method public static androidx.ui.core.Position childToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.LayoutNode child, androidx.ui.core.Position childLocal);
+    method public static java.util.List<java.lang.Object> childrenMeasureBoxes(androidx.ui.core.LayoutNode);
+    method public static androidx.ui.core.Position globalToLocal(androidx.ui.core.LayoutNode, androidx.ui.core.Position global);
+    method public static androidx.ui.core.Position localToGlobal(androidx.ui.core.LayoutNode, androidx.ui.core.Position local);
+  }
+
+  public final class DrawNode extends androidx.ui.core.ComponentNode {
+    ctor public DrawNode();
+    method public void emitMove(int from, int to, int count);
+    method public androidx.ui.core.ComponentNode get(int index);
+    method public int getCount();
+    method public androidx.ui.core.LayoutNode? getLayoutNode();
+    method public boolean getNeedsPaint();
+    method public kotlin.jvm.functions.Function2<androidx.ui.painting.Canvas,androidx.ui.core.PixelSize,kotlin.Unit> getOnPaint();
+    method public void invalidate();
+    method public void setNeedsPaint(boolean p);
+    method public void setOnPaint(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PixelSize,kotlin.Unit> value);
+    method public void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    property public int count;
+    property public androidx.ui.core.LayoutNode? layoutNode;
+    property public final boolean needsPaint;
+    property public final kotlin.jvm.functions.Function2<androidx.ui.painting.Canvas,androidx.ui.core.PixelSize,kotlin.Unit> onPaint;
+  }
+
+  public final class LayoutNode extends androidx.ui.core.ComponentNode {
+    ctor public LayoutNode();
+    method public void emitMove(int from, int to, int count);
+    method public androidx.ui.core.ComponentNode get(int index);
+    method public java.util.List<androidx.ui.core.ComponentNode> getChildren();
+    method public androidx.ui.core.Constraints getConstraints();
+    method public int getCount();
+    method public androidx.ui.core.LayoutNode getLayoutNode();
+    method public Object? getMeasureBox();
+    method public androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? getRef();
+    method public androidx.ui.core.Size getSize();
+    method public boolean getVisible();
+    method public androidx.ui.core.Dimension getX();
+    method public androidx.ui.core.Dimension getY();
+    method public void moveTo(androidx.ui.core.Dimension x, androidx.ui.core.Dimension y);
+    method public void resize(androidx.ui.core.Dimension width, androidx.ui.core.Dimension height);
+    method public void setConstraints(androidx.ui.core.Constraints p);
+    method public void setMeasureBox(Object? p);
+    method public void setRef(androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? value);
+    method public void setVisible(boolean p);
+    method public void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    property public final java.util.List<androidx.ui.core.ComponentNode> children;
+    property public final androidx.ui.core.Constraints constraints;
+    property public int count;
+    property public androidx.ui.core.LayoutNode layoutNode;
+    property public final Object? measureBox;
+    property public final androidx.ui.core.Ref<androidx.ui.core.LayoutNode>? ref;
+    property public final androidx.ui.core.Size size;
+    property public final boolean visible;
+    property public final androidx.ui.core.Dimension x;
+    property public final androidx.ui.core.Dimension y;
+  }
+
+  public interface Owner {
+    method public void onAttach(androidx.ui.core.ComponentNode node);
+    method public void onDetach(androidx.ui.core.ComponentNode node);
+    method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
+    method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
+  }
+
+  public final class PointerInputNode extends androidx.ui.core.SingleChildComponentNode {
+    ctor public PointerInputNode();
+    method public kotlin.jvm.functions.Function2<androidx.ui.core.pointerinput.PointerInputChange,androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> getPointerInputHandler();
+    method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.pointerinput.PointerInputChange,? super androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> p);
+    property public final kotlin.jvm.functions.Function2<androidx.ui.core.pointerinput.PointerInputChange,androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> pointerInputHandler;
+  }
+
+  public final class Ref<T> {
+    ctor public Ref();
+    method public T? getValue();
+    method public void setValue(T? p);
+    property public final T? value;
+  }
+
+  public final class SemanticsR4ANode extends androidx.ui.core.SingleChildComponentNode {
+    ctor public SemanticsR4ANode(boolean container, boolean explicitChildNodes, androidx.ui.core.semantics.SemanticsProperties properties);
+    method public boolean getContainer();
+    method public boolean getExplicitChildNodes();
+    method public androidx.ui.core.semantics.SemanticsProperties getProperties();
+  }
+
+  public class SingleChildComponentNode extends androidx.ui.core.ComponentNode {
+    ctor public SingleChildComponentNode();
+    method public void emitMove(int from, int to, int count);
+    method public androidx.ui.core.ComponentNode get(int index);
+    method public final androidx.ui.core.ComponentNode? getChild();
+    method public int getCount();
+    method public androidx.ui.core.LayoutNode? getLayoutNode();
+    method public final void setChild(androidx.ui.core.ComponentNode? p);
+    method public void setLayoutNode(androidx.ui.core.LayoutNode? p);
+    method public void visitChildren(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComponentNode,kotlin.Unit> block);
+    property public final androidx.ui.core.ComponentNode? child;
+    property public int count;
+    property public androidx.ui.core.LayoutNode? layoutNode;
+    property public androidx.ui.core.LayoutNode? parentLayoutNode;
   }
 
 }
