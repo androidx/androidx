@@ -28,6 +28,7 @@ import java.lang.Object;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
+import java.lang.System;
 import java.nio.file.AccessMode;
 import java.util.HashMap;
 
@@ -83,7 +84,13 @@ public class MainFragmentArgs implements NavArgs {
         }
         if (bundle.containsKey("objectArrayArg")) {
             ActivityInfo[] objectArrayArg;
-            objectArrayArg = (ActivityInfo[]) bundle.getParcelableArray("objectArrayArg");
+            Parcelable[] __array = bundle.getParcelableArray("objectArrayArg");
+            if (__array != null) {
+                objectArrayArg = new ActivityInfo[__array.length];
+                System.arraycopy(__array, 0, objectArrayArg, 0, __array.length);
+            } else {
+                objectArrayArg = null;
+            }
             if (objectArrayArg == null) {
                 throw new IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value.");
             }
