@@ -151,7 +151,8 @@ public class MediaControlView extends ViewGroup {
     // Int for defining the UX state where the views are being animated (shown or hidden).
     private static final int UX_STATE_ANIMATING = 3;
 
-    private static final long DEFAULT_SHOW_CONTROLLER_INTERVAL_MS = 2000;
+    private static final long DISABLE_DELAYED_ANIMATION = -1;
+    private static final long DEFAULT_DELAYED_ANIMATION_INTERVAL_MS = 2000;
     private static final long DEFAULT_PROGRESS_UPDATE_TIME_MS = 1000;
     private static final long REWIND_TIME_MS = 10000;
     private static final long FORWARD_TIME_MS = 30000;
@@ -183,7 +184,7 @@ public class MediaControlView extends ViewGroup {
     int mSizeType = SIZE_TYPE_UNDEFINED;
     int mUxState;
     long mDuration;
-    long mShowControllerIntervalMs;
+    long mDelayedAnimationIntervalMs;
     long mCurrentSeekPosition;
     long mNextSeekPosition;
     boolean mDragging;
@@ -275,7 +276,7 @@ public class MediaControlView extends ViewGroup {
         mController = new Controller();
         inflate(context, R.layout.media_controller, this);
         initControllerView();
-        mShowControllerIntervalMs = DEFAULT_SHOW_CONTROLLER_INTERVAL_MS;
+        mDelayedAnimationIntervalMs = DEFAULT_DELAYED_ANIMATION_INTERVAL_MS;
         mAccessibilityManager = (AccessibilityManager) context.getSystemService(
                 Context.ACCESSIBILITY_SERVICE);
     }
@@ -331,7 +332,11 @@ public class MediaControlView extends ViewGroup {
     public boolean onTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_UP) {
             if (mMediaType != MEDIA_TYPE_MUSIC || mSizeType != SIZE_TYPE_FULL) {
-                toggleMediaControlViewVisibility();
+                if (mUxState == UX_STATE_ALL_VISIBLE) {
+                    hideMediaControlView();
+                } else {
+                    showMediaControlView();
+                }
             }
         }
         return true;
@@ -341,7 +346,11 @@ public class MediaControlView extends ViewGroup {
     public boolean onTrackballEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_UP) {
             if (mMediaType != MEDIA_TYPE_MUSIC || mSizeType != SIZE_TYPE_FULL) {
-                toggleMediaControlViewVisibility();
+                if (mUxState == UX_STATE_ALL_VISIBLE) {
+                    hideMediaControlView();
+                } else {
+                    showMediaControlView();
+                }
             }
         }
         return true;
@@ -526,8 +535,8 @@ public class MediaControlView extends ViewGroup {
         }
     }
 
-    void setShowControllerInterval(long interval) {
-        mShowControllerIntervalMs = interval;
+    void setDelayedAnimationInterval(long interval) {
+        mDelayedAnimationIntervalMs = interval;
     }
 
     ///////////////////////////////////////////////////
@@ -808,7 +817,7 @@ public class MediaControlView extends ViewGroup {
             boolean isShowing = getVisibility() == View.VISIBLE;
             if (!mDragging && isShowing && mController.isPlaying()) {
                 long pos = setProgress();
-                postDelayed(mUpdateProgress,
+                postDelayedRunnable(mUpdateProgress,
                         DEFAULT_PROGRESS_UPDATE_TIME_MS - (pos % DEFAULT_PROGRESS_UPDATE_TIME_MS));
             }
         }
@@ -909,25 +918,28 @@ public class MediaControlView extends ViewGroup {
         }
     }
 
-    private void toggleMediaControlViewVisibility() {
-        if (shouldNotHideBars() || mShowControllerIntervalMs == 0
-                || mUxState == UX_STATE_ANIMATING) {
+    private void showMediaControlView() {
+        if (mUxState == UX_STATE_ANIMATING) {
             return;
         }
         removeCallbacks(mHideMainBars);
         removeCallbacks(mHideProgressBar);
 
-        switch (mUxState) {
-            case UX_STATE_NONE_VISIBLE:
-                post(mShowAllBars);
-                break;
-            case UX_STATE_ONLY_PROGRESS_VISIBLE:
-                post(mShowMainBars);
-                break;
-            case UX_STATE_ALL_VISIBLE:
-                post(mHideAllBars);
-                break;
+        if (mUxState == UX_STATE_NONE_VISIBLE) {
+            post(mShowAllBars);
+        } else if (mUxState == UX_STATE_ONLY_PROGRESS_VISIBLE) {
+            post(mShowMainBars);
         }
+    }
+
+    private void hideMediaControlView() {
+        if (shouldNotHideBars() || mUxState == UX_STATE_ANIMATING) {
+            return;
+        }
+        removeCallbacks(mHideMainBars);
+        removeCallbacks(mHideProgressBar);
+
+        post(mHideAllBars);
     }
 
     private final Runnable mShowAllBars = new Runnable() {
@@ -935,7 +947,7 @@ public class MediaControlView extends ViewGroup {
         public void run() {
             mShowAllBarsAnimator.start();
             if (mController.isPlaying()) {
-                postDelayed(mHideMainBars, mShowControllerIntervalMs);
+                postDelayedRunnable(mHideMainBars, mDelayedAnimationIntervalMs);
             }
         }
     };
@@ -944,7 +956,7 @@ public class MediaControlView extends ViewGroup {
         @Override
         public void run() {
             mShowMainBarsAnimator.start();
-            postDelayed(mHideMainBars, mShowControllerIntervalMs);
+            postDelayedRunnable(mHideMainBars, mDelayedAnimationIntervalMs);
         }
     };
 
@@ -965,7 +977,7 @@ public class MediaControlView extends ViewGroup {
                 return;
             }
             mHideMainBarsAnimator.start();
-            postDelayed(mHideProgressBar, mShowControllerIntervalMs);
+            postDelayedRunnable(mHideProgressBar, mDelayedAnimationIntervalMs);
         }
     };
 
@@ -1256,7 +1268,7 @@ public class MediaControlView extends ViewGroup {
                 @Override
                 public void onDismiss() {
                     if (mNeedToHideBars) {
-                        postDelayed(mHideMainBars, mShowControllerIntervalMs);
+                        postDelayedRunnable(mHideMainBars, mDelayedAnimationIntervalMs);
                     }
                 }
             };
@@ -1476,7 +1488,7 @@ public class MediaControlView extends ViewGroup {
     void resetHideCallbacks() {
         removeCallbacks(mHideMainBars);
         removeCallbacks(mHideProgressBar);
-        postDelayed(mHideMainBars, mShowControllerIntervalMs);
+        postDelayedRunnable(mHideMainBars, mDelayedAnimationIntervalMs);
     }
 
     void updateAllowedCommands(SessionCommandGroup commands) {
@@ -1635,6 +1647,12 @@ public class MediaControlView extends ViewGroup {
                 ffwdButton.setAlpha(1.0f);
                 ffwdButton.setEnabled(true);
             }
+        }
+    }
+
+    void postDelayedRunnable(Runnable runnable, long interval) {
+        if (interval != DISABLE_DELAYED_ANIMATION) {
+            postDelayed(runnable, interval);
         }
     }
 
@@ -2049,7 +2067,7 @@ public class MediaControlView extends ViewGroup {
                     removeCallbacks(mUpdateProgress);
                     removeCallbacks(mHideMainBars);
                     post(mUpdateProgress);
-                    postDelayed(mHideMainBars, mShowControllerIntervalMs);
+                    postDelayedRunnable(mHideMainBars, mDelayedAnimationIntervalMs);
                 }
             }
 
