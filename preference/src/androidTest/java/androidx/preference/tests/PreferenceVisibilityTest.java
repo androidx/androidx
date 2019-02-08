@@ -222,7 +222,7 @@ public class PreferenceVisibilityTest {
     }
 
     /**
-     * A {@link OnHierarchyChangeListener that will count down a provided {@link CountDownLatch}
+     * A {@link OnHierarchyChangeListener} that will count down a provided {@link CountDownLatch}
      * to allow tests to wait for the view hierarchy to be updated, and fail the test if the
      * hierarchy is updated when it shouldn't be.
      */
