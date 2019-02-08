@@ -23,13 +23,10 @@ plugins {
 }
 
 dependencies {
-    // TODO: change to 1.1.0-alpha02 after release
-    api(project(":appcompat"))
-    // TODO: change to 1.1.0-alpha04 after release
-    api(project(":core"))
+    api("androidx.appcompat:appcompat:1.1.0-alpha02")
+    api("androidx.core:core:1.1.0-alpha04")
     implementation("androidx.collection:collection:1.0.0")
-    // TODO: change to 1.1.0-alpha04 after release
-    api(project(":fragment"))
+    api("androidx.fragment:fragment:1.1.0-alpha04")
     api("androidx.recyclerview:recyclerview:1.0.0")
 
     androidTestImplementation(TEST_EXT_JUNIT)
