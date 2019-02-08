@@ -45,12 +45,6 @@ android {
     lintOptions {
         ignore("SyntheticAccessor")
     }
-
-    // this is temporary will remove when other parts of Text is migrated to ui-text
-    sourceSets {
-        androidTest.res.srcDirs += [new File(project(':ui-text').projectDir,
-                "src/androidTest/res").getAbsolutePath()]
-    }
 }
 
 supportLibrary {

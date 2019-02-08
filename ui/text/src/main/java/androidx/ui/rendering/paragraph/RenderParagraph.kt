@@ -17,7 +17,6 @@
 package androidx.ui.rendering.paragraph
 
 import androidx.annotation.VisibleForTesting
-import androidx.ui.assert
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
@@ -26,13 +25,6 @@ import androidx.ui.engine.text.TextBaseline
 import androidx.ui.engine.text.TextBox
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.engine.text.TextPosition
-import androidx.ui.foundation.diagnostics.DiagnosticPropertiesBuilder
-import androidx.ui.foundation.diagnostics.DiagnosticsNode
-/*import androidx.ui.foundation.diagnostics.DiagnosticsTreeStyle*/
-import androidx.ui.foundation.diagnostics.EnumProperty
-import androidx.ui.foundation.diagnostics.FlagProperty
-import androidx.ui.foundation.diagnostics.FloatProperty
-import androidx.ui.foundation.diagnostics.IntProperty
 import androidx.ui.painting.BlendMode
 import androidx.ui.painting.Canvas
 import androidx.ui.painting.Color
@@ -43,11 +35,7 @@ import androidx.ui.painting.Shader
 import androidx.ui.painting.TextPainter
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.basictypes.RenderComparison
-import androidx.ui.rendering.box.BoxConstraints
-import androidx.ui.rendering.box.RenderBox
-import androidx.ui.rendering.debugRepaintTextRainbowEnabled
-import androidx.ui.rendering.obj.PaintingContext
-import androidx.ui.semantics.SemanticsConfiguration
+/*import androidx.ui.semantics.SemanticsConfiguration*/
 import androidx.ui.services.text_editing.TextRange
 import androidx.ui.services.text_editing.TextSelection
 
@@ -94,13 +82,14 @@ class RenderParagraph(
     overflow: TextOverflow = TextOverflow.CLIP,
     textScaleFactor: Float = 1.0f,
     maxLines: Int? = null
-) : RenderBox() {
+) {
     @VisibleForTesting
     // TODO(migration/qqd): Should be internal. Removed internal due to hacking reason for now.
     var textPainter: TextPainter
 
     private var overflowShader: Shader? = null
     private var hasVisualOverflow = false
+    private var constraints: TextConstraints? = null
 
     init {
         assert(maxLines == null || maxLines > 0)
@@ -120,12 +109,12 @@ class RenderParagraph(
                 RenderComparison.IDENTICAL, RenderComparison.METADATA -> return
                 RenderComparison.PAINT -> {
                     textPainter.text = value
-                    markNeedsPaint()
+                    // markNeedsPaint()
                 }
                 RenderComparison.LAYOUT -> {
                     textPainter.text = value
                     overflowShader = null
-                    markNeedsLayout()
+                    // markNeedsLayout()
                 }
             }
         }
@@ -137,7 +126,7 @@ class RenderParagraph(
         set(value) {
             if (textPainter.textAlign == value) return
             textPainter.textAlign = value
-            markNeedsPaint()
+            // markNeedsPaint()
         }
         get() {
             return textPainter.textAlign
@@ -147,7 +136,7 @@ class RenderParagraph(
         set(value) {
             if (textPainter.textDirection == value) return
             textPainter.textDirection = value
-            markNeedsLayout()
+            // markNeedsLayout()
         }
         get() {
             return textPainter.textDirection!!
@@ -157,7 +146,7 @@ class RenderParagraph(
         set(value) {
             if (field == value) return
             field = value
-            markNeedsLayout()
+            // markNeedsLayout()
         }
 
     var overflow: TextOverflow = overflow
@@ -165,7 +154,7 @@ class RenderParagraph(
             if (field == value) return
             field = value
             textPainter.ellipsis = value === TextOverflow.ELLIPSIS
-            markNeedsLayout()
+            // markNeedsLayout()
         }
 
     var textScaleFactor: Float
@@ -173,7 +162,7 @@ class RenderParagraph(
             if (textPainter.textScaleFactor == value) return
             textPainter.textScaleFactor = value
             overflowShader = null
-            markNeedsLayout()
+            // markNeedsLayout()
         }
         get() {
             return textPainter.textScaleFactor
@@ -185,13 +174,13 @@ class RenderParagraph(
             if (textPainter.maxLines == value) return
             textPainter.maxLines = value
             overflowShader = null
-            markNeedsLayout()
+            // markNeedsLayout()
         }
         get() {
             return textPainter.maxLines
         }
 
-    override var size: Size = Size(0.0f, 0.0f)
+    var size: Size = Size(0.0f, 0.0f)
 
     val width: Float
         get() = textPainter.width
@@ -199,7 +188,7 @@ class RenderParagraph(
     val height: Float
         get() = textPainter.height
 
-    fun layoutText(minWidth: Float = 0.0f, maxWidth: Float = Float.POSITIVE_INFINITY) {
+    internal fun layoutText(minWidth: Float = 0.0f, maxWidth: Float = Float.POSITIVE_INFINITY) {
         val widthMatters = softWrap || overflow == TextOverflow.ELLIPSIS
         textPainter.layout(
             minWidth = minWidth, maxWidth =
@@ -207,16 +196,16 @@ class RenderParagraph(
         )
     }
 
-    fun layoutTextWithConstraints(constraints: BoxConstraints) {
+    internal fun layoutTextWithConstraints(constraints: TextConstraints) {
         layoutText(minWidth = constraints.minWidth, maxWidth = constraints.maxWidth)
     }
 
-    public override fun computeMinIntrinsicWidth(height: Float): Float {
+    fun computeMinIntrinsicWidth(height: Float): Float {
         layoutText()
         return textPainter.minIntrinsicWidth
     }
 
-    public override fun computeMaxIntrinsicWidth(height: Float): Float {
+    fun computeMaxIntrinsicWidth(height: Float): Float {
         layoutText()
         return textPainter.maxIntrinsicWidth
     }
@@ -227,27 +216,25 @@ class RenderParagraph(
         return textPainter.height
     }
 
-    public override fun computeMinIntrinsicHeight(width: Float): Float {
+    fun computeMinIntrinsicHeight(width: Float): Float {
         return computeIntrinsicHeight(width)
     }
 
-    public override fun computeMaxIntrinsicHeight(width: Float): Float {
+    fun computeMaxIntrinsicHeight(width: Float): Float {
         return computeIntrinsicHeight(width)
     }
 
-    public override fun computeDistanceToActualBaseline(baseline: TextBaseline): Float {
-        assert(!debugNeedsLayout)
+    fun computeDistanceToActualBaseline(baseline: TextBaseline): Float {
         // TODO(Migration/qqd): Need to figure out where this constraints come from and how to make
         // it non-null.
         assert(constraints != null)
         constraints?.let {
-            assert(it.debugAssertIsValid())
             layoutTextWithConstraints(it)
         }
         return textPainter.computeDistanceToActualBaseline(baseline)
     }
 
-    public override fun hitTestSelf(position: Offset): Boolean = true
+//    public override fun hitTestSelf(position: Offset): Boolean = true
 
     // TODO(Migration/qqd): handleEvent is not implemented in RenderBox, because RenderObject does
     // not implement HitTestTarget
@@ -270,7 +257,9 @@ class RenderParagraph(
     internal val debugHasOverflowShader: Boolean
         get() = overflowShader != null
 
-    fun performLayout(constraints: BoxConstraints) {
+    fun performLayout(constraints: TextConstraints) {
+        this.constraints = constraints
+
         layoutTextWithConstraints(constraints)
         // We grab textPainter.size here because assigning to `size` will trigger
         // us to validate our intrinsic sizes, which will change textPainter's
@@ -332,10 +321,6 @@ class RenderParagraph(
         }
     }
 
-    public override fun performLayout() {
-        performLayout(constraints!!)
-    }
-
     fun paint(canvas: Canvas, offset: Offset) {
         // Ideally we could compute the min/max intrinsic width/height with a
         // non-destructive operation. However, currently, computing these values
@@ -350,15 +335,6 @@ class RenderParagraph(
         // TODO(Migration/qqd): Need to figure out where this constraints come from and how to make
         // it non-null. For now Crane Text version does not need to layout text again. Comment it.
 //        layoutTextWithConstraints(constraints!!)
-        assert {
-            if (debugRepaintTextRainbowEnabled) {
-                TODO("(Migration/qqd): Needs HSVColor")
-//                val paint = Paint()
-//                paint.color = debugCurrentRepaintColor.toColor()
-//                canvas.drawRect(offset.and(size), paint)
-            }
-            true
-        }
 
         if (hasVisualOverflow) {
             val bounds = offset.and(size)
@@ -384,10 +360,6 @@ class RenderParagraph(
         }
     }
 
-    override fun paint(context: PaintingContext, offset: Offset) {
-        paint(context.canvas, offset)
-    }
-
     /** Returns path that enclose the given text selection range. */
     fun getPathForSelection(selection: TextSelection): Path {
         return textPainter.getPathForSelection(selection)
@@ -399,7 +371,6 @@ class RenderParagraph(
      * Valid only after [layout].
      */
     fun getOffsetForCaret(position: TextPosition, caretPrototype: Rect): Offset {
-        assert(!debugNeedsLayout)
         layoutTextWithConstraints(constraints!!)
         return textPainter.getOffsetForCaret(position, caretPrototype)
     }
@@ -413,7 +384,6 @@ class RenderParagraph(
      * Valid only after [layout].
      */
     fun getBoxesForSelection(selection: TextSelection): List<TextBox> {
-        assert(!debugNeedsLayout)
         layoutTextWithConstraints(constraints!!)
         return textPainter.getBoxesForSelection(selection)
     }
@@ -424,7 +394,6 @@ class RenderParagraph(
      * Valid only after [layout].
      */
     fun getPositionForOffset(offset: Offset): TextPosition {
-        assert(!debugNeedsLayout)
         layoutTextWithConstraints(constraints!!)
         return textPainter.getPositionForOffset(offset)
     }
@@ -440,7 +409,6 @@ class RenderParagraph(
      * Valid only after [layout].
      */
     fun getWordBoundary(position: TextPosition): TextRange {
-        assert(!debugNeedsLayout)
         layoutTextWithConstraints(constraints!!)
         return textPainter.getWordBoundary(position)
     }
@@ -457,11 +425,10 @@ class RenderParagraph(
      */
     val textSize: Size
         get() {
-            assert(!debugNeedsLayout)
             return textPainter.size
         }
 
-    override fun describeSemanticsConfiguration(config: SemanticsConfiguration) {
+    /*override fun describeSemanticsConfiguration(config: SemanticsConfiguration) {
         super.describeSemanticsConfiguration(config)
         config.label = text.toPlainText()
         config.textDirection = textDirection
@@ -474,29 +441,5 @@ class RenderParagraph(
                 style = DiagnosticsTreeStyle.transition
             )
         )*/
-    }
-
-    override fun debugFillProperties(properties: DiagnosticPropertiesBuilder) {
-        super.debugFillProperties(properties)
-        properties.add(EnumProperty<TextAlign>("textAlign", textAlign))
-        properties.add(EnumProperty<TextDirection>("textDirection", textDirection))
-        properties.add(
-            FlagProperty(
-                "softWrap",
-                value = softWrap,
-                ifTrue = "wrapping at box width",
-                ifFalse = "no wrapping except at line break characters",
-                showName = true
-            )
-        )
-        properties.add(EnumProperty<TextOverflow>("overflow", overflow))
-        properties.add(
-            FloatProperty.create(
-                "textScaleFactor",
-                textScaleFactor,
-                defaultValue = 1.0
-            )
-        )
-        properties.add(IntProperty("maxLines", maxLines, ifNull = "unlimited"))
-    }
+    }*/
 }

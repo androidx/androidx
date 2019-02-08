@@ -21,8 +21,8 @@ import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.paragraph.RenderParagraph
+import androidx.ui.rendering.paragraph.TextConstraints
 import androidx.ui.rendering.paragraph.TextOverflow
 import com.google.r4a.Ambient
 import com.google.r4a.Children
@@ -90,7 +90,7 @@ class Text() : Component() {
                         // system is resolved.
                         attachContextToFont(styledText, context)
 
-                        val boxConstraints = BoxConstraints(
+                        val boxConstraints = TextConstraints(
                             constraints.minWidth.toPx(density),
                             constraints.maxWidth.toPx(density),
                             constraints.minHeight.toPx(density),
