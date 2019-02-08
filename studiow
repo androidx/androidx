@@ -6,9 +6,9 @@ set -e
 
 
 function getStudioUrl() {
-  version="3.4.0.9"
+  version="3.4.0.12"
   ideaMajorVersion="183"
-  buildNumber="5202479"
+  buildNumber="5256591"
   osName="$1"
   studioUrl="https://dl.google.com/dl/android/studio/ide-zips/${version}/android-studio-ide-${ideaMajorVersion}.${buildNumber}-${osName}.zip"
   echo "${studioUrl}"
