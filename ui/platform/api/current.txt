@@ -1,1 +1,32 @@
 // Signature format: 3.0
+package androidx.ui.core {
+
+  public enum ErrorMessages {
+    ctor protected ErrorMessages(String message);
+    method public final Void arg();
+    method public final Void arg(java.lang.Object... args);
+    method public final String getMessage();
+    method public final Void state();
+    method public final Void state(java.lang.Object... args);
+    method public final Void unsupported();
+    method public final void validateArg(boolean check, Object? value);
+    method public final void validateArgs(boolean check, java.lang.Object... values);
+    method public final void validateState(boolean check);
+    enum_constant public static final androidx.ui.core.ErrorMessages CannotFindLayoutInParent;
+    enum_constant public static final androidx.ui.core.ErrorMessages ChildrenUnsupported;
+    enum_constant public static final androidx.ui.core.ErrorMessages ComponentNodeHasParent;
+    enum_constant public static final androidx.ui.core.ErrorMessages IllegalMoveOperation;
+    enum_constant public static final androidx.ui.core.ErrorMessages IndexOutOfRange;
+    enum_constant public static final androidx.ui.core.ErrorMessages NoChild;
+    enum_constant public static final androidx.ui.core.ErrorMessages NoMovingSingleElements;
+    enum_constant public static final androidx.ui.core.ErrorMessages NoSizeAfterLayout;
+    enum_constant public static final androidx.ui.core.ErrorMessages OnlyComponents;
+    enum_constant public static final androidx.ui.core.ErrorMessages OwnerAlreadyAttached;
+    enum_constant public static final androidx.ui.core.ErrorMessages OwnerAlreadyDetached;
+    enum_constant public static final androidx.ui.core.ErrorMessages ParentOwnerMustMatchChild;
+    enum_constant public static final androidx.ui.core.ErrorMessages SingleChildOnlyOneNode;
+    enum_constant public static final androidx.ui.core.ErrorMessages SizeAlreadyExists;
+  }
+
+}
+

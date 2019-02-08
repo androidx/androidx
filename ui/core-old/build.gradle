@@ -13,6 +13,7 @@ dependencies {
     api project(":ui-port")
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
+    implementation project(":ui-platform")
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
