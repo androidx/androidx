@@ -21,7 +21,9 @@ import static android.content.Context.KEYGUARD_SERVICE;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withParent;
 
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -145,7 +147,8 @@ public class MediaControlViewTest {
             }
         });
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        onView(withId(R.id.pause)).perform(click());
+        onView(allOf((withId(R.id.pause)),
+                withParent(withId(R.id.full_transport_controls)))).perform(click());
         assertTrue(latchForPlayingState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -178,7 +181,8 @@ public class MediaControlViewTest {
             }
         });
         assertTrue(latchForPausedState.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        onView(withId(R.id.ffwd)).perform(click());
+        onView(allOf((withId(R.id.ffwd)),
+                withParent(withId(R.id.full_transport_controls)))).perform(click());
         assertTrue(latchForFfwd.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
@@ -186,34 +190,33 @@ public class MediaControlViewTest {
     public void testRewButtonClick() throws Throwable {
         final CountDownLatch latchForFfwd = new CountDownLatch(1);
         final CountDownLatch latchForRew = new CountDownLatch(1);
-        final MediaController controller =
-                createController(new MediaController.ControllerCallback() {
-                    long mExpectedPosition;
-                    final long mDelta = 1000L;
-                    @Override
-                    public void onPlayerStateChanged(@NonNull MediaController controller,
-                            int state) {
-                        if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
-                            mExpectedPosition = FFWD_MS;
-                            controller.seekTo(mExpectedPosition);
-                        }
-                    }
-                    @Override
-                    public void onSeekCompleted(@NonNull MediaController controller,
-                            long position) {
-                        assertTrue(equalsSeekPosition(mExpectedPosition, position, mDelta));
-                        if (mExpectedPosition == FFWD_MS) {
-                            mExpectedPosition = position - REW_MS;
-                            latchForFfwd.countDown();
-                        } else {
-                            latchForRew.countDown();
-                        }
-                    }
+        createController(new MediaController.ControllerCallback() {
+            long mExpectedPosition = FFWD_MS;
+            final long mDelta = 1000L;
+            boolean mInitialSeekComplete = false;
 
-                    private boolean equalsSeekPosition(long expected, long actual, long delta) {
-                        return (actual < expected + delta) && (actual > expected - delta);
-                    }
-                });
+            @Override
+            public void onSeekCompleted(@NonNull MediaController controller,
+                    long position) {
+                // Wait for the initial seek when setting a media item
+                if (!mInitialSeekComplete) {
+                    mInitialSeekComplete = true;
+                    controller.seekTo(mExpectedPosition);
+                    return;
+                }
+                assertTrue(equalsSeekPosition(mExpectedPosition, position, mDelta));
+                if (mExpectedPosition == FFWD_MS) {
+                    mExpectedPosition = position - REW_MS;
+                    latchForFfwd.countDown();
+                } else {
+                    latchForRew.countDown();
+                }
+            }
+
+            private boolean equalsSeekPosition(long expected, long actual, long delta) {
+                return (actual < expected + delta) && (actual > expected - delta);
+            }
+        });
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -221,7 +224,8 @@ public class MediaControlViewTest {
             }
         });
         assertTrue(latchForFfwd.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
-        onView(withId(R.id.rew)).perform(click());
+        onView(allOf((withId(R.id.rew)),
+                withParent(withId(R.id.full_transport_controls)))).perform(click());
         assertTrue(latchForRew.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
     }
 
