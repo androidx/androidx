@@ -29,7 +29,6 @@ import android.support.annotation.CallSuper;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.util.Pair;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.AttributeSet;
 
@@ -70,6 +69,34 @@ public class NavDestination {
     @SuppressWarnings("UnknownNullness") // TODO https://issuetracker.google.com/issues/112185120
     public @interface ClassType {
         Class value();
+    }
+
+    static class DeepLinkMatch implements Comparable<DeepLinkMatch> {
+        @NonNull
+        private final NavDestination mDestination;
+        @NonNull
+        private final Bundle mMatchingArgs;
+
+        DeepLinkMatch(@NonNull NavDestination destination, @NonNull Bundle matchingArgs) {
+            mDestination = destination;
+            mMatchingArgs = matchingArgs;
+        }
+
+        @NonNull
+        NavDestination getDestination() {
+            return mDestination;
+        }
+
+        @NonNull
+        Bundle getMatchingArgs() {
+            return mMatchingArgs;
+        }
+
+        @Override
+        public int compareTo(DeepLinkMatch other) {
+            // Prefer matches with more matching arguments
+            return mMatchingArgs.size() - other.mMatchingArgs.size();
+        }
     }
 
     private static final HashMap<String, Class> sClasses = new HashMap<>();
@@ -300,19 +327,21 @@ public class NavDestination {
      * extracted from the Uri, or null if no match was found.
      */
     @Nullable
-    Pair<NavDestination, Bundle> matchDeepLink(@NonNull Uri uri) {
+    DeepLinkMatch matchDeepLink(@NonNull Uri uri) {
         if (mDeepLinks == null) {
             return null;
         }
-        Bundle bestMatchingArguments = null;
+        DeepLinkMatch bestMatch = null;
         for (NavDeepLink deepLink : mDeepLinks) {
             Bundle matchingArguments = deepLink.getMatchingArguments(uri, getArguments());
-            if (matchingArguments != null && (bestMatchingArguments == null
-                    || matchingArguments.size() > bestMatchingArguments.size())) {
-                bestMatchingArguments = matchingArguments;
+            if (matchingArguments != null) {
+                DeepLinkMatch newMatch = new DeepLinkMatch(this, matchingArguments);
+                if (bestMatch == null || newMatch.compareTo(bestMatch) > 0) {
+                    bestMatch = newMatch;
+                }
             }
         }
-        return bestMatchingArguments != null ? new Pair<>(this, bestMatchingArguments) : null;
+        return bestMatch;
     }
 
     /**
