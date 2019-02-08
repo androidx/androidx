@@ -78,9 +78,9 @@ class NavInflaterTest {
         val result = graph.matchDeepLink(expectedUri)
         assertThat(result)
             .isNotNull()
-        assertThat(result?.first)
+        assertThat(result?.destination)
             .isNotNull()
-        assertThat(result?.first?.id).isEqualTo(R.id.second_test)
+        assertThat(result?.destination?.id).isEqualTo(R.id.second_test)
     }
 
     @Test
