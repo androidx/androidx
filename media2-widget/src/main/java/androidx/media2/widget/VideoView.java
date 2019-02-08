@@ -405,7 +405,7 @@ public class VideoView extends SelectiveLayout {
      */
     public void setMediaControlView(@NonNull MediaControlView mediaControlView, long intervalMs) {
         mMediaControlView = mediaControlView;
-        mMediaControlView.setShowControllerInterval(intervalMs);
+        mMediaControlView.setDelayedAnimationInterval(intervalMs);
 
         if (isAttachedToWindow()) {
             attachMediaControlView();
