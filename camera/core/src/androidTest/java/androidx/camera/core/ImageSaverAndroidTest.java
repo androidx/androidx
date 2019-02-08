@@ -29,7 +29,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Base64;
 import android.util.Rational;
 import androidx.camera.core.ImageSaver.OnImageSavedListener;

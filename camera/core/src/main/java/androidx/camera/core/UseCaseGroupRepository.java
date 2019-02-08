@@ -16,11 +16,11 @@
 
 package androidx.camera.core;
 
-import android.arch.lifecycle.DefaultLifecycleObserver;
-import android.arch.lifecycle.Lifecycle.State;
-import android.arch.lifecycle.LifecycleOwner;
-import android.support.annotation.GuardedBy;
-import android.support.annotation.VisibleForTesting;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle.State;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.annotation.GuardedBy;
+import androidx.annotation.VisibleForTesting;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;

@@ -18,7 +18,7 @@ package androidx.camera.core;
 
 import android.graphics.Rect;
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 /**
  * The CameraControl Interface.

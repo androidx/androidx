@@ -17,8 +17,8 @@
 package androidx.camera.core;
 
 import android.os.Handler;
-import android.support.annotation.GuardedBy;
-import android.support.annotation.Nullable;
+import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 import android.view.Surface;
 import java.util.ArrayList;
 import java.util.HashSet;

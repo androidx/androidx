@@ -17,8 +17,8 @@
 package androidx.camera.core;
 
 import android.hardware.camera2.CameraCaptureSession;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import android.view.Surface;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import android.support.annotation.GuardedBy;
+import androidx.annotation.GuardedBy;
 import androidx.test.runner.AndroidJUnit4;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Condition;

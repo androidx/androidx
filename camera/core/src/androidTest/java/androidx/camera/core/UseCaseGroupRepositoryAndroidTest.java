@@ -19,7 +19,7 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
-import android.arch.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.runner.AndroidJUnit4;
 import java.util.Map;

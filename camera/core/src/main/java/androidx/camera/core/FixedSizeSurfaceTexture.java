@@ -18,7 +18,7 @@ package androidx.camera.core;
 
 import android.graphics.SurfaceTexture;
 import android.os.Build.VERSION_CODES;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.RequiresApi;
 import android.util.Size;
 import android.view.Surface;
 

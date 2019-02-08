@@ -16,8 +16,8 @@
 
 package androidx.camera.core;
 
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 /** An exception thrown when unable to retrieve information about a camera. */
 public final class CameraInfoUnavailableException extends Exception {

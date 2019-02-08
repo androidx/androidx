@@ -18,7 +18,7 @@ package androidx.camera.core;
 
 import android.media.Image;
 import android.media.ImageReader;
-import android.support.annotation.GuardedBy;
+import androidx.annotation.GuardedBy;
 import java.util.Collections;
 import java.util.List;
 

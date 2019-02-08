@@ -16,11 +16,11 @@
 
 package androidx.camera.core;
 
-import android.arch.lifecycle.LifecycleOwner;
-import android.support.annotation.CallSuper;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import android.util.Log;
 import android.util.Size;
 import androidx.camera.core.Configuration.Option;

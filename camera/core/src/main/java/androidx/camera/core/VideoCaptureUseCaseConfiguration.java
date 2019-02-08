@@ -16,8 +16,8 @@
 
 package androidx.camera.core;
 
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 /** Configuration for a video capture use case. */
 public final class VideoCaptureUseCaseConfiguration

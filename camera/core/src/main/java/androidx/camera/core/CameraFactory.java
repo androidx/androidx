@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX.LensFacing;
 import java.util.Set;
 

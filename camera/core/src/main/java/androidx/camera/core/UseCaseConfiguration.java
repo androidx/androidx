@@ -16,9 +16,9 @@
 
 package androidx.camera.core;
 
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.SessionConfiguration.OptionUnpacker;
 
 /**

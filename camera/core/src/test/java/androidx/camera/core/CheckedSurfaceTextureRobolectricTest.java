@@ -21,7 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Size;
 import androidx.camera.core.CheckedSurfaceTexture.OnTextureChangedListener;
 import org.junit.Before;

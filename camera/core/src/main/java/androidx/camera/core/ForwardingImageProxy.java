@@ -17,7 +17,7 @@
 package androidx.camera.core;
 
 import android.graphics.Rect;
-import android.support.annotation.GuardedBy;
+import androidx.annotation.GuardedBy;
 import java.util.HashSet;
 import java.util.Set;
 

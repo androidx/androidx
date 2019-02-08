@@ -19,7 +19,7 @@ package androidx.camera.core;
 import android.graphics.ImageFormat;
 import android.location.Location;
 import android.os.Handler;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Log;
 import android.util.Rational;
 import android.util.Size;

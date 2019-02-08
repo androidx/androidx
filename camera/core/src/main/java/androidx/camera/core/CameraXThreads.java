@@ -16,8 +16,8 @@
 
 package androidx.camera.core;
 
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 /**
  * Static tag for creating CameraX threads. TODO(b/115747543): Remove this class when migration from

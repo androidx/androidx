@@ -19,7 +19,7 @@ package androidx.camera.core;
 import android.graphics.Rect;
 import android.media.Image;
 import android.os.Build;
-import android.support.annotation.GuardedBy;
+import androidx.annotation.GuardedBy;
 import java.nio.ByteBuffer;
 
 /** An {@link ImageProxy} which wraps around an {@link Image}. */

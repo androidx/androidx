@@ -16,11 +16,11 @@
 
 package androidx.camera.core;
 
-import android.arch.lifecycle.DefaultLifecycleObserver;
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.Lifecycle.State;
-import android.arch.lifecycle.LifecycleOwner;
-import android.support.annotation.GuardedBy;
+import androidx.lifecycle.DefaultLifecycleObserver;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.Lifecycle.State;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.annotation.GuardedBy;
 
 /** A {@link UseCaseGroup} whose starting and stopping is controlled by a {@link Lifecycle}. */
 final class UseCaseGroupLifecycleController implements DefaultLifecycleObserver {

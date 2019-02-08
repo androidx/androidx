@@ -17,9 +17,9 @@
 package androidx.camera.core;
 
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 /** Configuration containing options pertaining to threads used by the configured object. */
 public interface ThreadConfiguration extends Configuration.Reader {

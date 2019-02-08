@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Size;
 import java.util.List;
 import java.util.Map;

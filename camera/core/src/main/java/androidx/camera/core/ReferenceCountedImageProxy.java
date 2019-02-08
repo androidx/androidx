@@ -17,8 +17,8 @@
 package androidx.camera.core;
 
 import android.media.Image;
-import android.support.annotation.GuardedBy;
-import android.support.annotation.Nullable;
+import androidx.annotation.GuardedBy;
+import androidx.annotation.Nullable;
 
 /**
  * An {@link ImageProxy} which allows forking images with reference counting.

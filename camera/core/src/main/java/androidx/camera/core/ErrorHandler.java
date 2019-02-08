@@ -18,9 +18,9 @@ package androidx.camera.core;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.GuardedBy;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.annotation.GuardedBy;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import android.util.Log;
 import androidx.camera.core.CameraX.ErrorCode;
 import androidx.camera.core.CameraX.ErrorListener;

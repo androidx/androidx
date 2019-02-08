@@ -16,7 +16,7 @@
 
 package androidx.camera.core;
 
-import android.support.annotation.GuardedBy;
+import androidx.annotation.GuardedBy;
 
 /** A {@link ImageProxy} which filters out redundant calls to {@link #close()}. */
 final class SingleCloseImageProxy extends ForwardingImageProxy {
