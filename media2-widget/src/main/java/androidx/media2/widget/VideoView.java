@@ -804,10 +804,8 @@ public class VideoView extends SelectiveLayout {
                 // Save file name as title since the file may not have a title Metadata.
                 if (UriUtil.isFromNetwork(uri)) {
                     path = uri.getPath();
-                } else if ("file".equals(uri.getScheme())) {
-                    path = uri.getLastPathSegment();
                 } else {
-                    // TODO: needs default title. b/120515913
+                    path = uri.getLastPathSegment();
                 }
                 retriever = new MediaMetadataRetriever();
                 retriever.setDataSource(getContext(), uri);
