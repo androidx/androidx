@@ -14,17 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.ui
+package androidx.ui.core
 
 import android.app.Activity
 import android.util.TypedValue
 import androidx.test.filters.SmallTest
 import androidx.test.rule.ActivityTestRule
 import androidx.testutils.PollingCheck
-import androidx.ui.core.Density
-import androidx.ui.core.dp
-import androidx.ui.core.toPx
-import androidx.ui.port.integration.ImageDrawTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -36,9 +32,8 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class DimensionDeviceTest {
     @get:Rule
-    val activityTestRule = ActivityTestRule<ImageDrawTest.Companion.TestActivity>(
-        ImageDrawTest.Companion.TestActivity::class.java
-    )
+    val activityTestRule = ActivityTestRule<TestActivity>(TestActivity::class.java)
+
     private lateinit var activity: Activity
 
     @Before
@@ -52,5 +47,9 @@ class DimensionDeviceTest {
         val dm = activity.resources.displayMetrics
         val dp10InPx = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 10f, dm)
         assertEquals(dp10InPx, 10.dp.toPx(Density(activity)), 0.01f)
+    }
+
+    companion object {
+        class TestActivity : Activity()
     }
 }
