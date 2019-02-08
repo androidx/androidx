@@ -12,7 +12,7 @@ package androidx.ui.test {
     method public static androidx.ui.test.SemanticsTreeQuery assertIsChecked(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsHidden(androidx.ui.test.SemanticsTreeQuery);
     method public static androidx.ui.test.SemanticsTreeQuery assertIsVisible(androidx.ui.test.SemanticsTreeQuery);
-    method public static void assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.semantics.SemanticsProperties expectedProperties);
+    method public static void assertSemanticsIsEqualTo(androidx.ui.test.SemanticsTreeQuery, androidx.ui.core.semantics.SemanticsProperties expectedProperties);
   }
 
   public final class FindersKt {

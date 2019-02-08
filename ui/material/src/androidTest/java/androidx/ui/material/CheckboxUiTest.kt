@@ -22,7 +22,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import androidx.ui.material.Checkbox
-import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.test.android.AndroidUiTestRunner
 import androidx.ui.test.assertIsChecked
 import androidx.ui.test.assertIsVisible

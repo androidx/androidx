@@ -16,7 +16,7 @@
 
 package androidx.ui.core
 
-import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsProperties
 
 /**
  * Element responsible for providing the semantics tree of the hierarchy. Typically the root container.

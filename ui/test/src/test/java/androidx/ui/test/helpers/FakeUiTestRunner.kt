@@ -17,7 +17,7 @@
 package androidx.ui.test.helpers
 
 import androidx.ui.core.SemanticsTreeNode
-import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.test.UiTestRunner
 
 class FakeUiTestRunner : UiTestRunner {

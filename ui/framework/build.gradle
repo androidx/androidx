@@ -10,6 +10,7 @@ plugins {
 
 dependencies {
     api project(":ui-core")
+    api project(":ui-intermediate")
     implementation project(":ui-platform")
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

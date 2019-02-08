@@ -16,11 +16,8 @@
 package androidx.ui.core
 
 import androidx.ui.core.pointerinput.PointerInputHandler
-import androidx.ui.engine.text.TextDirection
+import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.painting.Canvas
-import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.widgets.basic.Directionality
-import androidx.ui.widgets.framework.BuildContext
 import com.google.r4a.Emittable
 
 /**
@@ -451,26 +448,7 @@ internal class SemanticsR4ANode(
      * more accessible.
      */
     val properties: SemanticsProperties
-) : SingleChildComponentNode() {
-    fun _getTextDirection(context: BuildContext): TextDirection? {
-        if (properties.textDirection != null) {
-            return properties.textDirection
-        }
-
-        val containsText =
-            properties.label != null || properties.value != null || properties.hint != null
-
-        if (!containsText) {
-            return null
-        }
-
-        return Directionality.of(context)
-    }
-
-    override fun emitInsertAt(index: Int, instance: Emittable) {
-        super.emitInsertAt(index, instance)
-    }
-}
+) : SingleChildComponentNode()
 
 /**
  * The list of child MeasureBoxes. It can contain zero or more entries.

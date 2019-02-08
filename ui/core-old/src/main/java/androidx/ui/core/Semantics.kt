@@ -18,10 +18,9 @@ package androidx.ui.core
 
 import androidx.ui.VoidCallback
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.semantics.MoveCursorHandler
-import androidx.ui.semantics.SemanticsProperties
-import androidx.ui.semantics.SemanticsSortKey
-import androidx.ui.semantics.SetSelectionHandler
+import androidx.ui.core.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsSortKey
+import androidx.ui.services.text_editing.TextSelection
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
@@ -63,9 +62,9 @@ fun Semantics(
     onCopy: VoidCallback? = null,
     onCut: VoidCallback? = null,
     onPaste: VoidCallback? = null,
-    onMoveCursorForwardByCharacter: MoveCursorHandler? = null,
-    onMoveCursorBackwardByCharacter: MoveCursorHandler? = null,
-    onSetSelection: SetSelectionHandler? = null,
+    onMoveCursorForwardByCharacter: ((extendSelection: Boolean) -> Unit)? = null,
+    onMoveCursorBackwardByCharacter: ((extendSelection: Boolean) -> Unit)? = null,
+    onSetSelection: ((selection: TextSelection) -> Unit)? = null,
     onDidGainAccessibilityFocus: VoidCallback? = null,
     onDidLoseAccessibilityFocus: VoidCallback? = null
 

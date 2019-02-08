@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.ui.semantics.SemanticsProperties
+import androidx.ui.core.semantics.SemanticsProperties
 
 /**
  * Asserts that current component is visible.
