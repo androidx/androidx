@@ -79,7 +79,7 @@ function runStudioLinux() {
 }
 
 function runStudioMac() {
-  studioPath="${studioUnzippedPath}/Android Studio.app"
+  studioPath="$(find "${studioUnzippedPath}" -type d -depth 1 -name "Android Studio*.app")"
   echo "open ${studioPath}"
   env STUDIO_PROPERTIES="${projectDir}/development/studio/idea.properties" \
       STUDIO_VM_OPTIONS="${projectDir}/development/studio/studio.vmoptions" \
