@@ -94,8 +94,8 @@ data class MainFragmentArgs(
             }
             val __objectArrayArg : Array<ActivityInfo>?
             if (bundle.containsKey("objectArrayArg")) {
-                __objectArrayArg = bundle.getParcelableArray("objectArrayArg") as
-                        Array<ActivityInfo>?
+                __objectArrayArg = bundle.getParcelableArray("objectArrayArg")?.map { it as
+                        ActivityInfo }?.toTypedArray()
                 if (__objectArrayArg == null) {
                     throw IllegalArgumentException("Argument \"objectArrayArg\" is marked as non-null but was passed a null value.")
                 }
