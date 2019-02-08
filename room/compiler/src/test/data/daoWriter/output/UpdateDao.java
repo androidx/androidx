@@ -326,10 +326,10 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   @Override
   public Completable ageUserAllCompletable() {
-    final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
     return Completable.fromCallable(new Callable<Void>() {
       @Override
       public Void call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();
         try {
           _stmt.executeUpdateDelete();
@@ -345,10 +345,10 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   @Override
   public Single<Integer> ageUserAllSingle() {
-    final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
     return Single.fromCallable(new Callable<Integer>() {
       @Override
       public Integer call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();
         try {
           final java.lang.Integer _result = _stmt.executeUpdateDelete();
@@ -364,10 +364,10 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   @Override
   public Maybe<Integer> ageUserAllMaybe() {
-    final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
     return Maybe.fromCallable(new Callable<Integer>() {
       @Override
       public Integer call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfAgeUserAll.acquire();
         __db.beginTransaction();
         try {
           final java.lang.Integer _result = _stmt.executeUpdateDelete();
