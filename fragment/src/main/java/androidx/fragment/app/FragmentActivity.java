@@ -418,6 +418,7 @@ public class FragmentActivity extends ComponentActivity implements
      * because the fragment manager thinks the state is still saved.
      */
     @Override
+    @CallSuper
     protected void onNewIntent(@SuppressLint("UnknownNullness") Intent intent) {
         super.onNewIntent(intent);
         mFragments.noteStateNotSaved();
