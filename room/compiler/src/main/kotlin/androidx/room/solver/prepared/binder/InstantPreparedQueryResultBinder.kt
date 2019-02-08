@@ -27,13 +27,13 @@ class InstantPreparedQueryResultBinder(adapter: PreparedQueryResultAdapter?)
     : PreparedQueryResultBinder(adapter) {
 
     override fun executeAndReturn(
-        stmtQueryVal: String,
+        prepareQueryStmtBlock: CodeGenScope.() -> String,
         preparedStmtField: String?,
         dbField: FieldSpec,
         scope: CodeGenScope
     ) {
         adapter?.executeAndReturn(
-            stmtQueryVal = stmtQueryVal,
+            stmtQueryVal = scope.prepareQueryStmtBlock(),
             preparedStmtField = preparedStmtField,
             dbField = dbField,
             scope = scope)

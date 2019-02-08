@@ -143,23 +143,22 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
         queryWriter: QueryWriter
     ): MethodSpec {
         val scope = CodeGenScope(this)
-        val methodBuilder = overrideWithoutAnnotations(method.element, declaredDao).apply {
-            val stmtName = scope.getTmpVar("_stmt")
-            addStatement("final $T $L = $N.acquire()",
-                    SupportDbTypeNames.SQLITE_STMT, stmtName, preparedStmtField)
-            val bindScope = scope.fork()
-            queryWriter.bindArgs(stmtName, emptyList(), bindScope)
-            addCode(bindScope.builder().build())
-
-            val binderScope = scope.fork()
-            method.preparedQueryResultBinder.executeAndReturn(
-                stmtQueryVal = stmtName,
-                preparedStmtField = preparedStmtField.name,
-                dbField = dbField,
-                scope = binderScope)
-            addCode(binderScope.builder().build())
-        }
-        return methodBuilder.build()
+        method.preparedQueryResultBinder.executeAndReturn(
+            prepareQueryStmtBlock = {
+                val stmtName = getTmpVar("_stmt")
+                builder().apply {
+                    addStatement("final $T $L = $N.acquire()",
+                        SupportDbTypeNames.SQLITE_STMT, stmtName, preparedStmtField)
+                }
+                queryWriter.bindArgs(stmtName, emptyList(), this)
+                stmtName
+            },
+            preparedStmtField = preparedStmtField.name,
+            dbField = dbField,
+            scope = scope)
+        return overrideWithoutAnnotations(method.element, declaredDao)
+            .addCode(scope.generate())
+            .build()
     }
 
     private fun createTransactionMethods(): List<PreparedStmtQuery> {
@@ -434,25 +433,26 @@ class DaoWriter(val dao: Dao, val processingEnv: ProcessingEnvironment)
     }
 
     private fun createPreparedQueryMethodBody(method: WriteQueryMethod): CodeBlock {
-        val queryWriter = QueryWriter(method)
         val scope = CodeGenScope(this)
-        val sqlVar = scope.getTmpVar("_sql")
-        val stmtVar = scope.getTmpVar("_stmt")
-        val listSizeArgs = queryWriter.prepareQuery(sqlVar, scope)
-        scope.builder().apply {
-            addStatement("final $T $L = $N.compileStatement($L)",
-                    SupportDbTypeNames.SQLITE_STMT, stmtVar, dbField, sqlVar)
-            queryWriter.bindArgs(stmtVar, listSizeArgs, scope)
-
-            val binderScope = scope.fork()
-            method.preparedQueryResultBinder.executeAndReturn(
-                stmtQueryVal = stmtVar,
-                preparedStmtField = null,
-                dbField = dbField,
-                scope = binderScope)
-            add(binderScope.builder().build())
-        }
-        return scope.builder().build()
+        method.preparedQueryResultBinder.executeAndReturn(
+            prepareQueryStmtBlock = {
+                val queryWriter = QueryWriter(method)
+                val sqlVar = getTmpVar("_sql")
+                val stmtVar = getTmpVar("_stmt")
+                val listSizeArgs = queryWriter.prepareQuery(sqlVar, this)
+                builder().apply {
+                    addStatement(
+                        "final $T $L = $N.compileStatement($L)",
+                        SupportDbTypeNames.SQLITE_STMT, stmtVar, dbField, sqlVar
+                    )
+                }
+                queryWriter.bindArgs(stmtVar, listSizeArgs, this)
+                stmtVar
+            },
+            preparedStmtField = null,
+            dbField = dbField,
+            scope = scope)
+        return scope.generate()
     }
 
     private fun createQueryMethodBody(method: ReadQueryMethod): CodeBlock {
