@@ -27,9 +27,9 @@ import android.util.Size;
 import androidx.camera.core.CameraX.ErrorCode;
 import androidx.camera.core.CameraX.ErrorListener;
 import androidx.camera.core.CameraX.LensFacing;
+import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
-import androidx.camera.testing.fakes.FakeDefaultUseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.runner.AndroidJUnit4;
@@ -78,7 +78,7 @@ public final class CameraXAndroidTest {
   public void setUp() {
     Context context = ApplicationProvider.getApplicationContext();
     CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
-    UseCaseConfigurationFactory defaultConfigFactory = new FakeDefaultUseCaseConfigFactory();
+    UseCaseConfigurationFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
     AppConfiguration.Builder appConfigBuilder =
         new AppConfiguration.Builder()
             .setCameraFactory(cameraFactory)

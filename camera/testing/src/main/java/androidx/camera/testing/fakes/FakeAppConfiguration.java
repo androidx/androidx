@@ -19,6 +19,7 @@ package androidx.camera.testing.fakes;
 import androidx.camera.core.AppConfiguration;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraFactory;
+import androidx.camera.core.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.UseCaseConfigurationFactory;
 
 /**
@@ -32,7 +33,7 @@ public final class FakeAppConfiguration {
   public static final AppConfiguration create() {
     CameraFactory cameraFactory = new FakeCameraFactory();
     CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
-    UseCaseConfigurationFactory defaultConfigFactory = new FakeDefaultUseCaseConfigFactory();
+    UseCaseConfigurationFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
 
     AppConfiguration.Builder appConfigBuilder =
         new AppConfiguration.Builder()
