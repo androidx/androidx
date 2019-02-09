@@ -16,11 +16,11 @@
 
 package androidx.camera.testing.fakes;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LifecycleRegistry;
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 /**
  * A fake lifecycle owner which obeys the lifecycle transition rules.

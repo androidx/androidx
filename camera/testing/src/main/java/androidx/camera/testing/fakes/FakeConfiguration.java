@@ -16,8 +16,8 @@
 
 package androidx.camera.testing.fakes;
 
-import android.support.annotation.RestrictTo;
-import android.support.annotation.RestrictTo.Scope;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.Configuration;
 import androidx.camera.core.MutableConfiguration;
 import androidx.camera.core.MutableOptionsBundle;

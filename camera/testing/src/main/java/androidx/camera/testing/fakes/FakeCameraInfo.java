@@ -16,7 +16,7 @@
 
 package androidx.camera.testing.fakes;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;

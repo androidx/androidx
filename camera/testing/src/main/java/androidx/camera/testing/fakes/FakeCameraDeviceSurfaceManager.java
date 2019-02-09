@@ -16,7 +16,7 @@
 
 package androidx.camera.testing.fakes;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Size;
 import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceSurfaceManager;
