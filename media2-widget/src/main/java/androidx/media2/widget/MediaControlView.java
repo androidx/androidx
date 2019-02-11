@@ -1701,12 +1701,7 @@ public class MediaControlView extends ViewGroup {
 
         @Override
         public View getView(int position, View convertView, ViewGroup container) {
-            View row;
-            if (mSizeType == SIZE_TYPE_FULL) {
-                row = inflateLayout(getContext(), R.layout.full_settings_list_item);
-            } else {
-                row = inflateLayout(getContext(), R.layout.embedded_settings_list_item);
-            }
+            View row = inflateLayout(getContext(), R.layout.settings_list_item);
             TextView mainTextView = (TextView) row.findViewById(R.id.main_text);
             TextView subTextView = (TextView) row.findViewById(R.id.sub_text);
             ImageView iconView = (ImageView) row.findViewById(R.id.icon);
@@ -1776,12 +1771,7 @@ public class MediaControlView extends ViewGroup {
 
         @Override
         public View getView(int position, View convertView, ViewGroup container) {
-            View row;
-            if (mSizeType == SIZE_TYPE_FULL) {
-                row = inflateLayout(getContext(), R.layout.full_sub_settings_list_item);
-            } else {
-                row = inflateLayout(getContext(), R.layout.embedded_sub_settings_list_item);
-            }
+            View row = inflateLayout(getContext(), R.layout.sub_settings_list_item);
             TextView textView = (TextView) row.findViewById(R.id.text);
             ImageView checkView = (ImageView) row.findViewById(R.id.check);
 
