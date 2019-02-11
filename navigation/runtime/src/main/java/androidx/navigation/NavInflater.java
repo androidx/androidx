@@ -185,6 +185,9 @@ public final class NavInflater {
             if (navType == NavType.ReferenceType) {
                 if (value.resourceId != 0) {
                     defaultValue = value.resourceId;
+                } else if (value.type == TypedValue.TYPE_FIRST_INT && value.data == 0) {
+                    // Support "0" as a default value for reference types
+                    defaultValue = 0;
                 } else {
                     throw new XmlPullParserException(
                             "unsupported value '" + value.string
@@ -222,11 +225,6 @@ public final class NavInflater {
                         navType = checkNavType(value, navType, NavType.FloatType,
                                 argType, "float");
                         defaultValue = value.getFloat();
-                        break;
-                    case TypedValue.TYPE_REFERENCE:
-                        navType = checkNavType(value, navType, NavType.IntType,
-                                argType, "reference");
-                        defaultValue = value.data;
                         break;
                     case TypedValue.TYPE_INT_BOOLEAN:
                         navType = checkNavType(value, navType, NavType.BoolType,

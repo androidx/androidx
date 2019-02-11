@@ -112,6 +112,7 @@ class KotlinNavWriterTest {
             Argument("optional", IntType, IntValue("-1")),
             Argument("reference", ReferenceType, ReferenceValue(ResReference("a.b", "drawable",
                 "background"))),
+            Argument("referenceZeroDefaultValue", ReferenceType, IntValue("0")),
             Argument("floatArg", FloatType, FloatValue("1")),
             Argument("floatArrayArg", FloatArrayType),
             Argument("objectArrayArg", ObjectArrayType("android.content.pm.ActivityInfo")),
