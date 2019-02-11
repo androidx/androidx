@@ -90,6 +90,7 @@ public class DataSourceFactoryTest extends TestDatabaseTest {
                 .build());
     }
 
+    @SuppressWarnings("deprecation")
     private void validateUsersAsPagedList(
             LivePagedListFactory factory)
             throws InterruptedException, ExecutionException, TimeoutException {

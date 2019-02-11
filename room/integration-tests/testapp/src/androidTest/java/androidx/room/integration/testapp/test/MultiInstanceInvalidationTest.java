@@ -314,6 +314,7 @@ public class MultiInstanceInvalidationTest {
     }
 
 
+    @SuppressWarnings("deprecation")
     private long measure(boolean multiInstanceInvalidation, boolean bulk,
             List<Customer> customers) {
         final Context context = ApplicationProvider.getApplicationContext();

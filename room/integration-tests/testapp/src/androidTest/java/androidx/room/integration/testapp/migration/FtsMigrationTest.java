@@ -170,6 +170,7 @@ public class FtsMigrationTest {
         assertThat(addresses.get(0).line1, is("Ruth Ave"));
     }
 
+    @SuppressWarnings("deprecation")
     private FtsMigrationDb getLatestDb() {
         FtsMigrationDb db = Room.databaseBuilder(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(),

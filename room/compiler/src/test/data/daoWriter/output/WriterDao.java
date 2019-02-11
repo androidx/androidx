@@ -26,7 +26,7 @@ import java.util.List;
 import javax.annotation.Generated;
 
 @Generated("androidx.room.RoomProcessor")
-@SuppressWarnings("unchecked")
+@SuppressWarnings({"unchecked", "deprecation"})
 public final class WriterDao_Impl implements WriterDao {
     private final RoomDatabase __db;
 
