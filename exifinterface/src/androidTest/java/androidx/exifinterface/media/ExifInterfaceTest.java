@@ -26,7 +26,10 @@ import static org.junit.Assert.fail;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.os.Build;
 import android.os.Environment;
+import android.system.Os;
+import android.system.OsConstants;
 import android.util.Log;
 import android.util.Pair;
 
@@ -44,6 +47,7 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -71,6 +75,7 @@ public class ExifInterfaceTest {
     private static final String[] IMAGE_FILENAMES = new String[] {
             EXIF_BYTE_ORDER_II_JPEG, EXIF_BYTE_ORDER_MM_JPEG, LG_G4_ISO_800_DNG};
 
+    private static final int USER_READ_WRITE = 0600;
     private static final String TEST_TEMP_FILE_NAME = "testImage";
     private static final double DELTA = 1e-8;
     // We translate double to rational in a 1/10000 precision.
@@ -775,8 +780,14 @@ public class ExifInterfaceTest {
         File imageFile = new File(Environment.getExternalStorageDirectory(), fileName);
         String verboseTag = imageFile.getName();
 
+        // Creates via file.
+        ExifInterface exifInterface = new ExifInterface(imageFile);
+        assertNotNull(exifInterface);
+        compareWithExpectedValue(exifInterface, expectedValue, verboseTag);
+
+
         // Creates via path.
-        ExifInterface exifInterface = new ExifInterface(imageFile.getAbsolutePath());
+        exifInterface = new ExifInterface(imageFile.getAbsolutePath());
         assertNotNull(exifInterface);
         compareWithExpectedValue(exifInterface, expectedValue, verboseTag);
 
@@ -788,6 +799,21 @@ public class ExifInterfaceTest {
             compareWithExpectedValue(exifInterface, expectedValue, verboseTag);
         } finally {
             closeQuietly(in);
+        }
+
+        // Creates via FileDescriptor.
+        if (Build.VERSION.SDK_INT >= 21) {
+            FileDescriptor fd = null;
+            try {
+                fd = Os.open(imageFile.getAbsolutePath(), OsConstants.O_RDONLY,
+                        OsConstants.S_IRWXU);
+                exifInterface = new ExifInterface(fd);
+                compareWithExpectedValue(exifInterface, expectedValue, verboseTag);
+            } catch (Exception e) {
+                throw new IOException("Failed to open file descriptor", e);
+            } finally {
+                closeQuietly(fd);
+            }
         }
     }
 
@@ -867,6 +893,17 @@ public class ExifInterfaceTest {
         if (closeable != null) {
             try {
                 closeable.close();
+            } catch (RuntimeException rethrown) {
+                throw rethrown;
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    private void closeQuietly(FileDescriptor fd) {
+        if (fd != null) {
+            try {
+                Os.close(fd);
             } catch (RuntimeException rethrown) {
                 throw rethrown;
             } catch (Exception ignored) {
