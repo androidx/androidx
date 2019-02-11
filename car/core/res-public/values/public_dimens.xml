@@ -120,4 +120,7 @@
 
     <!-- Drawer max width -->
     <public type="dimen" name="car_drawer_max_width" />
+
+    <!-- Tabs -->
+    <public type="dimen" name="car_tab_min_width" />
 </resources>

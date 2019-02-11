@@ -32,6 +32,9 @@ style TextAppearance_Car_Body3_Medium_Light
 style TextAppearance_Car_Body4
 style TextAppearance_Car_Body4_Dark
 style TextAppearance_Car_Body4_Light
+style TextAppearance_Car_Body4_Medium
+style TextAppearance_Car_Body4_Medium_Dark
+style TextAppearance_Car_Body4_Medium_Light
 style TextAppearance_Car_Display1
 style TextAppearance_Car_Display2
 style TextAppearance_Car_Display3
@@ -65,6 +68,7 @@ style Widget_Car_ActionButton_Light
 style Widget_Car_Button
 style Widget_Car_Button_Borderless_Colored
 style Widget_Car_Button_DarkText
+style Widget_Car_CarToolbar
 style Widget_Car_Checkbox
 style Widget_Car_Checkbox_Dark
 style Widget_Car_Checkbox_Light
@@ -90,6 +94,7 @@ style Widget_Car_Scrollbar_Light
 style Widget_Car_SeekBar
 style Widget_Car_SeekBar_Dark
 style Widget_Car_SeekBar_Light
+style Widget_Car_TabLayout
 style Widget_Car_Toolbar
 style Widget_Car_Toolbar_Button_Navigation
 style Widget_Car_Toolbar_Button_Navigation_Light
@@ -232,6 +237,9 @@ color car_subtext5
 color car_subtext5_dark
 color car_subtext5_light
 dimen car_subtext5_size
+dimen car_tab_min_width
+color car_tab_tint
+layout car_tab_view
 color car_tint
 color car_tint_dark
 color car_tint_light

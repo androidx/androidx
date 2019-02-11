@@ -39,8 +39,11 @@
     <public type="style" name="TextAppearance.Car.Body3.Dark" />
     <public type="style" name="TextAppearance.Car.Body3.Medium.Dark" />
     <public type="style" name="TextAppearance.Car.Body4" />
+    <public type="style" name="TextAppearance.Car.Body4.Medium" />
     <public type="style" name="TextAppearance.Car.Body4.Light" />
+    <public type="style" name="TextAppearance.Car.Body4.Medium.Light" />
     <public type="style" name="TextAppearance.Car.Body4.Dark" />
+    <public type="style" name="TextAppearance.Car.Body4.Medium.Dark" />
     <public type="style" name="TextAppearance.Car.SubText1" />
     <public type="style" name="TextAppearance.Car.SubText2" />
     <public type="style" name="TextAppearance.Car.SubText3" />
@@ -53,6 +56,8 @@
     <public type="style" name="TextAppearance.Car.Error" />
 
     <!-- Widgets -->
+    <public type="style" name="Widget.Car.TabLayout" />
+    <public type="style" name="Widget.Car.CarToolbar" />
     <public type="style" name="Widget.Car.Toolbar" />
     <public type="style" name="Widget.Car.Toolbar.Light" />
     <public type="style" name="Widget.Car.Toolbar.Button.Navigation" />

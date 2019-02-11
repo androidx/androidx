@@ -100,4 +100,7 @@
     <public type="color" name="car_accent_dark" />
     <public type="color" name="car_accent_light" />
     <public type="color" name="car_accent" />
+
+    <!-- Tab colors -->
+    <public type="color" name="car_tab_tint" />
 </resources>
