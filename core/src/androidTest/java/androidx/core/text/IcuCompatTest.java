@@ -18,9 +18,8 @@ package androidx.core.text;
 
 import static org.junit.Assert.assertEquals;
 
-import android.os.Build;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -35,11 +34,13 @@ public class IcuCompatTest {
     @Test
     public void testMaximizeAndGetScript() {
         assertEquals("Latn", ICUCompat.maximizeAndGetScript(new Locale("en", "US")));
-
-        // Script tags were added to java.util.Locale only on API 21.
-        if (Build.VERSION.SDK_INT >= 21) {
-            assertEquals(
-                    "Visp", ICUCompat.maximizeAndGetScript(Locale.forLanguageTag("en-Visp-US")));
-        }
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 21)
+    public void testMaximizeAndGetScriptWithScriptTag() {
+        // Script tags were added to java.util.Locale only on API 21.
+        assertEquals("Visp", ICUCompat.maximizeAndGetScript(Locale.forLanguageTag("en-Visp-US")));
+    }
+
 }

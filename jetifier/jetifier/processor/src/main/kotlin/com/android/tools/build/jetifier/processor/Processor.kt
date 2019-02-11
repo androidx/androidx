@@ -23,6 +23,7 @@ import com.android.tools.build.jetifier.core.utils.Log
 import com.android.tools.build.jetifier.processor.archive.Archive
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
 import com.android.tools.build.jetifier.processor.archive.ArchiveItemVisitor
+import com.android.tools.build.jetifier.processor.archive.FileSearchResult
 import com.android.tools.build.jetifier.processor.transform.TransformationContext
 import com.android.tools.build.jetifier.processor.transform.Transformer
 import com.android.tools.build.jetifier.processor.transform.bytecode.ByteCodeTransformer
@@ -33,6 +34,7 @@ import com.android.tools.build.jetifier.processor.transform.proguard.ProGuardTra
 import com.android.tools.build.jetifier.processor.transform.resource.XmlResourcesTransformer
 import java.io.File
 import java.io.FileNotFoundException
+import java.lang.StringBuilder
 
 /**
  * The main entry point to the library. Extracts any given archive recursively and runs all
@@ -41,7 +43,8 @@ import java.io.FileNotFoundException
  */
 class Processor private constructor(
     private val context: TransformationContext,
-    private val transformers: List<Transformer>
+    private val transformers: List<Transformer>,
+    private val stripSignatureFiles: Boolean = false
 ) : ArchiveItemVisitor {
 
     companion object {
@@ -77,14 +80,17 @@ class Processor private constructor(
          * @param useFallbackIfTypeIsMissing Use fallback for types resolving instead of crashing
          * @param allowAmbiguousPackages Whether Jetifier should not crash when it attempts to
          * rewrite ambiguous package reference such as android.support.v4.
+         * @param stripSignatures Don't throw an error when jetifying a signed library and strip
+         * the signature files instead.
          * @param dataBindingVersion The versions to be used for data binding otherwise undefined.
          */
-        fun createProcessor2(
+        fun createProcessor3(
             config: Config,
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
             useFallbackIfTypeIsMissing: Boolean = true,
             allowAmbiguousPackages: Boolean = false,
+            stripSignatures: Boolean = false,
             dataBindingVersion: String? = null
         ): Processor {
             var newConfig = config
@@ -125,7 +131,40 @@ class Processor private constructor(
                 createTransformers(context)
             }
 
-            return Processor(context, transformers)
+            return Processor(context, transformers, stripSignatures)
+        }
+
+        /**
+         * Creates a new instance of the [Processor].
+         *
+         * @param config Transformation configuration
+         * @param reversedMode Whether the processor should run in reversed mode
+         * @param rewritingSupportLib Whether we are rewriting the support library itself
+         * @param useFallbackIfTypeIsMissing Use fallback for types resolving instead of crashing
+         * @param allowAmbiguousPackages Whether Jetifier should not crash when it attempts to
+         * rewrite ambiguous package reference such as android.support.v4.
+         * @param dataBindingVersion The versions to be used for data binding otherwise undefined.
+         */
+        @Deprecated(
+            message = "Legacy method that is missing 'throwErrorIsSignatureDetected' attribute",
+            replaceWith = ReplaceWith(expression = "Processor.createProcessor3"))
+        fun createProcessor2(
+            config: Config,
+            reversedMode: Boolean = false,
+            rewritingSupportLib: Boolean = false,
+            useFallbackIfTypeIsMissing: Boolean = true,
+            allowAmbiguousPackages: Boolean = false,
+            dataBindingVersion: String? = null
+        ): Processor {
+            return createProcessor3(
+                config = config,
+                reversedMode = reversedMode,
+                rewritingSupportLib = rewritingSupportLib,
+                useFallbackIfTypeIsMissing = useFallbackIfTypeIsMissing,
+                allowAmbiguousPackages = allowAmbiguousPackages,
+                stripSignatures = false,
+                dataBindingVersion = dataBindingVersion
+            )
         }
 
         /**
@@ -138,9 +177,10 @@ class Processor private constructor(
          * @param versionSetName Versions map for dependencies rewriting
          * @param dataBindingVersion The versions to be used for data binding otherwise undefined.
          */
-        @Deprecated(message = "Legacy method that is missing 'allowAmbiguousPackages' attribute " +
-                "and 'versionSetName' attribute is not used anymore.",
-            replaceWith = ReplaceWith(expression = "Processor.createProcessor2"))
+        @Deprecated(
+            message = "Legacy method that is missing 'allowAmbiguousPackages' attribute and " +
+                    "'versionSetName' attribute is not used anymore.",
+            replaceWith = ReplaceWith(expression = "Processor.createProcessor3"))
         fun createProcessor(
             config: Config,
             reversedMode: Boolean = false,
@@ -225,7 +265,10 @@ class Processor private constructor(
         // 4) Transform the previously discovered POM files
         transformPomFiles(pomFiles)
 
-        // 5) Repackage the libraries back to archive files
+        // 5) Find signature files and report them if needed
+        runSignatureDetectionFor(libraries)
+
+        // 6) Repackage the libraries back to archive files
         val generatedLibraries = libraries
             .filter { copyUnmodifiedLibsAlso || it.wasChanged }
             .map {
@@ -237,13 +280,47 @@ class Processor private constructor(
             return generatedLibraries
         }
 
-        // 6) Create a set of files that should be removed (because they've been changed).
+        // 7) Create a set of files that should be removed (because they've been changed).
         val filesToRemove = libraries
             .filter { it.wasChanged }
             .map { it.relativePath.toFile() }
             .toSet()
 
         return inputLibraries.minus(filesToRemove).plus(generatedLibraries)
+    }
+
+    private fun runSignatureDetectionFor(libraries: List<Archive>) {
+        var wereSignaturesDetected = false
+        val sb = StringBuilder()
+
+        libraries
+            .filter { it.wasChanged }
+            .forEach { library ->
+                val foundSignatures = FileSearchResult()
+                library.findAllFiles({ isSignatureFile(it) }, foundSignatures)
+                if (foundSignatures.all.isNotEmpty()) {
+                    wereSignaturesDetected = true
+                    sb.appendln()
+                    sb.appendln("Found following signature files for '${library.relativePath}':")
+                    foundSignatures.all
+                        .sortedBy { it.relativePath.toString() }
+                        .forEach { file ->
+                            sb.appendln("- ${file.relativePath}")
+                            file.markedForRemoval = true
+                    }
+                }
+            }
+
+        if (wereSignaturesDetected && !stripSignatureFiles) {
+            throw SignatureFilesFoundJetifierException(
+                "Jetifier found signature in at least one of the archives that need to be " +
+                "modified. However doing so would break the signatures. Please ask the library " +
+                "owner to provide jetpack compatible signed library. If you don't need " +
+                "the signatures you can re-run jetifier with 'stripSignatures' option on. " +
+                "Jetifier will then remove all affected signature files. Below is list of all " +
+                "the signature that were discovered: $sb}"
+            )
+        }
     }
 
     /**
@@ -348,7 +425,7 @@ class Processor private constructor(
         archive.files.forEach { it.accept(this) }
 
         // This is an ugly workaround to merge annotations files due to having old and new
-        // namespaces  at the same time
+        // namespaces at the same time
         if (context.isInReversedMode) {
             AnnotationFilesMerger.tryMergeFilesInArchive(archive)
         }

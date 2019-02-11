@@ -39,6 +39,7 @@ import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_TOGGLE;
 import static androidx.slice.widget.SliceView.MODE_SMALL;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
@@ -294,12 +295,16 @@ public class RowView extends SliceChildView implements View.OnClickListener {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int totalHeight = mRowContent != null
                 ? mRowContent.getHeight(mSliceStyle, mViewPolicy) : 0;
+        int childWidth = 0;
+
         int rowHeight = getRowContentHeight();
         if (rowHeight != 0) {
             // Might be gone if we have range / progress but nothing else
             mRootView.setVisibility(View.VISIBLE);
             heightMeasureSpec = MeasureSpec.makeMeasureSpec(rowHeight, MeasureSpec.EXACTLY);
             measureChild(mRootView, widthMeasureSpec, heightMeasureSpec);
+
+            childWidth = mRootView.getMeasuredWidth();
         } else {
             mRootView.setVisibility(View.GONE);
         }
@@ -313,10 +318,11 @@ public class RowView extends SliceChildView implements View.OnClickListener {
             // Remember the measured height later for onLayout, since super.onMeasure will overwrite
             // it.
             mMeasuredRangeHeight = mRangeBar.getMeasuredHeight();
+            childWidth = Math.max(childWidth, mRangeBar.getMeasuredWidth());
         }
 
-        int totalHeightSpec = MeasureSpec.makeMeasureSpec(totalHeight, MeasureSpec.EXACTLY);
-        super.onMeasure(widthMeasureSpec, totalHeightSpec);
+        childWidth = Math.max(childWidth, getSuggestedMinimumWidth());
+        setMeasuredDimension(resolveSizeAndState(childWidth, widthMeasureSpec, 0), totalHeight);
     }
 
     @Override
@@ -360,6 +366,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
         populateViews(isUpdate);
     }
 
+    @SuppressLint("RestrictedApi")
     private void populateViews(boolean isUpdate) {
         boolean skipSliderUpdate = isUpdate && mIsRangeSliding;
         if (!skipSliderUpdate) {
@@ -727,6 +734,7 @@ public class RowView extends SliceChildView implements View.OnClickListener {
      * Adds simple items to a container. Simple items include actions with icons, images, or
      * timestamps.
      */
+    @SuppressLint("RestrictedApi")
     private boolean addItem(SliceItem sliceItem, int color, boolean isStart) {
         IconCompat icon = null;
         int imageMode = 0;

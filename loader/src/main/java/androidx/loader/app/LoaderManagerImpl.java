@@ -250,8 +250,8 @@ class LoaderManagerImpl extends LoaderManager {
                 Log.v(TAG, "  onLoadFinished in " + mLoader + ": "
                         + mLoader.dataToString(data));
             }
-            mCallback.onLoadFinished(mLoader, data);
             mDeliveredData = true;
+            mCallback.onLoadFinished(mLoader, data);
         }
 
         boolean hasDeliveredData() {

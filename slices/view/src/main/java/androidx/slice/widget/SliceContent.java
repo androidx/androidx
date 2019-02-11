@@ -35,6 +35,7 @@ import static androidx.slice.core.SliceHints.SMALL_IMAGE;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 import static androidx.slice.widget.SliceViewUtil.resolveLayoutDirection;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -68,6 +69,7 @@ public class SliceContent {
     protected SliceItem mContentDescr;
     protected int mRowIndex;
 
+    @SuppressLint("RestrictedApi")
     public SliceContent(Slice slice) {
         if (slice == null) return;
         init(new SliceItem(slice, FORMAT_SLICE, null, slice.getHints()));
@@ -200,6 +202,7 @@ public class SliceContent {
         return null;
     }
 
+    @SuppressLint("RestrictedApi")
     private SliceAction fallBackToAppData(Context context, SliceItem textItem, SliceItem iconItem,
             int iconMode, SliceItem actionItem) {
         SliceItem slice = SliceQuery.find(mSliceItem, FORMAT_SLICE, (String) null, null);

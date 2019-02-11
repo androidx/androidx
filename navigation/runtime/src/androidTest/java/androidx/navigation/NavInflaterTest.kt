@@ -26,9 +26,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,8 +47,23 @@ class NavInflaterTest {
         val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_simple)
 
-        assertNotNull(graph)
-        assertEquals(R.id.start_test, graph.startDestination)
+        assertThat(graph).isNotNull()
+        assertThat(graph.startDestination)
+            .isEqualTo(R.id.start_test)
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun testInflateInvalidArgumentArgType() {
+        val context = ApplicationProvider.getApplicationContext() as Context
+        val navInflater = NavInflater(context, TestNavigatorProvider())
+        navInflater.inflate(R.navigation.nav_invalid_argument_arg_type)
+    }
+
+    @Test(expected = RuntimeException::class)
+    fun testInflateInvalidArgumentDefaultValue() {
+        val context = ApplicationProvider.getApplicationContext() as Context
+        val navInflater = NavInflater(context, TestNavigatorProvider())
+        navInflater.inflate(R.navigation.nav_invalid_argument_default_value)
     }
 
     @Test
@@ -59,139 +72,109 @@ class NavInflaterTest {
         val navInflater = NavInflater(context, TestNavigatorProvider())
         val graph = navInflater.inflate(R.navigation.nav_simple)
 
-        assertNotNull(graph)
+        assertThat(graph).isNotNull()
         val expectedUri = Uri.parse("android-app://" +
                 instrumentation.targetContext.packageName + "/test")
         val result = graph.matchDeepLink(expectedUri)
-        assertNotNull(result)
-        assertNotNull(result?.first)
-        assertEquals(R.id.second_test, result?.first?.id ?: 0)
+        assertThat(result)
+            .isNotNull()
+        assertThat(result?.destination)
+            .isNotNull()
+        assertThat(result?.destination?.id).isEqualTo(R.id.second_test)
     }
 
     @Test
     fun testDefaultArgumentsInteger() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
-        assertEquals(12, defaultArguments.get("test_int")?.defaultValue)
-        assertEquals(NavType.IntType, defaultArguments.get("test_int")?.type)
-        assertEquals(2, defaultArguments.get("test_int2")?.defaultValue)
-        assertEquals(NavType.IntType, defaultArguments.get("test_int2")?.type)
-    }
-
-    @Test
-    fun testDefaultArgumentsDimen() {
-        val defaultArguments = inflateDefaultArgumentsFromGraph()
-        val context = ApplicationProvider.getApplicationContext() as Context
-        val expectedValue = context.resources.getDimensionPixelSize(R.dimen.test_dimen_arg)
-
-        assertEquals(expectedValue, defaultArguments.get("test_dimen")?.defaultValue)
-        assertEquals(NavType.IntType, defaultArguments.get("test_dimen")?.type)
-        assertEquals(expectedValue, defaultArguments.get("test_dimen2")?.defaultValue)
-        assertEquals(NavType.IntType, defaultArguments.get("test_dimen2")?.type)
-        assertEquals(R.dimen.test_dimen_arg, defaultArguments.get("test_dimen3")?.defaultValue)
-        assertEquals(NavType.ReferenceType, defaultArguments.get("test_dimen3")?.type)
-    }
-
-    @Test
-    fun testDefaultArgumentsColor() {
-        val defaultArguments = inflateDefaultArgumentsFromGraph()
-        val context = ApplicationProvider.getApplicationContext() as Context
-        val expectedValue = context.resources.getColor(R.color.test_color_arg)
-
-        assertEquals(expectedValue, defaultArguments.get("test_color")?.defaultValue)
-        assertEquals(NavType.IntType, defaultArguments.get("test_color")?.type)
+        assertThat(defaultArguments["test_int"]?.run { type to defaultValue })
+            .isEqualTo(NavType.IntType to 12)
     }
 
     @Test
     fun testDefaultArgumentsFloat() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
-        assertEquals(3.14f, defaultArguments.get("test_float")?.defaultValue)
-        assertEquals(NavType.FloatType, defaultArguments.get("test_float")?.type)
+        assertThat(defaultArguments["test_float"]?.run { type to defaultValue })
+            .isEqualTo(NavType.FloatType to 3.14f)
     }
 
     @Test
     fun testDefaultArgumentsBoolean() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
-        assertEquals(true, defaultArguments.get("test_boolean")?.defaultValue)
-        assertEquals(false, defaultArguments.get("test_boolean2")?.defaultValue)
-        assertEquals(true, defaultArguments.get("test_boolean3")?.defaultValue)
-        assertEquals(false, defaultArguments.get("test_boolean4")?.defaultValue)
-        assertEquals(true, defaultArguments.get("test_boolean5")?.defaultValue)
-        assertEquals(NavType.BoolType, defaultArguments.get("test_boolean")?.type)
-        assertEquals(NavType.BoolType, defaultArguments.get("test_boolean2")?.type)
-        assertEquals(NavType.BoolType, defaultArguments.get("test_boolean3")?.type)
-        assertEquals(NavType.BoolType, defaultArguments.get("test_boolean4")?.type)
-        assertEquals(NavType.BoolType, defaultArguments.get("test_boolean5")?.type)
+        assertThat(defaultArguments["test_boolean"]?.run { type to defaultValue })
+            .isEqualTo(NavType.BoolType to true)
+        assertThat(defaultArguments["test_boolean_false"]?.run { type to defaultValue })
+            .isEqualTo(NavType.BoolType to false)
+        assertThat(defaultArguments["test_boolean_with_argType"]?.run { type to defaultValue })
+            .isEqualTo(NavType.BoolType to true)
+        assertThat(defaultArguments["test_boolean_with_argType_false"]?.run {
+            type to defaultValue
+        }).isEqualTo(NavType.BoolType to false)
     }
 
     @Test
     fun testDefaultArgumentsLong() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
-        assertEquals(456789013456L, defaultArguments.get("test_long")?.defaultValue)
-        assertEquals(456789013456L, defaultArguments.get("test_long2")?.defaultValue)
-        assertEquals(123L, defaultArguments.get("test_long3")?.defaultValue)
-        assertEquals(NavType.LongType, defaultArguments.get("test_long")?.type)
-        assertEquals(NavType.LongType, defaultArguments.get("test_long2")?.type)
-        assertEquals(NavType.LongType, defaultArguments.get("test_long3")?.type)
+        assertThat(defaultArguments["test_long"]?.run { type to defaultValue })
+            .isEqualTo(NavType.LongType to 456789013456L)
+        assertThat(defaultArguments["test_long_with_argType"]?.run { type to defaultValue })
+            .isEqualTo(NavType.LongType to 456789013456L)
+        assertThat(defaultArguments["test_long_short"]?.run { type to defaultValue })
+            .isEqualTo(NavType.LongType to 123L)
     }
 
     @Test
     fun testDefaultArgumentsEnum() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
-        assertEquals(TestEnum.VALUE_ONE, defaultArguments.get("test_enum")?.defaultValue)
-        assertEquals(NavType.EnumType(TestEnum::class.java),
-            defaultArguments.get("test_enum")?.type)
+        assertThat(defaultArguments["test_enum"]?.run { type to defaultValue })
+            .isEqualTo(NavType.EnumType(TestEnum::class.java) to TestEnum.VALUE_ONE)
     }
 
     @Test
     fun testDefaultArgumentsString() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
-        assertEquals("abc", defaultArguments.get("test_string")?.defaultValue)
-        assertEquals("true", defaultArguments.get("test_string2")?.defaultValue)
-        assertEquals("123L", defaultArguments.get("test_string3")?.defaultValue)
-        assertEquals("123", defaultArguments.get("test_string4")?.defaultValue)
-        assertEquals("test string", defaultArguments.get("test_string5")?.defaultValue)
-        assertEquals("test string", defaultArguments.get("test_string6")?.defaultValue)
-        assertTrue(defaultArguments.containsKey("test_string_no_default"))
-        assertEquals(false, defaultArguments.get("test_string_no_default")?.isDefaultValuePresent)
+        assertThat(defaultArguments["test_string"]?.run { type to defaultValue })
+            .isEqualTo(NavType.StringType to "abc")
+        assertThat(defaultArguments["test_string_bool"]?.run { type to defaultValue })
+            .isEqualTo(NavType.StringType to "true")
+        assertThat(defaultArguments["test_string_long"]?.run { type to defaultValue })
+            .isEqualTo(NavType.StringType to "123L")
+        assertThat(defaultArguments["test_string_integer"]?.run { type to defaultValue })
+            .isEqualTo(NavType.StringType to "123")
 
-        assertEquals(NavType.StringType, defaultArguments.get("test_string")?.type)
-        assertEquals(NavType.StringType, defaultArguments.get("test_string2")?.type)
-        assertEquals(NavType.StringType, defaultArguments.get("test_string3")?.type)
-        assertEquals(NavType.StringType, defaultArguments.get("test_string4")?.type)
-        assertEquals(NavType.StringType, defaultArguments.get("test_string5")?.type)
-        assertEquals(NavType.StringType, defaultArguments.get("test_string6")?.type)
-        assertEquals(NavType.StringType, defaultArguments.get("test_string_no_default")?.type)
+        assertThat(defaultArguments["test_string_no_default"]?.run {
+            type to isDefaultValuePresent
+        }).isEqualTo(NavType.StringType to false)
     }
 
     @Test
     fun testDefaultArgumentsReference() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
 
-        assertEquals(R.style.AppTheme, defaultArguments.get("test_reference")?.defaultValue)
-        assertEquals(NavType.IntType, defaultArguments.get("test_reference")?.type)
-        assertEquals(R.dimen.test_dimen_arg, defaultArguments.get("test_reference2")?.defaultValue)
-        assertEquals(NavType.ReferenceType, defaultArguments.get("test_reference2")?.type)
-        assertEquals(R.integer.test_integer_arg,
-            defaultArguments.get("test_reference3")?.defaultValue)
-        assertEquals(NavType.ReferenceType, defaultArguments.get("test_reference3")?.type)
-        assertEquals(R.string.test_string_arg,
-            defaultArguments.get("test_reference4")?.defaultValue)
-        assertEquals(NavType.ReferenceType, defaultArguments.get("test_reference4")?.type)
-        assertEquals(R.bool.test_bool_arg, defaultArguments.get("test_reference5")?.defaultValue)
-        assertEquals(NavType.ReferenceType, defaultArguments.get("test_reference5")?.type)
+        assertThat(defaultArguments["test_reference"]?.run { type to defaultValue })
+            .isEqualTo(NavType.ReferenceType to R.style.AppTheme)
+        assertThat(defaultArguments["test_reference_dimen"]?.run { type to defaultValue })
+            .isEqualTo(NavType.ReferenceType to R.dimen.test_dimen_arg)
+        assertThat(defaultArguments["test_reference_integer"]?.run { type to defaultValue })
+            .isEqualTo(NavType.ReferenceType to R.integer.test_integer_arg)
+        assertThat(defaultArguments["test_reference_string"]?.run { type to defaultValue })
+            .isEqualTo(NavType.ReferenceType to R.string.test_string_arg)
+        assertThat(defaultArguments["test_reference_bool"]?.run { type to defaultValue })
+            .isEqualTo(NavType.ReferenceType to R.bool.test_bool_arg)
+        assertThat(defaultArguments["test_reference_color"]?.run { type to defaultValue })
+            .isEqualTo(NavType.ReferenceType to R.color.test_color_arg)
     }
 
     @Test
     fun testRelativeClassName() {
         val defaultArguments = inflateDefaultArgumentsFromGraph()
-        assertEquals(TestEnum.VALUE_TWO,
-            defaultArguments.get("test_relative_classname")?.defaultValue)
+        assertThat(defaultArguments["test_relative_classname"]?.run { type to defaultValue })
+            .isEqualTo(NavType.EnumType(TestEnum::class.java) to TestEnum.VALUE_TWO)
     }
 
     @Test
@@ -201,7 +184,8 @@ class NavInflaterTest {
         val graph = navInflater.inflate(R.navigation.nav_default_arguments)
         val startDestination = graph.findNode(graph.startDestination)
         val action = startDestination?.getAction(R.id.my_action)
-        assertEquals(123L, action?.defaultArguments?.get("test_action_arg"))
+        assertThat(action?.defaultArguments?.get("test_action_arg"))
+            .isEqualTo(123L)
     }
 
     private fun inflateDefaultArgumentsFromGraph(): Map<String, NavArgument> {
@@ -212,7 +196,7 @@ class NavInflaterTest {
         val startDestination = graph.findNode(graph.startDestination)
         val defaultArguments = startDestination?.arguments
 
-        assertNotNull(defaultArguments)
+        assertThat(defaultArguments).isNotNull()
         return defaultArguments!!
     }
 }

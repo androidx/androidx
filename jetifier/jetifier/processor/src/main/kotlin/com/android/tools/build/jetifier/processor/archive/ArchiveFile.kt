@@ -34,8 +34,16 @@ class ArchiveFile(relativePath: Path, data: ByteArray) : ArchiveItem {
     override var wasChanged: Boolean = false
         private set
 
+    override var markedForRemoval: Boolean = false
+
     var data: ByteArray = data
         private set
+
+    override fun findAllFiles(selector: (ArchiveFile) -> Boolean, result: FileSearchResult) {
+        if (selector(this)) {
+            result.addFile(this)
+        }
+    }
 
     override fun accept(visitor: ArchiveItemVisitor) {
         visitor.visit(this)

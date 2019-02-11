@@ -17,7 +17,9 @@
 package androidx.appcompat.app;
 
 import static androidx.appcompat.app.NightModeActivity.TOP_ACTIVITY;
+import static androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals;
 import static androidx.appcompat.testutils.NightModeUtils.setLocalNightModeAndWait;
+import static androidx.appcompat.testutils.TestUtilsActions.rotateScreenOrientation;
 import static androidx.appcompat.testutils.TestUtilsMatchers.isBackground;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
@@ -25,9 +27,13 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
+import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.res.Configuration;
+import android.webkit.WebView;
 
 import androidx.appcompat.test.R;
 import androidx.core.content.ContextCompat;
@@ -75,8 +81,35 @@ public class NightModeTestCase {
         setLocalNightModeAndWaitForRecreate(
                 mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
 
+        // Assert that the new local night mode is returned
+        assertEquals(AppCompatDelegate.MODE_NIGHT_YES,
+                mActivityTestRule.getActivity().getDelegate().getLocalNightMode());
+
         // Now check the text has changed, signifying that night resources are being used
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
+    }
+
+    @Test
+    public void testSwitchingYesToFollowSystem() throws Throwable {
+        // Verify first that we're in day mode
+        onView(withId(R.id.text_night_mode))
+                .check(matches(withText(STRING_DAY)));
+
+        // Now force the local night mode to be yes (aka night mode)
+        setLocalNightModeAndWaitForRecreate(
+                mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
+
+        // Now check the text has changed, signifying that night resources are being used
+        onView(withId(R.id.text_night_mode))
+                .check(matches(withText(STRING_NIGHT)));
+
+        // Now force the local night mode to be FOLLOW_SYSTEM, which should go back to DAY
+        setLocalNightModeAndWaitForRecreate(
+                mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+
+        // Now check the text has changed, signifying that night resources are being used
+        onView(withId(R.id.text_night_mode))
+                .check(matches(withText(STRING_DAY)));
     }
 
     @Test
@@ -142,32 +175,31 @@ public class NightModeTestCase {
         final FakeTwilightManager twilightManager = new FakeTwilightManager();
         TwilightManager.setInstance(twilightManager);
 
-        NightModeActivity activity = mActivityTestRule.getActivity();
-
-        // Set MODE_NIGHT_AUTO so that we will change to night mode automatically
-        activity = setLocalNightModeAndWaitForRecreate(activity,
+        // Set MODE_NIGHT_AUTO_TIME so that we will change to night mode automatically
+        setLocalNightModeAndWaitForRecreate(mActivityTestRule.getActivity(),
                 AppCompatDelegate.MODE_NIGHT_AUTO_TIME);
+
         // Verify that we're currently in day mode
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_DAY)));
 
-        final NightModeActivity toTest = activity;
         final CountDownLatch resumeCompleteLatch = new CountDownLatch(1);
 
         mActivityTestRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                final NightModeActivity activity = mActivityTestRule.getActivity();
                 final Instrumentation instrumentation =
                         InstrumentationRegistry.getInstrumentation();
                 // Now fool the Activity into thinking that it has gone into the background
-                instrumentation.callActivityOnPause(toTest);
-                instrumentation.callActivityOnStop(toTest);
+                instrumentation.callActivityOnPause(activity);
+                instrumentation.callActivityOnStop(activity);
 
                 // Now update the twilight manager while the Activity is in the 'background'
                 twilightManager.setIsNight(true);
 
                 // Now tell the Activity that it has gone into the foreground again
-                instrumentation.callActivityOnStart(toTest);
-                instrumentation.callActivityOnResume(toTest);
+                instrumentation.callActivityOnStart(activity);
+                instrumentation.callActivityOnResume(activity);
 
                 resumeCompleteLatch.countDown();
             }
@@ -191,6 +223,71 @@ public class NightModeTestCase {
         // Assert that the Activity received a new value
         assertEquals(AppCompatDelegate.MODE_NIGHT_NO,
                 mActivityTestRule.getActivity().getLastNightModeAndReset());
+    }
+
+    @Test
+    public void testRotateRecreatesActivity() throws Throwable {
+        // Set local night mode to YES
+        setLocalNightModeAndWait(mActivityTestRule, AppCompatDelegate.MODE_NIGHT_YES);
+
+        final Activity activity = mActivityTestRule.getActivity();
+
+        // Assert that the current Activity is 'dark'
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES,
+                activity.getResources().getConfiguration());
+
+        // Now rotate the device
+        onView(withId(android.R.id.content)).perform(rotateScreenOrientation(activity));
+
+        // And assert that we have a new Activity, and thus was recreated
+        assertNotSame(activity, mActivityTestRule.getActivity());
+    }
+
+    @Test
+    public void testDialogDoesNotOverrideActivityConfiguration() throws Throwable {
+        // Set Activity local night mode to YES
+        final NightModeActivity activity = setLocalNightModeAndWaitForRecreate(
+                mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
+
+        // Assert that the uiMode is as expected
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, activity);
+
+        // Now show a AppCompatDialog
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AppCompatDialog dialog = new AppCompatDialog(activity);
+                dialog.show();
+            }
+        });
+
+        // Assert that the uiMode is unchanged
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, activity);
+    }
+
+    @Test
+    public void testLoadingWebViewMaintainsConfiguration() throws Throwable {
+        // Set night mode and wait for the new Activity
+        final NightModeActivity activity = setLocalNightModeAndWaitForRecreate(
+                mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
+
+        // Assert that the context still has a night themed configuration
+        assertConfigurationNightModeEquals(
+                Configuration.UI_MODE_NIGHT_YES,
+                activity.getResources().getConfiguration());
+
+        // Now load a WebView into the Activity
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                final WebView webView = new WebView(activity);
+            }
+        });
+
+        // Now assert that the context still has a night themed configuration
+        assertConfigurationNightModeEquals(
+                Configuration.UI_MODE_NIGHT_YES,
+                activity.getResources().getConfiguration());
     }
 
     private static class FakeTwilightManager extends TwilightManager {

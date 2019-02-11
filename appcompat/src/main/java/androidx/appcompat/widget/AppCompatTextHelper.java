@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -33,6 +34,7 @@ import android.util.TypedValue;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.content.res.ResourcesCompat;
@@ -58,6 +60,7 @@ class AppCompatTextHelper {
     private TintInfo mDrawableBottomTint;
     private TintInfo mDrawableStartTint;
     private TintInfo mDrawableEndTint;
+    private TintInfo mDrawableTint; // Tint used for all compound drawables
 
     @NonNull
     private final AppCompatTextViewAutoSizeHelper mAutoSizeTextHelper;
@@ -296,6 +299,17 @@ class AppCompatTextHelper {
         setCompoundDrawables(drawableLeft, drawableTop, drawableRight, drawableBottom,
                 drawableStart, drawableEnd);
 
+        if (a.hasValue(R.styleable.AppCompatTextView_drawableTint)) {
+            final ColorStateList tintList = a.getColorStateList(
+                    R.styleable.AppCompatTextView_drawableTint);
+            TextViewCompat.setCompoundDrawableTintList(mView, tintList);
+        }
+        if (a.hasValue(R.styleable.AppCompatTextView_drawableTintMode)) {
+            final PorterDuff.Mode tintMode = DrawableUtils.parseTintMode(
+                    a.getInt(R.styleable.AppCompatTextView_drawableTintMode, -1), null);
+            TextViewCompat.setCompoundDrawableTintMode(mView, tintMode);
+        }
+
         final int firstBaselineToTopHeight = a.getDimensionPixelSize(
                 R.styleable.AppCompatTextView_firstBaselineToTopHeight, -1);
         final int lastBaselineToBottomHeight = a.getDimensionPixelSize(
@@ -467,6 +481,10 @@ class AppCompatTextHelper {
         mView.setAllCaps(allCaps);
     }
 
+    void onSetCompoundDrawables() {
+        applyCompoundDrawablesTints();
+    }
+
     void applyCompoundDrawablesTints() {
         if (mDrawableLeftTint != null || mDrawableTopTint != null ||
                 mDrawableRightTint != null || mDrawableBottomTint != null) {
@@ -574,6 +592,43 @@ class AppCompatTextHelper {
 
     int[] getAutoSizeTextAvailableSizes() {
         return mAutoSizeTextHelper.getAutoSizeTextAvailableSizes();
+    }
+
+    @Nullable
+    ColorStateList getCompoundDrawableTintList() {
+        return mDrawableTint != null ? mDrawableTint.mTintList : null;
+    }
+
+    void setCompoundDrawableTintList(@Nullable ColorStateList tintList) {
+        if (mDrawableTint == null) {
+            mDrawableTint = new TintInfo();
+        }
+        mDrawableTint.mTintList = tintList;
+        mDrawableTint.mHasTintList = tintList != null;
+        setCompoundTints();
+    }
+
+    @Nullable
+    PorterDuff.Mode getCompoundDrawableTintMode() {
+        return mDrawableTint != null ? mDrawableTint.mTintMode : null;
+    }
+
+    void setCompoundDrawableTintMode(@Nullable PorterDuff.Mode tintMode) {
+        if (mDrawableTint == null) {
+            mDrawableTint = new TintInfo();
+        }
+        mDrawableTint.mTintMode = tintMode;
+        mDrawableTint.mHasTintMode = tintMode != null;
+        setCompoundTints();
+    }
+
+    private void setCompoundTints() {
+        mDrawableLeftTint = mDrawableTint;
+        mDrawableTopTint = mDrawableTint;
+        mDrawableRightTint = mDrawableTint;
+        mDrawableBottomTint = mDrawableTint;
+        mDrawableStartTint = mDrawableTint;
+        mDrawableEndTint = mDrawableTint;
     }
 
     private void setCompoundDrawables(Drawable drawableLeft, Drawable drawableTop,

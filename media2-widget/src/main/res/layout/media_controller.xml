@@ -14,14 +14,12 @@
      limitations under the License.
 -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical">
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <LinearLayout
         android:id="@+id/title_bar"
         android:background="@drawable/title_bar_gradient"
+        android:baselineAligned="false"
         style="@style/TitleBar">
 
         <LinearLayout
@@ -30,7 +28,6 @@
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:layout_alignParentStart="true"
             android:orientation="horizontal">
 
             <TextView
@@ -50,7 +47,6 @@
             android:id="@+id/title_bar_right"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -58,7 +54,6 @@
                 android:clickable="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
                 android:paddingStart="5dip"
                 android:paddingEnd="10dip"
                 android:orientation="horizontal"
@@ -68,6 +63,7 @@
                     android:id="@+id/ad_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
                     android:paddingEnd="5dip"
                     android:text="@string/MediaControlView_ad_text"
                     android:textSize="10sp"
@@ -85,33 +81,147 @@
                 android:visibility="gone"
                 style="@style/TitleBarButton" />
         </LinearLayout>
-
     </LinearLayout>
 
-    <LinearLayout
+    <FrameLayout
         android:id="@+id/center_view"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
         android:layoutDirection="ltr">
-    </LinearLayout>
+
+        <include
+            android:id="@+id/embedded_transport_controls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            layout="@layout/embedded_transport_controls" />
+
+        <include
+            android:id="@+id/minimal_transport_controls"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            layout="@layout/minimal_transport_controls" />
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/minimal_fullscreen_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="right"
+        android:gravity="end"
         android:layoutDirection="ltr">
 
         <ImageButton
             android:id="@+id/minimal_fullscreen"
-            android:gravity="right"
             style="@style/BottomBarButton.FullScreen" />
     </LinearLayout>
 
-    <RelativeLayout
+    <View
+        android:id="@+id/bottom_bar_background"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/mcv2_bottom_bar_height"
+        android:background="@color/bottom_bar_background"
+        android:layoutDirection="ltr" />
+
+    <LinearLayout
+        android:id="@+id/bottom_bar_left"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/mcv2_bottom_bar_height"
+        android:layoutDirection="ltr">
+
+        <include
+            android:id="@+id/full_transport_controls"
+            layout="@layout/full_transport_controls" />
+
+        <TextView
+            android:id="@+id/ad_skip_time"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="4dp"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/mcv2_bottom_bar_height"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:layoutDirection="ltr">
+
+        <TextView
+            android:id="@+id/time_current"
+            style="@style/TimeText.Current" />
+
+        <TextView
+            android:id="@+id/time_interpunct"
+            style="@style/TimeText.Interpunct" />
+
+        <TextView
+            android:id="@+id/time_end"
+            style="@style/TimeText.End" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/basic_controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layoutDirection="ltr">
+
+        <TextView
+            android:id="@+id/ad_remaining"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/subtitle"
+            style="@style/BottomBarButton.CC"
+            android:alpha="0.5"
+            android:scaleType="fitCenter"
+            android:visibility="gone" />
+
+        <ImageButton
+            android:id="@+id/fullscreen"
+            style="@style/BottomBarButton.FullScreen"
+            android:visibility="gone" />
+
+        <ImageButton
+                android:id="@+id/overflow_show"
+                style="@style/BottomBarButton.OverflowShow" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/extra_controls"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:layoutDirection="ltr">
+
+        <LinearLayout
+            android:id="@+id/custom_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" />
+
+        <ImageButton
+            android:id="@+id/settings"
+            style="@style/BottomBarButton.Settings" />
+
+        <ImageButton
+                android:id="@+id/overflow_hide"
+                style="@style/BottomBarButton.OverflowHide" />
+    </LinearLayout>
+
+    <FrameLayout
         android:id="@+id/progress_bar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/mcv2_custom_progress_thumb_size"
@@ -120,138 +230,16 @@
         <SeekBar
             android:id="@+id/progress"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/mcv2_custom_progress_thumb_size"
+            android:layout_height="match_parent"
             android:contentDescription="@string/mcv2_seek_bar_desc"
             android:paddingStart="0dp"
             android:paddingEnd="0dp"
             android:maxHeight="@dimen/mcv2_custom_progress_max_size"
             android:minHeight="@dimen/mcv2_custom_progress_max_size"
+            android:progressDrawable="@drawable/custom_progress"
+            android:thumb="@drawable/custom_progress_thumb"
+            android:thumbOffset="0dp"
             android:splitTrack="false"
-            android:elevation="10dp"/>
-
-        <View
-            android:id="@+id/progress_buffer"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/mcv2_buffer_view_height"
-            android:layout_alignParentBottom="true"
-            android:background="@color/bottom_bar_background"
-            android:elevation="0dp"/>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/bottom_bar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/mcv2_bottom_bar_height"
-        android:background="@color/bottom_bar_background"
-        android:orientation="horizontal"
-        android:layoutDirection="ltr">
-
-        <LinearLayout
-            android:id="@+id/bottom_bar_left"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true">
-
-            <TextView
-                android:id="@+id/ad_skip_time"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginStart="4dp"
-                android:gravity="center"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:visibility="gone" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/time"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_toEndOf="@id/bottom_bar_left"
-            android:visibility="invisible"
-            android:gravity="center"
-            android:paddingStart="10dp"
-            android:paddingEnd="10dp">
-
-            <TextView
-                android:id="@+id/time_current"
-                style="@style/TimeText.Current" />
-
-            <TextView
-                android:id="@+id/time_interpunct"
-                style="@style/TimeText.Interpunct" />
-
-            <TextView
-                android:id="@+id/time_end"
-                style="@style/TimeText.End" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/bottom_bar_overflow"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true">
-
-            <ImageButton
-                android:id="@+id/overflow_show"
-                style="@style/BottomBarButton.OverflowShow" />
-
-            <ImageButton
-                android:id="@+id/overflow_hide"
-                android:visibility="gone"
-                style="@style/BottomBarButton.OverflowHide" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/basic_controls"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toStartOf="@id/bottom_bar_overflow"
-            android:layout_centerVertical="true"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/ad_remaining"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:textColor="#FFFFFF"
-                android:textSize="12sp"
-                android:visibility="gone" />
-
-            <ImageButton
-                android:id="@+id/subtitle"
-                style="@style/BottomBarButton.CC"
-                android:alpha="0.5"
-                android:scaleType="fitCenter"
-                android:visibility="gone" />
-
-            <ImageButton
-                android:id="@+id/fullscreen"
-                style="@style/BottomBarButton.FullScreen"
-                android:visibility="gone" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/extra_controls"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <LinearLayout
-                android:id="@+id/custom_buttons"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal" />
-
-            <ImageButton
-                android:id="@+id/settings"
-                style="@style/BottomBarButton.Settings" />
-        </LinearLayout>
-    </RelativeLayout>
-</LinearLayout>
+            android:elevation="10dp" />
+    </FrameLayout>
+</merge>

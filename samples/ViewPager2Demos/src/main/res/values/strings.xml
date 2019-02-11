@@ -19,6 +19,7 @@
     <string name="label_orientation">Orientation:</string>
     <string name="label_jump_to">Jump to:</string>
     <string name="label_jump">Jump</string>
+    <string name="disable_user_input">Disable user input</string>
     <string name="checkbox_smoothscroll">Smooth</string>
     <string name="checkbox_rotate">Rotate</string>
     <string name="checkbox_translate">Translate</string>

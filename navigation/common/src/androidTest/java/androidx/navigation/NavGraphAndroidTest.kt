@@ -45,8 +45,55 @@ class NavGraphAndroidTest {
             .isNotNull()
 
         assertWithMessage("Deep link should extract id argument correctly")
-            .that(match?.second?.getInt("id"))
+            .that(match?.matchingArgs?.getInt("id"))
             .isEqualTo(43)
+    }
+
+    @Test
+    fun matchDeepLinkBestMatchExact() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+        }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination()
+
+        graph.addDeepLink("www.example.com/users/index.html")
+
+        val idArgument = NavArgument.Builder()
+            .setType(NavType.StringType)
+            .build()
+        graph.addArgument("id", idArgument)
+        graph.addDeepLink("www.example.com/users/{name}")
+
+        val match = graph.matchDeepLink(
+            Uri.parse("https://www.example.com/users/index.html"))
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should pick the exact match")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(0)
+    }
+
+    @Test
+    fun matchDotStar() {
+        val navigatorProvider = NavigatorProvider().apply {
+            addNavigator(NavGraphNavigator(this))
+        }
+        val graph = navigatorProvider.getNavigator(NavGraphNavigator::class.java)
+            .createDestination()
+
+        graph.addDeepLink("www.example.com/.*")
+        graph.addDeepLink("www.example.com/{name}")
+
+        val match = graph.matchDeepLink(Uri.parse("https://www.example.com/foo"))
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should pick name over .*")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(1)
     }
 
     @Test
@@ -77,13 +124,13 @@ class NavGraphAndroidTest {
             .isNotNull()
 
         assertWithMessage("Deep link should pick the argument with more matching arguments")
-            .that(match?.second?.size())
+            .that(match?.matchingArgs?.size())
             .isEqualTo(2)
         assertWithMessage("Deep link should extract id argument correctly")
-            .that(match?.second?.getInt("id"))
+            .that(match?.matchingArgs?.getInt("id"))
             .isEqualTo(43)
         assertWithMessage("Deep link should extract postId argument correctly")
-            .that(match?.second?.getInt("postId"))
+            .that(match?.matchingArgs?.getInt("postId"))
             .isEqualTo(99)
     }
 
@@ -125,13 +172,13 @@ class NavGraphAndroidTest {
             .isNotNull()
 
         assertWithMessage("Deep link should point to correct destination")
-            .that(match?.first)
+            .that(match?.destination)
             .isSameAs(postDestination)
         assertWithMessage("Deep link should extract id argument correctly")
-            .that(match?.second?.getInt("id"))
+            .that(match?.matchingArgs?.getInt("id"))
             .isEqualTo(43)
         assertWithMessage("Deep link should extract postId argument correctly")
-            .that(match?.second?.getInt("postId"))
+            .that(match?.matchingArgs?.getInt("postId"))
             .isEqualTo(99)
     }
 }

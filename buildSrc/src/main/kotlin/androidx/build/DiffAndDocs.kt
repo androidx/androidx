@@ -231,6 +231,7 @@ class DiffAndDocs private constructor(
                     it.exclude("**/*.html")
                     it.exclude("**/*.kt")
                     it.exclude("**/META-INF/**")
+                    it.exclude("**/OWNERS")
                 }
         root.configurations.remove(configuration)
         return tree
@@ -416,16 +417,13 @@ private fun registerJavaProjectForDocsTask(task: Javadoc, javaCompileTask: JavaC
 private fun registerAndroidProjectForDocsTask(task: Javadoc, releaseVariant: BaseVariant) {
     // This code makes a number of unsafe assumptions about Android Gradle Plugin,
     // and there's a good chance that this will break in the near future.
-    @Suppress("DEPRECATION")
-    task.dependsOn(releaseVariant.javaCompile)
+    task.dependsOn(releaseVariant.javaCompileProvider.get())
     task.include { fileTreeElement ->
         fileTreeElement.name != "R.java" || fileTreeElement.path.endsWith(releaseVariant.rFile())
     }
-    @Suppress("DEPRECATION")
-    task.source(releaseVariant.javaCompile.source)
-    @Suppress("DEPRECATION")
+    task.source(releaseVariant.javaCompileProvider.get().source)
     task.classpath += releaseVariant.getCompileClasspath(null) +
-            task.project.files(releaseVariant.javaCompile.destinationDir)
+            task.project.files(releaseVariant.javaCompileProvider.get().destinationDir)
 }
 
 /**

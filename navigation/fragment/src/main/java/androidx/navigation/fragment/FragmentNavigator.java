@@ -46,6 +46,14 @@ import java.util.Map;
  * Navigator that navigates through {@link FragmentTransaction fragment transactions}. Every
  * destination using this Navigator must set a valid Fragment class name with
  * <code>android:name</code> or {@link Destination#setClassName(String)}.
+ * <p>
+ * The current Fragment from FragmentNavigator's perspective can be retrieved by calling
+ * {@link FragmentManager#getPrimaryNavigationFragment()} with the FragmentManager
+ * passed to this FragmentNavigator.
+ * <p>
+ * Note that the default implementation does Fragment transactions
+ * asynchronously, so the current Fragment will not be available immediately
+ * (i.e., in callbacks to {@link NavController.OnDestinationChangedListener}).
  */
 @Navigator.Name("fragment")
 public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> {
@@ -119,6 +127,18 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         mFragmentManager.removeOnBackStackChangedListener(mOnBackStackChangedListener);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method must call
+     * {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)}
+     * if the pop succeeded so that the newly visible Fragment can be retrieved with
+     * {@link FragmentManager#getPrimaryNavigationFragment()}.
+     * <p>
+     * Note that the default implementation pops the Fragment
+     * asynchronously, so the newly visible Fragment from the back stack
+     * is not instantly available after this call completes.
+     */
     @Override
     public boolean popBackStack() {
         if (mBackStack.isEmpty()) {
@@ -129,15 +149,14 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                     + " saved its state");
             return false;
         }
-        boolean popped = false;
         if (mFragmentManager.getBackStackEntryCount() > 0) {
-            mFragmentManager.popBackStack(Integer.toString(mBackStack.peekLast()),
+            mFragmentManager.popBackStack(
+                    generateBackStackName(mBackStack.size(), mBackStack.peekLast()),
                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
             mIsPendingBackStackOperation = true;
-            popped = true;
-        }
+        } // else, we're on the first Fragment, so there's nothing to pop from FragmentManager
         mBackStack.removeLast();
-        return popped;
+        return true;
     }
 
     @NonNull
@@ -165,6 +184,18 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         return Fragment.instantiate(context, className, args);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * This method should always call
+     * {@link FragmentTransaction#setPrimaryNavigationFragment(Fragment)}
+     * so that the Fragment associated with the new destination can be retrieved with
+     * {@link FragmentManager#getPrimaryNavigationFragment()}.
+     * <p>
+     * Note that the default implementation commits the new Fragment
+     * asynchronously, so the new Fragment is not instantly available
+     * after this call completes.
+     */
     @Nullable
     @Override
     public NavDestination navigate(@NonNull Destination destination, @Nullable Bundle args,
@@ -216,12 +247,12 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 // remove it from the back stack and put our replacement
                 // on the back stack in its place
                 mFragmentManager.popBackStack();
-                ft.addToBackStack(Integer.toString(destId));
+                ft.addToBackStack(generateBackStackName(mBackStack.size() + 1, destId));
                 mIsPendingBackStackOperation = true;
             }
             isAdded = false;
         } else {
-            ft.addToBackStack(Integer.toString(destId));
+            ft.addToBackStack(generateBackStackName(mBackStack.size() + 1, destId));
             mIsPendingBackStackOperation = true;
             isAdded = true;
         }
@@ -268,6 +299,31 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         }
     }
 
+    @NonNull
+    private String generateBackStackName(int backStackIndex, int destId) {
+        return backStackIndex + "-" + destId;
+    }
+
+    private int getDestId(@Nullable String backStackName) {
+        String[] split = backStackName != null ? backStackName.split("-") : new String[0];
+        if (split.length != 2) {
+            throw new IllegalStateException("Invalid back stack entry on the "
+                    + "NavHostFragment's back stack - use getChildFragmentManager() "
+                    + "if you need to do custom FragmentTransactions from within "
+                    + "Fragments created via your navigation graph.");
+        }
+        try {
+            // Just make sure the backStackIndex is correctly formatted
+            Integer.parseInt(split[0]);
+            return Integer.parseInt(split[1]);
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("Invalid back stack entry on the "
+                    + "NavHostFragment's back stack - use getChildFragmentManager() "
+                    + "if you need to do custom FragmentTransactions from within "
+                    + "Fragments created via your navigation graph.");
+        }
+    }
+
     /**
      * Checks if this FragmentNavigator's back stack is equal to the FragmentManager's back stack.
      */
@@ -285,7 +341,7 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
         while (backStackIterator.hasNext() && fragmentBackStackIndex >= 0) {
             int destId = backStackIterator.next();
             try {
-                int fragmentDestId = Integer.valueOf(mFragmentManager
+                int fragmentDestId = getDestId(mFragmentManager
                         .getBackStackEntryAt(fragmentBackStackIndex--)
                         .getName());
                 if (destId != fragmentDestId) {

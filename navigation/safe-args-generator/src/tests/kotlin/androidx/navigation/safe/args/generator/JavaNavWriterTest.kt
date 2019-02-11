@@ -103,6 +103,10 @@ class JavaNavWriterTest {
                         Argument(
                                 "parcelable",
                                 ObjectType("android.content.pm.ActivityInfo")
+                        ),
+                        Argument(
+                                "innerData",
+                                ObjectType("android.content.pm.ActivityInfo\$WindowLayout")
                         ))), false)
         val actual = toJavaFileObject(actionSpec)
         JavaSourcesSubject.assertThat(actual).parsesAs("a.b.Next")

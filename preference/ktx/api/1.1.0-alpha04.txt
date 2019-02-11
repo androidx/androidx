@@ -1,0 +1,21 @@
+// Signature format: 3.0
+package androidx.preference {
+
+  public final class PreferenceGroupKt {
+    ctor public PreferenceGroupKt();
+    method public static operator boolean contains(androidx.preference.PreferenceGroup, androidx.preference.Preference preference);
+    method public static inline void forEach(androidx.preference.PreferenceGroup, kotlin.jvm.functions.Function1<? super androidx.preference.Preference,kotlin.Unit> action);
+    method public static inline void forEachIndexed(androidx.preference.PreferenceGroup, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super androidx.preference.Preference,kotlin.Unit> action);
+    method public static inline operator <T extends androidx.preference.Preference> T? get(androidx.preference.PreferenceGroup, CharSequence key);
+    method public static operator androidx.preference.Preference get(androidx.preference.PreferenceGroup, int index);
+    method public static kotlin.sequences.Sequence<androidx.preference.Preference> getChildren(androidx.preference.PreferenceGroup);
+    method public static inline int getSize(androidx.preference.PreferenceGroup);
+    method public static inline boolean isEmpty(androidx.preference.PreferenceGroup);
+    method public static inline boolean isNotEmpty(androidx.preference.PreferenceGroup);
+    method public static operator java.util.Iterator<androidx.preference.Preference> iterator(androidx.preference.PreferenceGroup);
+    method public static inline operator void minusAssign(androidx.preference.PreferenceGroup, androidx.preference.Preference preference);
+    method public static inline operator void plusAssign(androidx.preference.PreferenceGroup, androidx.preference.Preference preference);
+  }
+
+}
+

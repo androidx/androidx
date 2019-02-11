@@ -28,7 +28,6 @@ import android.support.annotation.NavigationRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.util.Pair;
 import android.util.Log;
 
 import java.util.ArrayDeque;
@@ -237,7 +236,8 @@ public class NavController {
      * the system {@link android.view.KeyEvent#KEYCODE_BACK Back} button when the associated
      * navigation host has focus.
      *
-     * @return true if the stack was popped, false otherwise
+     * @return true if the stack was popped and the user has been navigated to another
+     * destination, false otherwise
      */
     public boolean popBackStack() {
         if (mBackStack.isEmpty()) {
@@ -254,14 +254,14 @@ public class NavController {
      * @param destinationId The topmost destination to retain
      * @param inclusive Whether the given destination should also be popped.
      *
-     * @return true if the stack was popped at least once, false otherwise
+     * @return true if the stack was popped at least once and the user has been navigated to
+     * another destination, false otherwise
      */
     public boolean popBackStack(@IdRes int destinationId, boolean inclusive) {
         boolean popped = popBackStackInternal(destinationId, inclusive);
-        if (popped) {
-            dispatchOnDestinationChanged();
-        }
-        return popped;
+        // Only return true if the pop succeeded and we've dispatched
+        // the change to a new destination
+        return popped && dispatchOnDestinationChanged();
     }
 
     /**
@@ -302,13 +302,13 @@ public class NavController {
                     + " as it was not found on the current back stack");
             return false;
         }
-        boolean popped = true;
+        boolean popped = false;
         for (Navigator navigator : popOperations) {
             if (navigator.popBackStack()) {
                 mBackStack.removeLast();
+                popped = true;
             } else {
                 // The pop did not complete successfully, so stop immediately
-                popped = false;
                 break;
             }
         }
@@ -357,8 +357,15 @@ public class NavController {
         }
     }
 
+    /**
+     * Dispatch changes to all OnDestinationChangedListeners.
+     * <p>
+     * If the back stack is empty, no events get dispatched.
+     *
+     * @return If changes were dispatched.
+     */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void dispatchOnDestinationChanged() {
+    boolean dispatchOnDestinationChanged() {
         // We never want to leave NavGraphs on the top of the stack
         //noinspection StatementWithEmptyBody
         while (!mBackStack.isEmpty()
@@ -373,7 +380,9 @@ public class NavController {
                 listener.onDestinationChanged(this, backStackEntry.getDestination(),
                         backStackEntry.getArguments());
             }
+            return true;
         }
+        return false;
     }
 
     /**
@@ -482,6 +491,9 @@ public class NavController {
                     throw new IllegalStateException("unknown destination during restore: "
                             + mContext.getResources().getResourceName(destinationId));
                 }
+                if (args != null) {
+                    args.setClassLoader(mContext.getClassLoader());
+                }
                 mBackStack.add(new NavBackStackEntry(node, args));
             }
             mBackStackIdsToRestore = null;
@@ -529,10 +541,10 @@ public class NavController {
             bundle.putAll(deepLinkExtras);
         }
         if ((deepLink == null || deepLink.length == 0) && intent.getData() != null) {
-            Pair<NavDestination, Bundle> matchingDeepLink = mGraph.matchDeepLink(intent.getData());
+            NavDestination.DeepLinkMatch matchingDeepLink = mGraph.matchDeepLink(intent.getData());
             if (matchingDeepLink != null) {
-                deepLink = matchingDeepLink.first.buildDeepLinkIds();
-                bundle.putAll(matchingDeepLink.second);
+                deepLink = matchingDeepLink.getDestination().buildDeepLinkIds();
+                bundle.putAll(matchingDeepLink.getMatchingArgs());
             }
         }
         if (deepLink == null || deepLink.length == 0) {
@@ -928,6 +940,8 @@ public class NavController {
         if (navState == null) {
             return;
         }
+
+        navState.setClassLoader(mContext.getClassLoader());
 
         mNavigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE);
         mBackStackIdsToRestore = navState.getIntArray(KEY_BACK_STACK_IDS);

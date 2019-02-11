@@ -79,6 +79,10 @@ class KotlinNavWriterTest {
                 Argument(
                     "parcelable",
                     ObjectType("android.content.pm.ActivityInfo")
+                ),
+                Argument(
+                    "innerData",
+                    ObjectType("android.content.pm.ActivityInfo\$WindowLayout")
                 )))
         val actual = generateDirectionsTypeSpec(action, false)
         assertThat(wrappedInnerClass(actual).toString()).parsesAs("a.b.Next")

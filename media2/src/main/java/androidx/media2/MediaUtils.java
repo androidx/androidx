@@ -128,6 +128,7 @@ public class MediaUtils {
      * @param item2 an item.
      * @return The newly created media item.
      */
+    @SuppressLint("RestrictedApi")
     public static MediaBrowserCompat.MediaItem convertToMediaItem(MediaItem item2) {
         if (item2 == null) {
             return null;
@@ -314,6 +315,7 @@ public class MediaUtils {
      * Convert a list of {@link MediaItem} to a list of {@link QueueItem}. The index of the item
      * would be used as the queue ID to match the behavior of {@link MediaController}.
      */
+    @SuppressLint("RestrictedApi")
     public static List<QueueItem> convertToQueueItemList(List<MediaItem> items) {
         if (items == null) {
             return null;
@@ -797,6 +799,7 @@ public class MediaUtils {
      * @return the converted session command group
      */
     @NonNull
+    @SuppressLint("RestrictedApi")
     public static SessionCommandGroup convertToSessionCommandGroup(long sessionFlags,
             PlaybackStateCompat state) {
         SessionCommandGroup.Builder commandsBuilder = new SessionCommandGroup.Builder();
@@ -865,6 +868,7 @@ public class MediaUtils {
         return ParcelUtils.<T>fromParcelable(p);
     }
 
+    @SuppressLint("RestrictedApi")
     private static class MediaItemParcelImpl extends ParcelImpl {
         private final MediaItem mItem;
         @SuppressLint("RestrictedApi")

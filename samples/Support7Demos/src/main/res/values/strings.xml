@@ -214,6 +214,7 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
 
+    <string name="mode_night_follow_system">MODE_NIGHT_FOLLOW_SYSTEM</string>
     <string name="mode_night_yes">MODE_NIGHT_YES</string>
     <string name="mode_night_no">MODE_NIGHT_NO</string>
     <string name="mode_night_auto_time">MODE_NIGHT_AUTO_TIME</string>

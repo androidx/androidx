@@ -663,7 +663,6 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
         markDirty();
     }
 
-
     /**
      * Sets {@code Supplemental Action} to be represented by an {@code Supplemental Icon}.
      *
@@ -738,7 +737,10 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * @param checked initial value for switched.
      * @param showDivider whether to display a vertical bar between switch and text.
      * @param listener callback to be invoked when the checked state shown in the UI changes.
+     *
+     * @deprecated Use {@link SwitchListItem} instead.
      */
+    @Deprecated
     public void setSwitch(boolean checked, boolean showDivider,
             CompoundButton.OnCheckedChangeListener listener) {
         mSupplementalActionType = SUPPLEMENTAL_ACTION_SWITCH;
@@ -759,7 +761,10 @@ public class TextListItem extends ListItem<TextListItem.ViewHolder> {
      * first to set {@code Supplemental Action} as a {@code Switch}.
      *
      * @param isChecked sets the "checked/unchecked, namely on/off" state of switch.
+     *
+     * @deprecated Use {@link SwitchListItem} instead.
      */
+    @Deprecated
     public void setSwitchState(boolean isChecked) {
         if (mSwitchChecked == isChecked) {
             return;

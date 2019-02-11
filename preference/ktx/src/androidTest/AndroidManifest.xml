@@ -18,6 +18,8 @@
           package="androidx.preference.ktx.test">
     <uses-sdk android:targetSdkVersion="${target-sdk-version}"/>
     <application>
-        <activity android:name="androidx.preference.TestPreferenceActivity"/>
+        <activity
+            android:name="androidx.preference.PreferenceTestHelperActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
     </application>
 </manifest>
