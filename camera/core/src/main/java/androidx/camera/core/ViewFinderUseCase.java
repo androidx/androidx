@@ -55,6 +55,9 @@ public class ViewFinderUseCase extends BaseUseCase {
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ViewFinderUseCase";
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final CheckedSurfaceTexture.OnTextureChangedListener surfaceTextureListener =
+            (newSurfaceTexture, newResolution) ->
+                    ViewFinderUseCase.this.updateOutput(newSurfaceTexture, newResolution);
     private final CheckedSurfaceTexture checkedSurfaceTexture =
             new CheckedSurfaceTexture(surfaceTextureListener, mainHandler);
     private final ViewFinderUseCaseConfiguration.Builder useCaseConfigBuilder;
@@ -63,9 +66,6 @@ public class ViewFinderUseCase extends BaseUseCase {
     @Nullable
     private ViewFinderOutput latestViewFinderOutput;
     private boolean surfaceDispatched = false;
-    private final CheckedSurfaceTexture.OnTextureChangedListener surfaceTextureListener =
-            (newSurfaceTexture, newResolution) ->
-                    ViewFinderUseCase.this.updateOutput(newSurfaceTexture, newResolution);
     /**
      * Creates a new view finder use case from the given configuration.
      *
