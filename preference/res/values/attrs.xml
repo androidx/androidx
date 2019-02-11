@@ -33,8 +33,6 @@
 
         <!-- Default style for PreferenceScreen. -->
         <attr name="preferenceScreenStyle" format="reference" />
-        <!-- Default style for the PreferenceActivity. -->
-        <attr name="preferenceActivityStyle" format="reference" />
         <!-- Default style for Headers pane in PreferenceActivity. -->
         <attr name="preferenceFragmentStyle" format="reference" />
         <!-- Default style for Headers pane in PreferenceActivity. -->
@@ -47,28 +45,14 @@
         <attr name="preferenceInformationStyle" format="reference" />
         <!-- Default style for CheckBoxPreference. -->
         <attr name="checkBoxPreferenceStyle" format="reference" />
-        <!-- Default style for YesNoPreference. -->
-        <attr name="yesNoPreferenceStyle" format="reference" />
         <!-- Default style for DialogPreference. -->
         <attr name="dialogPreferenceStyle" format="reference" />
         <!-- Default style for EditTextPreference. -->
         <attr name="editTextPreferenceStyle" format="reference" />
-        <!-- Default style for RingtonePreference. -->
-        <attr name="ringtonePreferenceStyle" format="reference" />
         <!-- Default style for DropDownPreference. -->
         <attr name="dropdownPreferenceStyle" format="reference" />
-        <!-- The preference layout that has the child/tabbed effect. -->
-        <attr name="preferenceLayoutChild" format="reference" />
-        <!-- Preference panel style -->
-        <attr name="preferencePanelStyle" format="reference" />
-        <!-- Preference headers panel style -->
-        <attr name="preferenceHeaderPanelStyle" format="reference" />
-        <!-- Preference list style -->
-        <attr name="preferenceListStyle" format="reference" />
         <!-- Preference fragment list style -->
         <attr name="preferenceFragmentListStyle" format="reference" />
-        <!-- Preference fragment padding side -->
-        <attr name="preferenceFragmentPaddingSide" format="dimension" />
         <!-- Default style for switch preferences. -->
         <attr name="switchPreferenceStyle" format="reference" />
         <!-- Default style for switch compat preferences. -->

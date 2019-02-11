@@ -495,11 +495,17 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
         onUnbindPreferences();
     }
 
-    /** @hide */
+    /**
+     * Used by Settings.
+     * @hide
+     */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onBindPreferences() {}
 
-    /** @hide */
+    /**
+     * Used by Settings.
+     * @hide
+     */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onUnbindPreferences() {}
 

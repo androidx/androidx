@@ -16,7 +16,7 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -514,11 +514,11 @@ public abstract class PreferenceFragment extends Fragment implements
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     protected void onBindPreferences() {}
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     protected void onUnbindPreferences() {}
 
     /**
@@ -645,7 +645,7 @@ public abstract class PreferenceFragment extends Fragment implements
      * @return The {@link Fragment} to possibly use as a callback
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @RestrictTo(LIBRARY)
     public Fragment getCallbackFragment() {
         return null;
     }
