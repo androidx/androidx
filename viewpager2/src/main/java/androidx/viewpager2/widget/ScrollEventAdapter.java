@@ -201,7 +201,7 @@ final class ScrollEventAdapter extends RecyclerView.OnScrollListener {
                 && mScrollState != SCROLL_STATE_DRAGGING) {
             // When the target page is reached and the user is not dragging anymore, we're settled,
             // so go to idle.
-            // Special case and a bit of a hack when there is no target: RecyclerView is being
+            // Special case and a bit of a hack when mTarget == NO_POSITION: RecyclerView is being
             // initialized and fires a single scroll event. This flags mScrollHappened, so we need
             // to reset our state. However, we don't want to dispatch idle. But that won't happen;
             // because we were already idle.
