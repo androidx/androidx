@@ -15,7 +15,7 @@
  */
 package androidx.tvprovider.media.tv;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
@@ -245,7 +245,7 @@ public class PreviewChannelHelper {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void updatePreviewChannelInternal(long channelId, @NonNull PreviewChannel upgrade) {
         mContext.getContentResolver().update(
                 TvContractCompat.buildChannelUri(channelId),
@@ -407,7 +407,7 @@ public class PreviewChannelHelper {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     void updatePreviewProgramInternal(long programId, @NonNull PreviewProgram upgrade) {
         mContext.getContentResolver().update(
                 TvContractCompat.buildPreviewProgramUri(programId),
@@ -468,7 +468,7 @@ public class PreviewChannelHelper {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     void updateWatchNextProgram(long programId, @NonNull WatchNextProgram upgrade) {
         mContext.getContentResolver().update(
                 TvContractCompat.buildWatchNextProgramUri(programId),

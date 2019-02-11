@@ -17,7 +17,7 @@
 package androidx.browser.browseractions;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.PendingIntent;
 import android.net.Uri;
@@ -61,7 +61,7 @@ public class BrowserActionItem {
      * int, List<ResolveInfo>)}.
      */
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public BrowserActionItem(
             @NonNull String title, @NonNull PendingIntent action, @NonNull Uri iconUri) {
         mTitle = title;
@@ -127,7 +127,7 @@ public class BrowserActionItem {
      * @return The {@link Runnable} action of a predefined fallback menu item.
      */
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
     Runnable getRunnableAction() {
         return mRunnableAction;

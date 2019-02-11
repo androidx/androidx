@@ -17,7 +17,7 @@
 package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ComponentName;
 import android.os.IBinder;
@@ -52,7 +52,7 @@ final class SessionTokenImplBase implements SessionTokenImpl {
      * to use by {@link MediaController} or {@link MediaBrowser}.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     SessionTokenImplBase(@NonNull ComponentName serviceComponent, int uid, int type) {
         if (serviceComponent == null) {
             throw new IllegalArgumentException("serviceComponent shouldn't be null");
@@ -68,7 +68,7 @@ final class SessionTokenImplBase implements SessionTokenImpl {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     SessionTokenImplBase(int uid, int type, String packageName, IMediaSession iSession) {
         mUid = uid;
         mType = type;
@@ -135,7 +135,7 @@ final class SessionTokenImplBase implements SessionTokenImpl {
      * @hide
      * @return component name of this session token. Can be null for TYPE_SESSION.
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public ComponentName getComponentName() {
         return mComponentName;

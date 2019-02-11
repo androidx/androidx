@@ -16,7 +16,7 @@
 
 package androidx.mediarouter.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -97,7 +97,7 @@ import java.util.Map;
  * @see MediaRouteActionProvider
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MediaRouteCastDialog extends AppCompatDialog {
     static final String TAG = "MediaRouteCastDialog";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);

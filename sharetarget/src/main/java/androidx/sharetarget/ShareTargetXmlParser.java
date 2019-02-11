@@ -16,7 +16,7 @@
 
 package androidx.sharetarget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 class ShareTargetXmlParser {
 
     static final String TAG = "ShareTargetXmlParser";

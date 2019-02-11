@@ -17,7 +17,7 @@
 package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -56,7 +56,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class LinearLayoutCompat extends ViewGroup {
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({HORIZONTAL, VERTICAL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface OrientationMode {}
@@ -65,7 +65,7 @@ public class LinearLayoutCompat extends ViewGroup {
     public static final int VERTICAL = 1;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true,
             value = {
                     SHOW_DIVIDER_NONE,
@@ -273,7 +273,7 @@ public class LinearLayoutCompat extends ViewGroup {
      *
      * @hide Used internally by framework.
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getDividerWidth() {
         return mDividerWidth;
     }

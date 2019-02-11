@@ -16,7 +16,7 @@
 
 package androidx.appcompat.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -76,7 +76,7 @@ import java.util.ArrayList;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class WindowDecorActionBar extends ActionBar implements
         ActionBarOverlayLayout.ActionBarVisibilityCallback {
     private static final String TAG = "WindowDecorActionBar";
@@ -185,7 +185,7 @@ public class WindowDecorActionBar extends ActionBar implements
      * Only for edit mode.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public WindowDecorActionBar(View layout) {
         assert layout.isInEditMode();
         init(layout);
@@ -982,7 +982,7 @@ public class WindowDecorActionBar extends ActionBar implements
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public class ActionModeImpl extends ActionMode implements MenuBuilder.Callback {
         private final Context mActionModeContext;
         private final MenuBuilder mMenu;
@@ -1158,7 +1158,7 @@ public class WindowDecorActionBar extends ActionBar implements
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public class TabImpl extends ActionBar.Tab {
         private ActionBar.TabListener mCallback;
         private Object mTag;

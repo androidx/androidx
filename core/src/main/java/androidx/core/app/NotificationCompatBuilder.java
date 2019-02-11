@@ -16,7 +16,7 @@
 
 package androidx.core.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.app.NotificationCompat.DEFAULT_SOUND;
 import static androidx.core.app.NotificationCompat.DEFAULT_VIBRATE;
 import static androidx.core.app.NotificationCompat.FLAG_GROUP_SUMMARY;
@@ -41,7 +41,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccessor {
     private final Notification.Builder mBuilder;
     private final NotificationCompat.Builder mBuilderCompat;

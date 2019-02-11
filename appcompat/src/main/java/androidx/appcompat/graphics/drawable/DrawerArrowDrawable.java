@@ -16,7 +16,7 @@
 
 package androidx.appcompat.graphics.drawable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -88,7 +88,7 @@ public class DrawerArrowDrawable extends Drawable {
     public static final int ARROW_DIRECTION_END = 3;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({ARROW_DIRECTION_LEFT, ARROW_DIRECTION_RIGHT,
             ARROW_DIRECTION_START, ARROW_DIRECTION_END})
     @Retention(RetentionPolicy.SOURCE)

@@ -17,7 +17,7 @@
 package androidx.browser.browseractions;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -120,7 +120,7 @@ public class BrowserActionsIntent {
      * Defines the types of url for Browser Actions menu.
      */
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({URL_TYPE_NONE, URL_TYPE_IMAGE, URL_TYPE_VIDEO, URL_TYPE_AUDIO, URL_TYPE_FILE,
             URL_TYPE_PLUGIN})
     @Retention(RetentionPolicy.SOURCE)
@@ -137,7 +137,7 @@ public class BrowserActionsIntent {
      * TODO(ltian): A long term solution need, since other providers might have customized menus.
      */
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({ITEM_INVALID_ITEM, ITEM_OPEN_IN_NEW_TAB, ITEM_OPEN_IN_INCOGNITO, ITEM_DOWNLOAD,
             ITEM_COPY, ITEM_SHARE})
     @Retention(RetentionPolicy.SOURCE)
@@ -169,7 +169,7 @@ public class BrowserActionsIntent {
 
     /** @hide */
     @VisibleForTesting
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     interface BrowserActionsFallDialogListener {
         void onDialogShown();
     }
@@ -336,7 +336,7 @@ public class BrowserActionsIntent {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
     static void launchIntent(Context context, Intent intent, List<ResolveInfo> handlers) {
         if (handlers == null || handlers.size() == 0) {
@@ -387,7 +387,7 @@ public class BrowserActionsIntent {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
     static void setDialogShownListenter(BrowserActionsFallDialogListener dialogListener) {
         sDialogListenter = dialogListener;

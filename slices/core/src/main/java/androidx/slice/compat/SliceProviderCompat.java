@@ -22,7 +22,6 @@ import static android.app.slice.SliceProvider.SLICE_TYPE;
 import static androidx.core.content.PermissionChecker.PERMISSION_DENIED;
 import static androidx.core.content.PermissionChecker.PERMISSION_GRANTED;
 
-import android.annotation.SuppressLint;
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -65,7 +64,7 @@ import java.util.Set;
 /**
  * @hide
  */
-@RestrictTo(Scope.LIBRARY)
+@RestrictTo(Scope.LIBRARY_GROUP)
 @RequiresApi(19)
 public class SliceProviderCompat {
     public static final String PERMS_PREFIX = "slice_perms_";
@@ -139,7 +138,6 @@ public class SliceProviderCompat {
     /**
      * Called by SliceProvider when compat is needed.
      */
-    @SuppressLint("RestrictedApi")
     public Bundle call(String method, String arg, Bundle extras) {
         if (method.equals(METHOD_SLICE)) {
             Uri uri = extras.getParcelable(EXTRA_BIND_URI);
@@ -419,7 +417,6 @@ public class SliceProviderCompat {
         }
     }
 
-    @SuppressLint("RestrictedApi")
     private static Slice parseSlice(final Context context, Bundle res) {
         if (res == null) {
             return null;

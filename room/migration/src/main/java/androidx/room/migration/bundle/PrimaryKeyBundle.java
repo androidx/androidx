@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class PrimaryKeyBundle implements SchemaEquality<PrimaryKeyBundle> {
     @SerializedName("columnNames")
     private List<String> mColumnNames;

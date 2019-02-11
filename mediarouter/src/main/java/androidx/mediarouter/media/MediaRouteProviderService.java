@@ -839,7 +839,8 @@ public abstract class MediaRouteProviderService extends Service {
 
                     case CLIENT_MSG_CREATE_ROUTE_CONTROLLER: {
                         String routeId = data.getString(CLIENT_DATA_ROUTE_ID);
-                        String routeGroupId = data.getString(CLIENT_DATA_ROUTE_LIBRARY_GROUP);
+                        String routeGroupId =
+                                data.getString(CLIENT_DATA_ROUTE_LIBRARY_GROUP);
                         if (routeId != null) {
                             return service.onCreateRouteController(
                                     messenger, requestId, arg, routeId, routeGroupId);

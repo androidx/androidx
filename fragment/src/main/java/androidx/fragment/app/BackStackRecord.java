@@ -16,7 +16,6 @@
 
 package androidx.fragment.app;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.View;
 
@@ -550,7 +549,6 @@ final class BackStackRecord extends FragmentTransaction implements
         return setReorderingAllowed(allowOptimization);
     }
 
-    @SuppressLint("RestrictedApi")
     int commitInternal(boolean allowStateLoss) {
         if (mCommitted) throw new IllegalStateException("commit already called");
         if (FragmentManagerImpl.DEBUG) {

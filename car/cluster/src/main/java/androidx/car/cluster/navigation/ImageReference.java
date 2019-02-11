@@ -16,7 +16,7 @@
 
 package androidx.car.cluster.navigation;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.net.Uri;
@@ -79,14 +79,14 @@ public class ImageReference implements VersionedParcelable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     ImageReference() {
     }
 
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     ImageReference(@NonNull String contentUri,
             @IntRange(from = 1, to = Integer.MAX_VALUE) int originalWidth,
             @IntRange(from = 1, to = Integer.MAX_VALUE) int originalHeight,
@@ -178,7 +178,7 @@ public class ImageReference implements VersionedParcelable {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public String getRawContentUri() {
         String value = Common.nonNullOrEmpty(mContentUri);

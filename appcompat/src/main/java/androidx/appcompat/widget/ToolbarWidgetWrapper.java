@@ -17,7 +17,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.ActionBar;
 import android.content.Context;
@@ -58,7 +58,7 @@ import androidx.core.view.ViewPropertyAnimatorListenerAdapter;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ToolbarWidgetWrapper implements DecorToolbar {
     private static final String TAG = "ToolbarWidgetWrapper";
 

@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class DatabaseBundle implements SchemaEquality<DatabaseBundle> {
     @SerializedName("version")
     private int mVersion;

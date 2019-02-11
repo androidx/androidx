@@ -227,7 +227,6 @@ public final class TextClassification {
     @RequiresApi(26)
     @SuppressWarnings("deprecation") // To support O
     @NonNull
-    @SuppressLint("RestrictedApi")
     static TextClassification fromPlatform(
             @NonNull Context context,
             @NonNull android.view.textclassifier.TextClassification textClassification) {
@@ -295,9 +294,9 @@ public final class TextClassification {
      * @hide
      */
     // Lint does not know @EntityType in platform and here are same.
-    @SuppressLint({"WrongConstant", "RestrictedApi"})
     @SuppressWarnings("deprecation") // To support O
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("WrongConstant")
     @RequiresApi(26)
     @NonNull
     Object toPlatform(@NonNull Context context) {
@@ -396,7 +395,6 @@ public final class TextClassification {
          * first.
          */
         @NonNull
-        @SuppressLint("RestrictedApi")
         public Builder addAction(@NonNull RemoteActionCompat action) {
             Preconditions.checkArgument(action != null);
             mActions.add(action);
@@ -570,7 +568,6 @@ public final class TextClassification {
              * @param startIndex start index of the text to classify
              * @param endIndex end index of the text to classify
              */
-            @SuppressLint("RestrictedApi")
             public Builder(
                     @NonNull CharSequence text,
                     @IntRange(from = 0) int startIndex,

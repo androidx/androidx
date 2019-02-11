@@ -39,7 +39,7 @@ public class RemoteCallback {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static final String EXTRA_METHOD = "remotecallback.method";
 
     /**
@@ -70,7 +70,7 @@ public class RemoteCallback {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public RemoteCallback(@NonNull Context context,
             @RemoteCallbackType int type,
             @NonNull Intent intent,

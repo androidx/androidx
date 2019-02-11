@@ -16,7 +16,7 @@
 
 package androidx.core.internal.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.view.KeyEvent;
 
@@ -31,7 +31,7 @@ import androidx.annotation.RestrictTo;
  * @see android.view.Menu
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface SupportMenu extends android.view.Menu {
 
     /**

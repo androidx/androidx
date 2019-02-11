@@ -16,7 +16,7 @@
 
 package androidx.core.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
 import android.os.Build;
@@ -38,7 +38,7 @@ public final class DragAndDropPermissionsCompat {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
     public static DragAndDropPermissionsCompat request(Activity activity, DragEvent dragEvent) {
         if (Build.VERSION.SDK_INT >= 24) {

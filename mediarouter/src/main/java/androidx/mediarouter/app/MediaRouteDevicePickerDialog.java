@@ -16,7 +16,7 @@
 
 package androidx.mediarouter.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -60,7 +60,7 @@ import java.util.List;
  * @see MediaRouteActionProvider
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class MediaRouteDevicePickerDialog extends AppCompatDialog {
     private static final String TAG = "MediaRouteDevicePickerDialog";
 

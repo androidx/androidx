@@ -16,9 +16,8 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Bundle;
@@ -78,7 +77,6 @@ public abstract class PreferenceGroup extends Preference {
         }
     };
 
-    @SuppressLint("RestrictedApi")
     public PreferenceGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
 
@@ -406,7 +404,7 @@ public abstract class PreferenceGroup extends Preference {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isAttached() {
         return mAttachedToHierarchy;
     }
@@ -418,7 +416,7 @@ public abstract class PreferenceGroup extends Preference {
      * @see #setInitialExpandedChildrenCount(int)
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setOnExpandButtonClickListener(
             @Nullable OnExpandButtonClickListener onExpandButtonClickListener) {
         mOnExpandButtonClickListener = onExpandButtonClickListener;
@@ -430,7 +428,7 @@ public abstract class PreferenceGroup extends Preference {
      * @return The callback to be invoked when the expand button is clicked.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
     public OnExpandButtonClickListener getOnExpandButtonClickListener() {
         return mOnExpandButtonClickListener;
@@ -555,7 +553,7 @@ public abstract class PreferenceGroup extends Preference {
      * @see #setInitialExpandedChildrenCount(int)
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public interface OnExpandButtonClickListener {
         /**
          * Called when the expand button is clicked.

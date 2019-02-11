@@ -16,7 +16,7 @@
 
 package androidx.core.view;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.util.Log;
@@ -274,7 +274,7 @@ public abstract class ActionProvider {
      *
      * @hide Pending future API approval
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void subUiVisibilityChanged(boolean isVisible) {
         if (mSubUiVisibilityListener != null) {
             mSubUiVisibilityListener.onSubUiVisibilityChanged(isVisible);
@@ -284,7 +284,7 @@ public abstract class ActionProvider {
     /**
      * @hide Internal use only
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setSubUiVisibilityListener(SubUiVisibilityListener listener) {
         mSubUiVisibilityListener = listener;
     }
@@ -307,7 +307,7 @@ public abstract class ActionProvider {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void reset() {
         mVisibilityListener = null;
         mSubUiVisibilityListener = null;
@@ -316,7 +316,7 @@ public abstract class ActionProvider {
     /**
      * @hide Internal use only
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public interface SubUiVisibilityListener {
 
         void onSubUiVisibilityChanged(boolean isVisible);

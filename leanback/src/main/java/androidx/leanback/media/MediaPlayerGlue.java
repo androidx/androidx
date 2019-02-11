@@ -55,7 +55,7 @@ import java.util.List;
  * @deprecated Use {@link MediaPlayerAdapter} with {@link PlaybackTransportControlGlue} or
  *             {@link PlaybackBannerControlGlue}.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Deprecated
 public class MediaPlayerGlue extends PlaybackControlGlue implements
         OnItemViewSelectedListener {

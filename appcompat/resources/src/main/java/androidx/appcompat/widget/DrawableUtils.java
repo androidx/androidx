@@ -16,6 +16,8 @@
 
 package androidx.appcompat.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -27,19 +29,16 @@ import android.graphics.drawable.ScaleDrawable;
 import android.os.Build;
 import android.util.Log;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.graphics.drawable.WrappedDrawable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /** @hide */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class DrawableUtils {
     private static final int[] CHECKED_STATE_SET = new int[]{android.R.attr.state_checked};
     private static final int[] EMPTY_STATE_SET = new int[0];

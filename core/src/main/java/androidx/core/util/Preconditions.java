@@ -29,7 +29,7 @@ import java.util.Locale;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public final class Preconditions {
     public static void checkArgument(boolean expression) {
         if (!expression) {

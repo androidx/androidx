@@ -26,7 +26,7 @@ import java.util.concurrent.Callable
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class CoroutinesRoom {
 
     companion object {

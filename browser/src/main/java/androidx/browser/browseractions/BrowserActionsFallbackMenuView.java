@@ -16,7 +16,7 @@
 
 package androidx.browser.browseractions;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -29,7 +29,7 @@ import androidx.browser.R;
  * The class responsible for deciding the size of Browser Actions context menu.
  */
 /** @hide */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class BrowserActionsFallbackMenuView extends LinearLayout {
     private final int mBrowserActionsMenuMinPaddingPx;
     private final int mBrowserActionsMenuMaxWidthPx;

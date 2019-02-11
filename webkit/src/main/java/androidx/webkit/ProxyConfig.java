@@ -41,7 +41,7 @@ import java.util.concurrent.Executor;
  * TODO(laisminchillo): unhide this when we're ready to expose this
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ProxyConfig {
     /**
      * Connect to URLs directly instead of using a proxy server.
@@ -60,7 +60,7 @@ public class ProxyConfig {
      */
     public static final String MATCH_ALL_SCHEMES = "*";
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @StringDef({HTTP, HTTPS, MATCH_ALL_SCHEMES})
     public @interface ProxyScheme {}
     private static final String BYPASS_RULE_LOCAL = "<local>";
@@ -72,7 +72,7 @@ public class ProxyConfig {
     /**
      * @hide Internal use only
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public ProxyConfig(String[][] proxyRules, String[] bypassRules) {
         mProxyRules = proxyRules;
         mBypassRules = bypassRules;
@@ -81,7 +81,7 @@ public class ProxyConfig {
     /**
      * @hide Internal use only
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @NonNull
     public String[][] proxyRules() {
         return mProxyRules;
@@ -90,7 +90,7 @@ public class ProxyConfig {
     /**
      * @hide Internal use only
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @NonNull
     public String[] bypassRules() {
         return mBypassRules;

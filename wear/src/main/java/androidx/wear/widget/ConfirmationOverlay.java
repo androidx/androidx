@@ -229,7 +229,7 @@ public class ConfirmationOverlay {
      */
     @MainThread
     @VisibleForTesting
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public void hide() {
         Animation fadeOut =
                 AnimationUtils.loadAnimation(mOverlayView.getContext(), android.R.anim.fade_out);

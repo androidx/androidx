@@ -16,7 +16,7 @@
 
 package androidx.transition;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.TimeInterpolator;
 import android.content.Context;
@@ -455,7 +455,7 @@ public class TransitionSet extends Transition {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     protected void createAnimators(ViewGroup sceneRoot, TransitionValuesMaps startValues,
             TransitionValuesMaps endValues, ArrayList<TransitionValues> startValuesList,
@@ -482,7 +482,7 @@ public class TransitionSet extends Transition {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     protected void runAnimators() {
         if (mTransitions.isEmpty()) {
@@ -550,7 +550,7 @@ public class TransitionSet extends Transition {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void pause(View sceneRoot) {
         super.pause(sceneRoot);
@@ -561,7 +561,7 @@ public class TransitionSet extends Transition {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public void resume(View sceneRoot) {
         super.resume(sceneRoot);
@@ -572,7 +572,7 @@ public class TransitionSet extends Transition {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     protected void cancel() {
         super.cancel();
@@ -583,7 +583,7 @@ public class TransitionSet extends Transition {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     void forceToEnd(ViewGroup sceneRoot) {
         super.forceToEnd(sceneRoot);

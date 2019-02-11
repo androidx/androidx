@@ -16,7 +16,7 @@
 
 package androidx.core.text;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
@@ -122,7 +122,7 @@ public final class HtmlCompat {
             FROM_HTML_MODE_COMPACT,
             FROM_HTML_MODE_LEGACY
     }, flag = true)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @interface FromHtmlFlags {
     }
@@ -132,7 +132,7 @@ public final class HtmlCompat {
             TO_HTML_PARAGRAPH_LINES_CONSECUTIVE,
             TO_HTML_PARAGRAPH_LINES_INDIVIDUAL
     })
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(SOURCE)
     @interface ToHtmlOptions {
     }
