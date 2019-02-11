@@ -27,39 +27,39 @@ import androidx.camera.core.OptionsBundle;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeConfiguration implements Configuration.Reader {
 
-  private final Configuration config;
+    private final Configuration config;
 
-  private FakeConfiguration(Configuration config) {
-    this.config = config;
-  }
-
-  @Override
-  public Configuration getConfiguration() {
-    return config;
-  }
-
-  /** Builder for an empty Configuration */
-  public static final class Builder implements Configuration.Builder<FakeConfiguration, Builder> {
-
-    private final MutableOptionsBundle optionsBundle;
-
-    public Builder() {
-      optionsBundle = MutableOptionsBundle.create();
+    private FakeConfiguration(Configuration config) {
+        this.config = config;
     }
 
     @Override
-    public MutableConfiguration getMutableConfiguration() {
-      return optionsBundle;
+    public Configuration getConfiguration() {
+        return config;
     }
 
-    @Override
-    public Builder builder() {
-      return this;
-    }
+    /** Builder for an empty Configuration */
+    public static final class Builder implements Configuration.Builder<FakeConfiguration, Builder> {
 
-    @Override
-    public FakeConfiguration build() {
-      return new FakeConfiguration(OptionsBundle.from(optionsBundle));
+        private final MutableOptionsBundle optionsBundle;
+
+        public Builder() {
+            optionsBundle = MutableOptionsBundle.create();
+        }
+
+        @Override
+        public MutableConfiguration getMutableConfiguration() {
+            return optionsBundle;
+        }
+
+        @Override
+        public Builder builder() {
+            return this;
+        }
+
+        @Override
+        public FakeConfiguration build() {
+            return new FakeConfiguration(OptionsBundle.from(optionsBundle));
+        }
     }
-  }
 }

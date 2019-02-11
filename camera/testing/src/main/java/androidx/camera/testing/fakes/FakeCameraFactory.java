@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,49 +37,49 @@ import java.util.Set;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeCameraFactory implements CameraFactory {
 
-  private static final String BACK_ID = "0";
-  private static final String FRONT_ID = "1";
+    private static final String BACK_ID = "0";
+    private static final String FRONT_ID = "1";
 
-  private final Set<String> cameraIds;
+    private final Set<String> cameraIds;
 
-  private final Map<String, BaseCamera> cameraMap = new HashMap<>();
+    private final Map<String, BaseCamera> cameraMap = new HashMap<>();
 
-  public FakeCameraFactory() {
-    HashSet<String> camIds = new HashSet<>();
-    camIds.add(BACK_ID);
-    camIds.add(FRONT_ID);
+    public FakeCameraFactory() {
+        HashSet<String> camIds = new HashSet<>();
+        camIds.add(BACK_ID);
+        camIds.add(FRONT_ID);
 
-    cameraIds = Collections.unmodifiableSet(camIds);
-  }
-
-  @Override
-  public BaseCamera getCamera(String cameraId) {
-    if (cameraIds.contains(cameraId)) {
-      BaseCamera camera = cameraMap.get(cameraId);
-      if (camera == null) {
-        camera = new FakeCamera();
-        cameraMap.put(cameraId, camera);
-      }
-      return camera;
-    }
-    throw new IllegalArgumentException("Unknown camera: " + cameraId);
-  }
-
-  @Override
-  public Set<String> getAvailableCameraIds() {
-    return cameraIds;
-  }
-
-  @Nullable
-  @Override
-  public String cameraIdForLensFacing(LensFacing lensFacing) {
-    switch (lensFacing) {
-      case FRONT:
-        return FRONT_ID;
-      case BACK:
-        return BACK_ID;
+        cameraIds = Collections.unmodifiableSet(camIds);
     }
 
-    throw new IllegalArgumentException("Unknown lensFacing: " + lensFacing);
-  }
+    @Override
+    public BaseCamera getCamera(String cameraId) {
+        if (cameraIds.contains(cameraId)) {
+            BaseCamera camera = cameraMap.get(cameraId);
+            if (camera == null) {
+                camera = new FakeCamera();
+                cameraMap.put(cameraId, camera);
+            }
+            return camera;
+        }
+        throw new IllegalArgumentException("Unknown camera: " + cameraId);
+    }
+
+    @Override
+    public Set<String> getAvailableCameraIds() {
+        return cameraIds;
+    }
+
+    @Nullable
+    @Override
+    public String cameraIdForLensFacing(LensFacing lensFacing) {
+        switch (lensFacing) {
+            case FRONT:
+                return FRONT_ID;
+            case BACK:
+                return BACK_ID;
+        }
+
+        throw new IllegalArgumentException("Unknown lensFacing: " + lensFacing);
+    }
 }

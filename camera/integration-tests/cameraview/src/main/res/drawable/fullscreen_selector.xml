@@ -16,6 +16,6 @@ limitations under the License.
 <selector
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:constantSize="true">
-  <item android:state_enabled="true" android:state_checked="true" android:drawable="@drawable/ic_fullscreen_exit" />
-  <item android:state_enabled="true" android:state_checked="false" android:drawable="@drawable/ic_fullscreen" />
+    <item android:drawable="@drawable/ic_fullscreen_exit" android:state_checked="true" android:state_enabled="true" />
+    <item android:drawable="@drawable/ic_fullscreen" android:state_checked="false" android:state_enabled="true" />
 </selector>

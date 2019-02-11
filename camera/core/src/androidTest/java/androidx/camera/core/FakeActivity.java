@@ -21,16 +21,16 @@ import android.os.Bundle;
 
 /** A fake {@link Activity} that checks properties of the CameraX library. */
 public class FakeActivity extends Activity {
-  private volatile boolean isCameraXInitializedAtOnCreate = false;
+    private volatile boolean isCameraXInitializedAtOnCreate = false;
 
-  @Override
-  protected void onCreate(Bundle savedInstance) {
-    super.onCreate(savedInstance);
-    isCameraXInitializedAtOnCreate = CameraX.isInitialized();
-  }
+    @Override
+    protected void onCreate(Bundle savedInstance) {
+        super.onCreate(savedInstance);
+        isCameraXInitializedAtOnCreate = CameraX.isInitialized();
+    }
 
-  /** Returns true if CameraX is initialized when {@link #onCreate(Bundle)} is called. */
-  public boolean isCameraXInitializedAtOnCreate() {
-    return isCameraXInitializedAtOnCreate;
-  }
+    /** Returns true if CameraX is initialized when {@link #onCreate(Bundle)} is called. */
+    public boolean isCameraXInitializedAtOnCreate() {
+        return isCameraXInitializedAtOnCreate;
+    }
 }

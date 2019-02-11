@@ -21,9 +21,8 @@ import android.app.Application;
 /** An application for CameraX. */
 public class CameraXApplication extends Application {
 
-  @Override
-  public void onCreate() {
-    super.onCreate();
-  }
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
 }
-

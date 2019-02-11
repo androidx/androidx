@@ -26,42 +26,47 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A singleton executor which should be used for I/O tasks.
  *
- * TODO(b/115779693): Make this executor configurable
+ * <p>TODO(b/115779693): Make this executor configurable
  */
 final class IoExecutor implements Executor {
-  private static volatile Executor instance;
+    private static volatile Executor instance;
 
-  private final ExecutorService ioService =
-      Executors.newFixedThreadPool(
-          2,
-          new ThreadFactory() {
-            private static final String THREAD_NAME_STEM = CameraXThreads.TAG + "camerax_io_%d";
+    private final ExecutorService ioService =
+            Executors.newFixedThreadPool(
+                    2,
+                    new ThreadFactory() {
+                        private static final String THREAD_NAME_STEM =
+                                CameraXThreads.TAG + "camerax_io_%d";
 
-            private final AtomicInteger threadId = new AtomicInteger(0);
+                        private final AtomicInteger threadId = new AtomicInteger(0);
 
-            @Override
-            public Thread newThread(Runnable r) {
-              Thread t = new Thread(r);
-              t.setName(String.format(Locale.US, THREAD_NAME_STEM, threadId.getAndIncrement()));
-              return t;
+                        @Override
+                        public Thread newThread(Runnable r) {
+                            Thread t = new Thread(r);
+                            t.setName(
+                                    String.format(
+                                            Locale.US,
+                                            THREAD_NAME_STEM,
+                                            threadId.getAndIncrement()));
+                            return t;
+                        }
+                    });
+
+    static Executor getInstance() {
+        if (instance != null) {
+            return instance;
+        }
+        synchronized (IoExecutor.class) {
+            if (instance == null) {
+                instance = new IoExecutor();
             }
-          });
+        }
 
-  static Executor getInstance() {
-    if (instance != null) {
-      return instance;
-    }
-    synchronized (IoExecutor.class) {
-      if (instance == null) {
-        instance = new IoExecutor();
-      }
+        return instance;
     }
 
-    return instance;
-  }
-
-  @Override
-  public void execute(Runnable command) {
-    ioService.execute(command);
-  }
+    @Override
+    public void execute(Runnable command) {
+        ioService.execute(command);
+    }
 }

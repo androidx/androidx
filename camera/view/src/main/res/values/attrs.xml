@@ -14,33 +14,33 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-  <declare-styleable name="CameraView">
-    <attr name="scaleType" format="enum">
-      <enum name="centerCrop" value="0"/>
-      <enum name="centerInside" value="1"/>
-    </attr>
-    <attr name="lensFacing" format="enum">
-      <enum name="none" value="0" />
-      <enum name="front" value="1" />
-      <enum name="back" value="2" />
-    </attr>
-    <attr name="quality" format="enum">
-      <enum name="max" value="0"/>
-      <enum name="high" value="1"/>
-      <enum name="medium" value="2"/>
-      <enum name="low" value="3"/>
-    </attr>
-    <attr name="captureMode" format="enum">
-      <enum name="image" value="0"/>
-      <enum name="video" value="1"/>
-      <enum name="mixed" value="2"/>
-    </attr>
-    <attr name="flash" format="enum">
-      <enum name="auto" value="1" />
-      <enum name="on" value="2" />
-      <enum name="off" value="4" />
-    </attr>
+    <declare-styleable name="CameraView">
+        <attr name="scaleType" format="enum">
+            <enum name="centerCrop" value="0" />
+            <enum name="centerInside" value="1" />
+        </attr>
+        <attr name="lensFacing" format="enum">
+            <enum name="none" value="0" />
+            <enum name="front" value="1" />
+            <enum name="back" value="2" />
+        </attr>
+        <attr name="quality" format="enum">
+            <enum name="max" value="0" />
+            <enum name="high" value="1" />
+            <enum name="medium" value="2" />
+            <enum name="low" value="3" />
+        </attr>
+        <attr name="captureMode" format="enum">
+            <enum name="image" value="0" />
+            <enum name="video" value="1" />
+            <enum name="mixed" value="2" />
+        </attr>
+        <attr name="flash" format="enum">
+            <enum name="auto" value="1" />
+            <enum name="on" value="2" />
+            <enum name="off" value="4" />
+        </attr>
 
-    <attr name="pinchToZoomEnabled" format="boolean" />
-  </declare-styleable>
+        <attr name="pinchToZoomEnabled" format="boolean" />
+    </declare-styleable>
 </resources>

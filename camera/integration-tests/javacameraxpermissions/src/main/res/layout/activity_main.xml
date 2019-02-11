@@ -13,24 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
- <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-     xmlns:app="http://schemas.android.com/apk/res-auto"
-     xmlns:tools="http://schemas.android.com/tools"
-     android:layout_width="match_parent"
-     android:layout_height="match_parent"
-     app:layout_constraintHeight_min="640dp"
-     tools:context="androidx.camera.app.javacameraxpermissions.MainActivity">
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintHeight_min="640dp"
+    tools:context="androidx.camera.app.javacameraxpermissions.MainActivity">
 
-     <LinearLayout
-         android:layout_width="match_parent"
-         android:layout_height="match_parent"
-         android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-         <TextureView
-             android:id="@+id/textureView"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:minHeight="177dp" />
-     </LinearLayout>
+        <TextureView
+            android:id="@+id/textureView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="177dp" />
+    </LinearLayout>
 
- </android.support.constraint.ConstraintLayout>
+</android.support.constraint.ConstraintLayout>

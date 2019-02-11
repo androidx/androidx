@@ -23,5 +23,5 @@ package androidx.camera.camera2;
  */
 public interface CamcorderProfileHelper {
 
-  boolean hasProfile(int cameraId, int quality);
+    boolean hasProfile(int cameraId, int quality);
 }

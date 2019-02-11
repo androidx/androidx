@@ -19,23 +19,27 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.view.Surface;
+
 import androidx.test.runner.AndroidJUnit4;
+
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.concurrent.ExecutionException;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.util.concurrent.ExecutionException;
+
 @RunWith(AndroidJUnit4.class)
 public final class ImmediateSurfaceAndroidTest {
-  Surface mockSurface = Mockito.mock(Surface.class);
+    Surface mockSurface = Mockito.mock(Surface.class);
 
-  @Test
-  public void getSurface_returnsInstance() throws ExecutionException, InterruptedException {
-    ImmediateSurface immediateSurface = new ImmediateSurface(mockSurface);
+    @Test
+    public void getSurface_returnsInstance() throws ExecutionException, InterruptedException {
+        ImmediateSurface immediateSurface = new ImmediateSurface(mockSurface);
 
-    ListenableFuture<Surface> surfaceListenableFuture = immediateSurface.getSurface();
+        ListenableFuture<Surface> surfaceListenableFuture = immediateSurface.getSurface();
 
-    assertThat(surfaceListenableFuture.get()).isSameAs(mockSurface);
-  }
+        assertThat(surfaceListenableFuture.get()).isSameAs(mockSurface);
+    }
 }

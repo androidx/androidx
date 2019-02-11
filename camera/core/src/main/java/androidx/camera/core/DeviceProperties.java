@@ -17,27 +17,28 @@
 package androidx.camera.core;
 
 import android.os.Build;
+
 import com.google.auto.value.AutoValue;
 
 /** Container of the device properties. */
 @AutoValue
 abstract class DeviceProperties {
-  /** Creates an instance by querying the properties from {@link android.os.Build}. */
-  static DeviceProperties create() {
-    return create(Build.MANUFACTURER, Build.MODEL, Build.VERSION.SDK_INT);
-  }
+    /** Creates an instance by querying the properties from {@link android.os.Build}. */
+    static DeviceProperties create() {
+        return create(Build.MANUFACTURER, Build.MODEL, Build.VERSION.SDK_INT);
+    }
 
-  /** Creates an instance from the given properties. */
-  static DeviceProperties create(String manufacturer, String model, int sdkVersion) {
-    return new AutoValue_DeviceProperties(manufacturer, model, sdkVersion);
-  }
+    /** Creates an instance from the given properties. */
+    static DeviceProperties create(String manufacturer, String model, int sdkVersion) {
+        return new AutoValue_DeviceProperties(manufacturer, model, sdkVersion);
+    }
 
-  /** Returns the manufacturer of the device. */
-  abstract String manufacturer();
+    /** Returns the manufacturer of the device. */
+    abstract String manufacturer();
 
-  /** Returns the model of the device. */
-  abstract String model();
+    /** Returns the model of the device. */
+    abstract String model();
 
-  /** Returns the SDK version of the OS running on the device. */
-  abstract int sdkVersion();
+    /** Returns the SDK version of the OS running on the device. */
+    abstract int sdkVersion();
 }

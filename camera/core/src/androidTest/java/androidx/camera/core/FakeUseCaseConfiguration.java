@@ -18,44 +18,44 @@ package androidx.camera.core;
 
 /** A fake configuration for {@link FakeUseCase}. */
 public class FakeUseCaseConfiguration
-    implements UseCaseConfiguration<FakeUseCase>, CameraDeviceConfiguration {
+        implements UseCaseConfiguration<FakeUseCase>, CameraDeviceConfiguration {
 
-  private final Configuration config;
+    private final Configuration config;
 
-  private FakeUseCaseConfiguration(Configuration config) {
-    this.config = config;
-  }
-
-  @Override
-  public Configuration getConfiguration() {
-    return config;
-  }
-
-  /** Builder for an empty Configuration */
-  public static final class Builder
-      implements UseCaseConfiguration.Builder<FakeUseCase, FakeUseCaseConfiguration, Builder>,
-          CameraDeviceConfiguration.Builder<FakeUseCaseConfiguration, Builder> {
-
-    private final MutableOptionsBundle optionsBundle;
-
-    public Builder() {
-      optionsBundle = MutableOptionsBundle.create();
-      setTargetClass(FakeUseCase.class);
+    private FakeUseCaseConfiguration(Configuration config) {
+        this.config = config;
     }
 
     @Override
-    public MutableConfiguration getMutableConfiguration() {
-      return optionsBundle;
+    public Configuration getConfiguration() {
+        return config;
     }
 
-    @Override
-    public Builder builder() {
-      return this;
-    }
+    /** Builder for an empty Configuration */
+    public static final class Builder
+            implements UseCaseConfiguration.Builder<FakeUseCase, FakeUseCaseConfiguration, Builder>,
+            CameraDeviceConfiguration.Builder<FakeUseCaseConfiguration, Builder> {
 
-    @Override
-    public FakeUseCaseConfiguration build() {
-      return new FakeUseCaseConfiguration(OptionsBundle.from(optionsBundle));
+        private final MutableOptionsBundle optionsBundle;
+
+        public Builder() {
+            optionsBundle = MutableOptionsBundle.create();
+            setTargetClass(FakeUseCase.class);
+        }
+
+        @Override
+        public MutableConfiguration getMutableConfiguration() {
+            return optionsBundle;
+        }
+
+        @Override
+        public Builder builder() {
+            return this;
+        }
+
+        @Override
+        public FakeUseCaseConfiguration build() {
+            return new FakeUseCaseConfiguration(OptionsBundle.from(optionsBundle));
+        }
     }
-  }
 }

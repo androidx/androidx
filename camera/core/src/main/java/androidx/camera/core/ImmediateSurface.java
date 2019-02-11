@@ -16,26 +16,29 @@
 
 package androidx.camera.core;
 
+import android.view.Surface;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.view.Surface;
+
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * A {@link DeferrableSurface} which always returns immediately.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class ImmediateSurface implements DeferrableSurface {
-  private final Surface surface;
+    private final Surface surface;
 
-  public ImmediateSurface(Surface surface) {
-    this.surface = surface;
-  }
+    public ImmediateSurface(Surface surface) {
+        this.surface = surface;
+    }
 
-  @Override
-  public ListenableFuture<Surface> getSurface() {
-    return Futures.immediateFuture(surface);
-  }
+    @Override
+    public ListenableFuture<Surface> getSurface() {
+        return Futures.immediateFuture(surface);
+    }
 }

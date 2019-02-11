@@ -19,9 +19,10 @@ package androidx.camera.core;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
+import android.view.Surface;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
-import android.view.Surface;
 
 /**
  * An {@link ImageReaderProxy} which wraps around an {@link ImageReader}.
@@ -30,76 +31,77 @@ import android.view.Surface;
  * ImageReader}.
  */
 final class AndroidImageReaderProxy implements ImageReaderProxy {
-  @GuardedBy("this")
-  private final ImageReader imageReader;
+    @GuardedBy("this")
+    private final ImageReader imageReader;
 
-  /**
-   * Creates a new instance which wraps the given image reader.
-   *
-   * @param imageReader to wrap
-   * @return new {@link AndroidImageReaderProxy} instance
-   */
-  AndroidImageReaderProxy(ImageReader imageReader) {
-    this.imageReader = imageReader;
-  }
-
-  @Override
-  @Nullable
-  public synchronized ImageProxy acquireLatestImage() {
-    Image image = imageReader.acquireLatestImage();
-    if (image == null) {
-      return null;
+    /**
+     * Creates a new instance which wraps the given image reader.
+     *
+     * @param imageReader to wrap
+     * @return new {@link AndroidImageReaderProxy} instance
+     */
+    AndroidImageReaderProxy(ImageReader imageReader) {
+        this.imageReader = imageReader;
     }
-    return new AndroidImageProxy(image);
-  }
 
-  @Override
-  @Nullable
-  public synchronized ImageProxy acquireNextImage() {
-    Image image = imageReader.acquireNextImage();
-    if (image == null) {
-      return null;
+    @Override
+    @Nullable
+    public synchronized ImageProxy acquireLatestImage() {
+        Image image = imageReader.acquireLatestImage();
+        if (image == null) {
+            return null;
+        }
+        return new AndroidImageProxy(image);
     }
-    return new AndroidImageProxy(image);
-  }
 
-  @Override
-  public synchronized void close() {
-    imageReader.close();
-  }
+    @Override
+    @Nullable
+    public synchronized ImageProxy acquireNextImage() {
+        Image image = imageReader.acquireNextImage();
+        if (image == null) {
+            return null;
+        }
+        return new AndroidImageProxy(image);
+    }
 
-  @Override
-  public synchronized int getHeight() {
-    return imageReader.getHeight();
-  }
+    @Override
+    public synchronized void close() {
+        imageReader.close();
+    }
 
-  @Override
-  public synchronized int getWidth() {
-    return imageReader.getWidth();
-  }
+    @Override
+    public synchronized int getHeight() {
+        return imageReader.getHeight();
+    }
 
-  @Override
-  public synchronized int getImageFormat() {
-    return imageReader.getImageFormat();
-  }
+    @Override
+    public synchronized int getWidth() {
+        return imageReader.getWidth();
+    }
 
-  @Override
-  public synchronized int getMaxImages() {
-    return imageReader.getMaxImages();
-  }
+    @Override
+    public synchronized int getImageFormat() {
+        return imageReader.getImageFormat();
+    }
 
-  @Override
-  public synchronized Surface getSurface() {
-    return imageReader.getSurface();
-  }
+    @Override
+    public synchronized int getMaxImages() {
+        return imageReader.getMaxImages();
+    }
 
-  @Override
-  public synchronized void setOnImageAvailableListener(
-      @Nullable ImageReaderProxy.OnImageAvailableListener listener, @Nullable Handler handler) {
-    ImageReader.OnImageAvailableListener transformedListener =
-        reader -> {
-          listener.onImageAvailable(AndroidImageReaderProxy.this);
-        };
-    imageReader.setOnImageAvailableListener(transformedListener, handler);
-  }
+    @Override
+    public synchronized Surface getSurface() {
+        return imageReader.getSurface();
+    }
+
+    @Override
+    public synchronized void setOnImageAvailableListener(
+            @Nullable ImageReaderProxy.OnImageAvailableListener listener,
+            @Nullable Handler handler) {
+        ImageReader.OnImageAvailableListener transformedListener =
+                reader -> {
+                    listener.onImageAvailable(AndroidImageReaderProxy.this);
+                };
+        imageReader.setOnImageAvailableListener(transformedListener, handler);
+    }
 }

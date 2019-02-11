@@ -16,11 +16,13 @@
 
 package androidx.camera.testing.fakes;
 
-import androidx.annotation.Nullable;
 import android.util.Size;
+
+import androidx.annotation.Nullable;
 import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.SurfaceConfiguration;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,40 +30,40 @@ import java.util.Map;
 /** A CameraDeviceSurfaceManager which has no supported SurfaceConfigurations. */
 public class FakeCameraDeviceSurfaceManager implements CameraDeviceSurfaceManager {
 
-  private static final Size MAX_OUTPUT_SIZE = new Size(0, 0);
-  private static final Size PREVIEW_SIZE = new Size(1920, 1080);
+    private static final Size MAX_OUTPUT_SIZE = new Size(0, 0);
+    private static final Size PREVIEW_SIZE = new Size(1920, 1080);
 
-  @Override
-  public boolean checkSupported(
-      String cameraId, List<SurfaceConfiguration> surfaceConfigurationList) {
-    return false;
-  }
-
-  @Override
-  public SurfaceConfiguration transformSurfaceConfiguration(
-      String cameraId, int imageFormat, Size size) {
-    return null;
-  }
-
-  @Nullable
-  @Override
-  public Size getMaxOutputSize(String cameraId, int imageFormat) {
-    return MAX_OUTPUT_SIZE;
-  }
-
-  @Override
-  public Map<BaseUseCase, Size> getSuggestedResolutions(
-      String cameraId, List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
-    Map<BaseUseCase, Size> suggestedSizes = new HashMap<>();
-    for (BaseUseCase useCase : newUseCases) {
-      suggestedSizes.put(useCase, MAX_OUTPUT_SIZE);
+    @Override
+    public boolean checkSupported(
+            String cameraId, List<SurfaceConfiguration> surfaceConfigurationList) {
+        return false;
     }
 
-    return suggestedSizes;
-  }
+    @Override
+    public SurfaceConfiguration transformSurfaceConfiguration(
+            String cameraId, int imageFormat, Size size) {
+        return null;
+    }
 
-  @Override
-  public Size getPreviewSize() {
-    return PREVIEW_SIZE;
-  }
+    @Nullable
+    @Override
+    public Size getMaxOutputSize(String cameraId, int imageFormat) {
+        return MAX_OUTPUT_SIZE;
+    }
+
+    @Override
+    public Map<BaseUseCase, Size> getSuggestedResolutions(
+            String cameraId, List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
+        Map<BaseUseCase, Size> suggestedSizes = new HashMap<>();
+        for (BaseUseCase useCase : newUseCases) {
+            suggestedSizes.put(useCase, MAX_OUTPUT_SIZE);
+        }
+
+        return suggestedSizes;
+    }
+
+    @Override
+    public Size getPreviewSize() {
+        return PREVIEW_SIZE;
+    }
 }

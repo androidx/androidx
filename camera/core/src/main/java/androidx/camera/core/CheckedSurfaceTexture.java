@@ -20,12 +20,15 @@ import android.graphics.SurfaceTexture;
 import android.opengl.GLES20;
 import android.os.Handler;
 import android.os.Looper;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
 import android.util.Size;
 import android.view.Surface;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+
 import java.nio.IntBuffer;
 
 /**
@@ -33,109 +36,115 @@ import java.nio.IntBuffer;
  * Surface} is unreleased before returning the Surface.
  */
 final class CheckedSurfaceTexture implements DeferrableSurface {
-  interface OnTextureChangedListener {
-    void onTextureChanged(SurfaceTexture newOutput, Size newResolution);
-  }
-
-  @Nullable private SurfaceTexture surfaceTexture;
-  @Nullable private Surface surface;
-  private final OnTextureChangedListener outputChangedListener;
-  private final Handler mainThreadHandler;
-  @Nullable private Size resolution;
-
-  CheckedSurfaceTexture(OnTextureChangedListener outputChangedListener, Handler mainThreadHandler) {
-    this.outputChangedListener = outputChangedListener;
-    this.mainThreadHandler = mainThreadHandler;
-  }
-
-  @UiThread
-  void setResolution(Size resolution) {
-    this.resolution = resolution;
-  }
-
-  @UiThread
-  void resetSurfaceTexture() {
-    if (resolution == null) {
-      throw new IllegalStateException(
-          "setResolution() must be called before resetSurfaceTexture()");
+    private final OnTextureChangedListener outputChangedListener;
+    private final Handler mainThreadHandler;
+    @Nullable
+    private SurfaceTexture surfaceTexture;
+    @Nullable
+    private Surface surface;
+    @Nullable
+    private Size resolution;
+    CheckedSurfaceTexture(
+            OnTextureChangedListener outputChangedListener, Handler mainThreadHandler) {
+        this.outputChangedListener = outputChangedListener;
+        this.mainThreadHandler = mainThreadHandler;
     }
 
-    release();
-    surfaceTexture = createDetachedSurfaceTexture(resolution);
-    surface = new Surface(surfaceTexture);
-    outputChangedListener.onTextureChanged(surfaceTexture, resolution);
-  }
-
-  private boolean surfaceTextureReleased(SurfaceTexture surfaceTexture) {
-    boolean released = false;
-
-    // TODO(b/121196683) Refactor workaround into a compatibility module
-    if (26 <= android.os.Build.VERSION.SDK_INT) {
-      released = surfaceTexture.isReleased();
-    } else {
-      // WARNING: This relies on some implementation details of the ViewFinderOutput native code.
-      // If the ViewFinderOutput is released, we should get a RuntimeException. If not, we should
-      // get an IllegalStateException since we are not in the same EGL context as the consumer.
-      Exception exception = null;
-      try {
-        // TODO(b/121198329) Make sure updateTexImage() isn't called on consumer EGL context
-        surfaceTexture.updateTexImage();
-      } catch (IllegalStateException e) {
-        exception = e;
-        released = false;
-      } catch (RuntimeException e) {
-        exception = e;
-        released = true;
-      }
-
-      if (!released && exception == null) {
-        throw new RuntimeException("Unable to determine if ViewFinderOutput is released");
-      }
+    private static SurfaceTexture createDetachedSurfaceTexture(Size resolution) {
+        IntBuffer buffer = IntBuffer.allocate(1);
+        GLES20.glGenTextures(1, buffer);
+        SurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(buffer.get(), resolution);
+        surfaceTexture.detachFromGLContext();
+        return surfaceTexture;
     }
 
-    return released;
-  }
-
-  /**
-   * Returns the {@link Surface} that is backed by a {@link SurfaceTexture}.
-   *
-   * <p>If the {@link SurfaceTexture} has already been released then the surface will be reset using
-   * a new {@link SurfaceTexture}.
-   */
-  @Override
-  public ListenableFuture<Surface> getSurface() {
-    SettableFuture<Surface> deferredSurface = SettableFuture.create();
-    Runnable checkAndSetRunnable =
-        () -> {
-          if (surfaceTextureReleased(surfaceTexture)) {
-            // Reset the surface texture and notify the listener
-            resetSurfaceTexture();
-          }
-
-          deferredSurface.set(surface);
-        };
-
-    if (Looper.myLooper() == mainThreadHandler.getLooper()) {
-      checkAndSetRunnable.run();
-    } else {
-      mainThreadHandler.post(checkAndSetRunnable);
+    @UiThread
+    void setResolution(Size resolution) {
+        this.resolution = resolution;
     }
 
-    return deferredSurface;
-  }
+    @UiThread
+    void resetSurfaceTexture() {
+        if (resolution == null) {
+            throw new IllegalStateException(
+                    "setResolution() must be called before resetSurfaceTexture()");
+        }
 
-  void release() {
-    if (surface != null) {
-      surface.release();
-      surface = null;
+        release();
+        surfaceTexture = createDetachedSurfaceTexture(resolution);
+        surface = new Surface(surfaceTexture);
+        outputChangedListener.onTextureChanged(surfaceTexture, resolution);
     }
-  }
 
-  private static SurfaceTexture createDetachedSurfaceTexture(Size resolution) {
-    IntBuffer buffer = IntBuffer.allocate(1);
-    GLES20.glGenTextures(1, buffer);
-    SurfaceTexture surfaceTexture = new FixedSizeSurfaceTexture(buffer.get(), resolution);
-    surfaceTexture.detachFromGLContext();
-    return surfaceTexture;
-  }
+    private boolean surfaceTextureReleased(SurfaceTexture surfaceTexture) {
+        boolean released = false;
+
+        // TODO(b/121196683) Refactor workaround into a compatibility module
+        if (26 <= android.os.Build.VERSION.SDK_INT) {
+            released = surfaceTexture.isReleased();
+        } else {
+            // WARNING: This relies on some implementation details of the ViewFinderOutput native
+            // code.
+            // If the ViewFinderOutput is released, we should get a RuntimeException. If not, we
+            // should
+            // get an IllegalStateException since we are not in the same EGL context as the
+            // consumer.
+            Exception exception = null;
+            try {
+                // TODO(b/121198329) Make sure updateTexImage() isn't called on consumer EGL context
+                surfaceTexture.updateTexImage();
+            } catch (IllegalStateException e) {
+                exception = e;
+                released = false;
+            } catch (RuntimeException e) {
+                exception = e;
+                released = true;
+            }
+
+            if (!released && exception == null) {
+                throw new RuntimeException("Unable to determine if ViewFinderOutput is released");
+            }
+        }
+
+        return released;
+    }
+
+    /**
+     * Returns the {@link Surface} that is backed by a {@link SurfaceTexture}.
+     *
+     * <p>If the {@link SurfaceTexture} has already been released then the surface will be reset
+     * using a new {@link SurfaceTexture}.
+     */
+    @Override
+    public ListenableFuture<Surface> getSurface() {
+        SettableFuture<Surface> deferredSurface = SettableFuture.create();
+        Runnable checkAndSetRunnable =
+                () -> {
+                    if (surfaceTextureReleased(surfaceTexture)) {
+                        // Reset the surface texture and notify the listener
+                        resetSurfaceTexture();
+                    }
+
+                    deferredSurface.set(surface);
+                };
+
+        if (Looper.myLooper() == mainThreadHandler.getLooper()) {
+            checkAndSetRunnable.run();
+        } else {
+            mainThreadHandler.post(checkAndSetRunnable);
+        }
+
+        return deferredSurface;
+    }
+
+    void release() {
+        if (surface != null) {
+            surface.release();
+            surface = null;
+        }
+    }
+
+    interface OnTextureChangedListener {
+        void onTextureChanged(SurfaceTexture newOutput, Size newResolution);
+    }
 }

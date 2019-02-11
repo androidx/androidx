@@ -16,11 +16,14 @@
 
 package androidx.camera.core;
 
+import android.view.Surface;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.view.Surface;
+
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,60 +34,64 @@ import java.util.concurrent.ExecutionException;
 
 /**
  * Utility functions for manipulating {@link DeferrableSurface}.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class DeferrableSurfaces {
-  private static final String TAG = "DeferrableSurfaces";
-  /**
-   * Returns a {@link Surface} list from a {@link DeferrableSurface} collection.
-   *
-   * <p>Any {@link DeferrableSurface} that can not be obtained will be missing from the list. This
-   * means that the returned list will only be guaranteed to be less than or equal to in size to the
-   * original collection.
-   */
-  public static List<Surface> surfaceList(Collection<DeferrableSurface> deferrableSurfaces) {
-    List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
+    private static final String TAG = "DeferrableSurfaces";
 
-    for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
-      listenableFutureSurfaces.add(deferrableSurface.getSurface());
+    private DeferrableSurfaces() {
     }
 
-    try {
-      // Need to create a new list since the list returned by successfulAsList() is unmodifiable so
-      // it will throw an Exception
-      List<Surface> surfaces =
-          new ArrayList<>(Futures.successfulAsList(listenableFutureSurfaces).get());
-      surfaces.removeAll(Collections.singleton(null));
-      return Collections.unmodifiableList(surfaces);
-    } catch (InterruptedException | ExecutionException e) {
-      return Collections.unmodifiableList(Collections.emptyList());
+    /**
+     * Returns a {@link Surface} list from a {@link DeferrableSurface} collection.
+     *
+     * <p>Any {@link DeferrableSurface} that can not be obtained will be missing from the list. This
+     * means that the returned list will only be guaranteed to be less than or equal to in size to
+     * the original collection.
+     */
+    public static List<Surface> surfaceList(Collection<DeferrableSurface> deferrableSurfaces) {
+        List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
+
+        for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
+            listenableFutureSurfaces.add(deferrableSurface.getSurface());
+        }
+
+        try {
+            // Need to create a new list since the list returned by successfulAsList() is
+            // unmodifiable so
+            // it will throw an Exception
+            List<Surface> surfaces =
+                    new ArrayList<>(Futures.successfulAsList(listenableFutureSurfaces).get());
+            surfaces.removeAll(Collections.singleton(null));
+            return Collections.unmodifiableList(surfaces);
+        } catch (InterruptedException | ExecutionException e) {
+            return Collections.unmodifiableList(Collections.emptyList());
+        }
     }
-  }
 
-  /**
-   * Returns a {@link Surface} set from a {@link DeferrableSurface} collection.
-   *
-   * <p>Any {@link DeferrableSurface} that can not be obtained will be missing from the set. This
-   * means that the returned set will only be guaranteed to be less than or equal to in size to the
-   * original collection.
-   */
-  public static Set<Surface> surfaceSet(Collection<DeferrableSurface> deferrableSurfaces) {
-    List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
+    /**
+     * Returns a {@link Surface} set from a {@link DeferrableSurface} collection.
+     *
+     * <p>Any {@link DeferrableSurface} that can not be obtained will be missing from the set. This
+     * means that the returned set will only be guaranteed to be less than or equal to in size to
+     * the original collection.
+     */
+    public static Set<Surface> surfaceSet(Collection<DeferrableSurface> deferrableSurfaces) {
+        List<ListenableFuture<Surface>> listenableFutureSurfaces = new ArrayList<>();
 
-    for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
-      listenableFutureSurfaces.add(deferrableSurface.getSurface());
+        for (DeferrableSurface deferrableSurface : deferrableSurfaces) {
+            listenableFutureSurfaces.add(deferrableSurface.getSurface());
+        }
+
+        try {
+            HashSet<Surface> surfaces =
+                    new HashSet<>(Futures.successfulAsList(listenableFutureSurfaces).get());
+            surfaces.removeAll(Collections.singleton(null));
+            return Collections.unmodifiableSet(surfaces);
+        } catch (InterruptedException | ExecutionException e) {
+            return Collections.unmodifiableSet(Collections.emptySet());
+        }
     }
-
-    try {
-      HashSet<Surface> surfaces =
-          new HashSet<>(Futures.successfulAsList(listenableFutureSurfaces).get());
-      surfaces.removeAll(Collections.singleton(null));
-      return Collections.unmodifiableSet(surfaces);
-    } catch (InterruptedException | ExecutionException e) {
-      return Collections.unmodifiableSet(Collections.emptySet());
-    }
-  }
-
-  private DeferrableSurfaces() {}
 }

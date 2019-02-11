@@ -19,6 +19,7 @@ package androidx.camera.camera2;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -29,51 +30,55 @@ import androidx.camera.core.ImageOutputConfiguration.RotationValue;
 /** Implementation of the {@link CameraInfo} interface that exposes parameters through camera2. */
 final class Camera2CameraInfo implements CameraInfo {
 
-  private final CameraCharacteristics cameraCharacteristics;
+    private final CameraCharacteristics cameraCharacteristics;
 
-  Camera2CameraInfo(CameraManager cameraManager, String cameraId)
-      throws CameraInfoUnavailableException {
-    try {
-      cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
-    } catch (CameraAccessException e) {
-      throw new CameraInfoUnavailableException("Unable to retrieve info for camera " + cameraId, e);
+    Camera2CameraInfo(CameraManager cameraManager, String cameraId)
+            throws CameraInfoUnavailableException {
+        try {
+            cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
+        } catch (CameraAccessException e) {
+            throw new CameraInfoUnavailableException(
+                    "Unable to retrieve info for camera " + cameraId, e);
+        }
+
+        checkCharacteristicAvailable(
+                CameraCharacteristics.SENSOR_ORIENTATION, "Sensor orientation");
+        checkCharacteristicAvailable(CameraCharacteristics.LENS_FACING, "Lens facing direction");
     }
 
-    checkCharacteristicAvailable(CameraCharacteristics.SENSOR_ORIENTATION, "Sensor orientation");
-    checkCharacteristicAvailable(CameraCharacteristics.LENS_FACING, "Lens facing direction");
-  }
-
-  @Nullable
-  @Override
-  public LensFacing getLensFacing() {
-    switch (cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)) {
-      case CameraCharacteristics.LENS_FACING_FRONT:
-        return LensFacing.FRONT;
-      case CameraCharacteristics.LENS_FACING_BACK:
-        return LensFacing.BACK;
-      default:
-        return null;
+    @Nullable
+    @Override
+    public LensFacing getLensFacing() {
+        switch (cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)) {
+            case CameraCharacteristics.LENS_FACING_FRONT:
+                return LensFacing.FRONT;
+            case CameraCharacteristics.LENS_FACING_BACK:
+                return LensFacing.BACK;
+            default:
+                return null;
+        }
     }
-  }
 
-  @Override
-  public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
-    int relativeRotationDegrees = CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation);
-    // Currently this assumes that a back-facing camera is always opposite to the screen.
-    // This may not be the case for all devices, so in the future we may need to handle that
-    // scenario.
-    boolean isOppositeFacingScreen = LensFacing.BACK.equals(getLensFacing());
-    return CameraOrientationUtil.getRelativeImageRotation(
-        relativeRotationDegrees,
-        cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION),
-        isOppositeFacingScreen);
-  }
-
-  private void checkCharacteristicAvailable(CameraCharacteristics.Key<?> key, String readableName)
-      throws CameraInfoUnavailableException {
-    if (cameraCharacteristics.get(key) == null) {
-      throw new CameraInfoUnavailableException(
-          "Camera characteristics map is missing value for characteristic: " + readableName);
+    @Override
+    public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
+        int relativeRotationDegrees =
+                CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation);
+        // Currently this assumes that a back-facing camera is always opposite to the screen.
+        // This may not be the case for all devices, so in the future we may need to handle that
+        // scenario.
+        boolean isOppositeFacingScreen = LensFacing.BACK.equals(getLensFacing());
+        return CameraOrientationUtil.getRelativeImageRotation(
+                relativeRotationDegrees,
+                cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION),
+                isOppositeFacingScreen);
     }
-  }
+
+    private void checkCharacteristicAvailable(CameraCharacteristics.Key<?> key, String readableName)
+            throws CameraInfoUnavailableException {
+        if (cameraCharacteristics.get(key) == null) {
+            throw new CameraInfoUnavailableException(
+                    "Camera characteristics map is missing value for characteristic: "
+                            + readableName);
+        }
+    }
 }

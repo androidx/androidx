@@ -23,110 +23,23 @@ import androidx.camera.core.ImageCaptureUseCase.CaptureMode;
 
 /** Configuration for an image capture use case. */
 public final class ImageCaptureUseCaseConfiguration
-    implements UseCaseConfiguration<ImageCaptureUseCase>,
+        implements UseCaseConfiguration<ImageCaptureUseCase>,
         ImageOutputConfiguration,
         CameraDeviceConfiguration,
         ThreadConfiguration {
 
-  private final OptionsBundle config;
+    // Option Declarations:
+    // ***********************************************************************************************
+    static final Option<ImageCaptureUseCase.CaptureMode> OPTION_IMAGE_CAPTURE_MODE =
+            Option.create(
+                    "camerax.core.imageCapture.captureMode", ImageCaptureUseCase.CaptureMode.class);
+    static final Option<FlashMode> OPTION_FLASH_MODE =
+            Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
+    private final OptionsBundle config;
 
-  /** Creates a new configuration instance. */
-  private ImageCaptureUseCaseConfiguration(OptionsBundle config) {
-    this.config = config;
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @hide
-   */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  @Override
-  public Configuration getConfiguration() {
-    return config;
-  }
-
-  /**
-   * Returns the {@link ImageCaptureUseCase.CaptureMode}.
-   *
-   * @param valueIfMissing The value to return if this configuration option has not been set.
-   * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-   *     configuration.
-   */
-  @Nullable
-  public ImageCaptureUseCase.CaptureMode getCaptureMode(
-      @Nullable ImageCaptureUseCase.CaptureMode valueIfMissing) {
-    return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE, valueIfMissing);
-  }
-
-  /**
-   * Returns the {@link ImageCaptureUseCase.CaptureMode}.
-   *
-   * @return The stored value, if it exists in this configuration.
-   * @throws IllegalArgumentException if the option does not exist in this configuration.
-   */
-  public ImageCaptureUseCase.CaptureMode getCaptureMode() {
-    return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE);
-  }
-
-  /**
-   * Returns the {@link FlashMode}.
-   *
-   * @param valueIfMissing The value to return if this configuration option has not been set.
-   * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-   *     configuration.
-   */
-  @Nullable
-  public FlashMode getFlashMode(@Nullable FlashMode valueIfMissing) {
-    return getConfiguration().retrieveOption(OPTION_FLASH_MODE, valueIfMissing);
-  }
-
-  /**
-   * Returns the {@link FlashMode}.
-   *
-   * @return The stored value, if it exists in this configuration.
-   * @throws IllegalArgumentException if the option does not exist in this configuration.
-   */
-  public FlashMode getFlashMode() {
-    return getConfiguration().retrieveOption(OPTION_FLASH_MODE);
-  }
-
-  /** Builder for a {@link ImageCaptureUseCaseConfiguration}. */
-  public static final class Builder
-      implements UseCaseConfiguration.Builder<
-              ImageCaptureUseCase, ImageCaptureUseCaseConfiguration, Builder>,
-          ImageOutputConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder>,
-          CameraDeviceConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder>,
-          ThreadConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder> {
-
-    private final MutableOptionsBundle mutableConfig;
-
-    /** Creates a new Builder object. */
-    public Builder() {
-      this(MutableOptionsBundle.create());
-    }
-
-    private Builder(MutableOptionsBundle mutableConfig) {
-      this.mutableConfig = mutableConfig;
-
-      Class<?> oldConfigClass =
-          mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
-      if (oldConfigClass != null && !oldConfigClass.equals(ImageCaptureUseCase.class)) {
-        throw new IllegalArgumentException(
-            "Invalid target class configuration for " + Builder.this + ": " + oldConfigClass);
-      }
-
-      setTargetClass(ImageCaptureUseCase.class);
-    }
-
-    /**
-     * Generates a Builder from another Configuration object
-     *
-     * @param configuration An immutable configuration to pre-populate this builder.
-     * @return The new Builder.
-     */
-    public static Builder fromConfig(ImageCaptureUseCaseConfiguration configuration) {
-      return new Builder(MutableOptionsBundle.from(configuration));
+    /** Creates a new configuration instance. */
+    private ImageCaptureUseCaseConfiguration(OptionsBundle config) {
+        this.config = config;
     }
 
     /**
@@ -136,57 +49,147 @@ public final class ImageCaptureUseCaseConfiguration
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public MutableConfiguration getMutableConfiguration() {
-      return mutableConfig;
+    public Configuration getConfiguration() {
+        return config;
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the {@link ImageCaptureUseCase.CaptureMode}.
      *
-     * @hide
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public Builder builder() {
-      return this;
-    }
-
-    @Override
-    public ImageCaptureUseCaseConfiguration build() {
-      return new ImageCaptureUseCaseConfiguration(OptionsBundle.from(mutableConfig));
+    @Nullable
+    public ImageCaptureUseCase.CaptureMode getCaptureMode(
+            @Nullable ImageCaptureUseCase.CaptureMode valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE, valueIfMissing);
     }
 
     /**
-     * Sets the image capture mode.
+     * Returns the {@link ImageCaptureUseCase.CaptureMode}.
      *
-     * <p>Valid capture modes are {@link CaptureMode#MIN_LATENCY}, which prioritizes latency over
-     * image quality, or {@link CaptureMode#MAX_QUALITY}, which prioritizes image quality over
-     * latency.
-     *
-     * @param captureMode The requested image capture mode.
-     * @return The current Builder.
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
-    public Builder setCaptureMode(ImageCaptureUseCase.CaptureMode captureMode) {
-      getMutableConfiguration().insertOption(OPTION_IMAGE_CAPTURE_MODE, captureMode);
-      return builder();
+    public ImageCaptureUseCase.CaptureMode getCaptureMode() {
+        return getConfiguration().retrieveOption(OPTION_IMAGE_CAPTURE_MODE);
     }
 
     /**
-     * Sets the {@link FlashMode}.
+     * Returns the {@link FlashMode}.
      *
-     * @param flashMode The requested flash mode.
-     * @return The current Builder.
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
+     * configuration.
      */
-    public Builder setFlashMode(FlashMode flashMode) {
-      getMutableConfiguration().insertOption(OPTION_FLASH_MODE, flashMode);
-      return builder();
+    @Nullable
+    public FlashMode getFlashMode(@Nullable FlashMode valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_FLASH_MODE, valueIfMissing);
     }
-  }
 
-  // Option Declarations:
-  // ***********************************************************************************************
-  static final Option<ImageCaptureUseCase.CaptureMode> OPTION_IMAGE_CAPTURE_MODE =
-      Option.create("camerax.core.imageCapture.captureMode", ImageCaptureUseCase.CaptureMode.class);
-  static final Option<FlashMode> OPTION_FLASH_MODE =
-      Option.create("camerax.core.imageCapture.flashMode", FlashMode.class);
+    /**
+     * Returns the {@link FlashMode}.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    public FlashMode getFlashMode() {
+        return getConfiguration().retrieveOption(OPTION_FLASH_MODE);
+    }
+
+    /** Builder for a {@link ImageCaptureUseCaseConfiguration}. */
+    public static final class Builder
+            implements UseCaseConfiguration.Builder<
+            ImageCaptureUseCase, ImageCaptureUseCaseConfiguration, Builder>,
+            ImageOutputConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder>,
+            CameraDeviceConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder>,
+            ThreadConfiguration.Builder<ImageCaptureUseCaseConfiguration, Builder> {
+
+        private final MutableOptionsBundle mutableConfig;
+
+        /** Creates a new Builder object. */
+        public Builder() {
+            this(MutableOptionsBundle.create());
+        }
+
+        private Builder(MutableOptionsBundle mutableConfig) {
+            this.mutableConfig = mutableConfig;
+
+            Class<?> oldConfigClass =
+                    mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
+            if (oldConfigClass != null && !oldConfigClass.equals(ImageCaptureUseCase.class)) {
+                throw new IllegalArgumentException(
+                        "Invalid target class configuration for "
+                                + Builder.this
+                                + ": "
+                                + oldConfigClass);
+            }
+
+            setTargetClass(ImageCaptureUseCase.class);
+        }
+
+        /**
+         * Generates a Builder from another Configuration object
+         *
+         * @param configuration An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         */
+        public static Builder fromConfig(ImageCaptureUseCaseConfiguration configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public MutableConfiguration getMutableConfiguration() {
+            return mutableConfig;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder builder() {
+            return this;
+        }
+
+        @Override
+        public ImageCaptureUseCaseConfiguration build() {
+            return new ImageCaptureUseCaseConfiguration(OptionsBundle.from(mutableConfig));
+        }
+
+        /**
+         * Sets the image capture mode.
+         *
+         * <p>Valid capture modes are {@link CaptureMode#MIN_LATENCY}, which prioritizes latency
+         * over image quality, or {@link CaptureMode#MAX_QUALITY}, which prioritizes image quality
+         * over latency.
+         *
+         * @param captureMode The requested image capture mode.
+         * @return The current Builder.
+         */
+        public Builder setCaptureMode(ImageCaptureUseCase.CaptureMode captureMode) {
+            getMutableConfiguration().insertOption(OPTION_IMAGE_CAPTURE_MODE, captureMode);
+            return builder();
+        }
+
+        /**
+         * Sets the {@link FlashMode}.
+         *
+         * @param flashMode The requested flash mode.
+         * @return The current Builder.
+         */
+        public Builder setFlashMode(FlashMode flashMode) {
+            getMutableConfiguration().insertOption(OPTION_FLASH_MODE, flashMode);
+            return builder();
+        }
+    }
 }

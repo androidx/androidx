@@ -18,128 +18,125 @@ package androidx.camera.core;
 
 import androidx.annotation.GuardedBy;
 import androidx.test.runner.AndroidJUnit4;
-import java.util.concurrent.Executor;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 @RunWith(AndroidJUnit4.class)
 public final class IoExecutorAndroidTest {
 
-  private Executor ioExecutor;
+    private Executor ioExecutor;
+    private Lock lock = new ReentrantLock();
+    private Condition condition = lock.newCondition();
+    @GuardedBy("lock")
+    private RunnableState state = RunnableState.CLEAR;
+    private final Runnable runnable1 =
+            () -> {
+                lock.lock();
+                try {
+                    state = RunnableState.RUNNABLE1_WAITING;
+                    condition.signalAll();
+                    while (state != RunnableState.CLEAR) {
+                        condition.await();
+                    }
 
-  private enum RunnableState {
-    CLEAR,
-    RUNNABLE1_WAITING,
-    RUNNABLE1_FINISHED,
-    RUNNABLE2_FINISHED
-  }
+                    state = RunnableState.RUNNABLE1_FINISHED;
+                    condition.signalAll();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Thread interrupted unexpectedly", e);
+                } finally {
+                    lock.unlock();
+                }
+            };
+    private final Runnable runnable2 =
+            () -> {
+                lock.lock();
+                try {
+                    while (state != RunnableState.RUNNABLE1_WAITING) {
+                        condition.await();
+                    }
 
-  private Lock lock = new ReentrantLock();
-  private Condition condition = lock.newCondition();
+                    state = RunnableState.RUNNABLE2_FINISHED;
+                    condition.signalAll();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException("Thread interrupted unexpectedly", e);
+                } finally {
+                    lock.unlock();
+                }
+            };
+    private final Runnable simpleRunnable1 =
+            () -> {
+                lock.lock();
+                try {
+                    state = RunnableState.RUNNABLE1_FINISHED;
+                    condition.signalAll();
+                } finally {
+                    lock.unlock();
+                }
+            };
 
-  @GuardedBy("lock")
-  private RunnableState state = RunnableState.CLEAR;
-
-  private final Runnable runnable1 =
-      () -> {
+    @Before
+    public void setup() {
         lock.lock();
         try {
-          state = RunnableState.RUNNABLE1_WAITING;
-          condition.signalAll();
-          while (state != RunnableState.CLEAR) {
-            condition.await();
-          }
-
-          state = RunnableState.RUNNABLE1_FINISHED;
-          condition.signalAll();
-        } catch (InterruptedException e) {
-          throw new RuntimeException("Thread interrupted unexpectedly", e);
+            state = RunnableState.CLEAR;
         } finally {
-          lock.unlock();
+            lock.unlock();
         }
-      };
+        ioExecutor = IoExecutor.getInstance();
+    }
 
-  private final Runnable runnable2 =
-      () -> {
+    @Test(timeout = 2000)
+    public void canRunRunnable() throws InterruptedException {
+        ioExecutor.execute(simpleRunnable1);
         lock.lock();
         try {
-          while (state != RunnableState.RUNNABLE1_WAITING) {
-            condition.await();
-          }
-
-          state = RunnableState.RUNNABLE2_FINISHED;
-          condition.signalAll();
-        } catch (InterruptedException e) {
-          throw new RuntimeException("Thread interrupted unexpectedly", e);
+            while (state != RunnableState.RUNNABLE1_FINISHED) {
+                condition.await();
+            }
         } finally {
-          lock.unlock();
+            lock.unlock();
         }
-      };
 
-  private final Runnable simpleRunnable1 =
-      () -> {
+        // No need to check anything here. Completing this method should signal success.
+    }
+
+    @Test(timeout = 2000)
+    public void canRunMultipleRunnableInParallel() throws InterruptedException {
+        ioExecutor.execute(runnable1);
+        ioExecutor.execute(runnable2);
+
         lock.lock();
         try {
-          state = RunnableState.RUNNABLE1_FINISHED;
-          condition.signalAll();
+            // runnable2 cannot finish until runnable1 has started
+            while (state != RunnableState.RUNNABLE2_FINISHED) {
+                condition.await();
+            }
+
+            // Allow runnable1 to finish
+            state = RunnableState.CLEAR;
+            condition.signalAll();
+
+            while (state != RunnableState.RUNNABLE1_FINISHED) {
+                condition.await();
+            }
         } finally {
-          lock.unlock();
+            lock.unlock();
         }
-      };
 
-  @Before
-  public void setup() {
-    lock.lock();
-    try {
-      state = RunnableState.CLEAR;
-    } finally {
-      lock.unlock();
-    }
-    ioExecutor = IoExecutor.getInstance();
-  }
-
-  @Test(timeout = 2000)
-  public void canRunRunnable() throws InterruptedException {
-    ioExecutor.execute(simpleRunnable1);
-    lock.lock();
-    try {
-      while (state != RunnableState.RUNNABLE1_FINISHED) {
-        condition.await();
-      }
-    } finally {
-      lock.unlock();
+        // No need to check anything here. Completing this method should signal success.
     }
 
-    // No need to check anything here. Completing this method should signal success.
-  }
-
-  @Test(timeout = 2000)
-  public void canRunMultipleRunnableInParallel() throws InterruptedException {
-    ioExecutor.execute(runnable1);
-    ioExecutor.execute(runnable2);
-
-    lock.lock();
-    try {
-      // runnable2 cannot finish until runnable1 has started
-      while (state != RunnableState.RUNNABLE2_FINISHED) {
-        condition.await();
-      }
-
-      // Allow runnable1 to finish
-      state = RunnableState.CLEAR;
-      condition.signalAll();
-
-      while (state != RunnableState.RUNNABLE1_FINISHED) {
-        condition.await();
-      }
-    } finally {
-      lock.unlock();
+    private enum RunnableState {
+        CLEAR,
+        RUNNABLE1_WAITING,
+        RUNNABLE1_FINISHED,
+        RUNNABLE2_FINISHED
     }
-
-    // No need to check anything here. Completing this method should signal success.
-  }
 }

@@ -19,6 +19,7 @@ package androidx.camera.camera2;
 import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.ImageCaptureUseCase;
 import androidx.camera.core.VideoCaptureUseCase;
+
 import java.util.List;
 
 /**
@@ -26,43 +27,44 @@ import java.util.List;
  * Camera2DeviceSurfaceManager independent from use case type.
  */
 final class UseCaseSurfaceOccupancyManager {
-  static void checkUseCaseLimitNotExceeded(
-      List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
-    int imageCaptureUseCaseCount = 0;
-    int videoCaptureUseCaseCount = 0;
-
-    if (newUseCases == null || newUseCases.isEmpty()) {
-      throw new IllegalArgumentException("No new use cases to be bound.");
+    private UseCaseSurfaceOccupancyManager() {
     }
 
-    if (originalUseCases != null) {
-      for (BaseUseCase useCase : originalUseCases) {
-        if (useCase instanceof ImageCaptureUseCase) {
-          imageCaptureUseCaseCount++;
-        } else if (useCase instanceof VideoCaptureUseCase) {
-          videoCaptureUseCaseCount++;
+    static void checkUseCaseLimitNotExceeded(
+            List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
+        int imageCaptureUseCaseCount = 0;
+        int videoCaptureUseCaseCount = 0;
+
+        if (newUseCases == null || newUseCases.isEmpty()) {
+            throw new IllegalArgumentException("No new use cases to be bound.");
         }
-      }
-    }
 
-    for (BaseUseCase useCase : newUseCases) {
-      if (useCase instanceof ImageCaptureUseCase) {
-        imageCaptureUseCaseCount++;
-      } else if (useCase instanceof VideoCaptureUseCase) {
-        videoCaptureUseCaseCount++;
-      }
-    }
+        if (originalUseCases != null) {
+            for (BaseUseCase useCase : originalUseCases) {
+                if (useCase instanceof ImageCaptureUseCase) {
+                    imageCaptureUseCaseCount++;
+                } else if (useCase instanceof VideoCaptureUseCase) {
+                    videoCaptureUseCaseCount++;
+                }
+            }
+        }
 
-    if (imageCaptureUseCaseCount > 1) {
-      throw new IllegalArgumentException(
-          "Exceeded max simultaneously bound image capture use cases.");
-    }
+        for (BaseUseCase useCase : newUseCases) {
+            if (useCase instanceof ImageCaptureUseCase) {
+                imageCaptureUseCaseCount++;
+            } else if (useCase instanceof VideoCaptureUseCase) {
+                videoCaptureUseCaseCount++;
+            }
+        }
 
-    if (videoCaptureUseCaseCount > 1) {
-      throw new IllegalArgumentException(
-          "Exceeded max simultaneously bound video capture use cases.");
-    }
-  }
+        if (imageCaptureUseCaseCount > 1) {
+            throw new IllegalArgumentException(
+                    "Exceeded max simultaneously bound image capture use cases.");
+        }
 
-  private UseCaseSurfaceOccupancyManager() {}
+        if (videoCaptureUseCaseCount > 1) {
+            throw new IllegalArgumentException(
+                    "Exceeded max simultaneously bound video capture use cases.");
+        }
+    }
 }

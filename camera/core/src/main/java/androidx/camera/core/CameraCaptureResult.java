@@ -30,58 +30,56 @@ import androidx.camera.core.CameraCaptureMetaData.FlashState;
  */
 public interface CameraCaptureResult {
 
-  @NonNull
-  AfMode getAfMode();
-
-  @NonNull
-  AfState getAfState();
-
-  @NonNull
-  AeState getAeState();
-
-  @NonNull
-  AwbState getAwbState();
-
-  @NonNull
-  FlashState getFlashState();
-
-  /**
-   * An implementation of CameraCaptureResult which always return default results.
-   */
-  final class EmptyCameraCaptureResult implements CameraCaptureResult {
-
-    public static CameraCaptureResult create() {
-      return new EmptyCameraCaptureResult();
-    }
+    @NonNull
+    AfMode getAfMode();
 
     @NonNull
-    @Override
-    public AfMode getAfMode() {
-      return AfMode.UNKNOWN;
-    }
+    AfState getAfState();
 
     @NonNull
-    @Override
-    public AfState getAfState() {
-      return AfState.UNKNOWN;
-    }
+    AeState getAeState();
 
     @NonNull
-    @Override
-    public AeState getAeState() {
-      return AeState.UNKNOWN;
-    }
+    AwbState getAwbState();
 
     @NonNull
-    @Override
-    public AwbState getAwbState() {
-      return AwbState.UNKNOWN;
-    }
+    FlashState getFlashState();
 
-    @NonNull
-    @Override
-    public FlashState getFlashState() {
-      return FlashState.UNKNOWN;
+    /** An implementation of CameraCaptureResult which always return default results. */
+    final class EmptyCameraCaptureResult implements CameraCaptureResult {
+
+        public static CameraCaptureResult create() {
+            return new EmptyCameraCaptureResult();
+        }
+
+        @NonNull
+        @Override
+        public AfMode getAfMode() {
+            return AfMode.UNKNOWN;
+        }
+
+        @NonNull
+        @Override
+        public AfState getAfState() {
+            return AfState.UNKNOWN;
+        }
+
+        @NonNull
+        @Override
+        public AeState getAeState() {
+            return AeState.UNKNOWN;
+        }
+
+        @NonNull
+        @Override
+        public AwbState getAwbState() {
+            return AwbState.UNKNOWN;
+        }
+
+        @NonNull
+        @Override
+        public FlashState getFlashState() {
+            return FlashState.UNKNOWN;
+        }
     }
-  }
 }

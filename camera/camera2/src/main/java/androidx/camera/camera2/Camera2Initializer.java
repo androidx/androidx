@@ -21,61 +21,63 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.util.Log;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import android.util.Log;
 import androidx.camera.core.CameraX;
 
 /**
  * A {@link ContentProvider} used to initialize {@link CameraX} from a {@link Context}.
+ *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class Camera2Initializer extends ContentProvider {
-  private static final String TAG = "Camera2Initializer";
+    private static final String TAG = "Camera2Initializer";
 
-  @Override
-  public boolean onCreate() {
-    Log.d(TAG, "CameraX initializing with Camera2 ...");
+    @Override
+    public boolean onCreate() {
+        Log.d(TAG, "CameraX initializing with Camera2 ...");
 
-    CameraX.init(getContext(), Camera2AppConfiguration.create(getContext()));
-    return false;
-  }
+        CameraX.init(getContext(), Camera2AppConfiguration.create(getContext()));
+        return false;
+    }
 
-  @Nullable
-  @Override
-  public Cursor query(
-      Uri uri,
-      @Nullable String[] strings,
-      @Nullable String s,
-      @Nullable String[] strings1,
-      @Nullable String s1) {
-    return null;
-  }
+    @Nullable
+    @Override
+    public Cursor query(
+            Uri uri,
+            @Nullable String[] strings,
+            @Nullable String s,
+            @Nullable String[] strings1,
+            @Nullable String s1) {
+        return null;
+    }
 
-  @Nullable
-  @Override
-  public String getType(Uri uri) {
-    return null;
-  }
+    @Nullable
+    @Override
+    public String getType(Uri uri) {
+        return null;
+    }
 
-  @Nullable
-  @Override
-  public Uri insert(Uri uri, @Nullable ContentValues contentValues) {
-    return null;
-  }
+    @Nullable
+    @Override
+    public Uri insert(Uri uri, @Nullable ContentValues contentValues) {
+        return null;
+    }
 
-  @Override
-  public int delete(Uri uri, @Nullable String s, @Nullable String[] strings) {
-    return 0;
-  }
+    @Override
+    public int delete(Uri uri, @Nullable String s, @Nullable String[] strings) {
+        return 0;
+    }
 
-  @Override
-  public int update(
-      Uri uri,
-      @Nullable ContentValues contentValues,
-      @Nullable String s,
-      @Nullable String[] strings) {
-    return 0;
-  }
+    @Override
+    public int update(
+            Uri uri,
+            @Nullable ContentValues contentValues,
+            @Nullable String s,
+            @Nullable String[] strings) {
+        return 0;
+    }
 }

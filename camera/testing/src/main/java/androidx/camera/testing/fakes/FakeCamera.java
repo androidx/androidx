@@ -21,61 +21,72 @@ import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CaptureRequestConfiguration;
+
 import java.util.Collection;
 
 /** A fake camera which will not produce any data. */
 public class FakeCamera implements BaseCamera {
-  private final CameraControl cameraControl = CameraControl.defaultEmptyInstance();
+    private final CameraControl cameraControl = CameraControl.defaultEmptyInstance();
 
-  private final CameraInfo cameraInfo;
+    private final CameraInfo cameraInfo;
 
-  FakeCamera() {
-    this(new FakeCameraInfo());
-  }
+    FakeCamera() {
+        this(new FakeCameraInfo());
+    }
 
-  FakeCamera(FakeCameraInfo cameraInfo) {
-    this.cameraInfo = cameraInfo;
-  }
+    FakeCamera(FakeCameraInfo cameraInfo) {
+        this.cameraInfo = cameraInfo;
+    }
 
-  @Override
-  public void open() {}
+    @Override
+    public void open() {
+    }
 
-  @Override
-  public void close() {}
+    @Override
+    public void close() {
+    }
 
-  @Override
-  public void release() {}
+    @Override
+    public void release() {
+    }
 
-  @Override
-  public void addOnlineUseCase(Collection<BaseUseCase> baseUseCases) {}
+    @Override
+    public void addOnlineUseCase(Collection<BaseUseCase> baseUseCases) {
+    }
 
-  @Override
-  public void removeOnlineUseCase(Collection<BaseUseCase> baseUseCases) {}
+    @Override
+    public void removeOnlineUseCase(Collection<BaseUseCase> baseUseCases) {
+    }
 
-  @Override
-  public void onUseCaseActive(BaseUseCase useCase) {}
+    @Override
+    public void onUseCaseActive(BaseUseCase useCase) {
+    }
 
-  @Override
-  public void onUseCaseInactive(BaseUseCase useCase) {}
+    @Override
+    public void onUseCaseInactive(BaseUseCase useCase) {
+    }
 
-  @Override
-  public void onUseCaseUpdated(BaseUseCase useCase) {}
+    @Override
+    public void onUseCaseUpdated(BaseUseCase useCase) {
+    }
 
-  @Override
-  public void onUseCaseReset(BaseUseCase useCase) {}
+    @Override
+    public void onUseCaseReset(BaseUseCase useCase) {
+    }
 
-  @Override
-  public void onUseCaseSingleRequest(
-      BaseUseCase useCase, CaptureRequestConfiguration captureRequestConfiguration) {}
+    @Override
+    public void onUseCaseSingleRequest(
+            BaseUseCase useCase, CaptureRequestConfiguration captureRequestConfiguration) {
+    }
 
-  // Returns fixed CameraControl instance in order to verify the instance is correctly attached.
-  @Override
-  public CameraControl getCameraControl() {
-    return cameraControl;
-  }
+    // Returns fixed CameraControl instance in order to verify the instance is correctly attached.
+    @Override
+    public CameraControl getCameraControl() {
+        return cameraControl;
+    }
 
-  @Override
-  public CameraInfo getCameraInfo() {
-    return cameraInfo;
-  }
+    @Override
+    public CameraInfo getCameraInfo() {
+        return cameraInfo;
+    }
 }

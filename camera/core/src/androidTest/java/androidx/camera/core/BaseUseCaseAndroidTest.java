@@ -17,184 +17,189 @@
 package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.util.Size;
+
 import androidx.test.runner.AndroidJUnit4;
-import java.util.Map;
-import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
+import java.util.Map;
+import java.util.Set;
+
 @RunWith(AndroidJUnit4.class)
 public class BaseUseCaseAndroidTest {
-  static class TestUseCase extends FakeUseCase {
-    TestUseCase(FakeUseCaseConfiguration configuration) {
-      super(configuration);
+    private BaseUseCase.StateChangeListener mockUseCaseListener;
+
+    @Before
+    public void setup() {
+        mockUseCaseListener = Mockito.mock(BaseUseCase.StateChangeListener.class);
     }
 
-    void activate() {
-      notifyActive();
+    @Test
+    public void getAttachedCamera() {
+        FakeUseCaseConfiguration configuration =
+                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
+        TestUseCase testUseCase = new TestUseCase(configuration);
+        SessionConfiguration sessionToAttach = new SessionConfiguration.Builder().build();
+        testUseCase.attachToCamera("Camera", sessionToAttach);
+
+        Set<String> attachedCameras = testUseCase.getAttachedCameraIds();
+
+        assertThat(attachedCameras).contains("Camera");
     }
 
-    void deactivate() {
-      notifyInactive();
+    @Test
+    public void getAttachedSessionConfiguration() {
+        FakeUseCaseConfiguration configuration =
+                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
+        TestUseCase testUseCase = new TestUseCase(configuration);
+        SessionConfiguration sessionToAttach = new SessionConfiguration.Builder().build();
+        testUseCase.attachToCamera("Camera", sessionToAttach);
+
+        SessionConfiguration attachedSession = testUseCase.getSessionConfiguration("Camera");
+
+        assertThat(attachedSession).isEqualTo(sessionToAttach);
     }
 
-    void update() {
-      notifyUpdated();
+    @Test
+    public void removeListener() {
+        FakeUseCaseConfiguration configuration =
+                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
+        TestUseCase testUseCase = new TestUseCase(configuration);
+        testUseCase.addStateChangeListener(mockUseCaseListener);
+        testUseCase.removeStateChangeListener(mockUseCaseListener);
+
+        testUseCase.activate();
+
+        verify(mockUseCaseListener, never()).onUseCaseActive(any());
     }
 
-    @Override
-    protected void updateUseCaseConfiguration(UseCaseConfiguration<?> useCaseConfiguration) {
-      super.updateUseCaseConfiguration(useCaseConfiguration);
+    @Test
+    public void clearListeners() {
+        FakeUseCaseConfiguration configuration =
+                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
+        TestUseCase testUseCase = new TestUseCase(configuration);
+        testUseCase.addStateChangeListener(mockUseCaseListener);
+        testUseCase.clear();
+
+        testUseCase.activate();
+        verify(mockUseCaseListener, never()).onUseCaseActive(any());
     }
 
-    @Override
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-        Map<String, Size> suggestedResolutionMap) {
-      return suggestedResolutionMap;
+    @Test
+    public void notifyActiveState() {
+        FakeUseCaseConfiguration configuration =
+                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
+        TestUseCase testUseCase = new TestUseCase(configuration);
+        testUseCase.addStateChangeListener(mockUseCaseListener);
+
+        testUseCase.activate();
+        verify(mockUseCaseListener, times(1)).onUseCaseActive(testUseCase);
     }
-  }
 
-  private BaseUseCase.StateChangeListener mockUseCaseListener;
+    @Test
+    public void notifyInactiveState() {
+        FakeUseCaseConfiguration configuration =
+                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
+        TestUseCase testUseCase = new TestUseCase(configuration);
+        testUseCase.addStateChangeListener(mockUseCaseListener);
 
-  @Before
-  public void setup() {
-    mockUseCaseListener = Mockito.mock(BaseUseCase.StateChangeListener.class);
-  }
+        testUseCase.deactivate();
+        verify(mockUseCaseListener, times(1)).onUseCaseInactive(testUseCase);
+    }
 
-  @Test
-  public void getAttachedCamera() {
-    FakeUseCaseConfiguration configuration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-    TestUseCase testUseCase = new TestUseCase(configuration);
-    SessionConfiguration sessionToAttach = new SessionConfiguration.Builder().build();
-    testUseCase.attachToCamera("Camera", sessionToAttach);
+    @Test
+    public void notifyUpdatedSettings() {
+        FakeUseCaseConfiguration configuration =
+                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
+        TestUseCase testUseCase = new TestUseCase(configuration);
+        testUseCase.addStateChangeListener(mockUseCaseListener);
 
-    Set<String> attachedCameras = testUseCase.getAttachedCameraIds();
+        testUseCase.update();
+        verify(mockUseCaseListener, times(1)).onUseCaseUpdated(testUseCase);
+    }
 
-    assertThat(attachedCameras).contains("Camera");
-  }
+    @Test
+    public void notifyResetUseCase() {
+        FakeUseCaseConfiguration configuration =
+                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
+        TestUseCase testUseCase = new TestUseCase(configuration);
+        testUseCase.addStateChangeListener(mockUseCaseListener);
 
-  @Test
-  public void getAttachedSessionConfiguration() {
-    FakeUseCaseConfiguration configuration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-    TestUseCase testUseCase = new TestUseCase(configuration);
-    SessionConfiguration sessionToAttach = new SessionConfiguration.Builder().build();
-    testUseCase.attachToCamera("Camera", sessionToAttach);
+        testUseCase.notifyReset();
+        verify(mockUseCaseListener, times(1)).onUseCaseReset(testUseCase);
+    }
 
-    SessionConfiguration attachedSession = testUseCase.getSessionConfiguration("Camera");
+    @Test
+    public void notifySingleCapture() {
+        FakeUseCaseConfiguration configuration =
+                new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
+        TestUseCase testUseCase = new TestUseCase(configuration);
+        testUseCase.addStateChangeListener(mockUseCaseListener);
+        CaptureRequestConfiguration captureRequestConfiguration =
+                new CaptureRequestConfiguration.Builder().build();
 
-    assertThat(attachedSession).isEqualTo(sessionToAttach);
-  }
+        testUseCase.notifySingleCapture(captureRequestConfiguration);
+        verify(mockUseCaseListener, times(1))
+                .onUseCaseSingleRequest(testUseCase, captureRequestConfiguration);
+    }
 
-  @Test
-  public void removeListener() {
-    FakeUseCaseConfiguration configuration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-    TestUseCase testUseCase = new TestUseCase(configuration);
-    testUseCase.addStateChangeListener(mockUseCaseListener);
-    testUseCase.removeStateChangeListener(mockUseCaseListener);
+    @Test
+    public void useCaseConfiguration_canBeUpdated() {
+        String originalName = "UseCase";
+        FakeUseCaseConfiguration.Builder configurationBuilder =
+                new FakeUseCaseConfiguration.Builder().setTargetName(originalName);
 
-    testUseCase.activate();
+        TestUseCase testUseCase = new TestUseCase(configurationBuilder.build());
+        String originalRetrievedName = testUseCase.getUseCaseConfiguration().getTargetName();
 
-    verify(mockUseCaseListener, never()).onUseCaseActive(any());
-  }
+        // NOTE: Updating the use case name is probably a very bad idea in most cases. However,
+        // we'll do
+        // it here for the sake of this test.
+        String newName = "UseCase-New";
+        configurationBuilder.setTargetName(newName);
+        testUseCase.updateUseCaseConfiguration(configurationBuilder.build());
+        String newRetrievedName = testUseCase.getUseCaseConfiguration().getTargetName();
 
-  @Test
-  public void clearListeners() {
-    FakeUseCaseConfiguration configuration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-    TestUseCase testUseCase = new TestUseCase(configuration);
-    testUseCase.addStateChangeListener(mockUseCaseListener);
-    testUseCase.clear();
+        assertThat(originalRetrievedName).isEqualTo(originalName);
+        assertThat(newRetrievedName).isEqualTo(newName);
+    }
 
-    testUseCase.activate();
-    verify(mockUseCaseListener, never()).onUseCaseActive(any());
-  }
+    static class TestUseCase extends FakeUseCase {
+        TestUseCase(FakeUseCaseConfiguration configuration) {
+            super(configuration);
+        }
 
-  @Test
-  public void notifyActiveState() {
-    FakeUseCaseConfiguration configuration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-    TestUseCase testUseCase = new TestUseCase(configuration);
-    testUseCase.addStateChangeListener(mockUseCaseListener);
+        void activate() {
+            notifyActive();
+        }
 
-    testUseCase.activate();
-    verify(mockUseCaseListener, times(1)).onUseCaseActive(testUseCase);
-  }
+        void deactivate() {
+            notifyInactive();
+        }
 
-  @Test
-  public void notifyInactiveState() {
-    FakeUseCaseConfiguration configuration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-    TestUseCase testUseCase = new TestUseCase(configuration);
-    testUseCase.addStateChangeListener(mockUseCaseListener);
+        void update() {
+            notifyUpdated();
+        }
 
-    testUseCase.deactivate();
-    verify(mockUseCaseListener, times(1)).onUseCaseInactive(testUseCase);
-  }
+        @Override
+        protected void updateUseCaseConfiguration(UseCaseConfiguration<?> useCaseConfiguration) {
+            super.updateUseCaseConfiguration(useCaseConfiguration);
+        }
 
-  @Test
-  public void notifyUpdatedSettings() {
-    FakeUseCaseConfiguration configuration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-    TestUseCase testUseCase = new TestUseCase(configuration);
-    testUseCase.addStateChangeListener(mockUseCaseListener);
-
-    testUseCase.update();
-    verify(mockUseCaseListener, times(1)).onUseCaseUpdated(testUseCase);
-  }
-
-  @Test
-  public void notifyResetUseCase() {
-    FakeUseCaseConfiguration configuration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-    TestUseCase testUseCase = new TestUseCase(configuration);
-    testUseCase.addStateChangeListener(mockUseCaseListener);
-
-    testUseCase.notifyReset();
-    verify(mockUseCaseListener, times(1)).onUseCaseReset(testUseCase);
-  }
-
-  @Test
-  public void notifySingleCapture() {
-    FakeUseCaseConfiguration configuration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("UseCase").build();
-    TestUseCase testUseCase = new TestUseCase(configuration);
-    testUseCase.addStateChangeListener(mockUseCaseListener);
-    CaptureRequestConfiguration captureRequestConfiguration =
-        new CaptureRequestConfiguration.Builder().build();
-
-    testUseCase.notifySingleCapture(captureRequestConfiguration);
-    verify(mockUseCaseListener, times(1))
-        .onUseCaseSingleRequest(testUseCase, captureRequestConfiguration);
-  }
-
-  @Test
-  public void useCaseConfiguration_canBeUpdated() {
-    String originalName = "UseCase";
-    FakeUseCaseConfiguration.Builder configurationBuilder =
-        new FakeUseCaseConfiguration.Builder().setTargetName(originalName);
-
-    TestUseCase testUseCase = new TestUseCase(configurationBuilder.build());
-    String originalRetrievedName = testUseCase.getUseCaseConfiguration().getTargetName();
-
-    // NOTE: Updating the use case name is probably a very bad idea in most cases. However, we'll do
-    // it here for the sake of this test.
-    String newName = "UseCase-New";
-    configurationBuilder.setTargetName(newName);
-    testUseCase.updateUseCaseConfiguration(configurationBuilder.build());
-    String newRetrievedName = testUseCase.getUseCaseConfiguration().getTargetName();
-
-    assertThat(originalRetrievedName).isEqualTo(originalName);
-    assertThat(newRetrievedName).isEqualTo(newName);
-  }
+        @Override
+        protected Map<String, Size> onSuggestedResolutionUpdated(
+                Map<String, Size> suggestedResolutionMap) {
+            return suggestedResolutionMap;
+        }
+    }
 }

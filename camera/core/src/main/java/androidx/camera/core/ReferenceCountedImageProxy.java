@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.media.Image;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.Nullable;
 
@@ -29,53 +30,53 @@ import androidx.annotation.Nullable;
  * after a call to {@link #close()}, the underlying {@link Image} is closed.
  */
 final class ReferenceCountedImageProxy extends ForwardingImageProxy {
-  @GuardedBy("this")
-  private int referenceCount = 1;
+    @GuardedBy("this")
+    private int referenceCount = 1;
 
-  /**
-   * Creates a new instance which wraps the given image and sets the reference count to 1.
-   *
-   * @param image to wrap
-   * @return a new {@link ReferenceCountedImageProxy} instance
-   */
-  ReferenceCountedImageProxy(ImageProxy image) {
-    super(image);
-  }
-
-  /**
-   * Forks a copy of the image.
-   *
-   * <p>If the reference count is 0, meaning the image has already been closed previously, null is
-   * returned. Otherwise, a forked copy is returned and the reference count is incremented.
-   */
-  @Nullable
-  synchronized ImageProxy fork() {
-    if (referenceCount <= 0) {
-      return null;
-    } else {
-      referenceCount++;
-      return new SingleCloseImageProxy(this);
+    /**
+     * Creates a new instance which wraps the given image and sets the reference count to 1.
+     *
+     * @param image to wrap
+     * @return a new {@link ReferenceCountedImageProxy} instance
+     */
+    ReferenceCountedImageProxy(ImageProxy image) {
+        super(image);
     }
-  }
 
-  /**
-   * {@inheritDoc}
-   *
-   * <p>When the image is closed, the reference count is decremented. If the reference count becomes
-   * 0 after this close call, the underlying {@link Image} is also closed.
-   */
-  @Override
-  public synchronized void close() {
-    if (referenceCount > 0) {
-      referenceCount--;
-      if (referenceCount <= 0) {
-        super.close();
-      }
+    /**
+     * Forks a copy of the image.
+     *
+     * <p>If the reference count is 0, meaning the image has already been closed previously, null is
+     * returned. Otherwise, a forked copy is returned and the reference count is incremented.
+     */
+    @Nullable
+    synchronized ImageProxy fork() {
+        if (referenceCount <= 0) {
+            return null;
+        } else {
+            referenceCount++;
+            return new SingleCloseImageProxy(this);
+        }
     }
-  }
 
-  /** Returns the current reference count. */
-  synchronized int getReferenceCount() {
-    return referenceCount;
-  }
+    /**
+     * {@inheritDoc}
+     *
+     * <p>When the image is closed, the reference count is decremented. If the reference count
+     * becomes 0 after this close call, the underlying {@link Image} is also closed.
+     */
+    @Override
+    public synchronized void close() {
+        if (referenceCount > 0) {
+            referenceCount--;
+            if (referenceCount <= 0) {
+                super.close();
+            }
+        }
+    }
+
+    /** Returns the current reference count. */
+    synchronized int getReferenceCount() {
+        return referenceCount;
+    }
 }

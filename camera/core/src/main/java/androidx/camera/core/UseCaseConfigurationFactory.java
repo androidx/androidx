@@ -28,10 +28,10 @@ import androidx.annotation.RestrictTo.Scope;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface UseCaseConfigurationFactory {
 
-  /**
-   * Returns the configuration for the given type, or <code>null</code> if the configuration cannot
-   * be produced.
-   */
-  @Nullable
-  <C extends UseCaseConfiguration<?>> C getConfiguration(Class<C> configType);
+    /**
+     * Returns the configuration for the given type, or <code>null</code> if the configuration
+     * cannot be produced.
+     */
+    @Nullable
+    <C extends UseCaseConfiguration<?>> C getConfiguration(Class<C> configType);
 }

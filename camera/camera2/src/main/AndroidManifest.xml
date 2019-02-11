@@ -16,13 +16,17 @@ limitations under the License.
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.camera.camera2">
 
-  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="27" />
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="27" />
 
-  <application>
-    <provider android:authorities="${applicationId}.camerax-init"
-          android:multiprocess="true"
-          android:exported="false"
-          android:name=".Camera2Initializer"
-          android:initOrder="100" />
-  </application>
+    <application>
+        <provider
+            android:name=".Camera2Initializer"
+            android:authorities="${applicationId}.camerax-init"
+            android:exported="false"
+            android:initOrder="100"
+            android:multiprocess="true" />
+    </application>
+
 </manifest>

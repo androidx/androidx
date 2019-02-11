@@ -24,110 +24,110 @@ package androidx.camera.core;
  */
 public final class CameraCaptureMetaData {
 
-  /** Auto focus (AF) mode. */
-  public enum AfMode {
+    /** Auto focus (AF) mode. */
+    public enum AfMode {
 
-    /** AF mode is currently unknown. */
-    UNKNOWN,
+        /** AF mode is currently unknown. */
+        UNKNOWN,
 
-    /** The AF routine does not control the lens. */
-    OFF,
+        /** The AF routine does not control the lens. */
+        OFF,
 
-    /**
-     * AF is triggered on demand.
-     *
-     * <p>In this mode, the lens does not move unless the auto focus trigger action is called.
-     */
-    ON_MANUAL_AUTO,
+        /**
+         * AF is triggered on demand.
+         *
+         * <p>In this mode, the lens does not move unless the auto focus trigger action is called.
+         */
+        ON_MANUAL_AUTO,
 
-    /**
-     * AF is continually scanning.
-     *
-     * <p>In this mode, the AF algorithm modifies the lens position continually to attempt to
-     * provide a constantly-in-focus stream.
-     */
-    ON_CONTINUOUS_AUTO
-  }
+        /**
+         * AF is continually scanning.
+         *
+         * <p>In this mode, the AF algorithm modifies the lens position continually to attempt to
+         * provide a constantly-in-focus stream.
+         */
+        ON_CONTINUOUS_AUTO
+    }
 
-  /** Auto focus (AF) state. */
-  public enum AfState {
+    /** Auto focus (AF) state. */
+    public enum AfState {
 
-    /** AF state is currently unknown. */
-    UNKNOWN,
+        /** AF state is currently unknown. */
+        UNKNOWN,
 
-    /** AF is off or not yet has been triggered. */
-    INACTIVE,
+        /** AF is off or not yet has been triggered. */
+        INACTIVE,
 
-    /** AF is performing an AF scan. */
-    SCANNING,
+        /** AF is performing an AF scan. */
+        SCANNING,
 
-    /** AF currently believes it is in focus. */
-    FOCUSED,
+        /** AF currently believes it is in focus. */
+        FOCUSED,
 
-    /** AF believes it is focused correctly and has locked focus. */
-    LOCKED_FOCUSED,
+        /** AF believes it is focused correctly and has locked focus. */
+        LOCKED_FOCUSED,
 
-    /** AF has failed to focus and has locked focus. */
-    LOCKED_NOT_FOCUSED
-  }
+        /** AF has failed to focus and has locked focus. */
+        LOCKED_NOT_FOCUSED
+    }
 
-  /** Auto exposure (AE) state. */
-  public enum AeState {
+    /** Auto exposure (AE) state. */
+    public enum AeState {
 
-    /** AE state is currently unknown. */
-    UNKNOWN,
+        /** AE state is currently unknown. */
+        UNKNOWN,
 
-    /** AE is off or has not yet been triggered. */
-    INACTIVE,
+        /** AE is off or has not yet been triggered. */
+        INACTIVE,
 
-    /** AE is performing an AE search. */
-    SEARCHING,
+        /** AE is performing an AE search. */
+        SEARCHING,
 
-    /**
-     * AE has a good set of control values, but flash needs to be fired for good quality still
-     * capture.
-     */
-    FLASH_REQUIRED,
+        /**
+         * AE has a good set of control values, but flash needs to be fired for good quality still
+         * capture.
+         */
+        FLASH_REQUIRED,
 
-    /** AE has a good set of control values for the current scene. */
-    CONVERGED,
+        /** AE has a good set of control values for the current scene. */
+        CONVERGED,
 
-    /** AE has been locked. */
-    LOCKED
-  }
+        /** AE has been locked. */
+        LOCKED
+    }
 
-  /** Auto white balance (AWB) state. */
-  public enum AwbState {
+    /** Auto white balance (AWB) state. */
+    public enum AwbState {
 
-    /** AWB state is currently unknown. */
-    UNKNOWN,
+        /** AWB state is currently unknown. */
+        UNKNOWN,
 
-    /** AWB is not in auto mode, or has not yet started metering. */
-    INACTIVE,
+        /** AWB is not in auto mode, or has not yet started metering. */
+        INACTIVE,
 
-    /** AWB is performing AWB metering. */
-    METERING,
+        /** AWB is performing AWB metering. */
+        METERING,
 
-    /** AWB has a good set of control values for the current scene. */
-    CONVERGED,
+        /** AWB has a good set of control values for the current scene. */
+        CONVERGED,
 
-    /** AWB has been locked. */
-    LOCKED
-  }
+        /** AWB has been locked. */
+        LOCKED
+    }
 
-  /** Flash state. */
-  public enum FlashState {
+    /** Flash state. */
+    public enum FlashState {
 
-    /** Flash state is unknown. */
-    UNKNOWN,
+        /** Flash state is unknown. */
+        UNKNOWN,
 
-    /** Flash is unavailable or not ready to fire. */
-    NONE,
+        /** Flash is unavailable or not ready to fire. */
+        NONE,
 
-    /** Flash is ready to fire. */
-    READY,
+        /** Flash is ready to fire. */
+        READY,
 
-    /** Flash has been fired. */
-    FIRED
-  }
+        /** Flash has been fired. */
+        FIRED
+    }
 }

@@ -18,6 +18,7 @@ package androidx.camera.camera2;
 
 import android.hardware.camera2.CameraDevice;
 import android.util.Log;
+
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ConfigurationProvider;
@@ -27,45 +28,45 @@ import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 
 /** Provides defaults for {@link VideoCaptureUseCaseConfiguration} in the Camera2 implementation. */
 final class DefaultVideoCaptureConfigurationProvider
-    implements ConfigurationProvider<VideoCaptureUseCaseConfiguration> {
-  private static final String TAG = "DefaultVideoCaptureConfigurationProvider";
+        implements ConfigurationProvider<VideoCaptureUseCaseConfiguration> {
+    private static final String TAG = "DefaultVideoCaptureConfigurationProvider";
 
-  private final CameraFactory cameraFactory;
+    private final CameraFactory cameraFactory;
 
-  public DefaultVideoCaptureConfigurationProvider(CameraFactory cameraFactory) {
-    this.cameraFactory = cameraFactory;
-  }
-
-  @Override
-  public VideoCaptureUseCaseConfiguration getConfiguration() {
-    VideoCaptureUseCaseConfiguration.Builder builder =
-        VideoCaptureUseCaseConfiguration.Builder.fromConfig(
-            VideoCaptureUseCase.DEFAULT_CONFIG.getConfiguration());
-
-    // SessionConfiguration containing all intrinsic properties needed for VideoCaptureUseCase
-    SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
-    // TODO(b/114762170): Must set to preview here until we allow for multiple template types
-    sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-
-    // Add options to UseCaseConfiguration
-    builder.setDefaultSessionConfiguration(sessionBuilder.build());
-    builder.setOptionUnpacker(Camera2OptionUnpacker.INSTANCE);
-
-    // Add default lensFacing if we can
-    try {
-      String defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
-      if (defaultId != null) {
-        builder.setLensFacing(LensFacing.BACK);
-      } else {
-        defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
-        if (defaultId != null) {
-          builder.setLensFacing(LensFacing.FRONT);
-        }
-      }
-    } catch (Exception e) {
-      Log.w(TAG, "Unable to determine default lens facing for VideoCaptureUseCase.", e);
+    public DefaultVideoCaptureConfigurationProvider(CameraFactory cameraFactory) {
+        this.cameraFactory = cameraFactory;
     }
 
-    return builder.build();
-  }
+    @Override
+    public VideoCaptureUseCaseConfiguration getConfiguration() {
+        VideoCaptureUseCaseConfiguration.Builder builder =
+                VideoCaptureUseCaseConfiguration.Builder.fromConfig(
+                        VideoCaptureUseCase.DEFAULT_CONFIG.getConfiguration());
+
+        // SessionConfiguration containing all intrinsic properties needed for VideoCaptureUseCase
+        SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
+        // TODO(b/114762170): Must set to preview here until we allow for multiple template types
+        sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+
+        // Add options to UseCaseConfiguration
+        builder.setDefaultSessionConfiguration(sessionBuilder.build());
+        builder.setOptionUnpacker(Camera2OptionUnpacker.INSTANCE);
+
+        // Add default lensFacing if we can
+        try {
+            String defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            if (defaultId != null) {
+                builder.setLensFacing(LensFacing.BACK);
+            } else {
+                defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
+                if (defaultId != null) {
+                    builder.setLensFacing(LensFacing.FRONT);
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Unable to determine default lens facing for VideoCaptureUseCase.", e);
+        }
+
+        return builder.build();
+    }
 }

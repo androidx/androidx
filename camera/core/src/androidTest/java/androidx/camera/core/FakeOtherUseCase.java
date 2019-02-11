@@ -17,7 +17,9 @@
 package androidx.camera.core;
 
 import android.util.Size;
+
 import androidx.camera.core.CameraX.LensFacing;
+
 import java.util.Map;
 
 /**
@@ -27,37 +29,37 @@ import java.util.Map;
  * different type is created.
  */
 class FakeOtherUseCase extends BaseUseCase {
-  private volatile boolean isCleared = false;
+    private volatile boolean isCleared = false;
 
-  /** Creates a new instance of a {@link FakeOtherUseCase} with a given configuration. */
-  FakeOtherUseCase(FakeOtherUseCaseConfiguration configuration) {
-    super(configuration);
-  }
+    /** Creates a new instance of a {@link FakeOtherUseCase} with a given configuration. */
+    FakeOtherUseCase(FakeOtherUseCaseConfiguration configuration) {
+        super(configuration);
+    }
 
-  /** Creates a new instance of a {@link FakeOtherUseCase} with a default configuration. */
-  FakeOtherUseCase() {
-    this(new FakeOtherUseCaseConfiguration.Builder().build());
-  }
+    /** Creates a new instance of a {@link FakeOtherUseCase} with a default configuration. */
+    FakeOtherUseCase() {
+        this(new FakeOtherUseCaseConfiguration.Builder().build());
+    }
 
-  @Override
-  public void clear() {
-    super.clear();
-    isCleared = true;
-  }
+    @Override
+    public void clear() {
+        super.clear();
+        isCleared = true;
+    }
 
-  @Override
-  protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
-    return new FakeOtherUseCaseConfiguration.Builder().setLensFacing(LensFacing.BACK);
-  }
+    @Override
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
+        return new FakeOtherUseCaseConfiguration.Builder().setLensFacing(LensFacing.BACK);
+    }
 
-  @Override
-  protected Map<String, Size> onSuggestedResolutionUpdated(
-      Map<String, Size> suggestedResolutionMap) {
-    return suggestedResolutionMap;
-  }
+    @Override
+    protected Map<String, Size> onSuggestedResolutionUpdated(
+            Map<String, Size> suggestedResolutionMap) {
+        return suggestedResolutionMap;
+    }
 
-  /** Returns true if {@link #clear()} has been called previously. */
-  public boolean isCleared() {
-    return isCleared;
-  }
+    /** Returns true if {@link #clear()} has been called previously. */
+    public boolean isCleared() {
+        return isCleared;
+    }
 }

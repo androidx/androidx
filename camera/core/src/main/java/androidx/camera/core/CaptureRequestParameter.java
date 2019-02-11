@@ -17,8 +17,10 @@
 package androidx.camera.core;
 
 import android.hardware.camera2.CaptureRequest;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+
 import com.google.auto.value.AutoValue;
 
 /**
@@ -29,24 +31,25 @@ import com.google.auto.value.AutoValue;
 @RestrictTo(Scope.LIBRARY_GROUP)
 @AutoValue
 public abstract class CaptureRequestParameter<T> {
-  public static <T> CaptureRequestParameter<T> create(CaptureRequest.Key<T> key, T value) {
-    return new AutoValue_CaptureRequestParameter<>(key, value);
-  }
+    /** Prevent subclassing. */
+    CaptureRequestParameter() {
+    }
 
-  /**
-   * Apply the parameter to the {@link CaptureRequest.Builder}
-   *
-   * <p>This provides a type safe way of setting the key-value pair since the type of the key gets
-   * erased.
-   */
-  public final void apply(CaptureRequest.Builder builder) {
-    builder.set(getKey(), getValue());
-  }
+    public static <T> CaptureRequestParameter<T> create(CaptureRequest.Key<T> key, T value) {
+        return new AutoValue_CaptureRequestParameter<>(key, value);
+    }
 
-  public abstract CaptureRequest.Key<T> getKey();
+    /**
+     * Apply the parameter to the {@link CaptureRequest.Builder}
+     *
+     * <p>This provides a type safe way of setting the key-value pair since the type of the key gets
+     * erased.
+     */
+    public final void apply(CaptureRequest.Builder builder) {
+        builder.set(getKey(), getValue());
+    }
 
-  public abstract T getValue();
+    public abstract CaptureRequest.Key<T> getKey();
 
-  /** Prevent subclassing. */
-  CaptureRequestParameter() {}
+    public abstract T getValue();
 }

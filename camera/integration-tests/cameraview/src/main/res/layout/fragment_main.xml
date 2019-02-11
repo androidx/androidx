@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
         android:id="@+id/layout_camera"
@@ -28,8 +28,8 @@ limitations under the License.
             android:id="@+id/camera"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,20 +45,20 @@ limitations under the License.
 
             <Button
                 android:id="@+id/capture"
-                android:text="@string/btn_capture"
+                style="?android:buttonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
                 android:layout_marginLeft="50dp"
                 android:layout_marginRight="50dp"
-                style="?android:buttonBarButtonStyle" />
+                android:layout_weight="1"
+                android:text="@string/btn_capture" />
 
             <CheckBox
                 android:id="@+id/mode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:button="@drawable/ic_photo_camera"
-                android:layout_marginRight="15dp"/>
+                android:layout_marginRight="15dp"
+                android:button="@drawable/ic_photo_camera" />
 
             <CheckBox
                 android:id="@+id/toggle_crop"

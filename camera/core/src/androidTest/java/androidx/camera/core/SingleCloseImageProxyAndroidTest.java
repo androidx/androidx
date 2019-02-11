@@ -21,6 +21,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import androidx.test.runner.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,26 +29,26 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public final class SingleCloseImageProxyAndroidTest {
 
-  private final ImageProxy imageProxy = mock(ImageProxy.class);
-  private SingleCloseImageProxy singleCloseImageProxy;
+    private final ImageProxy imageProxy = mock(ImageProxy.class);
+    private SingleCloseImageProxy singleCloseImageProxy;
 
-  @Before
-  public void setUp() {
-    singleCloseImageProxy = new SingleCloseImageProxy(imageProxy);
-  }
+    @Before
+    public void setUp() {
+        singleCloseImageProxy = new SingleCloseImageProxy(imageProxy);
+    }
 
-  @Test
-  public void wrappedImageIsClosedOnce_whenWrappingImageIsClosedOnce() {
-    singleCloseImageProxy.close();
+    @Test
+    public void wrappedImageIsClosedOnce_whenWrappingImageIsClosedOnce() {
+        singleCloseImageProxy.close();
 
-    verify(imageProxy, times(1)).close();
-  }
+        verify(imageProxy, times(1)).close();
+    }
 
-  @Test
-  public void wrappedImageIsClosedOnce_whenWrappingImageIsClosedTwice() {
-    singleCloseImageProxy.close();
-    singleCloseImageProxy.close();
+    @Test
+    public void wrappedImageIsClosedOnce_whenWrappingImageIsClosedTwice() {
+        singleCloseImageProxy.close();
+        singleCloseImageProxy.close();
 
-    verify(imageProxy, times(1)).close();
-  }
+        verify(imageProxy, times(1)).close();
+    }
 }

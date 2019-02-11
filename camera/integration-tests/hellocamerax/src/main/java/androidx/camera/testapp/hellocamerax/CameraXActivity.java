@@ -39,6 +39,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
 import androidx.camera.core.CameraX;
@@ -52,6 +53,7 @@ import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 import androidx.camera.core.ViewFinderUseCase;
 import androidx.camera.core.ViewFinderUseCaseConfiguration;
 import androidx.legacy.app.ActivityCompat;
+
 import java.io.File;
 import java.math.BigDecimal;
 import java.text.Format;
@@ -73,608 +75,617 @@ import java.util.concurrent.atomic.AtomicReference;
  * lifecycle events are handled internally by CameraX.
  */
 public class CameraXActivity extends AppCompatActivity
-    implements ActivityCompat.OnRequestPermissionsResultCallback {
-  private static final String TAG = "CameraXActivity";
-  private static final int PERMISSIONS_REQUEST_CODE = 42;
-  // Possible values for this intent key: "backward" or "forward".
-  private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
+        implements ActivityCompat.OnRequestPermissionsResultCallback {
+    private static final String TAG = "CameraXActivity";
+    private static final int PERMISSIONS_REQUEST_CODE = 42;
+    // Possible values for this intent key: "backward" or "forward".
+    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
 
-  private final SettableCallable<Boolean> settableResult = new SettableCallable<>();
-  private final FutureTask<Boolean> completableFuture = new FutureTask<>(settableResult);
-  private final AtomicLong imageAnalysisFrameCount = new AtomicLong(0);
-  private VideoFileSaver videoFileSaver;
+    private final SettableCallable<Boolean> settableResult = new SettableCallable<>();
+    private final FutureTask<Boolean> completableFuture = new FutureTask<>(settableResult);
+    private final AtomicLong imageAnalysisFrameCount = new AtomicLong(0);
+    private final MutableLiveData<String> imageAnalysisResult = new MutableLiveData<>();
+    private VideoFileSaver videoFileSaver;
+    /** The cameraId to use. Assume that 0 is the typical back facing camera. */
+    private LensFacing currentCameraLensFacing = LensFacing.BACK;
 
-  /** The cameraId to use. Assume that 0 is the typical back facing camera. */
-  private LensFacing currentCameraLensFacing = LensFacing.BACK;
+    // TODO: Move the analysis processing, capture processing to separate threads, so
+    // there is smaller impact on the preview.
+    private String currentCameraDirection = "BACKWARD";
+    private ViewFinderUseCase viewFinderUseCase;
+    private ImageAnalysisUseCase imageAnalysisUseCase;
+    private ImageCaptureUseCase imageCaptureUseCase;
+    private VideoCaptureUseCase videoCaptureUseCase;
 
-  private String currentCameraDirection = "BACKWARD";
+    /**
+     * Creates a view finder use case.
+     *
+     * <p>This use case observes a {@link SurfaceTexture}. The texture is connected to a {@link
+     * TextureView} to display a camera preview.
+     */
+    private void createViewFinderUseCase() {
+        Button button = this.findViewById(R.id.PreviewToggle);
+        button.setBackgroundColor(Color.LTGRAY);
+        enableViewFinderUseCase();
 
-  // TODO: Move the analysis processing, capture processing to separate threads, so
-  // there is smaller impact on the preview.
+        button.setOnClickListener(
+                view -> {
+                    Button buttonView = (Button) view;
+                    if (viewFinderUseCase != null) {
+                        // Remove the use case
+                        buttonView.setBackgroundColor(Color.RED);
+                        CameraX.unbind(viewFinderUseCase);
+                        viewFinderUseCase = null;
+                    } else {
+                        // Add the use case
+                        buttonView.setBackgroundColor(Color.LTGRAY);
 
-  private ViewFinderUseCase viewFinderUseCase;
-  private ImageAnalysisUseCase imageAnalysisUseCase;
-  private ImageCaptureUseCase imageCaptureUseCase;
-  private VideoCaptureUseCase videoCaptureUseCase;
+                        enableViewFinderUseCase();
+                    }
+                });
 
-  private final MutableLiveData<String> imageAnalysisResult = new MutableLiveData<>();
+        Log.i(TAG, "Got UseCase: " + viewFinderUseCase);
+    }
 
-  /**
-   * Creates a view finder use case.
-   *
-   * <p>This use case observes a {@link SurfaceTexture}. The texture is connected to a {@link
-   * TextureView} to display a camera preview.
-   */
-  private void createViewFinderUseCase() {
-    Button button = this.findViewById(R.id.PreviewToggle);
-    button.setBackgroundColor(Color.LTGRAY);
-    enableViewFinderUseCase();
+    void enableViewFinderUseCase() {
+        ViewFinderUseCaseConfiguration configuration =
+                new ViewFinderUseCaseConfiguration.Builder()
+                        .setLensFacing(currentCameraLensFacing)
+                        .setTargetName("ViewFinder")
+                        .build();
 
-    button.setOnClickListener(
-        view -> {
-          Button buttonView = (Button) view;
-          if (viewFinderUseCase != null) {
-            // Remove the use case
-            buttonView.setBackgroundColor(Color.RED);
-            CameraX.unbind(viewFinderUseCase);
+        viewFinderUseCase = new ViewFinderUseCase(configuration);
+        TextureView textureView = findViewById(R.id.textureView);
+        viewFinderUseCase.setOnViewFinderOutputUpdateListener(
+                viewFinderOutput -> {
+                    // If TextureView was already created, need to re-add it to change the
+                    // SurfaceTexture.
+                    ViewGroup viewGroup = (ViewGroup) textureView.getParent();
+                    viewGroup.removeView(textureView);
+                    viewGroup.addView(textureView);
+                    textureView.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
+                });
+
+        if (!bindToLifecycleSafely(viewFinderUseCase, R.id.PreviewToggle)) {
             viewFinderUseCase = null;
-          } else {
-            // Add the use case
-            buttonView.setBackgroundColor(Color.LTGRAY);
+            return;
+        }
 
-            enableViewFinderUseCase();
-          }
-        });
-
-    Log.i(TAG, "Got UseCase: " + viewFinderUseCase);
-  }
-
-  void enableViewFinderUseCase() {
-    ViewFinderUseCaseConfiguration configuration =
-        new ViewFinderUseCaseConfiguration.Builder()
-            .setLensFacing(currentCameraLensFacing)
-            .setTargetName("ViewFinder")
-            .build();
-
-    viewFinderUseCase = new ViewFinderUseCase(configuration);
-    TextureView textureView = findViewById(R.id.textureView);
-    viewFinderUseCase.setOnViewFinderOutputUpdateListener(
-        viewFinderOutput -> {
-          // If TextureView was already created, need to re-add it to change the SurfaceTexture.
-          ViewGroup viewGroup = (ViewGroup) textureView.getParent();
-          viewGroup.removeView(textureView);
-          viewGroup.addView(textureView);
-          textureView.setSurfaceTexture(viewFinderOutput.getSurfaceTexture());
-        });
-
-    if (!bindToLifecycleSafely(viewFinderUseCase, R.id.PreviewToggle)) {
-      viewFinderUseCase = null;
-      return;
-    }
-
-    transformPreview();
-
-    textureView.setSurfaceTextureListener(new SurfaceTextureListener() {
-      @Override
-      public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int i, int i1) {
-
-      }
-
-      @Override
-      public void onSurfaceTextureSizeChanged(SurfaceTexture surfaceTexture, int i, int i1) {
         transformPreview();
-      }
 
-      @Override
-      public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
-        return false;
-      }
+        textureView.setSurfaceTextureListener(
+                new SurfaceTextureListener() {
+                    @Override
+                    public void onSurfaceTextureAvailable(
+                            SurfaceTexture surfaceTexture, int i, int i1) {
+                    }
 
-      @Override
-      public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+                    @Override
+                    public void onSurfaceTextureSizeChanged(
+                            SurfaceTexture surfaceTexture, int i, int i1) {
+                        transformPreview();
+                    }
 
-      }
-    });
+                    @Override
+                    public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
+                        return false;
+                    }
 
-  }
-
-  void transformPreview() {
-    String cameraId = null;
-    LensFacing viewFinderLensFacing =
-        ((CameraDeviceConfiguration) viewFinderUseCase.getUseCaseConfiguration())
-            .getLensFacing(/*valueIfMissing=*/ null);
-    if (viewFinderLensFacing != currentCameraLensFacing) {
-      throw new IllegalStateException(
-          "Invalid view finder lens facing: "
-              + viewFinderLensFacing
-              + " Should be: "
-              + currentCameraLensFacing);
-    }
-    try {
-      cameraId = CameraX.getCameraWithLensFacing(viewFinderLensFacing);
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "Unable to get camera id for lens facing " + viewFinderLensFacing, e);
-    }
-    Size srcResolution = viewFinderUseCase.getAttachedSurfaceResolution(cameraId);
-
-    if (srcResolution.getWidth() == 0 || srcResolution.getHeight() == 0) {
-      return;
+                    @Override
+                    public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
+                    }
+                });
     }
 
-    TextureView textureView = this.findViewById(R.id.textureView);
+    void transformPreview() {
+        String cameraId = null;
+        LensFacing viewFinderLensFacing =
+                ((CameraDeviceConfiguration) viewFinderUseCase.getUseCaseConfiguration())
+                        .getLensFacing(/*valueIfMissing=*/ null);
+        if (viewFinderLensFacing != currentCameraLensFacing) {
+            throw new IllegalStateException(
+                    "Invalid view finder lens facing: "
+                            + viewFinderLensFacing
+                            + " Should be: "
+                            + currentCameraLensFacing);
+        }
+        try {
+            cameraId = CameraX.getCameraWithLensFacing(viewFinderLensFacing);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "Unable to get camera id for lens facing " + viewFinderLensFacing, e);
+        }
+        Size srcResolution = viewFinderUseCase.getAttachedSurfaceResolution(cameraId);
 
-    if (textureView.getWidth() == 0 || textureView.getHeight() == 0) {
-      return;
+        if (srcResolution.getWidth() == 0 || srcResolution.getHeight() == 0) {
+            return;
+        }
+
+        TextureView textureView = this.findViewById(R.id.textureView);
+
+        if (textureView.getWidth() == 0 || textureView.getHeight() == 0) {
+            return;
+        }
+
+        Matrix matrix = new Matrix();
+
+        int left = textureView.getLeft();
+        int right = textureView.getRight();
+        int top = textureView.getTop();
+        int bottom = textureView.getBottom();
+
+        // Compute the viewfinder ui size based on the available width, height, and ui orientation.
+        int viewWidth = (right - left);
+        int viewHeight = (bottom - top);
+
+        int displayRotation = getDisplayRotation();
+        Size scaled =
+                calculateViewfinderViewDimens(
+                        srcResolution, viewWidth, viewHeight, displayRotation);
+
+        // Compute the center of the view.
+        int centerX = viewWidth / 2;
+        int centerY = viewHeight / 2;
+
+        // Do corresponding rotation to correct the preview direction
+        matrix.postRotate(-getDisplayRotation(), centerX, centerY);
+
+        // Compute the scale value for center crop mode
+        float xScale = scaled.getWidth() / (float) viewWidth;
+        float yScale = scaled.getHeight() / (float) viewHeight;
+
+        if (getDisplayRotation() == 90 || getDisplayRotation() == 270) {
+            xScale = scaled.getWidth() / (float) viewHeight;
+            yScale = scaled.getHeight() / (float) viewWidth;
+        }
+
+        // Only two digits after the decimal point are valid for postScale. Need to get ceiling of
+        // two
+        // digits floating value to do the scale operation. Otherwise, the result may be scaled not
+        // large enough and will have some blank lines on the screen.
+        xScale = new BigDecimal(xScale).setScale(2, BigDecimal.ROUND_CEILING).floatValue();
+        yScale = new BigDecimal(yScale).setScale(2, BigDecimal.ROUND_CEILING).floatValue();
+
+        // Do corresponding scale to resolve the deformation problem
+        matrix.postScale(xScale, yScale, centerX, centerY);
+
+        // Compute the new left/top positions to do translate
+        int layoutL = centerX - (scaled.getWidth() / 2);
+        int layoutT = centerY - (scaled.getHeight() / 2);
+
+        // Do corresponding translation to be center crop
+        matrix.postTranslate(layoutL, layoutT);
+
+        textureView.setTransform(matrix);
     }
 
-    Matrix matrix = new Matrix();
+    /** @return One of 0, 90, 180, 270. */
+    private int getDisplayRotation() {
+        int displayRotation = getWindowManager().getDefaultDisplay().getRotation();
 
-    int left = textureView.getLeft();
-    int right = textureView.getRight();
-    int top = textureView.getTop();
-    int bottom = textureView.getBottom();
+        switch (displayRotation) {
+            case Surface.ROTATION_0:
+                displayRotation = 0;
+                break;
+            case Surface.ROTATION_90:
+                displayRotation = 90;
+                break;
+            case Surface.ROTATION_180:
+                displayRotation = 180;
+                break;
+            case Surface.ROTATION_270:
+                displayRotation = 270;
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        "Unsupported display rotation: " + displayRotation);
+        }
 
-    // Compute the viewfinder ui size based on the available width, height, and ui orientation.
-    int viewWidth = (right - left);
-    int viewHeight = (bottom - top);
-
-    int displayRotation = getDisplayRotation();
-    Size scaled =
-        calculateViewfinderViewDimens(srcResolution, viewWidth, viewHeight, displayRotation);
-
-    // Compute the center of the view.
-    int centerX = viewWidth / 2;
-    int centerY = viewHeight / 2;
-
-    // Do corresponding rotation to correct the preview direction
-    matrix.postRotate(-getDisplayRotation(), centerX, centerY);
-
-    // Compute the scale value for center crop mode
-    float xScale = scaled.getWidth() / (float) viewWidth;
-    float yScale = scaled.getHeight() / (float) viewHeight;
-
-    if (getDisplayRotation() == 90 || getDisplayRotation() == 270) {
-      xScale = scaled.getWidth() / (float) viewHeight;
-      yScale = scaled.getHeight() / (float) viewWidth;
+        return displayRotation;
     }
 
-    // Only two digits after the decimal point are valid for postScale. Need to get ceiling of two
-    // digits floating value to do the scale operation. Otherwise, the result may be scaled not
-    // large enough and will have some blank lines on the screen.
-    xScale = new BigDecimal(xScale).setScale(2, BigDecimal.ROUND_CEILING).floatValue();
-    yScale = new BigDecimal(yScale).setScale(2, BigDecimal.ROUND_CEILING).floatValue();
+    private Size calculateViewfinderViewDimens(
+            Size srcSize, int parentWidth, int parentHeight, int displayRotation) {
+        int inWidth = srcSize.getWidth();
+        int inHeight = srcSize.getHeight();
+        if (displayRotation == 0 || displayRotation == 180) {
+            // Need to reverse the width and height since we're in landscape orientation.
+            inWidth = srcSize.getHeight();
+            inHeight = srcSize.getWidth();
+        }
 
-    // Do corresponding scale to resolve the deformation problem
-    matrix.postScale(xScale, yScale, centerX, centerY);
+        int outWidth = parentWidth;
+        int outHeight = parentHeight;
+        if (inWidth != 0 && inHeight != 0) {
+            float vfRatio = inWidth / (float) inHeight;
+            float parentRatio = parentWidth / (float) parentHeight;
 
-    // Compute the new left/top positions to do translate
-    int layoutL = centerX - (scaled.getWidth() / 2);
-    int layoutT = centerY - (scaled.getHeight() / 2);
+            // Match shortest sides together.
+            if (vfRatio < parentRatio) {
+                outWidth = parentWidth;
+                outHeight = Math.round(parentWidth / vfRatio);
+            } else {
+                outWidth = Math.round(parentHeight * vfRatio);
+                outHeight = parentHeight;
+            }
+        }
 
-    // Do corresponding translation to be center crop
-    matrix.postTranslate(layoutL, layoutT);
-
-    textureView.setTransform(matrix);
-  }
-
-  /** @return One of 0, 90, 180, 270. */
-  private int getDisplayRotation() {
-    int displayRotation = getWindowManager().getDefaultDisplay().getRotation();
-
-    switch (displayRotation) {
-      case Surface.ROTATION_0:
-        displayRotation = 0;
-        break;
-      case Surface.ROTATION_90:
-        displayRotation = 90;
-        break;
-      case Surface.ROTATION_180:
-        displayRotation = 180;
-        break;
-      case Surface.ROTATION_270:
-        displayRotation = 270;
-        break;
-      default:
-        throw new UnsupportedOperationException("Unsupported display rotation: " + displayRotation);
+        return new Size(outWidth, outHeight);
     }
 
-    return displayRotation;
-  }
+    /**
+     * Creates an image analysis use case.
+     *
+     * <p>This use case observes a stream of analysis results computed from the frames.
+     */
+    private void createImageAnalysisUseCase() {
+        Button button = this.findViewById(R.id.AnalysisToggle);
+        button.setBackgroundColor(Color.LTGRAY);
+        enableImageAnalysisUseCase();
 
-  private Size calculateViewfinderViewDimens(
-      Size srcSize, int parentWidth, int parentHeight, int displayRotation) {
-    int inWidth = srcSize.getWidth();
-    int inHeight = srcSize.getHeight();
-    if (displayRotation == 0 || displayRotation == 180) {
-      // Need to reverse the width and height since we're in landscape orientation.
-      inWidth = srcSize.getHeight();
-      inHeight = srcSize.getWidth();
+        button.setOnClickListener(
+                view -> {
+                    Button buttonView = (Button) view;
+                    if (imageAnalysisUseCase != null) {
+                        // Remove the use case
+                        buttonView.setBackgroundColor(Color.RED);
+                        CameraX.unbind(imageAnalysisUseCase);
+                        imageAnalysisUseCase = null;
+                    } else {
+                        // Add the use case
+                        buttonView.setBackgroundColor(Color.LTGRAY);
+                        enableImageAnalysisUseCase();
+                    }
+                });
+
+        Log.i(TAG, "Got UseCase: " + imageAnalysisUseCase);
     }
 
-    int outWidth = parentWidth;
-    int outHeight = parentHeight;
-    if (inWidth != 0 && inHeight != 0) {
-      float vfRatio = inWidth / (float) inHeight;
-      float parentRatio = parentWidth / (float) parentHeight;
+    void enableImageAnalysisUseCase() {
+        ImageAnalysisUseCaseConfiguration configuration =
+                new ImageAnalysisUseCaseConfiguration.Builder()
+                        .setLensFacing(currentCameraLensFacing)
+                        .setTargetName("ImageAnalysis")
+                        .setCallbackHandler(new Handler(Looper.getMainLooper()))
+                        .build();
 
-      // Match shortest sides together.
-      if (vfRatio < parentRatio) {
-        outWidth = parentWidth;
-        outHeight = Math.round(parentWidth / vfRatio);
-      } else {
-        outWidth = Math.round(parentHeight * vfRatio);
-        outHeight = parentHeight;
-      }
-    }
+        imageAnalysisUseCase = new ImageAnalysisUseCase(configuration);
 
-    return new Size(outWidth, outHeight);
-  }
+        TextView textView = this.findViewById(R.id.textView);
 
-  /**
-   * Creates an image analysis use case.
-   *
-   * <p>This use case observes a stream of analysis results computed from the frames.
-   */
-  private void createImageAnalysisUseCase() {
-    Button button = this.findViewById(R.id.AnalysisToggle);
-    button.setBackgroundColor(Color.LTGRAY);
-    enableImageAnalysisUseCase();
-
-    button.setOnClickListener(
-        view -> {
-          Button buttonView = (Button) view;
-          if (imageAnalysisUseCase != null) {
-            // Remove the use case
-            buttonView.setBackgroundColor(Color.RED);
-            CameraX.unbind(imageAnalysisUseCase);
+        if (!bindToLifecycleSafely(imageAnalysisUseCase, R.id.AnalysisToggle)) {
             imageAnalysisUseCase = null;
-          } else {
-            // Add the use case
-            buttonView.setBackgroundColor(Color.LTGRAY);
-            enableImageAnalysisUseCase();
-          }
-        });
+            return;
+        }
 
-    Log.i(TAG, "Got UseCase: " + imageAnalysisUseCase);
-  }
-
-  void enableImageAnalysisUseCase() {
-    ImageAnalysisUseCaseConfiguration configuration =
-        new ImageAnalysisUseCaseConfiguration.Builder()
-            .setLensFacing(currentCameraLensFacing)
-            .setTargetName("ImageAnalysis")
-            .setCallbackHandler(new Handler(Looper.getMainLooper()))
-            .build();
-
-    imageAnalysisUseCase = new ImageAnalysisUseCase(configuration);
-
-    TextView textView = this.findViewById(R.id.textView);
-
-    if (!bindToLifecycleSafely(imageAnalysisUseCase, R.id.AnalysisToggle)) {
-      imageAnalysisUseCase = null;
-      return;
+        imageAnalysisUseCase.setAnalyzer(
+                (image, rotationDegrees) -> {
+                    // Since we set the callback handler to a main thread handler, we can call
+                    // setValue()
+                    // here. If we weren't on the main thread, we would have to call postValue()
+                    // instead.
+                    imageAnalysisResult.setValue(Long.toString(image.getTimestamp()));
+                });
+        imageAnalysisResult.observe(
+                this,
+                text -> {
+                    if (imageAnalysisFrameCount.getAndIncrement() % 30 == 0) {
+                        textView.setText(
+                                "ImgCount: " + imageAnalysisFrameCount.get() + " @ts: " + text);
+                    }
+                });
     }
 
-    imageAnalysisUseCase.setAnalyzer(
-        (image, rotationDegrees) -> {
-          // Since we set the callback handler to a main thread handler, we can call setValue()
-          // here. If we weren't on the main thread, we would have to call postValue() instead.
-          imageAnalysisResult.setValue(Long.toString(image.getTimestamp()));
-        });
-    imageAnalysisResult.observe(
-        this,
-        text -> {
-          if (imageAnalysisFrameCount.getAndIncrement() % 30 == 0) {
-            textView.setText("ImgCount: " + imageAnalysisFrameCount.get() + " @ts: " + text);
-          }
-        });
-  }
+    /**
+     * Creates an image capture use case.
+     *
+     * <p>This use case takes a picture and saves it to a file, whenever the user clicks a button.
+     */
+    private void createImageCaptureUseCase() {
 
-  /**
-   * Creates an image capture use case.
-   *
-   * <p>This use case takes a picture and saves it to a file, whenever the user clicks a button.
-   */
-  private void createImageCaptureUseCase() {
+        Button button = this.findViewById(R.id.PhotoToggle);
+        button.setBackgroundColor(Color.LTGRAY);
+        enableImageCaptureUseCase();
 
-    Button button = this.findViewById(R.id.PhotoToggle);
-    button.setBackgroundColor(Color.LTGRAY);
-    enableImageCaptureUseCase();
+        button.setOnClickListener(
+                view -> {
+                    Button buttonView = (Button) view;
+                    if (imageCaptureUseCase != null) {
+                        // Remove the use case
+                        buttonView.setBackgroundColor(Color.RED);
+                        disableImageCaptureUseCase();
+                    } else {
+                        // Add the use case
+                        buttonView.setBackgroundColor(Color.LTGRAY);
+                        enableImageCaptureUseCase();
+                    }
+                });
 
-    button.setOnClickListener(
-        view -> {
-          Button buttonView = (Button) view;
-          if (imageCaptureUseCase != null) {
-            // Remove the use case
-            buttonView.setBackgroundColor(Color.RED);
-            disableImageCaptureUseCase();
-          } else {
-            // Add the use case
-            buttonView.setBackgroundColor(Color.LTGRAY);
-            enableImageCaptureUseCase();
-          }
-        });
-
-    Log.i(TAG, "Got UseCase: " + imageCaptureUseCase);
-  }
-
-  void enableImageCaptureUseCase() {
-    ImageCaptureUseCaseConfiguration configuration =
-        new ImageCaptureUseCaseConfiguration.Builder()
-            .setLensFacing(currentCameraLensFacing)
-            .setTargetName("ImageCapture")
-            .build();
-
-    imageCaptureUseCase = new ImageCaptureUseCase(configuration);
-
-    if (!bindToLifecycleSafely(imageCaptureUseCase, R.id.PhotoToggle)) {
-      Button button = this.findViewById(R.id.Picture);
-      button.setOnClickListener(null);
-      imageCaptureUseCase = null;
-      return;
+        Log.i(TAG, "Got UseCase: " + imageCaptureUseCase);
     }
 
-    Button button = this.findViewById(R.id.Picture);
-    final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
-    final File dir = this.getExternalFilesDir(null);
-    button.setOnClickListener(
-        view -> {
-          imageCaptureUseCase.takePicture(
-              new File(dir, formatter.format(Calendar.getInstance().getTime()) + ".jpg"),
-              new ImageCaptureUseCase.OnImageSavedListener() {
-                @Override
-                public void onImageSaved(File file) {
-                  Log.d(TAG, "Saved image to " + file);
-                }
+    void enableImageCaptureUseCase() {
+        ImageCaptureUseCaseConfiguration configuration =
+                new ImageCaptureUseCaseConfiguration.Builder()
+                        .setLensFacing(currentCameraLensFacing)
+                        .setTargetName("ImageCapture")
+                        .build();
 
-                @Override
-                public void onError(
-                    ImageCaptureUseCase.UseCaseError useCaseError,
-                    String message,
-                    Throwable cause) {
-                  Log.e(TAG, "Failed to save image.", cause);
-                }
-              });
-        });
-  }
+        imageCaptureUseCase = new ImageCaptureUseCase(configuration);
 
-  void disableImageCaptureUseCase() {
-    CameraX.unbind(imageCaptureUseCase);
+        if (!bindToLifecycleSafely(imageCaptureUseCase, R.id.PhotoToggle)) {
+            Button button = this.findViewById(R.id.Picture);
+            button.setOnClickListener(null);
+            imageCaptureUseCase = null;
+            return;
+        }
 
-    imageCaptureUseCase = null;
-    Button button = this.findViewById(R.id.Picture);
-    button.setOnClickListener(null);
-  }
+        Button button = this.findViewById(R.id.Picture);
+        final Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS");
+        final File dir = this.getExternalFilesDir(null);
+        button.setOnClickListener(
+                view -> {
+                    imageCaptureUseCase.takePicture(
+                            new File(
+                                    dir,
+                                    formatter.format(Calendar.getInstance().getTime()) + ".jpg"),
+                            new ImageCaptureUseCase.OnImageSavedListener() {
+                                @Override
+                                public void onImageSaved(File file) {
+                                    Log.d(TAG, "Saved image to " + file);
+                                }
 
-  /**
-   * Creates a video capture use case.
-   *
-   * <p>This use case records a video segment and saves it to a file, in response to user button
-   * clicks.
-   */
-  private void createVideoCaptureUseCase() {
-    Button button = this.findViewById(R.id.VideoToggle);
-    button.setBackgroundColor(Color.LTGRAY);
-    enableVideoCaptureUseCase();
-
-    videoFileSaver = new VideoFileSaver();
-    videoFileSaver.setRootDirectory(
-        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM));
-
-    button.setOnClickListener(
-        view -> {
-          Button buttonView = (Button) view;
-          if (videoCaptureUseCase != null) {
-            // Remove the use case
-            buttonView.setBackgroundColor(Color.RED);
-            disableVideoCaptureUseCase();
-          } else {
-            // Add the use case
-            buttonView.setBackgroundColor(Color.LTGRAY);
-            enableVideoCaptureUseCase();
-          }
-        });
-
-    Log.i(TAG, "Got UseCase: " + videoCaptureUseCase);
-  }
-
-  void enableVideoCaptureUseCase() {
-    VideoCaptureUseCaseConfiguration configuration =
-        new VideoCaptureUseCaseConfiguration.Builder()
-            .setLensFacing(currentCameraLensFacing)
-            .setTargetName("VideoCapture")
-            .build();
-
-    videoCaptureUseCase = new VideoCaptureUseCase(configuration);
-
-    if (!bindToLifecycleSafely(videoCaptureUseCase, R.id.VideoToggle)) {
-      Button button = this.findViewById(R.id.Video);
-      button.setOnClickListener(null);
-      videoCaptureUseCase = null;
-      return;
+                                @Override
+                                public void onError(
+                                        ImageCaptureUseCase.UseCaseError useCaseError,
+                                        String message,
+                                        Throwable cause) {
+                                    Log.e(TAG, "Failed to save image.", cause);
+                                }
+                            });
+                });
     }
 
-    Button button = this.findViewById(R.id.Video);
-    button.setOnClickListener(
-        view -> {
-          Button buttonView = (Button) view;
-          String text = button.getText().toString();
-          if (text.equals("Record") && !videoFileSaver.isSaving()) {
-            videoCaptureUseCase.startRecording(videoFileSaver.getNewVideoFile(), videoFileSaver);
-            videoFileSaver.setSaving();
-            buttonView.setText("Stop");
-          } else if (text.equals("Stop") && videoFileSaver.isSaving()) {
-            buttonView.setText("Record");
-            videoCaptureUseCase.stopRecording();
-          } else if (text.equals("Record") && videoFileSaver.isSaving()) {
-            buttonView.setText("Stop");
-            videoFileSaver.setSaving();
-          } else if (text.equals("Stop") && !videoFileSaver.isSaving()) {
-            buttonView.setText("Record");
-          }
-        });
-  }
+    void disableImageCaptureUseCase() {
+        CameraX.unbind(imageCaptureUseCase);
 
-  void disableVideoCaptureUseCase() {
-    Button button = this.findViewById(R.id.Video);
-    button.setOnClickListener(null);
-    CameraX.unbind(videoCaptureUseCase);
-
-    videoCaptureUseCase = null;
-  }
-
-  /** Creates all the use cases. */
-  private void createUseCases() {
-    createImageCaptureUseCase();
-    createViewFinderUseCase();
-    createImageAnalysisUseCase();
-    createVideoCaptureUseCase();
-  }
-
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_camera_xmain);
-
-    StrictMode.VmPolicy policy = new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
-    StrictMode.setVmPolicy(policy);
-
-    // Get params from adb extra string
-    Bundle bundle = this.getIntent().getExtras();
-    if (bundle != null) {
-      String newCameraDirection = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
-      if (newCameraDirection != null) {
-        currentCameraDirection = newCameraDirection;
-      }
+        imageCaptureUseCase = null;
+        Button button = this.findViewById(R.id.Picture);
+        button.setOnClickListener(null);
     }
 
-    new Thread(
-            () -> {
-              setupCamera();
-            })
-        .start();
-    setupPermissions();
-  }
+    /**
+     * Creates a video capture use case.
+     *
+     * <p>This use case records a video segment and saves it to a file, in response to user button
+     * clicks.
+     */
+    private void createVideoCaptureUseCase() {
+        Button button = this.findViewById(R.id.VideoToggle);
+        button.setBackgroundColor(Color.LTGRAY);
+        enableVideoCaptureUseCase();
 
-  private void setupCamera() {
-    try {
-      // Wait for permissions before proceeding.
-      if (!completableFuture.get()) {
-        Log.d(TAG, "Permissions denied.");
-        return;
-      }
-    } catch (Exception e) {
-      Log.e(TAG, "Exception occurred getting permission future: " + e);
+        videoFileSaver = new VideoFileSaver();
+        videoFileSaver.setRootDirectory(
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM));
+
+        button.setOnClickListener(
+                view -> {
+                    Button buttonView = (Button) view;
+                    if (videoCaptureUseCase != null) {
+                        // Remove the use case
+                        buttonView.setBackgroundColor(Color.RED);
+                        disableVideoCaptureUseCase();
+                    } else {
+                        // Add the use case
+                        buttonView.setBackgroundColor(Color.LTGRAY);
+                        enableVideoCaptureUseCase();
+                    }
+                });
+
+        Log.i(TAG, "Got UseCase: " + videoCaptureUseCase);
     }
 
-    Log.d(TAG, "Camera direction: " + currentCameraDirection);
-    if (currentCameraDirection.equalsIgnoreCase("BACKWARD")) {
-      currentCameraLensFacing = LensFacing.BACK;
-    } else if (currentCameraDirection.equalsIgnoreCase("FORWARD")) {
-      currentCameraLensFacing = LensFacing.FRONT;
-    } else {
-      throw new RuntimeException("Invalid camera direction: " + currentCameraDirection);
+    void enableVideoCaptureUseCase() {
+        VideoCaptureUseCaseConfiguration configuration =
+                new VideoCaptureUseCaseConfiguration.Builder()
+                        .setLensFacing(currentCameraLensFacing)
+                        .setTargetName("VideoCapture")
+                        .build();
+
+        videoCaptureUseCase = new VideoCaptureUseCase(configuration);
+
+        if (!bindToLifecycleSafely(videoCaptureUseCase, R.id.VideoToggle)) {
+            Button button = this.findViewById(R.id.Video);
+            button.setOnClickListener(null);
+            videoCaptureUseCase = null;
+            return;
+        }
+
+        Button button = this.findViewById(R.id.Video);
+        button.setOnClickListener(
+                view -> {
+                    Button buttonView = (Button) view;
+                    String text = button.getText().toString();
+                    if (text.equals("Record") && !videoFileSaver.isSaving()) {
+                        videoCaptureUseCase.startRecording(
+                                videoFileSaver.getNewVideoFile(), videoFileSaver);
+                        videoFileSaver.setSaving();
+                        buttonView.setText("Stop");
+                    } else if (text.equals("Stop") && videoFileSaver.isSaving()) {
+                        buttonView.setText("Record");
+                        videoCaptureUseCase.stopRecording();
+                    } else if (text.equals("Record") && videoFileSaver.isSaving()) {
+                        buttonView.setText("Stop");
+                        videoFileSaver.setSaving();
+                    } else if (text.equals("Stop") && !videoFileSaver.isSaving()) {
+                        buttonView.setText("Record");
+                    }
+                });
     }
-    Log.d(TAG, "Using camera lens facing: " + currentCameraLensFacing);
 
-    // Run this on the UI thread to manipulate the Textures & Views.
-    CameraXActivity.this.runOnUiThread(
-        () -> {
-          createUseCases();
-        });
-  }
+    void disableVideoCaptureUseCase() {
+        Button button = this.findViewById(R.id.Video);
+        button.setOnClickListener(null);
+        CameraX.unbind(videoCaptureUseCase);
 
-  private void setupPermissions() {
-    if (!allPermissionsGranted()) {
-      makePermissionRequest();
-    } else {
-      settableResult.set(true);
-      completableFuture.run();
+        videoCaptureUseCase = null;
     }
-  }
 
-  private void makePermissionRequest() {
-    ActivityCompat.requestPermissions(this, getRequiredPermissions(), PERMISSIONS_REQUEST_CODE);
-  }
-
-  /** Returns true if all the necessary permissions have been granted already. */
-  private boolean allPermissionsGranted() {
-    for (String permission : getRequiredPermissions()) {
-      if (ContextCompat.checkSelfPermission(this, permission)
-          != PackageManager.PERMISSION_GRANTED) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /** Tries to acquire all the necessary permissions through a dialog. */
-  private String[] getRequiredPermissions() {
-    PackageInfo info;
-    try {
-      info = getPackageManager().getPackageInfo(getPackageName(), PackageManager.GET_PERMISSIONS);
-    } catch (NameNotFoundException exception) {
-      Log.e(TAG, "Failed to obtain all required permissions.", exception);
-      return new String[0];
-    }
-    String[] permissions = info.requestedPermissions;
-    if (permissions != null && permissions.length > 0) {
-      return permissions;
-    } else {
-      return new String[0];
-    }
-  }
-
-  @Override
-  public void onRequestPermissionsResult(
-      int requestCode, String[] permissions, int[] grantResults) {
-    switch (requestCode) {
-      case PERMISSIONS_REQUEST_CODE:
-        {
-          // If request is cancelled, the result arrays are empty.
-          if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Permissions Granted.");
-            settableResult.set(true);
-            completableFuture.run();
-          } else {
-            Log.d(TAG, "Permissions Denied.");
-            settableResult.set(false);
-            completableFuture.run();
-          }
-          return;
-      }
-      default:
-        // No-op
-    }
-  }
-
-  /** A {@link Callable} whose return value can be set. */
-  private static final class SettableCallable<V> implements Callable<V> {
-    private final AtomicReference<V> value = new AtomicReference<>();
-
-    public void set(V value) {
-      this.value.set(value);
+    /** Creates all the use cases. */
+    private void createUseCases() {
+        createImageCaptureUseCase();
+        createViewFinderUseCase();
+        createImageAnalysisUseCase();
+        createVideoCaptureUseCase();
     }
 
     @Override
-    public V call() {
-      return value.get();
-    }
-  }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_camera_xmain);
 
-  private boolean bindToLifecycleSafely(BaseUseCase useCase, int buttonViewId) {
-    try {
-      CameraX.bindToLifecycle(this, useCase);
-    } catch (IllegalArgumentException e) {
-      Log.e(TAG, e.getMessage());
-      Toast.makeText(getApplicationContext(), "Bind too many use cases.", Toast.LENGTH_SHORT)
-          .show();
-      Button button = this.findViewById(buttonViewId);
-      button.setBackgroundColor(Color.RED);
-      return false;
+        StrictMode.VmPolicy policy =
+                new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build();
+        StrictMode.setVmPolicy(policy);
+
+        // Get params from adb extra string
+        Bundle bundle = this.getIntent().getExtras();
+        if (bundle != null) {
+            String newCameraDirection = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
+            if (newCameraDirection != null) {
+                currentCameraDirection = newCameraDirection;
+            }
+        }
+
+        new Thread(
+                () -> {
+                    setupCamera();
+                })
+                .start();
+        setupPermissions();
     }
 
-    return true;
-  }
+    private void setupCamera() {
+        try {
+            // Wait for permissions before proceeding.
+            if (!completableFuture.get()) {
+                Log.d(TAG, "Permissions denied.");
+                return;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Exception occurred getting permission future: " + e);
+        }
+
+        Log.d(TAG, "Camera direction: " + currentCameraDirection);
+        if (currentCameraDirection.equalsIgnoreCase("BACKWARD")) {
+            currentCameraLensFacing = LensFacing.BACK;
+        } else if (currentCameraDirection.equalsIgnoreCase("FORWARD")) {
+            currentCameraLensFacing = LensFacing.FRONT;
+        } else {
+            throw new RuntimeException("Invalid camera direction: " + currentCameraDirection);
+        }
+        Log.d(TAG, "Using camera lens facing: " + currentCameraLensFacing);
+
+        // Run this on the UI thread to manipulate the Textures & Views.
+        CameraXActivity.this.runOnUiThread(
+                () -> {
+                    createUseCases();
+                });
+    }
+
+    private void setupPermissions() {
+        if (!allPermissionsGranted()) {
+            makePermissionRequest();
+        } else {
+            settableResult.set(true);
+            completableFuture.run();
+        }
+    }
+
+    private void makePermissionRequest() {
+        ActivityCompat.requestPermissions(this, getRequiredPermissions(), PERMISSIONS_REQUEST_CODE);
+    }
+
+    /** Returns true if all the necessary permissions have been granted already. */
+    private boolean allPermissionsGranted() {
+        for (String permission : getRequiredPermissions()) {
+            if (ContextCompat.checkSelfPermission(this, permission)
+                    != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /** Tries to acquire all the necessary permissions through a dialog. */
+    private String[] getRequiredPermissions() {
+        PackageInfo info;
+        try {
+            info =
+                    getPackageManager()
+                            .getPackageInfo(getPackageName(), PackageManager.GET_PERMISSIONS);
+        } catch (NameNotFoundException exception) {
+            Log.e(TAG, "Failed to obtain all required permissions.", exception);
+            return new String[0];
+        }
+        String[] permissions = info.requestedPermissions;
+        if (permissions != null && permissions.length > 0) {
+            return permissions;
+        } else {
+            return new String[0];
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_CODE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Permissions Granted.");
+                    settableResult.set(true);
+                    completableFuture.run();
+                } else {
+                    Log.d(TAG, "Permissions Denied.");
+                    settableResult.set(false);
+                    completableFuture.run();
+                }
+                return;
+            }
+            default:
+                // No-op
+        }
+    }
+
+    private boolean bindToLifecycleSafely(BaseUseCase useCase, int buttonViewId) {
+        try {
+            CameraX.bindToLifecycle(this, useCase);
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, e.getMessage());
+            Toast.makeText(getApplicationContext(), "Bind too many use cases.", Toast.LENGTH_SHORT)
+                    .show();
+            Button button = this.findViewById(buttonViewId);
+            button.setBackgroundColor(Color.RED);
+            return false;
+        }
+
+        return true;
+    }
+
+    /** A {@link Callable} whose return value can be set. */
+    private static final class SettableCallable<V> implements Callable<V> {
+        private final AtomicReference<V> value = new AtomicReference<>();
+
+        public void set(V value) {
+            this.value.set(value);
+        }
+
+        @Override
+        public V call() {
+            return value.get();
+        }
+    }
 }

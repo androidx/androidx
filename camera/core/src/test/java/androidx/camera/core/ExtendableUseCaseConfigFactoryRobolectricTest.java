@@ -16,8 +16,6 @@
 
 package androidx.camera.core;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,29 +26,29 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 public class ExtendableUseCaseConfigFactoryRobolectricTest {
 
-  private static class FakeUseCaseConfigurationProvider
-      implements ConfigurationProvider<FakeUseCaseConfiguration> {
+    private ExtendableUseCaseConfigFactory factory;
 
-    @Override
-    public FakeUseCaseConfiguration getConfiguration() {
-      return new FakeUseCaseConfiguration.Builder().build();
+    @Before
+    public void setUp() {
+        factory = new ExtendableUseCaseConfigFactory();
     }
-  }
 
-  private ExtendableUseCaseConfigFactory factory;
+    @Test
+    public void canInstallProvider_andRetrieveConfig() {
+        factory.installDefaultProvider(
+                FakeUseCaseConfiguration.class, new FakeUseCaseConfigurationProvider());
 
-  @Before
-  public void setUp() {
-    factory = new ExtendableUseCaseConfigFactory();
-  }
+        FakeUseCaseConfiguration config = factory.getConfiguration(FakeUseCaseConfiguration.class);
+        assertThat(config).isNotNull();
+        assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
+    }
 
-  @Test
-  public void canInstallProvider_andRetrieveConfig() {
-    factory.installDefaultProvider(
-        FakeUseCaseConfiguration.class, new FakeUseCaseConfigurationProvider());
+    private static class FakeUseCaseConfigurationProvider
+            implements ConfigurationProvider<FakeUseCaseConfiguration> {
 
-    FakeUseCaseConfiguration config = factory.getConfiguration(FakeUseCaseConfiguration.class);
-    assertThat(config).isNotNull();
-    assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
-  }
+        @Override
+        public FakeUseCaseConfiguration getConfiguration() {
+            return new FakeUseCaseConfiguration.Builder().build();
+        }
+    }
 }

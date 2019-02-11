@@ -27,6 +27,6 @@ import androidx.annotation.RestrictTo.Scope;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface ConfigurationProvider<C extends Configuration> {
 
-  /** Retrieve the {@link androidx.camera.core.Configuration} object. */
-  C getConfiguration();
+    /** Retrieve the {@link androidx.camera.core.Configuration} object. */
+    C getConfiguration();
 }

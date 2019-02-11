@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.camera.core.CameraCaptureFailure.Reason;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -26,9 +27,9 @@ import org.junit.runners.JUnit4;
 @RunWith(JUnit4.class)
 public class CameraCaptureFailureAndroidTest {
 
-  @Test
-  public void getReason() {
-    CameraCaptureFailure failure = new CameraCaptureFailure(Reason.ERROR);
-    assertThat(failure.getReason()).isEqualTo(Reason.ERROR);
-  }
+    @Test
+    public void getReason() {
+        CameraCaptureFailure failure = new CameraCaptureFailure(Reason.ERROR);
+        assertThat(failure.getReason()).isEqualTo(Reason.ERROR);
+    }
 }

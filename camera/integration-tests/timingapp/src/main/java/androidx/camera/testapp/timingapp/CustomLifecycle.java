@@ -24,38 +24,36 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
-/**
- * A customized lifecycle owner which obeys the lifecycle transition rules.
- */
+/** A customized lifecycle owner which obeys the lifecycle transition rules. */
 public final class CustomLifecycle implements LifecycleOwner {
-  private final LifecycleRegistry lifecycleRegistry;
-  private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final LifecycleRegistry lifecycleRegistry;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
-  public CustomLifecycle() {
-    lifecycleRegistry = new LifecycleRegistry(this);
-    lifecycleRegistry.markState(Lifecycle.State.INITIALIZED);
-    lifecycleRegistry.markState(Lifecycle.State.CREATED);
-  }
-
-  @NonNull
-  @Override
-  public Lifecycle getLifecycle() {
-    return lifecycleRegistry;
-  }
-
-  public void doOnResume() {
-    if (Looper.getMainLooper() != Looper.myLooper()) {
-      mainHandler.post(() -> doOnResume());
-      return;
+    public CustomLifecycle() {
+        lifecycleRegistry = new LifecycleRegistry(this);
+        lifecycleRegistry.markState(Lifecycle.State.INITIALIZED);
+        lifecycleRegistry.markState(Lifecycle.State.CREATED);
     }
-    lifecycleRegistry.markState(State.RESUMED);
-  }
 
-  public void doDestroyed() {
-    if (Looper.getMainLooper() != Looper.myLooper()) {
-      mainHandler.post(() -> doDestroyed());
-      return;
+    @NonNull
+    @Override
+    public Lifecycle getLifecycle() {
+        return lifecycleRegistry;
     }
-    lifecycleRegistry.markState(State.DESTROYED);
-  }
+
+    public void doOnResume() {
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            mainHandler.post(() -> doOnResume());
+            return;
+        }
+        lifecycleRegistry.markState(State.RESUMED);
+    }
+
+    public void doDestroyed() {
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            mainHandler.post(() -> doDestroyed());
+            return;
+        }
+        lifecycleRegistry.markState(State.DESTROYED);
+    }
 }

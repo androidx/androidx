@@ -16,48 +16,51 @@
 
 package androidx.camera.core;
 
+import android.util.Size;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.util.Size;
 import androidx.camera.core.CameraX.LensFacing;
+
 import java.util.Map;
 
 /** A fake {@link BaseUseCase}. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class FakeUseCase extends BaseUseCase {
-  private volatile boolean isCleared = false;
+    private volatile boolean isCleared = false;
 
-  /** Creates a new instance of a {@link FakeUseCase} with a given configuration. */
-  protected FakeUseCase(FakeUseCaseConfiguration configuration) {
-    super(configuration);
-  }
+    /** Creates a new instance of a {@link FakeUseCase} with a given configuration. */
+    protected FakeUseCase(FakeUseCaseConfiguration configuration) {
+        super(configuration);
+    }
 
-  /** Creates a new instance of a {@link FakeUseCase} with a default configuration. */
-  protected FakeUseCase() {
-    this(new FakeUseCaseConfiguration.Builder().build());
-  }
+    /** Creates a new instance of a {@link FakeUseCase} with a default configuration. */
+    protected FakeUseCase() {
+        this(new FakeUseCaseConfiguration.Builder().build());
+    }
 
-  @Override
-  protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
-    return new FakeUseCaseConfiguration.Builder()
-        .setLensFacing(LensFacing.BACK)
-        .setOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> {});
-  }
+    @Override
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
+        return new FakeUseCaseConfiguration.Builder()
+                .setLensFacing(LensFacing.BACK)
+                .setOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> {
+                });
+    }
 
-  @Override
-  public void clear() {
-    super.clear();
-    isCleared = true;
-  }
+    @Override
+    public void clear() {
+        super.clear();
+        isCleared = true;
+    }
 
-  @Override
-  protected Map<String, Size> onSuggestedResolutionUpdated(
-      Map<String, Size> suggestedResolutionMap) {
-    return suggestedResolutionMap;
-  }
+    @Override
+    protected Map<String, Size> onSuggestedResolutionUpdated(
+            Map<String, Size> suggestedResolutionMap) {
+        return suggestedResolutionMap;
+    }
 
-  /** Returns true if {@link #clear()} has been called previously. */
-  public boolean isCleared() {
-    return isCleared;
-  }
+    /** Returns true if {@link #clear()} has been called previously. */
+    public boolean isCleared() {
+        return isCleared;
+    }
 }

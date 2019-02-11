@@ -17,11 +17,13 @@
 package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import androidx.test.runner.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,95 +31,97 @@ import org.mockito.Mockito;
 
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseGroupAndroidTest {
-  private FakeUseCaseConfiguration fakeUseCaseConfiguration;
-  private FakeOtherUseCaseConfiguration fakeOtherUseCaseConfiguration;
-  private UseCaseGroup useCaseGroup;
-  private FakeUseCase fakeUseCase;
-  private FakeOtherUseCase fakeOtherUseCase;
-  private final UseCaseGroup.StateChangeListener mockListener =
-      Mockito.mock(UseCaseGroup.StateChangeListener.class);
+    private final UseCaseGroup.StateChangeListener mockListener =
+            Mockito.mock(UseCaseGroup.StateChangeListener.class);
+    private FakeUseCaseConfiguration fakeUseCaseConfiguration;
+    private FakeOtherUseCaseConfiguration fakeOtherUseCaseConfiguration;
+    private UseCaseGroup useCaseGroup;
+    private FakeUseCase fakeUseCase;
+    private FakeOtherUseCase fakeOtherUseCase;
 
-  @Before
-  public void setUp() {
-    fakeUseCaseConfiguration =
-        new FakeUseCaseConfiguration.Builder().setTargetName("fakeUseCaseConfiguration").build();
-    fakeOtherUseCaseConfiguration =
-        new FakeOtherUseCaseConfiguration.Builder()
-            .setTargetName("fakeOtherUseCaseConfiguration")
-            .build();
-    useCaseGroup = new UseCaseGroup();
-    fakeUseCase = new FakeUseCase(fakeUseCaseConfiguration);
-    fakeOtherUseCase = new FakeOtherUseCase(fakeOtherUseCaseConfiguration);
-  }
+    @Before
+    public void setUp() {
+        fakeUseCaseConfiguration =
+                new FakeUseCaseConfiguration.Builder()
+                        .setTargetName("fakeUseCaseConfiguration")
+                        .build();
+        fakeOtherUseCaseConfiguration =
+                new FakeOtherUseCaseConfiguration.Builder()
+                        .setTargetName("fakeOtherUseCaseConfiguration")
+                        .build();
+        useCaseGroup = new UseCaseGroup();
+        fakeUseCase = new FakeUseCase(fakeUseCaseConfiguration);
+        fakeOtherUseCase = new FakeOtherUseCase(fakeOtherUseCaseConfiguration);
+    }
 
-  @Test
-  public void groupStartsEmpty() {
-    assertThat(useCaseGroup.getUseCases()).isEmpty();
-  }
+    @Test
+    public void groupStartsEmpty() {
+        assertThat(useCaseGroup.getUseCases()).isEmpty();
+    }
 
-  @Test
-  public void newUseCaseIsAdded_whenNoneExistsInGroup() {
-    assertThat(useCaseGroup.addUseCase(fakeUseCase)).isTrue();
-    assertThat(useCaseGroup.getUseCases()).containsExactly(fakeUseCase);
-  }
+    @Test
+    public void newUseCaseIsAdded_whenNoneExistsInGroup() {
+        assertThat(useCaseGroup.addUseCase(fakeUseCase)).isTrue();
+        assertThat(useCaseGroup.getUseCases()).containsExactly(fakeUseCase);
+    }
 
-  @Test
-  public void multipleUseCases_canBeAdded() {
-    assertThat(useCaseGroup.addUseCase(fakeUseCase)).isTrue();
-    assertThat(useCaseGroup.addUseCase(fakeOtherUseCase)).isTrue();
+    @Test
+    public void multipleUseCases_canBeAdded() {
+        assertThat(useCaseGroup.addUseCase(fakeUseCase)).isTrue();
+        assertThat(useCaseGroup.addUseCase(fakeOtherUseCase)).isTrue();
 
-    assertThat(useCaseGroup.getUseCases()).containsExactly(fakeUseCase, fakeOtherUseCase);
-  }
+        assertThat(useCaseGroup.getUseCases()).containsExactly(fakeUseCase, fakeOtherUseCase);
+    }
 
-  @Test
-  public void groupBecomesEmpty_afterGroupIsCleared() {
-    useCaseGroup.addUseCase(fakeUseCase);
-    useCaseGroup.clear();
+    @Test
+    public void groupBecomesEmpty_afterGroupIsCleared() {
+        useCaseGroup.addUseCase(fakeUseCase);
+        useCaseGroup.clear();
 
-    assertThat(useCaseGroup.getUseCases()).isEmpty();
-  }
+        assertThat(useCaseGroup.getUseCases()).isEmpty();
+    }
 
-  @Test
-  public void useCaseIsCleared_afterGroupIsCleared() {
-    useCaseGroup.addUseCase(fakeUseCase);
-    assertThat(fakeUseCase.isCleared()).isFalse();
+    @Test
+    public void useCaseIsCleared_afterGroupIsCleared() {
+        useCaseGroup.addUseCase(fakeUseCase);
+        assertThat(fakeUseCase.isCleared()).isFalse();
 
-    useCaseGroup.clear();
+        useCaseGroup.clear();
 
-    assertThat(fakeUseCase.isCleared()).isTrue();
-  }
+        assertThat(fakeUseCase.isCleared()).isTrue();
+    }
 
-  @Test
-  public void useCaseRemoved_afterRemovedCalled() {
-    useCaseGroup.addUseCase(fakeUseCase);
+    @Test
+    public void useCaseRemoved_afterRemovedCalled() {
+        useCaseGroup.addUseCase(fakeUseCase);
 
-    useCaseGroup.removeUseCase(fakeUseCase);
+        useCaseGroup.removeUseCase(fakeUseCase);
 
-    assertThat(useCaseGroup.getUseCases()).isEmpty();
-  }
+        assertThat(useCaseGroup.getUseCases()).isEmpty();
+    }
 
-  @Test
-  public void listenerOnGroupActive_ifUseCaseGroupStarted() {
-    useCaseGroup.setListener(mockListener);
-    useCaseGroup.start();
+    @Test
+    public void listenerOnGroupActive_ifUseCaseGroupStarted() {
+        useCaseGroup.setListener(mockListener);
+        useCaseGroup.start();
 
-    verify(mockListener, times(1)).onGroupActive(useCaseGroup);
-  }
+        verify(mockListener, times(1)).onGroupActive(useCaseGroup);
+    }
 
-  @Test
-  public void listenerOnGroupInactive_ifUseCaseGroupStopped() {
-    useCaseGroup.setListener(mockListener);
-    useCaseGroup.stop();
+    @Test
+    public void listenerOnGroupInactive_ifUseCaseGroupStopped() {
+        useCaseGroup.setListener(mockListener);
+        useCaseGroup.stop();
 
-    verify(mockListener, times(1)).onGroupInactive(useCaseGroup);
-  }
+        verify(mockListener, times(1)).onGroupInactive(useCaseGroup);
+    }
 
-  @Test
-  public void setListener_replacesPreviousListener() {
-    useCaseGroup.setListener(mockListener);
-    useCaseGroup.setListener(null);
+    @Test
+    public void setListener_replacesPreviousListener() {
+        useCaseGroup.setListener(mockListener);
+        useCaseGroup.setListener(null);
 
-    useCaseGroup.start();
-    verify(mockListener, never()).onGroupActive(useCaseGroup);
-  }
+        useCaseGroup.start();
+        verify(mockListener, never()).onGroupActive(useCaseGroup);
+    }
 }

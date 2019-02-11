@@ -20,15 +20,15 @@ import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraManager;
 import android.media.CamcorderProfile;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.VisibleForTesting;
 import android.util.Size;
+
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.BaseUseCase;
 import androidx.camera.core.CameraDeviceConfiguration;
 import androidx.camera.core.CameraDeviceSurfaceManager;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.SurfaceConfiguration;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -47,210 +47,216 @@ import java.util.Map;
  * @hide Implementation detail
  */
 final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
-  private static final String TAG = "Camera2DeviceSurfaceManager";
-  private static final Size MAXIMUM_PREVIEW_SIZE = new Size(1920, 1080);
-  private boolean isInitialized = false;
-  private final Map<String, SupportedSurfaceCombination> cameraSupportedSurfaceCombinationMap =
-      new HashMap<>();
+    private static final String TAG = "Camera2DeviceSurfaceManager";
+    private static final Size MAXIMUM_PREVIEW_SIZE = new Size(1920, 1080);
+    private final Map<String, SupportedSurfaceCombination> cameraSupportedSurfaceCombinationMap =
+            new HashMap<>();
+    private boolean isInitialized = false;
 
-  enum Operation {
-    ADD_CONFIG,
-    REMOVE_CONFIG
-  }
-
-  public Camera2DeviceSurfaceManager(Context context) {
-    init(context, CamcorderProfile::hasProfile);
-  }
-
-  @VisibleForTesting
-  Camera2DeviceSurfaceManager(Context context, CamcorderProfileHelper camcorderProfileHelper) {
-    init(context, camcorderProfileHelper);
-  }
-
-  /**
-   * Check whether the input surface configuration list is under the capability of any combination
-   * of this object.
-   *
-   * @param cameraId the camera id of the camera device to be compared
-   * @param surfaceConfigurationList the surface configuration list to be compared
-   * @return the check result that whether it could be supported
-   */
-  @Override
-  public boolean checkSupported(
-      String cameraId, List<SurfaceConfiguration> surfaceConfigurationList) {
-    boolean isSupported = false;
-
-    if (!isInitialized) {
-      throw new IllegalStateException("Camera2DeviceSurfaceManager is not initialized.");
+    public Camera2DeviceSurfaceManager(Context context) {
+        init(context, CamcorderProfile::hasProfile);
     }
 
-    if (surfaceConfigurationList == null || surfaceConfigurationList.isEmpty()) {
-      return true;
+    @VisibleForTesting
+    Camera2DeviceSurfaceManager(Context context, CamcorderProfileHelper camcorderProfileHelper) {
+        init(context, camcorderProfileHelper);
     }
 
-    SupportedSurfaceCombination supportedSurfaceCombination =
-        cameraSupportedSurfaceCombinationMap.get(cameraId);
+    /**
+     * Check whether the input surface configuration list is under the capability of any combination
+     * of this object.
+     *
+     * @param cameraId                 the camera id of the camera device to be compared
+     * @param surfaceConfigurationList the surface configuration list to be compared
+     * @return the check result that whether it could be supported
+     */
+    @Override
+    public boolean checkSupported(
+            String cameraId, List<SurfaceConfiguration> surfaceConfigurationList) {
+        boolean isSupported = false;
 
-    if (supportedSurfaceCombination != null) {
-      isSupported = supportedSurfaceCombination.checkSupported(surfaceConfigurationList);
-    }
-
-    return isSupported;
-  }
-
-  /**
-   * Transform to a SurfaceConfiguration object with cameraId, image format and size info
-   *
-   * @param cameraId the camera id of the camera device to transform the object
-   * @param imageFormat the image format info for the surface configuration object
-   * @param size the size info for the surface configuration object
-   * @return new {@link SurfaceConfiguration} object
-   */
-  @Override
-  public SurfaceConfiguration transformSurfaceConfiguration(
-      String cameraId, int imageFormat, Size size) {
-    SurfaceConfiguration surfaceConfiguration = null;
-
-    if (!isInitialized) {
-      throw new IllegalStateException("Camera2DeviceSurfaceManager is not initialized.");
-    }
-
-    SupportedSurfaceCombination supportedSurfaceCombination =
-        cameraSupportedSurfaceCombinationMap.get(cameraId);
-
-    if (supportedSurfaceCombination != null) {
-      surfaceConfiguration =
-          supportedSurfaceCombination.transformSurfaceConfiguration(imageFormat, size);
-    }
-
-    return surfaceConfiguration;
-  }
-
-  /**
-   * Retrieves a map of suggested resolutions for the given list of use cases.
-   *
-   * @param cameraId the camera id of the camera device used by the use cases
-   * @param originalUseCases list of use cases with existing surfaces
-   * @param newUseCases list of new use cases
-   * @return map of suggested resolutions for given use cases
-   */
-  @Override
-  public Map<BaseUseCase, Size> getSuggestedResolutions(
-      String cameraId, List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
-
-    if (newUseCases == null || newUseCases.isEmpty()) {
-      throw new IllegalArgumentException("No new use cases to be bound.");
-    }
-
-    UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(originalUseCases, newUseCases);
-
-    // Use the small size (640x480) for new use cases to check whether there is any possible
-    // supported combination first
-    List<SurfaceConfiguration> surfaceConfigurations = new ArrayList<>();
-
-    if (originalUseCases != null) {
-      for (BaseUseCase useCase : originalUseCases) {
-        CameraDeviceConfiguration configuration =
-            (CameraDeviceConfiguration) useCase.getUseCaseConfiguration();
-        String useCaseCameraId;
-        try {
-          useCaseCameraId = CameraX.getCameraWithLensFacing(configuration.getLensFacing());
-        } catch (Exception e) {
-          throw new IllegalArgumentException(
-              "Unable to get camera ID for use case " + useCase.getName(), e);
+        if (!isInitialized) {
+            throw new IllegalStateException("Camera2DeviceSurfaceManager is not initialized.");
         }
-        Size resolution = useCase.getAttachedSurfaceResolution(useCaseCameraId);
 
-        surfaceConfigurations.add(
-            transformSurfaceConfiguration(cameraId, useCase.getImageFormat(), resolution));
-      }
-    }
-
-    for (BaseUseCase useCase : newUseCases) {
-      surfaceConfigurations.add(
-          transformSurfaceConfiguration(
-              cameraId, useCase.getImageFormat(), new Size(640, 480)));
-    }
-
-    SupportedSurfaceCombination supportedSurfaceCombination =
-        cameraSupportedSurfaceCombinationMap.get(cameraId);
-
-    if (supportedSurfaceCombination == null
-        || !supportedSurfaceCombination.checkSupported(surfaceConfigurations)) {
-      throw new IllegalArgumentException(
-          "No supported surface combination is found for camera device - Id : " + cameraId);
-    }
-
-    return supportedSurfaceCombination.getSuggestedResolutions(originalUseCases, newUseCases);
-  }
-
-  private void init(Context context, CamcorderProfileHelper camcorderProfileHelper) {
-    if (!isInitialized) {
-      CameraManager cameraManager =
-          (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-
-      try {
-        for (String cameraId : cameraManager.getCameraIdList()) {
-          cameraSupportedSurfaceCombinationMap.put(
-              cameraId, new SupportedSurfaceCombination(context, cameraId, camcorderProfileHelper));
+        if (surfaceConfigurationList == null || surfaceConfigurationList.isEmpty()) {
+            return true;
         }
-      } catch (CameraAccessException e) {
-        throw new IllegalArgumentException("Fail to get camera id list", e);
-      }
 
-      isInitialized = true;
-    }
-  }
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                cameraSupportedSurfaceCombinationMap.get(cameraId);
 
-  /**
-   * Get max supported output size for specific camera device and image format
-   *
-   * @param cameraId the camera Id
-   * @param imageFormat the image format info
-   * @return the max supported output size for the image format
-   */
-  @Override
-  public Size getMaxOutputSize(String cameraId, int imageFormat) {
-    if (!isInitialized) {
-      throw new IllegalStateException("CameraDeviceSurfaceManager is not initialized.");
+        if (supportedSurfaceCombination != null) {
+            isSupported = supportedSurfaceCombination.checkSupported(surfaceConfigurationList);
+        }
+
+        return isSupported;
     }
 
-    SupportedSurfaceCombination supportedSurfaceCombination =
-        cameraSupportedSurfaceCombinationMap.get(cameraId);
+    /**
+     * Transform to a SurfaceConfiguration object with cameraId, image format and size info
+     *
+     * @param cameraId    the camera id of the camera device to transform the object
+     * @param imageFormat the image format info for the surface configuration object
+     * @param size        the size info for the surface configuration object
+     * @return new {@link SurfaceConfiguration} object
+     */
+    @Override
+    public SurfaceConfiguration transformSurfaceConfiguration(
+            String cameraId, int imageFormat, Size size) {
+        SurfaceConfiguration surfaceConfiguration = null;
 
-    if (supportedSurfaceCombination == null) {
-      throw new IllegalArgumentException(
-          "Fail to find supported surface info - CameraId:" + cameraId);
+        if (!isInitialized) {
+            throw new IllegalStateException("Camera2DeviceSurfaceManager is not initialized.");
+        }
+
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                cameraSupportedSurfaceCombinationMap.get(cameraId);
+
+        if (supportedSurfaceCombination != null) {
+            surfaceConfiguration =
+                    supportedSurfaceCombination.transformSurfaceConfiguration(imageFormat, size);
+        }
+
+        return surfaceConfiguration;
     }
 
-    return supportedSurfaceCombination.getMaxOutputSizeByFormat(imageFormat);
-  }
+    /**
+     * Retrieves a map of suggested resolutions for the given list of use cases.
+     *
+     * @param cameraId         the camera id of the camera device used by the use cases
+     * @param originalUseCases list of use cases with existing surfaces
+     * @param newUseCases      list of new use cases
+     * @return map of suggested resolutions for given use cases
+     */
+    @Override
+    public Map<BaseUseCase, Size> getSuggestedResolutions(
+            String cameraId, List<BaseUseCase> originalUseCases, List<BaseUseCase> newUseCases) {
 
-  /**
-   * Retrieves the preview size, choosing the smaller of the display size and 1080P.
-   *
-   * @return preview size from {@link androidx.camera.core.SurfaceSizeDefinition}
-   */
-  @Override
-  public Size getPreviewSize() {
-    if (!isInitialized) {
-      throw new IllegalStateException("CameraDeviceSurfaceManager is not initialized.");
+        if (newUseCases == null || newUseCases.isEmpty()) {
+            throw new IllegalArgumentException("No new use cases to be bound.");
+        }
+
+        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(originalUseCases, newUseCases);
+
+        // Use the small size (640x480) for new use cases to check whether there is any possible
+        // supported combination first
+        List<SurfaceConfiguration> surfaceConfigurations = new ArrayList<>();
+
+        if (originalUseCases != null) {
+            for (BaseUseCase useCase : originalUseCases) {
+                CameraDeviceConfiguration configuration =
+                        (CameraDeviceConfiguration) useCase.getUseCaseConfiguration();
+                String useCaseCameraId;
+                try {
+                    useCaseCameraId =
+                            CameraX.getCameraWithLensFacing(configuration.getLensFacing());
+                } catch (Exception e) {
+                    throw new IllegalArgumentException(
+                            "Unable to get camera ID for use case " + useCase.getName(), e);
+                }
+                Size resolution = useCase.getAttachedSurfaceResolution(useCaseCameraId);
+
+                surfaceConfigurations.add(
+                        transformSurfaceConfiguration(
+                                cameraId, useCase.getImageFormat(), resolution));
+            }
+        }
+
+        for (BaseUseCase useCase : newUseCases) {
+            surfaceConfigurations.add(
+                    transformSurfaceConfiguration(
+                            cameraId, useCase.getImageFormat(), new Size(640, 480)));
+        }
+
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                cameraSupportedSurfaceCombinationMap.get(cameraId);
+
+        if (supportedSurfaceCombination == null
+                || !supportedSurfaceCombination.checkSupported(surfaceConfigurations)) {
+            throw new IllegalArgumentException(
+                    "No supported surface combination is found for camera device - Id : "
+                            + cameraId);
+        }
+
+        return supportedSurfaceCombination.getSuggestedResolutions(originalUseCases, newUseCases);
     }
 
-    // 1920x1080 is maximum preview size
-    Size previewSize = MAXIMUM_PREVIEW_SIZE;
+    private void init(Context context, CamcorderProfileHelper camcorderProfileHelper) {
+        if (!isInitialized) {
+            CameraManager cameraManager =
+                    (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
 
-    if (!cameraSupportedSurfaceCombinationMap.isEmpty()) {
-      // Preview size depends on the display size and 1080P. Therefore, we can get the first camera
-      // device's preview size to return it.
-      String cameraId = (String) cameraSupportedSurfaceCombinationMap.keySet().toArray()[0];
-      previewSize =
-          cameraSupportedSurfaceCombinationMap
-              .get(cameraId)
-              .getSurfaceSizeDefinition()
-              .getPreviewSize();
+            try {
+                for (String cameraId : cameraManager.getCameraIdList()) {
+                    cameraSupportedSurfaceCombinationMap.put(
+                            cameraId,
+                            new SupportedSurfaceCombination(
+                                    context, cameraId, camcorderProfileHelper));
+                }
+            } catch (CameraAccessException e) {
+                throw new IllegalArgumentException("Fail to get camera id list", e);
+            }
+
+            isInitialized = true;
+        }
     }
 
-    return previewSize;
-  }
+    /**
+     * Get max supported output size for specific camera device and image format
+     *
+     * @param cameraId    the camera Id
+     * @param imageFormat the image format info
+     * @return the max supported output size for the image format
+     */
+    @Override
+    public Size getMaxOutputSize(String cameraId, int imageFormat) {
+        if (!isInitialized) {
+            throw new IllegalStateException("CameraDeviceSurfaceManager is not initialized.");
+        }
+
+        SupportedSurfaceCombination supportedSurfaceCombination =
+                cameraSupportedSurfaceCombinationMap.get(cameraId);
+
+        if (supportedSurfaceCombination == null) {
+            throw new IllegalArgumentException(
+                    "Fail to find supported surface info - CameraId:" + cameraId);
+        }
+
+        return supportedSurfaceCombination.getMaxOutputSizeByFormat(imageFormat);
+    }
+
+    /**
+     * Retrieves the preview size, choosing the smaller of the display size and 1080P.
+     *
+     * @return preview size from {@link androidx.camera.core.SurfaceSizeDefinition}
+     */
+    @Override
+    public Size getPreviewSize() {
+        if (!isInitialized) {
+            throw new IllegalStateException("CameraDeviceSurfaceManager is not initialized.");
+        }
+
+        // 1920x1080 is maximum preview size
+        Size previewSize = MAXIMUM_PREVIEW_SIZE;
+
+        if (!cameraSupportedSurfaceCombinationMap.isEmpty()) {
+            // Preview size depends on the display size and 1080P. Therefore, we can get the first
+            // camera
+            // device's preview size to return it.
+            String cameraId = (String) cameraSupportedSurfaceCombinationMap.keySet().toArray()[0];
+            previewSize =
+                    cameraSupportedSurfaceCombinationMap
+                            .get(cameraId)
+                            .getSurfaceSizeDefinition()
+                            .getPreviewSize();
+        }
+
+        return previewSize;
+    }
+
+    enum Operation {
+        ADD_CONFIG,
+        REMOVE_CONFIG
+    }
 }

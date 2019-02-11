@@ -18,34 +18,36 @@ package androidx.camera.core;
 
 import android.graphics.ImageFormat;
 import android.media.ImageReader;
+
 import com.google.auto.value.AutoValue;
 
 /** Recommends formats for a combination of {@link ImageReader} instances. */
 final class ImageReaderFormatRecommender {
 
-  /** Container for a combination of {@link ImageReader} formats. */
-  @AutoValue
-  abstract static class FormatCombo {
-    static FormatCombo create(int imageCaptureFormat, int imageAnalysisFormat) {
-      return new AutoValue_ImageReaderFormatRecommender_FormatCombo(
-          imageCaptureFormat, imageAnalysisFormat);
+    private ImageReaderFormatRecommender() {
     }
 
-    // Returns the format for image capture.
-    abstract int imageCaptureFormat();
-
-    // Returns the format for image analysis.
-    abstract int imageAnalysisFormat();
-  }
-
-  /** Chooses a combination which is compatible for the current device. */
-  static FormatCombo chooseCombo() {
-    if (ImageReaderProxys.inSharedReaderWhitelist(DeviceProperties.create())) {
-      return FormatCombo.create(ImageFormat.YUV_420_888, ImageFormat.YUV_420_888);
-    } else {
-      return FormatCombo.create(ImageFormat.JPEG, ImageFormat.YUV_420_888);
+    /** Chooses a combination which is compatible for the current device. */
+    static FormatCombo chooseCombo() {
+        if (ImageReaderProxys.inSharedReaderWhitelist(DeviceProperties.create())) {
+            return FormatCombo.create(ImageFormat.YUV_420_888, ImageFormat.YUV_420_888);
+        } else {
+            return FormatCombo.create(ImageFormat.JPEG, ImageFormat.YUV_420_888);
+        }
     }
-  }
 
-  private ImageReaderFormatRecommender() {}
+    /** Container for a combination of {@link ImageReader} formats. */
+    @AutoValue
+    abstract static class FormatCombo {
+        static FormatCombo create(int imageCaptureFormat, int imageAnalysisFormat) {
+            return new AutoValue_ImageReaderFormatRecommender_FormatCombo(
+                    imageCaptureFormat, imageAnalysisFormat);
+        }
+
+        // Returns the format for image capture.
+        abstract int imageCaptureFormat();
+
+        // Returns the format for image analysis.
+        abstract int imageAnalysisFormat();
+    }
 }

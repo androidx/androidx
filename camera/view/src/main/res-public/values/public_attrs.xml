@@ -16,8 +16,8 @@ limitations under the License.
 <!-- Definitions of attributes to be exposed as public -->
 <resources>
     <!-- CameraView -->
-    <public type="attr" name="scaleType"/>
-    <public type="attr" name="direction"/>
-    <public type="attr" name="captureMode"/>
-    <public type="attr" name="flash"/>
+    <public name="scaleType" type="attr" />
+    <public name="direction" type="attr" />
+    <public name="captureMode" type="attr" />
+    <public name="flash" type="attr" />
 </resources>

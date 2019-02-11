@@ -19,6 +19,7 @@ package androidx.camera.core;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+
 import java.util.Comparator;
 import java.util.TreeMap;
 
@@ -30,48 +31,48 @@ import java.util.TreeMap;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class MutableOptionsBundle extends OptionsBundle implements MutableConfiguration {
 
-  private static final Comparator<Option<?>> ID_COMPARE =
-      (o1, o2) -> o1.getId().compareTo(o2.getId());
+    private static final Comparator<Option<?>> ID_COMPARE =
+            (o1, o2) -> o1.getId().compareTo(o2.getId());
 
-  /**
-   * Creates an empty MutableOptionsBundle.
-   *
-   * @return an empty MutableOptionsBundle containing no options.
-   */
-  public static MutableOptionsBundle create() {
-    return new MutableOptionsBundle(new TreeMap<>(ID_COMPARE));
-  }
-
-  /**
-   * Creates a MutableOptionsBundle from an existing immutable Configuration.
-   *
-   * @param otherConfig configuration options to insert.
-   * @return a MutableOptionsBundle prepopulated with configuration options.
-   */
-  public static MutableOptionsBundle from(Configuration otherConfig) {
-    TreeMap<Option<?>, Object> persistentOptions = new TreeMap<>(ID_COMPARE);
-    for (Option<?> opt : otherConfig.listOptions()) {
-      persistentOptions.put(opt, otherConfig.retrieveOption(opt));
+    private MutableOptionsBundle(TreeMap<Option<?>, Object> persistentOptions) {
+        super(persistentOptions);
     }
 
-    return new MutableOptionsBundle(persistentOptions);
-  }
+    /**
+     * Creates an empty MutableOptionsBundle.
+     *
+     * @return an empty MutableOptionsBundle containing no options.
+     */
+    public static MutableOptionsBundle create() {
+        return new MutableOptionsBundle(new TreeMap<>(ID_COMPARE));
+    }
 
-  private MutableOptionsBundle(TreeMap<Option<?>, Object> persistentOptions) {
-    super(persistentOptions);
-  }
+    /**
+     * Creates a MutableOptionsBundle from an existing immutable Configuration.
+     *
+     * @param otherConfig configuration options to insert.
+     * @return a MutableOptionsBundle prepopulated with configuration options.
+     */
+    public static MutableOptionsBundle from(Configuration otherConfig) {
+        TreeMap<Option<?>, Object> persistentOptions = new TreeMap<>(ID_COMPARE);
+        for (Option<?> opt : otherConfig.listOptions()) {
+            persistentOptions.put(opt, otherConfig.retrieveOption(opt));
+        }
 
-  @Nullable
-  @Override
-  public <ValueT> ValueT removeOption(Option<ValueT> opt) {
-    @SuppressWarnings("unchecked") // Options should have only been inserted via insertOption()
-    ValueT value = (ValueT) options.remove(opt);
+        return new MutableOptionsBundle(persistentOptions);
+    }
 
-    return value;
-  }
+    @Nullable
+    @Override
+    public <ValueT> ValueT removeOption(Option<ValueT> opt) {
+        @SuppressWarnings("unchecked") // Options should have only been inserted via insertOption()
+                ValueT value = (ValueT) options.remove(opt);
 
-  @Override
-  public <ValueT> void insertOption(Option<ValueT> opt, ValueT value) {
-    options.put(opt, value);
-  }
+        return value;
+    }
+
+    @Override
+    public <ValueT> void insertOption(Option<ValueT> opt, ValueT value) {
+        options.put(opt, value);
+    }
 }

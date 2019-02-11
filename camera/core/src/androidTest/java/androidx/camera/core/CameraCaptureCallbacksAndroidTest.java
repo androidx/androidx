@@ -27,21 +27,21 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class CameraCaptureCallbacksAndroidTest {
 
-  @Test
-  public void comboCallbackInvokesConstituentCallbacks() {
-    CameraCaptureCallback callback0 = Mockito.mock(CameraCaptureCallback.class);
-    CameraCaptureCallback callback1 = Mockito.mock(CameraCaptureCallback.class);
-    CameraCaptureCallback comboCallback =
-        CameraCaptureCallbacks.createComboCallback(callback0, callback1);
-    CameraCaptureResult result = Mockito.mock(CameraCaptureResult.class);
-    CameraCaptureFailure failure = new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR);
+    @Test
+    public void comboCallbackInvokesConstituentCallbacks() {
+        CameraCaptureCallback callback0 = Mockito.mock(CameraCaptureCallback.class);
+        CameraCaptureCallback callback1 = Mockito.mock(CameraCaptureCallback.class);
+        CameraCaptureCallback comboCallback =
+                CameraCaptureCallbacks.createComboCallback(callback0, callback1);
+        CameraCaptureResult result = Mockito.mock(CameraCaptureResult.class);
+        CameraCaptureFailure failure = new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR);
 
-    comboCallback.onCaptureCompleted(result);
-    verify(callback0, times(1)).onCaptureCompleted(result);
-    verify(callback1, times(1)).onCaptureCompleted(result);
+        comboCallback.onCaptureCompleted(result);
+        verify(callback0, times(1)).onCaptureCompleted(result);
+        verify(callback1, times(1)).onCaptureCompleted(result);
 
-    comboCallback.onCaptureFailed(failure);
-    verify(callback0, times(1)).onCaptureFailed(failure);
-    verify(callback1, times(1)).onCaptureFailed(failure);
-  }
+        comboCallback.onCaptureFailed(failure);
+        verify(callback0, times(1)).onCaptureFailed(failure);
+        verify(callback1, times(1)).onCaptureFailed(failure);
+    }
 }

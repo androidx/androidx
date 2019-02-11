@@ -22,9 +22,10 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Size;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.util.Size;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.FakeUseCase;
@@ -32,62 +33,65 @@ import androidx.camera.core.FakeUseCaseConfiguration;
 import androidx.camera.core.ImmediateSurface;
 import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.UseCaseConfiguration;
+
 import java.util.Map;
 
 /** A fake {@link FakeUseCase} which contain a repeating surface. */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public class FakeRepeatingUseCase extends FakeUseCase {
 
-  /** The repeating surface. */
-  private final ImageReader imageReader =
-      ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
+    /** The repeating surface. */
+    private final ImageReader imageReader =
+            ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2);
 
-  public FakeRepeatingUseCase(FakeUseCaseConfiguration configuration) {
-    super(configuration);
+    public FakeRepeatingUseCase(FakeUseCaseConfiguration configuration) {
+        super(configuration);
 
-    FakeUseCaseConfiguration configWithDefaults =
-        (FakeUseCaseConfiguration) getUseCaseConfiguration();
-    imageReader.setOnImageAvailableListener(
-        imageReader -> {
-          Image image = imageReader.acquireLatestImage();
-          if (image != null) {
-            image.close();
-          }
-        },
-        new Handler(Looper.getMainLooper()));
+        FakeUseCaseConfiguration configWithDefaults =
+                (FakeUseCaseConfiguration) getUseCaseConfiguration();
+        imageReader.setOnImageAvailableListener(
+                imageReader -> {
+                    Image image = imageReader.acquireLatestImage();
+                    if (image != null) {
+                        image.close();
+                    }
+                },
+                new Handler(Looper.getMainLooper()));
 
-    SessionConfiguration.Builder builder =
-        SessionConfiguration.Builder.createFrom(configWithDefaults);
-    builder.addSurface(new ImmediateSurface(imageReader.getSurface()));
-    try {
-      String cameraId = CameraX.getCameraWithLensFacing(configWithDefaults.getLensFacing());
-      attachToCamera(cameraId, builder.build());
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "Unable to attach to camera with LensFacing " + configWithDefaults.getLensFacing(), e);
+        SessionConfiguration.Builder builder =
+                SessionConfiguration.Builder.createFrom(configWithDefaults);
+        builder.addSurface(new ImmediateSurface(imageReader.getSurface()));
+        try {
+            String cameraId = CameraX.getCameraWithLensFacing(configWithDefaults.getLensFacing());
+            attachToCamera(cameraId, builder.build());
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "Unable to attach to camera with LensFacing "
+                            + configWithDefaults.getLensFacing(),
+                    e);
+        }
     }
-  }
 
-  @Override
-  protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
-    return new FakeUseCaseConfiguration.Builder()
-        .setLensFacing(LensFacing.BACK)
-        .setOptionUnpacker(
-            (useCaseConfig, sessionConfigBuilder) -> {
-              // Set the template since it is currently required by implementation
-              sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            });
-  }
+    @Override
+    protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
+        return new FakeUseCaseConfiguration.Builder()
+                .setLensFacing(LensFacing.BACK)
+                .setOptionUnpacker(
+                        (useCaseConfig, sessionConfigBuilder) -> {
+                            // Set the template since it is currently required by implementation
+                            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+                        });
+    }
 
-  @Override
-  public void clear() {
-    super.clear();
-    imageReader.close();
-  }
+    @Override
+    public void clear() {
+        super.clear();
+        imageReader.close();
+    }
 
-  @Override
-  protected Map<String, Size> onSuggestedResolutionUpdated(
-      Map<String, Size> suggestedResolutionMap) {
-    return suggestedResolutionMap;
-  }
+    @Override
+    protected Map<String, Size> onSuggestedResolutionUpdated(
+            Map<String, Size> suggestedResolutionMap) {
+        return suggestedResolutionMap;
+    }
 }

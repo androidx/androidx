@@ -14,31 +14,31 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-   xmlns:app="http://schemas.android.com/apk/res-auto"
-   xmlns:tools="http://schemas.android.com/tools"
-   android:layout_width="match_parent"
-   android:layout_height="match_parent"
-   app:layout_constraintHeight_min="640dp"
-   tools:context="androidx.camera.app.camera2interopburst.MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_constraintHeight_min="640dp"
+    tools:context="androidx.camera.app.camera2interopburst.MainActivity">
 
-   <RelativeLayout
-       android:layout_width="match_parent"
-       android:layout_height="match_parent"
-       android:orientation="vertical">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-       <TextureView
-           android:id="@+id/textureView"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:minHeight="177dp" />
+        <TextureView
+            android:id="@+id/textureView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="177dp" />
 
-       <ImageView
-           android:id="@+id/imageView"
-           android:elevation="2dp"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:layout_marginTop="0dp"
-           android:layout_marginLeft="0dp" />
-   </RelativeLayout>
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="0dp"
+            android:layout_marginTop="0dp"
+            android:elevation="2dp" />
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

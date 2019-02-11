@@ -14,5 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-  <string name="app_name">Camera2 Interop Burst</string>
+    <string name="app_name">Camera2 Interop Burst</string>
 </resources>

@@ -15,21 +15,25 @@ limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.camera.testapp.timingapp">
-  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="27"/>
 
-  <uses-permission android:name="android.permission.CAMERA" />
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-  <uses-permission android:name="android.permission.RECORD_AUDIO" />
-  <uses-feature android:name="android.hardware.camera" />
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="27" />
 
-  <application android:theme="@style/AppTheme">
-    <activity
-        android:name=".TakePhotoActivity"
-        android:label="Taking Photo">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
-  </application>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <uses-feature android:name="android.hardware.camera" />
+
+    <application android:theme="@style/AppTheme">
+        <activity
+            android:name=".TakePhotoActivity"
+            android:label="Taking Photo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
 </manifest>

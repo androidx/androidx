@@ -16,10 +16,11 @@
 
 package androidx.camera.core;
 
+import android.view.Surface;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.view.Surface;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
 
@@ -33,35 +34,35 @@ import androidx.camera.core.ImageOutputConfiguration.RotationValue;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraInfo {
 
-  /**
-   * Returns the LensFacing of this camera.
-   *
-   * @return One of {@link LensFacing#FRONT}, {@link LensFacing#BACK}, or <code>null</code> if the
-   *     LensFacing does not fall into one of these two categories.
-   */
-  // TODO(b/122975195): Remove @Nullable and null return type once we have a LensFacing type which
-  // can be used to represent non-BACK or FRONT facing lenses.
-  @Nullable
-  LensFacing getLensFacing();
+    /**
+     * Returns the LensFacing of this camera.
+     *
+     * @return One of {@link LensFacing#FRONT}, {@link LensFacing#BACK}, or <code>null</code> if the
+     * LensFacing does not fall into one of these two categories.
+     */
+    // TODO(b/122975195): Remove @Nullable and null return type once we have a LensFacing type which
+    // can be used to represent non-BACK or FRONT facing lenses.
+    @Nullable
+    LensFacing getLensFacing();
 
-  /**
-   * Returns the sensor rotation, in degrees, relative to the device's "natural" rotation.
-   *
-   * @see Surface#ROTATION_0, the natural orientation of the device.
-   * @return The sensor orientation in degrees.
-   */
-  default int getSensorRotationDegrees() {
-    return getSensorRotationDegrees(Surface.ROTATION_0);
-  }
+    /**
+     * Returns the sensor rotation, in degrees, relative to the device's "natural" rotation.
+     *
+     * @return The sensor orientation in degrees.
+     * @see Surface#ROTATION_0, the natural orientation of the device.
+     */
+    default int getSensorRotationDegrees() {
+        return getSensorRotationDegrees(Surface.ROTATION_0);
+    }
 
-  /**
-   * Returns the sensor rotation, in degrees, relative to the given rotation value.
-   *
-   * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0}, {@link
-   * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
-   *
-   * @param relativeRotation The rotation relative to which the output will be calculated.
-   * @return The sensor orientation in degrees.
-   */
-  int getSensorRotationDegrees(@RotationValue int relativeRotation);
+    /**
+     * Returns the sensor rotation, in degrees, relative to the given rotation value.
+     *
+     * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0}, {@link
+     * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
+     *
+     * @param relativeRotation The rotation relative to which the output will be calculated.
+     * @return The sensor orientation in degrees.
+     */
+    int getSensorRotationDegrees(@RotationValue int relativeRotation);
 }

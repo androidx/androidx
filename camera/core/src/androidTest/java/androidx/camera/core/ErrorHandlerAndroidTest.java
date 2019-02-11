@@ -20,90 +20,90 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Handler;
 import android.os.HandlerThread;
+
 import androidx.camera.core.CameraX.ErrorCode;
 import androidx.camera.core.CameraX.ErrorListener;
 import androidx.test.runner.AndroidJUnit4;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @RunWith(AndroidJUnit4.class)
 public class ErrorHandlerAndroidTest {
-  private ErrorHandler errorHandler;
+    private ErrorHandler errorHandler;
+    private CountingErrorListener errorListener0;
+    private CountingErrorListener errorListener1;
+    private HandlerThread handlerThread;
+    private Handler handler;
+    private CountDownLatch latch;
 
-  private static class CountingErrorListener implements ErrorListener {
-    CountDownLatch latch;
-    AtomicInteger count = new AtomicInteger(0);
+    @Before
+    public void setup() {
+        errorHandler = new ErrorHandler();
+        latch = new CountDownLatch(1);
+        errorListener0 = new CountingErrorListener(latch);
+        errorListener1 = new CountingErrorListener(latch);
 
-    CountingErrorListener(CountDownLatch latch) {
-      this.latch = latch;
+        handlerThread = new HandlerThread("ErrorHandlerThread");
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
     }
 
-    @Override
-    public void onError(ErrorCode errorCode, String message) {
-      count.getAndIncrement();
-      latch.countDown();
+    @Test
+    public void errorListenerCalled_whenSet() throws InterruptedException {
+        errorHandler.setErrorListener(errorListener0, handler);
+
+        errorHandler.postError(CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT, "");
+
+        latch.await(1, TimeUnit.SECONDS);
+
+        assertThat(errorListener0.getCount()).isEqualTo(1);
     }
 
-    public int getCount() {
-      return count.get();
+    @Test
+    public void errorListenerRemoved_whenNullSet() throws InterruptedException {
+        errorHandler.setErrorListener(errorListener0, handler);
+        errorHandler.setErrorListener(null, handler);
+
+        errorHandler.postError(CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT, "");
+
+        assertThat(latch.await(1, TimeUnit.SECONDS)).isFalse();
     }
-  }
 
-  private CountingErrorListener errorListener0;
-  private CountingErrorListener errorListener1;
+    @Test
+    public void errorListenerReplaced() throws InterruptedException {
+        errorHandler.setErrorListener(errorListener0, handler);
+        errorHandler.setErrorListener(errorListener1, handler);
 
-  private HandlerThread handlerThread;
-  private Handler handler;
+        errorHandler.postError(CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT, "");
 
-  private CountDownLatch latch;
+        latch.await(1, TimeUnit.SECONDS);
 
-  @Before
-  public void setup() {
-    errorHandler = new ErrorHandler();
-    latch = new CountDownLatch(1);
-    errorListener0 = new CountingErrorListener(latch);
-    errorListener1 = new CountingErrorListener(latch);
+        assertThat(errorListener0.getCount()).isEqualTo(0);
+        assertThat(errorListener1.getCount()).isEqualTo(1);
+    }
 
-    handlerThread = new HandlerThread("ErrorHandlerThread");
-    handlerThread.start();
-    handler = new Handler(handlerThread.getLooper());
-  }
+    private static class CountingErrorListener implements ErrorListener {
+        CountDownLatch latch;
+        AtomicInteger count = new AtomicInteger(0);
 
-  @Test
-  public void errorListenerCalled_whenSet() throws InterruptedException {
-    errorHandler.setErrorListener(errorListener0, handler);
+        CountingErrorListener(CountDownLatch latch) {
+            this.latch = latch;
+        }
 
-    errorHandler.postError(CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT, "");
+        @Override
+        public void onError(ErrorCode errorCode, String message) {
+            count.getAndIncrement();
+            latch.countDown();
+        }
 
-    latch.await(1, TimeUnit.SECONDS);
-
-    assertThat(errorListener0.getCount()).isEqualTo(1);
-  }
-
-  @Test
-  public void errorListenerRemoved_whenNullSet() throws InterruptedException {
-    errorHandler.setErrorListener(errorListener0, handler);
-    errorHandler.setErrorListener(null, handler);
-
-    errorHandler.postError(CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT, "");
-
-    assertThat(latch.await(1, TimeUnit.SECONDS)).isFalse();
-  }
-
-  @Test
-  public void errorListenerReplaced() throws InterruptedException {
-    errorHandler.setErrorListener(errorListener0, handler);
-    errorHandler.setErrorListener(errorListener1, handler);
-
-    errorHandler.postError(CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT, "");
-
-    latch.await(1, TimeUnit.SECONDS);
-
-    assertThat(errorListener0.getCount()).isEqualTo(0);
-    assertThat(errorListener1.getCount()).isEqualTo(1);
-  }
+        public int getCount() {
+            return count.get();
+        }
+    }
 }

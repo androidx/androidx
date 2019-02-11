@@ -17,8 +17,10 @@
 package androidx.camera.core;
 
 import android.hardware.camera2.CameraDevice;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,80 +32,85 @@ import java.util.List;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraDeviceStateCallbacks {
-  /** Returns a device state callback which does nothing. */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public static CameraDevice.StateCallback createNoOpCallback() {
-    return new NoOpDeviceStateCallback();
-  }
+    private CameraDeviceStateCallbacks() {
+    }
 
-  /** Returns a device state callback which calls a list of other callbacks. */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public static CameraDevice.StateCallback createComboCallback(
-      List<CameraDevice.StateCallback> callbacks) {
-    return new ComboDeviceStateCallback(callbacks);
-  }
+    /** Returns a device state callback which does nothing. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static CameraDevice.StateCallback createNoOpCallback() {
+        return new NoOpDeviceStateCallback();
+    }
 
-  /** Returns a device state callback which calls a list of other callbacks. */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public static CameraDevice.StateCallback createComboCallback(
-      CameraDevice.StateCallback... callbacks) {
-    return createComboCallback(Arrays.asList(callbacks));
-  }
+    /** Returns a device state callback which calls a list of other callbacks. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static CameraDevice.StateCallback createComboCallback(
+            List<CameraDevice.StateCallback> callbacks) {
+        return new ComboDeviceStateCallback(callbacks);
+    }
 
-  private static final class NoOpDeviceStateCallback extends CameraDevice.StateCallback {
-    @Override
-    public void onOpened(CameraDevice cameraDevice) {}
+    /** Returns a device state callback which calls a list of other callbacks. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static CameraDevice.StateCallback createComboCallback(
+            CameraDevice.StateCallback... callbacks) {
+        return createComboCallback(Arrays.asList(callbacks));
+    }
 
-    @Override
-    public void onClosed(CameraDevice cameraDevice) {}
-
-    @Override
-    public void onDisconnected(CameraDevice cameraDevice) {}
-
-    @Override
-    public void onError(CameraDevice cameraDevice, int error) {}
-  }
-
-  private static final class ComboDeviceStateCallback extends CameraDevice.StateCallback {
-    private final List<CameraDevice.StateCallback> callbacks = new ArrayList<>();
-
-    private ComboDeviceStateCallback(List<CameraDevice.StateCallback> callbacks) {
-      for (CameraDevice.StateCallback callback : callbacks) {
-        // A no-op callback doesn't do anything, so avoid adding it to the final list.
-        if (!(callback instanceof NoOpDeviceStateCallback)) {
-          this.callbacks.add(callback);
+    private static final class NoOpDeviceStateCallback extends CameraDevice.StateCallback {
+        @Override
+        public void onOpened(CameraDevice cameraDevice) {
         }
-      }
+
+        @Override
+        public void onClosed(CameraDevice cameraDevice) {
+        }
+
+        @Override
+        public void onDisconnected(CameraDevice cameraDevice) {
+        }
+
+        @Override
+        public void onError(CameraDevice cameraDevice, int error) {
+        }
     }
 
-    @Override
-    public void onOpened(CameraDevice cameraDevice) {
-      for (CameraDevice.StateCallback callback : callbacks) {
-        callback.onOpened(cameraDevice);
-      }
-    }
+    private static final class ComboDeviceStateCallback extends CameraDevice.StateCallback {
+        private final List<CameraDevice.StateCallback> callbacks = new ArrayList<>();
 
-    @Override
-    public void onClosed(CameraDevice cameraDevice) {
-      for (CameraDevice.StateCallback callback : callbacks) {
-        callback.onClosed(cameraDevice);
-      }
-    }
+        private ComboDeviceStateCallback(List<CameraDevice.StateCallback> callbacks) {
+            for (CameraDevice.StateCallback callback : callbacks) {
+                // A no-op callback doesn't do anything, so avoid adding it to the final list.
+                if (!(callback instanceof NoOpDeviceStateCallback)) {
+                    this.callbacks.add(callback);
+                }
+            }
+        }
 
-    @Override
-    public void onDisconnected(CameraDevice cameraDevice) {
-      for (CameraDevice.StateCallback callback : callbacks) {
-        callback.onDisconnected(cameraDevice);
-      }
-    }
+        @Override
+        public void onOpened(CameraDevice cameraDevice) {
+            for (CameraDevice.StateCallback callback : callbacks) {
+                callback.onOpened(cameraDevice);
+            }
+        }
 
-    @Override
-    public void onError(CameraDevice cameraDevice, int error) {
-      for (CameraDevice.StateCallback callback : callbacks) {
-        callback.onError(cameraDevice, error);
-      }
-    }
-  }
+        @Override
+        public void onClosed(CameraDevice cameraDevice) {
+            for (CameraDevice.StateCallback callback : callbacks) {
+                callback.onClosed(cameraDevice);
+            }
+        }
 
-  private CameraDeviceStateCallbacks() {}
+        @Override
+        public void onDisconnected(CameraDevice cameraDevice) {
+            for (CameraDevice.StateCallback callback : callbacks) {
+                callback.onDisconnected(cameraDevice);
+            }
+        }
+
+        @Override
+        public void onError(CameraDevice cameraDevice, int error) {
+            for (CameraDevice.StateCallback callback : callbacks) {
+                callback.onError(cameraDevice, error);
+            }
+        }
+    }
 }

@@ -23,12 +23,14 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.os.Handler;
 import android.os.HandlerThread;
+
 import androidx.annotation.Nullable;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.CameraXThreads;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -36,72 +38,74 @@ import java.util.Set;
 
 /** The factory class that creates {@link androidx.camera.camera2.Camera} instances. */
 final class Camera2CameraFactory implements CameraFactory {
-  private static final String TAG = "Camera2CameraFactory";
+    private static final String TAG = "Camera2CameraFactory";
 
-  private static final HandlerThread handlerThread = new HandlerThread(CameraXThreads.TAG);
-  private static final Handler handler;
+    private static final HandlerThread handlerThread = new HandlerThread(CameraXThreads.TAG);
+    private static final Handler handler;
 
-  static {
-    handlerThread.start();
-    handler = new Handler(handlerThread.getLooper());
-  }
-
-  private final CameraManager cameraManager;
-
-  Camera2CameraFactory(Context context) {
-    cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
-  }
-
-  @Override
-  public BaseCamera getCamera(String cameraId) {
-    return new Camera(cameraManager, cameraId, handler);
-  }
-
-  @Override
-  public Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException {
-    List<String> camerasList = null;
-    try {
-      camerasList = Arrays.asList(cameraManager.getCameraIdList());
-    } catch (CameraAccessException e) {
-      throw new CameraInfoUnavailableException("Unable to retrieve list of cameras on device.", e);
-    }
-    // Use a LinkedHashSet to preserve order
-    return new LinkedHashSet<>(camerasList);
-  }
-
-  @Nullable
-  @Override
-  public String cameraIdForLensFacing(LensFacing lensFacing) throws CameraInfoUnavailableException {
-    Set<String> cameraIds = getAvailableCameraIds();
-
-    // Convert to from CameraX enum to Camera2 CameraMetadata
-    Integer lensFacingInteger = -1;
-    switch (lensFacing) {
-      case BACK:
-        lensFacingInteger = CameraMetadata.LENS_FACING_BACK;
-        break;
-      case FRONT:
-        lensFacingInteger = CameraMetadata.LENS_FACING_FRONT;
-        break;
+    static {
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
     }
 
-    for (String cameraId : cameraIds) {
-      CameraCharacteristics characteristics = null;
-      try {
-        characteristics = cameraManager.getCameraCharacteristics(cameraId);
-      } catch (CameraAccessException e) {
-        throw new CameraInfoUnavailableException(
-            "Unable to retrieve info for camera with id " + cameraId + ".", e);
-      }
-      Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-      if (cameraLensFacing == null) {
-        continue;
-      }
-      if (cameraLensFacing.equals(lensFacingInteger)) {
-        return cameraId;
-      }
+    private final CameraManager cameraManager;
+
+    Camera2CameraFactory(Context context) {
+        cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
     }
 
-    return null;
-  }
+    @Override
+    public BaseCamera getCamera(String cameraId) {
+        return new Camera(cameraManager, cameraId, handler);
+    }
+
+    @Override
+    public Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException {
+        List<String> camerasList = null;
+        try {
+            camerasList = Arrays.asList(cameraManager.getCameraIdList());
+        } catch (CameraAccessException e) {
+            throw new CameraInfoUnavailableException(
+                    "Unable to retrieve list of cameras on device.", e);
+        }
+        // Use a LinkedHashSet to preserve order
+        return new LinkedHashSet<>(camerasList);
+    }
+
+    @Nullable
+    @Override
+    public String cameraIdForLensFacing(LensFacing lensFacing)
+            throws CameraInfoUnavailableException {
+        Set<String> cameraIds = getAvailableCameraIds();
+
+        // Convert to from CameraX enum to Camera2 CameraMetadata
+        Integer lensFacingInteger = -1;
+        switch (lensFacing) {
+            case BACK:
+                lensFacingInteger = CameraMetadata.LENS_FACING_BACK;
+                break;
+            case FRONT:
+                lensFacingInteger = CameraMetadata.LENS_FACING_FRONT;
+                break;
+        }
+
+        for (String cameraId : cameraIds) {
+            CameraCharacteristics characteristics = null;
+            try {
+                characteristics = cameraManager.getCameraCharacteristics(cameraId);
+            } catch (CameraAccessException e) {
+                throw new CameraInfoUnavailableException(
+                        "Unable to retrieve info for camera with id " + cameraId + ".", e);
+            }
+            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
+            if (cameraLensFacing == null) {
+                continue;
+            }
+            if (cameraLensFacing.equals(lensFacingInteger)) {
+                return cameraId;
+            }
+        }
+
+        return null;
+    }
 }

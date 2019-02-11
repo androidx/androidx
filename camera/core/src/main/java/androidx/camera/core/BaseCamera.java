@@ -24,49 +24,49 @@ import java.util.Collection;
  * @hide
  */
 public interface BaseCamera extends BaseUseCase.StateChangeListener {
-  /**
-   * Open the camera asynchronously.
-   *
-   * <p>Once the camera has been opened use case state transitions can be used to control the camera
-   * pipeline.
-   */
-  void open();
+    /**
+     * Open the camera asynchronously.
+     *
+     * <p>Once the camera has been opened use case state transitions can be used to control the
+     * camera pipeline.
+     */
+    void open();
 
-  /**
-   * Close the camera asynchronously.
-   *
-   * <p>Once the camera is closed the camera will no longer produce data. The camera must be
-   * reopened for it to produce data again.
-   */
-  void close();
+    /**
+     * Close the camera asynchronously.
+     *
+     * <p>Once the camera is closed the camera will no longer produce data. The camera must be
+     * reopened for it to produce data again.
+     */
+    void close();
 
-  /**
-   * Release the camera.
-   *
-   * <p>Once the camera is released it is permanently closed. A new instance must be created to
-   * access the camera.
-   */
-  void release();
+    /**
+     * Release the camera.
+     *
+     * <p>Once the camera is released it is permanently closed. A new instance must be created to
+     * access the camera.
+     */
+    void release();
 
-  /**
-   * Sets the use case to be in the state where the capture session will be configured to handle
-   * capture requests from the use cases.
-   */
-  void addOnlineUseCase(Collection<BaseUseCase> baseUseCases);
+    /**
+     * Sets the use case to be in the state where the capture session will be configured to handle
+     * capture requests from the use cases.
+     */
+    void addOnlineUseCase(Collection<BaseUseCase> baseUseCases);
 
-  /**
-   * Removes the use case to be in the state where the capture session will be configured to handle
-   * capture requests from the use cases.
-   */
-  void removeOnlineUseCase(Collection<BaseUseCase> baseUseCases);
+    /**
+     * Removes the use case to be in the state where the capture session will be configured to
+     * handle capture requests from the use cases.
+     */
+    void removeOnlineUseCase(Collection<BaseUseCase> baseUseCases);
 
-  /** Returns the global CameraControl attached to this camera. */
-  default CameraControl getCameraControl() {
-    return CameraControl.defaultEmptyInstance();
-  }
+    /** Returns the global CameraControl attached to this camera. */
+    default CameraControl getCameraControl() {
+        return CameraControl.defaultEmptyInstance();
+    }
 
-  /** Returns an interface to retrieve characteristics of the camera. */
-  default CameraInfo getCameraInfo() throws CameraInfoUnavailableException {
-    throw new CameraInfoUnavailableException("Camera info not implemented.");
-  }
+    /** Returns an interface to retrieve characteristics of the camera. */
+    default CameraInfo getCameraInfo() throws CameraInfoUnavailableException {
+        throw new CameraInfoUnavailableException("Camera info not implemented.");
+    }
 }

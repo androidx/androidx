@@ -18,6 +18,7 @@ package androidx.camera.camera2;
 
 import android.graphics.Rect;
 import android.hardware.camera2.CaptureRequest;
+
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CaptureRequestConfiguration;
 
@@ -35,18 +36,18 @@ import androidx.camera.core.CaptureRequestConfiguration;
  */
 public interface Camera2RequestRunner {
 
-  /**
-   * Executes a single capture request.
-   *
-   * <p>CameraControl methods like focus, trigger AF need to send single request.
-   */
-  void submitSingleRequest(CaptureRequestConfiguration singleRequestConfig);
+    /**
+     * Executes a single capture request.
+     *
+     * <p>CameraControl methods like focus, trigger AF need to send single request.
+     */
+    void submitSingleRequest(CaptureRequestConfiguration singleRequestConfig);
 
-  /**
-   * Re-sends the repeating request which contains the latest settings specified by {@link
-   * CameraControl}.
-   *
-   * <p>CameraControl methods like setCropRegion, zoom, focus need to update repeating request.
-   */
-  void updateRepeatingRequest();
+    /**
+     * Re-sends the repeating request which contains the latest settings specified by {@link
+     * CameraControl}.
+     *
+     * <p>CameraControl methods like setCropRegion, zoom, focus need to update repeating request.
+     */
+    void updateRepeatingRequest();
 }

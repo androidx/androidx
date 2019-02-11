@@ -17,8 +17,9 @@
 package androidx.camera.camera2;
 
 import android.hardware.camera2.CaptureResult;
-import androidx.annotation.NonNull;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 import androidx.camera.core.CameraCaptureMetaData.AeState;
 import androidx.camera.core.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.CameraCaptureMetaData.AfState;
@@ -28,155 +29,155 @@ import androidx.camera.core.CameraCaptureResult;
 
 /** The camera2 implementation for the capture result of a single image capture. */
 final class Camera2CameraCaptureResult implements CameraCaptureResult {
-  private static final String TAG = "Camera2CameraCaptureResult";
+    private static final String TAG = "Camera2CameraCaptureResult";
 
-  /** The actual camera2 {@link CaptureResult}. */
-  private final CaptureResult captureResult;
+    /** The actual camera2 {@link CaptureResult}. */
+    private final CaptureResult captureResult;
 
-  Camera2CameraCaptureResult(CaptureResult captureResult) {
-    this.captureResult = captureResult;
-  }
+    Camera2CameraCaptureResult(CaptureResult captureResult) {
+        this.captureResult = captureResult;
+    }
 
-  /**
-   * Converts the camera2 {@link CaptureResult#CONTROL_AF_MODE} to {@link AfMode}.
-   *
-   * @return the {@link AfMode}.
-   */
-  @NonNull
-  @Override
-  public AfMode getAfMode() {
-    Integer mode = captureResult.get(CaptureResult.CONTROL_AF_MODE);
-    if (mode == null) {
-      return AfMode.UNKNOWN;
+    /**
+     * Converts the camera2 {@link CaptureResult#CONTROL_AF_MODE} to {@link AfMode}.
+     *
+     * @return the {@link AfMode}.
+     */
+    @NonNull
+    @Override
+    public AfMode getAfMode() {
+        Integer mode = captureResult.get(CaptureResult.CONTROL_AF_MODE);
+        if (mode == null) {
+            return AfMode.UNKNOWN;
+        }
+        switch (mode) {
+            case CaptureResult.CONTROL_AF_MODE_OFF:
+            case CaptureResult.CONTROL_AF_MODE_EDOF:
+                return AfMode.OFF;
+            case CaptureResult.CONTROL_AF_MODE_AUTO:
+            case CaptureResult.CONTROL_AF_MODE_MACRO:
+                return AfMode.ON_MANUAL_AUTO;
+            case CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE:
+            case CaptureResult.CONTROL_AF_MODE_CONTINUOUS_VIDEO:
+                return AfMode.ON_CONTINUOUS_AUTO;
+            default: // fall out
+        }
+        Log.e(TAG, "Undefined af mode: " + mode);
+        return AfMode.UNKNOWN;
     }
-    switch (mode) {
-      case CaptureResult.CONTROL_AF_MODE_OFF:
-      case CaptureResult.CONTROL_AF_MODE_EDOF:
-        return AfMode.OFF;
-      case CaptureResult.CONTROL_AF_MODE_AUTO:
-      case CaptureResult.CONTROL_AF_MODE_MACRO:
-        return AfMode.ON_MANUAL_AUTO;
-      case CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE:
-      case CaptureResult.CONTROL_AF_MODE_CONTINUOUS_VIDEO:
-        return AfMode.ON_CONTINUOUS_AUTO;
-      default: // fall out
-    }
-    Log.e(TAG, "Undefined af mode: " + mode);
-    return AfMode.UNKNOWN;
-  }
 
-  /**
-   * Converts the camera2 {@link CaptureResult#CONTROL_AF_STATE} to {@link AfState}.
-   *
-   * @return the {@link AfState}.
-   */
-  @NonNull
-  @Override
-  public AfState getAfState() {
-    Integer state = captureResult.get(CaptureResult.CONTROL_AF_STATE);
-    if (state == null) {
-      return AfState.UNKNOWN;
+    /**
+     * Converts the camera2 {@link CaptureResult#CONTROL_AF_STATE} to {@link AfState}.
+     *
+     * @return the {@link AfState}.
+     */
+    @NonNull
+    @Override
+    public AfState getAfState() {
+        Integer state = captureResult.get(CaptureResult.CONTROL_AF_STATE);
+        if (state == null) {
+            return AfState.UNKNOWN;
+        }
+        switch (state) {
+            case CaptureResult.CONTROL_AF_STATE_INACTIVE:
+                return AfState.INACTIVE;
+            case CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN:
+            case CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN:
+            case CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED:
+                return AfState.SCANNING;
+            case CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED:
+                return AfState.LOCKED_FOCUSED;
+            case CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED:
+                return AfState.LOCKED_NOT_FOCUSED;
+            case CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED:
+                return AfState.FOCUSED;
+            default: // fall out
+        }
+        Log.e(TAG, "Undefined af state: " + state);
+        return AfState.UNKNOWN;
     }
-    switch (state) {
-      case CaptureResult.CONTROL_AF_STATE_INACTIVE:
-        return AfState.INACTIVE;
-      case CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN:
-      case CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN:
-      case CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED:
-        return AfState.SCANNING;
-      case CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED:
-        return AfState.LOCKED_FOCUSED;
-      case CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED:
-        return AfState.LOCKED_NOT_FOCUSED;
-      case CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED:
-        return AfState.FOCUSED;
-      default: // fall out
-    }
-    Log.e(TAG, "Undefined af state: " + state);
-    return AfState.UNKNOWN;
-  }
 
-  /**
-   * Converts the camera2 {@link CaptureResult#CONTROL_AE_STATE} to {@link AeState}.
-   *
-   * @return the {@link AeState}.
-   */
-  @NonNull
-  @Override
-  public AeState getAeState() {
-    Integer state = captureResult.get(CaptureResult.CONTROL_AE_STATE);
-    if (state == null) {
-      return AeState.UNKNOWN;
+    /**
+     * Converts the camera2 {@link CaptureResult#CONTROL_AE_STATE} to {@link AeState}.
+     *
+     * @return the {@link AeState}.
+     */
+    @NonNull
+    @Override
+    public AeState getAeState() {
+        Integer state = captureResult.get(CaptureResult.CONTROL_AE_STATE);
+        if (state == null) {
+            return AeState.UNKNOWN;
+        }
+        switch (state) {
+            case CaptureResult.CONTROL_AE_STATE_INACTIVE:
+                return AeState.INACTIVE;
+            case CaptureResult.CONTROL_AE_STATE_SEARCHING:
+            case CaptureResult.CONTROL_AE_STATE_PRECAPTURE:
+                return AeState.SEARCHING;
+            case CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED:
+                return AeState.FLASH_REQUIRED;
+            case CaptureResult.CONTROL_AE_STATE_CONVERGED:
+                return AeState.CONVERGED;
+            case CaptureResult.CONTROL_AE_STATE_LOCKED:
+                return AeState.LOCKED;
+            default: // fall out
+        }
+        Log.e(TAG, "Undefined ae state: " + state);
+        return AeState.UNKNOWN;
     }
-    switch (state) {
-      case CaptureResult.CONTROL_AE_STATE_INACTIVE:
-        return AeState.INACTIVE;
-      case CaptureResult.CONTROL_AE_STATE_SEARCHING:
-      case CaptureResult.CONTROL_AE_STATE_PRECAPTURE:
-        return AeState.SEARCHING;
-      case CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED:
-        return AeState.FLASH_REQUIRED;
-      case CaptureResult.CONTROL_AE_STATE_CONVERGED:
-        return AeState.CONVERGED;
-      case CaptureResult.CONTROL_AE_STATE_LOCKED:
-        return AeState.LOCKED;
-      default: // fall out
-    }
-    Log.e(TAG, "Undefined ae state: " + state);
-    return AeState.UNKNOWN;
-  }
 
-  /**
-   * Converts the camera2 {@link CaptureResult#CONTROL_AWB_STATE} to {@link AwbState}.
-   *
-   * @return the {@link AwbState}.
-   */
-  @NonNull
-  @Override
-  public AwbState getAwbState() {
-    Integer state = captureResult.get(CaptureResult.CONTROL_AWB_STATE);
-    if (state == null) {
-      return AwbState.UNKNOWN;
+    /**
+     * Converts the camera2 {@link CaptureResult#CONTROL_AWB_STATE} to {@link AwbState}.
+     *
+     * @return the {@link AwbState}.
+     */
+    @NonNull
+    @Override
+    public AwbState getAwbState() {
+        Integer state = captureResult.get(CaptureResult.CONTROL_AWB_STATE);
+        if (state == null) {
+            return AwbState.UNKNOWN;
+        }
+        switch (state) {
+            case CaptureResult.CONTROL_AWB_STATE_INACTIVE:
+                return AwbState.INACTIVE;
+            case CaptureResult.CONTROL_AWB_STATE_SEARCHING:
+                return AwbState.METERING;
+            case CaptureResult.CONTROL_AWB_STATE_CONVERGED:
+                return AwbState.CONVERGED;
+            case CaptureResult.CONTROL_AWB_STATE_LOCKED:
+                return AwbState.LOCKED;
+            default: // fall out
+        }
+        Log.e(TAG, "Undefined awb state: " + state);
+        return AwbState.UNKNOWN;
     }
-    switch (state) {
-      case CaptureResult.CONTROL_AWB_STATE_INACTIVE:
-        return AwbState.INACTIVE;
-      case CaptureResult.CONTROL_AWB_STATE_SEARCHING:
-        return AwbState.METERING;
-      case CaptureResult.CONTROL_AWB_STATE_CONVERGED:
-        return AwbState.CONVERGED;
-      case CaptureResult.CONTROL_AWB_STATE_LOCKED:
-        return AwbState.LOCKED;
-      default: // fall out
-    }
-    Log.e(TAG, "Undefined awb state: " + state);
-    return AwbState.UNKNOWN;
-  }
 
-  /**
-   * Converts the camera2 {@link CaptureResult#FLASH_STATE} to {@link FlashState}.
-   *
-   * @return the {@link FlashState}.
-   */
-  @NonNull
-  @Override
-  public FlashState getFlashState() {
-    Integer state = captureResult.get(CaptureResult.FLASH_STATE);
-    if (state == null) {
-      return FlashState.UNKNOWN;
+    /**
+     * Converts the camera2 {@link CaptureResult#FLASH_STATE} to {@link FlashState}.
+     *
+     * @return the {@link FlashState}.
+     */
+    @NonNull
+    @Override
+    public FlashState getFlashState() {
+        Integer state = captureResult.get(CaptureResult.FLASH_STATE);
+        if (state == null) {
+            return FlashState.UNKNOWN;
+        }
+        switch (state) {
+            case CaptureResult.FLASH_STATE_UNAVAILABLE:
+            case CaptureResult.FLASH_STATE_CHARGING:
+                return FlashState.NONE;
+            case CaptureResult.FLASH_STATE_READY:
+                return FlashState.READY;
+            case CaptureResult.FLASH_STATE_FIRED:
+            case CaptureResult.FLASH_STATE_PARTIAL:
+                return FlashState.FIRED;
+            default: // fall out
+        }
+        Log.e(TAG, "Undefined flash state: " + state);
+        return FlashState.UNKNOWN;
     }
-    switch (state) {
-      case CaptureResult.FLASH_STATE_UNAVAILABLE:
-      case CaptureResult.FLASH_STATE_CHARGING:
-        return FlashState.NONE;
-      case CaptureResult.FLASH_STATE_READY:
-        return FlashState.READY;
-      case CaptureResult.FLASH_STATE_FIRED:
-      case CaptureResult.FLASH_STATE_PARTIAL:
-        return FlashState.FIRED;
-      default: // fall out
-    }
-    Log.e(TAG, "Undefined flash state: " + state);
-    return FlashState.UNKNOWN;
-  }
 }

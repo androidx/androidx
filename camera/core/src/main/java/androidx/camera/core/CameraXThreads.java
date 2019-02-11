@@ -27,8 +27,9 @@ import androidx.annotation.RestrictTo.Scope;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraXThreads {
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public static final String TAG = "CameraX-";
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final String TAG = "CameraX-";
 
-  private CameraXThreads() {}
+    private CameraXThreads() {
+    }
 }

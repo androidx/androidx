@@ -17,99 +17,98 @@
 package androidx.camera.core;
 
 import android.graphics.Rect;
+
 import java.nio.ByteBuffer;
 
-/**
- * An image proxy which has an analogous interface as {@link android.media.Image}.
- */
+/** An image proxy which has an analogous interface as {@link android.media.Image}. */
 public interface ImageProxy extends AutoCloseable {
-  /** A plane proxy which has an analogous interface as {@link android.media.Image.Plane}. */
-  interface PlaneProxy {
     /**
-     * Returns the row stride.
+     * Closes the image.
      *
-     * <p>@see {@link android.media.Image.Plane#getRowStride()}.
+     * <p>@see {@link android.media.Image#close()}.
      */
-    int getRowStride();
+    void close();
 
     /**
-     * Returns the pixel stride.
+     * Returns the crop rectangle.
      *
-     * <p>@see {@link android.media.Image.Plane#getPixelStride()}.
+     * <p>@see {@link android.media.Image#getCropRect()}.
      */
-    int getPixelStride();
+    Rect getCropRect();
 
     /**
-     * Returns the pixels buffer.
+     * Sets the crop rectangle.
      *
-     * <p>@see {@link android.media.Image.Plane#getBuffer()}.
+     * <p>@see {@link android.media.Image#setCropRect(Rect)}.
      */
-    ByteBuffer getBuffer();
-  }
+    void setCropRect(Rect rect);
 
-  /**
-   * Closes the image.
-   *
-   * <p>@see {@link android.media.Image#close()}.
-   */
-  void close();
+    /**
+     * Returns the image format.
+     *
+     * <p>@see {@link android.media.Image#getFormat()}.
+     */
+    int getFormat();
 
-  /**
-   * Returns the crop rectangle.
-   *
-   * <p>@see {@link android.media.Image#getCropRect()}.
-   */
-  Rect getCropRect();
+    /**
+     * Returns the image height.
+     *
+     * <p>@see {@link android.media.Image#getHeight()}.
+     */
+    int getHeight();
 
-  /**
-   * Sets the crop rectangle.
-   *
-   * <p>@see {@link android.media.Image#setCropRect(Rect)}.
-   */
-  void setCropRect(Rect rect);
+    /**
+     * Returns the image width.
+     *
+     * <p>@see {@link android.media.Image#getWidth()}.
+     */
+    int getWidth();
 
-  /**
-   * Returns the image format.
-   *
-   * <p>@see {@link android.media.Image#getFormat()}.
-   */
-  int getFormat();
+    /**
+     * Returns the timestamp.
+     *
+     * <p>@see {@link android.media.Image#getTimestamp()}.
+     */
+    long getTimestamp();
 
-  /**
-   * Returns the image height.
-   *
-   * <p>@see {@link android.media.Image#getHeight()}.
-   */
-  int getHeight();
+    /**
+     * Sets the timestamp.
+     *
+     * <p>@see {@link android.media.Image#setTimestamp(long)}.
+     */
+    void setTimestamp(long timestamp);
 
-  /**
-   * Returns the image width.
-   *
-   * <p>@see {@link android.media.Image#getWidth()}.
-   */
-  int getWidth();
+    /**
+     * Returns the array of planes.
+     *
+     * <p>@see {@link android.media.Image#getPlanes()}.
+     */
+    PlaneProxy[] getPlanes();
 
-  /**
-   * Returns the timestamp.
-   *
-   * <p>@see {@link android.media.Image#getTimestamp()}.
-   */
-  long getTimestamp();
+    /** A plane proxy which has an analogous interface as {@link android.media.Image.Plane}. */
+    interface PlaneProxy {
+        /**
+         * Returns the row stride.
+         *
+         * <p>@see {@link android.media.Image.Plane#getRowStride()}.
+         */
+        int getRowStride();
 
-  /**
-   * Sets the timestamp.
-   *
-   * <p>@see {@link android.media.Image#setTimestamp(long)}.
-   */
-  void setTimestamp(long timestamp);
+        /**
+         * Returns the pixel stride.
+         *
+         * <p>@see {@link android.media.Image.Plane#getPixelStride()}.
+         */
+        int getPixelStride();
 
-  /**
-   * Returns the array of planes.
-   *
-   * <p>@see {@link android.media.Image#getPlanes()}.
-   */
-  PlaneProxy[] getPlanes();
+        /**
+         * Returns the pixels buffer.
+         *
+         * <p>@see {@link android.media.Image.Plane#getBuffer()}.
+         */
+        ByteBuffer getBuffer();
+    }
 
-  // TODO(b/123902197): HardwareBuffer access is provided on higher API levels. Wrap
-  // getHardwareBuffer() once we figure out how to provide compatibility with lower API levels.
+    // TODO(b/123902197): HardwareBuffer access is provided on higher API levels. Wrap
+    // getHardwareBuffer() once we figure out how to provide compatibility with lower API levels.
 }

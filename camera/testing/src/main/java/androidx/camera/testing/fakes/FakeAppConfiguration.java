@@ -29,18 +29,18 @@ import androidx.camera.core.UseCaseConfigurationFactory;
  */
 public final class FakeAppConfiguration {
 
-  /** Generates a fake {@link androidx.camera.core.AppConfiguration}. */
-  public static final AppConfiguration create() {
-    CameraFactory cameraFactory = new FakeCameraFactory();
-    CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
-    UseCaseConfigurationFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
+    /** Generates a fake {@link androidx.camera.core.AppConfiguration}. */
+    public static final AppConfiguration create() {
+        CameraFactory cameraFactory = new FakeCameraFactory();
+        CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
+        UseCaseConfigurationFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
 
-    AppConfiguration.Builder appConfigBuilder =
-        new AppConfiguration.Builder()
-            .setCameraFactory(cameraFactory)
-            .setDeviceSurfaceManager(surfaceManager)
-            .setUseCaseConfigFactory(defaultConfigFactory);
+        AppConfiguration.Builder appConfigBuilder =
+                new AppConfiguration.Builder()
+                        .setCameraFactory(cameraFactory)
+                        .setDeviceSurfaceManager(surfaceManager)
+                        .setUseCaseConfigFactory(defaultConfigFactory);
 
-    return appConfigBuilder.build();
-  }
+        return appConfigBuilder.build();
+    }
 }

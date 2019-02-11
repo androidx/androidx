@@ -20,6 +20,7 @@ import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
 import android.util.Size;
 import android.view.Surface;
+
 import androidx.camera.camera2.SemaphoreReleasingCamera2Callbacks.DeviceStateCallback;
 import androidx.camera.camera2.SemaphoreReleasingCamera2Callbacks.SessionStateCallback;
 import androidx.camera.core.CameraFactory;
@@ -32,10 +33,12 @@ import androidx.camera.core.SessionConfiguration;
 import androidx.camera.core.UseCaseGroup;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.runner.AndroidJUnit4;
-import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Map;
 
 /**
  * Contains tests for {@link androidx.camera.core.CameraRepository} which require an actual
@@ -43,89 +46,91 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class Camera2ImplCameraRepositoryAndroidTest {
-  private CameraRepository cameraRepository;
-  private UseCaseGroup useCaseGroup;
-  private FakeUseCaseConfiguration configuration;
-  private CallbackAttachingFakeUseCase useCase;
-  private CameraFactory cameraFactory;
+    private CameraRepository cameraRepository;
+    private UseCaseGroup useCaseGroup;
+    private FakeUseCaseConfiguration configuration;
+    private CallbackAttachingFakeUseCase useCase;
+    private CameraFactory cameraFactory;
 
-  private String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
-    try {
-      return cameraFactory.cameraIdForLensFacing(lensFacing);
-    } catch (Exception e) {
-      throw new IllegalArgumentException(
-          "Unable to attach to camera with LensFacing " + lensFacing, e);
-    }
-  }
-
-  @Before
-  public void setUp() {
-    cameraRepository = new CameraRepository();
-    cameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
-    cameraRepository.init(cameraFactory);
-    useCaseGroup = new UseCaseGroup();
-    configuration = new FakeUseCaseConfiguration.Builder().setLensFacing(LensFacing.BACK).build();
-    String cameraId = getCameraIdForLensFacingUnchecked(configuration.getLensFacing());
-    useCase = new CallbackAttachingFakeUseCase(configuration, cameraId);
-    useCaseGroup.addUseCase(useCase);
-  }
-
-  @Test(timeout = 5000)
-  public void cameraDeviceCallsAreForwardedToCallback() throws InterruptedException {
-    cameraRepository.onGroupActive(useCaseGroup);
-
-    // Wait for the CameraDevice.onOpened callback.
-    useCase.deviceStateCallback.waitForOnOpened(1);
-
-    cameraRepository.onGroupInactive(useCaseGroup);
-
-    // Wait for the CameraDevice.onClosed callback.
-    useCase.deviceStateCallback.waitForOnClosed(1);
-  }
-
-  @Test(timeout = 5000)
-  public void cameraSessionCallsAreForwardedToCallback() throws InterruptedException {
-    useCase.addStateChangeListener(
-        cameraRepository.getCamera(
-            getCameraIdForLensFacingUnchecked(configuration.getLensFacing())));
-    useCase.doNotifyActive();
-    cameraRepository.onGroupActive(useCaseGroup);
-
-    // Wait for the CameraCaptureSession.onConfigured callback.
-    useCase.sessionStateCallback.waitForOnConfigured(1);
-
-    // Camera doesn't currently call CaptureSession.release(), because it is recommended that
-    // we don't explicitly call CameraCaptureSession.close(). Rather, we rely on another
-    // CameraCaptureSession to get opened. See
-    // https://developer.android.com/reference/android/hardware/camera2/CameraCaptureSession.html#close()
-  }
-
-  /** A fake use case which attaches to a camera with various callbacks. */
-  private static class CallbackAttachingFakeUseCase extends FakeUseCase {
-    private final DeviceStateCallback deviceStateCallback = new DeviceStateCallback();
-    private final SessionStateCallback sessionStateCallback = new SessionStateCallback();
-    private final SurfaceTexture surfaceTexture = new SurfaceTexture(0);
-
-    CallbackAttachingFakeUseCase(FakeUseCaseConfiguration configuration, String cameraId) {
-      super(configuration);
-
-      SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
-      builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-      builder.addSurface(new ImmediateSurface(new Surface(surfaceTexture)));
-      builder.setDeviceStateCallback(deviceStateCallback);
-      builder.setSessionStateCallback(sessionStateCallback);
-
-      attachToCamera(cameraId, builder.build());
+    private String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
+        try {
+            return cameraFactory.cameraIdForLensFacing(lensFacing);
+        } catch (Exception e) {
+            throw new IllegalArgumentException(
+                    "Unable to attach to camera with LensFacing " + lensFacing, e);
+        }
     }
 
-    @Override
-    protected Map<String, Size> onSuggestedResolutionUpdated(
-        Map<String, Size> suggestedResolutionMap) {
-      return suggestedResolutionMap;
+    @Before
+    public void setUp() {
+        cameraRepository = new CameraRepository();
+        cameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
+        cameraRepository.init(cameraFactory);
+        useCaseGroup = new UseCaseGroup();
+        configuration =
+                new FakeUseCaseConfiguration.Builder().setLensFacing(LensFacing.BACK).build();
+        String cameraId = getCameraIdForLensFacingUnchecked(configuration.getLensFacing());
+        useCase = new CallbackAttachingFakeUseCase(configuration, cameraId);
+        useCaseGroup.addUseCase(useCase);
     }
 
-    void doNotifyActive() {
-      super.notifyActive();
+    @Test(timeout = 5000)
+    public void cameraDeviceCallsAreForwardedToCallback() throws InterruptedException {
+        cameraRepository.onGroupActive(useCaseGroup);
+
+        // Wait for the CameraDevice.onOpened callback.
+        useCase.deviceStateCallback.waitForOnOpened(1);
+
+        cameraRepository.onGroupInactive(useCaseGroup);
+
+        // Wait for the CameraDevice.onClosed callback.
+        useCase.deviceStateCallback.waitForOnClosed(1);
     }
-  }
+
+    @Test(timeout = 5000)
+    public void cameraSessionCallsAreForwardedToCallback() throws InterruptedException {
+        useCase.addStateChangeListener(
+                cameraRepository.getCamera(
+                        getCameraIdForLensFacingUnchecked(configuration.getLensFacing())));
+        useCase.doNotifyActive();
+        cameraRepository.onGroupActive(useCaseGroup);
+
+        // Wait for the CameraCaptureSession.onConfigured callback.
+        useCase.sessionStateCallback.waitForOnConfigured(1);
+
+        // Camera doesn't currently call CaptureSession.release(), because it is recommended that
+        // we don't explicitly call CameraCaptureSession.close(). Rather, we rely on another
+        // CameraCaptureSession to get opened. See
+        // https://developer.android.com/reference/android/hardware/camera2/CameraCaptureSession
+        // .html#close()
+    }
+
+    /** A fake use case which attaches to a camera with various callbacks. */
+    private static class CallbackAttachingFakeUseCase extends FakeUseCase {
+        private final DeviceStateCallback deviceStateCallback = new DeviceStateCallback();
+        private final SessionStateCallback sessionStateCallback = new SessionStateCallback();
+        private final SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+
+        CallbackAttachingFakeUseCase(FakeUseCaseConfiguration configuration, String cameraId) {
+            super(configuration);
+
+            SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
+            builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+            builder.addSurface(new ImmediateSurface(new Surface(surfaceTexture)));
+            builder.setDeviceStateCallback(deviceStateCallback);
+            builder.setSessionStateCallback(sessionStateCallback);
+
+            attachToCamera(cameraId, builder.build());
+        }
+
+        @Override
+        protected Map<String, Size> onSuggestedResolutionUpdated(
+                Map<String, Size> suggestedResolutionMap) {
+            return suggestedResolutionMap;
+        }
+
+        void doNotifyActive() {
+            super.notifyActive();
+        }
+    }
 }

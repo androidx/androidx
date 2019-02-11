@@ -16,10 +16,13 @@
 
 package androidx.camera.core;
 
+import android.util.Size;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.util.Size;
+
 import com.google.auto.value.AutoValue;
+
 import java.util.Map;
 
 /**
@@ -35,32 +38,37 @@ import java.util.Map;
 @AutoValue
 public abstract class SurfaceSizeDefinition {
 
-  /**
-   * Create a SurfaceSizeDenifition object with input analysis, preview, record and maximum sizes
-   *
-   * @param analysisSize Default AYALYSIS size is * 640x480.
-   * @param previewSize PREVIEW refers to the best size match to the device's screen resolution, or
-   *     to 1080p * (1920x1080), whichever is smaller.
-   * @param recordSize RECORD refers to the camera device's maximum supported * recording
-   *     resolution, as determined by CamcorderProfile.
-   * @param maximumSizeMap MAXIMUM refers to the camera * device's maximum output resolution for
-   *     that format or target from * StreamConfigurationMap.getOutputSizes(int)
-   * @return new {@link SurfaceSizeDefinition} object
-   */
-  public static SurfaceSizeDefinition create(
-      Size analysisSize, Size previewSize, Size recordSize, Map<Integer, Size> maximumSizeMap) {
-    return new AutoValue_SurfaceSizeDefinition(
-        analysisSize, previewSize, recordSize, maximumSizeMap);
-  }
+    /** Prevent subclassing */
+    SurfaceSizeDefinition() {
+    }
 
-  public abstract Size getAnalysisSize();
+    /**
+     * Create a SurfaceSizeDenifition object with input analysis, preview, record and maximum sizes
+     *
+     * @param analysisSize   Default AYALYSIS size is * 640x480.
+     * @param previewSize    PREVIEW refers to the best size match to the device's screen
+     *                       resolution,
+     *                       or to 1080p * (1920x1080), whichever is smaller.
+     * @param recordSize     RECORD refers to the camera device's maximum supported * recording
+     *                       resolution, as determined by CamcorderProfile.
+     * @param maximumSizeMap MAXIMUM refers to the camera * device's maximum output resolution for
+     *                       that format or target from * StreamConfigurationMap.getOutputSizes(int)
+     * @return new {@link SurfaceSizeDefinition} object
+     */
+    public static SurfaceSizeDefinition create(
+            Size analysisSize,
+            Size previewSize,
+            Size recordSize,
+            Map<Integer, Size> maximumSizeMap) {
+        return new AutoValue_SurfaceSizeDefinition(
+                analysisSize, previewSize, recordSize, maximumSizeMap);
+    }
 
-  public abstract Size getPreviewSize();
+    public abstract Size getAnalysisSize();
 
-  public abstract Size getRecordSize();
+    public abstract Size getPreviewSize();
 
-  public abstract Map<Integer, Size> getMaximumSizeMap();
+    public abstract Size getRecordSize();
 
-  /** Prevent subclassing */
-  SurfaceSizeDefinition() {}
+    public abstract Map<Integer, Size> getMaximumSizeMap();
 }

@@ -16,90 +16,90 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.GuardedBy;
 import androidx.lifecycle.DefaultLifecycleObserver;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.annotation.GuardedBy;
 
 /** A {@link UseCaseGroup} whose starting and stopping is controlled by a {@link Lifecycle}. */
 final class UseCaseGroupLifecycleController implements DefaultLifecycleObserver {
-  private final Object useCaseGroupLock = new Object();
+    private final Object useCaseGroupLock = new Object();
 
-  @GuardedBy("useCaseGroupLock")
-  private final UseCaseGroup useCaseGroup;
+    @GuardedBy("useCaseGroupLock")
+    private final UseCaseGroup useCaseGroup;
 
-  /** The lifecycle that controls the useCaseGroup. */
-  private final Lifecycle lifecycle;
+    /** The lifecycle that controls the useCaseGroup. */
+    private final Lifecycle lifecycle;
 
-  /** Creates a new {@link UseCaseGroup} which gets controlled by lifecycle transitions. */
-  UseCaseGroupLifecycleController(Lifecycle lifecycle) {
-    this(lifecycle, new UseCaseGroup());
-  }
-
-  /** Wraps an existing {@link UseCaseGroup} so it is controlled by lifecycle transitions. */
-  UseCaseGroupLifecycleController(Lifecycle lifecycle, UseCaseGroup useCaseGroup) {
-    this.useCaseGroup = useCaseGroup;
-    this.lifecycle = lifecycle;
-    lifecycle.addObserver(this);
-  }
-
-  @Override
-  public void onStart(LifecycleOwner lifecycleOwner) {
-    synchronized (useCaseGroupLock) {
-      useCaseGroup.start();
+    /** Creates a new {@link UseCaseGroup} which gets controlled by lifecycle transitions. */
+    UseCaseGroupLifecycleController(Lifecycle lifecycle) {
+        this(lifecycle, new UseCaseGroup());
     }
-  }
 
-  @Override
-  public void onStop(LifecycleOwner lifecycleOwner) {
-    synchronized (useCaseGroupLock) {
-      useCaseGroup.stop();
+    /** Wraps an existing {@link UseCaseGroup} so it is controlled by lifecycle transitions. */
+    UseCaseGroupLifecycleController(Lifecycle lifecycle, UseCaseGroup useCaseGroup) {
+        this.useCaseGroup = useCaseGroup;
+        this.lifecycle = lifecycle;
+        lifecycle.addObserver(this);
     }
-  }
 
-  @Override
-  public void onDestroy(LifecycleOwner lifecycleOwner) {
-    synchronized (useCaseGroupLock) {
-      useCaseGroup.clear();
+    @Override
+    public void onStart(LifecycleOwner lifecycleOwner) {
+        synchronized (useCaseGroupLock) {
+            useCaseGroup.start();
+        }
     }
-  }
 
-  /**
-   * Starts the underlying {@link UseCaseGroup} so that its {@link UseCaseGroup.StateChangeListener}
-   * can be notified.
-   *
-   * <p>This is required when the contained {@link Lifecycle} is in a STARTED state, since the
-   * default state for a {@link UseCaseGroup} is inactive. The explicit call forces a check on the
-   * actual state of the group.
-   */
-  void notifyState() {
-    synchronized (useCaseGroupLock) {
-      if (lifecycle.getCurrentState().isAtLeast(State.STARTED)) {
-        useCaseGroup.start();
-      }
-      for (BaseUseCase useCase : useCaseGroup.getUseCases()) {
-        useCase.notifyState();
-      }
+    @Override
+    public void onStop(LifecycleOwner lifecycleOwner) {
+        synchronized (useCaseGroupLock) {
+            useCaseGroup.stop();
+        }
     }
-  }
 
-  UseCaseGroup getUseCaseGroup() {
-    synchronized (useCaseGroupLock) {
-      return useCaseGroup;
+    @Override
+    public void onDestroy(LifecycleOwner lifecycleOwner) {
+        synchronized (useCaseGroupLock) {
+            useCaseGroup.clear();
+        }
     }
-  }
 
-  /**
-   * Stops observing lifecycle changes.
-   *
-   * <p>Once released the wrapped {@link UseCaseGroup} is still valid, but will no longer be
-   * triggered by lifecycle state transitions. In order to observe lifecycle changes again a new
-   * {@link UseCaseGroupLifecycleController} instance should be created.
-   *
-   * <p>Calls subsequent to the first time will do nothing.
-   */
-  void release() {
-    lifecycle.removeObserver(this);
-  }
+    /**
+     * Starts the underlying {@link UseCaseGroup} so that its {@link
+     * UseCaseGroup.StateChangeListener} can be notified.
+     *
+     * <p>This is required when the contained {@link Lifecycle} is in a STARTED state, since the
+     * default state for a {@link UseCaseGroup} is inactive. The explicit call forces a check on the
+     * actual state of the group.
+     */
+    void notifyState() {
+        synchronized (useCaseGroupLock) {
+            if (lifecycle.getCurrentState().isAtLeast(State.STARTED)) {
+                useCaseGroup.start();
+            }
+            for (BaseUseCase useCase : useCaseGroup.getUseCases()) {
+                useCase.notifyState();
+            }
+        }
+    }
+
+    UseCaseGroup getUseCaseGroup() {
+        synchronized (useCaseGroupLock) {
+            return useCaseGroup;
+        }
+    }
+
+    /**
+     * Stops observing lifecycle changes.
+     *
+     * <p>Once released the wrapped {@link UseCaseGroup} is still valid, but will no longer be
+     * triggered by lifecycle state transitions. In order to observe lifecycle changes again a new
+     * {@link UseCaseGroupLifecycleController} instance should be created.
+     *
+     * <p>Calls subsequent to the first time will do nothing.
+     */
+    void release() {
+        lifecycle.removeObserver(this);
+    }
 }

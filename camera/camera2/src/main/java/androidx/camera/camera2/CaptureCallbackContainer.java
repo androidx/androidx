@@ -17,6 +17,7 @@
 package androidx.camera.camera2;
 
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
+
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraCaptureCallback;
 
@@ -26,21 +27,21 @@ import androidx.camera.core.CameraCaptureCallback;
  */
 final class CaptureCallbackContainer extends CameraCaptureCallback {
 
-  private final CaptureCallback captureCallback;
+    private final CaptureCallback captureCallback;
 
-  static CaptureCallbackContainer create(CaptureCallback captureCallback) {
-    return new CaptureCallbackContainer(captureCallback);
-  }
-
-  private CaptureCallbackContainer(CaptureCallback captureCallback) {
-    if (captureCallback == null) {
-      throw new NullPointerException("captureCallback is null");
+    private CaptureCallbackContainer(CaptureCallback captureCallback) {
+        if (captureCallback == null) {
+            throw new NullPointerException("captureCallback is null");
+        }
+        this.captureCallback = captureCallback;
     }
-    this.captureCallback = captureCallback;
-  }
 
-  @NonNull
-  CaptureCallback getCaptureCallback() {
-    return captureCallback;
-  }
+    static CaptureCallbackContainer create(CaptureCallback captureCallback) {
+        return new CaptureCallbackContainer(captureCallback);
+    }
+
+    @NonNull
+    CaptureCallback getCaptureCallback() {
+        return captureCallback;
+    }
 }

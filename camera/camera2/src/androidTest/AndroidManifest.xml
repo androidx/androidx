@@ -16,30 +16,39 @@ limitations under the License.
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="androidx.camera.camera2">
 
-  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="27" />
+    <uses-sdk
+        android:minSdkVersion="21"
+        android:targetSdkVersion="27" />
 
-  <uses-permission android:name="android.permission.CAMERA" />
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-  <uses-permission android:name="android.permission.RECORD_AUDIO" />
-  <uses-feature android:name="android.hardware.camera" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-  <application android:debuggable="true">
-    <uses-library android:name="android.test.runner" android:required="false" />
-    <uses-library android:name="android.test.base" android:required="false" />
-    <uses-library android:name="android.test.mock" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" />
 
-    <activity
-        android:name="androidx.camera.core.FakeActivity"
-        android:label="Fake Activity">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
-    </activity>
-  </application>
+    <application android:debuggable="true">
+        <uses-library
+            android:name="android.test.runner"
+            android:required="false" />
+        <uses-library
+            android:name="android.test.base"
+            android:required="false" />
+        <uses-library
+            android:name="android.test.mock"
+            android:required="false" />
 
-  <instrumentation
-      android:name="com.google.android.apps.common.testing.testrunner.Google3InstrumentationTestRunner"
-      android:targetPackage="androidx.camera.camera2">
-  </instrumentation>
+        <activity
+            android:name="androidx.camera.core.FakeActivity"
+            android:label="Fake Activity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+    <instrumentation
+        android:name="com.google.android.apps.common.testing.testrunner.Google3InstrumentationTestRunner"
+        android:targetPackage="androidx.camera.camera2">
+    </instrumentation>
 </manifest>

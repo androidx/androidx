@@ -27,29 +27,29 @@ import androidx.annotation.RestrictTo.Scope;
  */
 public interface MutableConfiguration extends Configuration {
 
-  /**
-   * Inserts a Option/Value pair into the configuration.
-   *
-   * <p>If the option already exists in this configuration, it will be replaced.
-   *
-   * @param opt The option to be added or modified
-   * @param value The value to insert for this option.
-   * @param <ValueT> The type of the value being inserted.
-   * @hide
-   */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  <ValueT> void insertOption(Option<ValueT> opt, ValueT value);
+    /**
+     * Inserts a Option/Value pair into the configuration.
+     *
+     * <p>If the option already exists in this configuration, it will be replaced.
+     *
+     * @param opt      The option to be added or modified
+     * @param value    The value to insert for this option.
+     * @param <ValueT> The type of the value being inserted.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    <ValueT> void insertOption(Option<ValueT> opt, ValueT value);
 
-  /**
-   * Removes an option from the configuration if it exists.
-   *
-   * @param opt The option to remove from the configuration.
-   * @param <ValueT> The type of the value being removed.
-   * @return The value that previously existed for <code>opt</code>, or <code>null</code> if the
-   *     option did not exist in this configuration.
-   * @hide
-   */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  @Nullable
-  <ValueT> ValueT removeOption(Option<ValueT> opt);
+    /**
+     * Removes an option from the configuration if it exists.
+     *
+     * @param opt      The option to remove from the configuration.
+     * @param <ValueT> The type of the value being removed.
+     * @return The value that previously existed for <code>opt</code>, or <code>null</code> if the
+     * option did not exist in this configuration.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    <ValueT> ValueT removeOption(Option<ValueT> opt);
 }

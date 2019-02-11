@@ -18,10 +18,11 @@ package androidx.camera.core;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
+
 import androidx.annotation.GuardedBy;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.util.Log;
 import androidx.camera.core.CameraX.ErrorCode;
 import androidx.camera.core.CameraX.ErrorListener;
 
@@ -32,56 +33,55 @@ import androidx.camera.core.CameraX.ErrorListener;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class ErrorHandler {
-  private static final String TAG = "ErrorHandler";
+    private static final String TAG = "ErrorHandler";
 
-  private final Object errorLock = new Object();
+    private final Object errorLock = new Object();
 
-  @GuardedBy("errorLock")
-  private ErrorListener listener = new PrintingErrorListener();
+    @GuardedBy("errorLock")
+    private ErrorListener listener = new PrintingErrorListener();
 
-  @GuardedBy("errorLock")
-  private Handler handler = new Handler(Looper.getMainLooper());
+    @GuardedBy("errorLock")
+    private Handler handler = new Handler(Looper.getMainLooper());
 
-  /**
-   * Posts an error message.
-   *
-   * @param error the type of error that occurred
-   * @param message detailed message of the error condition
-   */
-  void postError(ErrorCode error, String message) {
-    synchronized (errorLock) {
-      ErrorListener listenerReference = listener;
-      handler.post(() -> listenerReference.onError(error, message));
+    /**
+     * Posts an error message.
+     *
+     * @param error   the type of error that occurred
+     * @param message detailed message of the error condition
+     */
+    void postError(ErrorCode error, String message) {
+        synchronized (errorLock) {
+            ErrorListener listenerReference = listener;
+            handler.post(() -> listenerReference.onError(error, message));
+        }
     }
-  }
 
-  /**
-   * Sets the listener for the error.
-   *
-   * @param listener the listener which should handle the error condition
-   * @param handler the handler on which to run the listener
-   */
-  void setErrorListener(ErrorListener listener, Handler handler) {
-    synchronized (errorLock) {
-      if (handler == null) {
-        this.handler = new Handler(Looper.getMainLooper());
-      } else {
-        this.handler = handler;
-      }
-      if (listener == null) {
-        this.listener = new PrintingErrorListener();
-      } else {
-        this.listener = listener;
-      }
+    /**
+     * Sets the listener for the error.
+     *
+     * @param listener the listener which should handle the error condition
+     * @param handler  the handler on which to run the listener
+     */
+    void setErrorListener(ErrorListener listener, Handler handler) {
+        synchronized (errorLock) {
+            if (handler == null) {
+                this.handler = new Handler(Looper.getMainLooper());
+            } else {
+                this.handler = handler;
+            }
+            if (listener == null) {
+                this.listener = new PrintingErrorListener();
+            } else {
+                this.listener = listener;
+            }
+        }
     }
-  }
 
-  /** An error listener which logs the error message and returns. */
-  static final class PrintingErrorListener implements ErrorListener {
-    @Override
-    public void onError(ErrorCode error, String message) {
-      Log.e(TAG, "ErrorHandler occurred: " + error + " with message: " + message);
+    /** An error listener which logs the error message and returns. */
+    static final class PrintingErrorListener implements ErrorListener {
+        @Override
+        public void onError(ErrorCode error, String message) {
+            Log.e(TAG, "ErrorHandler occurred: " + error + " with message: " + message);
+        }
     }
-  }
-
 }

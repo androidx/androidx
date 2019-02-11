@@ -17,96 +17,101 @@
 package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertThrows;
 
-import androidx.lifecycle.LifecycleOwner;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.test.runner.AndroidJUnit4;
-import java.util.Map;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Map;
+
 @RunWith(AndroidJUnit4.class)
 public final class UseCaseGroupRepositoryAndroidTest {
 
-  private FakeLifecycleOwner lifecycle;
-  private UseCaseGroupRepository repository;
-  private Map<LifecycleOwner, UseCaseGroupLifecycleController> useCasesMap;
+    private FakeLifecycleOwner lifecycle;
+    private UseCaseGroupRepository repository;
+    private Map<LifecycleOwner, UseCaseGroupLifecycleController> useCasesMap;
 
-  @Before
-  public void setUp() {
-    lifecycle = new FakeLifecycleOwner();
-    repository = new UseCaseGroupRepository();
-    useCasesMap = repository.getUseCasesMap();
-  }
+    @Before
+    public void setUp() {
+        lifecycle = new FakeLifecycleOwner();
+        repository = new UseCaseGroupRepository();
+        useCasesMap = repository.getUseCasesMap();
+    }
 
-  @Test
-  public void repositoryStartsEmpty() {
-    assertThat(useCasesMap).isEmpty();
-  }
+    @Test
+    public void repositoryStartsEmpty() {
+        assertThat(useCasesMap).isEmpty();
+    }
 
-  @Test
-  public void newUseCaseGroupIsCreated_whenNoGroupExistsForLifecycleInRepository() {
-    UseCaseGroupLifecycleController group = repository.getOrCreateUseCaseGroup(lifecycle);
+    @Test
+    public void newUseCaseGroupIsCreated_whenNoGroupExistsForLifecycleInRepository() {
+        UseCaseGroupLifecycleController group = repository.getOrCreateUseCaseGroup(lifecycle);
 
-    assertThat(useCasesMap).containsExactly(lifecycle, group);
-  }
+        assertThat(useCasesMap).containsExactly(lifecycle, group);
+    }
 
-  @Test
-  public void existingUseCaseGroupIsReturned_whenGroupExistsForLifecycleInRepository() {
-    UseCaseGroupLifecycleController firstGroup = repository.getOrCreateUseCaseGroup(lifecycle);
-    UseCaseGroupLifecycleController secondGroup = repository.getOrCreateUseCaseGroup(lifecycle);
+    @Test
+    public void existingUseCaseGroupIsReturned_whenGroupExistsForLifecycleInRepository() {
+        UseCaseGroupLifecycleController firstGroup = repository.getOrCreateUseCaseGroup(lifecycle);
+        UseCaseGroupLifecycleController secondGroup = repository.getOrCreateUseCaseGroup(lifecycle);
 
-    assertThat(firstGroup).isSameAs(secondGroup);
-    assertThat(useCasesMap).containsExactly(lifecycle, firstGroup);
-  }
+        assertThat(firstGroup).isSameAs(secondGroup);
+        assertThat(useCasesMap).containsExactly(lifecycle, firstGroup);
+    }
 
-  @Test
-  public void differentUseCaseGroupsAreCreated_forDifferentLifecycles() {
-    UseCaseGroupLifecycleController firstGroup = repository.getOrCreateUseCaseGroup(lifecycle);
-    FakeLifecycleOwner secondLifecycle = new FakeLifecycleOwner();
-    UseCaseGroupLifecycleController secondGroup =
-        repository.getOrCreateUseCaseGroup(secondLifecycle);
+    @Test
+    public void differentUseCaseGroupsAreCreated_forDifferentLifecycles() {
+        UseCaseGroupLifecycleController firstGroup = repository.getOrCreateUseCaseGroup(lifecycle);
+        FakeLifecycleOwner secondLifecycle = new FakeLifecycleOwner();
+        UseCaseGroupLifecycleController secondGroup =
+                repository.getOrCreateUseCaseGroup(secondLifecycle);
 
-    assertThat(useCasesMap).containsExactly(lifecycle, firstGroup, secondLifecycle, secondGroup);
-  }
+        assertThat(useCasesMap)
+                .containsExactly(lifecycle, firstGroup, secondLifecycle, secondGroup);
+    }
 
-  @Test
-  public void useCaseGroupObservesLifecycle() {
-    repository.getOrCreateUseCaseGroup(lifecycle);
+    @Test
+    public void useCaseGroupObservesLifecycle() {
+        repository.getOrCreateUseCaseGroup(lifecycle);
 
-    // One observer is the use case group. The other observer removes the use case from the
-    // repository when the lifecycle is destroyed.
-    assertThat(lifecycle.getObserverCount()).isEqualTo(2);
-  }
+        // One observer is the use case group. The other observer removes the use case from the
+        // repository when the lifecycle is destroyed.
+        assertThat(lifecycle.getObserverCount()).isEqualTo(2);
+    }
 
-  @Test
-  public void useCaseGroupIsRemovedFromRepository_whenLifecycleIsDestroyed() {
-    repository.getOrCreateUseCaseGroup(lifecycle);
-    lifecycle.destroy();
+    @Test
+    public void useCaseGroupIsRemovedFromRepository_whenLifecycleIsDestroyed() {
+        repository.getOrCreateUseCaseGroup(lifecycle);
+        lifecycle.destroy();
 
-    assertThat(useCasesMap).isEmpty();
-  }
+        assertThat(useCasesMap).isEmpty();
+    }
 
-  @Test
-  public void useCaseIsCleared_whenLifecycleIsDestroyed() {
-    UseCaseGroupLifecycleController group = repository.getOrCreateUseCaseGroup(lifecycle);
-    FakeUseCase useCase = new FakeUseCase();
-    group.getUseCaseGroup().addUseCase(useCase);
+    @Test
+    public void useCaseIsCleared_whenLifecycleIsDestroyed() {
+        UseCaseGroupLifecycleController group = repository.getOrCreateUseCaseGroup(lifecycle);
+        FakeUseCase useCase = new FakeUseCase();
+        group.getUseCaseGroup().addUseCase(useCase);
 
-    assertThat(useCase.isCleared()).isFalse();
+        assertThat(useCase.isCleared()).isFalse();
 
-    lifecycle.destroy();
+        lifecycle.destroy();
 
-    assertThat(useCase.isCleared()).isTrue();
-  }
+        assertThat(useCase.isCleared()).isTrue();
+    }
 
-  @Test
-  public void exception_whenCreatingWithDestroyedLifecycle() {
-    lifecycle.destroy();
+    @Test
+    public void exception_whenCreatingWithDestroyedLifecycle() {
+        lifecycle.destroy();
 
-    assertThrows(
-        IllegalArgumentException.class, () -> repository.getOrCreateUseCaseGroup(lifecycle));
-  }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> repository.getOrCreateUseCaseGroup(lifecycle));
+    }
 }

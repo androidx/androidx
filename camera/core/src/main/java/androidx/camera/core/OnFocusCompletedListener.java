@@ -20,10 +20,15 @@ import android.graphics.Rect;
 
 /** Listener called when focus scan has completed. */
 public interface OnFocusCompletedListener {
-  /** Callback when focus has been locked. */
-  default void onFocusLocked(Rect afRect) {}
-  /** Callback when unable to acquire focus. */
-  default void onFocusUnableToLock(Rect afRect) {}
-  /** Callback when timeout is reached and af state haven't settled. */
-  default void onFocusTimedOut(Rect afRect) {}
+    /** Callback when focus has been locked. */
+    default void onFocusLocked(Rect afRect) {
+    }
+
+    /** Callback when unable to acquire focus. */
+    default void onFocusUnableToLock(Rect afRect) {
+    }
+
+    /** Callback when timeout is reached and af state haven't settled. */
+    default void onFocusTimedOut(Rect afRect) {
+    }
 }

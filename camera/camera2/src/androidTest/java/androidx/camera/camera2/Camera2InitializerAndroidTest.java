@@ -25,10 +25,12 @@ import android.test.IsolatedContext;
 import android.test.RenamingDelegatingContext;
 import android.test.mock.MockContentResolver;
 import android.test.mock.MockContext;
+
 import androidx.camera.core.FakeActivity;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -44,53 +46,52 @@ import org.junit.runner.RunWith;
  */
 @RunWith(AndroidJUnit4.class)
 public final class Camera2InitializerAndroidTest {
-  private static final String TEST_AUTHORITY = "androidx.camera.core";
+    private static final String TEST_AUTHORITY = "androidx.camera.core";
+    @Rule
+    public ActivityTestRule<FakeActivity> activityRule =
+            new ActivityTestRule<>(
+                    FakeActivity.class, /*initialTouchMode=*/ false, /*launchActivity=*/ false);
+    private Context appContext;
+    private Context testContext;
+    private ProviderInfo providerInfo;
+    private Camera2Initializer provider;
 
-  private Context appContext;
-  private Context testContext;
-  private ProviderInfo providerInfo;
-  private Camera2Initializer provider;
+    @Before
+    public void setUp() {
+        appContext = ApplicationProvider.getApplicationContext();
+        Context targetContextWrapper =
+                new RenamingDelegatingContext(new MockContext(), appContext, "test.");
+        MockContentResolver resolver = new MockContentResolver();
+        testContext =
+                new IsolatedContext(resolver, targetContextWrapper) {
+                    @Override
+                    public Object getSystemService(String name) {
+                        if (Context.CAMERA_SERVICE.equals(name)
+                                || Context.WINDOW_SERVICE.equals(name)) {
+                            return appContext.getSystemService(name);
+                        }
+                        return super.getSystemService(name);
+                    }
+                };
 
-  @Rule
-  public ActivityTestRule<FakeActivity> activityRule =
-      new ActivityTestRule<>(
-          FakeActivity.class, /*initialTouchMode=*/ false, /*launchActivity=*/ false);
+        providerInfo = new ProviderInfo();
+        providerInfo.authority = TEST_AUTHORITY;
+        provider = new Camera2Initializer();
+        provider.attachInfo(testContext, providerInfo);
 
-  @Before
-  public void setUp() {
-    appContext = ApplicationProvider.getApplicationContext();
-    Context targetContextWrapper =
-        new RenamingDelegatingContext(new MockContext(), appContext, "test.");
-    MockContentResolver resolver = new MockContentResolver();
-    testContext =
-        new IsolatedContext(resolver, targetContextWrapper) {
-          @Override
-          public Object getSystemService(String name) {
-            if (Context.CAMERA_SERVICE.equals(name) || Context.WINDOW_SERVICE.equals(name)) {
-              return appContext.getSystemService(name);
-            }
-            return super.getSystemService(name);
-          }
-        };
+        resolver.addProvider(TEST_AUTHORITY, provider);
+    }
 
-    providerInfo = new ProviderInfo();
-    providerInfo.authority = TEST_AUTHORITY;
-    provider = new Camera2Initializer();
-    provider.attachInfo(testContext, providerInfo);
+    @Test
+    public void initializerIsConnectedToContext() {
+        assertThat(provider.getContext()).isSameAs(testContext);
+    }
 
-    resolver.addProvider(TEST_AUTHORITY, provider);
-  }
+    @Test
+    public void cameraXIsInitialized_beforeActivityIsCreated() {
+        activityRule.launchActivity(new Intent(appContext, FakeActivity.class));
+        FakeActivity activity = activityRule.getActivity();
 
-  @Test
-  public void initializerIsConnectedToContext() {
-    assertThat(provider.getContext()).isSameAs(testContext);
-  }
-
-  @Test
-  public void cameraXIsInitialized_beforeActivityIsCreated() {
-    activityRule.launchActivity(new Intent(appContext, FakeActivity.class));
-    FakeActivity activity = activityRule.getActivity();
-
-    assertThat(activity.isCameraXInitializedAtOnCreate()).isTrue();
-  }
+        assertThat(activity.isCameraXInitializedAtOnCreate()).isTrue();
+    }
 }

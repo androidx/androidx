@@ -17,6 +17,7 @@
 package androidx.camera.camera2;
 
 import android.content.Context;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.AppConfiguration;
@@ -36,39 +37,41 @@ import androidx.camera.core.ViewFinderUseCaseConfiguration;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class Camera2AppConfiguration {
 
-  /**
-   * Creates the {@link AppConfiguration} containing the Camera2 implementation pieces for CameraX.
-   */
-  public static AppConfiguration create(Context context) {
-    // Create the camera factory for creating Camera2 camera objects
-    CameraFactory cameraFactory = new Camera2CameraFactory(context);
+    private Camera2AppConfiguration() {
+    }
 
-    // Create the DeviceSurfaceManager for Camera2
-    CameraDeviceSurfaceManager surfaceManager = new Camera2DeviceSurfaceManager(context);
+    /**
+     * Creates the {@link AppConfiguration} containing the Camera2 implementation pieces for
+     * CameraX.
+     */
+    public static AppConfiguration create(Context context) {
+        // Create the camera factory for creating Camera2 camera objects
+        CameraFactory cameraFactory = new Camera2CameraFactory(context);
 
-    // Create default configuration factory
-    ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
-    configFactory.installDefaultProvider(
-        ImageAnalysisUseCaseConfiguration.class,
-        new DefaultImageAnalysisConfigurationProvider(cameraFactory));
-    configFactory.installDefaultProvider(
-        ImageCaptureUseCaseConfiguration.class,
-        new DefaultImageCaptureConfigurationProvider(cameraFactory));
-    configFactory.installDefaultProvider(
-        VideoCaptureUseCaseConfiguration.class,
-        new DefaultVideoCaptureConfigurationProvider(cameraFactory));
-    configFactory.installDefaultProvider(
-        ViewFinderUseCaseConfiguration.class,
-        new DefaultViewFinderConfigurationProvider(cameraFactory));
+        // Create the DeviceSurfaceManager for Camera2
+        CameraDeviceSurfaceManager surfaceManager = new Camera2DeviceSurfaceManager(context);
 
-    AppConfiguration.Builder appConfigBuilder =
-        new AppConfiguration.Builder()
-            .setCameraFactory(cameraFactory)
-            .setDeviceSurfaceManager(surfaceManager)
-            .setUseCaseConfigFactory(configFactory);
+        // Create default configuration factory
+        ExtendableUseCaseConfigFactory configFactory = new ExtendableUseCaseConfigFactory();
+        configFactory.installDefaultProvider(
+                ImageAnalysisUseCaseConfiguration.class,
+                new DefaultImageAnalysisConfigurationProvider(cameraFactory));
+        configFactory.installDefaultProvider(
+                ImageCaptureUseCaseConfiguration.class,
+                new DefaultImageCaptureConfigurationProvider(cameraFactory));
+        configFactory.installDefaultProvider(
+                VideoCaptureUseCaseConfiguration.class,
+                new DefaultVideoCaptureConfigurationProvider(cameraFactory));
+        configFactory.installDefaultProvider(
+                ViewFinderUseCaseConfiguration.class,
+                new DefaultViewFinderConfigurationProvider(cameraFactory));
 
-    return appConfigBuilder.build();
-  }
+        AppConfiguration.Builder appConfigBuilder =
+                new AppConfiguration.Builder()
+                        .setCameraFactory(cameraFactory)
+                        .setDeviceSurfaceManager(surfaceManager)
+                        .setUseCaseConfigFactory(configFactory);
 
-  private Camera2AppConfiguration() {}
+        return appConfigBuilder.build();
+    }
 }

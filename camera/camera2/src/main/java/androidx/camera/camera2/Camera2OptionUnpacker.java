@@ -19,6 +19,7 @@ package androidx.camera.camera2;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureCallbacks;
 import androidx.camera.core.CameraCaptureSessionStateCallbacks;
@@ -35,75 +36,79 @@ import androidx.camera.core.UseCaseConfiguration;
  */
 final class Camera2OptionUnpacker implements SessionConfiguration.OptionUnpacker {
 
-  static final Camera2OptionUnpacker INSTANCE = new Camera2OptionUnpacker();
+    static final Camera2OptionUnpacker INSTANCE = new Camera2OptionUnpacker();
 
-  @Override
-  public void unpack(UseCaseConfiguration<?> config, SessionConfiguration.Builder builder) {
-    SessionConfiguration defaultSessionConfig =
-        config.getDefaultSessionConfiguration(/*valueIfMissing=*/ null);
+    @Override
+    public void unpack(UseCaseConfiguration<?> config, SessionConfiguration.Builder builder) {
+        SessionConfiguration defaultSessionConfig =
+                config.getDefaultSessionConfiguration(/*valueIfMissing=*/ null);
 
-    CameraDevice.StateCallback deviceStateCallback =
-        CameraDeviceStateCallbacks.createNoOpCallback();
-    CameraCaptureSession.StateCallback sessionStateCallback =
-        CameraCaptureSessionStateCallbacks.createNoOpCallback();
-    CameraCaptureCallback cameraCaptureCallback = CameraCaptureCallbacks.createNoOpCallback();
-    Configuration implOptions = OptionsBundle.emptyBundle();
-    int templateType = SessionConfiguration.defaultEmptySessionConfiguration().getTemplateType();
+        CameraDevice.StateCallback deviceStateCallback =
+                CameraDeviceStateCallbacks.createNoOpCallback();
+        CameraCaptureSession.StateCallback sessionStateCallback =
+                CameraCaptureSessionStateCallbacks.createNoOpCallback();
+        CameraCaptureCallback cameraCaptureCallback = CameraCaptureCallbacks.createNoOpCallback();
+        Configuration implOptions = OptionsBundle.emptyBundle();
+        int templateType =
+                SessionConfiguration.defaultEmptySessionConfiguration().getTemplateType();
 
-    // Apply/extract defaults from session config
-    if (defaultSessionConfig != null) {
-      templateType = defaultSessionConfig.getTemplateType();
-      deviceStateCallback = defaultSessionConfig.getDeviceStateCallback();
-      sessionStateCallback = defaultSessionConfig.getSessionStateCallback();
-      cameraCaptureCallback = defaultSessionConfig.getCameraCaptureCallback();
-      implOptions = defaultSessionConfig.getImplementationOptions();
+        // Apply/extract defaults from session config
+        if (defaultSessionConfig != null) {
+            templateType = defaultSessionConfig.getTemplateType();
+            deviceStateCallback = defaultSessionConfig.getDeviceStateCallback();
+            sessionStateCallback = defaultSessionConfig.getSessionStateCallback();
+            cameraCaptureCallback = defaultSessionConfig.getCameraCaptureCallback();
+            implOptions = defaultSessionConfig.getImplementationOptions();
 
-      // Add all default camera characteristics
-      builder.addCharacteristics(defaultSessionConfig.getCameraCharacteristics());
+            // Add all default camera characteristics
+            builder.addCharacteristics(defaultSessionConfig.getCameraCharacteristics());
+        }
+
+        // Set the any additional implementation options
+        builder.setImplementationOptions(implOptions);
+
+        // Get Camera2 extended options
+        Camera2Configuration camera2Config = new Camera2Configuration(config);
+
+        // Apply template type
+        builder.setTemplateType(camera2Config.getCaptureRequestTemplate(templateType));
+
+        // Combine default config callbacks with extension callbacks
+        deviceStateCallback =
+                CameraDeviceStateCallbacks.createComboCallback(
+                        deviceStateCallback,
+                        camera2Config.getDeviceStateCallback(
+                                CameraDeviceStateCallbacks.createNoOpCallback()));
+        sessionStateCallback =
+                CameraCaptureSessionStateCallbacks.createComboCallback(
+                        sessionStateCallback,
+                        camera2Config.getSessionStateCallback(
+                                CameraCaptureSessionStateCallbacks.createNoOpCallback()));
+        cameraCaptureCallback =
+                CameraCaptureCallbacks.createComboCallback(
+                        cameraCaptureCallback,
+                        CaptureCallbackContainer.create(
+                                camera2Config.getSessionCaptureCallback(
+                                        Camera2CaptureSessionCaptureCallbacks
+                                                .createNoOpCallback())));
+
+        // Apply state callbacks
+        builder.setDeviceStateCallback(deviceStateCallback);
+        builder.setSessionStateCallback(sessionStateCallback);
+        builder.setCameraCaptureCallback(cameraCaptureCallback);
+
+        // Copy extension keys
+        camera2Config.findOptions(
+                Camera2Configuration.CAPTURE_REQUEST_ID_STEM,
+                option -> {
+                    @SuppressWarnings(
+                            "unchecked") // No way to get actual type info here, so treat as Object
+                            Option<Object> typeErasedOption = (Option<Object>) option;
+                    @SuppressWarnings("unchecked")
+                    CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
+
+                    builder.addCharacteristic(key, camera2Config.retrieveOption(typeErasedOption));
+                    return true;
+                });
     }
-
-    // Set the any additional implementation options
-    builder.setImplementationOptions(implOptions);
-
-    // Get Camera2 extended options
-    Camera2Configuration camera2Config = new Camera2Configuration(config);
-
-    // Apply template type
-    builder.setTemplateType(camera2Config.getCaptureRequestTemplate(templateType));
-
-    // Combine default config callbacks with extension callbacks
-    deviceStateCallback =
-        CameraDeviceStateCallbacks.createComboCallback(
-            deviceStateCallback,
-            camera2Config.getDeviceStateCallback(CameraDeviceStateCallbacks.createNoOpCallback()));
-    sessionStateCallback =
-        CameraCaptureSessionStateCallbacks.createComboCallback(
-            sessionStateCallback,
-            camera2Config.getSessionStateCallback(
-                CameraCaptureSessionStateCallbacks.createNoOpCallback()));
-    cameraCaptureCallback =
-        CameraCaptureCallbacks.createComboCallback(
-            cameraCaptureCallback,
-            CaptureCallbackContainer.create(
-                camera2Config.getSessionCaptureCallback(
-                    Camera2CaptureSessionCaptureCallbacks.createNoOpCallback())));
-
-    // Apply state callbacks
-    builder.setDeviceStateCallback(deviceStateCallback);
-    builder.setSessionStateCallback(sessionStateCallback);
-    builder.setCameraCaptureCallback(cameraCaptureCallback);
-
-    // Copy extension keys
-    camera2Config.findOptions(
-        Camera2Configuration.CAPTURE_REQUEST_ID_STEM,
-        option -> {
-          @SuppressWarnings("unchecked") // No way to get actual type info here, so treat as Object
-          Option<Object> typeErasedOption = (Option<Object>) option;
-          @SuppressWarnings("unchecked")
-          CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();
-
-          builder.addCharacteristic(key, camera2Config.retrieveOption(typeErasedOption));
-          return true;
-        });
-  }
 }

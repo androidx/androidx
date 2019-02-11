@@ -18,9 +18,12 @@ package androidx.camera.core;
 
 import android.hardware.camera2.CameraCaptureSession.StateCallback;
 import android.os.Handler;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+
 import com.google.auto.value.AutoValue;
+
 import java.util.List;
 
 /**
@@ -36,83 +39,84 @@ import java.util.List;
 @RestrictTo(Scope.LIBRARY_GROUP)
 @AutoValue
 public abstract class SurfaceConfiguration {
-  /**
-   * The Camera2 configuration type for the surface.
-   *
-   * <p>These are the enumerations defined in {@link
-   * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
-   */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public enum ConfigurationType {
-    PRIV,
-    YUV,
-    JPEG,
-    RAW
-  }
-
-  /**
-   * The Camera2 stream sizes for the surface.
-   *
-   * <p>These are the enumerations defined in {@link
-   * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
-   */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public enum ConfigurationSize {
-    /** Default AYALYSIS size is 640x480. */
-    ANALYSIS(0),
-    /**
-     * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
-     * (1920x1080), whichever is smaller.
-     */
-    PREVIEW(1),
-    /**
-     * RECORD refers to the camera device's maximum supported recording resolution, as determined by
-     * CamcorderProfile.
-     */
-    RECORD(2),
-    /**
-     * MAXIMUM refers to the camera device's maximum output resolution for that format or target
-     * from StreamConfigurationMap.getOutputSizes(int)
-     */
-    MAXIMUM(3),
-    /** NOT_SUPPORT is for the size larger than MAXIMUM */
-    NOT_SUPPORT(4);
-
-    private final int id;
-
-    ConfigurationSize(int id) {
-      this.id = id;
+    /** Prevent sublcassing */
+    SurfaceConfiguration() {
     }
-  }
 
-  public static SurfaceConfiguration create(ConfigurationType type, ConfigurationSize size) {
-    return new AutoValue_SurfaceConfiguration(type, size);
-  }
-
-  public abstract ConfigurationType getConfigurationType();
-
-  public abstract ConfigurationSize getConfigurationSize();
-
-  /**
-   * Check whether the input surface configuration has a smaller size than this object and can be
-   * supported
-   *
-   * @param surfaceConfiguration the surface configuration to be compared
-   * @return the check result that whether it could be supported
-   */
-  public final boolean isSupported(SurfaceConfiguration surfaceConfiguration) {
-    boolean isSupported = false;
-    ConfigurationType configurationType = surfaceConfiguration.getConfigurationType();
-    ConfigurationSize configurationSize = surfaceConfiguration.getConfigurationSize();
-
-    // Check size and type to make sure it could be supported
-    if (configurationSize.id <= getConfigurationSize().id
-        && configurationType == getConfigurationType()) {
-      isSupported = true;
+    public static SurfaceConfiguration create(ConfigurationType type, ConfigurationSize size) {
+        return new AutoValue_SurfaceConfiguration(type, size);
     }
-    return isSupported;
-  }
 
-  /** Prevent sublcassing */
-  SurfaceConfiguration() {}
+    public abstract ConfigurationType getConfigurationType();
+
+    public abstract ConfigurationSize getConfigurationSize();
+
+    /**
+     * Check whether the input surface configuration has a smaller size than this object and can be
+     * supported
+     *
+     * @param surfaceConfiguration the surface configuration to be compared
+     * @return the check result that whether it could be supported
+     */
+    public final boolean isSupported(SurfaceConfiguration surfaceConfiguration) {
+        boolean isSupported = false;
+        ConfigurationType configurationType = surfaceConfiguration.getConfigurationType();
+        ConfigurationSize configurationSize = surfaceConfiguration.getConfigurationSize();
+
+        // Check size and type to make sure it could be supported
+        if (configurationSize.id <= getConfigurationSize().id
+                && configurationType == getConfigurationType()) {
+            isSupported = true;
+        }
+        return isSupported;
+    }
+
+    /**
+     * The Camera2 configuration type for the surface.
+     *
+     * <p>These are the enumerations defined in {@link
+     * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public enum ConfigurationType {
+        PRIV,
+        YUV,
+        JPEG,
+        RAW
+    }
+
+    /**
+     * The Camera2 stream sizes for the surface.
+     *
+     * <p>These are the enumerations defined in {@link
+     * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public enum ConfigurationSize {
+        /** Default AYALYSIS size is 640x480. */
+        ANALYSIS(0),
+        /**
+         * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
+         * (1920x1080), whichever is smaller.
+         */
+        PREVIEW(1),
+        /**
+         * RECORD refers to the camera device's maximum supported recording resolution, as
+         * determined by CamcorderProfile.
+         */
+        RECORD(2),
+        /**
+         * MAXIMUM refers to the camera device's maximum output resolution for that format or target
+         * from StreamConfigurationMap.getOutputSizes(int)
+         */
+        MAXIMUM(3),
+        /** NOT_SUPPORT is for the size larger than MAXIMUM */
+        NOT_SUPPORT(4);
+
+        private final int id;
+
+        ConfigurationSize(int id) {
+            this.id = id;
+        }
+    }
 }

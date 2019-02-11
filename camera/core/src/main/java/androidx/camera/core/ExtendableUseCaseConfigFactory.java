@@ -19,6 +19,7 @@ package androidx.camera.core;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,27 +31,27 @@ import java.util.Map;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class ExtendableUseCaseConfigFactory implements UseCaseConfigurationFactory {
-  private final Map<Class<?>, ConfigurationProvider<?>> defaultProviders = new HashMap<>();
+    private final Map<Class<?>, ConfigurationProvider<?>> defaultProviders = new HashMap<>();
 
-  /**
-   * Inserts or overrides the {@link androidx.camera.core.ConfigurationProvider} for the given
-   * config type.
-   */
-  public <C extends Configuration> void installDefaultProvider(
-      Class<C> configType, ConfigurationProvider<C> defaultProvider) {
-    defaultProviders.put(configType, defaultProvider);
-  }
-
-  @Nullable
-  @Override
-  public <C extends UseCaseConfiguration<?>> C getConfiguration(Class<C> configType) {
-    @SuppressWarnings(
-        "unchecked") // Providers only could have been inserted with installDefaultProvider(), so
-    // the class should return the correct type.
-    ConfigurationProvider<C> provider = (ConfigurationProvider<C>) defaultProviders.get(configType);
-    if (provider != null) {
-      return provider.getConfiguration();
+    /**
+     * Inserts or overrides the {@link androidx.camera.core.ConfigurationProvider} for the given
+     * config type.
+     */
+    public <C extends Configuration> void installDefaultProvider(
+            Class<C> configType, ConfigurationProvider<C> defaultProvider) {
+        defaultProviders.put(configType, defaultProvider);
     }
-    return null;
-  }
+
+    @Nullable
+    @Override
+    public <C extends UseCaseConfiguration<?>> C getConfiguration(Class<C> configType) {
+        @SuppressWarnings("unchecked") // Providers only could have been inserted with
+                // installDefaultProvider(), so the class should return the correct type.
+                ConfigurationProvider<C> provider =
+                (ConfigurationProvider<C>) defaultProviders.get(configType);
+        if (provider != null) {
+            return provider.getConfiguration();
+        }
+        return null;
+    }
 }

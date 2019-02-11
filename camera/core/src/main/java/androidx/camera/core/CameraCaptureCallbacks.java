@@ -19,6 +19,7 @@ package androidx.camera.core;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,64 +31,67 @@ import java.util.List;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraCaptureCallbacks {
-  /** Returns a camera capture callback which does nothing. */
-  public static CameraCaptureCallback createNoOpCallback() {
-    return new NoOpCameraCaptureCallback();
-  }
+    private CameraCaptureCallbacks() {
+    }
 
-  /** Returns a camera capture callback which calls a list of other callbacks. */
-  static CameraCaptureCallback createComboCallback(List<CameraCaptureCallback> callbacks) {
-    return new ComboCameraCaptureCallback(callbacks);
-  }
+    /** Returns a camera capture callback which does nothing. */
+    public static CameraCaptureCallback createNoOpCallback() {
+        return new NoOpCameraCaptureCallback();
+    }
 
-  /** Returns a camera capture callback which calls a list of other callbacks. */
-  public static CameraCaptureCallback createComboCallback(CameraCaptureCallback... callbacks) {
-    return createComboCallback(Arrays.asList(callbacks));
-  }
+    /** Returns a camera capture callback which calls a list of other callbacks. */
+    static CameraCaptureCallback createComboCallback(List<CameraCaptureCallback> callbacks) {
+        return new ComboCameraCaptureCallback(callbacks);
+    }
 
-  private static final class NoOpCameraCaptureCallback extends CameraCaptureCallback {
-    @Override
-    public void onCaptureCompleted(CameraCaptureResult cameraCaptureResult) {}
+    /** Returns a camera capture callback which calls a list of other callbacks. */
+    public static CameraCaptureCallback createComboCallback(CameraCaptureCallback... callbacks) {
+        return createComboCallback(Arrays.asList(callbacks));
+    }
 
-    @Override
-    public void onCaptureFailed(CameraCaptureFailure failure) {}
-  }
-
-  /**
-   * A CameraCaptureCallback which contains a list of CameraCaptureCallback and will propagate
-   * received callback to the list.
-   */
-  public static final class ComboCameraCaptureCallback extends CameraCaptureCallback {
-    private final List<CameraCaptureCallback> callbacks = new ArrayList<>();
-
-    private ComboCameraCaptureCallback(List<CameraCaptureCallback> callbacks) {
-      for (CameraCaptureCallback callback : callbacks) {
-        // A no-op callback doesn't do anything, so avoid adding it to the final list.
-        if (!(callback instanceof NoOpCameraCaptureCallback)) {
-          this.callbacks.add(callback);
+    private static final class NoOpCameraCaptureCallback extends CameraCaptureCallback {
+        @Override
+        public void onCaptureCompleted(CameraCaptureResult cameraCaptureResult) {
         }
-      }
+
+        @Override
+        public void onCaptureFailed(CameraCaptureFailure failure) {
+        }
     }
 
-    @Override
-    public void onCaptureCompleted(CameraCaptureResult result) {
-      for (CameraCaptureCallback callback : callbacks) {
-        callback.onCaptureCompleted(result);
-      }
-    }
+    /**
+     * A CameraCaptureCallback which contains a list of CameraCaptureCallback and will propagate
+     * received callback to the list.
+     */
+    public static final class ComboCameraCaptureCallback extends CameraCaptureCallback {
+        private final List<CameraCaptureCallback> callbacks = new ArrayList<>();
 
-    @Override
-    public void onCaptureFailed(CameraCaptureFailure failure) {
-      for (CameraCaptureCallback callback : callbacks) {
-        callback.onCaptureFailed(failure);
-      }
-    }
+        private ComboCameraCaptureCallback(List<CameraCaptureCallback> callbacks) {
+            for (CameraCaptureCallback callback : callbacks) {
+                // A no-op callback doesn't do anything, so avoid adding it to the final list.
+                if (!(callback instanceof NoOpCameraCaptureCallback)) {
+                    this.callbacks.add(callback);
+                }
+            }
+        }
 
-    @NonNull
-    public List<CameraCaptureCallback> getCallbacks() {
-      return callbacks;
-    }
-  }
+        @Override
+        public void onCaptureCompleted(CameraCaptureResult result) {
+            for (CameraCaptureCallback callback : callbacks) {
+                callback.onCaptureCompleted(result);
+            }
+        }
 
-  private CameraCaptureCallbacks() {}
+        @Override
+        public void onCaptureFailed(CameraCaptureFailure failure) {
+            for (CameraCaptureCallback callback : callbacks) {
+                callback.onCaptureFailed(failure);
+            }
+        }
+
+        @NonNull
+        public List<CameraCaptureCallback> getCallbacks() {
+            return callbacks;
+        }
+    }
 }

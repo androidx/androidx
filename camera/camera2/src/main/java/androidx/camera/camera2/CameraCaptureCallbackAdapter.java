@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureFailure;
@@ -30,35 +31,35 @@ import androidx.camera.core.CameraCaptureFailure;
  */
 final class CameraCaptureCallbackAdapter extends CameraCaptureSession.CaptureCallback {
 
-  private final CameraCaptureCallback cameraCaptureCallback;
+    private final CameraCaptureCallback cameraCaptureCallback;
 
-  CameraCaptureCallbackAdapter(CameraCaptureCallback cameraCaptureCallback) {
-    if (cameraCaptureCallback == null) {
-      throw new NullPointerException("cameraCaptureCallback is null");
+    CameraCaptureCallbackAdapter(CameraCaptureCallback cameraCaptureCallback) {
+        if (cameraCaptureCallback == null) {
+            throw new NullPointerException("cameraCaptureCallback is null");
+        }
+        this.cameraCaptureCallback = cameraCaptureCallback;
     }
-    this.cameraCaptureCallback = cameraCaptureCallback;
-  }
 
-  @Override
-  public void onCaptureCompleted(
-      @NonNull CameraCaptureSession session,
-      @NonNull CaptureRequest request,
-      @NonNull TotalCaptureResult result) {
-    super.onCaptureCompleted(session, request, result);
+    @Override
+    public void onCaptureCompleted(
+            @NonNull CameraCaptureSession session,
+            @NonNull CaptureRequest request,
+            @NonNull TotalCaptureResult result) {
+        super.onCaptureCompleted(session, request, result);
 
-    cameraCaptureCallback.onCaptureCompleted(new Camera2CameraCaptureResult(result));
-  }
+        cameraCaptureCallback.onCaptureCompleted(new Camera2CameraCaptureResult(result));
+    }
 
-  @Override
-  public void onCaptureFailed(
-      @NonNull CameraCaptureSession session,
-      @NonNull CaptureRequest request,
-      @NonNull CaptureFailure failure) {
-    super.onCaptureFailed(session, request, failure);
+    @Override
+    public void onCaptureFailed(
+            @NonNull CameraCaptureSession session,
+            @NonNull CaptureRequest request,
+            @NonNull CaptureFailure failure) {
+        super.onCaptureFailed(session, request, failure);
 
-    CameraCaptureFailure cameraFailure =
-        new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR);
+        CameraCaptureFailure cameraFailure =
+                new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR);
 
-    cameraCaptureCallback.onCaptureFailed(cameraFailure);
-  }
+        cameraCaptureCallback.onCaptureFailed(cameraFailure);
+    }
 }

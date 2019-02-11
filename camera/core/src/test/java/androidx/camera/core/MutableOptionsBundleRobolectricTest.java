@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.camera.core.Configuration.Option;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -28,52 +29,52 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 public class MutableOptionsBundleRobolectricTest {
 
-  private static final Option<Object> OPTION_1 = Option.create("option.1", Object.class);
-  private static final Option<Object> OPTION_1_A = Option.create("option.1.a", Object.class);
-  private static final Option<Object> OPTION_2 = Option.create("option.2", Object.class);
+    private static final Option<Object> OPTION_1 = Option.create("option.1", Object.class);
+    private static final Option<Object> OPTION_1_A = Option.create("option.1.a", Object.class);
+    private static final Option<Object> OPTION_2 = Option.create("option.2", Object.class);
 
-  private static final Object VALUE_1 = new Object();
-  private static final Object VALUE_1_A = new Object();
-  private static final Object VALUE_2 = new Object();
-  private static final Object VALUE_MISSING = new Object();
+    private static final Object VALUE_1 = new Object();
+    private static final Object VALUE_1_A = new Object();
+    private static final Object VALUE_2 = new Object();
+    private static final Object VALUE_MISSING = new Object();
 
-  @Test
-  public void canCreateEmptyBundle() {
-    MutableOptionsBundle bundle = MutableOptionsBundle.create();
-    assertThat(bundle).isNotNull();
-  }
+    @Test
+    public void canCreateEmptyBundle() {
+        MutableOptionsBundle bundle = MutableOptionsBundle.create();
+        assertThat(bundle).isNotNull();
+    }
 
-  @Test
-  public void canAddValue() {
-    MutableOptionsBundle bundle = MutableOptionsBundle.create();
-    bundle.insertOption(OPTION_1, VALUE_1);
+    @Test
+    public void canAddValue() {
+        MutableOptionsBundle bundle = MutableOptionsBundle.create();
+        bundle.insertOption(OPTION_1, VALUE_1);
 
-    assertThat(bundle.retrieveOption(OPTION_1, VALUE_MISSING)).isSameAs(VALUE_1);
-  }
+        assertThat(bundle.retrieveOption(OPTION_1, VALUE_MISSING)).isSameAs(VALUE_1);
+    }
 
-  @Test
-  public void canRemoveValue() {
-    MutableOptionsBundle bundle = MutableOptionsBundle.create();
-    bundle.insertOption(OPTION_1, VALUE_1);
-    bundle.removeOption(OPTION_1);
+    @Test
+    public void canRemoveValue() {
+        MutableOptionsBundle bundle = MutableOptionsBundle.create();
+        bundle.insertOption(OPTION_1, VALUE_1);
+        bundle.removeOption(OPTION_1);
 
-    assertThat(bundle.retrieveOption(OPTION_1, VALUE_MISSING)).isSameAs(VALUE_MISSING);
-  }
+        assertThat(bundle.retrieveOption(OPTION_1, VALUE_MISSING)).isSameAs(VALUE_MISSING);
+    }
 
-  @Test
-  public void canCreateFromConfiguration_andAddMore() {
-    MutableOptionsBundle mutOpts = MutableOptionsBundle.create();
-    mutOpts.insertOption(OPTION_1, VALUE_1);
-    mutOpts.insertOption(OPTION_1_A, VALUE_1_A);
+    @Test
+    public void canCreateFromConfiguration_andAddMore() {
+        MutableOptionsBundle mutOpts = MutableOptionsBundle.create();
+        mutOpts.insertOption(OPTION_1, VALUE_1);
+        mutOpts.insertOption(OPTION_1_A, VALUE_1_A);
 
-    Configuration config = OptionsBundle.from(mutOpts);
+        Configuration config = OptionsBundle.from(mutOpts);
 
-    MutableOptionsBundle mutOpts2 = MutableOptionsBundle.from(config);
-    mutOpts2.insertOption(OPTION_2, VALUE_2);
+        MutableOptionsBundle mutOpts2 = MutableOptionsBundle.from(config);
+        mutOpts2.insertOption(OPTION_2, VALUE_2);
 
-    Configuration config2 = OptionsBundle.from(mutOpts2);
+        Configuration config2 = OptionsBundle.from(mutOpts2);
 
-    assertThat(config.listOptions()).containsExactly(OPTION_1, OPTION_1_A);
-    assertThat(config2.listOptions()).containsExactly(OPTION_1, OPTION_1_A, OPTION_2);
-  }
+        assertThat(config.listOptions()).containsExactly(OPTION_1, OPTION_1_A);
+        assertThat(config2.listOptions()).containsExactly(OPTION_1, OPTION_1_A, OPTION_2);
+    }
 }

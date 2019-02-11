@@ -18,6 +18,7 @@ package androidx.camera.camera2;
 
 import android.hardware.camera2.CameraDevice;
 import android.util.Log;
+
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ConfigurationProvider;
@@ -27,44 +28,44 @@ import androidx.camera.core.ViewFinderUseCaseConfiguration;
 
 /** Provides defaults for {@link ViewFinderUseCaseConfiguration} in the Camera2 implementation. */
 final class DefaultViewFinderConfigurationProvider
-    implements ConfigurationProvider<ViewFinderUseCaseConfiguration> {
-  private static final String TAG = "DefaultViewFinderConfigurationProvider";
+        implements ConfigurationProvider<ViewFinderUseCaseConfiguration> {
+    private static final String TAG = "DefaultViewFinderConfigurationProvider";
 
-  private final CameraFactory cameraFactory;
+    private final CameraFactory cameraFactory;
 
-  public DefaultViewFinderConfigurationProvider(CameraFactory cameraFactory) {
-    this.cameraFactory = cameraFactory;
-  }
-
-  @Override
-  public ViewFinderUseCaseConfiguration getConfiguration() {
-    ViewFinderUseCaseConfiguration.Builder builder =
-        ViewFinderUseCaseConfiguration.Builder.fromConfig(
-            ViewFinderUseCase.DEFAULT_CONFIG.getConfiguration());
-
-    // SessionConfiguration containing all intrinsic properties needed for ViewFinderUseCase
-    SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
-    sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-
-    // Add options to UseCaseConfiguration
-    builder.setDefaultSessionConfiguration(sessionBuilder.build());
-    builder.setOptionUnpacker(Camera2OptionUnpacker.INSTANCE);
-
-    // Add default lensFacing if we can
-    try {
-      String defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
-      if (defaultId != null) {
-        builder.setLensFacing(LensFacing.BACK);
-      } else {
-        defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
-        if (defaultId != null) {
-          builder.setLensFacing(LensFacing.FRONT);
-        }
-      }
-    } catch (Exception e) {
-      Log.w(TAG, "Unable to determine default lens facing for ViewFinderUseCase.", e);
+    public DefaultViewFinderConfigurationProvider(CameraFactory cameraFactory) {
+        this.cameraFactory = cameraFactory;
     }
 
-    return builder.build();
-  }
+    @Override
+    public ViewFinderUseCaseConfiguration getConfiguration() {
+        ViewFinderUseCaseConfiguration.Builder builder =
+                ViewFinderUseCaseConfiguration.Builder.fromConfig(
+                        ViewFinderUseCase.DEFAULT_CONFIG.getConfiguration());
+
+        // SessionConfiguration containing all intrinsic properties needed for ViewFinderUseCase
+        SessionConfiguration.Builder sessionBuilder = new SessionConfiguration.Builder();
+        sessionBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
+
+        // Add options to UseCaseConfiguration
+        builder.setDefaultSessionConfiguration(sessionBuilder.build());
+        builder.setOptionUnpacker(Camera2OptionUnpacker.INSTANCE);
+
+        // Add default lensFacing if we can
+        try {
+            String defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            if (defaultId != null) {
+                builder.setLensFacing(LensFacing.BACK);
+            } else {
+                defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
+                if (defaultId != null) {
+                    builder.setLensFacing(LensFacing.FRONT);
+                }
+            }
+        } catch (Exception e) {
+            Log.w(TAG, "Unable to determine default lens facing for ViewFinderUseCase.", e);
+        }
+
+        return builder.build();
+    }
 }

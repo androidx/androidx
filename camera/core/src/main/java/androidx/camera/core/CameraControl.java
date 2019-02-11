@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import android.graphics.Rect;
 import android.os.Handler;
+
 import androidx.annotation.Nullable;
 
 /**
@@ -34,129 +35,137 @@ import androidx.annotation.Nullable;
  * @hide
  */
 public interface CameraControl {
-  /**
-   * Set the desired crop region of the sensor to read out for all capture requests.
-   *
-   * <p>This crop region can be used to implement digital zoom. It is applied to every single and re
-   * peating requests.
-   *
-   * @param crop rectangle with dimensions in sensor pixel coordinate.
-   */
-  void setCropRegion(Rect crop);
+    static CameraControl defaultEmptyInstance() {
+        return new CameraControl() {
+            @Override
+            public void setCropRegion(Rect crop) {
+            }
 
-  /**
-   * Adjusts the camera output according to the properties in some local regions with a callback
-   * called once focus scan has completed.
-   *
-   * <p>The auto-focus (AF), auto-exposure (AE) and auto-whitebalance (AWB) properties will be
-   * recalculated from the local regions.
-   *
-   * @param focus rectangle with dimensions in sensor coordinate frame for focus
-   * @param metering rectangle with dimensions in sensor coordinate frame for metering
-   * @param listener listener for when focus has completed
-   * @param handler the handler where the listener will execute.
-   */
-  void focus(
-      Rect focus,
-      Rect metering,
-      @Nullable OnFocusCompletedListener listener,
-      @Nullable Handler handler);
+            @Override
+            public void focus(
+                    Rect focus,
+                    Rect metering,
+                    @Nullable OnFocusCompletedListener listener,
+                    @Nullable Handler handler) {
+            }
 
-  default void focus(Rect focus, Rect metering) {
-    focus(focus, metering, null, null);
-  }
+            @Override
+            public FlashMode getFlashMode() {
+                return null;
+            }
 
-  /**
-   * Sets current flash mode
-   *
-   * @param flashMode the {@link FlashMode}.
-   */
-  void setFlashMode(FlashMode flashMode);
+            @Override
+            public void setFlashMode(FlashMode flashMode) {
+            }
 
-  FlashMode getFlashMode();
+            @Override
+            public void enableTorch(boolean torch) {
+            }
 
-  /**
-   * Enable the torch or disable the torch
-   *
-   * @param torch true to open the torch, false to close it.
-   */
-  void enableTorch(boolean torch);
+            @Override
+            public boolean isTorchOn() {
+                return false;
+            }
 
-  /** Returns if current torch is enabled or not. */
-  boolean isTorchOn();
+            @Override
+            public boolean isFocusLocked() {
+                return false;
+            }
 
-  boolean isFocusLocked();
+            @Override
+            public void triggerAf() {
+            }
 
-  /** Performs a AF trigger. */
-  void triggerAf();
+            @Override
+            public void triggerAePrecapture() {
+            }
 
-  /** Performs a AE Precapture trigger. */
-  void triggerAePrecapture();
+            @Override
+            public void cancelAfAeTrigger(
+                    boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
+            }
 
-  /** Cancel AF trigger AND/OR AE Precapture trigger.* */
-  void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger);
+            @Override
+            public SessionConfiguration getControlSessionConfiguration() {
+                return SessionConfiguration.defaultEmptySessionConfiguration();
+            }
 
-  /**
-   * Hooks a SessionConfiguration into the final SessionConfiguration ValidatingBuilder.
-   * CameraControl can modify SessionConfiguration to add implementation options or add a listener
-   * to check the capture result.
-   */
-  SessionConfiguration getControlSessionConfiguration();
+            @Override
+            public Configuration getSingleRequestImplOptions() {
+                return OptionsBundle.emptyBundle();
+            }
+        };
+    }
 
-  /** Attaches the common request implementation options to every SINGLE requests. */
-  Configuration getSingleRequestImplOptions();
+    /**
+     * Set the desired crop region of the sensor to read out for all capture requests.
+     *
+     * <p>This crop region can be used to implement digital zoom. It is applied to every single and
+     * re peating requests.
+     *
+     * @param crop rectangle with dimensions in sensor pixel coordinate.
+     */
+    void setCropRegion(Rect crop);
 
-  static CameraControl defaultEmptyInstance() {
-    return new CameraControl() {
-      @Override
-      public void setCropRegion(Rect crop) {}
+    /**
+     * Adjusts the camera output according to the properties in some local regions with a callback
+     * called once focus scan has completed.
+     *
+     * <p>The auto-focus (AF), auto-exposure (AE) and auto-whitebalance (AWB) properties will be
+     * recalculated from the local regions.
+     *
+     * @param focus    rectangle with dimensions in sensor coordinate frame for focus
+     * @param metering rectangle with dimensions in sensor coordinate frame for metering
+     * @param listener listener for when focus has completed
+     * @param handler  the handler where the listener will execute.
+     */
+    void focus(
+            Rect focus,
+            Rect metering,
+            @Nullable OnFocusCompletedListener listener,
+            @Nullable Handler handler);
 
-      @Override
-      public void focus(
-          Rect focus,
-          Rect metering,
-          @Nullable OnFocusCompletedListener listener,
-          @Nullable Handler handler) {}
+    default void focus(Rect focus, Rect metering) {
+        focus(focus, metering, null, null);
+    }
 
-      @Override
-      public void setFlashMode(FlashMode flashMode) {}
+    FlashMode getFlashMode();
 
-      @Override
-      public FlashMode getFlashMode() {
-        return null;
-      }
+    /**
+     * Sets current flash mode
+     *
+     * @param flashMode the {@link FlashMode}.
+     */
+    void setFlashMode(FlashMode flashMode);
 
-      @Override
-      public void enableTorch(boolean torch) {}
+    /**
+     * Enable the torch or disable the torch
+     *
+     * @param torch true to open the torch, false to close it.
+     */
+    void enableTorch(boolean torch);
 
-      @Override
-      public boolean isTorchOn() {
-        return false;
-      }
+    /** Returns if current torch is enabled or not. */
+    boolean isTorchOn();
 
-      @Override
-      public boolean isFocusLocked() {
-        return false;
-      }
+    boolean isFocusLocked();
 
-      @Override
-      public void triggerAf() {}
+    /** Performs a AF trigger. */
+    void triggerAf();
 
-      @Override
-      public void triggerAePrecapture() {}
+    /** Performs a AE Precapture trigger. */
+    void triggerAePrecapture();
 
-      @Override
-      public void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {}
+    /** Cancel AF trigger AND/OR AE Precapture trigger.* */
+    void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger);
 
-      @Override
-      public SessionConfiguration getControlSessionConfiguration() {
-        return SessionConfiguration.defaultEmptySessionConfiguration();
-      }
+    /**
+     * Hooks a SessionConfiguration into the final SessionConfiguration ValidatingBuilder.
+     * CameraControl can modify SessionConfiguration to add implementation options or add a listener
+     * to check the capture result.
+     */
+    SessionConfiguration getControlSessionConfiguration();
 
-      @Override
-      public Configuration getSingleRequestImplOptions() {
-        return OptionsBundle.emptyBundle();
-      }
-    };
-  }
+    /** Attaches the common request implementation options to every SINGLE requests. */
+    Configuration getSingleRequestImplOptions();
 }

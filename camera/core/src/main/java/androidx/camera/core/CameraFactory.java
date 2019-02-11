@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraX.LensFacing;
+
 import java.util.Set;
 
 /**
@@ -27,10 +28,10 @@ import java.util.Set;
  */
 public interface CameraFactory {
 
-  BaseCamera getCamera(String cameraId);
+    BaseCamera getCamera(String cameraId);
 
-  Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException;
+    Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException;
 
-  @Nullable
-  String cameraIdForLensFacing(LensFacing lensFacing) throws CameraInfoUnavailableException;
+    @Nullable
+    String cameraIdForLensFacing(LensFacing lensFacing) throws CameraInfoUnavailableException;
 }

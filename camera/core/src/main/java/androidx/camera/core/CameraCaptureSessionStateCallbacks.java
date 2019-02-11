@@ -17,9 +17,11 @@
 package androidx.camera.core;
 
 import android.hardware.camera2.CameraCaptureSession;
+import android.view.Surface;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.view.Surface;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,110 +33,119 @@ import java.util.List;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraCaptureSessionStateCallbacks {
-  /** Returns a session state callback which does nothing. */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public static CameraCaptureSession.StateCallback createNoOpCallback() {
-    return new NoOpSessionStateCallback();
-  }
+    private CameraCaptureSessionStateCallbacks() {
+    }
 
-  /** Returns a session state callback which calls a list of other callbacks. */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public static CameraCaptureSession.StateCallback createComboCallback(
-      List<CameraCaptureSession.StateCallback> callbacks) {
-    return new ComboSessionStateCallback(callbacks);
-  }
+    /** Returns a session state callback which does nothing. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static CameraCaptureSession.StateCallback createNoOpCallback() {
+        return new NoOpSessionStateCallback();
+    }
 
-  /** Returns a session state callback which calls a list of other callbacks. */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public static CameraCaptureSession.StateCallback createComboCallback(
-      CameraCaptureSession.StateCallback... callbacks) {
-    return createComboCallback(Arrays.asList(callbacks));
-  }
+    /** Returns a session state callback which calls a list of other callbacks. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static CameraCaptureSession.StateCallback createComboCallback(
+            List<CameraCaptureSession.StateCallback> callbacks) {
+        return new ComboSessionStateCallback(callbacks);
+    }
 
-  private static final class NoOpSessionStateCallback extends CameraCaptureSession.StateCallback {
-    @Override
-    public void onConfigured(CameraCaptureSession session) {}
+    /** Returns a session state callback which calls a list of other callbacks. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static CameraCaptureSession.StateCallback createComboCallback(
+            CameraCaptureSession.StateCallback... callbacks) {
+        return createComboCallback(Arrays.asList(callbacks));
+    }
 
-    @Override
-    public void onActive(CameraCaptureSession session) {}
-
-    @Override
-    public void onClosed(CameraCaptureSession session) {}
-
-    @Override
-    public void onReady(CameraCaptureSession session) {}
-
-    @Override
-    public void onCaptureQueueEmpty(CameraCaptureSession session) {}
-
-    @Override
-    public void onSurfacePrepared(CameraCaptureSession session, Surface surface) {}
-
-    @Override
-    public void onConfigureFailed(CameraCaptureSession session) {}
-  }
-
-  private static final class ComboSessionStateCallback extends CameraCaptureSession.StateCallback {
-    private final List<CameraCaptureSession.StateCallback> callbacks = new ArrayList<>();
-
-    private ComboSessionStateCallback(List<CameraCaptureSession.StateCallback> callbacks) {
-      for (CameraCaptureSession.StateCallback callback : callbacks) {
-        // A no-op callback doesn't do anything, so avoid adding it to the final list.
-        if (!(callback instanceof NoOpSessionStateCallback)) {
-          this.callbacks.add(callback);
+    private static final class NoOpSessionStateCallback extends CameraCaptureSession.StateCallback {
+        @Override
+        public void onConfigured(CameraCaptureSession session) {
         }
-      }
+
+        @Override
+        public void onActive(CameraCaptureSession session) {
+        }
+
+        @Override
+        public void onClosed(CameraCaptureSession session) {
+        }
+
+        @Override
+        public void onReady(CameraCaptureSession session) {
+        }
+
+        @Override
+        public void onCaptureQueueEmpty(CameraCaptureSession session) {
+        }
+
+        @Override
+        public void onSurfacePrepared(CameraCaptureSession session, Surface surface) {
+        }
+
+        @Override
+        public void onConfigureFailed(CameraCaptureSession session) {
+        }
     }
 
-    @Override
-    public void onConfigured(CameraCaptureSession session) {
-      for (CameraCaptureSession.StateCallback callback : callbacks) {
-        callback.onConfigured(session);
-      }
-    }
+    private static final class ComboSessionStateCallback
+            extends CameraCaptureSession.StateCallback {
+        private final List<CameraCaptureSession.StateCallback> callbacks = new ArrayList<>();
 
-    @Override
-    public void onActive(CameraCaptureSession session) {
-      for (CameraCaptureSession.StateCallback callback : callbacks) {
-        callback.onActive(session);
-      }
-    }
+        private ComboSessionStateCallback(List<CameraCaptureSession.StateCallback> callbacks) {
+            for (CameraCaptureSession.StateCallback callback : callbacks) {
+                // A no-op callback doesn't do anything, so avoid adding it to the final list.
+                if (!(callback instanceof NoOpSessionStateCallback)) {
+                    this.callbacks.add(callback);
+                }
+            }
+        }
 
-    @Override
-    public void onClosed(CameraCaptureSession session) {
-      for (CameraCaptureSession.StateCallback callback : callbacks) {
-        callback.onClosed(session);
-      }
-    }
+        @Override
+        public void onConfigured(CameraCaptureSession session) {
+            for (CameraCaptureSession.StateCallback callback : callbacks) {
+                callback.onConfigured(session);
+            }
+        }
 
-    @Override
-    public void onReady(CameraCaptureSession session) {
-      for (CameraCaptureSession.StateCallback callback : callbacks) {
-        callback.onReady(session);
-      }
-    }
+        @Override
+        public void onActive(CameraCaptureSession session) {
+            for (CameraCaptureSession.StateCallback callback : callbacks) {
+                callback.onActive(session);
+            }
+        }
 
-    @Override
-    public void onCaptureQueueEmpty(CameraCaptureSession session) {
-      for (CameraCaptureSession.StateCallback callback : callbacks) {
-        callback.onCaptureQueueEmpty(session);
-      }
-    }
+        @Override
+        public void onClosed(CameraCaptureSession session) {
+            for (CameraCaptureSession.StateCallback callback : callbacks) {
+                callback.onClosed(session);
+            }
+        }
 
-    @Override
-    public void onSurfacePrepared(CameraCaptureSession session, Surface surface) {
-      for (CameraCaptureSession.StateCallback callback : callbacks) {
-        callback.onSurfacePrepared(session, surface);
-      }
-    }
+        @Override
+        public void onReady(CameraCaptureSession session) {
+            for (CameraCaptureSession.StateCallback callback : callbacks) {
+                callback.onReady(session);
+            }
+        }
 
-    @Override
-    public void onConfigureFailed(CameraCaptureSession session) {
-      for (CameraCaptureSession.StateCallback callback : callbacks) {
-        callback.onConfigureFailed(session);
-      }
-    }
-  }
+        @Override
+        public void onCaptureQueueEmpty(CameraCaptureSession session) {
+            for (CameraCaptureSession.StateCallback callback : callbacks) {
+                callback.onCaptureQueueEmpty(session);
+            }
+        }
 
-  private CameraCaptureSessionStateCallbacks() {}
+        @Override
+        public void onSurfacePrepared(CameraCaptureSession session, Surface surface) {
+            for (CameraCaptureSession.StateCallback callback : callbacks) {
+                callback.onSurfacePrepared(session, surface);
+            }
+        }
+
+        @Override
+        public void onConfigureFailed(CameraCaptureSession session) {
+            for (CameraCaptureSession.StateCallback callback : callbacks) {
+                callback.onConfigureFailed(session);
+            }
+        }
+    }
 }

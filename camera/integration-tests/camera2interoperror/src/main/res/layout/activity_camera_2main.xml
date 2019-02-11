@@ -22,78 +22,78 @@ limitations under the License.
     android:layout_height="match_parent"
     tools:context="androidx.camera.app.camera2interoperror.CameraXInteropErrorActivity">
 
-  <TextureView
-      android:id="@+id/textureView"
-      android:layout_width="0dp"
-      android:layout_height="0dp"
-      app:layout_constraintBottom_toBottomOf="parent"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintStart_toStartOf="parent"/>
+    <TextureView
+        android:id="@+id/textureView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-  <TextView
-      android:id="@+id/textView"
-      android:elevation="2dp"
-      android:layout_width="0dp"
-      android:layout_height="0dp"
-      android:background="#FFF"
-      android:src="@android:drawable/btn_radio"
-      app:layout_constraintBottom_toBottomOf="parent"
-      android:scaleType="fitXY"
-      app:layout_constraintDimensionRatio="4:3"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="1.0"
-      app:layout_constraintStart_toStartOf="@+id/guideline"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0.84000003"/>
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#FFF"
+        android:elevation="2dp"
+        android:scaleType="fitXY"
+        android:src="@android:drawable/btn_radio"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="4:3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.84000003" />
 
-  <android.support.constraint.Guideline
-      android:id="@+id/guideline"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-      app:layout_constraintGuide_begin="0dp"
-      app:layout_constraintGuide_percent="0.7"/>
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="0dp"
+        app:layout_constraintGuide_percent="0.7" />
 
-  <android.support.constraint.Guideline
-      android:id="@+id/selecterror"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-      app:layout_constraintGuide_begin="0dp"
-      app:layout_constraintGuide_percent="0.1"/>
+    <android.support.constraint.Guideline
+        android:id="@+id/selecterror"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="0dp"
+        app:layout_constraintGuide_percent="0.1" />
 
-  <android.support.constraint.Guideline
-      android:id="@+id/causeerror"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:orientation="vertical"
-      app:layout_constraintGuide_begin="0dp"
-      app:layout_constraintGuide_percent="0.4" />
+    <android.support.constraint.Guideline
+        android:id="@+id/causeerror"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_begin="0dp"
+        app:layout_constraintGuide_percent="0.4" />
 
-  <Button
-      android:id="@+id/SelectError"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="Select Error"
-      app:layout_constraintBottom_toBottomOf="parent"
-      android:scaleType="fitXY"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="0.0"
-      app:layout_constraintStart_toStartOf="@+id/selecterror"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0.84000003" />
+    <Button
+        android:id="@+id/SelectError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:text="Select Error"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/selecterror"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.84000003" />
 
-  <Button
-      android:id="@+id/CauseError"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:text="Cause Error"
-      app:layout_constraintBottom_toBottomOf="parent"
-      android:scaleType="fitXY"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintHorizontal_bias="0.0"
-      app:layout_constraintStart_toStartOf="@+id/causeerror"
-      app:layout_constraintTop_toTopOf="parent"
-      app:layout_constraintVertical_bias="0.84000003" />
+    <Button
+        android:id="@+id/CauseError"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:text="Cause Error"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/causeerror"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.84000003" />
 </android.support.constraint.ConstraintLayout>

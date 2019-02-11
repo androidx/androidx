@@ -26,6 +26,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 import android.view.Surface;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -34,52 +35,52 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class Camera2CaptureSessionCaptureCallbacksAndroidTest {
 
-  @Test
-  public void comboCallbackInvokesConstituentCallbacks() {
-    CameraCaptureSession.CaptureCallback callback0 =
-        Mockito.mock(CameraCaptureSession.CaptureCallback.class);
-    CameraCaptureSession.CaptureCallback callback1 =
-        Mockito.mock(CameraCaptureSession.CaptureCallback.class);
-    CameraCaptureSession.CaptureCallback comboCallback =
-        Camera2CaptureSessionCaptureCallbacks.createComboCallback(callback0, callback1);
-    CameraCaptureSession session = Mockito.mock(CameraCaptureSession.class);
-    CaptureResult result = Mockito.mock(CaptureResult.class);
-    CaptureFailure failure = Mockito.mock(CaptureFailure.class);
-    Surface surface = Mockito.mock(Surface.class);
-    // CaptureRequest, TotalCaptureResult are final classes which cannot be mocked, and it is
-    // difficult to create fake instances without an actual Camera2 pipeline. Use null as a
-    // placeholder.
-    CaptureRequest request = null;
-    TotalCaptureResult totalResult = null;
+    @Test
+    public void comboCallbackInvokesConstituentCallbacks() {
+        CameraCaptureSession.CaptureCallback callback0 =
+                Mockito.mock(CameraCaptureSession.CaptureCallback.class);
+        CameraCaptureSession.CaptureCallback callback1 =
+                Mockito.mock(CameraCaptureSession.CaptureCallback.class);
+        CameraCaptureSession.CaptureCallback comboCallback =
+                Camera2CaptureSessionCaptureCallbacks.createComboCallback(callback0, callback1);
+        CameraCaptureSession session = Mockito.mock(CameraCaptureSession.class);
+        CaptureResult result = Mockito.mock(CaptureResult.class);
+        CaptureFailure failure = Mockito.mock(CaptureFailure.class);
+        Surface surface = Mockito.mock(Surface.class);
+        // CaptureRequest, TotalCaptureResult are final classes which cannot be mocked, and it is
+        // difficult to create fake instances without an actual Camera2 pipeline. Use null as a
+        // placeholder.
+        CaptureRequest request = null;
+        TotalCaptureResult totalResult = null;
 
-    if (Build.VERSION.SDK_INT >= 24) {
-      comboCallback.onCaptureBufferLost(session, request, surface, 1L);
-      verify(callback0, times(1)).onCaptureBufferLost(session, request, surface, 1L);
-      verify(callback1, times(1)).onCaptureBufferLost(session, request, surface, 1L);
+        if (Build.VERSION.SDK_INT >= 24) {
+            comboCallback.onCaptureBufferLost(session, request, surface, 1L);
+            verify(callback0, times(1)).onCaptureBufferLost(session, request, surface, 1L);
+            verify(callback1, times(1)).onCaptureBufferLost(session, request, surface, 1L);
+        }
+
+        comboCallback.onCaptureCompleted(session, request, totalResult);
+        verify(callback0, times(1)).onCaptureCompleted(session, request, totalResult);
+        verify(callback1, times(1)).onCaptureCompleted(session, request, totalResult);
+
+        comboCallback.onCaptureFailed(session, request, failure);
+        verify(callback0, times(1)).onCaptureFailed(session, request, failure);
+        verify(callback1, times(1)).onCaptureFailed(session, request, failure);
+
+        comboCallback.onCaptureProgressed(session, request, result);
+        verify(callback0, times(1)).onCaptureProgressed(session, request, result);
+        verify(callback1, times(1)).onCaptureProgressed(session, request, result);
+
+        comboCallback.onCaptureSequenceAborted(session, 1);
+        verify(callback0, times(1)).onCaptureSequenceAborted(session, 1);
+        verify(callback1, times(1)).onCaptureSequenceAborted(session, 1);
+
+        comboCallback.onCaptureSequenceCompleted(session, 1, 123L);
+        verify(callback0, times(1)).onCaptureSequenceCompleted(session, 1, 123L);
+        verify(callback1, times(1)).onCaptureSequenceCompleted(session, 1, 123L);
+
+        comboCallback.onCaptureStarted(session, request, 123L, 1L);
+        verify(callback0, times(1)).onCaptureStarted(session, request, 123L, 1L);
+        verify(callback1, times(1)).onCaptureStarted(session, request, 123L, 1L);
     }
-
-    comboCallback.onCaptureCompleted(session, request, totalResult);
-    verify(callback0, times(1)).onCaptureCompleted(session, request, totalResult);
-    verify(callback1, times(1)).onCaptureCompleted(session, request, totalResult);
-
-    comboCallback.onCaptureFailed(session, request, failure);
-    verify(callback0, times(1)).onCaptureFailed(session, request, failure);
-    verify(callback1, times(1)).onCaptureFailed(session, request, failure);
-
-    comboCallback.onCaptureProgressed(session, request, result);
-    verify(callback0, times(1)).onCaptureProgressed(session, request, result);
-    verify(callback1, times(1)).onCaptureProgressed(session, request, result);
-
-    comboCallback.onCaptureSequenceAborted(session, 1);
-    verify(callback0, times(1)).onCaptureSequenceAborted(session, 1);
-    verify(callback1, times(1)).onCaptureSequenceAborted(session, 1);
-
-    comboCallback.onCaptureSequenceCompleted(session, 1, 123L);
-    verify(callback0, times(1)).onCaptureSequenceCompleted(session, 1, 123L);
-    verify(callback1, times(1)).onCaptureSequenceCompleted(session, 1, 123L);
-
-    comboCallback.onCaptureStarted(session, request, 123L, 1L);
-    verify(callback0, times(1)).onCaptureStarted(session, request, 123L, 1L);
-    verify(callback1, times(1)).onCaptureStarted(session, request, 123L, 1L);
-  }
 }

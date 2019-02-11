@@ -20,6 +20,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.hardware.camera2.CameraDevice;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -28,29 +29,29 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class CameraDeviceStateCallbacksAndroidTest {
 
-  @Test
-  public void comboCallbackInvokesConstituentCallbacks() {
-    CameraDevice.StateCallback callback0 = Mockito.mock(CameraDevice.StateCallback.class);
-    CameraDevice.StateCallback callback1 = Mockito.mock(CameraDevice.StateCallback.class);
-    CameraDevice.StateCallback comboCallback =
-        CameraDeviceStateCallbacks.createComboCallback(callback0, callback1);
-    CameraDevice device = Mockito.mock(CameraDevice.class);
+    @Test
+    public void comboCallbackInvokesConstituentCallbacks() {
+        CameraDevice.StateCallback callback0 = Mockito.mock(CameraDevice.StateCallback.class);
+        CameraDevice.StateCallback callback1 = Mockito.mock(CameraDevice.StateCallback.class);
+        CameraDevice.StateCallback comboCallback =
+                CameraDeviceStateCallbacks.createComboCallback(callback0, callback1);
+        CameraDevice device = Mockito.mock(CameraDevice.class);
 
-    comboCallback.onOpened(device);
-    verify(callback0, times(1)).onOpened(device);
-    verify(callback1, times(1)).onOpened(device);
+        comboCallback.onOpened(device);
+        verify(callback0, times(1)).onOpened(device);
+        verify(callback1, times(1)).onOpened(device);
 
-    comboCallback.onClosed(device);
-    verify(callback0, times(1)).onClosed(device);
-    verify(callback1, times(1)).onClosed(device);
+        comboCallback.onClosed(device);
+        verify(callback0, times(1)).onClosed(device);
+        verify(callback1, times(1)).onClosed(device);
 
-    comboCallback.onDisconnected(device);
-    verify(callback0, times(1)).onDisconnected(device);
-    verify(callback1, times(1)).onDisconnected(device);
+        comboCallback.onDisconnected(device);
+        verify(callback0, times(1)).onDisconnected(device);
+        verify(callback1, times(1)).onDisconnected(device);
 
-    final int error = 1;
-    comboCallback.onError(device, error);
-    verify(callback0, times(1)).onError(device, error);
-    verify(callback1, times(1)).onError(device, error);
-  }
+        final int error = 1;
+        comboCallback.onError(device, error);
+        verify(callback0, times(1)).onError(device, error);
+        verify(callback1, times(1)).onError(device, error);
+    }
 }

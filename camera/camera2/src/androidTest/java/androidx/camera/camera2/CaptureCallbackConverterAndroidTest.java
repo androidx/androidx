@@ -17,13 +17,16 @@
 package androidx.camera.camera2;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
+
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureCallbacks;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -32,45 +35,47 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class CaptureCallbackConverterAndroidTest {
 
-  @Test
-  public void toCaptureCallback() {
-    CameraCaptureCallback cameraCallback = Mockito.mock(CameraCaptureCallback.class);
-    CaptureCallback callback = CaptureCallbackConverter.toCaptureCallback(cameraCallback);
-    callback.onCaptureCompleted(null, null, null);
-    verify(cameraCallback, times(1)).onCaptureCompleted(any());
-  }
+    @Test
+    public void toCaptureCallback() {
+        CameraCaptureCallback cameraCallback = Mockito.mock(CameraCaptureCallback.class);
+        CaptureCallback callback = CaptureCallbackConverter.toCaptureCallback(cameraCallback);
+        callback.onCaptureCompleted(null, null, null);
+        verify(cameraCallback, times(1)).onCaptureCompleted(any());
+    }
 
-  @Test
-  public void toCaptureCallback_withNullArgument() {
-    CaptureCallback callback = CaptureCallbackConverter.toCaptureCallback(null);
-    assertThat(callback).isNull();
-  }
+    @Test
+    public void toCaptureCallback_withNullArgument() {
+        CaptureCallback callback = CaptureCallbackConverter.toCaptureCallback(null);
+        assertThat(callback).isNull();
+    }
 
-  @Test
-  public void toCaptureCallback_withCaptureCallbackContainer() {
-    CaptureCallback actualCallback = Mockito.mock(CaptureCallback.class);
-    CaptureCallbackContainer callbackContainer = CaptureCallbackContainer.create(actualCallback);
-    CaptureCallback callback = CaptureCallbackConverter.toCaptureCallback(callbackContainer);
-    callback.onCaptureCompleted(null, null, null);
-    verify(actualCallback, times(1)).onCaptureCompleted(any(), any(), any());
-  }
+    @Test
+    public void toCaptureCallback_withCaptureCallbackContainer() {
+        CaptureCallback actualCallback = Mockito.mock(CaptureCallback.class);
+        CaptureCallbackContainer callbackContainer =
+                CaptureCallbackContainer.create(actualCallback);
+        CaptureCallback callback = CaptureCallbackConverter.toCaptureCallback(callbackContainer);
+        callback.onCaptureCompleted(null, null, null);
+        verify(actualCallback, times(1)).onCaptureCompleted(any(), any(), any());
+    }
 
-  @Test
-  public void toCaptureCallback_withComboCameraCallback() {
-    CameraCaptureCallback cameraCallback1 = Mockito.mock(CameraCaptureCallback.class);
-    CameraCaptureCallback cameraCallback2 = Mockito.mock(CameraCaptureCallback.class);
-    CaptureCallback cameraCallback3 = Mockito.mock(CaptureCallback.class);
+    @Test
+    public void toCaptureCallback_withComboCameraCallback() {
+        CameraCaptureCallback cameraCallback1 = Mockito.mock(CameraCaptureCallback.class);
+        CameraCaptureCallback cameraCallback2 = Mockito.mock(CameraCaptureCallback.class);
+        CaptureCallback cameraCallback3 = Mockito.mock(CaptureCallback.class);
 
-    CaptureCallback callback =
-        CaptureCallbackConverter.toCaptureCallback(
-            CameraCaptureCallbacks.createComboCallback(
-                cameraCallback1,
-                CameraCaptureCallbacks.createComboCallback(
-                    cameraCallback2, CaptureCallbackContainer.create(cameraCallback3))));
+        CaptureCallback callback =
+                CaptureCallbackConverter.toCaptureCallback(
+                        CameraCaptureCallbacks.createComboCallback(
+                                cameraCallback1,
+                                CameraCaptureCallbacks.createComboCallback(
+                                        cameraCallback2,
+                                        CaptureCallbackContainer.create(cameraCallback3))));
 
-    callback.onCaptureCompleted(null, null, null);
-    verify(cameraCallback1, times(1)).onCaptureCompleted(any());
-    verify(cameraCallback2, times(1)).onCaptureCompleted(any());
-    verify(cameraCallback3, times(1)).onCaptureCompleted(any(), any(), any());
-  }
+        callback.onCaptureCompleted(null, null, null);
+        verify(cameraCallback1, times(1)).onCaptureCompleted(any());
+        verify(cameraCallback2, times(1)).onCaptureCompleted(any());
+        verify(cameraCallback3, times(1)).onCaptureCompleted(any(), any(), any());
+    }
 }

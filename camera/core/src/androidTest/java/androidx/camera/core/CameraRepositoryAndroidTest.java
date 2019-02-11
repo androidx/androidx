@@ -17,44 +17,48 @@
 package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertThrows;
 
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.test.runner.AndroidJUnit4;
-import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Set;
+
 @RunWith(AndroidJUnit4.class)
 public final class CameraRepositoryAndroidTest {
 
-  private CameraRepository cameraRepository;
+    private CameraRepository cameraRepository;
 
-  @Before
-  public void setUp() {
-    cameraRepository = new CameraRepository();
-    cameraRepository.init(new FakeCameraFactory());
-  }
-
-  @Test
-  public void cameraIdsCanBeAcquired() {
-    Set<String> cameraIds = cameraRepository.getCameraIds();
-
-    assertThat(cameraIds).isNotEmpty();
-  }
-
-  @Test
-  public void cameraCanBeObtainedWithValidId() {
-    for (String cameraId : cameraRepository.getCameraIds()) {
-      BaseCamera camera = cameraRepository.getCamera(cameraId);
-
-      assertThat(camera).isNotNull();
+    @Before
+    public void setUp() {
+        cameraRepository = new CameraRepository();
+        cameraRepository.init(new FakeCameraFactory());
     }
-  }
 
-  @Test
-  public void cameraCannotBeObtainedWithInvalidId() {
-    assertThrows(IllegalArgumentException.class, () -> cameraRepository.getCamera("no_such_id"));
-  }
+    @Test
+    public void cameraIdsCanBeAcquired() {
+        Set<String> cameraIds = cameraRepository.getCameraIds();
+
+        assertThat(cameraIds).isNotEmpty();
+    }
+
+    @Test
+    public void cameraCanBeObtainedWithValidId() {
+        for (String cameraId : cameraRepository.getCameraIds()) {
+            BaseCamera camera = cameraRepository.getCamera(cameraId);
+
+            assertThat(camera).isNotNull();
+        }
+    }
+
+    @Test
+    public void cameraCannotBeObtainedWithInvalidId() {
+        assertThrows(
+                IllegalArgumentException.class, () -> cameraRepository.getCamera("no_such_id"));
+    }
 }

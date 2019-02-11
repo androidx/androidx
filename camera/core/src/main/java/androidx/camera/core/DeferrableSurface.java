@@ -16,19 +16,22 @@
 
 package androidx.camera.core;
 
+import android.view.Surface;
+
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.view.Surface;
+
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * A reference to a {@link Surface} whose creation can be deferred to a later time.
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public interface DeferrableSurface {
-  /** Returns a {@link Surface} that is wrapped in a {@link ListenableFuture}. */
-  @Nullable
-  ListenableFuture<Surface> getSurface();
+    /** Returns a {@link Surface} that is wrapped in a {@link ListenableFuture}. */
+    @Nullable
+    ListenableFuture<Surface> getSurface();
 }

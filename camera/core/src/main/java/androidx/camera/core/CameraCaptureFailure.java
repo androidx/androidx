@@ -23,32 +23,29 @@ package androidx.camera.core;
  */
 public final class CameraCaptureFailure {
 
-  /**
-   * The capture result has been dropped this frame only due to an error in the framework.
-   *
-   * @see #getReason()
-   */
-  public enum Reason {
-    ERROR,
-  }
+    private final Reason reason;
 
-  private final Reason reason;
+    /** @hide */
+    public CameraCaptureFailure(Reason reason) {
+        this.reason = reason;
+    }
 
-  /**
-   * @hide
-   */
-  public CameraCaptureFailure(Reason reason) {
-    this.reason = reason;
-  }
+    /**
+     * Determine why the request was dropped, whether due to an error or to a user action.
+     *
+     * @return int The reason code.
+     * @see CameraCaptureFailure.Reason#ERROR
+     */
+    public Reason getReason() {
+        return reason;
+    }
 
-  /**
-   * Determine why the request was dropped, whether due to an error or to a user action.
-   *
-   * @return int The reason code.
-   *
-   * @see CameraCaptureFailure.Reason#ERROR
-   */
-  public Reason getReason() {
-    return reason;
-  }
+    /**
+     * The capture result has been dropped this frame only due to an error in the framework.
+     *
+     * @see #getReason()
+     */
+    public enum Reason {
+        ERROR,
+    }
 }

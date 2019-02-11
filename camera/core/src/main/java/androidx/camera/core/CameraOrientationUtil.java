@@ -16,10 +16,11 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.RestrictTo;
-import androidx.annotation.RestrictTo.Scope;
 import android.util.Log;
 import android.view.Surface;
+
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
 
 /**
@@ -29,74 +30,76 @@ import androidx.camera.core.ImageOutputConfiguration.RotationValue;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraOrientationUtil {
-  private static final String TAG = "CameraOrientationUtil";
-  private static final boolean DEBUG = false;
+    private static final String TAG = "CameraOrientationUtil";
+    private static final boolean DEBUG = false;
 
-  /**
-   * Calculates the delta between a source rotation and destination rotation.
-   *
-   * <p>A typical use of this method would be calculating the angular difference between the display
-   * orientation (destRotationDegrees) and camera sensor orientation (sourceRotationDegrees).
-   *
-   * @param destRotationDegrees The destination rotation relative to the device's natural rotation.
-   * @param sourceRotationDegrees The source rotation relative to the device's natural rotation.
-   * @param isOppositeFacing Whether the source and destination planes are facing opposite
-   *     directions.
-   * @return
-   */
-  public static int getRelativeImageRotation(
-      int destRotationDegrees, int sourceRotationDegrees, boolean isOppositeFacing) {
-    int result;
-    if (isOppositeFacing) {
-      result = (sourceRotationDegrees - destRotationDegrees + 360) % 360;
-    } else {
-      result = (sourceRotationDegrees + destRotationDegrees) % 360;
-    }
-    if (DEBUG) {
-      Log.d(
-          TAG,
-          String.format(
-              "getRelativeImageRotation: destRotationDegrees=%s, "
-                  + "sourceRotationDegrees=%s, isOppositeFacing=%s, "
-                  + "result=%s",
-              destRotationDegrees, sourceRotationDegrees, isOppositeFacing, result));
-    }
-    return result;
-  }
-
-  /**
-   * Converts rotation values enumerated in {@link Surface} to their equivalent in degrees.
-   *
-   * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0}, {@link
-   * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
-   *
-   * @param rotationEnum One of the enumerated rotation values from {@link Surface}.
-   * @return The equivalent rotation value in degrees.
-   * @throws IllegalArgumentException If the provided rotation enum is not one of those defined in
-   *     {@link Surface}.
-   */
-  public static int surfaceRotationToDegrees(@RotationValue int rotationEnum) {
-    int rotationDegrees;
-    switch (rotationEnum) {
-      case Surface.ROTATION_0:
-        rotationDegrees = 0;
-        break;
-      case Surface.ROTATION_90:
-        rotationDegrees = 90;
-        break;
-      case Surface.ROTATION_180:
-        rotationDegrees = 180;
-        break;
-      case Surface.ROTATION_270:
-        rotationDegrees = 270;
-        break;
-      default:
-        throw new IllegalArgumentException("Unsupported surface rotation: " + rotationEnum);
+    // Do not allow instantiation
+    private CameraOrientationUtil() {
     }
 
-    return rotationDegrees;
-  }
+    /**
+     * Calculates the delta between a source rotation and destination rotation.
+     *
+     * <p>A typical use of this method would be calculating the angular difference between the
+     * display orientation (destRotationDegrees) and camera sensor orientation
+     * (sourceRotationDegrees).
+     *
+     * @param destRotationDegrees   The destination rotation relative to the device's natural
+     *                              rotation.
+     * @param sourceRotationDegrees The source rotation relative to the device's natural rotation.
+     * @param isOppositeFacing      Whether the source and destination planes are facing opposite
+     *                              directions.
+     */
+    public static int getRelativeImageRotation(
+            int destRotationDegrees, int sourceRotationDegrees, boolean isOppositeFacing) {
+        int result;
+        if (isOppositeFacing) {
+            result = (sourceRotationDegrees - destRotationDegrees + 360) % 360;
+        } else {
+            result = (sourceRotationDegrees + destRotationDegrees) % 360;
+        }
+        if (DEBUG) {
+            Log.d(
+                    TAG,
+                    String.format(
+                            "getRelativeImageRotation: destRotationDegrees=%s, "
+                                    + "sourceRotationDegrees=%s, isOppositeFacing=%s, "
+                                    + "result=%s",
+                            destRotationDegrees, sourceRotationDegrees, isOppositeFacing, result));
+        }
+        return result;
+    }
 
-  // Do not allow instantiation
-  private CameraOrientationUtil() {}
+    /**
+     * Converts rotation values enumerated in {@link Surface} to their equivalent in degrees.
+     *
+     * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0}, {@link
+     * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
+     *
+     * @param rotationEnum One of the enumerated rotation values from {@link Surface}.
+     * @return The equivalent rotation value in degrees.
+     * @throws IllegalArgumentException If the provided rotation enum is not one of those defined in
+     *                                  {@link Surface}.
+     */
+    public static int surfaceRotationToDegrees(@RotationValue int rotationEnum) {
+        int rotationDegrees;
+        switch (rotationEnum) {
+            case Surface.ROTATION_0:
+                rotationDegrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                rotationDegrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                rotationDegrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                rotationDegrees = 270;
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported surface rotation: " + rotationEnum);
+        }
+
+        return rotationDegrees;
+    }
 }

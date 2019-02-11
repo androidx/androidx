@@ -22,42 +22,49 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.view.Surface;
+
 import java.util.concurrent.atomic.AtomicReference;
 
 /** A capture session capture callback which updates a reference to the capture request. */
 final class RequestUpdatingSessionCaptureCallback extends CameraCaptureSession.CaptureCallback {
-  private final AtomicReference<CaptureRequest> request = new AtomicReference<>();
+    private final AtomicReference<CaptureRequest> request = new AtomicReference<>();
 
-  @Override
-  public void onCaptureBufferLost(
-      CameraCaptureSession session, CaptureRequest request, Surface surface, long frame) {}
+    @Override
+    public void onCaptureBufferLost(
+            CameraCaptureSession session, CaptureRequest request, Surface surface, long frame) {
+    }
 
-  @Override
-  public void onCaptureCompleted(
-      CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {}
+    @Override
+    public void onCaptureCompleted(
+            CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
+    }
 
-  @Override
-  public void onCaptureFailed(
-      CameraCaptureSession session, CaptureRequest request, CaptureFailure failure) {}
+    @Override
+    public void onCaptureFailed(
+            CameraCaptureSession session, CaptureRequest request, CaptureFailure failure) {
+    }
 
-  @Override
-  public void onCaptureProgressed(
-      CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult) {}
+    @Override
+    public void onCaptureProgressed(
+            CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult) {
+    }
 
-  @Override
-  public void onCaptureSequenceAborted(CameraCaptureSession session, int sequenceId) {}
+    @Override
+    public void onCaptureSequenceAborted(CameraCaptureSession session, int sequenceId) {
+    }
 
-  @Override
-  public void onCaptureSequenceCompleted(
-      CameraCaptureSession session, int sequenceId, long frame) {}
+    @Override
+    public void onCaptureSequenceCompleted(
+            CameraCaptureSession session, int sequenceId, long frame) {
+    }
 
-  @Override
-  public void onCaptureStarted(
-      CameraCaptureSession session, CaptureRequest request, long timestamp, long frame) {
-    this.request.set(request);
-  }
+    @Override
+    public void onCaptureStarted(
+            CameraCaptureSession session, CaptureRequest request, long timestamp, long frame) {
+        this.request.set(request);
+    }
 
-  CaptureRequest getRequest() {
-    return request.get();
-  }
+    CaptureRequest getRequest() {
+        return request.get();
+    }
 }

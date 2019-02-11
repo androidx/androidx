@@ -16,115 +16,47 @@
 
 package androidx.camera.core;
 
+import android.util.Size;
+
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import android.util.Size;
 
 /** Configuration for an image capture use case. */
 public final class ViewFinderUseCaseConfiguration
-    implements UseCaseConfiguration<ViewFinderUseCase>,
+        implements UseCaseConfiguration<ViewFinderUseCase>,
         ImageOutputConfiguration,
         CameraDeviceConfiguration,
         ThreadConfiguration {
 
-  private final OptionsBundle config;
+    private final OptionsBundle config;
 
-  /** Creates a new configuration instance. */
-  private ViewFinderUseCaseConfiguration(OptionsBundle config) {
-    this.config = config;
-  }
-
-  /**
-   * Retrieves the resolution of the target intending to use from this configuration.
-   *
-   * @param valueIfMissing The value to return if this configuration option has not been set.
-   * @return The stored value or {@code valueIfMissing} if the value does not exist in this
-   *     configuration.
-   */
-  @Override
-  public Size getTargetResolution(Size valueIfMissing) {
-    return getConfiguration()
-        .retrieveOption(ImageOutputConfiguration.OPTION_TARGET_RESOLUTION, valueIfMissing);
-  }
-
-  /**
-   * Retrieves the resolution of the target intending to use from this configuration.
-   *
-   * @return The stored value, if it exists in this configuration.
-   * @throws IllegalArgumentException if the option does not exist in this configuration.
-   */
-  @Override
-  public Size getTargetResolution() {
-    return getConfiguration().retrieveOption(ImageOutputConfiguration.OPTION_TARGET_RESOLUTION);
-  }
-
-  /**
-   * {@inheritDoc}
-   *
-   * @hide
-   */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  @Override
-  public Configuration getConfiguration() {
-    return config;
-  }
-
-  /** Builder for a {@link ViewFinderUseCaseConfiguration}. */
-  public static final class Builder
-      implements UseCaseConfiguration.Builder<
-              ViewFinderUseCase, ViewFinderUseCaseConfiguration, Builder>,
-          ImageOutputConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder>,
-          CameraDeviceConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder>,
-          ThreadConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder> {
-
-    private final MutableOptionsBundle mutableConfig;
-
-    /** Creates a new Builder object. */
-    public Builder() {
-      this(MutableOptionsBundle.create());
-    }
-
-    private Builder(MutableOptionsBundle mutableConfig) {
-      this.mutableConfig = mutableConfig;
-
-      Class<?> oldConfigClass =
-          mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
-      if (oldConfigClass != null && !oldConfigClass.equals(ViewFinderUseCase.class)) {
-        throw new IllegalArgumentException(
-            "Invalid target class configuration for " + Builder.this + ": " + oldConfigClass);
-      }
-
-      setTargetClass(ViewFinderUseCase.class);
+    /** Creates a new configuration instance. */
+    private ViewFinderUseCaseConfiguration(OptionsBundle config) {
+        this.config = config;
     }
 
     /**
-     * Generates a Builder from another Configuration object
+     * Retrieves the resolution of the target intending to use from this configuration.
      *
-     * @param configuration An immutable configuration to pre-populate this builder.
-     * @return The new Builder.
-     */
-    public static Builder fromConfig(ViewFinderUseCaseConfiguration configuration) {
-      return new Builder(MutableOptionsBundle.from(configuration));
-    }
-
-    /**
-     * Sets the resolution of the intended target from this configuration.
-     *
-     * <p>The target resolution attempts to establish a minimum bound for the view finder
-     * resolution. The actual view finder resolution will be the closest available resolution in
-     * size that is not smaller than the target resolution, as determined by the Camera
-     * implementation. However, if no resolution exists that is equal to or larger than the target
-     * resolution, the nearest available resolution smaller than the target resolution will be
-     * chosen.
-     *
-     * @param resolution The target resolution to choose from supported output sizes list.
-     * @return The current Builder.
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value or {@code valueIfMissing} if the value does not exist in this
+     * configuration.
      */
     @Override
-    public Builder setTargetResolution(Size resolution) {
-      getMutableConfiguration()
-          .insertOption(ImageOutputConfiguration.OPTION_TARGET_RESOLUTION, resolution);
-      return builder();
+    public Size getTargetResolution(Size valueIfMissing) {
+        return getConfiguration()
+                .retrieveOption(ImageOutputConfiguration.OPTION_TARGET_RESOLUTION, valueIfMissing);
+    }
+
+    /**
+     * Retrieves the resolution of the target intending to use from this configuration.
+     *
+     * @return The stored value, if it exists in this configuration.
+     * @throws IllegalArgumentException if the option does not exist in this configuration.
+     */
+    @Override
+    public Size getTargetResolution() {
+        return getConfiguration().retrieveOption(ImageOutputConfiguration.OPTION_TARGET_RESOLUTION);
     }
 
     /**
@@ -134,24 +66,96 @@ public final class ViewFinderUseCaseConfiguration
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public MutableConfiguration getMutableConfiguration() {
-      return mutableConfig;
+    public Configuration getConfiguration() {
+        return config;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public Builder builder() {
-      return this;
-    }
+    /** Builder for a {@link ViewFinderUseCaseConfiguration}. */
+    public static final class Builder
+            implements UseCaseConfiguration.Builder<
+            ViewFinderUseCase, ViewFinderUseCaseConfiguration, Builder>,
+            ImageOutputConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder>,
+            CameraDeviceConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder>,
+            ThreadConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder> {
 
-    @Override
-    public ViewFinderUseCaseConfiguration build() {
-      return new ViewFinderUseCaseConfiguration(OptionsBundle.from(mutableConfig));
+        private final MutableOptionsBundle mutableConfig;
+
+        /** Creates a new Builder object. */
+        public Builder() {
+            this(MutableOptionsBundle.create());
+        }
+
+        private Builder(MutableOptionsBundle mutableConfig) {
+            this.mutableConfig = mutableConfig;
+
+            Class<?> oldConfigClass =
+                    mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
+            if (oldConfigClass != null && !oldConfigClass.equals(ViewFinderUseCase.class)) {
+                throw new IllegalArgumentException(
+                        "Invalid target class configuration for "
+                                + Builder.this
+                                + ": "
+                                + oldConfigClass);
+            }
+
+            setTargetClass(ViewFinderUseCase.class);
+        }
+
+        /**
+         * Generates a Builder from another Configuration object
+         *
+         * @param configuration An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         */
+        public static Builder fromConfig(ViewFinderUseCaseConfiguration configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
+        }
+
+        /**
+         * Sets the resolution of the intended target from this configuration.
+         *
+         * <p>The target resolution attempts to establish a minimum bound for the view finder
+         * resolution. The actual view finder resolution will be the closest available resolution in
+         * size that is not smaller than the target resolution, as determined by the Camera
+         * implementation. However, if no resolution exists that is equal to or larger than the
+         * target resolution, the nearest available resolution smaller than the target resolution
+         * will be chosen.
+         *
+         * @param resolution The target resolution to choose from supported output sizes list.
+         * @return The current Builder.
+         */
+        @Override
+        public Builder setTargetResolution(Size resolution) {
+            getMutableConfiguration()
+                    .insertOption(ImageOutputConfiguration.OPTION_TARGET_RESOLUTION, resolution);
+            return builder();
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public MutableConfiguration getMutableConfiguration() {
+            return mutableConfig;
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Override
+        public Builder builder() {
+            return this;
+        }
+
+        @Override
+        public ViewFinderUseCaseConfiguration build() {
+            return new ViewFinderUseCaseConfiguration(OptionsBundle.from(mutableConfig));
+        }
     }
-  }
 }

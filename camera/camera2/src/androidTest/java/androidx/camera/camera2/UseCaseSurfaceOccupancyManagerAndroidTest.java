@@ -19,6 +19,7 @@ package androidx.camera.camera2;
 import static org.junit.Assert.assertThrows;
 
 import android.content.Context;
+
 import androidx.camera.core.AppConfiguration;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCaptureUseCase;
@@ -26,64 +27,68 @@ import androidx.camera.core.ImageCaptureUseCaseConfiguration;
 import androidx.camera.core.VideoCaptureUseCase;
 import androidx.camera.core.VideoCaptureUseCaseConfiguration;
 import androidx.test.core.app.ApplicationProvider;
-import java.util.Arrays;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.util.Arrays;
+
 /** JUnit test cases for UseCaseSurfaceOccupancyManager class. */
 @RunWith(JUnit4.class)
 public final class UseCaseSurfaceOccupancyManagerAndroidTest {
 
-  @Before
-  public void setUp() {
-    Context context = ApplicationProvider.getApplicationContext();
-    AppConfiguration appConfig = Camera2AppConfiguration.create(context);
-    CameraX.init(context, appConfig);
-  }
+    @Before
+    public void setUp() {
+        Context context = ApplicationProvider.getApplicationContext();
+        AppConfiguration appConfig = Camera2AppConfiguration.create(context);
+        CameraX.init(context, appConfig);
+    }
 
-  @Test
-  public void failedWhenBindTooManyImageCaptureUseCase() {
-    ImageCaptureUseCaseConfiguration configuration =
-        new ImageCaptureUseCaseConfiguration.Builder().build();
-    ImageCaptureUseCase useCase1 = new ImageCaptureUseCase(configuration);
-    ImageCaptureUseCase useCase2 = new ImageCaptureUseCase(configuration);
+    @Test
+    public void failedWhenBindTooManyImageCaptureUseCase() {
+        ImageCaptureUseCaseConfiguration configuration =
+                new ImageCaptureUseCaseConfiguration.Builder().build();
+        ImageCaptureUseCase useCase1 = new ImageCaptureUseCase(configuration);
+        ImageCaptureUseCase useCase2 = new ImageCaptureUseCase(configuration);
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-              Arrays.asList(useCase1), Arrays.asList(useCase2));
-        });
-  }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> {
+                    UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
+                            Arrays.asList(useCase1), Arrays.asList(useCase2));
+                });
+    }
 
-  @Test
-  public void failedWhenBindTooManyVideoCaptureUseCase() {
-    VideoCaptureUseCaseConfiguration configuration =
-        new VideoCaptureUseCaseConfiguration.Builder().build();
-    VideoCaptureUseCase useCase1 = new VideoCaptureUseCase(configuration);
-    VideoCaptureUseCase useCase2 = new VideoCaptureUseCase(configuration);
+    @Test
+    public void failedWhenBindTooManyVideoCaptureUseCase() {
+        VideoCaptureUseCaseConfiguration configuration =
+                new VideoCaptureUseCaseConfiguration.Builder().build();
+        VideoCaptureUseCase useCase1 = new VideoCaptureUseCase(configuration);
+        VideoCaptureUseCase useCase2 = new VideoCaptureUseCase(configuration);
 
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> {
-          UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-              Arrays.asList(useCase1), Arrays.asList(useCase2));
-        });
-  }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> {
+                    UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
+                            Arrays.asList(useCase1), Arrays.asList(useCase2));
+                });
+    }
 
-  @Test
-  public void passWhenNotBindTooManyImageVideoCaptureUseCase() {
-    ImageCaptureUseCaseConfiguration imageCaptureConfiguration =
-        new ImageCaptureUseCaseConfiguration.Builder().build();
-    ImageCaptureUseCase imageCaptureUseCase = new ImageCaptureUseCase(imageCaptureConfiguration);
+    @Test
+    public void passWhenNotBindTooManyImageVideoCaptureUseCase() {
+        ImageCaptureUseCaseConfiguration imageCaptureConfiguration =
+                new ImageCaptureUseCaseConfiguration.Builder().build();
+        ImageCaptureUseCase imageCaptureUseCase =
+                new ImageCaptureUseCase(imageCaptureConfiguration);
 
-    VideoCaptureUseCaseConfiguration videoCaptureConfiguration =
-        new VideoCaptureUseCaseConfiguration.Builder().build();
-    VideoCaptureUseCase videoCaptureUseCase = new VideoCaptureUseCase(videoCaptureConfiguration);
+        VideoCaptureUseCaseConfiguration videoCaptureConfiguration =
+                new VideoCaptureUseCaseConfiguration.Builder().build();
+        VideoCaptureUseCase videoCaptureUseCase =
+                new VideoCaptureUseCase(videoCaptureConfiguration);
 
-    UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
-        Arrays.asList(imageCaptureUseCase), Arrays.asList(videoCaptureUseCase));
-  }
+        UseCaseSurfaceOccupancyManager.checkUseCaseLimitNotExceeded(
+                Arrays.asList(imageCaptureUseCase), Arrays.asList(videoCaptureUseCase));
+    }
 }

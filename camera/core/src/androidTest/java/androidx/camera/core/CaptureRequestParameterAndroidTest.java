@@ -21,7 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
+
 import androidx.test.runner.AndroidJUnit4;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,42 +31,43 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class CaptureRequestParameterAndroidTest {
-  private CameraDevice cameraDevice;
+    private CameraDevice cameraDevice;
 
-  @Before
-  public void setup() throws CameraAccessException, InterruptedException {
-    cameraDevice = CameraUtil.getCameraDevice();
-  }
+    @Before
+    public void setup() throws CameraAccessException, InterruptedException {
+        cameraDevice = CameraUtil.getCameraDevice();
+    }
 
-  @After
-  public void teardown() {
-    CameraUtil.releaseCameraDevice(cameraDevice);
-  }
+    @After
+    public void teardown() {
+        CameraUtil.releaseCameraDevice(cameraDevice);
+    }
 
-  @Test
-  public void instanceCreation() {
-    CaptureRequestParameter<?> captureRequestParameter =
-        CaptureRequestParameter.create(
-            CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+    @Test
+    public void instanceCreation() {
+        CaptureRequestParameter<?> captureRequestParameter =
+                CaptureRequestParameter.create(
+                        CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
-    assertThat(captureRequestParameter.getKey()).isEqualTo(CaptureRequest.CONTROL_AF_MODE);
-    assertThat(captureRequestParameter.getValue()).isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
-  }
+        assertThat(captureRequestParameter.getKey()).isEqualTo(CaptureRequest.CONTROL_AF_MODE);
+        assertThat(captureRequestParameter.getValue())
+                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
+    }
 
-  @Test
-  public void applyParameter() throws CameraAccessException {
-    CaptureRequest.Builder builder =
-        cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+    @Test
+    public void applyParameter() throws CameraAccessException {
+        CaptureRequest.Builder builder =
+                cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
 
-    assertThat(builder).isNotNull();
+        assertThat(builder).isNotNull();
 
-    CaptureRequestParameter<?> captureRequestParameter =
-        CaptureRequestParameter.create(
-            CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
+        CaptureRequestParameter<?> captureRequestParameter =
+                CaptureRequestParameter.create(
+                        CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO);
 
-    captureRequestParameter.apply(builder);
+        captureRequestParameter.apply(builder);
 
-    assertThat(builder.get(CaptureRequest.CONTROL_AF_MODE))
-        .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
-  }
+        assertThat(builder.get(CaptureRequest.CONTROL_AF_MODE))
+                .isEqualTo(CaptureRequest.CONTROL_AF_MODE_AUTO);
+    }
 }

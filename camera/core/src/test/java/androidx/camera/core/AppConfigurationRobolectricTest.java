@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import androidx.camera.testing.fakes.FakeAppConfiguration;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,29 +32,29 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 @DoNotInstrument
 public class AppConfigurationRobolectricTest {
 
-  private AppConfiguration appConfiguration;
+    private AppConfiguration appConfiguration;
 
-  @Before
-  public void setUp() {
-    appConfiguration = FakeAppConfiguration.create();
-  }
+    @Before
+    public void setUp() {
+        appConfiguration = FakeAppConfiguration.create();
+    }
 
-  @Test
-  public void canGetConfigTarget() {
-    Class<CameraX> configTarget = appConfiguration.getTargetClass(/*valueIfMissing=*/ null);
-    assertThat(configTarget).isEqualTo(CameraX.class);
-  }
+    @Test
+    public void canGetConfigTarget() {
+        Class<CameraX> configTarget = appConfiguration.getTargetClass(/*valueIfMissing=*/ null);
+        assertThat(configTarget).isEqualTo(CameraX.class);
+    }
 
-  @Test
-  public void canGetCameraFactory() {
-    CameraFactory cameraFactory = appConfiguration.getCameraFactory(/*valueIfMissing=*/ null);
-    assertThat(cameraFactory).isInstanceOf(FakeCameraFactory.class);
-  }
+    @Test
+    public void canGetCameraFactory() {
+        CameraFactory cameraFactory = appConfiguration.getCameraFactory(/*valueIfMissing=*/ null);
+        assertThat(cameraFactory).isInstanceOf(FakeCameraFactory.class);
+    }
 
-  @Test
-  public void canGetDeviceSurfaceManager() {
-    CameraDeviceSurfaceManager surfaceManager =
-        appConfiguration.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
-    assertThat(surfaceManager).isInstanceOf(FakeCameraDeviceSurfaceManager.class);
-  }
+    @Test
+    public void canGetDeviceSurfaceManager() {
+        CameraDeviceSurfaceManager surfaceManager =
+                appConfiguration.getDeviceSurfaceManager(/*valueIfMissing=*/ null);
+        assertThat(surfaceManager).isInstanceOf(FakeCameraDeviceSurfaceManager.class);
+    }
 }

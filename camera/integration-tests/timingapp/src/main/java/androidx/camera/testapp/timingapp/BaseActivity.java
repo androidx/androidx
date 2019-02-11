@@ -18,6 +18,7 @@ package androidx.camera.testapp.timingapp;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -30,40 +31,32 @@ import java.util.concurrent.TimeUnit;
  * onUseCaseFinish() to notify the lock.
  */
 public abstract class BaseActivity extends AppCompatActivity {
-  private static final String TAG = "BaseActivity";
+    public static final long MICROS_IN_SECOND = TimeUnit.SECONDS.toMillis(1);
+    public static final long PREVIEW_FILL_BUFFER_TIME = 1500;
+    private static final String TAG = "BaseActivity";
+    public long startTime;
+    public long totalTime;
+    public long openCameraStartTime;
+    public long openCameraTotalTime;
+    public long startRreviewTime;
+    public long startPreviewTotalTime;
+    public long previewFrameRate;
+    public long closeCameraStartTime;
+    public long closeCameraTotalTime;
+    public String imageResolution;
+    public CountDownLatch latch;
 
-  public long startTime;
-  public long totalTime;
+    public abstract void prepareUseCase();
 
-  public long openCameraStartTime;
-  public long openCameraTotalTime;
+    public abstract void runUseCase() throws InterruptedException;
 
-  public long startRreviewTime;
-  public long startPreviewTotalTime;
+    public void onUseCaseFinish() {
+        latch.countDown();
+    }
 
-  public long previewFrameRate;
-
-  public long closeCameraStartTime;
-  public long closeCameraTotalTime;
-
-  public String imageResolution;
-
-  public CountDownLatch latch;
-
-  public static final long MICROS_IN_SECOND = TimeUnit.SECONDS.toMillis(1);
-  public static final long PREVIEW_FILL_BUFFER_TIME = 1500;
-
-  public abstract void prepareUseCase();
-
-  public abstract void runUseCase() throws InterruptedException;
-
-  public void onUseCaseFinish() {
-    latch.countDown();
-  }
-
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    latch = new CountDownLatch(1);
-  }
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        latch = new CountDownLatch(1);
+    }
 }

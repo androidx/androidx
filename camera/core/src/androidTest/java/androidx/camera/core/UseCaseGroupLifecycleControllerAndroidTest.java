@@ -17,11 +17,13 @@
 package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.runner.AndroidJUnit4;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,68 +31,73 @@ import org.mockito.Mockito;
 
 @RunWith(AndroidJUnit4.class)
 public class UseCaseGroupLifecycleControllerAndroidTest {
-  private UseCaseGroupLifecycleController useCaseGroupLifecycleController;
-  private FakeLifecycleOwner lifecycleOwner;
-  private final UseCaseGroup.StateChangeListener mockListener =
-      Mockito.mock(UseCaseGroup.StateChangeListener.class);
+    private final UseCaseGroup.StateChangeListener mockListener =
+            Mockito.mock(UseCaseGroup.StateChangeListener.class);
+    private UseCaseGroupLifecycleController useCaseGroupLifecycleController;
+    private FakeLifecycleOwner lifecycleOwner;
 
-  @Before
-  public void setUp() {
-    lifecycleOwner = new FakeLifecycleOwner();
-  }
+    @Before
+    public void setUp() {
+        lifecycleOwner = new FakeLifecycleOwner();
+    }
 
-  @Test
-  public void groupCanBeMadeObserverOfLifecycle() {
-    assertThat(lifecycleOwner.getObserverCount()).isEqualTo(0);
+    @Test
+    public void groupCanBeMadeObserverOfLifecycle() {
+        assertThat(lifecycleOwner.getObserverCount()).isEqualTo(0);
 
-    useCaseGroupLifecycleController =
-        new UseCaseGroupLifecycleController(lifecycleOwner.getLifecycle(), new UseCaseGroup());
+        useCaseGroupLifecycleController =
+                new UseCaseGroupLifecycleController(
+                        lifecycleOwner.getLifecycle(), new UseCaseGroup());
 
-    assertThat(lifecycleOwner.getObserverCount()).isEqualTo(1);
-  }
+        assertThat(lifecycleOwner.getObserverCount()).isEqualTo(1);
+    }
 
-  @Test
-  public void groupCanStopObservingALifeCycle() {
-    useCaseGroupLifecycleController =
-        new UseCaseGroupLifecycleController(lifecycleOwner.getLifecycle(), new UseCaseGroup());
-    assertThat(lifecycleOwner.getObserverCount()).isEqualTo(1);
+    @Test
+    public void groupCanStopObservingALifeCycle() {
+        useCaseGroupLifecycleController =
+                new UseCaseGroupLifecycleController(
+                        lifecycleOwner.getLifecycle(), new UseCaseGroup());
+        assertThat(lifecycleOwner.getObserverCount()).isEqualTo(1);
 
-    useCaseGroupLifecycleController.release();
+        useCaseGroupLifecycleController.release();
 
-    assertThat(lifecycleOwner.getObserverCount()).isEqualTo(0);
-  }
+        assertThat(lifecycleOwner.getObserverCount()).isEqualTo(0);
+    }
 
-  @Test
-  public void groupCanBeReleasedMultipleTimes() {
-    useCaseGroupLifecycleController =
-        new UseCaseGroupLifecycleController(lifecycleOwner.getLifecycle(), new UseCaseGroup());
+    @Test
+    public void groupCanBeReleasedMultipleTimes() {
+        useCaseGroupLifecycleController =
+                new UseCaseGroupLifecycleController(
+                        lifecycleOwner.getLifecycle(), new UseCaseGroup());
 
-    useCaseGroupLifecycleController.release();
-    useCaseGroupLifecycleController.release();
-  }
+        useCaseGroupLifecycleController.release();
+        useCaseGroupLifecycleController.release();
+    }
 
-  @Test
-  public void lifecycleStart_triggersOnActive() {
-    useCaseGroupLifecycleController =
-        new UseCaseGroupLifecycleController(lifecycleOwner.getLifecycle(), new UseCaseGroup());
-    useCaseGroupLifecycleController.getUseCaseGroup().setListener(mockListener);
+    @Test
+    public void lifecycleStart_triggersOnActive() {
+        useCaseGroupLifecycleController =
+                new UseCaseGroupLifecycleController(
+                        lifecycleOwner.getLifecycle(), new UseCaseGroup());
+        useCaseGroupLifecycleController.getUseCaseGroup().setListener(mockListener);
 
-    lifecycleOwner.start();
+        lifecycleOwner.start();
 
-    verify(mockListener, times(1))
-        .onGroupActive(useCaseGroupLifecycleController.getUseCaseGroup());
-  }
+        verify(mockListener, times(1))
+                .onGroupActive(useCaseGroupLifecycleController.getUseCaseGroup());
+    }
 
-  @Test
-  public void lifecycleStop_triggersOnInactive() {
-    useCaseGroupLifecycleController =
-        new UseCaseGroupLifecycleController(lifecycleOwner.getLifecycle(), new UseCaseGroup());
-    useCaseGroupLifecycleController.getUseCaseGroup().setListener(mockListener);
-    lifecycleOwner.start();
+    @Test
+    public void lifecycleStop_triggersOnInactive() {
+        useCaseGroupLifecycleController =
+                new UseCaseGroupLifecycleController(
+                        lifecycleOwner.getLifecycle(), new UseCaseGroup());
+        useCaseGroupLifecycleController.getUseCaseGroup().setListener(mockListener);
+        lifecycleOwner.start();
 
-    lifecycleOwner.stop();
+        lifecycleOwner.stop();
 
-    verify(mockListener, times(1))
-        .onGroupInactive(useCaseGroupLifecycleController.getUseCaseGroup());
-  }
+        verify(mockListener, times(1))
+                .onGroupInactive(useCaseGroupLifecycleController.getUseCaseGroup());
+    }
 }

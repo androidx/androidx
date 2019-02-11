@@ -29,151 +29,151 @@ import androidx.annotation.RestrictTo.Scope;
  */
 public final class AppConfiguration implements TargetConfiguration<CameraX> {
 
-  private final OptionsBundle config;
+    static final Option<CameraFactory> OPTION_CAMERA_FACTORY =
+            Option.create("camerax.core.appConfig.cameraFactory", CameraFactory.class);
+    static final Option<CameraDeviceSurfaceManager> OPTION_DEVICE_SURFACE_MANAGER =
+            Option.create(
+                    "camerax.core.appConfig.deviceSurfaceManager",
+                    CameraDeviceSurfaceManager.class);
+    static final Option<UseCaseConfigurationFactory> OPTION_USECASE_CONFIG_FACTORY =
+            Option.create(
+                    "camerax.core.appConfig.useCaseConfigFactory",
+                    UseCaseConfigurationFactory.class);
+    private final OptionsBundle config;
 
-  private AppConfiguration(OptionsBundle options) {
-    this.config = options;
-  }
-
-  /**
-   * Returns the {@link CameraFactory} implementation for the application.
-   *
-   * @hide
-   */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public CameraFactory getCameraFactory(@Nullable CameraFactory valueIfMissing) {
-    return getConfiguration().retrieveOption(OPTION_CAMERA_FACTORY, valueIfMissing);
-  }
-
-  /**
-   * Returns the {@link CameraDeviceSurfaceManager} implementation for the application.
-   *
-   * @hide
-   */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public CameraDeviceSurfaceManager getDeviceSurfaceManager(
-      @Nullable CameraDeviceSurfaceManager valueIfMissing) {
-    return getConfiguration().retrieveOption(OPTION_DEVICE_SURFACE_MANAGER, valueIfMissing);
-  }
-
-  /**
-   * Returns the {@link UseCaseConfigurationFactory} implementation for the application.
-   *
-   * <p>This factory should produce all default configurations for the application's use cases.
-   *
-   * @hide
-   */
-  @RestrictTo(Scope.LIBRARY_GROUP)
-  public UseCaseConfigurationFactory getUseCaseConfigRepository(
-      @Nullable UseCaseConfigurationFactory valueIfMissing) {
-    return getConfiguration().retrieveOption(OPTION_USECASE_CONFIG_FACTORY, valueIfMissing);
-  }
-
-  @Override
-  public Configuration getConfiguration() {
-    return config;
-  }
-
-  /** A builder for generating {@link AppConfiguration} objects. */
-  public static final class Builder
-      implements TargetConfiguration.Builder<CameraX, AppConfiguration, Builder> {
-
-    private final MutableOptionsBundle mutableConfig;
+    private AppConfiguration(OptionsBundle options) {
+        this.config = options;
+    }
 
     /**
-     * Sets the {@link CameraFactory} implementation for the application.
+     * Returns the {@link CameraFactory} implementation for the application.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public Builder setCameraFactory(CameraFactory cameraFactory) {
-      getMutableConfiguration().insertOption(OPTION_CAMERA_FACTORY, cameraFactory);
-      return builder();
+    public CameraFactory getCameraFactory(@Nullable CameraFactory valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_CAMERA_FACTORY, valueIfMissing);
     }
 
     /**
-     * Sets the {@link CameraDeviceSurfaceManager} implementation for the application.
+     * Returns the {@link CameraDeviceSurfaceManager} implementation for the application.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public Builder setDeviceSurfaceManager(CameraDeviceSurfaceManager repository) {
-      getMutableConfiguration().insertOption(OPTION_DEVICE_SURFACE_MANAGER, repository);
-      return builder();
+    public CameraDeviceSurfaceManager getDeviceSurfaceManager(
+            @Nullable CameraDeviceSurfaceManager valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_DEVICE_SURFACE_MANAGER, valueIfMissing);
     }
 
+    // Option Declarations:
+    // ***********************************************************************************************
+
     /**
-     * Sets the {@link UseCaseConfigurationFactory} implementation for the application.
+     * Returns the {@link UseCaseConfigurationFactory} implementation for the application.
      *
      * <p>This factory should produce all default configurations for the application's use cases.
      *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public Builder setUseCaseConfigFactory(UseCaseConfigurationFactory repository) {
-      getMutableConfiguration().insertOption(OPTION_USECASE_CONFIG_FACTORY, repository);
-      return builder();
-    }
-
-    /** Creates a new Builder object. */
-    public Builder() {
-      this(MutableOptionsBundle.create());
-    }
-
-    private Builder(MutableOptionsBundle mutableConfig) {
-      this.mutableConfig = mutableConfig;
-
-      Class<?> oldConfigClass =
-          mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
-      if (oldConfigClass != null && !oldConfigClass.equals(CameraX.class)) {
-        throw new IllegalArgumentException(
-            "Invalid target class configuration for "
-                + AppConfiguration.Builder.this
-                + ": "
-                + oldConfigClass);
-      }
-
-      setTargetClass(CameraX.class);
-    }
-
-    /**
-     * Generates a Builder from another Configuration object
-     *
-     * @param configuration An immutable configuration to pre-populate this builder.
-     * @return The new Builder.
-     */
-    public static Builder fromConfig(Configuration configuration) {
-      return new Builder(MutableOptionsBundle.from(configuration));
+    public UseCaseConfigurationFactory getUseCaseConfigRepository(
+            @Nullable UseCaseConfigurationFactory valueIfMissing) {
+        return getConfiguration().retrieveOption(OPTION_USECASE_CONFIG_FACTORY, valueIfMissing);
     }
 
     @Override
-    public MutableConfiguration getMutableConfiguration() {
-      return mutableConfig;
+    public Configuration getConfiguration() {
+        return config;
     }
 
-    /** The solution for the unchecked cast warning. */
-    @Override
-    public Builder builder() {
-      return this;
+    /** A builder for generating {@link AppConfiguration} objects. */
+    public static final class Builder
+            implements TargetConfiguration.Builder<CameraX, AppConfiguration, Builder> {
+
+        private final MutableOptionsBundle mutableConfig;
+
+        /** Creates a new Builder object. */
+        public Builder() {
+            this(MutableOptionsBundle.create());
+        }
+
+        private Builder(MutableOptionsBundle mutableConfig) {
+            this.mutableConfig = mutableConfig;
+
+            Class<?> oldConfigClass =
+                    mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
+            if (oldConfigClass != null && !oldConfigClass.equals(CameraX.class)) {
+                throw new IllegalArgumentException(
+                        "Invalid target class configuration for "
+                                + AppConfiguration.Builder.this
+                                + ": "
+                                + oldConfigClass);
+            }
+
+            setTargetClass(CameraX.class);
+        }
+
+        /**
+         * Generates a Builder from another Configuration object
+         *
+         * @param configuration An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         */
+        public static Builder fromConfig(Configuration configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
+        }
+
+        /**
+         * Sets the {@link CameraFactory} implementation for the application.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setCameraFactory(CameraFactory cameraFactory) {
+            getMutableConfiguration().insertOption(OPTION_CAMERA_FACTORY, cameraFactory);
+            return builder();
+        }
+
+        /**
+         * Sets the {@link CameraDeviceSurfaceManager} implementation for the application.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setDeviceSurfaceManager(CameraDeviceSurfaceManager repository) {
+            getMutableConfiguration().insertOption(OPTION_DEVICE_SURFACE_MANAGER, repository);
+            return builder();
+        }
+
+        /**
+         * Sets the {@link UseCaseConfigurationFactory} implementation for the application.
+         *
+         * <p>This factory should produce all default configurations for the application's use
+         * cases.
+         *
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public Builder setUseCaseConfigFactory(UseCaseConfigurationFactory repository) {
+            getMutableConfiguration().insertOption(OPTION_USECASE_CONFIG_FACTORY, repository);
+            return builder();
+        }
+
+        @Override
+        public MutableConfiguration getMutableConfiguration() {
+            return mutableConfig;
+        }
+
+        /** The solution for the unchecked cast warning. */
+        @Override
+        public Builder builder() {
+            return this;
+        }
+
+        @Override
+        public AppConfiguration build() {
+            return new AppConfiguration(OptionsBundle.from(mutableConfig));
+        }
     }
-
-    @Override
-    public AppConfiguration build() {
-      return new AppConfiguration(OptionsBundle.from(mutableConfig));
-    }
-  }
-
-  // Option Declarations:
-  // ***********************************************************************************************
-
-  static final Option<CameraFactory> OPTION_CAMERA_FACTORY =
-      Option.create("camerax.core.appConfig.cameraFactory", CameraFactory.class);
-
-  static final Option<CameraDeviceSurfaceManager> OPTION_DEVICE_SURFACE_MANAGER =
-      Option.create(
-          "camerax.core.appConfig.deviceSurfaceManager", CameraDeviceSurfaceManager.class);
-
-  static final Option<UseCaseConfigurationFactory> OPTION_USECASE_CONFIG_FACTORY =
-      Option.create(
-          "camerax.core.appConfig.useCaseConfigFactory", UseCaseConfigurationFactory.class);
 }

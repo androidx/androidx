@@ -19,6 +19,7 @@ package androidx.camera.camera2;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -27,15 +28,16 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class CaptureCallbackContainerAndroidTest {
 
-  @Test(expected = NullPointerException.class)
-  public void createCaptureCallbackContainer_withNullArgument() {
-    CaptureCallbackContainer.create(null);
-  }
+    @Test(expected = NullPointerException.class)
+    public void createCaptureCallbackContainer_withNullArgument() {
+        CaptureCallbackContainer.create(null);
+    }
 
-  @Test
-  public void getCaptureCallback() {
-    CaptureCallback captureCallback = Mockito.mock(CaptureCallback.class);
-    CaptureCallbackContainer callbackContainer = CaptureCallbackContainer.create(captureCallback);
-    assertThat(callbackContainer.getCaptureCallback()).isEqualTo(captureCallback);
-  }
+    @Test
+    public void getCaptureCallback() {
+        CaptureCallback captureCallback = Mockito.mock(CaptureCallback.class);
+        CaptureCallbackContainer callbackContainer =
+                CaptureCallbackContainer.create(captureCallback);
+        assertThat(callbackContainer.getCaptureCallback()).isEqualTo(captureCallback);
+    }
 }

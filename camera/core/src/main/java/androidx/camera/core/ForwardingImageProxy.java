@@ -17,7 +17,9 @@
 package androidx.camera.core;
 
 import android.graphics.Rect;
+
 import androidx.annotation.GuardedBy;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,91 +33,91 @@ import java.util.Set;
  * be notified.
  */
 abstract class ForwardingImageProxy implements ImageProxy {
-  @GuardedBy("this")
-  protected final ImageProxy image;
+    @GuardedBy("this")
+    protected final ImageProxy image;
 
-  @GuardedBy("this")
-  private final Set<OnImageCloseListener> onImageCloseListeners = new HashSet<>();
+    @GuardedBy("this")
+    private final Set<OnImageCloseListener> onImageCloseListeners = new HashSet<>();
 
-  /**
-   * Creates a new instance which wraps the given image.
-   *
-   * @param image to wrap
-   * @return new {@link AndroidImageProxy} instance
-   */
-  protected ForwardingImageProxy(ImageProxy image) {
-    this.image = image;
-  }
-
-  @Override
-  public synchronized void close() {
-    image.close();
-    notifyOnImageCloseListeners();
-  }
-
-  @Override
-  public synchronized Rect getCropRect() {
-    return image.getCropRect();
-  }
-
-  @Override
-  public synchronized void setCropRect(Rect rect) {
-    image.setCropRect(rect);
-  }
-
-  @Override
-  public synchronized int getFormat() {
-    return image.getFormat();
-  }
-
-  @Override
-  public synchronized int getHeight() {
-    return image.getHeight();
-  }
-
-  @Override
-  public synchronized int getWidth() {
-    return image.getWidth();
-  }
-
-  @Override
-  public synchronized long getTimestamp() {
-    return image.getTimestamp();
-  }
-
-  @Override
-  public synchronized void setTimestamp(long timestamp) {
-    image.setTimestamp(timestamp);
-  }
-
-  @Override
-  public synchronized ImageProxy.PlaneProxy[] getPlanes() {
-    return image.getPlanes();
-  }
-
-  /**
-   * Adds a listener for close calls on this image.
-   *
-   * @param listener to add
-   */
-  synchronized void addOnImageCloseListener(OnImageCloseListener listener) {
-    onImageCloseListeners.add(listener);
-  }
-
-  /** Notifies the listeners that this image has been closed. */
-  protected synchronized void notifyOnImageCloseListeners() {
-    for (OnImageCloseListener listener : onImageCloseListeners) {
-      listener.onImageClose(this);
-    }
-  }
-
-  /** Listener for the image close event. */
-  interface OnImageCloseListener {
     /**
-     * Callback for image close.
+     * Creates a new instance which wraps the given image.
      *
-     * @param image which is closed
+     * @param image to wrap
+     * @return new {@link AndroidImageProxy} instance
      */
-    void onImageClose(ImageProxy image);
-  }
+    protected ForwardingImageProxy(ImageProxy image) {
+        this.image = image;
+    }
+
+    @Override
+    public synchronized void close() {
+        image.close();
+        notifyOnImageCloseListeners();
+    }
+
+    @Override
+    public synchronized Rect getCropRect() {
+        return image.getCropRect();
+    }
+
+    @Override
+    public synchronized void setCropRect(Rect rect) {
+        image.setCropRect(rect);
+    }
+
+    @Override
+    public synchronized int getFormat() {
+        return image.getFormat();
+    }
+
+    @Override
+    public synchronized int getHeight() {
+        return image.getHeight();
+    }
+
+    @Override
+    public synchronized int getWidth() {
+        return image.getWidth();
+    }
+
+    @Override
+    public synchronized long getTimestamp() {
+        return image.getTimestamp();
+    }
+
+    @Override
+    public synchronized void setTimestamp(long timestamp) {
+        image.setTimestamp(timestamp);
+    }
+
+    @Override
+    public synchronized ImageProxy.PlaneProxy[] getPlanes() {
+        return image.getPlanes();
+    }
+
+    /**
+     * Adds a listener for close calls on this image.
+     *
+     * @param listener to add
+     */
+    synchronized void addOnImageCloseListener(OnImageCloseListener listener) {
+        onImageCloseListeners.add(listener);
+    }
+
+    /** Notifies the listeners that this image has been closed. */
+    protected synchronized void notifyOnImageCloseListeners() {
+        for (OnImageCloseListener listener : onImageCloseListeners) {
+            listener.onImageClose(this);
+        }
+    }
+
+    /** Listener for the image close event. */
+    interface OnImageCloseListener {
+        /**
+         * Callback for image close.
+         *
+         * @param image which is closed
+         */
+        void onImageClose(ImageProxy image);
+    }
 }

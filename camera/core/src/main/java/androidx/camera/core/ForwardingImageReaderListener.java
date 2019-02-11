@@ -18,7 +18,9 @@ package androidx.camera.core;
 
 import android.media.Image;
 import android.media.ImageReader;
+
 import androidx.annotation.GuardedBy;
+
 import java.util.Collections;
 import java.util.List;
 
@@ -27,39 +29,39 @@ import java.util.List;
  * to multiple {@link ImageReaderProxy} instances.
  */
 final class ForwardingImageReaderListener implements ImageReader.OnImageAvailableListener {
-  @GuardedBy("this")
-  private final List<QueuedImageReaderProxy> imageReaders;
+    @GuardedBy("this")
+    private final List<QueuedImageReaderProxy> imageReaders;
 
-  /**
-   * Creates a new forwarding listener.
-   *
-   * @param imageReaders list of image readers which will receive a copy of every new image
-   * @return new {@link ForwardingImageReaderListener} instance
-   */
-  ForwardingImageReaderListener(List<QueuedImageReaderProxy> imageReaders) {
-    this.imageReaders = Collections.unmodifiableList(imageReaders);
-  }
-
-  @Override
-  public synchronized void onImageAvailable(ImageReader imageReader) {
-    Image image = imageReader.acquireNextImage();
-    ImageProxy imageProxy = new AndroidImageProxy(image);
-    ReferenceCountedImageProxy referenceCountedImageProxy =
-        new ReferenceCountedImageProxy(imageProxy);
-    for (QueuedImageReaderProxy imageReaderProxy : imageReaders) {
-      synchronized (imageReaderProxy) {
-        if (!imageReaderProxy.isClosed()) {
-          ImageProxy forkedImage = referenceCountedImageProxy.fork();
-          ForwardingImageProxy imageToEnqueue =
-              ImageProxyDownsampler.downsample(
-                  forkedImage,
-                  imageReaderProxy.getWidth(),
-                  imageReaderProxy.getHeight(),
-                  ImageProxyDownsampler.DownsamplingMethod.AVERAGING);
-          imageReaderProxy.enqueueImage(imageToEnqueue);
-        }
-      }
+    /**
+     * Creates a new forwarding listener.
+     *
+     * @param imageReaders list of image readers which will receive a copy of every new image
+     * @return new {@link ForwardingImageReaderListener} instance
+     */
+    ForwardingImageReaderListener(List<QueuedImageReaderProxy> imageReaders) {
+        this.imageReaders = Collections.unmodifiableList(imageReaders);
     }
-    referenceCountedImageProxy.close();
-  }
+
+    @Override
+    public synchronized void onImageAvailable(ImageReader imageReader) {
+        Image image = imageReader.acquireNextImage();
+        ImageProxy imageProxy = new AndroidImageProxy(image);
+        ReferenceCountedImageProxy referenceCountedImageProxy =
+                new ReferenceCountedImageProxy(imageProxy);
+        for (QueuedImageReaderProxy imageReaderProxy : imageReaders) {
+            synchronized (imageReaderProxy) {
+                if (!imageReaderProxy.isClosed()) {
+                    ImageProxy forkedImage = referenceCountedImageProxy.fork();
+                    ForwardingImageProxy imageToEnqueue =
+                            ImageProxyDownsampler.downsample(
+                                    forkedImage,
+                                    imageReaderProxy.getWidth(),
+                                    imageReaderProxy.getHeight(),
+                                    ImageProxyDownsampler.DownsamplingMethod.AVERAGING);
+                    imageReaderProxy.enqueueImage(imageToEnqueue);
+                }
+            }
+        }
+        referenceCountedImageProxy.close();
+    }
 }
