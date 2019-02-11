@@ -76,10 +76,13 @@ public class NavDestination {
         private final NavDestination mDestination;
         @NonNull
         private final Bundle mMatchingArgs;
+        private final boolean mIsExactDeepLink;
 
-        DeepLinkMatch(@NonNull NavDestination destination, @NonNull Bundle matchingArgs) {
+        DeepLinkMatch(@NonNull NavDestination destination, @NonNull Bundle matchingArgs,
+                boolean isExactDeepLink) {
             mDestination = destination;
             mMatchingArgs = matchingArgs;
+            mIsExactDeepLink = isExactDeepLink;
         }
 
         @NonNull
@@ -94,6 +97,12 @@ public class NavDestination {
 
         @Override
         public int compareTo(DeepLinkMatch other) {
+            // Prefer exact deep links
+            if (mIsExactDeepLink && !other.mIsExactDeepLink) {
+                return 1;
+            } else if (!mIsExactDeepLink && other.mIsExactDeepLink) {
+                return -1;
+            }
             // Prefer matches with more matching arguments
             return mMatchingArgs.size() - other.mMatchingArgs.size();
         }
@@ -335,7 +344,8 @@ public class NavDestination {
         for (NavDeepLink deepLink : mDeepLinks) {
             Bundle matchingArguments = deepLink.getMatchingArguments(uri, getArguments());
             if (matchingArguments != null) {
-                DeepLinkMatch newMatch = new DeepLinkMatch(this, matchingArguments);
+                DeepLinkMatch newMatch = new DeepLinkMatch(this, matchingArguments,
+                        deepLink.isExactDeepLink());
                 if (bestMatch == null || newMatch.compareTo(bestMatch) > 0) {
                     bestMatch = newMatch;
                 }

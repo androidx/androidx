@@ -47,6 +47,29 @@ class NavDestinationAndroidTest {
     }
 
     @Test
+    fun matchDeepLinkBestMatchExact() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.addDeepLink("www.example.com/users/index.html")
+
+        val idArgument = NavArgument.Builder()
+            .setType(NavType.StringType)
+            .build()
+        destination.addArgument("id", idArgument)
+        destination.addDeepLink("www.example.com/users/{name}")
+
+        val match = destination.matchDeepLink(
+            Uri.parse("https://www.example.com/users/index.html"))
+
+        assertWithMessage("Deep link should match")
+            .that(match)
+            .isNotNull()
+        assertWithMessage("Deep link should pick the exact match")
+            .that(match?.matchingArgs?.size())
+            .isEqualTo(0)
+    }
+
+    @Test
     fun matchDotStar() {
         val destination = NoOpNavigator().createDestination()
 
