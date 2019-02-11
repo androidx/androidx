@@ -17,7 +17,7 @@
 package androidx.camera.camera2;
 
 import android.hardware.camera2.CameraCaptureSession.CaptureCallback;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import androidx.camera.core.CameraCaptureCallback;
 
 /**

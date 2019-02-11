@@ -23,7 +23,7 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import androidx.camera.core.BaseCamera;
 import androidx.camera.core.CameraFactory;
 import androidx.camera.core.CameraInfoUnavailableException;
