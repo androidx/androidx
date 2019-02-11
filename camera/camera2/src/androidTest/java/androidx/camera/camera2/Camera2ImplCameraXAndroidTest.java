@@ -22,8 +22,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import android.content.Context;
 import android.hardware.camera2.CameraDevice;
 import android.os.HandlerThread;

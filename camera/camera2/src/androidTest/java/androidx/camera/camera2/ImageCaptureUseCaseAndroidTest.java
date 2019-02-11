@@ -29,7 +29,7 @@ import android.content.Context;
 import android.location.Location;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.util.Size;
 import android.view.Surface;
 import androidx.camera.core.AppConfiguration;

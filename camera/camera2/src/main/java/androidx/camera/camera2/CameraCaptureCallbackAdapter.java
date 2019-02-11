@@ -20,7 +20,7 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import androidx.camera.core.CameraCaptureCallback;
 import androidx.camera.core.CameraCaptureFailure;
 

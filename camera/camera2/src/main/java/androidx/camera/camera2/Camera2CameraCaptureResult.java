@@ -17,7 +17,7 @@
 package androidx.camera.camera2;
 
 import android.hardware.camera2.CaptureResult;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Log;
 import androidx.camera.core.CameraCaptureMetaData.AeState;
 import androidx.camera.core.CameraCaptureMetaData.AfMode;
