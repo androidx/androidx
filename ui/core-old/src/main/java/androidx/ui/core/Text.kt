@@ -16,6 +16,10 @@
 package androidx.ui.core
 
 import android.content.Context
+import androidx.ui.core.adapter.DensityConsumer
+import androidx.ui.core.adapter.Draw
+import androidx.ui.core.adapter.MeasureBox
+import androidx.ui.core.adapter.Semantics
 import androidx.ui.engine.geometry.Offset
 import androidx.ui.engine.text.TextAlign
 import androidx.ui.engine.text.TextDirection

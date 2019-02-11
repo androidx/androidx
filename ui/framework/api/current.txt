@@ -1,1 +1,157 @@
 // Signature format: 3.0
+package androidx.ui.core {
+
+  public final class ComplexMeasureBox extends com.google.r4a.Component {
+    ctor public ComplexMeasureBox(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComplexMeasureOperations,kotlin.Unit> block);
+    method public void compose();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.ComplexMeasureOperations,kotlin.Unit> getBlock();
+    method public void setBlock(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComplexMeasureOperations,kotlin.Unit> p);
+    field public static final androidx.ui.core.ComplexMeasureBox.Companion! Companion;
+  }
+
+  public static final class ComplexMeasureBox.Companion {
+  }
+
+  public final class ComplexMeasureOperations {
+    method public java.util.List<androidx.ui.core.Measurable> collect(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void layout(kotlin.jvm.functions.Function4<? super androidx.ui.core.Constraints,? super kotlin.jvm.functions.Function2<? super androidx.ui.core.Measurable,? super androidx.ui.core.Constraints,? extends androidx.ui.core.Placeable>,? super androidx.ui.core.IntrinsicMeasureOperations,? super kotlin.jvm.functions.Function3<? super androidx.ui.core.Dimension,? super androidx.ui.core.Dimension,? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit>,kotlin.Unit> block);
+    method public void maxIntrinsicHeight(kotlin.jvm.functions.Function2<? super androidx.ui.core.Dimension,? super androidx.ui.core.IntrinsicMeasureOperations,androidx.ui.core.Dimension> block);
+    method public void maxIntrinsicWidth(kotlin.jvm.functions.Function2<? super androidx.ui.core.Dimension,? super androidx.ui.core.IntrinsicMeasureOperations,androidx.ui.core.Dimension> block);
+    method public void minIntrinsicHeight(kotlin.jvm.functions.Function2<? super androidx.ui.core.Dimension,? super androidx.ui.core.IntrinsicMeasureOperations,androidx.ui.core.Dimension> block);
+    method public void minIntrinsicWidth(kotlin.jvm.functions.Function2<? super androidx.ui.core.Dimension,? super androidx.ui.core.IntrinsicMeasureOperations,androidx.ui.core.Dimension> block);
+  }
+
+  public final class CraneWrapper extends com.google.r4a.Component {
+    ctor public CraneWrapper(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+  }
+
+  public final class Draw extends com.google.r4a.Component {
+    ctor public Draw(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PixelSize,kotlin.Unit> onPaint);
+    method public void compose();
+    method public kotlin.jvm.functions.Function2<androidx.ui.painting.Canvas,androidx.ui.core.PixelSize,kotlin.Unit> getOnPaint();
+    method public void setOnPaint(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PixelSize,kotlin.Unit> p);
+  }
+
+  public final class DrawKt {
+    ctor public DrawKt();
+    method public static void DrawComposable(kotlin.jvm.functions.Function2<? super androidx.ui.painting.Canvas,? super androidx.ui.core.PixelSize,kotlin.Unit> onPaint);
+  }
+
+  public final class IntrinsicMeasureOperations {
+    method public androidx.ui.core.Dimension maxIntrinsicHeight(androidx.ui.core.Measurable m, androidx.ui.core.Dimension w);
+    method public androidx.ui.core.Dimension maxIntrinsicWidth(androidx.ui.core.Measurable m, androidx.ui.core.Dimension h);
+    method public androidx.ui.core.Dimension minIntrinsicHeight(androidx.ui.core.Measurable m, androidx.ui.core.Dimension w);
+    method public androidx.ui.core.Dimension minIntrinsicWidth(androidx.ui.core.Measurable m, androidx.ui.core.Dimension h);
+    field public static final androidx.ui.core.IntrinsicMeasureOperations! INSTANCE;
+  }
+
+  public interface LayoutCoordinates {
+    method public androidx.ui.core.Position childToLocal(androidx.ui.core.LayoutCoordinates child, androidx.ui.core.Position childLocal);
+    method public androidx.ui.core.LayoutCoordinates? getParentCoordinates();
+    method public androidx.ui.core.Position getPosition();
+    method public androidx.ui.core.Size getSize();
+    method public androidx.ui.core.Position globalToLocal(androidx.ui.core.Position global);
+    method public androidx.ui.core.Position localToGlobal(androidx.ui.core.Position local);
+    property public abstract androidx.ui.core.Position position;
+    property public abstract androidx.ui.core.Size size;
+  }
+
+  public final class LayoutKt {
+    ctor public LayoutKt();
+    method public static void ComplexMeasureBoxComposable(kotlin.jvm.functions.Function1<? super androidx.ui.core.ComplexMeasureOperations,kotlin.Unit> block);
+    method public static void MeasureBoxComposable(kotlin.jvm.functions.Function2<? super androidx.ui.core.Constraints,? super androidx.ui.core.MeasureOperations,kotlin.Unit> block);
+  }
+
+  public final class MeasurableImpl implements androidx.ui.core.Measurable {
+  }
+
+  public final class MeasureBox extends com.google.r4a.Component {
+    ctor public MeasureBox(kotlin.jvm.functions.Function2<? super androidx.ui.core.Constraints,? super androidx.ui.core.MeasureOperations,kotlin.Unit> block);
+    method public void compose();
+    method public kotlin.jvm.functions.Function2<androidx.ui.core.Constraints,androidx.ui.core.MeasureOperations,kotlin.Unit> getBlock();
+    method public void setBlock(kotlin.jvm.functions.Function2<? super androidx.ui.core.Constraints,? super androidx.ui.core.MeasureOperations,kotlin.Unit> p);
+  }
+
+  public final class OnPositioned extends com.google.r4a.Component {
+    ctor public OnPositioned(kotlin.jvm.functions.Function1<? super androidx.ui.core.LayoutCoordinates,kotlin.Unit> callback);
+    method public void compose();
+  }
+
+  public final class PointerInput extends com.google.r4a.Component {
+    ctor public PointerInput(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public kotlin.jvm.functions.Function2<androidx.ui.core.pointerinput.PointerInputChange,androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> getPointerInputHandler();
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setPointerInputHandler(kotlin.jvm.functions.Function2<? super androidx.ui.core.pointerinput.PointerInputChange,? super androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> p);
+    property public final kotlin.jvm.functions.Function2<androidx.ui.core.pointerinput.PointerInputChange,androidx.ui.core.pointerinput.PointerEventPass,androidx.ui.core.pointerinput.PointerInputChange> pointerInputHandler;
+  }
+
+  public final class SemanticsKt {
+    ctor public SemanticsKt();
+    method public static void Semantics(kotlin.jvm.functions.Function0<kotlin.Unit> children, boolean container = false, boolean explicitChildNodes = false, boolean enabled = false, boolean checked = false, boolean selected = false, boolean button = false, boolean header = false, boolean textField = false, boolean focused = false, boolean inMutuallyExclusiveGroup = false, boolean obscured = false, boolean scopesRoute = false, boolean namesRoute = false, boolean hidden = false, String? label = null, String? value = null, String? increasedValue = null, String? decreasedValue = null, String? hint = null, androidx.ui.engine.text.TextDirection? textDirection = null, androidx.ui.core.semantics.SemanticsSortKey? sortKey = null, String? testTag = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onTap = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onLongPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onScrollLeft = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onScrollRight = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onScrollUp = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onScrollDown = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onIncrease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onDecrease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCopy = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCut = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onPaste = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onMoveCursorForwardByCharacter = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onMoveCursorBackwardByCharacter = null, kotlin.jvm.functions.Function1<? super androidx.ui.services.text_editing.TextSelection,kotlin.Unit>? onSetSelection = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onDidGainAccessibilityFocus = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onDidLoseAccessibilityFocus = null);
+  }
+
+  public final class SemanticsProxy extends com.google.r4a.Component {
+    ctor public SemanticsProxy(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public boolean getChecked();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public String? getTestTag();
+    method public void setChecked(boolean p);
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setTestTag(String? p);
+    property public final boolean checked;
+    property public final String? testTag;
+  }
+
+  public final class WrapperKt {
+    ctor public WrapperKt();
+    method public static void CraneWrapperComposable(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void DensityConsumer(kotlin.jvm.functions.Function1<? super androidx.ui.core.Density,kotlin.Unit> children);
+    method public static com.google.r4a.Ambient<android.content.Context> getContextAmbient();
+  }
+
+}
+
+package androidx.ui.core.gesture {
+
+  public final class PressGestureDetectorKt {
+    ctor public PressGestureDetectorKt();
+    method public static void PressGestureDetector(kotlin.jvm.functions.Function1<? super androidx.ui.core.Position,kotlin.Unit>? onPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class PressIndicatorGestureDetector extends com.google.r4a.Component {
+    ctor public PressIndicatorGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnCancel();
+    method public kotlin.jvm.functions.Function1<androidx.ui.core.Position,kotlin.Unit>? getOnStart();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnStop();
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setOnCancel(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
+    method public void setOnStart(kotlin.jvm.functions.Function1<? super androidx.ui.core.Position,kotlin.Unit>? p);
+    method public void setOnStop(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onCancel;
+    property public final kotlin.jvm.functions.Function1<androidx.ui.core.Position,kotlin.Unit>? onStart;
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onStop;
+  }
+
+  public final class PressReleasedGestureDetector extends com.google.r4a.Component {
+    ctor public PressReleasedGestureDetector(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void compose();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
+    method public boolean getConsumeDownOnStart();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnRelease();
+    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setConsumeDownOnStart(boolean value);
+    method public void setOnRelease(kotlin.jvm.functions.Function0<kotlin.Unit>? value);
+    property public final boolean consumeDownOnStart;
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit>? onRelease;
+  }
+
+}
+

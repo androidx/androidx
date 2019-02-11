@@ -16,7 +16,6 @@
 
 package androidx.ui.core
 
-import androidx.ui.VoidCallback
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.core.semantics.SemanticsSortKey
@@ -51,22 +50,22 @@ fun Semantics(
     textDirection: TextDirection? = null,
     sortKey: SemanticsSortKey? = null,
     testTag: String? = null,
-    onTap: VoidCallback? = null,
-    onLongPress: VoidCallback? = null,
-    onScrollLeft: VoidCallback? = null,
-    onScrollRight: VoidCallback? = null,
-    onScrollUp: VoidCallback? = null,
-    onScrollDown: VoidCallback? = null,
-    onIncrease: VoidCallback? = null,
-    onDecrease: VoidCallback? = null,
-    onCopy: VoidCallback? = null,
-    onCut: VoidCallback? = null,
-    onPaste: VoidCallback? = null,
+    onTap: (() -> Unit)? = null,
+    onLongPress: (() -> Unit)? = null,
+    onScrollLeft: (() -> Unit)? = null,
+    onScrollRight: (() -> Unit)? = null,
+    onScrollUp: (() -> Unit)? = null,
+    onScrollDown: (() -> Unit)? = null,
+    onIncrease: (() -> Unit)? = null,
+    onDecrease: (() -> Unit)? = null,
+    onCopy: (() -> Unit)? = null,
+    onCut: (() -> Unit)? = null,
+    onPaste: (() -> Unit)? = null,
     onMoveCursorForwardByCharacter: ((extendSelection: Boolean) -> Unit)? = null,
     onMoveCursorBackwardByCharacter: ((extendSelection: Boolean) -> Unit)? = null,
     onSetSelection: ((selection: TextSelection) -> Unit)? = null,
-    onDidGainAccessibilityFocus: VoidCallback? = null,
-    onDidLoseAccessibilityFocus: VoidCallback? = null
+    onDidGainAccessibilityFocus: (() -> Unit)? = null,
+    onDidLoseAccessibilityFocus: (() -> Unit)? = null
 
     ) {
     <SemanticsR4ANode

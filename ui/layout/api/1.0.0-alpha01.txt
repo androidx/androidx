@@ -1,1 +1,69 @@
 // Signature format: 3.0
+package androidx.ui.layout {
+
+  public final class AlignKt {
+    ctor public AlignKt();
+    method public static void Align(androidx.ui.layout.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public static void Center(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class Alignment {
+    ctor public Alignment(float verticalBias, float horizontalBias);
+    method public androidx.ui.core.Position align(androidx.ui.core.Size size);
+    method public float component1();
+    method public float component2();
+    method public androidx.ui.layout.Alignment copy(float verticalBias, float horizontalBias);
+    method public float getHorizontalBias();
+    method public float getVerticalBias();
+    field public static final androidx.ui.layout.Alignment.Companion! Companion;
+  }
+
+  public static final class Alignment.Companion {
+    method public androidx.ui.layout.Alignment getBottomCenter();
+    method public androidx.ui.layout.Alignment getBottomLeft();
+    method public androidx.ui.layout.Alignment getBottomRight();
+    method public androidx.ui.layout.Alignment getCenter();
+    method public androidx.ui.layout.Alignment getCenterLeft();
+    method public androidx.ui.layout.Alignment getCenterRight();
+    method public androidx.ui.layout.Alignment getTopCenter();
+    method public androidx.ui.layout.Alignment getTopLeft();
+    method public androidx.ui.layout.Alignment getTopRight();
+    property public final androidx.ui.layout.Alignment BottomCenter;
+    property public final androidx.ui.layout.Alignment BottomLeft;
+    property public final androidx.ui.layout.Alignment BottomRight;
+    property public final androidx.ui.layout.Alignment Center;
+    property public final androidx.ui.layout.Alignment CenterLeft;
+    property public final androidx.ui.layout.Alignment CenterRight;
+    property public final androidx.ui.layout.Alignment TopCenter;
+    property public final androidx.ui.layout.Alignment TopLeft;
+    property public final androidx.ui.layout.Alignment TopRight;
+  }
+
+  public final class FlexChildren {
+    ctor public FlexChildren();
+    method public void expanded(float flex, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void flexible(float flex, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void inflexible(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class FlexKt {
+    ctor public FlexKt();
+    method public static void Column(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method public static void FlexColumn(kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void FlexRow(kotlin.jvm.functions.Function1<? super androidx.ui.layout.FlexChildren,kotlin.Unit> block);
+    method public static void Row(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+  }
+
+  public final class StackChildren {
+    ctor public StackChildren();
+    method public void aligned(androidx.ui.layout.Alignment alignment, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method public void positioned(androidx.ui.core.Dimension? leftInset = null, androidx.ui.core.Dimension? topInset = null, androidx.ui.core.Dimension? rightInset = null, androidx.ui.core.Dimension? bottomInset = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+  }
+
+  public final class StackKt {
+    ctor public StackKt();
+    method public static void Stack(androidx.ui.layout.Alignment defaultAlignment, kotlin.jvm.functions.Function1<? super androidx.ui.layout.StackChildren,kotlin.Unit> block);
+  }
+
+}
+

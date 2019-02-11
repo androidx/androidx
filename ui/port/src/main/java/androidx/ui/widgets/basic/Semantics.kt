@@ -1,3 +1,5 @@
+package androidx.ui.widgets.basic
+
 import androidx.ui.VoidCallback
 import androidx.ui.engine.text.TextDirection
 import androidx.ui.foundation.Key
@@ -12,7 +14,6 @@ import androidx.ui.semantics.MoveCursorHandler
 import androidx.ui.semantics.SemanticsProperties
 import androidx.ui.semantics.SemanticsSortKey
 import androidx.ui.semantics.SetSelectionHandler
-import androidx.ui.widgets.basic.Directionality
 import androidx.ui.widgets.framework.BuildContext
 import androidx.ui.widgets.framework.SingleChildRenderObjectWidget
 import androidx.ui.widgets.framework.Widget

@@ -72,6 +72,6 @@ class FindersTests {
     }
 
     private fun newNode(properties: SemanticsProperties): SemanticsTreeNode {
-        return SemanticsTreeNode(/* parent= */ null, /* data= */ properties)
+        return SemanticsTreeNodeStub(/* data= */ properties)
     }
 }

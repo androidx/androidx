@@ -3,12 +3,17 @@ import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.SupportLibraryExtension;
 
+// TODO(mount): Make this platform-independent
+
 plugins {
-    id("SupportJavaLibraryPlugin")
-    id("kotlin")
+    id("SupportAndroidLibraryPlugin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    api project(":ui-core")
+    api project(":ui-framework")
+    api project(":ui-core-adapter")
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)
     testImplementation(TEST_RUNNER)
@@ -17,7 +22,22 @@ dependencies {
     testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
         exclude group: 'org.mockito' // to keep control on the mockito version
     }
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    androidTestImplementation(JUNIT)
+    androidTestImplementation(MOCKITO_CORE)
+    androidTestImplementation(TEST_RUNNER)
+    androidTestImplementation(TEST_RULES)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.0.0-RC2", {
+        exclude group: 'org.mockito' // to keep control on the mockito version
+    }
+    androidTestImplementation 'androidx.internal-testutils:internal-testutils:0.0.0-alpha00'
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 21
+        multiDexEnabled true
+    }
 }
 
 supportLibrary {
@@ -28,4 +48,10 @@ supportLibrary {
     inceptionYear = "2019"
     description = "AndroidX UI layout classes not targeting a specific design system."
     useMetalava = true
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        useIR = true
+    }
 }
