@@ -26,7 +26,7 @@ android {
     compileSdkVersion project.ext.compileSdk
 
     defaultConfig {
-        applicationId "androidx.camera.app.cameraview"
+        applicationId "androidx.camera.testapp.cameraview"
         minSdkVersion project.ext.minSdk
         targetSdkVersion project.ext.targetSdk
         versionCode 1
@@ -35,11 +35,11 @@ android {
     }
 
     sourceSets {
-        main.manifest.srcFile 'AndroidManifest.xml'
-        main.java.srcDirs = ['.']
+        main.manifest.srcFile 'src/main/AndroidManifest.xml'
+        main.java.srcDirs = ['src/main/java']
         main.java.excludes = ['**/build/**']
-        main.java.includes = ['*.java']
-        main.res.srcDirs = ['res']
+        main.java.includes = ['**/*.java']
+        main.res.srcDirs = ['src/main/res']
     }
 
     buildTypes {
