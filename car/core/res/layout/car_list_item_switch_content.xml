@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2019 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="@dimen/car_single_line_list_item_height"
+    android:foreground="@drawable/car_card_ripple_background" >
+
+    <!-- Primary Action. -->
+    <ImageView
+        android:id="@+id/primary_icon"
+        android:layout_width="@dimen/car_single_line_list_item_height"
+        android:layout_height="@dimen/car_single_line_list_item_height"
+        android:tint="?attr/listItemPrimaryIconTint"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"/>
+
+    <!-- Text. -->
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:singleLine="true"
+        android:ellipsize="end"
+        android:textAppearance="?attr/listItemTitleTextAppearance"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/body"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/barrier"
+        app:layout_constraintVertical_chainStyle="packed"/>
+
+    <TextView
+        android:id="@+id/body"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textAppearance="?attr/listItemBodyTextAppearance"
+        app:layout_constraintTop_toBottomOf="@+id/title"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/barrier"/>
+
+    <!-- A barrier between the text and switch. -->
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="start"
+        app:barrierAllowsGoneWidgets="false"
+        app:constraint_referenced_ids="switch_divider,switch_widget" />
+
+    <!-- Guideline that the switch is centered upon. -->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/supplemental_actions_guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <!-- Switch with divider. -->
+    <View
+        android:id="@+id/switch_divider"
+        android:background="?attr/listItemActionDividerColor"
+        android:layout_marginEnd="@dimen/car_padding_4"
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
+        app:layout_constraintEnd_toStartOf="@+id/switch_widget"
+        style="@style/CarListVerticalDivider"/>
+
+    <Switch
+        android:id="@+id/switch_widget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/car_keyline_1"
+        app:layout_constraintTop_toTopOf="@+id/supplemental_actions_guideline"
+        app:layout_constraintBottom_toBottomOf="@+id/supplemental_actions_guideline"
+        app:layout_constraintEnd_toEndOf="parent"
+        style="?attr/switchStyle" />
+</androidx.constraintlayout.widget.ConstraintLayout>
