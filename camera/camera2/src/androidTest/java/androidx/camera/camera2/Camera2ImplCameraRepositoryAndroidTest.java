@@ -46,15 +46,15 @@ import java.util.Map;
  */
 @RunWith(AndroidJUnit4.class)
 public final class Camera2ImplCameraRepositoryAndroidTest {
-    private CameraRepository cameraRepository;
-    private UseCaseGroup useCaseGroup;
-    private FakeUseCaseConfiguration configuration;
-    private CallbackAttachingFakeUseCase useCase;
-    private CameraFactory cameraFactory;
+    private CameraRepository mCameraRepository;
+    private UseCaseGroup mUseCaseGroup;
+    private FakeUseCaseConfiguration mConfiguration;
+    private CallbackAttachingFakeUseCase mUseCase;
+    private CameraFactory mCameraFactory;
 
     private String getCameraIdForLensFacingUnchecked(LensFacing lensFacing) {
         try {
-            return cameraFactory.cameraIdForLensFacing(lensFacing);
+            return mCameraFactory.cameraIdForLensFacing(lensFacing);
         } catch (Exception e) {
             throw new IllegalArgumentException(
                     "Unable to attach to camera with LensFacing " + lensFacing, e);
@@ -63,40 +63,40 @@ public final class Camera2ImplCameraRepositoryAndroidTest {
 
     @Before
     public void setUp() {
-        cameraRepository = new CameraRepository();
-        cameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
-        cameraRepository.init(cameraFactory);
-        useCaseGroup = new UseCaseGroup();
-        configuration =
+        mCameraRepository = new CameraRepository();
+        mCameraFactory = new Camera2CameraFactory(ApplicationProvider.getApplicationContext());
+        mCameraRepository.init(mCameraFactory);
+        mUseCaseGroup = new UseCaseGroup();
+        mConfiguration =
                 new FakeUseCaseConfiguration.Builder().setLensFacing(LensFacing.BACK).build();
-        String cameraId = getCameraIdForLensFacingUnchecked(configuration.getLensFacing());
-        useCase = new CallbackAttachingFakeUseCase(configuration, cameraId);
-        useCaseGroup.addUseCase(useCase);
+        String cameraId = getCameraIdForLensFacingUnchecked(mConfiguration.getLensFacing());
+        mUseCase = new CallbackAttachingFakeUseCase(mConfiguration, cameraId);
+        mUseCaseGroup.addUseCase(mUseCase);
     }
 
     @Test(timeout = 5000)
     public void cameraDeviceCallsAreForwardedToCallback() throws InterruptedException {
-        cameraRepository.onGroupActive(useCaseGroup);
+        mCameraRepository.onGroupActive(mUseCaseGroup);
 
         // Wait for the CameraDevice.onOpened callback.
-        useCase.deviceStateCallback.waitForOnOpened(1);
+        mUseCase.mDeviceStateCallback.waitForOnOpened(1);
 
-        cameraRepository.onGroupInactive(useCaseGroup);
+        mCameraRepository.onGroupInactive(mUseCaseGroup);
 
         // Wait for the CameraDevice.onClosed callback.
-        useCase.deviceStateCallback.waitForOnClosed(1);
+        mUseCase.mDeviceStateCallback.waitForOnClosed(1);
     }
 
     @Test(timeout = 5000)
     public void cameraSessionCallsAreForwardedToCallback() throws InterruptedException {
-        useCase.addStateChangeListener(
-                cameraRepository.getCamera(
-                        getCameraIdForLensFacingUnchecked(configuration.getLensFacing())));
-        useCase.doNotifyActive();
-        cameraRepository.onGroupActive(useCaseGroup);
+        mUseCase.addStateChangeListener(
+                mCameraRepository.getCamera(
+                        getCameraIdForLensFacingUnchecked(mConfiguration.getLensFacing())));
+        mUseCase.doNotifyActive();
+        mCameraRepository.onGroupActive(mUseCaseGroup);
 
         // Wait for the CameraCaptureSession.onConfigured callback.
-        useCase.sessionStateCallback.waitForOnConfigured(1);
+        mUseCase.mSessionStateCallback.waitForOnConfigured(1);
 
         // Camera doesn't currently call CaptureSession.release(), because it is recommended that
         // we don't explicitly call CameraCaptureSession.close(). Rather, we rely on another
@@ -107,18 +107,18 @@ public final class Camera2ImplCameraRepositoryAndroidTest {
 
     /** A fake use case which attaches to a camera with various callbacks. */
     private static class CallbackAttachingFakeUseCase extends FakeUseCase {
-        private final DeviceStateCallback deviceStateCallback = new DeviceStateCallback();
-        private final SessionStateCallback sessionStateCallback = new SessionStateCallback();
-        private final SurfaceTexture surfaceTexture = new SurfaceTexture(0);
+        private final DeviceStateCallback mDeviceStateCallback = new DeviceStateCallback();
+        private final SessionStateCallback mSessionStateCallback = new SessionStateCallback();
+        private final SurfaceTexture mSurfaceTexture = new SurfaceTexture(0);
 
         CallbackAttachingFakeUseCase(FakeUseCaseConfiguration configuration, String cameraId) {
             super(configuration);
 
             SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
-            builder.addSurface(new ImmediateSurface(new Surface(surfaceTexture)));
-            builder.setDeviceStateCallback(deviceStateCallback);
-            builder.setSessionStateCallback(sessionStateCallback);
+            builder.addSurface(new ImmediateSurface(new Surface(mSurfaceTexture)));
+            builder.setDeviceStateCallback(mDeviceStateCallback);
+            builder.setSessionStateCallback(mSessionStateCallback);
 
             attachToCamera(cameraId, builder.build());
         }
