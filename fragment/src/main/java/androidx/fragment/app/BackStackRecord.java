@@ -304,7 +304,6 @@ final class BackStackRecord extends FragmentTransaction implements
         if (containerViewId == 0) {
             throw new IllegalArgumentException("Must use non-zero containerViewId");
         }
-
         doAddOp(containerViewId, fragment, tag, OP_REPLACE);
         return this;
     }
@@ -312,6 +311,11 @@ final class BackStackRecord extends FragmentTransaction implements
     @NonNull
     @Override
     public FragmentTransaction remove(@NonNull Fragment fragment) {
+        if (fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
+            throw new IllegalStateException("Cannot remove Fragment attached to "
+                    + "a different FragmentManager. Fragment " + fragment.toString() + " is already"
+                    + " attached to a FragmentManager.");
+        }
         addOp(new Op(OP_REMOVE, fragment));
 
         return this;
@@ -320,6 +324,11 @@ final class BackStackRecord extends FragmentTransaction implements
     @NonNull
     @Override
     public FragmentTransaction hide(@NonNull Fragment fragment) {
+        if (fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
+            throw new IllegalStateException("Cannot hide Fragment attached to "
+                    + "a different FragmentManager. Fragment " + fragment.toString() + " is already"
+                    + " attached to a FragmentManager.");
+        }
         addOp(new Op(OP_HIDE, fragment));
 
         return this;
@@ -328,6 +337,11 @@ final class BackStackRecord extends FragmentTransaction implements
     @NonNull
     @Override
     public FragmentTransaction show(@NonNull Fragment fragment) {
+        if (fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
+            throw new IllegalStateException("Cannot show Fragment attached to "
+                    + "a different FragmentManager. Fragment " + fragment.toString() + " is already"
+                    + " attached to a FragmentManager.");
+        }
         addOp(new Op(OP_SHOW, fragment));
 
         return this;
@@ -336,8 +350,12 @@ final class BackStackRecord extends FragmentTransaction implements
     @NonNull
     @Override
     public FragmentTransaction detach(@NonNull Fragment fragment) {
+        if (fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
+            throw new IllegalStateException("Cannot detach Fragment attached to "
+                    + "a different FragmentManager. Fragment " + fragment.toString() + " is already"
+                    + " attached to a FragmentManager.");
+        }
         addOp(new Op(OP_DETACH, fragment));
-
         return this;
     }
 
@@ -352,6 +370,12 @@ final class BackStackRecord extends FragmentTransaction implements
     @NonNull
     @Override
     public FragmentTransaction setPrimaryNavigationFragment(@Nullable Fragment fragment) {
+        if (fragment != null
+                && fragment.mFragmentManager != null && fragment.mFragmentManager != mManager) {
+            throw new IllegalStateException("Cannot setPrimaryNavigation for Fragment attached to "
+                    + "a different FragmentManager. Fragment " + fragment.toString() + " is already"
+                    + " attached to a FragmentManager.");
+        }
         addOp(new Op(OP_SET_PRIMARY_NAV, fragment));
 
         return this;
