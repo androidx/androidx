@@ -41,6 +41,7 @@ import androidx.navigation.safe.args.generator.models.Argument
 import androidx.navigation.safe.args.generator.ReferenceValue
 import androidx.navigation.safe.args.generator.StringValue
 import androidx.navigation.safe.args.generator.WritableValue
+import androidx.navigation.safe.args.generator.ext.toClassNameParts
 import androidx.navigation.safe.args.generator.models.accessor
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.ClassName
@@ -173,20 +174,13 @@ internal fun NavType.typeName(): TypeName = when (this) {
     BoolArrayType -> ArrayTypeName.of(TypeName.BOOLEAN)
     ReferenceType -> TypeName.INT
     ReferenceArrayType -> ArrayTypeName.of(TypeName.INT)
-    is ObjectType -> canonicalName.let {
-        ClassName.get(
-            it.substringBeforeLast('.', ""),
-            it.substringAfterLast('.')
-        )
+    is ObjectType -> canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
+        ClassName.get(packageName, simpleName, *innerNames)
     }
-    is ObjectArrayType -> canonicalName.let {
-        ArrayTypeName.of(
-            ClassName.get(
-                it.substringBeforeLast('.', ""),
-                it.substringAfterLast('.')
-            )
-        )
-    }
+    is ObjectArrayType -> ArrayTypeName.of(
+        canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
+            ClassName.get(packageName, simpleName, *innerNames)
+        })
     else -> throw IllegalStateException("Unknown type: $this")
 }
 

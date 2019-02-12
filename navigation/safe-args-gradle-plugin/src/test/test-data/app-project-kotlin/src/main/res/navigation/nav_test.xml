@@ -19,7 +19,7 @@
             xmlns:tools="http://schemas.android.com/tools"
             app:startDestination="@+id/first_screen">
     <fragment android:id="@+id/first_screen"
-              android:name="androidx.navigation.testapp.MainFragment">
+              android:name="androidx.navigation.testapp.Fragment">
         <argument android:name="myarg1" android:defaultValue="one" />
         <action android:id="@+id/next" app:destination="@+id/next_fragment">
             <argument android:name="myarg2" app:argType="string"/>
@@ -37,6 +37,7 @@
                       android:defaultValue="READ"/>
             <argument android:name="objectRelativeArg" app:argType=".pkg.MyPkgClass"/>
             <argument android:name="objectRelativeArg2" app:argType=".MyClass"/>
+            <argument android:name="objectRelativeArg3" app:argType=".MyClass$InnerClass"/>
         </action>
     </fragment>
     <fragment android:id="@+id/next_fragment"
@@ -53,5 +54,7 @@
                   app:nullable="true"/>
         <argument android:name="enumArg" app:argType="java.nio.file.AccessMode"
                   android:defaultValue="READ"/>
+        <action android:id="@+id/next" app:destination="@+id/first_screen"/>
+        <action android:id="@+id/finish" app:popUpTo="@id/first_screen" />
     </fragment>
 </navigation>

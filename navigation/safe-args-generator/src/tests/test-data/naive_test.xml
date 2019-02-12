@@ -38,6 +38,7 @@
                       android:defaultValue="READ"/>
             <argument android:name="objectRelativeArg" app:argType=".pkg.ClassName"/>
             <argument android:name="objectRelativeArg2" app:argType=".ClassName"/>
+            <argument android:name="objectRelativeArg3" app:argType=".OuterClass$InnerClass"/>
         </action>
     </fragment>
     <fragment android:id="@+id/next_fragment"
