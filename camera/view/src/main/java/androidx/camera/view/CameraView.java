@@ -17,6 +17,7 @@
 package androidx.camera.view;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -100,7 +101,7 @@ public final class CameraView extends ViewGroup {
     // For pinch-to-zoom
     private PinchToZoomGestureDetector pinchToZoomGestureDetector;
     private boolean isPinchToZoomEnabled = true;
-    private CameraXModule cameraModule;
+    CameraXModule cameraModule;
     private final DisplayManager.DisplayListener displayListener =
             new DisplayListener() {
                 @Override
@@ -332,6 +333,8 @@ public final class CameraView extends ViewGroup {
         dpyMgr.unregisterDisplayListener(displayListener);
     }
 
+    // TODO(b/124269166): Rethink how we can handle permissions here.
+    @SuppressLint("MissingPermission")
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int viewWidth = MeasureSpec.getSize(widthMeasureSpec);
@@ -359,6 +362,8 @@ public final class CameraView extends ViewGroup {
         }
     }
 
+    // TODO(b/124269166): Rethink how we can handle permissions here.
+    @SuppressLint("MissingPermission")
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         // In case that the CameraView size is always set as 0x0, we still need to trigger to force
@@ -892,7 +897,7 @@ public final class CameraView extends ViewGroup {
         return Math.min(Math.max(val, min), max);
     }
 
-    private float rangeLimit(float val, float max, float min) {
+    float rangeLimit(float val, float max, float min) {
         return Math.min(Math.max(val, min), max);
     }
 
@@ -1006,7 +1011,7 @@ public final class CameraView extends ViewGroup {
          */
         CENTER_INSIDE(1);
 
-        private final int id;
+        final int id;
 
         ScaleType(int id) {
             this.id = id;
@@ -1038,7 +1043,7 @@ public final class CameraView extends ViewGroup {
         MEDIUM(2),
         LOW(3);
 
-        private final int id;
+        final int id;
 
         Quality(int id) {
             this.id = id;
@@ -1071,7 +1076,7 @@ public final class CameraView extends ViewGroup {
          */
         MIXED(2);
 
-        private final int id;
+        final int id;
 
         CaptureMode(int id) {
             this.id = id;
@@ -1087,7 +1092,7 @@ public final class CameraView extends ViewGroup {
         }
     }
 
-    private static class S extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+    static class S extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         private ScaleGestureDetector.OnScaleGestureListener listener;
 
         void setRealGestureDetector(ScaleGestureDetector.OnScaleGestureListener l) {
