@@ -138,6 +138,7 @@ public class MediaRouteActionProvider extends ActionProvider {
     private MediaRouteDialogFactory mDialogFactory = MediaRouteDialogFactory.getDefault();
     private MediaRouteButton mButton;
     private boolean mUseDynamicGroup;
+    private boolean mAlwaysVisible;
 
     /**
      * Creates the action provider.
@@ -207,6 +208,24 @@ public class MediaRouteActionProvider extends ActionProvider {
     }
 
     /**
+     * Sets weather {@link MediaRouteButton} is visible when no routes are available.
+     * When true, the button is visible even if there are no routes to connect.
+     *
+     * @param alwaysVisible true to show MediaRouteButton always.
+     *
+     * @see MediaRouteButton#setAlwaysVisible(boolean)
+     */
+    public void setAlwaysVisible(boolean alwaysVisible) {
+        if (mAlwaysVisible != alwaysVisible) {
+            mAlwaysVisible = alwaysVisible;
+            refreshVisibility();
+            if (mButton != null) {
+                mButton.setAlwaysVisible(mAlwaysVisible);
+            }
+        }
+    }
+
+    /**
      * Gets the media route dialog factory to use when showing the route chooser
      * or controller dialog.
      *
@@ -270,6 +289,7 @@ public class MediaRouteActionProvider extends ActionProvider {
         if (mUseDynamicGroup) {
             mButton.enableDynamicGroup();
         }
+        mButton.setAlwaysVisible(mAlwaysVisible);
         mButton.setDialogFactory(mDialogFactory);
         mButton.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -292,7 +312,7 @@ public class MediaRouteActionProvider extends ActionProvider {
 
     @Override
     public boolean isVisible() {
-        return mRouter.isRouteAvailable(mSelector,
+        return mAlwaysVisible || mRouter.isRouteAvailable(mSelector,
                 MediaRouter.AVAILABILITY_FLAG_IGNORE_DEFAULT_ROUTE);
     }
 
