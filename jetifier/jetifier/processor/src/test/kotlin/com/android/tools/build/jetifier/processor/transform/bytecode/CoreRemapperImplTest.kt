@@ -41,7 +41,7 @@ class CoreRemapperImplTest {
         Truth.assertThat(remapper.rewriteString(given)).isEqualTo(expected)
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test(expected = AmbiguousStringJetifierException::class)
     fun remapString_ambiguousPackageGiven_throwsException() {
         val remapper = prepareRemapper(
             TypesMap.EMPTY,

@@ -83,6 +83,14 @@ class Main {
             hasArgs = false,
             isRequired = false
         )
+        val OPTION_STRIP_SIGNATURES = createOption(
+            argName = "stripSignatures",
+            argNameLong = "stripSignatures",
+            desc = "Don't throw an error when jetifying a signed library and instead strip " +
+                    "the signature files.",
+            hasArgs = false,
+            isRequired = false
+        )
 
         private fun createOption(
             argName: String,
@@ -138,11 +146,13 @@ class Main {
 
         val isReversed = cmd.hasOption(OPTION_REVERSED.opt)
         val isStrict = cmd.hasOption(OPTION_STRICT.opt)
+        val shouldStripSignatures = cmd.hasOption(OPTION_STRIP_SIGNATURES.opt)
 
-        val processor = Processor.createProcessor2(
+        val processor = Processor.createProcessor3(
             config = config,
             reversedMode = isReversed,
             rewritingSupportLib = rebuildTopOfTree,
+            stripSignatures = shouldStripSignatures,
             useFallbackIfTypeIsMissing = !isStrict)
         processor.transform(fileMappings)
 
