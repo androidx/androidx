@@ -18,15 +18,18 @@ package androidx.viewpager2.widget;
 
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityEvent;
@@ -37,6 +40,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -84,6 +89,7 @@ public class ViewPager2 extends ViewGroup {
     private ScrollEventAdapter mScrollEventAdapter;
     private PageTransformerAdapter mPageTransformerAdapter;
     private CompositeOnPageChangeCallback mPageChangeEventDispatcher;
+    private boolean mUserInputEnabled = true;
 
     public ViewPager2(@NonNull Context context) {
         super(context);
@@ -108,22 +114,10 @@ public class ViewPager2 extends ViewGroup {
     }
 
     private void initialize(Context context, AttributeSet attrs) {
-        mRecyclerView = new RecyclerView(context) {
-            @Override
-            public CharSequence getAccessibilityClassName() {
-                return "androidx.viewpager.widget.ViewPager";
-            }
-
-            @Override
-            public void onInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
-                super.onInitializeAccessibilityEvent(event);
-                event.setFromIndex(mCurrentItem);
-                event.setToIndex(mCurrentItem);
-            }
-        };
+        mRecyclerView = new RecyclerViewImpl(context);
         mRecyclerView.setId(ViewCompat.generateViewId());
 
-        mLayoutManager = new LinearLayoutManager(context);
+        mLayoutManager = new LinearLayoutManagerImpl(context);
         mRecyclerView.setLayoutManager(mLayoutManager);
         setOrientation(context, attrs);
 
@@ -204,6 +198,7 @@ public class ViewPager2 extends ViewGroup {
         ss.mRecyclerViewId = mRecyclerView.getId();
         ss.mOrientation = getOrientation();
         ss.mCurrentItem = mCurrentItem;
+        ss.mUserScrollable = mUserInputEnabled;
         ss.mScrollInProgress =
                 mLayoutManager.findFirstCompletelyVisibleItemPosition() != mCurrentItem;
 
@@ -226,6 +221,7 @@ public class ViewPager2 extends ViewGroup {
         super.onRestoreInstanceState(ss.getSuperState());
         setOrientation(ss.mOrientation);
         mCurrentItem = ss.mCurrentItem;
+        mUserInputEnabled = ss.mUserScrollable;
         if (ss.mScrollInProgress) {
             // A scroll was in progress, so the RecyclerView is not at mCurrentItem right now. Move
             // it to mCurrentItem instantly in the _next_ frame, as RecyclerView is not yet fired up
@@ -274,6 +270,7 @@ public class ViewPager2 extends ViewGroup {
         int mRecyclerViewId;
         @Orientation int mOrientation;
         int mCurrentItem;
+        boolean mUserScrollable;
         boolean mScrollInProgress;
         Parcelable mAdapterState;
 
@@ -296,6 +293,7 @@ public class ViewPager2 extends ViewGroup {
             mRecyclerViewId = source.readInt();
             mOrientation = source.readInt();
             mCurrentItem = source.readInt();
+            mUserScrollable = source.readByte() != 0;
             mScrollInProgress = source.readByte() != 0;
             mAdapterState = source.readParcelable(loader);
         }
@@ -306,6 +304,7 @@ public class ViewPager2 extends ViewGroup {
             out.writeInt(mRecyclerViewId);
             out.writeInt(mOrientation);
             out.writeInt(mCurrentItem);
+            out.writeByte((byte) (mUserScrollable ? 1 : 0));
             out.writeByte((byte) (mScrollInProgress ? 1 : 0));
             out.writeParcelable(mAdapterState, flags);
         }
@@ -474,6 +473,30 @@ public class ViewPager2 extends ViewGroup {
     }
 
     /**
+     * Enable or disable user initiated scrolling. This includes touch input (scroll and fling
+     * gestures) and accessibility input. Disabling keyboard input is not yet supported. When user
+     * initiated scrolling is disabled, programmatic scrolls through {@link #setCurrentItem(int,
+     * boolean) setCurrentItem} still work. By default, user initiated scrolling is enabled.
+     *
+     * @param enabled {@code true} to allow user initiated scrolling, {@code false} to block user
+     *        initiated scrolling
+     * @see #isUserInputEnabled()
+     */
+    public void setUserInputEnabled(boolean enabled) {
+        mUserInputEnabled = enabled;
+    }
+
+    /**
+     * Returns if user initiated scrolling between pages is enabled. Enabled by default.
+     *
+     * @return {@code true} if users can scroll the ViewPager2, {@code false} otherwise
+     * @see #setUserInputEnabled(boolean)
+     */
+    public boolean isUserInputEnabled() {
+        return mUserInputEnabled;
+    }
+
+    /**
      * Add a callback that will be invoked whenever the page changes or is incrementally
      * scrolled. See {@link OnPageChangeCallback}.
      *
@@ -506,6 +529,74 @@ public class ViewPager2 extends ViewGroup {
         // TODO: add support for reverseDrawingOrder: b/112892792
         // TODO: add support for pageLayerType: b/112893074
         mPageTransformerAdapter.setPageTransformer(transformer);
+    }
+
+    /**
+     * Slightly modified RecyclerView to get ViewPager behavior in accessibility and to
+     * enable/disable user scrolling.
+     */
+    private class RecyclerViewImpl extends RecyclerView {
+        RecyclerViewImpl(@NonNull Context context) {
+            super(context);
+        }
+
+        @Override
+        public CharSequence getAccessibilityClassName() {
+            return "androidx.viewpager.widget.ViewPager";
+        }
+
+        @Override
+        public void onInitializeAccessibilityEvent(@NonNull AccessibilityEvent event) {
+            super.onInitializeAccessibilityEvent(event);
+            event.setFromIndex(mCurrentItem);
+            event.setToIndex(mCurrentItem);
+        }
+
+        @SuppressLint("ClickableViewAccessibility")
+        @Override
+        public boolean onTouchEvent(MotionEvent event) {
+            return isUserInputEnabled() && super.onTouchEvent(event);
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(MotionEvent ev) {
+            return isUserInputEnabled() && super.onInterceptTouchEvent(ev);
+        }
+    }
+
+    /**
+     * Slightly modified LinearLayoutManager to adjust accessibility when user scrolling is
+     * disabled.
+     */
+    private class LinearLayoutManagerImpl extends LinearLayoutManager {
+        LinearLayoutManagerImpl(Context context) {
+            super(context);
+        }
+
+        @Override
+        public boolean performAccessibilityAction(@NonNull RecyclerView.Recycler recycler,
+                @NonNull RecyclerView.State state, int action, @Nullable Bundle args) {
+            switch (action) {
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                    if (!isUserInputEnabled()) {
+                        return false;
+                    }
+                    break;
+            }
+            return super.performAccessibilityAction(recycler, state, action, args);
+        }
+
+        @Override
+        public void onInitializeAccessibilityNodeInfo(@NonNull RecyclerView.Recycler recycler,
+                @NonNull RecyclerView.State state, @NonNull AccessibilityNodeInfoCompat info) {
+            super.onInitializeAccessibilityNodeInfo(recycler, state, info);
+            if (!isUserInputEnabled()) {
+                info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_BACKWARD);
+                info.removeAction(AccessibilityActionCompat.ACTION_SCROLL_FORWARD);
+                info.setScrollable(false);
+            }
+        }
     }
 
     private static class SmoothScrollToPosition implements Runnable {

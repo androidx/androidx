@@ -38,17 +38,34 @@ public class FragmentActivityUtils {
         }
     };
 
-    private static void waitForExecution(final ActivityTestRule<? extends FragmentActivity> rule) {
+    /**
+     * Wait until the specified number of cycles have passed.
+     *
+     * @param cycles The number of cycles to wait
+     * @param rule The test's ActivityTestRule
+     */
+    public static void waitForCycles(final int cycles,
+            final ActivityTestRule<? extends FragmentActivity> rule) {
+        try {
+            for (int i = 0; i < cycles; i++) {
+                rule.runOnUiThread(DO_NOTHING);
+            }
+        } catch (Throwable throwable) {
+            throw new RuntimeException(throwable);
+        }
+    }
+
+    /**
+     * Waits for the execution of the provided activity test rule.
+     *
+     * @param rule Activity test rule to wait for
+     */
+    public static void waitForExecution(final ActivityTestRule<? extends FragmentActivity> rule) {
         // Wait for two cycles. When starting a postponed transition, it will post to
         // the UI thread and then the execution will be added onto the queue after that.
         // The two-cycle wait makes sure fragments have the opportunity to complete both
         // before returning.
-        try {
-            rule.runOnUiThread(DO_NOTHING);
-            rule.runOnUiThread(DO_NOTHING);
-        } catch (Throwable throwable) {
-            throw new RuntimeException(throwable);
-        }
+        waitForCycles(2, rule);
     }
 
     private static void runOnUiThreadRethrow(ActivityTestRule<? extends Activity> rule,
