@@ -149,16 +149,14 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                     + " saved its state");
             return false;
         }
-        boolean popped = false;
         if (mFragmentManager.getBackStackEntryCount() > 0) {
             mFragmentManager.popBackStack(
                     generateBackStackName(mBackStack.size(), mBackStack.peekLast()),
                     FragmentManager.POP_BACK_STACK_INCLUSIVE);
             mIsPendingBackStackOperation = true;
-            popped = true;
-        }
+        } // else, we're on the first Fragment, so there's nothing to pop from FragmentManager
         mBackStack.removeLast();
-        return popped;
+        return true;
     }
 
     @NonNull
