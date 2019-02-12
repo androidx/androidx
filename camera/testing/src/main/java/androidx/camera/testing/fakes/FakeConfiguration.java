@@ -29,7 +29,7 @@ public final class FakeConfiguration implements Configuration.Reader {
 
     private final Configuration config;
 
-    private FakeConfiguration(Configuration config) {
+    FakeConfiguration(Configuration config) {
         this.config = config;
     }
 
