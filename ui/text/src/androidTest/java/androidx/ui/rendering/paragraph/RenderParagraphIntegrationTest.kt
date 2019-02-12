@@ -20,18 +20,16 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.engine.geometry.Rect
 import androidx.ui.engine.geometry.Size
-import androidx.ui.engine.text.FontStyle
-import androidx.ui.engine.text.FontWeight
+import androidx.ui.engine.text.FontTestData.Companion.BASIC_MEASURE_FONT
 import androidx.ui.engine.text.TextDirection
-import androidx.ui.engine.text.font.Font
 import androidx.ui.engine.text.font.FontFamily
 import androidx.ui.engine.text.font.asFontFamily
 import androidx.ui.painting.Path
 import androidx.ui.painting.PathOperation
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import androidx.ui.rendering.box.BoxConstraints
 import androidx.ui.rendering.paragraph.RenderParagraph
+import androidx.ui.rendering.paragraph.TextConstraints
 import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.ui.services.text_editing.TextSelection
 import com.google.common.truth.Truth.assertThat
@@ -41,17 +39,10 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.math.ceil
 import kotlin.math.floor
-import kotlin.text.Typography.paragraph
 
 @RunWith(JUnit4::class)
 @SmallTest
-class RenderParagraphTest {
-    private val BASIC_MEASURE_FONT = Font(
-        name = "sample_font.ttf",
-        weight = FontWeight.normal,
-        style = FontStyle.normal
-    )
-
+class RenderParagraphIntegrationTest {
     private lateinit var fontFamily: FontFamily
 
     @Before
@@ -163,7 +154,7 @@ class RenderParagraphTest {
         val textSpan = TextSpan(text = text, style = textStyle)
         val paragraph = RenderParagraph(text = textSpan, textDirection = TextDirection.LTR)
 
-        paragraph.performLayout(BoxConstraints())
+        paragraph.performLayout(TextConstraints())
 
         assertThat(paragraph.debugHasOverflowShader).isFalse()
     }
@@ -184,7 +175,7 @@ class RenderParagraphTest {
                 softWrap = false,
                 maxLines = 1)
 
-        paragraph.performLayout(BoxConstraints(maxWidth = 100.0f))
+        paragraph.performLayout(TextConstraints(maxWidth = 100.0f))
 
         assertThat(paragraph.debugHasOverflowShader).isTrue()
     }
@@ -204,7 +195,7 @@ class RenderParagraphTest {
                 textDirection = TextDirection.LTR,
                 maxLines = 2)
 
-        paragraph.performLayout(BoxConstraints(maxWidth = 100.0f))
+        paragraph.performLayout(TextConstraints(maxWidth = 100.0f))
 
         assertThat(paragraph.debugHasOverflowShader).isTrue()
     }

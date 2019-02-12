@@ -27,7 +27,7 @@ import androidx.ui.foundation.diagnostics.IntProperty
 import androidx.ui.foundation.diagnostics.StringProperty
 import androidx.ui.painting.TextSpan
 import androidx.ui.rendering.obj.RenderObject
-import androidx.ui.rendering.paragraph.RenderParagraph
+import androidx.ui.rendering.paragraph.RenderParagraphLegacy
 import androidx.ui.rendering.paragraph.TextOverflow
 import androidx.ui.widgets.debugCheckHasDirectionality
 import androidx.ui.widgets.framework.BuildContext
@@ -89,9 +89,9 @@ class RichText(
         assert(maxLines == null || maxLines > 0)
     }
 
-    override fun createRenderObject(context: BuildContext): RenderParagraph {
+    override fun createRenderObject(context: BuildContext): RenderParagraphLegacy {
         assert(textDirection != null || debugCheckHasDirectionality(context))
-        return RenderParagraph(
+        return RenderParagraphLegacy(
             text,
             textAlign = textAlign,
             textDirection = textDirection ?: Directionality.of(context),
@@ -104,7 +104,7 @@ class RichText(
 
     override fun updateRenderObject(context: BuildContext, renderObject: RenderObject) {
         assert(textDirection != null || debugCheckHasDirectionality(context))
-        (renderObject as RenderParagraph).let {
+        (renderObject as RenderParagraphLegacy).let {
             it.text = text
             it.textAlign = textAlign
             it.textDirection = textDirection ?: Directionality.of(context)

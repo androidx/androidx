@@ -21,7 +21,7 @@ import androidx.ui.engine.text.TextDirection
 import androidx.ui.foundation.Key
 import androidx.ui.painting.TextSpan
 import androidx.ui.painting.TextStyle
-import androidx.ui.rendering.paragraph.RenderParagraph
+import androidx.ui.rendering.paragraph.RenderParagraphLegacy
 import androidx.ui.rendering.paragraph.TextOverflow
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -119,7 +119,7 @@ class RichTextTest {
             textScaleFactor = textScaleFactor,
             maxLines = 5
         )
-        val paragraph = RenderParagraph(text = TextSpan(), textDirection = TextDirection.RTL)
+        val paragraph = RenderParagraphLegacy(text = TextSpan(), textDirection = TextDirection.RTL)
 
         richText.updateRenderObject(richText.createElement(), paragraph)
 
