@@ -17,6 +17,7 @@
 package androidx.savedstate.bundle
 
 import android.os.Bundle
+import androidx.savedstate.BundleSavedStateRegistry
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert

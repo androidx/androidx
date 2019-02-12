@@ -50,7 +50,7 @@ class VMSavedStateInitializer implements Application.ActivityLifecycleCallbacks 
                 public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
                     // next event is going to be created....
                     if (!fragmentActivity.getViewModelStore().keys().isEmpty()) {
-                        attach(fragmentActivity.getBundleSavedStateRegistry(), fragmentActivity);
+                        attach(fragmentActivity.getSavedStateRegistry(), fragmentActivity);
                     }
                     source.getLifecycle().removeObserver(this);
                 }
@@ -90,7 +90,7 @@ class VMSavedStateInitializer implements Application.ActivityLifecycleCallbacks 
     }
 
     @SuppressWarnings("WeakerAccess")
-    static void attach(SavedStateRegistry<Bundle> savedStateStore, ViewModelStoreOwner store) {
+    static void attach(SavedStateRegistry savedStateStore, ViewModelStoreOwner store) {
         ViewModelStore viewModelStore = store.getViewModelStore();
         for (String key : viewModelStore.keys()) {
             ViewModel viewModel = viewModelStore.get(key);
@@ -108,7 +108,7 @@ class VMSavedStateInitializer implements Application.ActivityLifecycleCallbacks 
         public void onFragmentAttached(@NonNull FragmentManager fm,
                 @NonNull Fragment fragment, @NonNull Context context) {
             if (!fragment.getViewModelStore().keys().isEmpty()) {
-                attach(fragment.getBundleSavedStateRegistry(), fragment);
+                attach(fragment.getSavedStateRegistry(), fragment);
             }
         }
     }
