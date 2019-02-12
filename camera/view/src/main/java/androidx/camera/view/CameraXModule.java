@@ -17,6 +17,7 @@
 package androidx.camera.view;
 
 import android.Manifest.permission;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Matrix;
 import android.graphics.Rect;
@@ -75,7 +76,7 @@ final class CameraXModule {
     private final VideoCaptureUseCaseConfiguration.Builder videoCaptureConfigBuilder;
     private final ImageCaptureUseCaseConfiguration.Builder imageCaptureConfigBuilder;
     private final CameraView cameraView;
-    private final AtomicBoolean videoIsRecording = new AtomicBoolean(false);
+    final AtomicBoolean videoIsRecording = new AtomicBoolean(false);
     private CameraView.Quality quality = CameraView.Quality.HIGH;
     private CameraView.CaptureMode captureMode = CaptureMode.IMAGE;
     private long maxVideoDuration = CameraView.INDEFINITE_VIDEO_DURATION;
@@ -86,9 +87,9 @@ final class CameraXModule {
     @Nullable
     private VideoCaptureUseCase videoCaptureUseCase;
     @Nullable
-    private ViewFinderUseCase viewFinderUseCase;
+    ViewFinderUseCase viewFinderUseCase;
     @Nullable
-    private LifecycleOwner currentLifecycle;
+    LifecycleOwner currentLifecycle;
     private final LifecycleObserver currentLifecycleObserver =
             new DefaultLifecycleObserver() {
                 @Override
@@ -368,6 +369,8 @@ final class CameraXModule {
         return videoIsRecording.get();
     }
 
+    // TODO(b/124269166): Rethink how we can handle permissions here.
+    @SuppressLint("MissingPermission")
     public void setCameraByLensFacing(@Nullable LensFacing lensFacing) {
         // Setting same lens facing is a no-op, so check for that first
         if (cameraLensFacing != lensFacing) {
@@ -400,6 +403,8 @@ final class CameraXModule {
     }
 
     public void toggleCamera() {
+        // TODO(b/124269166): Rethink how we can handle permissions here.
+        @SuppressLint("MissingPermission")
         Set<LensFacing> availableCameraLensFacing = getAvailableCameraLensFacing();
 
         if (availableCameraLensFacing.isEmpty()) {
@@ -538,6 +543,8 @@ final class CameraXModule {
         return getMaxZoomLevel() != ZOOM_NOT_SUPPORTED;
     }
 
+    // TODO(b/124269166): Rethink how we can handle permissions here.
+    @SuppressLint("MissingPermission")
     private void rebindToLifecycle() {
         if (currentLifecycle != null) {
             bindToLifecycle(currentLifecycle);
@@ -577,7 +584,7 @@ final class CameraXModule {
         updateViewInfo();
     }
 
-    private void clearCurrentLifecycle() {
+    void clearCurrentLifecycle() {
         if (currentLifecycle != null) {
             // Remove previous use cases
             CameraX.unbind(imageCaptureUseCase, videoCaptureUseCase, viewFinderUseCase);
@@ -722,7 +729,7 @@ final class CameraXModule {
         return cameraView.getMeasuredHeight();
     }
 
-    private void setTransform(final Matrix matrix) {
+    void setTransform(final Matrix matrix) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
             cameraView.post(
                     new Runnable() {
