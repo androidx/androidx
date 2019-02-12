@@ -214,12 +214,12 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
     private boolean mLongPressBackDown;
 
+    private boolean mCreated;
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mIsDestroyed;
 
     @NightMode
     private int mLocalNightMode = MODE_NIGHT_UNSPECIFIED;
-    private boolean mCreated;
 
     private int mThemeResId;
     private boolean mActivityHandlesUiMode;
@@ -2029,13 +2029,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     private boolean applyDayNight(final boolean recreateIfNeeded) {
-        boolean applied = false;
-
         @NightMode final int nightMode = getNightMode();
         @ApplyableNightMode final int modeToApply = mapNightMode(nightMode);
-        if (modeToApply != MODE_NIGHT_FOLLOW_SYSTEM) {
-            applied = updateForNightMode(modeToApply, recreateIfNeeded);
-        }
+        final boolean applied = updateForNightMode(modeToApply, recreateIfNeeded);
 
         if (nightMode == MODE_NIGHT_AUTO_TIME) {
             // If we're already been started, we may need to setup auto mode again
@@ -2104,9 +2100,23 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         final Configuration config = res.getConfiguration();
         final int currentNightMode = config.uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
-        final int newNightMode = (mode == MODE_NIGHT_YES)
-                ? Configuration.UI_MODE_NIGHT_YES
-                : Configuration.UI_MODE_NIGHT_NO;
+        int newNightMode = currentNightMode;
+        switch (mode) {
+            case MODE_NIGHT_YES:
+                newNightMode = Configuration.UI_MODE_NIGHT_YES;
+                break;
+            case MODE_NIGHT_NO:
+                newNightMode = Configuration.UI_MODE_NIGHT_NO;
+                break;
+            case MODE_NIGHT_FOLLOW_SYSTEM:
+                // If we're following the system, we just use the system default from the
+                // application context
+                newNightMode = mContext.getApplicationContext()
+                        .getResources()
+                        .getConfiguration()
+                        .uiMode & Configuration.UI_MODE_NIGHT_MASK;
+                break;
+        }
 
         boolean handled = false;
 
@@ -2117,7 +2127,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
 
             if (shouldRecreateOnNightModeChange) {
                 if (DEBUG) {
-                    Log.d(TAG, "updateForNightMode. Night mode changed, recreating Activity");
+                    Log.d(TAG, "updateForNightMode. Night mode changed, recreating Activity."
+                            + " Mode: " + mode);
                 }
                 // If we've already been created, we need to recreate the Activity for the
                 // mode to be applied
@@ -2130,7 +2141,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                 res.updateConfiguration(newConf, res.getDisplayMetrics());
 
                 if (DEBUG) {
-                    Log.d(TAG, "updateForNightMode. Night mode changed, updated res config");
+                    Log.d(TAG, "updateForNightMode. Night mode changed, updated res config."
+                            + " Mode: " + mode);
                 }
                 // We may need to flush the Resources' drawable cache due to framework bugs.
                 if (Build.VERSION.SDK_INT < 26) {
