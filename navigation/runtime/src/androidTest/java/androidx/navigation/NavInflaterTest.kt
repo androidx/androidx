@@ -168,6 +168,8 @@ class NavInflaterTest {
             .isEqualTo(NavType.ReferenceType to R.bool.test_bool_arg)
         assertThat(defaultArguments["test_reference_color"]?.run { type to defaultValue })
             .isEqualTo(NavType.ReferenceType to R.color.test_color_arg)
+        assertThat(defaultArguments["test_reference_zero_default"]?.run { type to defaultValue })
+            .isEqualTo(NavType.ReferenceType to 0)
     }
 
     @Test

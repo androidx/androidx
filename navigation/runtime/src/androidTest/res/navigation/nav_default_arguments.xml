@@ -45,6 +45,10 @@
         <argument
             android:name="test_reference_color"
             android:defaultValue="@color/test_color_arg" />
+        <argument
+            android:name="test_reference_zero_default"
+            app:argType="reference"
+            android:defaultValue="0" />
 
         <argument
             android:name="test_boolean"
