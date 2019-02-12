@@ -251,9 +251,24 @@ public class WorkSpec {
             return periodStartTime + Math.min(WorkRequest.MAX_BACKOFF_MILLIS, delay);
         } else if (isPeriodic()) {
             if (Build.VERSION.SDK_INT <= WorkManagerImpl.MAX_PRE_JOB_SCHEDULER_API_LEVEL) {
-                // Don't use flexDuration for determining next run time for PeriodicWork
-                // Schedulers <= API 22. This is because intervalDuration could equal flexDuration.
-                return periodStartTime + intervalDuration;
+                // Flex is only applicable when it's different from interval duration for
+                // the AlarmManager implementation.
+                boolean isFlexApplicable = flexDuration != intervalDuration;
+                if (isFlexApplicable) {
+                    // When a PeriodicWorkRequest is being scheduled for the first time,
+                    // the periodStartTime will be 0. To correctly emulate flex, we need to set it
+                    // to now, so the PeriodicWorkRequest has an initial delay of
+                    // (interval - flex).
+                    long start =
+                            periodStartTime == 0 ? System.currentTimeMillis() : periodStartTime;
+                    return start + intervalDuration - flexDuration;
+                } else {
+                    // Don't use flexDuration for determining next run time for PeriodicWork
+                    // Schedulers <= API 22. This is because intervalDuration could equal
+                    // flexDuration.
+                    return periodStartTime + intervalDuration;
+                }
+
             } else {
                 return periodStartTime + intervalDuration - flexDuration;
             }
