@@ -31,13 +31,13 @@ import androidx.camera.core.CameraCaptureFailure;
  */
 final class CameraCaptureCallbackAdapter extends CameraCaptureSession.CaptureCallback {
 
-    private final CameraCaptureCallback cameraCaptureCallback;
+    private final CameraCaptureCallback mCameraCaptureCallback;
 
     CameraCaptureCallbackAdapter(CameraCaptureCallback cameraCaptureCallback) {
         if (cameraCaptureCallback == null) {
             throw new NullPointerException("cameraCaptureCallback is null");
         }
-        this.cameraCaptureCallback = cameraCaptureCallback;
+        mCameraCaptureCallback = cameraCaptureCallback;
     }
 
     @Override
@@ -47,7 +47,7 @@ final class CameraCaptureCallbackAdapter extends CameraCaptureSession.CaptureCal
             @NonNull TotalCaptureResult result) {
         super.onCaptureCompleted(session, request, result);
 
-        cameraCaptureCallback.onCaptureCompleted(new Camera2CameraCaptureResult(result));
+        mCameraCaptureCallback.onCaptureCompleted(new Camera2CameraCaptureResult(result));
     }
 
     @Override
@@ -60,6 +60,6 @@ final class CameraCaptureCallbackAdapter extends CameraCaptureSession.CaptureCal
         CameraCaptureFailure cameraFailure =
                 new CameraCaptureFailure(CameraCaptureFailure.Reason.ERROR);
 
-        cameraCaptureCallback.onCaptureFailed(cameraFailure);
+        mCameraCaptureCallback.onCaptureFailed(cameraFailure);
     }
 }

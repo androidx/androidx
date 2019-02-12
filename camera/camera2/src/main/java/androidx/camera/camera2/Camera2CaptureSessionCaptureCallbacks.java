@@ -101,13 +101,13 @@ public final class Camera2CaptureSessionCaptureCallbacks {
 
     private static final class ComboSessionCaptureCallback
             extends CameraCaptureSession.CaptureCallback {
-        private final List<CameraCaptureSession.CaptureCallback> callbacks = new ArrayList<>();
+        private final List<CameraCaptureSession.CaptureCallback> mCallbacks = new ArrayList<>();
 
         ComboSessionCaptureCallback(List<CameraCaptureSession.CaptureCallback> callbacks) {
             for (CameraCaptureSession.CaptureCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpSessionCaptureCallback)) {
-                    this.callbacks.add(callback);
+                    mCallbacks.add(callback);
                 }
             }
         }
@@ -115,7 +115,7 @@ public final class Camera2CaptureSessionCaptureCallbacks {
         @Override
         public void onCaptureBufferLost(
                 CameraCaptureSession session, CaptureRequest request, Surface surface, long frame) {
-            for (CameraCaptureSession.CaptureCallback callback : callbacks) {
+            for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureBufferLost(session, request, surface, frame);
             }
         }
@@ -123,7 +123,7 @@ public final class Camera2CaptureSessionCaptureCallbacks {
         @Override
         public void onCaptureCompleted(
                 CameraCaptureSession session, CaptureRequest request, TotalCaptureResult result) {
-            for (CameraCaptureSession.CaptureCallback callback : callbacks) {
+            for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureCompleted(session, request, result);
             }
         }
@@ -131,7 +131,7 @@ public final class Camera2CaptureSessionCaptureCallbacks {
         @Override
         public void onCaptureFailed(
                 CameraCaptureSession session, CaptureRequest request, CaptureFailure failure) {
-            for (CameraCaptureSession.CaptureCallback callback : callbacks) {
+            for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureFailed(session, request, failure);
             }
         }
@@ -139,14 +139,14 @@ public final class Camera2CaptureSessionCaptureCallbacks {
         @Override
         public void onCaptureProgressed(
                 CameraCaptureSession session, CaptureRequest request, CaptureResult partialResult) {
-            for (CameraCaptureSession.CaptureCallback callback : callbacks) {
+            for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureProgressed(session, request, partialResult);
             }
         }
 
         @Override
         public void onCaptureSequenceAborted(CameraCaptureSession session, int sequenceId) {
-            for (CameraCaptureSession.CaptureCallback callback : callbacks) {
+            for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureSequenceAborted(session, sequenceId);
             }
         }
@@ -154,7 +154,7 @@ public final class Camera2CaptureSessionCaptureCallbacks {
         @Override
         public void onCaptureSequenceCompleted(
                 CameraCaptureSession session, int sequenceId, long frame) {
-            for (CameraCaptureSession.CaptureCallback callback : callbacks) {
+            for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureSequenceCompleted(session, sequenceId, frame);
             }
         }
@@ -162,7 +162,7 @@ public final class Camera2CaptureSessionCaptureCallbacks {
         @Override
         public void onCaptureStarted(
                 CameraCaptureSession session, CaptureRequest request, long timestamp, long frame) {
-            for (CameraCaptureSession.CaptureCallback callback : callbacks) {
+            for (CameraCaptureSession.CaptureCallback callback : mCallbacks) {
                 callback.onCaptureStarted(session, request, timestamp, frame);
             }
         }

@@ -31,10 +31,10 @@ final class DefaultVideoCaptureConfigurationProvider
         implements ConfigurationProvider<VideoCaptureUseCaseConfiguration> {
     private static final String TAG = "DefaultVideoCaptureConfigurationProvider";
 
-    private final CameraFactory cameraFactory;
+    private final CameraFactory mCameraFactory;
 
-    public DefaultVideoCaptureConfigurationProvider(CameraFactory cameraFactory) {
-        this.cameraFactory = cameraFactory;
+    DefaultVideoCaptureConfigurationProvider(CameraFactory cameraFactory) {
+        mCameraFactory = cameraFactory;
     }
 
     @Override
@@ -54,11 +54,11 @@ final class DefaultVideoCaptureConfigurationProvider
 
         // Add default lensFacing if we can
         try {
-            String defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            String defaultId = mCameraFactory.cameraIdForLensFacing(LensFacing.BACK);
             if (defaultId != null) {
                 builder.setLensFacing(LensFacing.BACK);
             } else {
-                defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
+                defaultId = mCameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
                 if (defaultId != null) {
                     builder.setLensFacing(LensFacing.FRONT);
                 }

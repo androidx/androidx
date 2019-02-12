@@ -31,10 +31,10 @@ final class DefaultViewFinderConfigurationProvider
         implements ConfigurationProvider<ViewFinderUseCaseConfiguration> {
     private static final String TAG = "DefaultViewFinderConfigurationProvider";
 
-    private final CameraFactory cameraFactory;
+    private final CameraFactory mCameraFactory;
 
-    public DefaultViewFinderConfigurationProvider(CameraFactory cameraFactory) {
-        this.cameraFactory = cameraFactory;
+    DefaultViewFinderConfigurationProvider(CameraFactory cameraFactory) {
+        mCameraFactory = cameraFactory;
     }
 
     @Override
@@ -53,11 +53,11 @@ final class DefaultViewFinderConfigurationProvider
 
         // Add default lensFacing if we can
         try {
-            String defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            String defaultId = mCameraFactory.cameraIdForLensFacing(LensFacing.BACK);
             if (defaultId != null) {
                 builder.setLensFacing(LensFacing.BACK);
             } else {
-                defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
+                defaultId = mCameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
                 if (defaultId != null) {
                     builder.setLensFacing(LensFacing.FRONT);
                 }

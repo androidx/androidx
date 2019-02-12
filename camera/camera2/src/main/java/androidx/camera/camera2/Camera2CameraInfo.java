@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2;
 
+import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -26,16 +27,17 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraOrientationUtil;
 import androidx.camera.core.CameraX.LensFacing;
 import androidx.camera.core.ImageOutputConfiguration.RotationValue;
+import androidx.core.util.Preconditions;
 
 /** Implementation of the {@link CameraInfo} interface that exposes parameters through camera2. */
 final class Camera2CameraInfo implements CameraInfo {
 
-    private final CameraCharacteristics cameraCharacteristics;
+    private final CameraCharacteristics mCameraCharacteristics;
 
     Camera2CameraInfo(CameraManager cameraManager, String cameraId)
             throws CameraInfoUnavailableException {
         try {
-            cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
+            mCameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
         } catch (CameraAccessException e) {
             throw new CameraInfoUnavailableException(
                     "Unable to retrieve info for camera " + cameraId, e);
@@ -46,10 +48,13 @@ final class Camera2CameraInfo implements CameraInfo {
         checkCharacteristicAvailable(CameraCharacteristics.LENS_FACING, "Lens facing direction");
     }
 
+    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
     @Nullable
     @Override
     public LensFacing getLensFacing() {
-        switch (cameraCharacteristics.get(CameraCharacteristics.LENS_FACING)) {
+        Integer lensFacing = mCameraCharacteristics.get(CameraCharacteristics.LENS_FACING);
+        Preconditions.checkNotNull(lensFacing);
+        switch (lensFacing) {
             case CameraCharacteristics.LENS_FACING_FRONT:
                 return LensFacing.FRONT;
             case CameraCharacteristics.LENS_FACING_BACK:
@@ -59,8 +64,12 @@ final class Camera2CameraInfo implements CameraInfo {
         }
     }
 
+    @SuppressLint("RestrictedApi") // TODO(b/124323692): Remove after aosp/900913 is merged
     @Override
     public int getSensorRotationDegrees(@RotationValue int relativeRotation) {
+        Integer sensorOrientation =
+                mCameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+        Preconditions.checkNotNull(sensorOrientation);
         int relativeRotationDegrees =
                 CameraOrientationUtil.surfaceRotationToDegrees(relativeRotation);
         // Currently this assumes that a back-facing camera is always opposite to the screen.
@@ -69,13 +78,13 @@ final class Camera2CameraInfo implements CameraInfo {
         boolean isOppositeFacingScreen = LensFacing.BACK.equals(getLensFacing());
         return CameraOrientationUtil.getRelativeImageRotation(
                 relativeRotationDegrees,
-                cameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION),
+                sensorOrientation,
                 isOppositeFacingScreen);
     }
 
     private void checkCharacteristicAvailable(CameraCharacteristics.Key<?> key, String readableName)
             throws CameraInfoUnavailableException {
-        if (cameraCharacteristics.get(key) == null) {
+        if (mCameraCharacteristics.get(key) == null) {
             throw new CameraInfoUnavailableException(
                     "Camera characteristics map is missing value for characteristic: "
                             + readableName);

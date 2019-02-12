@@ -50,14 +50,14 @@ final class CaptureSession {
 
     /** Handler for all the callbacks from the {@link CameraCaptureSession}. */
     @Nullable
-    private final Handler handler;
+    private final Handler mHandler;
     /** The configuration for the currently issued single capture requests. */
-    private final List<CaptureRequestConfiguration> captureRequestConfigurations =
+    private final List<CaptureRequestConfiguration> mCaptureRequestConfigurations =
             new ArrayList<>();
     /** Lock on whether the camera is open or closed. */
-    final Object stateLock = new Object();
+    final Object mStateLock = new Object();
     /** Callback for handling image captures. */
-    private final CameraCaptureSession.CaptureCallback captureCallback =
+    private final CameraCaptureSession.CaptureCallback mCaptureCallback =
             new CaptureCallback() {
                 @Override
                 public void onCaptureCompleted(
@@ -66,18 +66,18 @@ final class CaptureSession {
                         TotalCaptureResult result) {
                 }
             };
-    private final StateCallback captureSessionStateCallback = new StateCallback();
+    private final StateCallback mCaptureSessionStateCallback = new StateCallback();
     /** The framework camera capture session held by this session. */
     @Nullable
-    CameraCaptureSession cameraCaptureSession;
+    CameraCaptureSession mCameraCaptureSession;
     /** The configuration for the currently issued capture requests. */
-    private volatile SessionConfiguration sessionConfiguration =
+    private volatile SessionConfiguration mSessionConfiguration =
             SessionConfiguration.defaultEmptySessionConfiguration();
     /** The list of surfaces used to configure the current capture session. */
-    private List<Surface> configuredSurfaces = Collections.emptyList();
+    private List<Surface> mConfiguredSurfaces = Collections.emptyList();
     /** Tracks the current state of the session. */
-    @GuardedBy("stateLock")
-    State state = State.UNINITIALIZED;
+    @GuardedBy("mStateLock")
+    State mState = State.UNINITIALIZED;
 
     /**
      * Constructor for CaptureSession.
@@ -88,14 +88,14 @@ final class CaptureSession {
      *                to use the current thread's looper.
      */
     CaptureSession(@Nullable Handler handler) {
-        this.handler = handler;
-        state = State.INITIALIZED;
+        this.mHandler = handler;
+        mState = State.INITIALIZED;
     }
 
     /** Returns the configurations of the capture session. */
     SessionConfiguration getSessionConfiguration() {
-        synchronized (stateLock) {
-            return sessionConfiguration;
+        synchronized (mStateLock) {
+            return mSessionConfiguration;
         }
     }
 
@@ -111,19 +111,19 @@ final class CaptureSession {
      *                             were used to open this capture session.
      */
     void setSessionConfiguration(SessionConfiguration sessionConfiguration) {
-        synchronized (stateLock) {
-            switch (state) {
+        synchronized (mStateLock) {
+            switch (mState) {
                 case UNINITIALIZED:
                     throw new IllegalStateException(
-                            "setSessionConfiguration() should not be possible in state: " + state);
+                            "setSessionConfiguration() should not be possible in state: " + mState);
                 case INITIALIZED:
                 case OPENING:
-                    this.sessionConfiguration = sessionConfiguration;
+                    this.mSessionConfiguration = sessionConfiguration;
                     break;
                 case OPENED:
-                    this.sessionConfiguration = sessionConfiguration;
+                    this.mSessionConfiguration = sessionConfiguration;
 
-                    if (!configuredSurfaces.containsAll(
+                    if (!mConfiguredSurfaces.containsAll(
                             DeferrableSurfaces.surfaceList(sessionConfiguration.getSurfaces()))) {
                         Log.e(TAG, "Does not have the proper configured lists");
                         return;
@@ -156,31 +156,31 @@ final class CaptureSession {
      */
     void open(SessionConfiguration sessionConfiguration, CameraDevice cameraDevice)
             throws CameraAccessException {
-        synchronized (stateLock) {
-            switch (state) {
+        synchronized (mStateLock) {
+            switch (mState) {
                 case UNINITIALIZED:
                     throw new IllegalStateException(
-                            "open() should not be possible in state: " + state);
+                            "open() should not be possible in state: " + mState);
                 case INITIALIZED:
-                    configuredSurfaces =
+                    mConfiguredSurfaces =
                             new ArrayList<>(
                                     DeferrableSurfaces.surfaceSet(
                                             sessionConfiguration.getSurfaces()));
-                    if (configuredSurfaces.isEmpty()) {
+                    if (mConfiguredSurfaces.isEmpty()) {
                         Log.e(TAG, "Unable to open capture session with no surfaces. ");
                         return;
                     }
 
-                    state = State.OPENING;
+                    mState = State.OPENING;
                     Log.d(TAG, "Opening capture session.");
                     CameraCaptureSession.StateCallback comboCallback =
                             CameraCaptureSessionStateCallbacks.createComboCallback(
-                                    captureSessionStateCallback,
+                                    mCaptureSessionStateCallback,
                                     sessionConfiguration.getSessionStateCallback());
-                    cameraDevice.createCaptureSession(configuredSurfaces, comboCallback, handler);
+                    cameraDevice.createCaptureSession(mConfiguredSurfaces, comboCallback, mHandler);
                     break;
                 default:
-                    Log.e(TAG, "Open not allowed in state: " + state);
+                    Log.e(TAG, "Open not allowed in state: " + mState);
             }
         }
     }
@@ -195,17 +195,17 @@ final class CaptureSession {
      * method calls on it do nothing.
      */
     void close() {
-        synchronized (stateLock) {
-            switch (state) {
+        synchronized (mStateLock) {
+            switch (mState) {
                 case UNINITIALIZED:
                     throw new IllegalStateException(
-                            "close() should not be possible in state: " + state);
+                            "close() should not be possible in state: " + mState);
                 case INITIALIZED:
-                    state = State.RELEASED;
+                    mState = State.RELEASED;
                     break;
                 case OPENING:
                 case OPENED:
-                    state = State.CLOSED;
+                    mState = State.CLOSED;
                     break;
                 case CLOSED:
                 case RELEASING:
@@ -225,21 +225,21 @@ final class CaptureSession {
      * all method calls on it do nothing.
      */
     void release() {
-        synchronized (stateLock) {
-            switch (state) {
+        synchronized (mStateLock) {
+            switch (mState) {
                 case UNINITIALIZED:
                     throw new IllegalStateException(
-                            "release() should not be possible in state: " + state);
+                            "release() should not be possible in state: " + mState);
                 case INITIALIZED:
-                    state = State.RELEASED;
+                    mState = State.RELEASED;
                     break;
                 case OPENING:
-                    state = State.RELEASING;
+                    mState = State.RELEASING;
                     break;
                 case OPENED:
                 case CLOSED:
-                    cameraCaptureSession.close();
-                    state = State.RELEASING;
+                    mCameraCaptureSession.close();
+                    mState = State.RELEASING;
                     break;
                 case RELEASING:
                 case RELEASED:
@@ -263,19 +263,19 @@ final class CaptureSession {
      */
     void issueSingleCaptureRequests(
             List<CaptureRequestConfiguration> captureRequestConfigurations) {
-        synchronized (stateLock) {
-            switch (state) {
+        synchronized (mStateLock) {
+            switch (mState) {
                 case UNINITIALIZED:
                     throw new IllegalStateException(
                             "issueSingleCaptureRequests() should not be possible in state: "
-                                    + state);
+                                    + mState);
                 case INITIALIZED:
                 case OPENING:
                     Log.d(TAG, "issueSingleCaptureRequests() before capture session opened.");
-                    this.captureRequestConfigurations.addAll(captureRequestConfigurations);
+                    this.mCaptureRequestConfigurations.addAll(captureRequestConfigurations);
                     break;
                 case OPENED:
-                    this.captureRequestConfigurations.addAll(captureRequestConfigurations);
+                    this.mCaptureRequestConfigurations.addAll(captureRequestConfigurations);
                     issueCaptureRequests();
                     break;
                 case CLOSED:
@@ -289,15 +289,15 @@ final class CaptureSession {
 
     /** Returns the configurations of the capture requests. */
     List<CaptureRequestConfiguration> getCaptureRequestConfigurations() {
-        synchronized (stateLock) {
-            return Collections.unmodifiableList(captureRequestConfigurations);
+        synchronized (mStateLock) {
+            return Collections.unmodifiableList(mCaptureRequestConfigurations);
         }
     }
 
     /** Returns the current state of the session. */
     State getState() {
-        synchronized (stateLock) {
-            return state;
+        synchronized (mStateLock) {
+            return mState;
         }
     }
 
@@ -308,13 +308,13 @@ final class CaptureSession {
      */
     void issueRepeatingCaptureRequests() {
         CaptureRequestConfiguration captureRequestConfiguration =
-                sessionConfiguration.getCaptureRequestConfiguration();
+                mSessionConfiguration.getCaptureRequestConfiguration();
 
         try {
             Log.d(TAG, "Issuing request for session.");
             CaptureRequest.Builder builder =
                     captureRequestConfiguration.buildCaptureRequest(
-                            cameraCaptureSession.getDevice());
+                            mCameraCaptureSession.getDevice());
             if (builder == null) {
                 Log.d(TAG, "Skipping issuing empty request for session.");
                 return;
@@ -325,11 +325,11 @@ final class CaptureSession {
 
             CameraCaptureSession.CaptureCallback comboCaptureCallback =
                     Camera2CaptureSessionCaptureCallbacks.createComboCallback(
-                            captureCallback,
+                            mCaptureCallback,
                             CaptureCallbackConverter.toCaptureCallback(
                                     captureRequestConfiguration.getCameraCaptureCallback()));
-            cameraCaptureSession.setRepeatingRequest(
-                    builder.build(), comboCaptureCallback, handler);
+            mCameraCaptureSession.setRepeatingRequest(
+                    builder.build(), comboCaptureCallback, mHandler);
         } catch (CameraAccessException e) {
             Log.e(TAG, "Unable to access camera: " + e.getMessage());
             Thread.dumpStack();
@@ -354,14 +354,14 @@ final class CaptureSession {
         }
     }
 
-    /** Issues captureRequestConfigurations to {@link CameraCaptureSession}. */
+    /** Issues mCaptureRequestConfigurations to {@link CameraCaptureSession}. */
     void issueCaptureRequests() {
-        if (captureRequestConfigurations.isEmpty()) {
+        if (mCaptureRequestConfigurations.isEmpty()) {
             return;
         }
 
         for (CaptureRequestConfiguration captureRequestConfiguration :
-                captureRequestConfigurations) {
+                mCaptureRequestConfigurations) {
             if (captureRequestConfiguration.getSurfaces().isEmpty()) {
                 Log.d(TAG, "Skipping issuing empty capture request.");
                 continue;
@@ -370,22 +370,22 @@ final class CaptureSession {
                 Log.d(TAG, "Issuing capture request.");
                 CaptureRequest.Builder builder =
                         captureRequestConfiguration.buildCaptureRequest(
-                                cameraCaptureSession.getDevice());
+                                mCameraCaptureSession.getDevice());
 
                 applyImplementationOptionTCaptureBuilder(
                         builder, captureRequestConfiguration.getImplementationOptions());
 
-                cameraCaptureSession.capture(
+                mCameraCaptureSession.capture(
                         builder.build(),
                         CaptureCallbackConverter.toCaptureCallback(
                                 captureRequestConfiguration.getCameraCaptureCallback()),
-                        handler);
+                        mHandler);
             } catch (CameraAccessException e) {
                 Log.e(TAG, "Unable to access camera: " + e.getMessage());
                 Thread.dumpStack();
             }
         }
-        captureRequestConfigurations.clear();
+        mCaptureRequestConfigurations.clear();
     }
 
     enum State {
@@ -437,23 +437,23 @@ final class CaptureSession {
          */
         @Override
         public void onConfigured(CameraCaptureSession session) {
-            synchronized (stateLock) {
-                switch (state) {
+            synchronized (mStateLock) {
+                switch (mState) {
                     case UNINITIALIZED:
                     case INITIALIZED:
                     case OPENED:
                     case RELEASED:
                         throw new IllegalStateException(
-                                "onConfigured() should not be possible in state: " + state);
+                                "onConfigured() should not be possible in state: " + mState);
                     case OPENING:
-                        state = State.OPENED;
-                        cameraCaptureSession = session;
+                        mState = State.OPENED;
+                        mCameraCaptureSession = session;
                         Log.d(TAG, "Attempting to send capture request onConfigured");
                         issueRepeatingCaptureRequests();
                         issueCaptureRequests();
                         break;
                     case CLOSED:
-                        cameraCaptureSession = session;
+                        mCameraCaptureSession = session;
                         break;
                     case RELEASING:
                         session.close();
@@ -465,11 +465,11 @@ final class CaptureSession {
 
         @Override
         public void onReady(CameraCaptureSession session) {
-            synchronized (stateLock) {
-                switch (state) {
+            synchronized (mStateLock) {
+                switch (mState) {
                     case UNINITIALIZED:
                         throw new IllegalStateException(
-                                "onReady() should not be possible in state: " + state);
+                                "onReady() should not be possible in state: " + mState);
                     default:
                 }
                 Log.d(TAG, "CameraCaptureSession.onReady()");
@@ -478,14 +478,14 @@ final class CaptureSession {
 
         @Override
         public void onClosed(CameraCaptureSession session) {
-            synchronized (stateLock) {
-                switch (state) {
+            synchronized (mStateLock) {
+                switch (mState) {
                     case UNINITIALIZED:
                         throw new IllegalStateException(
-                                "onClosed() should not be possible in state: " + state);
+                                "onClosed() should not be possible in state: " + mState);
                     default:
-                        state = State.RELEASED;
-                        cameraCaptureSession = null;
+                        mState = State.RELEASED;
+                        mCameraCaptureSession = null;
                 }
                 Log.d(TAG, "CameraCaptureSession.onClosed()");
             }
@@ -493,21 +493,21 @@ final class CaptureSession {
 
         @Override
         public void onConfigureFailed(CameraCaptureSession session) {
-            synchronized (stateLock) {
-                switch (state) {
+            synchronized (mStateLock) {
+                switch (mState) {
                     case UNINITIALIZED:
                     case INITIALIZED:
                     case OPENED:
                     case RELEASED:
                         throw new IllegalStateException(
-                                "onConfiguredFailed() should not be possible in state: " + state);
+                                "onConfiguredFailed() should not be possible in state: " + mState);
                     case OPENING:
                     case CLOSED:
-                        state = State.CLOSED;
-                        cameraCaptureSession = session;
+                        mState = State.CLOSED;
+                        mCameraCaptureSession = session;
                         break;
                     case RELEASING:
-                        state = State.RELEASING;
+                        mState = State.RELEASING;
                         session.close();
                 }
                 Log.e(TAG, "CameraCaptureSession.onConfiguredFailed()");
