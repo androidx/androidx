@@ -90,8 +90,8 @@ public final class SavedStateHandle {
     }
 
     @NonNull
-    SavedStateProvider<Bundle> savedStateProvider() {
-        return new SavedStateProvider<Bundle>() {
+    SavedStateProvider savedStateProvider() {
+        return new SavedStateProvider() {
             @SuppressWarnings("unchecked")
             @NonNull
             @Override

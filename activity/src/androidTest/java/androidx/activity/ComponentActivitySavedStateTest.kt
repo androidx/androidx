@@ -47,7 +47,7 @@ class ComponentActivitySavedStateTest {
         val activity = activityRule.activity
         activityRule.runOnUiThread {
             assertThat(activity.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)).isTrue()
-            val registry = activity.bundleSavedStateRegistry
+            val registry = activity.savedStateRegistry
             val savedState = registry.consumeRestoredStateForKey(CALLBACK_KEY)
             assertThat(savedState).isNull()
             registry.registerSavedStateProvider(CALLBACK_KEY, DefaultProvider())
@@ -62,7 +62,7 @@ class ComponentActivitySavedStateTest {
         val recreated = recreateActivity(activityRule)
         activityRule.runOnUiThread {
             assertThat(recreated.lifecycle.currentState.isAtLeast(Lifecycle.State.CREATED)).isTrue()
-            checkDefaultSavedState(recreated.bundleSavedStateRegistry)
+            checkDefaultSavedState(recreated.savedStateRegistry)
         }
     }
 
@@ -75,7 +75,7 @@ class ComponentActivitySavedStateTest {
             recreated.lifecycle.addObserver(object : LifecycleObserver {
                 @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
                 fun onResume() {
-                    checkDefaultSavedState(recreated.bundleSavedStateRegistry)
+                    checkDefaultSavedState(recreated.savedStateRegistry)
                 }
             })
         }
@@ -90,7 +90,7 @@ class ComponentActivitySavedStateTest {
     }
 }
 
-private class DefaultProvider : SavedStateRegistry.SavedStateProvider<Bundle> {
+private class DefaultProvider : SavedStateRegistry.SavedStateProvider {
     override fun saveState() = Bundle().apply { putString(KEY, VALUE) }
 }
 
@@ -98,7 +98,7 @@ private const val KEY = "key"
 private const val VALUE = "value"
 private const val CALLBACK_KEY = "foo"
 
-private fun checkDefaultSavedState(store: SavedStateRegistry<Bundle>) {
+private fun checkDefaultSavedState(store: SavedStateRegistry) {
     val savedState = store.consumeRestoredStateForKey(CALLBACK_KEY)
     assertThat(savedState).isNotNull()
     assertThat(savedState!!.getString(KEY)).isEqualTo(VALUE)
@@ -109,7 +109,7 @@ class SavedStateActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (checkEnabledInOnCreate) {
-            checkDefaultSavedState(bundleSavedStateRegistry)
+            checkDefaultSavedState(savedStateRegistry)
             checkEnabledInOnCreate = false
         }
     }
