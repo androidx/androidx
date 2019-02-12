@@ -15,7 +15,8 @@
  */
 package androidx.ui.core
 
-import androidx.ui.core.pointerinput.PointerInputHandler
+import androidx.ui.core.pointerinput.PointerEventPass
+import androidx.ui.core.pointerinput.PointerInputChange
 import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.painting.Canvas
 import com.google.r4a.Emittable
@@ -25,7 +26,7 @@ import com.google.r4a.Emittable
  * to Android [android.view.View]s and all layout, draw, input, and accessibility is hooked
  * through them.
  */
-internal interface Owner {
+interface Owner {
     /**
      * Called from a [DrawNode], this registers with the underlying view system that a
      * redraw of the given [drawNode] is required. It may cause other nodes to redraw, if
@@ -67,7 +68,7 @@ internal interface Owner {
  * Specific components are backed by a tree of nodes: Draw, Layout, Semantics, GestureDetector.
  * All other components are not represented in the backing hierarchy.
  */
-internal sealed class ComponentNode : Emittable {
+sealed class ComponentNode : Emittable {
     /**
      * The parent node in the ComponentNode hierarchy. This is `null` when the `ComponentNode`
      * is attached (has an [owner]) and is the root of the tree or has not had [add] called for it.
@@ -193,7 +194,7 @@ internal sealed class ComponentNode : Emittable {
 /**
  * Base class for [ComponentNode]s that have zero or one child
  */
-internal open class SingleChildComponentNode() : ComponentNode() {
+open class SingleChildComponentNode() : ComponentNode() {
     /**
      * The child that this ComponentNode has. This will be `null` if it has no child.
      */
@@ -249,14 +250,15 @@ internal open class SingleChildComponentNode() : ComponentNode() {
 /**
  * Backing node for handling pointer events.
  */
-internal class PointerInputNode() : SingleChildComponentNode() {
-    var pointerInputHandler: PointerInputHandler = { event, _ -> event }
+class PointerInputNode() : SingleChildComponentNode() {
+    var pointerInputHandler: (PointerInputChange, PointerEventPass) -> PointerInputChange =
+        { event, _ -> event }
 }
 
 /**
  * Backing node for the [Draw] component.
  */
-internal class DrawNode() : ComponentNode() {
+class DrawNode() : ComponentNode() {
     var onPaint: (canvas: Canvas, parentSize: PixelSize) -> Unit = { _, _ -> }
         set(value) {
             field = value
@@ -308,7 +310,7 @@ internal class DrawNode() : ComponentNode() {
 /**
  * Backing node for [Layout] component.
  */
-internal class LayoutNode : ComponentNode() {
+class LayoutNode : ComponentNode() {
     /**
      * The list of child ComponentNodes that this ComponentNode has. It can contain zero or
      * more entries.
@@ -326,7 +328,8 @@ internal class LayoutNode : ComponentNode() {
             value?.value = this
         }
 
-    var measureBox: ComplexMeasureBox? = null
+    // This is a ComplexMeasureBox, but we don't have access to that class from here.
+    var measureBox: Any? = null
 
     /**
      * The size of this layout
@@ -413,7 +416,7 @@ internal class LayoutNode : ComponentNode() {
     }
 }
 
-internal class SemanticsR4ANode(
+class SemanticsR4ANode(
     /**
      * If [container] is true, this widget will introduce a new
      * node in the semantics tree. Otherwise, the semantics will be
@@ -453,7 +456,7 @@ internal class SemanticsR4ANode(
 /**
  * The list of child MeasureBoxes. It can contain zero or more entries.
  */
-internal fun LayoutNode.childrenMeasureBoxes(): List<ComplexMeasureBox> {
+fun LayoutNode.childrenMeasureBoxes(): List<Any> {
     return children.mapNotNull { it.layoutNode?.measureBox }
 }
 
@@ -461,7 +464,7 @@ internal fun LayoutNode.childrenMeasureBoxes(): List<ComplexMeasureBox> {
  * Inserts a child [ComponentNode] at a last index. If this ComponentNode [isAttached]
  * then [child] will become [attach]ed also. [child] must have a `null` [parent].
  */
-internal fun ComponentNode.add(child: ComponentNode) {
+fun ComponentNode.add(child: ComponentNode) {
     emitInsertAt(count, child)
 }
 
@@ -472,7 +475,7 @@ class Ref<T>() {
 /**
  * Converts a global position into a local position within this LayoutNode.
  */
-internal fun LayoutNode.globalToLocal(global: Position): Position {
+fun LayoutNode.globalToLocal(global: Position): Position {
     var x: Dimension = global.x
     var y: Dimension = global.y
     var node: LayoutNode? = this
@@ -487,7 +490,7 @@ internal fun LayoutNode.globalToLocal(global: Position): Position {
 /**
  * Converts a local position within this LayoutNode into a global one.
  */
-internal fun LayoutNode.localToGlobal(local: Position): Position {
+fun LayoutNode.localToGlobal(local: Position): Position {
     var x: Dimension = local.x
     var y: Dimension = local.y
     var node: LayoutNode? = this
@@ -502,7 +505,7 @@ internal fun LayoutNode.localToGlobal(local: Position): Position {
 /**
  * Converts a child LayoutNode position into a local position within this LayoutNode.
  */
-internal fun LayoutNode.childToLocal(child: LayoutNode, childLocal: Position): Position {
+fun LayoutNode.childToLocal(child: LayoutNode, childLocal: Position): Position {
     if (child === this) {
         return childLocal
     }

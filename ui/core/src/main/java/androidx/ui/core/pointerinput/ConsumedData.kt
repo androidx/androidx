@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.ui.core.pointerinput
 
-package androidx.ui.core.pointerinput;
+import androidx.ui.engine.geometry.Offset
 
 /**
- * The enumeration of passes where [PointerInputChange] traverses up and down the UI tree.
+ * Describes what aspects of, and how much of, a change has been consumed.
  */
-// TODO(shepshapard): Convert to kotlin when kotlin enums don't cause an issue where Activities
-// can't be found.
-public enum PointerEventPass {
-    InitialDown, PreUp, PreDown, PostUp, PostDown
-}
+data class ConsumedData(
+    val positionChange: Offset = Offset.zero,
+    val downChange: Boolean = false
+)

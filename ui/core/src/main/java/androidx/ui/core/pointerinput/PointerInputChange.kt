@@ -13,24 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.ui.core.pointerinput
 
-import androidx.ui.core.Duration
-
 /**
- * The normalized data structure for pointer input event information that is taken in processed by
- * Crane (via the [PointerEventProcessor]).
+ * Describes a change that has occurred for a particular pointer, as well as how much of the change
+ * has been consumed (meaning, used by a node in the UI)
  */
-internal data class PointerInputEvent(
-    val timeStamp: Duration,
-    val pointers: List<PointerInputEventData>
-)
-
-/**
- * Data that describes a particular pointer
- */
-data class PointerInputEventData(
+data class PointerInputChange(
     val id: Int,
-    val pointerInputData: PointerInputData
+    val current: PointerInputData,
+    val previous: PointerInputData,
+    val consumed: ConsumedData
 )

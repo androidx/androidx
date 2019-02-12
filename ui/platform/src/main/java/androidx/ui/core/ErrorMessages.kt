@@ -18,7 +18,7 @@
 package androidx.ui.core
 
 // TODO(mount): regain the inline functions. These don't seem to work with jococo tests
-enum class ErrorMessages(val message: String) {
+internal enum class ErrorMessages(val message: String) {
     ComponentNodeHasParent("Inserting an instance that already has a parent"),
     SizeAlreadyExists("<Layout> can only be used once within a <MeasureBox>"),
     NoSizeAfterLayout("<MeasureBox> requires one <Layout> element"),

@@ -28,25 +28,6 @@ internal data class PointerInputChangeEvent(
     val changes: List<PointerInputChange>
 )
 
-/**
- * Describes a change that has occurred for a particular pointer, as well as how much of the change
- * has been consumed (meaning, used by a node in the UI)
- */
-data class PointerInputChange(
-    val id: Int,
-    val current: PointerInputData,
-    val previous: PointerInputData,
-    val consumed: ConsumedData
-)
-
-/**
- * Describes what aspects of, and how much of, a change has been consumed.
- */
-data class ConsumedData(
-    val positionChange: Offset = Offset.zero,
-    val downChange: Boolean = false
-)
-
 // Change querying functions
 
 fun PointerInputChange.changedToDown() = !consumed.downChange && !previous.down && current.down

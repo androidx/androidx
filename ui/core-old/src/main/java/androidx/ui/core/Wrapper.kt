@@ -53,6 +53,7 @@ class CraneWrapper(@Children var children: () -> Unit) : Component() {
             var width = 0.dp
             var height = 0.dp
             layoutNode.childrenMeasureBoxes().forEach { measureBox ->
+                measureBox as ComplexMeasureBox
                 measureBox.runBlock()
                 measureBox.measure(craneView.constraints)
                 measureBox.placeChildren()
