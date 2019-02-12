@@ -54,9 +54,7 @@ public class ImageViewCompat {
                 // Work around a bug in L that did not update the state of the image source
                 // after applying the tint
                 Drawable imageViewDrawable = view.getDrawable();
-                boolean hasTint = (view.getImageTintList() != null)
-                        && (view.getImageTintMode() != null);
-                if ((imageViewDrawable != null) && hasTint) {
+                if ((imageViewDrawable != null) && (view.getImageTintList() != null)) {
                     if (imageViewDrawable.isStateful()) {
                         imageViewDrawable.setState(view.getDrawableState());
                     }
@@ -94,9 +92,7 @@ public class ImageViewCompat {
                 // Work around a bug in L that did not update the state of the image source
                 // after applying the tint
                 Drawable imageViewDrawable = view.getDrawable();
-                boolean hasTint = (view.getImageTintList() != null)
-                        && (view.getImageTintMode() != null);
-                if ((imageViewDrawable != null) && hasTint) {
+                if ((imageViewDrawable != null) && (view.getImageTintList() != null)) {
                     if (imageViewDrawable.isStateful()) {
                         imageViewDrawable.setState(view.getDrawableState());
                     }
