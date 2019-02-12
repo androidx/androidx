@@ -1,0 +1,39 @@
+// Signature format: 3.0
+package androidx.leanback.preference {
+
+  public abstract class BaseLeanbackPreferenceFragment {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public android.app.Fragment! getCallbackFragment();
+  }
+
+  @RequiresApi(21) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class LeanbackPreferenceFragmentTransitionHelperApi21 {
+    method public static void addTransitions(android.app.Fragment!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class LeanbackSettingsFragment.DummyFragment {
+    ctor public LeanbackSettingsFragment.DummyFragment();
+    method public android.view.View? onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class LeanbackSettingsRootView {
+    ctor public LeanbackSettingsRootView(android.content.Context!);
+    ctor public LeanbackSettingsRootView(android.content.Context!, android.util.AttributeSet!);
+    ctor public LeanbackSettingsRootView(android.content.Context!, android.util.AttributeSet!, int);
+    method public boolean dispatchKeyEvent(android.view.KeyEvent);
+    method public void setOnBackKeyListener(android.view.View.OnKeyListener!);
+  }
+
+}
+
+package androidx.leanback.preference.internal {
+
+  @RequiresApi(21) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class OutlineOnlyWithChildrenFrameLayout {
+    ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!);
+    ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public OutlineOnlyWithChildrenFrameLayout(android.content.Context!, android.util.AttributeSet!, int, int);
+    method protected void onLayout(boolean, int, int, int, int);
+    method public void setOutlineProvider(android.view.ViewOutlineProvider!);
+  }
+
+}
+

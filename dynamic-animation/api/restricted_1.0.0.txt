@@ -1,0 +1,14 @@
+// Signature format: 3.0
+package androidx.dynamicanimation.animation {
+
+  public abstract class DynamicAnimation<T extends androidx.dynamicanimation.animation.DynamicAnimation<T>> {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean doAnimationFrame(long);
+  }
+
+  public final class SpringForce {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public float getAcceleration(float, float);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public boolean isAtEquilibrium(float, float);
+  }
+
+}
+

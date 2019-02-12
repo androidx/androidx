@@ -1,0 +1,544 @@
+// Signature format: 3.0
+package androidx.leanback.animation {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class LogAccelerateInterpolator {
+    ctor public LogAccelerateInterpolator(int, int);
+    method public float getInterpolation(float);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class LogDecelerateInterpolator {
+    ctor public LogDecelerateInterpolator(int, int);
+    method public float getInterpolation(float);
+  }
+
+}
+
+package androidx.leanback.app {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class BackgroundFragment {
+    ctor public BackgroundFragment();
+    method public void onDestroy();
+    method public void onResume();
+    method public void onStart();
+    method public void onStop();
+  }
+
+  @Deprecated public class GuidedStepFragment implements androidx.leanback.widget.GuidedActionAdapter.FocusListener {
+    method public void onGuidedActionFocused(androidx.leanback.widget.GuidedAction!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setEntranceTransitionType(int);
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final int SLIDE_FROM_BOTTOM = 1; // 0x1
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final int SLIDE_FROM_SIDE = 0; // 0x0
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class GuidedStepFragment.DummyFragment {
+    ctor public GuidedStepFragment.DummyFragment();
+    method public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+  }
+
+  public class GuidedStepSupportFragment implements androidx.leanback.widget.GuidedActionAdapter.FocusListener {
+    method public void onGuidedActionFocused(androidx.leanback.widget.GuidedAction!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setEntranceTransitionType(int);
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final int SLIDE_FROM_BOTTOM = 1; // 0x1
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final int SLIDE_FROM_SIDE = 0; // 0x0
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static class GuidedStepSupportFragment.DummyFragment {
+    ctor public GuidedStepSupportFragment.DummyFragment();
+    method public android.view.View! onCreateView(android.view.LayoutInflater!, android.view.ViewGroup!, android.os.Bundle!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class PermissionHelper {
+    method public static void requestPermissions(android.app.Fragment!, String[]!, int);
+  }
+
+  @Deprecated public class PlaybackFragment {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.leanback.app.PlaybackFragment.OnFadeCompleteListener! getFadeCompleteListener();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void resetFocus();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void setFadeCompleteListener(androidx.leanback.app.PlaybackFragment.OnFadeCompleteListener!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static class PlaybackFragment.OnFadeCompleteListener {
+    ctor public PlaybackFragment.OnFadeCompleteListener();
+    method public void onFadeInComplete();
+    method public void onFadeOutComplete();
+  }
+
+  public class PlaybackSupportFragment {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public androidx.leanback.app.PlaybackSupportFragment.OnFadeCompleteListener! getFadeCompleteListener();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void resetFocus();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public void setFadeCompleteListener(androidx.leanback.app.PlaybackSupportFragment.OnFadeCompleteListener!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public static class PlaybackSupportFragment.OnFadeCompleteListener {
+    ctor public PlaybackSupportFragment.OnFadeCompleteListener();
+    method public void onFadeInComplete();
+    method public void onFadeOutComplete();
+  }
+
+}
+
+package androidx.leanback.media {
+
+  @Deprecated @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class MediaPlayerGlue extends androidx.leanback.media.PlaybackControlGlue implements androidx.leanback.widget.OnItemViewSelectedListener {
+    ctor public MediaPlayerGlue(android.content.Context!);
+    ctor public MediaPlayerGlue(android.content.Context!, int[]!, int[]!);
+    method public int getCurrentPosition();
+    method public int getCurrentSpeedId();
+    method public android.graphics.drawable.Drawable! getMediaArt();
+    method public int getMediaDuration();
+    method public CharSequence! getMediaSubtitle();
+    method public CharSequence! getMediaTitle();
+    method public long getSupportedActions();
+    method public boolean hasValidMedia();
+    method public boolean isMediaPlaying();
+    method public void onItemSelected(androidx.leanback.widget.Presenter.ViewHolder!, Object!, androidx.leanback.widget.RowPresenter.ViewHolder!, androidx.leanback.widget.Row!);
+    method public void release();
+    method public void reset();
+    method protected void seekTo(int);
+    method public void setArtist(String!);
+    method public void setCover(android.graphics.drawable.Drawable!);
+    method public void setDisplay(android.view.SurfaceHolder!);
+    method public boolean setMediaSource(android.net.Uri!);
+    method public boolean setMediaSource(String!);
+    method public void setMode(int);
+    method public void setTitle(String!);
+    method public void setVideoUrl(String!);
+    field public static final int FAST_FORWARD_REWIND_REPEAT_DELAY = 200; // 0xc8
+    field public static final int FAST_FORWARD_REWIND_STEP = 10000; // 0x2710
+    field public static final int NO_REPEAT = 0; // 0x0
+    field public static final int REPEAT_ALL = 2; // 0x2
+    field public static final int REPEAT_ONE = 1; // 0x1
+    field protected final androidx.leanback.widget.PlaybackControlsRow.ThumbsDownAction! mThumbsDownAction;
+    field protected final androidx.leanback.widget.PlaybackControlsRow.ThumbsUpAction! mThumbsUpAction;
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static @interface PlaybackBannerControlGlue.ACTION_ {
+  }
+
+  public abstract class PlaybackControlGlue extends androidx.leanback.media.PlaybackGlue implements androidx.leanback.widget.OnActionClickedListener {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) protected androidx.leanback.widget.SparseArrayObjectAdapter! createPrimaryActionsAdapter(androidx.leanback.widget.PresenterSelector!);
+  }
+
+}
+
+package androidx.leanback.system {
+
+  public class Settings {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean isOutlineClippingDisabled();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public boolean preferStaticShadows();
+  }
+
+}
+
+package androidx.leanback.transition {
+
+  @RequiresApi(21) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class FadeAndShortSlide {
+    ctor public FadeAndShortSlide();
+    ctor public FadeAndShortSlide(int);
+    ctor public FadeAndShortSlide(android.content.Context!, android.util.AttributeSet!);
+    method public android.transition.Transition! addListener(android.transition.Transition.TransitionListener!);
+    method public void captureEndValues(android.transition.TransitionValues!);
+    method public void captureStartValues(android.transition.TransitionValues!);
+    method public android.transition.Transition! clone();
+    method public float getDistance();
+    method public android.animation.Animator! onAppear(android.view.ViewGroup!, android.view.View!, android.transition.TransitionValues!, android.transition.TransitionValues!);
+    method public android.animation.Animator! onDisappear(android.view.ViewGroup!, android.view.View!, android.transition.TransitionValues!, android.transition.TransitionValues!);
+    method public android.transition.Transition! removeListener(android.transition.Transition.TransitionListener!);
+    method public void setDistance(float);
+    method public void setEpicenterCallback(android.transition.Transition.EpicenterCallback!);
+    method public void setSlideEdge(int);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class LeanbackTransitionHelper {
+    method public static Object! loadTitleInTransition(android.content.Context!);
+    method public static Object! loadTitleOutTransition(android.content.Context!);
+  }
+
+  @RequiresApi(21) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ParallaxTransition {
+    ctor public ParallaxTransition();
+    ctor public ParallaxTransition(android.content.Context!, android.util.AttributeSet!);
+    method public android.animation.Animator! onAppear(android.view.ViewGroup!, android.view.View!, android.transition.TransitionValues!, android.transition.TransitionValues!);
+    method public android.animation.Animator! onDisappear(android.view.ViewGroup!, android.view.View!, android.transition.TransitionValues!, android.transition.TransitionValues!);
+  }
+
+  @RequiresApi(21) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class SlideNoPropagation {
+    ctor public SlideNoPropagation();
+    ctor public SlideNoPropagation(int);
+    ctor public SlideNoPropagation(android.content.Context!, android.util.AttributeSet!);
+    method public void setSlideEdge(int);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public abstract class TransitionEpicenterCallback {
+    ctor public TransitionEpicenterCallback();
+    method public abstract android.graphics.Rect! onGetEpicenter(Object!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class TransitionHelper {
+    method public static void addSharedElement(android.app.FragmentTransaction!, android.view.View!, String!);
+    method public static void addTarget(Object!, android.view.View!);
+    method public static void addTransition(Object!, Object!);
+    method public static void addTransitionListener(Object!, androidx.leanback.transition.TransitionListener!);
+    method public static void beginDelayedTransition(android.view.ViewGroup!, Object!);
+    method public static Object! createAutoTransition();
+    method public static Object! createChangeBounds(boolean);
+    method public static Object! createChangeTransform();
+    method public static Object! createDefaultInterpolator(android.content.Context!);
+    method public static Object! createFadeAndShortSlide(int);
+    method public static Object! createFadeAndShortSlide(int, float);
+    method public static Object! createFadeTransition(int);
+    method public static Object! createScale();
+    method public static Object! createScene(android.view.ViewGroup!, Runnable!);
+    method public static Object! createSlide(int);
+    method public static Object! createTransitionSet(boolean);
+    method public static void exclude(Object!, int, boolean);
+    method public static void exclude(Object!, android.view.View!, boolean);
+    method public static void excludeChildren(Object!, int, boolean);
+    method public static void excludeChildren(Object!, android.view.View!, boolean);
+    method public static Object! getEnterTransition(android.view.Window!);
+    method public static Object! getExitTransition(android.view.Window!);
+    method public static Object! getReenterTransition(android.view.Window!);
+    method public static Object! getReturnTransition(android.view.Window!);
+    method public static Object! getSharedElementEnterTransition(android.view.Window!);
+    method public static Object! getSharedElementExitTransition(android.view.Window!);
+    method public static Object! getSharedElementReenterTransition(android.view.Window!);
+    method public static Object! getSharedElementReturnTransition(android.view.Window!);
+    method public static void include(Object!, int);
+    method public static void include(Object!, android.view.View!);
+    method public static Object! loadTransition(android.content.Context!, int);
+    method public static void removeTransitionListener(Object!, androidx.leanback.transition.TransitionListener!);
+    method public static void runTransition(Object!, Object!);
+    method public static void setChangeBoundsDefaultStartDelay(Object!, int);
+    method public static void setChangeBoundsStartDelay(Object!, android.view.View!, int);
+    method public static void setChangeBoundsStartDelay(Object!, int, int);
+    method public static void setChangeBoundsStartDelay(Object!, String!, int);
+    method public static void setDuration(Object!, long);
+    method public static void setEnterTransition(android.view.Window!, Object!);
+    method public static void setEnterTransition(android.app.Fragment!, Object!);
+    method public static void setEpicenterCallback(Object!, androidx.leanback.transition.TransitionEpicenterCallback!);
+    method public static void setExitTransition(android.app.Fragment!, Object!);
+    method public static void setInterpolator(Object!, Object!);
+    method public static void setReturnTransition(android.view.Window!, Object!);
+    method public static void setSharedElementEnterTransition(android.view.Window!, Object!);
+    method public static void setSharedElementEnterTransition(android.app.Fragment!, Object!);
+    method public static void setSharedElementReturnTransition(android.view.Window!, Object!);
+    method public static void setStartDelay(Object!, long);
+    method public static void setTransitionGroup(android.view.ViewGroup!, boolean);
+    method public static boolean systemSupportsEntranceTransitions();
+    field public static final int FADE_IN = 1; // 0x1
+    field public static final int FADE_OUT = 2; // 0x2
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class TransitionListener {
+    ctor public TransitionListener();
+    method public void onTransitionCancel(Object!);
+    method public void onTransitionEnd(Object!);
+    method public void onTransitionPause(Object!);
+    method public void onTransitionResume(Object!);
+    method public void onTransitionStart(Object!);
+    field protected Object! mImpl;
+  }
+
+}
+
+package androidx.leanback.util {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final class MathUtil {
+    method public static int safeLongToInt(long);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class StateMachine {
+    ctor public StateMachine();
+    method public void addState(androidx.leanback.util.StateMachine.State!);
+    method public void addTransition(androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.Event!);
+    method public void addTransition(androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.Condition!);
+    method public void addTransition(androidx.leanback.util.StateMachine.State!, androidx.leanback.util.StateMachine.State!);
+    method public void fireEvent(androidx.leanback.util.StateMachine.Event!);
+    method public void reset();
+    method public void start();
+    field public static final int STATUS_INVOKED = 1; // 0x1
+    field public static final int STATUS_ZERO = 0; // 0x0
+  }
+
+  public static class StateMachine.Condition {
+    ctor public StateMachine.Condition(String!);
+    method public boolean canProceed();
+  }
+
+  public static class StateMachine.Event {
+    ctor public StateMachine.Event(String!);
+  }
+
+  public static class StateMachine.State {
+    ctor public StateMachine.State(String!);
+    ctor public StateMachine.State(String!, boolean, boolean);
+    method public final int getStatus();
+    method public void run();
+    method public String toString();
+  }
+
+}
+
+package androidx.leanback.widget {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class BackgroundHelper {
+    method public static void setBackgroundPreservingAlpha(android.view.View!, android.graphics.drawable.Drawable!);
+  }
+
+  public abstract class BaseGridView {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getExtraLayoutSpace();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getFocusScrollStrategy();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public int getSelectedSubPosition();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setExtraLayoutSpace(int);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setFocusScrollStrategy(int);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSelectedPositionSmoothWithSub(int, int);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSelectedPositionWithSub(int, int);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setSelectedPositionWithSub(int, int, int);
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final int FOCUS_SCROLL_ALIGNED = 0; // 0x0
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final int FOCUS_SCROLL_ITEM = 1; // 0x1
+    field @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static final int FOCUS_SCROLL_PAGE = 2; // 0x2
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class BrowseRowsFrameLayout {
+    ctor public BrowseRowsFrameLayout(android.content.Context!);
+    ctor public BrowseRowsFrameLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public BrowseRowsFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
+    method protected void measureChildWithMargins(android.view.View!, int, int, int, int);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class DetailsParallaxDrawable extends androidx.leanback.graphics.CompositeDrawable {
+    ctor public DetailsParallaxDrawable(android.content.Context!, androidx.leanback.widget.DetailsParallax!, android.graphics.drawable.Drawable!, androidx.leanback.widget.ParallaxTarget!);
+    ctor public DetailsParallaxDrawable(android.content.Context!, androidx.leanback.widget.DetailsParallax!, android.graphics.drawable.Drawable!, android.graphics.drawable.Drawable!, androidx.leanback.widget.ParallaxTarget!);
+    ctor public DetailsParallaxDrawable(android.content.Context!, androidx.leanback.widget.DetailsParallax!);
+    method public android.graphics.drawable.Drawable! getBottomDrawable();
+    method public android.graphics.drawable.Drawable! getCoverDrawable();
+    method @ColorInt public int getSolidColor();
+    method public void setSolidColor(@ColorInt int);
+  }
+
+  public class DividerPresenter extends androidx.leanback.widget.Presenter {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public DividerPresenter(int);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class GuidedActionAdapter {
+    ctor public GuidedActionAdapter(java.util.List<androidx.leanback.widget.GuidedAction>!, androidx.leanback.widget.GuidedActionAdapter.ClickListener!, androidx.leanback.widget.GuidedActionAdapter.FocusListener!, androidx.leanback.widget.GuidedActionsStylist!, boolean);
+    method public androidx.leanback.widget.GuidedActionsStylist.ViewHolder! findSubChildViewHolder(android.view.View!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public java.util.List<androidx.leanback.widget.GuidedAction>! getActions();
+    method public int getCount();
+    method public androidx.leanback.widget.GuidedActionsStylist! getGuidedActionsStylist();
+    method public androidx.leanback.widget.GuidedAction! getItem(int);
+    method public int getItemCount();
+    method public int getItemViewType(int);
+    method public void handleCheckedActions(androidx.leanback.widget.GuidedActionsStylist.ViewHolder!);
+    method public int indexOf(androidx.leanback.widget.GuidedAction!);
+    method public void onBindViewHolder(androidx.recyclerview.widget.RecyclerView.ViewHolder!, int);
+    method public androidx.recyclerview.widget.RecyclerView.ViewHolder! onCreateViewHolder(android.view.ViewGroup!, int);
+    method public void performOnActionClick(androidx.leanback.widget.GuidedActionsStylist.ViewHolder!);
+    method public void setActions(java.util.List<androidx.leanback.widget.GuidedAction>!);
+    method public void setClickListener(androidx.leanback.widget.GuidedActionAdapter.ClickListener!);
+    method public void setDiffCallback(androidx.leanback.widget.DiffCallback<androidx.leanback.widget.GuidedAction>!);
+    method public void setFocusListener(androidx.leanback.widget.GuidedActionAdapter.FocusListener!);
+  }
+
+  public static interface GuidedActionAdapter.ClickListener {
+    method public void onGuidedActionClicked(androidx.leanback.widget.GuidedAction!);
+  }
+
+  public static interface GuidedActionAdapter.EditListener {
+    method public void onGuidedActionEditCanceled(androidx.leanback.widget.GuidedAction!);
+    method public long onGuidedActionEditedAndProceed(androidx.leanback.widget.GuidedAction!);
+    method public void onImeClose();
+    method public void onImeOpen();
+  }
+
+  public static interface GuidedActionAdapter.FocusListener {
+    method public void onGuidedActionFocused(androidx.leanback.widget.GuidedAction!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class GuidedActionAdapterGroup {
+    ctor public GuidedActionAdapterGroup();
+    method public void addAdpter(androidx.leanback.widget.GuidedActionAdapter!, androidx.leanback.widget.GuidedActionAdapter!);
+    method public void closeIme(android.view.View!);
+    method public void fillAndGoNext(androidx.leanback.widget.GuidedActionAdapter!, android.widget.TextView!);
+    method public void fillAndStay(androidx.leanback.widget.GuidedActionAdapter!, android.widget.TextView!);
+    method public androidx.leanback.widget.GuidedActionAdapter! getNextAdapter(androidx.leanback.widget.GuidedActionAdapter!);
+    method public void openIme(androidx.leanback.widget.GuidedActionAdapter!, androidx.leanback.widget.GuidedActionsStylist.ViewHolder!);
+    method public void setEditListener(androidx.leanback.widget.GuidedActionAdapter.EditListener!);
+  }
+
+  public class GuidedActionsStylist implements androidx.leanback.widget.FragmentAnimationProvider {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public void setEditListener(androidx.leanback.widget.GuidedActionAdapter.EditListener!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class InvisibleRowPresenter extends androidx.leanback.widget.RowPresenter {
+    ctor public InvisibleRowPresenter();
+    method protected androidx.leanback.widget.RowPresenter.ViewHolder! createRowViewHolder(android.view.ViewGroup!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class MediaNowPlayingView {
+    ctor public MediaNowPlayingView(android.content.Context!, android.util.AttributeSet!);
+    method protected void onAttachedToWindow();
+    method protected void onDetachedFromWindow();
+    method public void setVisibility(int);
+    field protected final android.view.animation.LinearInterpolator! mLinearInterpolator;
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class NonOverlappingLinearLayout {
+    ctor public NonOverlappingLinearLayout(android.content.Context!);
+    ctor public NonOverlappingLinearLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public NonOverlappingLinearLayout(android.content.Context!, android.util.AttributeSet!, int);
+    method public void focusableViewAvailable(android.view.View!);
+    method public boolean hasOverlappingRendering();
+    method protected void onLayout(boolean, int, int, int, int);
+    method public void setFocusableViewAvailableFixEnabled(boolean);
+  }
+
+  public abstract class ObjectAdapter {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final boolean hasObserver();
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class PagingIndicator {
+    ctor public PagingIndicator(android.content.Context!);
+    ctor public PagingIndicator(android.content.Context!, android.util.AttributeSet!);
+    ctor public PagingIndicator(android.content.Context!, android.util.AttributeSet!, int);
+    method protected void onDraw(android.graphics.Canvas!);
+    method protected void onMeasure(int, int);
+    method public void onPageSelected(int, boolean);
+    method public void onRtlPropertiesChanged(int);
+    method protected void onSizeChanged(int, int, int, int);
+    method public void setArrowBackgroundColor(@ColorInt int);
+    method public void setArrowColor(@ColorInt int);
+    method public void setDotBackgroundColor(@ColorInt int);
+    method public void setPageCount(int);
+  }
+
+  public class PagingIndicator.Dot {
+    ctor public PagingIndicator.Dot();
+    method public void adjustAlpha();
+    method public float getAlpha();
+    method public float getDiameter();
+    method public float getTranslationX();
+    method public void setAlpha(float);
+    method public void setDiameter(float);
+    method public void setTranslationX(float);
+  }
+
+  public abstract class ParallaxEffect {
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final java.util.List<java.lang.Float>! getWeights();
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final void setWeights(float...!);
+    method @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public final androidx.leanback.widget.ParallaxEffect! weights(float...!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class PlaybackTransportRowView {
+    ctor public PlaybackTransportRowView(android.content.Context!, android.util.AttributeSet!);
+    ctor public PlaybackTransportRowView(android.content.Context!, android.util.AttributeSet!, int);
+    method public boolean dispatchKeyEvent(android.view.KeyEvent!);
+    method public android.view.View! focusSearch(android.view.View!, int);
+    method public boolean hasOverlappingRendering();
+    method protected boolean onRequestFocusInDescendants(int, android.graphics.Rect!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public static interface PlaybackTransportRowView.OnUnhandledKeyListener {
+    method public boolean onUnhandledKey(android.view.KeyEvent!);
+  }
+
+  public class RowHeaderPresenter extends androidx.leanback.widget.Presenter {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public RowHeaderPresenter(int);
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public RowHeaderPresenter(int, boolean);
+  }
+
+  public static class RowHeaderPresenter.ViewHolder extends androidx.leanback.widget.Presenter.ViewHolder {
+    ctor @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public RowHeaderPresenter.ViewHolder(androidx.leanback.widget.RowHeaderView!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ScaleFrameLayout {
+    ctor public ScaleFrameLayout(android.content.Context!);
+    ctor public ScaleFrameLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public ScaleFrameLayout(android.content.Context!, android.util.AttributeSet!, int);
+    method public void addView(android.view.View!, int, android.view.ViewGroup.LayoutParams!);
+    method protected boolean addViewInLayout(android.view.View!, int, android.view.ViewGroup.LayoutParams!, boolean);
+    method protected void onLayout(boolean, int, int, int, int);
+    method protected void onMeasure(int, int);
+    method public void setChildScale(float);
+    method public void setForeground(android.graphics.drawable.Drawable!);
+    method public void setLayoutScaleX(float);
+    method public void setLayoutScaleY(float);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public final class SeekBar {
+    ctor public SeekBar(android.content.Context!, android.util.AttributeSet!);
+    method public CharSequence! getAccessibilityClassName();
+    method public int getMax();
+    method public int getProgress();
+    method public int getSecondProgress();
+    method public int getSecondaryProgressColor();
+    method protected void onDraw(android.graphics.Canvas!);
+    method protected void onFocusChanged(boolean, int, android.graphics.Rect!);
+    method protected void onSizeChanged(int, int, int, int);
+    method public boolean performAccessibilityAction(int, android.os.Bundle!);
+    method public void setAccessibilitySeekListener(androidx.leanback.widget.SeekBar.AccessibilitySeekListener!);
+    method public void setActiveBarHeight(int);
+    method public void setActiveRadius(int);
+    method public void setBarHeight(int);
+    method public void setMax(int);
+    method public void setProgress(int);
+    method public void setProgressColor(int);
+    method public void setSecondaryProgress(int);
+    method public void setSecondaryProgressColor(int);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract static class SeekBar.AccessibilitySeekListener {
+    ctor public SeekBar.AccessibilitySeekListener();
+    method public abstract boolean onAccessibilitySeekBackward();
+    method public abstract boolean onAccessibilitySeekForward();
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class ThumbsBar {
+    ctor public ThumbsBar(android.content.Context!, android.util.AttributeSet!);
+    ctor public ThumbsBar(android.content.Context!, android.util.AttributeSet!, int);
+    method public void clearThumbBitmaps();
+    method protected android.view.View! createThumbView(android.view.ViewGroup!);
+    method public int getHeroIndex();
+    method public android.graphics.Bitmap! getThumbBitmap(int);
+    method protected void onLayout(boolean, int, int, int, int);
+    method protected void onMeasure(int, int);
+    method public void setHeroThumbSize(int, int);
+    method public void setNumberOfThumbs(int);
+    method public void setThumbBitmap(int, android.graphics.Bitmap!);
+    method public void setThumbSize(int, int);
+    method public void setThumbSpace(int);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class Util {
+    method public static boolean isDescendant(android.view.ViewGroup!, android.view.View!);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY}) public class VideoSurfaceView {
+    ctor public VideoSurfaceView(android.content.Context!);
+    ctor public VideoSurfaceView(android.content.Context!, android.util.AttributeSet!);
+    ctor public VideoSurfaceView(android.content.Context!, android.util.AttributeSet!, int);
+    method public void setTransitionVisibility(int);
+  }
+
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public @interface Visibility {
+  }
+
+}
+
+package androidx.leanback.widget.picker {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class DatePicker extends androidx.leanback.widget.picker.Picker {
+    ctor public DatePicker(android.content.Context!, android.util.AttributeSet!);
+    ctor public DatePicker(android.content.Context!, android.util.AttributeSet!, int);
+    method public long getDate();
+    method public String! getDatePickerFormat();
+    method public long getMaxDate();
+    method public long getMinDate();
+    method public final void onColumnValueChanged(int, int);
+    method public void setDatePickerFormat(String!);
+    method public void setMaxDate(long);
+    method public void setMinDate(long);
+    method public void updateDate(int, int, int, boolean);
+  }
+
+}
+

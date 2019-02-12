@@ -1,0 +1,40 @@
+// Signature format: 3.0
+package androidx.recyclerview.selection {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public abstract class AutoScroller {
+    ctor public AutoScroller();
+    method public abstract void reset();
+    method public abstract void scroll(android.graphics.Point);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) public class DefaultSelectionTracker<K> extends androidx.recyclerview.selection.SelectionTracker<K> {
+    ctor public DefaultSelectionTracker(String, androidx.recyclerview.selection.ItemKeyProvider, androidx.recyclerview.selection.SelectionTracker.SelectionPredicate, androidx.recyclerview.selection.StorageStrategy<K>);
+    method public void addObserver(androidx.recyclerview.selection.SelectionTracker.SelectionObserver);
+    method public void anchorRange(int);
+    method public void clearProvisionalSelection();
+    method public boolean clearSelection();
+    method public void copySelection(androidx.recyclerview.selection.MutableSelection);
+    method public boolean deselect(K);
+    method public void endRange();
+    method public void extendProvisionalRange(int);
+    method public void extendRange(int);
+    method public androidx.recyclerview.selection.Selection! getSelection();
+    method public boolean hasSelection();
+    method public boolean isRangeActive();
+    method public boolean isSelected(K?);
+    method public void mergeProvisionalSelection();
+    method public final void onRestoreInstanceState(android.os.Bundle?);
+    method public final void onSaveInstanceState(android.os.Bundle);
+    method protected void restoreSelection(androidx.recyclerview.selection.Selection);
+    method public boolean select(K);
+    method public boolean setItemsSelected(Iterable<K>, boolean);
+    method public void setProvisionalSelection(java.util.Set<K>);
+    method public void startRange(int);
+  }
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP}) @VisibleForTesting(otherwise=3) public class EventBridge {
+    method public static <K> void install(androidx.recyclerview.widget.RecyclerView.Adapter<?>, androidx.recyclerview.selection.SelectionTracker<K>, androidx.recyclerview.selection.ItemKeyProvider<K>);
+  }
+
+}
+
