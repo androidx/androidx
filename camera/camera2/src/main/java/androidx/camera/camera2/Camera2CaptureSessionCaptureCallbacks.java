@@ -57,7 +57,7 @@ public final class Camera2CaptureSessionCaptureCallbacks {
         return createComboCallback(Arrays.asList(callbacks));
     }
 
-    private static final class NoOpSessionCaptureCallback
+    static final class NoOpSessionCaptureCallback
             extends CameraCaptureSession.CaptureCallback {
         @Override
         public void onCaptureBufferLost(
@@ -103,7 +103,7 @@ public final class Camera2CaptureSessionCaptureCallbacks {
             extends CameraCaptureSession.CaptureCallback {
         private final List<CameraCaptureSession.CaptureCallback> callbacks = new ArrayList<>();
 
-        private ComboSessionCaptureCallback(List<CameraCaptureSession.CaptureCallback> callbacks) {
+        ComboSessionCaptureCallback(List<CameraCaptureSession.CaptureCallback> callbacks) {
             for (CameraCaptureSession.CaptureCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpSessionCaptureCallback)) {

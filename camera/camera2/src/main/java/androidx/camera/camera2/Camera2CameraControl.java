@@ -429,7 +429,7 @@ public final class Camera2CameraControl implements CameraControl {
         boolean onCaptureResult(TotalCaptureResult captureResult);
     }
 
-    private static final class CameraControlSessionCallback extends CaptureCallback {
+    static final class CameraControlSessionCallback extends CaptureCallback {
 
         private final Set<CaptureResultListener> resultListeners = new HashSet<>();
 

@@ -55,7 +55,7 @@ final class CaptureSession {
     private final List<CaptureRequestConfiguration> captureRequestConfigurations =
             new ArrayList<>();
     /** Lock on whether the camera is open or closed. */
-    private final Object stateLock = new Object();
+    final Object stateLock = new Object();
     /** Callback for handling image captures. */
     private final CameraCaptureSession.CaptureCallback captureCallback =
             new CaptureCallback() {
@@ -69,7 +69,7 @@ final class CaptureSession {
     private final StateCallback captureSessionStateCallback = new StateCallback();
     /** The framework camera capture session held by this session. */
     @Nullable
-    private CameraCaptureSession cameraCaptureSession;
+    CameraCaptureSession cameraCaptureSession;
     /** The configuration for the currently issued capture requests. */
     private volatile SessionConfiguration sessionConfiguration =
             SessionConfiguration.defaultEmptySessionConfiguration();
@@ -77,7 +77,7 @@ final class CaptureSession {
     private List<Surface> configuredSurfaces = Collections.emptyList();
     /** Tracks the current state of the session. */
     @GuardedBy("stateLock")
-    private State state = State.UNINITIALIZED;
+    State state = State.UNINITIALIZED;
 
     /**
      * Constructor for CaptureSession.
@@ -306,7 +306,7 @@ final class CaptureSession {
      *
      * <p>Will skip setting requests if there are no surfaces since it is illegal to do so.
      */
-    private void issueRepeatingCaptureRequests() {
+    void issueRepeatingCaptureRequests() {
         CaptureRequestConfiguration captureRequestConfiguration =
                 sessionConfiguration.getCaptureRequestConfiguration();
 
@@ -355,7 +355,7 @@ final class CaptureSession {
     }
 
     /** Issues captureRequestConfigurations to {@link CameraCaptureSession}. */
-    private void issueCaptureRequests() {
+    void issueCaptureRequests() {
         if (captureRequestConfigurations.isEmpty()) {
             return;
         }
@@ -428,7 +428,7 @@ final class CaptureSession {
      *
      * <p>State changes are ignored once the CaptureSession has been closed.
      */
-    private final class StateCallback extends CameraCaptureSession.StateCallback {
+    final class StateCallback extends CameraCaptureSession.StateCallback {
         /**
          * {@inheritDoc}
          *
