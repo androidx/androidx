@@ -37,238 +37,238 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class Camera2CameraCaptureResultAndroidTest {
 
-    private CaptureResult captureResult;
-    private Camera2CameraCaptureResult cameraCaptureResult;
+    private CaptureResult mCaptureResult;
+    private Camera2CameraCaptureResult mCamera2CameraCaptureResult;
 
     @Before
     public void setUp() {
-        captureResult = Mockito.mock(CaptureResult.class);
-        cameraCaptureResult = new Camera2CameraCaptureResult(captureResult);
+        mCaptureResult = Mockito.mock(CaptureResult.class);
+        mCamera2CameraCaptureResult = new Camera2CameraCaptureResult(mCaptureResult);
     }
 
     @Test
     public void getAfMode_withNull() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_MODE)).thenReturn(null);
-        assertThat(cameraCaptureResult.getAfMode()).isEqualTo(AfMode.UNKNOWN);
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_MODE)).thenReturn(null);
+        assertThat(mCamera2CameraCaptureResult.getAfMode()).isEqualTo(AfMode.UNKNOWN);
     }
 
     @Test
     public void getAfMode_withAfModeOff() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_MODE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_MODE))
                 .thenReturn(CaptureResult.CONTROL_AF_MODE_OFF);
-        assertThat(cameraCaptureResult.getAfMode()).isEqualTo(AfMode.OFF);
+        assertThat(mCamera2CameraCaptureResult.getAfMode()).isEqualTo(AfMode.OFF);
     }
 
     @Test
     public void getAfMode_withAfModeEdof() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_MODE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_MODE))
                 .thenReturn(CaptureResult.CONTROL_AF_MODE_EDOF);
-        assertThat(cameraCaptureResult.getAfMode()).isEqualTo(AfMode.OFF);
+        assertThat(mCamera2CameraCaptureResult.getAfMode()).isEqualTo(AfMode.OFF);
     }
 
     @Test
     public void getAfMode_withAfModeAuto() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_MODE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_MODE))
                 .thenReturn(CaptureResult.CONTROL_AF_MODE_AUTO);
-        assertThat(cameraCaptureResult.getAfMode()).isEqualTo(AfMode.ON_MANUAL_AUTO);
+        assertThat(mCamera2CameraCaptureResult.getAfMode()).isEqualTo(AfMode.ON_MANUAL_AUTO);
     }
 
     @Test
     public void getAfMode_withAfModeMacro() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_MODE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_MODE))
                 .thenReturn(CaptureResult.CONTROL_AF_MODE_MACRO);
-        assertThat(cameraCaptureResult.getAfMode()).isEqualTo(AfMode.ON_MANUAL_AUTO);
+        assertThat(mCamera2CameraCaptureResult.getAfMode()).isEqualTo(AfMode.ON_MANUAL_AUTO);
     }
 
     @Test
     public void getAfMode_withAfModeContinuousPicture() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_MODE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_MODE))
                 .thenReturn(CaptureResult.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
-        assertThat(cameraCaptureResult.getAfMode()).isEqualTo(AfMode.ON_CONTINUOUS_AUTO);
+        assertThat(mCamera2CameraCaptureResult.getAfMode()).isEqualTo(AfMode.ON_CONTINUOUS_AUTO);
     }
 
     @Test
     public void getAfMode_withAfModeContinuousVideo() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_MODE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_MODE))
                 .thenReturn(CaptureResult.CONTROL_AF_MODE_CONTINUOUS_VIDEO);
-        assertThat(cameraCaptureResult.getAfMode()).isEqualTo(AfMode.ON_CONTINUOUS_AUTO);
+        assertThat(mCamera2CameraCaptureResult.getAfMode()).isEqualTo(AfMode.ON_CONTINUOUS_AUTO);
     }
 
     @Test
     public void getAfState_withNull() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_STATE)).thenReturn(null);
-        assertThat(cameraCaptureResult.getAfState()).isEqualTo(AfState.UNKNOWN);
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE)).thenReturn(null);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.UNKNOWN);
     }
 
     @Test
     public void getAfState_withAfStateInactive() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_INACTIVE);
-        assertThat(cameraCaptureResult.getAfState()).isEqualTo(AfState.INACTIVE);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.INACTIVE);
     }
 
     @Test
     public void getAfState_withAfStateActiveScan() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN);
-        assertThat(cameraCaptureResult.getAfState()).isEqualTo(AfState.SCANNING);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.SCANNING);
     }
 
     @Test
     public void getAfState_withAfStatePassiveScan() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_PASSIVE_SCAN);
-        assertThat(cameraCaptureResult.getAfState()).isEqualTo(AfState.SCANNING);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.SCANNING);
     }
 
     @Test
     public void getAfState_withAfStatePassiveUnfocused() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_PASSIVE_UNFOCUSED);
-        assertThat(cameraCaptureResult.getAfState()).isEqualTo(AfState.SCANNING);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.SCANNING);
     }
 
     @Test
     public void getAfState_withAfStatePassiveFocused() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_PASSIVE_FOCUSED);
-        assertThat(cameraCaptureResult.getAfState()).isEqualTo(AfState.FOCUSED);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.FOCUSED);
     }
 
     @Test
     public void getAfState_withAfStateFocusedLocked() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED);
-        assertThat(cameraCaptureResult.getAfState()).isEqualTo(AfState.LOCKED_FOCUSED);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.LOCKED_FOCUSED);
     }
 
     @Test
     public void getAfState_withAfStateNotFocusedLocked() {
-        when(captureResult.get(CaptureResult.CONTROL_AF_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AF_STATE))
                 .thenReturn(CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED);
-        assertThat(cameraCaptureResult.getAfState()).isEqualTo(AfState.LOCKED_NOT_FOCUSED);
+        assertThat(mCamera2CameraCaptureResult.getAfState()).isEqualTo(AfState.LOCKED_NOT_FOCUSED);
     }
 
     @Test
     public void getAeState_withNull() {
-        when(captureResult.get(CaptureResult.CONTROL_AE_STATE)).thenReturn(null);
-        assertThat(cameraCaptureResult.getAeState()).isEqualTo(AeState.UNKNOWN);
+        when(mCaptureResult.get(CaptureResult.CONTROL_AE_STATE)).thenReturn(null);
+        assertThat(mCamera2CameraCaptureResult.getAeState()).isEqualTo(AeState.UNKNOWN);
     }
 
     @Test
     public void getAeState_withAeStateInactive() {
-        when(captureResult.get(CaptureResult.CONTROL_AE_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AE_STATE))
                 .thenReturn(CaptureResult.CONTROL_AE_STATE_INACTIVE);
-        assertThat(cameraCaptureResult.getAeState()).isEqualTo(AeState.INACTIVE);
+        assertThat(mCamera2CameraCaptureResult.getAeState()).isEqualTo(AeState.INACTIVE);
     }
 
     @Test
     public void getAeState_withAeStateSearching() {
-        when(captureResult.get(CaptureResult.CONTROL_AE_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AE_STATE))
                 .thenReturn(CaptureResult.CONTROL_AE_STATE_SEARCHING);
-        assertThat(cameraCaptureResult.getAeState()).isEqualTo(AeState.SEARCHING);
+        assertThat(mCamera2CameraCaptureResult.getAeState()).isEqualTo(AeState.SEARCHING);
     }
 
     @Test
     public void getAeState_withAeStatePrecapture() {
-        when(captureResult.get(CaptureResult.CONTROL_AE_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AE_STATE))
                 .thenReturn(CaptureResult.CONTROL_AE_STATE_PRECAPTURE);
-        assertThat(cameraCaptureResult.getAeState()).isEqualTo(AeState.SEARCHING);
+        assertThat(mCamera2CameraCaptureResult.getAeState()).isEqualTo(AeState.SEARCHING);
     }
 
     @Test
     public void getAeState_withAeStateFlashRequired() {
-        when(captureResult.get(CaptureResult.CONTROL_AE_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AE_STATE))
                 .thenReturn(CaptureResult.CONTROL_AE_STATE_FLASH_REQUIRED);
-        assertThat(cameraCaptureResult.getAeState()).isEqualTo(AeState.FLASH_REQUIRED);
+        assertThat(mCamera2CameraCaptureResult.getAeState()).isEqualTo(AeState.FLASH_REQUIRED);
     }
 
     @Test
     public void getAeState_withAeStateConverged() {
-        when(captureResult.get(CaptureResult.CONTROL_AE_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AE_STATE))
                 .thenReturn(CaptureResult.CONTROL_AE_STATE_CONVERGED);
-        assertThat(cameraCaptureResult.getAeState()).isEqualTo(AeState.CONVERGED);
+        assertThat(mCamera2CameraCaptureResult.getAeState()).isEqualTo(AeState.CONVERGED);
     }
 
     @Test
     public void getAeState_withAeStateLocked() {
-        when(captureResult.get(CaptureResult.CONTROL_AE_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AE_STATE))
                 .thenReturn(CaptureResult.CONTROL_AE_STATE_LOCKED);
-        assertThat(cameraCaptureResult.getAeState()).isEqualTo(AeState.LOCKED);
+        assertThat(mCamera2CameraCaptureResult.getAeState()).isEqualTo(AeState.LOCKED);
     }
 
     @Test
     public void getAwbState_withNull() {
-        when(captureResult.get(CaptureResult.CONTROL_AWB_STATE)).thenReturn(null);
-        assertThat(cameraCaptureResult.getAwbState()).isEqualTo(AwbState.UNKNOWN);
+        when(mCaptureResult.get(CaptureResult.CONTROL_AWB_STATE)).thenReturn(null);
+        assertThat(mCamera2CameraCaptureResult.getAwbState()).isEqualTo(AwbState.UNKNOWN);
     }
 
     @Test
     public void getAwbState_withAwbStateInactive() {
-        when(captureResult.get(CaptureResult.CONTROL_AWB_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AWB_STATE))
                 .thenReturn(CaptureResult.CONTROL_AWB_STATE_INACTIVE);
-        assertThat(cameraCaptureResult.getAwbState()).isEqualTo(AwbState.INACTIVE);
+        assertThat(mCamera2CameraCaptureResult.getAwbState()).isEqualTo(AwbState.INACTIVE);
     }
 
     @Test
     public void getAwbState_withAwbStateSearching() {
-        when(captureResult.get(CaptureResult.CONTROL_AWB_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AWB_STATE))
                 .thenReturn(CaptureResult.CONTROL_AWB_STATE_SEARCHING);
-        assertThat(cameraCaptureResult.getAwbState()).isEqualTo(AwbState.METERING);
+        assertThat(mCamera2CameraCaptureResult.getAwbState()).isEqualTo(AwbState.METERING);
     }
 
     @Test
     public void getAwbState_withAwbStateConverged() {
-        when(captureResult.get(CaptureResult.CONTROL_AWB_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AWB_STATE))
                 .thenReturn(CaptureResult.CONTROL_AWB_STATE_CONVERGED);
-        assertThat(cameraCaptureResult.getAwbState()).isEqualTo(AwbState.CONVERGED);
+        assertThat(mCamera2CameraCaptureResult.getAwbState()).isEqualTo(AwbState.CONVERGED);
     }
 
     @Test
     public void getAwbState_withAwbStateLocked() {
-        when(captureResult.get(CaptureResult.CONTROL_AWB_STATE))
+        when(mCaptureResult.get(CaptureResult.CONTROL_AWB_STATE))
                 .thenReturn(CaptureResult.CONTROL_AWB_STATE_LOCKED);
-        assertThat(cameraCaptureResult.getAwbState()).isEqualTo(AwbState.LOCKED);
+        assertThat(mCamera2CameraCaptureResult.getAwbState()).isEqualTo(AwbState.LOCKED);
     }
 
     @Test
     public void getFlashState_withNull() {
-        when(captureResult.get(CaptureResult.FLASH_STATE)).thenReturn(null);
-        assertThat(cameraCaptureResult.getFlashState()).isEqualTo(FlashState.UNKNOWN);
+        when(mCaptureResult.get(CaptureResult.FLASH_STATE)).thenReturn(null);
+        assertThat(mCamera2CameraCaptureResult.getFlashState()).isEqualTo(FlashState.UNKNOWN);
     }
 
     @Test
     public void getFlashState_withFlashStateUnavailable() {
-        when(captureResult.get(CaptureResult.FLASH_STATE))
+        when(mCaptureResult.get(CaptureResult.FLASH_STATE))
                 .thenReturn(CaptureResult.FLASH_STATE_UNAVAILABLE);
-        assertThat(cameraCaptureResult.getFlashState()).isEqualTo(FlashState.NONE);
+        assertThat(mCamera2CameraCaptureResult.getFlashState()).isEqualTo(FlashState.NONE);
     }
 
     @Test
     public void getFlashState_withFlashStateCharging() {
-        when(captureResult.get(CaptureResult.FLASH_STATE))
+        when(mCaptureResult.get(CaptureResult.FLASH_STATE))
                 .thenReturn(CaptureResult.FLASH_STATE_CHARGING);
-        assertThat(cameraCaptureResult.getFlashState()).isEqualTo(FlashState.NONE);
+        assertThat(mCamera2CameraCaptureResult.getFlashState()).isEqualTo(FlashState.NONE);
     }
 
     @Test
     public void getFlashState_withFlashStateReady() {
-        when(captureResult.get(CaptureResult.FLASH_STATE))
+        when(mCaptureResult.get(CaptureResult.FLASH_STATE))
                 .thenReturn(CaptureResult.FLASH_STATE_READY);
-        assertThat(cameraCaptureResult.getFlashState()).isEqualTo(FlashState.READY);
+        assertThat(mCamera2CameraCaptureResult.getFlashState()).isEqualTo(FlashState.READY);
     }
 
     @Test
     public void getFlashState_withFlashStateFired() {
-        when(captureResult.get(CaptureResult.FLASH_STATE))
+        when(mCaptureResult.get(CaptureResult.FLASH_STATE))
                 .thenReturn(CaptureResult.FLASH_STATE_FIRED);
-        assertThat(cameraCaptureResult.getFlashState()).isEqualTo(FlashState.FIRED);
+        assertThat(mCamera2CameraCaptureResult.getFlashState()).isEqualTo(FlashState.FIRED);
     }
 
     @Test
     public void getFlashState_withFlashStatePartial() {
-        when(captureResult.get(CaptureResult.FLASH_STATE))
+        when(mCaptureResult.get(CaptureResult.FLASH_STATE))
                 .thenReturn(CaptureResult.FLASH_STATE_PARTIAL);
-        assertThat(cameraCaptureResult.getFlashState()).isEqualTo(FlashState.FIRED);
+        assertThat(mCamera2CameraCaptureResult.getFlashState()).isEqualTo(FlashState.FIRED);
     }
 }
