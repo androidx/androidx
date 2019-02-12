@@ -82,7 +82,7 @@ public abstract class TypeReference<T> {
         hash = type.hashCode();
     }
 
-    private TypeReference(Type type) {
+    TypeReference(Type type) {
         this.type = type;
         if (containsTypeVariable(this.type)) {
             throw new IllegalArgumentException(

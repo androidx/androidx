@@ -31,7 +31,7 @@ public final class ViewFinderUseCaseConfiguration
     private final OptionsBundle config;
 
     /** Creates a new configuration instance. */
-    private ViewFinderUseCaseConfiguration(OptionsBundle config) {
+    ViewFinderUseCaseConfiguration(OptionsBundle config) {
         this.config = config;
     }
 

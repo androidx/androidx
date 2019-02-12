@@ -39,7 +39,7 @@ public final class ImageAnalysisUseCaseConfiguration
             Option.create("camerax.core.imageAnalysis.imageQueueDepth", int.class);
     private final OptionsBundle config;
 
-    private ImageAnalysisUseCaseConfiguration(OptionsBundle config) {
+    ImageAnalysisUseCaseConfiguration(OptionsBundle config) {
         this.config = config;
     }
 

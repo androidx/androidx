@@ -47,21 +47,21 @@ import java.util.Set;
 public final class CaptureRequestConfiguration {
 
     /** The set of {@link Surface} that data from the camera will be put into. */
-    private final List<DeferrableSurface> surfaces;
+    final List<DeferrableSurface> surfaces;
 
     /** The parameters used to configure the {@link CaptureRequest}. */
-    private final Map<Key<?>, CaptureRequestParameter<?>> captureRequestParameters;
+    final Map<Key<?>, CaptureRequestParameter<?>> captureRequestParameters;
 
-    private final Configuration implementationOptions;
+    final Configuration implementationOptions;
 
     /**
      * The templates used for configuring a {@link CaptureRequest}. This must match the constants
      * defined by {@link CameraDevice}
      */
-    private final int templateType;
+    final int templateType;
 
     /** The camera capture callback for a {@link CameraCaptureSession}. */
-    private final CameraCaptureCallback cameraCaptureCallback;
+    final CameraCaptureCallback cameraCaptureCallback;
 
     /** True if this capture request needs a repeating surface */
     private final boolean useRepeatingSurface;
@@ -81,7 +81,7 @@ public final class CaptureRequestConfiguration {
      *                                 constants defined by {@link CameraDevice}.
      * @param cameraCaptureCallback    The camera capture callback.
      */
-    private CaptureRequestConfiguration(
+    CaptureRequestConfiguration(
             List<DeferrableSurface> surfaces,
             Map<Key<?>, CaptureRequestParameter<?>> captureRequestParameters,
             Configuration implementationOptions,

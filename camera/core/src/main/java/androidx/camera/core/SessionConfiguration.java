@@ -65,7 +65,7 @@ public final class SessionConfiguration {
      * @param sessionStateCallback        The state callback for a {@link CameraCaptureSession}.
      * @param captureRequestConfiguration The configuration for building the {@link CaptureRequest}.
      */
-    private SessionConfiguration(
+    SessionConfiguration(
             List<DeferrableSurface> surfaces,
             StateCallback deviceStateCallback,
             CameraCaptureSession.StateCallback sessionStateCallback,

@@ -41,7 +41,7 @@ public final class AppConfiguration implements TargetConfiguration<CameraX> {
                     UseCaseConfigurationFactory.class);
     private final OptionsBundle config;
 
-    private AppConfiguration(OptionsBundle options) {
+    AppConfiguration(OptionsBundle options) {
         this.config = options;
     }
 

@@ -113,7 +113,7 @@ public abstract class SurfaceConfiguration {
         /** NOT_SUPPORT is for the size larger than MAXIMUM */
         NOT_SUPPORT(4);
 
-        private final int id;
+        final int id;
 
         ConfigurationSize(int id) {
             this.id = id;

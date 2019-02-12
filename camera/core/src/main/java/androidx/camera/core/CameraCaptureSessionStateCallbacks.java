@@ -17,8 +17,10 @@
 package androidx.camera.core;
 
 import android.hardware.camera2.CameraCaptureSession;
+import android.os.Build;
 import android.view.Surface;
 
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 
@@ -56,7 +58,7 @@ public final class CameraCaptureSessionStateCallbacks {
         return createComboCallback(Arrays.asList(callbacks));
     }
 
-    private static final class NoOpSessionStateCallback extends CameraCaptureSession.StateCallback {
+    static final class NoOpSessionStateCallback extends CameraCaptureSession.StateCallback {
         @Override
         public void onConfigured(CameraCaptureSession session) {
         }
@@ -90,7 +92,7 @@ public final class CameraCaptureSessionStateCallbacks {
             extends CameraCaptureSession.StateCallback {
         private final List<CameraCaptureSession.StateCallback> callbacks = new ArrayList<>();
 
-        private ComboSessionStateCallback(List<CameraCaptureSession.StateCallback> callbacks) {
+        ComboSessionStateCallback(List<CameraCaptureSession.StateCallback> callbacks) {
             for (CameraCaptureSession.StateCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpSessionStateCallback)) {
@@ -127,6 +129,7 @@ public final class CameraCaptureSessionStateCallbacks {
             }
         }
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void onCaptureQueueEmpty(CameraCaptureSession session) {
             for (CameraCaptureSession.StateCallback callback : callbacks) {

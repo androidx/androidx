@@ -84,8 +84,8 @@ public class ImageCaptureUseCase extends BaseUseCase {
     // Empty metadata object used as a placeholder for no user-supplied metadata.
     // Should be initialized to all default values.
     private static final Metadata EMPTY_METADATA = new Metadata();
-    private final Handler handler;
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    final Handler handler;
+    final Handler mainHandler = new Handler(Looper.getMainLooper());
     private final SessionConfiguration.Builder sessionConfigBuilder;
     private final ArrayDeque<ImageCaptureRequest> imageCaptureRequests = new ArrayDeque<>();
     private final ExecutorService executor =
@@ -695,17 +695,19 @@ public class ImageCaptureUseCase extends BaseUseCase {
             CaptureMode captureMode, CaptureRequestConfiguration.Builder takePhotoRequestBuilder) {
         if (Build.MANUFACTURER.equals("Google")
                 && (Build.MODEL.equals("Pixel 2") || Build.MODEL.equals("Pixel 3"))) {
-            switch (captureMode) {
-                case MAX_QUALITY:
-                    // enable ZSL to make sure HDR+ is enabled
-                    takePhotoRequestBuilder.addCharacteristic(
-                            CaptureRequest.CONTROL_ENABLE_ZSL, true);
-                    break;
-                case MIN_LATENCY:
-                    // disable ZSL to turn off HDR+
-                    takePhotoRequestBuilder.addCharacteristic(
-                            CaptureRequest.CONTROL_ENABLE_ZSL, false);
-                    break;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                switch (captureMode) {
+                    case MAX_QUALITY:
+                        // enable ZSL to make sure HDR+ is enabled
+                        takePhotoRequestBuilder.addCharacteristic(
+                                CaptureRequest.CONTROL_ENABLE_ZSL, true);
+                        break;
+                    case MIN_LATENCY:
+                        // disable ZSL to turn off HDR+
+                        takePhotoRequestBuilder.addCharacteristic(
+                                CaptureRequest.CONTROL_ENABLE_ZSL, false);
+                        break;
+                }
             }
         }
     }
@@ -882,7 +884,7 @@ public class ImageCaptureUseCase extends BaseUseCase {
      * handles the timeout condition if the check condition does not satisfy the given timeout, and
      * returns the given default value if the timeout is met.
      */
-    private static final class CaptureCallbackChecker extends CameraCaptureCallback {
+    static final class CaptureCallbackChecker extends CameraCaptureCallback {
         private static final long NO_TIMEOUT = 0L;
 
         /** Capture listeners. */
