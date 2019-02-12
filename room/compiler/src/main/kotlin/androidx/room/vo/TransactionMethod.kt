@@ -16,9 +16,17 @@
 
 package androidx.room.vo
 
+import androidx.room.solver.transaction.binder.TransactionMethodBinder
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.type.TypeMirror
 
-class TransactionMethod(val element: ExecutableElement, val name: String, val callType: CallType) {
+class TransactionMethod(
+    val element: ExecutableElement,
+    val returnType: TypeMirror,
+    val parameterNames: List<String>,
+    val callType: CallType,
+    val methodBinder: TransactionMethodBinder
+) {
     enum class CallType {
         CONCRETE, DEFAULT_JAVA8, DEFAULT_KOTLIN
     }
