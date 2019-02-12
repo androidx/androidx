@@ -74,9 +74,6 @@ public class PagedListView extends FrameLayout {
      */
     private static final String SAVED_RECYCLER_VIEW_STATE_KEY = "RecyclerViewState";
 
-    /** Default maximum number of clicks allowed on a list */
-    public static final int DEFAULT_MAX_CLICKS = 6;
-
     /**
      * Value to pass to {@link #setMaxPages(int)} to indicate there is no restriction on the
      * maximum number of pages to show.
@@ -115,12 +112,9 @@ public class PagedListView extends FrameLayout {
     private RecyclerView.Adapter<? extends RecyclerView.ViewHolder> mAdapter;
 
     /** Maximum number of pages to show. */
-    private int mMaxPages;
+    private int mMaxPages = UNLIMITED_PAGES;
 
     OnScrollListener mOnScrollListener;
-
-    /** Number of visible rows per page */
-    private int mDefaultMaxPages = DEFAULT_MAX_CLICKS;
 
     /** Used to check if there are more items added to the list. */
     private int mLastItemCount;
@@ -242,8 +236,6 @@ public class PagedListView extends FrameLayout {
         TypedArray a = context.obtainStyledAttributes(
                 attrs, R.styleable.PagedListView, defStyleAttrs, defStyleRes);
         mRecyclerView = findViewById(R.id.recycler_view);
-
-        mMaxPages = getDefaultMaxPages();
 
         RecyclerView.LayoutManager layoutManager =
                 new LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false);
@@ -713,7 +705,7 @@ public class PagedListView extends FrameLayout {
      * page is defined as the number of items that fit completely on the screen at once.
      *
      * <p>Passing {@link #UNLIMITED_PAGES} will remove any restrictions on a maximum number
-     * of pages.
+     * of pages. By default, there is no restriction on the number of pages.
      *
      * <p>Note that for any restriction on maximum pages to work, the adapter passed to this
      * PagedListView needs to implement {@link ItemCap}.
@@ -744,12 +736,6 @@ public class PagedListView extends FrameLayout {
      */
     public int getRowsPerPage() {
         return mRowsPerPage;
-    }
-
-    /** Resets the maximum number of pages to be shown to be the default. */
-    public void resetMaxPages() {
-        mMaxPages = getDefaultMaxPages();
-        updateMaxItems();
     }
 
     /**
@@ -973,25 +959,6 @@ public class PagedListView extends FrameLayout {
         }
 
         mRecyclerView.smoothScrollBy(0, scrollDistance);
-    }
-
-    /**
-     * Sets the default number of pages that this PagedListView is limited to.
-     *
-     * @param newDefault The default number of pages. Should be positive.
-     */
-    public void setDefaultMaxPages(int newDefault) {
-        if (newDefault < 0) {
-            return;
-        }
-        mDefaultMaxPages = newDefault;
-        resetMaxPages();
-    }
-
-    /** Returns the default number of pages the list should have */
-    private int getDefaultMaxPages() {
-        // assume list shown in response to a click, so, reduce number of clicks by one
-        return mDefaultMaxPages - 1;
     }
 
     @Override
