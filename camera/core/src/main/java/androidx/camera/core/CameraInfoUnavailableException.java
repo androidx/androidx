@@ -22,13 +22,13 @@ import androidx.annotation.RestrictTo.Scope;
 /** An exception thrown when unable to retrieve information about a camera. */
 public final class CameraInfoUnavailableException extends Exception {
     /** @hide */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraInfoUnavailableException(String s, Throwable e) {
         super(s, e);
     }
 
     /** @hide */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraInfoUnavailableException(String s) {
         super(s);
     }

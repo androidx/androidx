@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.ImageFormat;
 import android.graphics.Point;
@@ -425,6 +426,8 @@ final class SupportedSurfaceCombination {
         return allPossibleSizeArrangements;
     }
 
+    // TODO(b/124267925): Remove @SuppressLint once we target API 21
+    @SuppressLint("ObsoleteSdkInt")
     private Size[] getAllOutputSizesByFormat(int imageFormat) {
         if (characteristics == null) {
             throw new IllegalStateException("CameraCharacteristics is null.");

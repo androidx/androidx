@@ -63,7 +63,7 @@ public final class Camera2Configuration implements Configuration.Reader {
     // Unforunately, we can't get the Class<T> from the CaptureRequest.Key, so we're forced to erase
     // the type. This shouldn't be a problem as long as we are only using these options within the
     // Camera2Configuration and Camera2Configuration.Builder classes.
-    private static Option<Object> createCaptureRequestOption(CaptureRequest.Key<?> key) {
+    static Option<Object> createCaptureRequestOption(CaptureRequest.Key<?> key) {
         return Option.create(CAPTURE_REQUEST_ID_STEM + key.getName(), Object.class, key);
     }
 

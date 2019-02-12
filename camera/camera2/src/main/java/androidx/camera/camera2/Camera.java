@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2;
 
+import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
@@ -79,7 +80,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      * <p>Is an atomic reference because it is initialized in the constructor which is not called on
      * same thread as any of the other methods and callbacks.
      */
-    private final AtomicReference<State> state = new AtomicReference<>(State.UNINITIALIZED);
+    final AtomicReference<State> state = new AtomicReference<>(State.UNINITIALIZED);
     /** The camera control shared across all use cases bound to this Camera. */
     private final CameraControl cameraControl;
     private final StateCallback stateCallback = new StateCallback();
@@ -90,7 +91,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     private CameraInfo cameraInfo;
     /** The handle to the opened camera. */
     @Nullable
-    private CameraDevice cameraDevice;
+    CameraDevice cameraDevice;
     /** The configured session which handles issuing capture requests. */
     private CaptureSession captureSession = new CaptureSession(null);
 
@@ -341,7 +342,9 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     }
 
     /** Opens the camera device */
-    private void openCameraDevice() {
+    // TODO(b/124268878): Handle SecurityException and require permission in manifest.
+    @SuppressLint("MissingPermission")
+    void openCameraDevice() {
         state.set(State.OPENING);
 
         Log.d(TAG, "Opening camera: " + cameraId);
@@ -376,7 +379,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      *
      * <p>The previously opened session will be safely disposed of before the new session opened.
      */
-    private void openCaptureSession() {
+    void openCaptureSession() {
         ValidatingBuilder validatingBuilder;
         synchronized (attachedUseCaseLock) {
             validatingBuilder = useCaseAttachState.getOnlineBuilder();
@@ -404,7 +407,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      * Closes the currently opened capture session, so it can be safely disposed. Replaces the old
      * session with a new session initialized with the old session's configuration.
      */
-    private void resetCaptureSession() {
+    void resetCaptureSession() {
         Log.d(TAG, "Closing Capture Session");
         captureSession.close();
 
@@ -577,7 +580,7 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         RELEASED
     }
 
-    private final class StateCallback extends CameraDevice.StateCallback {
+    final class StateCallback extends CameraDevice.StateCallback {
 
         @Override
         public void onOpened(CameraDevice cameraDevice) {
