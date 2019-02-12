@@ -38,7 +38,7 @@ public final class ImageCaptureUseCaseConfiguration
     private final OptionsBundle config;
 
     /** Creates a new configuration instance. */
-    private ImageCaptureUseCaseConfiguration(OptionsBundle config) {
+    ImageCaptureUseCaseConfiguration(OptionsBundle config) {
         this.config = config;
     }
 

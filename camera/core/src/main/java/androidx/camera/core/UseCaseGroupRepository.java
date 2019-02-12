@@ -34,10 +34,10 @@ import java.util.Map;
  * regulates the common lifecycle shared by all the use cases in the group.
  */
 final class UseCaseGroupRepository {
-    private final Object useCasesLock = new Object();
+    final Object useCasesLock = new Object();
 
     @GuardedBy("useCasesLock")
-    private final Map<LifecycleOwner, UseCaseGroupLifecycleController> useCasesMap =
+    final Map<LifecycleOwner, UseCaseGroupLifecycleController> useCasesMap =
             new HashMap<>();
 
     /**

@@ -55,7 +55,7 @@ public final class CameraDeviceStateCallbacks {
         return createComboCallback(Arrays.asList(callbacks));
     }
 
-    private static final class NoOpDeviceStateCallback extends CameraDevice.StateCallback {
+    static final class NoOpDeviceStateCallback extends CameraDevice.StateCallback {
         @Override
         public void onOpened(CameraDevice cameraDevice) {
         }
@@ -76,7 +76,7 @@ public final class CameraDeviceStateCallbacks {
     private static final class ComboDeviceStateCallback extends CameraDevice.StateCallback {
         private final List<CameraDevice.StateCallback> callbacks = new ArrayList<>();
 
-        private ComboDeviceStateCallback(List<CameraDevice.StateCallback> callbacks) {
+        ComboDeviceStateCallback(List<CameraDevice.StateCallback> callbacks) {
             for (CameraDevice.StateCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpDeviceStateCallback)) {

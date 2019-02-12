@@ -46,7 +46,7 @@ public final class VideoCaptureUseCaseConfiguration
             Option.create("camerax.core.videoCapture.audioMinBufferSize", int.class);
     private final OptionsBundle config;
 
-    private VideoCaptureUseCaseConfiguration(OptionsBundle config) {
+    VideoCaptureUseCaseConfiguration(OptionsBundle config) {
         this.config = config;
     }
 

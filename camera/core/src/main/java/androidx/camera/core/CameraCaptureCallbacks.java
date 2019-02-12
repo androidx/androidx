@@ -49,7 +49,7 @@ public final class CameraCaptureCallbacks {
         return createComboCallback(Arrays.asList(callbacks));
     }
 
-    private static final class NoOpCameraCaptureCallback extends CameraCaptureCallback {
+    static final class NoOpCameraCaptureCallback extends CameraCaptureCallback {
         @Override
         public void onCaptureCompleted(CameraCaptureResult cameraCaptureResult) {
         }
@@ -66,7 +66,7 @@ public final class CameraCaptureCallbacks {
     public static final class ComboCameraCaptureCallback extends CameraCaptureCallback {
         private final List<CameraCaptureCallback> callbacks = new ArrayList<>();
 
-        private ComboCameraCaptureCallback(List<CameraCaptureCallback> callbacks) {
+        ComboCameraCaptureCallback(List<CameraCaptureCallback> callbacks) {
             for (CameraCaptureCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpCameraCaptureCallback)) {

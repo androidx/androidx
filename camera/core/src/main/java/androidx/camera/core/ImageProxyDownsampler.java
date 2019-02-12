@@ -220,7 +220,7 @@ final class ImageProxyDownsampler {
         private final int downsampledWidth;
         private final int downsampledHeight;
 
-        private ForwardingImageProxyImpl(
+        ForwardingImageProxyImpl(
                 ImageProxy originalImage,
                 PlaneProxy[] downsampledPlanes,
                 int downsampledWidth,
