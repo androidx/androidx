@@ -43,17 +43,15 @@ import java.util.Map;
  * of surface configuration type and size pairs can be supported for different hardware level camera
  * devices. This structure is used to store the guaranteed supported stream capabilities related
  * info.
- *
- * @hide Implementation detail
  */
 final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
     private static final String TAG = "Camera2DeviceSurfaceManager";
     private static final Size MAXIMUM_PREVIEW_SIZE = new Size(1920, 1080);
-    private final Map<String, SupportedSurfaceCombination> cameraSupportedSurfaceCombinationMap =
+    private final Map<String, SupportedSurfaceCombination> mCameraSupportedSurfaceCombinationMap =
             new HashMap<>();
-    private boolean isInitialized = false;
+    private boolean mIsInitialized = false;
 
-    public Camera2DeviceSurfaceManager(Context context) {
+    Camera2DeviceSurfaceManager(Context context) {
         init(context, CamcorderProfile::hasProfile);
     }
 
@@ -75,7 +73,7 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
             String cameraId, List<SurfaceConfiguration> surfaceConfigurationList) {
         boolean isSupported = false;
 
-        if (!isInitialized) {
+        if (!mIsInitialized) {
             throw new IllegalStateException("Camera2DeviceSurfaceManager is not initialized.");
         }
 
@@ -84,7 +82,7 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
         }
 
         SupportedSurfaceCombination supportedSurfaceCombination =
-                cameraSupportedSurfaceCombinationMap.get(cameraId);
+                mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
         if (supportedSurfaceCombination != null) {
             isSupported = supportedSurfaceCombination.checkSupported(surfaceConfigurationList);
@@ -106,12 +104,12 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
             String cameraId, int imageFormat, Size size) {
         SurfaceConfiguration surfaceConfiguration = null;
 
-        if (!isInitialized) {
+        if (!mIsInitialized) {
             throw new IllegalStateException("Camera2DeviceSurfaceManager is not initialized.");
         }
 
         SupportedSurfaceCombination supportedSurfaceCombination =
-                cameraSupportedSurfaceCombinationMap.get(cameraId);
+                mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
         if (supportedSurfaceCombination != null) {
             surfaceConfiguration =
@@ -170,7 +168,7 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
         }
 
         SupportedSurfaceCombination supportedSurfaceCombination =
-                cameraSupportedSurfaceCombinationMap.get(cameraId);
+                mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
         if (supportedSurfaceCombination == null
                 || !supportedSurfaceCombination.checkSupported(surfaceConfigurations)) {
@@ -183,13 +181,13 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
     }
 
     private void init(Context context, CamcorderProfileHelper camcorderProfileHelper) {
-        if (!isInitialized) {
+        if (!mIsInitialized) {
             CameraManager cameraManager =
                     (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
 
             try {
                 for (String cameraId : cameraManager.getCameraIdList()) {
-                    cameraSupportedSurfaceCombinationMap.put(
+                    mCameraSupportedSurfaceCombinationMap.put(
                             cameraId,
                             new SupportedSurfaceCombination(
                                     context, cameraId, camcorderProfileHelper));
@@ -198,7 +196,7 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
                 throw new IllegalArgumentException("Fail to get camera id list", e);
             }
 
-            isInitialized = true;
+            mIsInitialized = true;
         }
     }
 
@@ -211,12 +209,12 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
      */
     @Override
     public Size getMaxOutputSize(String cameraId, int imageFormat) {
-        if (!isInitialized) {
+        if (!mIsInitialized) {
             throw new IllegalStateException("CameraDeviceSurfaceManager is not initialized.");
         }
 
         SupportedSurfaceCombination supportedSurfaceCombination =
-                cameraSupportedSurfaceCombinationMap.get(cameraId);
+                mCameraSupportedSurfaceCombinationMap.get(cameraId);
 
         if (supportedSurfaceCombination == null) {
             throw new IllegalArgumentException(
@@ -233,20 +231,20 @@ final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceManager {
      */
     @Override
     public Size getPreviewSize() {
-        if (!isInitialized) {
+        if (!mIsInitialized) {
             throw new IllegalStateException("CameraDeviceSurfaceManager is not initialized.");
         }
 
         // 1920x1080 is maximum preview size
         Size previewSize = MAXIMUM_PREVIEW_SIZE;
 
-        if (!cameraSupportedSurfaceCombinationMap.isEmpty()) {
+        if (!mCameraSupportedSurfaceCombinationMap.isEmpty()) {
             // Preview size depends on the display size and 1080P. Therefore, we can get the first
             // camera
             // device's preview size to return it.
-            String cameraId = (String) cameraSupportedSurfaceCombinationMap.keySet().toArray()[0];
+            String cameraId = (String) mCameraSupportedSurfaceCombinationMap.keySet().toArray()[0];
             previewSize =
-                    cameraSupportedSurfaceCombinationMap
+                    mCameraSupportedSurfaceCombinationMap
                             .get(cameraId)
                             .getSurfaceSizeDefinition()
                             .getPreviewSize();

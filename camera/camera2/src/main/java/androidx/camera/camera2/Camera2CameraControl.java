@@ -55,48 +55,50 @@ public final class Camera2CameraControl implements CameraControl {
     @VisibleForTesting
     static final long FOCUS_TIMEOUT = 5000;
     private static final String TAG = "Camera2CameraControl";
-    private final Camera2RequestRunner camera2RequestRunner;
-    private final Handler handler;
-    private final CameraControlSessionCallback sessionCallback = new CameraControlSessionCallback();
+    private final Camera2RequestRunner mCamera2RequestRunner;
+    private final Handler mHandler;
+    private final CameraControlSessionCallback mSessionCallback =
+            new CameraControlSessionCallback();
     // use volatile modifier to make these variables in sync in all threads.
-    private volatile boolean isTorchOn = false;
-    private volatile boolean isFocusLocked = false;
-    private volatile FlashMode flashMode = FlashMode.OFF;
-    private volatile Rect cropRect = null;
-    private volatile MeteringRectangle afRect;
-    private volatile MeteringRectangle aeRect;
-    private volatile MeteringRectangle awbRect;
-    private volatile Integer currentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
-    private volatile OnFocusCompletedListener focusListener = null;
-    private volatile Handler focusListenerHandler = null;
-    private volatile CaptureResultListener sessionListenerForFocus = null;
-    private final Runnable handleFocusTimeoutRunnable =
+    private volatile boolean mIsTorchOn = false;
+    private volatile boolean mIsFocusLocked = false;
+    private volatile FlashMode mFlashMode = FlashMode.OFF;
+    private volatile Rect mCropRect = null;
+    private volatile MeteringRectangle mAfRect;
+    private volatile MeteringRectangle mAeRect;
+    private volatile MeteringRectangle mAwbRect;
+    private volatile Integer mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
+    private volatile OnFocusCompletedListener mFocusListener = null;
+    private volatile Handler mFocusListenerHandler = null;
+    private volatile CaptureResultListener mSessionListenerForFocus = null;
+    private final Runnable mHandleFocusTimeoutRunnable =
             () -> {
                 cancelFocus();
 
-                sessionCallback.removeListener(sessionListenerForFocus);
+                mSessionCallback.removeListener(mSessionListenerForFocus);
 
-                if (focusListener != null
-                        && currentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
+                if (mFocusListener != null
+                        && mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
                     runInFocusListenerHandler(
-                            () -> focusListener.onFocusTimedOut(afRect.getRect()));
+                            () -> mFocusListener.onFocusTimedOut(mAfRect.getRect()));
                 }
             };
+
     public Camera2CameraControl(Camera2RequestRunner camera2RequestRunner, Handler handler) {
-        this.camera2RequestRunner = camera2RequestRunner;
-        this.handler = handler;
+        mCamera2RequestRunner = camera2RequestRunner;
+        mHandler = handler;
     }
 
     /** {@inheritDoc} */
     @Override
     public void setCropRegion(Rect crop) {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> setCropRegion(crop));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> setCropRegion(crop));
             return;
         }
 
-        cropRect = crop;
-        camera2RequestRunner.updateRepeatingRequest();
+        mCropRect = crop;
+        mCamera2RequestRunner.updateRepeatingRequest();
     }
 
     /** {@inheritDoc} */
@@ -106,86 +108,87 @@ public final class Camera2CameraControl implements CameraControl {
             Rect metering,
             @Nullable OnFocusCompletedListener listener,
             @Nullable Handler listenerHandler) {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> focus(focus, metering, listener, listenerHandler));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> focus(focus, metering, listener, listenerHandler));
             return;
         }
 
-        sessionCallback.removeListener(sessionListenerForFocus);
+        mSessionCallback.removeListener(mSessionListenerForFocus);
 
-        handler.removeCallbacks(handleFocusTimeoutRunnable);
+        mHandler.removeCallbacks(mHandleFocusTimeoutRunnable);
 
-        afRect = new MeteringRectangle(focus, MeteringRectangle.METERING_WEIGHT_MAX);
-        aeRect = new MeteringRectangle(metering, MeteringRectangle.METERING_WEIGHT_MAX);
-        awbRect = new MeteringRectangle(metering, MeteringRectangle.METERING_WEIGHT_MAX);
-        Log.d(TAG, "Setting new AF rectangle: " + afRect);
-        Log.d(TAG, "Setting new AE rectangle: " + aeRect);
-        Log.d(TAG, "Setting new AWB rectangle: " + awbRect);
+        mAfRect = new MeteringRectangle(focus, MeteringRectangle.METERING_WEIGHT_MAX);
+        mAeRect = new MeteringRectangle(metering, MeteringRectangle.METERING_WEIGHT_MAX);
+        mAwbRect = new MeteringRectangle(metering, MeteringRectangle.METERING_WEIGHT_MAX);
+        Log.d(TAG, "Setting new AF rectangle: " + mAfRect);
+        Log.d(TAG, "Setting new AE rectangle: " + mAeRect);
+        Log.d(TAG, "Setting new AWB rectangle: " + mAwbRect);
 
-        focusListener = listener;
-        focusListenerHandler =
+        mFocusListener = listener;
+        mFocusListenerHandler =
                 (listenerHandler != null ? listenerHandler : new Handler(Looper.getMainLooper()));
-        currentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
-        isFocusLocked = true;
+        mCurrentAfState = CaptureResult.CONTROL_AF_STATE_INACTIVE;
+        mIsFocusLocked = true;
 
         if (listener != null) {
 
-            sessionListenerForFocus =
+            mSessionListenerForFocus =
                     (result) -> {
                         Integer afState = result.get(CaptureResult.CONTROL_AF_STATE);
                         if (afState == null) {
                             return false;
                         }
 
-                        if (currentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
+                        if (mCurrentAfState == CaptureResult.CONTROL_AF_STATE_ACTIVE_SCAN) {
                             if (afState == CaptureResult.CONTROL_AF_STATE_FOCUSED_LOCKED) {
                                 runInFocusListenerHandler(
-                                        () -> focusListener.onFocusLocked(afRect.getRect()));
+                                        () -> mFocusListener.onFocusLocked(mAfRect.getRect()));
                                 return true; // finished
                             } else if (afState
                                     == CaptureResult.CONTROL_AF_STATE_NOT_FOCUSED_LOCKED) {
                                 runInFocusListenerHandler(
-                                        () -> focusListener.onFocusUnableToLock(afRect.getRect()));
+                                        () -> mFocusListener.onFocusUnableToLock(
+                                                mAfRect.getRect()));
                                 return true; // finished
                             }
                         }
-                        if (!currentAfState.equals(afState)) {
-                            currentAfState = afState;
+                        if (!mCurrentAfState.equals(afState)) {
+                            mCurrentAfState = afState;
                         }
                         return false; // continue checking
                     };
 
-            sessionCallback.addListener(sessionListenerForFocus);
+            mSessionCallback.addListener(mSessionListenerForFocus);
         }
-        camera2RequestRunner.updateRepeatingRequest();
+        mCamera2RequestRunner.updateRepeatingRequest();
 
         triggerAf();
         if (FOCUS_TIMEOUT != 0) {
-            handler.postDelayed(handleFocusTimeoutRunnable, FOCUS_TIMEOUT);
+            mHandler.postDelayed(mHandleFocusTimeoutRunnable, FOCUS_TIMEOUT);
         }
     }
 
     private void runInFocusListenerHandler(Runnable runnable) {
-        if (focusListenerHandler != null) {
-            focusListenerHandler.post(runnable);
+        if (mFocusListenerHandler != null) {
+            mFocusListenerHandler.post(runnable);
         }
     }
 
     /** Cancels the focus operation. */
     @VisibleForTesting
     void cancelFocus() {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> cancelFocus());
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> cancelFocus());
             return;
         }
 
-        handler.removeCallbacks(handleFocusTimeoutRunnable);
+        mHandler.removeCallbacks(mHandleFocusTimeoutRunnable);
 
         MeteringRectangle zeroRegion =
                 new MeteringRectangle(new Rect(), MeteringRectangle.METERING_WEIGHT_DONT_CARE);
-        afRect = zeroRegion;
-        aeRect = zeroRegion;
-        awbRect = zeroRegion;
+        mAfRect = zeroRegion;
+        mAeRect = zeroRegion;
+        mAwbRect = zeroRegion;
 
         // Send a single request to cancel af process
         CaptureRequestConfiguration.Builder singleRequestBuilder =
@@ -194,31 +197,31 @@ public final class Camera2CameraControl implements CameraControl {
         singleRequestBuilder.setUseRepeatingSurface(true);
         singleRequestBuilder.addCharacteristic(
                 CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_CANCEL);
-        camera2RequestRunner.submitSingleRequest(singleRequestBuilder.build());
+        mCamera2RequestRunner.submitSingleRequest(singleRequestBuilder.build());
 
-        isFocusLocked = false;
-        camera2RequestRunner.updateRepeatingRequest();
+        mIsFocusLocked = false;
+        mCamera2RequestRunner.updateRepeatingRequest();
     }
 
     private void updateRepeatingRequest() {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> updateRepeatingRequest());
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> updateRepeatingRequest());
             return;
         }
 
-        camera2RequestRunner.updateRepeatingRequest();
+        mCamera2RequestRunner.updateRepeatingRequest();
     }
 
     @Override
     public FlashMode getFlashMode() {
-        return flashMode;
+        return mFlashMode;
     }
 
     /** {@inheritDoc} */
     @Override
     public void setFlashMode(FlashMode flashMode) {
-        // update flashMode immediately so that following getFlashMode() returns correct value.
-        this.flashMode = flashMode;
+        // update mFlashMode immediately so that following getFlashMode() returns correct value.
+        mFlashMode = flashMode;
 
         updateRepeatingRequest();
     }
@@ -227,13 +230,13 @@ public final class Camera2CameraControl implements CameraControl {
     @Override
     public void enableTorch(boolean torch) {
         // update isTorchOn immediately so that following isTorchOn() returns correct value.
-        isTorchOn = torch;
+        mIsTorchOn = torch;
         enableTorchInternal(torch);
     }
 
     private void enableTorchInternal(boolean torch) {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> enableTorchInternal(torch));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> enableTorchInternal(torch));
             return;
         }
 
@@ -245,20 +248,20 @@ public final class Camera2CameraControl implements CameraControl {
                     CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
             singleRequestBuilder.setUseRepeatingSurface(true);
 
-            camera2RequestRunner.submitSingleRequest(singleRequestBuilder.build());
+            mCamera2RequestRunner.submitSingleRequest(singleRequestBuilder.build());
         }
-        camera2RequestRunner.updateRepeatingRequest();
+        mCamera2RequestRunner.updateRepeatingRequest();
     }
 
     /** {@inheritDoc} */
     @Override
     public boolean isTorchOn() {
-        return isTorchOn;
+        return mIsTorchOn;
     }
 
     @Override
     public boolean isFocusLocked() {
-        return isFocusLocked;
+        return mIsFocusLocked;
     }
 
     /**
@@ -266,8 +269,8 @@ public final class Camera2CameraControl implements CameraControl {
      */
     @Override
     public void triggerAf() {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> triggerAf());
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> triggerAf());
             return;
         }
 
@@ -277,7 +280,7 @@ public final class Camera2CameraControl implements CameraControl {
         builder.setUseRepeatingSurface(true);
         builder.addCharacteristic(
                 CaptureRequest.CONTROL_AF_TRIGGER, CaptureRequest.CONTROL_AF_TRIGGER_START);
-        camera2RequestRunner.submitSingleRequest(builder.build());
+        mCamera2RequestRunner.submitSingleRequest(builder.build());
     }
 
     /**
@@ -286,8 +289,8 @@ public final class Camera2CameraControl implements CameraControl {
      */
     @Override
     public void triggerAePrecapture() {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> triggerAePrecapture());
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> triggerAePrecapture());
             return;
         }
 
@@ -297,7 +300,7 @@ public final class Camera2CameraControl implements CameraControl {
         builder.addCharacteristic(
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                 CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START);
-        camera2RequestRunner.submitSingleRequest(builder.build());
+        mCamera2RequestRunner.submitSingleRequest(builder.build());
     }
 
     /**
@@ -307,8 +310,8 @@ public final class Camera2CameraControl implements CameraControl {
      */
     @Override
     public void cancelAfAeTrigger(boolean cancelAfTrigger, boolean cancelAePrecaptureTrigger) {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> cancelAfAeTrigger(cancelAfTrigger, cancelAePrecaptureTrigger));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> cancelAfAeTrigger(cancelAfTrigger, cancelAePrecaptureTrigger));
             return;
         }
         CaptureRequestConfiguration.Builder builder = new CaptureRequestConfiguration.Builder();
@@ -323,7 +326,7 @@ public final class Camera2CameraControl implements CameraControl {
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
                     CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL);
         }
-        camera2RequestRunner.submitSingleRequest(builder.build());
+        mCamera2RequestRunner.submitSingleRequest(builder.build());
     }
 
     private int getDefaultTemplate() {
@@ -336,18 +339,18 @@ public final class Camera2CameraControl implements CameraControl {
         SessionConfiguration.Builder builder = new SessionConfiguration.Builder();
 
         builder.setTemplateType(getDefaultTemplate());
-        builder.setCameraCaptureCallback(CaptureCallbackContainer.create(sessionCallback));
+        builder.setCameraCaptureCallback(CaptureCallbackContainer.create(mSessionCallback));
 
         Camera2Configuration.Builder requestOptionBuilder = new Camera2Configuration.Builder();
 
-        if (isTorchOn) {
+        if (mIsTorchOn) {
             requestOptionBuilder.setCaptureRequestOption(
                     CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_ON);
             requestOptionBuilder.setCaptureRequestOption(
                     CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH);
         } else {
             int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
-            switch (flashMode) {
+            switch (mFlashMode) {
                 case OFF:
                     aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
                     break;
@@ -383,7 +386,7 @@ public final class Camera2CameraControl implements CameraControl {
                         ? CaptureRequest.CONTROL_AF_MODE_AUTO
                         : CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
 
-        if (isTorchOn) {
+        if (mIsTorchOn) {
             // In case some random single request turns off the torch by accident, attach FLASH_MODE
             // and
             // CONTROL_AE_MODE_ON to all single requests.
@@ -398,21 +401,21 @@ public final class Camera2CameraControl implements CameraControl {
         builder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_AWB_MODE, CaptureRequest.CONTROL_AWB_MODE_AUTO);
 
-        if (afRect != null) {
+        if (mAfRect != null) {
             builder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AF_REGIONS, new MeteringRectangle[]{afRect});
+                    CaptureRequest.CONTROL_AF_REGIONS, new MeteringRectangle[]{mAfRect});
         }
-        if (aeRect != null) {
+        if (mAeRect != null) {
             builder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AE_REGIONS, new MeteringRectangle[]{aeRect});
+                    CaptureRequest.CONTROL_AE_REGIONS, new MeteringRectangle[]{mAeRect});
         }
-        if (awbRect != null) {
+        if (mAwbRect != null) {
             builder.setCaptureRequestOption(
-                    CaptureRequest.CONTROL_AWB_REGIONS, new MeteringRectangle[]{awbRect});
+                    CaptureRequest.CONTROL_AWB_REGIONS, new MeteringRectangle[]{mAwbRect});
         }
 
-        if (cropRect != null) {
-            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, cropRect);
+        if (mCropRect != null) {
+            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, mCropRect);
         }
 
         return builder.build();
@@ -431,11 +434,11 @@ public final class Camera2CameraControl implements CameraControl {
 
     static final class CameraControlSessionCallback extends CaptureCallback {
 
-        private final Set<CaptureResultListener> resultListeners = new HashSet<>();
+        private final Set<CaptureResultListener> mResultListeners = new HashSet<>();
 
         public void addListener(CaptureResultListener listener) {
-            synchronized (resultListeners) {
-                resultListeners.add(listener);
+            synchronized (mResultListeners) {
+                mResultListeners.add(listener);
             }
         }
 
@@ -443,8 +446,8 @@ public final class Camera2CameraControl implements CameraControl {
             if (listener == null) {
                 return;
             }
-            synchronized (resultListeners) {
-                resultListeners.remove(listener);
+            synchronized (mResultListeners) {
+                mResultListeners.remove(listener);
             }
         }
 
@@ -454,11 +457,11 @@ public final class Camera2CameraControl implements CameraControl {
                 @NonNull CaptureRequest request,
                 @NonNull TotalCaptureResult result) {
             Set<CaptureResultListener> listeners;
-            synchronized (resultListeners) {
-                if (resultListeners.isEmpty()) {
+            synchronized (mResultListeners) {
+                if (mResultListeners.isEmpty()) {
                     return;
                 }
-                listeners = new HashSet<>(resultListeners);
+                listeners = new HashSet<>(mResultListeners);
             }
 
             Set<CaptureResultListener> removeSet = new HashSet<>();
@@ -470,8 +473,8 @@ public final class Camera2CameraControl implements CameraControl {
             }
 
             if (!removeSet.isEmpty()) {
-                synchronized (resultListeners) {
-                    resultListeners.removeAll(removeSet);
+                synchronized (mResultListeners) {
+                    mResultListeners.removeAll(removeSet);
                 }
             }
         }

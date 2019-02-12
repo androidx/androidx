@@ -27,13 +27,13 @@ import androidx.camera.core.CameraCaptureCallback;
  */
 final class CaptureCallbackContainer extends CameraCaptureCallback {
 
-    private final CaptureCallback captureCallback;
+    private final CaptureCallback mCaptureCallback;
 
     private CaptureCallbackContainer(CaptureCallback captureCallback) {
         if (captureCallback == null) {
             throw new NullPointerException("captureCallback is null");
         }
-        this.captureCallback = captureCallback;
+        mCaptureCallback = captureCallback;
     }
 
     static CaptureCallbackContainer create(CaptureCallback captureCallback) {
@@ -42,6 +42,6 @@ final class CaptureCallbackContainer extends CameraCaptureCallback {
 
     @NonNull
     CaptureCallback getCaptureCallback() {
-        return captureCallback;
+        return mCaptureCallback;
     }
 }

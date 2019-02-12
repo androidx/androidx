@@ -32,10 +32,10 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
     private static final String TAG = "Camera2CameraCaptureResult";
 
     /** The actual camera2 {@link CaptureResult}. */
-    private final CaptureResult captureResult;
+    private final CaptureResult mCaptureResult;
 
     Camera2CameraCaptureResult(CaptureResult captureResult) {
-        this.captureResult = captureResult;
+        mCaptureResult = captureResult;
     }
 
     /**
@@ -46,7 +46,7 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
     @NonNull
     @Override
     public AfMode getAfMode() {
-        Integer mode = captureResult.get(CaptureResult.CONTROL_AF_MODE);
+        Integer mode = mCaptureResult.get(CaptureResult.CONTROL_AF_MODE);
         if (mode == null) {
             return AfMode.UNKNOWN;
         }
@@ -74,7 +74,7 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
     @NonNull
     @Override
     public AfState getAfState() {
-        Integer state = captureResult.get(CaptureResult.CONTROL_AF_STATE);
+        Integer state = mCaptureResult.get(CaptureResult.CONTROL_AF_STATE);
         if (state == null) {
             return AfState.UNKNOWN;
         }
@@ -105,7 +105,7 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
     @NonNull
     @Override
     public AeState getAeState() {
-        Integer state = captureResult.get(CaptureResult.CONTROL_AE_STATE);
+        Integer state = mCaptureResult.get(CaptureResult.CONTROL_AE_STATE);
         if (state == null) {
             return AeState.UNKNOWN;
         }
@@ -135,7 +135,7 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
     @NonNull
     @Override
     public AwbState getAwbState() {
-        Integer state = captureResult.get(CaptureResult.CONTROL_AWB_STATE);
+        Integer state = mCaptureResult.get(CaptureResult.CONTROL_AWB_STATE);
         if (state == null) {
             return AwbState.UNKNOWN;
         }
@@ -162,7 +162,7 @@ final class Camera2CameraCaptureResult implements CameraCaptureResult {
     @NonNull
     @Override
     public FlashState getFlashState() {
-        Integer state = captureResult.get(CaptureResult.FLASH_STATE);
+        Integer state = mCaptureResult.get(CaptureResult.FLASH_STATE);
         if (state == null) {
             return FlashState.UNKNOWN;
         }

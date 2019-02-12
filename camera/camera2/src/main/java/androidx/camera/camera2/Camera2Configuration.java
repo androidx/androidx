@@ -49,7 +49,7 @@ public final class Camera2Configuration implements Configuration.Reader {
                     CameraCaptureSession.StateCallback.class);
     static final Option<CaptureCallback> SESSION_CAPTURE_CALLBACK_OPTION =
             Option.create("camera2.cameraCaptureSession.captureCallback", CaptureCallback.class);
-    private final Configuration config;
+    private final Configuration mConfig;
 
     /**
      * Creates a Camera2Configuration for reading Camera2 options from the given config.
@@ -57,7 +57,7 @@ public final class Camera2Configuration implements Configuration.Reader {
      * @param config The config that potentially contains Camera2 options.
      */
     public Camera2Configuration(Configuration config) {
-        this.config = config;
+        mConfig = config;
     }
 
     // Unforunately, we can't get the Class<T> from the CaptureRequest.Key, so we're forced to erase
@@ -85,11 +85,7 @@ public final class Camera2Configuration implements Configuration.Reader {
         return getConfiguration().retrieveOption(opt, valueIfMissing);
     }
 
-    /**
-     * Returns all capture request options contained in this configuration
-     *
-     * @hide
-     */
+    /** Returns all capture request options contained in this configuration. */
     Set<Option<?>> getCaptureRequestOptions() {
         Set<Option<?>> optionSet = new HashSet<>();
         findOptions(
@@ -140,7 +136,7 @@ public final class Camera2Configuration implements Configuration.Reader {
     }
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
 
     /**
      * Returns the stored {@link CameraCaptureSession.CaptureCallback}.
@@ -163,13 +159,13 @@ public final class Camera2Configuration implements Configuration.Reader {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Configuration getConfiguration() {
-        return config;
+        return mConfig;
     }
 
     /** Extends a {@link Configuration.Builder} to add Camera2 options. */
     public static final class Extender {
 
-        Configuration.Builder<?, ?> baseBuilder;
+        Configuration.Builder<?, ?> mBaseBuilder;
 
         /**
          * Creates an Extender that can be used to add Camera2 options to another Builder.
@@ -177,7 +173,7 @@ public final class Camera2Configuration implements Configuration.Reader {
          * @param baseBuilder The builder being extended.
          */
         public Extender(Configuration.Builder<?, ?> baseBuilder) {
-            this.baseBuilder = baseBuilder;
+            mBaseBuilder = baseBuilder;
         }
 
         /**
@@ -192,7 +188,7 @@ public final class Camera2Configuration implements Configuration.Reader {
                 CaptureRequest.Key<ValueT> key, ValueT value) {
             // Reify the type so we can obtain the class
             Option<Object> opt = Camera2Configuration.createCaptureRequestOption(key);
-            baseBuilder.insertOption(opt, value);
+            mBaseBuilder.insertOption(opt, value);
             return this;
         }
 
@@ -206,7 +202,7 @@ public final class Camera2Configuration implements Configuration.Reader {
          * @return The current Extender.
          */
         Extender setCaptureRequestTemplate(int templateType) {
-            baseBuilder.insertOption(TEMPLATE_TYPE_OPTION, templateType);
+            mBaseBuilder.insertOption(TEMPLATE_TYPE_OPTION, templateType);
             return this;
         }
 
@@ -226,7 +222,7 @@ public final class Camera2Configuration implements Configuration.Reader {
          * @return The current Extender.
          */
         public Extender setDeviceStateCallback(CameraDevice.StateCallback stateCallback) {
-            baseBuilder.insertOption(DEVICE_STATE_CALLBACK_OPTION, stateCallback);
+            mBaseBuilder.insertOption(DEVICE_STATE_CALLBACK_OPTION, stateCallback);
             return this;
         }
 
@@ -247,7 +243,7 @@ public final class Camera2Configuration implements Configuration.Reader {
          * @return The current Extender.
          */
         public Extender setSessionStateCallback(CameraCaptureSession.StateCallback stateCallback) {
-            baseBuilder.insertOption(SESSION_STATE_CALLBACK_OPTION, stateCallback);
+            mBaseBuilder.insertOption(SESSION_STATE_CALLBACK_OPTION, stateCallback);
             return this;
         }
 
@@ -271,7 +267,7 @@ public final class Camera2Configuration implements Configuration.Reader {
          */
         public Extender setSessionCaptureCallback(
                 CameraCaptureSession.CaptureCallback captureCallback) {
-            baseBuilder.insertOption(SESSION_CAPTURE_CALLBACK_OPTION, captureCallback);
+            mBaseBuilder.insertOption(SESSION_CAPTURE_CALLBACK_OPTION, captureCallback);
             return this;
         }
     }
@@ -282,16 +278,14 @@ public final class Camera2Configuration implements Configuration.Reader {
      * <p>Use {@link Builder} for creating {@link Configuration} which contains camera2 options
      * only. And use {@link Extender} to add Camera2 options on existing other {@link
      * Configuration.Builder}.
-     *
-     * @hide
      */
     static final class Builder implements Configuration.Builder<Camera2Configuration, Builder> {
 
-        private final MutableOptionsBundle mutableOptionsBundle = MutableOptionsBundle.create();
+        private final MutableOptionsBundle mMutableOptionsBundle = MutableOptionsBundle.create();
 
         @Override
         public MutableConfiguration getMutableConfiguration() {
-            return mutableOptionsBundle;
+            return mMutableOptionsBundle;
         }
 
         @Override
@@ -317,7 +311,7 @@ public final class Camera2Configuration implements Configuration.Reader {
 
         @Override
         public Camera2Configuration build() {
-            return new Camera2Configuration(OptionsBundle.from(mutableOptionsBundle));
+            return new Camera2Configuration(OptionsBundle.from(mMutableOptionsBundle));
         }
     }
 }

@@ -68,20 +68,19 @@ final class SupportedSurfaceCombination {
     private static final Size QUALITY_1080P_SIZE = new Size(1920, 1080);
     private static final Size QUALITY_720P_SIZE = new Size(1280, 720);
     private static final Size QUALITY_480P_SIZE = new Size(720, 480);
-    private final List<SurfaceCombination> surfaceCombinationList = new ArrayList<>();
-    private String cameraId;
-    private CameraCharacteristics characteristics;
-    private int hardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
-    private boolean isRawSupported = false;
-    private boolean isBurstCaptureSupported = false;
-    private Size displayViewSize;
-    private SurfaceSizeDefinition surfaceSizeDefinition;
-    private CamcorderProfileHelper camcorderProfileHelper;
+    private final List<SurfaceCombination> mSurfaceCombinations = new ArrayList<>();
+    private String mCameraId;
+    private CameraCharacteristics mCharacteristics;
+    private int mHardwareLevel = CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+    private boolean mIsRawSupported = false;
+    private boolean mIsBurstCaptureSupported = false;
+    private SurfaceSizeDefinition mSurfaceSizeDefinition;
+    private CamcorderProfileHelper mCamcorderProfileHelper;
 
     SupportedSurfaceCombination(
             Context context, String cameraId, CamcorderProfileHelper camcorderProfileHelper) {
-        this.cameraId = cameraId;
-        this.camcorderProfileHelper = camcorderProfileHelper;
+        mCameraId = cameraId;
+        mCamcorderProfileHelper = camcorderProfileHelper;
         init(context);
     }
 
@@ -89,15 +88,15 @@ final class SupportedSurfaceCombination {
     }
 
     String getCameraId() {
-        return cameraId;
+        return mCameraId;
     }
 
     boolean isRawSupported() {
-        return isRawSupported;
+        return mIsRawSupported;
     }
 
     boolean isBurstCaptureSupported() {
-        return isBurstCaptureSupported;
+        return mIsBurstCaptureSupported;
     }
 
     /**
@@ -110,7 +109,7 @@ final class SupportedSurfaceCombination {
     boolean checkSupported(List<SurfaceConfiguration> surfaceConfigurationList) {
         boolean isSupported = false;
 
-        for (SurfaceCombination surfaceCombination : surfaceCombinationList) {
+        for (SurfaceCombination surfaceCombination : mSurfaceCombinations) {
             isSupported = surfaceCombination.isSupported(surfaceConfigurationList);
 
             if (isSupported) {
@@ -153,20 +152,20 @@ final class SupportedSurfaceCombination {
             configurationType = ConfigurationType.PRIV;
         }
 
-        Size maxSize = surfaceSizeDefinition.getMaximumSizeMap().get(imageFormat);
+        Size maxSize = mSurfaceSizeDefinition.getMaximumSizeMap().get(imageFormat);
 
         // Compare with surface size definition to determine the surface configuration size
         if (size.getWidth() * size.getHeight()
-                <= surfaceSizeDefinition.getAnalysisSize().getWidth()
-                * surfaceSizeDefinition.getAnalysisSize().getHeight()) {
+                <= mSurfaceSizeDefinition.getAnalysisSize().getWidth()
+                * mSurfaceSizeDefinition.getAnalysisSize().getHeight()) {
             configurationSize = ConfigurationSize.ANALYSIS;
         } else if (size.getWidth() * size.getHeight()
-                <= surfaceSizeDefinition.getPreviewSize().getWidth()
-                * surfaceSizeDefinition.getPreviewSize().getHeight()) {
+                <= mSurfaceSizeDefinition.getPreviewSize().getWidth()
+                * mSurfaceSizeDefinition.getPreviewSize().getHeight()) {
             configurationSize = ConfigurationSize.PREVIEW;
         } else if (size.getWidth() * size.getHeight()
-                <= surfaceSizeDefinition.getRecordSize().getWidth()
-                * surfaceSizeDefinition.getRecordSize().getHeight()) {
+                <= mSurfaceSizeDefinition.getRecordSize().getWidth()
+                * mSurfaceSizeDefinition.getRecordSize().getHeight()) {
             configurationSize = ConfigurationSize.RECORD;
         } else if (size.getWidth() * size.getHeight() <= maxSize.getWidth() * maxSize.getHeight()) {
             configurationSize = ConfigurationSize.MAXIMUM;
@@ -243,7 +242,7 @@ final class SupportedSurfaceCombination {
     }
 
     SurfaceSizeDefinition getSurfaceSizeDefinition() {
-        return surfaceSizeDefinition;
+        return mSurfaceSizeDefinition;
     }
 
     private List<Integer> getUseCasesPriorityOrder(List<BaseUseCase> newUseCases) {
@@ -292,7 +291,7 @@ final class SupportedSurfaceCombination {
 
         // Sort the output sizes. The Comparator result must be reversed to have a descending order
         // result.
-        Collections.sort(Arrays.asList(outputSizes), new CompareSizesByArea(true));
+        Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
         // Filter out the ones that exceed the maximum size
         for (Size outputSize : outputSizes) {
@@ -429,12 +428,12 @@ final class SupportedSurfaceCombination {
     // TODO(b/124267925): Remove @SuppressLint once we target API 21
     @SuppressLint("ObsoleteSdkInt")
     private Size[] getAllOutputSizesByFormat(int imageFormat) {
-        if (characteristics == null) {
+        if (mCharacteristics == null) {
             throw new IllegalStateException("CameraCharacteristics is null.");
         }
 
         StreamConfigurationMap map =
-                characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
         if (map == null) {
             throw new IllegalArgumentException(
@@ -463,7 +462,7 @@ final class SupportedSurfaceCombination {
 
         // Sort the output sizes. The Comparator result must be reversed to have a descending order
         // result.
-        Collections.sort(Arrays.asList(outputSizes), new CompareSizesByArea(true));
+        Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
         return outputSizes;
     }
@@ -492,7 +491,7 @@ final class SupportedSurfaceCombination {
         } catch (CameraAccessException e) {
             throw new IllegalArgumentException(
                     "Generate supported combination list and size definition fail - CameraId:"
-                            + cameraId,
+                            + mCameraId,
                     e);
         }
         checkCustomization();
@@ -825,52 +824,53 @@ final class SupportedSurfaceCombination {
 
     private void generateSupportedCombinationList(CameraManager cameraManager)
             throws CameraAccessException {
-        characteristics = cameraManager.getCameraCharacteristics(cameraId);
+        mCharacteristics = cameraManager.getCameraCharacteristics(mCameraId);
 
-        Integer keyValue = characteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+        Integer keyValue = mCharacteristics.get(
+                CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
 
         if (keyValue != null) {
-            hardwareLevel = keyValue;
+            mHardwareLevel = keyValue;
         }
 
-        surfaceCombinationList.addAll(getLegacySupportedCombinationList());
+        mSurfaceCombinations.addAll(getLegacySupportedCombinationList());
 
-        if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
-                || hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
-                || hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
-            surfaceCombinationList.addAll(getLimitedSupportedCombinationList());
+        if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+                || mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+                || mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
+            mSurfaceCombinations.addAll(getLimitedSupportedCombinationList());
         }
 
-        if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
-                || hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
-            surfaceCombinationList.addAll(getFullSupportedCombinationList());
+        if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+                || mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
+            mSurfaceCombinations.addAll(getFullSupportedCombinationList());
         }
 
         int[] availableCapabilities =
-                characteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
+                mCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES);
 
         if (availableCapabilities != null) {
             for (int capability : availableCapabilities) {
                 if (capability == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_RAW) {
-                    isRawSupported = true;
+                    mIsRawSupported = true;
                 } else if (capability
                         == CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_BURST_CAPTURE) {
-                    isBurstCaptureSupported = true;
+                    mIsBurstCaptureSupported = true;
                 }
             }
         }
 
-        if (isRawSupported) {
-            surfaceCombinationList.addAll(getRAWSupportedCombinationList());
+        if (mIsRawSupported) {
+            mSurfaceCombinations.addAll(getRAWSupportedCombinationList());
         }
 
-        if (isBurstCaptureSupported
-                && hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED) {
-            surfaceCombinationList.addAll(getBurstSupportedCombinationList());
+        if (mIsBurstCaptureSupported
+                && mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED) {
+            mSurfaceCombinations.addAll(getBurstSupportedCombinationList());
         }
 
-        if (hardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
-            surfaceCombinationList.addAll(getLevel3SupportedCombinationList());
+        if (mHardwareLevel == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3) {
+            mSurfaceCombinations.addAll(getLevel3SupportedCombinationList());
         }
     }
 
@@ -905,7 +905,7 @@ final class SupportedSurfaceCombination {
                 getMaxOutputSizeByFormat(
                         ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE));
 
-        surfaceSizeDefinition =
+        mSurfaceSizeDefinition =
                 SurfaceSizeDefinition.create(analysisSize, previewSize, recordSize, maximumSizeMap);
     }
 
@@ -917,6 +917,7 @@ final class SupportedSurfaceCombination {
         Point displaySize = new Point();
         windowManager.getDefaultDisplay().getRealSize(displaySize);
 
+        Size displayViewSize;
         if (displaySize.x > displaySize.y) {
             displayViewSize = new Size(displaySize.x, displaySize.y);
         } else {
@@ -942,17 +943,17 @@ final class SupportedSurfaceCombination {
         Size recordSize = QUALITY_480P_SIZE;
 
         // Check whether 2160P, 1080P, 720P, 480P are supported by CamcorderProfile
-        if (camcorderProfileHelper.hasProfile(
-                Integer.parseInt(cameraId), CamcorderProfile.QUALITY_2160P)) {
+        if (mCamcorderProfileHelper.hasProfile(
+                Integer.parseInt(mCameraId), CamcorderProfile.QUALITY_2160P)) {
             recordSize = QUALITY_2160P_SIZE;
-        } else if (camcorderProfileHelper.hasProfile(
-                Integer.parseInt(cameraId), CamcorderProfile.QUALITY_1080P)) {
+        } else if (mCamcorderProfileHelper.hasProfile(
+                Integer.parseInt(mCameraId), CamcorderProfile.QUALITY_1080P)) {
             recordSize = QUALITY_1080P_SIZE;
-        } else if (camcorderProfileHelper.hasProfile(
-                Integer.parseInt(cameraId), CamcorderProfile.QUALITY_720P)) {
+        } else if (mCamcorderProfileHelper.hasProfile(
+                Integer.parseInt(mCameraId), CamcorderProfile.QUALITY_720P)) {
             recordSize = QUALITY_720P_SIZE;
-        } else if (camcorderProfileHelper.hasProfile(
-                Integer.parseInt(cameraId), CamcorderProfile.QUALITY_480P)) {
+        } else if (mCamcorderProfileHelper.hasProfile(
+                Integer.parseInt(mCameraId), CamcorderProfile.QUALITY_480P)) {
             recordSize = QUALITY_480P_SIZE;
         }
 
@@ -961,13 +962,13 @@ final class SupportedSurfaceCombination {
 
     /** Comparator based on area of the given {@link Size} objects. */
     static final class CompareSizesByArea implements Comparator<Size> {
-        private boolean reverse = false;
+        private boolean mReverse = false;
 
         CompareSizesByArea() {
         }
 
         CompareSizesByArea(boolean reverse) {
-            this.reverse = reverse;
+            mReverse = reverse;
         }
 
         @Override
@@ -978,7 +979,7 @@ final class SupportedSurfaceCombination {
                             (long) lhs.getWidth() * lhs.getHeight()
                                     - (long) rhs.getWidth() * rhs.getHeight());
 
-            if (reverse) {
+            if (mReverse) {
                 result *= -1;
             }
 

@@ -33,10 +33,10 @@ final class DefaultImageAnalysisConfigurationProvider
         implements ConfigurationProvider<ImageAnalysisUseCaseConfiguration> {
     private static final String TAG = "DefaultImageAnalysisConfigurationProvider";
 
-    private final CameraFactory cameraFactory;
+    private final CameraFactory mCameraFactory;
 
-    public DefaultImageAnalysisConfigurationProvider(CameraFactory cameraFactory) {
-        this.cameraFactory = cameraFactory;
+    DefaultImageAnalysisConfigurationProvider(CameraFactory cameraFactory) {
+        mCameraFactory = cameraFactory;
     }
 
     @Override
@@ -56,11 +56,11 @@ final class DefaultImageAnalysisConfigurationProvider
 
         // Add default lensFacing if we can
         try {
-            String defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.BACK);
+            String defaultId = mCameraFactory.cameraIdForLensFacing(LensFacing.BACK);
             if (defaultId != null) {
                 builder.setLensFacing(LensFacing.BACK);
             } else {
-                defaultId = cameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
+                defaultId = mCameraFactory.cameraIdForLensFacing(LensFacing.FRONT);
                 if (defaultId != null) {
                     builder.setLensFacing(LensFacing.FRONT);
                 }

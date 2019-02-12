@@ -59,41 +59,41 @@ import java.util.concurrent.atomic.AtomicReference;
 final class Camera implements BaseCamera, Camera2RequestRunner {
     private static final String TAG = "Camera";
 
-    private final Object attachedUseCaseLock = new Object();
+    private final Object mAttachedUseCaseLock = new Object();
 
     /** Map of the use cases to the information on their state. */
-    @GuardedBy("attachedUseCaseLock")
-    private final UseCaseAttachState useCaseAttachState;
+    @GuardedBy("mAttachedUseCaseLock")
+    private final UseCaseAttachState mUseCaseAttachState;
 
     /** The identifier for the {@link CameraDevice} */
-    private final String cameraId;
+    private final String mCameraId;
 
     /** Handle to the camera service. */
-    private final CameraManager cameraManager;
+    private final CameraManager mCameraManager;
 
-    private final Object cameraInfoLock = new Object();
+    private final Object mCameraInfoLock = new Object();
     /** The handler for camera callbacks and use case state management calls. */
-    private final Handler handler;
+    private final Handler mHandler;
     /**
      * State variable for tracking state of the camera.
      *
      * <p>Is an atomic reference because it is initialized in the constructor which is not called on
      * same thread as any of the other methods and callbacks.
      */
-    final AtomicReference<State> state = new AtomicReference<>(State.UNINITIALIZED);
+    final AtomicReference<State> mState = new AtomicReference<>(State.UNINITIALIZED);
     /** The camera control shared across all use cases bound to this Camera. */
-    private final CameraControl cameraControl;
-    private final StateCallback stateCallback = new StateCallback();
+    private final CameraControl mCameraControl;
+    private final StateCallback mStateCallback = new StateCallback();
     /** Information about the characteristics of this camera */
     // Nullable because this is lazily instantiated
-    @GuardedBy("cameraInfoLock")
+    @GuardedBy("mCameraInfoLock")
     @Nullable
-    private CameraInfo cameraInfo;
+    private CameraInfo mCameraInfo;
     /** The handle to the opened camera. */
     @Nullable
-    CameraDevice cameraDevice;
+    CameraDevice mCameraDevice;
     /** The configured session which handles issuing capture requests. */
-    private CaptureSession captureSession = new CaptureSession(null);
+    private CaptureSession mCaptureSession = new CaptureSession(null);
 
     /**
      * Constructor for a camera.
@@ -103,12 +103,12 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      * @param handler       the handler for the thread on which all camera operations run
      */
     Camera(CameraManager cameraManager, String cameraId, Handler handler) {
-        this.cameraManager = cameraManager;
-        this.cameraId = cameraId;
-        this.handler = handler;
-        useCaseAttachState = new UseCaseAttachState(cameraId);
-        state.set(State.INITIALIZED);
-        cameraControl = new Camera2CameraControl(this, handler);
+        mCameraManager = cameraManager;
+        mCameraId = cameraId;
+        mHandler = handler;
+        mUseCaseAttachState = new UseCaseAttachState(cameraId);
+        mState.set(State.INITIALIZED);
+        mCameraControl = new Camera2CameraControl(this, handler);
     }
 
     /**
@@ -119,20 +119,20 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      */
     @Override
     public void open() {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> open());
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> open());
             return;
         }
 
-        switch (state.get()) {
+        switch (mState.get()) {
             case INITIALIZED:
                 openCameraDevice();
                 break;
             case CLOSING:
-                state.set(State.REOPENING);
+                mState.set(State.REOPENING);
                 break;
             default:
-                Log.d(TAG, "open() ignored due to being in state: " + state.get());
+                Log.d(TAG, "open() ignored due to being in state: " + mState.get());
         }
     }
 
@@ -144,24 +144,24 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      */
     @Override
     public void close() {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> close());
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> close());
             return;
         }
 
-        Log.d(TAG, "Closing camera: " + cameraId);
-        switch (state.get()) {
+        Log.d(TAG, "Closing camera: " + mCameraId);
+        switch (mState.get()) {
             case OPENED:
-                state.set(State.CLOSING);
-                cameraDevice.close();
-                cameraDevice = null;
+                mState.set(State.CLOSING);
+                mCameraDevice.close();
+                mCameraDevice = null;
                 break;
             case OPENING:
             case REOPENING:
-                state.set(State.CLOSING);
+                mState.set(State.CLOSING);
                 break;
             default:
-                Log.d(TAG, "close() ignored due to being in state: " + state.get());
+                Log.d(TAG, "close() ignored due to being in state: " + mState.get());
         }
     }
 
@@ -173,26 +173,26 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      */
     @Override
     public void release() {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> release());
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> release());
             return;
         }
 
-        switch (state.get()) {
+        switch (mState.get()) {
             case INITIALIZED:
-                state.set(State.RELEASED);
+                mState.set(State.RELEASED);
                 break;
             case OPENED:
-                state.set(State.RELEASING);
-                cameraDevice.close();
+                mState.set(State.RELEASING);
+                mCameraDevice.close();
                 break;
             case OPENING:
             case CLOSING:
             case REOPENING:
-                state.set(State.RELEASING);
+                mState.set(State.RELEASING);
                 break;
             default:
-                Log.d(TAG, "release() ignored due to being in state: " + state.get());
+                Log.d(TAG, "release() ignored due to being in state: " + mState.get());
         }
     }
 
@@ -203,15 +203,15 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      */
     @Override
     public void onUseCaseActive(BaseUseCase useCase) {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> onUseCaseActive(useCase));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> onUseCaseActive(useCase));
             return;
         }
 
-        Log.d(TAG, "Use case " + useCase + " ACTIVE for camera " + cameraId);
+        Log.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
 
-        synchronized (attachedUseCaseLock) {
-            useCaseAttachState.setUseCaseActive(useCase);
+        synchronized (mAttachedUseCaseLock) {
+            mUseCaseAttachState.setUseCaseActive(useCase);
         }
         updateCaptureSessionConfiguration();
     }
@@ -219,14 +219,14 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     /** Removes the use case from a state of issuing capture requests. */
     @Override
     public void onUseCaseInactive(BaseUseCase useCase) {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> onUseCaseInactive(useCase));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> onUseCaseInactive(useCase));
             return;
         }
 
-        Log.d(TAG, "Use case " + useCase + " INACTIVE for camera " + cameraId);
-        synchronized (attachedUseCaseLock) {
-            useCaseAttachState.setUseCaseInactive(useCase);
+        Log.d(TAG, "Use case " + useCase + " INACTIVE for camera " + mCameraId);
+        synchronized (mAttachedUseCaseLock) {
+            mUseCaseAttachState.setUseCaseInactive(useCase);
         }
 
         updateCaptureSessionConfiguration();
@@ -235,14 +235,14 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     /** Updates the capture requests based on the latest settings. */
     @Override
     public void onUseCaseUpdated(BaseUseCase useCase) {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> onUseCaseUpdated(useCase));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> onUseCaseUpdated(useCase));
             return;
         }
 
-        Log.d(TAG, "Use case " + useCase + " UPDATED for camera " + cameraId);
-        synchronized (attachedUseCaseLock) {
-            useCaseAttachState.updateUseCase(useCase);
+        Log.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
+        synchronized (mAttachedUseCaseLock) {
+            mUseCaseAttachState.updateUseCase(useCase);
         }
 
         updateCaptureSessionConfiguration();
@@ -250,14 +250,14 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
 
     @Override
     public void onUseCaseReset(BaseUseCase useCase) {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> onUseCaseReset(useCase));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> onUseCaseReset(useCase));
             return;
         }
 
-        Log.d(TAG, "Use case " + useCase + " RESET for camera " + cameraId);
-        synchronized (attachedUseCaseLock) {
-            useCaseAttachState.updateUseCase(useCase);
+        Log.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
+        synchronized (mAttachedUseCaseLock) {
+            mUseCaseAttachState.updateUseCase(useCase);
         }
 
         updateCaptureSessionConfiguration();
@@ -280,15 +280,15 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
             return;
         }
 
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> addOnlineUseCase(useCases));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> addOnlineUseCase(useCases));
             return;
         }
 
-        Log.d(TAG, "Use cases " + useCases + " ONLINE for camera " + cameraId);
-        synchronized (attachedUseCaseLock) {
+        Log.d(TAG, "Use cases " + useCases + " ONLINE for camera " + mCameraId);
+        synchronized (mAttachedUseCaseLock) {
             for (BaseUseCase useCase : useCases) {
-                useCaseAttachState.setUseCaseOnline(useCase);
+                mUseCaseAttachState.setUseCaseOnline(useCase);
             }
         }
 
@@ -307,18 +307,18 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
             return;
         }
 
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> removeOnlineUseCase(useCases));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> removeOnlineUseCase(useCases));
             return;
         }
 
-        Log.d(TAG, "Use cases " + useCases + " OFFLINE for camera " + cameraId);
-        synchronized (attachedUseCaseLock) {
+        Log.d(TAG, "Use cases " + useCases + " OFFLINE for camera " + mCameraId);
+        synchronized (mAttachedUseCaseLock) {
             for (BaseUseCase useCase : useCases) {
-                useCaseAttachState.setUseCaseOffline(useCase);
+                mUseCaseAttachState.setUseCaseOffline(useCase);
             }
 
-            if (useCaseAttachState.getOnlineUseCases().isEmpty()) {
+            if (mUseCaseAttachState.getOnlineUseCases().isEmpty()) {
                 resetCaptureSession();
                 close();
                 return;
@@ -331,13 +331,13 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     /** Returns an interface to retrieve characteristics of the camera. */
     @Override
     public CameraInfo getCameraInfo() throws CameraInfoUnavailableException {
-        synchronized (cameraInfoLock) {
-            if (cameraInfo == null) {
+        synchronized (mCameraInfoLock) {
+            if (mCameraInfo == null) {
                 // Lazily instantiate camera info
-                cameraInfo = new Camera2CameraInfo(cameraManager, cameraId);
+                mCameraInfo = new Camera2CameraInfo(mCameraManager, mCameraId);
             }
 
-            return cameraInfo;
+            return mCameraInfo;
         }
     }
 
@@ -345,32 +345,32 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     // TODO(b/124268878): Handle SecurityException and require permission in manifest.
     @SuppressLint("MissingPermission")
     void openCameraDevice() {
-        state.set(State.OPENING);
+        mState.set(State.OPENING);
 
-        Log.d(TAG, "Opening camera: " + cameraId);
+        Log.d(TAG, "Opening camera: " + mCameraId);
 
         try {
-            cameraManager.openCamera(cameraId, createDeviceStateCallback(), handler);
+            mCameraManager.openCamera(mCameraId, createDeviceStateCallback(), mHandler);
         } catch (CameraAccessException e) {
-            Log.e(TAG, "Unable to open camera " + cameraId + " due to " + e.getMessage());
-            state.set(State.INITIALIZED);
+            Log.e(TAG, "Unable to open camera " + mCameraId + " due to " + e.getMessage());
+            mState.set(State.INITIALIZED);
         }
     }
 
     /** Updates the capture request configuration for the current capture session. */
     private void updateCaptureSessionConfiguration() {
         ValidatingBuilder validatingBuilder;
-        synchronized (attachedUseCaseLock) {
-            validatingBuilder = useCaseAttachState.getActiveAndOnlineBuilder();
+        synchronized (mAttachedUseCaseLock) {
+            validatingBuilder = mUseCaseAttachState.getActiveAndOnlineBuilder();
         }
 
         if (validatingBuilder.isValid()) {
             // Apply CameraControl's SessionConfiguration to let CameraControl be able to control
             // Repeating Request and process results.
-            validatingBuilder.add(cameraControl.getControlSessionConfiguration());
+            validatingBuilder.add(mCameraControl.getControlSessionConfiguration());
 
             SessionConfiguration sessionConfiguration = validatingBuilder.build();
-            captureSession.setSessionConfiguration(sessionConfiguration);
+            mCaptureSession.setSessionConfiguration(sessionConfiguration);
         }
     }
 
@@ -381,8 +381,8 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      */
     void openCaptureSession() {
         ValidatingBuilder validatingBuilder;
-        synchronized (attachedUseCaseLock) {
-            validatingBuilder = useCaseAttachState.getOnlineBuilder();
+        synchronized (mAttachedUseCaseLock) {
+            validatingBuilder = mUseCaseAttachState.getOnlineBuilder();
         }
         if (!validatingBuilder.isValid()) {
             Log.d(TAG, "Unable to create capture session due to conflicting configurations");
@@ -391,15 +391,15 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
 
         resetCaptureSession();
 
-        if (cameraDevice == null) {
+        if (mCameraDevice == null) {
             Log.d(TAG, "CameraDevice is null");
             return;
         }
 
         try {
-            captureSession.open(validatingBuilder.build(), cameraDevice);
+            mCaptureSession.open(validatingBuilder.build(), mCameraDevice);
         } catch (CameraAccessException e) {
-            Log.d(TAG, "Unable to configure camera " + cameraId + " due to " + e.getMessage());
+            Log.d(TAG, "Unable to configure camera " + mCameraId + " due to " + e.getMessage());
         }
     }
 
@@ -409,27 +409,27 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
      */
     void resetCaptureSession() {
         Log.d(TAG, "Closing Capture Session");
-        captureSession.close();
+        mCaptureSession.close();
 
         // Recreate an initialized (but not opened) capture session from the previous configuration
         SessionConfiguration previousSessionConfiguration =
-                captureSession.getSessionConfiguration();
+                mCaptureSession.getSessionConfiguration();
         List<CaptureRequestConfiguration> unissuedCaptureRequestConfigurations =
-                captureSession.getCaptureRequestConfigurations();
-        captureSession = new CaptureSession(handler);
-        captureSession.setSessionConfiguration(previousSessionConfiguration);
+                mCaptureSession.getCaptureRequestConfigurations();
+        mCaptureSession = new CaptureSession(mHandler);
+        mCaptureSession.setSessionConfiguration(previousSessionConfiguration);
         // When the previous capture session has not reached the open state, the issued single
         // capture
         // requests will still be in request queue and will need to be passed to the next capture
         // session.
-        captureSession.issueSingleCaptureRequests(unissuedCaptureRequestConfigurations);
+        mCaptureSession.issueSingleCaptureRequests(unissuedCaptureRequestConfigurations);
     }
 
     private CameraDevice.StateCallback createDeviceStateCallback() {
-        synchronized (attachedUseCaseLock) {
-            SessionConfiguration configuration = useCaseAttachState.getOnlineBuilder().build();
+        synchronized (mAttachedUseCaseLock) {
+            SessionConfiguration configuration = mUseCaseAttachState.getOnlineBuilder().build();
             return CameraDeviceStateCallbacks.createComboCallback(
-                    stateCallback, configuration.getDeviceStateCallback());
+                    mStateCallback, configuration.getDeviceStateCallback());
         }
     }
 
@@ -450,13 +450,13 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         }
 
         Collection<BaseUseCase> activeUseCases;
-        synchronized (attachedUseCaseLock) {
-            activeUseCases = useCaseAttachState.getActiveAndOnlineUseCases();
+        synchronized (mAttachedUseCaseLock) {
+            activeUseCases = mUseCaseAttachState.getActiveAndOnlineUseCases();
         }
 
         DeferrableSurface repeatingSurface = null;
         for (BaseUseCase useCase : activeUseCases) {
-            SessionConfiguration sessionConfiguration = useCase.getSessionConfiguration(cameraId);
+            SessionConfiguration sessionConfiguration = useCase.getSessionConfiguration(mCameraId);
             List<DeferrableSurface> surfaces =
                     sessionConfiguration.getCaptureRequestConfiguration().getSurfaces();
             if (!surfaces.isEmpty()) {
@@ -479,42 +479,44 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
     /** Returns the Camera2CameraControl attached to Camera */
     @Override
     public CameraControl getCameraControl() {
-        return cameraControl;
+        return mCameraControl;
     }
 
     /**
      * Submits single request
      *
      * @param captureRequestConfiguration capture configuration used for creating CaptureRequest
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void submitSingleRequest(CaptureRequestConfiguration captureRequestConfiguration) {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> submitSingleRequest(captureRequestConfiguration));
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> submitSingleRequest(captureRequestConfiguration));
             return;
         }
-        Log.d(TAG, "issue single capture request for camera " + cameraId);
+        Log.d(TAG, "issue single capture request for camera " + mCameraId);
 
         checkAndAttachRepeatingSurface(captureRequestConfiguration);
 
         // Recreates the Builder to add implementationOptions from CameraControl
         CaptureRequestConfiguration.Builder builder =
                 CaptureRequestConfiguration.Builder.from(captureRequestConfiguration);
-        builder.addImplementationOptions(cameraControl.getSingleRequestImplOptions());
+        builder.addImplementationOptions(mCameraControl.getSingleRequestImplOptions());
 
-        captureSession.issueSingleCaptureRequest(builder.build());
+        mCaptureSession.issueSingleCaptureRequest(builder.build());
     }
 
     /**
      * Re-sends repeating request based on current SessionConfigurations and CameraControl's Global
      * SessionConfiguration
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void updateRepeatingRequest() {
-        if (Looper.myLooper() != handler.getLooper()) {
-            handler.post(() -> updateRepeatingRequest());
+        if (Looper.myLooper() != mHandler.getLooper()) {
+            mHandler.post(() -> updateRepeatingRequest());
             return;
         }
 
@@ -585,21 +587,21 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         @Override
         public void onOpened(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onOpened(): " + cameraDevice.getId());
-            switch (state.get()) {
+            switch (mState.get()) {
                 case CLOSING:
                 case RELEASING:
                     cameraDevice.close();
-                    Camera.this.cameraDevice = null;
+                    Camera.this.mCameraDevice = null;
                     break;
                 case OPENING:
                 case REOPENING:
-                    state.set(State.OPENED);
-                    Camera.this.cameraDevice = cameraDevice;
+                    mState.set(State.OPENED);
+                    Camera.this.mCameraDevice = cameraDevice;
                     openCaptureSession();
                     break;
                 default:
                     throw new IllegalStateException(
-                            "onOpened() should not be possible from state: " + state.get());
+                            "onOpened() should not be possible from state: " + mState.get());
             }
         }
 
@@ -607,23 +609,23 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         public void onClosed(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onClosed(): " + cameraDevice.getId());
             resetCaptureSession();
-            switch (state.get()) {
+            switch (mState.get()) {
                 case CLOSING:
-                    state.set(State.INITIALIZED);
-                    Camera.this.cameraDevice = null;
+                    mState.set(State.INITIALIZED);
+                    Camera.this.mCameraDevice = null;
                     break;
                 case REOPENING:
-                    state.set(State.OPENING);
+                    mState.set(State.OPENING);
                     openCameraDevice();
                     break;
                 case RELEASING:
-                    state.set(State.RELEASED);
-                    Camera.this.cameraDevice = null;
+                    mState.set(State.RELEASED);
+                    Camera.this.mCameraDevice = null;
                     break;
                 default:
                     CameraX.postError(
                             CameraX.ErrorCode.CAMERA_STATE_INCONSISTENT,
-                            "Camera closed while in state: " + state.get());
+                            "Camera closed while in state: " + mState.get());
             }
         }
 
@@ -631,26 +633,26 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
         public void onDisconnected(CameraDevice cameraDevice) {
             Log.d(TAG, "CameraDevice.onDisconnected(): " + cameraDevice.getId());
             resetCaptureSession();
-            switch (state.get()) {
+            switch (mState.get()) {
                 case CLOSING:
-                    state.set(State.INITIALIZED);
-                    Camera.this.cameraDevice = null;
+                    mState.set(State.INITIALIZED);
+                    Camera.this.mCameraDevice = null;
                     break;
                 case REOPENING:
                 case OPENED:
                 case OPENING:
-                    state.set(State.CLOSING);
+                    mState.set(State.CLOSING);
                     cameraDevice.close();
-                    Camera.this.cameraDevice = null;
+                    Camera.this.mCameraDevice = null;
                     break;
                 case RELEASING:
-                    state.set(State.RELEASED);
+                    mState.set(State.RELEASED);
                     cameraDevice.close();
-                    Camera.this.cameraDevice = null;
+                    Camera.this.mCameraDevice = null;
                     break;
                 default:
                     throw new IllegalStateException(
-                            "onDisconnected() should not be possible from state: " + state.get());
+                            "onDisconnected() should not be possible from state: " + mState.get());
             }
         }
 
@@ -680,26 +682,26 @@ final class Camera implements BaseCamera, Camera2RequestRunner {
                             + " with error: "
                             + getErrorMessage(error));
             resetCaptureSession();
-            switch (state.get()) {
+            switch (mState.get()) {
                 case CLOSING:
-                    state.set(State.INITIALIZED);
-                    Camera.this.cameraDevice = null;
+                    mState.set(State.INITIALIZED);
+                    Camera.this.mCameraDevice = null;
                     break;
                 case REOPENING:
                 case OPENED:
                 case OPENING:
-                    state.set(State.CLOSING);
+                    mState.set(State.CLOSING);
                     cameraDevice.close();
-                    Camera.this.cameraDevice = null;
+                    Camera.this.mCameraDevice = null;
                     break;
                 case RELEASING:
-                    state.set(State.RELEASED);
+                    mState.set(State.RELEASED);
                     cameraDevice.close();
-                    Camera.this.cameraDevice = null;
+                    Camera.this.mCameraDevice = null;
                     break;
                 default:
                     throw new IllegalStateException(
-                            "onError() should not be possible from state: " + state.get());
+                            "onError() should not be possible from state: " + mState.get());
             }
         }
     }

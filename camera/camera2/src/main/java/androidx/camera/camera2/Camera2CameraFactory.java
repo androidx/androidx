@@ -40,30 +40,30 @@ import java.util.Set;
 final class Camera2CameraFactory implements CameraFactory {
     private static final String TAG = "Camera2CameraFactory";
 
-    private static final HandlerThread handlerThread = new HandlerThread(CameraXThreads.TAG);
-    private static final Handler handler;
+    private static final HandlerThread sHandlerThread = new HandlerThread(CameraXThreads.TAG);
+    private static final Handler sHandler;
 
     static {
-        handlerThread.start();
-        handler = new Handler(handlerThread.getLooper());
+        sHandlerThread.start();
+        sHandler = new Handler(sHandlerThread.getLooper());
     }
 
-    private final CameraManager cameraManager;
+    private final CameraManager mCameraManager;
 
     Camera2CameraFactory(Context context) {
-        cameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
     }
 
     @Override
     public BaseCamera getCamera(String cameraId) {
-        return new Camera(cameraManager, cameraId, handler);
+        return new Camera(mCameraManager, cameraId, sHandler);
     }
 
     @Override
     public Set<String> getAvailableCameraIds() throws CameraInfoUnavailableException {
         List<String> camerasList = null;
         try {
-            camerasList = Arrays.asList(cameraManager.getCameraIdList());
+            camerasList = Arrays.asList(mCameraManager.getCameraIdList());
         } catch (CameraAccessException e) {
             throw new CameraInfoUnavailableException(
                     "Unable to retrieve list of cameras on device.", e);
@@ -92,7 +92,7 @@ final class Camera2CameraFactory implements CameraFactory {
         for (String cameraId : cameraIds) {
             CameraCharacteristics characteristics = null;
             try {
-                characteristics = cameraManager.getCameraCharacteristics(cameraId);
+                characteristics = mCameraManager.getCameraCharacteristics(cameraId);
             } catch (CameraAccessException e) {
                 throw new CameraInfoUnavailableException(
                         "Unable to retrieve info for camera with id " + cameraId + ".", e);

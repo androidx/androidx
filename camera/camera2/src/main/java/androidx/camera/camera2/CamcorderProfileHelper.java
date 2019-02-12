@@ -16,12 +16,16 @@
 
 package androidx.camera.camera2;
 
+import androidx.annotation.RestrictTo;
+
 /**
  * This is helper class to use {@link android.media.CamcorderProfile} that may be mocked.
  *
  * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CamcorderProfileHelper {
 
+    /** Returns true if the camcorder profile exists for the given camera and quality. */
     boolean hasProfile(int cameraId, int quality);
 }

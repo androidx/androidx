@@ -19,6 +19,8 @@ package androidx.camera.camera2;
 import android.graphics.Rect;
 import android.hardware.camera2.CaptureRequest;
 
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CaptureRequestConfiguration;
 
@@ -34,6 +36,7 @@ import androidx.camera.core.CaptureRequestConfiguration;
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public interface Camera2RequestRunner {
 
     /**
