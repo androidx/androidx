@@ -288,6 +288,8 @@ includeProject(":ui-layout-adapter", "ui/layout-adapter")
 includeProject(":ui-demos", new File(samplesRoot, "UiDemos"))
 includeProject(":ui-material-demos", new File(samplesRoot, "UiMaterialDemos"))
 includeProject(":ui-r4a", "ui-r4a")
+includeProject(":ui-animation", "ui/animation")
+includeProject(":ui-animation-demos", new File(samplesRoot, "UiAnimationDemos"))
 
 // dumb test project that has a test for each size to ensure that at least one test is run
 // for each size and test runner is happy when there is nothing to test.

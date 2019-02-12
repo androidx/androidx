@@ -67,6 +67,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="androidx.ui.animation.demos.MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:label="Animation Demos">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.android.ui.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
         <activity android:name="androidx.r4a.RecomposeTestActivity"
                   android:configChanges="orientation|screenSize"
                   android:label="Recompose test">
