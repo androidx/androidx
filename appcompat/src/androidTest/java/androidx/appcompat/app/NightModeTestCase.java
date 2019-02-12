@@ -80,6 +80,10 @@ public class NightModeTestCase {
         setLocalNightModeAndWaitForRecreate(
                 mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
 
+        // Assert that the new local night mode is returned
+        assertEquals(AppCompatDelegate.MODE_NIGHT_YES,
+                mActivityTestRule.getActivity().getDelegate().getLocalNightMode());
+
         // Now check the text has changed, signifying that night resources are being used
         onView(withId(R.id.text_night_mode)).check(matches(withText(STRING_NIGHT)));
     }
@@ -237,6 +241,28 @@ public class NightModeTestCase {
 
         // And assert that we have a new Activity, and thus was recreated
         assertNotSame(activity, mActivityTestRule.getActivity());
+    }
+
+    @Test
+    public void testDialogDoesNotOverrideActivityConfiguration() throws Throwable {
+        // Set Activity local night mode to YES
+        final NightModeActivity activity = setLocalNightModeAndWaitForRecreate(
+                mActivityTestRule.getActivity(), AppCompatDelegate.MODE_NIGHT_YES);
+
+        // Assert that the uiMode is as expected
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, activity);
+
+        // Now show a AppCompatDialog
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AppCompatDialog dialog = new AppCompatDialog(activity);
+                dialog.show();
+            }
+        });
+
+        // Assert that the uiMode is unchanged
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, activity);
     }
 
     private static class FakeTwilightManager extends TwilightManager {
