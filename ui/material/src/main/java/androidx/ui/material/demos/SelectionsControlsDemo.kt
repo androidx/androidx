@@ -17,11 +17,13 @@
 package androidx.ui.material.demos
 
 import androidx.ui.baseui.selection.ToggleableState
+import androidx.ui.baseui.selection.ToggleableState.CHECKED
+import androidx.ui.baseui.selection.ToggleableState.INDETERMINATE
+import androidx.ui.baseui.selection.ToggleableState.UNCHECKED
 import androidx.ui.core.Constraints
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.div
 import androidx.ui.core.times
-import androidx.ui.core.toRoundedPixels
 import androidx.ui.material.Checkbox
 import androidx.ui.material.RadioButton
 import androidx.ui.material.Switch
@@ -29,6 +31,7 @@ import androidx.ui.painting.Color
 import com.google.r4a.Children
 import com.google.r4a.Component
 import com.google.r4a.Composable
+import com.google.r4a.Model
 import com.google.r4a.composer
 
 @Composable
@@ -51,15 +54,27 @@ fun FillGrid(horizontalGridCount: Int, @Children children: () -> Unit) {
     </MeasureBox>
 }
 
+@Model
+class CheckboxState(
+    var color: Color? = null,
+    var value: ToggleableState = CHECKED
+) {
+    fun toggle() {
+        value = if (value == CHECKED) UNCHECKED else CHECKED
+    }
+}
+
 @Composable
 class SelectionsControlsDemo : Component() {
+    var state0 = CheckboxState(value= CHECKED)
+
     override fun compose() {
         val customColor = Color(0xffff0000.toInt())
         <FillGrid horizontalGridCount=4>
-            <Checkbox value=ToggleableState.CHECKED />
-            <Checkbox value=ToggleableState.UNCHECKED />
+            <Checkbox value=state0.value onToggle={ state0.toggle() } />
+            <Checkbox value=UNCHECKED />
             <Checkbox color=customColor />
-            <Checkbox value=ToggleableState.INDETERMINATE />
+            <Checkbox value=INDETERMINATE />
             <Switch checked=true />
             <Switch checked=false />
             <Switch checked=true color=customColor />

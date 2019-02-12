@@ -21,7 +21,6 @@ import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.core.semantics.SemanticsSortKey
 import androidx.ui.services.text_editing.TextSelection
 import com.google.r4a.Children
-import com.google.r4a.Component
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
@@ -110,19 +109,4 @@ fun Semantics(
         )>
         <children />
     </SemanticsR4ANode>
-}
-
-// TODO(pavlis): Temporary workaround for meta-data bug.
-class SemanticsProxy(
-    @Children var children: () -> Unit
-) : Component() {
-
-    var checked: Boolean = false
-    var testTag: String? = null
-
-    override fun compose() {
-        <Semantics checked testTag>
-            <children />
-        </Semantics>
-    }
 }

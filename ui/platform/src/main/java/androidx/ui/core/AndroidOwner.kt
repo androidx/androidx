@@ -228,6 +228,10 @@ class AndroidCraneView constructor(context: Context)
     override fun getAllSemanticNodes(): List<SemanticsTreeNode> {
         return findAllSemanticNodesIn(root)
     }
+
+    override fun sendEvent(event: MotionEvent) {
+        onTouchEvent(event)
+    }
 }
 
 private class ConstraintRange(val min: Px, val max: Px)

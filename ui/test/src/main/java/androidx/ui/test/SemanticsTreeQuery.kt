@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import android.view.MotionEvent
 import androidx.ui.core.SemanticsTreeNode
 
 class SemanticsTreeQuery internal constructor(
@@ -30,5 +31,9 @@ class SemanticsTreeQuery internal constructor(
             cachedNodes = uiTestRunner.findSemantics(selector)
         }
         return cachedNodes!!
+    }
+
+    internal fun sendEvent(event: MotionEvent) {
+        uiTestRunner.sendEvent(event)
     }
 }

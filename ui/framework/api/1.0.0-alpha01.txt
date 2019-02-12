@@ -120,19 +120,6 @@ package androidx.ui.core {
     method public static void Semantics(kotlin.jvm.functions.Function0<kotlin.Unit> children, boolean container = false, boolean explicitChildNodes = false, boolean enabled = false, boolean checked = false, boolean selected = false, boolean button = false, boolean header = false, boolean textField = false, boolean focused = false, boolean inMutuallyExclusiveGroup = false, boolean obscured = false, boolean scopesRoute = false, boolean namesRoute = false, boolean hidden = false, String? label = null, String? value = null, String? increasedValue = null, String? decreasedValue = null, String? hint = null, androidx.ui.engine.text.TextDirection? textDirection = null, androidx.ui.core.semantics.SemanticsSortKey? sortKey = null, String? testTag = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onTap = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onLongPress = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onScrollLeft = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onScrollRight = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onScrollUp = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onScrollDown = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onIncrease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onDecrease = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCopy = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onCut = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onPaste = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onMoveCursorForwardByCharacter = null, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onMoveCursorBackwardByCharacter = null, kotlin.jvm.functions.Function1<? super androidx.ui.services.text_editing.TextSelection,kotlin.Unit>? onSetSelection = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onDidGainAccessibilityFocus = null, kotlin.jvm.functions.Function0<kotlin.Unit>? onDidLoseAccessibilityFocus = null);
   }
 
-  public final class SemanticsProxy extends com.google.r4a.Component {
-    ctor public SemanticsProxy(kotlin.jvm.functions.Function0<kotlin.Unit> children);
-    method public void compose();
-    method public boolean getChecked();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getChildren();
-    method public String? getTestTag();
-    method public void setChecked(boolean p);
-    method public void setChildren(kotlin.jvm.functions.Function0<kotlin.Unit> p);
-    method public void setTestTag(String? p);
-    property public final boolean checked;
-    property public final String? testTag;
-  }
-
   public final class Text extends com.google.r4a.Component {
     ctor public Text();
     method public void compose();

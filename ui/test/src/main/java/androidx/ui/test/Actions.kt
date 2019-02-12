@@ -16,6 +16,20 @@
 
 package androidx.ui.test
 
-fun SemanticsTreeQuery.doClick() {
-    TODO("pavlis: implement")
+import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
+
+fun SemanticsTreeQuery.doClick(): SemanticsTreeQuery {
+    val foundNodes = findAllMatching()
+    if (foundNodes.size != 1) {
+        throw AssertionError("Found '${foundNodes.size}' nodes but 1 was expected!")
+    }
+
+    // TODO(catalintudor): get real coordonates after Semantics API is ready (b/125702443)
+    val x = 1f
+    val y = 1f
+    val event = MotionEvent.obtain(10, 10, ACTION_DOWN, x, y, 0)
+    sendEvent(event)
+
+    return this
 }

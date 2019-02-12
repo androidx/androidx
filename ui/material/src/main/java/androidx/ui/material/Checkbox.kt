@@ -44,10 +44,11 @@ class Checkbox : Component() {
     // TODO(clara): remove this default
     var color: Color? = null
     var value: ToggleableState = ToggleableState.CHECKED
+    var onToggle: (() -> Unit)? = null
     var testTag: String? = null
 
     override fun compose() {
-        <Toggleable testTag value>
+        <Toggleable testTag value onToggle>
             <MeasureBox> constraints ->
                 collect {
                     <Colors.Consumer> colors ->

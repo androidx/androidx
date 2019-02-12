@@ -16,20 +16,28 @@
 
 package androidx.ui.baseui.selection
 
-import androidx.ui.core.SemanticsProxy
+import androidx.ui.core.PxPosition
+import androidx.ui.core.adapter.PressGestureDetector
+import androidx.ui.core.adapter.Semantics
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composer
 
-// TODO(clara): This will emit Semantics and Gestures once those pillars are working.
 @Composable
 fun Toggleable(
-    value: ToggleableState,
+    value: ToggleableState = ToggleableState.CHECKED,
+    onToggle: (() -> Unit)? = null,
     testTag: String? = null,
     @Children children: () -> Unit
 ) {
-    // TODO(pavlis): Semantics currently doesn't support 3 states (only checked / unchecked).
-    <SemanticsProxy checked=(value == ToggleableState.CHECKED) testTag>
-        <children />
-    </SemanticsProxy>
+    val onPress: (PxPosition) -> Unit = {
+        onToggle?.invoke()
+    }
+
+    <PressGestureDetector onPress>
+        // TODO(pavlis): Semantics currently doesn't support 3 states (only checked / unchecked).
+        <Semantics checked=(value == ToggleableState.CHECKED) testTag>
+            <children />
+        </Semantics>
+    </PressGestureDetector>
 }

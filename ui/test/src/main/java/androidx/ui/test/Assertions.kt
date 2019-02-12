@@ -59,6 +59,12 @@ fun SemanticsTreeQuery.assertIsChecked() =
         it.checked == true
     }
 
+fun SemanticsTreeQuery.assertIsNotChecked() =
+    // TODO(pavlis): Throw exception if component is not checkable
+    verifyAssertOnExactlyOne("The component is checked!") {
+        it.checked != true
+    }
+
 fun SemanticsTreeQuery.assertSemanticsIsEqualTo(expectedProperties: SemanticsProperties) {
     // TODO(b/123701912): Implement
     // We want to compare each individual field and create an error message containing every field

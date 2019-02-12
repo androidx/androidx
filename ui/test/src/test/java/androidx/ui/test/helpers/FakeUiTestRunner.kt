@@ -16,6 +16,7 @@
 
 package androidx.ui.test.helpers
 
+import android.view.MotionEvent
 import androidx.ui.core.SemanticsTreeNode
 import androidx.ui.core.semantics.SemanticsProperties
 import androidx.ui.test.SemanticsTreeNodeStub
@@ -42,5 +43,9 @@ class FakeUiTestRunner : UiTestRunner {
         // TODO(pavlis): This is too simplified, use more of the real code so we test more than
         // just a lambda correctness.
         return semanticsToUse.filter { selector(it) }.toList()
+    }
+
+    override fun sendEvent(event: MotionEvent) {
+        // TODO(catalintudor): implement
     }
 }

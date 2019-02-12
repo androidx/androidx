@@ -16,9 +16,11 @@
 
 package androidx.ui.test
 
+import android.view.MotionEvent
 import androidx.ui.core.SemanticsTreeNode
 
 interface UiTestRunner {
 
     fun findSemantics(selector: (SemanticsTreeNode) -> Boolean): List<SemanticsTreeNode>
+    fun sendEvent(event: MotionEvent)
 }

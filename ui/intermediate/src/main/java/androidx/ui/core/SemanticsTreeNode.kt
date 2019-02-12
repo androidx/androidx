@@ -15,6 +15,7 @@
  */
 package androidx.ui.core
 
+import android.view.MotionEvent
 import androidx.ui.core.semantics.SemanticsProperties
 
 /**
@@ -34,4 +35,5 @@ interface SemanticsTreeNode {
  */
 interface SemanticsTreeProvider {
     fun getAllSemanticNodes(): List<SemanticsTreeNode>
+    fun sendEvent(event: MotionEvent)
 }

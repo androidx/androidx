@@ -18,6 +18,9 @@ package androidx.ui.test.android
 
 import android.app.Activity
 import android.app.Instrumentation
+import android.os.Looper
+import android.view.Choreographer
+import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.test.InstrumentationRegistry
 import androidx.test.rule.ActivityTestRule
@@ -53,6 +56,30 @@ open class AndroidUiTestRunner : UiTestRunner {
         activity = activityTestRule.activity
         activity.hasFocusLatch.await(5, TimeUnit.SECONDS)
         instrumentation = InstrumentationRegistry.getInstrumentation()
+    }
+
+    private fun runOnUiThread(runnable: () -> Unit) {
+        activity.runOnUiThread {
+            runnable.invoke()
+        }
+    }
+
+    private fun onNextFrame(action: (time: Long) -> Unit) {
+        Choreographer.getInstance().postFrameCallback {
+            action.invoke(it)
+        }
+    }
+
+    private fun runAfterCompose(action: (time: Long) -> Unit) {
+        runOnUiThread {
+            // TODO(catalintudor):  will change after public APIs for checking composition is done
+            // will be added
+            onNextFrame {
+                onNextFrame {
+                    action.invoke(it)
+                }
+            }
+        }
     }
 
     private fun findCompositionRootProvider(): SemanticsTreeProvider {
@@ -102,6 +129,30 @@ open class AndroidUiTestRunner : UiTestRunner {
     ): List<SemanticsTreeNode> {
         return rootProvider.getAllSemanticNodes().filter { selector(it) }.toList()
     }
+
+    override fun sendEvent(event: MotionEvent) {
+        var isDone = false
+
+        runOnUiThread {
+            rootProvider.sendEvent(event)
+        }
+
+        runAfterCompose {
+            synchronized(this) {
+                isDone = true
+            }
+        }
+
+        if (Looper.getMainLooper() == Looper.myLooper()) {
+            throw Exception("Test cannot be run on UI thread.")
+        }
+
+        doPollingCheck({
+            synchronized(this) {
+                isDone
+            }
+        })
+    }
 }
 
 class DefaultTestActivity : Activity() {
@@ -113,4 +164,29 @@ class DefaultTestActivity : Activity() {
             hasFocusLatch.countDown()
         }
     }
+}
+
+fun doPollingCheck(canProceed: () -> Boolean, timeoutPeriod: Long = 3000) {
+    val timeSlice: Long = 50
+    var timeout = timeoutPeriod
+
+    if (canProceed()) {
+        return
+    }
+
+    while (timeout > 0) {
+        try {
+            Thread.sleep(timeSlice)
+        } catch (e: InterruptedException) {
+            throw Exception("Unexpected InterruptedException")
+        }
+
+        if (canProceed()) {
+            return
+        }
+
+        timeout -= timeSlice
+    }
+
+    throw Exception("Unexpected timeout")
 }

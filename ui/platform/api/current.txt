@@ -13,6 +13,7 @@ package androidx.ui.core {
     method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
     method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
     method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void sendEvent(android.view.MotionEvent event);
     method public void setConstraints(androidx.ui.core.Constraints p);
     method public void setConstraintsChanged(kotlin.jvm.functions.Function0<kotlin.Unit> p);
     method public void setRef(androidx.ui.core.AndroidCraneView[]? value);
