@@ -16,17 +16,34 @@
 
 package androidx.savedstate;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.arch.core.internal.SafeIterableMap;
+
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * An interface for plugging components that consumes and contributes to the saved state.
- *
  */
-public interface SavedStateRegistry {
+@SuppressLint("RestrictedApi")
+public final class SavedStateRegistry {
+    private static final String SAVED_COMPONENTS_KEY =
+            "androidx.lifecycle.BundlableSavedStateRegistry.key";
+
+    private SafeIterableMap<String, SavedStateProvider> mComponents =
+            new SafeIterableMap<>();
+    @Nullable
+    private Bundle mRestoredState;
+    private boolean mRestored;
+
+    SavedStateRegistry() {
+    }
+
     /**
      * Consumes saved state previously supplied by {@link SavedStateProvider} registered
      * via {@link #registerSavedStateProvider(String, SavedStateProvider)}
@@ -47,30 +64,20 @@ public interface SavedStateRegistry {
      */
     @MainThread
     @Nullable
-    Bundle consumeRestoredStateForKey(@NonNull String key);
-
-    /**
-     * Returns if a state was restored and can be safely consumed
-     * with {@link #consumeRestoredStateForKey(String)}
-     *
-     * @return true if state was restored.
-     */
-    @MainThread
-    boolean isRestored();
-
-    /**
-     * This interface marks a component that contributes to saved state.
-     *
-     */
-    interface SavedStateProvider {
-        /**
-         * Called to retrieve a state from a component before being killed
-         * so later the state can be received from {@link #consumeRestoredStateForKey(String)}
-         *
-         * @return S with your saved state.
-         */
-        @NonNull
-        Bundle saveState();
+    public Bundle consumeRestoredStateForKey(@NonNull String key) {
+        if (!mRestored) {
+            throw new IllegalStateException("You can consumeRestoredStateForKey "
+                    + "only after super.onCreate of corresponding component");
+        }
+        if (mRestoredState != null) {
+            Bundle result = mRestoredState.getBundle(key);
+            mRestoredState.remove(key);
+            if (mRestoredState.isEmpty()) {
+                mRestoredState = null;
+            }
+            return result;
+        }
+        return null;
     }
 
     /**
@@ -84,12 +91,19 @@ public interface SavedStateRegistry {
      * will be written to resulting saved state.
      * <p> if a provider was already registered with the given {@code key}, an implementation should
      * throw an {@link IllegalArgumentException}
-     * @param key a key with which returned saved state will be associated
-     * @param savedStateProvider savedStateProvider to get saved state.
+     *
+     * @param key      a key with which returned saved state will be associated
+     * @param provider savedStateProvider to get saved state.
      */
     @MainThread
-    void registerSavedStateProvider(@NonNull String key,
-            @NonNull SavedStateProvider savedStateProvider);
+    public void registerSavedStateProvider(@NonNull String key,
+            @NonNull SavedStateProvider provider) {
+        SavedStateProvider previous = mComponents.putIfAbsent(key, provider);
+        if (previous != null) {
+            throw new IllegalArgumentException("SavedStateProvider with the given key is"
+                    + " already registered");
+        }
+    }
 
     /**
      * Unregisters a component previously registered by the given {@code key}
@@ -97,5 +111,70 @@ public interface SavedStateRegistry {
      * @param key a key with which a component was previously registered.
      */
     @MainThread
-    void unregisterSavedStateProvider(@NonNull String key);
+    public void unregisterSavedStateProvider(@NonNull String key) {
+        mComponents.remove(key);
+    }
+
+    /**
+     * Returns if state was restored after creation and can be safely consumed
+     * with {@link #consumeRestoredStateForKey(String)}
+     *
+     * @return true if state was restored.
+     */
+    @MainThread
+    public boolean isRestored() {
+        return mRestored;
+    }
+
+    /**
+     * An interface for an owner of this @{code {@link SavedStateRegistry} to restore saved state.
+     *
+     * @param savedState restored state
+     */
+    @SuppressWarnings("WeakerAccess")
+    @MainThread
+    void performRestore(@Nullable Bundle savedState) {
+        if (mRestored) {
+            throw new IllegalStateException("SavedStateRegistry was already restored.");
+        }
+        if (savedState != null) {
+            mRestoredState = savedState.getBundle(SAVED_COMPONENTS_KEY);
+        }
+        mRestored = true;
+    }
+
+    /**
+     * An interface for an owner of this @{code {@link SavedStateRegistry}
+     * to perform state saving, it will call all registered providers and
+     * merge with unconsumed state.
+     *
+     * @param outBundle Bundle in which to place a saved state
+     */
+    @MainThread
+    void performSave(@NonNull Bundle outBundle) {
+        Bundle components = new Bundle();
+        if (mRestoredState != null) {
+            components.putAll(mRestoredState);
+        }
+        for (Iterator<Map.Entry<String, SavedStateProvider>> it =
+                mComponents.iteratorWithAdditions(); it.hasNext(); ) {
+            Map.Entry<String, SavedStateProvider> entry1 = it.next();
+            components.putBundle(entry1.getKey(), entry1.getValue().saveState());
+        }
+        outBundle.putBundle(SAVED_COMPONENTS_KEY, components);
+    }
+
+    /**
+     * This interface marks a component that contributes to saved state.
+     */
+    public interface SavedStateProvider {
+        /**
+         * Called to retrieve a state from a component before being killed
+         * so later the state can be received from {@link #consumeRestoredStateForKey(String)}
+         *
+         * @return S with your saved state.
+         */
+        @NonNull
+        Bundle saveState();
+    }
 }
