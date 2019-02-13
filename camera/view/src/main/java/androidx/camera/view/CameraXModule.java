@@ -71,55 +71,55 @@ final class CameraXModule {
     private static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
     private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
 
-    private final CameraManager cameraManager;
-    private final ViewFinderUseCaseConfiguration.Builder viewFinderConfigBuilder;
-    private final VideoCaptureUseCaseConfiguration.Builder videoCaptureConfigBuilder;
-    private final ImageCaptureUseCaseConfiguration.Builder imageCaptureConfigBuilder;
-    private final CameraView cameraView;
-    final AtomicBoolean videoIsRecording = new AtomicBoolean(false);
-    private CameraView.Quality quality = CameraView.Quality.HIGH;
-    private CameraView.CaptureMode captureMode = CaptureMode.IMAGE;
-    private long maxVideoDuration = CameraView.INDEFINITE_VIDEO_DURATION;
-    private long maxVideoSize = CameraView.INDEFINITE_VIDEO_SIZE;
-    private FlashMode flash = FlashMode.OFF;
+    private final CameraManager mCameraManager;
+    private final ViewFinderUseCaseConfiguration.Builder mViewFinderConfigBuilder;
+    private final VideoCaptureUseCaseConfiguration.Builder mVideoCaptureConfigBuilder;
+    private final ImageCaptureUseCaseConfiguration.Builder mImageCaptureConfigBuilder;
+    private final CameraView mCameraView;
+    final AtomicBoolean mVideoIsRecording = new AtomicBoolean(false);
+    private CameraView.Quality mQuality = CameraView.Quality.HIGH;
+    private CameraView.CaptureMode mCaptureMode = CaptureMode.IMAGE;
+    private long mMaxVideoDuration = CameraView.INDEFINITE_VIDEO_DURATION;
+    private long mMaxVideoSize = CameraView.INDEFINITE_VIDEO_SIZE;
+    private FlashMode mFlash = FlashMode.OFF;
     @Nullable
-    private ImageCaptureUseCase imageCaptureUseCase;
+    private ImageCaptureUseCase mImageCaptureUseCase;
     @Nullable
-    private VideoCaptureUseCase videoCaptureUseCase;
+    private VideoCaptureUseCase mVideoCaptureUseCase;
     @Nullable
-    ViewFinderUseCase viewFinderUseCase;
+    ViewFinderUseCase mViewFinderUseCase;
     @Nullable
-    LifecycleOwner currentLifecycle;
-    private final LifecycleObserver currentLifecycleObserver =
+    LifecycleOwner mCurrentLifecycle;
+    private final LifecycleObserver mCurrentLifecycleObserver =
             new DefaultLifecycleObserver() {
                 @Override
                 public void onDestroy(LifecycleOwner owner) {
-                    if (owner == currentLifecycle) {
+                    if (owner == mCurrentLifecycle) {
                         clearCurrentLifecycle();
-                        viewFinderUseCase.removeViewFinderOutputListener();
+                        mViewFinderUseCase.removeViewFinderOutputListener();
                     }
                 }
             };
     @Nullable
-    private LifecycleOwner newLifecycle;
-    private float zoomLevel = UNITY_ZOOM_SCALE;
+    private LifecycleOwner mNewLifecycle;
+    private float mZoomLevel = UNITY_ZOOM_SCALE;
     @Nullable
-    private Rect cropRegion;
+    private Rect mCropRegion;
     @Nullable
-    private CameraX.LensFacing cameraLensFacing = LensFacing.BACK;
+    private CameraX.LensFacing mCameraLensFacing = LensFacing.BACK;
 
-    public CameraXModule(CameraView view) {
-        this.cameraView = view;
+    CameraXModule(CameraView view) {
+        this.mCameraView = view;
 
-        cameraManager = (CameraManager) view.getContext().getSystemService(Context.CAMERA_SERVICE);
+        mCameraManager = (CameraManager) view.getContext().getSystemService(Context.CAMERA_SERVICE);
 
-        viewFinderConfigBuilder =
+        mViewFinderConfigBuilder =
                 new ViewFinderUseCaseConfiguration.Builder().setTargetName("ViewFinder");
 
-        imageCaptureConfigBuilder =
+        mImageCaptureConfigBuilder =
                 new ImageCaptureUseCaseConfiguration.Builder().setTargetName("ImageCapture");
 
-        videoCaptureConfigBuilder =
+        mVideoCaptureConfigBuilder =
                 new VideoCaptureUseCaseConfiguration.Builder().setTargetName("VideoCapture");
     }
 
@@ -158,7 +158,7 @@ final class CameraXModule {
 
     @RequiresPermission(permission.CAMERA)
     public void bindToLifecycle(LifecycleOwner lifecycleOwner) {
-        newLifecycle = lifecycleOwner;
+        mNewLifecycle = lifecycleOwner;
 
         if (getMeasuredWidth() > 0 && getMeasuredHeight() > 0) {
             bindToLifecycleAfterViewMeasured();
@@ -167,15 +167,15 @@ final class CameraXModule {
 
     @RequiresPermission(permission.CAMERA)
     void bindToLifecycleAfterViewMeasured() {
-        if (newLifecycle == null) {
+        if (mNewLifecycle == null) {
             return;
         }
 
         clearCurrentLifecycle();
-        currentLifecycle = newLifecycle;
-        newLifecycle = null;
-        if (currentLifecycle.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
-            currentLifecycle = null;
+        mCurrentLifecycle = mNewLifecycle;
+        mNewLifecycle = null;
+        if (mCurrentLifecycle.getLifecycle().getCurrentState() == Lifecycle.State.DESTROYED) {
+            mCurrentLifecycle = null;
             throw new IllegalArgumentException("Cannot bind to lifecycle in a destroyed state.");
         }
 
@@ -186,28 +186,28 @@ final class CameraXModule {
 
             if (available.isEmpty()) {
                 Log.w(TAG, "Unable to bindToLifeCycle since no cameras available");
-                cameraLensFacing = null;
+                mCameraLensFacing = null;
             }
 
             // Ensure the current camera exists, or default to another camera
-            if (cameraLensFacing != null && !available.contains(cameraLensFacing)) {
-                Log.w(TAG, "Camera does not exist with direction " + cameraLensFacing);
+            if (mCameraLensFacing != null && !available.contains(mCameraLensFacing)) {
+                Log.w(TAG, "Camera does not exist with direction " + mCameraLensFacing);
 
                 // Default to the first available camera direction
-                cameraLensFacing = available.iterator().next();
+                mCameraLensFacing = available.iterator().next();
 
-                Log.w(TAG, "Defaulting to primary camera with direction " + cameraLensFacing);
+                Log.w(TAG, "Defaulting to primary camera with direction " + mCameraLensFacing);
             }
 
             // Do not attempt to create use cases for a null cameraLensFacing. This could occur if
             // the
             // user explicitly sets the LensFacing to null, or if we determined there
             // were no available cameras, which should be logged in the logic above.
-            if (cameraLensFacing == null) {
+            if (mCameraLensFacing == null) {
                 return;
             }
 
-            cameraId = CameraX.getCameraWithLensFacing(cameraLensFacing);
+            cameraId = CameraX.getCameraWithLensFacing(mCameraLensFacing);
             if (cameraId == null) {
                 return;
             }
@@ -222,34 +222,34 @@ final class CameraXModule {
         // is
         // in CENTER_INSIDE mode.
         if (getCaptureMode() == CaptureMode.IMAGE) {
-            imageCaptureConfigBuilder.setTargetAspectRatio(ASPECT_RATIO_4_3);
-            viewFinderConfigBuilder.setTargetAspectRatio(ASPECT_RATIO_4_3);
+            mImageCaptureConfigBuilder.setTargetAspectRatio(ASPECT_RATIO_4_3);
+            mViewFinderConfigBuilder.setTargetAspectRatio(ASPECT_RATIO_4_3);
         } else {
-            imageCaptureConfigBuilder.setTargetAspectRatio(ASPECT_RATIO_16_9);
-            viewFinderConfigBuilder.setTargetAspectRatio(ASPECT_RATIO_16_9);
+            mImageCaptureConfigBuilder.setTargetAspectRatio(ASPECT_RATIO_16_9);
+            mViewFinderConfigBuilder.setTargetAspectRatio(ASPECT_RATIO_16_9);
         }
 
-        imageCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
-        imageCaptureConfigBuilder.setLensFacing(cameraLensFacing);
-        imageCaptureUseCase = new ImageCaptureUseCase(imageCaptureConfigBuilder.build());
+        mImageCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
+        mImageCaptureConfigBuilder.setLensFacing(mCameraLensFacing);
+        mImageCaptureUseCase = new ImageCaptureUseCase(mImageCaptureConfigBuilder.build());
 
-        videoCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
-        videoCaptureConfigBuilder.setLensFacing(cameraLensFacing);
-        videoCaptureUseCase = new VideoCaptureUseCase(videoCaptureConfigBuilder.build());
-        viewFinderConfigBuilder.setLensFacing(cameraLensFacing);
+        mVideoCaptureConfigBuilder.setTargetRotation(getDisplaySurfaceRotation());
+        mVideoCaptureConfigBuilder.setLensFacing(mCameraLensFacing);
+        mVideoCaptureUseCase = new VideoCaptureUseCase(mVideoCaptureConfigBuilder.build());
+        mViewFinderConfigBuilder.setLensFacing(mCameraLensFacing);
 
         int relativeCameraOrientation = getRelativeCameraOrientation(false);
 
         if (relativeCameraOrientation == 90 || relativeCameraOrientation == 270) {
-            viewFinderConfigBuilder.setTargetResolution(
+            mViewFinderConfigBuilder.setTargetResolution(
                     new Size(getMeasuredHeight(), getMeasuredWidth()));
         } else {
-            viewFinderConfigBuilder.setTargetResolution(
+            mViewFinderConfigBuilder.setTargetResolution(
                     new Size(getMeasuredWidth(), getMeasuredHeight()));
         }
 
-        viewFinderUseCase = new ViewFinderUseCase(viewFinderConfigBuilder.build());
-        viewFinderUseCase.setOnViewFinderOutputUpdateListener(
+        mViewFinderUseCase = new ViewFinderUseCase(mViewFinderConfigBuilder.build());
+        mViewFinderUseCase.setOnViewFinderOutputUpdateListener(
                 output -> {
                     boolean needReverse = cameraOrientation != 0 && cameraOrientation != 180;
                     int textureWidth =
@@ -265,15 +265,16 @@ final class CameraXModule {
                 });
 
         if (getCaptureMode() == CaptureMode.IMAGE) {
-            CameraX.bindToLifecycle(currentLifecycle, imageCaptureUseCase, viewFinderUseCase);
+            CameraX.bindToLifecycle(mCurrentLifecycle, mImageCaptureUseCase, mViewFinderUseCase);
         } else if (getCaptureMode() == CaptureMode.VIDEO) {
-            CameraX.bindToLifecycle(currentLifecycle, videoCaptureUseCase, viewFinderUseCase);
+            CameraX.bindToLifecycle(mCurrentLifecycle, mVideoCaptureUseCase, mViewFinderUseCase);
         } else {
             CameraX.bindToLifecycle(
-                    currentLifecycle, imageCaptureUseCase, videoCaptureUseCase, viewFinderUseCase);
+                    mCurrentLifecycle, mImageCaptureUseCase, mVideoCaptureUseCase,
+                    mViewFinderUseCase);
         }
-        setZoomLevel(zoomLevel);
-        currentLifecycle.getLifecycle().addObserver(currentLifecycleObserver);
+        setZoomLevel(mZoomLevel);
+        mCurrentLifecycle.getLifecycle().addObserver(mCurrentLifecycleObserver);
         // Enable flash setting in ImageCaptureUseCase after use cases are created and binded.
         setFlash(getFlash());
     }
@@ -289,7 +290,7 @@ final class CameraXModule {
     }
 
     public void takePicture(OnImageCapturedListener listener) {
-        if (imageCaptureUseCase == null) {
+        if (mImageCaptureUseCase == null) {
             return;
         }
 
@@ -301,11 +302,11 @@ final class CameraXModule {
             throw new IllegalArgumentException("OnImageCapturedListener should not be empty");
         }
 
-        imageCaptureUseCase.takePicture(listener);
+        mImageCaptureUseCase.takePicture(listener);
     }
 
     public void takePicture(File saveLocation, OnImageSavedListener listener) {
-        if (imageCaptureUseCase == null) {
+        if (mImageCaptureUseCase == null) {
             return;
         }
 
@@ -318,12 +319,12 @@ final class CameraXModule {
         }
 
         ImageCaptureUseCase.Metadata metadata = new ImageCaptureUseCase.Metadata();
-        metadata.isReversedHorizontal = cameraLensFacing == LensFacing.FRONT;
-        imageCaptureUseCase.takePicture(saveLocation, listener, metadata);
+        metadata.isReversedHorizontal = mCameraLensFacing == LensFacing.FRONT;
+        mImageCaptureUseCase.takePicture(saveLocation, listener, metadata);
     }
 
     public void startRecording(File file, OnVideoSavedListener listener) {
-        if (videoCaptureUseCase == null) {
+        if (mVideoCaptureUseCase == null) {
             return;
         }
 
@@ -335,13 +336,13 @@ final class CameraXModule {
             throw new IllegalArgumentException("OnVideoSavedListener should not be empty");
         }
 
-        videoIsRecording.set(true);
-        videoCaptureUseCase.startRecording(
+        mVideoIsRecording.set(true);
+        mVideoCaptureUseCase.startRecording(
                 file,
                 new VideoCaptureUseCase.OnVideoSavedListener() {
                     @Override
                     public void onVideoSaved(File savedFile) {
-                        videoIsRecording.set(false);
+                        mVideoIsRecording.set(false);
                         listener.onVideoSaved(savedFile);
                     }
 
@@ -350,7 +351,7 @@ final class CameraXModule {
                             VideoCaptureUseCase.UseCaseError useCaseError,
                             String message,
                             @Nullable Throwable cause) {
-                        videoIsRecording.set(false);
+                        mVideoIsRecording.set(false);
                         Log.e(TAG, message, cause);
                         listener.onError(useCaseError, message, cause);
                     }
@@ -358,29 +359,29 @@ final class CameraXModule {
     }
 
     public void stopRecording() {
-        if (videoCaptureUseCase == null) {
+        if (mVideoCaptureUseCase == null) {
             return;
         }
 
-        videoCaptureUseCase.stopRecording();
+        mVideoCaptureUseCase.stopRecording();
     }
 
     public boolean isRecording() {
-        return videoIsRecording.get();
+        return mVideoIsRecording.get();
     }
 
     // TODO(b/124269166): Rethink how we can handle permissions here.
     @SuppressLint("MissingPermission")
     public void setCameraByLensFacing(@Nullable LensFacing lensFacing) {
         // Setting same lens facing is a no-op, so check for that first
-        if (cameraLensFacing != lensFacing) {
+        if (mCameraLensFacing != lensFacing) {
             // If we're not bound to a lifecycle, just update the camera that will be opened when we
             // attach to a lifecycle.
-            cameraLensFacing = lensFacing;
+            mCameraLensFacing = lensFacing;
 
-            if (currentLifecycle != null) {
+            if (mCurrentLifecycle != null) {
                 // Re-bind to lifecycle with new camera
-                bindToLifecycle(currentLifecycle);
+                bindToLifecycle(mCurrentLifecycle);
             }
         }
     }
@@ -399,7 +400,7 @@ final class CameraXModule {
 
     @Nullable
     public LensFacing getLensFacing() {
-        return cameraLensFacing;
+        return mCameraLensFacing;
     }
 
     public void toggleCamera() {
@@ -411,18 +412,18 @@ final class CameraXModule {
             return;
         }
 
-        if (cameraLensFacing == null) {
+        if (mCameraLensFacing == null) {
             setCameraByLensFacing(availableCameraLensFacing.iterator().next());
             return;
         }
 
-        if (cameraLensFacing == LensFacing.BACK
+        if (mCameraLensFacing == LensFacing.BACK
                 && availableCameraLensFacing.contains(LensFacing.FRONT)) {
             setCameraByLensFacing(LensFacing.FRONT);
             return;
         }
 
-        if (cameraLensFacing == LensFacing.FRONT
+        if (mCameraLensFacing == LensFacing.FRONT
                 && availableCameraLensFacing.contains(LensFacing.BACK)) {
             setCameraByLensFacing(LensFacing.BACK);
             return;
@@ -430,7 +431,7 @@ final class CameraXModule {
     }
 
     public void focus(Rect focus, Rect metering) {
-        if (viewFinderUseCase == null) {
+        if (mViewFinderUseCase == null) {
             // Nothing to focus on since we don't yet have a viewfinder
             return;
         }
@@ -439,8 +440,8 @@ final class CameraXModule {
         Rect rescaledMetering;
         try {
             Rect sensorRegion;
-            if (cropRegion != null) {
-                sensorRegion = cropRegion;
+            if (mCropRegion != null) {
+                sensorRegion = mCropRegion;
             } else {
                 sensorRegion = getSensorSize(getActiveCamera());
             }
@@ -451,18 +452,18 @@ final class CameraXModule {
             return;
         }
 
-        viewFinderUseCase.focus(rescaledFocus, rescaledMetering);
+        mViewFinderUseCase.focus(rescaledFocus, rescaledMetering);
     }
 
     public float getZoomLevel() {
-        return zoomLevel;
+        return mZoomLevel;
     }
 
     public void setZoomLevel(float zoomLevel) {
         // Set the zoom level in case it is set before binding to a lifecycle
-        this.zoomLevel = zoomLevel;
+        this.mZoomLevel = zoomLevel;
 
-        if (viewFinderUseCase == null) {
+        if (mViewFinderUseCase == null) {
             // Nothing to zoom on yet since we don't have a viewfinder. Defer calculating crop
             // region.
             return;
@@ -483,16 +484,16 @@ final class CameraXModule {
         float minZoom = getMinZoomLevel();
         float maxZoom = getMaxZoomLevel();
 
-        if (this.zoomLevel < minZoom) {
+        if (this.mZoomLevel < minZoom) {
             Log.e(TAG, "Requested zoom level is less than minimum zoom level.");
         }
-        if (this.zoomLevel > maxZoom) {
+        if (this.mZoomLevel > maxZoom) {
             Log.e(TAG, "Requested zoom level is greater than maximum zoom level.");
         }
-        this.zoomLevel = Math.max(minZoom, Math.min(maxZoom, this.zoomLevel));
+        this.mZoomLevel = Math.max(minZoom, Math.min(maxZoom, this.mZoomLevel));
 
         float zoomScaleFactor =
-                (maxZoom == minZoom) ? minZoom : (this.zoomLevel - minZoom) / (maxZoom - minZoom);
+                (maxZoom == minZoom) ? minZoom : (this.mZoomLevel - minZoom) / (maxZoom - minZoom);
         int minWidth = Math.round(sensorSize.width() / maxZoom);
         int minHeight = Math.round(sensorSize.height() / maxZoom);
         int diffWidth = sensorSize.width() - minWidth;
@@ -511,9 +512,9 @@ final class CameraXModule {
             Log.e(TAG, "Crop region is too small to compute 3A stats, so ignoring further zoom.");
             return;
         }
-        this.cropRegion = cropRegion;
+        this.mCropRegion = cropRegion;
 
-        viewFinderUseCase.zoom(cropRegion);
+        mViewFinderUseCase.zoom(cropRegion);
     }
 
     public float getMinZoomLevel() {
@@ -523,7 +524,7 @@ final class CameraXModule {
     public float getMaxZoomLevel() {
         try {
             CameraCharacteristics characteristics =
-                    cameraManager.getCameraCharacteristics(getActiveCamera());
+                    mCameraManager.getCameraCharacteristics(getActiveCamera());
             Float maxZoom =
                     characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
             if (maxZoom == null) {
@@ -546,8 +547,8 @@ final class CameraXModule {
     // TODO(b/124269166): Rethink how we can handle permissions here.
     @SuppressLint("MissingPermission")
     private void rebindToLifecycle() {
-        if (currentLifecycle != null) {
-            bindToLifecycle(currentLifecycle);
+        if (mCurrentLifecycle != null) {
+            bindToLifecycle(mCurrentLifecycle);
         }
     }
 
@@ -569,14 +570,14 @@ final class CameraXModule {
     }
 
     public CameraView.Quality getQuality() {
-        return quality;
+        return mQuality;
     }
 
     public void setQuality(Quality quality) {
         if (quality != Quality.HIGH) {
             throw new UnsupportedOperationException("Only supported Quality is HIGH");
         }
-        this.quality = quality;
+        this.mQuality = quality;
     }
 
     public void invalidateView() {
@@ -585,21 +586,21 @@ final class CameraXModule {
     }
 
     void clearCurrentLifecycle() {
-        if (currentLifecycle != null) {
+        if (mCurrentLifecycle != null) {
             // Remove previous use cases
-            CameraX.unbind(imageCaptureUseCase, videoCaptureUseCase, viewFinderUseCase);
+            CameraX.unbind(mImageCaptureUseCase, mVideoCaptureUseCase, mViewFinderUseCase);
         }
 
-        currentLifecycle = null;
+        mCurrentLifecycle = null;
     }
 
     private Rect getSensorSize(String cameraId) throws CameraAccessException {
-        CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+        CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(cameraId);
         return characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
     }
 
     String getActiveCamera() throws CameraInfoUnavailableException {
-        return CameraX.getCameraWithLensFacing(cameraLensFacing);
+        return CameraX.getCameraWithLensFacing(mCameraLensFacing);
     }
 
     @UiThread
@@ -631,13 +632,13 @@ final class CameraXModule {
 
     // Update view related information used in use cases
     private void updateViewInfo() {
-        if (imageCaptureUseCase != null) {
-            imageCaptureUseCase.setTargetAspectRatio(new Rational(getWidth(), getHeight()));
-            imageCaptureUseCase.setTargetRotation(getDisplaySurfaceRotation());
+        if (mImageCaptureUseCase != null) {
+            mImageCaptureUseCase.setTargetAspectRatio(new Rational(getWidth(), getHeight()));
+            mImageCaptureUseCase.setTargetRotation(getDisplaySurfaceRotation());
         }
 
-        if (videoCaptureUseCase != null) {
-            videoCaptureUseCase.setTargetRotation(getDisplaySurfaceRotation());
+        if (mVideoCaptureUseCase != null) {
+            mVideoCaptureUseCase.setTargetRotation(getDisplaySurfaceRotation());
         }
     }
 
@@ -647,7 +648,7 @@ final class CameraXModule {
         Set<LensFacing> available = new LinkedHashSet<>(Arrays.asList(LensFacing.values()));
 
         // If we're bound to a lifecycle, remove unavailable cameras
-        if (currentLifecycle != null) {
+        if (mCurrentLifecycle != null) {
             if (!hasCameraWithLensFacing(LensFacing.BACK)) {
                 available.remove(LensFacing.BACK);
             }
@@ -661,44 +662,44 @@ final class CameraXModule {
     }
 
     public FlashMode getFlash() {
-        return flash;
+        return mFlash;
     }
 
     public void setFlash(FlashMode flash) {
-        this.flash = flash;
+        this.mFlash = flash;
 
-        if (imageCaptureUseCase == null) {
+        if (mImageCaptureUseCase == null) {
             // Do nothing if there is no imageCaptureUseCase
             return;
         }
 
-        imageCaptureUseCase.setFlashMode(flash);
+        mImageCaptureUseCase.setFlashMode(flash);
     }
 
     public void enableTorch(boolean torch) {
-        if (viewFinderUseCase == null) {
+        if (mViewFinderUseCase == null) {
             return;
         }
-        viewFinderUseCase.enableTorch(torch);
+        mViewFinderUseCase.enableTorch(torch);
     }
 
     public boolean isTorchOn() {
-        if (viewFinderUseCase == null) {
+        if (mViewFinderUseCase == null) {
             return false;
         }
-        return viewFinderUseCase.isTorchOn();
+        return mViewFinderUseCase.isTorchOn();
     }
 
     public Context getContext() {
-        return cameraView.getContext();
+        return mCameraView.getContext();
     }
 
     public int getWidth() {
-        return cameraView.getWidth();
+        return mCameraView.getWidth();
     }
 
     public int getHeight() {
-        return cameraView.getHeight();
+        return mCameraView.getHeight();
     }
 
     public int getDisplayRotationDegrees() {
@@ -706,32 +707,32 @@ final class CameraXModule {
     }
 
     protected int getDisplaySurfaceRotation() {
-        return cameraView.getDisplaySurfaceRotation();
+        return mCameraView.getDisplaySurfaceRotation();
     }
 
     public void setSurfaceTexture(SurfaceTexture st) {
-        cameraView.setSurfaceTexture(st);
+        mCameraView.setSurfaceTexture(st);
     }
 
     private int getViewFinderWidth() {
-        return cameraView.getViewFinderWidth();
+        return mCameraView.getViewFinderWidth();
     }
 
     private int getViewFinderHeight() {
-        return cameraView.getViewFinderHeight();
+        return mCameraView.getViewFinderHeight();
     }
 
     private int getMeasuredWidth() {
-        return cameraView.getMeasuredWidth();
+        return mCameraView.getMeasuredWidth();
     }
 
     private int getMeasuredHeight() {
-        return cameraView.getMeasuredHeight();
+        return mCameraView.getMeasuredHeight();
     }
 
     void setTransform(final Matrix matrix) {
         if (Looper.myLooper() != Looper.getMainLooper()) {
-            cameraView.post(
+            mCameraView.post(
                     new Runnable() {
                         @Override
                         public void run() {
@@ -739,7 +740,7 @@ final class CameraXModule {
                         }
                     });
         } else {
-            cameraView.setTransform(matrix);
+            mCameraView.setTransform(matrix);
         }
     }
 
@@ -752,32 +753,32 @@ final class CameraXModule {
      * @param height height of camera source buffers.
      */
     private void onViewfinderSourceDimensUpdated(int width, int height) {
-        cameraView.onViewfinderSourceDimensUpdated(width, height);
+        mCameraView.onViewfinderSourceDimensUpdated(width, height);
     }
 
     public CameraView.CaptureMode getCaptureMode() {
-        return captureMode;
+        return mCaptureMode;
     }
 
     public void setCaptureMode(CameraView.CaptureMode captureMode) {
-        this.captureMode = captureMode;
+        this.mCaptureMode = captureMode;
         rebindToLifecycle();
     }
 
     public long getMaxVideoDuration() {
-        return maxVideoDuration;
+        return mMaxVideoDuration;
     }
 
     public void setMaxVideoDuration(long duration) {
-        maxVideoDuration = duration;
+        mMaxVideoDuration = duration;
     }
 
     public long getMaxVideoSize() {
-        return maxVideoSize;
+        return mMaxVideoSize;
     }
 
     public void setMaxVideoSize(long size) {
-        maxVideoSize = size;
+        mMaxVideoSize = size;
     }
 
     public boolean isPaused() {
