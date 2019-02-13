@@ -65,9 +65,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
+import androidx.savedstate.BundleSavedStateRegistry;
 import androidx.savedstate.SavedStateRegistry;
-import androidx.savedstate.bundle.BundleSavedStateRegistry;
-import androidx.savedstate.bundle.BundleSavedStateRegistryOwner;
+import androidx.savedstate.SavedStateRegistryOwner;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -91,7 +91,7 @@ import java.util.UUID;
  *
  */
 public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener, LifecycleOwner,
-        ViewModelStoreOwner, BundleSavedStateRegistryOwner {
+        ViewModelStoreOwner, SavedStateRegistryOwner {
 
     static final Object USE_DEFAULT_TRANSITION = new Object();
 
@@ -348,7 +348,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     @NonNull
     @Override
-    public final SavedStateRegistry<Bundle> getBundleSavedStateRegistry() {
+    public final SavedStateRegistry getSavedStateRegistry() {
         return mSavedStateRegistry;
     }
 

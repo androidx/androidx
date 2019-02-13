@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.savedstate.bundle;
+package androidx.savedstate;
 
-
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.savedstate.SavedStateRegistry;
 
 /**
  * A scope that owns {@link SavedStateRegistry}
  */
-public interface BundleSavedStateRegistryOwner {
+public interface SavedStateRegistryOwner {
     /**
      * Returns owned {@link SavedStateRegistry}
      *
      * @return a {@link SavedStateRegistry}
      */
     @NonNull
-    SavedStateRegistry<Bundle> getBundleSavedStateRegistry();
+    SavedStateRegistry getSavedStateRegistry();
 }
