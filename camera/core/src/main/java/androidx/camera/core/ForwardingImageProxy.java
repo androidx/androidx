@@ -34,10 +34,10 @@ import java.util.Set;
  */
 abstract class ForwardingImageProxy implements ImageProxy {
     @GuardedBy("this")
-    protected final ImageProxy image;
+    protected final ImageProxy mImage;
 
     @GuardedBy("this")
-    private final Set<OnImageCloseListener> onImageCloseListeners = new HashSet<>();
+    private final Set<OnImageCloseListener> mOnImageCloseListeners = new HashSet<>();
 
     /**
      * Creates a new instance which wraps the given image.
@@ -46,53 +46,53 @@ abstract class ForwardingImageProxy implements ImageProxy {
      * @return new {@link AndroidImageProxy} instance
      */
     protected ForwardingImageProxy(ImageProxy image) {
-        this.image = image;
+        mImage = image;
     }
 
     @Override
     public synchronized void close() {
-        image.close();
+        mImage.close();
         notifyOnImageCloseListeners();
     }
 
     @Override
     public synchronized Rect getCropRect() {
-        return image.getCropRect();
+        return mImage.getCropRect();
     }
 
     @Override
     public synchronized void setCropRect(Rect rect) {
-        image.setCropRect(rect);
+        mImage.setCropRect(rect);
     }
 
     @Override
     public synchronized int getFormat() {
-        return image.getFormat();
+        return mImage.getFormat();
     }
 
     @Override
     public synchronized int getHeight() {
-        return image.getHeight();
+        return mImage.getHeight();
     }
 
     @Override
     public synchronized int getWidth() {
-        return image.getWidth();
+        return mImage.getWidth();
     }
 
     @Override
     public synchronized long getTimestamp() {
-        return image.getTimestamp();
+        return mImage.getTimestamp();
     }
 
     @Override
     public synchronized void setTimestamp(long timestamp) {
-        image.setTimestamp(timestamp);
+        mImage.setTimestamp(timestamp);
     }
 
     @Override
     public synchronized ImageProxy.PlaneProxy[] getPlanes() {
-        return image.getPlanes();
+        return mImage.getPlanes();
     }
 
     /**
@@ -101,12 +101,12 @@ abstract class ForwardingImageProxy implements ImageProxy {
      * @param listener to add
      */
     synchronized void addOnImageCloseListener(OnImageCloseListener listener) {
-        onImageCloseListeners.add(listener);
+        mOnImageCloseListeners.add(listener);
     }
 
     /** Notifies the listeners that this image has been closed. */
     protected synchronized void notifyOnImageCloseListeners() {
-        for (OnImageCloseListener listener : onImageCloseListeners) {
+        for (OnImageCloseListener listener : mOnImageCloseListeners) {
             listener.onImageClose(this);
         }
     }

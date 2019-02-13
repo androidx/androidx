@@ -20,6 +20,8 @@ import android.graphics.Rect;
 import android.os.Handler;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 
 /**
  * The CameraControl Interface.
@@ -34,7 +36,9 @@ import androidx.annotation.Nullable;
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraControl {
+    /** Returns an instance of CameraControl that does nothing. */
     static CameraControl defaultEmptyInstance() {
         return new CameraControl() {
             @Override
@@ -125,10 +129,20 @@ public interface CameraControl {
             @Nullable OnFocusCompletedListener listener,
             @Nullable Handler handler);
 
+    /**
+     * Adjusts the camera output according to the properties in some local regions.
+     *
+     * <p>The auto-focus (AF), auto-exposure (AE) and auto-whitebalance (AWB) properties will be
+     * recalculated from the local regions.
+     *
+     * @param focus    rectangle with dimensions in sensor coordinate frame for focus
+     * @param metering rectangle with dimensions in sensor coordinate frame for metering
+     */
     default void focus(Rect focus, Rect metering) {
         focus(focus, metering, null, null);
     }
 
+    /** Returns the current flash mode. */
     FlashMode getFlashMode();
 
     /**
@@ -148,6 +162,7 @@ public interface CameraControl {
     /** Returns if current torch is enabled or not. */
     boolean isTorchOn();
 
+    /** Returns if the focus is currently locked or not. */
     boolean isFocusLocked();
 
     /** Performs a AF trigger. */

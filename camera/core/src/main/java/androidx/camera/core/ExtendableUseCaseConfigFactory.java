@@ -31,7 +31,7 @@ import java.util.Map;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class ExtendableUseCaseConfigFactory implements UseCaseConfigurationFactory {
-    private final Map<Class<?>, ConfigurationProvider<?>> defaultProviders = new HashMap<>();
+    private final Map<Class<?>, ConfigurationProvider<?>> mDefaultProviders = new HashMap<>();
 
     /**
      * Inserts or overrides the {@link androidx.camera.core.ConfigurationProvider} for the given
@@ -39,7 +39,7 @@ public final class ExtendableUseCaseConfigFactory implements UseCaseConfiguratio
      */
     public <C extends Configuration> void installDefaultProvider(
             Class<C> configType, ConfigurationProvider<C> defaultProvider) {
-        defaultProviders.put(configType, defaultProvider);
+        mDefaultProviders.put(configType, defaultProvider);
     }
 
     @Nullable
@@ -48,7 +48,7 @@ public final class ExtendableUseCaseConfigFactory implements UseCaseConfiguratio
         @SuppressWarnings("unchecked") // Providers only could have been inserted with
                 // installDefaultProvider(), so the class should return the correct type.
                 ConfigurationProvider<C> provider =
-                (ConfigurationProvider<C>) defaultProviders.get(configType);
+                (ConfigurationProvider<C>) mDefaultProviders.get(configType);
         if (provider != null) {
             return provider.getConfiguration();
         }

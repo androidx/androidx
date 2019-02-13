@@ -37,13 +37,13 @@ final class AndroidImageProxy implements ImageProxy {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
 
     @GuardedBy("this")
-    private final Image image;
+    private final Image mImage;
 
     @GuardedBy("this")
-    private final PlaneProxy[] planes;
+    private final PlaneProxy[] mPlanes;
 
     @GuardedBy("this")
-    private long timestamp;
+    private long mTimestamp;
 
     /**
      * Creates a new instance which wraps the given image.
@@ -52,96 +52,96 @@ final class AndroidImageProxy implements ImageProxy {
      * @return new {@link AndroidImageProxy} instance
      */
     AndroidImageProxy(Image image) {
-        this.image = image;
+        mImage = image;
 
         Image.Plane[] originalPlanes = image.getPlanes();
         if (originalPlanes != null) {
-            this.planes = new PlaneProxy[originalPlanes.length];
+            mPlanes = new PlaneProxy[originalPlanes.length];
             for (int i = 0; i < originalPlanes.length; ++i) {
-                this.planes[i] = new PlaneProxy(originalPlanes[i]);
+                mPlanes[i] = new PlaneProxy(originalPlanes[i]);
             }
         } else {
-            this.planes = new PlaneProxy[0];
+            mPlanes = new PlaneProxy[0];
         }
 
-        this.timestamp = image.getTimestamp();
+        mTimestamp = image.getTimestamp();
     }
 
     @Override
     public synchronized void close() {
-        image.close();
+        mImage.close();
     }
 
     @Override
     public synchronized Rect getCropRect() {
-        return image.getCropRect();
+        return mImage.getCropRect();
     }
 
     @Override
     public synchronized void setCropRect(Rect rect) {
-        image.setCropRect(rect);
+        mImage.setCropRect(rect);
     }
 
     @Override
     public synchronized int getFormat() {
-        return image.getFormat();
+        return mImage.getFormat();
     }
 
     @Override
     public synchronized int getHeight() {
-        return image.getHeight();
+        return mImage.getHeight();
     }
 
     @Override
     public synchronized int getWidth() {
-        return image.getWidth();
+        return mImage.getWidth();
     }
 
     @Override
     public synchronized long getTimestamp() {
         if (SET_TIMESTAMP_AVAILABLE_IN_FRAMEWORK) {
-            return image.getTimestamp();
+            return mImage.getTimestamp();
         } else {
-            return timestamp;
+            return mTimestamp;
         }
     }
 
     @Override
     public synchronized void setTimestamp(long timestamp) {
         if (SET_TIMESTAMP_AVAILABLE_IN_FRAMEWORK) {
-            image.setTimestamp(timestamp);
+            mImage.setTimestamp(timestamp);
         } else {
-            this.timestamp = timestamp;
+            mTimestamp = timestamp;
         }
     }
 
     @Override
     public synchronized ImageProxy.PlaneProxy[] getPlanes() {
-        return planes;
+        return mPlanes;
     }
 
     /** An {@link ImageProxy.PlaneProxy} which wraps around an {@link Image.Plane}. */
     private static final class PlaneProxy implements ImageProxy.PlaneProxy {
         @GuardedBy("this")
-        private final Image.Plane plane;
+        private final Image.Plane mPlane;
 
         PlaneProxy(Image.Plane plane) {
-            this.plane = plane;
+            mPlane = plane;
         }
 
         @Override
         public synchronized int getRowStride() {
-            return plane.getRowStride();
+            return mPlane.getRowStride();
         }
 
         @Override
         public synchronized int getPixelStride() {
-            return plane.getPixelStride();
+            return mPlane.getPixelStride();
         }
 
         @Override
         public synchronized ByteBuffer getBuffer() {
-            return plane.getBuffer();
+            return mPlane.getBuffer();
         }
     }
 }

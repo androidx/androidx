@@ -35,8 +35,7 @@ import java.util.List;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class SurfaceCombination {
 
-    private final List<SurfaceConfiguration> surfaceConfigurationList = new ArrayList<>();
-    ;
+    private final List<SurfaceConfiguration> mSurfaceConfigurationList = new ArrayList<>();
 
     public SurfaceCombination() {
     }
@@ -65,24 +64,26 @@ public final class SurfaceCombination {
         }
     }
 
+    /** Adds a {@link SurfaceConfiguration} to the combination. */
     public boolean addSurfaceConfiguration(SurfaceConfiguration surfaceConfiguration) {
         if (surfaceConfiguration == null) {
             return false;
         }
 
-        return surfaceConfigurationList.add(surfaceConfiguration);
+        return mSurfaceConfigurationList.add(surfaceConfiguration);
     }
 
+    /** Removes a {@link SurfaceConfiguration} from the combination. */
     public boolean removeSurfaceConfiguration(SurfaceConfiguration surfaceConfiguration) {
         if (surfaceConfiguration == null) {
             return false;
         }
 
-        return surfaceConfigurationList.remove(surfaceConfiguration);
+        return mSurfaceConfigurationList.remove(surfaceConfiguration);
     }
 
     public List<SurfaceConfiguration> getSurfaceConfigurationList() {
-        return surfaceConfigurationList;
+        return mSurfaceConfigurationList;
     }
 
     /**
@@ -105,19 +106,20 @@ public final class SurfaceCombination {
          * following level3 camera device combination - (PRIV, PREVIEW) + (PRIV, ANALYSIS) + (JPEG,
          * MAXIMUM) + (RAW, MAXIMUM).
          */
-        if (configurationList.size() > surfaceConfigurationList.size()) {
+        if (configurationList.size() > mSurfaceConfigurationList.size()) {
             return false;
         }
 
-        List<int[]> elementsArrangements = getElementsArrangements(surfaceConfigurationList.size());
+        List<int[]> elementsArrangements = getElementsArrangements(
+                mSurfaceConfigurationList.size());
 
         for (int[] elementsArrangement : elementsArrangements) {
             boolean checkResult = true;
 
-            for (int index = 0; index < surfaceConfigurationList.size(); index++) {
+            for (int index = 0; index < mSurfaceConfigurationList.size(); index++) {
                 if (elementsArrangement[index] < configurationList.size()) {
                     checkResult &=
-                            surfaceConfigurationList
+                            mSurfaceConfigurationList
                                     .get(index)
                                     .isSupported(configurationList.get(elementsArrangement[index]));
 

@@ -19,7 +19,6 @@ package androidx.camera.core;
 import android.graphics.SurfaceTexture;
 import android.os.Build.VERSION_CODES;
 import android.util.Size;
-import android.view.Surface;
 
 import androidx.annotation.RequiresApi;
 
@@ -36,7 +35,7 @@ final class FixedSizeSurfaceTexture extends SurfaceTexture {
      *
      * @param texName   the OpenGL texture object name (e.g. generated via glGenTextures)
      * @param fixedSize the fixed default buffer size
-     * @throws Surface.OutOfResourcesException If the SurfaceTexture cannot be created.
+     * @throws android.view.Surface.OutOfResourcesException If the SurfaceTexture cannot be created.
      */
     FixedSizeSurfaceTexture(int texName, Size fixedSize) {
         super(texName);
@@ -58,7 +57,7 @@ final class FixedSizeSurfaceTexture extends SurfaceTexture {
      * @param texName          the OpenGL texture object name (e.g. generated via glGenTextures)
      * @param singleBufferMode whether the SurfaceTexture will be in single buffered mode.
      * @param fixedSize        the fixed default buffer size
-     * @throws Surface.OutOfResourcesException If the SurfaceTexture cannot be created.
+     * @throws android.view.Surface.OutOfResourcesException If the SurfaceTexture cannot be created.
      */
     FixedSizeSurfaceTexture(int texName, boolean singleBufferMode, Size fixedSize) {
         super(texName, singleBufferMode);
@@ -84,7 +83,7 @@ final class FixedSizeSurfaceTexture extends SurfaceTexture {
      *
      * @param singleBufferMode whether the SurfaceTexture will be in single buffered mode.
      * @param fixedSize        the fixed default buffer size
-     * @throws Surface.OutOfResourcesException If the SurfaceTexture cannot be created.
+     * @throws android.view.Surface.OutOfResourcesException If the SurfaceTexture cannot be created.
      */
     @RequiresApi(api = VERSION_CODES.O)
     FixedSizeSurfaceTexture(boolean singleBufferMode, Size fixedSize) {

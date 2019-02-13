@@ -46,43 +46,43 @@ public final class UseCaseGroup {
     /**
      * The lock for the single {@link StateChangeListener} held by the group.
      *
-     * <p>This lock is always acquired prior to acquiring the useCasesLock so that there is no
+     * <p>This lock is always acquired prior to acquiring the mUseCasesLock so that there is no
      * lock-ordering deadlock.
      */
-    private final Object listenerLock = new Object();
+    private final Object mListenerLock = new Object();
     /**
      * The lock for accessing the map of use case types to use case instances.
      *
-     * <p>This lock is always acquired after acquiring the listenerLock so that there is no
+     * <p>This lock is always acquired after acquiring the mListenerLock so that there is no
      * lock-ordering deadlock.
      */
-    private final Object useCasesLock = new Object();
-    @GuardedBy("useCasesLock")
-    private final Set<BaseUseCase> useCases = new HashSet<>();
-    @GuardedBy("listenerLock")
-    private StateChangeListener listener;
+    private final Object mUseCasesLock = new Object();
+    @GuardedBy("mUseCasesLock")
+    private final Set<BaseUseCase> mUseCases = new HashSet<>();
+    @GuardedBy("mListenerLock")
+    private StateChangeListener mListener;
 
     /** Starts all the use cases so that they are brought into an online state. */
     void start() {
-        synchronized (listenerLock) {
-            if (listener != null) {
-                listener.onGroupActive(this);
+        synchronized (mListenerLock) {
+            if (mListener != null) {
+                mListener.onGroupActive(this);
             }
         }
     }
 
     /** Stops all the use cases so that they are brought into an offline state. */
     void stop() {
-        synchronized (listenerLock) {
-            if (listener != null) {
-                listener.onGroupInactive(this);
+        synchronized (mListenerLock) {
+            if (mListener != null) {
+                mListener.onGroupInactive(this);
             }
         }
     }
 
     void setListener(StateChangeListener listener) {
-        synchronized (listenerLock) {
-            this.listener = listener;
+        synchronized (mListenerLock) {
+            this.mListener = listener;
         }
     }
 
@@ -92,15 +92,15 @@ public final class UseCaseGroup {
      * @return true if the use case is added, or false if the use case already exists in the group.
      */
     public boolean addUseCase(BaseUseCase useCase) {
-        synchronized (useCasesLock) {
-            return useCases.add(useCase);
+        synchronized (mUseCasesLock) {
+            return mUseCases.add(useCase);
         }
     }
 
     /** Returns true if the {@link BaseUseCase} is contained in the group. */
     boolean contains(BaseUseCase useCase) {
-        synchronized (useCasesLock) {
-            return useCases.contains(useCase);
+        synchronized (mUseCasesLock) {
+            return mUseCases.contains(useCase);
         }
     }
 
@@ -111,17 +111,17 @@ public final class UseCaseGroup {
      * not exist in the group).
      */
     boolean removeUseCase(BaseUseCase useCase) {
-        synchronized (useCasesLock) {
-            return useCases.remove(useCase);
+        synchronized (mUseCasesLock) {
+            return mUseCases.remove(useCase);
         }
     }
 
     /** Clears all use cases from this group. */
     public void clear() {
         List<BaseUseCase> useCasesToClear = new ArrayList<>();
-        synchronized (useCasesLock) {
-            useCasesToClear.addAll(useCases);
-            useCases.clear();
+        synchronized (mUseCasesLock) {
+            useCasesToClear.addAll(mUseCases);
+            mUseCases.clear();
         }
         for (BaseUseCase useCase : useCasesToClear) {
             Log.d(TAG, "Clearing use case: " + useCase.getName());
@@ -131,15 +131,15 @@ public final class UseCaseGroup {
 
     /** Returns the collection of all the use cases currently contained by the UseCaseGroup. */
     Collection<BaseUseCase> getUseCases() {
-        synchronized (useCasesLock) {
-            return Collections.unmodifiableCollection(useCases);
+        synchronized (mUseCasesLock) {
+            return Collections.unmodifiableCollection(mUseCases);
         }
     }
 
     Map<String, Set<BaseUseCase>> getCameraIdToUseCaseMap() {
         Map<String, Set<BaseUseCase>> cameraIdToUseCases = new HashMap<>();
-        synchronized (useCasesLock) {
-            for (BaseUseCase useCase : useCases) {
+        synchronized (mUseCasesLock) {
+            for (BaseUseCase useCase : mUseCases) {
                 for (String cameraId : useCase.getAttachedCameraIds()) {
                     Set<BaseUseCase> useCaseSet = cameraIdToUseCases.get(cameraId);
                     if (useCaseSet == null) {

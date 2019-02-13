@@ -54,18 +54,19 @@ public class ViewFinderUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ViewFinderUseCase";
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private final CheckedSurfaceTexture.OnTextureChangedListener surfaceTextureListener =
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private final CheckedSurfaceTexture.OnTextureChangedListener mSurfaceTextureListener =
             (newSurfaceTexture, newResolution) ->
                     ViewFinderUseCase.this.updateOutput(newSurfaceTexture, newResolution);
-    private final CheckedSurfaceTexture checkedSurfaceTexture =
-            new CheckedSurfaceTexture(surfaceTextureListener, mainHandler);
-    private final ViewFinderUseCaseConfiguration.Builder useCaseConfigBuilder;
+    private final CheckedSurfaceTexture mCheckedSurfaceTexture =
+            new CheckedSurfaceTexture(mSurfaceTextureListener, mMainHandler);
+    private final ViewFinderUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     @Nullable
-    private OnViewFinderOutputUpdateListener subscribedViewFinderOutputListener;
+    private OnViewFinderOutputUpdateListener mSubscribedViewFinderOutputListener;
     @Nullable
-    private ViewFinderOutput latestViewFinderOutput;
-    private boolean surfaceDispatched = false;
+    private ViewFinderOutput mLatestViewFinderOutput;
+    private boolean mSurfaceDispatched = false;
+
     /**
      * Creates a new view finder use case from the given configuration.
      *
@@ -74,7 +75,7 @@ public class ViewFinderUseCase extends BaseUseCase {
     @MainThread
     public ViewFinderUseCase(ViewFinderUseCaseConfiguration configuration) {
         super(configuration);
-        useCaseConfigBuilder = ViewFinderUseCaseConfiguration.Builder.fromConfig(configuration);
+        mUseCaseConfigBuilder = ViewFinderUseCaseConfiguration.Builder.fromConfig(configuration);
     }
 
     private static SessionConfiguration.Builder createFrom(
@@ -85,7 +86,7 @@ public class ViewFinderUseCase extends BaseUseCase {
         return sessionConfigBuilder;
     }
 
-    private static final String getCameraIdUnchecked(LensFacing lensFacing) {
+    private static String getCameraIdUnchecked(LensFacing lensFacing) {
         try {
             return CameraX.getCameraWithLensFacing(lensFacing);
         } catch (Exception e) {
@@ -112,7 +113,7 @@ public class ViewFinderUseCase extends BaseUseCase {
     @UiThread
     @Nullable
     public OnViewFinderOutputUpdateListener getOnViewFinderOutputUpdateListener() {
-        return subscribedViewFinderOutputListener;
+        return mSubscribedViewFinderOutputListener;
     }
 
     /**
@@ -128,24 +129,24 @@ public class ViewFinderUseCase extends BaseUseCase {
      * ViewFinderOutput#getSurfaceTexture()} when a new SurfaceTexture is provided via an update or
      * when the user is finished with the use case.
      *
-     * @param listener The listener which will receive {@link ViewFinderOutput} updates.
+     * @param newListener The listener which will receive {@link ViewFinderOutput} updates.
      */
     @UiThread
     public void setOnViewFinderOutputUpdateListener(
             @Nullable OnViewFinderOutputUpdateListener newListener) {
-        OnViewFinderOutputUpdateListener oldListener = subscribedViewFinderOutputListener;
-        subscribedViewFinderOutputListener = newListener;
+        OnViewFinderOutputUpdateListener oldListener = mSubscribedViewFinderOutputListener;
+        mSubscribedViewFinderOutputListener = newListener;
         if (oldListener == null && newListener != null) {
             notifyActive();
-            if (latestViewFinderOutput != null) {
-                surfaceDispatched = true;
-                newListener.onUpdated(latestViewFinderOutput);
+            if (mLatestViewFinderOutput != null) {
+                mSurfaceDispatched = true;
+                newListener.onUpdated(mLatestViewFinderOutput);
             }
         } else if (oldListener != null && newListener == null) {
             notifyInactive();
         } else if (oldListener != null && oldListener != newListener) {
-            if (latestViewFinderOutput != null) {
-                checkedSurfaceTexture.resetSurfaceTexture();
+            if (mLatestViewFinderOutput != null) {
+                mCheckedSurfaceTexture.resetSurfaceTexture();
             }
         }
     }
@@ -184,7 +185,7 @@ public class ViewFinderUseCase extends BaseUseCase {
      * @param listener listener for when focus has completed
      */
     public void focus(Rect focus, Rect metering, @Nullable OnFocusCompletedListener listener) {
-        getCurrentCameraControl().focus(focus, metering, listener, mainHandler);
+        getCurrentCameraControl().focus(focus, metering, listener, mMainHandler);
     }
 
     /**
@@ -223,8 +224,8 @@ public class ViewFinderUseCase extends BaseUseCase {
         ImageOutputConfiguration oldconfig = (ImageOutputConfiguration) getUseCaseConfiguration();
         int oldRotation = oldconfig.getTargetRotation(ImageOutputConfiguration.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
-            useCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfiguration(useCaseConfigBuilder.build());
+            mUseCaseConfigBuilder.setTargetRotation(rotation);
+            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
             // For now we'll just attempt to update the rotation metadata.
@@ -244,6 +245,7 @@ public class ViewFinderUseCase extends BaseUseCase {
      */
     @Override
     @Nullable
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
         ViewFinderUseCaseConfiguration defaults =
                 CameraX.getDefaultUseCaseConfiguration(ViewFinderUseCaseConfiguration.class);
@@ -262,15 +264,15 @@ public class ViewFinderUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        checkedSurfaceTexture.release();
+        mCheckedSurfaceTexture.release();
         removeViewFinderOutputListener();
         notifyInactive();
 
         SurfaceTexture oldTexture =
-                (latestViewFinderOutput == null)
+                (mLatestViewFinderOutput == null)
                         ? null
-                        : latestViewFinderOutput.getSurfaceTexture();
-        if (oldTexture != null && !surfaceDispatched) {
+                        : mLatestViewFinderOutput.getSurfaceTexture();
+        if (oldTexture != null && !mSurfaceDispatched) {
             oldTexture.release();
         }
 
@@ -283,6 +285,7 @@ public class ViewFinderUseCase extends BaseUseCase {
      * @hide
      */
     @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
         ViewFinderUseCaseConfiguration configuration =
@@ -294,11 +297,11 @@ public class ViewFinderUseCase extends BaseUseCase {
                     "Suggested resolution map missing resolution for camera " + cameraId);
         }
 
-        checkedSurfaceTexture.setResolution(resolution);
-        checkedSurfaceTexture.resetSurfaceTexture();
+        mCheckedSurfaceTexture.setResolution(resolution);
+        mCheckedSurfaceTexture.resetSurfaceTexture();
 
         SessionConfiguration.Builder sessionConfigBuilder =
-                createFrom(configuration, checkedSurfaceTexture);
+                createFrom(configuration, mCheckedSurfaceTexture);
         attachToCamera(cameraId, sessionConfigBuilder.build());
 
         return suggestedResolutionMap;
@@ -306,12 +309,12 @@ public class ViewFinderUseCase extends BaseUseCase {
 
     @UiThread
     private void invalidateMetadata() {
-        if (latestViewFinderOutput != null) {
+        if (mLatestViewFinderOutput != null) {
             // Only update the output if we have a SurfaceTexture. Otherwise we'll wait until a
             // SurfaceTexture is ready.
             updateOutput(
-                    latestViewFinderOutput.getSurfaceTexture(),
-                    latestViewFinderOutput.getTextureSize());
+                    mLatestViewFinderOutput.getSurfaceTexture(),
+                    mLatestViewFinderOutput.getTextureSize());
         }
     }
 
@@ -321,7 +324,8 @@ public class ViewFinderUseCase extends BaseUseCase {
                 (ViewFinderUseCaseConfiguration) getUseCaseConfiguration();
 
         int relativeRotation =
-                (latestViewFinderOutput == null) ? 0 : latestViewFinderOutput.getRotationDegrees();
+                (mLatestViewFinderOutput == null) ? 0
+                        : mLatestViewFinderOutput.getRotationDegrees();
         try {
             // Attempt to get the camera ID. If this fails, we probably don't have permission, so we
             // will rely on the updated UseCaseConfiguration to set the correct rotation in
@@ -339,25 +343,25 @@ public class ViewFinderUseCase extends BaseUseCase {
                 ViewFinderOutput.create(surfaceTexture, resolution, relativeRotation);
 
         // Only update the output if something has changed
-        if (!Objects.equals(latestViewFinderOutput, newOutput)) {
+        if (!Objects.equals(mLatestViewFinderOutput, newOutput)) {
             SurfaceTexture oldTexture =
-                    (latestViewFinderOutput == null)
+                    (mLatestViewFinderOutput == null)
                             ? null
-                            : latestViewFinderOutput.getSurfaceTexture();
+                            : mLatestViewFinderOutput.getSurfaceTexture();
             OnViewFinderOutputUpdateListener outputListener = getOnViewFinderOutputUpdateListener();
 
-            latestViewFinderOutput = newOutput;
+            mLatestViewFinderOutput = newOutput;
 
             boolean textureChanged = oldTexture != surfaceTexture;
             if (textureChanged) {
                 // If the old surface was never dispatched, we can safely release the old
                 // SurfaceTexture.
-                if (oldTexture != null && !surfaceDispatched) {
+                if (oldTexture != null && !mSurfaceDispatched) {
                     oldTexture.release();
                 }
 
                 // Keep track of whether this SurfaceTexture is dispatched
-                surfaceDispatched = false;
+                mSurfaceDispatched = false;
             }
 
             if (outputListener != null) {
@@ -367,7 +371,7 @@ public class ViewFinderUseCase extends BaseUseCase {
                     notifyReset();
                 }
 
-                surfaceDispatched = true;
+                mSurfaceDispatched = true;
                 outputListener.onUpdated(newOutput);
             }
         }

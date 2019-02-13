@@ -16,18 +16,23 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+
 /**
  * A report of failed capture for a single image capture.
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraCaptureFailure {
 
-    private final Reason reason;
+    private final Reason mReason;
 
     /** @hide */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraCaptureFailure(Reason reason) {
-        this.reason = reason;
+        mReason = reason;
     }
 
     /**
@@ -37,7 +42,7 @@ public final class CameraCaptureFailure {
      * @see CameraCaptureFailure.Reason#ERROR
      */
     public Reason getReason() {
-        return reason;
+        return mReason;
     }
 
     /**

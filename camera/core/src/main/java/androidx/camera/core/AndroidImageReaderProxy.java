@@ -32,7 +32,7 @@ import androidx.annotation.Nullable;
  */
 final class AndroidImageReaderProxy implements ImageReaderProxy {
     @GuardedBy("this")
-    private final ImageReader imageReader;
+    private final ImageReader mImageReader;
 
     /**
      * Creates a new instance which wraps the given image reader.
@@ -41,13 +41,13 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
      * @return new {@link AndroidImageReaderProxy} instance
      */
     AndroidImageReaderProxy(ImageReader imageReader) {
-        this.imageReader = imageReader;
+        mImageReader = imageReader;
     }
 
     @Override
     @Nullable
     public synchronized ImageProxy acquireLatestImage() {
-        Image image = imageReader.acquireLatestImage();
+        Image image = mImageReader.acquireLatestImage();
         if (image == null) {
             return null;
         }
@@ -57,7 +57,7 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
     @Override
     @Nullable
     public synchronized ImageProxy acquireNextImage() {
-        Image image = imageReader.acquireNextImage();
+        Image image = mImageReader.acquireNextImage();
         if (image == null) {
             return null;
         }
@@ -66,32 +66,32 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
 
     @Override
     public synchronized void close() {
-        imageReader.close();
+        mImageReader.close();
     }
 
     @Override
     public synchronized int getHeight() {
-        return imageReader.getHeight();
+        return mImageReader.getHeight();
     }
 
     @Override
     public synchronized int getWidth() {
-        return imageReader.getWidth();
+        return mImageReader.getWidth();
     }
 
     @Override
     public synchronized int getImageFormat() {
-        return imageReader.getImageFormat();
+        return mImageReader.getImageFormat();
     }
 
     @Override
     public synchronized int getMaxImages() {
-        return imageReader.getMaxImages();
+        return mImageReader.getMaxImages();
     }
 
     @Override
     public synchronized Surface getSurface() {
-        return imageReader.getSurface();
+        return mImageReader.getSurface();
     }
 
     @Override
@@ -102,6 +102,6 @@ final class AndroidImageReaderProxy implements ImageReaderProxy {
                 reader -> {
                     listener.onImageAvailable(AndroidImageReaderProxy.this);
                 };
-        imageReader.setOnImageAvailableListener(transformedListener, handler);
+        mImageReader.setOnImageAvailableListener(transformedListener, handler);
     }
 }

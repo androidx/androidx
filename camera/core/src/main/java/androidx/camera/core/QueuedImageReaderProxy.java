@@ -37,35 +37,35 @@ import java.util.Set;
  */
 final class QueuedImageReaderProxy
         implements ImageReaderProxy, ForwardingImageProxy.OnImageCloseListener {
-    private final int width;
-    private final int height;
-    private final int format;
-    private final int maxImages;
+    private final int mWidth;
+    private final int mHeight;
+    private final int mFormat;
+    private final int mMaxImages;
 
     @GuardedBy("this")
-    private final Surface surface;
+    private final Surface mSurface;
 
-    // maxImages is not expected to be large, because images consume a lot of memory and there
+    // mMaxImages is not expected to be large, because images consume a lot of memory and there
     // cannot
     // co-exist too many images simultaneously. So, just use a List to simplify the implementation.
     @GuardedBy("this")
-    private final List<ImageProxy> images;
+    private final List<ImageProxy> mImages;
 
     @GuardedBy("this")
-    private final Set<ImageProxy> acquiredImages = new HashSet<>();
+    private final Set<ImageProxy> mAcquiredImages = new HashSet<>();
     @GuardedBy("this")
-    private final Set<OnReaderCloseListener> onReaderCloseListeners = new HashSet<>();
+    private final Set<OnReaderCloseListener> mOnReaderCloseListeners = new HashSet<>();
     // Current access position in the queue.
     @GuardedBy("this")
-    private int currentPosition;
+    private int mCurrentPosition;
     @GuardedBy("this")
     @Nullable
-    private ImageReaderProxy.OnImageAvailableListener onImageAvailableListener;
+    private ImageReaderProxy.OnImageAvailableListener mOnImageAvailableListener;
     @GuardedBy("this")
     @Nullable
-    private Handler onImageAvailableHandler;
+    private Handler mOnImageAvailableHandler;
     @GuardedBy("this")
-    private boolean closed;
+    private boolean mClosed;
 
     /**
      * Creates a new instance of a queued image reader proxy.
@@ -78,32 +78,32 @@ final class QueuedImageReaderProxy
      * @return new {@link QueuedImageReaderProxy} instance
      */
     QueuedImageReaderProxy(int width, int height, int format, int maxImages, Surface surface) {
-        this.width = width;
-        this.height = height;
-        this.format = format;
-        this.maxImages = maxImages;
-        this.surface = surface;
-        images = new ArrayList<>(maxImages);
-        currentPosition = 0;
-        closed = false;
+        this.mWidth = width;
+        this.mHeight = height;
+        this.mFormat = format;
+        this.mMaxImages = maxImages;
+        this.mSurface = surface;
+        mImages = new ArrayList<>(maxImages);
+        mCurrentPosition = 0;
+        mClosed = false;
     }
 
     @Override
     @Nullable
     public synchronized ImageProxy acquireLatestImage() {
         throwExceptionIfClosed();
-        if (images.isEmpty()) {
+        if (mImages.isEmpty()) {
             return null;
         }
-        if (currentPosition >= images.size()) {
+        if (mCurrentPosition >= mImages.size()) {
             throw new IllegalStateException("Max images have already been acquired without close.");
         }
 
         // Close all images up to the tail of the list, except for already acquired images.
         List<ImageProxy> imagesToClose = new ArrayList<>();
-        for (int i = 0; i < images.size() - 1; ++i) {
-            if (!acquiredImages.contains(images.get(i))) {
-                imagesToClose.add(images.get(i));
+        for (int i = 0; i < mImages.size() - 1; ++i) {
+            if (!mAcquiredImages.contains(mImages.get(i))) {
+                imagesToClose.add(mImages.get(i));
             }
         }
         for (ImageProxy image : imagesToClose) {
@@ -112,9 +112,9 @@ final class QueuedImageReaderProxy
         }
 
         // Move the current position to the tail of the list.
-        currentPosition = images.size() - 1;
-        ImageProxy acquiredImage = images.get(currentPosition++);
-        acquiredImages.add(acquiredImage);
+        mCurrentPosition = mImages.size() - 1;
+        ImageProxy acquiredImage = mImages.get(mCurrentPosition++);
+        mAcquiredImages.add(acquiredImage);
         return acquiredImage;
     }
 
@@ -122,14 +122,14 @@ final class QueuedImageReaderProxy
     @Nullable
     public synchronized ImageProxy acquireNextImage() {
         throwExceptionIfClosed();
-        if (images.isEmpty()) {
+        if (mImages.isEmpty()) {
             return null;
         }
-        if (currentPosition >= images.size()) {
+        if (mCurrentPosition >= mImages.size()) {
             throw new IllegalStateException("Max images have already been acquired without close.");
         }
-        ImageProxy acquiredImage = images.get(currentPosition++);
-        acquiredImages.add(acquiredImage);
+        ImageProxy acquiredImage = mImages.get(mCurrentPosition++);
+        mAcquiredImages.add(acquiredImage);
         return acquiredImage;
     }
 
@@ -148,12 +148,12 @@ final class QueuedImageReaderProxy
      */
     synchronized void enqueueImage(ForwardingImageProxy image) {
         throwExceptionIfClosed();
-        if (images.size() < maxImages) {
-            images.add(image);
+        if (mImages.size() < mMaxImages) {
+            mImages.add(image);
             image.addOnImageCloseListener(this);
-            if (onImageAvailableListener != null && onImageAvailableHandler != null) {
-                final OnImageAvailableListener listener = onImageAvailableListener;
-                onImageAvailableHandler.post(
+            if (mOnImageAvailableListener != null && mOnImageAvailableHandler != null) {
+                final OnImageAvailableListener listener = mOnImageAvailableListener;
+                mOnImageAvailableHandler.post(
                         () -> {
                             if (!QueuedImageReaderProxy.this.isClosed()) {
                                 listener.onImageAvailable(QueuedImageReaderProxy.this);
@@ -167,16 +167,16 @@ final class QueuedImageReaderProxy
 
     @Override
     public synchronized void close() {
-        if (!closed) {
+        if (!mClosed) {
             setOnImageAvailableListener(null, null);
             // We need to copy into a different list, because closing an image triggers the on-close
             // listener which in turn modifies the original list.
-            List<ImageProxy> imagesToClose = new ArrayList<>(images);
+            List<ImageProxy> imagesToClose = new ArrayList<>(mImages);
             for (ImageProxy image : imagesToClose) {
                 image.close();
             }
-            images.clear();
-            closed = true;
+            mImages.clear();
+            mClosed = true;
             notifyOnReaderCloseListeners();
         }
     }
@@ -184,31 +184,31 @@ final class QueuedImageReaderProxy
     @Override
     public int getHeight() {
         throwExceptionIfClosed();
-        return height;
+        return mHeight;
     }
 
     @Override
     public int getWidth() {
         throwExceptionIfClosed();
-        return width;
+        return mWidth;
     }
 
     @Override
     public int getImageFormat() {
         throwExceptionIfClosed();
-        return format;
+        return mFormat;
     }
 
     @Override
     public int getMaxImages() {
         throwExceptionIfClosed();
-        return maxImages;
+        return mMaxImages;
     }
 
     @Override
     public synchronized Surface getSurface() {
         throwExceptionIfClosed();
-        return surface;
+        return mSurface;
     }
 
     @Override
@@ -216,31 +216,31 @@ final class QueuedImageReaderProxy
             @Nullable OnImageAvailableListener onImageAvailableListener,
             @Nullable Handler onImageAvailableHandler) {
         throwExceptionIfClosed();
-        this.onImageAvailableListener = onImageAvailableListener;
-        this.onImageAvailableHandler = onImageAvailableHandler;
+        this.mOnImageAvailableListener = onImageAvailableListener;
+        this.mOnImageAvailableHandler = onImageAvailableHandler;
     }
 
     @Override
     public synchronized void onImageClose(ImageProxy image) {
-        int index = images.indexOf(image);
+        int index = mImages.indexOf(image);
         if (index >= 0) {
-            images.remove(index);
-            if (index <= currentPosition) {
-                currentPosition--;
+            mImages.remove(index);
+            if (index <= mCurrentPosition) {
+                mCurrentPosition--;
             }
         }
-        acquiredImages.remove(image);
+        mAcquiredImages.remove(image);
     }
 
     /** Returns the current number of images in the queue. */
     synchronized int getCurrentImages() {
         throwExceptionIfClosed();
-        return images.size();
+        return mImages.size();
     }
 
     /** Returns true if the reader is already closed. */
     synchronized boolean isClosed() {
-        return closed;
+        return mClosed;
     }
 
     /**
@@ -249,17 +249,17 @@ final class QueuedImageReaderProxy
      * @param listener to add
      */
     synchronized void addOnReaderCloseListener(OnReaderCloseListener listener) {
-        onReaderCloseListeners.add(listener);
+        mOnReaderCloseListeners.add(listener);
     }
 
     private synchronized void throwExceptionIfClosed() {
-        if (closed) {
+        if (mClosed) {
             throw new IllegalStateException("This reader is already closed.");
         }
     }
 
     private synchronized void notifyOnReaderCloseListeners() {
-        for (OnReaderCloseListener listener : onReaderCloseListeners) {
+        for (OnReaderCloseListener listener : mOnReaderCloseListeners) {
             listener.onReaderClose(this);
         }
     }

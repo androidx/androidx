@@ -66,13 +66,13 @@ public final class MutableOptionsBundle extends OptionsBundle implements Mutable
     @Override
     public <ValueT> ValueT removeOption(Option<ValueT> opt) {
         @SuppressWarnings("unchecked") // Options should have only been inserted via insertOption()
-                ValueT value = (ValueT) options.remove(opt);
+                ValueT value = (ValueT) mOptions.remove(opt);
 
         return value;
     }
 
     @Override
     public <ValueT> void insertOption(Option<ValueT> opt, ValueT value) {
-        options.put(opt, value);
+        mOptions.put(opt, value);
     }
 }

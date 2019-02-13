@@ -89,7 +89,7 @@ public interface TargetConfiguration<T> extends Configuration.Reader {
     }
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
 
     /**
      * Retrieves the name of the target object being configured.
@@ -128,6 +128,7 @@ public interface TargetConfiguration<T> extends Configuration.Reader {
          * @return the current Builder.
          * @hide
          */
+        @RestrictTo(Scope.LIBRARY_GROUP)
         default B setTargetClass(Class<T> targetClass) {
             getMutableConfiguration().insertOption(OPTION_TARGET_CLASS, targetClass);
 

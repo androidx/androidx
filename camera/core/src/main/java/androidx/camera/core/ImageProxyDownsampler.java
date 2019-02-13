@@ -189,7 +189,7 @@ final class ImageProxyDownsampler {
     private static ImageProxy.PlaneProxy createPlaneProxy(
             int rowStride, int pixelStride, byte[] data) {
         return new ImageProxy.PlaneProxy() {
-            final ByteBuffer buffer = ByteBuffer.wrap(data);
+            final ByteBuffer mBuffer = ByteBuffer.wrap(data);
 
             @Override
             public int getRowStride() {
@@ -203,12 +203,12 @@ final class ImageProxyDownsampler {
 
             @Override
             public ByteBuffer getBuffer() {
-                return buffer;
+                return mBuffer;
             }
         };
     }
 
-    static enum DownsamplingMethod {
+    enum DownsamplingMethod {
         // Uses nearest sample.
         NEAREST_NEIGHBOR,
         // Uses average of 4 nearest samples.
@@ -216,9 +216,9 @@ final class ImageProxyDownsampler {
     }
 
     private static final class ForwardingImageProxyImpl extends ForwardingImageProxy {
-        private final PlaneProxy[] downsampledPlanes;
-        private final int downsampledWidth;
-        private final int downsampledHeight;
+        private final PlaneProxy[] mDownsampledPlanes;
+        private final int mDownsampledWidth;
+        private final int mDownsampledHeight;
 
         ForwardingImageProxyImpl(
                 ImageProxy originalImage,
@@ -226,24 +226,24 @@ final class ImageProxyDownsampler {
                 int downsampledWidth,
                 int downsampledHeight) {
             super(originalImage);
-            this.downsampledPlanes = downsampledPlanes;
-            this.downsampledWidth = downsampledWidth;
-            this.downsampledHeight = downsampledHeight;
+            mDownsampledPlanes = downsampledPlanes;
+            mDownsampledWidth = downsampledWidth;
+            mDownsampledHeight = downsampledHeight;
         }
 
         @Override
         public synchronized int getWidth() {
-            return downsampledWidth;
+            return mDownsampledWidth;
         }
 
         @Override
         public synchronized int getHeight() {
-            return downsampledHeight;
+            return mDownsampledHeight;
         }
 
         @Override
         public synchronized PlaneProxy[] getPlanes() {
-            return downsampledPlanes;
+            return mDownsampledPlanes;
         }
     }
 }

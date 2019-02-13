@@ -26,6 +26,8 @@ import com.google.auto.value.AutoValue;
 /**
  * A {@link CaptureRequest.Key}-value pair.
  *
+ * @param <T> the type of the value
+ *
  * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
@@ -35,6 +37,7 @@ public abstract class CaptureRequestParameter<T> {
     CaptureRequestParameter() {
     }
 
+    /** Creates an instance of CaptureRequestParameter with the corresponding key value pair. */
     public static <T> CaptureRequestParameter<T> create(CaptureRequest.Key<T> key, T value) {
         return new AutoValue_CaptureRequestParameter<>(key, value);
     }
@@ -49,7 +52,9 @@ public abstract class CaptureRequestParameter<T> {
         builder.set(getKey(), getValue());
     }
 
+    /** Returns the key of the CaptureRequestParameter. */
     public abstract CaptureRequest.Key<T> getKey();
 
+    /** Returns the value of the CaptureRequestParameter. */
     public abstract T getValue();
 }

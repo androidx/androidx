@@ -27,7 +27,7 @@ public final class VideoCaptureUseCaseConfiguration
         ThreadConfiguration {
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
     static final Option<Integer> OPTION_VIDEO_FRAME_RATE =
             Option.create("camerax.core.videoCapture.recordingFrameRate", int.class);
     static final Option<Integer> OPTION_BIT_RATE =
@@ -44,10 +44,10 @@ public final class VideoCaptureUseCaseConfiguration
             Option.create("camerax.core.videoCapture.audioRecordSource", int.class);
     static final Option<Integer> OPTION_AUDIO_MIN_BUFFER_SIZE =
             Option.create("camerax.core.videoCapture.audioMinBufferSize", int.class);
-    private final OptionsBundle config;
+    private final OptionsBundle mConfig;
 
     VideoCaptureUseCaseConfiguration(OptionsBundle config) {
-        this.config = config;
+        mConfig = config;
     }
 
     /**
@@ -58,7 +58,7 @@ public final class VideoCaptureUseCaseConfiguration
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Configuration getConfiguration() {
-        return config;
+        return mConfig;
     }
 
     /**
@@ -257,7 +257,7 @@ public final class VideoCaptureUseCaseConfiguration
             CameraDeviceConfiguration.Builder<VideoCaptureUseCaseConfiguration, Builder>,
             ThreadConfiguration.Builder<VideoCaptureUseCaseConfiguration, Builder> {
 
-        private final MutableOptionsBundle mutableConfig;
+        private final MutableOptionsBundle mMutableConfig;
 
         /** Creates a new Builder object. */
         public Builder() {
@@ -265,7 +265,7 @@ public final class VideoCaptureUseCaseConfiguration
         }
 
         private Builder(MutableOptionsBundle mutableConfig) {
-            this.mutableConfig = mutableConfig;
+            mMutableConfig = mutableConfig;
 
             Class<?> oldConfigClass =
                     mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
@@ -298,7 +298,7 @@ public final class VideoCaptureUseCaseConfiguration
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public MutableConfiguration getMutableConfiguration() {
-            return mutableConfig;
+            return mMutableConfig;
         }
 
         /** The solution for the unchecked cast warning. */
@@ -309,7 +309,7 @@ public final class VideoCaptureUseCaseConfiguration
 
         @Override
         public VideoCaptureUseCaseConfiguration build() {
-            return new VideoCaptureUseCaseConfiguration(OptionsBundle.from(mutableConfig));
+            return new VideoCaptureUseCaseConfiguration(OptionsBundle.from(mMutableConfig));
         }
 
         /**

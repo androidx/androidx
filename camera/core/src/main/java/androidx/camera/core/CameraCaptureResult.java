@@ -17,6 +17,8 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.CameraCaptureMetaData.AeState;
 import androidx.camera.core.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.CameraCaptureMetaData.AfState;
@@ -28,20 +30,26 @@ import androidx.camera.core.CameraCaptureMetaData.FlashState;
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public interface CameraCaptureResult {
 
+    /** Returns the current auto focus mode of operation. */
     @NonNull
     AfMode getAfMode();
 
+    /** Returns the current auto focus state. */
     @NonNull
     AfState getAfState();
 
+    /** Returns the current auto exposure state. */
     @NonNull
     AeState getAeState();
 
+    /** Returns the current auto white balance state.*/
     @NonNull
     AwbState getAwbState();
 
+    /** Returns the current flash state. */
     @NonNull
     FlashState getFlashState();
 

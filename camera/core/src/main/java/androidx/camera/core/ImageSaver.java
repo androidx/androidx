@@ -32,26 +32,25 @@ import java.io.IOException;
 
 final class ImageSaver implements Runnable {
     private static final String TAG = "ImageSaver";
-    private final @Nullable
-    Location location;
+    private final @Nullable Location mLocation;
     // The image that was captured
-    private final ImageProxy image;
+    private final ImageProxy mImage;
     // The orientation of the image
-    private final int orientation;
+    private final int mOrientation;
     // If true, the picture taken is reversed horizontally and needs to be flipped.
     // Typical with front facing cameras.
-    private final boolean isReversedHorizontal;
+    private final boolean mIsReversedHorizontal;
     // If true, the picture taken is reversed vertically and needs to be flipped.
-    private final boolean isReversedVertical;
+    private final boolean mIsReversedVertical;
     // The file to save the image to
-    private final File file;
+    private final File mFile;
     // The callback to call on completion
-    private final OnImageSavedListener listener;
+    private final OnImageSavedListener mListener;
     // The handler to call back on
-    private final Handler handler;
+    private final Handler mHandler;
     // The width/height ratio output should be cropped to
     @Nullable
-    private final Rational cropAspectRatio;
+    private final Rational mCropAspectRatio;
 
     ImageSaver(
             ImageProxy image,
@@ -63,20 +62,20 @@ final class ImageSaver implements Runnable {
             @Nullable Rational cropAspectRatio,
             OnImageSavedListener listener,
             Handler handler) {
-        this.image = image;
-        this.file = file;
-        this.orientation = orientation;
-        isReversedHorizontal = reversedHorizontal;
-        isReversedVertical = reversedVertical;
-        this.listener = listener;
-        this.handler = handler;
-        this.location = location;
+        mImage = image;
+        mFile = file;
+        mOrientation = orientation;
+        mIsReversedHorizontal = reversedHorizontal;
+        mIsReversedVertical = reversedVertical;
+        mListener = listener;
+        mHandler = handler;
+        mLocation = location;
 
         // Fix cropRatio by orientation.
         if (orientation == 90 || orientation == 270) {
-            this.cropAspectRatio = inverseRational(cropAspectRatio);
+            mCropAspectRatio = inverseRational(cropAspectRatio);
         } else {
-            this.cropAspectRatio = cropAspectRatio;
+            mCropAspectRatio = cropAspectRatio;
         }
     }
 
@@ -86,22 +85,22 @@ final class ImageSaver implements Runnable {
         SaveError saveError = null;
         String errorMessage = null;
         Exception exception = null;
-        try (ImageProxy imageToClose = image;
-             FileOutputStream output = new FileOutputStream(file)) {
+        try (ImageProxy imageToClose = mImage;
+             FileOutputStream output = new FileOutputStream(mFile)) {
             byte[] bytes = getBytes();
             output.write(bytes);
 
-            Exif exif = Exif.createFromFile(file);
+            Exif exif = Exif.createFromFile(mFile);
             exif.attachTimestamp();
-            exif.rotate(orientation);
-            if (isReversedHorizontal) {
+            exif.rotate(mOrientation);
+            if (mIsReversedHorizontal) {
                 exif.flipHorizontally();
             }
-            if (isReversedVertical) {
+            if (mIsReversedVertical) {
                 exif.flipVertically();
             }
-            if (location != null) {
-                exif.attachLocation(location);
+            if (mLocation != null) {
+                exif.attachLocation(mLocation);
             }
             exif.save();
         } catch (IOException e) {
@@ -110,7 +109,7 @@ final class ImageSaver implements Runnable {
             exception = e;
         } catch (EncodeFailedException e) {
             saveError = SaveError.ENCODE_FAILED;
-            errorMessage = "Failed to encode image";
+            errorMessage = "Failed to encode mImage";
             exception = e;
         }
 
@@ -122,36 +121,36 @@ final class ImageSaver implements Runnable {
     }
 
     private void postSuccess() {
-        handler.post(() -> listener.onImageSaved(file));
+        mHandler.post(() -> mListener.onImageSaved(mFile));
     }
 
     private void postError(SaveError saveError, String message, @Nullable Throwable cause) {
-        handler.post(() -> listener.onError(saveError, message, cause));
+        mHandler.post(() -> mListener.onError(saveError, message, cause));
     }
 
     private byte[] getBytes() throws EncodeFailedException {
         byte[] data = null;
-        Size sourceSize = new Size(image.getWidth(), image.getHeight());
+        Size sourceSize = new Size(mImage.getWidth(), mImage.getHeight());
 
-        if (ImageUtil.isAspectRatioValid(sourceSize, cropAspectRatio)) {
-            if (image.getFormat() == ImageFormat.JPEG) {
+        if (ImageUtil.isAspectRatioValid(sourceSize, mCropAspectRatio)) {
+            if (mImage.getFormat() == ImageFormat.JPEG) {
                 data =
                         ImageUtil.cropByteArray(
-                                ImageUtil.jpegImageToJpegByteArray(image),
+                                ImageUtil.jpegImageToJpegByteArray(mImage),
                                 ImageUtil.computeCropRectFromAspectRatio(
-                                        sourceSize, cropAspectRatio));
-            } else if (image.getFormat() == ImageFormat.YUV_420_888) {
+                                        sourceSize, mCropAspectRatio));
+            } else if (mImage.getFormat() == ImageFormat.YUV_420_888) {
                 data =
                         ImageUtil.yuvImageToJpegByteArray(
-                                image,
+                                mImage,
                                 ImageUtil.computeCropRectFromAspectRatio(
-                                        sourceSize, cropAspectRatio));
+                                        sourceSize, mCropAspectRatio));
             } else {
-                data = ImageUtil.imageToJpegByteArray(image);
-                Log.w(TAG, "Unrecognized image format: " + image.getFormat());
+                data = ImageUtil.imageToJpegByteArray(mImage);
+                Log.w(TAG, "Unrecognized mImage format: " + mImage.getFormat());
             }
         } else {
-            data = ImageUtil.imageToJpegByteArray(image);
+            data = ImageUtil.imageToJpegByteArray(mImage);
         }
 
         return data;

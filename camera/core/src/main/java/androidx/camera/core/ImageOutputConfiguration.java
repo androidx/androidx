@@ -157,7 +157,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
     }
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
 
     /**
      * Retrieves the max resolution limitation of the target intending to use from this
@@ -260,6 +260,7 @@ public interface ImageOutputConfiguration extends Configuration.Reader {
      * @hide
      */
     @IntDef({Surface.ROTATION_0, Surface.ROTATION_90, Surface.ROTATION_180, Surface.ROTATION_270})
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Retention(RetentionPolicy.SOURCE)
     @interface RotationValue {
     }

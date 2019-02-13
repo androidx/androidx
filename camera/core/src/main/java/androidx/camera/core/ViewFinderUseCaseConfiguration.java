@@ -28,11 +28,11 @@ public final class ViewFinderUseCaseConfiguration
         CameraDeviceConfiguration,
         ThreadConfiguration {
 
-    private final OptionsBundle config;
+    private final OptionsBundle mConfig;
 
     /** Creates a new configuration instance. */
     ViewFinderUseCaseConfiguration(OptionsBundle config) {
-        this.config = config;
+        mConfig = config;
     }
 
     /**
@@ -67,7 +67,7 @@ public final class ViewFinderUseCaseConfiguration
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public Configuration getConfiguration() {
-        return config;
+        return mConfig;
     }
 
     /** Builder for a {@link ViewFinderUseCaseConfiguration}. */
@@ -78,7 +78,7 @@ public final class ViewFinderUseCaseConfiguration
             CameraDeviceConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder>,
             ThreadConfiguration.Builder<ViewFinderUseCaseConfiguration, Builder> {
 
-        private final MutableOptionsBundle mutableConfig;
+        private final MutableOptionsBundle mMutableConfig;
 
         /** Creates a new Builder object. */
         public Builder() {
@@ -86,7 +86,7 @@ public final class ViewFinderUseCaseConfiguration
         }
 
         private Builder(MutableOptionsBundle mutableConfig) {
-            this.mutableConfig = mutableConfig;
+            mMutableConfig = mutableConfig;
 
             Class<?> oldConfigClass =
                     mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
@@ -139,7 +139,7 @@ public final class ViewFinderUseCaseConfiguration
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
         public MutableConfiguration getMutableConfiguration() {
-            return mutableConfig;
+            return mMutableConfig;
         }
 
         /**
@@ -155,7 +155,7 @@ public final class ViewFinderUseCaseConfiguration
 
         @Override
         public ViewFinderUseCaseConfiguration build() {
-            return new ViewFinderUseCaseConfiguration(OptionsBundle.from(mutableConfig));
+            return new ViewFinderUseCaseConfiguration(OptionsBundle.from(mMutableConfig));
         }
     }
 }

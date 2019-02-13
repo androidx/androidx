@@ -40,9 +40,9 @@ public final class ImageReaderProxys {
     private static final String TAG = ImageReaderProxys.class.getSimpleName();
     private static final int SHARED_IMAGE_FORMAT = ImageFormat.YUV_420_888;
     private static final int SHARED_MAX_IMAGES = 8;
-    private static final List<QueuedImageReaderProxy> sharedImageReaderProxys = new ArrayList<>();
-    private static Set<DeviceProperties> sharedReaderWhitelist;
-    private static ImageReader sharedImageReader;
+    private static final List<QueuedImageReaderProxy> sSharedImageReaderProxys = new ArrayList<>();
+    private static Set<DeviceProperties> sSharedReaderWhitelist;
+    private static ImageReader sSharedImageReader;
 
     private ImageReaderProxys() {
     }
@@ -76,6 +76,8 @@ public final class ImageReaderProxys {
      * @param maxImages of the reader
      * @param handler   for on-image-available callbacks
      * @return new {@link ImageReaderProxy} instance
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static ImageReaderProxy createIsolatedReader(
@@ -94,15 +96,17 @@ public final class ImageReaderProxys {
      * @param maxImages of the reader
      * @param handler   for on-image-available callbacks
      * @return new {@link ImageReaderProxy} instance
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static ImageReaderProxy createSharedReader(
             String cameraId, int width, int height, int format, int maxImages, Handler handler) {
-        if (sharedImageReader == null) {
+        if (sSharedImageReader == null) {
             Size resolution =
                     CameraX.getSurfaceManager().getMaxOutputSize(cameraId, SHARED_IMAGE_FORMAT);
             Log.d(TAG, "Resolution of base ImageReader: " + resolution);
-            sharedImageReader =
+            sSharedImageReader =
                     ImageReader.newInstance(
                             resolution.getWidth(),
                             resolution.getHeight(),
@@ -112,14 +116,14 @@ public final class ImageReaderProxys {
         Log.d(TAG, "Resolution of forked ImageReader: " + new Size(width, height));
         QueuedImageReaderProxy imageReaderProxy =
                 new QueuedImageReaderProxy(
-                        width, height, format, maxImages, sharedImageReader.getSurface());
-        sharedImageReaderProxys.add(imageReaderProxy);
-        sharedImageReader.setOnImageAvailableListener(
-                new ForwardingImageReaderListener(sharedImageReaderProxys), handler);
+                        width, height, format, maxImages, sSharedImageReader.getSurface());
+        sSharedImageReaderProxys.add(imageReaderProxy);
+        sSharedImageReader.setOnImageAvailableListener(
+                new ForwardingImageReaderListener(sSharedImageReaderProxys), handler);
         imageReaderProxy.addOnReaderCloseListener(
                 reader -> {
-                    sharedImageReaderProxys.remove(reader);
-                    if (sharedImageReaderProxys.isEmpty()) {
+                    sSharedImageReaderProxys.remove(reader);
+                    if (sSharedImageReaderProxys.isEmpty()) {
                         clearSharedReaders();
                     }
                 });
@@ -136,23 +140,23 @@ public final class ImageReaderProxys {
      * @return true if device is in whitelist
      */
     static boolean inSharedReaderWhitelist(DeviceProperties device) {
-        if (sharedReaderWhitelist == null) {
-            sharedReaderWhitelist = new HashSet<>();
+        if (sSharedReaderWhitelist == null) {
+            sSharedReaderWhitelist = new HashSet<>();
             for (int sdkVersion = 21; sdkVersion <= 27; ++sdkVersion) {
-                sharedReaderWhitelist.add(DeviceProperties.create("Google", "Pixel", sdkVersion));
-                sharedReaderWhitelist.add(
+                sSharedReaderWhitelist.add(DeviceProperties.create("Google", "Pixel", sdkVersion));
+                sSharedReaderWhitelist.add(
                         DeviceProperties.create("Google", "Pixel XL", sdkVersion));
-                sharedReaderWhitelist.add(
+                sSharedReaderWhitelist.add(
                         DeviceProperties.create("HMD Global", "Nokia 8.1", sdkVersion));
             }
         }
-        return sharedReaderWhitelist.contains(device);
+        return sSharedReaderWhitelist.contains(device);
     }
 
     private static void clearSharedReaders() {
-        sharedImageReaderProxys.clear();
-        sharedImageReader.setOnImageAvailableListener(null, null);
-        sharedImageReader.close();
-        sharedImageReader = null;
+        sSharedImageReaderProxys.clear();
+        sSharedImageReader.setOnImageAvailableListener(null, null);
+        sSharedImageReader.close();
+        sSharedImageReader = null;
     }
 }

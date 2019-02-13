@@ -39,16 +39,21 @@ import java.util.List;
 @RestrictTo(Scope.LIBRARY_GROUP)
 @AutoValue
 public abstract class SurfaceConfiguration {
-    /** Prevent sublcassing */
+    /** Prevent subclassing */
     SurfaceConfiguration() {
     }
 
+    /**
+     * Creates a new instance of SurfaceConfiguration with the given parameters.
+     */
     public static SurfaceConfiguration create(ConfigurationType type, ConfigurationSize size) {
         return new AutoValue_SurfaceConfiguration(type, size);
     }
 
+    /** Returns the configuration type. */
     public abstract ConfigurationType getConfigurationType();
 
+    /** Returns the configuration size. */
     public abstract ConfigurationSize getConfigurationSize();
 
     /**
@@ -64,7 +69,7 @@ public abstract class SurfaceConfiguration {
         ConfigurationSize configurationSize = surfaceConfiguration.getConfigurationSize();
 
         // Check size and type to make sure it could be supported
-        if (configurationSize.id <= getConfigurationSize().id
+        if (configurationSize.getId() <= getConfigurationSize().getId()
                 && configurationType == getConfigurationType()) {
             isSupported = true;
         }
@@ -76,6 +81,8 @@ public abstract class SurfaceConfiguration {
      *
      * <p>These are the enumerations defined in {@link
      * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public enum ConfigurationType {
@@ -90,6 +97,8 @@ public abstract class SurfaceConfiguration {
      *
      * <p>These are the enumerations defined in {@link
      * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public enum ConfigurationSize {
@@ -113,10 +122,14 @@ public abstract class SurfaceConfiguration {
         /** NOT_SUPPORT is for the size larger than MAXIMUM */
         NOT_SUPPORT(4);
 
-        final int id;
+        final int mId;
 
         ConfigurationSize(int id) {
-            this.id = id;
+            mId = id;
+        }
+
+        int getId() {
+            return mId;
         }
     }
 }

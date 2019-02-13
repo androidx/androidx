@@ -44,27 +44,28 @@ import java.util.Set;
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CaptureRequestConfiguration {
 
     /** The set of {@link Surface} that data from the camera will be put into. */
-    final List<DeferrableSurface> surfaces;
+    final List<DeferrableSurface> mSurfaces;
 
     /** The parameters used to configure the {@link CaptureRequest}. */
-    final Map<Key<?>, CaptureRequestParameter<?>> captureRequestParameters;
+    final Map<Key<?>, CaptureRequestParameter<?>> mCaptureRequestParameters;
 
-    final Configuration implementationOptions;
+    final Configuration mImplementationOptions;
 
     /**
      * The templates used for configuring a {@link CaptureRequest}. This must match the constants
      * defined by {@link CameraDevice}
      */
-    final int templateType;
+    final int mTemplateType;
 
     /** The camera capture callback for a {@link CameraCaptureSession}. */
-    final CameraCaptureCallback cameraCaptureCallback;
+    final CameraCaptureCallback mCameraCaptureCallback;
 
     /** True if this capture request needs a repeating surface */
-    private final boolean useRepeatingSurface;
+    private final boolean mUseRepeatingSurface;
 
     /**
      * Private constructor for a CaptureRequestConfiguration.
@@ -88,50 +89,58 @@ public final class CaptureRequestConfiguration {
             int templateType,
             CameraCaptureCallback cameraCaptureCallback,
             boolean useRepeatingSurface) {
-        this.surfaces = surfaces;
-        this.captureRequestParameters = captureRequestParameters;
-        this.implementationOptions = implementationOptions;
-        this.templateType = templateType;
-        this.cameraCaptureCallback = cameraCaptureCallback;
-        this.useRepeatingSurface = useRepeatingSurface;
+        mSurfaces = surfaces;
+        mCaptureRequestParameters = captureRequestParameters;
+        mImplementationOptions = implementationOptions;
+        mTemplateType = templateType;
+        mCameraCaptureCallback = cameraCaptureCallback;
+        mUseRepeatingSurface = useRepeatingSurface;
     }
 
+    /** Add a surface that the request will write data to. */
     public void addSurface(DeferrableSurface surface) {
-        surfaces.add(surface);
+        mSurfaces.add(surface);
     }
 
+    /** Get all the surfaces that the request will write data to. */
     public List<DeferrableSurface> getSurfaces() {
-        return Collections.unmodifiableList(surfaces);
+        return Collections.unmodifiableList(mSurfaces);
     }
 
+    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public Map<Key<?>, CaptureRequestParameter<?>> getCameraCharacteristics() {
-        return Collections.unmodifiableMap(captureRequestParameters);
+        return Collections.unmodifiableMap(mCaptureRequestParameters);
     }
 
+    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public Configuration getImplementationOptions() {
-        return implementationOptions;
+        return mImplementationOptions;
     }
 
     int getTemplateType() {
-        return templateType;
+        return mTemplateType;
     }
 
+    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public boolean isUseRepeatingSurface() {
-        return useRepeatingSurface;
+        return mUseRepeatingSurface;
     }
 
+    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraCaptureCallback getCameraCaptureCallback() {
-        return cameraCaptureCallback;
+        return mCameraCaptureCallback;
     }
 
     /**
      * Return the builder of a {@link CaptureRequest} which can be issued.
      *
      * <p>Returns {@code null} if a valid {@link CaptureRequest} can not be constructed.
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -140,14 +149,14 @@ public final class CaptureRequestConfiguration {
         if (device == null) {
             return null;
         }
-        CaptureRequest.Builder builder = device.createCaptureRequest(templateType);
+        CaptureRequest.Builder builder = device.createCaptureRequest(mTemplateType);
 
         for (CaptureRequestParameter<?> captureRequestParameter :
-                captureRequestParameters.values()) {
+                mCaptureRequestParameters.values()) {
             captureRequestParameter.apply(builder);
         }
 
-        List<Surface> surfaceList = DeferrableSurfaces.surfaceList(surfaces);
+        List<Surface> surfaceList = DeferrableSurfaces.surfaceList(mSurfaces);
 
         if (surfaceList.isEmpty()) {
             return null;
@@ -162,25 +171,25 @@ public final class CaptureRequestConfiguration {
 
     /** Builder for easy modification/rebuilding of a {@link CaptureRequestConfiguration}. */
     public static final class Builder {
-        private final Set<DeferrableSurface> surfaces = new HashSet<>();
-        private final Map<Key<?>, CaptureRequestParameter<?>> captureRequestParameters =
+        private final Set<DeferrableSurface> mSurfaces = new HashSet<>();
+        private final Map<Key<?>, CaptureRequestParameter<?>> mCaptureRequestParameters =
                 new HashMap<>();
-        private MutableConfiguration implementationOptions = MutableOptionsBundle.create();
-        private int templateType = -1;
-        private CameraCaptureCallback cameraCaptureCallback =
+        private MutableConfiguration mImplementationOptions = MutableOptionsBundle.create();
+        private int mTemplateType = -1;
+        private CameraCaptureCallback mCameraCaptureCallback =
                 CameraCaptureCallbacks.createNoOpCallback();
-        private boolean useRepeatingSurface = false;
+        private boolean mUseRepeatingSurface = false;
 
         public Builder() {
         }
 
         private Builder(CaptureRequestConfiguration base) {
-            surfaces.addAll(base.surfaces);
-            captureRequestParameters.putAll(base.captureRequestParameters);
-            implementationOptions = MutableOptionsBundle.from(base.implementationOptions);
-            templateType = base.templateType;
-            cameraCaptureCallback = base.cameraCaptureCallback;
-            useRepeatingSurface = base.isUseRepeatingSurface();
+            mSurfaces.addAll(base.mSurfaces);
+            mCaptureRequestParameters.putAll(base.mCaptureRequestParameters);
+            mImplementationOptions = MutableOptionsBundle.from(base.mImplementationOptions);
+            mTemplateType = base.mTemplateType;
+            mCameraCaptureCallback = base.mCameraCaptureCallback;
+            mUseRepeatingSurface = base.isUseRepeatingSurface();
         }
 
         /** Create a {@link Builder} from a {@link CaptureRequestConfiguration} */
@@ -189,7 +198,7 @@ public final class CaptureRequestConfiguration {
         }
 
         int getTemplateType() {
-            return templateType;
+            return mTemplateType;
         }
 
         /**
@@ -199,66 +208,73 @@ public final class CaptureRequestConfiguration {
          *                     CameraDevice}
          */
         public void setTemplateType(int templateType) {
-            this.templateType = templateType;
+            mTemplateType = templateType;
         }
 
         CameraCaptureCallback getCameraCaptureCallback() {
-            return cameraCaptureCallback;
+            return mCameraCaptureCallback;
         }
 
         public void setCameraCaptureCallback(CameraCaptureCallback cameraCaptureCallback) {
-            this.cameraCaptureCallback = cameraCaptureCallback;
+            mCameraCaptureCallback = cameraCaptureCallback;
         }
 
+        /** Add a surface that the request will write data to. */
         public void addSurface(DeferrableSurface surface) {
-            surfaces.add(surface);
+            mSurfaces.add(surface);
         }
 
+        /** Remove a surface that the request will write data to. */
         public void removeSurface(DeferrableSurface surface) {
-            surfaces.remove(surface);
+            mSurfaces.remove(surface);
         }
 
+        /** Remove all the surfaces that the request will write data to. */
         public void clearSurfaces() {
-            surfaces.clear();
+            mSurfaces.clear();
         }
 
         Set<DeferrableSurface> getSurfaces() {
-            return surfaces;
+            return mSurfaces;
         }
 
+        /** Add a {@link CaptureRequest.Key}-value pair for the request. */
         public <T> void addCharacteristic(Key<T> key, T value) {
-            captureRequestParameters.put(key, CaptureRequestParameter.create(key, value));
+            mCaptureRequestParameters.put(key, CaptureRequestParameter.create(key, value));
         }
 
+        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public void addCharacteristics(Map<Key<?>, CaptureRequestParameter<?>> characteristics) {
-            captureRequestParameters.putAll(characteristics);
+            mCaptureRequestParameters.putAll(characteristics);
         }
 
+        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public void setImplementationOptions(Configuration config) {
-            implementationOptions = MutableOptionsBundle.from(config);
+            mImplementationOptions = MutableOptionsBundle.from(config);
         }
 
+        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public void addImplementationOptions(Configuration config) {
             for (Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
                         Option<Object> objectOpt = (Option<Object>) option;
-                implementationOptions.insertOption(objectOpt, config.retrieveOption(objectOpt));
+                mImplementationOptions.insertOption(objectOpt, config.retrieveOption(objectOpt));
             }
         }
 
         Map<Key<?>, CaptureRequestParameter<?>> getCharacteristic() {
-            return captureRequestParameters;
+            return mCaptureRequestParameters;
         }
 
         boolean isUseRepeatingSurface() {
-            return useRepeatingSurface;
+            return mUseRepeatingSurface;
         }
 
         public void setUseRepeatingSurface(boolean useRepeatingSurface) {
-            this.useRepeatingSurface = useRepeatingSurface;
+            mUseRepeatingSurface = useRepeatingSurface;
         }
 
         /**
@@ -267,12 +283,12 @@ public final class CaptureRequestConfiguration {
          */
         public CaptureRequestConfiguration build() {
             return new CaptureRequestConfiguration(
-                    new ArrayList<>(surfaces),
-                    new HashMap<>(captureRequestParameters),
-                    OptionsBundle.from(implementationOptions),
-                    templateType,
-                    cameraCaptureCallback,
-                    useRepeatingSurface);
+                    new ArrayList<>(mSurfaces),
+                    new HashMap<>(mCaptureRequestParameters),
+                    OptionsBundle.from(mImplementationOptions),
+                    mTemplateType,
+                    mCameraCaptureCallback,
+                    mUseRepeatingSurface);
         }
     }
 }

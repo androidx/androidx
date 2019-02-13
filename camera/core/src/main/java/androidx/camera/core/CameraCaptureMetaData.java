@@ -16,12 +16,16 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+
 /**
  * This class defines the enumeration constants used for querying the camera capture mode and
  * results.
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraCaptureMetaData {
 
     /** Auto focus (AF) mode. */

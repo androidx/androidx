@@ -55,12 +55,12 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ImageAnalysisUseCase";
-    private final AtomicReference<Analyzer> subscribedAnalyzer;
-    private final AtomicInteger relativeRotation = new AtomicInteger();
-    private final Handler handler;
-    private final ImageAnalysisUseCaseConfiguration.Builder useCaseConfigBuilder;
+    private final AtomicReference<Analyzer> mSubscribedAnalyzer;
+    private final AtomicInteger mRelativeRotation = new AtomicInteger();
+    private final Handler mHandler;
+    private final ImageAnalysisUseCaseConfiguration.Builder mUseCaseConfigBuilder;
     @Nullable
-    private ImageReaderProxy imageReader;
+    private ImageReaderProxy mImageReader;
     /**
      * Creates a new image analysis use case from the given configuration.
      *
@@ -68,15 +68,15 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
      */
     public ImageAnalysisUseCase(ImageAnalysisUseCaseConfiguration configuration) {
         super(configuration);
-        useCaseConfigBuilder = ImageAnalysisUseCaseConfiguration.Builder.fromConfig(configuration);
+        mUseCaseConfigBuilder = ImageAnalysisUseCaseConfiguration.Builder.fromConfig(configuration);
 
         // Get the combined configuration with defaults
         ImageAnalysisUseCaseConfiguration combinedConfig =
                 (ImageAnalysisUseCaseConfiguration) getUseCaseConfiguration();
-        subscribedAnalyzer = new AtomicReference<>();
-        handler = combinedConfig.getCallbackHandler(null);
-        if (handler == null) {
-            throw new IllegalStateException("No default handler specified.");
+        mSubscribedAnalyzer = new AtomicReference<>();
+        mHandler = combinedConfig.getCallbackHandler(null);
+        if (mHandler == null) {
+            throw new IllegalStateException("No default mHandler specified.");
         }
         setImageFormat(ImageReaderFormatRecommender.chooseCombo().imageAnalysisFormat());
     }
@@ -108,8 +108,8 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
                 (ImageAnalysisUseCaseConfiguration) getUseCaseConfiguration();
         int oldRotation = oldconfig.getTargetRotation(ImageOutputConfiguration.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfiguration.INVALID_ROTATION || oldRotation != rotation) {
-            useCaseConfigBuilder.setTargetRotation(rotation);
-            updateUseCaseConfiguration(useCaseConfigBuilder.build());
+            mUseCaseConfigBuilder.setTargetRotation(rotation);
+            updateUseCaseConfiguration(mUseCaseConfigBuilder.build());
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
             // For now we'll just update the relative rotation value.
@@ -139,7 +139,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     @UiThread
     @Nullable
     public Analyzer getAnalyzer() {
-        return subscribedAnalyzer.get();
+        return mSubscribedAnalyzer.get();
     }
 
     /**
@@ -155,7 +155,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
      */
     @UiThread
     public void setAnalyzer(@Nullable Analyzer analyzer) {
-        Analyzer previousAnalyzer = subscribedAnalyzer.getAndSet(analyzer);
+        Analyzer previousAnalyzer = mSubscribedAnalyzer.getAndSet(analyzer);
         if (previousAnalyzer == null && analyzer != null) {
             notifyActive();
         } else if (previousAnalyzer != null && analyzer == null) {
@@ -176,9 +176,9 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
-        if (imageReader != null) {
-            imageReader.close();
-            imageReader = null;
+        if (mImageReader != null) {
+            mImageReader.close();
+            mImageReader = null;
         }
         super.clear();
     }
@@ -190,6 +190,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
      */
     @Override
     @Nullable
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCaseConfiguration.Builder<?, ?, ?> getDefaultBuilder() {
         ImageAnalysisUseCaseConfiguration defaults =
                 CameraX.getDefaultUseCaseConfiguration(ImageAnalysisUseCaseConfiguration.class);
@@ -206,6 +207,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
      * @hide
      */
     @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
     protected Map<String, Size> onSuggestedResolutionUpdated(
             Map<String, Size> suggestedResolutionMap) {
         ImageAnalysisUseCaseConfiguration configuration =
@@ -226,23 +228,23 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
                     "Suggested resolution map missing resolution for camera " + cameraId);
         }
 
-        if (imageReader != null) {
-            imageReader.close();
+        if (mImageReader != null) {
+            mImageReader.close();
         }
 
-        imageReader =
+        mImageReader =
                 ImageReaderProxys.createCompatibleReader(
                         cameraId,
                         resolution.getWidth(),
                         resolution.getHeight(),
                         getImageFormat(),
                         configuration.getImageQueueDepth(),
-                        handler);
+                        mHandler);
 
         tryUpdateRelativeRotation(cameraId);
-        imageReader.setOnImageAvailableListener(
+        mImageReader.setOnImageAvailableListener(
                 imageReader -> {
-                    Analyzer analyzer = subscribedAnalyzer.get();
+                    Analyzer analyzer = mSubscribedAnalyzer.get();
                     try (ImageProxy image =
                                  configuration
                                          .getImageReaderMode(configuration.getImageReaderMode())
@@ -255,15 +257,15 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
                         }
 
                         if (analyzer != null) {
-                            analyzer.analyze(image, relativeRotation.get());
+                            analyzer.analyze(image, mRelativeRotation.get());
                         }
                     }
                 },
-                handler);
+                mHandler);
 
         SessionConfiguration.Builder sessionConfigBuilder =
                 SessionConfiguration.Builder.createFrom(configuration);
-        sessionConfigBuilder.addSurface(new ImmediateSurface(imageReader.getSurface()));
+        sessionConfigBuilder.addSurface(new ImmediateSurface(mImageReader.getSurface()));
 
         attachToCamera(cameraId, sessionConfigBuilder.build());
 
@@ -276,7 +278,7 @@ public final class ImageAnalysisUseCase extends BaseUseCase {
         // Get the relative rotation or default to 0 if the camera info is unavailable
         try {
             CameraInfo cameraInfo = CameraX.getCameraInfo(cameraId);
-            relativeRotation.set(
+            mRelativeRotation.set(
                     cameraInfo.getSensorRotationDegrees(
                             configuration.getTargetRotation(Surface.ROTATION_0)));
         } catch (CameraInfoUnavailableException e) {

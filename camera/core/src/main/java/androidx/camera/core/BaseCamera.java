@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
+
 import java.util.Collection;
 
 /**
@@ -23,6 +26,7 @@ import java.util.Collection;
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public interface BaseCamera extends BaseUseCase.StateChangeListener {
     /**
      * Open the camera asynchronously.

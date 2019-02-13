@@ -35,13 +35,13 @@ import androidx.camera.core.CameraX.ErrorListener;
 public final class ErrorHandler {
     private static final String TAG = "ErrorHandler";
 
-    private final Object errorLock = new Object();
+    private final Object mErrorLock = new Object();
 
-    @GuardedBy("errorLock")
-    private ErrorListener listener = new PrintingErrorListener();
+    @GuardedBy("mErrorLock")
+    private ErrorListener mListener = new PrintingErrorListener();
 
-    @GuardedBy("errorLock")
-    private Handler handler = new Handler(Looper.getMainLooper());
+    @GuardedBy("mErrorLock")
+    private Handler mHandler = new Handler(Looper.getMainLooper());
 
     /**
      * Posts an error message.
@@ -50,9 +50,9 @@ public final class ErrorHandler {
      * @param message detailed message of the error condition
      */
     void postError(ErrorCode error, String message) {
-        synchronized (errorLock) {
-            ErrorListener listenerReference = listener;
-            handler.post(() -> listenerReference.onError(error, message));
+        synchronized (mErrorLock) {
+            ErrorListener listenerReference = mListener;
+            mHandler.post(() -> listenerReference.onError(error, message));
         }
     }
 
@@ -63,16 +63,16 @@ public final class ErrorHandler {
      * @param handler  the handler on which to run the listener
      */
     void setErrorListener(ErrorListener listener, Handler handler) {
-        synchronized (errorLock) {
+        synchronized (mErrorLock) {
             if (handler == null) {
-                this.handler = new Handler(Looper.getMainLooper());
+                this.mHandler = new Handler(Looper.getMainLooper());
             } else {
-                this.handler = handler;
+                this.mHandler = handler;
             }
             if (listener == null) {
-                this.listener = new PrintingErrorListener();
+                this.mListener = new PrintingErrorListener();
             } else {
-                this.listener = listener;
+                this.mListener = listener;
             }
         }
     }

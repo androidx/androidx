@@ -34,10 +34,11 @@ import java.util.Map;
  * regulates the common lifecycle shared by all the use cases in the group.
  */
 final class UseCaseGroupRepository {
-    final Object useCasesLock = new Object();
+    final Object mUseCasesLock = new Object();
 
-    @GuardedBy("useCasesLock")
-    final Map<LifecycleOwner, UseCaseGroupLifecycleController> useCasesMap =
+    @GuardedBy("mUseCasesLock")
+    final Map<LifecycleOwner, UseCaseGroupLifecycleController>
+            mLifecycleToUseCaseGroupControllerMap =
             new HashMap<>();
 
     /**
@@ -69,8 +70,9 @@ final class UseCaseGroupRepository {
     UseCaseGroupLifecycleController getOrCreateUseCaseGroup(
             LifecycleOwner lifecycleOwner, UseCaseGroupSetup groupSetup) {
         UseCaseGroupLifecycleController useCaseGroupLifecycleController;
-        synchronized (useCasesLock) {
-            useCaseGroupLifecycleController = useCasesMap.get(lifecycleOwner);
+        synchronized (mUseCasesLock) {
+            useCaseGroupLifecycleController = mLifecycleToUseCaseGroupControllerMap.get(
+                    lifecycleOwner);
             if (useCaseGroupLifecycleController == null) {
                 useCaseGroupLifecycleController = createUseCaseGroup(lifecycleOwner);
                 groupSetup.setup(useCaseGroupLifecycleController.getUseCaseGroup());
@@ -101,8 +103,9 @@ final class UseCaseGroupRepository {
         UseCaseGroupLifecycleController useCaseGroupLifecycleController =
                 new UseCaseGroupLifecycleController(lifecycleOwner.getLifecycle());
         lifecycleOwner.getLifecycle().addObserver(createRemoveOnDestroyObserver());
-        synchronized (useCasesLock) {
-            useCasesMap.put(lifecycleOwner, useCaseGroupLifecycleController);
+        synchronized (mUseCasesLock) {
+            mLifecycleToUseCaseGroupControllerMap.put(lifecycleOwner,
+                    useCaseGroupLifecycleController);
         }
         return useCaseGroupLifecycleController;
     }
@@ -118,8 +121,8 @@ final class UseCaseGroupRepository {
         return new DefaultLifecycleObserver() {
             @Override
             public void onDestroy(LifecycleOwner lifecycleOwner) {
-                synchronized (useCasesLock) {
-                    useCasesMap.remove(lifecycleOwner);
+                synchronized (mUseCasesLock) {
+                    mLifecycleToUseCaseGroupControllerMap.remove(lifecycleOwner);
                 }
                 lifecycleOwner.getLifecycle().removeObserver(this);
             }
@@ -127,15 +130,16 @@ final class UseCaseGroupRepository {
     }
 
     Collection<UseCaseGroupLifecycleController> getUseCaseGroups() {
-        synchronized (useCasesLock) {
-            return Collections.unmodifiableCollection(useCasesMap.values());
+        synchronized (mUseCasesLock) {
+            return Collections.unmodifiableCollection(
+                    mLifecycleToUseCaseGroupControllerMap.values());
         }
     }
 
     @VisibleForTesting
     Map<LifecycleOwner, UseCaseGroupLifecycleController> getUseCasesMap() {
-        synchronized (useCasesLock) {
-            return useCasesMap;
+        synchronized (mUseCasesLock) {
+            return mLifecycleToUseCaseGroupControllerMap;
         }
     }
 

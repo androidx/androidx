@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo.Scope;
  *
  * @hide
  */
+@RestrictTo(Scope.LIBRARY_GROUP)
 public final class AppConfiguration implements TargetConfiguration<CameraX> {
 
     static final Option<CameraFactory> OPTION_CAMERA_FACTORY =
@@ -39,10 +40,10 @@ public final class AppConfiguration implements TargetConfiguration<CameraX> {
             Option.create(
                     "camerax.core.appConfig.useCaseConfigFactory",
                     UseCaseConfigurationFactory.class);
-    private final OptionsBundle config;
+    private final OptionsBundle mConfig;
 
     AppConfiguration(OptionsBundle options) {
-        this.config = options;
+        mConfig = options;
     }
 
     /**
@@ -67,7 +68,7 @@ public final class AppConfiguration implements TargetConfiguration<CameraX> {
     }
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
 
     /**
      * Returns the {@link UseCaseConfigurationFactory} implementation for the application.
@@ -84,14 +85,14 @@ public final class AppConfiguration implements TargetConfiguration<CameraX> {
 
     @Override
     public Configuration getConfiguration() {
-        return config;
+        return mConfig;
     }
 
     /** A builder for generating {@link AppConfiguration} objects. */
     public static final class Builder
             implements TargetConfiguration.Builder<CameraX, AppConfiguration, Builder> {
 
-        private final MutableOptionsBundle mutableConfig;
+        private final MutableOptionsBundle mMutableConfig;
 
         /** Creates a new Builder object. */
         public Builder() {
@@ -99,7 +100,7 @@ public final class AppConfiguration implements TargetConfiguration<CameraX> {
         }
 
         private Builder(MutableOptionsBundle mutableConfig) {
-            this.mutableConfig = mutableConfig;
+            mMutableConfig = mutableConfig;
 
             Class<?> oldConfigClass =
                     mutableConfig.retrieveOption(TargetConfiguration.OPTION_TARGET_CLASS, null);
@@ -162,7 +163,7 @@ public final class AppConfiguration implements TargetConfiguration<CameraX> {
 
         @Override
         public MutableConfiguration getMutableConfiguration() {
-            return mutableConfig;
+            return mMutableConfig;
         }
 
         /** The solution for the unchecked cast warning. */
@@ -173,7 +174,7 @@ public final class AppConfiguration implements TargetConfiguration<CameraX> {
 
         @Override
         public AppConfiguration build() {
-            return new AppConfiguration(OptionsBundle.from(mutableConfig));
+            return new AppConfiguration(OptionsBundle.from(mMutableConfig));
         }
     }
 }

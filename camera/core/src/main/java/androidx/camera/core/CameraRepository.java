@@ -37,24 +37,26 @@ import java.util.Set;
 public final class CameraRepository implements UseCaseGroup.StateChangeListener {
     private static final String TAG = "CameraRepository";
 
-    private final Object camerasLock = new Object();
+    private final Object mCamerasLock = new Object();
 
-    @GuardedBy("camerasLock")
-    private final Map<String, BaseCamera> cameras = new HashMap<>();
+    @GuardedBy("mCamerasLock")
+    private final Map<String, BaseCamera> mCameras = new HashMap<>();
 
     /**
      * Initializes the repository from a {@link Context}.
      *
      * <p>All cameras queried from the {@link CameraFactory} will be added to the repository.
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void init(CameraFactory cameraFactory) {
-        synchronized (camerasLock) {
+        synchronized (mCamerasLock) {
             try {
                 Set<String> camerasList = cameraFactory.getAvailableCameraIds();
                 for (String id : camerasList) {
                     Log.d(TAG, "Added camera: " + id);
-                    cameras.put(id, cameraFactory.getCamera(id));
+                    mCameras.put(id, cameraFactory.getCamera(id));
                 }
             } catch (Exception e) {
                 throw new IllegalStateException("Unable to enumerate cameras", e);
@@ -68,11 +70,13 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
      * @param cameraId id for the camera
      * @return a {@link BaseCamera} paired to this id
      * @throws IllegalArgumentException if there is no camera paired with the id
+     *
+     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public BaseCamera getCamera(String cameraId) {
-        synchronized (camerasLock) {
-            BaseCamera camera = cameras.get(cameraId);
+        synchronized (mCamerasLock) {
+            BaseCamera camera = mCameras.get(cameraId);
 
             if (camera == null) {
                 throw new IllegalArgumentException("Invalid camera: " + cameraId);
@@ -88,8 +92,8 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
      * @return set of all camera ids
      */
     Set<String> getCameraIds() {
-        synchronized (camerasLock) {
-            return Collections.unmodifiableSet(cameras.keySet());
+        synchronized (mCamerasLock) {
+            return Collections.unmodifiableSet(mCameras.keySet());
         }
     }
 
@@ -100,7 +104,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
      */
     @Override
     public void onGroupActive(UseCaseGroup useCaseGroup) {
-        synchronized (camerasLock) {
+        synchronized (mCamerasLock) {
             Map<String, Set<BaseUseCase>> cameraIdToUseCaseMap =
                     useCaseGroup.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<BaseUseCase>> cameraUseCaseEntry :
@@ -112,7 +116,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
     }
 
     /** Attaches a set of use cases to a camera. */
-    @GuardedBy("camerasLock")
+    @GuardedBy("mCamerasLock")
     private void attachUseCasesToCamera(BaseCamera camera, Set<BaseUseCase> baseUseCases) {
         camera.addOnlineUseCase(baseUseCases);
     }
@@ -123,7 +127,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
      */
     @Override
     public void onGroupInactive(UseCaseGroup useCaseGroup) {
-        synchronized (camerasLock) {
+        synchronized (mCamerasLock) {
             Map<String, Set<BaseUseCase>> cameraIdToUseCaseMap =
                     useCaseGroup.getCameraIdToUseCaseMap();
             for (Map.Entry<String, Set<BaseUseCase>> cameraUseCaseEntry :
@@ -135,7 +139,7 @@ public final class CameraRepository implements UseCaseGroup.StateChangeListener 
     }
 
     /** Detaches a set of use cases from a camera. */
-    @GuardedBy("camerasLock")
+    @GuardedBy("mCamerasLock")
     private void detachUseCasesFromCamera(BaseCamera camera, Set<BaseUseCase> baseUseCases) {
         camera.removeOnlineUseCase(baseUseCases);
     }

@@ -127,7 +127,7 @@ public interface UseCaseConfiguration<T extends BaseUseCase> extends TargetConfi
     }
 
     // Option Declarations:
-    // ***********************************************************************************************
+    // *********************************************************************************************
 
     /**
      * Retrieves the surface occupancy priority of the target intending to use from this

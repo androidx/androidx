@@ -29,16 +29,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  * <p>TODO(b/115779693): Make this executor configurable
  */
 final class IoExecutor implements Executor {
-    private static volatile Executor instance;
+    private static volatile Executor sExecutor;
 
-    private final ExecutorService ioService =
+    private final ExecutorService mIoService =
             Executors.newFixedThreadPool(
                     2,
                     new ThreadFactory() {
                         private static final String THREAD_NAME_STEM =
                                 CameraXThreads.TAG + "camerax_io_%d";
 
-                        private final AtomicInteger threadId = new AtomicInteger(0);
+                        private final AtomicInteger mThreadId = new AtomicInteger(0);
 
                         @Override
                         public Thread newThread(Runnable r) {
@@ -47,26 +47,26 @@ final class IoExecutor implements Executor {
                                     String.format(
                                             Locale.US,
                                             THREAD_NAME_STEM,
-                                            threadId.getAndIncrement()));
+                                            mThreadId.getAndIncrement()));
                             return t;
                         }
                     });
 
     static Executor getInstance() {
-        if (instance != null) {
-            return instance;
+        if (sExecutor != null) {
+            return sExecutor;
         }
         synchronized (IoExecutor.class) {
-            if (instance == null) {
-                instance = new IoExecutor();
+            if (sExecutor == null) {
+                sExecutor = new IoExecutor();
             }
         }
 
-        return instance;
+        return sExecutor;
     }
 
     @Override
     public void execute(Runnable command) {
-        ioService.execute(command);
+        mIoService.execute(command);
     }
 }

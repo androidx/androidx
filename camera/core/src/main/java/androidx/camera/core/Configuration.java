@@ -317,11 +317,13 @@ public interface Configuration {
             return create(id, valueType, token);
         }
 
+        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public static <T> Option<T> create(String name, TypeReference<T> valueType) {
             return create(name, valueType, /*token=*/ null);
         }
 
+        /** @hide */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public static <T> Option<T> create(
                 String name, TypeReference<T> valueType, @Nullable Object token) {
