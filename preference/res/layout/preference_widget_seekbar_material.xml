@@ -20,7 +20,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="?android:attr/listPreferredItemHeight"
+    android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:gravity="center_vertical"
     android:paddingLeft="?android:attr/listPreferredItemPaddingLeft"
     android:paddingRight="?android:attr/listPreferredItemPaddingRight"
@@ -33,34 +33,41 @@
 
     <include layout="@layout/image_frame"/>
 
-    <RelativeLayout
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dip"
-        android:layout_marginTop="6dip"
-        android:layout_marginBottom="6dip"
-        android:layout_weight="1"
+        android:orientation="vertical"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
         android:clipChildren="false"
         android:clipToPadding="false">
 
-        <TextView
-            android:id="@android:id/title"
+        <RelativeLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:singleLine="true"
-            android:textAppearance="?android:attr/textAppearanceListItem"
-            android:ellipsize="marquee"
-            android:fadingEdge="horizontal"/>
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
-        <TextView
-            android:id="@android:id/summary"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@android:id/title"
-            android:layout_alignStart="@android:id/title"
-            android:textColor="?android:attr/textColorSecondary"
-            android:maxLines="4"
-            style="@style/PreferenceSummaryTextStyle"/>
+            <TextView
+                android:id="@android:id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textAppearance="?android:attr/textAppearanceListItem"
+                android:ellipsize="marquee"/>
+
+            <TextView
+                android:id="@android:id/summary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@android:id/title"
+                android:layout_alignLeft="@android:id/title"
+                android:layout_alignStart="@android:id/title"
+                android:textAlignment="viewStart"
+                android:textColor="?android:attr/textColorSecondary"
+                android:maxLines="4"
+                style="@style/PreferenceSummaryTextStyle"/>
+
+        </RelativeLayout>
 
         <!-- Using UnPressableLinearLayout as a workaround to disable the pressed state propagation
         to the children of this container layout. Otherwise, the animated pressed state will also
@@ -69,30 +76,43 @@
         <androidx.preference.UnPressableLinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@android:id/summary"
-            android:layout_alignStart="@android:id/title"
+            android:gravity="center_vertical"
+            android:paddingRight="16dp"
+            android:paddingEnd="16dp"
             android:clipChildren="false"
             android:clipToPadding="false">
 
+            <!-- The total height of the Seekbar widget's area should be 48dp - this allows for an
+            increased touch area so you do not need to exactly tap the thumb to move it. However,
+            setting the Seekbar height directly causes the thumb and seekbar to be misaligned on
+            API 22 and 23 - so instead we just set 15dp padding above and below, to account for the
+            2dp height of the track, and the 8dp margin above and below the whole Preference. -->
             <SeekBar
                 android:id="@+id/seekbar"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/preference_seekbar_padding_start"
-                android:paddingRight="@dimen/preference_seekbar_padding_end"
-                android:paddingStart="@dimen/preference_seekbar_padding_start"
-                android:paddingEnd="@dimen/preference_seekbar_padding_end"
+                android:paddingLeft="@dimen/preference_seekbar_padding_horizontal"
+                android:paddingRight="@dimen/preference_seekbar_padding_horizontal"
+                android:paddingStart="@dimen/preference_seekbar_padding_horizontal"
+                android:paddingEnd="@dimen/preference_seekbar_padding_horizontal"
+                android:paddingTop="@dimen/preference_seekbar_padding_vertical"
+                android:paddingBottom="@dimen/preference_seekbar_padding_vertical"
                 android:focusable="false"
                 android:clickable="false"
                 android:background="@null"/>
 
+            <!-- If the value is shown, we reserve a minimum width of 36dp to allow for consistent
+            seekbar width for smaller values. If the value is ~4 or more digits, it will expand
+            into the seekbar width. -->
             <TextView
                 android:id="@+id/seekbar_value"
-                android:layout_width="@dimen/preference_seekbar_value_width"
-                android:layout_height="match_parent"
-                android:gravity="right|center_vertical"
-                android:fontFamily="sans-serif-condensed"
+                android:minWidth="@dimen/preference_seekbar_value_minWidth"
+                android:paddingLeft="8dp"
+                android:paddingStart="8dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="right"
                 android:singleLine="true"
                 android:textAppearance="?android:attr/textAppearanceListItem"
                 android:ellipsize="marquee"
@@ -100,5 +120,5 @@
                 android:scrollbars="none"/>
 
         </androidx.preference.UnPressableLinearLayout>
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>
