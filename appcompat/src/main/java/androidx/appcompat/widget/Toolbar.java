@@ -140,6 +140,7 @@ import java.util.List;
  * {@link androidx.appcompat.R.attr#titleMarginTop}
  * {@link androidx.appcompat.R.attr#titleTextAppearance}
  * {@link androidx.appcompat.R.attr#titleTextColor}
+ * {@link androidx.appcompat.R.attr#menu}
  */
 public class Toolbar extends ViewGroup {
     private static final String TAG = "Toolbar";
@@ -341,6 +342,11 @@ public class Toolbar extends ViewGroup {
         if (a.hasValue(R.styleable.Toolbar_subtitleTextColor)) {
             setSubtitleTextColor(a.getColorStateList(R.styleable.Toolbar_subtitleTextColor));
         }
+
+        if (a.hasValue(R.styleable.Toolbar_menu)) {
+            inflateMenu(a.getResourceId(R.styleable.Toolbar_menu, 0));
+        }
+
         a.recycle();
     }
 
@@ -1114,6 +1120,7 @@ public class Toolbar extends ViewGroup {
      * an XML menu resource, use {@link #inflateMenu(int)}.</p>
      *
      * @return The toolbar's Menu
+     * {@link androidx.appcompat.R.attr#menu}
      */
     public Menu getMenu() {
         ensureMenu();
@@ -1178,6 +1185,7 @@ public class Toolbar extends ViewGroup {
      * be modified or removed.</p>
      *
      * @param resId ID of a menu resource to inflate
+     * {@link androidx.appcompat.R.attr#menu}
      */
     public void inflateMenu(@MenuRes int resId) {
         getMenuInflater().inflate(resId, getMenu());

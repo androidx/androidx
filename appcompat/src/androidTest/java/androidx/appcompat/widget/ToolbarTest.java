@@ -17,11 +17,14 @@
 package androidx.appcompat.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.appcompat.content.res.AppCompatResources;
@@ -137,5 +140,14 @@ public class ToolbarTest {
 
         assertEquals(expectedColor, toolbar.getTitleTextView().getCurrentTextColor());
         assertEquals(expectedColor, toolbar.getSubtitleTextView().getCurrentTextColor());
+    }
+
+    @Test
+    public void testToolbarMenuFromXml() {
+        final Toolbar toolbar = mActivity.findViewById(R.id.toolbar_menu);
+        final Menu menu = toolbar.getMenu();
+
+        assertNotEquals(0, menu.size());
+        assertNotNull(menu.findItem(R.id.action_search));
     }
 }
