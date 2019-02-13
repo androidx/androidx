@@ -69,7 +69,7 @@ public class TransitionFragment extends StrictViewFragment {
     }
 
     void waitForTransition() throws InterruptedException {
-        verify(mListener, CtsMockitoUtils.within(300)).onTransitionEnd((Transition) any());
+        verify(mListener, CtsMockitoUtils.within(1000)).onTransitionEnd((Transition) any());
         reset(mListener);
     }
 
