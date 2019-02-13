@@ -22,6 +22,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
+// TODO(mount): This class needs some optimization
 data class Matrix4(
     var x: Vector4 = Vector4(x = 1.0f),
     var y: Vector4 = Vector4(y = 1.0f),

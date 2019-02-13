@@ -9,6 +9,8 @@ plugins {
 }
 
 dependencies {
+    implementation "androidx.annotation:annotation:1.0.0"
+    implementation "androidx.activity:activity:1.0.0-alpha01"
     api project(":ui-core")
     api project(":ui-intermediate")
     implementation project(":ui-platform")

@@ -12,7 +12,6 @@ dependencies {
     api "androidx.activity:activity:1.0.0-alpha01"
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
-    implementation project(':ui-core-old')
     implementation project(':ui-core-adapter')
     implementation project(':ui-layout-adapter')
     implementation project(':ui-port')
