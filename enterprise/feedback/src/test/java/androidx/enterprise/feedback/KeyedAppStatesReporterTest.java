@@ -63,6 +63,7 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.concurrent.Executor;
 
 /** Tests {@link KeyedAppStatesReporter}. */
 @RunWith(RobolectricTestRunner.class)
@@ -71,6 +72,8 @@ import java.util.Collections;
 public class KeyedAppStatesReporterTest {
 
     private final ComponentName mTestComponentName = new ComponentName("test_package", "");
+
+    private final Executor mExecutor = new TestExecutor();
 
     private final ContextWrapper mContext = ApplicationProvider.getApplicationContext();
     private final DevicePolicyManager mDevicePolicyManager =
@@ -92,10 +95,48 @@ public class KeyedAppStatesReporterTest {
     @Test
     @SmallTest
     public void getInstance_nullContext_throwsNullPointerException() {
+        KeyedAppStatesReporter.resetSingleton();
         try {
             KeyedAppStatesReporter.getInstance(null);
             fail();
-        } catch (NullPointerException expected) { }
+        } catch (NullPointerException expected) {
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void initialize_usesExecutor() {
+        KeyedAppStatesReporter.resetSingleton();
+        TestExecutor testExecutor = new TestExecutor();
+        KeyedAppStatesReporter.initialize(mContext, testExecutor);
+
+        KeyedAppStatesReporter.getInstance(mContext).set(singleton(mState));
+
+        assertThat(testExecutor.lastExecuted()).isNotNull();
+    }
+
+    @Test
+    @SmallTest
+    public void initialize_calledMultipleTimes_throwsIllegalStateException() {
+        KeyedAppStatesReporter.resetSingleton();
+        KeyedAppStatesReporter.initialize(mContext, mExecutor);
+
+        try {
+            KeyedAppStatesReporter.initialize(mContext, mExecutor);
+        } catch (IllegalStateException expected) {
+        }
+    }
+
+    @Test
+    @SmallTest
+    public void initialize_calledAfterGetInstance_throwsIllegalStateException() {
+        KeyedAppStatesReporter.resetSingleton();
+        KeyedAppStatesReporter.getInstance(mContext);
+
+        try {
+            KeyedAppStatesReporter.initialize(mContext, mExecutor);
+        } catch (IllegalStateException expected) {
+        }
     }
 
     @Test
@@ -103,7 +144,7 @@ public class KeyedAppStatesReporterTest {
     public void setIncludesAppStateBundle() {
         setTestHandlerReceivesStates();
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(singletonList(mState));
 
         Bundle appStatesBundle = buildStatesBundle(singleton(mState));
@@ -150,7 +191,7 @@ public class KeyedAppStatesReporterTest {
     public void setEmpty_doesNotSend() {
         setTestHandlerReceivesStates();
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(Collections.<KeyedAppState>emptyList());
 
         assertThat(mTestHandler.latestMessage()).isNull();
@@ -161,7 +202,7 @@ public class KeyedAppStatesReporterTest {
     public void setNotImmediate() {
         setTestHandlerReceivesStates();
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(singletonList(mState));
 
         assertThat(mTestHandler.latestMessage().what).isEqualTo(WHAT_STATE);
@@ -172,7 +213,7 @@ public class KeyedAppStatesReporterTest {
     public void setImmediate() {
         setTestHandlerReceivesStates();
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setImmediate(singletonList(mState));
 
         assertThat(mTestHandler.latestMessage().what).isEqualTo(WHAT_IMMEDIATE_STATE);
@@ -184,7 +225,7 @@ public class KeyedAppStatesReporterTest {
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(singletonList(mState));
 
         assertThat(mTestHandler.latestMessage()).isNull();
@@ -197,7 +238,7 @@ public class KeyedAppStatesReporterTest {
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
         shadowOf(mDevicePolicyManager).setDeviceOwner(mTestComponentName);
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(singletonList(mState));
 
         assertThat(mTestHandler.latestMessage()).isNotNull();
@@ -210,7 +251,7 @@ public class KeyedAppStatesReporterTest {
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(singletonList(mState));
 
         assertThat(mTestHandler.latestMessage()).isNotNull();
@@ -223,7 +264,7 @@ public class KeyedAppStatesReporterTest {
         addComponentAsRespondingToAppStatesIntent(phoneskyComponentName);
         setComponentBindingToHandler(phoneskyComponentName, mTestHandler);
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(singletonList(mState));
 
         assertThat(mTestHandler.latestMessage()).isNotNull();
@@ -243,7 +284,7 @@ public class KeyedAppStatesReporterTest {
         setComponentBindingToHandler(phoneskyComponentName, phoneskyTestHandler);
 
         // Act
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(singletonList(mState));
 
         // Assert
@@ -258,7 +299,7 @@ public class KeyedAppStatesReporterTest {
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(singletonList(mState));
         mTestHandler.reset();
 
@@ -283,7 +324,7 @@ public class KeyedAppStatesReporterTest {
         addComponentAsRespondingToAppStatesIntent(mTestComponentName);
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
         shadowOf(mDevicePolicyManager).setDeviceOwner(mTestComponentName);
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.set(singletonList(mState));
         mTestHandler.reset();
 
@@ -310,7 +351,7 @@ public class KeyedAppStatesReporterTest {
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
 
         // Set the binding to a different handler - as if the app has restarted.
         TestHandler newAppTestHandler = new TestHandler();
@@ -335,7 +376,7 @@ public class KeyedAppStatesReporterTest {
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
 
         // Set the binding to a different handler - as if the app has restarted.
         TestHandler newAppTestHandler = new TestHandler();
@@ -360,7 +401,7 @@ public class KeyedAppStatesReporterTest {
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
 
         simulateDisconnectingServiceConnection();
 
@@ -380,7 +421,7 @@ public class KeyedAppStatesReporterTest {
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
 
         simulateDisconnectingServiceConnection();
         reporter.set(singletonList(mState));
@@ -400,7 +441,7 @@ public class KeyedAppStatesReporterTest {
         setComponentBindingToHandler(mTestComponentName, mTestHandler);
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
 
-        KeyedAppStatesReporter reporter = KeyedAppStatesReporter.getInstance(mContext);
+        KeyedAppStatesReporter reporter = getReporter(mContext);
 
         // Change the component binding to ensure that it doesn't reconnect
         setComponentBindingToHandler(mTestComponentName, new TestHandler());
@@ -456,5 +497,10 @@ public class KeyedAppStatesReporterTest {
 
     private ServiceConnection getServiceConnection() {
         return shadowOf((Application) mContext).getBoundServiceConnections().get(0);
+    }
+
+    private KeyedAppStatesReporter getReporter(Context context) {
+        KeyedAppStatesReporter.initialize(context, mExecutor);
+        return KeyedAppStatesReporter.getInstance(context);
     }
 }
