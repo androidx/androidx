@@ -34,7 +34,6 @@ import java.nio.ByteBuffer;
 /**
  * Utility class for image related operations.
  *
- * @hide
  */
 final class ImageUtil {
     private static final String TAG = "ImageUtil";
