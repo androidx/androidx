@@ -35,19 +35,19 @@ import org.mockito.Mockito;
 @RunWith(JUnit4.class)
 public final class CameraCaptureCallbackAdapterAndroidTest {
 
-    private CameraCaptureCallback cameraCaptureCallback;
-    private CameraCaptureSession cameraCaptureSession;
-    private CaptureRequest captureRequest;
-    private CameraCaptureCallbackAdapter cameraCaptureCallbackAdapter;
+    private CameraCaptureCallback mCameraCaptureCallback;
+    private CameraCaptureSession mCameraCaptureSession;
+    private CaptureRequest mCaptureRequest;
+    private CameraCaptureCallbackAdapter mCameraCaptureCallbackAdapter;
 
     @Before
     public void setUp() {
-        cameraCaptureCallback = Mockito.mock(CameraCaptureCallback.class);
-        cameraCaptureSession = Mockito.mock(CameraCaptureSession.class);
+        mCameraCaptureCallback = Mockito.mock(CameraCaptureCallback.class);
+        mCameraCaptureSession = Mockito.mock(CameraCaptureSession.class);
         // Mockito can't mock final class
-        captureRequest = null;
+        mCaptureRequest = null;
         Mockito.mock(Surface.class);
-        cameraCaptureCallbackAdapter = new CameraCaptureCallbackAdapter(cameraCaptureCallback);
+        mCameraCaptureCallbackAdapter = new CameraCaptureCallbackAdapter(mCameraCaptureCallback);
     }
 
     @Test(expected = NullPointerException.class)
@@ -57,14 +57,15 @@ public final class CameraCaptureCallbackAdapterAndroidTest {
 
     @Test
     public void onCaptureCompleted() {
-        cameraCaptureCallbackAdapter.onCaptureCompleted(
-                cameraCaptureSession, captureRequest, any());
-        verify(cameraCaptureCallback, times(1)).onCaptureCompleted(any());
+        mCameraCaptureCallbackAdapter.onCaptureCompleted(
+                mCameraCaptureSession, mCaptureRequest, any());
+        verify(mCameraCaptureCallback, times(1)).onCaptureCompleted(any());
     }
 
     @Test
     public void onCaptureFailed() {
-        cameraCaptureCallbackAdapter.onCaptureFailed(cameraCaptureSession, captureRequest, any());
-        verify(cameraCaptureCallback, times(1)).onCaptureFailed(any());
+        mCameraCaptureCallbackAdapter.onCaptureFailed(mCameraCaptureSession, mCaptureRequest,
+                any());
+        verify(mCameraCaptureCallback, times(1)).onCaptureFailed(any());
     }
 }
