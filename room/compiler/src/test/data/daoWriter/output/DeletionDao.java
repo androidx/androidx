@@ -277,12 +277,12 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Completable deleteByUidCompletable(final int uid) {
-    final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
-    int _argIndex = 1;
-    _stmt.bindLong(_argIndex, uid);
     return Completable.fromCallable(new Callable<Void>() {
       @Override
       public Void call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, uid);
         __db.beginTransaction();
         try {
           _stmt.executeUpdateDelete();
@@ -298,12 +298,12 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Single<Integer> deleteByUidSingle(final int uid) {
-    final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
-    int _argIndex = 1;
-    _stmt.bindLong(_argIndex, uid);
     return Single.fromCallable(new Callable<Integer>() {
       @Override
       public Integer call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, uid);
         __db.beginTransaction();
         try {
           final java.lang.Integer _result = _stmt.executeUpdateDelete();
@@ -319,12 +319,12 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Maybe<Integer> deleteByUidMaybe(final int uid) {
-    final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
-    int _argIndex = 1;
-    _stmt.bindLong(_argIndex, uid);
     return Maybe.fromCallable(new Callable<Integer>() {
       @Override
       public Integer call() throws Exception {
+        final SupportSQLiteStatement _stmt = __preparedStmtOfDeleteByUid.acquire();
+        int _argIndex = 1;
+        _stmt.bindLong(_argIndex, uid);
         __db.beginTransaction();
         try {
           final java.lang.Integer _result = _stmt.executeUpdateDelete();

@@ -29,10 +29,11 @@ import com.squareup.javapoet.FieldSpec
  */
 abstract class PreparedQueryResultBinder(val adapter: PreparedQueryResultAdapter?) {
     /**
-     * Receives a prepared query to generate the code to run the query and return the result
+     * Receives a function that will prepare the query in a given scope to then generate the code
+     * that runs the query and returns the result.
      */
     abstract fun executeAndReturn(
-        stmtQueryVal: String,
+        prepareQueryStmtBlock: CodeGenScope.() -> String,
         preparedStmtField: String?, // null when the query is not shared
         dbField: FieldSpec,
         scope: CodeGenScope
