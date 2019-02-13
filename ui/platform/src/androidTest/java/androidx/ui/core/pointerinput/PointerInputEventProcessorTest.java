@@ -66,16 +66,18 @@ import kotlin.jvm.functions.Function2;
 // down, misses, moves in bounds, up, target does not receive event
 // down, hits, moves out of bounds, up, target receives all events
 
+// TODO(shepshapard): Write the following offset testing tests
+// 2 Directly Nested PointerInputNodes inside offset LayoutNode, offset is correct
+// PointerInputNode inside 3 nested parents, offset is correct
+// 2 LayoutNodes in between PointerInputNodes, offset is correct
+// 3 simultaneous moves, offsets are correct
+
 // TODO(shepshapard): Write hit test tests related to siblings (once the functionality has been
 // written).
 
 // TODO(shepshapard): Write the following pointer input dispatch path tests:
 // down, move, up, on 2, hits all 5 passes
 // 2 down, hits for each individually (TODO, this will change)
-
-// TODO(shepshapard): Write tests that verify that PointerInput data is offset to be relative
-// to each PointerInputNode bounds as it is passed through the hierarchy (once this
-// functionality is written).
 
 // TODO(shepshapard): These tests shouldn't require Android to run, but currently do given Crane
 // currently relies on Android Context.
@@ -106,7 +108,7 @@ public class PointerInputEventProcessorTest {
         pointerInputNode.setPointerInputHandler(pointerInputHandlerTracker);
 
         LayoutNode parentLayoutNode = createLayoutNode(0, 0, 500, 500);
-        parentLayoutNode.getChildren().add(pointerInputNode);
+        parentLayoutNode.emitInsertAt(0, pointerInputNode);
 
         Offset offset = createPixelOffset(100, 200);
         Offset offset2 = createPixelOffset(300, 400);
@@ -173,10 +175,10 @@ public class PointerInputEventProcessorTest {
         pointerInputNode.setPointerInputHandler(pointerInputHandlerTracker);
 
         LayoutNode childLayoutNode = createLayoutNode(100, 200, 301, 401);
-        childLayoutNode.getChildren().add(pointerInputNode);
+        childLayoutNode.emitInsertAt(0, pointerInputNode);
 
         LayoutNode parentLayoutNode = createLayoutNode(0, 0, 500, 500);
-        parentLayoutNode.getChildren().add(childLayoutNode);
+        parentLayoutNode.emitInsertAt(0, childLayoutNode);
 
         Offset topLeftOffset = createPixelOffset(100, 200);
         Offset topRightOffset = createPixelOffset(300, 200);
@@ -213,7 +215,7 @@ public class PointerInputEventProcessorTest {
                 pointerInputNode,
                 PostUp,
                 0,
-                topLeftOffset,
+                topLeftOffset.minus(topLeftOffset),
                 true,
                 null,
                 false,
@@ -223,7 +225,7 @@ public class PointerInputEventProcessorTest {
                 pointerInputNode,
                 PostUp,
                 1,
-                topRightOffset,
+                topRightOffset.minus(topLeftOffset),
                 true,
                 null,
                 false,
@@ -233,7 +235,7 @@ public class PointerInputEventProcessorTest {
                 pointerInputNode,
                 PostUp,
                 2,
-                bottomLeftOffset,
+                bottomLeftOffset.minus(topLeftOffset),
                 true,
                 null,
                 false,
@@ -243,7 +245,7 @@ public class PointerInputEventProcessorTest {
                 pointerInputNode,
                 PostUp,
                 3,
-                bottomRightOffset,
+                bottomRightOffset.minus(topLeftOffset),
                 true,
                 null,
                 false,
@@ -264,10 +266,10 @@ public class PointerInputEventProcessorTest {
         pointerInputNode.setPointerInputHandler(pointerInputHandlerTracker);
 
         LayoutNode childLayoutNode = createLayoutNode(100, 200, 301, 401);
-        childLayoutNode.getChildren().add(pointerInputNode);
+        childLayoutNode.emitInsertAt(0, pointerInputNode);
 
         LayoutNode parentLayoutNode = createLayoutNode(0, 0, 500, 500);
-        parentLayoutNode.getChildren().add(childLayoutNode);
+        parentLayoutNode.emitInsertAt(0, childLayoutNode);
 
         Offset topLeftToLeftOffset = createPixelOffset(99, 200);
         Offset bottomLeftToLeftOffset = createPixelOffset(99, 400);
@@ -322,7 +324,7 @@ public class PointerInputEventProcessorTest {
     }
 
     @Test
-    public void process_downHits3of3_targetReceives3() {
+    public void process_downHits3of3_All3TargetsReceive() {
 
         // Arrange
 
@@ -354,15 +356,15 @@ public class PointerInputEventProcessorTest {
         LayoutNode childLayoutNode = createLayoutNode(100, 100, 200, 200);
 
         // Setup tree
-        parentLayoutNode.getChildren().add(parentPointerInputNode);
-        parentPointerInputNode.setChild(middleLayoutNode);
-        middleLayoutNode.getChildren().add(middlePointerInputNode);
-        middlePointerInputNode.setChild(childLayoutNode);
-        childLayoutNode.getChildren().add(childPointerInputNode);
+        parentLayoutNode.emitInsertAt(0, parentPointerInputNode);
+        parentPointerInputNode.emitInsertAt(0, middleLayoutNode);
+        middleLayoutNode.emitInsertAt(0, middlePointerInputNode);
+        middlePointerInputNode.emitInsertAt(0, childLayoutNode);
+        childLayoutNode.emitInsertAt(0, childPointerInputNode);
 
         Offset offset = createPixelOffset(250, 250);
 
-        PointerInputEvent topLeft =
+        PointerInputEvent down =
                 createPointerInputEvent(createDuration(0), 0, offset, true);
 
         PointerInputEventProcessor pointerInputEventProcessor =
@@ -370,9 +372,17 @@ public class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(topLeft);
+        pointerInputEventProcessor.process(down);
 
         // Assert
+
+        Offset middleOffset = new Offset(
+                DensityKt.toPx(middleLayoutNode.getX(), mDensity),
+                DensityKt.toPx(middleLayoutNode.getY(), mDensity));
+
+        Offset childOffset = middleOffset.plus(new Offset(
+                DensityKt.toPx(childLayoutNode.getX(), mDensity),
+                DensityKt.toPx(childLayoutNode.getY(), mDensity)));
 
         assertThat(mTrackerList.size(), is(equalTo(3)));
         assertPointerInputChange(
@@ -380,7 +390,7 @@ public class PointerInputEventProcessorTest {
                 childPointerInputNode,
                 PostUp,
                 0,
-                offset,
+                offset.minus(childOffset),
                 true,
                 null,
                 false,
@@ -390,7 +400,7 @@ public class PointerInputEventProcessorTest {
                 middlePointerInputNode,
                 PostUp,
                 0,
-                offset,
+                offset.minus(middleOffset),
                 true,
                 null,
                 false,
@@ -408,7 +418,7 @@ public class PointerInputEventProcessorTest {
     }
 
     @Test
-    public void process_downHits2Of3_targetReceives2() {
+    public void process_downHits2Of3_onlyCorrect2TargetsReceive() {
 
         // Arrange
 
@@ -440,15 +450,15 @@ public class PointerInputEventProcessorTest {
         LayoutNode childLayoutNode = createLayoutNode(100, 100, 200, 200);
 
         // Setup tree
-        parentLayoutNode.getChildren().add(parentPointerInputNode);
-        parentPointerInputNode.setChild(middleLayoutNode);
-        middleLayoutNode.getChildren().add(middlePointerInputNode);
-        middlePointerInputNode.setChild(childLayoutNode);
-        childLayoutNode.getChildren().add(childPointerInputNode);
+        parentLayoutNode.emitInsertAt(0, parentPointerInputNode);
+        parentPointerInputNode.emitInsertAt(0, middleLayoutNode);
+        middleLayoutNode.emitInsertAt(0, middlePointerInputNode);
+        middlePointerInputNode.emitInsertAt(0, childLayoutNode);
+        childLayoutNode.emitInsertAt(0, childPointerInputNode);
 
         Offset offset = createPixelOffset(150, 150);
 
-        PointerInputEvent topLeft =
+        PointerInputEvent down =
                 createPointerInputEvent(createDuration(0), 0, offset, true);
 
         PointerInputEventProcessor pointerInputEventProcessor =
@@ -456,9 +466,13 @@ public class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(topLeft);
+        pointerInputEventProcessor.process(down);
 
         // Assert
+
+        Offset middleOffset = new Offset(
+                DensityKt.toPx(middleLayoutNode.getX(), mDensity),
+                DensityKt.toPx(middleLayoutNode.getY(), mDensity));
 
         assertThat(mTrackerList.size(), is(equalTo(2)));
         assertPointerInputChange(
@@ -466,7 +480,7 @@ public class PointerInputEventProcessorTest {
                 middlePointerInputNode,
                 PostUp,
                 0,
-                offset,
+                offset.minus(middleOffset),
                 true,
                 null,
                 false,
@@ -484,7 +498,7 @@ public class PointerInputEventProcessorTest {
     }
 
     @Test
-    public void process_downHits1Of3_targetReceives1() {
+    public void process_downHits1Of3_onlyCorrectTargetReceives() {
 
         // Arrange
 
@@ -516,15 +530,15 @@ public class PointerInputEventProcessorTest {
         LayoutNode childLayoutNode = createLayoutNode(100, 100, 200, 200);
 
         // Setup tree
-        parentLayoutNode.getChildren().add(parentPointerInputNode);
-        parentPointerInputNode.setChild(middleLayoutNode);
-        middleLayoutNode.getChildren().add(middlePointerInputNode);
-        middlePointerInputNode.setChild(childLayoutNode);
-        childLayoutNode.getChildren().add(childPointerInputNode);
+        parentLayoutNode.emitInsertAt(0, parentPointerInputNode);
+        parentPointerInputNode.emitInsertAt(0, middleLayoutNode);
+        middleLayoutNode.emitInsertAt(0, middlePointerInputNode);
+        middlePointerInputNode.emitInsertAt(0, childLayoutNode);
+        childLayoutNode.emitInsertAt(0, childPointerInputNode);
 
         Offset offset = createPixelOffset(50, 50);
 
-        PointerInputEvent topLeft =
+        PointerInputEvent down =
                 createPointerInputEvent(createDuration(0), 0, offset, true);
 
         PointerInputEventProcessor pointerInputEventProcessor =
@@ -532,7 +546,7 @@ public class PointerInputEventProcessorTest {
 
         // Act
 
-        pointerInputEventProcessor.process(topLeft);
+        pointerInputEventProcessor.process(down);
 
         // Assert
 
@@ -564,7 +578,7 @@ public class PointerInputEventProcessorTest {
         pointerInputNode.setPointerInputHandler(pointerInputHandlerTracker);
 
         LayoutNode parentLayoutNode = createLayoutNode(0, 0, 500, 500);
-        parentLayoutNode.getChildren().add(pointerInputNode);
+        parentLayoutNode.emitInsertAt(0, pointerInputNode);
 
         Offset offset = createPixelOffset(100, 200);
         Offset offset2 = createPixelOffset(300, 400);
@@ -655,7 +669,7 @@ public class PointerInputEventProcessorTest {
         pointerInputNode.setPointerInputHandler(pointerInputHandlerTracker);
 
         LayoutNode parentLayoutNode = createLayoutNode(0, 0, 500, 500);
-        parentLayoutNode.getChildren().add(pointerInputNode);
+        parentLayoutNode.emitInsertAt(0, pointerInputNode);
 
         Offset offset = createPixelOffset(0, 0);
         Offset offset2 = createPixelOffset(100, 0);
@@ -693,16 +707,398 @@ public class PointerInputEventProcessorTest {
         }
     }
 
+    @Test
+    public void process_layoutNodesIncreasinglyInset_pointerInputChangeTranslatedCorrectly() {
+        process_pointerInputChangeTranslatedCorrectly(
+                0, 0, 100, 100,
+                2, 11, 100, 100,
+                23, 31, 100, 100,
+                99, 99
+        );
+    }
+
+    @Test
+    public void process_layoutNodesIncreasinglyOutset_pointerInputChangeTranslatedCorrectly() {
+        process_pointerInputChangeTranslatedCorrectly(
+                0, 0, 100, 100,
+                -2, -11, 100, 100,
+                -23, -31, 100, 100,
+                1, 1
+        );
+    }
+
+    @Test
+    public void process_layoutNodesNotOffset_pointerInputChangeTranslatedCorrectly() {
+        process_pointerInputChangeTranslatedCorrectly(
+                0, 0, 100, 100,
+                0, 0, 100, 100,
+                0, 0, 100, 100,
+                50, 50
+        );
+    }
+
+    private void process_pointerInputChangeTranslatedCorrectly(
+            int pX1, int pY1, int pX2, int pY2,
+            int mX1, int mY1, int mX2, int mY2,
+            int cX1, int cY1, int cX2, int cY2,
+            int pointerX, int pointerY) {
+
+        // Arrange
+
+        List<PointerEventPass> pointerInputPassesToTrack =
+                Arrays.asList(InitialDown, PreUp, PreDown, PostUp, PostDown);
+
+        // Create PointerInputNodes
+
+        PointerInputNode parentPointerInputNode = new PointerInputNode();
+        PointerInputHandlerTracker parentPointerInputHandlerTracker =
+                new PointerInputHandlerTracker(parentPointerInputNode, mTrackerList,
+                        pointerInputPassesToTrack);
+        parentPointerInputNode.setPointerInputHandler(parentPointerInputHandlerTracker);
+
+        PointerInputNode middlePointerInputNode = new PointerInputNode();
+        PointerInputHandlerTracker middlePointerInputHandlerTracker =
+                new PointerInputHandlerTracker(middlePointerInputNode, mTrackerList,
+                        pointerInputPassesToTrack);
+        middlePointerInputNode.setPointerInputHandler(middlePointerInputHandlerTracker);
+
+        PointerInputNode childPointerInputNode = new PointerInputNode();
+        PointerInputHandlerTracker childPointerInputHandlerTracker =
+                new PointerInputHandlerTracker(childPointerInputNode, mTrackerList,
+                        pointerInputPassesToTrack);
+        childPointerInputNode.setPointerInputHandler(childPointerInputHandlerTracker);
+
+        // Create LayoutNodes
+        LayoutNode parentLayoutNode = createLayoutNode(pX1, pY1, pX2, pY2);
+        LayoutNode middleLayoutNode = createLayoutNode(mX1, mY1, mX2, mY2);
+        LayoutNode childLayoutNode = createLayoutNode(cX1, cY1, cX2, cY2);
+
+        // Setup tree
+        parentLayoutNode.emitInsertAt(0, parentPointerInputNode);
+        parentPointerInputNode.emitInsertAt(0, middleLayoutNode);
+        middleLayoutNode.emitInsertAt(0, middlePointerInputNode);
+        middlePointerInputNode.emitInsertAt(0, childLayoutNode);
+        childLayoutNode.emitInsertAt(0, childPointerInputNode);
+
+        Offset offset = createPixelOffset(pointerX, pointerY);
+
+        PointerInputEvent down =
+                createPointerInputEvent(createDuration(0), 0, offset, true);
+
+        PointerInputEventProcessor pointerInputEventProcessor =
+                new PointerInputEventProcessor(mDensity, parentLayoutNode);
+
+        // Act
+
+        pointerInputEventProcessor.process(down);
+
+        // Assert
+
+        Offset middleOffset = new Offset(
+                DensityKt.toPx(middleLayoutNode.getX(), mDensity),
+                DensityKt.toPx(middleLayoutNode.getY(), mDensity));
+
+        Offset childOffset = middleOffset.plus(new Offset(
+                DensityKt.toPx(childLayoutNode.getX(), mDensity),
+                DensityKt.toPx(childLayoutNode.getY(), mDensity)));
+
+        assertThat(mTrackerList.size(), is(equalTo(15)));
+
+        assertPointerInputChange(
+                mTrackerList.get(0),
+                parentPointerInputNode,
+                InitialDown,
+                0,
+                offset,
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(1),
+                middlePointerInputNode,
+                InitialDown,
+                0,
+                offset.minus(middleOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(2),
+                childPointerInputNode,
+                InitialDown,
+                0,
+                offset.minus(childOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+
+        assertPointerInputChange(
+                mTrackerList.get(3),
+                childPointerInputNode,
+                PreUp,
+                0,
+                offset.minus(childOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(4),
+                middlePointerInputNode,
+                PreUp,
+                0,
+                offset.minus(middleOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(5),
+                parentPointerInputNode,
+                PreUp,
+                0,
+                offset,
+                true,
+                null,
+                false,
+                createConsumeData());
+
+        assertPointerInputChange(
+                mTrackerList.get(6),
+                parentPointerInputNode,
+                PreDown,
+                0,
+                offset,
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(7),
+                middlePointerInputNode,
+                PreDown,
+                0,
+                offset.minus(middleOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(8),
+                childPointerInputNode,
+                PreDown,
+                0,
+                offset.minus(childOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+
+        assertPointerInputChange(
+                mTrackerList.get(9),
+                childPointerInputNode,
+                PostUp,
+                0,
+                offset.minus(childOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(10),
+                middlePointerInputNode,
+                PostUp,
+                0,
+                offset.minus(middleOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(11),
+                parentPointerInputNode,
+                PostUp,
+                0,
+                offset,
+                true,
+                null,
+                false,
+                createConsumeData());
+
+        assertPointerInputChange(
+                mTrackerList.get(12),
+                parentPointerInputNode,
+                PostDown,
+                0,
+                offset,
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(13),
+                middlePointerInputNode,
+                PostDown,
+                0,
+                offset.minus(middleOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(14),
+                childPointerInputNode,
+                PostDown,
+                0,
+                offset.minus(childOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+
+    }
+
+    @Test
+    public void process_downUp_pointerInputChangeTranslatedCorrectly() {
+
+        // Arrange
+
+        List<PointerEventPass> pointerInputPassesToTrack = Collections.singletonList(InitialDown);
+
+        // Create PointerInputNodes
+
+        PointerInputNode parentPointerInputNode = new PointerInputNode();
+        PointerInputHandlerTracker parentPointerInputHandlerTracker =
+                new PointerInputHandlerTracker(parentPointerInputNode, mTrackerList,
+                        pointerInputPassesToTrack);
+        parentPointerInputNode.setPointerInputHandler(parentPointerInputHandlerTracker);
+
+        PointerInputNode middlePointerInputNode = new PointerInputNode();
+        PointerInputHandlerTracker middlePointerInputHandlerTracker =
+                new PointerInputHandlerTracker(middlePointerInputNode, mTrackerList,
+                        pointerInputPassesToTrack);
+        middlePointerInputNode.setPointerInputHandler(middlePointerInputHandlerTracker);
+
+        PointerInputNode childPointerInputNode = new PointerInputNode();
+        PointerInputHandlerTracker childPointerInputHandlerTracker =
+                new PointerInputHandlerTracker(childPointerInputNode, mTrackerList,
+                        pointerInputPassesToTrack);
+        childPointerInputNode.setPointerInputHandler(childPointerInputHandlerTracker);
+
+        // Create LayoutNodes
+        LayoutNode parentLayoutNode = createLayoutNode(0, 0, 100, 100);
+        LayoutNode middleLayoutNode = createLayoutNode(2, 11, 100, 100);
+        LayoutNode childLayoutNode = createLayoutNode(23, 31, 100, 100);
+
+        // Setup tree
+        parentLayoutNode.emitInsertAt(0, parentPointerInputNode);
+        parentPointerInputNode.emitInsertAt(0, middleLayoutNode);
+        middleLayoutNode.emitInsertAt(0, middlePointerInputNode);
+        middlePointerInputNode.emitInsertAt(0, childLayoutNode);
+        childLayoutNode.emitInsertAt(0, childPointerInputNode);
+
+        Offset offset = createPixelOffset(99, 99);
+
+        PointerInputEvent down =
+                createPointerInputEvent(createDuration(0), 0, offset, true);
+        PointerInputEvent up =
+                createPointerInputEvent(createDuration(1), 0, null, false);
+
+        PointerInputEventProcessor pointerInputEventProcessor =
+                new PointerInputEventProcessor(mDensity, parentLayoutNode);
+
+        // Act
+
+        pointerInputEventProcessor.process(down);
+        pointerInputEventProcessor.process(up);
+
+        // Assert
+
+        Offset middleOffset = new Offset(
+                DensityKt.toPx(middleLayoutNode.getX(), mDensity),
+                DensityKt.toPx(middleLayoutNode.getY(), mDensity));
+
+        Offset childOffset = middleOffset.plus(new Offset(
+                DensityKt.toPx(childLayoutNode.getX(), mDensity),
+                DensityKt.toPx(childLayoutNode.getY(), mDensity)));
+
+        assertThat(mTrackerList.size(), is(equalTo(6)));
+        assertPointerInputChange(
+                mTrackerList.get(0),
+                parentPointerInputNode,
+                InitialDown,
+                0,
+                offset,
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(1),
+                middlePointerInputNode,
+                InitialDown,
+                0,
+                offset.minus(middleOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(2),
+                childPointerInputNode,
+                InitialDown,
+                0,
+                offset.minus(childOffset),
+                true,
+                null,
+                false,
+                createConsumeData());
+
+        assertPointerInputChange(
+                mTrackerList.get(3),
+                parentPointerInputNode,
+                InitialDown,
+                0,
+                null,
+                false,
+                offset,
+                true,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(4),
+                middlePointerInputNode,
+                InitialDown,
+                0,
+                null,
+                false,
+                offset.minus(middleOffset),
+                true,
+                createConsumeData());
+        assertPointerInputChange(
+                mTrackerList.get(5),
+                childPointerInputNode,
+                InitialDown,
+                0,
+                null,
+                false,
+                offset.minus(childOffset),
+                true,
+                createConsumeData());
+    }
+
     // Private helpers
 
     private Duration createDuration(long millis) {
         return Duration.create(0, 0, 0, 0, millis, 0);
     }
 
-    private LayoutNode createLayoutNode(int x, int y, int x2, int y2) {
+    private LayoutNode createLayoutNode(int xDp, int yDp, int xDp2, int yDp2) {
         LayoutNode layoutNode = new LayoutNode();
-        layoutNode.moveTo(new Dimension(x), new Dimension(y));
-        layoutNode.resize(new Dimension(x2 - x), new Dimension(y2 - y));
+        layoutNode.moveTo(new Dimension(xDp), new Dimension(yDp));
+        layoutNode.resize(new Dimension(xDp2 - xDp), new Dimension(yDp2 - yDp));
         return layoutNode;
     }
 
