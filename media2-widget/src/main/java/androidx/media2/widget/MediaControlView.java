@@ -1401,7 +1401,7 @@ public class MediaControlView extends ViewGroup {
 
         mSettingsIconIdsList = new ArrayList<Integer>();
         mSettingsIconIdsList.add(R.drawable.ic_audiotrack);
-        mSettingsIconIdsList.add(R.drawable.ic_play_circle_filled);
+        mSettingsIconIdsList.add(R.drawable.ic_speed);
 
         mAudioTrackList = new ArrayList<String>();
         mAudioTrackList.add(
