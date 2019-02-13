@@ -70,7 +70,7 @@ public final class CameraCaptureCallbacks {
             for (CameraCaptureCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpCameraCaptureCallback)) {
-                    this.mCallbacks.add(callback);
+                    mCallbacks.add(callback);
                 }
             }
         }

@@ -216,7 +216,7 @@ public final class UseCaseAttachState {
         private boolean mActive = false;
 
         UseCaseAttachInfo(SessionConfiguration sessionConfiguration) {
-            this.mSessionConfiguration = sessionConfiguration;
+            mSessionConfiguration = sessionConfiguration;
         }
 
         SessionConfiguration getSessionConfiguration() {

@@ -39,7 +39,7 @@ final class ForwardingImageReaderListener implements ImageReader.OnImageAvailabl
      * @return new {@link ForwardingImageReaderListener} instance
      */
     ForwardingImageReaderListener(List<QueuedImageReaderProxy> imageReaders) {
-        this.mImageReaders = Collections.unmodifiableList(imageReaders);
+        mImageReaders = Collections.unmodifiableList(imageReaders);
     }
 
     @Override

@@ -65,14 +65,14 @@ public final class ErrorHandler {
     void setErrorListener(ErrorListener listener, Handler handler) {
         synchronized (mErrorLock) {
             if (handler == null) {
-                this.mHandler = new Handler(Looper.getMainLooper());
+                mHandler = new Handler(Looper.getMainLooper());
             } else {
-                this.mHandler = handler;
+                mHandler = handler;
             }
             if (listener == null) {
-                this.mListener = new PrintingErrorListener();
+                mListener = new PrintingErrorListener();
             } else {
-                this.mListener = listener;
+                mListener = listener;
             }
         }
     }

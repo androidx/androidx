@@ -78,11 +78,11 @@ final class QueuedImageReaderProxy
      * @return new {@link QueuedImageReaderProxy} instance
      */
     QueuedImageReaderProxy(int width, int height, int format, int maxImages, Surface surface) {
-        this.mWidth = width;
-        this.mHeight = height;
-        this.mFormat = format;
-        this.mMaxImages = maxImages;
-        this.mSurface = surface;
+        mWidth = width;
+        mHeight = height;
+        mFormat = format;
+        mMaxImages = maxImages;
+        mSurface = surface;
         mImages = new ArrayList<>(maxImages);
         mCurrentPosition = 0;
         mClosed = false;
@@ -216,8 +216,8 @@ final class QueuedImageReaderProxy
             @Nullable OnImageAvailableListener onImageAvailableListener,
             @Nullable Handler onImageAvailableHandler) {
         throwExceptionIfClosed();
-        this.mOnImageAvailableListener = onImageAvailableListener;
-        this.mOnImageAvailableHandler = onImageAvailableHandler;
+        mOnImageAvailableListener = onImageAvailableListener;
+        mOnImageAvailableHandler = onImageAvailableHandler;
     }
 
     @Override

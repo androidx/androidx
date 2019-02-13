@@ -81,10 +81,7 @@ public abstract class SurfaceConfiguration {
      *
      * <p>These are the enumerations defined in {@link
      * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public enum ConfigurationType {
         PRIV,
         YUV,
@@ -97,10 +94,7 @@ public abstract class SurfaceConfiguration {
      *
      * <p>These are the enumerations defined in {@link
      * android.hardware.camera2.CameraDevice#createCaptureSession(List, StateCallback, Handler)}.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public enum ConfigurationSize {
         /** Default AYALYSIS size is 640x480. */
         ANALYSIS(0),

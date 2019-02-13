@@ -107,14 +107,10 @@ public final class CaptureRequestConfiguration {
         return Collections.unmodifiableList(mSurfaces);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public Map<Key<?>, CaptureRequestParameter<?>> getCameraCharacteristics() {
         return Collections.unmodifiableMap(mCaptureRequestParameters);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public Configuration getImplementationOptions() {
         return mImplementationOptions;
     }
@@ -123,14 +119,10 @@ public final class CaptureRequestConfiguration {
         return mTemplateType;
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public boolean isUseRepeatingSurface() {
         return mUseRepeatingSurface;
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraCaptureCallback getCameraCaptureCallback() {
         return mCameraCaptureCallback;
     }
@@ -139,10 +131,7 @@ public final class CaptureRequestConfiguration {
      * Return the builder of a {@link CaptureRequest} which can be issued.
      *
      * <p>Returns {@code null} if a valid {@link CaptureRequest} can not be constructed.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public CaptureRequest.Builder buildCaptureRequest(@Nullable CameraDevice device)
             throws CameraAccessException {
@@ -169,7 +158,12 @@ public final class CaptureRequestConfiguration {
         return builder;
     }
 
-    /** Builder for easy modification/rebuilding of a {@link CaptureRequestConfiguration}. */
+    /**
+     * Builder for easy modification/rebuilding of a {@link CaptureRequestConfiguration}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Builder {
         private final Set<DeferrableSurface> mSurfaces = new HashSet<>();
         private final Map<Key<?>, CaptureRequestParameter<?>> mCaptureRequestParameters =
@@ -238,25 +232,21 @@ public final class CaptureRequestConfiguration {
             return mSurfaces;
         }
 
-        /** Add a {@link CaptureRequest.Key}-value pair for the request. */
+        /** Add a {@link CaptureRequest.Key}-value pair to the request. */
         public <T> void addCharacteristic(Key<T> key, T value) {
             mCaptureRequestParameters.put(key, CaptureRequestParameter.create(key, value));
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        /** Add a set of {@link CaptureRequest.Key}-value pairs to the request. */
         public void addCharacteristics(Map<Key<?>, CaptureRequestParameter<?>> characteristics) {
             mCaptureRequestParameters.putAll(characteristics);
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         public void setImplementationOptions(Configuration config) {
             mImplementationOptions = MutableOptionsBundle.from(config);
         }
 
-        /** @hide */
-        @RestrictTo(Scope.LIBRARY_GROUP)
+        /** Add a set of implementation specific options to the request. */
         public void addImplementationOptions(Configuration config) {
             for (Option<?> option : config.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
