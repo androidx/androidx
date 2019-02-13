@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.camera.core;
+package androidx.camera.testing;
 
 import android.graphics.ImageFormat;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Size;
+
+import androidx.camera.core.ImageFormatConstants;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
