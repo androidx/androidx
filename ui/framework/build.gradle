@@ -47,3 +47,9 @@ supportLibrary {
     description = "AndroidX UI kernel classes for building up all other components."
     useMetalava = true
 }
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        useIR = true
+    }
+}

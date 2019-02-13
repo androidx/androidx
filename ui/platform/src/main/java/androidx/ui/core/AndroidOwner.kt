@@ -35,11 +35,11 @@ private class AndroidData(val view: ViewGroup) {
 }
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-internal class AndroidCraneView constructor(context: Context)
+class AndroidCraneView constructor(context: Context)
     : ViewGroup(context), Owner, SemanticsTreeProvider {
 
     private val adjustedLayouts = mutableListOf<LayoutNode>()
-    internal val root = LayoutNode()
+    val root = LayoutNode()
 
     var constraintsChanged: () -> Unit = {}
     var ref: Array<AndroidCraneView?>? = null
@@ -50,7 +50,7 @@ internal class AndroidCraneView constructor(context: Context)
             }
         }
 
-    val pointerInputEventProcessor = PointerInputEventProcessor(Density(context), root)
+    private val pointerInputEventProcessor = PointerInputEventProcessor(Density(context), root)
 
     var constraints = tightConstraints(width = 0.dp, height = 0.dp)
     // TODO(mount): reinstate when coroutines are supported by IR compiler

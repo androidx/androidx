@@ -19,28 +19,21 @@ package androidx.ui.core
 import androidx.ui.core.semantics.SemanticsProperties
 
 /**
- * Element responsible for providing the semantics tree of the hierarchy. Typically the root container.
- */
-interface SemanticsTreeProvider {
-
-    fun getAllSemanticNodes(): List<SemanticsTreeNode>
-}
-
-/**
  * Represent a node in the semantics tree together with information about its parent and children.
  *
  * @param parent Parent of this node or null if none
  * @param data The actual semantics data of this node
  */
-class SemanticsTreeNode(
-    val parent: SemanticsTreeNode?,
-    val data: SemanticsProperties
-) {
+class SemanticsTreeNodeImpl(
+    override val parent: SemanticsTreeNode?,
+    override val data: SemanticsProperties
+) : SemanticsTreeNode {
+    private val _children = mutableSetOf<SemanticsTreeNode>()
+    override val children: Set<SemanticsTreeNode>
+        get() = _children
 
-    val children: MutableSet<SemanticsTreeNode> = mutableSetOf()
-
-    internal fun addChild(child: SemanticsTreeNode) {
-        children.add(child)
+    fun addChild(child: SemanticsTreeNode) {
+        _children.add(child)
     }
 }
 
@@ -55,13 +48,13 @@ internal fun findAllSemanticNodesIn(rootNode: ComponentNode): List<SemanticsTree
 }
 
 private fun findAllSemanticNodesInternal(
-    parent: SemanticsTreeNode?,
+    parent: SemanticsTreeNodeImpl?,
     currentNode: ComponentNode,
     nodes: MutableList<SemanticsTreeNode>
 ) {
     var currentParent = parent
     if (currentNode is SemanticsR4ANode) {
-        val wrapper = SemanticsTreeNode(parent = parent, data = currentNode.properties)
+        val wrapper = SemanticsTreeNodeImpl(parent = parent, data = currentNode.properties)
         parent?.addChild(wrapper)
         nodes.add(wrapper)
         currentParent = parent

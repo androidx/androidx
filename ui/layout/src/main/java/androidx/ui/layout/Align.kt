@@ -18,7 +18,7 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dimension
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Position
 import androidx.ui.core.Size
 import androidx.ui.core.center

@@ -75,3 +75,14 @@ fun DensityConsumer(@Children children: (density: Density) -> Unit) {
         <children density />
     </DensityAmbient.Consumer>
 }
+
+/**
+ * Temporary needed to be able to use the component from the adapter module. b/120971484
+ */
+@Composable
+fun CraneWrapperComposable(@Children children: () -> Unit) {
+    <CraneWrapper>
+        <children />
+    </CraneWrapper>
+}
+

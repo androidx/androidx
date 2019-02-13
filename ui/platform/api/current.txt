@@ -1,6 +1,27 @@
 // Signature format: 3.0
 package androidx.ui.core {
 
+  public final class AndroidCraneView extends android.view.ViewGroup implements androidx.ui.core.Owner androidx.ui.core.SemanticsTreeProvider {
+    ctor public AndroidCraneView(android.content.Context context);
+    method public java.util.List<androidx.ui.core.SemanticsTreeNode> getAllSemanticNodes();
+    method public androidx.ui.core.Constraints getConstraints();
+    method public kotlin.jvm.functions.Function0<kotlin.Unit> getConstraintsChanged();
+    method public androidx.ui.core.AndroidCraneView[]? getRef();
+    method public androidx.ui.core.LayoutNode getRoot();
+    method public void onAttach(androidx.ui.core.ComponentNode node);
+    method public void onDetach(androidx.ui.core.ComponentNode node);
+    method public void onInvalidate(androidx.ui.core.DrawNode drawNode);
+    method public void onPositionChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void onSizeChange(androidx.ui.core.LayoutNode layoutNode);
+    method public void setConstraints(androidx.ui.core.Constraints p);
+    method public void setConstraintsChanged(kotlin.jvm.functions.Function0<kotlin.Unit> p);
+    method public void setRef(androidx.ui.core.AndroidCraneView[]? value);
+    property public final androidx.ui.core.Constraints constraints;
+    property public final kotlin.jvm.functions.Function0<kotlin.Unit> constraintsChanged;
+    property public final androidx.ui.core.AndroidCraneView[]? ref;
+    property public final androidx.ui.core.LayoutNode root;
+  }
+
   public abstract sealed class ComponentNode implements com.google.r4a.Emittable {
     method public void attach(androidx.ui.core.Owner owner);
     method public void detach();
@@ -116,6 +137,19 @@ package androidx.ui.core {
     method public androidx.ui.core.semantics.SemanticsProperties getProperties();
   }
 
+  public final class SemanticsTreeNodeImpl implements androidx.ui.core.SemanticsTreeNode {
+    ctor public SemanticsTreeNodeImpl(androidx.ui.core.SemanticsTreeNode? parent, androidx.ui.core.semantics.SemanticsProperties data);
+    method public void addChild(androidx.ui.core.SemanticsTreeNode child);
+    method public java.util.Set<androidx.ui.core.SemanticsTreeNode> getChildren();
+    method public androidx.ui.core.semantics.SemanticsProperties getData();
+    method public androidx.ui.core.SemanticsTreeNode? getParent();
+    property public java.util.Set<androidx.ui.core.SemanticsTreeNode> children;
+  }
+
+  public final class SemanticsTreeNodeImplKt {
+    ctor public SemanticsTreeNodeImplKt();
+  }
+
   public class SingleChildComponentNode extends androidx.ui.core.ComponentNode {
     ctor public SingleChildComponentNode();
     method public void emitMove(int from, int to, int count);
@@ -130,6 +164,42 @@ package androidx.ui.core {
     property public int count;
     property public androidx.ui.core.LayoutNode? layoutNode;
     property public androidx.ui.core.LayoutNode? parentLayoutNode;
+  }
+
+}
+
+package androidx.ui.core.pointerinput {
+
+  public final class MotionEventAdapterKt {
+    ctor public MotionEventAdapterKt();
+  }
+
+  public final class PointerInputChangeEventKt {
+    ctor public PointerInputChangeEventKt();
+    method public static boolean anyPositionChangeConsumed(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static boolean changedToDown(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static boolean changedToDownIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static boolean changedToUp(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static boolean changedToUpIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static androidx.ui.core.pointerinput.PointerInputChange consumeDownChange(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static androidx.ui.core.pointerinput.PointerInputChange consumePositionChange(androidx.ui.core.pointerinput.PointerInputChange, float consumedDx, float consumedDy);
+    method public static androidx.ui.engine.geometry.Offset positionChange(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static androidx.ui.engine.geometry.Offset positionChangeIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static boolean positionChanged(androidx.ui.core.pointerinput.PointerInputChange);
+    method public static boolean positionChangedIgnoreConsumed(androidx.ui.core.pointerinput.PointerInputChange);
+  }
+
+  public final class PointerInputEventData {
+    ctor public PointerInputEventData(int id, androidx.ui.core.pointerinput.PointerInputData pointerInputData);
+    method public int component1();
+    method public androidx.ui.core.pointerinput.PointerInputData component2();
+    method public androidx.ui.core.pointerinput.PointerInputEventData copy(int id, androidx.ui.core.pointerinput.PointerInputData pointerInputData);
+    method public int getId();
+    method public androidx.ui.core.pointerinput.PointerInputData getPointerInputData();
+  }
+
+  public final class PointerInputEventProcessorKt {
+    ctor public PointerInputEventProcessorKt();
   }
 
 }

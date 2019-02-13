@@ -26,7 +26,7 @@ plugins {
 dependencies {
     api(KOTLIN_R4A_STDLIB)
     api(KOTLIN_R4A_COROUTINES)
-    api project(":ui-framework")
+    api project(":ui-layout")
 }
 
 android {
@@ -37,10 +37,10 @@ android {
 }
 
 supportLibrary {
-    name = "Androidx UI Framework core IR-less adapter for R4a"
+    name = "Androidx UI Framework core IR-less adapter for R4A layouts"
     publish = true
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
-    description = "core components adapter for androidx UI."
+    description = "Adapters for layout -- will be removed in the future."
 }

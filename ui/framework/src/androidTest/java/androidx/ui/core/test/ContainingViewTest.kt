@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2019 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package androidx.ui.core.test
 
-import android.app.Activity
 import android.app.Instrumentation
 import android.graphics.Bitmap
 import android.os.Handler
@@ -41,11 +40,13 @@ import androidx.ui.core.plus
 import androidx.ui.core.times
 import androidx.ui.core.toPx
 import androidx.ui.engine.geometry.Rect
+import androidx.ui.framework.test.TestActivity
 import androidx.ui.painting.Color
 import androidx.ui.painting.Paint
 import com.google.r4a.Children
 import com.google.r4a.Composable
 import com.google.r4a.composeInto
+import com.google.r4a.composer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -57,7 +58,6 @@ import java.lang.Math.round
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
-import com.google.r4a.composer
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -208,19 +208,6 @@ class ContainingViewTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertEquals(PixelCopy.SUCCESS, copyResult)
         return dest
-    }
-
-    companion object {
-        class TestActivity : Activity() {
-            var hasFocusLatch = CountDownLatch(1)
-
-            override fun onWindowFocusChanged(hasFocus: Boolean) {
-                super.onWindowFocusChanged(hasFocus)
-                if (hasFocus) {
-                    hasFocusLatch.countDown()
-                }
-            }
-        }
     }
 }
 

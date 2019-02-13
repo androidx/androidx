@@ -16,48 +16,15 @@
 
 package androidx.ui.core.adapter
 
-import androidx.ui.core.ComplexMeasureOperations
-import androidx.ui.core.Constraints
-import androidx.ui.core.MeasureOperations
 import androidx.ui.layout.FlexChildren
 import androidx.ui.layout.StackChildren
 import com.google.r4a.Children
 import com.google.r4a.Composable
 
 // Ignore that the IDEA cannot resolve these.
-import androidx.ui.core.LayoutKt
 import androidx.ui.layout.AlignKt
 import androidx.ui.layout.FlexKt
 import androidx.ui.layout.StackKt
-
-/**
- * All this module is needed to work around b/120971484
- *
- * For the original logic:
- * @see androidx.ui.core.MeasureBox
- */
-@Composable
-@Suppress("PLUGIN_ERROR")
-fun MeasureBox(
-    @Children(composable = false) block:
-        (constraints: Constraints, operations: MeasureOperations) -> Unit
-) {
-    LayoutKt.MeasureBoxComposable(block)
-}
-
-/**
- * All this module is needed to work around b/120971484
- *
- * For the original logic:
- * @see androidx.ui.core.ComplexMeasureBox
- */
-@Composable
-@Suppress("PLUGIN_ERROR")
-fun ComplexMeasureBox(
-    @Children(composable = false) block: (operations: ComplexMeasureOperations) -> Unit
-) {
-    LayoutKt.ComplexMeasureBoxComposable(block)
-}
 
 /**
  * For the original logic:

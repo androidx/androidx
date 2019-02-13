@@ -29,7 +29,8 @@ import com.google.r4a.R4a
  * @return a [Placeable] that can be used within a [layoutResult] block
  */
 // TODO(mount): Make this an inline class when private constructors are possible
-class Measurable internal constructor(private val measureBox: ComplexMeasureBox) {
+class MeasurableImpl internal constructor(private val measureBox: ComplexMeasureBox) :
+    Measurable {
     private fun runBlock() {
         measureBox.minIntrinsicWidthBlock = ComplexMeasureBox.IntrinsicMeasurementStub
         measureBox.maxIntrinsicWidthBlock = ComplexMeasureBox.IntrinsicMeasurementStub
@@ -73,19 +74,6 @@ class Measurable internal constructor(private val measureBox: ComplexMeasureBox)
         runBlock()
         return measureBox.maxIntrinsicHeightBlock(w, IntrinsicMeasureOperations)
     }
-}
-
-/**
- * A [Placeable] corresponds to a child which can be positioned by its parent container.
- * Most [Placeable]s are the result of a [Measureable.measure] call.
- */
-// TODO(popam): investigate if this interface is really needed, as it blocks making
-//              MeasuredPlaceable an inline class
-interface Placeable {
-    val width: Dimension
-    val height: Dimension
-    // TODO(popam): make this possible only inside the layoutResult lambda
-    fun place(x: Dimension, y: Dimension)
 }
 
 /**
@@ -190,7 +178,10 @@ class ComplexMeasureBox(@Children(composable = false) var block:
         layoutNode.constraints = constraints
         layoutBlock(
             constraints,
-            { measurable, constraints -> measurable.measure(constraints)} /* measure lambda */,
+            { measurable, constraints ->
+                measurable as MeasurableImpl
+                measurable.measure(constraints)
+            } /* measure lambda */,
             IntrinsicMeasureOperations,
             { width, height, positioningBlock -> /* layoutResult lambda */
                 resize(width, height)
@@ -228,10 +219,13 @@ class ComplexMeasureBox(@Children(composable = false) var block:
  */
 // TODO(popam): remove this when receiver scopes for lambdas are available
 object IntrinsicMeasureOperations {
-    fun minIntrinsicWidth(m: Measurable, h: Dimension) = m.minIntrinsicWidth(h)
-    fun maxIntrinsicWidth(m: Measurable, h: Dimension) = m.maxIntrinsicWidth(h)
-    fun minIntrinsicHeight(m: Measurable, w: Dimension) = m.minIntrinsicHeight(w)
-    fun maxIntrinsicHeight(m: Measurable, w: Dimension) = m.maxIntrinsicHeight(w)
+    fun minIntrinsicWidth(m: Measurable, h: Dimension) = (m as MeasurableImpl).minIntrinsicWidth(h)
+    fun maxIntrinsicWidth(m: Measurable, h: Dimension) = (m as MeasurableImpl).maxIntrinsicWidth(h)
+    fun minIntrinsicHeight(m: Measurable, w: Dimension) =
+        (m as MeasurableImpl).minIntrinsicHeight(w)
+
+    fun maxIntrinsicHeight(m: Measurable, w: Dimension) =
+        (m as MeasurableImpl).maxIntrinsicHeight(w)
 }
 
 internal var recomposeComplexMeasureBox: ComplexMeasureBox? = null
@@ -276,7 +270,7 @@ class ComplexMeasureOperations internal constructor(
             .map { measureBox ->
                 measureBox as ComplexMeasureBox
                 measureBox.layoutNode.visible = false
-                Measurable(measureBox)
+                MeasurableImpl(measureBox)
             }
     }
 
@@ -336,45 +330,51 @@ class MeasureBox(
     override fun compose() {
         <ComplexMeasureBox> measureOperations ->
             measureOperations.layout { constraints, measure, _, layoutResult ->
-                block(constraints, MeasureOperations(measureOperations, measure, layoutResult))
+                block(constraints,
+                    MeasureOperationsImpl(measureOperations, measure, layoutResult)
+                )
             }
 
             measureOperations.minIntrinsicWidth { h, intrinsics ->
                 var intrinsicWidth = 0.dp
-                val measureOperations = MeasureOperations(measureOperations, { m, c ->
-                    val width = intrinsics.minIntrinsicWidth(m, c.minHeight)
-                    DummyPlaceable(width, h)
-                }, { width, _, _ -> intrinsicWidth = width })
+                val measureOperations =
+                    MeasureOperationsImpl(measureOperations, { m, c ->
+                        val width = intrinsics.minIntrinsicWidth(m, c.minHeight)
+                        DummyPlaceable(width, h)
+                    }, { width, _, _ -> intrinsicWidth = width })
                 val constraints = Constraints(0.dp, Float.POSITIVE_INFINITY.dp, h, h)
                 block(constraints, measureOperations)
                 intrinsicWidth
             }
             measureOperations.maxIntrinsicWidth { h, intrinsics ->
                 var intrinsicWidth = 0.dp
-                val measureOperations = MeasureOperations(measureOperations, { m, c ->
-                    val width = intrinsics.maxIntrinsicWidth(m, c.minHeight)
-                    DummyPlaceable(width, h)
-                }, { width, _, _ -> intrinsicWidth = width })
+                val measureOperations =
+                    MeasureOperationsImpl(measureOperations, { m, c ->
+                        val width = intrinsics.maxIntrinsicWidth(m, c.minHeight)
+                        DummyPlaceable(width, h)
+                    }, { width, _, _ -> intrinsicWidth = width })
                 val constraints = Constraints(0.dp, Float.POSITIVE_INFINITY.dp, h, h)
                 block(constraints, measureOperations)
                intrinsicWidth
             }
             measureOperations.minIntrinsicHeight { w, intrinsics ->
                 var intrinsicHeight = 0.dp
-                val measureOperations = MeasureOperations(measureOperations, { m, c ->
-                    val height = intrinsics.minIntrinsicHeight(m, c.minWidth)
-                    DummyPlaceable(w, height)
-                }, { _, height, _ -> intrinsicHeight = height })
+                val measureOperations =
+                    MeasureOperationsImpl(measureOperations, { m, c ->
+                        val height = intrinsics.minIntrinsicHeight(m, c.minWidth)
+                        DummyPlaceable(w, height)
+                    }, { _, height, _ -> intrinsicHeight = height })
                 val constraints = Constraints(w, w, 0.dp, Float.POSITIVE_INFINITY.dp)
                 block(constraints, measureOperations)
                 intrinsicHeight
             }
             measureOperations.maxIntrinsicHeight { w, intrinsics ->
                 var intrinsicHeight = 0.dp
-                val measureOperations = MeasureOperations(measureOperations, { m, c ->
-                    val height = intrinsics.maxIntrinsicHeight(m, c.minWidth)
-                    DummyPlaceable(w, height)
-                }, { _, height, _ -> intrinsicHeight = height })
+                val measureOperations =
+                    MeasureOperationsImpl(measureOperations, { m, c ->
+                        val height = intrinsics.maxIntrinsicHeight(m, c.minWidth)
+                        DummyPlaceable(w, height)
+                    }, { _, height, _ -> intrinsicHeight = height })
                 val constraints = Constraints(w, w, 0.dp, Float.POSITIVE_INFINITY.dp)
                 block(constraints, measureOperations)
                 intrinsicHeight
@@ -387,25 +387,25 @@ class MeasureBox(
  * Measure operations to be used with [MeasureBox].
  * Used to mask away intrinsics inside [MeasureBox].
  */
-class MeasureOperations(
+private class MeasureOperationsImpl(
     private val complexMeasureOperations: ComplexMeasureOperations,
     private val complexMeasure: (Measurable, Constraints) -> Placeable,
     private val complexLayoutResult: (Dimension, Dimension, () -> Unit) -> Unit
-) {
+) : MeasureOperations {
     /**
      * Compose [children] into the [MeasureBox] and return a list of [Measurable]s within
      * the children. Composition stops at [MeasureBox] children. Further composition requires
      * calling [Measurable.measure].
      */
     // TODO(popam): prevent collect from happening before every intrinsic measurement
-    fun collect(@Children children: () -> Unit): List<Measurable>
+    override fun collect(@Children children: () -> Unit): List<Measurable>
             = complexMeasureOperations.collect(children)
 
     /**
      * Measure the child [Measurable] with a specific set of [Constraints]. The result
      * is a [Placeable], which can be used inside the [layout] method to position the child.
      */
-    fun measure(measurable: Measurable, constraints: Constraints): Placeable
+    override fun measure(measurable: Measurable, constraints: Constraints): Placeable
             = complexMeasure(measurable, constraints)
 
     /**
@@ -413,7 +413,7 @@ class MeasureOperations(
      * calls to [Placeable.place], defining the positions of the children relative to the current
      * layout.
      */
-    fun layout(width: Dimension, height: Dimension, block: () -> Unit) {
+    override fun layout(width: Dimension, height: Dimension, block: () -> Unit) {
         complexLayoutResult(width, height, block)
     }
 }

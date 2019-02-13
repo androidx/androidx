@@ -18,7 +18,7 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dimension
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Placeable
 import androidx.ui.core.div
 import androidx.ui.core.dp

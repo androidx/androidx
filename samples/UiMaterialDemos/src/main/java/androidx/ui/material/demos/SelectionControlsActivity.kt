@@ -19,7 +19,7 @@ package androidx.ui.material.demos
 import android.app.Activity
 import android.os.Bundle
 import androidx.ui.baseui.selection.ToggleableState
-import androidx.ui.core.CraneWrapper
+import androidx.ui.core.adapter.CraneWrapper
 import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.div
 import androidx.ui.core.dp

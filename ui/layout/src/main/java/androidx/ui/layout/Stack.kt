@@ -18,7 +18,7 @@ package androidx.ui.layout
 
 import androidx.ui.core.Constraints
 import androidx.ui.core.Dimension
-import androidx.ui.core.MeasureBox
+import androidx.ui.core.adapter.MeasureBox
 import androidx.ui.core.Placeable
 import androidx.ui.core.Size
 import androidx.ui.core.dp
@@ -98,7 +98,7 @@ fun Stack(
         // First measure aligned children to get the size of the layout.
         (0 until children.size).filter { i -> !children[i].positioned }.forEach { i ->
            measureOperations.collect(children[i].children).map { measurable ->
-               measurable.measure(
+               measureOperations.measure(measurable,
                    Constraints(0.dp, constraints.maxWidth, 0.dp, constraints.maxHeight)
                )
            }.also {
