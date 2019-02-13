@@ -18,7 +18,6 @@ package androidx.activity;
 
 import static android.os.Build.VERSION.SDK_INT;
 
-import android.annotation.SuppressLint;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -50,7 +49,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * lower level building blocks are included. Higher level components can then be used as needed
  * without enforcing a deep Activity class hierarchy or strong coupling between components.
  */
-@SuppressLint("RestrictedApi")
 public class ComponentActivity extends androidx.core.app.ComponentActivity implements
         LifecycleOwner,
         ViewModelStoreOwner,
@@ -75,7 +73,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
     // Cache the ContentView layoutIds for Activities.
     private static final HashMap<Class, Integer> sAnnotationIds = new HashMap<>();
 
-    @SuppressLint("RestrictedApi")
     public ComponentActivity() {
         Lifecycle lifecycle = getLifecycle();
         //noinspection ConstantConditions
@@ -122,7 +119,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      * call {@link #setContentView(int)} for you.
      */
     @Override
-    @SuppressWarnings("RestrictedApi")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mSavedStateRegistryController.performRestore(savedInstanceState);
@@ -142,7 +138,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         }
     }
 
-    @SuppressLint("RestrictedApi")
     @CallSuper
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -374,7 +369,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         return mSavedStateRegistryController.getSavedStateRegistry();
     }
 
-    @SuppressLint("RestrictedApi")
     private class LifecycleAwareOnBackPressedCallback implements
             OnBackPressedCallback,
             GenericLifecycleObserver {

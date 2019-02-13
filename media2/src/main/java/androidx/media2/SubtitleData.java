@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -91,7 +91,7 @@ public final class SubtitleData {
 
     /** @hide */
     @RequiresApi(28)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public SubtitleData(android.media.SubtitleData subtitleData) {
         mTrackIndex = subtitleData.getTrackIndex();
         mStartTimeUs = subtitleData.getStartTimeUs();
@@ -100,7 +100,7 @@ public final class SubtitleData {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public SubtitleData(int trackIndex, long startTimeUs, long durationUs, byte[] data) {
         mTrackIndex = trackIndex;
         mStartTimeUs = startTimeUs;

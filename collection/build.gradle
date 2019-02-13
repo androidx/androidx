@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    compile("androidx.annotation:annotation:1.0.0")
+    compile(project(":annotation"))
     annotationProcessor(NULLAWAY)
     testCompile(JUNIT)
 }

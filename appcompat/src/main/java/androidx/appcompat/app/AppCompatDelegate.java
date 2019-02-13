@@ -16,7 +16,7 @@
 
 package androidx.appcompat.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -160,7 +160,7 @@ public abstract class AppCompatDelegate {
     private static int sDefaultNightMode = MODE_NIGHT_UNSPECIFIED;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({MODE_NIGHT_NO, MODE_NIGHT_YES, MODE_NIGHT_AUTO_TIME, MODE_NIGHT_FOLLOW_SYSTEM,
             MODE_NIGHT_UNSPECIFIED, MODE_NIGHT_AUTO_BATTERY})
     @Retention(RetentionPolicy.SOURCE)

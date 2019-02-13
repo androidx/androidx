@@ -15,7 +15,7 @@
  */
 package androidx.tvprovider.media.tv;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import androidx.annotation.RestrictTo;
 
@@ -25,7 +25,7 @@ import java.util.Arrays;
  * Static utilities for collections
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class CollectionUtils {
     /**
      * Returns an array with the arrays concatenated together.

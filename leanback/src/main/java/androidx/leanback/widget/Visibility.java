@@ -16,7 +16,7 @@
 
 package androidx.leanback.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.view.View;
 
@@ -27,7 +27,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /** @hide */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @IntDef({View.VISIBLE, View.INVISIBLE, View.GONE})
 @Retention(RetentionPolicy.SOURCE)
 public @interface Visibility {}

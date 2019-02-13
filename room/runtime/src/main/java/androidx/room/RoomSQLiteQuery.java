@@ -38,7 +38,7 @@ import java.util.TreeMap;
  * @hide
  */
 @SuppressWarnings("unused")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class RoomSQLiteQuery implements SupportSQLiteQuery, SupportSQLiteProgram {
     @SuppressWarnings("WeakerAccess")
     @VisibleForTesting

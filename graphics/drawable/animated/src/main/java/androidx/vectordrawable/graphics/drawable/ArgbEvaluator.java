@@ -16,7 +16,7 @@
 
 package androidx.vectordrawable.graphics.drawable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo;
  * values that represent ARGB colors.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ArgbEvaluator implements TypeEvaluator {
     private static final ArgbEvaluator sInstance = new ArgbEvaluator();
 

@@ -15,7 +15,7 @@
  */
 package androidx.tvprovider.media.tv;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -80,7 +80,7 @@ public final class Channel {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String[] PROJECTION = getProjection();
 
     private static final long INVALID_CHANNEL_ID = -1;
@@ -312,7 +312,7 @@ public final class Channel {
      * @return The value of {@link Channels#COLUMN_SYSTEM_APPROVED} for the channel.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isSystemApproved() {
         Integer i = mValues.getAsInteger(Channels.COLUMN_SYSTEM_APPROVED);
         return i != null && i == IS_SYSTEM_APPROVED;
@@ -372,7 +372,7 @@ public final class Channel {
      * @param includeProtectedFields Whether the fields protected by system is included or not.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ContentValues toContentValues(boolean includeProtectedFields) {
         ContentValues values = new ContentValues(mValues);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
@@ -621,7 +621,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         Builder setPackageName(String packageName) {
             mValues.put(Channels.COLUMN_PACKAGE_NAME, packageName);
             return this;
@@ -936,7 +936,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setBrowsable(boolean value) {
             mValues.put(Channels.COLUMN_BROWSABLE, value ? IS_BROWSABLE : 0);
             return this;
@@ -949,7 +949,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setSystemApproved(boolean value) {
             mValues.put(Channels.COLUMN_SYSTEM_APPROVED, value ? IS_SYSTEM_APPROVED : 0);
             return this;
@@ -989,7 +989,7 @@ public final class Channel {
          * @return This Builder object to allow for chaining of calls to builder methods.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder setLocked(boolean value) {
             mValues.put(Channels.COLUMN_LOCKED, value ? IS_LOCKED : 0);
             return this;

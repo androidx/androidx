@@ -53,12 +53,12 @@ import java.util.concurrent.Executor;
  * TODO(laisminchillo): unhide this when we're ready to expose this
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class ProxyController {
     /**
      * @hide Don't allow apps to sub-class this class.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public ProxyController() {}
 
     /**

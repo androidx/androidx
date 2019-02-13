@@ -84,9 +84,9 @@ public @interface RestrictTo {
 
         /**
          * Restrict usage to code within the same group ID (based on gradle
-         * group ID). This is an alias for {@link #LIBRARY_GROUP}.
+         * group ID). This is an alias for {@link #LIBRARY_GROUP_PREFIX}.
          *
-         * @deprecated Use {@link #LIBRARY_GROUP} instead
+         * @deprecated Use {@link #LIBRARY_GROUP_PREFIX} instead
          */
         @Deprecated
         GROUP_ID,

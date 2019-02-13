@@ -16,7 +16,7 @@
 package androidx.tvprovider.media.tv;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -46,7 +46,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final String[] PROJECTION = getProjection();
 
     private static final int INVALID_INT_VALUE = -1;
@@ -73,7 +73,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             PreviewProgramColumns.TYPE_GAME
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface Type {}
 
     /**
@@ -92,7 +92,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             PreviewProgramColumns.ASPECT_RATIO_MOVIE_POSTER
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface AspectRatio {}
 
     /**
@@ -110,7 +110,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             PreviewProgramColumns.AVAILABILITY_FREE
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface Availability {}
 
     /**
@@ -130,7 +130,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             PreviewProgramColumns.INTERACTION_TYPE_VIEWERS,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface InteractionType {}
 
     /** @hide */
@@ -139,7 +139,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
             PreviewProgramColumns.TV_SERIES_ITEM_TYPE_CHAPTER
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface TvSeriesItemType {}
 
     /**
@@ -422,7 +422,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
      * @param includeProtectedFields Whether the fields protected by system is included or not.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public ContentValues toContentValues(boolean includeProtectedFields) {
         ContentValues values = super.toContentValues();
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
@@ -976,7 +976,7 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * @see androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_BROWSABLE
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public T setBrowsable(boolean browsable) {
             mValues.put(PreviewPrograms.COLUMN_BROWSABLE, browsable ? IS_BROWSABLE : 0);
             return (T) this;

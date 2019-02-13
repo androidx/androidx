@@ -15,7 +15,7 @@
  */
 package androidx.core.content.pm;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -99,7 +99,7 @@ public class ShortcutInfoCompat {
      * @hide
      */
     @RequiresApi(22)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     private PersistableBundle buildExtrasBundle() {
         PersistableBundle bundle = new PersistableBundle();
         if (mPersons != null && mPersons.length > 0) {
@@ -227,7 +227,7 @@ public class ShortcutInfoCompat {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public IconCompat getIcon() {
         return mIcon;
     }
@@ -236,7 +236,7 @@ public class ShortcutInfoCompat {
      * @hide
      */
     @RequiresApi(25)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
     @Nullable
     static Person[] getPersonsFromExtra(@NonNull PersistableBundle bundle) {
@@ -257,7 +257,7 @@ public class ShortcutInfoCompat {
      * @hide
      */
     @RequiresApi(25)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @VisibleForTesting
     @Nullable
     static boolean getLongLivedFromExtra(@NonNull PersistableBundle bundle) {
@@ -283,7 +283,7 @@ public class ShortcutInfoCompat {
         /**
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder(@NonNull ShortcutInfoCompat shortcutInfo) {
             mInfo = new ShortcutInfoCompat();
             mInfo.mContext = shortcutInfo.mContext;
@@ -308,7 +308,7 @@ public class ShortcutInfoCompat {
          * @hide
          */
         @RequiresApi(25)
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder(@NonNull Context context, @NonNull ShortcutInfo shortcutInfo) {
             mInfo = new ShortcutInfoCompat();
             mInfo.mContext = context;

@@ -34,7 +34,7 @@ import java.util.List;
  */
 @SuppressWarnings("DeprecatedIsStillUsed")
 @Deprecated
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class TiledDataSource<T> extends PositionalDataSource<T> {
 
     @WorkerThread

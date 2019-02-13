@@ -26,7 +26,6 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.Slice.appendHints;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
@@ -85,7 +84,6 @@ import java.util.List;
  */
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true, isCustom = true)
 @RequiresApi(19)
-@SuppressLint("RestrictedApi")
 public final class SliceItem extends CustomVersionedParcelable {
 
     private static final String HINTS = "hints";
@@ -127,7 +125,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public SliceItem(Object obj, @SliceType String format, String subType,
             @Slice.SliceHint String[] hints) {
         mHints = hints;
@@ -139,7 +137,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public SliceItem(Object obj, @SliceType String format, String subType,
             @Slice.SliceHint List<String> hints) {
         this (obj, format, subType, hints.toArray(new String[hints.size()]));
@@ -149,14 +147,14 @@ public final class SliceItem extends CustomVersionedParcelable {
      * Used by VersionedParcelable.
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public SliceItem() {
     }
 
     /**
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public SliceItem(PendingIntent intent, Slice slice, String format, String subType,
             @Slice.SliceHint String[] hints) {
         this(new Pair<Object, Slice>(intent, slice), format, subType, hints);
@@ -165,7 +163,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public SliceItem(ActionHandler action, Slice slice, String format, String subType,
             @Slice.SliceHint String[] hints) {
         this(new Pair<Object, Slice>(action, slice), format, subType, hints);
@@ -191,7 +189,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public void addHint(@Slice.SliceHint String hint) {
         mHints = ArrayUtils.appendElement(String.class, mHints, hint);
     }
@@ -238,7 +236,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @return The text held by this {@link android.app.slice.SliceItem#FORMAT_TEXT} SliceItem with
      * ony spans that are unsupported by the androidx Slice renderer removed.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     public CharSequence getSanitizedText() {
         if (mSanitizedText == null) mSanitizedText = sanitizeText(getText());
         return mSanitizedText;
@@ -287,7 +285,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     public boolean fireActionInternal(@Nullable Context context, @Nullable Intent i)
             throws PendingIntent.CanceledException {
         Object action = ((Pair<Object, Slice>) mObj).first;
@@ -306,7 +304,7 @@ public final class SliceItem extends CustomVersionedParcelable {
      * @hide
      */
     @RequiresApi(20)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public RemoteInput getRemoteInput() {
         return (RemoteInput) mObj;
     }
@@ -387,7 +385,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY)
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public boolean hasAnyHints(@Slice.SliceHint String... hints) {
         if (hints == null) return false;
         for (String hint : hints) {
@@ -694,7 +692,7 @@ public final class SliceItem extends CustomVersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     public interface ActionHandler {
         /**
          * Called when a pending intent would be sent on a real slice.

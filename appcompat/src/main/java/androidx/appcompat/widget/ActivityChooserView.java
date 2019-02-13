@@ -16,7 +16,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.Intent;
@@ -72,7 +72,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ActivityChooserView extends ViewGroup implements
         ActivityChooserModel.ActivityChooserModelClient {
 
@@ -337,7 +337,7 @@ public class ActivityChooserView extends ViewGroup implements
      * Set the provider hosting this view, if applicable.
      * @hide Internal use only
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setProvider(ActionProvider provider) {
         mProvider = provider;
     }
@@ -858,7 +858,7 @@ public class ActivityChooserView extends ViewGroup implements
      * Allows us to set the background using TintTypedArray
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class InnerLayout extends LinearLayout {
 
         private static final int[] TINT_ATTRS = {

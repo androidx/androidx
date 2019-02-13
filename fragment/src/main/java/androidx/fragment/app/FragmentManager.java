@@ -16,7 +16,7 @@
 
 package androidx.fragment.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -136,7 +136,7 @@ public abstract class FragmentManager {
      * @hide -- remove once prebuilts are in.
      * @deprecated
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Deprecated
     @NonNull
     public FragmentTransaction openTransaction() {

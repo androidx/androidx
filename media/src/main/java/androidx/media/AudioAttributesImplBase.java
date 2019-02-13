@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_CONTENT_TYPE;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_FLAGS;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE;
@@ -57,22 +57,22 @@ import java.util.Arrays;
 
 /** @hide */
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplBase")
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class AudioAttributesImplBase implements AudioAttributesImpl {
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ParcelField(1)
     public int mUsage = USAGE_UNKNOWN;
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ParcelField(2)
     public int mContentType = CONTENT_TYPE_UNKNOWN;
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ParcelField(3)
     public int mFlags = 0x0;
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ParcelField(4)
     public int mLegacyStream = INVALID_STREAM_TYPE;
 

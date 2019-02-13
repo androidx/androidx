@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FtsEntityBundle extends EntityBundle {
 
     private static final String [] SHADOW_TABLE_NAME_SUFFIXES = {

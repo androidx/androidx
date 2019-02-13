@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @param <T> The type of the live data
  * @hide internal
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class ComputableLiveData<T> {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final Executor mExecutor;

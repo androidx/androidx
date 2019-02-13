@@ -17,7 +17,7 @@
 package android.support.v4.media.session;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
 import android.app.PendingIntent;
@@ -541,7 +541,7 @@ public final class MediaControllerCompat {
      * @return The session's token as VersionedParcelable.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @Nullable VersionedParcelable getSession2Token() {
         return mToken.getSession2Token();
     }

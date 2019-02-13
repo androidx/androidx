@@ -16,9 +16,8 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.annotation.SuppressLint;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
@@ -184,7 +183,6 @@ public abstract class PreferenceFragment extends Fragment implements
     public abstract void onCreatePreferences(Bundle savedInstanceState, String rootKey);
 
     @Override
-    @SuppressLint("RestrictedApi")
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
@@ -516,11 +514,11 @@ public abstract class PreferenceFragment extends Fragment implements
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onBindPreferences() {}
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onUnbindPreferences() {}
 
     /**
@@ -647,7 +645,7 @@ public abstract class PreferenceFragment extends Fragment implements
      * @return The {@link Fragment} to possibly use as a callback
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public Fragment getCallbackFragment() {
         return null;
     }

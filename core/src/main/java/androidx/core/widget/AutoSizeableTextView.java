@@ -16,7 +16,7 @@
 
 package androidx.core.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Build;
 import android.util.TypedValue;
@@ -30,12 +30,12 @@ import androidx.annotation.RestrictTo;
  *
  * @hide Internal use only
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface AutoSizeableTextView {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     boolean PLATFORM_SUPPORTS_AUTOSIZE = Build.VERSION.SDK_INT >= 27;
 
     /**

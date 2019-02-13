@@ -38,7 +38,6 @@ import static android.app.slice.SliceItem.FORMAT_TEXT;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
 
-import android.annotation.SuppressLint;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -58,7 +57,7 @@ import java.util.List;
  * Extracts information required to present content in a row format from a slice.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 public class RowContent extends SliceContent {
     private static final String TAG = "RowContent";
@@ -87,7 +86,6 @@ public class RowContent extends SliceContent {
     /**
      * @return whether this row has content that is valid to display.
      */
-    @SuppressLint("RestrictedApi")
     private boolean populate(SliceItem rowSlice, boolean isHeader) {
         mIsHeader = isHeader;
         if (!isValidRow(rowSlice)) {
@@ -164,7 +162,6 @@ public class RowContent extends SliceContent {
         return isValid();
     }
 
-    @SuppressLint("RestrictedApi")
     private void processContent(@NonNull SliceItem item, boolean isAction) {
         if (isAction) {
             SliceAction ac = new SliceActionImpl(item);
@@ -430,7 +427,6 @@ public class RowContent extends SliceContent {
     /**
      * @return whether this item is valid content to visibly appear in a row.
      */
-    @SuppressLint("RestrictedApi")
     private static boolean isValidRowContent(SliceItem slice, SliceItem item) {
         // XXX: This is fragile -- new subtypes may be erroneously displayed by old clients, since
         // this is effectively a blocklist, not an allowlist. I'm not sure if SELECTION_OPTION_KEY

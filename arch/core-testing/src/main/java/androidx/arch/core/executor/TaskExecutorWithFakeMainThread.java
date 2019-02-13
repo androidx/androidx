@@ -36,7 +36,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @SuppressLint("SyntheticAccessor")
 public class TaskExecutorWithFakeMainThread extends TaskExecutor {
     @SuppressWarnings("WeakerAccess") /* synthetic access */

@@ -40,7 +40,7 @@ import java.util.Locale;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public final class SelectionEvent {
     private static final String EXTRA_ABSOLUTE_START = "extra_absolute_start";
     private static final String EXTRA_ABSOLUTE_END = "extra_absolute_end";
@@ -184,7 +184,6 @@ public final class SelectionEvent {
     @Nullable
     private TextSelection mTextSelection;
 
-    @SuppressLint("RestrictedApi")
     /* package */ SelectionEvent(
             int start, int end,
             @EventType int eventType, @EntityType String entityType,
@@ -309,7 +308,6 @@ public final class SelectionEvent {
      * @throws IllegalArgumentException if end is less than start
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public static SelectionEvent createSelectionModifiedEvent(int start, int end) {
         Preconditions.checkArgument(end >= start, "end cannot be less than start");
         return new SelectionEvent(
@@ -329,7 +327,6 @@ public final class SelectionEvent {
      * @throws IllegalArgumentException if end is less than start
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public static SelectionEvent createSelectionModifiedEvent(
             int start, int end, @NonNull TextClassification classification) {
         Preconditions.checkArgument(end >= start, "end cannot be less than start");
@@ -357,7 +354,6 @@ public final class SelectionEvent {
      * @throws IllegalArgumentException if end is less than start
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public static SelectionEvent createSelectionModifiedEvent(
             int start, int end, @NonNull TextSelection selection) {
         Preconditions.checkArgument(end >= start, "end cannot be less than start");
@@ -383,7 +379,6 @@ public final class SelectionEvent {
      * @throws IllegalArgumentException if end is less than start
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public static SelectionEvent createSelectionActionEvent(
             int start, int end, @SelectionEvent.ActionType int actionType) {
         Preconditions.checkArgument(end >= start, "end cannot be less than start");
@@ -408,7 +403,6 @@ public final class SelectionEvent {
      * @throws IllegalArgumentException If actionType is not a valid SelectionEvent actionType
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public static SelectionEvent createSelectionActionEvent(
             int start, int end, @SelectionEvent.ActionType int actionType,
             @NonNull TextClassification classification) {
@@ -744,10 +738,10 @@ public final class SelectionEvent {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @SuppressLint("WrongConstant")
     @RequiresApi(28)
     @NonNull
     // Lint does not know the constants in platform and here are same
-    @SuppressLint({"WrongConstant", "RestrictedApi"})
     Object toPlatform(@NonNull Context context) {
         Preconditions.checkNotNull(context);
 
@@ -771,7 +765,6 @@ public final class SelectionEvent {
 
     @NonNull
     @RequiresApi(28)
-    @SuppressLint("RestrictedApi")
     private android.view.textclassifier.SelectionEvent toPlatformSelectionModifiedEvent(
             @NonNull Context context) {
         Preconditions.checkNotNull(context);
@@ -792,8 +785,8 @@ public final class SelectionEvent {
 
     @NonNull
     @RequiresApi(28)
+    @SuppressLint("WrongConstant")
     // Lint does not know the constants in platform and here are same
-    @SuppressLint({"WrongConstant", "RestrictedApi"})
     private android.view.textclassifier.SelectionEvent toPlatformSelectionActionEvent(
             @NonNull Context context) {
         Preconditions.checkNotNull(context);

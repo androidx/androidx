@@ -15,7 +15,7 @@
  */
 package androidx.core.content.res;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -45,7 +45,7 @@ import org.xmlpull.v1.XmlPullParser;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TypedArrayUtils {
 
     private static final String NAMESPACE = "http://schemas.android.com/apk/res/android";

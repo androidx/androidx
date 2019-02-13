@@ -15,7 +15,7 @@
  */
 package androidx.emoji.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.text.Editable;
 import android.view.inputmethod.EditorInfo;
@@ -37,7 +37,7 @@ import androidx.emoji.text.EmojiCompat;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 final class EmojiInputConnection extends InputConnectionWrapper {
     private final TextView mTextView;

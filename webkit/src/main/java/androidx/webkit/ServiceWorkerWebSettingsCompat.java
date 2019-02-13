@@ -35,11 +35,11 @@ public abstract class ServiceWorkerWebSettingsCompat {
     /**
      * @hide Don't allow apps to sub-class this class.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public ServiceWorkerWebSettingsCompat() {}
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @IntDef(value = {
             WebSettings.LOAD_DEFAULT,
             WebSettings.LOAD_CACHE_ELSE_NETWORK,

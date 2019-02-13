@@ -13,7 +13,7 @@
  */
 package androidx.leanback.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.util.Log;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
  * editing finished, maintain the Ime open/close status.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class GuidedActionAdapterGroup {
 
     private static final String TAG_EDIT = "EditableAction";

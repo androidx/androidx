@@ -37,7 +37,7 @@ import java.util.List;
  * Utilities for finding content within a Slice.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 public class SliceQuery {
 
@@ -298,7 +298,7 @@ public class SliceQuery {
     /**
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static SliceItem findItem(Slice s, final Uri uri) {
         return findSliceItem(toQueue(s), new Filter<SliceItem>() {
             @Override

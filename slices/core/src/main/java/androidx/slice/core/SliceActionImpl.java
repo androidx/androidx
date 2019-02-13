@@ -29,8 +29,8 @@ import static android.app.slice.SliceItem.FORMAT_IMAGE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.LARGE_IMAGE;
 import static androidx.slice.core.SliceHints.SMALL_IMAGE;
@@ -52,7 +52,7 @@ import androidx.slice.SliceItem;
  * Class representing an action, supports tappable icons, custom toggle icons, and default toggles.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(19)
 public class SliceActionImpl implements SliceAction {
 
@@ -147,7 +147,7 @@ public class SliceActionImpl implements SliceAction {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP)
     public SliceActionImpl(SliceItem slice) {
         mSliceItem = slice;
         SliceItem actionItem = SliceQuery.find(slice, FORMAT_ACTION);
@@ -225,7 +225,7 @@ public class SliceActionImpl implements SliceAction {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public SliceItem getActionItem() {
         return mActionItem;
     }

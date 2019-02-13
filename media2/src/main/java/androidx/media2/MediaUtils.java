@@ -76,7 +76,7 @@ import java.util.concurrent.Executor;
 /**
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class MediaUtils {
     public static final String TAG = "MediaUtils";

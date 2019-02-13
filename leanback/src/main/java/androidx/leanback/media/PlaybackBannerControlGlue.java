@@ -16,7 +16,7 @@
 
 package androidx.leanback.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.util.Log;
@@ -95,7 +95,7 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
             ACTION_SKIP_TO_NEXT,
             ACTION_CUSTOM_RIGHT_FIRST
     })
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     public @interface ACTION_ {}
 
@@ -151,7 +151,7 @@ public class PlaybackBannerControlGlue<T extends PlayerAdapter>
                     PLAYBACK_SPEED_FAST_L3,
                     PLAYBACK_SPEED_FAST_L4
     })
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     private @interface SPEED {}
 

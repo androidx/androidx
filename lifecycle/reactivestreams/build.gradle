@@ -34,7 +34,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-runtime"))
-    api(SUPPORT_ANNOTATIONS)
+    api(project(":annotation"))
     api(REACTIVE_STREAMS)
 
     annotationProcessor(NULLAWAY)

@@ -16,7 +16,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -39,13 +39,13 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat;
+import androidx.appcompat.resources.R;
 import androidx.collection.ArrayMap;
 import androidx.collection.LongSparseArray;
 import androidx.collection.LruCache;
 import androidx.collection.SparseArrayCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import androidx.appcompat.resources.R;
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat;
 import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
@@ -58,9 +58,10 @@ import java.util.WeakHashMap;
 /**
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class ResourceManagerInternal {
-    @RestrictTo(LIBRARY_GROUP)
+    /** @hide */
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     interface ResourceManagerHooks {
         Drawable createDrawableFor(@NonNull ResourceManagerInternal appCompatDrawableManager,
                 @NonNull Context context, @DrawableRes final int resId);

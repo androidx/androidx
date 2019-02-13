@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.media.AudioAttributes;
 import android.media.AudioManager;
@@ -248,7 +248,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ParcelField(1)
     public AudioAttributesImpl mImpl;
 
@@ -350,7 +350,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @NonNull Bundle toBundle() {
         return mImpl.toBundle();
     }
@@ -358,7 +358,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static AudioAttributesCompat fromBundle(Bundle bundle) {
         AudioAttributesImpl impl;
         if (Build.VERSION.SDK_INT >= 21) {
@@ -571,7 +571,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
      *
      * @hide For testing only.
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static void setForceLegacyBehavior(boolean force) {
         sForceLegacyBehavior = force;
     }
@@ -664,7 +664,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
             USAGE_GAME,
             USAGE_ASSISTANT,
     })
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     public @interface AttributeUsage {
     }
@@ -678,7 +678,7 @@ public class AudioAttributesCompat implements VersionedParcelable {
             CONTENT_TYPE_SONIFICATION
     })
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface AttributeContentType {
     }
 }

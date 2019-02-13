@@ -16,7 +16,7 @@
 
 package androidx.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -198,7 +198,7 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected boolean needInputMethod() {
         return false;
     }

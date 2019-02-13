@@ -16,7 +16,7 @@
 
 package androidx.media;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_FRAMEWORKS;
 import static androidx.media.AudioAttributesCompat.AUDIO_ATTRIBUTES_LEGACY_STREAM_TYPE;
 import static androidx.media.AudioAttributesCompat.INVALID_STREAM_TYPE;
@@ -33,18 +33,18 @@ import androidx.versionedparcelable.VersionedParcelize;
 
 /** @hide */
 @VersionedParcelize(jetifyAs = "android.support.v4.media.AudioAttributesImplApi21")
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(21)
 public class AudioAttributesImplApi21 implements AudioAttributesImpl {
     private static final String TAG = "AudioAttributesCompat21";
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ParcelField(1)
     public AudioAttributes mAudioAttributes;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @ParcelField(2)
     public int mLegacyStreamType = INVALID_STREAM_TYPE;
 

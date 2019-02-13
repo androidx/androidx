@@ -17,7 +17,7 @@
 package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.os.SystemClock;
@@ -65,7 +65,7 @@ public class LibraryResult extends CustomVersionedParcelable implements RemoteRe
             RESULT_ERROR_SESSION_SKIP_LIMIT_REACHED,
             RESULT_ERROR_SESSION_SETUP_REQUIRED})
     @Retention(RetentionPolicy.SOURCE)
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public @interface ResultCode {}
 
     @ParcelField(1)

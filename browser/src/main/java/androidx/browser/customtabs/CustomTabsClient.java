@@ -16,7 +16,7 @@
 
 package androidx.browser.customtabs;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -50,7 +50,7 @@ public class CustomTabsClient {
     private final ComponentName mServiceComponentName;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     CustomTabsClient(ICustomTabsService service, ComponentName componentName) {
         mService = service;
         mServiceComponentName = componentName;

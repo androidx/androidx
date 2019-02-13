@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.media2.SessionCommand.COMMAND_CODE_CUSTOM;
 import static androidx.media2.SessionCommand.COMMAND_VERSION_1;
 
@@ -67,7 +67,7 @@ public final class SessionCommandGroup implements VersionedParcelable {
      * @param command A command to add. Shouldn't be {@code null}.
      * @hide TODO remove this method
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void addCommand(@NonNull SessionCommand command) {
         if (command == null) {
             throw new IllegalArgumentException("command shouldn't be null");
@@ -84,7 +84,7 @@ public final class SessionCommandGroup implements VersionedParcelable {
      *                    Shouldn't be {@link SessionCommand#COMMAND_CODE_CUSTOM}.
      * @hide TODO remove this method
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void addCommand(@CommandCode int commandCode) {
         if (commandCode == COMMAND_CODE_CUSTOM) {
             throw new IllegalArgumentException(

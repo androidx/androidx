@@ -24,7 +24,7 @@ import static android.view.View.TEXT_DIRECTION_LOCALE;
 import static android.view.View.TEXT_DIRECTION_LTR;
 import static android.view.View.TEXT_DIRECTION_RTL;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
 import android.content.Context;
@@ -90,7 +90,7 @@ public final class TextViewCompat {
     public static final int AUTO_SIZE_TEXT_TYPE_UNIFORM = TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({AUTO_SIZE_TEXT_TYPE_NONE, AUTO_SIZE_TEXT_TYPE_UNIFORM})
     @Retention(RetentionPolicy.SOURCE)
     public @interface AutoSizeTextType {}
@@ -511,7 +511,7 @@ public final class TextViewCompat {
      * @see #setCustomSelectionActionModeCallback(TextView, ActionMode.Callback)
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     public static ActionMode.Callback wrapCustomSelectionActionModeCallback(
             @NonNull final TextView textView,

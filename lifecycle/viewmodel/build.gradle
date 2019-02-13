@@ -34,7 +34,7 @@ android {
 }
 
 dependencies {
-    api(SUPPORT_ANNOTATIONS)
+    api(project(":annotation"))
 
     testImplementation(JUNIT)
     testImplementation(MOCKITO_CORE)

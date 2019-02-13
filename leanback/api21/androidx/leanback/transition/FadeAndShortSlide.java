@@ -15,7 +15,7 @@
  */
 package androidx.leanback.transition;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -42,7 +42,7 @@ import androidx.leanback.R;
  * @hide
  */
 @RequiresApi(21)
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class FadeAndShortSlide extends Visibility {
 
     private static final TimeInterpolator sDecelerate = new DecelerateInterpolator();

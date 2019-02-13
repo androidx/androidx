@@ -53,7 +53,6 @@ public class FragmentController {
      * Returns a {@link FragmentController}.
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public static FragmentController createController(@NonNull FragmentHostCallback<?> callbacks) {
         return new FragmentController(checkNotNull(callbacks, "callbacks == null"));
     }

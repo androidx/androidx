@@ -30,7 +30,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public interface CallbackBase<T> {
 
     /**
@@ -38,7 +38,7 @@ public interface CallbackBase<T> {
      * be used in the context on {@link CallbackReceiver#createRemoteCallback}.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     RemoteCallback toRemoteCallback(Class<T> cls, Context context, String authority, Bundle args,
             String method);
 }

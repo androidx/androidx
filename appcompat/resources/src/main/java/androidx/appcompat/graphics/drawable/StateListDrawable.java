@@ -19,7 +19,7 @@ package androidx.appcompat.graphics.drawable;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.content.res.TypedArrayUtils.obtainAttributes;
 
 import android.content.Context;
@@ -35,8 +35,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.resources.R;
-
 import androidx.appcompat.widget.ResourceManagerInternal;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -75,7 +75,7 @@ import java.util.Arrays;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 class StateListDrawable extends DrawableContainer {
     private static final String TAG = "StateListDrawable";
     private static final boolean DEBUG = false;

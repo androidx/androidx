@@ -16,7 +16,7 @@
 
 package androidx.fragment.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -151,7 +151,6 @@ public class FragmentActivity extends ComponentActivity implements
             }
             return;
         }
-        @SuppressLint("RestrictedApi")
         ActivityCompat.PermissionCompatDelegate delegate =
                 ActivityCompat.getPermissionCompatDelegate();
         if (delegate != null && delegate.onActivityResult(this, requestCode, resultCode, data)) {
@@ -481,7 +480,7 @@ public class FragmentActivity extends ComponentActivity implements
      * @hide
      * @deprecated Override {@link #onPreparePanel(int, View, Menu)}.
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Deprecated
     protected boolean onPrepareOptionsPanel(@Nullable View view, @NonNull Menu menu) {
         return super.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, view, menu);

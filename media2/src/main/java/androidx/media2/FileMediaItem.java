@@ -16,7 +16,7 @@
 
 package androidx.media2;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
@@ -109,7 +109,7 @@ public class FileMediaItem extends MediaItem {
      * Increases reference count for underlying ParcelFileDescriptor.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void increaseRefCount() {
         synchronized (mRefCount) {
             if (mClosed) {
@@ -125,7 +125,7 @@ public class FileMediaItem extends MediaItem {
      * be closed when the count becomes zero.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void decreaseRefCount() {
         synchronized (mRefCount) {
             if (mClosed) {

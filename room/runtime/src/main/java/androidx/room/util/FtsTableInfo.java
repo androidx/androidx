@@ -33,7 +33,7 @@ import java.util.Set;
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FtsTableInfo {
 
     // A set of valid FTS Options

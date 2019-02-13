@@ -35,7 +35,6 @@ import androidx.core.util.Preconditions;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(Build.VERSION_CODES.O)
-@SuppressLint("RestrictedApi")
 public class PlatformTextClassifierWrapper extends TextClassifier {
     private final android.view.textclassifier.TextClassifier mPlatformTextClassifier;
     private final Context mContext;
@@ -69,7 +68,6 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @WorkerThread
     @Override
     // TODO https://issuetracker.google.com/issues/116776070
-    @SuppressLint({"WrongThread", "RestrictedApi"})
     public TextSelection suggestSelection(@NonNull TextSelection.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();
@@ -114,7 +112,6 @@ public class PlatformTextClassifierWrapper extends TextClassifier {
     @NonNull
     @WorkerThread
     @Override
-    @SuppressLint({"WrongThread", "RestrictedApi"}) // TODO https://issuetracker.google.com/issues/116776070
     public TextLinks generateLinks(@NonNull TextLinks.Request request) {
         Preconditions.checkNotNull(request);
         ensureNotOnMainThread();

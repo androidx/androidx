@@ -28,7 +28,7 @@ import java.util.concurrent.Executor;
  *
  * @hide This API is not final.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class ArchTaskExecutor extends TaskExecutor {
     private static volatile ArchTaskExecutor sInstance;
 
