@@ -44,6 +44,7 @@ attr persistent
 attr positiveButtonText
 attr preferenceActivityStyle
 attr preferenceCategoryStyle
+attr preferenceCategoryTitleTextAppearance
 attr preferenceFragmentCompatStyle
 attr preferenceFragmentListStyle
 attr preferenceFragmentPaddingSide
