@@ -24,7 +24,7 @@ android {
 }
 supportLibrary {
     name = "Enterprise Feedback"
-    publish = false
+    publish = true
     mavenVersion = LibraryVersions.ENTERPRISE
     mavenGroup = LibraryGroups.ENTERPRISE
     inceptionYear = "2019"
