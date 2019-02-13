@@ -246,8 +246,10 @@ public class FragmentNavigator extends Navigator<FragmentNavigator.Destination> 
                 // back stack, a simple replace() isn't enough so we
                 // remove it from the back stack and put our replacement
                 // on the back stack in its place
-                mFragmentManager.popBackStack();
-                ft.addToBackStack(generateBackStackName(mBackStack.size() + 1, destId));
+                mFragmentManager.popBackStack(
+                        generateBackStackName(mBackStack.size(), mBackStack.peekLast()),
+                        FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                ft.addToBackStack(generateBackStackName(mBackStack.size(), destId));
                 mIsPendingBackStackOperation = true;
             }
             isAdded = false;
