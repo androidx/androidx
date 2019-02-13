@@ -285,9 +285,9 @@ class NavControllerTest {
         assertEquals(1, navigator.backStack.size)
 
         val success = navController.popBackStack()
-        assertWithMessage("NavController should return true when popping the root")
+        assertWithMessage("NavController should return false when popping the root")
                 .that(success)
-                .isTrue()
+                .isFalse()
         assertNull(navController.currentDestination)
         assertEquals(0, navigator.backStack.size)
     }
@@ -301,14 +301,17 @@ class NavControllerTest {
         assertEquals(1, navigator.backStack.size)
 
         val success = navController.popBackStack()
-        assertWithMessage("NavController should return true when popping the root")
+        assertWithMessage("NavController should return false when popping the root")
                 .that(success)
-                .isTrue()
+                .isFalse()
         assertNull(navController.currentDestination)
         assertEquals(0, navigator.backStack.size)
 
         val popped = navController.popBackStack()
-        assertFalse(popped)
+        assertWithMessage("popBackStack should return false when there's nothing on the " +
+                "back stack")
+            .that(popped)
+            .isFalse()
     }
 
     @Test
@@ -323,7 +326,10 @@ class NavControllerTest {
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         assertEquals(2, navigator.backStack.size)
 
-        navController.popBackStack()
+        val popped = navController.popBackStack()
+        assertWithMessage("NavController should return true when popping a non-root destination")
+            .that(popped)
+            .isTrue()
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
         assertEquals(1, navigator.backStack.size)
     }
@@ -341,7 +347,9 @@ class NavControllerTest {
         assertEquals(2, navigator.backStack.size)
 
         val popped = navController.popBackStack(UNKNOWN_DESTINATION_ID, false)
-        assertFalse(popped)
+        assertWithMessage("Popping to an invalid destination should return false")
+            .that(popped)
+            .isFalse()
         assertEquals(R.id.second_test, navController.currentDestination?.id ?: 0)
         assertEquals(2, navigator.backStack.size)
     }
@@ -420,7 +428,9 @@ class NavControllerTest {
         assertEquals(2, navigator.backStack.size)
 
         // This should function identically to popBackStack()
-        navController.navigateUp()
+        val success = navController.navigateUp()
+        assertThat(success)
+            .isTrue()
         assertEquals(R.id.start_test, navController.currentDestination?.id ?: 0)
         assertEquals(1, navigator.backStack.size)
     }
