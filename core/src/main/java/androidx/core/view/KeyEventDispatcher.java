@@ -40,7 +40,7 @@ import java.lang.reflect.Method;
  * This must be used for some core compatibility features to function fully.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class KeyEventDispatcher {
     // reflection accessors
     private static boolean sActionBarFieldsFetched = false;

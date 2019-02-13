@@ -16,7 +16,7 @@
 
 package androidx.core.graphics;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -49,7 +49,7 @@ import java.util.Map;
  * Implementation of the Typeface compat methods for API 26 and above.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(26)
 public class TypefaceCompatApi26Impl extends TypefaceCompatApi21Impl {
     private static final String TAG = "TypefaceCompatApi26Impl";

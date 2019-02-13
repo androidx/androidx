@@ -16,7 +16,7 @@
 
 package androidx.core.graphics.drawable;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.drawable.Drawable;
 
@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public interface WrappedDrawable {
     Drawable getWrappedDrawable();
     void setWrappedDrawable(Drawable drawable);

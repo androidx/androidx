@@ -16,7 +16,7 @@
 
 package androidx.car.widget.itemdecorators;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -39,7 +39,7 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class DividerDecoration extends RecyclerView.ItemDecoration {
     public static final int INVALID_RESOURCE_ID = -1;
 

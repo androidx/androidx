@@ -16,7 +16,7 @@
 
 package androidx.core.text;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Build;
 import android.text.Layout;
@@ -260,7 +260,7 @@ public class PrecomputedTextCompat implements Spannable {
          * Similar to equals but don't compare text direction
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public boolean equalsWithoutTextDirection(@NonNull Params other) {
 
             if (mWrapped != null) {
@@ -495,7 +495,7 @@ public class PrecomputedTextCompat implements Spannable {
      * Returns the underlying original text if the text is PrecomputedText.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(28)
     public @Nullable PrecomputedText getPrecomputedText() {
         if (mText instanceof PrecomputedText) {

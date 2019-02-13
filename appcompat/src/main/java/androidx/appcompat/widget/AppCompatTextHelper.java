@@ -16,7 +16,7 @@
 
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.core.widget.AutoSizeableTextView.PLATFORM_SUPPORTS_AUTOSIZE;
 
 import android.annotation.SuppressLint;
@@ -522,7 +522,7 @@ class AppCompatTextHelper {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     void onLayout(boolean changed, int left, int top, int right, int bottom) {
         if (!PLATFORM_SUPPORTS_AUTOSIZE) {
             autoSizeText();
@@ -530,7 +530,7 @@ class AppCompatTextHelper {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setTextSize(int unit, float size) {
         if (!PLATFORM_SUPPORTS_AUTOSIZE) {
             if (!isAutoSizeEnabled()) {
@@ -540,13 +540,13 @@ class AppCompatTextHelper {
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     void autoSizeText() {
         mAutoSizeTextHelper.autoSizeText();
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     boolean isAutoSizeEnabled() {
         return mAutoSizeTextHelper.isAutoSizeEnabled();
     }

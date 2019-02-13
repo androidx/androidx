@@ -7,8 +7,9 @@ plugins {
 }
 
 dependencies {
+    api(project(":annotation"))
     api("androidx.interpolator:interpolator:1.0.0")
-    api("androidx.core:core:1.0.0")
+    api(project(":core"))
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.media:media:1.0.0")
     api("androidx.fragment:fragment:1.0.0")

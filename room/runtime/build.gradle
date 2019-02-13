@@ -34,7 +34,7 @@ dependencies {
     api(project(":room:room-common"))
     api(project(":sqlite:sqlite-framework"))
     api(project(":sqlite:sqlite"))
-    implementation(ARCH_CORE_RUNTIME)
+    implementation(project(":arch:core-runtime"))
     implementation(ANDROIDX_CORE)
     implementation(ANDROIDX_COLLECTION)
     compileOnly(ARCH_PAGING_COMMON)

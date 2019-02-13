@@ -99,7 +99,7 @@ public class RxRoom {
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static <T> Flowable<T> createFlowable(final RoomDatabase database,
             final String[] tableNames, final Callable<T> callable) {
         Scheduler scheduler = Schedulers.from(database.getQueryExecutor());
@@ -163,7 +163,7 @@ public class RxRoom {
      *
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public static <T> Observable<T> createObservable(final RoomDatabase database,
             final String[] tableNames, final Callable<T> callable) {
         Scheduler scheduler = Schedulers.from(database.getQueryExecutor());

@@ -16,7 +16,7 @@
 
 package androidx.coordinatorlayout.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -143,7 +143,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     static final int EVENT_VIEW_REMOVED = 2;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({EVENT_PRE_DRAW, EVENT_NESTED_SCROLL, EVENT_VIEW_REMOVED})
     public @interface DispatchChangeEvent {}
@@ -379,7 +379,7 @@ public class CoordinatorLayout extends ViewGroup implements NestedScrollingParen
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public final WindowInsetsCompat getLastWindowInsets() {
         return mLastInsets;
     }

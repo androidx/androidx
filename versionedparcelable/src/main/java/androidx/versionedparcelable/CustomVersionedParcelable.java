@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo;
  * and right after deserialization to handle custom fields.
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public abstract class CustomVersionedParcelable implements VersionedParcelable {
 
     /**
@@ -31,7 +31,7 @@ public abstract class CustomVersionedParcelable implements VersionedParcelable {
      * to handle any custom fields that cannot be easily annotated.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public void onPreParceling(boolean isStream) {
     }
 
@@ -40,7 +40,7 @@ public abstract class CustomVersionedParcelable implements VersionedParcelable {
      * to handle any custom fields that cannot be easily annotated.
      * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public void onPostParceling() {
     }
 }

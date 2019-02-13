@@ -16,7 +16,7 @@
 
 package androidx.core.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Activity;
 import android.view.KeyEvent;
@@ -35,7 +35,7 @@ import androidx.core.view.KeyEventDispatcher;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class ComponentActivity extends Activity
         implements KeyEventDispatcher.Component {
     /**
@@ -55,7 +55,7 @@ public class ComponentActivity extends Activity
      * @see #getExtraData
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void putExtraData(ExtraData extraData) {
         mExtraDataMap.put(extraData.getClass(), extraData);
     }
@@ -66,7 +66,7 @@ public class ComponentActivity extends Activity
      * @see #putExtraData
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public <T extends ExtraData> T getExtraData(Class<T> extraDataClass) {
         return (T) mExtraDataMap.get(extraDataClass);
     }
@@ -74,7 +74,7 @@ public class ComponentActivity extends Activity
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public boolean superDispatchKeyEvent(KeyEvent event) {
         return super.dispatchKeyEvent(event);
@@ -101,7 +101,7 @@ public class ComponentActivity extends Activity
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class ExtraData {
     }
 }

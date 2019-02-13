@@ -16,7 +16,7 @@
 
 package androidx.core.graphics;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -71,7 +71,7 @@ public class TypefaceCompat {
      * @hide
      */
     @Nullable
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Typeface findFromCache(@NonNull Resources resources, int id, int style) {
         return sTypefaceCache.get(createResourceUid(resources, id, style));
     }
@@ -95,7 +95,7 @@ public class TypefaceCompat {
      * @hide
      */
     @Nullable
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Typeface createFromResourcesFamilyXml(
             @NonNull Context context, @NonNull FamilyResourceEntry entry,
             @NonNull Resources resources, int id, int style,
@@ -136,7 +136,7 @@ public class TypefaceCompat {
      * @hide
      */
     @Nullable
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Typeface createFromResourcesFontFile(
             @NonNull Context context, @NonNull Resources resources, int id, String path,
             int style) {
@@ -154,7 +154,7 @@ public class TypefaceCompat {
      * @hide
      */
     @Nullable
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Typeface createFromFontInfo(@NonNull Context context,
             @Nullable CancellationSignal cancellationSignal, @NonNull FontInfo[] fonts, int style) {
         return sTypefaceCompatImpl.createFromFontInfo(context, cancellationSignal, fonts, style);

@@ -16,7 +16,7 @@
 
 package androidx.browser.browseractions;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.PendingIntent;
 import android.app.PendingIntent.CanceledException;
@@ -49,7 +49,7 @@ import java.util.List;
 class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
     /** @hide */
     @VisibleForTesting
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     interface BrowserActionsFallMenuUiListener {
         void onMenuShown(View view);
     }
@@ -81,7 +81,7 @@ class BrowserActionsFallbackMenuUi implements AdapterView.OnItemClickListener {
 
     /** @hide */
     @VisibleForTesting
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     void setMenuUiListener(BrowserActionsFallMenuUiListener menuUiListener) {
         mMenuUiListener = menuUiListener;
     }

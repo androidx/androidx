@@ -52,7 +52,7 @@ public abstract class TracingController {
      *
      * @hide Don't allow apps to sub-class this class.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public TracingController() {}
 
     /**

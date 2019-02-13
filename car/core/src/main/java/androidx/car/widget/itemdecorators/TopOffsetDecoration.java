@@ -16,7 +16,7 @@
 
 package androidx.car.widget.itemdecorators;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.Rect;
 import android.view.View;
@@ -32,7 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TopOffsetDecoration extends RecyclerView.ItemDecoration {
     private int mTopOffset;
 

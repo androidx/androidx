@@ -18,6 +18,7 @@ package androidx.media2;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.text.TextUtils;
@@ -209,7 +210,7 @@ public class MediaItem extends CustomVersionedParcelable {
      * @hide
      */
     // TODO: Remove
-    @RestrictTo(LIBRARY)
+    @RestrictTo(LIBRARY_GROUP)
     public @Nullable String getMediaId() {
         synchronized (mLock) {
             return mMetadata != null
@@ -245,7 +246,7 @@ public class MediaItem extends CustomVersionedParcelable {
      * @param <T> builder class
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class BuilderBase<T extends BuilderBase> {
         @SuppressWarnings("WeakerAccess") /* synthetic access */
                 MediaMetadata mMetadata;

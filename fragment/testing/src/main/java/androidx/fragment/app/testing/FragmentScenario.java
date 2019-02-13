@@ -324,7 +324,6 @@ public final class FragmentScenario<F extends Fragment> {
      * This method cannot be called from the main thread.
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public FragmentScenario<F> moveToState(@NonNull State newState) {
         if (newState == State.DESTROYED) {
             mActivityScenario.onActivity(
@@ -404,7 +403,6 @@ public final class FragmentScenario<F extends Fragment> {
      * This method cannot be called from the main thread.
      */
     @NonNull
-    @SuppressLint("RestrictedApi")
     public FragmentScenario<F> onFragment(@NonNull final FragmentAction<F> action) {
         mActivityScenario.onActivity(
                 new ActivityScenario.ActivityAction<EmptyFragmentActivity>() {

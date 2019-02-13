@@ -16,7 +16,7 @@
 
 package androidx.leanback.preference;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -35,7 +35,6 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public abstract class BaseLeanbackPreferenceFragmentCompat extends PreferenceFragmentCompat {
 
-    @SuppressWarnings("RestrictedApi")
     @Override
     public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
             Bundle savedInstanceState) {
@@ -51,7 +50,7 @@ public abstract class BaseLeanbackPreferenceFragmentCompat extends PreferenceFra
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override
     public Fragment getCallbackFragment() {
         return getParentFragment();

@@ -13,7 +13,7 @@
  */
 package androidx.leanback.transition;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.os.Build;
@@ -27,7 +27,7 @@ import androidx.leanback.R;
  * Helper class to load Leanback specific transition.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class LeanbackTransitionHelper {
 
     public static Object loadTitleInTransition(Context context) {

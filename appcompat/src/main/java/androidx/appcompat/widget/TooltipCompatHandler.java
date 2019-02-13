@@ -18,7 +18,7 @@ package androidx.appcompat.widget;
 
 import static android.view.View.SYSTEM_UI_FLAG_LOW_PROFILE;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -38,7 +38,7 @@ import androidx.core.view.ViewConfigurationCompat;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 class TooltipCompatHandler implements View.OnLongClickListener, View.OnHoverListener,
         View.OnAttachStateChangeListener {
     private static final String TAG = "TooltipCompatHandler";

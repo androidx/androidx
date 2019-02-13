@@ -18,7 +18,7 @@ package androidx.core.content.res;
 
 import static android.os.Build.VERSION.SDK_INT;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -262,7 +262,7 @@ public final class ResourcesCompat {
          * null.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public final void callbackSuccessAsync(final Typeface typeface, @Nullable Handler handler) {
             if (handler == null) {
                 handler = new Handler(Looper.getMainLooper());
@@ -280,7 +280,7 @@ public final class ResourcesCompat {
          * null.
          * @hide
          */
-        @RestrictTo(LIBRARY_GROUP)
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
         public final void callbackFailAsync(
                 @FontRequestFailReason final int reason, @Nullable Handler handler) {
             if (handler == null) {
@@ -330,7 +330,7 @@ public final class ResourcesCompat {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static Typeface getFont(@NonNull Context context, @FontRes int id, TypedValue value,
             int style, @Nullable FontCallback fontCallback) throws NotFoundException {
         if (context.isRestricted()) {

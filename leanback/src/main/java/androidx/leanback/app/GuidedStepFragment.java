@@ -16,7 +16,7 @@
  */
 package androidx.leanback.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -231,14 +231,14 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * Animation to slide the contents from the side (left/right).
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int SLIDE_FROM_SIDE = 0;
 
     /**
      * Animation to slide the contents from the bottom.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static final int SLIDE_FROM_BOTTOM = 1;
 
     private static final String TAG = "GuidedStepF";
@@ -247,7 +247,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
     /**
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public static class DummyFragment extends Fragment {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -1348,7 +1348,7 @@ public class GuidedStepFragment extends Fragment implements GuidedActionAdapter.
      * For now clients(subclasses) can call this method inside the constructor.
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setEntranceTransitionType(int transitionType) {
       this.entranceTransitionType = transitionType;
     }

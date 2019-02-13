@@ -18,7 +18,6 @@ package androidx.slice;
 
 import static androidx.slice.widget.SliceLiveData.SUPPORTED_SPECS;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -45,40 +44,34 @@ class SliceViewManagerCompat extends SliceViewManagerBase {
     }
 
     @Override
-    @SuppressLint("RestrictedApi")
     public void pinSlice(@NonNull Uri uri) {
         SliceProviderCompat.pinSlice(mContext, uri, SliceLiveData.SUPPORTED_SPECS);
     }
 
     @Override
-    @SuppressLint("RestrictedApi")
     public void unpinSlice(@NonNull Uri uri) {
         SliceProviderCompat.unpinSlice(mContext, uri, SliceLiveData.SUPPORTED_SPECS);
     }
 
     @Nullable
     @Override
-    @SuppressLint("RestrictedApi")
     public Slice bindSlice(@NonNull Uri uri) {
         return SliceProviderCompat.bindSlice(mContext, uri, SUPPORTED_SPECS);
     }
 
     @Nullable
     @Override
-    @SuppressLint("RestrictedApi")
     public Slice bindSlice(@NonNull Intent intent) {
         return SliceProviderCompat.bindSlice(mContext, intent, SUPPORTED_SPECS);
     }
 
     @Nullable
     @Override
-    @SuppressLint("RestrictedApi")
     public Uri mapIntentToUri(@NonNull Intent intent) {
         return SliceProviderCompat.mapIntentToUri(mContext, intent);
     }
 
     @Override
-    @SuppressLint("RestrictedApi")
     public Collection<Uri> getSliceDescendants(Uri uri) {
         return SliceProviderCompat.getSliceDescendants(mContext, uri);
     }

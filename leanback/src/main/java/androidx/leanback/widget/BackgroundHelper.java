@@ -15,7 +15,7 @@
  */
 package androidx.leanback.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.drawable.Drawable;
 import android.os.Build;
@@ -27,7 +27,7 @@ import androidx.annotation.RestrictTo;
  * Helper for view backgrounds.
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class BackgroundHelper {
     public static void setBackgroundPreservingAlpha(View view, Drawable drawable) {
         if (Build.VERSION.SDK_INT >= 19) {

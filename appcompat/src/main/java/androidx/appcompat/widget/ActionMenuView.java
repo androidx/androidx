@@ -15,7 +15,7 @@
  */
 package androidx.appcompat.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -117,7 +117,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
      * @param presenter Menu presenter used to display popup menu
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setPresenter(ActionMenuPresenter presenter) {
         mPresenter = presenter;
         mPresenter.setMenuView(this);
@@ -567,13 +567,13 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isOverflowReserved() {
         return mReserveOverflow;
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setOverflowReserved(boolean reserveOverflow) {
         mReserveOverflow = reserveOverflow;
     }
@@ -611,7 +611,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public LayoutParams generateOverflowButtonLayoutParams() {
         LayoutParams result = generateDefaultLayoutParams();
         result.isOverflowButton = true;
@@ -620,21 +620,21 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
 
     /** @hide */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean invokeItem(MenuItemImpl item) {
         return mMenu.performItemAction(item, 0);
     }
 
     /** @hide */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public int getWindowAnimations() {
         return 0;
     }
 
     /** @hide */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void initialize(MenuBuilder menu) {
         mMenu = menu;
     }
@@ -667,7 +667,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
      * Must be called before the first call to getMenu()
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setMenuCallbacks(MenuPresenter.Callback pcb, MenuBuilder.Callback mcb) {
         mActionMenuPresenterCallback = pcb;
         mMenuBuilderCallback = mcb;
@@ -677,7 +677,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
      * Returns the current menu or null if one has not yet been configured.
      * @hide Internal use only for action bar integration
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public MenuBuilder peekMenu() {
         return mMenu;
     }
@@ -711,7 +711,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public boolean isOverflowMenuShowPending() {
         return mPresenter != null && mPresenter.isOverflowMenuShowPending();
     }
@@ -728,7 +728,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     /**
      * @hide Private LinearLayout (superclass) API. Un-hide if LinearLayout API is made public.
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected boolean hasSupportDividerBeforeChildAt(int childIndex) {
         if (childIndex == 0) {
             return false;
@@ -751,7 +751,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public void setExpandedActionViewsExclusive(boolean exclusive) {
         mPresenter.setExpandedActionViewsExclusive(exclusive);
     }
@@ -804,7 +804,7 @@ public class ActionMenuView extends LinearLayoutCompat implements MenuBuilder.It
     }
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public interface ActionMenuChildView {
         boolean needsDividerBefore();
         boolean needsDividerAfter();

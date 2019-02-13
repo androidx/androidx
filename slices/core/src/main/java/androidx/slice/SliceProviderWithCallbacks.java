@@ -16,7 +16,7 @@
 
 package androidx.slice;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import static androidx.remotecallback.ProviderRelayReceiver.ACTION_PROVIDER_RELAY;
 import static androidx.remotecallback.RemoteCallback.EXTRA_METHOD;
 import static androidx.remotecallback.RemoteCallback.TYPE_PROVIDER;
@@ -74,7 +74,7 @@ public abstract class SliceProviderWithCallbacks<T extends SliceProviderWithCall
      * @hide
      */
     @Override
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     public RemoteCallback toRemoteCallback(Class<T> cls, Context context, String authority,
             Bundle args, String method) {
         if (authority == null) {

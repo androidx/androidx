@@ -18,7 +18,7 @@ package androidx.appcompat.graphics.drawable;
 
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
@@ -51,7 +51,7 @@ import androidx.core.graphics.drawable.DrawableCompat;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 class DrawableContainer extends Drawable implements Drawable.Callback {
     private static final boolean DEBUG = false;
     private static final String TAG = "DrawableContainer";

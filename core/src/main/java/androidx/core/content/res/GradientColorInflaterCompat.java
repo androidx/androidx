@@ -21,7 +21,7 @@ import static android.graphics.drawable.GradientDrawable.LINEAR_GRADIENT;
 import static android.graphics.drawable.GradientDrawable.RADIAL_GRADIENT;
 import static android.graphics.drawable.GradientDrawable.SWEEP_GRADIENT;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -51,7 +51,7 @@ import java.util.List;
 /**
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 final class GradientColorInflaterCompat {
 
     @IntDef({TILE_MODE_CLAMP, TILE_MODE_REPEAT, TILE_MODE_MIRROR})

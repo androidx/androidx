@@ -16,7 +16,7 @@
 
 package androidx.core.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -63,7 +63,7 @@ public class Person {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     @RequiresApi(22)
     public static Person fromPersistableBundle(@NonNull PersistableBundle bundle) {
@@ -81,7 +81,7 @@ public class Person {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @RequiresApi(28)
     @NonNull
     public static Person fromAndroidPerson(@NonNull android.app.Person person) {
@@ -144,7 +144,7 @@ public class Person {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     @RequiresApi(22)
     public PersistableBundle toPersistableBundle() {
@@ -168,7 +168,7 @@ public class Person {
      *
      * @hide
      */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @NonNull
     @RequiresApi(28)
     public android.app.Person toAndroidPerson() {

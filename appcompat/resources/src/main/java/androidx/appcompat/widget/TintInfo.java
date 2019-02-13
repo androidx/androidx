@@ -16,15 +16,15 @@
 
 package androidx.appcompat.widget;
 
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 
 import androidx.annotation.RestrictTo;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-
 /** @hide */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY_GROUP_PREFIX)
 public class TintInfo {
     public ColorStateList mTintList;
     public PorterDuff.Mode mTintMode;

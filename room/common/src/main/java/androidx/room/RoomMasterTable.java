@@ -24,7 +24,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @SuppressWarnings("WeakerAccess")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class RoomMasterTable {
     /**
      * The master table where room keeps its metadata information.

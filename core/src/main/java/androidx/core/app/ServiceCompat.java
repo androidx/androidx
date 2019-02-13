@@ -16,7 +16,7 @@
 
 package androidx.core.app;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.app.Notification;
 import android.app.Service;
@@ -78,7 +78,7 @@ public final class ServiceCompat {
     public static final int STOP_FOREGROUND_DETACH = 1<<1;
 
     /** @hide */
-    @RestrictTo(LIBRARY_GROUP)
+    @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true,
             value = {
                     STOP_FOREGROUND_REMOVE,

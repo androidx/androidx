@@ -25,7 +25,7 @@ plugins {
 
 dependencies {
     api(project(":arch:core-runtime"))
-    api(SUPPORT_ANNOTATIONS)
+    api(project(":annotation"))
     api(JUNIT)
     api(MOCKITO_CORE, libs.exclude_bytebuddy)
 
