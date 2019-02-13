@@ -94,15 +94,15 @@ public final class CameraView extends ViewGroup {
     private static final int FLASH_MODE_AUTO = 1;
     private static final int FLASH_MODE_ON = 2;
     private static final int FLASH_MODE_OFF = 4;
-    private final Rect focusingRect = new Rect();
-    private final Rect meteringRect = new Rect();
+    private final Rect mFocusingRect = new Rect();
+    private final Rect mMeteringRect = new Rect();
     // For tap-to-focus
-    private long downEventTimestamp;
+    private long mDownEventTimestamp;
     // For pinch-to-zoom
-    private PinchToZoomGestureDetector pinchToZoomGestureDetector;
-    private boolean isPinchToZoomEnabled = true;
-    CameraXModule cameraModule;
-    private final DisplayManager.DisplayListener displayListener =
+    private PinchToZoomGestureDetector mPinchToZoomGestureDetector;
+    private boolean mIsPinchToZoomEnabled = true;
+    CameraXModule mCameraModule;
+    private final DisplayManager.DisplayListener mDisplayListener =
             new DisplayListener() {
                 @Override
                 public void onDisplayAdded(int displayId) {
@@ -114,16 +114,16 @@ public final class CameraView extends ViewGroup {
 
                 @Override
                 public void onDisplayChanged(int displayId) {
-                    cameraModule.invalidateView();
+                    mCameraModule.invalidateView();
                 }
             };
-    private TextureView cameraTextureView;
-    private Size viewFinderSrcSize = new Size(0, 0);
-    private ScaleType scaleType = ScaleType.CENTER_CROP;
+    private TextureView mCameraTextureView;
+    private Size mViewFinderSrcSize = new Size(0, 0);
+    private ScaleType mScaleType = ScaleType.CENTER_CROP;
     // For accessibility event
-    private MotionEvent upEvent;
+    private MotionEvent mUpEvent;
     private @Nullable
-    Paint layerPaint;
+            Paint mLayerPaint;
 
     public CameraView(Context context) {
         this(context, null);
@@ -182,13 +182,13 @@ public final class CameraView extends ViewGroup {
      */
     @RequiresPermission(permission.CAMERA)
     public void bindToLifecycle(LifecycleOwner lifecycleOwner) {
-        cameraModule.bindToLifecycle(lifecycleOwner);
+        mCameraModule.bindToLifecycle(lifecycleOwner);
     }
 
     private void init(Context context, @Nullable AttributeSet attrs) {
-        addView(cameraTextureView = new TextureView(getContext()), 0 /* view position */);
-        cameraTextureView.setLayerPaint(layerPaint);
-        cameraModule = new CameraXModule(this);
+        addView(mCameraTextureView = new TextureView(getContext()), 0 /* view position */);
+        mCameraTextureView.setLayerPaint(mLayerPaint);
+        mCameraModule = new CameraXModule(this);
 
         if (isInEditMode()) {
             onViewfinderSourceDimensUpdated(640, 480);
@@ -198,15 +198,18 @@ public final class CameraView extends ViewGroup {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CameraView);
             setScaleType(
                     ScaleType.fromId(
-                            a.getInteger(R.styleable.CameraView_scaleType, getScaleType().id)));
+                            a.getInteger(R.styleable.CameraView_scaleType,
+                                    getScaleType().getId())));
             setQuality(
-                    Quality.fromId(a.getInteger(R.styleable.CameraView_quality, getQuality().id)));
+                    Quality.fromId(
+                            a.getInteger(R.styleable.CameraView_quality, getQuality().getId())));
             setPinchToZoomEnabled(
                     a.getBoolean(
                             R.styleable.CameraView_pinchToZoomEnabled, isPinchToZoomEnabled()));
             setCaptureMode(
                     CaptureMode.fromId(
-                            a.getInteger(R.styleable.CameraView_captureMode, getCaptureMode().id)));
+                            a.getInteger(R.styleable.CameraView_captureMode,
+                                    getCaptureMode().getId())));
 
             int lensFacing = a.getInt(R.styleable.CameraView_lensFacing, LENS_FACING_BACK);
             switch (lensFacing) {
@@ -245,7 +248,7 @@ public final class CameraView extends ViewGroup {
             setBackgroundColor(0xFF111111);
         }
 
-        pinchToZoomGestureDetector = new PinchToZoomGestureDetector(context);
+        mPinchToZoomGestureDetector = new PinchToZoomGestureDetector(context);
     }
 
     @Override
@@ -261,8 +264,8 @@ public final class CameraView extends ViewGroup {
         // change
         Bundle state = new Bundle();
         state.putParcelable(EXTRA_SUPER, super.onSaveInstanceState());
-        state.putInt(EXTRA_SCALE_TYPE, getScaleType().id);
-        state.putInt(EXTRA_QUALITY, getQuality().id);
+        state.putInt(EXTRA_SCALE_TYPE, getScaleType().getId());
+        state.putInt(EXTRA_QUALITY, getQuality().getId());
         state.putFloat(EXTRA_ZOOM_LEVEL, getZoomLevel());
         state.putBoolean(EXTRA_PINCH_TO_ZOOM_ENABLED, isPinchToZoomEnabled());
         state.putString(EXTRA_FLASH, getFlash().name());
@@ -271,7 +274,7 @@ public final class CameraView extends ViewGroup {
         if (getCameraLensFacing() != null) {
             state.putString(EXTRA_CAMERA_DIRECTION, getCameraLensFacing().name());
         }
-        state.putInt(EXTRA_CAPTURE_MODE, getCaptureMode().id);
+        state.putInt(EXTRA_CAPTURE_MODE, getCaptureMode().getId());
         return state;
     }
 
@@ -311,10 +314,11 @@ public final class CameraView extends ViewGroup {
      * TextureView}.
      */
     @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public void setLayerPaint(@Nullable Paint paint) {
         super.setLayerPaint(paint);
-        layerPaint = paint;
-        cameraTextureView.setLayerPaint(paint);
+        mLayerPaint = paint;
+        mCameraTextureView.setLayerPaint(paint);
     }
 
     @Override
@@ -322,7 +326,7 @@ public final class CameraView extends ViewGroup {
         super.onAttachedToWindow();
         DisplayManager dpyMgr =
                 (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
-        dpyMgr.registerDisplayListener(displayListener, new Handler(Looper.getMainLooper()));
+        dpyMgr.registerDisplayListener(mDisplayListener, new Handler(Looper.getMainLooper()));
     }
 
     @Override
@@ -330,7 +334,7 @@ public final class CameraView extends ViewGroup {
         super.onDetachedFromWindow();
         DisplayManager dpyMgr =
                 (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
-        dpyMgr.unregisterDisplayListener(displayListener);
+        dpyMgr.unregisterDisplayListener(mDisplayListener);
     }
 
     // TODO(b/124269166): Rethink how we can handle permissions here.
@@ -342,23 +346,23 @@ public final class CameraView extends ViewGroup {
 
         int displayRotation = getDisplay().getRotation();
 
-        if (viewFinderSrcSize.getHeight() == 0 || viewFinderSrcSize.getWidth() == 0) {
+        if (mViewFinderSrcSize.getHeight() == 0 || mViewFinderSrcSize.getWidth() == 0) {
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            cameraTextureView.measure(viewWidth, viewHeight);
+            mCameraTextureView.measure(viewWidth, viewHeight);
         } else {
             Size scaled =
                     calculateViewfinderViewDimens(
-                            viewFinderSrcSize, viewWidth, viewHeight, displayRotation, scaleType);
+                            mViewFinderSrcSize, viewWidth, viewHeight, displayRotation, mScaleType);
             super.setMeasuredDimension(
                     Math.min(scaled.getWidth(), viewWidth),
                     Math.min(scaled.getHeight(), viewHeight));
-            cameraTextureView.measure(scaled.getWidth(), scaled.getHeight());
+            mCameraTextureView.measure(scaled.getWidth(), scaled.getHeight());
         }
 
         // Since bindToLifecycle will depend on the measured dimension, only call it when measured
         // dimension is not 0x0
         if (getMeasuredWidth() > 0 && getMeasuredHeight() > 0) {
-            cameraModule.bindToLifecycleAfterViewMeasured();
+            mCameraModule.bindToLifecycleAfterViewMeasured();
         }
     }
 
@@ -368,11 +372,11 @@ public final class CameraView extends ViewGroup {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         // In case that the CameraView size is always set as 0x0, we still need to trigger to force
         // binding to lifecycle
-        cameraModule.bindToLifecycleAfterViewMeasured();
+        mCameraModule.bindToLifecycleAfterViewMeasured();
 
         // If we don't know the src buffer size yet, set the viewfinder to be the parent size
-        if (viewFinderSrcSize.getWidth() == 0 || viewFinderSrcSize.getHeight() == 0) {
-            cameraTextureView.layout(left, top, right, bottom);
+        if (mViewFinderSrcSize.getWidth() == 0 || mViewFinderSrcSize.getHeight() == 0) {
+            mCameraTextureView.layout(left, top, right, bottom);
             return;
         }
 
@@ -382,7 +386,7 @@ public final class CameraView extends ViewGroup {
         int displayRotation = getDisplay().getRotation();
         Size scaled =
                 calculateViewfinderViewDimens(
-                        viewFinderSrcSize, viewWidth, viewHeight, displayRotation, scaleType);
+                        mViewFinderSrcSize, viewWidth, viewHeight, displayRotation, mScaleType);
 
         // Compute the center of the view.
         int centerX = viewWidth / 2;
@@ -398,11 +402,11 @@ public final class CameraView extends ViewGroup {
         log("layout: viewWidth:  " + viewWidth);
         log("layout: viewHeight: " + viewHeight);
         log("layout: viewRatio:  " + (viewWidth / (float) viewHeight));
-        log("layout: sizeWidth:  " + viewFinderSrcSize.getWidth());
-        log("layout: sizeHeight: " + viewFinderSrcSize.getHeight());
+        log("layout: sizeWidth:  " + mViewFinderSrcSize.getWidth());
+        log("layout: sizeHeight: " + mViewFinderSrcSize.getHeight());
         log(
                 "layout: sizeRatio:  "
-                        + (viewFinderSrcSize.getWidth() / (float) viewFinderSrcSize.getHeight()));
+                        + (mViewFinderSrcSize.getWidth() / (float) mViewFinderSrcSize.getHeight()));
         log("layout: scaledWidth:  " + scaled.getWidth());
         log("layout: scaledHeight: " + scaled.getHeight());
         log("layout: scaledRatio:  " + (scaled.getWidth() / (float) scaled.getHeight()));
@@ -412,23 +416,23 @@ public final class CameraView extends ViewGroup {
                         + " ("
                         + (scaled.getWidth() / (float) scaled.getHeight())
                         + " - "
-                        + scaleType
+                        + mScaleType
                         + "-"
                         + displayRotationToString(displayRotation)
                         + ")");
         log("layout: final       " + layoutL + ", " + layoutT + ", " + layoutR + ", " + layoutB);
 
-        cameraTextureView.layout(layoutL, layoutT, layoutR, layoutB);
+        mCameraTextureView.layout(layoutL, layoutT, layoutR, layoutB);
 
-        cameraModule.invalidateView();
+        mCameraModule.invalidateView();
     }
 
     /** Records the size of the viewfinder's buffers. */
     @UiThread
     void onViewfinderSourceDimensUpdated(int srcWidth, int srcHeight) {
-        if (srcWidth != viewFinderSrcSize.getWidth()
-                || srcHeight != viewFinderSrcSize.getHeight()) {
-            viewFinderSrcSize = new Size(srcWidth, srcHeight);
+        if (srcWidth != mViewFinderSrcSize.getWidth()
+                || srcHeight != mViewFinderSrcSize.getHeight()) {
+            mViewFinderSrcSize = new Size(srcWidth, srcHeight);
             requestLayout();
         }
     }
@@ -499,8 +503,8 @@ public final class CameraView extends ViewGroup {
 
     @UiThread
     SurfaceTexture getSurfaceTexture() {
-        if (cameraTextureView != null) {
-            return cameraTextureView.getSurfaceTexture();
+        if (mCameraTextureView != null) {
+            return mCameraTextureView.getSurfaceTexture();
         }
 
         return null;
@@ -508,39 +512,39 @@ public final class CameraView extends ViewGroup {
 
     @UiThread
     void setSurfaceTexture(SurfaceTexture surfaceTexture) {
-        if (cameraTextureView.getSurfaceTexture() != surfaceTexture) {
-            if (cameraTextureView.isAvailable()) {
+        if (mCameraTextureView.getSurfaceTexture() != surfaceTexture) {
+            if (mCameraTextureView.isAvailable()) {
                 // Remove the old TextureView to properly detach the old SurfaceTexture from the GL
                 // Context.
-                removeView(cameraTextureView);
-                addView(cameraTextureView = new TextureView(getContext()), 0);
-                cameraTextureView.setLayerPaint(layerPaint);
+                removeView(mCameraTextureView);
+                addView(mCameraTextureView = new TextureView(getContext()), 0);
+                mCameraTextureView.setLayerPaint(mLayerPaint);
                 requestLayout();
             }
 
-            cameraTextureView.setSurfaceTexture(surfaceTexture);
+            mCameraTextureView.setSurfaceTexture(surfaceTexture);
         }
     }
 
     @UiThread
     Matrix getTransform(Matrix matrix) {
-        return cameraTextureView.getTransform(matrix);
+        return mCameraTextureView.getTransform(matrix);
     }
 
     @UiThread
     int getViewFinderWidth() {
-        return cameraTextureView.getWidth();
+        return mCameraTextureView.getWidth();
     }
 
     @UiThread
     int getViewFinderHeight() {
-        return cameraTextureView.getHeight();
+        return mCameraTextureView.getHeight();
     }
 
     @UiThread
     void setTransform(final Matrix matrix) {
-        if (cameraTextureView != null) {
-            cameraTextureView.setTransform(matrix);
+        if (mCameraTextureView != null) {
+            mCameraTextureView.setTransform(matrix);
         }
     }
 
@@ -550,7 +554,7 @@ public final class CameraView extends ViewGroup {
      * @return The current {@link ScaleType}.
      */
     public ScaleType getScaleType() {
-        return scaleType;
+        return mScaleType;
     }
 
     /**
@@ -561,8 +565,8 @@ public final class CameraView extends ViewGroup {
      * @param scaleType The desired {@link ScaleType}.
      */
     public void setScaleType(ScaleType scaleType) {
-        if (scaleType != this.scaleType) {
-            this.scaleType = scaleType;
+        if (scaleType != mScaleType) {
+            mScaleType = scaleType;
             requestLayout();
         }
     }
@@ -571,10 +575,9 @@ public final class CameraView extends ViewGroup {
      * Gets the current quality for image and video outputs.
      *
      * @return The current {@link Quality}. Currently only {@link Quality#HIGH} is supported.
-     * @hide Not currently connected to use cases.
      */
-    public Quality getQuality() {
-        return cameraModule.getQuality();
+    Quality getQuality() {
+        return mCameraModule.getQuality();
     }
 
     /**
@@ -583,10 +586,9 @@ public final class CameraView extends ViewGroup {
      * @param quality The {@link Quality} used for image and video. Currently only {@link
      *                Quality#HIGH} is supported.
      * @throws UnsupportedOperationException if any quality other than HIGH is set.
-     * @hide Not currently connected to use cases.
      */
-    public void setQuality(Quality quality) {
-        cameraModule.setQuality(quality);
+    void setQuality(Quality quality) {
+        mCameraModule.setQuality(quality);
     }
 
     /**
@@ -595,7 +597,7 @@ public final class CameraView extends ViewGroup {
      * @return The current {@link CaptureMode}.
      */
     public CaptureMode getCaptureMode() {
-        return cameraModule.getCaptureMode();
+        return mCameraModule.getCaptureMode();
     }
 
     /**
@@ -606,7 +608,7 @@ public final class CameraView extends ViewGroup {
      * @param captureMode The desired {@link CaptureMode}.
      */
     public void setCaptureMode(CaptureMode captureMode) {
-        cameraModule.setCaptureMode(captureMode);
+        mCameraModule.setCaptureMode(captureMode);
     }
 
     /**
@@ -617,7 +619,7 @@ public final class CameraView extends ViewGroup {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public long getMaxVideoDuration() {
-        return cameraModule.getMaxVideoDuration();
+        return mCameraModule.getMaxVideoDuration();
     }
 
     /**
@@ -625,7 +627,7 @@ public final class CameraView extends ViewGroup {
      * called automatically. Use {@link #INDEFINITE_VIDEO_DURATION} to disable the timeout.
      */
     private void setMaxVideoDuration(long duration) {
-        cameraModule.setMaxVideoDuration(duration);
+        mCameraModule.setMaxVideoDuration(duration);
     }
 
     /**
@@ -633,7 +635,7 @@ public final class CameraView extends ViewGroup {
      * timeout.
      */
     private long getMaxVideoSize() {
-        return cameraModule.getMaxVideoSize();
+        return mCameraModule.getMaxVideoSize();
     }
 
     /**
@@ -641,7 +643,7 @@ public final class CameraView extends ViewGroup {
      * is called automatically. Use {@link #INDEFINITE_VIDEO_SIZE} to disable the size restriction.
      */
     private void setMaxVideoSize(long size) {
-        cameraModule.setMaxVideoSize(size);
+        mCameraModule.setMaxVideoSize(size);
     }
 
     /**
@@ -651,7 +653,7 @@ public final class CameraView extends ViewGroup {
      * @param listener Listener which will receive success or failure callbacks.
      */
     public void takePicture(OnImageCapturedListener listener) {
-        cameraModule.takePicture(listener);
+        mCameraModule.takePicture(listener);
     }
 
     /**
@@ -661,7 +663,7 @@ public final class CameraView extends ViewGroup {
      * @param listener Listener which will receive success or failure callbacks.
      */
     public void takePicture(File file, OnImageSavedListener listener) {
-        cameraModule.takePicture(file, listener);
+        mCameraModule.takePicture(file, listener);
     }
 
     /**
@@ -670,17 +672,17 @@ public final class CameraView extends ViewGroup {
      * @param file The destination.
      */
     public void startRecording(File file, OnVideoSavedListener listener) {
-        cameraModule.startRecording(file, listener);
+        mCameraModule.startRecording(file, listener);
     }
 
     /** Stops an in progress video. */
     public void stopRecording() {
-        cameraModule.stopRecording();
+        mCameraModule.stopRecording();
     }
 
     /** @return True if currently recording. */
     public boolean isRecording() {
-        return cameraModule.isRecording();
+        return mCameraModule.isRecording();
     }
 
     /**
@@ -691,7 +693,7 @@ public final class CameraView extends ViewGroup {
      */
     @RequiresPermission(permission.CAMERA)
     public boolean hasCameraWithLensFacing(LensFacing lensFacing) {
-        return cameraModule.hasCameraWithLensFacing(lensFacing);
+        return mCameraModule.hasCameraWithLensFacing(lensFacing);
     }
 
     /**
@@ -701,7 +703,7 @@ public final class CameraView extends ViewGroup {
      * #bindToLifecycle(LifecycleOwner)}.
      */
     public void toggleCamera() {
-        cameraModule.toggleCamera();
+        mCameraModule.toggleCamera();
     }
 
     /**
@@ -720,13 +722,13 @@ public final class CameraView extends ViewGroup {
      * @param lensFacing The desired camera lensFacing.
      */
     public void setCameraByLensFacing(@Nullable LensFacing lensFacing) {
-        cameraModule.setCameraByLensFacing(lensFacing);
+        mCameraModule.setCameraByLensFacing(lensFacing);
     }
 
     /** Returns the currently selected {@link LensFacing}. */
     @Nullable
     public LensFacing getCameraLensFacing() {
-        return cameraModule.getLensFacing();
+        return mCameraModule.getLensFacing();
     }
 
     /**
@@ -740,37 +742,37 @@ public final class CameraView extends ViewGroup {
      * @param metering Area used for exposure metering.
      */
     public void focus(Rect focus, Rect metering) {
-        cameraModule.focus(focus, metering);
+        mCameraModule.focus(focus, metering);
     }
 
     /** Gets the active flash strategy. */
     public FlashMode getFlash() {
-        return cameraModule.getFlash();
+        return mCameraModule.getFlash();
     }
 
     /** Sets the active flash strategy. */
     public void setFlash(FlashMode flashMode) {
-        cameraModule.setFlash(flashMode);
+        mCameraModule.setFlash(flashMode);
     }
 
     private int getRelativeCameraOrientation(boolean compensateForMirroring) {
-        return cameraModule.getRelativeCameraOrientation(compensateForMirroring);
+        return mCameraModule.getRelativeCameraOrientation(compensateForMirroring);
     }
 
     private long delta() {
-        return System.currentTimeMillis() - downEventTimestamp;
+        return System.currentTimeMillis() - mDownEventTimestamp;
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         // Disable pinch-to-zoom and tap-to-focus while the camera module is paused.
-        if (cameraModule.isPaused()) {
+        if (mCameraModule.isPaused()) {
             return false;
         }
         // Only forward the event to the pinch-to-zoom gesture detector when pinch-to-zoom is
         // enabled.
         if (isPinchToZoomEnabled()) {
-            pinchToZoomGestureDetector.onTouchEvent(event);
+            mPinchToZoomGestureDetector.onTouchEvent(event);
         }
         if (event.getPointerCount() == 2 && isPinchToZoomEnabled() && isZoomSupported()) {
             return true;
@@ -779,11 +781,11 @@ public final class CameraView extends ViewGroup {
         // Camera focus
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                downEventTimestamp = System.currentTimeMillis();
+                mDownEventTimestamp = System.currentTimeMillis();
                 break;
             case MotionEvent.ACTION_UP:
                 if (delta() < ViewConfiguration.getLongPressTimeout()) {
-                    upEvent = event;
+                    mUpEvent = event;
                     performClick();
                 }
                 break;
@@ -802,13 +804,13 @@ public final class CameraView extends ViewGroup {
     public boolean performClick() {
         super.performClick();
 
-        final float x = (upEvent != null) ? upEvent.getX() : getX() + getWidth() / 2f;
-        final float y = (upEvent != null) ? upEvent.getY() : getY() + getHeight() / 2f;
-        upEvent = null;
-        calculateTapArea(focusingRect, x, y, 1f);
-        calculateTapArea(meteringRect, x, y, 1.5f);
-        if (area(focusingRect) > 0 && area(meteringRect) > 0) {
-            focus(focusingRect, meteringRect);
+        final float x = (mUpEvent != null) ? mUpEvent.getX() : getX() + getWidth() / 2f;
+        final float y = (mUpEvent != null) ? mUpEvent.getY() : getY() + getHeight() / 2f;
+        mUpEvent = null;
+        calculateTapArea(mFocusingRect, x, y, 1f);
+        calculateTapArea(mMeteringRect, x, y, 1.5f);
+        if (area(mFocusingRect) > 0 && area(mMeteringRect) > 0) {
+            focus(mFocusingRect, mMeteringRect);
         }
 
         return true;
@@ -911,7 +913,7 @@ public final class CameraView extends ViewGroup {
      * @return True if pinch to zoom is enabled.
      */
     public boolean isPinchToZoomEnabled() {
-        return isPinchToZoomEnabled;
+        return mIsPinchToZoomEnabled;
     }
 
     /**
@@ -923,7 +925,7 @@ public final class CameraView extends ViewGroup {
      * @param enabled True to enable pinch-to-zoom.
      */
     public void setPinchToZoomEnabled(boolean enabled) {
-        isPinchToZoomEnabled = enabled;
+        mIsPinchToZoomEnabled = enabled;
     }
 
     /**
@@ -932,7 +934,7 @@ public final class CameraView extends ViewGroup {
      * @return The current zoom level.
      */
     public float getZoomLevel() {
-        return cameraModule.getZoomLevel();
+        return mCameraModule.getZoomLevel();
     }
 
     /**
@@ -943,7 +945,7 @@ public final class CameraView extends ViewGroup {
      * @param zoomLevel The requested zoom level.
      */
     public void setZoomLevel(float zoomLevel) {
-        cameraModule.setZoomLevel(zoomLevel);
+        mCameraModule.setZoomLevel(zoomLevel);
     }
 
     /**
@@ -955,7 +957,7 @@ public final class CameraView extends ViewGroup {
      * @return The minimum zoom level.
      */
     public float getMinZoomLevel() {
-        return cameraModule.getMinZoomLevel();
+        return mCameraModule.getMinZoomLevel();
     }
 
     /**
@@ -967,7 +969,7 @@ public final class CameraView extends ViewGroup {
      * @return The maximum zoom level.
      */
     public float getMaxZoomLevel() {
-        return cameraModule.getMaxZoomLevel();
+        return mCameraModule.getMaxZoomLevel();
     }
 
     /**
@@ -976,7 +978,7 @@ public final class CameraView extends ViewGroup {
      * @return True if the camera supports zooming.
      */
     public boolean isZoomSupported() {
-        return cameraModule.isZoomSupported();
+        return mCameraModule.isZoomSupported();
     }
 
     /**
@@ -985,7 +987,7 @@ public final class CameraView extends ViewGroup {
      * @param torch True to turn on torch, false to turn off torch.
      */
     public void enableTorch(boolean torch) {
-        cameraModule.enableTorch(torch);
+        mCameraModule.enableTorch(torch);
     }
 
     /**
@@ -994,7 +996,7 @@ public final class CameraView extends ViewGroup {
      * @return true if torch is on , otherwise false
      */
     public boolean isTorchOn() {
-        return cameraModule.isTorchOn();
+        return mCameraModule.isTorchOn();
     }
 
     /** Options for scaling the bounds of the view finder to the bounds of this view. */
@@ -1011,15 +1013,19 @@ public final class CameraView extends ViewGroup {
          */
         CENTER_INSIDE(1);
 
-        final int id;
+        private int mId;
+
+        int getId() {
+            return mId;
+        }
 
         ScaleType(int id) {
-            this.id = id;
+            mId = id;
         }
 
         static ScaleType fromId(int id) {
             for (ScaleType st : values()) {
-                if (st.id == id) {
+                if (st.mId == id) {
                     return st;
                 }
             }
@@ -1034,24 +1040,26 @@ public final class CameraView extends ViewGroup {
      *
      * <p>(*) {@link Quality#MAX} will output at 4k. (*) {@link Quality#HIGH} will output at 1080p.
      * (*) {@link Quality#MEDIUM} will output at 720. (*) {@link Quality#LOW} will output at 480.
-     *
-     * @hide Not currently connected to use cases.
      */
-    public enum Quality {
+    enum Quality {
         MAX(0),
         HIGH(1),
         MEDIUM(2),
         LOW(3);
 
-        final int id;
+        private int mId;
+
+        int getId() {
+            return mId;
+        }
 
         Quality(int id) {
-            this.id = id;
+            mId = id;
         }
 
         static Quality fromId(int id) {
             for (Quality f : values()) {
-                if (f.id == id) {
+                if (f.mId == id) {
                     return f;
                 }
             }
@@ -1076,15 +1084,19 @@ public final class CameraView extends ViewGroup {
          */
         MIXED(2);
 
-        final int id;
+        private int mId;
+
+        int getId() {
+            return mId;
+        }
 
         CaptureMode(int id) {
-            this.id = id;
+            mId = id;
         }
 
         static CaptureMode fromId(int id) {
             for (CaptureMode f : values()) {
-                if (f.id == id) {
+                if (f.mId == id) {
                     return f;
                 }
             }
@@ -1093,23 +1105,23 @@ public final class CameraView extends ViewGroup {
     }
 
     static class S extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        private ScaleGestureDetector.OnScaleGestureListener listener;
+        private ScaleGestureDetector.OnScaleGestureListener mListener;
 
         void setRealGestureDetector(ScaleGestureDetector.OnScaleGestureListener l) {
-            listener = l;
+            mListener = l;
         }
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            return listener.onScale(detector);
+            return mListener.onScale(detector);
         }
     }
 
     private class PinchToZoomGestureDetector extends ScaleGestureDetector
             implements ScaleGestureDetector.OnScaleGestureListener {
         private static final float SCALE_MULTIPIER = 0.75f;
-        private final BaseInterpolator interpolator = new DecelerateInterpolator(2f);
-        private float normalizedScaleFactor = 0;
+        private final BaseInterpolator mInterpolator = new DecelerateInterpolator(2f);
+        private float mNormalizedScaleFactor = 0;
 
         PinchToZoomGestureDetector(Context context) {
             this(context, new S());
@@ -1122,14 +1134,14 @@ public final class CameraView extends ViewGroup {
 
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            normalizedScaleFactor += (detector.getScaleFactor() - 1f) * SCALE_MULTIPIER;
+            mNormalizedScaleFactor += (detector.getScaleFactor() - 1f) * SCALE_MULTIPIER;
             // Since the scale factor is normalized, it should always be in the range [0, 1]
-            normalizedScaleFactor = rangeLimit(normalizedScaleFactor, 1f, 0);
+            mNormalizedScaleFactor = rangeLimit(mNormalizedScaleFactor, 1f, 0);
 
             // Apply decelerate interpolation. This will cause the differences to seem less
             // pronounced
             // at higher zoom levels.
-            float transformedScale = interpolator.getInterpolation(normalizedScaleFactor);
+            float transformedScale = mInterpolator.getInterpolation(mNormalizedScaleFactor);
 
             // Transform back from normalized coordinates to the zoom scale
             float zoomLevel =
@@ -1145,7 +1157,7 @@ public final class CameraView extends ViewGroup {
         @Override
         public boolean onScaleBegin(ScaleGestureDetector detector) {
             float initialZoomLevel = getZoomLevel();
-            normalizedScaleFactor =
+            mNormalizedScaleFactor =
                     (getMaxZoomLevel() == getMinZoomLevel())
                             ? 0
                             : (initialZoomLevel - getMinZoomLevel())
