@@ -20,6 +20,9 @@ import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.os.Build;
+import android.system.Os;
+import android.system.OsConstants;
 import android.util.Log;
 import android.util.Pair;
 
@@ -35,6 +38,7 @@ import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -3698,8 +3702,9 @@ public class ExifInterface {
         sExifPointerTagMap.put(EXIF_POINTER_TAGS[5].number, IFD_TYPE_ORF_IMAGE_PROCESSING); // 8256
     }
 
-    private final String mFilename;
-    private final AssetManager.AssetInputStream mAssetInputStream;
+    private String mFilename;
+    private FileDescriptor mSeekableFileDescriptor;
+    private AssetManager.AssetInputStream mAssetInputStream;
     private int mMimeType;
     @SuppressWarnings("unchecked")
     private final HashMap<String, ExifAttribute>[] mAttributes = new HashMap[EXIF_TAGS.length];
@@ -3727,15 +3732,50 @@ public class ExifInterface {
     /**
      * Reads Exif tags from the specified image file.
      */
+    public ExifInterface(@NonNull File file) throws IOException {
+        if (file == null) {
+            throw new IllegalArgumentException("file cannot be null");
+        }
+        initForFilename(file.getAbsolutePath());
+    }
+
+    /**
+     * Reads Exif tags from the specified image file.
+     */
     public ExifInterface(@NonNull String filename) throws IOException {
         if (filename == null) {
             throw new IllegalArgumentException("filename cannot be null");
         }
-        FileInputStream in = null;
+        initForFilename(filename);
+    }
+
+    /**
+     * Reads Exif tags from the specified image file descriptor. Attribute mutation is supported
+     * for writable and seekable file descriptors only. This constructor will not rewind the offset
+     * of the given file descriptor. Developers should close the file descriptor after use.
+     */
+    public ExifInterface(@NonNull FileDescriptor fileDescriptor) throws IOException {
+        if (fileDescriptor == null) {
+            throw new IllegalArgumentException("fileDescriptor cannot be null");
+        }
         mAssetInputStream = null;
-        mFilename = filename;
+        mFilename = null;
+        if (Build.VERSION.SDK_INT >= 21 && isSeekableFD(fileDescriptor)) {
+            mSeekableFileDescriptor = fileDescriptor;
+            // Keep the original file descriptor in order to save attributes when it's seekable.
+            // Otherwise, just close the given file descriptor after reading it because the save
+            // feature won't be working.
+            try {
+                fileDescriptor = Os.dup(fileDescriptor);
+            } catch (Exception e) {
+                throw new IOException("Failed to duplicate file descriptor", e);
+            }
+        } else {
+            mSeekableFileDescriptor = null;
+        }
+        FileInputStream in = null;
         try {
-            in = new FileInputStream(filename);
+            in = new FileInputStream(fileDescriptor);
             loadAttributes(in);
         } finally {
             closeQuietly(in);
@@ -3755,8 +3795,14 @@ public class ExifInterface {
         mFilename = null;
         if (inputStream instanceof AssetManager.AssetInputStream) {
             mAssetInputStream = (AssetManager.AssetInputStream) inputStream;
+            mSeekableFileDescriptor = null;
+        } else if (inputStream instanceof FileInputStream
+                && (isSeekableFD(((FileInputStream) inputStream).getFD()))) {
+            mAssetInputStream = null;
+            mSeekableFileDescriptor = ((FileInputStream) inputStream).getFD();
         } else {
             mAssetInputStream = null;
+            mSeekableFileDescriptor = null;
         }
         loadAttributes(inputStream);
     }
@@ -4281,6 +4327,18 @@ public class ExifInterface {
         }
     }
 
+    private static boolean isSeekableFD(FileDescriptor fd) throws IOException {
+        if (Build.VERSION.SDK_INT >= 21) {
+            try {
+                Os.lseek(fd, 0, OsConstants.SEEK_CUR);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
     // Prints out attributes for debugging.
     private void printAttributes() {
         for (int i = 0; i < mAttributes.length; ++i) {
@@ -4306,7 +4364,7 @@ public class ExifInterface {
         if (!mIsSupportedFile || mMimeType != IMAGE_TYPE_JPEG) {
             throw new IOException("ExifInterface only supports saving attributes on JPEG formats.");
         }
-        if (mFilename == null) {
+        if (mSeekableFileDescriptor == null && mFilename == null) {
             throw new IOException(
                     "ExifInterface does not support saving attributes for the current input.");
         }
@@ -4314,19 +4372,45 @@ public class ExifInterface {
         // Keep the thumbnail in memory
         mThumbnailBytes = getThumbnail();
 
-        File tempFile = new File(mFilename + ".tmp");
-        File originalFile = new File(mFilename);
-        if (!originalFile.renameTo(tempFile)) {
-            throw new IOException("Could not rename to " + tempFile.getAbsolutePath());
-        }
-
         FileInputStream in = null;
         FileOutputStream out = null;
+        File tempFile = null;
+        try {
+            // Move the original file to temporary file.
+            if (mFilename != null) {
+                tempFile = new File(mFilename + ".tmp");
+                File originalFile = new File(mFilename);
+                if (!originalFile.renameTo(tempFile)) {
+                    throw new IOException("Couldn't rename to " + tempFile.getAbsolutePath());
+                }
+            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
+                tempFile = File.createTempFile("temp", "jpg");
+                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                in = new FileInputStream(mSeekableFileDescriptor);
+                out = new FileOutputStream(tempFile);
+                copy(in, out);
+            }
+        } catch (Exception e) {
+            throw new IOException("Failed to copy file");
+        } finally {
+            closeQuietly(in);
+            closeQuietly(out);
+        }
+
+        in = null;
+        out = null;
         try {
             // Save the new file.
             in = new FileInputStream(tempFile);
-            out = new FileOutputStream(mFilename);
+            if (mFilename != null) {
+                out = new FileOutputStream(mFilename);
+            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
+                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                out = new FileOutputStream(mSeekableFileDescriptor);
+            }
             saveJpegAttributes(in, out);
+        } catch (Exception e) {
+            throw new IOException("Failed to copy file");
         } finally {
             closeQuietly(in);
             closeQuietly(out);
@@ -4348,7 +4432,7 @@ public class ExifInterface {
      * Returns the JPEG compressed thumbnail inside the image file, or {@code null} if there is no
      * JPEG compressed thumbnail.
      * The returned data can be decoded using
-     * {@link android.graphics.BitmapFactory#decodeByteArray(byte[],int,int)}
+     * {@link BitmapFactory#decodeByteArray(byte[],int,int)}
      */
     @Nullable
     public byte[] getThumbnail() {
@@ -4384,6 +4468,10 @@ public class ExifInterface {
                 }
             } else if (mFilename != null) {
                 in = new FileInputStream(mFilename);
+            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
+                FileDescriptor fileDescriptor = Os.dup(mSeekableFileDescriptor);
+                Os.lseek(fileDescriptor, 0, OsConstants.SEEK_SET);
+                in = new FileInputStream(fileDescriptor);
             }
             if (in == null) {
                 // Should not be reached this.
@@ -4398,7 +4486,7 @@ public class ExifInterface {
             }
             mThumbnailBytes = buffer;
             return buffer;
-        } catch (IOException e) {
+        } catch (Exception e) {
             // Couldn't get a thumbnail image.
             Log.d(TAG, "Encountered exception while getting thumbnail", e);
         } finally {
@@ -4662,6 +4750,23 @@ public class ExifInterface {
             return datetime.getTime();
         } catch (IllegalArgumentException e) {
             return -1;
+        }
+    }
+
+    private void initForFilename(String filename) throws IOException {
+        FileInputStream in = null;
+        mAssetInputStream = null;
+        mFilename = filename;
+        try {
+            in = new FileInputStream(filename);
+            if (isSeekableFD(in.getFD())) {
+                mSeekableFileDescriptor = in.getFD();
+            } else {
+                mSeekableFileDescriptor = null;
+            }
+            loadAttributes(in);
+        } finally {
+            closeQuietly(in);
         }
     }
 
@@ -5644,7 +5749,8 @@ public class ExifInterface {
                 mHasThumbnail = true;
                 mThumbnailOffset = thumbnailOffset;
                 mThumbnailLength = thumbnailLength;
-                if (mFilename == null && mAssetInputStream == null) {
+                if (mFilename == null && mAssetInputStream == null
+                        && mSeekableFileDescriptor == null) {
                     // Save the thumbnail in memory if the input doesn't support reading again.
                     byte[] thumbnailBytes = new byte[thumbnailLength];
                     in.seek(thumbnailOffset);
