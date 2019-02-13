@@ -82,14 +82,16 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
 
     protected PointF mTargetVector;
 
-    private final float MILLISECONDS_PER_PX;
+    private final DisplayMetrics mDisplayMetrics;
+    private boolean mHasCalculatedMillisPerPixel = false;
+    private float mMillisPerPixel;
 
     // Temporary variables to keep track of the interim scroll target. These values do not
     // point to a real item position, rather point to an estimated location pixels.
     protected int mInterimTargetDx = 0, mInterimTargetDy = 0;
 
     public LinearSmoothScroller(Context context) {
-        MILLISECONDS_PER_PX = calculateSpeedPerPixel(context.getResources().getDisplayMetrics());
+        mDisplayMetrics = context.getResources().getDisplayMetrics();
     }
 
     /**
@@ -153,12 +155,23 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
     /**
      * Calculates the scroll speed.
      *
+     * <p>By default, LinearSmoothScroller assumes this method always returns the same value and
+     * caches the result of calling it.
+     *
      * @param displayMetrics DisplayMetrics to be used for real dimension calculations
      * @return The time (in ms) it should take for each pixel. For instance, if returned value is
      * 2 ms, it means scrolling 1000 pixels with LinearInterpolation should take 2 seconds.
      */
     protected float calculateSpeedPerPixel(DisplayMetrics displayMetrics) {
         return MILLISECONDS_PER_INCH / displayMetrics.densityDpi;
+    }
+
+    private float getSpeedPerPixel() {
+        if (!mHasCalculatedMillisPerPixel) {
+            mMillisPerPixel = calculateSpeedPerPixel(mDisplayMetrics);
+            mHasCalculatedMillisPerPixel = true;
+        }
+        return mMillisPerPixel;
     }
 
     /**
@@ -189,7 +202,7 @@ public class LinearSmoothScroller extends RecyclerView.SmoothScroller {
         // In a case where dx is very small, rounding may return 0 although dx > 0.
         // To avoid that issue, ceil the result so that if dx > 0, we'll always return positive
         // time.
-        return (int) Math.ceil(Math.abs(dx) * MILLISECONDS_PER_PX);
+        return (int) Math.ceil(Math.abs(dx) * getSpeedPerPixel());
     }
 
     /**
