@@ -1,0 +1,10 @@
+// Signature format: 3.0
+package androidx.lifecycle {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ReportFragment extends android.app.Fragment {
+    ctor public ReportFragment();
+    method public static void injectIfNeededIn(android.app.Activity!);
+  }
+
+}
+

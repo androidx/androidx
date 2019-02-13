@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.work.DirectExecutor#DirectExecutor():
+    Removed constructor androidx.work.DirectExecutor()
+RemovedMethod: androidx.work.ListenableFutureKt#await(com.google.common.util.concurrent.ListenableFuture<R>, kotlin.coroutines.Continuation<? super R>):
+    Removed method androidx.work.ListenableFutureKt.await(com.google.common.util.concurrent.ListenableFuture<R>,kotlin.coroutines.Continuation<? super R>)
+
+
