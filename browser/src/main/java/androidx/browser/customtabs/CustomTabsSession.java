@@ -31,6 +31,8 @@ import android.widget.RemoteViews;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.browser.customtabs.CustomTabsService.Relation;
+import androidx.browser.customtabs.CustomTabsService.Result;
 
 import java.util.List;
 
@@ -190,9 +192,9 @@ public final class CustomTabsSession {
      * @param message The message that is being sent.
      * @param extras Reserved for future use.
      * @return An integer constant about the postMessage request result. Will return
-      *        {@link CustomTabsService#RESULT_SUCCESS} if successful.
+     *        {@link CustomTabsService#RESULT_SUCCESS} if successful.
      */
-    @CustomTabsService.Result
+    @Result
     public int postMessage(String message, Bundle extras) {
         synchronized (mLock) {
             try {
@@ -223,8 +225,8 @@ public final class CustomTabsSession {
      * @param extras Reserved for future use.
      * @return {@code true} if the request has been submitted successfully.
      */
-    public boolean validateRelationship(@CustomTabsService.Relation int relation, @NonNull Uri origin,
-                                        @Nullable Bundle extras) {
+    public boolean validateRelationship(@Relation int relation, @NonNull Uri origin,
+            @Nullable Bundle extras) {
         if (relation < CustomTabsService.RELATION_USE_AS_ORIGIN
                 || relation > CustomTabsService.RELATION_HANDLE_ALL_URLS) {
             return false;

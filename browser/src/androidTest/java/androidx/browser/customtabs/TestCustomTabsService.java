@@ -43,7 +43,7 @@ public class TestCustomTabsService extends CustomTabsService {
 
     @Override
     protected boolean mayLaunchUrl(CustomTabsSessionToken sessionToken,
-                                   Uri url, Bundle extras, List<Bundle> otherLikelyBundles) {
+            Uri url, Bundle extras, List<Bundle> otherLikelyBundles) {
         return false;
     }
 
@@ -74,7 +74,7 @@ public class TestCustomTabsService extends CustomTabsService {
 
     @Override
     protected boolean validateRelationship(CustomTabsSessionToken sessionToken,
-                                           @Relation int relation, Uri origin, Bundle extras) {
+            @Relation int relation, Uri origin, Bundle extras) {
         return false;
     }
 }
