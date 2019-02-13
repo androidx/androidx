@@ -32,9 +32,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:text="@string/list_popup_window_is_modal"
+        android:paddingEnd="@dimen/control_offset_medium"
+        android:paddingRight="@dimen/control_offset_medium"
         android:checked="true" />
+
+    <CheckBox
+        android:id="@+id/use_custom_epicenter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/list_popup_window_use_epicenter"
+        android:layout_toRightOf="@id/is_modal"
+        android:layout_toEndOf="@id/is_modal"
+        android:checked="false" />
 
     <TextView
         android:id="@+id/log"

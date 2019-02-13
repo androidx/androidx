@@ -18,5 +18,6 @@
 
     <dimen name="color_palette_size">60dp</dimen>
     <dimen name="touch_item_min_height">60dp</dimen>
+    <dimen name="control_offset_medium">10dip</dimen>
 
 </resources>

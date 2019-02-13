@@ -508,15 +508,25 @@ public class ListPopupWindow implements ShowableListMenu {
     }
 
     /**
-     * Specifies the anchor-relative bounds of the popup's transition
+     * Specifies the custom anchor-relative bounds of the popup's transition
      * epicenter.
      *
-     * @param bounds anchor-relative bounds
-     * @hide
+     * @param bounds anchor-relative bounds or {@code null} to use default epicenter
+     * @see #getEpicenterBounds()
      */
-    @RestrictTo(LIBRARY_GROUP)
-    public void setEpicenterBounds(Rect bounds) {
-        mEpicenterBounds = bounds;
+    public void setEpicenterBounds(@Nullable Rect bounds) {
+        mEpicenterBounds = bounds != null ? new Rect(bounds) : null;
+    }
+
+    /**
+     * Return custom anchor-relative bounds of the popup's transition epicenter
+     *
+     * @return anchor-relative bounds, or @{@code null} if not set
+     * @see #setEpicenterBounds(Rect)
+     */
+    @Nullable
+    public Rect getEpicenterBounds() {
+        return mEpicenterBounds != null ? new Rect(mEpicenterBounds) : null;
     }
 
     /**

@@ -27,7 +27,9 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Matchers.any;
@@ -59,6 +61,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 
@@ -287,6 +290,47 @@ public class ListPopupWindowTest {
 
         // Our item click listener also dismisses the popup
         assertFalse("Popup window not showing after click", mListPopupWindow.isShowing());
+    }
+
+    @Test
+    @SmallTest
+    public void testAccessEpicenter() {
+        new Builder().configure();
+        final Rect initialRect = new Rect(10, 10, 20, 20);
+        assertNull(mListPopupWindow.getEpicenterBounds());
+
+        mListPopupWindow.setEpicenterBounds(initialRect);
+        assertEquals(initialRect, mListPopupWindow.getEpicenterBounds());
+
+        mListPopupWindow.setEpicenterBounds(null);
+        assertNull(mListPopupWindow.getEpicenterBounds());
+    }
+
+    @Test
+    @SmallTest
+    public void testEpicenterSetterImmutability() {
+        new Builder().configure();
+        final Rect initialRect = new Rect(10, 10, 20, 20);
+
+        mListPopupWindow.setEpicenterBounds(initialRect);
+        assertEquals(initialRect, mListPopupWindow.getEpicenterBounds());
+
+        initialRect.offset(5, 5);
+        assertNotEquals(initialRect, mListPopupWindow.getEpicenterBounds());
+    }
+
+    @Test
+    @SmallTest
+    public void testEpicenterGetterImmutability() {
+        new Builder().configure();
+        final Rect initialRect = new Rect(10, 10, 20, 20);
+
+        mListPopupWindow.setEpicenterBounds(initialRect);
+        final Rect retrievedRect = mListPopupWindow.getEpicenterBounds();
+        assertEquals(initialRect, retrievedRect);
+
+        retrievedRect.offset(5, 5);
+        assertNotEquals(initialRect, retrievedRect);
     }
 
     @Test
