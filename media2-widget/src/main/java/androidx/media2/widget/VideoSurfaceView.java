@@ -27,7 +27,6 @@ import android.view.SurfaceView;
 
 import androidx.core.content.ContextCompat;
 import androidx.media2.MediaPlayer;
-import androidx.media2.VideoSize;
 
 class VideoSurfaceView extends SurfaceView
         implements VideoViewInterface, SurfaceHolder.Callback {
@@ -126,22 +125,18 @@ class VideoSurfaceView extends SurfaceView
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        if (mMediaPlayer == null) {
-            setMeasuredDimension(0, 0);
-            return;
-        }
-
-        VideoSize videoSize = mMediaPlayer.getVideoSize();
-        final int videoWidth = videoSize.getWidth();
-        final int videoHeight = videoSize.getHeight();
-
-        if (videoWidth == 0 || videoHeight == 0) {
-            setMeasuredDimension(0, 0);
-            return;
-        }
+        final int videoWidth = mMediaPlayer != null ? mMediaPlayer.getVideoSize().getWidth() : 0;
+        final int videoHeight = mMediaPlayer != null ? mMediaPlayer.getVideoSize().getHeight() : 0;
 
         int width;
         int height;
+
+        if (videoWidth == 0 || videoHeight == 0) {
+            width = getDefaultSize(videoWidth, widthMeasureSpec);
+            height = getDefaultSize(videoHeight, heightMeasureSpec);
+            setMeasuredDimension(width, height);
+            return;
+        }
 
         final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
         final int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);

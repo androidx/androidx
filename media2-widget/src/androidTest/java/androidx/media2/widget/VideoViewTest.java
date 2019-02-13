@@ -252,10 +252,23 @@ public class VideoViewTest {
 
         verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onConnected(
                 any(MediaController.class), any(SessionCommandGroup.class));
-        verify(mControllerCallback, timeout(TIME_OUT).atLeast(1)).onPlayerStateChanged(
+        // TIME_OUT multiplied by the number of operations.
+        verify(mControllerCallback, timeout(TIME_OUT * 5).atLeast(1)).onPlayerStateChanged(
                 any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PAUSED));
-
         assertEquals(mVideoView.getViewType(), mVideoView.VIEW_TYPE_SURFACEVIEW);
+
+        mController.play();
+        verify(mControllerCallback, timeout(TIME_OUT).atLeastOnce()).onPlayerStateChanged(
+                any(MediaController.class), eq(SessionPlayer.PLAYER_STATE_PLAYING));
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mVideoView.setViewType(mVideoView.VIEW_TYPE_TEXTUREVIEW);
+            }
+        });
+        verify(mockViewTypeListener, timeout(TIME_OUT))
+                .onViewTypeChanged(mVideoView, VideoView.VIEW_TYPE_TEXTUREVIEW);
     }
 
     @Test
