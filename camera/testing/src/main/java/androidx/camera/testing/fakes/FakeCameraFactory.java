@@ -40,25 +40,25 @@ public final class FakeCameraFactory implements CameraFactory {
     private static final String BACK_ID = "0";
     private static final String FRONT_ID = "1";
 
-    private final Set<String> cameraIds;
+    private final Set<String> mCameraIds;
 
-    private final Map<String, BaseCamera> cameraMap = new HashMap<>();
+    private final Map<String, BaseCamera> mCameraMap = new HashMap<>();
 
     public FakeCameraFactory() {
         HashSet<String> camIds = new HashSet<>();
         camIds.add(BACK_ID);
         camIds.add(FRONT_ID);
 
-        cameraIds = Collections.unmodifiableSet(camIds);
+        mCameraIds = Collections.unmodifiableSet(camIds);
     }
 
     @Override
     public BaseCamera getCamera(String cameraId) {
-        if (cameraIds.contains(cameraId)) {
-            BaseCamera camera = cameraMap.get(cameraId);
+        if (mCameraIds.contains(cameraId)) {
+            BaseCamera camera = mCameraMap.get(cameraId);
             if (camera == null) {
                 camera = new FakeCamera();
-                cameraMap.put(cameraId, camera);
+                mCameraMap.put(cameraId, camera);
             }
             return camera;
         }
@@ -67,7 +67,7 @@ public final class FakeCameraFactory implements CameraFactory {
 
     @Override
     public Set<String> getAvailableCameraIds() {
-        return cameraIds;
+        return mCameraIds;
     }
 
     @Nullable

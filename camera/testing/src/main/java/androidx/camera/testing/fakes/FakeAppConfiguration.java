@@ -30,7 +30,7 @@ import androidx.camera.core.UseCaseConfigurationFactory;
 public final class FakeAppConfiguration {
 
     /** Generates a fake {@link androidx.camera.core.AppConfiguration}. */
-    public static final AppConfiguration create() {
+    public static AppConfiguration create() {
         CameraFactory cameraFactory = new FakeCameraFactory();
         CameraDeviceSurfaceManager surfaceManager = new FakeCameraDeviceSurfaceManager();
         UseCaseConfigurationFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();

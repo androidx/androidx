@@ -26,16 +26,16 @@ import java.util.Collection;
 
 /** A fake camera which will not produce any data. */
 public class FakeCamera implements BaseCamera {
-    private final CameraControl cameraControl = CameraControl.defaultEmptyInstance();
+    private final CameraControl mCameraControl = CameraControl.defaultEmptyInstance();
 
-    private final CameraInfo cameraInfo;
+    private final CameraInfo mCameraInfo;
 
     FakeCamera() {
         this(new FakeCameraInfo());
     }
 
     FakeCamera(FakeCameraInfo cameraInfo) {
-        this.cameraInfo = cameraInfo;
+        mCameraInfo = cameraInfo;
     }
 
     @Override
@@ -82,11 +82,11 @@ public class FakeCamera implements BaseCamera {
     // Returns fixed CameraControl instance in order to verify the instance is correctly attached.
     @Override
     public CameraControl getCameraControl() {
-        return cameraControl;
+        return mCameraControl;
     }
 
     @Override
     public CameraInfo getCameraInfo() {
-        return cameraInfo;
+        return mCameraInfo;
     }
 }

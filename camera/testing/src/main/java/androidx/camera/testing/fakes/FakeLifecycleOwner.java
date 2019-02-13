@@ -30,7 +30,7 @@ import androidx.lifecycle.LifecycleRegistry;
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeLifecycleOwner implements LifecycleOwner {
-    private final LifecycleRegistry lifecycleRegistry;
+    private final LifecycleRegistry mLifecycleRegistry;
 
     /**
      * Creates a new lifecycle owner.
@@ -38,9 +38,9 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
      * <p>The lifecycle is initial put into the INITIALIZED and CREATED states.
      */
     public FakeLifecycleOwner() {
-        lifecycleRegistry = new LifecycleRegistry(this);
-        lifecycleRegistry.markState(Lifecycle.State.INITIALIZED);
-        lifecycleRegistry.markState(Lifecycle.State.CREATED);
+        mLifecycleRegistry = new LifecycleRegistry(this);
+        mLifecycleRegistry.markState(Lifecycle.State.INITIALIZED);
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
     }
 
     /**
@@ -50,11 +50,11 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
      * the CREATED state or an exception is thrown.
      */
     public void startAndResume() {
-        if (lifecycleRegistry.getCurrentState() != Lifecycle.State.CREATED) {
+        if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.CREATED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        lifecycleRegistry.markState(Lifecycle.State.STARTED);
-        lifecycleRegistry.markState(Lifecycle.State.RESUMED);
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+        mLifecycleRegistry.markState(Lifecycle.State.RESUMED);
     }
 
     /**
@@ -64,10 +64,10 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
      * state or an exception is thrown.
      */
     public void start() {
-        if (lifecycleRegistry.getCurrentState() != Lifecycle.State.CREATED) {
+        if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.CREATED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        lifecycleRegistry.markState(Lifecycle.State.STARTED);
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
     }
 
     /**
@@ -77,11 +77,11 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
      * the RESUMED state or an exception is thrown.
      */
     public void pauseAndStop() {
-        if (lifecycleRegistry.getCurrentState() != Lifecycle.State.RESUMED) {
+        if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.RESUMED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        lifecycleRegistry.markState(Lifecycle.State.STARTED);
-        lifecycleRegistry.markState(Lifecycle.State.CREATED);
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
     }
 
     /**
@@ -91,10 +91,10 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
      * state or an exception is thrown.
      */
     public void stop() {
-        if (lifecycleRegistry.getCurrentState() != Lifecycle.State.STARTED) {
+        if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.STARTED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        lifecycleRegistry.markState(Lifecycle.State.CREATED);
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
     }
 
     /**
@@ -104,19 +104,19 @@ public final class FakeLifecycleOwner implements LifecycleOwner {
      * CREATED state or an exception is thrown.
      */
     public void destroy() {
-        if (lifecycleRegistry.getCurrentState() != Lifecycle.State.CREATED) {
+        if (mLifecycleRegistry.getCurrentState() != Lifecycle.State.CREATED) {
             throw new IllegalStateException("Invalid state transition.");
         }
-        lifecycleRegistry.markState(Lifecycle.State.DESTROYED);
+        mLifecycleRegistry.markState(Lifecycle.State.DESTROYED);
     }
 
     /** Returns the number of observers of this lifecycle. */
     public int getObserverCount() {
-        return lifecycleRegistry.getObserverCount();
+        return mLifecycleRegistry.getObserverCount();
     }
 
     @Override
     public Lifecycle getLifecycle() {
-        return lifecycleRegistry;
+        return mLifecycleRegistry;
     }
 }

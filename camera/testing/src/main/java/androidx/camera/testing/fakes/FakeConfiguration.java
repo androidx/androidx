@@ -23,33 +23,37 @@ import androidx.camera.core.MutableConfiguration;
 import androidx.camera.core.MutableOptionsBundle;
 import androidx.camera.core.OptionsBundle;
 
-/** Wrapper for an empty Configuration */
+/**
+ * Wrapper for an empty Configuration
+ *
+ * @hide
+ */
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class FakeConfiguration implements Configuration.Reader {
 
-    private final Configuration config;
+    private final Configuration mConfig;
 
     FakeConfiguration(Configuration config) {
-        this.config = config;
+        mConfig = config;
     }
 
     @Override
     public Configuration getConfiguration() {
-        return config;
+        return mConfig;
     }
 
     /** Builder for an empty Configuration */
     public static final class Builder implements Configuration.Builder<FakeConfiguration, Builder> {
 
-        private final MutableOptionsBundle optionsBundle;
+        private final MutableOptionsBundle mOptionsBundle;
 
         public Builder() {
-            optionsBundle = MutableOptionsBundle.create();
+            mOptionsBundle = MutableOptionsBundle.create();
         }
 
         @Override
         public MutableConfiguration getMutableConfiguration() {
-            return optionsBundle;
+            return mOptionsBundle;
         }
 
         @Override
@@ -59,7 +63,7 @@ public final class FakeConfiguration implements Configuration.Reader {
 
         @Override
         public FakeConfiguration build() {
-            return new FakeConfiguration(OptionsBundle.from(optionsBundle));
+            return new FakeConfiguration(OptionsBundle.from(mOptionsBundle));
         }
     }
 }
