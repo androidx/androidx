@@ -688,6 +688,28 @@ public class WorkerWrapperTest extends DatabaseTest {
 
     @Test
     @SmallTest
+    public void testPeriodic_firstRun_flexApplied_noDedupe() {
+        PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
+                TestWorker.class,
+                PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
+                TimeUnit.MILLISECONDS,
+                PeriodicWorkRequest.MIN_PERIODIC_FLEX_MILLIS,
+                TimeUnit.MILLISECONDS)
+                .build();
+
+        final String periodicWorkId = periodicWork.getStringId();
+        final WorkSpec workSpec = periodicWork.getWorkSpec();
+        workSpec.periodStartTime = 0;
+        insertWork(periodicWork);
+        WorkerWrapper workerWrapper = createBuilder(periodicWorkId).build();
+        FutureListener listener = createAndAddFutureListener(workerWrapper);
+        workerWrapper.run();
+        // Should not get rescheduled
+        assertThat(listener.mResult, is(false));
+    }
+
+    @Test
+    @SmallTest
     public void testScheduler() {
         OneTimeWorkRequest prerequisiteWork =
                 new OneTimeWorkRequest.Builder(TestWorker.class).build();
