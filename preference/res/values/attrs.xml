@@ -322,7 +322,7 @@
         <attr name="adjustable" format="boolean" />
         <!-- Flag indicating whether the TextView next to the seekbar that shows the current seekbar
         value will be displayed. If true, the view is VISIBLE; if false, the view will be GONE.
-        By default, this view is VISIBLE. -->
+        By default, this view is GONE. -->
         <attr name="showSeekBarValue" format="boolean" />
     </declare-styleable>
 

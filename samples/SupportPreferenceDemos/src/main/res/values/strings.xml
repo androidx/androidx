@@ -51,7 +51,6 @@
     <string name="title_dropdown_preference">Dropdown preference</string>
 
     <string name="title_seekbar_preference">Seekbar preference</string>
-    <string name="summary_seekbar_preference">This seekbar has a default value of 5 and a max value of 10</string>
 
     <!--This section is for preferences that launch a dialog to edit the preference -->
     <string name="dialogs">Dialogs</string>
