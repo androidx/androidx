@@ -67,6 +67,11 @@ public class MainFragmentArgs implements NavArgs {
             reference = bundle.getInt("reference");
             __result.arguments.put("reference", reference);
         }
+        if (bundle.containsKey("referenceZeroDefaultValue")) {
+            int referenceZeroDefaultValue;
+            referenceZeroDefaultValue = bundle.getInt("referenceZeroDefaultValue");
+            __result.arguments.put("referenceZeroDefaultValue", referenceZeroDefaultValue);
+        }
         if (bundle.containsKey("floatArg")) {
             float floatArg;
             floatArg = bundle.getFloat("floatArg");
@@ -144,6 +149,11 @@ public class MainFragmentArgs implements NavArgs {
     }
 
     @SuppressWarnings("unchecked")
+    public int getReferenceZeroDefaultValue() {
+        return (int) arguments.get("referenceZeroDefaultValue");
+    }
+
+    @SuppressWarnings("unchecked")
     public float getFloatArg() {
         return (float) arguments.get("floatArg");
     }
@@ -192,6 +202,10 @@ public class MainFragmentArgs implements NavArgs {
         if (arguments.containsKey("reference")) {
             int reference = (int) arguments.get("reference");
             __result.putInt("reference", reference);
+        }
+        if (arguments.containsKey("referenceZeroDefaultValue")) {
+            int referenceZeroDefaultValue = (int) arguments.get("referenceZeroDefaultValue");
+            __result.putInt("referenceZeroDefaultValue", referenceZeroDefaultValue);
         }
         if (arguments.containsKey("floatArg")) {
             float floatArg = (float) arguments.get("floatArg");
@@ -259,6 +273,12 @@ public class MainFragmentArgs implements NavArgs {
         if (getReference() != that.getReference()) {
             return false;
         }
+        if (arguments.containsKey("referenceZeroDefaultValue") != that.arguments.containsKey("referenceZeroDefaultValue")) {
+            return false;
+        }
+        if (getReferenceZeroDefaultValue() != that.getReferenceZeroDefaultValue()) {
+            return false;
+        }
         if (arguments.containsKey("floatArg") != that.arguments.containsKey("floatArg")) {
             return false;
         }
@@ -304,6 +324,7 @@ public class MainFragmentArgs implements NavArgs {
         result = 31 * result + (getMain() != null ? getMain().hashCode() : 0);
         result = 31 * result + getOptional();
         result = 31 * result + getReference();
+        result = 31 * result + getReferenceZeroDefaultValue();
         result = 31 * result + Float.floatToIntBits(getFloatArg());
         result = 31 * result + java.util.Arrays.hashCode(getFloatArrayArg());
         result = 31 * result + java.util.Arrays.hashCode(getObjectArrayArg());
@@ -319,6 +340,7 @@ public class MainFragmentArgs implements NavArgs {
                 + "main=" + getMain()
                 + ", optional=" + getOptional()
                 + ", reference=" + getReference()
+                + ", referenceZeroDefaultValue=" + getReferenceZeroDefaultValue()
                 + ", floatArg=" + getFloatArg()
                 + ", floatArrayArg=" + getFloatArrayArg()
                 + ", objectArrayArg=" + getObjectArrayArg()
@@ -375,6 +397,12 @@ public class MainFragmentArgs implements NavArgs {
         @NonNull
         public Builder setReference(int reference) {
             this.arguments.put("reference", reference);
+            return this;
+        }
+
+        @NonNull
+        public Builder setReferenceZeroDefaultValue(int referenceZeroDefaultValue) {
+            this.arguments.put("referenceZeroDefaultValue", referenceZeroDefaultValue);
             return this;
         }
 
@@ -437,6 +465,11 @@ public class MainFragmentArgs implements NavArgs {
         @SuppressWarnings("unchecked")
         public int getReference() {
             return (int) arguments.get("reference");
+        }
+
+        @SuppressWarnings("unchecked")
+        public int getReferenceZeroDefaultValue() {
+            return (int) arguments.get("referenceZeroDefaultValue");
         }
 
         @SuppressWarnings("unchecked")
