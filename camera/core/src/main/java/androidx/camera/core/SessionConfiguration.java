@@ -77,12 +77,7 @@ public final class SessionConfiguration {
         mCaptureRequestConfiguration = captureRequestConfiguration;
     }
 
-    /**
-     * Returns an instance of a session configuration with minimal configurations.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    /** Returns an instance of a session configuration with minimal configurations. */
     public static SessionConfiguration defaultEmptySessionConfiguration() {
         return new SessionConfiguration(
                 new ArrayList<>(),
@@ -95,8 +90,6 @@ public final class SessionConfiguration {
         return Collections.unmodifiableList(mSurfaces);
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public Map<Key<?>, CaptureRequestParameter<?>> getCameraCharacteristics() {
         return mCaptureRequestConfiguration.getCameraCharacteristics();
     }
@@ -105,32 +98,22 @@ public final class SessionConfiguration {
         return mCaptureRequestConfiguration.getImplementationOptions();
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public int getTemplateType() {
         return mCaptureRequestConfiguration.getTemplateType();
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraDevice.StateCallback getDeviceStateCallback() {
         return mDeviceStateCallback;
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraCaptureSession.StateCallback getSessionStateCallback() {
         return mSessionStateCallback;
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraCaptureCallback getCameraCaptureCallback() {
         return mCaptureRequestConfiguration.getCameraCaptureCallback();
     }
 
-    /** @hide */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public CaptureRequestConfiguration getCaptureRequestConfiguration() {
         return mCaptureRequestConfiguration;
     }
@@ -154,7 +137,12 @@ public final class SessionConfiguration {
         void unpack(UseCaseConfiguration<?> config, SessionConfiguration.Builder builder);
     }
 
-    /** Base builder for easy modification/rebuilding of a {@link SessionConfiguration}. */
+    /**
+     * Base builder for easy modification/rebuilding of a {@link SessionConfiguration}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     static class BaseBuilder {
         protected final Set<DeferrableSurface> mSurfaces = new HashSet<>();
         protected final CaptureRequestConfiguration.Builder mCaptureRequestConfigBuilder =
@@ -165,7 +153,12 @@ public final class SessionConfiguration {
                 CameraCaptureSessionStateCallbacks.createNoOpCallback();
     }
 
-    /** Builder for easy modification/rebuilding of a {@link SessionConfiguration}. */
+    /**
+     * Builder for easy modification/rebuilding of a {@link SessionConfiguration}.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static class Builder extends BaseBuilder {
         /**
          * Creates a {@link Builder} from a {@link UseCaseConfiguration}.
@@ -238,24 +231,14 @@ public final class SessionConfiguration {
             mCaptureRequestConfigBuilder.clearSurfaces();
         }
 
-        /**
-         * Add the {@link CaptureRequest.Key} value pair that will be applied.
-         *
-         * @hide
-         */
+        /** Add the {@link CaptureRequest.Key} value pair that will be applied. */
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
-        @RestrictTo(Scope.LIBRARY_GROUP)
         public <T> void addCharacteristic(Key<T> key, T value) {
             mCaptureRequestConfigBuilder.addCharacteristic(key, value);
         }
 
-        /**
-         * Add the {@link CaptureRequestParameter} that will be applied.
-         *
-         * @hide
-         */
+        /** Add the {@link CaptureRequestParameter} that will be applied. */
         // TODO(b/120949879): This is camera2 implementation detail that should be moved
-        @RestrictTo(Scope.LIBRARY_GROUP)
         public void addCharacteristics(Map<Key<?>, CaptureRequestParameter<?>> characteristics) {
             mCaptureRequestConfigBuilder.addCharacteristics(characteristics);
         }

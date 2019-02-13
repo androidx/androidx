@@ -37,20 +37,14 @@ public final class CameraDeviceStateCallbacks {
 
     /**
      * Returns a device state callback which does nothing.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static CameraDevice.StateCallback createNoOpCallback() {
         return new NoOpDeviceStateCallback();
     }
 
     /**
      * Returns a device state callback which calls a list of other callbacks.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static CameraDevice.StateCallback createComboCallback(
             List<CameraDevice.StateCallback> callbacks) {
         return new ComboDeviceStateCallback(callbacks);
@@ -58,10 +52,7 @@ public final class CameraDeviceStateCallbacks {
 
     /**
      * Returns a device state callback which calls a list of other callbacks.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static CameraDevice.StateCallback createComboCallback(
             CameraDevice.StateCallback... callbacks) {
         return createComboCallback(Arrays.asList(callbacks));

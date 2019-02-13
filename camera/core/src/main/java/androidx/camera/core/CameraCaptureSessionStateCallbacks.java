@@ -40,20 +40,14 @@ public final class CameraCaptureSessionStateCallbacks {
 
     /**
      * Returns a session state callback which does nothing.
-     *
-     * @hide
      **/
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static CameraCaptureSession.StateCallback createNoOpCallback() {
         return new NoOpSessionStateCallback();
     }
 
     /**
      * Returns a session state callback which calls a list of other callbacks.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static CameraCaptureSession.StateCallback createComboCallback(
             List<CameraCaptureSession.StateCallback> callbacks) {
         return new ComboSessionStateCallback(callbacks);
@@ -61,10 +55,7 @@ public final class CameraCaptureSessionStateCallbacks {
 
     /**
      * Returns a session state callback which calls a list of other callbacks.
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static CameraCaptureSession.StateCallback createComboCallback(
             CameraCaptureSession.StateCallback... callbacks) {
         return createComboCallback(Arrays.asList(callbacks));
@@ -108,7 +99,7 @@ public final class CameraCaptureSessionStateCallbacks {
             for (CameraCaptureSession.StateCallback callback : callbacks) {
                 // A no-op callback doesn't do anything, so avoid adding it to the final list.
                 if (!(callback instanceof NoOpSessionStateCallback)) {
-                    this.mCallbacks.add(callback);
+                    mCallbacks.add(callback);
                 }
             }
         }

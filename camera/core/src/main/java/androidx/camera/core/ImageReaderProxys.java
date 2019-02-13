@@ -76,10 +76,7 @@ public final class ImageReaderProxys {
      * @param maxImages of the reader
      * @param handler   for on-image-available callbacks
      * @return new {@link ImageReaderProxy} instance
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static ImageReaderProxy createIsolatedReader(
             int width, int height, int format, int maxImages, Handler handler) {
         ImageReader imageReader = ImageReader.newInstance(width, height, format, maxImages);
@@ -96,10 +93,7 @@ public final class ImageReaderProxys {
      * @param maxImages of the reader
      * @param handler   for on-image-available callbacks
      * @return new {@link ImageReaderProxy} instance
-     *
-     * @hide
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     public static ImageReaderProxy createSharedReader(
             String cameraId, int width, int height, int format, int maxImages, Handler handler) {
         if (sSharedImageReader == null) {

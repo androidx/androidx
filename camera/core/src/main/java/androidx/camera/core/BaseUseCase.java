@@ -128,9 +128,9 @@ public abstract class BaseUseCase {
             Log.w(
                     TAG,
                     "No default configuration available. Relying solely on user-supplied options.");
-            this.mUseCaseConfiguration = useCaseConfiguration;
+            mUseCaseConfiguration = useCaseConfiguration;
         } else {
-            this.mUseCaseConfiguration = applyDefaults(useCaseConfiguration, defaultBuilder);
+            mUseCaseConfiguration = applyDefaults(useCaseConfiguration, defaultBuilder);
         }
     }
 
@@ -412,7 +412,7 @@ public abstract class BaseUseCase {
     }
 
     protected void setImageFormat(int imageFormat) {
-        this.mImageFormat = imageFormat;
+        mImageFormat = imageFormat;
     }
 
     enum State {
